@@ -3,15 +3,96 @@
 
 <head>
     <meta charset="utf-8">
-    <title>My first three.js app</title>
+    <title>Jupyter CadQuery</title>
     <style>
         body {
             margin: 0;
+            display: grid;
+        }
+
+        #jupyter_cadquery {
+            display: flex;
+            flex-direction: column;
+            margin: 4px;
+        }
+
+        #cad_navigation {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #cad_body {
+            display: flex;
+            flex-direction: row;
+        }
+
+        #cad_view {
+            width: 600px;
+            height: 400px;
+            margin: 2px;
+        }
+
+        #cad_tree {
+            width: 200px;
+            height: 250px;
+            border-style: solid;
+            border-width: 1px;
+        }
+
+        #cad_info {
+            width: 200px;
+            height: 150px;
+            border-style: solid;
+            border-width: 1px;
+        }
+
+        #cad_toolbar {
+            width: 800px;
+            height: 30px;
+        }
+
+        .round {
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            border-style: solid;
+            border-width: 1px;
+            border-radius: 6px;
+            border-color: lightgray;
+            margin: 2px;
+            padding: 2px;
         }
     </style>
 </head>
 
 <body>
+    <div id="jupyter_cadquery">
+        <div id="cad_toolbar" class="round">
+            Ortho
+            <input class='ortho' type="checkbox" />
+            <input class='reset' type="button" value="Reset" />
+            <input class='resize' type="button" value="Resize" />
+            <input class='iso' type="button" value="I" />
+            <input class='front' type="button" value="F" />
+            <input class='rear' type="button" value="R" />
+            <input class='top' type="button" value="T" />
+            <input class='bottom' type="button" value="B" />
+            <input class='left' type="button" value="L" />
+            <input class='right' type="button" value="R" />
+            Transparent
+            <input class='transparent' type="checkbox" />
+            Black edges
+            <input class='black_edges' type="checkbox" />
+        </div>
+        <div id="cad_body">
+            <div id="cad_navigation">
+                <div id="cad_tree" class="round">tree</div>
+                <div id="cad_info" class="round">info</div>
+            </div>
+            <div id="cad_view"></div>
+        </div>
+    </div>
+
     <script src="./main.js"></script>
 </body>
 
