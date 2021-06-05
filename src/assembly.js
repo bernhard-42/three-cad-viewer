@@ -1,9 +1,14 @@
 import * as THREE from 'three';
-import { example } from './example';
+import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2.js'
+import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry.js'
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
+
 
 class Assembly {
-    constructor(data, edge_color, transparent) {
+    constructor(data, width, height, edge_color, transparent) {
         this.shapes = data.shapes;
+        this.width = width;
+        this.height = height;
         this.mapping = data.mapping;
         this.tree = data.tree;
         this.bb = data.bb;
@@ -11,13 +16,17 @@ class Assembly {
         this.transparent = transparent;
     }
 
-    render_edges(edge_list) {
-        var line_material = new THREE.LineBasicMaterial({ color: this.edge_color, linewidth: 4 });
-        var line_geometry = new THREE.BufferGeometry();
+    render_edges(edge_list, lineWidth) {
         var positions = new Float32Array(edge_list.flat().flat());
-        line_geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-        return new THREE.LineSegments(line_geometry, line_material);
+        const lineGeometry = new LineSegmentsGeometry();
+        lineGeometry.setPositions(positions);
+
+        const lineMaterial = new LineMaterial({ color: this.edge_color, linewidth: lineWidth });
+        lineMaterial.resolution.set(this.width, this.height);
+
+        var edges = new LineSegments2(lineGeometry, lineMaterial);
+        return edges
     }
 
     render_vertices(vertices) {
@@ -58,12 +67,18 @@ class Assembly {
 
         var [edge_list, normals_list] = shape.edges
         if (edge_list.length > 0) {
-            var wireframe = this.render_edges(edge_list)
+            const edgesGeometry = new THREE.EdgesGeometry(shape_geometry)
+            const lineGeometry = new LineSegmentsGeometry().setPositions(edgesGeometry.attributes.position.array);
+            const lineMaterial = new LineMaterial({ color: 0x000000, linewidth: 3 });
+            lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
+            var wireframe = new LineSegments2(lineGeometry, lineMaterial);
+
+            var wireframe = this.render_edges(edge_list, 1)
             group.add(wireframe)
         }
 
         if (normals_list.length > 0) {
-            var wireframe = this.render_edges(normals_list)
+            var wireframe = this.render_edges(normals_list, 1)
             group.add(wireframe)
         }
 
