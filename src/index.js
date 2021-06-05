@@ -13,7 +13,7 @@ const zoom = 1.2;
 const ortho = true;
 const black_edges = false;
 const edge_color = black_edges ? 0x000000 : 0x707070;
-const transparent = true;
+const transparent = false;
 const transparent_opyacity = 0.5;
 const shapes = example.shapes;
 const mapping = example.mapping;
@@ -72,7 +72,8 @@ const resize = () => {
 }
 
 const setView = (e) => {
-    const dir = defaultDirections[e.target.className]["position"]
+    const btn = e.target.className.split(" ")[0];
+    const dir = defaultDirections[btn]["position"]
     setCameraPosition(bbox.center, dir);
 }
 

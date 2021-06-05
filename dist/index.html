@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title>Jupyter CadQuery</title>
+    <link rel="stylesheet" href="icons.css">
     <style>
         body {
             margin: 0;
@@ -33,22 +34,22 @@
         }
 
         #cad_tree {
-            width: 200px;
+            width: 250px;
             height: 250px;
             border-style: solid;
             border-width: 1px;
         }
 
         #cad_info {
-            width: 200px;
+            width: 250px;
             height: 150px;
             border-style: solid;
             border-width: 1px;
         }
 
         #cad_toolbar {
-            width: 800px;
-            height: 30px;
+            width: 850px;
+            height: 36px;
         }
 
         .round {
@@ -62,27 +63,66 @@
             margin: 2px;
             padding: 2px;
         }
+
+        .btn {
+            width: 32px;
+            height: 24px;
+            background-size: 32px 24px;
+            background-color: #EEE;
+            border: 0px;
+            height: 100%;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .btn:hover {
+            box-shadow: 1px 1px 1px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .btn:active {
+            box-shadow: none;
+        }
+
+        .vertical-center {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            -ms-transform: translateY(-50%);
+            transform: translateY(-50%);
+        }
+
+        .label {
+            font-family: sans-serif;
+            font-size: 0.9em;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        .check {
+            vertical-align: middle;
+            margin-right: 6px;
+        }
     </style>
 </head>
 
 <body>
     <div id="jupyter_cadquery">
         <div id="cad_toolbar" class="round">
-            Ortho
-            <input class='ortho' type="checkbox" />
-            <input class='reset' type="button" value="Reset" />
-            <input class='resize' type="button" value="Resize" />
-            <input class='iso' type="button" value="I" />
-            <input class='front' type="button" value="F" />
-            <input class='rear' type="button" value="R" />
-            <input class='top' type="button" value="T" />
-            <input class='bottom' type="button" value="B" />
-            <input class='left' type="button" value="L" />
-            <input class='right' type="button" value="R" />
-            Transparent
-            <input class='transparent' type="checkbox" />
-            Black edges
-            <input class='black_edges' type="checkbox" />
+            <span class="label">Axes</span><input class='axes check' type="checkbox" />
+            <span class="label">Grid</span><input class='grid check' type="checkbox" />
+            <span class="label">@ 0</span><input class='axes0 check' type="checkbox" />
+            <span class="label">Ortho</span><input class='ortho check' type="checkbox" />
+            <input class='reset btn btn_light_reset' type="button" />
+            <input class='resize btn btn_light_fit' type="button" />
+            <input class='iso btn btn_light_isometric' type="button" />
+            <input class='front btn btn_light_front' type="button" />
+            <input class='rear btn btn_light_rear' type="button" />
+            <input class='top btn btn_light_top' type="button" />
+            <input class='bottom btn btn_light_bottom' type="button" />
+            <input class='left btn btn_light_left' type="button" />
+            <input class='right btn btn_light_right' type="button" />
+            <span class="label">Transparent</span><input class='transparent check' type="checkbox" />
+            <span class="label">Black edges</span><input class='black_edges check' type="checkbox" />
         </div>
         <div id="cad_body">
             <div id="cad_navigation">
