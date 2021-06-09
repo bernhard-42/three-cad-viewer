@@ -5,6 +5,7 @@ class Grid {
         if (ticks === undefined) {
             ticks = 10;
         }
+        this.bbox = bbox;
 
         this.grid = [false, false, false];
         this.allGrid = false;
@@ -14,33 +15,42 @@ class Grid {
         document.querySelector('.grid-xz').addEventListener('change', this.setGrid);
         document.querySelector('.grid-yz').addEventListener('change', this.setGrid);
 
-        var maxs = [
-            Math.max(...[Math.abs(bbox.xmin), Math.abs(bbox.xmax), Math.abs(bbox.ymin), Math.abs(bbox.ymax)]),
-            Math.max(...[Math.abs(bbox.xmin), Math.abs(bbox.xmax), Math.abs(bbox.zmin), Math.abs(bbox.zmax)]),
-            Math.max(...[Math.abs(bbox.ymin), Math.abs(bbox.ymax), Math.abs(bbox.zmin), Math.abs(bbox.zmax)])
-        ]
-
         this.gridHelper = [];
+        var [axisStart, axisEnd, niceTick] = this.niceBounds(-bbox.max, bbox.max, 2 * ticks);
+        this.size = axisEnd - axisStart
+
         for (var i = 0; i < 3; i++) {
-            var [axisStart, axisEnd, niceTick] = this.niceBounds(-maxs[i], maxs[i], 2 * ticks);
-            var size = axisEnd - axisStart
             this.gridHelper.push(
-                new THREE.GridHelper(size, size / niceTick, 0x080808, 0xa0a0a0),
+                new THREE.GridHelper(this.size, this.size / niceTick, 0x888888, 0xcccccc),
             )
-            if (axes0 === undefined) {
-                this.gridHelper[i].position.set(...bbox.center);
-            } else {
-                this.gridHelper[i].position.set(0, 0, 0);
-            }
         }
 
         this.gridHelper[0].rotateX(Math.PI / 2);
         this.gridHelper[1].rotateY(Math.PI / 2);
         this.gridHelper[2].rotateZ(Math.PI / 2);
 
+        this.align(axes0)
+
         this.setVisible();
     }
 
+    align = (axes0) => {
+        if (axes0) {
+            for (var i = 0; i < 3; i++) {
+                this.gridHelper[i].position.set(0, 0, 0);
+            }
+            this.gridHelper[0].position.z = -this.size / 2;
+            this.gridHelper[1].position.y = -this.size / 2;
+            this.gridHelper[2].position.x = -this.size / 2;
+        } else {
+            for (var i = 0; i < 3; i++) {
+                this.gridHelper[i].position.set(...this.bbox.center);
+            }
+            this.gridHelper[0].position.z = -this.size / 2 + this.bbox.center[2];
+            this.gridHelper[1].position.y = -this.size / 2 + this.bbox.center[1];
+            this.gridHelper[2].position.x = -this.size / 2 + this.bbox.center[0];
+        }
+    }
 
     // https://stackoverflow.com/questions/4947682/intelligently-calculating-chart-tick-positions
     niceNumber = (value, round) => {

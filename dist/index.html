@@ -68,7 +68,7 @@
             width: 30px;
             height: 26px;
             background-size: 28px 22px;
-            background-color: #EEE;
+            background-color: #eee;
             border: 0px;
             /* height: 100%; */
             display: inline-block;
@@ -111,7 +111,7 @@
         .grid-content {
             display: none;
             position: absolute;
-            background-color: #f8f8f8;
+            background-color: #eee;
             min-width: 18px;
             box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
             z-index: 1;
@@ -127,7 +127,6 @@
     <div id="jupyter_cadquery">
         <div id="cad_toolbar" class="round">
             <span class="label">Axes</span><input class='axes check' type="checkbox" />
-            <span class="label">@0</span><input class='axes0 check' type="checkbox" />
             <div class="grid-dropdown">
                 <span class="label">Grid</span><input class='grid check' type="checkbox" />
                 <div class="grid-content">
@@ -136,6 +135,7 @@
                     <div class="label">- yz</span><input class='grid-yz check' type="checkbox"></div>
                 </div>
             </div>
+            <span class="label">@0</span><input class='axes0 check' type="checkbox" />
             <span class="label">Ortho</span><input class='ortho check' type="checkbox" />
             <input class='reset btn btn_light_reset' type="button" />
             <input class='resize btn btn_light_fit' type="button" />

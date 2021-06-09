@@ -12,6 +12,8 @@ class UI {
             "iso": { "position": [1, 1, 1] }
         }
 
+        document.querySelector('.axes0').addEventListener('change', this.setAxes0);
+        document.querySelector('.axes0').checked = viewer.axes0;
         document.querySelector('.ortho').addEventListener('change', this.setOrtho);
         document.querySelector('.ortho').checked = viewer.ortho;
         document.querySelector('.reset').addEventListener('click', this.reset);
@@ -24,6 +26,11 @@ class UI {
         ["front", "rear", "top", "bottom", "left", "right", "iso"].forEach((b) => {
             document.querySelector(`.${b}`).addEventListener('click', this.setView);
         })
+    }
+
+    setAxes0 = (e) => {
+        const flag = !!e.target.checked;
+        this.viewer.grid.align(flag);
     }
 
     setOrtho = (e) => {

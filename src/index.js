@@ -14,6 +14,7 @@ class Viewer {
         position,
         zoom,
         ortho,
+        axes0,
         black_edges,
         edge_color,
         ambient_intensity,
@@ -27,6 +28,7 @@ class Viewer {
         this.position = position;
         this.zoom = zoom;
         this.ortho = ortho;
+        this.axes0 = axes0;
         this.black_edges = black_edges;
         this.edge_color = edge_color;
         this.ambient_intensity = ambient_intensity;
@@ -141,7 +143,7 @@ class Viewer {
             }
         }
 
-        this.grid = new Grid(this.bbox, 10, true)
+        this.grid = new Grid(this.bbox, 10, axes0)
         for (var i = 0; i < 3; i++) {
             this.scene.add(this.grid.gridHelper[i]);
         }
@@ -182,6 +184,7 @@ const bb_factor = 1.0;
 const position = [1, 1, 1];
 const zoom = 2.0;
 const ortho = true;
+const axes0 = false;
 const black_edges = false;
 const edge_color = black_edges ? 0x000000 : 0x707070;
 const ambient_intensity = 0.5;
@@ -201,6 +204,7 @@ const viewer = new Viewer(
     position,
     zoom,
     ortho,
+    axes0,
     black_edges,
     edge_color,
     ambient_intensity,
