@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2.js'
 import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry.js'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
-
+import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper'
 class ObjectGroup extends THREE.Group {
     constructor(opacity, edge_color) {
         super();
@@ -33,13 +33,14 @@ class ObjectGroup extends THREE.Group {
 }
 
 class Assembly {
-    constructor(shapes, width, height, edge_color, transparent, transparent_opacity) {
+    constructor(shapes, width, height, edge_color, transparent, transparent_opacity, normalLen) {
         this.shapes = shapes;
         this.width = width;
         this.height = height;
         this.edge_color = edge_color;
         this.transparent = transparent;
         this.transparent_opacity = transparent_opacity;
+        this.normalLen = normalLen;
         this.blackEdges = false;
         this.delim = '\\';
         this.groups = {};
@@ -103,6 +104,11 @@ class Assembly {
         back.name = name;
         group.add(back)
         group.add(front)
+        if (this.normalLen > 0) {
+            group.add(new VertexNormalsHelper(front, this.normalLen));
+        }
+
+        // group.add(new THREE.BoxHelper(front, 0x888888))
 
         var [edgeList, normalsList] = shape.edges
         if (edgeList.length > 0) {
@@ -157,8 +163,8 @@ class Assembly {
 
     setTransparent = (flag) => {
         this.transparent = flag;
-        for (var path in assembly.groups) {
-            for (var obj of assembly.groups[path].children) {
+        for (var path in this.groups) {
+            for (var obj of this.groups[path].children) {
                 if (obj instanceof ObjectGroup) {
                     obj.setTransparent(flag);
                 }
@@ -168,8 +174,8 @@ class Assembly {
 
     setBlackEdges = (flag) => {
         this.blackEdges = flag;
-        for (var path in assembly.groups) {
-            for (var obj of assembly.groups[path].children) {
+        for (var path in this.groups) {
+            for (var obj of this.groups[path].children) {
                 if (obj instanceof ObjectGroup) {
                     obj.setBlackEdges(flag);
                 }

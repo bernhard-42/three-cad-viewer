@@ -1,11 +1,11 @@
 class BoundingBox {
-    constructor(bb) {
-        this.xmin = bb.xmin;
-        this.xmax = bb.xmax;
-        this.ymin = bb.ymin;
-        this.ymax = bb.ymax;
-        this.zmin = bb.zmin;
-        this.zmax = bb.zmax;
+    constructor(xmin, xmax, ymin, ymax, zmin, zmax) {
+        this.xmin = xmin;
+        this.xmax = xmax;
+        this.ymin = ymin;
+        this.ymax = ymax;
+        this.zmin = zmin;
+        this.zmax = zmax;
         this._calc();
     }
 
