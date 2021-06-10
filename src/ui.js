@@ -12,6 +12,16 @@ class UI {
             "iso": { "position": [1, 1, 1] }
         }
 
+        document.querySelector('.axes').addEventListener('change', this.setAxes);
+        document.querySelector('.axes').checked = viewer.axes;
+        document.querySelector('.grid').addEventListener('change', this.setGrid);
+        document.querySelector('.grid-xy').addEventListener('change', this.setGrid);
+        document.querySelector('.grid-xz').addEventListener('change', this.setGrid);
+        document.querySelector('.grid-yz').addEventListener('change', this.setGrid);
+        document.querySelector('.grid').checked = viewer.grid;
+        document.querySelector('.grid-xy').checked = viewer.grid;
+        document.querySelector('.grid-xz').checked = viewer.grid;
+        document.querySelector('.grid-yz').checked = viewer.grid;
         document.querySelector('.axes0').addEventListener('change', this.setAxes0);
         document.querySelector('.axes0').checked = viewer.axes0;
         document.querySelector('.ortho').addEventListener('change', this.setOrtho);
@@ -28,9 +38,20 @@ class UI {
         })
     }
 
+    setAxes = (e) => {
+        const flag = !!e.target.checked;
+        this.viewer.axesHelper.setVisible(flag);
+    }
+
+    setGrid = (e) => {
+        const action = e.target.className.split(" ")[0]
+        this.viewer.gridHelper.setGrid(action);
+    }
+
     setAxes0 = (e) => {
         const flag = !!e.target.checked;
-        this.viewer.grid.align(flag);
+        this.viewer.gridHelper.setCenter(flag);
+        this.viewer.axesHelper.setCenter(flag);
     }
 
     setOrtho = (e) => {

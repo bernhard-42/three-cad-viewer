@@ -1,19 +1,15 @@
 import * as THREE from 'three';
 
 class Grid {
-    constructor(bbox, ticks, axes0) {
+    constructor(bbox, ticks, axes0, visible) {
+        console.log(bbox, ticks, axes0, visible)
         if (ticks === undefined) {
             ticks = 10;
         }
         this.bbox = bbox;
 
-        this.grid = [false, false, false];
-        this.allGrid = false;
-
-        document.querySelector('.grid').addEventListener('change', this.setGrid);
-        document.querySelector('.grid-xy').addEventListener('change', this.setGrid);
-        document.querySelector('.grid-xz').addEventListener('change', this.setGrid);
-        document.querySelector('.grid-yz').addEventListener('change', this.setGrid);
+        this.grid = visible;
+        this.allGrid = visible[0] | visible[1] | visible[2];
 
         this.gridHelper = [];
         var [axisStart, axisEnd, niceTick] = this.niceBounds(-bbox.max, bbox.max, 2 * ticks);
@@ -29,27 +25,9 @@ class Grid {
         this.gridHelper[1].rotateY(Math.PI / 2);
         this.gridHelper[2].rotateZ(Math.PI / 2);
 
-        this.align(axes0)
+        this.setCenter(axes0)
 
         this.setVisible();
-    }
-
-    align = (axes0) => {
-        if (axes0) {
-            for (var i = 0; i < 3; i++) {
-                this.gridHelper[i].position.set(0, 0, 0);
-            }
-            this.gridHelper[0].position.z = -this.size / 2;
-            this.gridHelper[1].position.y = -this.size / 2;
-            this.gridHelper[2].position.x = -this.size / 2;
-        } else {
-            for (var i = 0; i < 3; i++) {
-                this.gridHelper[i].position.set(...this.bbox.center);
-            }
-            this.gridHelper[0].position.z = -this.size / 2 + this.bbox.center[2];
-            this.gridHelper[1].position.y = -this.size / 2 + this.bbox.center[1];
-            this.gridHelper[2].position.x = -this.size / 2 + this.bbox.center[0];
-        }
     }
 
     // https://stackoverflow.com/questions/4947682/intelligently-calculating-chart-tick-positions
@@ -108,8 +86,8 @@ class Grid {
         return (this.grid[0] | this.grid[1] | this.grid[2])
     }
 
-    setGrid = (e) => {
-        switch (e.target.className.split(" ")[0]) {
+    setGrid = (action) => {
+        switch (action) {
             case "grid":
                 this.allGrid = !this.allGrid;
                 this.grid[0] = this.allGrid;
@@ -134,15 +112,21 @@ class Grid {
         this.setVisible();
     }
 
-    showGrid = () => {
-        for (var i = 0; i < 3; i++) {
-            this.gridHelper[i].visibility = this.grid[i];
-        }
-    }
-
-    setCenter(x, y, z) {
-        for (var i = 0; i < 3; i++) {
-            this.gridHelper[i].position.set(x, y, z)
+    setCenter = (axes0) => {
+        if (axes0) {
+            for (var i = 0; i < 3; i++) {
+                this.gridHelper[i].position.set(0, 0, 0);
+            }
+            this.gridHelper[0].position.z = -this.size / 2;
+            this.gridHelper[1].position.y = -this.size / 2;
+            this.gridHelper[2].position.x = -this.size / 2;
+        } else {
+            for (var i = 0; i < 3; i++) {
+                this.gridHelper[i].position.set(...this.bbox.center);
+            }
+            this.gridHelper[0].position.z = -this.size / 2 + this.bbox.center[2];
+            this.gridHelper[1].position.y = -this.size / 2 + this.bbox.center[1];
+            this.gridHelper[2].position.x = -this.size / 2 + this.bbox.center[0];
         }
     }
 
