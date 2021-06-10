@@ -57,6 +57,7 @@ class Viewer {
         this.controls = null;
 
         // setup renderer
+
         const container = document.getElementById('cad_view');
 
         this.renderer = new THREE.WebGLRenderer({
@@ -91,7 +92,6 @@ class Viewer {
         this.camera.setZoom(this.zoom);
     }
 
-    // render
     animate = () => {
         requestAnimationFrame(this.animate);
         this.controls.update();
@@ -115,6 +115,7 @@ class Viewer {
         this.tree = tree;
 
         // render the assembly
+
         this.assembly = new Assembly(
             shapes.parts[0],
             this.width,
@@ -131,8 +132,11 @@ class Viewer {
         this.bb_max = this.bbox.max_dist_from_center()
 
         // build the scene
+
         this.scene = new THREE.Scene();
         this.scene.add(this.geom);
+
+        // add lights
 
         const amb_light = new THREE.AmbientLight(0xffffff, this.ambientIntensity);
         this.scene.add(amb_light);
@@ -146,6 +150,8 @@ class Viewer {
                 }
             }
         }
+
+        // add axes and grid
 
         this.gridHelper = new Grid(this.bbox, 10, this.axes0, this.grid ? [true, true, true] : [false, false, false])
         for (var i = 0; i < 3; i++) {
@@ -169,9 +175,12 @@ class Viewer {
         this.resize()
 
         // define the orbit controller
+
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.target = new THREE.Vector3(...this.bbox.center);
         this.controls.saveState();
+
+        // show the rendering
 
         this.animate()
     }
