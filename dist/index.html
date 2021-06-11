@@ -30,6 +30,7 @@
         #cad_view {
             width: 600px;
             height: 400px;
+            position: relative;
             margin: 2px;
         }
 
@@ -50,6 +51,19 @@
         #cad_toolbar {
             width: 850px;
             height: 32px;
+        }
+
+        #cad_inset {
+            width: 80px;
+            height: 80px;
+            background-color: transparent;
+            border: none;
+            margin: 0;
+            padding: 0px;
+            position: absolute;
+            left: 0px;
+            bottom: 0px;
+            z-index: 100;
         }
 
         .round {
@@ -154,7 +168,9 @@
                 <div id="cad_tree" class="round">tree</div>
                 <div id="cad_info" class="round">info</div>
             </div>
-            <div id="cad_view"></div>
+            <div id="cad_view">
+                <div id="cad_inset"></div>
+            </div>
         </div>
     </div>
 

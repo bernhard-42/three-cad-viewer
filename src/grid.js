@@ -2,7 +2,6 @@ import * as THREE from 'three';
 
 class Grid {
     constructor(bbox, ticks, axes0, visible) {
-        console.log(bbox, ticks, axes0, visible)
         if (ticks === undefined) {
             ticks = 10;
         }

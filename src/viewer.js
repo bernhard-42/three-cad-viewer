@@ -6,7 +6,7 @@ import { BoundingBox } from './bbox.js'
 import { Grid } from './grid.js'
 import { AxesHelper } from './axes.js'
 import { UI } from './ui.js'
-
+import { OrientationMarker } from './orientation.js'
 
 class Viewer {
 
@@ -55,6 +55,7 @@ class Viewer {
         this.axesHelper = null;
         this.camera = null;
         this.controls = null;
+        this.orientationMarker = null;
 
         // setup renderer
 
@@ -65,8 +66,8 @@ class Viewer {
             antialias: true
         });
 
-        this.width = container.clientWidth
-        this.height = container.clientHeight
+        this.width = container.clientWidth;
+        this.height = container.clientHeight;
         this.renderer.setSize(this.width, this.height);
         container.appendChild(this.renderer.domElement);
 
@@ -95,7 +96,9 @@ class Viewer {
     animate = () => {
         requestAnimationFrame(this.animate);
         this.controls.update();
+        this.orientationMarker.update(this.camera.position, this.controls.target);
         this.renderer.render(this.scene, this.camera);
+        this.orientationMarker.render();
     }
 
     dump = (assembly, ind) => {
@@ -158,7 +161,7 @@ class Viewer {
             this.scene.add(this.gridHelper.gridHelper[i]);
         }
 
-        this.axesHelper = new AxesHelper(this.bbox.center, this.gridHelper.size / 2, this.width, this.height, this.axes0, this.axes);
+        this.axesHelper = new AxesHelper(this.bbox.center, this.gridHelper.size / 2, 2, this.width, this.height, this.axes0, this.axes);
         this.scene.add(this.axesHelper);
 
         // define the camera
@@ -181,6 +184,8 @@ class Viewer {
         this.controls.saveState();
 
         // show the rendering
+        this.orientationMarker = new OrientationMarker(this.camera);
+        this.orientationMarker.create();
 
         this.animate()
     }
