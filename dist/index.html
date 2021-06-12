@@ -5,136 +5,8 @@
     <meta charset="utf-8">
     <title>Jupyter CadQuery</title>
     <link rel="stylesheet" href="icons.css">
-    <style>
-        body {
-            margin: 0;
-            display: grid;
-        }
-
-        #jupyter_cadquery {
-            display: flex;
-            flex-direction: column;
-            margin: 4px;
-        }
-
-        #cad_navigation {
-            display: flex;
-            flex-direction: column;
-        }
-
-        #cad_body {
-            display: flex;
-            flex-direction: row;
-        }
-
-        #cad_view {
-            width: 600px;
-            height: 400px;
-            position: relative;
-            margin: 2px;
-        }
-
-        #cad_tree {
-            width: 250px;
-            height: 250px;
-            border-style: solid;
-            border-width: 1px;
-        }
-
-        #cad_info {
-            width: 250px;
-            height: 150px;
-            border-style: solid;
-            border-width: 1px;
-        }
-
-        #cad_toolbar {
-            width: 850px;
-            height: 32px;
-        }
-
-        #cad_inset {
-            width: 80px;
-            height: 80px;
-            background-color: transparent;
-            border: none;
-            margin: 0;
-            padding: 0px;
-            position: absolute;
-            left: 0px;
-            bottom: 0px;
-            z-index: 100;
-        }
-
-        .round {
-            box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            -webkit-box-sizing: border-box;
-            border-style: solid;
-            border-width: 1px;
-            border-radius: 6px;
-            border-color: lightgray;
-            margin: 2px;
-            padding: 2px;
-        }
-
-        .btn {
-            width: 30px;
-            height: 26px;
-            background-size: 28px 22px;
-            background-color: #eee;
-            border: 0px;
-            /* height: 100%; */
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        .btn:hover {
-            box-shadow: 1px 1px 1px 0 rgba(0, 0, 0, 0.4);
-        }
-
-        .btn:active {
-            box-shadow: none;
-        }
-
-        .vertical-center {
-            margin: 0;
-            position: absolute;
-            top: 50%;
-            -ms-transform: translateY(-50%);
-            transform: translateY(-50%);
-        }
-
-        .label {
-            font-family: sans-serif;
-            font-size: 0.9em;
-            margin-left: 4px;
-            vertical-align: middle;
-        }
-
-        .check {
-            vertical-align: middle;
-            margin-right: 6px;
-        }
-
-        .grid-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .grid-content {
-            display: none;
-            position: absolute;
-            background-color: #eee;
-            min-width: 18px;
-            box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-        }
-
-        .grid-dropdown:hover .grid-content {
-            display: block;
-        }
-    </style>
+    <link rel="stylesheet" href="treeview.css">
+    <link rel="stylesheet" href="ui.css">
 </head>
 
 <body>
@@ -165,8 +37,12 @@
         </div>
         <div id="cad_body">
             <div id="cad_navigation">
-                <div id="cad_tree" class="round">tree</div>
-                <div id="cad_info" class="round">info</div>
+                <div id="cad_tree" class="round">
+                    <div id="cad_tree_container" class="box_content mac-scrollbar"></div>
+                </div>
+                <div id="cad_info" class="round mac-scrollbar">
+                    <div id="cad_info_container" class="box_content mac-scrollbar"></div>
+                </div>
             </div>
             <div id="cad_view">
                 <div id="cad_inset"></div>

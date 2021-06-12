@@ -7,7 +7,12 @@ import { Grid } from './grid.js'
 import { AxesHelper } from './axes.js'
 import { UI } from './ui.js'
 import { OrientationMarker } from './orientation.js'
+import { TreeView } from './treeview.js'
 
+
+function clone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+};
 class Viewer {
 
     constructor(
@@ -56,6 +61,7 @@ class Viewer {
         this.camera = null;
         this.controls = null;
         this.orientationMarker = null;
+        this.treeview = null;
 
         // setup renderer
 
@@ -112,10 +118,53 @@ class Viewer {
         }
     }
 
-    render = (shapes, mapping, tree) => {
+    addTreeView = () => {
+        this.treeview = new TreeView(clone(this.states), this.tree, this.setObjects);
+        this.treeview.render();
+    }
+
+    getGroup(path) {
+        var group = this.geom;
+        for (var i = 1; i < path.length; i++) {
+            var key = path[i];
+            group = group.children[key];
+        }
+        return group;
+    }
+
+    initObjects() {
+        for (var key in this.states) {
+            const state = this.states[key];
+            var objectGroup = this.getGroup(this.paths[key])
+            objectGroup.setShapeVisible(state[0] === 1);
+            objectGroup.setEdgesVisible(state[1] === 1);
+        }
+    }
+
+    setObjects = (states) => {
+        for (var i in this.states) {
+            var oldState = this.states[i];
+            var newState = states[i];
+            var objectGroup = this.getGroup(this.paths[i])
+            if (oldState[0] != newState[0]) {
+                objectGroup.setShapeVisible(newState[0] === 1);
+                this.states[i][0] = newState[0]
+            }
+            if (oldState[1] != newState[1]) {
+                objectGroup.setEdgesVisible(newState[1] === 1);
+                this.states[i][1] = newState[1]
+            }
+        }
+    }
+
+    render = (shapes, tree, states, paths) => {
         this.shapes = shapes;
-        this.mapping = mapping;
         this.tree = tree;
+        this.states = states;
+        this.paths = paths;
+
+        // build tree view
+        this.addTreeView();
 
         // render the assembly
 
@@ -187,7 +236,8 @@ class Viewer {
         this.orientationMarker = new OrientationMarker(this.camera);
         this.orientationMarker.create();
 
-        this.animate()
+        this.animate();
+        this.initObjects();
     }
 }
 

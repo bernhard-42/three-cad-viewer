@@ -1,5 +1,6 @@
 import { example } from './example.js'
 import { Viewer } from './viewer.js'
+import { TreeView } from './treeview.js'
 
 // input parameters
 const dark = false;
@@ -41,7 +42,29 @@ const viewer = new Viewer(
     normalLen
 )
 
-viewer.render(shapes, mapping, tree);
+var states = {}
+var paths = {}
+for (var key in mapping) {
+    states[key] = mapping[key]["state"]
+    paths[key] = mapping[key]["path"]
+}
+for (var key in states) {
+    if (key < 201) {
+        states[key][0] = 0;
+    }
+    if ((key > 201) & (key < 208)) {
+        states[key][1] = 0;
+    }
+    if ((key > 208) & (key < 212)) {
+        states[key][0] = 0;
+        states[key][1] = 0;
+    }
+}
+viewer.render(shapes, tree, states, paths);
 
 // DEBUG stuff
 global.viewer = viewer
+global.TreeView = TreeView
+global.tree = tree
+global.states = states
+global.paths = paths

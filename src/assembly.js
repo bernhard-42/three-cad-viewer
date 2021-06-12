@@ -30,6 +30,15 @@ class ObjectGroup extends THREE.Group {
             edges.material.needsUpdate = true;
         }
     }
+
+    setShapeVisible(flag) {
+        this.children[0].visible = flag;
+        this.children[1].visible = flag;
+    }
+
+    setEdgesVisible(flag) {
+        this.children[2].visible = flag;
+    }
 }
 
 class Assembly {
