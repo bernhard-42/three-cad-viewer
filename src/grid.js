@@ -31,7 +31,7 @@ class Grid {
     }
 
     // https://stackoverflow.com/questions/4947682/intelligently-calculating-chart-tick-positions
-    niceNumber = (value, round) => {
+    niceNumber(value, round) {
         var exponent = Math.floor(Math.log10(value));
         var fraction = value / 10 ** exponent;
 
@@ -61,7 +61,7 @@ class Grid {
         return niceFraction * 10 ** exponent;
     }
 
-    niceBounds = (axisStart, axisEnd, numTicks) => {
+    niceBounds(axisStart, axisEnd, numTicks) {
         var niceTick;
         var niceRange;
 
@@ -82,11 +82,11 @@ class Grid {
         return [axisStart, axisEnd, niceTick];
     }
 
-    computeGrid = () => {
+    computeGrid() {
         return (this.grid[0] | this.grid[1] | this.grid[2])
     }
 
-    setGrid = (action) => {
+    setGrid(action) {
         switch (action) {
             case "grid":
                 this.allGrid = !this.allGrid;
@@ -114,7 +114,7 @@ class Grid {
         this.setVisible();
     }
 
-    setCenter = (axes0) => {
+    setCenter(axes0) {
         if (axes0) {
             for (var i = 0; i < 3; i++) {
                 this.gridHelper[i].position.set(0, 0, 0);

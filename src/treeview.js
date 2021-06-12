@@ -34,7 +34,7 @@ class TreeView {
     this.treeModel = this.toModel(tree);
   }
 
-  setupClasses = () => {
+  setupClasses() {
     var shapes = {};
     shapes[States.unselected] = "btn_light_no_shape";
     shapes[States.selected] = "btn_light_shape";
@@ -50,7 +50,7 @@ class TreeView {
     this.icons = [shapes, meshes];
   }
 
-  toModel = (tree) => {
+  toModel(tree) {
     var model = {
       id: tree.id,
       type: tree.type,
@@ -80,7 +80,7 @@ class TreeView {
     return model;
   }
 
-  toHtml = (model) => {
+  toHtml(model) {
     var icon_id = 0;
     var img_button;
 
@@ -130,7 +130,7 @@ class TreeView {
     return li;
   }
 
-  render = () => {
+  render() {
     this.container = tag("ul", ["toplevel"]);
     this.container.appendChild(this.toHtml(this.treeModel));
 
@@ -148,7 +148,7 @@ class TreeView {
     return this.container;
   }
 
-  getNode = (node, id) => {
+  getNode(node, id) {
     if (node.id == id) return node;
     for (var i in node.children) {
       var result = this.getNode(node.children[i], id);
@@ -157,7 +157,7 @@ class TreeView {
     return null;
   }
 
-  updateState = (node, icon_id, state) => {
+  updateState(node, icon_id, state) {
     if (node.states[icon_id] != States.empty) { // ignore empty
       this.states[node.id][icon_id] = state;
       node.states[icon_id] = state;
@@ -165,7 +165,7 @@ class TreeView {
     }
   }
 
-  propagateChange = (node, icon_id, state) => {
+  propagateChange(node, icon_id, state) {
     for (var i in node.children) {
       var subNode = node.children[i];
       if (subNode.type == "leaf") {
@@ -176,7 +176,7 @@ class TreeView {
     }
   }
 
-  // updateAllStates = () => {
+  // updateAllStates ()  {
   //   console.log("updateAllStates")
   //   // var changes = false;
   //   for (var icon_id in this.icons) {
@@ -195,7 +195,7 @@ class TreeView {
   //   this.cad_handler(this.states);
   // }
 
-  updateNodes = (model, icon_id) => {
+  updateNodes(model, icon_id) {
     var state = 0;
     if (model.type === "node") {
       var states = [];
@@ -217,11 +217,11 @@ class TreeView {
     return state;
   }
 
-  getIcon = (icon_id, state) => {
+  getIcon(icon_id, state) {
     return this.icons[icon_id][state];
   }
 
-  setIcon = (img, icon_id, state) => {
+  setIcon(img, icon_id, state) {
     var toRemove = -1;
     img.classList.forEach((value, key, listObj) => {
       if (value.startsWith("btn_")) {
@@ -234,7 +234,7 @@ class TreeView {
     });
   }
 
-  handle = (type, id, icon_id) => {
+  handle(type, id, icon_id) {
     var node = this.getNode(this.treeModel, id);
     var newState = (node.states[icon_id] == States.selected) ? States.unselected : States.selected;
     if (type == "leaf") {

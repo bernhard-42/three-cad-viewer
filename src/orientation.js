@@ -13,7 +13,7 @@ class OrientationMarker {
         this.renderer = null;
     }
 
-    create = () => {
+    create() {
         const size = 2.7;
         const length = 60;
 
@@ -68,15 +68,17 @@ class OrientationMarker {
         return this.renderer.domElement;
     }
 
-    update = (position, target) => {
+    render() {
+        this.renderer.render(this.scene, this.camera)
+    }
+
+    // handler (bound to OrientationMarker instance)
+
+    update(position, target) {
         this.camera.position.copy(position);
         this.camera.position.sub(target);
         this.camera.position.setLength(300);
         this.camera.lookAt(this.scene.position);
-    }
-
-    render = () => {
-        this.renderer.render(this.scene, this.camera)
     }
 }
 

@@ -11,6 +11,16 @@ import { TreeView } from './treeview.js'
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
 };
+
+const defaultDirections = {
+    "front": { "position": [1, 0, 0] },
+    "rear": { "position": [-1, 0, 0] },
+    "top": { "position": [0, 0, 1] },
+    "bottom": { "position": [0, 0, -1] },
+    "left": { "position": [0, 1, 0] },
+    "right": { "position": [0, -1, 0] },
+    "iso": { "position": [1, 1, 1] }
+}
 class Viewer {
 
     constructor(
@@ -76,34 +86,7 @@ class Viewer {
         this.display.setupUI(this);
     }
 
-    setCameraPosition = (center, position0) => {
-        var cameraPosition = new THREE.Vector3(...position0).normalize().multiplyScalar(6 * this.bb_max);
-        cameraPosition = cameraPosition.add(new THREE.Vector3(...center));
-        this.camera.position.set(...cameraPosition.toArray());
-        this.camera.up = new THREE.Vector3(0, 0, 1)
-    }
-
-    setOrthoCamera = (ortho_flag) => {
-        if (ortho_flag) {
-            this.camera.toOrthographic()
-        } else {
-            this.camera.toPerspective()
-        }
-    }
-
-    resize = () => {
-        this.camera.setZoom(this.zoom);
-    }
-
-    animate = () => {
-        requestAnimationFrame(this.animate);
-        this.controls.update();
-        this.orientationMarker.update(this.camera.position, this.controls.target);
-        this.renderer.render(this.scene, this.camera);
-        this.orientationMarker.render();
-    }
-
-    dump = (assembly, ind) => {
+    dump(assembly, ind) {
         if (ind == undefined) {
             ind = ""
         }
@@ -112,11 +95,6 @@ class Viewer {
                 dump(part, ind + "  ");
             }
         }
-    }
-
-    addTreeView = () => {
-        this.treeview = new TreeView(clone(this.states), this.tree, this.setObjects);
-        this.display.addCadTree(this.treeview.render());
     }
 
     getGroup(path) {
@@ -137,23 +115,7 @@ class Viewer {
         }
     }
 
-    setObjects = (states) => {
-        for (var i in this.states) {
-            var oldState = this.states[i];
-            var newState = states[i];
-            var objectGroup = this.getGroup(this.paths[i])
-            if (oldState[0] != newState[0]) {
-                objectGroup.setShapeVisible(newState[0] === 1);
-                this.states[i][0] = newState[0]
-            }
-            if (oldState[1] != newState[1]) {
-                objectGroup.setEdgesVisible(newState[1] === 1);
-                this.states[i][1] = newState[1]
-            }
-        }
-    }
-
-    render = (shapes, tree, states, paths) => {
+    render(shapes, tree, states, paths) {
         this.shapes = shapes;
         this.tree = tree;
         this.states = states;
@@ -240,6 +202,57 @@ class Viewer {
         this.animate();
         this.initObjects();
     }
+
+    // handler 
+
+    resize() {
+        this.camera.setZoom(this.zoom);
+    }
+
+    setCamera = (center, dir) => {
+        this.setCameraPosition(center, defaultDirections[dir]["position"]);
+    }
+
+    setCameraPosition(center, position0) {
+        var cameraPosition = new THREE.Vector3(...position0).normalize().multiplyScalar(6 * this.bb_max);
+        cameraPosition = cameraPosition.add(new THREE.Vector3(...center));
+        this.camera.position.set(...cameraPosition.toArray());
+        this.camera.up = new THREE.Vector3(0, 0, 1)
+    }
+
+    setOrthoCamera(ortho_flag) {
+        if (ortho_flag) {
+            this.camera.toOrthographic()
+        } else {
+            this.camera.toPerspective()
+        }
+    }
+
+    // handler (bound to Viewer instance)
+
+    animate = () => {
+        requestAnimationFrame(this.animate);
+        this.controls.update();
+        this.orientationMarker.update(this.camera.position, this.controls.target);
+        this.renderer.render(this.scene, this.camera);
+        this.orientationMarker.render();
+    }
+
+    setObjects = (states) => {
+        for (var i in this.states) {
+            var oldState = this.states[i];
+            var newState = states[i];
+            var objectGroup = this.getGroup(this.paths[i])
+            if (oldState[0] != newState[0]) {
+                objectGroup.setShapeVisible(newState[0] === 1);
+                this.states[i][0] = newState[0]
+            }
+            if (oldState[1] != newState[1]) {
+                objectGroup.setEdgesVisible(newState[1] === 1);
+                this.states[i][1] = newState[1]
+            }
+        }
+    }
 }
 
-export { Viewer }
+export { Viewer, defaultDirections }

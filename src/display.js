@@ -48,16 +48,6 @@ class Display {
         this.cadTree = this.container.getElementsByClassName('cad_tree_container')[0];
         this.cadInfo = this.container.getElementsByClassName('cad_info_container')[0];
 
-        this.defaultDirections = {
-            "front": { "position": [1, 0, 0] },
-            "rear": { "position": [-1, 0, 0] },
-            "top": { "position": [0, 0, 1] },
-            "bottom": { "position": [0, 0, -1] },
-            "left": { "position": [0, 1, 0] },
-            "right": { "position": [0, -1, 0] },
-            "iso": { "position": [1, 1, 1] }
-        }
-
         this.viewer = null;
     }
 
@@ -101,6 +91,30 @@ class Display {
             this.setupClickEvent(name, this.setView);
         })
     }
+
+    // setup functions
+
+    getCadViewSize() {
+        return [this.cadView.clientWidth, this.cadView.clientHeight];
+    }
+
+    getCadInsetSize() {
+        return [this.cadInset.clientWidth, this.cadInset.clientHeight];
+    }
+
+    addCadView(cadView) {
+        this.cadView.appendChild(cadView);
+    }
+
+    addCadInset(cadInset) {
+        this.cadInset.appendChild(cadInset);
+    }
+
+    addCadTree(cadTree) {
+        this.cadTree.appendChild(cadTree);
+    }
+
+    // handler (bound to Display instance)
 
     setAxes = (e) => {
         const flag = !!e.target.checked;
@@ -146,29 +160,7 @@ class Display {
 
     setView = (e) => {
         const btn = e.target.className.split(" ")[0];
-        console.log(e, btn)
-        const dir = this.defaultDirections[btn]["position"]
-        this.viewer.setCameraPosition(this.viewer.bbox.center, dir);
-    }
-
-    getCadViewSize() {
-        return [this.cadView.clientWidth, this.cadView.clientHeight];
-    }
-
-    getCadInsetSize() {
-        return [this.cadInset.clientWidth, this.cadInset.clientHeight];
-    }
-
-    addCadView(cadView) {
-        this.cadView.appendChild(cadView);
-    }
-
-    addCadInset(cadInset) {
-        this.cadInset.appendChild(cadInset);
-    }
-
-    addCadTree(cadTree) {
-        this.cadTree.appendChild(cadTree);
+        this.viewer.setCamera(this.viewer.bbox.center, btn);
     }
 }
 

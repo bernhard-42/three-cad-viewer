@@ -10,7 +10,7 @@ class ObjectGroup extends THREE.Group {
         this.edge_color = edge_color;
     }
 
-    setTransparent = (flag) => {
+    setTransparent(flag) {
         for (var i in this.children) {
             const side = this.children[i];
             // only change opacity for the first two mesh objects
@@ -22,7 +22,7 @@ class ObjectGroup extends THREE.Group {
         }
     }
 
-    setBlackEdges = (flag) => {
+    setBlackEdges(flag) {
         if (this.children.length > 2) {
             const edges = this.children[2];
             const color = flag ? 0x000000 : this.edge_color;
@@ -170,7 +170,7 @@ class Assembly {
         return this.renderLoop(this.shapes, "");
     }
 
-    setTransparent = (flag) => {
+    setTransparent(flag) {
         this.transparent = flag;
         for (var path in this.groups) {
             for (var obj of this.groups[path].children) {
@@ -181,7 +181,7 @@ class Assembly {
         }
     }
 
-    setBlackEdges = (flag) => {
+    setBlackEdges(flag) {
         this.blackEdges = flag;
         for (var path in this.groups) {
             for (var obj of this.groups[path].children) {
