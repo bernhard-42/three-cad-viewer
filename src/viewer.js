@@ -5,10 +5,8 @@ import { Assembly } from './assembly.js'
 import { BoundingBox } from './bbox.js'
 import { Grid } from './grid.js'
 import { AxesHelper } from './axes.js'
-import { UI } from './ui.js'
 import { OrientationMarker } from './orientation.js'
 import { TreeView } from './treeview.js'
-
 
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -16,6 +14,7 @@ function clone(obj) {
 class Viewer {
 
     constructor(
+        display,
         dark,
         bbFactor,
         position,
@@ -32,6 +31,7 @@ class Viewer {
         transparentOpacity,
         normalLen
     ) {
+        this.display = display;
         this.dark = dark;
         this.bbFactor = bbFactor;
         this.position = position;
@@ -64,20 +64,16 @@ class Viewer {
         this.treeview = null;
 
         // setup renderer
-
-        const container = document.getElementById('cad_view');
-
         this.renderer = new THREE.WebGLRenderer({
             alpha: !dark,
             antialias: true
         });
-
-        this.width = container.clientWidth;
-        this.height = container.clientHeight;
+        [this.width, this.height] = this.display.getCadViewSize();
         this.renderer.setSize(this.width, this.height);
-        container.appendChild(this.renderer.domElement);
 
-        this.ui = new UI(this);
+        this.display.addCadView(this.renderer.domElement);
+
+        this.display.setupUI(this);
     }
 
     setCameraPosition = (center, position0) => {
@@ -120,7 +116,7 @@ class Viewer {
 
     addTreeView = () => {
         this.treeview = new TreeView(clone(this.states), this.tree, this.setObjects);
-        this.treeview.render();
+        this.display.addCadTree(this.treeview.render());
     }
 
     getGroup(path) {
@@ -164,7 +160,8 @@ class Viewer {
         this.paths = paths;
 
         // build tree view
-        this.addTreeView();
+        this.treeview = new TreeView(clone(this.states), this.tree, this.setObjects);
+        this.display.addCadTree(this.treeview.render());
 
         // render the assembly
 
@@ -205,7 +202,7 @@ class Viewer {
 
         // add axes and grid
 
-        this.gridHelper = new Grid(this.bbox, 10, this.axes0, this.grid ? [true, true, true] : [false, false, false])
+        this.gridHelper = new Grid(this.display, this.bbox, 10, this.axes0, this.grid ? [true, true, true] : [false, false, false])
         for (var i = 0; i < 3; i++) {
             this.scene.add(this.gridHelper.gridHelper[i]);
         }
@@ -232,9 +229,13 @@ class Viewer {
         this.controls.target = new THREE.Vector3(...this.bbox.center);
         this.controls.saveState();
 
+        // define the orientation marker
+
+        const [insetWidth, insetHeight] = this.display.getCadInsetSize();
+        this.orientationMarker = new OrientationMarker(insetWidth, insetHeight, this.camera);
+        this.display.addCadInset(this.orientationMarker.create());
+
         // show the rendering
-        this.orientationMarker = new OrientationMarker(this.camera);
-        this.orientationMarker.create();
 
         this.animate();
         this.initObjects();

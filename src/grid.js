@@ -1,10 +1,11 @@
 import * as THREE from 'three';
 
 class Grid {
-    constructor(bbox, ticks, axes0, visible) {
+    constructor(display, bbox, ticks, axes0, visible) {
         if (ticks === undefined) {
             ticks = 10;
         }
+        this.display = display;
         this.bbox = bbox;
 
         this.grid = visible;
@@ -104,10 +105,12 @@ class Grid {
                 break;
         }
         this.allGrid = this.computeGrid();
-        document.querySelector('.grid').checked = this.allGrid;
-        document.querySelector('.grid-xy').checked = this.grid[0];
-        document.querySelector('.grid-xz').checked = this.grid[1];
-        document.querySelector('.grid-yz').checked = this.grid[2];
+
+        this.display.checkElement('grid', this.allGrid);
+        this.display.checkElement('grid-xy', this.grid[0]);
+        this.display.checkElement('grid-xz', this.grid[1]);
+        this.display.checkElement('grid-yz', this.grid[2]);
+
         this.setVisible();
     }
 

@@ -3,7 +3,9 @@ import { RGBA_ASTC_10x5_Format } from 'three';
 import { AxesHelper } from './axes.js';
 
 class OrientationMarker {
-    constructor(camera, dark) {
+    constructor(width, height, camera, dark) {
+        this.width = width;
+        this.height = height;
         this.cad_camera = camera;
         this.dark = dark;
         this.camera = null;
@@ -12,28 +14,25 @@ class OrientationMarker {
     }
 
     create = () => {
-        const container = document.getElementById('cad_inset');
-        const width = container.clientWidth;
-        const height = container.clientHeight;
         const size = 2.7;
         const length = 60;
 
         // renderer
         this.renderer = new THREE.WebGLRenderer({ alpha: !this.dark, antialias: true });
         this.renderer.setClearColor(0x000000, 0);
-        this.renderer.setSize(width, height);
-        container.appendChild(this.renderer.domElement);
+        this.renderer.setSize(this.width, this.height);
+        // this.container.appendChild(this.renderer.domElement);
 
         // scene
         this.scene = new THREE.Scene();
 
         // camera
-        // this.camera = new THREE.PerspectiveCamera(50, width / height, 1, 1000);
-        this.camera = new THREE.OrthographicCamera(-width, width, height, -height, 1, 1000);
+        // this.camera = new THREE.PerspectiveCamera(50, this.width / this.height, 1, 1000);
+        this.camera = new THREE.OrthographicCamera(-this.width, this.width, this.height, -this.height, 1, 1000);
         this.camera.up = this.cad_camera.up; // important!
 
         // axes
-        const axes = new AxesHelper([0, 0, 0], length, size, width, height, true, true);
+        const axes = new AxesHelper([0, 0, 0], length, size, this.width, this.height, true, true);
         this.scene.add(axes);
 
         const colors = [
@@ -65,6 +64,8 @@ class OrientationMarker {
         const material = new THREE.MeshBasicMaterial({ color: 0xa0a0a0 });
         const sphere = new THREE.Mesh(geometry, material);
         this.scene.add(sphere);
+
+        return this.renderer.domElement;
     }
 
     update = (position, target) => {

@@ -1,6 +1,7 @@
-import { example } from './example.js'
-import { Viewer } from './viewer.js'
-import { TreeView } from './treeview.js'
+import { example } from './example.js';
+import { Display } from './display.js';
+import { Viewer } from './viewer.js';
+import { TreeView } from './treeview.js';
 
 // input parameters
 const dark = false;
@@ -24,7 +25,12 @@ const tree = example.tree;
 // const bb = example.bb;
 // console.log(bb)
 
+const container = document.getElementById("cad_view_001")
+
+const display = new Display(container);
+
 const viewer = new Viewer(
+    display,
     dark,
     bbFactor,
     position,
@@ -48,6 +54,16 @@ for (var key in mapping) {
     states[key] = mapping[key]["state"]
     paths[key] = mapping[key]["path"]
 }
+
+// function clone(obj) {
+//     return JSON.parse(JSON.stringify(obj));
+// };
+
+// const tree2 = clone(tree);
+// const states2 = clone(states);
+// const paths2 = clone(paths);
+
+
 for (var key in states) {
     if (key < 201) {
         states[key][0] = 0;
@@ -61,6 +77,32 @@ for (var key in states) {
     }
 }
 viewer.render(shapes, tree, states, paths);
+
+
+// const container2 = document.getElementById("cad_view_002")
+
+// const display2 = new Display(container2);
+
+// const viewer2 = new Viewer(
+//     display2,
+//     dark,
+//     bbFactor,
+//     position,
+//     zoom,
+//     grid,
+//     axes,
+//     axes0,
+//     ortho,
+//     blackEdges,
+//     edgeColor,
+//     ambientIntensity,
+//     directIntensity,
+//     transparent,
+//     transparent_opyacity,
+//     normalLen
+// )
+
+// viewer2.render(shapes, tree2, states2, paths2);
 
 // DEBUG stuff
 global.viewer = viewer

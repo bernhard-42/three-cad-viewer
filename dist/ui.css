@@ -4,30 +4,30 @@ body {
     font-family: sans-serif;
 }
 
-#jupyter_cadquery {
+.jupyter_cadquery {
     display: flex;
     flex-direction: column;
     margin: 4px;
 }
 
-#cad_navigation {
+.cad_navigation {
     display: flex;
     flex-direction: column;
 }
 
-#cad_body {
+.cad_body {
     display: flex;
     flex-direction: row;
 }
 
-#cad_view {
+.cad_view {
     width: 600px;
     height: 400px;
     position: relative;
     margin: 2px;
 }
 
-#cad_tree {
+.cad_tree {
     width: 250px;
     height: 250px;
     border-style: solid;
@@ -36,19 +36,19 @@ body {
     overflow: hidden;
 }
 
-#cad_info {
+.cad_info {
     width: 250px;
     height: 150px;
     border-style: solid;
     border-width: 1px;
 }
 
-#cad_toolbar {
+.cad_toolbar {
     width: 850px;
     height: 32px;
 }
 
-#cad_inset {
+.cad_inset {
     width: 80px;
     height: 80px;
     background-color: transparent;

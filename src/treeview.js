@@ -30,7 +30,6 @@ class TreeView {
     this.tree = tree;
     this.cad_handler = cad_handler;
 
-    this.container = document.getElementById("cad_tree_container")
     this.setupClasses();
     this.treeModel = this.toModel(tree);
   }
@@ -81,7 +80,6 @@ class TreeView {
     return model;
   }
 
-  // OK
   toHtml = (model) => {
     var icon_id = 0;
     var img_button;
@@ -133,9 +131,8 @@ class TreeView {
   }
 
   render = () => {
-    var ul = tag("ul", ["toplevel"]);
-    ul.appendChild(this.toHtml(this.treeModel));
-    this.container.appendChild(ul);
+    this.container = tag("ul", ["toplevel"]);
+    this.container.appendChild(this.toHtml(this.treeModel));
 
     for (var icon_id in this.icons) {
       this.updateNodes(this.treeModel, icon_id);
@@ -148,6 +145,7 @@ class TreeView {
         e.target.classList.toggle("t-caret-down");
       });
     }
+    return this.container;
   }
 
   getNode = (node, id) => {
