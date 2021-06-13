@@ -28,19 +28,34 @@ body {
 }
 
 .cad_tree {
+    display: flex;
+    flex-direction: column;
     width: 250px;
     height: 250px;
     border-style: solid;
     border-width: 1px;
-    padding: 6px 4px 4px 6px;
     overflow: hidden;
+    border-top: 1px solid lightgray;
 }
 
-.cad_info {
+/* 
+.cad_tree_container {
+}
+ */
+
+ .cad_info {
     width: 250px;
     height: 150px;
     border-style: solid;
     border-width: 1px;
+}
+
+.visible {
+    display: block;
+}
+
+.unvisible {
+    display: none;
 }
 
 .cad_toolbar {
@@ -63,8 +78,8 @@ body {
 
 .round {
     box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
+    /* -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box; */
     border-style: solid;
     border-width: 1px;
     border-radius: 6px;
@@ -76,6 +91,7 @@ body {
 .box_content {
     overflow:scroll;
     height: 100%;
+    margin: 4px 0px 4px 4px;
 }
 
 .btn {
@@ -84,7 +100,6 @@ body {
     background-size: 28px 22px;
     background-color: #eee;
     border: 0px;
-    /* height: 100%; */
     display: inline-block;
     vertical-align: middle;
 }
@@ -95,6 +110,47 @@ body {
 
 .btn:active {
     box-shadow: none;
+}
+
+.tabnav {
+    width: 100%;
+    padding: 0px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+
+}
+
+.tab {
+    width: 50%;
+    height: 24px; 
+    background-color: white;
+    display: inline-block;
+    padding: 0px;
+    border: none;
+    margin-bottom: 6px;
+}
+
+.tab:hover {
+    background-color: #eee;
+}
+
+.tab-left {
+    border-right: 1px solid lightgray;
+}
+
+.tab-right {
+    border-left: 1px solid lightgray;
+}
+
+.tab-selected {
+    border-bottom: none;
+    /* font-weight: bold; */
+}
+
+.tab-unselected {
+    border-bottom: 1px solid lightgray;
+    /* font-weight: normal; */
 }
 
 .vertical-center {
@@ -133,31 +189,4 @@ body {
 
 .grid-dropdown:hover .grid-content {
     display: block;
-}
-
-.mac-scrollbar::-webkit-scrollbar {
-    width: 5px !important;
-    height: 5px !important;
-}
-
-.mac-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2) !important;
-    border-radius: 100px !important;
-}
-
-.mac-scrollbar::-webkit-scrollbar-track {
-    background-color: transparent !important;
-}
-
-.mac-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.4) !important;
-}
-
-.mac-scrollbar::-webkit-scrollbar-thumb:active {
-    background: #181818 !important;
-}
-
-.mac-scrollbar .widget-html-content {
-    overflow-x: visible;
-    overflow-y: visible;
 }

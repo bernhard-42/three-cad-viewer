@@ -25,12 +25,21 @@ const TEMPLATE = `
     </div>
     <div class="cad_body">
     <div class="cad_navigation">
-        <div class="cad_tree round">
-            <div class="cad_tree_container box_content mac-scrollbar"></div>
+    <div class="cad_tree round">
+        <div class="tabnav">
+            <input class='tab_tree tab tab-left tab-selected' value="Tree" type="button"/>
+            <input class='tab_clip tab tab-right tab-unselected' value="Clipping" type="button"/>
         </div>
-        <div class="cad_info round mac-scrollbar">
-            <div class="cad_info_container box_content mac-scrollbar"></div>
+        <div class="box_content">
+            <div class="cad_tree_container"></div>
+            <div class="cad_clip_container">
+                CLIPPING
+            </div>
         </div>
+    </div>
+    <div class="cad_info round">
+        <div class="cad_info_container box_content mac-scrollbar"></div>
+    </div>
     </div>
     <div class="cad_view">
         <div class="cad_inset"></div>
@@ -46,9 +55,15 @@ class Display {
         this.cadView = this.container.getElementsByClassName("cad_view")[0];
         this.cadInset = this.container.getElementsByClassName('cad_inset')[0];
         this.cadTree = this.container.getElementsByClassName('cad_tree_container')[0];
+        this.cadClip = this.container.getElementsByClassName('cad_clip_container')[0];
+        this.tabTree = this.container.getElementsByClassName('tab_tree')[0];
+        this.tabClip = this.container.getElementsByClassName('tab_clip')[0];
         this.cadInfo = this.container.getElementsByClassName('cad_info_container')[0];
 
         this.viewer = null;
+        this.activeTab = "tab_tree";
+        this.cadTree.style.display = "block";
+        this.cadClip.style.display = "none";
     }
 
     setupCheckEvent(name, fn, flag) {
@@ -87,8 +102,15 @@ class Display {
 
         this.setupClickEvent('reset', this.reset);
         this.setupClickEvent('resize', this.resize);
-        ["front", "rear", "top", "bottom", "left", "right", "iso"].forEach((name) => {
+
+        const buttons = ["front", "rear", "top", "bottom", "left", "right", "iso"];
+        buttons.forEach((name) => {
             this.setupClickEvent(name, this.setView);
+        })
+
+        const tabs = ["tab_tree", "tab_clip"];
+        tabs.forEach((name) => {
+            this.setupClickEvent(name, this.selectTab);
         })
     }
 
@@ -161,6 +183,28 @@ class Display {
     setView = (e) => {
         const btn = e.target.className.split(" ")[0];
         this.viewer.setCamera(this.viewer.bbox.center, btn);
+    }
+
+    selectTab = (e) => {
+        const tab = e.target.className.split(" ")[0];
+        var changed = false;
+        if ((tab === "tab_tree") && (this.activeTab !== "tab_tree")) {
+            this.cadTree.style.display = "block";
+            this.cadClip.style.display = "none";
+            changed = true;
+        };
+        if ((tab === "tab_clip") && (this.activeTab !== "tab_clip")) {
+            this.cadTree.style.display = "none";
+            this.cadClip.style.display = "block";
+            changed = true;
+        }
+        this.activeTab = tab;
+        if (changed) {
+            this.tabTree.classList.toggle("tab-selected");
+            this.tabTree.classList.toggle("tab-unselected");
+            this.tabClip.classList.toggle("tab-selected");
+            this.tabClip.classList.toggle("tab-unselected");
+        }
     }
 }
 
