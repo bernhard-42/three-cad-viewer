@@ -33,7 +33,40 @@ const TEMPLATE = `
         <div class="box_content">
             <div class="cad_tree_container"></div>
             <div class="cad_clip_container">
-                CLIPPING
+                <div class="slider_group">
+                    <div>
+                        <input class='btn_norm_plane1 btn btn_light_plane' type="button" />
+                        <span class="lbl_norm_plane1 label">N1 = (n/a, n/a, n/a)</span>
+                    </div>
+                    <div>
+                        <input type="range" min="1" max="100" value="50" class="sld_value_plane1 clip_slider">
+                        <input value=50 class="inp_value_plane1 clip_input"></input>
+                    </div>
+                </div>
+                <div class="slider_group">
+                    <div>
+                        <input class='btn_norm_plane2 btn btn_light_plane' type="button" />
+                        <span class="lbl_norm_plane2 label">N2 = (n/a, n/a, n/a)</span>
+                    </div>
+                    <div>
+                        <input type="range" min="1" max="100" value="50" class="sld_value_plane2 clip_slider">
+                        <input value=50 class="inp_value_plane2 clip_input"></input>
+                    </div>
+                </div>
+                <div class="slider_group">
+                    <div>
+                    <input class='btn_norm_plane3 btn btn_light_plane' type="button" />
+                    <span class="lbl_norm_plane3 label">N3 = (n/a, n/a, n/a)</span>
+                    </div>
+                    <div>
+                        <input type="range" min="1" max="100" value="50" class="sld_value_plane3 clip_slider">
+                        <input value=50 class="inp_value_plane3 clip_input"></input>
+                    </div>
+                </div>
+                <div class="clip_checks">
+                    <span class="label">Intersection</span><input  class='clip_intersection check' type="checkbox" />
+                    <span class="label">Show Planes</span><input class='clip_plane_helpers axes0 check' type="checkbox" />
+                </div>
             </div>
         </div>
     </div>
@@ -46,6 +79,48 @@ const TEMPLATE = `
     </div>
     </div>
 `;
+
+class Slider {
+    constructor(index, min, max, display) {
+        this.index = index;
+        this.min = min;
+        this.max = max;
+        this.display = display;
+
+        this.slider = display.container.getElementsByClassName(`sld_value_plane${index}`)[0];
+        this.slider.min = min;
+        this.slider.max = max;
+        this.input = display.container.getElementsByClassName(`inp_value_plane${index}`)[0];
+        this.input.value = max;
+        this.slider.oninput = this.sliderChange;
+        this.input.addEventListener('change', this.inputChange);
+    }
+
+    sliderChange = (e) => {
+        const value = e.target.value;
+        this.input.value = Math.round(1000 * value) / 1000;
+        this.display.refreshPlanes(this.index, this.input.value);
+    }
+
+    inputChange = (e) => {
+        const value = Math.max(Math.min(e.target.value, this.max), this.min);
+        if (value != e.target.value) {
+            this.input.value = Math.round(1000 * value) / 1000;
+        }
+        this.slider.value = value;
+        this.display.refreshPlanes(this.index, this.input.value);
+    }
+
+    adaptSlider(min, max) {
+        const exp = Math.round(Math.log10(Math.max(Math.abs(min), Math.abs(max))));
+        this.slider.min = min;
+        this.slider.max = max;
+        this.slider.step = Math.pow(10, -exp);
+        this.slider.value = max;
+        this.input.value = Math.round(1000 * this.slider.max) / 1000;
+        this.display.refreshPlanes(this.index, this.input.value);
+    }
+}
 
 class Display {
     constructor(container) {
@@ -60,10 +135,18 @@ class Display {
         this.tabClip = this.container.getElementsByClassName('tab_clip')[0];
         this.cadInfo = this.container.getElementsByClassName('cad_info_container')[0];
 
+        this.planeLabels = []
+        for (var i = 1; i < 4; i++) {
+            this.planeLabels.push(
+                this.container.getElementsByClassName(`lbl_norm_plane${i}`)[0]
+            )
+        }
+
         this.viewer = null;
         this.activeTab = "tab_tree";
         this.cadTree.style.display = "block";
         this.cadClip.style.display = "none";
+        this.clipUi = null;
     }
 
     setupCheckEvent(name, fn, flag) {
@@ -112,6 +195,13 @@ class Display {
         tabs.forEach((name) => {
             this.setupClickEvent(name, this.selectTab);
         })
+
+        this.clipUi = [];
+        for (var i = 1; i < 4; i++) {
+            this.clipUi.push(new Slider(i, -10, 90, this));
+        }
+        this.setupCheckEvent('clip_plane_helpers', this.setClipPlaneHelpers, false);
+        this.setupCheckEvent('clip_intersection', this.setClipIntersection, false);
     }
 
     // setup functions
@@ -169,6 +259,16 @@ class Display {
         this.viewer.assembly.setBlackEdges(flag);
     }
 
+    setClipPlaneHelpers = (e) => {
+        const flag = !!e.target.checked;
+        this.viewer.setPlaneHelpers(flag);
+    }
+
+    setClipIntersection = (e) => {
+        const flag = !!e.target.checked;
+        this.viewer.setPlaneHelpers(flag);
+    }
+
     reset = () => {
         this.viewer.setCamera(this.viewer.bbox.center, "iso")
         this.viewer.camera.setZoom(this.viewer.zoom);
@@ -183,6 +283,10 @@ class Display {
     setView = (e) => {
         const btn = e.target.className.split(" ")[0];
         this.viewer.setCamera(this.viewer.bbox.center, btn);
+    }
+
+    setNormal = (index, normal) => {
+        this.planeLabels[index].innerHTML = `N=(${normal[0].toFixed(2)}, ${normal[1].toFixed(2)}, ${normal[2].toFixed(2)})`
     }
 
     selectTab = (e) => {
@@ -206,6 +310,17 @@ class Display {
             this.tabClip.classList.toggle("tab-unselected");
         }
     }
+
+    adaptSliders(bbox) {
+        for (var i = 0; i < 3; i++) {
+            this.clipUi[i].adaptSlider(...bbox[i]);
+        }
+    }
+
+    refreshPlanes(index, value) {
+        this.viewer.refreshPlane(index - 1, value);
+    }
+
 }
 
 export { Display }

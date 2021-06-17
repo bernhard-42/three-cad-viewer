@@ -42,7 +42,7 @@ class ObjectGroup extends THREE.Group {
 }
 
 class Assembly {
-    constructor(shapes, width, height, edge_color, transparent, transparent_opacity, normalLen) {
+    constructor(shapes, width, height, edge_color, transparent, transparent_opacity, normalLen, clipPlanes) {
         this.shapes = shapes;
         this.width = width;
         this.height = height;
@@ -50,6 +50,7 @@ class Assembly {
         this.transparent = transparent;
         this.transparent_opacity = transparent_opacity;
         this.normalLen = normalLen;
+        this.clipPlanes = clipPlanes;
         this.blackEdges = false;
         this.delim = '\\';
         this.groups = {};
@@ -66,7 +67,9 @@ class Assembly {
             linewidth: lineWidth,
             transparent: true,
             depthWrite: !this.transparent,
-            depthTest: !this.transparent
+            depthTest: !this.transparent,
+            clippingPlanes: this.clipPlanes,
+            clipIntersection: false
         });
         lineMaterial.resolution.set(this.width, this.height);
 
@@ -99,20 +102,27 @@ class Assembly {
             opacity: this.transparent ? this.transparent_opacity : 1,
             depthWrite: !this.transparent,
             depthTest: !this.transparent,
+            clipIntersection: false
         });
 
         const frontMaterial = shapeMaterial.clone()
         frontMaterial.side = THREE.FrontSide;
+        frontMaterial.clippingPlanes = this.clipPlanes; //don't clone!
 
         const backMaterial = shapeMaterial.clone()
+        backMaterial.color = new THREE.Color(this.edge_color);
         backMaterial.side = THREE.BackSide;
+        backMaterial.clippingPlanes = this.clipPlanes //don't clone!
 
         const front = new THREE.Mesh(shapeGeometry, frontMaterial)
         front.name = name;
+
         const back = new THREE.Mesh(shapeGeometry, backMaterial)
         back.name = name;
+
         group.add(back)
         group.add(front)
+
         if (this.normalLen > 0) {
             group.add(new VertexNormalsHelper(front, this.normalLen));
         }

@@ -64,18 +64,18 @@ for (var key in mapping) {
 // const paths2 = clone(paths);
 
 
-for (var key in states) {
-    if (key < 201) {
-        states[key][0] = 0;
-    }
-    if ((key > 201) & (key < 208)) {
-        states[key][1] = 0;
-    }
-    if ((key > 208) & (key < 212)) {
-        states[key][0] = 0;
-        states[key][1] = 0;
-    }
-}
+// for (var key in states) {
+//     if (key < 201) {
+//         states[key][0] = 0;
+//     }
+//     if ((key > 201) & (key < 208)) {
+//         states[key][1] = 0;
+//     }
+//     if ((key > 208) & (key < 212)) {
+//         states[key][0] = 0;
+//         states[key][1] = 0;
+//     }
+// }
 viewer.render(shapes, tree, states, paths);
 
 

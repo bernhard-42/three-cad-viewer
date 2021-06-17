@@ -30,7 +30,7 @@ body {
 .cad_tree {
     display: flex;
     flex-direction: column;
-    width: 250px;
+    width: 240px;
     height: 250px;
     border-style: solid;
     border-width: 1px;
@@ -44,8 +44,8 @@ body {
  */
 
  .cad_info {
-    width: 250px;
-    height: 150px;
+    width: 240px;
+    height: 146px;
     border-style: solid;
     border-width: 1px;
 }
@@ -59,7 +59,7 @@ body {
 }
 
 .cad_toolbar {
-    width: 850px;
+    width: 844px;
     height: 32px;
 }
 
@@ -98,7 +98,7 @@ body {
     width: 30px;
     height: 26px;
     background-size: 28px 22px;
-    background-color: #eee;
+    background-color: white;
     border: 0px;
     display: inline-block;
     vertical-align: middle;
@@ -106,6 +106,7 @@ body {
 
 .btn:hover {
     box-shadow: 1px 1px 1px 0 rgba(0, 0, 0, 0.4);
+    background-color: #eee;
 }
 
 .btn:active {
@@ -189,4 +190,63 @@ body {
 
 .grid-dropdown:hover .grid-content {
     display: block;
+}
+
+.slider_group {
+    margin-bottom: 10px;
+}
+
+.clip_checks {
+    margin-top: 20px;
+}
+
+.clip_input {
+    width: 25%;
+    border: 1px solid #d3d3d3;
+}
+
+.clip_slider {
+    -webkit-appearance: none;
+    width: 66%;
+    height: 5px;
+    border-radius: 2px;  
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+  }
+  
+  .clip_slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%; 
+    background: #53a0e3;
+    cursor: pointer;
+    border:1px solid #48627a;
+}
+
+.clip_slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #53a0e3;
+    cursor: pointer;
+    border:1px solid #48627a;
+  }
+
+  .clip_slider:hover {
+      opacity: 1;
+  }
+
+.lbl_norm_plane1 {
+    color: red;
+}
+.lbl_norm_plane2 {
+    color: green;
+}
+.lbl_norm_plane3 {
+    color: blue;
 }

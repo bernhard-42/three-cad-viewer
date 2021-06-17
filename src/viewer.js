@@ -7,6 +7,9 @@ import { Grid } from './grid.js'
 import { AxesHelper } from './axes.js'
 import { OrientationMarker } from './orientation.js'
 import { TreeView } from './treeview.js'
+import { PlaneHelper } from './planehelper.js'
+import { Vector3 } from 'three';
+import { Plane } from 'three';
 
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -72,6 +75,7 @@ class Viewer {
         this.controls = null;
         this.orientationMarker = null;
         this.treeview = null;
+        this.normals = [];
 
         // setup renderer
         this.renderer = new THREE.WebGLRenderer({
@@ -79,7 +83,9 @@ class Viewer {
             antialias: true
         });
         [this.width, this.height] = this.display.getCadViewSize();
+        this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
+        this.renderer.localClippingEnabled = true;
 
         this.display.addCadView(this.renderer.domElement);
 
@@ -122,8 +128,15 @@ class Viewer {
         this.paths = paths;
 
         // build tree view
+
         this.treeview = new TreeView(clone(this.states), this.tree, this.setObjects);
         this.display.addCadTree(this.treeview.render());
+
+        // clipping planes, need to be available before building the assembly 
+        this.normals.push(new THREE.Vector3(-1, 0, 0));
+        this.normals.push(new THREE.Vector3(0, -1, 0));
+        this.normals.push(new THREE.Vector3(0, 0, -1));
+        this.clipPlanes = this.normals.map((n) => new THREE.Plane(n, 0));
 
         // render the assembly
 
@@ -134,7 +147,8 @@ class Viewer {
             this.edgeColor,
             this.transparent,
             this.transparentOpacity,
-            this.normalLen
+            this.normalLen,
+            this.clipPlanes
         );
         this.geom = this.assembly.render();
 
@@ -169,8 +183,31 @@ class Viewer {
             this.scene.add(this.gridHelper.gridHelper[i]);
         }
 
-        this.axesHelper = new AxesHelper(this.bbox.center, this.gridHelper.size / 2, 2, this.width, this.height, this.axes0, this.axes);
+        const gsize = this.gridHelper.size;
+        const gsize2 = this.gridHelper.size / 2;
+
+        this.axesHelper = new AxesHelper(this.bbox.center, gsize2, 2, this.width, this.height, this.axes0, this.axes);
         this.scene.add(this.axesHelper);
+
+        // clipping planes and helpers
+        for (var i = 0; i < 3; i++) {
+            this.clipPlanes[i].constant = gsize2 + this.bbox.center[i];
+            this.display.setNormal(i, this.clipPlanes[i].normal.toArray())
+        }
+
+        this.planeHelpers = new THREE.Group();
+        this.planeHelpers.add(new PlaneHelper(this.clipPlanes[0], this.bbox.center, gsize, 0xff0000));
+        this.planeHelpers.add(new PlaneHelper(this.clipPlanes[1], this.bbox.center, gsize, 0x00ff00));
+        this.planeHelpers.add(new PlaneHelper(this.clipPlanes[2], this.bbox.center, gsize, 0x0000ff));
+        this.planeHelpers.visible = false;
+        this.scene.add(this.planeHelpers);
+
+        // this.display.adaptSliders([[b.min.x, b.max.x], [b.min.y, b.max.y], [b.min.z, b.max.z]]);
+        this.display.adaptSliders([
+            [-gsize2, gsize2],
+            [-gsize2, gsize2],
+            [-gsize2, gsize2]
+        ]);
 
         // define the camera
 
@@ -230,12 +267,16 @@ class Viewer {
 
     // handler (bound to Viewer instance)
 
-    animate = () => {
-        requestAnimationFrame(this.animate);
+    _render() {
+        this.renderer.render(this.scene, this.camera);
         this.controls.update();
         this.orientationMarker.update(this.camera.position, this.controls.target);
-        this.renderer.render(this.scene, this.camera);
         this.orientationMarker.render();
+    }
+
+    animate = () => {
+        requestAnimationFrame(this.animate);
+        this._render();
     }
 
     setObjects = (states) => {
@@ -251,6 +292,16 @@ class Viewer {
                 objectGroup.setEdgesVisible(newState[1] === 1);
                 this.states[i][1] = newState[1]
             }
+        }
+    }
+
+    setPlaneHelpers = (flag) => {
+        this.planeHelpers.visible = flag;
+    }
+
+    refreshPlane = (index, value) => {
+        if (this.clipPlanes) {
+            this.clipPlanes[index].constant = value;
         }
     }
 }
