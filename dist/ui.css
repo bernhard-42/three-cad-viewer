@@ -262,3 +262,36 @@ input[type="button"] {
 .lbl_norm_plane3 {
     color: blue;
 }
+
+.mac-scrollbar::-webkit-scrollbar {
+    width: 5px !important;
+    height: 5px !important;
+}
+
+.mac-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border-radius: 100px !important;
+}
+
+.mac-scrollbar::-webkit-scrollbar-track {
+    background-color: transparent !important;
+}
+
+.mac-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.4) !important;
+}
+
+.mac-scrollbar::-webkit-scrollbar-thumb:active {
+    background: #181818 !important;
+}
+
+.mac-scrollbar .widget-html-content {
+    overflow-x: visible;
+    overflow-y: visible;
+}
+
+.scroller {
+    scrollbar-color: #7f7f7f white; /* thumb and track color */
+    scrollbar-width: thin;
+    background-color: transparent !important;
+}

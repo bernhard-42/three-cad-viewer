@@ -30,7 +30,7 @@ const TEMPLATE = `
             <input class='tab_tree tab tab-left tab-selected' value="Tree" type="button"/>
             <input class='tab_clip tab tab-right tab-unselected' value="Clipping" type="button"/>
         </div>
-        <div class="box_content">
+        <div class="box_content mac-scrollbar scroller">
             <div class="cad_tree_container"></div>
             <div class="cad_clip_container">
                 <div class="slider_group">
@@ -71,7 +71,7 @@ const TEMPLATE = `
         </div>
     </div>
     <div class="cad_info round">
-        <div class="cad_info_container box_content mac-scrollbar"></div>
+    <div class="cad_info_container box_content mac-scrollbar scroller"></div>
     </div>
     </div>
     <div class="cad_view">
