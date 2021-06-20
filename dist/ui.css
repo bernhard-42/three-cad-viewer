@@ -95,14 +95,15 @@ body {
 }
 
 .btn {
-    width: 30px;
+    width: 26px;
     height: 26px;
-    background-size: 28px 22px;
     background-color: white;
     border: 0px;
     display: inline-block;
     vertical-align: middle;
+    margin: 0px 2px 0px 2px;
 }
+
 
 .btn:hover {
     box-shadow: 1px 1px 1px 0 rgba(0, 0, 0, 0.4);

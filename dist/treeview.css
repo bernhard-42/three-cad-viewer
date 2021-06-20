@@ -28,9 +28,7 @@
 
 .t-caret-down::before {
     -ms-transform: rotate(90deg);
-    /* IE 9 */
     -webkit-transform: rotate(90deg);
-    /* Safari */
     transform: rotate(90deg);
 }
 
@@ -53,11 +51,11 @@
 
 .icon {
     width: 28px !important;
-    height: 22px !important;
-    padding-right: 2px;
+    height: 18px !important;
     vertical-align: middle;
     border: none;
     cursor: pointer;
+    margin: 2px 2px 2px 1px;
 }
 
 .indent {
@@ -65,7 +63,7 @@
 }
 
 .tree_label {
-    padding-left: 2px;
+    margin-left: 6px;
     font-size: 14px;
 }
 

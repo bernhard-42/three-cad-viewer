@@ -36,16 +36,16 @@ class TreeView {
 
   setupClasses() {
     var shapes = {};
-    shapes[States.unselected] = "btn_light_no_shape";
+    shapes[States.unselected] = "btn_light_shape_no";
     shapes[States.selected] = "btn_light_shape";
-    shapes[States.mixed] = "btn_light_mix_shape";
-    shapes[States.empty] = "btn_light_empty_shape";
+    shapes[States.mixed] = "btn_light_shape_mix";
+    shapes[States.empty] = "btn_light_shape_empty";
 
     var meshes = {};
-    meshes[States.unselected] = "btn_light_no_mesh";
+    meshes[States.unselected] = "btn_light_mesh_no";
     meshes[States.selected] = "btn_light_mesh";
-    meshes[States.mixed] = "btn_light_mix_mesh";
-    meshes[States.empty] = "btn_light_empty_mesh";
+    meshes[States.mixed] = "btn_light_mesh_mix";
+    meshes[States.empty] = "btn_light_mesh_empty";
 
     this.icons = [shapes, meshes];
   }
