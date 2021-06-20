@@ -2,6 +2,7 @@ body {
     margin: 0;
     display: grid;
     font-family: sans-serif;
+    -webkit-text-size-adjust: none;
 }
 
 .jupyter_cadquery {
@@ -123,6 +124,13 @@ body {
 
 }
 
+input[type="button"] {
+    -webkit-appearance:none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0;
+}
+
 .tab {
     width: 50%;
     height: 24px; 
@@ -131,6 +139,7 @@ body {
     padding: 0px;
     border: none;
     margin-bottom: 6px;
+ 
 }
 
 .tab:hover {
@@ -165,14 +174,16 @@ body {
 
 .label {
     font-family: sans-serif;
-    font-size: 0.9em;
+    font-size: 14px;
     margin-left: 4px;
+    margin-right: 4px;
     vertical-align: middle;
 }
 
 .check {
     vertical-align: middle;
-    margin-right: 6px;
+    margin-right: 2px;
+    margin-left: 6px;
 }
 
 .grid-dropdown {
@@ -208,7 +219,7 @@ body {
 
 .clip_slider {
     -webkit-appearance: none;
-    width: 66%;
+    width: 60%;
     height: 5px;
     border-radius: 2px;  
     background: #d3d3d3;
