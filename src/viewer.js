@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { CombinedCamera } from './pythreejs/cameras/CombinedCamera'
 import { Assembly } from './assembly.js'
 import { BoundingBox } from './bbox.js'
 import { Grid } from './grid.js'
@@ -8,8 +7,6 @@ import { AxesHelper } from './axes.js'
 import { OrientationMarker } from './orientation.js'
 import { TreeView } from './treeview.js'
 import { PlaneHelper } from './planehelper.js'
-import { Vector3 } from 'three';
-import { Plane } from 'three';
 
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -79,6 +76,9 @@ class Viewer {
         this.treeview = null;
         this.normals = [];
 
+        this.raycaster = new THREE.Raycaster();
+        this.mouse = new THREE.Vector2()
+
         // setup renderer
         this.renderer = new THREE.WebGLRenderer({
             alpha: !dark,
@@ -88,6 +88,8 @@ class Viewer {
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
         this.renderer.localClippingEnabled = true;
+
+        this.renderer.domElement.addEventListener('click', this.pick, false);
 
         this.display.addCadView(this.renderer.domElement);
 
@@ -322,6 +324,31 @@ class Viewer {
         if (this.clipPlanes) {
             this.clipPlanes[index].constant = value;
         }
+    }
+
+    pick = (e) => {
+        const rect = this.renderer.domElement.getBoundingClientRect();
+        const offsetX = rect.x + window.pageXOffset;
+        const offsetY = rect.y + window.pageYOffset;
+        this.mouse.x = ((e.pageX - offsetX) / this.width) * 2 - 1;
+        this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+
+        const objects = this.raycaster.intersectObjects(this.scene.children.slice(0, 1), true);
+        var nearest = {};
+        for (var object of objects) {
+            if (object.object.visible) {
+                nearest = {
+                    name: object.object.name,
+                    boundingBox: object.object.geometry.boundingBox,
+                    boundingSphere: object.object.geometry.boundingSphere,
+                    mesh: object.object
+                };
+                break;
+            }
+        }
+        console.log(nearest);
     }
 }
 
