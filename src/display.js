@@ -271,7 +271,7 @@ class Display {
 
     reset = () => {
         this.viewer.setCamera(this.viewer.bbox.center, "iso")
-        this.viewer.camera.setZoom(this.viewer.zoom);
+        this.viewer.camera.zoom = this.viewer.zoom;
         this.viewer.camera.lookAt(this.viewer.bbox.center);
         this.viewer.controls.reset();
     }

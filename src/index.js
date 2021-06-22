@@ -7,7 +7,7 @@ import { TreeView } from './treeview.js';
 const dark = false;
 const bbFactor = 1.0;
 const position = [1, 1, 1];
-const zoom = 2.0;
+const zoom = 1.0;
 const grid = false;
 const axes = false;
 const axes0 = false;

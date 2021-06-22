@@ -24,6 +24,7 @@ const defaultDirections = {
     "right": { "position": [0, -1, 0] },
     "iso": { "position": [1, 1, 1] }
 }
+
 class Viewer {
 
     constructor(
@@ -48,7 +49,7 @@ class Viewer {
         this.dark = dark;
         this.bbFactor = bbFactor;
         this.position = position;
-        this.zoom = zoom;
+        this.zoom0 = zoom;
         this.grid = grid;
         this.axes = axes;
         this.ortho = ortho;
@@ -68,6 +69,7 @@ class Viewer {
         this.geom = null;
         this.bbox = null;
         this.bb_max = 0;
+        this.zoom = zoom;
         this.scene = null;
         this.gridHelper = null;
         this.axesHelper = null;
@@ -210,23 +212,25 @@ class Viewer {
         ]);
 
         // define the camera
+        var distance = 6 * this.bb_max;
+        var diag = Math.sqrt((this.height * this.height) + (this.width * this.width))
+        var fov = 2 * Math.atan(diag / (2 * distance)) * 180 / Math.PI;
+        console.log(fov);
 
-        this.camera = new CombinedCamera(
-            this.width, this.height, 35,
-            0.1, 10 * this.bbFactor * this.bb_max,
-            0.1, 10 * this.bbFactor * this.bb_max
+        this.pCamera = new THREE.PerspectiveCamera(
+            fov,
+            this.width / this.height,
+            1,
+            100 * this.bb_max)
+
+        this.oCamera = new THREE.OrthographicCamera(
+            this.width / -2, this.width / 2,
+            this.height / 2, this.height / -2,
+            0.1,
+            10 * this.bbFactor * this.bb_max
         )
 
         this.setOrthoCamera(true);
-        this.setCameraPosition(this.bbox.center, this.position);
-
-        this.resize()
-
-        // define the orbit controller
-
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.target = new THREE.Vector3(...this.bbox.center);
-        this.controls.saveState();
 
         // define the orientation marker
 
@@ -243,26 +247,41 @@ class Viewer {
     // handler 
 
     resize() {
-        this.camera.setZoom(this.zoom);
+        this.camera.zoom = this.zoom0;
+        this.camera.updateProjectionMatrix();
     }
 
     setCamera = (center, dir) => {
         this.setCameraPosition(center, defaultDirections[dir]["position"]);
     }
 
-    setCameraPosition(center, position0) {
-        var cameraPosition = new THREE.Vector3(...position0).normalize().multiplyScalar(6 * this.bb_max);
+    setCameraPosition(center, dir) {
+        var cameraPosition;
+        if (this.camera.type === "OrthographicCamera") {
+            cameraPosition = new THREE.Vector3(...dir).normalize().multiplyScalar(6 * this.bb_max);
+        } else {
+            cameraPosition = new THREE.Vector3(...dir).normalize().multiplyScalar(3.5 * this.bb_max);
+        }
         cameraPosition = cameraPosition.add(new THREE.Vector3(...center));
         this.camera.position.set(...cameraPosition.toArray());
         this.camera.up = new THREE.Vector3(0, 0, 1)
+        this.camera.lookAt(...center);
+        this.camera.zoom = this.zoom0;
+        this.camera.updateProjectionMatrix();
     }
 
     setOrthoCamera(ortho_flag) {
         if (ortho_flag) {
-            this.camera.toOrthographic()
+            this.camera = this.oCamera;
         } else {
-            this.camera.toPerspective()
+            this.camera = this.pCamera;
         }
+
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.target = new THREE.Vector3(...this.bbox.center);
+        this.controls.saveState();
+
+        this.setCameraPosition(this.bbox.center, this.position);
     }
 
     // handler (bound to Viewer instance)
