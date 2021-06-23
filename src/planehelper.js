@@ -34,7 +34,6 @@ class PlaneHelper extends THREE.Line {
             -1, -1, 1,
             1, -1, 1
         ];
-        console.log(center)
         const geometry2 = new THREE.BufferGeometry();
         geometry2.setAttribute('position', new THREE.Float32BufferAttribute(positions2, 3));
         geometry2.computeBoundingSphere();
