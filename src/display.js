@@ -251,12 +251,12 @@ class Display {
 
     setTransparency = (e) => {
         const flag = !!e.target.checked;
-        this.viewer.assembly.setTransparent(flag);
+        this.viewer.setTransparent(flag);
     }
 
     setBlackEdges = (e) => {
         const flag = !!e.target.checked;
-        this.viewer.assembly.setBlackEdges(flag);
+        this.viewer.setBlackEdges(flag);
     }
 
     setClipPlaneHelpers = (e) => {
@@ -270,10 +270,7 @@ class Display {
     }
 
     reset = () => {
-        this.viewer.setCamera(this.viewer.bbox.center, "iso")
-        this.viewer.camera.zoom = this.viewer.zoom;
-        this.viewer.camera.lookAt(this.viewer.bbox.center);
-        this.viewer.controls.reset();
+        this.viewer.reset();
     }
 
     resize = () => {
@@ -282,7 +279,7 @@ class Display {
 
     setView = (e) => {
         const btn = e.target.className.split(" ")[0];
-        this.viewer.setCamera(this.viewer.bbox.center, btn);
+        this.viewer.setCamera(btn);
     }
 
     setNormal = (index, normal) => {

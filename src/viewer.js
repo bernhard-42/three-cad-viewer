@@ -12,14 +12,18 @@ function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
 };
 
+// Orbit controls does not work properly if the camera is looking straight down or straight up
+// https://stackoverflow.com/questions/42520648/how-do-i-make-the-orbitcontrols-in-three-js-honor-changes-to-orientation-of-the#comment72227004_42520648
+// hence "top" and "bottom" are slightly changed
+
 const defaultDirections = {
+    "iso": { "position": [1, 1, 1] },
     "front": { "position": [1, 0, 0] },
     "rear": { "position": [-1, 0, 0] },
-    "top": { "position": [0, 0, 1] },
-    "bottom": { "position": [0, 0, -1] },
     "left": { "position": [0, 1, 0] },
     "right": { "position": [0, -1, 0] },
-    "iso": { "position": [1, 1, 1] }
+    "top": { "position": [0, 1e-9, 1] },
+    "bottom": { "position": [0, 1e-9, -1] }
 }
 
 class Viewer {
@@ -217,12 +221,11 @@ class Viewer {
         var distance = 6 * this.bb_max;
         var diag = Math.sqrt((this.height * this.height) + (this.width * this.width))
         var fov = 2 * Math.atan(diag / (2 * distance)) * 180 / Math.PI;
-        console.log(fov);
 
         this.pCamera = new THREE.PerspectiveCamera(
             fov,
             this.width / this.height,
-            1,
+            0.1,
             100 * this.bb_max)
 
         this.oCamera = new THREE.OrthographicCamera(
@@ -248,26 +251,40 @@ class Viewer {
 
     // handler 
 
-    resize() {
+    resize = () => {
         this.camera.zoom = this.zoom0;
         this.camera.updateProjectionMatrix();
     }
 
-    setCamera = (center, dir) => {
-        this.setCameraPosition(center, defaultDirections[dir]["position"]);
+    reset = () => {
+        this.controls.reset();
     }
 
-    setCameraPosition(center, dir) {
+    setCamera = (dir) => {
+        this.setCameraPosition(defaultDirections[dir]["position"]);
+    }
+
+    setTransparent = (flag) => {
+        this.assembly.setTransparent(flag);
+    }
+
+    setBlackEdges = (flag) => {
+        this.assembly.setBlackEdges(flag);
+    }
+
+    setCameraPosition(dir) {
         var cameraPosition;
         if (this.camera.type === "OrthographicCamera") {
             cameraPosition = new THREE.Vector3(...dir).normalize().multiplyScalar(6 * this.bb_max);
         } else {
             cameraPosition = new THREE.Vector3(...dir).normalize().multiplyScalar(3.5 * this.bb_max);
         }
-        cameraPosition = cameraPosition.add(new THREE.Vector3(...center));
+        const center = new THREE.Vector3(...this.bbox.center);
+        cameraPosition = cameraPosition.add(center);
+
         this.camera.position.set(...cameraPosition.toArray());
         this.camera.up = new THREE.Vector3(0, 0, 1)
-        this.camera.lookAt(...center);
+        this.camera.lookAt(center);
         this.camera.zoom = this.zoom0;
         this.camera.updateProjectionMatrix();
     }
@@ -279,11 +296,13 @@ class Viewer {
             this.camera = this.pCamera;
         }
 
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.target = new THREE.Vector3(...this.bbox.center);
-        this.controls.saveState();
+        this.setCameraPosition(this.position);
 
-        this.setCameraPosition(this.bbox.center, this.position);
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.listenToKeyEvents(window);
+        this.controls.target = new THREE.Vector3(...this.bbox.center);
+        this.controls.update();
+        this.controls.saveState();
     }
 
     // handler (bound to Viewer instance)
