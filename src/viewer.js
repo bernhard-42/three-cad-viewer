@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js'
 import { Assembly } from './assembly.js'
 import { BoundingBox } from './bbox.js'
 import { Grid } from './grid.js'
@@ -158,7 +159,12 @@ class Viewer {
             this.normalLen,
             this.clipPlanes
         );
+
         this.geom = this.assembly.render();
+
+        // set defaults
+        this.assembly.setTransparent(this.transparent);
+        this.assembly.setBlackEdges(this.blackEdges);
 
         var b = new THREE.Box3().setFromObject(this.geom);
         this.bbox = new BoundingBox(b.min.x, b.max.x, b.min.y, b.max.y, b.min.z, b.max.z)
@@ -244,7 +250,6 @@ class Viewer {
         this.display.addCadInset(this.orientationMarker.create());
 
         // show the rendering
-
         this.animate();
         this.initObjects();
     }
@@ -298,11 +303,16 @@ class Viewer {
 
         this.setCameraPosition(this.position);
 
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.listenToKeyEvents(window);
+        var orbit = true;
+        if (orbit) {
+            this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+            this.controls.listenToKeyEvents(window);
+        } else {
+            this.controls = new TrackballControls(this.camera, this.renderer.domElement);
+        }
         this.controls.target = new THREE.Vector3(...this.bbox.center);
         this.controls.update();
-        this.controls.saveState();
+        // this.controls.saveState();
     }
 
     // handler (bound to Viewer instance)

@@ -8,14 +8,22 @@ class ObjectGroup extends THREE.Group {
         super();
         this.opacity = opacity;
         this.edge_color = edge_color;
+        this.types = [];
+    }
+
+    addType(type) {
+        this.types.push(type);
     }
 
     setTransparent(flag) {
         for (var i in this.children) {
             const side = this.children[i];
-            // only change opacity for the first two mesh objects
-            side.material.opacity = (flag & (i < 2)) ? this.opacity : 1.0;
-            // but change dpethTest for all objects
+            // Only change opacity for meshes
+            if (["back", "front"].indexOf(this.types[i]) >= 0) {
+                side.material.opacity = (flag) ? this.opacity : 1.0;
+            }
+            console.log(flag, this.opacity, (flag) ? this.opacity : 1.0)
+            // but change depthTest for all objects
             side.material.depthWrite = !flag;
             side.material.depthTest = !flag;
             side.material.needsUpdate = true;
@@ -39,19 +47,24 @@ class ObjectGroup extends THREE.Group {
     setEdgesVisible(flag) {
         this.children[2].visible = flag;
     }
+
+    setBackVisible(flag) {
+        this.children[0].material.visible = flag;
+    }
 }
 
 class Assembly {
-    constructor(shapes, width, height, edge_color, transparent, transparent_opacity, normalLen, clipPlanes) {
+    constructor(shapes, width, height, edge_color, transparent, opacity, normalLen, clipPlanes) {
         this.shapes = shapes;
         this.width = width;
         this.height = height;
         this.edge_color = edge_color;
         this.transparent = transparent;
-        this.transparent_opacity = transparent_opacity;
+        this.defaultOpacity = opacity;
         this.normalLen = normalLen;
         this.clipPlanes = clipPlanes;
         this.blackEdges = false;
+        this.backVisible = false;
         this.delim = '\\';
         this.groups = {};
     }
@@ -86,7 +99,7 @@ class Assembly {
         var positions = new Float32Array(shape.vertices.flat());
         var normals = new Float32Array(shape.normals.flat());
 
-        var group = new ObjectGroup(this.transparent_opacity, this.edge_color)
+        var group = new ObjectGroup(this.defaultOpacity, this.edge_color)
 
         var shapeGeometry = new THREE.BufferGeometry();
         shapeGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -99,7 +112,7 @@ class Assembly {
             polygonOffsetFactor: 1,
             polygonOffsetUnits: 1,
             transparent: true,
-            opacity: this.transparent ? this.transparent_opacity : 1,
+            opacity: 1.0,
             depthWrite: !this.transparent,
             depthTest: !this.transparent,
             clipIntersection: false
@@ -113,15 +126,20 @@ class Assembly {
         backMaterial.color = new THREE.Color(this.edge_color);
         backMaterial.side = THREE.BackSide;
         backMaterial.clippingPlanes = this.clipPlanes //don't clone!
+        backMaterial.visible = this.backVisible;
 
         const front = new THREE.Mesh(shapeGeometry, frontMaterial)
+
         front.name = name;
 
         const back = new THREE.Mesh(shapeGeometry, backMaterial)
         back.name = name;
 
         group.add(back)
+        group.addType("back")
+
         group.add(front)
+        group.addType("front")
 
         if (this.normalLen > 0) {
             group.add(new VertexNormalsHelper(front, this.normalLen));
@@ -139,7 +157,9 @@ class Assembly {
         if (normalsList.length > 0) {
             var wireframe = this.renderEdges(normalsList, 1)
             group.add(wireframe)
+            group.addType("wireframe")
         }
+
 
         return group
     }
@@ -197,6 +217,17 @@ class Assembly {
             for (var obj of this.groups[path].children) {
                 if (obj instanceof ObjectGroup) {
                     obj.setBlackEdges(flag);
+                }
+            }
+        }
+    }
+
+    setBackVisible(flag) {
+        this.backVisible = flag;
+        for (var path in this.groups) {
+            for (var obj of this.groups[path].children) {
+                if (obj instanceof ObjectGroup) {
+                    obj.setBackVisible(flag);
                 }
             }
         }

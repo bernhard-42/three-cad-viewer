@@ -16,8 +16,8 @@ const blackEdges = false;
 const edgeColor = blackEdges ? 0x000000 : 0x707070;
 const ambientIntensity = 0.5;
 const directIntensity = 0.3;
-const transparent = false;
-const transparent_opyacity = 0.5;
+const transparent = true;
+const defaultOpacity = 0.4;
 const normalLen = 0;
 const shapes = example.shapes;
 const mapping = example.mapping;
@@ -44,7 +44,7 @@ const viewer = new Viewer(
     ambientIntensity,
     directIntensity,
     transparent,
-    transparent_opyacity,
+    defaultOpacity,
     normalLen
 )
 

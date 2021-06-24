@@ -292,11 +292,13 @@ class Display {
         if ((tab === "tab_tree") && (this.activeTab !== "tab_tree")) {
             this.cadTree.style.display = "block";
             this.cadClip.style.display = "none";
+            this.viewer.assembly.setBackVisible(false);
             changed = true;
         };
         if ((tab === "tab_clip") && (this.activeTab !== "tab_clip")) {
             this.cadTree.style.display = "none";
             this.cadClip.style.display = "block";
+            this.viewer.assembly.setBackVisible(true);
             changed = true;
         }
         this.activeTab = tab;
