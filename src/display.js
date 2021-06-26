@@ -112,10 +112,10 @@ class Slider {
     }
 
     adaptSlider(min, max) {
-        const exp = Math.round(Math.log10(Math.max(Math.abs(min), Math.abs(max))));
+        const exp = Math.abs(Math.round(Math.log10(Math.max(Math.abs(min), Math.abs(max)))));
         this.slider.min = min;
         this.slider.max = max;
-        this.slider.step = Math.pow(10, -exp);
+        this.slider.step = Math.pow(10, -(3 - exp));
         this.slider.value = max;
         this.input.value = Math.round(1000 * this.slider.max) / 1000;
         this.display.refreshPlanes(this.index, this.input.value);
