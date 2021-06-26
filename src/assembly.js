@@ -3,6 +3,8 @@ import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2.js'
 import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry.js'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
 import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper'
+import { BoundingBox } from './bbox.js'
+
 class ObjectGroup extends THREE.Group {
     constructor(opacity, edge_color) {
         super();
@@ -62,10 +64,16 @@ class ObjectGroup extends THREE.Group {
             child.material.clipIntersection = flag;
         }
     }
+    setPolygonOffset(offset) {
+        console.log(offset)
+        if (this.types.back) {
+            this.types.back.material.polygonOffsetUnits = offset;
+        }
+    }
 }
 
 class Assembly {
-    constructor(shapes, width, height, edge_color, transparent, opacity, normalLen, clipPlanes) {
+    constructor(shapes, width, height, edge_color, transparent, opacity, normalLen, clipPlanes, bb_max) {
         this.shapes = shapes;
         this.width = width;
         this.height = height;
@@ -76,7 +84,11 @@ class Assembly {
         this.clipPlanes = clipPlanes;
         this.blackEdges = false;
         this.backVisible = false;
+        this.bb_max = bb_max;
         this.delim = '\\';
+        this.rootGroup = null;
+        this.bbox = null;
+        this.bsphere = null;
         this.groups = {};
     }
 
@@ -131,10 +143,12 @@ class Assembly {
             clippingPlanes: this.clipPlanes
         });
 
-
         const backMaterial = new THREE.MeshBasicMaterial({
             color: new THREE.Color(this.edge_color),
             side: THREE.BackSide,
+            polygonOffset: true,
+            polygonOffsetFactor: 1.0,
+            polygonOffsetUnits: 1.0,
             transparent: true,
             opacity: 1.0,
             depthWrite: !this.transparent,
@@ -218,7 +232,18 @@ class Assembly {
     }
 
     render() {
-        return this.renderLoop(this.shapes, "");
+        this.rootGroup = this.renderLoop(this.shapes, "");
+        return this.rootGroup
+    }
+
+    boundingBox() {
+        if (this.bbox == null) {
+            var b = new THREE.Box3().setFromObject(this.rootGroup);
+            this.bsphere = new THREE.Sphere();
+            b.getBoundingSphere(this.bsphere);
+            this.bbox = new BoundingBox(b.min.x, b.max.x, b.min.y, b.max.y, b.min.z, b.max.z)
+        }
+        return this.bbox;
     }
 
     _traverse(func, flag) {
@@ -248,6 +273,10 @@ class Assembly {
 
     setClipIntersection(flag) {
         this._traverse("setClipIntersection", flag);
+    }
+
+    setPolygonOffset(offset) {
+        this._traverse("setPolygonOffset", offset);
     }
 }
 

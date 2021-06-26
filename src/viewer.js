@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js'
 import { Assembly } from './assembly.js'
-import { BoundingBox } from './bbox.js'
 import { Grid } from './grid.js'
 import { AxesHelper } from './axes.js'
 import { OrientationMarker } from './orientation.js'
@@ -165,9 +164,9 @@ class Viewer {
         // set defaults
         this.assembly.setTransparent(this.transparent);
         this.assembly.setBlackEdges(this.blackEdges);
+        this.assembly.setPolygonOffset(2);
 
-        var b = new THREE.Box3().setFromObject(this.geom);
-        this.bbox = new BoundingBox(b.min.x, b.max.x, b.min.y, b.max.y, b.min.z, b.max.z)
+        this.bbox = this.assembly.boundingBox();
         this.bb_max = this.bbox.max_dist_from_center()
 
         // build the scene
@@ -230,8 +229,7 @@ class Viewer {
         // calculate FOV
 
         const dfactor = 5;
-        var sphere = new THREE.Sphere();
-        b.getBoundingSphere(sphere);
+        var sphere = this.assembly.bsphere;
 
         this.camera_distance = dfactor * sphere.radius;
         var fov = 2 * Math.atan(1 / dfactor) / Math.PI * 180;
