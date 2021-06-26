@@ -390,10 +390,11 @@ class Viewer {
         for (var object of objects) {
             if (object.object.visible) {
                 nearest = {
+                    path: object.object.parent.parent.name,
                     name: object.object.name,
                     boundingBox: object.object.geometry.boundingBox,
                     boundingSphere: object.object.geometry.boundingSphere,
-                    mesh: object.object
+                    objectGroup: object.object.parent
                 };
                 break;
             }
