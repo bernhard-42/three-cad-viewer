@@ -12,7 +12,9 @@ class Grid {
         this.allGrid = visible[0] | visible[1] | visible[2];
 
         this.gridHelper = [];
-        var [axisStart, axisEnd, niceTick] = this.niceBounds(-bbox.max, bbox.max, 2 * ticks);
+        // in case the bbox has the same siez as the nice grid there should be
+        // a margin bewteen grid and object. Hence factor 1.1
+        var [axisStart, axisEnd, niceTick] = this.niceBounds(-bbox.max * 1.1, bbox.max * 1.1, 2 * ticks);
         this.size = axisEnd - axisStart
 
         for (var i = 0; i < 3; i++) {
