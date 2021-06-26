@@ -22,7 +22,7 @@ class ObjectGroup extends THREE.Group {
             if (["back", "front"].indexOf(this.types[i]) >= 0) {
                 side.material.opacity = (flag) ? this.opacity : 1.0;
             }
-            console.log(flag, this.opacity, (flag) ? this.opacity : 1.0)
+
             // but change depthTest for all objects
             side.material.depthWrite = !flag;
             side.material.depthTest = !flag;
@@ -109,8 +109,8 @@ class Assembly {
         const shapeMaterial = new THREE.MeshStandardMaterial({
             color: color,
             polygonOffset: true,
-            polygonOffsetFactor: 1,
-            polygonOffsetUnits: 1,
+            polygonOffsetFactor: 1.0,
+            polygonOffsetUnits: 1.0,
             transparent: true,
             opacity: 1.0,
             depthWrite: !this.transparent,
@@ -142,7 +142,8 @@ class Assembly {
         group.addType("front")
 
         if (this.normalLen > 0) {
-            group.add(new VertexNormalsHelper(front, this.normalLen));
+            const normalsHelper = new VertexNormalsHelper(front, this.normalLen);
+            group.add(normalsHelper);
         }
 
         // group.add(new THREE.BoxHelper(front, 0x888888))
@@ -160,16 +161,31 @@ class Assembly {
             group.addType("wireframe")
         }
 
-
         return group
     }
 
     renderLoop(shapes, path) {
-        var group = new THREE.Group();
-        if (shapes.loc !== null) {
-            group.position.set(...shapes.loc[0])
-            group.quaternion.set(...shapes.loc[1]);
+        const _render = (shape) => {
+            var mesh;
+            switch (shape.type) {
+                case "edges":
+                    mesh = this.renderEdges(shape);
+                    break;
+                case "vertices":
+                    mesh = this.renderVertices(shape);
+                    break;
+                default:
+                    mesh = this.renderShape(shape.shape, shape.color, shape.name);
+            }
+            return mesh
         }
+
+        var group = new THREE.Group();
+        if ((shapes.loc === undefined) | (shapes.loc === null)) {
+            shapes.loc = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]];
+        }
+        group.position.set(...shapes.loc[0])
+        group.quaternion.set(...shapes.loc[1]);
 
         path = path + this.delim + shapes.name
         this.groups[path] = group
@@ -179,18 +195,7 @@ class Assembly {
             if (shape.parts) {
                 group.add(this.renderLoop(shape, path));
             } else {
-                var mesh;
-                switch (shape.type) {
-                    case "edges":
-                        mesh = this.renderEdges(shape);
-                        break;
-                    case "vertices":
-                        mesh = this.renderVertices(shape);
-                        break;
-                    default:
-                        mesh = this.renderShape(shape.shape, shape.color, shape.name);
-                }
-                group.add(mesh);
+                group.add(_render(shape));
             }
         }
         return group;

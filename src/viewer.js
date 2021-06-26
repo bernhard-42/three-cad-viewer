@@ -23,8 +23,8 @@ const defaultDirections = {
     "rear": { "position": [-1, 0, 0] },
     "left": { "position": [0, 1, 0] },
     "right": { "position": [0, -1, 0] },
-    "top": { "position": [0, 1e-9, 1] },
-    "bottom": { "position": [0, 1e-9, -1] }
+    "top": { "position": [0, 1e-6, 1] },
+    "bottom": { "position": [0, 1e-6, -1] }
 }
 
 class Viewer {
@@ -81,6 +81,7 @@ class Viewer {
         this.treeview = null;
         this.normals = [];
 
+        this.camera_distance = 0;
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2()
 
@@ -114,7 +115,7 @@ class Viewer {
 
     getGroup(path) {
         var group = this.geom;
-        for (var i = 1; i < path.length; i++) {
+        for (var i = 0; i < path.length; i++) {
             var key = path[i];
             group = group.children[key];
         }
@@ -150,7 +151,7 @@ class Viewer {
         // render the assembly
 
         this.assembly = new Assembly(
-            shapes.parts[0],
+            shapes,
             this.width,
             this.height,
             this.edgeColor,
@@ -161,7 +162,6 @@ class Viewer {
         );
 
         this.geom = this.assembly.render();
-
         // set defaults
         this.assembly.setTransparent(this.transparent);
         this.assembly.setBlackEdges(this.blackEdges);
@@ -223,25 +223,43 @@ class Viewer {
             [-gsize2, gsize2]
         ]);
 
-        // define the camera
-        var distance = 6 * this.bb_max;
-        var diag = Math.sqrt((this.height * this.height) + (this.width * this.width))
-        var fov = 2 * Math.atan(diag / (2 * distance)) * 180 / Math.PI;
+        // define the perspective camera
+
+        const aspect = this.width / this.height;
+
+        // calculate FOV
+
+        const dfactor = 5;
+        var sphere = new THREE.Sphere();
+        b.getBoundingSphere(sphere);
+
+        this.camera_distance = dfactor * sphere.radius;
+        var fov = 2 * Math.atan(1 / dfactor) / Math.PI * 180;
 
         this.pCamera = new THREE.PerspectiveCamera(
             fov,
-            this.width / this.height,
+            aspect,
             0.1,
-            100 * this.bb_max)
-
-        this.oCamera = new THREE.OrthographicCamera(
-            this.width / -2, this.width / 2,
-            this.height / 2, this.height / -2,
-            0.1,
-            10 * this.bbFactor * this.bb_max
+            100 * sphere.radius
         )
 
-        this.setOrthoCamera(true);
+        // define the orthographic camera
+
+        const w = sphere.radius * 1.5;
+        const h = sphere.radius * 1.5 / aspect;
+
+        this.oCamera = new THREE.OrthographicCamera(
+            -w, w, h, -h,
+            0.1,
+            10 * sphere.radius
+        )
+        const cube = new THREE.Mesh(
+            new THREE.BoxGeometry(1, 1, 1),
+            new THREE.MeshBasicMaterial({ color: 0xff0000 }),
+        );
+        console.log(cube)
+        // this.scene.add(cube)
+        this.setOrthoCamera(this.ortho);
 
         // define the orientation marker
 
@@ -280,9 +298,9 @@ class Viewer {
     setCameraPosition(dir) {
         var cameraPosition;
         if (this.camera.type === "OrthographicCamera") {
-            cameraPosition = new THREE.Vector3(...dir).normalize().multiplyScalar(6 * this.bb_max);
+            cameraPosition = new THREE.Vector3(...dir).normalize().multiplyScalar(this.camera_distance);
         } else {
-            cameraPosition = new THREE.Vector3(...dir).normalize().multiplyScalar(3.5 * this.bb_max);
+            cameraPosition = new THREE.Vector3(...dir).normalize().multiplyScalar(this.camera_distance);
         }
         const center = new THREE.Vector3(...this.bbox.center);
         cameraPosition = cameraPosition.add(center);

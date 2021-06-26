@@ -1,4 +1,7 @@
-import { example } from './example.js';
+// import { example } from './examples/box.js';
+// import { example } from './examples/box1.js';
+// import { example } from './examples/boxes.js';
+import { example } from './examples/hexapod.js';
 import { Display } from './display.js';
 import { Viewer } from './viewer.js';
 import { TreeView } from './treeview.js';
@@ -11,12 +14,12 @@ const zoom = 1.0;
 const grid = false;
 const axes = false;
 const axes0 = false;
-const ortho = true;
+const ortho = false;
 const blackEdges = false;
 const edgeColor = blackEdges ? 0x000000 : 0x707070;
 const ambientIntensity = 0.5;
 const directIntensity = 0.3;
-const transparent = true;
+const transparent = false;
 const defaultOpacity = 0.4;
 const normalLen = 0;
 const shapes = example.shapes;
@@ -50,6 +53,7 @@ const viewer = new Viewer(
 
 var states = {}
 var paths = {}
+
 for (var key in mapping) {
     states[key] = mapping[key]["state"]
     paths[key] = mapping[key]["path"]
