@@ -295,6 +295,10 @@ class Viewer {
         this.assembly.setBlackEdges(flag);
     }
 
+    setClipIntersection = (flag) => {
+        this.assembly.setClipIntersection(flag);
+    }
+
     setCameraPosition(dir) {
         var cameraPosition;
         if (this.camera.type === "OrthographicCamera") {

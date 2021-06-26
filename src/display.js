@@ -266,7 +266,7 @@ class Display {
 
     setClipIntersection = (e) => {
         const flag = !!e.target.checked;
-        this.viewer.setPlaneHelpers(flag);
+        this.viewer.setClipIntersection(flag);
     }
 
     reset = () => {

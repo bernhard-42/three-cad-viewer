@@ -8,48 +8,60 @@ class ObjectGroup extends THREE.Group {
         super();
         this.opacity = opacity;
         this.edge_color = edge_color;
-        this.types = [];
+        this.types = { front: null, back: null, edges: null };
     }
 
-    addType(type) {
-        this.types.push(type);
+    addType(mesh, type) {
+        this.add(mesh);
+        this.types[type] = mesh;
     }
 
     setTransparent(flag) {
-        for (var i in this.children) {
-            const side = this.children[i];
-            // Only change opacity for meshes
-            if (["back", "front"].indexOf(this.types[i]) >= 0) {
-                side.material.opacity = (flag) ? this.opacity : 1.0;
-            }
-
-            // but change depthTest for all objects
-            side.material.depthWrite = !flag;
-            side.material.depthTest = !flag;
-            side.material.needsUpdate = true;
+        console.log(this)
+        if (this.types.back) {
+            this.types.back.material.opacity = (flag) ? this.opacity : 1.0;
+            this.types.front.material.opacity = (flag) ? this.opacity : 1.0;
+        }
+        for (var child of this.children) {
+            child.material.depthWrite = !flag;
+            child.material.depthTest = !flag;
+            child.material.needsUpdate = true;
         }
     }
 
     setBlackEdges(flag) {
-        if (this.children.length > 2) {
-            const edges = this.children[2];
+        if (this.types.edges) {
             const color = flag ? 0x000000 : this.edge_color;
-            edges.material.color = new THREE.Color(color);
-            edges.material.needsUpdate = true;
+            this.types.edges.material.color = new THREE.Color(color);
+            this.types.edges.material.needsUpdate = true;
         }
     }
 
     setShapeVisible(flag) {
-        this.children[0].visible = flag;
-        this.children[1].visible = flag;
+        if (this.types.back) {
+            this.children[0].visible = flag;
+            this.children[1].visible = flag;
+        }
     }
 
     setEdgesVisible(flag) {
-        this.children[2].visible = flag;
+        if (this.types.edges) {
+            this.children[2].visible = flag;
+        }
     }
 
     setBackVisible(flag) {
-        this.children[0].material.visible = flag;
+        if (this.types.back) {
+            this.types.back.material.visible = flag;
+        }
+    }
+
+    setClipIntersection(flag) {
+        for (var child of this.children) {
+            child.material.clipIntersection = flag;
+            child.material.clipIntersection = flag;
+            child.material.clipIntersection = flag;
+        }
     }
 }
 
@@ -106,7 +118,7 @@ class Assembly {
         shapeGeometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
         shapeGeometry.setIndex(shape.triangles)
 
-        const shapeMaterial = new THREE.MeshStandardMaterial({
+        const frontMaterial = new THREE.MeshStandardMaterial({
             color: color,
             polygonOffset: true,
             polygonOffsetFactor: 1.0,
@@ -115,18 +127,23 @@ class Assembly {
             opacity: 1.0,
             depthWrite: !this.transparent,
             depthTest: !this.transparent,
-            clipIntersection: false
+            clipIntersection: false,
+            side: THREE.FrontSide,
+            clippingPlanes: this.clipPlanes
         });
 
-        const frontMaterial = shapeMaterial.clone()
-        frontMaterial.side = THREE.FrontSide;
-        frontMaterial.clippingPlanes = this.clipPlanes; //don't clone!
 
-        const backMaterial = shapeMaterial.clone()
-        backMaterial.color = new THREE.Color(this.edge_color);
-        backMaterial.side = THREE.BackSide;
-        backMaterial.clippingPlanes = this.clipPlanes //don't clone!
-        backMaterial.visible = this.backVisible;
+        const backMaterial = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(this.edge_color),
+            side: THREE.BackSide,
+            transparent: true,
+            opacity: 1.0,
+            depthWrite: !this.transparent,
+            depthTest: !this.transparent,
+            clipIntersection: false,
+            clippingPlanes: this.clipPlanes,
+            visible: this.backVisible
+        });
 
         const front = new THREE.Mesh(shapeGeometry, frontMaterial)
 
@@ -135,11 +152,11 @@ class Assembly {
         const back = new THREE.Mesh(shapeGeometry, backMaterial)
         back.name = name;
 
-        group.add(back)
-        group.addType("back")
+        // group.add(back)
+        group.addType(back, "back")
 
-        group.add(front)
-        group.addType("front")
+        // group.add(front)
+        group.addType(front, "front")
 
         if (this.normalLen > 0) {
             const normalsHelper = new VertexNormalsHelper(front, this.normalLen);
@@ -150,16 +167,16 @@ class Assembly {
 
         var [edgeList, normalsList] = shape.edges
         if (edgeList.length > 0) {
-            var wireframe = this.renderEdges(edgeList, 1)
-            wireframe.name = name;
-            group.add(wireframe)
+            var edges = this.renderEdges(edgeList, 1)
+            edges.name = name;
+            group.addType(edges, "edges")
         }
 
-        if (normalsList.length > 0) {
-            var wireframe = this.renderEdges(normalsList, 1)
-            group.add(wireframe)
-            group.addType("wireframe")
-        }
+        // if (normalsList.length > 0) {
+        //     var wireframe = this.renderEdges(normalsList, 1)
+        //     group.add(wireframe)
+        //     group.addType("wireframe")
+        // }
 
         return group
     }
@@ -233,6 +250,16 @@ class Assembly {
             for (var obj of this.groups[path].children) {
                 if (obj instanceof ObjectGroup) {
                     obj.setBackVisible(flag);
+                }
+            }
+        }
+    }
+
+    setClipIntersection(flag) {
+        for (var path in this.groups) {
+            for (var obj of this.groups[path].children) {
+                if (obj instanceof ObjectGroup) {
+                    obj.setClipIntersection(flag);
                 }
             }
         }
