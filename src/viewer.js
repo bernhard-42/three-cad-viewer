@@ -23,8 +23,8 @@ const defaultDirections = {
     "rear": { "position": [-1, 0, 0] },
     "left": { "position": [0, 1, 0] },
     "right": { "position": [0, -1, 0] },
-    "top": { "position": [0, 1e-6, 1] },
-    "bottom": { "position": [0, 1e-6, -1] }
+    "top": { "position": [0, 0, 1] },
+    "bottom": { "position": [0, 0, -1] }
 }
 
 class Viewer {
@@ -298,20 +298,26 @@ class Viewer {
         this.renderer.localClippingEnabled = flag;
     }
 
-    setCameraPosition(dir) {
+    setCameraPosition(position) {
         var cameraPosition;
         if (this.camera.type === "OrthographicCamera") {
-            cameraPosition = new THREE.Vector3(...dir).normalize().multiplyScalar(this.camera_distance);
+            cameraPosition = new THREE.Vector3(...position).normalize().multiplyScalar(this.camera_distance);
         } else {
-            cameraPosition = new THREE.Vector3(...dir).normalize().multiplyScalar(this.camera_distance);
+            cameraPosition = new THREE.Vector3(...position).normalize().multiplyScalar(this.camera_distance);
         }
         const center = new THREE.Vector3(...this.bbox.center);
         cameraPosition = cameraPosition.add(center);
-
         this.camera.position.set(...cameraPosition.toArray());
         this.camera.up = new THREE.Vector3(0, 0, 1)
         this.camera.lookAt(center);
         this.camera.zoom = this.zoom0;
+
+        // set x direction for top and bottom view to avoid flickering
+        if ((Math.abs(position[0]) < 1e-6) &
+            (Math.abs(position[1]) < 1e-6) &
+            (Math.abs(Math.abs(position[2]) - 1) < 1e-6)) {
+            this.camera.rotation.x = Math.PI / 2;
+        }
         this.camera.updateProjectionMatrix();
     }
 
@@ -333,7 +339,7 @@ class Viewer {
         }
         this.controls.target = new THREE.Vector3(...this.bbox.center);
         this.controls.update();
-        // this.controls.saveState();
+        this.controls.saveState();
     }
 
     // handler (bound to Viewer instance)
