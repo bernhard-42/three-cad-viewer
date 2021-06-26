@@ -293,12 +293,14 @@ class Display {
             this.cadTree.style.display = "block";
             this.cadClip.style.display = "none";
             this.viewer.assembly.setBackVisible(false);
+            this.viewer.setLocalClipping(false);
             changed = true;
         };
         if ((tab === "tab_clip") && (this.activeTab !== "tab_clip")) {
             this.cadTree.style.display = "none";
             this.cadClip.style.display = "block";
             this.viewer.assembly.setBackVisible(true);
+            this.viewer.setLocalClipping(true);
             changed = true;
         }
         this.activeTab = tab;

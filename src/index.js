@@ -1,7 +1,7 @@
 // import { example } from './examples/box.js';
 // import { example } from './examples/box1.js';
-import { example } from './examples/boxes.js';
-// import { example } from './examples/hexapod.js';
+// import { example } from './examples/boxes.js';
+import { example } from './examples/hexapod.js';
 import { Display } from './display.js';
 import { Viewer } from './viewer.js';
 import { TreeView } from './treeview.js';

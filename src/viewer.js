@@ -93,7 +93,7 @@ class Viewer {
         [this.width, this.height] = this.display.getCadViewSize();
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
-        this.renderer.localClippingEnabled = true;
+        this.setLocalClipping(false);
 
         this.renderer.domElement.addEventListener('click', this.pick, false);
 
@@ -253,12 +253,7 @@ class Viewer {
             0.1,
             10 * sphere.radius
         )
-        const cube = new THREE.Mesh(
-            new THREE.BoxGeometry(1, 1, 1),
-            new THREE.MeshBasicMaterial({ color: 0xff0000 }),
-        );
-        console.log(cube)
-        // this.scene.add(cube)
+
         this.setOrthoCamera(this.ortho);
 
         // define the orientation marker
@@ -297,6 +292,10 @@ class Viewer {
 
     setClipIntersection = (flag) => {
         this.assembly.setClipIntersection(flag);
+    }
+
+    setLocalClipping(flag) {
+        this.renderer.localClippingEnabled = flag;
     }
 
     setCameraPosition(dir) {

@@ -17,7 +17,6 @@ class ObjectGroup extends THREE.Group {
     }
 
     setTransparent(flag) {
-        console.log(this)
         if (this.types.back) {
             this.types.back.material.opacity = (flag) ? this.opacity : 1.0;
             this.types.front.material.opacity = (flag) ? this.opacity : 1.0;
@@ -198,7 +197,7 @@ class Assembly {
         }
 
         var group = new THREE.Group();
-        if ((shapes.loc === undefined) | (shapes.loc === null)) {
+        if (shapes.loc == null) {
             shapes.loc = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]];
         }
         group.position.set(...shapes.loc[0])
@@ -222,47 +221,33 @@ class Assembly {
         return this.renderLoop(this.shapes, "");
     }
 
-    setTransparent(flag) {
-        this.transparent = flag;
+    _traverse(func, flag) {
         for (var path in this.groups) {
             for (var obj of this.groups[path].children) {
                 if (obj instanceof ObjectGroup) {
-                    obj.setTransparent(flag);
+                    obj[func](flag);
                 }
             }
         }
+    }
+
+    setTransparent(flag) {
+        this.transparent = flag;
+        this._traverse("setTransparent", flag);
     }
 
     setBlackEdges(flag) {
         this.blackEdges = flag;
-        for (var path in this.groups) {
-            for (var obj of this.groups[path].children) {
-                if (obj instanceof ObjectGroup) {
-                    obj.setBlackEdges(flag);
-                }
-            }
-        }
+        this._traverse("setBlackEdges", flag);
     }
 
     setBackVisible(flag) {
         this.backVisible = flag;
-        for (var path in this.groups) {
-            for (var obj of this.groups[path].children) {
-                if (obj instanceof ObjectGroup) {
-                    obj.setBackVisible(flag);
-                }
-            }
-        }
+        this._traverse("setBackVisible", flag);
     }
 
     setClipIntersection(flag) {
-        for (var path in this.groups) {
-            for (var obj of this.groups[path].children) {
-                if (obj instanceof ObjectGroup) {
-                    obj.setClipIntersection(flag);
-                }
-            }
-        }
+        this._traverse("setClipIntersection", flag);
     }
 }
 
