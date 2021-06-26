@@ -95,7 +95,7 @@ class Viewer {
         this.renderer.setSize(this.width, this.height);
         this.setLocalClipping(false);
 
-        this.renderer.domElement.addEventListener('click', this.pick, false);
+        this.renderer.domElement.addEventListener('dblclick', this.pick, false);
 
         this.display.addCadView(this.renderer.domElement);
 
