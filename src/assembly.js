@@ -207,7 +207,7 @@ class Assembly {
         group.addType(front, "front")
 
         if (this.normalLen > 0) {
-            const normalsHelper = new VertexNormalsHelper(front, this.normalLen);
+            const normalsHelper = new VertexNormalsHelper(front, this.normalLen, 0xff00ff);
             group.add(normalsHelper);
         }
 
