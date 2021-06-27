@@ -89,7 +89,6 @@ class Assembly {
         this.bbox = null;
         this.bsphere = null;
         this.groups = {};
-        console.log(opacity)
     }
 
     renderEdges(edge_list, lineWidth) {

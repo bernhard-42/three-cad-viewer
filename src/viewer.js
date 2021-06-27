@@ -264,7 +264,6 @@ class Viewer {
         // show the rendering
         this.animate();
         this.initObjects();
-        console.log(this.camera)
     }
 
     // handler 
