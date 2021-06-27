@@ -31,6 +31,11 @@ class Viewer {
     constructor(display, options) {
         this.display = display;
         this.setDefaults(options);
+        this.display.setSizes({
+            cadWidth: this.cadWidth,
+            height: this.height,
+            treeWidth: this.treeWidth,
+        });
 
         this.assembly = null;
         this.shapes = null;
@@ -70,6 +75,10 @@ class Viewer {
     }
 
     setDefaults(options) {
+        this.cadWidth = 800;
+        this.height = 600;
+        this.treeWidth = 250;
+        this.treeHeight = 250;
         this.dark = false;
         this.bbFactor = 1.0;
         this.position = [1, 1, 1];
@@ -88,7 +97,7 @@ class Viewer {
 
         for (var option in options) {
             if (this[option] == null) {
-                console.error(`unknown option ${option} ignored`);
+                console.warn(`unknown option ${option} ignored`);
             } else {
                 this[option] = options[option];
             }

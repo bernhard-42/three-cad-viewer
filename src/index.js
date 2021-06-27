@@ -45,6 +45,9 @@ const [shapes, states] = load(hexapod);
 const options = {
     ortho: false,
     normalLen: 0,
+    cadWidth: 640,
+    height: 480,
+    treeWidth: 250,
 };
 
 const container = document.getElementById("cad_view_001")

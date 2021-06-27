@@ -80,6 +80,9 @@ const TEMPLATE = `
     </div>
 `;
 
+function px(val) {
+    return `${val}px`;
+}
 class Slider {
     constructor(index, min, max, display) {
         this.index = index;
@@ -127,6 +130,7 @@ class Display {
         this.container = container;
 
         this.container.innerHTML = TEMPLATE;
+        this.cadTool = this.container.getElementsByClassName("cad_toolbar")[0];
         this.cadView = this.container.getElementsByClassName("cad_view")[0];
         this.cadInset = this.container.getElementsByClassName('cad_inset')[0];
         this.cadTree = this.container.getElementsByClassName('cad_tree_container')[0];
@@ -143,10 +147,35 @@ class Display {
         }
 
         this.viewer = null;
+
+        this.cadWidth = 600;
+        this.height = 400;
+        this.treeWidth = 240;
+
         this.activeTab = "tab_tree";
         this.cadTree.style.display = "block";
         this.cadClip.style.display = "none";
         this.clipUi = null;
+    }
+
+    setSizes(options) {
+        if (options.cadWidth) {
+            this.cadWidth = options.cadWidth;
+            this.cadView.style.width = px(options.cadWidth);
+        }
+        if (options.height) {
+            this.height = options.height;
+            this.cadView.style.height = px(options.height);
+        }
+        if (options.treeWidth) {
+            this.treeWidth = options.treeWidth;
+            this.cadTree.parentElement.parentElement.style.width = px(options.treeWidth);
+            this.cadInfo.parentElement.style.width = px(options.treeWidth);
+        }
+        const treeHeight = Math.round(this.height * 2 / 3);
+        this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
+        this.cadInfo.parentElement.style.height = px(this.height - treeHeight - 4);
+        this.cadTool.style.width = px(this.treeWidth + this.cadWidth);
     }
 
     setupCheckEvent(name, fn, flag) {
