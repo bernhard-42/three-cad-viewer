@@ -28,40 +28,9 @@ const defaultDirections = {
 
 class Viewer {
 
-    constructor(
-        display,
-        dark,
-        bbFactor,
-        position,
-        zoom,
-        grid,
-        axes,
-        axes0,
-        ortho,
-        blackEdges,
-        edgeColor,
-        ambientIntensity,
-        directIntensity,
-        transparent,
-        transparentOpacity,
-        normalLen
-    ) {
+    constructor(display, options) {
         this.display = display;
-        this.dark = dark;
-        this.bbFactor = bbFactor;
-        this.position = position;
-        this.zoom0 = zoom;
-        this.grid = grid;
-        this.axes = axes;
-        this.ortho = ortho;
-        this.axes0 = axes0;
-        this.blackEdges = blackEdges;
-        this.edgeColor = edgeColor;
-        this.ambientIntensity = ambientIntensity;
-        this.directIntensity = directIntensity;
-        this.transparent = transparent;
-        this.transparentOpacity = transparentOpacity;
-        this.normalLen = normalLen;
+        this.setDefaults(options);
 
         this.assembly = null;
         this.shapes = null;
@@ -70,7 +39,6 @@ class Viewer {
         this.geom = null;
         this.bbox = null;
         this.bb_max = 0;
-        this.zoom = zoom;
         this.scene = null;
         this.gridHelper = null;
         this.axesHelper = null;
@@ -86,7 +54,7 @@ class Viewer {
 
         // setup renderer
         this.renderer = new THREE.WebGLRenderer({
-            alpha: !dark,
+            alpha: !this.dark,
             antialias: true
         });
         [this.width, this.height] = this.display.getCadViewSize();
@@ -99,6 +67,34 @@ class Viewer {
         this.display.addCadView(this.renderer.domElement);
 
         this.display.setupUI(this);
+    }
+
+    setDefaults(options) {
+        this.dark = false;
+        this.bbFactor = 1.0;
+        this.position = [1, 1, 1];
+        this.zoom0 = 1.0;
+        this.grid = false;
+        this.axes = false;
+        this.axes0 = false;
+        this.ortho = true;
+        this.blackEdges = false;
+        this.edgeColor = 0x707070;
+        this.ambientIntensity = 0.5;
+        this.directIntensity = 0.3;
+        this.transparent = false;
+        this.defaultOpacity = 0.4;
+        this.normalLen = 0;
+
+        for (var option in options) {
+            if (this[option] == null) {
+                console.error(`unknown option ${option} ignored`);
+            } else {
+                this[option] = options[option];
+            }
+        }
+
+        this.edgeColor = this.blackEdges ? 0x000000 : this.edgeColor;
     }
 
     dump(assembly, ind) {
@@ -160,7 +156,7 @@ class Viewer {
             this.height,
             this.edgeColor,
             this.transparent,
-            this.transparentOpacity,
+            this.defaultOpacity,
             this.normalLen,
             this.clipPlanes
         );
@@ -268,6 +264,7 @@ class Viewer {
         // show the rendering
         this.animate();
         this.initObjects();
+        console.log(this.camera)
     }
 
     // handler 
@@ -365,7 +362,7 @@ class Viewer {
             }
             if (oldState[1] != newState[1]) {
                 objectGroup.setEdgesVisible(newState[1] === 1);
-                this.states[ey][1] = newState[1]
+                this.states[key][1] = newState[1]
             }
         }
     }

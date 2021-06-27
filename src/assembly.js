@@ -65,7 +65,6 @@ class ObjectGroup extends THREE.Group {
         }
     }
     setPolygonOffset(offset) {
-        console.log(offset)
         if (this.types.back) {
             this.types.back.material.polygonOffsetUnits = offset;
         }
@@ -90,7 +89,7 @@ class Assembly {
         this.bbox = null;
         this.bsphere = null;
         this.groups = {};
-        console.log(shapes)
+        console.log(opacity)
     }
 
     renderEdges(edge_list, lineWidth) {
