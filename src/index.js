@@ -1,5 +1,6 @@
 import { Display } from './display.js';
 import { Viewer } from './viewer.js';
+import { Timer } from './timer.js';
 
 // BEGIN loading and temp conversion
 
@@ -40,7 +41,11 @@ function load(assembly) {
 }
 //END loading and temp conversion
 
+const measure = true;
+const timer = new Timer("index", measure);
+
 const [shapes, states] = load(hexapod);
+timer.split("loaded");
 
 const options = {
     ortho: false,
@@ -52,8 +57,16 @@ const options = {
 
 const container = document.getElementById("cad_view_001")
 const display = new Display(container);
+timer.split("display");
+
 const viewer = new Viewer(display, options);
+viewer._measure = measure;
+
+timer.split("viewer");
+
 viewer.render(shapes, states);
+timer.split("renderer");
+timer.stop()
 
 // DEBUG stuff
 global.viewer = viewer

@@ -7,6 +7,7 @@ import { AxesHelper } from './axes.js'
 import { OrientationMarker } from './orientation.js'
 import { TreeView } from './treeview.js'
 import { PlaneHelper } from './planehelper.js'
+import { Timer } from './timer.js';
 
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -146,6 +147,8 @@ class Viewer {
         this.states = states;
         this.tree = this.getTree();
 
+        const timer = new Timer("viewer", this._measure);
+
         // build tree view
 
         this.treeview = new TreeView(clone(this.states), this.tree, this.setObjects);
@@ -171,15 +174,20 @@ class Viewer {
         );
 
         this.geom = this.assembly.render();
+        timer.split("rendered");
+
         // set defaults
         this.assembly.setTransparent(this.transparent);
         this.assembly.setBlackEdges(this.blackEdges);
         this.assembly.setPolygonOffset(2);
 
         this.bbox = this.assembly.boundingBox();
+        timer.split("bb");
+
         this.bb_max = this.bbox.max_dist_from_center()
 
         // build the scene
+        timer.split("scene start");
 
         this.scene = new THREE.Scene();
         this.scene.add(this.geom);
@@ -270,9 +278,12 @@ class Viewer {
         this.orientationMarker = new OrientationMarker(insetWidth, insetHeight, this.camera);
         this.display.addCadInset(this.orientationMarker.create());
 
+        timer.split("scene done");
         // show the rendering
         this.animate();
+        timer.split("animate");
         this.initObjects();
+        timer.stop();
     }
 
     // handler 
