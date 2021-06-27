@@ -112,29 +112,34 @@ class Viewer {
         }
     }
 
-    getGroup(path) {
-        var group = this.geom;
-        for (var i = 0; i < path.length; i++) {
-            var key = path[i];
-            group = group.children[key];
+    getTree() {
+        const delim = "/";
+
+        const _getTree = (subAssembly, path) => {
+            const newPath = `${path}${delim}${subAssembly.name}`;
+            var result = {
+                name: subAssembly.name,
+                id: newPath
+            };
+            if (subAssembly.parts) {
+                result.type = "node";
+                result.children = [];
+                for (var part of subAssembly.parts) {
+                    result.children.push(_getTree(part, newPath));
+                }
+            } else {
+                result.type = "leaf"
+                result.states = this.states[newPath]
+            }
+            return result;
         }
-        return group;
+        return _getTree(this.shapes, "");
     }
 
-    initObjects() {
-        for (var key in this.states) {
-            const state = this.states[key];
-            var objectGroup = this.getGroup(this.paths[key])
-            objectGroup.setShapeVisible(state[0] === 1);
-            objectGroup.setEdgesVisible(state[1] === 1);
-        }
-    }
-
-    render(shapes, tree, states, paths) {
+    render(shapes, states) {
         this.shapes = shapes;
-        this.tree = tree;
         this.states = states;
-        this.paths = paths;
+        this.tree = this.getTree();
 
         // build tree view
 
@@ -340,7 +345,30 @@ class Viewer {
         this.controls.saveState();
     }
 
-    // handler (bound to Viewer instance)
+    initObjects() {
+        for (var key in this.states) {
+            const state = this.states[key];
+            var objectGroup = this.assembly.groups[key];
+            objectGroup.setShapeVisible(state[0] === 1);
+            objectGroup.setEdgesVisible(state[1] === 1);
+        }
+    }
+
+    setObjects = (states) => {
+        for (var key in this.states) {
+            var oldState = this.states[key];
+            var newState = states[key];
+            var objectGroup = this.assembly.groups[key];
+            if (oldState[0] != newState[0]) {
+                objectGroup.setShapeVisible(newState[0] === 1);
+                this.states[key][0] = newState[0]
+            }
+            if (oldState[1] != newState[1]) {
+                objectGroup.setEdgesVisible(newState[1] === 1);
+                this.states[ey][1] = newState[1]
+            }
+        }
+    }
 
     _render() {
         this.renderer.render(this.scene, this.camera);
@@ -352,22 +380,6 @@ class Viewer {
     animate = () => {
         requestAnimationFrame(this.animate);
         this._render();
-    }
-
-    setObjects = (states) => {
-        for (var i in this.states) {
-            var oldState = this.states[i];
-            var newState = states[i];
-            var objectGroup = this.getGroup(this.paths[i])
-            if (oldState[0] != newState[0]) {
-                objectGroup.setShapeVisible(newState[0] === 1);
-                this.states[i][0] = newState[0]
-            }
-            if (oldState[1] != newState[1]) {
-                objectGroup.setEdgesVisible(newState[1] === 1);
-                this.states[i][1] = newState[1]
-            }
-        }
     }
 
     setPlaneHelpers = (flag) => {

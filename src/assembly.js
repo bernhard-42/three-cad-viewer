@@ -85,11 +85,12 @@ class Assembly {
         this.blackEdges = false;
         this.backVisible = false;
         this.bb_max = bb_max;
-        this.delim = '\\';
+        this.delim = '/';
         this.rootGroup = null;
         this.bbox = null;
         this.bsphere = null;
         this.groups = {};
+        console.log(shapes)
     }
 
     renderEdges(edge_list, lineWidth) {
@@ -225,7 +226,9 @@ class Assembly {
             if (shape.parts) {
                 group.add(this.renderLoop(shape, path));
             } else {
-                group.add(_render(shape));
+                const objecGroup = _render(shape);
+                this.groups[shape.id] = objecGroup;
+                group.add(objecGroup);
             }
         }
         return group;

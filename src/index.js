@@ -22,11 +22,7 @@ const directIntensity = 0.3;
 const transparent = false;
 const defaultOpacity = 0.4;
 const normalLen = 0;
-const shapes = example.shapes;
-const mapping = example.mapping;
-const tree = example.tree;
-// const bb = example.bb;
-// console.log(bb)
+const assembly = example.shapes;
 
 const container = document.getElementById("cad_view_001")
 
@@ -51,66 +47,38 @@ const viewer = new Viewer(
     normalLen
 )
 
-var states = {}
-var paths = {}
+function convertAssembly(assembly) {
+    const delim = "/";
+    var states = {};
 
-for (var key in mapping) {
-    states[key] = mapping[key]["state"]
-    paths[key] = mapping[key]["path"]
+    function _convertAssembly(subAssembly, path) {
+        const newPath = `${path}${delim}${subAssembly.name}`;
+        var result = {
+            name: subAssembly.name,
+            id: newPath
+        };
+        if (subAssembly.parts) {
+            result.parts = [];
+            result.loc = subAssembly.loc;
+            for (var part of subAssembly.parts) {
+                result.parts.push(_convertAssembly(part, newPath));
+            }
+        } else {
+            result.type = subAssembly.type;
+            result.shape = subAssembly.shape;
+            result.color = subAssembly.color;
+            states[newPath] = [1, 1];
+        }
+        return result;
+    }
+    return [_convertAssembly(assembly, ""), states];
 }
 
-// function clone(obj) {
-//     return JSON.parse(JSON.stringify(obj));
-// };
+const [shapes, states] = convertAssembly(assembly)
 
-// const tree2 = clone(tree);
-// const states2 = clone(states);
-// const paths2 = clone(paths);
-
-
-// for (var key in states) {
-//     if (key < 201) {
-//         states[key][0] = 0;
-//     }
-//     if ((key > 201) & (key < 208)) {
-//         states[key][1] = 0;
-//     }
-//     if ((key > 208) & (key < 212)) {
-//         states[key][0] = 0;
-//         states[key][1] = 0;
-//     }
-// }
-viewer.render(shapes, tree, states, paths);
-
-
-// const container2 = document.getElementById("cad_view_002")
-
-// const display2 = new Display(container2);
-
-// const viewer2 = new Viewer(
-//     display2,
-//     dark,
-//     bbFactor,
-//     position,
-//     zoom,
-//     grid,
-//     axes,
-//     axes0,
-//     ortho,
-//     blackEdges,
-//     edgeColor,
-//     ambientIntensity,
-//     directIntensity,
-//     transparent,
-//     transparent_opyacity,
-//     normalLen
-// )
-
-// viewer2.render(shapes, tree2, states2, paths2);
+viewer.render(shapes, states);
 
 // DEBUG stuff
 global.viewer = viewer
 global.TreeView = TreeView
-global.tree = tree
 global.states = states
-global.paths = paths
