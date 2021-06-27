@@ -13,10 +13,6 @@ function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
 };
 
-// Orbit controls does not work properly if the camera is looking straight down or straight up
-// https://stackoverflow.com/questions/42520648/how-do-i-make-the-orbitcontrols-in-three-js-honor-changes-to-orientation-of-the#comment72227004_42520648
-// hence "top" and "bottom" are slightly changed
-
 const defaultDirections = {
     "iso": { "position": [1, 1, 1] },
     "front": { "position": [1, 0, 0] },
@@ -37,6 +33,8 @@ class Viewer {
             height: this.height,
             treeWidth: this.treeWidth,
         });
+
+        this._measure = false;
 
         this.assembly = null;
         this.shapes = null;
@@ -161,7 +159,6 @@ class Viewer {
         this.clipPlanes = this.normals.map((n) => new THREE.Plane(n, 0));
 
         // render the assembly
-
         this.assembly = new Assembly(
             shapes,
             this.width,
@@ -364,9 +361,9 @@ class Viewer {
     initObjects() {
         for (var key in this.states) {
             const state = this.states[key];
-            var objectGroup = this.assembly.groups[key];
-            objectGroup.setShapeVisible(state[0] === 1);
-            objectGroup.setEdgesVisible(state[1] === 1);
+            var obj = this.assembly.groups[key];
+            obj.setShapeVisible(state[0] === 1);
+            obj.setEdgesVisible(state[1] === 1);
         }
     }
 

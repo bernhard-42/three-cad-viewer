@@ -4,13 +4,14 @@ import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeome
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
 import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper'
 import { BoundingBox } from './bbox.js'
+import { Color } from 'three';
 
 class ObjectGroup extends THREE.Group {
     constructor(opacity, edge_color) {
         super();
         this.opacity = opacity;
         this.edge_color = edge_color;
-        this.types = { front: null, back: null, edges: null };
+        this.types = { front: null, back: null, edges: null, vertrices: null };
     }
 
     addType(mesh, type) {
@@ -40,14 +41,17 @@ class ObjectGroup extends THREE.Group {
 
     setShapeVisible(flag) {
         if (this.types.back) {
-            this.children[0].visible = flag;
-            this.children[1].visible = flag;
+            this.types.back.visible = flag;
+            this.types.front.visible = flag;
         }
     }
 
     setEdgesVisible(flag) {
         if (this.types.edges) {
-            this.children[2].visible = flag;
+            this.types.edges.visible = flag;
+        }
+        if (this.types.vertices) {
+            this.types.vertices.visible = flag;
         }
     }
 
@@ -72,11 +76,11 @@ class ObjectGroup extends THREE.Group {
 }
 
 class Assembly {
-    constructor(shapes, width, height, edge_color, transparent, opacity, normalLen, clipPlanes, bb_max) {
+    constructor(shapes, width, height, edgeColor, transparent, opacity, normalLen, clipPlanes, bb_max) {
         this.shapes = shapes;
         this.width = width;
         this.height = height;
-        this.edge_color = edge_color;
+        this.edgeColor = edgeColor;
         this.transparent = transparent;
         this.defaultOpacity = opacity;
         this.normalLen = normalLen;
@@ -91,14 +95,14 @@ class Assembly {
         this.groups = {};
     }
 
-    renderEdges(edge_list, lineWidth) {
-        var positions = new Float32Array(edge_list.flat().flat());
+    _renderEdges(edgeList, lineWidth) {
+        var positions = new Float32Array(edgeList.flat().flat());
 
         const lineGeometry = new LineSegmentsGeometry();
         lineGeometry.setPositions(positions);
 
         const lineMaterial = new LineMaterial({
-            color: this.edge_color,
+            color: this.edgeColor,
             linewidth: lineWidth,
             transparent: true,
             depthWrite: !this.transparent,
@@ -110,18 +114,54 @@ class Assembly {
 
         var edges = new LineSegments2(lineGeometry, lineMaterial);
         edges.renderOrder = 999;
-        return edges
+
+        return edges;
     }
 
-    renderVertices(vertices) {
-        return {};
+    renderEdges(edgeList, lineWidth, color, name) {
+        var group = new ObjectGroup(this.defaultOpacity, (color == null) ? this.edgeColor : color);
+
+        var edges = this._renderEdges(edgeList, lineWidth, color)
+        if (name) {
+            edges.name = name;
+        }
+        group.addType(edges, "edges")
+
+        return group;
+    }
+
+    renderVertices(vertexList, size, color, name) {
+        var group = new ObjectGroup(this.defaultOpacity, (color == null) ? this.edgeColor : color);
+
+        const vertex_color = (color == null) ? this.edgeColor : color;
+
+        const positions = new Float32Array(vertexList.flat().flat());
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+        const material = new THREE.PointsMaterial({
+            color: vertex_color,
+            sizeAttenuation: false,
+            size: size,
+            transparent: true,
+            clippingPlanes: this.clipPlanes,
+            clipIntersection: false
+        })
+
+        var points = new THREE.Points(geometry, material)
+        if (name) {
+            points.name = name;
+        }
+        group.addType(points, "vertices")
+
+        return group;
     }
 
     renderShape(shape, color, name) {
         var positions = new Float32Array(shape.vertices.flat());
         var normals = new Float32Array(shape.normals.flat());
 
-        var group = new ObjectGroup(this.defaultOpacity, this.edge_color)
+        var group = new ObjectGroup(this.defaultOpacity, this.edgeColor)
 
         var shapeGeometry = new THREE.BufferGeometry();
         shapeGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -143,7 +183,7 @@ class Assembly {
         });
 
         const backMaterial = new THREE.MeshBasicMaterial({
-            color: new THREE.Color(this.edge_color),
+            color: new THREE.Color(this.edgeColor),
             side: THREE.BackSide,
             polygonOffset: true,
             polygonOffsetFactor: 1.0,
@@ -158,16 +198,12 @@ class Assembly {
         });
 
         const front = new THREE.Mesh(shapeGeometry, frontMaterial)
-
         front.name = name;
 
         const back = new THREE.Mesh(shapeGeometry, backMaterial)
         back.name = name;
 
-        // group.add(back)
         group.addType(back, "back")
-
-        // group.add(front)
         group.addType(front, "front")
 
         if (this.normalLen > 0) {
@@ -176,10 +212,9 @@ class Assembly {
         }
 
         // group.add(new THREE.BoxHelper(front, 0x888888))
-
-        var [edgeList, normalsList] = shape.edges
+        var [edgeList, dummy] = shape.edges
         if (edgeList.length > 0) {
-            var edges = this.renderEdges(edgeList, 1)
+            var edges = this._renderEdges(edgeList, 1)
             edges.name = name;
             group.addType(edges, "edges")
         }
@@ -198,10 +233,10 @@ class Assembly {
             var mesh;
             switch (shape.type) {
                 case "edges":
-                    mesh = this.renderEdges(shape);
+                    mesh = this.renderEdges(shape.shape, shape.width, shape.color, shape.name);
                     break;
                 case "vertices":
-                    mesh = this.renderVertices(shape);
+                    mesh = this.renderVertices(shape.shape, shape.size, shape.color, shape.name);
                     break;
                 default:
                     mesh = this.renderShape(shape.shape, shape.color, shape.name);
@@ -281,4 +316,4 @@ class Assembly {
     }
 }
 
-export { Assembly };
+export { Assembly, ObjectGroup };

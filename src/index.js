@@ -6,8 +6,11 @@ import { Timer } from './timer.js';
 
 import { example as box } from './examples/box.js';
 import { example as box1 } from './examples/box1.js';
-import { example as boxes } from './examples/boxes.js';
+import { example as boxE } from './examples/boxes.js';
 import { example as hexapod } from './examples/hexapod.js';
+import { example as faces } from './examples/faces.js';
+import { example as edges } from './examples/edges.js';
+import { example as vertices } from './examples/vertices.js';
 
 function load(assembly) {
 
@@ -31,7 +34,15 @@ function load(assembly) {
                 result.type = subAssembly.type;
                 result.shape = subAssembly.shape;
                 result.color = subAssembly.color;
-                states[newPath] = [1, 1];
+                if (subAssembly.type == "edges") {
+                    result.width = 3;
+                    states[newPath] = [3, 1];
+                } else if (subAssembly.type == "vertices") {
+                    result.size = 6;
+                    states[newPath] = [3, 1];
+                } else {
+                    states[newPath] = [1, 1];
+                }
             }
             return result;
         }
@@ -41,14 +52,14 @@ function load(assembly) {
 }
 //END loading and temp conversion
 
-const measure = true;
+const measure = false;
 const timer = new Timer("index", measure);
 
 const [shapes, states] = load(hexapod);
 timer.split("loaded");
 
 const options = {
-    ortho: false,
+    ortho: true,
     normalLen: 0,
     cadWidth: 640,
     height: 480,
