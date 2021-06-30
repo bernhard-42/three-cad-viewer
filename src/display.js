@@ -262,18 +262,17 @@ class Display {
 
     setAxes = (e) => {
         const flag = !!e.target.checked;
-        this.viewer.axesHelper.setVisible(flag);
+        this.viewer.setAxes(flag);
     }
 
     setGrid = (e) => {
         const action = e.target.className.split(" ")[0]
-        this.viewer.gridHelper.setGrid(action);
+        this.viewer.setGrid(action);
     }
 
     setAxes0 = (e) => {
         const flag = !!e.target.checked;
-        this.viewer.gridHelper.setCenter(flag);
-        this.viewer.axesHelper.setCenter(flag);
+        this.viewer.setAxes0(flag);
     }
 
     setOrtho = (e) => {

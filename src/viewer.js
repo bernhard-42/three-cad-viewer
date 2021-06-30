@@ -91,6 +91,7 @@ class Viewer {
         this.transparent = false;
         this.defaultOpacity = 0.4;
         this.normalLen = 0;
+        this.ready = false;
 
         for (var option in options) {
             if (this[option] == null) {
@@ -248,8 +249,12 @@ class Viewer {
 
         timer.split("scene done");
 
+        this.ready = true;
+
         // show the rendering
-        this.animate();
+        this.controls.addEventListener('change', () => this.update());
+        this.update();
+
         timer.split("animate");
 
         this.initObjects();
@@ -268,20 +273,40 @@ class Viewer {
         this.controls.reset();
     }
 
+    setAxes = (flag) => {
+        this.axesHelper.setVisible(flag);
+        this.update()
+    }
+
+    setGrid = (action) => {
+        this.gridHelper.setGrid(action);
+        this.update()
+    }
+
+    setAxes0 = (flag) => {
+        this.gridHelper.setCenter(flag);
+        this.axesHelper.setCenter(flag);
+        this.update()
+    }
+
     setCamera = (dir) => {
         this.setCameraPosition(defaultDirections[dir]["position"]);
+        this.update();
     }
 
     setTransparent = (flag) => {
         this.nestedGroup.setTransparent(flag);
+        this.update();
     }
 
     setBlackEdges = (flag) => {
         this.nestedGroup.setBlackEdges(flag);
+        this.update();
     }
 
     setClipIntersection = (flag) => {
         this.nestedGroup.setClipIntersection(flag);
+        this.update();
     }
 
     setLocalClipping(flag) {
@@ -336,7 +361,7 @@ class Viewer {
             this.controls = new TrackballControls(this.camera, this.renderer.domElement);
         }
         this.controls.target = new THREE.Vector3(...this.bbox.center);
-        this.controls.update();
+        this.update();
         this.controls.saveState();
     }
 
@@ -363,26 +388,33 @@ class Viewer {
                 this.states[key][1] = newState[1]
             }
         }
+        this.update();
     }
 
-    _render() {
-        this.renderer.render(this.scene, this.camera);
-        this.controls.update();
-        this.orientationMarker.update(this.camera.position, this.controls.target);
-        this.orientationMarker.render();
+    update(marker = true) {
+        if (this.ready) {
+            this.renderer.render(this.scene, this.camera);
+            // this.controls.update();
+            if (marker) {
+                this.orientationMarker.update(this.camera.position, this.controls.target);
+                this.orientationMarker.render();
+            }
+        }
     }
 
-    animate = () => {
-        requestAnimationFrame(this.animate);
-        this._render();
-    }
+    // animate = () => {
+    //     requestAnimationFrame(this.animate);
+    //     this.update();
+    // }
 
     setPlaneHelpers = (flag) => {
         this.clipping.planeHelpers.visible = flag;
+        this.update(false);
     }
 
     refreshPlane = (index, value) => {
         this.clipping.setConstant(index, value);
+        this.update(false);
     }
 
     pick = (e) => {
