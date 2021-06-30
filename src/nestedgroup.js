@@ -4,7 +4,7 @@ import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeome
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
 import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper'
 import { BoundingBox } from './bbox.js'
-import { Color } from 'three';
+
 
 class ObjectGroup extends THREE.Group {
     constructor(opacity, edge_color) {
@@ -68,15 +68,32 @@ class ObjectGroup extends THREE.Group {
             child.material.clipIntersection = flag;
         }
     }
+
+    setClipPlanes(planes) {
+        if (this.types.back) { this.types.back.material.clippingPlanes = planes; }
+        if (this.types.front) { this.types.front.material.clippingPlanes = planes; }
+        if (this.types.edges) { this.types.edges.material.clippingPlanes = planes; }
+        if (this.types.vertices) { this.types.vertices.material.clippingPlanes = planes; }
+        this.updateMaterials(true);
+    }
+
     setPolygonOffset(offset) {
         if (this.types.back) {
             this.types.back.material.polygonOffsetUnits = offset;
         }
     }
+
+    updateMaterials(flag) {
+        if (this.types.back) { this.types.back.material.needsUpdate = flag; }
+        if (this.types.front) { this.types.front.material.needsUpdate = flag; }
+        if (this.types.edges) { this.types.edges.material.needsUpdate = flag; }
+        if (this.types.vertices) { this.types.vertices.material.needsUpdate = flag; }
+    }
 }
 
-class Assembly {
-    constructor(shapes, width, height, edgeColor, transparent, opacity, normalLen, clipPlanes, bb_max) {
+
+class NestedGroup {
+    constructor(shapes, width, height, edgeColor, transparent, opacity, normalLen, bb_max) {
         this.shapes = shapes;
         this.width = width;
         this.height = height;
@@ -84,7 +101,6 @@ class Assembly {
         this.transparent = transparent;
         this.defaultOpacity = opacity;
         this.normalLen = normalLen;
-        this.clipPlanes = clipPlanes;
         this.blackEdges = false;
         this.backVisible = false;
         this.bb_max = bb_max;
@@ -93,6 +109,19 @@ class Assembly {
         this.bbox = null;
         this.bsphere = null;
         this.groups = {};
+
+        this.clipPlanes = null;
+    }
+
+    _dump(ind) {
+        if (ind == undefined) {
+            ind = ""
+        }
+        if (this.parts) {
+            for (var part of this.parts) {
+                dump(part, ind + "  ");
+            }
+        }
     }
 
     _renderEdges(edgeList, lineWidth) {
@@ -107,7 +136,6 @@ class Assembly {
             transparent: true,
             depthWrite: !this.transparent,
             depthTest: !this.transparent,
-            clippingPlanes: this.clipPlanes,
             clipIntersection: false
         });
         lineMaterial.resolution.set(this.width, this.height);
@@ -144,7 +172,6 @@ class Assembly {
             sizeAttenuation: false,
             size: size,
             transparent: true,
-            clippingPlanes: this.clipPlanes,
             clipIntersection: false
         })
 
@@ -179,7 +206,7 @@ class Assembly {
             depthTest: !this.transparent,
             clipIntersection: false,
             side: THREE.FrontSide,
-            clippingPlanes: this.clipPlanes
+            visible: true,
         });
 
         const backMaterial = new THREE.MeshBasicMaterial({
@@ -193,7 +220,6 @@ class Assembly {
             depthWrite: !this.transparent,
             depthTest: !this.transparent,
             clipIntersection: false,
-            clippingPlanes: this.clipPlanes,
             visible: this.backVisible
         });
 
@@ -212,18 +238,13 @@ class Assembly {
         }
 
         // group.add(new THREE.BoxHelper(front, 0x888888))
+
         var [edgeList, dummy] = shape.edges
         if (edgeList.length > 0) {
             var edges = this._renderEdges(edgeList, 1)
             edges.name = name;
             group.addType(edges, "edges")
         }
-
-        // if (normalsList.length > 0) {
-        //     var wireframe = this.renderEdges(normalsList, 1)
-        //     group.add(wireframe)
-        //     group.addType("wireframe")
-        // }
 
         return group
     }
@@ -311,9 +332,18 @@ class Assembly {
         this._traverse("setClipIntersection", flag);
     }
 
+    setClipPlanes(planes) {
+        this.clipPlanes = planes;
+        this._traverse("setClipPlanes", planes);
+    }
+
     setPolygonOffset(offset) {
         this._traverse("setPolygonOffset", offset);
     }
+
+    updateMaterials() {
+        this._traverse("updateMaterials", true);
+    }
 }
 
-export { Assembly, ObjectGroup };
+export { NestedGroup };

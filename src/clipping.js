@@ -2,8 +2,7 @@ import * as THREE from 'three';
 
 class PlaneHelper extends THREE.Line {
 
-    constructor(plane, center, size = 1, hex = 0xffff00) {
-
+    constructor(index, plane, center, size = 1, hex = 0xffff00) {
         const color = hex;
 
         const positions = [
@@ -21,6 +20,7 @@ class PlaneHelper extends THREE.Line {
         super(geometry, new THREE.LineBasicMaterial({ color: color, toneMapped: false }));
 
         this.type = 'PlaneHelper';
+        this.index = index;
 
         this.plane = plane;
         this.size = size;
@@ -56,9 +56,44 @@ class PlaneHelper extends THREE.Line {
         this.lookAt(this.plane.normal);
 
         super.updateMatrixWorld(force);
-
     }
 
 }
 
-export { PlaneHelper };
+class Clipping {
+    constructor(center, size, distance, uiCallback) {
+        this.distance = distance;
+        this.uiCallback = uiCallback;
+
+        const normals = [
+            new THREE.Vector3(-1, 0, 0),
+            new THREE.Vector3(0, -1, 0),
+            new THREE.Vector3(0, 0, -1),
+        ];
+
+        this.clipPlanes = [];
+
+        for (var i = 0; i < 3; i++) {
+            this.clipPlanes.push(new THREE.Plane(normals[i], distance));
+            this.uiCallback(i, normals[i].toArray());
+        }
+
+        this.planeHelpers = new THREE.Group();
+        this.planeHelpers.add(new PlaneHelper(0, this.clipPlanes[0], center, size, 0xff0000));
+        this.planeHelpers.add(new PlaneHelper(1, this.clipPlanes[1], center, size, 0x00ff00));
+        this.planeHelpers.add(new PlaneHelper(2, this.clipPlanes[2], center, size, 0x0000ff));
+        this.planeHelpers.visible = false;
+    }
+
+    setConstant(index, value) {
+        this.clipPlanes[index].constant = value;
+    }
+
+    setNormal = (index, normal) => {
+        this.clipPlanes[index].normal = normal;
+        this.uiCallback(index, normal.toArray());
+    }
+}
+
+
+export { Clipping };

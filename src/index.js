@@ -61,9 +61,9 @@ timer.split("loaded");
 const options = {
     ortho: true,
     normalLen: 0,
-    cadWidth: 640,
-    height: 480,
-    treeWidth: 250,
+    cadWidth: 800,
+    height: 600,
+    treeWidth: 240,
     // normalLen: 5,
 };
 

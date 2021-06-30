@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js'
-import { Assembly } from './assembly.js'
+import { NestedGroup } from './nestedgroup.js'
 import { Grid } from './grid.js'
 import { AxesHelper } from './axes.js'
 import { OrientationMarker } from './orientation.js'
 import { TreeView } from './treeview.js'
-import { PlaneHelper } from './planehelper.js'
 import { Timer } from './timer.js';
+import { Clipping } from './clipping.js';
 
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -36,11 +36,10 @@ class Viewer {
 
         this._measure = false;
 
-        this.assembly = null;
+        this.nestedGroup = null;
         this.shapes = null;
         this.mapping = null;
         this.tree = null;
-        this.geom = null;
         this.bbox = null;
         this.bb_max = 0;
         this.scene = null;
@@ -50,7 +49,6 @@ class Viewer {
         this.controls = null;
         this.orientationMarker = null;
         this.treeview = null;
-        this.normals = [];
 
         this.camera_distance = 0;
         this.raycaster = new THREE.Raycaster();
@@ -105,30 +103,19 @@ class Viewer {
         this.edgeColor = this.blackEdges ? 0x000000 : this.edgeColor;
     }
 
-    dump(assembly, ind) {
-        if (ind == undefined) {
-            ind = ""
-        }
-        if (assembly.parts) {
-            for (var part of assembly.parts) {
-                dump(part, ind + "  ");
-            }
-        }
-    }
-
     getTree() {
         const delim = "/";
 
-        const _getTree = (subAssembly, path) => {
-            const newPath = `${path}${delim}${subAssembly.name}`;
+        const _getTree = (subGroup, path) => {
+            const newPath = `${path}${delim}${subGroup.name}`;
             var result = {
-                name: subAssembly.name,
+                name: subGroup.name,
                 id: newPath
             };
-            if (subAssembly.parts) {
+            if (subGroup.parts) {
                 result.type = "node";
                 result.children = [];
-                for (var part of subAssembly.parts) {
+                for (var part of subGroup.parts) {
                     result.children.push(_getTree(part, newPath));
                 }
             } else {
@@ -143,23 +130,13 @@ class Viewer {
     render(shapes, states) {
         this.shapes = shapes;
         this.states = states;
-        this.tree = this.getTree();
+
+        this.scene = new THREE.Scene();
 
         const timer = new Timer("viewer", this._measure);
 
-        // build tree view
-
-        this.treeview = new TreeView(clone(this.states), this.tree, this.setObjects);
-        this.display.addCadTree(this.treeview.render());
-
-        // clipping planes, need to be available before building the assembly 
-        this.normals.push(new THREE.Vector3(-1, 0, 0));
-        this.normals.push(new THREE.Vector3(0, -1, 0));
-        this.normals.push(new THREE.Vector3(0, 0, -1));
-        this.clipPlanes = this.normals.map((n) => new THREE.Plane(n, 0));
-
-        // render the assembly
-        this.assembly = new Assembly(
+        // render the input assembly
+        this.nestedGroup = new NestedGroup(
             shapes,
             this.width,
             this.height,
@@ -167,27 +144,23 @@ class Viewer {
             this.transparent,
             this.defaultOpacity,
             this.normalLen,
-            this.clipPlanes
         );
+        this.nestedGroup.setTransparent(this.transparent);
+        this.nestedGroup.setBlackEdges(this.blackEdges);
+        this.nestedGroup.setPolygonOffset(2);
 
-        this.geom = this.assembly.render();
-        timer.split("rendered");
-
-        // set defaults
-        this.assembly.setTransparent(this.transparent);
-        this.assembly.setBlackEdges(this.blackEdges);
-        this.assembly.setPolygonOffset(2);
-
-        this.bbox = this.assembly.boundingBox();
-        timer.split("bb");
-
-        this.bb_max = this.bbox.max_dist_from_center()
+        timer.split("nested group");
 
         // build the scene
-        timer.split("scene start");
 
-        this.scene = new THREE.Scene();
-        this.scene.add(this.geom);
+        this.scene.add(this.nestedGroup.render());
+
+        timer.split("rendered");
+
+        this.bbox = this.nestedGroup.boundingBox();
+        this.bb_max = this.bbox.max_dist_from_center()
+
+        timer.split("bb");
 
         // add lights
 
@@ -211,31 +184,23 @@ class Viewer {
             this.scene.add(this.gridHelper.gridHelper[i]);
         }
 
-        const gsize = this.gridHelper.size;
-        const gsize2 = this.gridHelper.size / 2;
+        this.gridSize = this.gridHelper.size;
 
-        this.axesHelper = new AxesHelper(this.bbox.center, gsize2, 2, this.width, this.height, this.axes0, this.axes);
+        this.axesHelper = new AxesHelper(this.bbox.center, this.gridSize / 2, 2, this.width, this.height, this.axes0, this.axes);
         this.scene.add(this.axesHelper);
 
         // clipping planes and helpers
-        for (var i = 0; i < 3; i++) {
-            this.clipPlanes[i].constant = gsize2 + this.bbox.center[i];
-            this.display.setNormal(i, this.clipPlanes[i].normal.toArray())
-        }
 
-        this.planeHelpers = new THREE.Group();
-        this.planeHelpers.add(new PlaneHelper(this.clipPlanes[0], this.bbox.center, gsize, 0xff0000));
-        this.planeHelpers.add(new PlaneHelper(this.clipPlanes[1], this.bbox.center, gsize, 0x00ff00));
-        this.planeHelpers.add(new PlaneHelper(this.clipPlanes[2], this.bbox.center, gsize, 0x0000ff));
-        this.planeHelpers.visible = false;
-        this.scene.add(this.planeHelpers);
+        this.clipping = new Clipping(
+            this.bbox.center,
+            this.gridSize,
+            this.gridSize / 2,
+            (index, normal) => this.display.setNormalLabel(index, normal)
+        );
 
-        // this.display.adaptSliders([[b.min.x, b.max.x], [b.min.y, b.max.y], [b.min.z, b.max.z]]);
-        this.display.adaptSliders([
-            [-gsize2, gsize2],
-            [-gsize2, gsize2],
-            [-gsize2, gsize2]
-        ]);
+        this.scene.add(this.clipping.planeHelpers);
+        this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
+        this.display.setSliders(this.gridSize / 2);
 
         // define the perspective camera
 
@@ -244,7 +209,7 @@ class Viewer {
         // calculate FOV
 
         const dfactor = 5;
-        var sphere = this.assembly.bsphere;
+        var sphere = this.nestedGroup.bsphere;
 
         this.camera_distance = dfactor * sphere.radius;
         var fov = 2 * Math.atan(1 / dfactor) / Math.PI * 180;
@@ -275,11 +240,20 @@ class Viewer {
         this.orientationMarker = new OrientationMarker(insetWidth, insetHeight, this.camera);
         this.display.addCadInset(this.orientationMarker.create());
 
+        // build tree view
+        this.tree = this.getTree();
+
+        this.treeview = new TreeView(clone(this.states), this.tree, this.setObjects);
+        this.display.addCadTree(this.treeview.render());
+
         timer.split("scene done");
+
         // show the rendering
         this.animate();
         timer.split("animate");
+
         this.initObjects();
+
         timer.stop();
     }
 
@@ -299,19 +273,27 @@ class Viewer {
     }
 
     setTransparent = (flag) => {
-        this.assembly.setTransparent(flag);
+        this.nestedGroup.setTransparent(flag);
     }
 
     setBlackEdges = (flag) => {
-        this.assembly.setBlackEdges(flag);
+        this.nestedGroup.setBlackEdges(flag);
     }
 
     setClipIntersection = (flag) => {
-        this.assembly.setClipIntersection(flag);
+        this.nestedGroup.setClipIntersection(flag);
     }
 
     setLocalClipping(flag) {
         this.renderer.localClippingEnabled = flag;
+    }
+
+    setClipNormal = (index) => {
+        const cameraPosition = this.camera.position.clone()
+        const normal = cameraPosition.sub(this.controls.target).normalize().negate();
+
+        this.clipping.setNormal(index, normal);
+        this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
     }
 
     setCameraPosition(position) {
@@ -361,7 +343,7 @@ class Viewer {
     initObjects() {
         for (var key in this.states) {
             const state = this.states[key];
-            var obj = this.assembly.groups[key];
+            var obj = this.nestedGroup.groups[key];
             obj.setShapeVisible(state[0] === 1);
             obj.setEdgesVisible(state[1] === 1);
         }
@@ -371,7 +353,7 @@ class Viewer {
         for (var key in this.states) {
             var oldState = this.states[key];
             var newState = states[key];
-            var objectGroup = this.assembly.groups[key];
+            var objectGroup = this.nestedGroup.groups[key];
             if (oldState[0] != newState[0]) {
                 objectGroup.setShapeVisible(newState[0] === 1);
                 this.states[key][0] = newState[0]
@@ -396,13 +378,11 @@ class Viewer {
     }
 
     setPlaneHelpers = (flag) => {
-        this.planeHelpers.visible = flag;
+        this.clipping.planeHelpers.visible = flag;
     }
 
     refreshPlane = (index, value) => {
-        if (this.clipPlanes) {
-            this.clipPlanes[index].constant = value;
-        }
+        this.clipping.setConstant(index, value);
     }
 
     pick = (e) => {

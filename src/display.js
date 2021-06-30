@@ -86,8 +86,6 @@ function px(val) {
 class Slider {
     constructor(index, min, max, display) {
         this.index = index;
-        this.min = min;
-        this.max = max;
         this.display = display;
 
         this.slider = display.container.getElementsByClassName(`sld_value_plane${index}`)[0];
@@ -102,26 +100,26 @@ class Slider {
     sliderChange = (e) => {
         const value = e.target.value;
         this.input.value = Math.round(1000 * value) / 1000;
-        this.display.refreshPlanes(this.index, this.input.value);
+        this.display.refreshPlane(this.index, this.input.value);
     }
 
     inputChange = (e) => {
-        const value = Math.max(Math.min(e.target.value, this.max), this.min);
+        const value = Math.max(Math.min(e.target.value, this.slider.max), this.slider.min);
         if (value != e.target.value) {
             this.input.value = Math.round(1000 * value) / 1000;
         }
         this.slider.value = value;
-        this.display.refreshPlanes(this.index, this.input.value);
+        this.display.refreshPlane(this.index, this.input.value);
     }
 
-    adaptSlider(min, max) {
-        const exp = Math.abs(Math.round(Math.log10(Math.max(Math.abs(min), Math.abs(max)))));
-        this.slider.min = min;
-        this.slider.max = max;
+    setSlider(limit) {
+        const exp = Math.abs(Math.round(Math.log10(2 * limit)));
+        this.slider.min = -limit;
+        this.slider.max = limit;
         this.slider.step = Math.pow(10, -(3 - exp));
-        this.slider.value = max;
+        this.slider.value = limit;
         this.input.value = Math.round(1000 * this.slider.max) / 1000;
-        this.display.refreshPlanes(this.index, this.input.value);
+        this.display.refreshPlane(this.index, this.input.value);
     }
 }
 
@@ -155,7 +153,7 @@ class Display {
         this.activeTab = "tab_tree";
         this.cadTree.style.display = "block";
         this.cadClip.style.display = "none";
-        this.clipUi = null;
+        this.clipSliders = null;
     }
 
     setSizes(options) {
@@ -225,12 +223,17 @@ class Display {
             this.setupClickEvent(name, this.selectTab);
         })
 
-        this.clipUi = [];
+        this.clipSliders = [];
         for (var i = 1; i < 4; i++) {
-            this.clipUi.push(new Slider(i, -10, 90, this));
+            this.clipSliders.push(new Slider(i, 0, 100, this));
         }
+
         this.setupCheckEvent('clip_plane_helpers', this.setClipPlaneHelpers, false);
         this.setupCheckEvent('clip_intersection', this.setClipIntersection, false);
+
+        for (var i = 1; i < 4; i++) {
+            this.setupClickEvent(`btn_norm_plane${i}`, this.setClipNormal, false);
+        }
     }
 
     // setup functions
@@ -311,8 +314,13 @@ class Display {
         this.viewer.setCamera(btn);
     }
 
-    setNormal = (index, normal) => {
+    setNormalLabel = (index, normal) => {
         this.planeLabels[index].innerHTML = `N=(${normal[0].toFixed(2)}, ${normal[1].toFixed(2)}, ${normal[2].toFixed(2)})`
+    }
+
+    setClipNormal = (e) => {
+        const index = parseInt(e.target.classList[0].slice(-1));
+        this.viewer.setClipNormal(index - 1);
     }
 
     selectTab = (e) => {
@@ -321,14 +329,14 @@ class Display {
         if ((tab === "tab_tree") && (this.activeTab !== "tab_tree")) {
             this.cadTree.style.display = "block";
             this.cadClip.style.display = "none";
-            this.viewer.assembly.setBackVisible(false);
+            this.viewer.nestedGroup.setBackVisible(false);
             this.viewer.setLocalClipping(false);
             changed = true;
         };
         if ((tab === "tab_clip") && (this.activeTab !== "tab_clip")) {
             this.cadTree.style.display = "none";
             this.cadClip.style.display = "block";
-            this.viewer.assembly.setBackVisible(true);
+            this.viewer.nestedGroup.setBackVisible(true);
             this.viewer.setLocalClipping(true);
             changed = true;
         }
@@ -341,14 +349,14 @@ class Display {
         }
     }
 
-    adaptSliders(bbox) {
+    setSliders(limit) {
         for (var i = 0; i < 3; i++) {
-            this.clipUi[i].adaptSlider(...bbox[i]);
+            this.clipSliders[i].setSlider(limit);
         }
     }
 
-    refreshPlanes(index, value) {
-        this.viewer.refreshPlane(index - 1, value);
+    refreshPlane(index, value) {
+        this.viewer.refreshPlane(index - 1, parseFloat(value));
     }
 
 }
