@@ -62,7 +62,6 @@ class Viewer {
         [this.width, this.height] = this.display.getCadViewSize();
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
-        this.setLocalClipping(false);
 
         this.renderer.domElement.addEventListener('dblclick', this.pick, false);
 
@@ -202,6 +201,8 @@ class Viewer {
         this.scene.add(this.clipping.planeHelpers);
         this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
         this.display.setSliders(this.gridSize / 2);
+        // only allow clipping when Clipping tab is selected
+        this.setLocalClipping(false);
 
         // define the perspective camera
 
@@ -253,6 +254,7 @@ class Viewer {
 
         // show the rendering
         this.controls.addEventListener('change', () => this.update());
+        this.controls.update();
         this.update();
 
         timer.split("animate");
@@ -311,6 +313,7 @@ class Viewer {
 
     setLocalClipping(flag) {
         this.renderer.localClippingEnabled = flag;
+        this.update();
     }
 
     setClipNormal = (index) => {
@@ -319,6 +322,7 @@ class Viewer {
 
         this.clipping.setNormal(index, normal);
         this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
+        this.update();
     }
 
     setCameraPosition(position) {
