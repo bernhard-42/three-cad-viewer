@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js'
 import { NestedGroup } from './nestedgroup.js'
 import { Grid } from './grid.js'
 import { AxesHelper } from './axes.js'
@@ -23,6 +22,14 @@ const defaultDirections = {
     "bottom": { "position": [0, 0, -1] }
 }
 
+defDir = {
+    front: THREE.Quaternion(0.5, 0.5, 0.5, 0.5),
+    rear: THREE.Quaternion(0.5, -0.5, -0.5, 0.5),
+    top: THREE.Quaternion(0.0, 0.0, 1.0, 0.0),
+    bottom: THREE.Quaternion(0.0, -1.0, 0.0, 0, 0),
+    left: THREE.Quaternion(0.0, Math.sqrt(2) / 2, Math.sqrt(2) / 2, 0.0),
+    right: THREE.Quaternion(Math.sqrt(2) / 2, 0.0, 0.0, Math.sqrt(2) / 2),
+}
 class Viewer {
 
     constructor(display, options) {
@@ -37,7 +44,6 @@ class Viewer {
         this._measure = false;
 
         this.nestedGroup = null;
-        this.shapes = null;
         this.mapping = null;
         this.tree = null;
         this.bbox = null;
@@ -103,7 +109,59 @@ class Viewer {
         this.edgeColor = this.blackEdges ? 0x000000 : this.edgeColor;
     }
 
-    getTree() {
+    renderShapes(shapes) {
+        const nestedGroup = new NestedGroup(
+            shapes,
+            this.width,
+            this.height,
+            this.edgeColor,
+            this.transparent,
+            this.defaultOpacity,
+            this.normalLen,
+        );
+        nestedGroup.setTransparent(this.transparent);
+        nestedGroup.setBlackEdges(this.blackEdges);
+        nestedGroup.setPolygonOffset(2);
+        nestedGroup.render();
+        return nestedGroup;
+    }
+
+    createCameras(distance) {
+        //
+        // define the perspective camera
+        //
+
+        const aspect = this.width / this.height;
+
+        // calculate FOV
+        const dfactor = 5;
+        this.camera_distance = dfactor * distance;
+        var fov = 2 * Math.atan(1 / dfactor) / Math.PI * 180;
+
+        this.pCamera = new THREE.PerspectiveCamera(
+            fov,
+            aspect,
+            0.1,
+            100 * distance
+        )
+
+        //
+        // define the orthographic camera
+        //
+
+        const w = distance * 1.4;
+        const h = distance * 1.4 / aspect;
+
+        this.oCamera = new THREE.OrthographicCamera(
+            -w, w, h, -h,
+            0.1,
+            10 * distance
+        )
+
+        this.setOrthoCamera(this.ortho);
+    }
+
+    getTree(shapes) {
         const delim = "/";
 
         const _getTree = (subGroup, path) => {
@@ -124,45 +182,67 @@ class Viewer {
             }
             return result;
         }
-        return _getTree(this.shapes, "");
+
+        return _getTree(shapes, "");
     }
 
+    initObjectStates() {
+        for (var key in this.states) {
+            const state = this.states[key];
+            var obj = this.nestedGroup.groups[key];
+            obj.setShapeVisible(state[0] === 1);
+            obj.setEdgesVisible(state[1] === 1);
+        }
+    }
+
+    update(marker = true) {
+        if (this.ready) {
+            this.renderer.render(this.scene, this.camera);
+            // this.controls.update();
+            if (marker) {
+                this.orientationMarker.update(this.camera.position, this.controls.target);
+                this.orientationMarker.render();
+            }
+        }
+    }
+
+    // animate = () => {
+    //     requestAnimationFrame(this.animate);
+    //     this.update();
+    // }
+
     render(shapes, states) {
-        this.shapes = shapes;
         this.states = states;
 
         this.scene = new THREE.Scene();
 
         const timer = new Timer("viewer", this._measure);
 
+        //
         // render the input assembly
-        this.nestedGroup = new NestedGroup(
-            shapes,
-            this.width,
-            this.height,
-            this.edgeColor,
-            this.transparent,
-            this.defaultOpacity,
-            this.normalLen,
-        );
-        this.nestedGroup.setTransparent(this.transparent);
-        this.nestedGroup.setBlackEdges(this.blackEdges);
-        this.nestedGroup.setPolygonOffset(2);
+        //
 
-        timer.split("nested group");
-
-        // build the scene
-
+        this.nestedGroup = this.renderShapes(shapes);
         this.scene.add(this.nestedGroup.render());
 
-        timer.split("rendered");
+        timer.split("rendered nested group");
 
         this.bbox = this.nestedGroup.boundingBox();
-        this.bb_max = this.bbox.max_dist_from_center()
+        this.bb_max = this.bbox.max_dist_from_center();
+        this.bb_radius = this.nestedGroup.bsphere.radius;
 
-        timer.split("bb");
+        timer.split("bounding box");
 
+        //
+        // create cameras
+        //
+
+        this.createCameras(this.bb_radius);
+        this.controls.saveState();
+
+        //
         // add lights
+        //
 
         const amb_light = new THREE.AmbientLight(0xffffff, this.ambientIntensity);
         this.scene.add(amb_light);
@@ -177,7 +257,9 @@ class Viewer {
             }
         }
 
-        // add axes and grid
+        //
+        // add grid helpers
+        //
 
         this.gridHelper = new Grid(this.display, this.bbox, 10, this.axes0, this.grid ? [true, true, true] : [false, false, false])
         for (var i = 0; i < 3; i++) {
@@ -186,10 +268,16 @@ class Viewer {
 
         this.gridSize = this.gridHelper.size;
 
+        //
+        // add axes helper
+        //
+
         this.axesHelper = new AxesHelper(this.bbox.center, this.gridSize / 2, 2, this.width, this.height, this.axes0, this.axes);
         this.scene.add(this.axesHelper);
 
-        // clipping planes and helpers
+        //
+        // set up clipping planes and helpers
+        //
 
         this.clipping = new Clipping(
             this.bbox.center,
@@ -201,78 +289,113 @@ class Viewer {
         this.scene.add(this.clipping.planeHelpers);
         this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
         this.display.setSliders(this.gridSize / 2);
-        // only allow clipping when Clipping tab is selected
-        this.setLocalClipping(false);
 
-        // define the perspective camera
+        this.setLocalClipping(false);  // only allow clipping when Clipping tab is selected
 
-        const aspect = this.width / this.height;
-
-        // calculate FOV
-
-        const dfactor = 5;
-        var sphere = this.nestedGroup.bsphere;
-
-        this.camera_distance = dfactor * sphere.radius;
-        var fov = 2 * Math.atan(1 / dfactor) / Math.PI * 180;
-
-        this.pCamera = new THREE.PerspectiveCamera(
-            fov,
-            aspect,
-            0.1,
-            100 * sphere.radius
-        )
-
-        // define the orthographic camera
-
-        const w = sphere.radius * 1.5;
-        const h = sphere.radius * 1.5 / aspect;
-
-        this.oCamera = new THREE.OrthographicCamera(
-            -w, w, h, -h,
-            0.1,
-            10 * sphere.radius
-        )
-
-        this.setOrthoCamera(this.ortho);
-
-        // define the orientation marker
+        //
+        // set up the orientation marker
+        //
 
         const [insetWidth, insetHeight] = this.display.getCadInsetSize();
         this.orientationMarker = new OrientationMarker(insetWidth, insetHeight, this.camera);
         this.display.addCadInset(this.orientationMarker.create());
 
+        //
         // build tree view
-        this.tree = this.getTree();
+        //
 
+        this.tree = this.getTree(shapes);
         this.treeview = new TreeView(clone(this.states), this.tree, this.setObjects);
         this.display.addCadTree(this.treeview.render());
 
+        this.initObjectStates();
+
         timer.split("scene done");
+
+        //
+        // show the rendering
+        //
 
         this.ready = true;
 
-        // show the rendering
         this.controls.addEventListener('change', () => this.update());
         this.controls.update();
         this.update();
 
-        timer.split("animate");
-
-        this.initObjects();
-
         timer.stop();
     }
 
-    // handler 
+    //
+    // Event handlers 
+    //
+
+    setCameraPosition(position, zoom, quaternion) {
+        var cameraPosition;
+        if (this.camera.type === "OrthographicCamera") {
+            cameraPosition = new THREE.Vector3(...position).normalize().multiplyScalar(this.camera_distance);
+
+        } else {
+            cameraPosition = new THREE.Vector3(...position).normalize().multiplyScalar(this.camera_distance);
+        }
+        const center = new THREE.Vector3(...this.bbox.center);
+        cameraPosition = cameraPosition.add(center);
+
+        this.camera.up = new THREE.Vector3(0, 0, 1)
+        this.camera.lookAt(center);
+        this.camera.zoom = (zoom) ? zoom : this.zoom0;
+
+        if (quaternion) {
+            this.camera.setRotationFromQuaternion(quaternion);
+        } else {
+            this.camera.position.set(...cameraPosition.toArray());
+            if (this.controls) {
+                this.controls.update()
+            }
+        }
+
+        // set x direction for top and bottom view to avoid flickering
+        if ((Math.abs(position[0]) < 1e-6) &
+            (Math.abs(position[1]) < 1e-6) &
+            (Math.abs(Math.abs(position[2]) - 1) < 1e-6)) {
+            this.camera.rotateZ(Math.PI);
+            this.update()
+        }
+    }
+
+    setOrthoCamera(ortho_flag) {
+        const switchCamera = !(this.camera == null);
+        var p0 = (switchCamera) ? this.camera.position.clone() : null;
+        var q0 = (switchCamera) ? this.camera.quaternion.clone() : null;
+        var z0 = (switchCamera) ? this.camera.zoom : null;
+        console.log(p0, q0, z0)
+        this.camera = (ortho_flag) ? this.oCamera : this.pCamera;
+
+        this.setCameraPosition(this.position);
+
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.listenToKeyEvents(window);
+        this.controls.target = new THREE.Vector3(...this.bbox.center);
+        this.controls.saveState();
+
+        if (switchCamera) {
+            this.setCameraPosition(p0.toArray(), z0, q0);
+        }
+
+        this.controls.update();
+
+        this.update();
+    }
 
     resize = () => {
+        console.log("resize")
         this.camera.zoom = this.zoom0;
         this.camera.updateProjectionMatrix();
+        this.update()
     }
 
     reset = () => {
         this.controls.reset();
+        this.update()
     }
 
     setAxes = (flag) => {
@@ -325,59 +448,6 @@ class Viewer {
         this.update();
     }
 
-    setCameraPosition(position) {
-        var cameraPosition;
-        if (this.camera.type === "OrthographicCamera") {
-            cameraPosition = new THREE.Vector3(...position).normalize().multiplyScalar(this.camera_distance);
-        } else {
-            cameraPosition = new THREE.Vector3(...position).normalize().multiplyScalar(this.camera_distance);
-        }
-        const center = new THREE.Vector3(...this.bbox.center);
-        cameraPosition = cameraPosition.add(center);
-        this.camera.position.set(...cameraPosition.toArray());
-        this.camera.up = new THREE.Vector3(0, 0, 1)
-        this.camera.lookAt(center);
-        this.camera.zoom = this.zoom0;
-
-        // set x direction for top and bottom view to avoid flickering
-        if ((Math.abs(position[0]) < 1e-6) &
-            (Math.abs(position[1]) < 1e-6) &
-            (Math.abs(Math.abs(position[2]) - 1) < 1e-6)) {
-            this.camera.rotation.x = Math.PI / 2;
-        }
-        this.camera.updateProjectionMatrix();
-    }
-
-    setOrthoCamera(ortho_flag) {
-        if (ortho_flag) {
-            this.camera = this.oCamera;
-        } else {
-            this.camera = this.pCamera;
-        }
-
-        this.setCameraPosition(this.position);
-
-        var orbit = true;
-        if (orbit) {
-            this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-            this.controls.listenToKeyEvents(window);
-        } else {
-            this.controls = new TrackballControls(this.camera, this.renderer.domElement);
-        }
-        this.controls.target = new THREE.Vector3(...this.bbox.center);
-        this.update();
-        this.controls.saveState();
-    }
-
-    initObjects() {
-        for (var key in this.states) {
-            const state = this.states[key];
-            var obj = this.nestedGroup.groups[key];
-            obj.setShapeVisible(state[0] === 1);
-            obj.setEdgesVisible(state[1] === 1);
-        }
-    }
-
     setObjects = (states) => {
         for (var key in this.states) {
             var oldState = this.states[key];
@@ -394,22 +464,6 @@ class Viewer {
         }
         this.update();
     }
-
-    update(marker = true) {
-        if (this.ready) {
-            this.renderer.render(this.scene, this.camera);
-            // this.controls.update();
-            if (marker) {
-                this.orientationMarker.update(this.camera.position, this.controls.target);
-                this.orientationMarker.render();
-            }
-        }
-    }
-
-    // animate = () => {
-    //     requestAnimationFrame(this.animate);
-    //     this.update();
-    // }
 
     setPlaneHelpers = (flag) => {
         this.clipping.planeHelpers.visible = flag;
