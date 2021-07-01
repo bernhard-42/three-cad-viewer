@@ -277,7 +277,7 @@ class Display {
 
     setOrtho = (e) => {
         const flag = !!e.target.checked;
-        this.viewer.setOrthoCamera(flag);
+        this.viewer.switchCamera(flag);
     }
 
     setTransparency = (e) => {

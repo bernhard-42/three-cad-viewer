@@ -18,18 +18,10 @@ const defaultDirections = {
     "rear": { "position": [-1, 0, 0] },
     "left": { "position": [0, 1, 0] },
     "right": { "position": [0, -1, 0] },
-    "top": { "position": [0, 0, 1] },
-    "bottom": { "position": [0, 0, -1] }
+    "top": { "position": [0, 0, 1], "rotateZ": Math.PI },
+    "bottom": { "position": [0, 0, -1], "rotateZ": Math.PI }
 }
 
-defDir = {
-    front: THREE.Quaternion(0.5, 0.5, 0.5, 0.5),
-    rear: THREE.Quaternion(0.5, -0.5, -0.5, 0.5),
-    top: THREE.Quaternion(0.0, 0.0, 1.0, 0.0),
-    bottom: THREE.Quaternion(0.0, -1.0, 0.0, 0, 0),
-    left: THREE.Quaternion(0.0, Math.sqrt(2) / 2, Math.sqrt(2) / 2, 0.0),
-    right: THREE.Quaternion(Math.sqrt(2) / 2, 0.0, 0.0, Math.sqrt(2) / 2),
-}
 class Viewer {
 
     constructor(display, options) {
@@ -149,16 +141,28 @@ class Viewer {
         // define the orthographic camera
         //
 
-        const w = distance * 1.4;
-        const h = distance * 1.4 / aspect;
+        const w = distance * 1.3;
+        const h = distance * 1.3 / aspect;
 
         this.oCamera = new THREE.OrthographicCamera(
             -w, w, h, -h,
             0.1,
             10 * distance
         )
+    }
 
-        this.setOrthoCamera(this.ortho);
+    initOrbitControls() {
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.listenToKeyEvents(window);
+        this.controls.target = new THREE.Vector3(...this.bbox.center);
+        this.controls.zoomSpeed = 0.5;
+        this.controls.panSpeed = 0.5;
+
+        // save default view for reset
+        this.controls.saveState();
+
+        this.controls.addEventListener('change', () => this.update());
+        this.controls.update()
     }
 
     getTree(shapes) {
@@ -198,7 +202,6 @@ class Viewer {
     update(marker = true) {
         if (this.ready) {
             this.renderer.render(this.scene, this.camera);
-            // this.controls.update();
             if (marker) {
                 this.orientationMarker.update(this.camera.position, this.controls.target);
                 this.orientationMarker.render();
@@ -238,7 +241,8 @@ class Viewer {
         //
 
         this.createCameras(this.bb_radius);
-        this.controls.saveState();
+        this.switchCamera(this.ortho, true);
+        this.initOrbitControls();
 
         //
         // add lights
@@ -318,8 +322,6 @@ class Viewer {
 
         this.ready = true;
 
-        this.controls.addEventListener('change', () => this.update());
-        this.controls.update();
         this.update();
 
         timer.stop();
@@ -329,60 +331,50 @@ class Viewer {
     // Event handlers 
     //
 
-    setCameraPosition(position, zoom, quaternion) {
-        var cameraPosition;
-        if (this.camera.type === "OrthographicCamera") {
-            cameraPosition = new THREE.Vector3(...position).normalize().multiplyScalar(this.camera_distance);
-
-        } else {
-            cameraPosition = new THREE.Vector3(...position).normalize().multiplyScalar(this.camera_distance);
-        }
+    setupCamera(relative, position, rotateZ, zoom) {
         const center = new THREE.Vector3(...this.bbox.center);
-        cameraPosition = cameraPosition.add(center);
+        var cameraPosition = null;
+        if (relative) {
+            cameraPosition = new THREE.Vector3(...position)
+                .normalize()
+                .multiplyScalar(this.camera_distance)
+                .add(center);
+        } else {
+            cameraPosition = position;
+        }
 
         this.camera.up = new THREE.Vector3(0, 0, 1)
         this.camera.lookAt(center);
         this.camera.zoom = (zoom) ? zoom : this.zoom0;
-
-        if (quaternion) {
-            this.camera.setRotationFromQuaternion(quaternion);
-        } else {
-            this.camera.position.set(...cameraPosition.toArray());
-            if (this.controls) {
-                this.controls.update()
-            }
-        }
+        this.camera.position.set(...cameraPosition.toArray());
+        this.camera.updateProjectionMatrix();
 
         // set x direction for top and bottom view to avoid flickering
-        if ((Math.abs(position[0]) < 1e-6) &
-            (Math.abs(position[1]) < 1e-6) &
-            (Math.abs(Math.abs(position[2]) - 1) < 1e-6)) {
-            this.camera.rotateZ(Math.PI);
-            this.update()
+        if (rotateZ) {
+            this.camera.rotateZ(rotateZ);
+            this.camera.updateProjectionMatrix();
+        }
+        this.controls?.update()
+        this.update()
+    }
+
+    switchCamera(ortho_flag, init) {
+        var p0 = (init) ? null : this.camera.position.clone();
+        var z0 = (init) ? null : this.camera.zoom;
+
+        this.camera = (ortho_flag) ? this.oCamera : this.pCamera;
+
+        if (init) {
+            this.setupCamera(true, this.position);
+        } else {
+            this.controls.object = this.camera;
+            // reposition to the last camera position
+            this.setupCamera(false, p0, null, z0);
         }
     }
 
-    setOrthoCamera(ortho_flag) {
-        const switchCamera = !(this.camera == null);
-        var p0 = (switchCamera) ? this.camera.position.clone() : null;
-        var q0 = (switchCamera) ? this.camera.quaternion.clone() : null;
-        var z0 = (switchCamera) ? this.camera.zoom : null;
-        console.log(p0, q0, z0)
-        this.camera = (ortho_flag) ? this.oCamera : this.pCamera;
-
-        this.setCameraPosition(this.position);
-
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.listenToKeyEvents(window);
-        this.controls.target = new THREE.Vector3(...this.bbox.center);
-        this.controls.saveState();
-
-        if (switchCamera) {
-            this.setCameraPosition(p0.toArray(), z0, q0);
-        }
-
-        this.controls.update();
-
+    setCamera = (dir) => {
+        this.setupCamera(true, defaultDirections[dir]["position"], defaultDirections[dir]["rotateZ"], this.camera.zoom);
         this.update();
     }
 
@@ -412,11 +404,6 @@ class Viewer {
         this.gridHelper.setCenter(flag);
         this.axesHelper.setCenter(flag);
         this.update()
-    }
-
-    setCamera = (dir) => {
-        this.setCameraPosition(defaultDirections[dir]["position"]);
-        this.update();
     }
 
     setTransparent = (flag) => {
