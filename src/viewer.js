@@ -7,6 +7,7 @@ import { OrientationMarker } from './orientation.js'
 import { TreeView } from './treeview.js'
 import { Timer } from './timer.js';
 import { Clipping } from './clipping.js';
+import { Animation } from './animation.js';
 
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -24,8 +25,9 @@ const defaultDirections = {
 
 class Viewer {
 
-    constructor(display, options) {
+    constructor(display, needsAnimationLoop, options) {
         this.display = display;
+        this.needsAnimationLoop = needsAnimationLoop;
         this.setDefaults(options);
         this.display.setSizes({
             cadWidth: this.cadWidth,
@@ -89,6 +91,8 @@ class Viewer {
         this.defaultOpacity = 0.4;
         this.normalLen = 0;
         this.ready = false;
+        this.mixer = null;
+        this.animation = null;
 
         for (var option in options) {
             if (this[option] == null) {
@@ -161,7 +165,9 @@ class Viewer {
         // save default view for reset
         this.controls.saveState();
 
-        this.controls.addEventListener('change', () => this.update());
+        if (!this.needsAnimationLoop) {
+            this.controls.addEventListener('change', () => this.update());
+        }
         this.controls.update()
     }
 
@@ -199,20 +205,44 @@ class Viewer {
         }
     }
 
-    update(marker = true) {
-        if (this.ready) {
+    addAnimationTrack(selector, action, time, values) {
+        if (!this.needsAnimationLoop) {
+            console.error("Start viewer with animation loop");
+            return
+        }
+        if (this.animation == null) {
+            this.animation = new Animation(this.nestedGroup.rootGroup);
+        }
+        this.animation.addTrack(selector, this.nestedGroup.groups[selector], action, time, values);
+    }
+
+    initAnimation(speed) {
+        if (!this.needsAnimationLoop) {
+            console.error("Start viewer with animation loop");
+            return
+        }
+        this.clipAction = this.animation.animate(speed);
+    }
+
+    update(updateMarker, fromAnimationLoop) {
+        if (this.ready & !(this.needsAnimationLoop & !fromAnimationLoop)) {
+            if (this.animation) {
+                this.animation.update();
+            }
+
             this.renderer.render(this.scene, this.camera);
-            if (marker) {
+
+            if (updateMarker) {
                 this.orientationMarker.update(this.camera.position, this.controls.target);
                 this.orientationMarker.render();
             }
         }
     }
 
-    // animate = () => {
-    //     requestAnimationFrame(this.animate);
-    //     this.update();
-    // }
+    animate = () => {
+        requestAnimationFrame(this.animate);
+        this.update(true, true);
+    }
 
     render(shapes, states) {
         this.states = states;
@@ -322,7 +352,11 @@ class Viewer {
 
         this.ready = true;
 
-        this.update();
+        if (this.needsAnimationLoop) {
+            this.animate()
+        } else {
+            this.update(true, false);
+        }
 
         timer.stop();
     }
@@ -355,7 +389,7 @@ class Viewer {
             this.camera.updateProjectionMatrix();
         }
         this.controls?.update()
-        this.update()
+        this.update(true, false)
     }
 
     switchCamera(ortho_flag, init) {
@@ -375,55 +409,55 @@ class Viewer {
 
     setCamera = (dir) => {
         this.setupCamera(true, defaultDirections[dir]["position"], defaultDirections[dir]["rotateZ"], this.camera.zoom);
-        this.update();
+        this.update(true, false);
     }
 
     resize = () => {
         console.log("resize")
         this.camera.zoom = this.zoom0;
         this.camera.updateProjectionMatrix();
-        this.update()
+        this.update(true, false)
     }
 
     reset = () => {
         this.controls.reset();
-        this.update()
+        this.update(true, false)
     }
 
     setAxes = (flag) => {
         this.axesHelper.setVisible(flag);
-        this.update()
+        this.update(true, false)
     }
 
     setGrid = (action) => {
         this.gridHelper.setGrid(action);
-        this.update()
+        this.update(true, false)
     }
 
     setAxes0 = (flag) => {
         this.gridHelper.setCenter(flag);
         this.axesHelper.setCenter(flag);
-        this.update()
+        this.update(true, false)
     }
 
     setTransparent = (flag) => {
         this.nestedGroup.setTransparent(flag);
-        this.update();
+        this.update(true, false);
     }
 
     setBlackEdges = (flag) => {
         this.nestedGroup.setBlackEdges(flag);
-        this.update();
+        this.update(true, false);
     }
 
     setClipIntersection = (flag) => {
         this.nestedGroup.setClipIntersection(flag);
-        this.update();
+        this.update(true, false);
     }
 
     setLocalClipping(flag) {
         this.renderer.localClippingEnabled = flag;
-        this.update();
+        this.update(true, false);
     }
 
     setClipNormal = (index) => {
@@ -432,7 +466,7 @@ class Viewer {
 
         this.clipping.setNormal(index, normal);
         this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
-        this.update();
+        this.update(true, false);
     }
 
     setObjects = (states) => {
@@ -449,17 +483,17 @@ class Viewer {
                 this.states[key][1] = newState[1]
             }
         }
-        this.update();
+        this.update(true, false);
     }
 
     setPlaneHelpers = (flag) => {
         this.clipping.planeHelpers.visible = flag;
-        this.update(false);
+        this.update(false, false);
     }
 
     refreshPlane = (index, value) => {
         this.clipping.setConstant(index, value);
-        this.update(false);
+        this.update(false, false);
     }
 
     pick = (e) => {

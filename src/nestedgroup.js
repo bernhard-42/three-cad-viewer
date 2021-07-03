@@ -104,7 +104,7 @@ class NestedGroup {
         this.blackEdges = false;
         this.backVisible = false;
         this.bb_max = bb_max;
-        this.delim = '/';
+        this.delim = '|';
         this.rootGroup = null;
         this.bbox = null;
         this.bsphere = null;

@@ -71,7 +71,8 @@ const container = document.getElementById("cad_view_001")
 const display = new Display(container);
 timer.split("display");
 
-const viewer = new Viewer(display, options);
+const needsAnimationLoop = true;
+const viewer = new Viewer(display, needsAnimationLoop, options);
 viewer._measure = measure;
 
 timer.split("viewer");
@@ -80,6 +81,16 @@ viewer.render(shapes, states);
 timer.split("renderer");
 timer.stop()
 
-// DEBUG stuff
+viewer.addAnimationTrack(
+    "|bottom|left_front", "rz", [0, 1, 2, 3, 4, 5], [0, 10, 10, -10, -10, 0]
+);
+viewer.addAnimationTrack(
+    "|bottom|right_middle", "rz", [0, 1, 2, 3, 4, 5], [0, -10, -10, 10, 10, 0]
+);
+viewer.addAnimationTrack(
+    "|bottom|left_back", "rz", [0, 1, 2, 3, 4, 5], [0, 10, 10, -10, -10, 0]
+);
+viewer.initAnimation(5);
+
+// Enable debugging in browser console
 global.viewer = viewer
-global.states = states
