@@ -21,7 +21,7 @@
 .t-caret::before {
     content: "\25B6\FE0E";
     font-size: 12px;
-    color: black;
+    /* color: black; */
     display: inline-block;
     margin-right: 2px;
 }

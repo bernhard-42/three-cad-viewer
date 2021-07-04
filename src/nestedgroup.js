@@ -273,16 +273,16 @@ class NestedGroup {
         group.quaternion.set(...shapes.loc[1]);
 
         path = path + this.delim + shapes.name
-        this.groups[path] = group
+        this.groups[path.replaceAll(this.delim, "/")] = group
         group.name = path
 
         for (var shape of shapes.parts) {
             if (shape.parts) {
                 group.add(this.renderLoop(shape, path));
             } else {
-                const objecGroup = _render(shape);
-                this.groups[shape.id] = objecGroup;
-                group.add(objecGroup);
+                const objectGroup = _render(shape);
+                this.groups[shape.id] = objectGroup;
+                group.add(objectGroup);
             }
         }
         return group;

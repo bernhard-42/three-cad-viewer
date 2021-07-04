@@ -4,15 +4,15 @@ const TEMPLATE = `
     <div class="grid-dropdown">
         <span class="label">Grid</span><input class='grid check' type="checkbox" />
         <div class="grid-content">
-            <div class="label">- xy</span><input class='grid-xy check' type="checkbox"></div>
-            <div class="label">- xz</span><input class='grid-xz check' type="checkbox"></div>
-            <div class="label">- yz</span><input class='grid-yz check' type="checkbox"></div>
+            <div class="label">- xy</span><input class='grid-xy check light-highlighted' type="checkbox"></div>
+            <div class="label">- xz</span><input class='grid-xz check light-highlighted' type="checkbox"></div>
+            <div class="label">- yz</span><input class='grid-yz check light-highlighted' type="checkbox"></div>
         </div>
     </div>
     <span class="label">@0</span><input class='axes0 check' type="checkbox" />
     <span class="label">Ortho</span><input class='ortho check' type="checkbox" />
     <input class='reset btn btn_light_reset' type="button" />
-    <input class='resize btn btn_light_fit' type="button" />
+    <input class='resize btn btn_light_resize' type="button" />
     <input class='iso btn btn_light_isometric' type="button" />
     <input class='front btn btn_light_front' type="button" />
     <input class='rear btn btn_light_rear' type="button" />
@@ -27,8 +27,8 @@ const TEMPLATE = `
     <div class="cad_navigation">
     <div class="cad_tree round">
         <div class="tabnav">
-            <input class='tab_tree tab tab-left tab-selected' value="Tree" type="button"/>
-            <input class='tab_clip tab tab-right tab-unselected' value="Clipping" type="button"/>
+            <input class='tab_tree tab tab-left tab-selected light' value="Tree" type="button"/>
+            <input class='tab_clip tab tab-right tab-unselected light' value="Clipping" type="button"/>
         </div>
         <div class="box_content mac-scrollbar scroller">
             <div class="cad_tree_container"></div>
@@ -71,11 +71,18 @@ const TEMPLATE = `
         </div>
     </div>
     <div class="cad_info round">
-    <div class="cad_info_container box_content mac-scrollbar scroller"></div>
+        <div class="box_content mac-scrollbar scroller">
+            <div class="cad_info_container"></div>
+        </div>
     </div>
     </div>
     <div class="cad_view">
         <div class="cad_inset"></div>
+        <div class="cad_animation round">
+            <input class='play btn btn_light_play' type="button" />
+            <input class='pause btn btn_light_pause' type="button" />
+            <input class='stop btn btn_light_stop' type="button" />
+        </div>
     </div>
     </div>
 `;
@@ -83,6 +90,11 @@ const TEMPLATE = `
 function px(val) {
     return `${val}px`;
 }
+
+const buttons = [
+    "reset", "resize", "iso", "front", "rear", "top", "bottom", "left", "right",
+    "btn_norm_plane1", "btn_norm_plane2", "btn_norm_plane3", "play", "pause", "stop"
+];
 class Slider {
     constructor(index, min, max, display) {
         this.index = index;
@@ -124,7 +136,7 @@ class Slider {
 }
 
 class Display {
-    constructor(container) {
+    constructor(container, theme) {
         this.container = container;
 
         this.container.innerHTML = TEMPLATE;
@@ -136,6 +148,7 @@ class Display {
         this.tabTree = this.container.getElementsByClassName('tab_tree')[0];
         this.tabClip = this.container.getElementsByClassName('tab_clip')[0];
         this.cadInfo = this.container.getElementsByClassName('cad_info_container')[0];
+        this.cadAnim = this.container.getElementsByClassName('cad_animation')[0];
 
         this.planeLabels = []
         for (var i = 1; i < 4; i++) {
@@ -154,6 +167,27 @@ class Display {
         this.cadTree.style.display = "block";
         this.cadClip.style.display = "none";
         this.clipSliders = null;
+
+        if (theme === "dark") {
+            document.body.classList.add("dark");
+            this.container.classList.add("dark");
+            this.tabTree.classList.remove("light");
+            this.tabTree.classList.add("dark");
+            this.tabClip.classList.remove("light");
+            this.tabClip.classList.add("dark");
+            for (var i = 1; i < 4; i++) {
+                var el = this.container.getElementsByClassName(`inp_value_plane${i}`)[0];
+                el.classList.add("dark");
+            }
+            for (var btn of buttons) {
+                var el = this.container.getElementsByClassName(btn)[0];
+                el.classList.remove(`btn_light_${btn}`);
+                el.classList.add(`btn_dark_${btn}`);
+            }
+            var el = this.container.getElementsByClassName("grid-content")[0];
+            el.classList.remove("light-highlight");
+            el.classList.add("dark-highlight");
+        }
     }
 
     setSizes(options) {
@@ -168,11 +202,11 @@ class Display {
         if (options.treeWidth) {
             this.treeWidth = options.treeWidth;
             this.cadTree.parentElement.parentElement.style.width = px(options.treeWidth);
-            this.cadInfo.parentElement.style.width = px(options.treeWidth);
+            this.cadInfo.parentElement.parentElement.style.width = px(options.treeWidth);
         }
         const treeHeight = Math.round(this.height * 2 / 3);
         this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
-        this.cadInfo.parentElement.style.height = px(this.height - treeHeight - 4);
+        this.cadInfo.parentElement.parentElement.style.height = px(this.height - treeHeight - 4);
         this.cadTool.style.width = px(this.treeWidth + this.cadWidth);
     }
 
@@ -234,6 +268,11 @@ class Display {
         for (var i = 1; i < 4; i++) {
             this.setupClickEvent(`btn_norm_plane${i}`, this.setClipNormal, false);
         }
+
+        this.setupClickEvent("play", this.controlAnimation, false);
+        this.setupClickEvent("pause", this.controlAnimation, false);
+        this.setupClickEvent("stop", this.controlAnimation, false);
+        this.setAnimationControl(false);
     }
 
     // setup functions
@@ -356,6 +395,15 @@ class Display {
 
     refreshPlane(index, value) {
         this.viewer.refreshPlane(index - 1, parseFloat(value));
+    }
+
+    setAnimationControl = (flag) => {
+        this.cadAnim.style.display = flag ? "block" : "none";
+    }
+
+    controlAnimation = (e) => {
+        const btn = e.target.className.split(" ")[0];
+        this.viewer.controlAnimation(btn);
     }
 
 }

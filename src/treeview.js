@@ -25,27 +25,28 @@ const States = {
 
 class TreeView {
 
-  constructor(states, tree, cad_handler) {
+  constructor(states, tree, cad_handler, theme) {
     this.states = states;
     this.tree = tree;
     this.cad_handler = cad_handler;
+    this.theme = theme;
 
-    this.setupClasses();
+    this.setupClasses(theme);
     this.treeModel = this.toModel(tree);
   }
 
-  setupClasses() {
+  setupClasses(theme) {
     var shapes = {};
-    shapes[States.unselected] = "btn_light_shape_no";
-    shapes[States.selected] = "btn_light_shape";
-    shapes[States.mixed] = "btn_light_shape_mix";
-    shapes[States.empty] = "btn_light_shape_empty";
+    shapes[States.unselected] = `btn_${theme}_shape_no`;
+    shapes[States.selected] = `btn_${theme}_shape`;
+    shapes[States.mixed] = `btn_${theme}_shape_mix`;
+    shapes[States.empty] = `btn_${theme}_shape_empty`;
 
     var meshes = {};
-    meshes[States.unselected] = "btn_light_mesh_no";
-    meshes[States.selected] = "btn_light_mesh";
-    meshes[States.mixed] = "btn_light_mesh_mix";
-    meshes[States.empty] = "btn_light_mesh_empty";
+    meshes[States.unselected] = `btn_${theme}_mesh_no`;
+    meshes[States.selected] = `btn_${theme}_mesh`;
+    meshes[States.mixed] = `btn_${theme}_mesh_mix`;
+    meshes[States.empty] = `btn_${theme}_mesh_empty`;
 
     this.icons = [shapes, meshes];
   }

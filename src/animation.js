@@ -21,8 +21,9 @@ function fromAxisAngle(axis, angle) {
 }
 
 class Animation {
-    constructor(root) {
+    constructor(root, delim) {
         this.root = root;
+        this.delim = delim;
         this.tracks = [];
         this.mixer = null;
         this.clipAction = null;
@@ -30,6 +31,7 @@ class Animation {
     }
 
     addTrack(selector, group, action, times, values) {
+        selector = selector.replaceAll("/", this.delim);
 
         if (valid_transforms.indexOf(action) === -1) {
             console.error(`Unknown action: "${action}" not in ${valid_transforms}`);
@@ -71,14 +73,14 @@ class Animation {
             );
 
         } else {
-            const actual = group.quaternion.clone();
+            const actual = group.quaternion;
 
             var newValues;
             if (action.startsWith("r")) {
-                const rotValues = values.map((angle) => fromAxisAngle(action.slice(1, 2), angle));
-                newValues = rotValues.map((rot) => actual.multiply(rot).toArray());
+                const rotValues = values.map((angle) => fromAxisAngle(action.slice(1), angle));
+                newValues = rotValues.map((rot) => actual.clone().multiply(rot).toArray());
             } else if (action == "q") {
-                newValues = values.map((q) => (actual.multiply(q)).toArray());
+                newValues = values.map((q) => (actual.clone().multiply(q)).toArray());
             } else {
                 console.error(`action ${action} is not supported`);
                 return;

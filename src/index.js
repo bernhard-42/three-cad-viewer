@@ -56,9 +56,13 @@ const measure = false;
 const timer = new Timer("index", measure);
 
 const [shapes, states] = load(hexapod);
+const needsAnimationLoop = true;
+
 timer.split("loaded");
 
+const theme = "dark";
 const options = {
+    theme: theme,
     ortho: true,
     normalLen: 0,
     cadWidth: 800,
@@ -68,10 +72,9 @@ const options = {
 };
 
 const container = document.getElementById("cad_view_001")
-const display = new Display(container);
+const display = new Display(container, theme);
 timer.split("display");
 
-const needsAnimationLoop = true;
 const viewer = new Viewer(display, needsAnimationLoop, options);
 viewer._measure = measure;
 
@@ -81,16 +84,51 @@ viewer.render(shapes, states);
 timer.split("renderer");
 timer.stop()
 
-viewer.addAnimationTrack(
-    "|bottom|left_front", "rz", [0, 1, 2, 3, 4, 5], [0, 10, 10, -10, -10, 0]
-);
-viewer.addAnimationTrack(
-    "|bottom|right_middle", "rz", [0, 1, 2, 3, 4, 5], [0, -10, -10, 10, 10, 0]
-);
-viewer.addAnimationTrack(
-    "|bottom|left_back", "rz", [0, 1, 2, 3, 4, 5], [0, 10, 10, -10, -10, 0]
-);
-viewer.initAnimation(5);
+// hexapod animation tracks
 
+if (needsAnimationLoop) {
+    const horizontal_angle = 25
+
+    function isin(el, container) {
+        return container.indexOf(el) >= 0;
+    }
+
+    function intervals(count) {
+        var range = [...Array(count).keys()]
+        return range.map((i) => Math.min(180, (90 + i * Math.floor(360 / count)) % 360));
+    }
+
+    function times(end, count) {
+        var range = [...Array(count + 1).keys()]
+        return range.map((i) => i / count * end)
+    }
+
+    function vertical(count, end, offset) {
+        const ints = intervals(count)
+        var heights = ints.map((x) => Math.round(350 * Math.sin(x / 180 * Math.PI) - 150) / 10)
+        heights.push(heights[0])
+        return [times(end, count), [...heights.slice(offset), ...heights.slice(1, offset + 1)]]
+    }
+
+    function horizontal(end, reverse) {
+        const factor = reverse ? 1 : -1
+        return [times(end, 4), [0, factor * horizontal_angle, 0, -factor * horizontal_angle, 0]]
+    }
+
+    const legNames = ["right_back", "right_middle", "right_front", "left_back", "left_middle", "left_front"];
+    const legGroup = ["left_front", "right_middle", "left_back"];
+
+    for (var name of legNames) {
+        // move upper leg
+        viewer.addAnimationTrack(
+            `/bottom/${name}`, "rz", ...horizontal(4, isin("middle", name))
+        );
+        // move lower leg
+        viewer.addAnimationTrack(
+            `/bottom/${name}/lower`, "rz", ...vertical(8, 4, isin(name, legGroup) ? 0 : 4, isin("left", name))
+        );
+    }
+    viewer.initAnimation(2);
+}
 // Enable debugging in browser console
 global.viewer = viewer

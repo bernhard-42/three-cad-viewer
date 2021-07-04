@@ -5,6 +5,26 @@ body {
     -webkit-text-size-adjust: none;
 }
 
+.dark {
+    background-color: #444;
+    color: #eee
+}
+
+.light {
+    background-color: #fff;    
+    color: #111;
+}
+
+.dark-highlight {
+    background-color: #666;
+    color: #eee
+}
+
+.light-highlight {
+    background-color: #ddd;    
+    color: #111;
+}
+
 .jupyter_cadquery {
     display: flex;
     flex-direction: column;
@@ -77,6 +97,19 @@ body {
     z-index: 100;
 }
 
+.cad_animation {
+    width: 108;
+    height: 32px;
+    background-color: transparent;
+    border: none;
+    margin: 0;
+    padding: 0px;
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    z-index: 100;
+}
+
 .round {
     box-sizing: border-box;
     /* -moz-box-sizing: border-box;
@@ -91,14 +124,13 @@ body {
 
 .box_content {
     overflow:scroll;
-    height: 100%;
+    height: auto;
     margin: 4px 0px 4px 4px;
 }
 
 .btn {
     width: 26px;
     height: 26px;
-    background-color: white;
     border: 0px;
     display: inline-block;
     vertical-align: middle;
@@ -134,7 +166,6 @@ input[type="button"] {
 .tab {
     width: 50%;
     height: 24px; 
-    background-color: white;
     display: inline-block;
     padding: 0px;
     border: none;
@@ -143,7 +174,8 @@ input[type="button"] {
 }
 
 .tab:hover {
-    background-color: #eee;
+    /* background-color: #eee; */
+    font-weight: bold;
 }
 
 .tab-left {
@@ -194,7 +226,6 @@ input[type="button"] {
 .grid-content {
     display: none;
     position: absolute;
-    background-color: #eee;
     min-width: 18px;
     box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
@@ -274,6 +305,10 @@ input[type="button"] {
 }
 
 .mac-scrollbar::-webkit-scrollbar-track {
+    background-color: transparent !important;
+}
+
+.mac-scrollbar::-webkit-scrollbar-corner {
     background-color: transparent !important;
 }
 

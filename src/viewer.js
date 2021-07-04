@@ -75,7 +75,7 @@ class Viewer {
         this.height = 600;
         this.treeWidth = 250;
         this.treeHeight = 250;
-        this.dark = false;
+        this.theme = "light";
         this.bbFactor = 1.0;
         this.position = [1, 1, 1];
         this.zoom0 = 1.0;
@@ -211,7 +211,8 @@ class Viewer {
             return
         }
         if (this.animation == null) {
-            this.animation = new Animation(this.nestedGroup.rootGroup);
+            this.animation = new Animation(this.nestedGroup.rootGroup, this.nestedGroup.delim);
+            this.display.setAnimationControl(true);
         }
         this.animation.addTrack(selector, this.nestedGroup.groups[selector], action, time, values);
     }
@@ -339,7 +340,7 @@ class Viewer {
         //
 
         this.tree = this.getTree(shapes);
-        this.treeview = new TreeView(clone(this.states), this.tree, this.setObjects);
+        this.treeview = new TreeView(clone(this.states), this.tree, this.setObjects, this.theme);
         this.display.addCadTree(this.treeview.render());
 
         this.initObjectStates();
@@ -494,6 +495,20 @@ class Viewer {
     refreshPlane = (index, value) => {
         this.clipping.setConstant(index, value);
         this.update(false, false);
+    }
+
+    controlAnimation = (btn) => {
+        switch (btn) {
+            case "play":
+                this.clipAction.play();
+                break;
+            case "pause":
+                this.clipAction.paused = !this.clipAction.paused;
+                break;
+            case "stop":
+                this.clipAction.stop();
+                break;
+        }
     }
 
     pick = (e) => {
