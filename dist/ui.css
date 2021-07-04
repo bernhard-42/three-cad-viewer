@@ -3,26 +3,8 @@ body {
     display: grid;
     font-family: sans-serif;
     -webkit-text-size-adjust: none;
-}
-
-.dark {
-    background-color: #444;
-    color: #eee
-}
-
-.light {
-    background-color: #fff;    
-    color: #111;
-}
-
-.dark-highlight {
-    background-color: #666;
-    color: #eee
-}
-
-.light-highlight {
-    background-color: #ddd;    
-    color: #111;
+    background-color: var(--jcq-bg-color);
+    color: var(--jcq-font-color);
 }
 
 .jupyter_cadquery {
@@ -139,8 +121,8 @@ body {
 
 
 .btn:hover {
-    box-shadow: 1px 1px 1px 0 rgba(0, 0, 0, 0.4);
-    background-color: #eee;
+    box-shadow: 1px 1px 1px 0 var(--jcq-shadow);
+    background-color: var(--jcq-bg-highligth-color);
 }
 
 .btn:active {
@@ -170,7 +152,8 @@ input[type="button"] {
     padding: 0px;
     border: none;
     margin-bottom: 6px;
- 
+    background-color: var(--jcq-bg-color);
+    color: var(--jcq-font-color);
 }
 
 .tab:hover {
@@ -229,6 +212,7 @@ input[type="button"] {
     min-width: 18px;
     box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
+    background-color: var(--jcq-bg-highligth-color);
 }
 
 .grid-dropdown:hover .grid-content {
@@ -246,6 +230,8 @@ input[type="button"] {
 .clip_input {
     width: 25%;
     border: 1px solid #d3d3d3;
+    background-color: var(--jcq-bg-color);
+    color: var(--jcq-font-color); 
 }
 
 .clip_slider {
@@ -285,13 +271,13 @@ input[type="button"] {
   }
 
 .lbl_norm_plane1 {
-    color: red;
+    color: var(--jcq-x-color);
 }
 .lbl_norm_plane2 {
-    color: green;
+    color: var(--jcq-y-color);
 }
 .lbl_norm_plane3 {
-    color: blue;
+    color: var(--jcq-z-color);
 }
 
 .mac-scrollbar::-webkit-scrollbar {

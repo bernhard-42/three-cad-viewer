@@ -1,19 +1,21 @@
+import { ContextExclusionPlugin } from "webpack";
+
 const TEMPLATE = `
     <div class="cad_toolbar round">
     <span class="label">Axes</span><input class='axes check' type="checkbox" />
     <div class="grid-dropdown">
         <span class="label">Grid</span><input class='grid check' type="checkbox" />
         <div class="grid-content">
-            <div class="label">- xy</span><input class='grid-xy check light-highlighted' type="checkbox"></div>
-            <div class="label">- xz</span><input class='grid-xz check light-highlighted' type="checkbox"></div>
-            <div class="label">- yz</span><input class='grid-yz check light-highlighted' type="checkbox"></div>
+            <div class="label">- xy</span><input class='grid-xy check' type="checkbox"></div>
+            <div class="label">- xz</span><input class='grid-xz check' type="checkbox"></div>
+            <div class="label">- yz</span><input class='grid-yz check' type="checkbox"></div>
         </div>
     </div>
     <span class="label">@0</span><input class='axes0 check' type="checkbox" />
     <span class="label">Ortho</span><input class='ortho check' type="checkbox" />
     <input class='reset btn btn_light_reset' type="button" />
     <input class='resize btn btn_light_resize' type="button" />
-    <input class='iso btn btn_light_isometric' type="button" />
+    <input class='iso btn btn_light_iso' type="button" />
     <input class='front btn btn_light_front' type="button" />
     <input class='rear btn btn_light_rear' type="button" />
     <input class='top btn btn_light_top' type="button" />
@@ -27,15 +29,15 @@ const TEMPLATE = `
     <div class="cad_navigation">
     <div class="cad_tree round">
         <div class="tabnav">
-            <input class='tab_tree tab tab-left tab-selected light' value="Tree" type="button"/>
-            <input class='tab_clip tab tab-right tab-unselected light' value="Clipping" type="button"/>
+            <input class='tab_tree tab tab-left tab-selected' value="Tree" type="button"/>
+            <input class='tab_clip tab tab-right tab-unselected' value="Clipping" type="button"/>
         </div>
         <div class="box_content mac-scrollbar scroller">
             <div class="cad_tree_container"></div>
             <div class="cad_clip_container">
                 <div class="slider_group">
                     <div>
-                        <input class='btn_norm_plane1 btn btn_light_plane' type="button" />
+                        <input class='btn_norm_plane1 btn btn_light_plane plane' type="button" />
                         <span class="lbl_norm_plane1 label">N1 = (n/a, n/a, n/a)</span>
                     </div>
                     <div>
@@ -45,7 +47,7 @@ const TEMPLATE = `
                 </div>
                 <div class="slider_group">
                     <div>
-                        <input class='btn_norm_plane2 btn btn_light_plane' type="button" />
+                        <input class='btn_norm_plane2 btn btn_light_plane plane' type="button" />
                         <span class="lbl_norm_plane2 label">N2 = (n/a, n/a, n/a)</span>
                     </div>
                     <div>
@@ -55,7 +57,7 @@ const TEMPLATE = `
                 </div>
                 <div class="slider_group">
                     <div>
-                    <input class='btn_norm_plane3 btn btn_light_plane' type="button" />
+                    <input class='btn_norm_plane3 btn btn_light_plane plane' type="button" />
                     <span class="lbl_norm_plane3 label">N3 = (n/a, n/a, n/a)</span>
                     </div>
                     <div>
@@ -93,7 +95,7 @@ function px(val) {
 
 const buttons = [
     "reset", "resize", "iso", "front", "rear", "top", "bottom", "left", "right",
-    "btn_norm_plane1", "btn_norm_plane2", "btn_norm_plane3", "play", "pause", "stop"
+    "plane", "play", "pause", "stop",
 ];
 class Slider {
     constructor(index, min, max, display) {
@@ -169,24 +171,15 @@ class Display {
         this.clipSliders = null;
 
         if (theme === "dark") {
-            document.body.classList.add("dark");
-            this.container.classList.add("dark");
-            this.tabTree.classList.remove("light");
-            this.tabTree.classList.add("dark");
-            this.tabClip.classList.remove("light");
-            this.tabClip.classList.add("dark");
-            for (var i = 1; i < 4; i++) {
-                var el = this.container.getElementsByClassName(`inp_value_plane${i}`)[0];
-                el.classList.add("dark");
-            }
+            document.documentElement.setAttribute('data-theme', 'dark');
             for (var btn of buttons) {
-                var el = this.container.getElementsByClassName(btn)[0];
-                el.classList.remove(`btn_light_${btn}`);
-                el.classList.add(`btn_dark_${btn}`);
+                var elements = this.container.getElementsByClassName(btn);
+                for (var i = 0; i < elements.length; i++) {
+                    var el = elements[i];
+                    el.classList.remove(`btn_light_${btn}`);
+                    el.classList.add(`btn_dark_${btn}`);
+                }
             }
-            var el = this.container.getElementsByClassName("grid-content")[0];
-            el.classList.remove("light-highlight");
-            el.classList.add("dark-highlight");
         }
     }
 

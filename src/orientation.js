@@ -3,11 +3,11 @@ import { RGBA_ASTC_10x5_Format } from 'three';
 import { AxesHelper } from './axes.js';
 
 class OrientationMarker {
-    constructor(width, height, camera, dark) {
+    constructor(width, height, camera, theme) {
         this.width = width;
         this.height = height;
         this.cad_camera = camera;
-        this.dark = dark;
+        this.theme = theme;
         this.camera = null;
         this.scene = null;
         this.renderer = null;
@@ -18,7 +18,7 @@ class OrientationMarker {
         const length = 60;
 
         // renderer
-        this.renderer = new THREE.WebGLRenderer({ alpha: !this.dark, antialias: true });
+        this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         this.renderer.setClearColor(0x000000, 0);
         this.renderer.setSize(this.width, this.height);
         // this.container.appendChild(this.renderer.domElement);
@@ -32,14 +32,20 @@ class OrientationMarker {
         this.camera.up = this.cad_camera.up; // important!
 
         // axes
-        const axes = new AxesHelper([0, 0, 0], length, size, this.width, this.height, true, true);
+        const axes = new AxesHelper([0, 0, 0], length, size, this.width, this.height, true, true, this.theme);
         this.scene.add(axes);
 
-        const colors = [
-            [1, 0, 0],
-            [0, 0.7, 0],
-            [0, 0, 1]
-        ];
+        const colors = (this.theme === "dark") ?
+            [
+                [1, 0x45 / 255, 0],
+                [0x32 / 255, 0xcd / 255, 0x32 / 255],
+                [0x3b / 255, 0x9e / 255, 1]
+            ] :
+            [
+                [1, 0, 0],
+                [0, 0.7, 0],
+                [0, 0, 1]
+            ];
         this.cones = [];
         for (var i = 0; i < 3; i++) {
             var coneGeometry = new THREE.CylinderGeometry(0, 3 * size, 6 * size, 20, 1);

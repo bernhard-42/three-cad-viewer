@@ -307,7 +307,7 @@ class Viewer {
         // add axes helper
         //
 
-        this.axesHelper = new AxesHelper(this.bbox.center, this.gridSize / 2, 2, this.width, this.height, this.axes0, this.axes);
+        this.axesHelper = new AxesHelper(this.bbox.center, this.gridSize / 2, 2, this.width, this.height, this.axes0, this.axes, this.theme);
         this.scene.add(this.axesHelper);
 
         //
@@ -332,7 +332,7 @@ class Viewer {
         //
 
         const [insetWidth, insetHeight] = this.display.getCadInsetSize();
-        this.orientationMarker = new OrientationMarker(insetWidth, insetHeight, this.camera);
+        this.orientationMarker = new OrientationMarker(insetWidth, insetHeight, this.camera, this.theme);
         this.display.addCadInset(this.orientationMarker.create());
 
         //

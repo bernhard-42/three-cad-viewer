@@ -5,18 +5,24 @@ import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
 
 class AxesHelper extends LineSegments2 {
 
-    constructor(center, size, lineWidth, width, height, axes0, visible, withCones) {
+    constructor(center, size, lineWidth, width, height, axes0, visible, theme) {
         const vertices = new Float32Array([
             0, 0, 0, size, 0, 0,
             0, 0, 0, 0, size, 0,
             0, 0, 0, 0, 0, size
         ]);
 
-        const colors = [
-            1, 0, 0, 1, 0, 0,
-            0, 0.7, 0, 0, 0.7, 0,
-            0, 0, 1, 0, 0, 1
-        ];
+        const colors = (theme === "dark") ?
+            [
+                1, 0x45 / 255, 0, 1, 0x45 / 255, 0,
+                0x32 / 255, 0xcd / 255, 0x32 / 255, 0x32 / 255, 0xcd / 255, 0x32 / 255,
+                0x3b / 255, 0x9e / 255, 1, 0x3b / 255, 0x9e / 255, 1
+            ] :
+            [
+                1, 0, 0, 1, 0, 0,
+                0, 0.7, 0, 0, 0.7, 0,
+                0, 0, 1, 0, 0, 1
+            ];
 
         const geometry = new LineSegmentsGeometry();
         geometry.setPositions(vertices);
