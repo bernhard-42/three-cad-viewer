@@ -318,7 +318,8 @@ class Viewer {
             this.bbox.center,
             this.gridSize,
             this.gridSize / 2,
-            (index, normal) => this.display.setNormalLabel(index, normal)
+            (index, normal) => this.display.setNormalLabel(index, normal),
+            this.theme
         );
 
         this.scene.add(this.clipping.planeHelpers);

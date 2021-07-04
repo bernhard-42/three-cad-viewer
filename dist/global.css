@@ -6,6 +6,9 @@
     --jcq-y-color: green;
     --jcq-z-color: blue;
     --jcq-shadow: rgba(0, 0, 0, 0.4);
+    --jcq-scrollbar-hover: rgba(0, 0, 0, 0.3);
+    --jcq-scrollbar-active: rgba(0, 0, 0, 0.5);
+    --jcq-scrollbar-thumb: rgba(0, 0, 0, 0.1);
 }
 
 [data-theme="dark"] {
@@ -15,5 +18,8 @@
     --jcq-x-color: #ff4500;
     --jcq-y-color: #32cd32;
     --jcq-z-color: #3b9eff;
-    --jcq-shadow: rgba(1, 1, 1, 0.6);
+    --jcq-shadow: rgba(255,255,255, 0.6);
+    --jcq-scrollbar-hover: rgba(255, 255, 255, 0.4);
+    --jcq-scrollbar-active: rgba(255, 255, 255, 0.6);
+    --jcq-scrollbar-thumb: rgba(255,255,255, 0.2);
 }

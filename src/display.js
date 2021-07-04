@@ -1,5 +1,3 @@
-import { ContextExclusionPlugin } from "webpack";
-
 const TEMPLATE = `
     <div class="cad_toolbar round">
     <span class="label">Axes</span><input class='axes check' type="checkbox" />

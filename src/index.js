@@ -60,7 +60,7 @@ const needsAnimationLoop = true;
 
 timer.split("loaded");
 
-const theme = "dark";
+const theme = "light";
 const options = {
     theme: theme,
     ortho: true,

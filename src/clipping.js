@@ -61,7 +61,7 @@ class PlaneHelper extends THREE.Line {
 }
 
 class Clipping {
-    constructor(center, size, distance, uiCallback) {
+    constructor(center, size, distance, uiCallback, theme) {
         this.distance = distance;
         this.uiCallback = uiCallback;
 
@@ -79,9 +79,9 @@ class Clipping {
         }
 
         this.planeHelpers = new THREE.Group();
-        this.planeHelpers.add(new PlaneHelper(0, this.clipPlanes[0], center, size, 0xff0000));
-        this.planeHelpers.add(new PlaneHelper(1, this.clipPlanes[1], center, size, 0x00ff00));
-        this.planeHelpers.add(new PlaneHelper(2, this.clipPlanes[2], center, size, 0x0000ff));
+        this.planeHelpers.add(new PlaneHelper(0, this.clipPlanes[0], center, size, (theme === "light") ? 0xff0000 : 0xff4500));
+        this.planeHelpers.add(new PlaneHelper(1, this.clipPlanes[1], center, size, (theme === "light") ? 0x00ff00 : 0x32cd32));
+        this.planeHelpers.add(new PlaneHelper(2, this.clipPlanes[2], center, size, (theme === "light") ? 0x0000ff : 0x3b9eff));
         this.planeHelpers.visible = false;
     }
 

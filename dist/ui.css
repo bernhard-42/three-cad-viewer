@@ -286,7 +286,7 @@ input[type="button"] {
 }
 
 .mac-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2) !important;
+    background-color: var(--jcq-scrollbar-thumb) !important;
     border-radius: 100px !important;
 }
 
@@ -299,11 +299,11 @@ input[type="button"] {
 }
 
 .mac-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.4) !important;
+    background: var(--jcq-scrollbar-hover) !important;
 }
 
 .mac-scrollbar::-webkit-scrollbar-thumb:active {
-    background: #181818 !important;
+    background: var(--jcq-scrollbar-active) !important;
 }
 
 .mac-scrollbar .widget-html-content {
@@ -312,7 +312,7 @@ input[type="button"] {
 }
 
 .scroller {
-    scrollbar-color: #7f7f7f white; /* thumb and track color */
+    /* scrollbar-color: #7f7f7f white; */
     scrollbar-width: thin;
     background-color: transparent !important;
 }
