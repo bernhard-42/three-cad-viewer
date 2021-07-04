@@ -11,11 +11,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "three": "^0.128.0"
+    "three": "^0.128.0",
+    "utf-8-validate": "^5.0.5"
   },
   "devDependencies": {
     "@types/three": "^0.128.0",
-    "tty-browserify": "0.0.1",
     "webpack": "^5.37.1",
     "webpack-cli": "^4.7.0",
     "webpack-dev-server": "^3.11.2"
