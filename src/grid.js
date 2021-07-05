@@ -17,9 +17,11 @@ class Grid {
         var [axisStart, axisEnd, niceTick] = this.niceBounds(-bbox.max * 1.1, bbox.max * 1.1, 2 * ticks);
         this.size = axisEnd - axisStart
 
+        this.ticks = niceTick;
+
         for (var i = 0; i < 3; i++) {
             this.gridHelper.push(
-                new THREE.GridHelper(this.size, this.size / niceTick, 0x888888, 0xcccccc),
+                new THREE.GridHelper(this.size, this.ticks, 0x888888, 0xcccccc),
             )
         }
 

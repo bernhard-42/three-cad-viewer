@@ -8,6 +8,8 @@ import { TreeView } from './treeview.js'
 import { Timer } from './timer.js';
 import { Clipping } from './clipping.js';
 import { Animation } from './animation.js';
+import { Info } from './info.js'
+
 
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -349,6 +351,13 @@ class Viewer {
         timer.split("scene done");
 
         //
+        // add Info box
+        //
+
+        this.info = new Info(this.display.cadInfo);
+        this.info.readyMsg(this.gridHelper.ticks);
+
+        //
         // show the rendering
         //
 
@@ -526,7 +535,7 @@ class Viewer {
         for (var object of objects) {
             if (object.object.visible) {
                 nearest = {
-                    path: object.object.parent.parent.name,
+                    path: object.object.parent.parent.name.replaceAll("|", "/"),
                     name: object.object.name,
                     boundingBox: object.object.geometry.boundingBox,
                     boundingSphere: object.object.geometry.boundingSphere,
@@ -536,6 +545,7 @@ class Viewer {
             }
         }
         console.log(nearest);
+        this.info.bbInfo(nearest.path, nearest.name, nearest.boundingBox);
     }
 }
 

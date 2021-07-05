@@ -51,6 +51,39 @@ body {
     height: 146px;
     border-style: solid;
     border-width: 1px;
+    overflow: hidden;
+}
+
+.info_table {
+    display: block; 
+    overflow-x: visible; 
+    white-space: nowrap;
+    font-size: 14px;
+}
+
+.small_table {
+    line-height: 14px;
+}
+
+.info_row {
+    vertical-align: text-top !important;
+}
+
+.info_num {
+    color: #aaa; 
+    white-space: nowrap
+}
+
+.info_red {
+    color: var(--jcq-x-color);
+}
+
+.info_green {
+    color: var(--jcq-y-color);
+}
+
+.info_blue {
+    color: var(--jcq-z-color);
 }
 
 .visible {
@@ -105,8 +138,8 @@ body {
 }
 
 .box_content {
-    overflow:scroll;
-    height: auto;
+    overflow: scroll;
+    height: 100%;
     margin: 4px 0px 4px 4px;
 }
 
