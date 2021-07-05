@@ -1,5 +1,5 @@
 :root {
-    --jcq-font-color: #111;
+    --jcq-font-color: #333;
     --jcq-bg-color: #fff;
     --jcq-bg-highligth-color: #ddd;
     --jcq-x-color: red;
@@ -12,7 +12,7 @@
 }
 
 [data-theme="dark"] {
-    --jcq-font-color: #eee;
+    --jcq-font-color: #ddd;
     --jcq-bg-color: #444;
     --jcq-bg-highligth-color: #666;
     --jcq-x-color: #ff4500;
