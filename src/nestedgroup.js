@@ -124,14 +124,14 @@ class NestedGroup {
         }
     }
 
-    _renderEdges(edgeList, lineWidth) {
+    _renderEdges(edgeList, lineWidth, color) {
         var positions = new Float32Array(edgeList.flat().flat());
 
         const lineGeometry = new LineSegmentsGeometry();
         lineGeometry.setPositions(positions);
 
         const lineMaterial = new LineMaterial({
-            color: this.edgeColor,
+            color: (color == null) ? this.edgeColor : color,
             linewidth: lineWidth,
             transparent: true,
             depthWrite: !this.transparent,
