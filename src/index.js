@@ -128,7 +128,7 @@ if (needsAnimationLoop) {
             `/bottom/${name}/lower`, "rz", ...vertical(8, 4, isin(name, legGroup) ? 0 : 4, isin("left", name))
         );
     }
-    viewer.initAnimation(2);
+    viewer.initAnimation(4, 2);
 }
 // Enable debugging in browser console
 global.viewer = viewer

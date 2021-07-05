@@ -44,20 +44,20 @@ class Animation {
         }
 
         if (action.startsWith("t")) {
-            const position = group.position.clone();
+            const position = group.position;
             var newValues;
             switch (action) {
                 case "t":
-                    newValues = values.map((v) => position.add(v));
+                    newValues = values.map((v) => position.clone().add(v));
                     break;
                 case "tx":
-                    newValues = values.map((v) => position.add(new THREE.Vector3(v, 0, 0)));
+                    newValues = values.map((v) => position.clone().add(new THREE.Vector3(v, 0, 0)));
                     break;
                 case "ty":
-                    newValues = values.map((v) => position.add(new THREE.Vector3(0, v, 0)));
+                    newValues = values.map((v) => position.clone().add(new THREE.Vector3(0, v, 0)));
                     break;
                 case "tz":
-                    newValues = values.map((v) => position.add(new THREE.Vector3(0, 0, v)));
+                    newValues = values.map((v) => position.clone().add(new THREE.Vector3(0, 0, v)));
                     break
                 default:
                     console.error(`action ${action} is not supported`);
@@ -73,14 +73,14 @@ class Animation {
             );
 
         } else {
-            const actual = group.quaternion;
+            const quaternion = group.quaternion;
 
             var newValues;
             if (action.startsWith("r")) {
-                const rotValues = values.map((angle) => fromAxisAngle(action.slice(1), angle));
-                newValues = rotValues.map((rot) => actual.clone().multiply(rot).toArray());
+                const quatValues = values.map((angle) => fromAxisAngle(action.slice(1), angle));
+                newValues = quatValues.map((rot) => quaternion.clone().multiply(rot).toArray());
             } else if (action == "q") {
-                newValues = values.map((q) => (actual.clone().multiply(q)).toArray());
+                newValues = values.map((q) => (quaternion.clone().multiply(q)).toArray());
             } else {
                 console.error(`action ${action} is not supported`);
                 return;
@@ -96,13 +96,15 @@ class Animation {
         }
     }
 
-    animate(speed) {
-        const clip = new THREE.AnimationClip("track", 4, this.tracks);
+    animate(duration, speed) {
+        const clip = new THREE.AnimationClip("track", duration, this.tracks);
         this.mixer = new THREE.AnimationMixer(this.root);
         this.mixer.timeScale = speed;
         // this.mixer.addEventListener('finished', (e) => { console.log("finished", e) });
         // this.mixer.addEventListener('loop', (e) => { console.log("loop", e) });
+
         this.clipAction = this.mixer.clipAction(clip);
+
         return this.clipAction;
     }
 

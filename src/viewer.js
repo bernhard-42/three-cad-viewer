@@ -217,12 +217,12 @@ class Viewer {
         this.animation.addTrack(selector, this.nestedGroup.groups[selector], action, time, values);
     }
 
-    initAnimation(speed) {
+    initAnimation(duration, speed) {
         if (!this.needsAnimationLoop) {
             console.error("Start viewer with animation loop");
             return
         }
-        this.clipAction = this.animation.animate(speed);
+        this.clipAction = this.animation.animate(duration, speed);
     }
 
     update(updateMarker, fromAnimationLoop) {
