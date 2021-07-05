@@ -21,7 +21,7 @@ class Grid {
 
         for (var i = 0; i < 3; i++) {
             this.gridHelper.push(
-                new THREE.GridHelper(this.size, this.ticks, 0x888888, 0xcccccc),
+                new THREE.GridHelper(this.size, this.size / this.ticks, 0x888888, 0xcccccc),
             )
         }
 
