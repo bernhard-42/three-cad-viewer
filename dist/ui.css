@@ -187,6 +187,7 @@ input[type="button"] {
     margin-bottom: 6px;
     background-color: var(--jcq-bg-color);
     color: var(--jcq-font-color);
+    font-size: 14px;
 }
 
 .tab:hover {
