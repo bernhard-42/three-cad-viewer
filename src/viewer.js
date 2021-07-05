@@ -227,7 +227,7 @@ class Viewer {
         this.clipAction = this.animation.animate(duration, speed);
     }
 
-    update(updateMarker, fromAnimationLoop) {
+    update = (updateMarker, fromAnimationLoop) => {
         if (this.ready & !(this.needsAnimationLoop & !fromAnimationLoop)) {
             if (this.animation) {
                 this.animation.update();
