@@ -168,7 +168,7 @@ class Viewer {
         this.controls.saveState();
 
         if (!this.needsAnimationLoop) {
-            this.controls.addEventListener('change', () => this.update());
+            this.controls.addEventListener('change', () => this.update(true, true));
         }
         this.controls.update()
     }
