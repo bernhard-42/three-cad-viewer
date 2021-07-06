@@ -8,6 +8,7 @@ import { example as box } from './examples/box.js';
 import { example as box1 } from './examples/box1.js';
 import { example as boxE } from './examples/boxes.js';
 import { example as hexapod } from './examples/hexapod.js';
+import { example as mhexapod } from './examples/hexapod-mates.js';
 import { example as faces } from './examples/faces.js';
 import { example as edges } from './examples/edges.js';
 import { example as vertices } from './examples/vertices.js';
@@ -55,7 +56,7 @@ function load(assembly) {
 const measure = false;
 const timer = new Timer("index", measure);
 
-const [shapes, states] = load(hexapod);
+const [shapes, states] = load(mhexapod);
 const needsAnimationLoop = true;
 
 timer.split("loaded");
@@ -68,7 +69,7 @@ const options = {
     cadWidth: 800,
     height: 600,
     treeWidth: 240,
-    // normalLen: 5,
+    normalLen: 0,
 };
 
 const container = document.getElementById("cad_view_001")
