@@ -131,13 +131,21 @@ class NestedGroup {
         lineGeometry.setPositions(positions);
 
         const lineMaterial = new LineMaterial({
-            color: (color == null) ? this.edgeColor : color,
             linewidth: lineWidth,
             transparent: true,
             depthWrite: !this.transparent,
             depthTest: !this.transparent,
             clipIntersection: false
         });
+
+        if (Array.isArray(color)) {
+            var colors = color.map((c) => [new THREE.Color(c).toArray(), new THREE.Color(c).toArray()]).flat().flat();
+            lineGeometry.setColors(colors);
+            lineMaterial.vertexColors = "VertexColors";
+        } else {
+            lineMaterial.color = new THREE.Color((color == null) ? this.edgeColor : color);
+        }
+
         lineMaterial.resolution.set(this.width, this.height);
 
         var edges = new LineSegments2(lineGeometry, lineMaterial);
