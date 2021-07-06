@@ -59,19 +59,29 @@ body {
     overflow-x: visible; 
     white-space: nowrap;
     font-size: 14px;
+    border-spacing: 0px;
 }
 
+.info_header {
+    margin: 1px 0px 6px 8px;
+    font-weight: bold;
+}
 .small_table {
     line-height: 14px;
 }
 
+.small_table_row > td, th {
+    padding-left: 6px;
+}
+
 .info_row {
-    vertical-align: text-top !important;
+    vertical-align: top !important;
 }
 
 .info_num {
     color: #aaa; 
-    white-space: nowrap
+    white-space: nowrap;
+    margin: 0px;
 }
 
 .info_red {
@@ -140,7 +150,7 @@ body {
 .box_content {
     overflow: scroll;
     height: 100%;
-    margin: 4px 0px 4px 4px;
+    margin: 0px 0px 0px 4px;
 }
 
 .btn {

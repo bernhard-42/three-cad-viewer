@@ -65,7 +65,7 @@ const TEMPLATE = `
                 </div>
                 <div class="clip_checks">
                     <span class="label">Intersection</span><input  class='clip_intersection check' type="checkbox" />
-                    <span class="label">Show Planes</span><input class='clip_plane_helpers axes0 check' type="checkbox" />
+                    <span class="label">Planes</span><input class='clip_plane_helpers axes0 check' type="checkbox" />
                 </div>
             </div>
         </div>
