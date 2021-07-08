@@ -1,7 +1,7 @@
 :root {
     --jcq-font-color: #333;
     --jcq-bg-color: #fff;
-    --jcq-bg-highligth-color: #ddd;
+    --jcq-bg-highligth-color: #eee;
     --jcq-x-color: red;
     --jcq-y-color: green;
     --jcq-z-color: blue;
@@ -15,9 +15,9 @@
     --jcq-font-color: #ddd;
     --jcq-bg-color: #444;
     --jcq-bg-highligth-color: #666;
-    --jcq-x-color: #ff4500;
-    --jcq-y-color: #32cd32;
-    --jcq-z-color: #3b9eff;
+    --jcq-x-color: rgb(255, 69, 0);
+    --jcq-y-color: rgb(50, 205, 50);
+    --jcq-z-color: rgb(59, 158, 255);
     --jcq-shadow: rgba(255,255,255, 0.6);
     --jcq-scrollbar-hover: rgba(255, 255, 255, 0.4);
     --jcq-scrollbar-active: rgba(255, 255, 255, 0.6);

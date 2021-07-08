@@ -424,7 +424,6 @@ class Viewer {
     }
 
     resize = () => {
-        console.log("resize")
         this.camera.zoom = this.zoom0;
         this.camera.updateProjectionMatrix();
         this.update(true, false)

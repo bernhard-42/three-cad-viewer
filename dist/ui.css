@@ -123,9 +123,8 @@ body {
 }
 
 .cad_animation {
-    width: 108;
     height: 32px;
-    background-color: transparent;
+    background-color: var(--jcq-bg-color);
     border: none;
     margin: 0;
     padding: 0px;

@@ -56,8 +56,8 @@ function load(assembly) {
 const measure = false;
 const timer = new Timer("index", measure);
 
-const [shapes, states] = load(mhexapod);
-const needsAnimationLoop = true;
+const [shapes, states] = load(hexapod);
+const needsAnimationLoop = (shapes.name == "bottom");
 
 timer.split("loaded");
 
@@ -70,7 +70,9 @@ const options = {
     height: 600,
     treeWidth: 240,
     normalLen: 0,
-};
+    ambientIntensity: 0.9,
+    directIntensity: 0.12,
+}
 
 const container = document.getElementById("cad_view_001")
 const display = new Display(container, theme);

@@ -98,7 +98,6 @@ class Info {
             `
         })
         html += "</table>"
-        console.log(html)
         this.addHtml(html)
     }
 }
