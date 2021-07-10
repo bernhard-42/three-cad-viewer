@@ -1,3 +1,11 @@
+const cssGlobal = require('../css/global.css').toString();
+const cssUi = require('../css/ui.css').toString();
+
+function getIconBackground(theme, name) {
+    const icon = require(`../icons/${theme}/${name}.svg`);
+    return `url(data:image/svg+xml;utf8,${escape(icon)});`;
+}
+
 const TEMPLATE = `
     <div class="cad_toolbar round">
     <span class="label">Axes</span><input class='axes check' type="checkbox" />
@@ -11,15 +19,15 @@ const TEMPLATE = `
     </div>
     <span class="label">@0</span><input class='axes0 check' type="checkbox" />
     <span class="label">Ortho</span><input class='ortho check' type="checkbox" />
-    <input class='reset btn btn_light_reset' type="button" />
-    <input class='resize btn btn_light_resize' type="button" />
-    <input class='iso btn btn_light_iso' type="button" />
-    <input class='front btn btn_light_front' type="button" />
-    <input class='rear btn btn_light_rear' type="button" />
-    <input class='top btn btn_light_top' type="button" />
-    <input class='bottom btn btn_light_bottom' type="button" />
-    <input class='left btn btn_light_left' type="button" />
-    <input class='right btn btn_light_right' type="button" />
+    <input class='reset btn' type="button" />
+    <input class='resize btn' type="button" />
+    <input class='iso btn' type="button" />
+    <input class='front btn' type="button" />
+    <input class='rear btn' type="button" />
+    <input class='top btn' type="button" />
+    <input class='bottom btn' type="button" />
+    <input class='left btn' type="button" />
+    <input class='right btn' type="button" />
     <span class="label">Transparent</span><input class='transparent check' type="checkbox" />
     <span class="label">Black edges</span><input class='black_edges check' type="checkbox" />
     </div>
@@ -35,7 +43,7 @@ const TEMPLATE = `
             <div class="cad_clip_container">
                 <div class="slider_group">
                     <div>
-                        <input class='btn_norm_plane1 btn btn_light_plane plane' type="button" />
+                        <input class='btn_norm_plane1 btn plane' type="button" />
                         <span class="lbl_norm_plane1 label">N1 = (n/a, n/a, n/a)</span>
                     </div>
                     <div>
@@ -45,7 +53,7 @@ const TEMPLATE = `
                 </div>
                 <div class="slider_group">
                     <div>
-                        <input class='btn_norm_plane2 btn btn_light_plane plane' type="button" />
+                        <input class='btn_norm_plane2 btn plane' type="button" />
                         <span class="lbl_norm_plane2 label">N2 = (n/a, n/a, n/a)</span>
                     </div>
                     <div>
@@ -55,7 +63,7 @@ const TEMPLATE = `
                 </div>
                 <div class="slider_group">
                     <div>
-                    <input class='btn_norm_plane3 btn btn_light_plane plane' type="button" />
+                    <input class='btn_norm_plane3 btn plane' type="button" />
                     <span class="lbl_norm_plane3 label">N3 = (n/a, n/a, n/a)</span>
                     </div>
                     <div>
@@ -79,9 +87,9 @@ const TEMPLATE = `
     <div class="cad_view">
         <div class="cad_inset"></div>
         <div class="cad_animation round">
-            <input class='play btn btn_light_play' type="button" />
-            <input class='pause btn btn_light_pause' type="button" />
-            <input class='stop btn btn_light_stop' type="button" />
+            <input class='play btn' type="button" />
+            <input class='pause btn' type="button" />
+            <input class='stop btn' type="button" />
         </div>
     </div>
     </div>
@@ -170,15 +178,15 @@ class Display {
 
         if (theme === "dark") {
             document.documentElement.setAttribute('data-theme', 'dark');
-            for (var btn of buttons) {
-                var elements = this.container.getElementsByClassName(btn);
-                for (var i = 0; i < elements.length; i++) {
-                    var el = elements[i];
-                    el.classList.remove(`btn_light_${btn}`);
-                    el.classList.add(`btn_dark_${btn}`);
-                }
+        }
+        for (var btn of buttons) {
+            var elements = this.container.getElementsByClassName(btn);
+            for (var i = 0; i < elements.length; i++) {
+                var el = elements[i];
+                el.setAttribute("style", `background-image: ${getIconBackground(theme, btn)}`);
             }
         }
+
     }
 
     setSizes(options) {

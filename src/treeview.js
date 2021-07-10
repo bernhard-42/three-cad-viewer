@@ -1,3 +1,10 @@
+const csTreeview = require('../css/treeview.css').toString();
+
+function getIconBackground(theme, name) {
+  const icon = require(`../icons/${theme}/${name}.svg`);
+  return `url(data:image/svg+xml;utf8,${escape(icon)});`;
+}
+
 // Some helpers
 
 function tag(name, classList, options) {
@@ -31,22 +38,22 @@ class TreeView {
     this.cad_handler = cad_handler;
     this.theme = theme;
 
-    this.setupClasses(theme);
+    this.setupIcons(theme);
     this.treeModel = this.toModel(tree);
   }
 
-  setupClasses(theme) {
+  setupIcons(theme) {
     var shapes = {};
-    shapes[States.unselected] = `btn_${theme}_shape_no`;
-    shapes[States.selected] = `btn_${theme}_shape`;
-    shapes[States.mixed] = `btn_${theme}_shape_mix`;
-    shapes[States.empty] = `btn_${theme}_shape_empty`;
+    shapes[States.unselected] = getIconBackground(theme, "shape_no");
+    shapes[States.selected] = getIconBackground(theme, "shape");
+    shapes[States.mixed] = getIconBackground(theme, "shape_mix");
+    shapes[States.empty] = getIconBackground(theme, "shape_empty");
 
     var meshes = {};
-    meshes[States.unselected] = `btn_${theme}_mesh_no`;
-    meshes[States.selected] = `btn_${theme}_mesh`;
-    meshes[States.mixed] = `btn_${theme}_mesh_mix`;
-    meshes[States.empty] = `btn_${theme}_mesh_empty`;
+    meshes[States.unselected] = getIconBackground(theme, "mesh_no");
+    meshes[States.selected] = getIconBackground(theme, "mesh");
+    meshes[States.mixed] = getIconBackground(theme, "mesh_mix");
+    meshes[States.empty] = getIconBackground(theme, "mesh_empty");
 
     this.icons = [shapes, meshes];
   }
@@ -93,7 +100,10 @@ class TreeView {
       var span = tag("span", ["node_entry_wrap"])
       span.appendChild(tag("span", ["t-caret", "t-caret-down"]));
       for (icon_id in this.icons) {
-        img_button = tag("input", ["icon", this.getIcon(icon_id, 1)], { type: "button" })
+        img_button = tag("input", ["icon"], {
+          type: "button",
+          style: `background-image: ${this.getIcon(icon_id, 1)}`
+        });
         img_button.setAttribute("icon_id", icon_id);
         img_button.addEventListener("click", e => { // jshint ignore:line
           this.handle(model.type, model.id, e.srcElement.getAttribute("icon_id"));
@@ -112,7 +122,10 @@ class TreeView {
 
     } else {
       for (icon_id in this.icons) {
-        img_button = tag("input", ["icon", this.getIcon(icon_id, model.states[icon_id])], { type: "button" });
+        img_button = tag("input", ["icon"], {
+          type: "button",
+          style: `background-image: ${this.getIcon(icon_id, model.states[icon_id])}`
+        });
         img_button.setAttribute("icon_id", icon_id);
         if (icon_id == 0) {
           img_button.classList.add("indent");
@@ -177,25 +190,6 @@ class TreeView {
     }
   }
 
-  // updateAllStates ()  {
-  //   console.log("updateAllStates")
-  //   // var changes = false;
-  //   for (var icon_id in this.icons) {
-  //     for (var id in this.states) {
-  //       var node = this.getNode(this.treeModel, id);
-  //       var state = this.states[id][icon_id];
-  //       if (node.states[icon_id] != state) {
-  //         // changes = true;
-  //         node.states[icon_id] = state;
-  //         this.updateState(node, icon_id, state);
-  //         this.setIcon(node.imgs[icon_id], icon_id, state);
-  //         this.updateNodes(this.treeModel, icon_id);
-  //       }
-  //     }
-  //   }
-  //   this.cad_handler(this.states);
-  // }
-
   updateNodes(model, icon_id) {
     var state = 0;
     if (model.type === "node") {
@@ -223,16 +217,7 @@ class TreeView {
   }
 
   setIcon(img, icon_id, state) {
-    var toRemove = -1;
-    img.classList.forEach((value, key, listObj) => {
-      if (value.startsWith("btn_")) {
-        toRemove = key;
-      }
-      if (toRemove > 0) {
-        img.classList.remove(img.classList[toRemove]);
-        img.classList.add(this.getIcon(icon_id, state));
-      }
-    });
+    img.setAttribute("style", `background-image: ${this.getIcon(icon_id, state)}`);
   }
 
   handle(type, id, icon_id) {

@@ -247,7 +247,7 @@ class NestedGroup {
 
         // group.add(new THREE.BoxHelper(front, 0x888888))
 
-        var [edgeList, dummy] = shape.edges
+        const edgeList = shape.edges
         if (edgeList.length > 0) {
             var edges = this._renderEdges(edgeList, 1)
             edges.name = name;

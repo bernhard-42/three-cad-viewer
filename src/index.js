@@ -4,14 +4,14 @@ import { Timer } from './timer.js';
 
 // BEGIN loading and temp conversion
 
-import { example as box } from './examples/box.js';
-import { example as box1 } from './examples/box1.js';
-import { example as boxE } from './examples/boxes.js';
-import { example as hexapod } from './examples/hexapod.js';
-import { example as mhexapod } from './examples/hexapod-mates.js';
-import { example as faces } from './examples/faces.js';
-import { example as edges } from './examples/edges.js';
-import { example as vertices } from './examples/vertices.js';
+import { example as box } from '../examples/box.js';
+import { example as box1 } from '../examples/box1.js';
+import { example as boxE } from '../examples/boxes.js';
+import { example as hexapod } from '../examples/hexapod.js';
+import { example as mhexapod } from '../examples/hexapod-mates.js';
+import { example as faces } from '../examples/faces.js';
+import { example as edges } from '../examples/edges.js';
+import { example as vertices } from '../examples/vertices.js';
 
 function load(assembly) {
 
@@ -33,6 +33,9 @@ function load(assembly) {
                 }
             } else {
                 result.type = subAssembly.type;
+                if (subAssembly.shape.edges) {
+                    subAssembly.shape.edges = subAssembly.shape.edges[0];
+                }
                 result.shape = subAssembly.shape;
                 result.color = subAssembly.color;
                 if (subAssembly.type == "edges") {

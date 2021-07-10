@@ -2,13 +2,15 @@
   "name": "three-cq-viewer",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "build": "webpack --progress --mode=development",
-    "start": "webpack serve --port 8082 --host banach --public banach.local:8082 --progress --mode=development --content-base=dist",
+    "build": "webpack --mode=production --node-env=production",
+    "build:dev": "webpack --mode=development",
+    "build:prod": "webpack --mode=production --node-env=production",
+    "watch": "webpack --watch",
+    "start": "webpack serve --mode=development",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Bernhard Walter",
   "license": "MIT",
   "dependencies": {
     "three": "^0.128.0",
@@ -16,6 +18,10 @@
   },
   "devDependencies": {
     "@types/three": "^0.128.0",
+    "css-loader": "^5.2.6",
+    "prettier": "^2.3.2",
+    "style-loader": "^3.0.0",
+    "svg-inline-loader": "^0.8.2",
     "webpack": "^5.37.1",
     "webpack-cli": "^4.7.0",
     "webpack-dev-server": "^3.11.2"
