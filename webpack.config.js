@@ -1,4 +1,5 @@
 const path = require('path');
+const os = require('os');
 const { mainModule } = require('process');
 
 const isProduction = process.env.NODE_ENV == 'production';
@@ -13,7 +14,7 @@ const config = {
     },
     devServer: {
         open: true,
-        host: process.env.WEBPACK_HOST ? process.env.WEBPACK_HOST : "localhost",
+        host: os.hostname(),
         port: 8083,
     },
     plugins: [],
