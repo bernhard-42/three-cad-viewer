@@ -1,3 +1,4 @@
+var CadViewer;
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
@@ -55649,8 +55650,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
 })();
 
+CadViewer = __webpack_exports__;
 /******/ })()
 ;

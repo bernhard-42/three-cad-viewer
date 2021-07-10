@@ -1,4 +1,4 @@
-const example = {
+const box1 = {
     "shapes": {
         "name": "Group",
         "loc": null,
@@ -84,4 +84,3 @@ const example = {
         ]
     }
 }
-export { example }

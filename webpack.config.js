@@ -9,6 +9,7 @@ const config = {
     output: {
         filename: "main.js",
         path: path.resolve(__dirname, 'dist'),
+        library: "CadViewer",
     },
     devServer: {
         open: true,
@@ -33,8 +34,6 @@ const config = {
 module.exports = () => {
     if (isProduction) {
         config.mode = 'production';
-
-
     } else {
         config.mode = 'development';
     }
