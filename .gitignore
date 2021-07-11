@@ -1,3 +1,4 @@
 node_modules
 .ipynb_checkpoints
 TODO
+dist
