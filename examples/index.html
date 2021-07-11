@@ -6,23 +6,23 @@
     <title>CadQuery Viewer</title>
 
     <script src='./convert.js'></script>
-    <script src="./examples/hexapod.js"></script>
-    <!-- <script src="./examples/hexapod-mates.js"></script> -->
-    <!-- <script src="./examples/box.js"></script> -->
-    <!-- <script src="./examples/box1.js"></script> -->
-    <!-- <script src="./examples/boxes.js"></script> -->
-    <!-- <script src="./examples/faces.js"></script> -->
-    <!-- <script src="./examples/edges.js"></script> -->
-    <!-- <script src="./examples/vertices.js"></script> -->
+    <script src="./hexapod.js"></script>
+    <!-- <script src="./hexapod-mates.js"></script> -->
+    <!-- <script src="./box.js"></script> -->
+    <!-- <script src="./box1.js"></script> -->
+    <!-- <script src="./boxes.js"></script> -->
+    <!-- <script src="./faces.js"></script> -->
+    <!-- <script src="./edges.js"></script> -->
+    <!-- <script src="./vertices.js"></script> -->
 
-    <script src='./dist/main.js'></script>
+    <script src='../dist/main.js'></script>
 </head>
 
 <body>
     <div id="cad_view_001" class="jupyter_cadquery"></div>
     <div id="cad_view_002" class="jupyter_cadquery"></div>
 
-    <script>
+    <script type="module">
         const Viewer = window.CadViewer.Viewer;
         const Display = window.CadViewer.Display;
         const Timer = window.CadViewer.Timer;
@@ -110,6 +110,7 @@
 
         // Enable debugging in browser console
         window.viewer = viewer
+        console.log("Loaded", new Date())
     </script>
 </body>
 

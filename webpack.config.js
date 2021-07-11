@@ -1,23 +1,30 @@
 const path = require('path');
 const os = require('os');
 const { mainModule } = require('process');
+const LicenseWebpackPlugin = require('license-webpack-plugin').LicenseWebpackPlugin;
 
 const isProduction = process.env.NODE_ENV == 'production';
 
 const config = {
     entry: './src/index.js',
-    devtool: false,
     output: {
-        filename: "main.js",
         path: path.resolve(__dirname, 'dist'),
-        library: "CadViewer",
+        library: "CadViewer"
     },
     devServer: {
         open: true,
         host: os.hostname(),
         port: 8083,
     },
-    plugins: [],
+    plugins: [
+        new LicenseWebpackPlugin({
+            stats: {
+                warnings: true,
+                errors: true
+            },
+            unacceptableLicenseTest: (licenseType) => (licenseType === 'GPL')
+        })
+    ],
     module: {
         rules: [
             {
@@ -35,8 +42,10 @@ const config = {
 module.exports = () => {
     if (isProduction) {
         config.mode = 'production';
+        config.output.filename = '[name].min.js'
     } else {
         config.mode = 'development';
+        config.output.filename = '[name].js'
     }
     return config;
 };
