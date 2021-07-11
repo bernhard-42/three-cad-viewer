@@ -1,7 +1,11 @@
 {
   "name": "three-cad-viewer",
-  "version": "0.9.0-beta.1",
+  "version": "0.9.0-beta.2",
   "description": "",
+  "files": [
+    "src",
+    "dist"
+  ],
   "scripts": {
     "build": "rollup -c rollup.config-prod.js",
     "build:dev": "rollup -c",
