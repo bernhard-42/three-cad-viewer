@@ -1,10 +1,4 @@
-const cssGlobal = require('../css/global.css').toString();
-const cssUi = require('../css/ui.css').toString();
-
-function getIconBackground(theme, name) {
-    const icon = require(`../icons/${theme}/${name}.svg`);
-    return `url(data:image/svg+xml;utf8,${escape(icon)});`;
-}
+import { getIconBackground } from './icons.js'
 
 const TEMPLATE = `
     <div class="cad_toolbar round">

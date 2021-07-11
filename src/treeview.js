@@ -1,9 +1,4 @@
-const csTreeview = require('../css/treeview.css').toString();
-
-function getIconBackground(theme, name) {
-  const icon = require(`../icons/${theme}/${name}.svg`);
-  return `url(data:image/svg+xml;utf8,${escape(icon)});`;
-}
+import { getIconBackground } from './icons.js'
 
 // Some helpers
 

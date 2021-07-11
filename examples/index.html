@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title>CadQuery Viewer</title>
+    <link rel="stylesheet" href="../dist/three-cad-viewer.module.css">
 
     <script src='./convert.js'></script>
     <script src="./hexapod.js"></script>
@@ -15,7 +16,7 @@
     <!-- <script src="./edges.js"></script> -->
     <!-- <script src="./vertices.js"></script> -->
 
-    <script src='../dist/main.js'></script>
+    <!-- <script src='../dist/three-cad-viewer.js'></script> -->
 </head>
 
 <body>
@@ -23,9 +24,7 @@
     <div id="cad_view_002" class="jupyter_cadquery"></div>
 
     <script type="module">
-        const Viewer = window.CadViewer.Viewer;
-        const Display = window.CadViewer.Display;
-        const Timer = window.CadViewer.Timer;
+        import { Viewer, Display, Timer } from '../dist/three-cad-viewer.module.js'
 
         const measure = false;
         const timer = new Timer("index", measure);
