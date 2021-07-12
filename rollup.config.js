@@ -6,7 +6,13 @@ import svg from 'rollup-plugin-svg-import';
 import { terser } from 'rollup-plugin-terser';
 import serve from 'rollup-plugin-serve'
 import livereload from 'rollup-plugin-livereload'
+import pkg from './package.json';
 
+function addMin(name) {
+    return `${name.slice(0, -3)}.min.js`
+}
+
+const umdName = "CadViewer";
 
 const default_plugins = [
     resolve(),
@@ -23,22 +29,17 @@ if (process.env.BUILD === 'production') {
             plugins: [
                 ...default_plugins,
             ],
-            output: {
-                format: 'esm',
-                file: 'dist/three-cad-viewer.module.js',
-            }
-        },
-        {
-            input: 'src/index.js',
-            plugins: [
-                ...default_plugins
-            ],
-            output: {
-                format: 'umd',
-                name: "CadCViewer",
-                file: 'dist/three-cad-viewer.js',
-                indent: '\t'
-            }
+            output: [
+                {
+                    format: 'es',
+                    file: pkg.module,
+                },
+                {
+                    format: 'umd',
+                    name: umdName,
+                    file: pkg.main,
+                },
+            ]
         },
         {
             input: 'src/index.js',
@@ -46,11 +47,17 @@ if (process.env.BUILD === 'production') {
                 ...default_plugins,
                 terser(),
             ],
-            output: {
-                format: 'umd',
-                name: "CadCViewer",
-                file: 'dist/three-cad-viewer.min.js',
-            }
+            output: [
+                {
+                    format: 'es',
+                    file: addMin(pkg.module),
+                },
+                {
+                    format: 'umd',
+                    name: umdName,
+                    file: addMin(pkg.main),
+                },
+            ]
         },
     ];
 } else {
@@ -65,8 +72,8 @@ if (process.env.BUILD === 'production') {
             livereload()
         ],
         output: {
-            format: 'esm',
-            file: 'dist/three-cad-viewer.module.js',
+            format: 'es',
+            file: pkg.module,
         }
     }
 }

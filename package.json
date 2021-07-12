@@ -1,11 +1,13 @@
 {
   "name": "three-cad-viewer",
-  "version": "0.9.0-beta.4",
+  "version": "0.9.0-beta.5",
   "description": "",
   "files": [
     "src",
     "dist"
   ],
+  "main": "dist/three-cad-viewer.js",
+  "module": "dist/three-cad-viewer.esm.js",
   "scripts": {
     "clean": "rimraf ./dist/*",
     "build": "rollup -c --environment BUILD:production",
