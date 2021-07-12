@@ -14,57 +14,61 @@ const default_plugins = [
     svg({ stringify: true })
 ]
 
-const devConfig = {
-    input: 'src/index.js',
-    plugins: [
-        ...default_plugins,
-        serve({
-            host: os.hostname(),
-            port: 8082,
-        }),
-        livereload()
-    ],
-    output: {
-        format: 'esm',
-        file: 'dist/three-cad-viewer.module.js',
-    }
-}
+var config;
 
-const prodConfig = [
-    {
+if (process.env.BUILD === 'production') {
+    config = [
+        {
+            input: 'src/index.js',
+            plugins: [
+                ...default_plugins,
+            ],
+            output: {
+                format: 'esm',
+                file: 'dist/three-cad-viewer.module.js',
+            }
+        },
+        {
+            input: 'src/index.js',
+            plugins: [
+                ...default_plugins
+            ],
+            output: {
+                format: 'umd',
+                name: "CadCViewer",
+                file: 'dist/three-cad-viewer.js',
+                indent: '\t'
+            }
+        },
+        {
+            input: 'src/index.js',
+            plugins: [
+                ...default_plugins,
+                terser(),
+            ],
+            output: {
+                format: 'umd',
+                name: "CadCViewer",
+                file: 'dist/three-cad-viewer.min.js',
+            }
+        },
+    ];
+} else {
+    config = {
         input: 'src/index.js',
         plugins: [
             ...default_plugins,
+            serve({
+                host: os.hostname(),
+                port: 8082,
+            }),
+            livereload()
         ],
         output: {
             format: 'esm',
             file: 'dist/three-cad-viewer.module.js',
         }
-    },
-    {
-        input: 'src/index.js',
-        plugins: [
-            ...default_plugins
-        ],
-        output: {
-            format: 'umd',
-            name: "CadCViewer",
-            file: 'dist/three-cad-viewer.js',
-            indent: '\t'
-        }
-    },
-    {
-        input: 'src/index.js',
-        plugins: [
-            ...default_plugins,
-            terser(),
-        ],
-        output: {
-            format: 'umd',
-            name: "CadCViewer",
-            file: 'dist/three-cad-viewer.min.js',
-        }
-    },
-];
+    }
+}
 
-export default (process.env.BUILD === 'production') ? prodConfig : devConfig
+export default config
