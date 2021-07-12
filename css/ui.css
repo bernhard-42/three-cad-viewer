@@ -106,7 +106,7 @@ body {
 
 .cad_toolbar {
     width: 844px;
-    height: 32px;
+    height: 36px;
 }
 
 .cad_inset {
@@ -123,7 +123,7 @@ body {
 }
 
 .cad_animation {
-    height: 32px;
+    height: 36px;
     background-color: var(--jcq-bg-color);
     border: none;
     margin: 0;
@@ -153,13 +153,14 @@ body {
 }
 
 .btn {
-    width: 26px;
-    height: 26px;
+    width: 30px;
+    height: 30px;
     border: 0px;
     display: inline-block;
     vertical-align: middle;
-    margin: 0px 2px 0px 2px;
     background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 
