@@ -6,6 +6,9 @@
     <title>CadQuery Viewer</title>
     <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css">
 
+    <!-- UMD import -->
+    <!-- <script src='./dist/three-cad-viewer.js'></script> -->
+
     <script src='./examples/convert.js'></script>
     <script src="./examples/hexapod.js"></script>
     <!-- <script src="./examples/hexapod-mates.js"></script> -->
@@ -23,7 +26,13 @@
     <div id="cad_view_002" class="jupyter_cadquery"></div>
 
     <script type="module">
+        // ESM import
         import { Viewer, Display, Timer } from './dist/three-cad-viewer.esm.js'
+        console.log("y")
+        // UMD import 
+        // const Viewer = CadViewer.Viewer;
+        // const Display = CadViewer.Display;
+        // const Timer = CadViewer.Timer;
 
         const measure = false;
         const timer = new Timer("index", measure);
