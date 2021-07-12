@@ -4,19 +4,18 @@
 <head>
     <meta charset="utf-8">
     <title>CadQuery Viewer</title>
-    <link rel="stylesheet" href="../dist/three-cad-viewer.module.css">
+    <link rel="stylesheet" href="./dist/three-cad-viewer.module.css">
 
-    <script src='./convert.js'></script>
-    <script src="./hexapod.js"></script>
-    <!-- <script src="./hexapod-mates.js"></script> -->
-    <!-- <script src="./box.js"></script> -->
-    <!-- <script src="./box1.js"></script> -->
-    <!-- <script src="./boxes.js"></script> -->
-    <!-- <script src="./faces.js"></script> -->
-    <!-- <script src="./edges.js"></script> -->
-    <!-- <script src="./vertices.js"></script> -->
+    <script src='./examples/convert.js'></script>
+    <script src="./examples/hexapod.js"></script>
+    <!-- <script src="./examples/hexapod-mates.js"></script> -->
+    <!-- <script src="./examples/box.js"></script> -->
+    <!-- <script src="./examples/box1.js"></script> -->
+    <!-- <script src="./examples/boxes.js"></script> -->
+    <!-- <script src="./examples/faces.js"></script> -->
+    <!-- <script src="./examples/edges.js"></script> -->
+    <!-- <script src="./examples/vertices.js"></script> -->
 
-    <!-- <script src='../dist/three-cad-viewer.js'></script> -->
 </head>
 
 <body>
@@ -24,7 +23,7 @@
     <div id="cad_view_002" class="jupyter_cadquery"></div>
 
     <script type="module">
-        import { Viewer, Display, Timer } from '../dist/three-cad-viewer.module.js'
+        import { Viewer, Display, Timer } from './dist/three-cad-viewer.module.js'
 
         const measure = false;
         const timer = new Timer("index", measure);

@@ -7,9 +7,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "rollup -c rollup.config-prod.js",
-    "build:dev": "rollup -c",
-    "start": "todo"
+    "clean": "rimraf ./dist/*",
+    "build": "rollup -c --environment BUILD:production",
+    "start": "rollup -w -c"
   },
   "author": "Bernhard Walter",
   "license": "MIT",
@@ -17,12 +17,14 @@
     "three": "^0.128.0"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.0.0",
     "@types/three": "^0.128.0",
     "prettier": "^2.3.2",
+    "rimraf": "^3.0.2",
     "rollup": "^2.53.1",
-    "@rollup/plugin-image": "^2.0.6",
-    "@rollup/plugin-node-resolve": "^13.0.0",
     "rollup-plugin-import-css": "^3.0.0",
+    "rollup-plugin-livereload": "^2.0.5",
+    "rollup-plugin-serve": "^1.1.0",
     "rollup-plugin-svg-import": "^1.5.1",
     "rollup-plugin-terser": "^7.0.2"
   }
