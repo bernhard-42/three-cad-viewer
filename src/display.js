@@ -2,28 +2,58 @@ import { getIconBackground } from './icons.js'
 
 const TEMPLATE = `
     <div class="cad_toolbar round">
-    <span class="label">Axes</span><input class='axes check' type="checkbox" />
+    <span class="tooltip"  data-tooltip="Show coordinate axis">
+        <span class="label">Axes</span><input class='axes check' type="checkbox" />
+    </span>
     <div class="grid-dropdown">
         <span class="label">Grid</span><input class='grid check' type="checkbox" />
-        <div class="grid-content">
-            <div class="label">- xy</span><input class='grid-xy check' type="checkbox"></div>
-            <div class="label">- xz</span><input class='grid-xz check' type="checkbox"></div>
-            <div class="label">- yz</span><input class='grid-yz check' type="checkbox"></div>
-        </div>
+            <span class="tooltip"  data-tooltip="Show selective grids">
+            <div class="grid-content">
+                <div class="label">- xy</span><input class='grid-xy check' type="checkbox"></div>
+                <div class="label">- xz</span><input class='grid-xz check' type="checkbox"></div>
+                <div class="label">- yz</span><input class='grid-yz check' type="checkbox"></div>
+            </div>
+        </span>
     </div>
-    <span class="label">@0</span><input class='axes0 check' type="checkbox" />
-    <span class="label">Ortho</span><input class='ortho check' type="checkbox" />
-    <input class='reset btn' type="button" />
-    <input class='resize btn' type="button" />
-    <input class='iso btn' type="button" />
-    <input class='front btn' type="button" />
-    <input class='rear btn' type="button" />
-    <input class='top btn' type="button" />
-    <input class='bottom btn' type="button" />
-    <input class='left btn' type="button" />
-    <input class='right btn' type="button" />
-    <span class="label">Transparent</span><input class='transparent check' type="checkbox" />
-    <span class="label">Black edges</span><input class='black_edges check' type="checkbox" />
+    <span class="tooltip"  data-tooltip="Move center of axis and grid to (0,0,0)">
+        <span class="label">@0</span><input class='axes0 check' type="checkbox" />
+    </span>
+    <span class="tooltip"  data-tooltip="Toggle camera between orthographic and perspective view">
+        <span class="label">Ortho</span><input class='ortho check' type="checkbox" />
+    </span>
+    <span class="tooltip"  data-tooltip="Reset view">
+        <input class='reset btn' type="button"/>
+    </span>
+    <span class="tooltip"  data-tooltip="Fit view">
+        <input class='resize btn' type="button" />
+    </span>
+    <span class="tooltip"  data-tooltip="Switch to iso view">
+        <input class='iso btn' type="button" />
+    </span>
+    <span class="tooltip"  data-tooltip="Switch to front view">
+        <input class='front btn' type="button" />
+    </span>
+    <span class="tooltip"  data-tooltip="Switch to back view">
+        <input class='rear btn' type="button" />
+    </span>
+    <span class="tooltip"  data-tooltip="Switch to top view">
+        <input class='top btn' type="button" />
+    </span>
+    <span class="tooltip"  data-tooltip="Switch to bottom view">
+        <input class='bottom btn' type="button" />
+    </span>
+    <span class="tooltip"  data-tooltip="Switch to left view">
+        <input class='left btn' type="button" />
+    </span>
+    <span class="tooltip"  data-tooltip="Switch to right view">
+        <input class='right btn' type="button" />
+    </span>
+    <span class="tooltip"  data-tooltip="Toggle transparent objects">
+        <span class="label">Transparent</span><input class='transparent check' type="checkbox" />
+    </span>
+    <span class="tooltip"  data-tooltip="Toggle black edges">
+        <span class="label">Black edges</span><input class='black_edges check' type="checkbox" />
+    </span>
     </div>
     <div class="cad_body">
     <div class="cad_navigation">
@@ -37,7 +67,9 @@ const TEMPLATE = `
             <div class="cad_clip_container">
                 <div class="slider_group">
                     <div>
-                        <input class='btn_norm_plane1 btn plane' type="button" />
+                        <span class="tooltip"  data-tooltip="Set red clipping plane to view direction">
+                            <input class='btn_norm_plane1 btn plane' type="button" />
+                        </span>
                         <span class="lbl_norm_plane1 label">N1 = (n/a, n/a, n/a)</span>
                     </div>
                     <div>
@@ -47,7 +79,9 @@ const TEMPLATE = `
                 </div>
                 <div class="slider_group">
                     <div>
-                        <input class='btn_norm_plane2 btn plane' type="button" />
+                        <span class="tooltip"  data-tooltip="Set green clipping plane to view direction">
+                            <input class='btn_norm_plane2 btn plane' type="button" />
+                        </span>
                         <span class="lbl_norm_plane2 label">N2 = (n/a, n/a, n/a)</span>
                     </div>
                     <div>
@@ -57,8 +91,10 @@ const TEMPLATE = `
                 </div>
                 <div class="slider_group">
                     <div>
-                    <input class='btn_norm_plane3 btn plane' type="button" />
-                    <span class="lbl_norm_plane3 label">N3 = (n/a, n/a, n/a)</span>
+                        <span class="tooltip"  data-tooltip="Set blue clipping plane to view direction">
+                            <input class='btn_norm_plane3 btn plane' type="button" />
+                        </span>
+                        <span class="lbl_norm_plane3 label">N3 = (n/a, n/a, n/a)</span>
                     </div>
                     <div>
                         <input type="range" min="1" max="100" value="50" class="sld_value_plane3 clip_slider">
@@ -66,8 +102,12 @@ const TEMPLATE = `
                     </div>
                 </div>
                 <div class="clip_checks">
-                    <span class="label">Intersection</span><input  class='clip_intersection check' type="checkbox" />
-                    <span class="label">Planes</span><input class='clip_plane_helpers axes0 check' type="checkbox" />
+                    <span class="tooltip"  data-tooltip="Use intersection clipping">
+                        <span class="label">Intersection</span><input  class='clip_intersection check' type="checkbox" />
+                    </span>
+                    <span class="tooltip"  data-tooltip="Show clipping planes">
+                        <span class="label">Planes</span><input class='clip_plane_helpers axes0 check' type="checkbox" />
+                    </span>
                 </div>
             </div>
         </div>
@@ -81,9 +121,9 @@ const TEMPLATE = `
     <div class="cad_view">
         <div class="cad_inset"></div>
         <div class="cad_animation round">
-            <input class='play btn' type="button" />
-            <input class='pause btn' type="button" />
-            <input class='stop btn' type="button" />
+            <span class="tooltip"  data-tooltip="Play animation"><input class='play btn' type="button" /></span>
+            <span class="tooltip"  data-tooltip="Pause animation"><input class='pause btn' type="button" /></span>
+            <span class="tooltip"  data-tooltip="Stop and reset animation"><input class='stop btn' type="button" /></span>
         </div>
     </div>
     </div>

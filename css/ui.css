@@ -361,3 +361,33 @@ input[type="button"] {
     scrollbar-width: thin;
     background-color: transparent !important;
 }
+
+[data-tooltip] {
+    position: relative;
+    transition-delay: 0s;
+}
+ 
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s;
+
+  font-size:12px;
+ 
+  display: block;  
+  position: absolute; 
+  white-space: nowrap;
+  bottom: -2.5em;
+  left: 0px;
+  padding: 2px;
+  z-index: 100;
+  color: var(--jcq-font-color); 
+  background-color: var(--jcq-bg-highligth-color);
+  border: solid 1px var(--jcq-bg-highligth-color);
+  border-radius: 5px;  
+}
+ 
+[data-tooltip]:hover::after {
+  opacity: 1;
+}
