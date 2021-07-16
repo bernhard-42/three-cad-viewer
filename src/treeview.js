@@ -88,14 +88,14 @@ class TreeView {
     var img_button;
 
     var li = tag("li");
-    var lbl = tag("span", ["tree_label"]);
+    var lbl = tag("span", ["tcv_tree_label"]);
     lbl.innerHTML = model.name;
-    var entry = tag("span", ["node_entry"])
+    var entry = tag("span", ["tcv_node_entry"])
     if (model.type === "node") {
-      var span = tag("span", ["node_entry_wrap"])
-      span.appendChild(tag("span", ["t-caret", "t-caret-down"]));
+      var span = tag("span", ["tcv_node_entry_wrap"])
+      span.appendChild(tag("span", ["tcv_t-caret", "tcv_t-caret-down"]));
       for (icon_id in this.icons) {
-        img_button = tag("input", ["icon"], {
+        img_button = tag("input", ["tcv_icon"], {
           type: "button",
           style: `background-image: ${this.getIcon(icon_id, 1)}`
         });
@@ -109,7 +109,7 @@ class TreeView {
       entry.appendChild(lbl);
       span.appendChild(entry);
       li.append(span);
-      var lu = tag("ul", ["nested", "active"]);
+      var lu = tag("ul", ["tcv_nested", "tcv_active"]);
       for (var i in model.children) {
         lu.appendChild(this.toHtml(model.children[i]));
       }
@@ -117,7 +117,7 @@ class TreeView {
 
     } else {
       for (icon_id in this.icons) {
-        img_button = tag("input", ["icon"], {
+        img_button = tag("input", ["tcv_icon"], {
           type: "button",
           style: `background-image: ${this.getIcon(icon_id, model.states[icon_id])}`
         });
@@ -140,18 +140,18 @@ class TreeView {
   }
 
   render() {
-    this.container = tag("ul", ["toplevel"]);
+    this.container = tag("ul", ["tcv_toplevel"]);
     this.container.appendChild(this.toHtml(this.treeModel));
 
     for (var icon_id in this.icons) {
       this.updateNodes(this.treeModel, icon_id);
     }
 
-    var toggler = this.container.getElementsByClassName("t-caret");
+    var toggler = this.container.getElementsByClassName("tcv_t-caret");
     for (var i = 0; i < toggler.length; i++) {
       toggler[i].addEventListener("click", e => { // jshint ignore:line
-        e.target.parentElement.parentElement.querySelector(".nested").classList.toggle("active");
-        e.target.classList.toggle("t-caret-down");
+        e.target.parentElement.parentElement.querySelector(".nested").classList.toggle("tcv_active");
+        e.target.classList.toggle("tcv_t-caret-down");
       });
     }
     return this.container;

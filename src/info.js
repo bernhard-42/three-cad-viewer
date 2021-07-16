@@ -23,11 +23,11 @@ class Info {
     }
 
     render() {
-        var html = '<table class="info_table">'
+        var html = '<table class="tcv_info_table">'
 
         for (var chunk of this.chunks) {
-            html += '<tr class="info_row">'
-            html += `<td><pre class="info_num">[${chunk[0]}]</pre></td>`
+            html += '<tr class="tcv_info_row">'
+            html += `<td><pre class="tcv_info_num">[${chunk[0]}]</pre></td>`
             html += `<td>${chunk[1]}</td>`
             html += "</tr>"
         }
@@ -40,20 +40,24 @@ class Info {
         this.addHtml(
             `<b>Versions</b>
             <table>
-                <tr class="small_table"><td>CadQuery:</td>        <td>${cqVersion}</td> </tr>
-                <tr class="small_table"><td>Jupyter CadQuery:</td><td>${jcqVersion}</td> </tr>
+                <tr class="tcv_small_table"><td>CadQuery:</td>        <td>${cqVersion}</td> </tr>
+                <tr class="tcv_small_table"><td>Jupyter CadQuery:</td><td>${jcqVersion}</td> </tr>
             </table>`
         )
     }
 
     readyMsg(gridSize) {
         var html = (
-            `<div class="info_header">Ready</div>
+            `<div class="tcv_info_header">Ready</div>
             <table class="small_table">
-                <tr class="small_table_row" >           <td>Tick size</td>  <td>${gridSize} mm</td> </tr>
-                <tr class="small_table_row info_red">   <td>X-Axis</td>     <td>Red</td>    </tr>
-                <tr class="small_table_row info_green"> <td>Y-Axis</td>     <td>Green</td>  </tr>
-                <tr class="small_table_row info_blue">  <td>Z-Axis</td>     <td>Blue</td>   </tr>
+                <tr class="tcv_small_table_row" >           <td>Tick size</td>  <td>${gridSize} mm</td> </tr>
+                <tr class="tcv_small_table_row" >           <td>Axes</td>
+                    <td>
+                        <span class="tcv_info_red"><b>X</b></span>,
+                        <span class="tcv_info_green"><b>Y</b></span>,
+                        <span class="tcv_info_blue"><b>Z</b></span>
+                    </td> 
+                </tr>
             </table>`
         )
         this.addHtml(html)
@@ -61,12 +65,12 @@ class Info {
 
     bbInfo(path, name, bb) {
         var html = (`
-            <table class="small_table">
-                <tr class="small_table_row">
+            <table class="tcv_small_table">
+                <tr class="tcv_small_table_row">
                     <td><b>Path:</b></td>
                     <td>${path}</td>
                 </tr>
-                <tr class="small_table_row">
+                <tr class="tcv_small_table_row">
                     <td><b>Name:</b></td>
                     <td>${name}</td>
                 </tr>
@@ -74,9 +78,9 @@ class Info {
             `
         )
         html += `
-            <div class="info_header">Bounding box:</div>
-            <table class="small_table">
-                <tr class="small_table_row">
+            <div class="tcv_info_header">Bounding box:</div>
+            <table class="tcv_small_table">
+                <tr class="tcv_small_table_row">
                     <th></th>
                     <th>min</th>
                     <th>max</th>
@@ -89,7 +93,7 @@ class Info {
 
         ["x", "y", "z"].forEach((a) => {
             html += `
-                <tr class="small_table_row">
+                <tr class="tcv_small_table_row">
                     <th>${a}</th>
                     <td align='right'>${bb.min[a].toFixed(3)}</td>
                     <td align='right'>${bb.max[a].toFixed(3)}</td>

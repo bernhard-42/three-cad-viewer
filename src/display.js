@@ -1,132 +1,134 @@
 import { getIconBackground } from './icons.js'
 
 const TEMPLATE = `
-    <div class="cad_toolbar round">
-    <span class="tooltip"  data-tooltip="Show coordinate axis">
-        <span class="label">Axes</span><input class='axes check' type="checkbox" />
+<div class="tcv_cad_viewer">
+    <div class="tcv_cad_toolbar tcv_round">
+    <span class="tcv_tooltip"  data-tooltip="Show coordinate axis">
+        <span class="tcv_label">Axes</span><input class='tcv_axes tcv_check' type="checkbox" />
     </span>
-    <div class="grid-dropdown">
-        <span class="label">Grid</span><input class='grid check' type="checkbox" />
-            <span class="tooltip"  data-tooltip="Show selective grids">
-            <div class="grid-content">
-                <div class="label">- xy</span><input class='grid-xy check' type="checkbox"></div>
-                <div class="label">- xz</span><input class='grid-xz check' type="checkbox"></div>
-                <div class="label">- yz</span><input class='grid-yz check' type="checkbox"></div>
+    <div class="tcv_grid-dropdown">
+        <span class="tcv_label">Grid</span><input class='tcv_grid tcv_check' type="checkbox" />
+            <span class="tcv_tooltip"  data-tooltip="Show selective grids">
+            <div class="tcv_grid-content">
+                <div class="tcv_label">- xy</span><input class='tcv_grid-xy tcv_check' type="checkbox"></div>
+                <div class="tcv_label">- xz</span><input class='tcv_grid-xz tcv_check' type="checkbox"></div>
+                <div class="tcv_label">- yz</span><input class='tcv_grid-yz tcv_check' type="checkbox"></div>
             </div>
         </span>
     </div>
-    <span class="tooltip"  data-tooltip="Move center of axis and grid to (0,0,0)">
-        <span class="label">@0</span><input class='axes0 check' type="checkbox" />
+    <span class="tcv_tooltip"  data-tooltip="Move center of axis and grid to (0,0,0)">
+        <span class="tcv_label">@0</span><input class='tcv_axes0 tcv_check' type="checkbox" />
     </span>
-    <span class="tooltip"  data-tooltip="Toggle camera between orthographic and perspective view">
-        <span class="label">Ortho</span><input class='ortho check' type="checkbox" />
+    <span class="tcv_tooltip"  data-tooltip="Toggle camera between orthographic and perspective view">
+        <span class="tcv_label">Ortho</span><input class='tcv_ortho tcv_check' type="checkbox" />
     </span>
-    <span class="tooltip"  data-tooltip="Reset view">
-        <input class='reset btn' type="button"/>
+    <span class="tcv_tooltip"  data-tooltip="Reset view">
+        <input class='tcv_reset tcv_btn' type="button"/>
     </span>
-    <span class="tooltip"  data-tooltip="Fit view">
-        <input class='resize btn' type="button" />
+    <span class="tcv_tooltip"  data-tooltip="Fit view">
+        <input class='tcv_resize tcv_btn' type="button" />
     </span>
-    <span class="tooltip"  data-tooltip="Switch to iso view">
-        <input class='iso btn' type="button" />
+    <span class="tcv_tooltip"  data-tooltip="Switch to iso view">
+        <input class='tcv_iso tcv_btn' type="button" />
     </span>
-    <span class="tooltip"  data-tooltip="Switch to front view">
-        <input class='front btn' type="button" />
+    <span class="tcv_tooltip"  data-tooltip="Switch to front view">
+        <input class='tcv_front tcv_btn' type="button" />
     </span>
-    <span class="tooltip"  data-tooltip="Switch to back view">
-        <input class='rear btn' type="button" />
+    <span class="tcv_tooltip"  data-tooltip="Switch to back view">
+        <input class='tcv_rear tcv_btn' type="button" />
     </span>
-    <span class="tooltip"  data-tooltip="Switch to top view">
-        <input class='top btn' type="button" />
+    <span class="tcv_tooltip"  data-tooltip="Switch to top view">
+        <input class='tcv_top tcv_btn' type="button" />
     </span>
-    <span class="tooltip"  data-tooltip="Switch to bottom view">
-        <input class='bottom btn' type="button" />
+    <span class="tcv_tooltip"  data-tooltip="Switch to bottom view">
+        <input class='tcv_bottom tcv_btn' type="button" />
     </span>
-    <span class="tooltip"  data-tooltip="Switch to left view">
-        <input class='left btn' type="button" />
+    <span class="tcv_tooltip"  data-tooltip="Switch to left view">
+        <input class='tcv_left tcv_btn' type="button" />
     </span>
-    <span class="tooltip"  data-tooltip="Switch to right view">
-        <input class='right btn' type="button" />
+    <span class="tcv_tooltip"  data-tooltip="Switch to right view">
+        <input class='tcv_right tcv_btn' type="button" />
     </span>
-    <span class="tooltip"  data-tooltip="Toggle transparent objects">
-        <span class="label">Transparent</span><input class='transparent check' type="checkbox" />
+    <span class="tcv_tooltip"  data-tooltip="Toggle transparent objects">
+        <span class="tcv_label">Transparent</span><input class='tcv_transparent tcv_check' type="checkbox" />
     </span>
-    <span class="tooltip"  data-tooltip="Toggle black edges">
-        <span class="label">Black edges</span><input class='black_edges check' type="checkbox" />
+    <span class="tcv_tooltip"  data-tooltip="Toggle black edges">
+        <span class="tcv_label">Black edges</span><input class='tcv_black_edges tcv_check' type="checkbox" />
     </span>
     </div>
-    <div class="cad_body">
-    <div class="cad_navigation">
-    <div class="cad_tree round">
-        <div class="tabnav">
-            <input class='tab_tree tab tab-left tab-selected' value="Tree" type="button"/>
-            <input class='tab_clip tab tab-right tab-unselected' value="Clipping" type="button"/>
+    <div class="tcv_cad_body">
+    <div class="tcv_cad_navigation">
+    <div class="tcv_cad_tree tcv_round">
+        <div class="tcv_tabnav">
+            <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button"/>
+            <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping" type="button"/>
         </div>
-        <div class="box_content mac-scrollbar scroller">
-            <div class="cad_tree_container"></div>
-            <div class="cad_clip_container">
-                <div class="slider_group">
+        <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
+            <div class="tcv_cad_tree_container"></div>
+            <div class="tcv_cad_clip_container">
+                <div class="tcv_slider_group">
                     <div>
-                        <span class="tooltip"  data-tooltip="Set red clipping plane to view direction">
-                            <input class='btn_norm_plane1 btn plane' type="button" />
+                        <span class="tcv_tooltip"  data-tooltip="Set red clipping plane to view direction">
+                            <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type="button" />
                         </span>
-                        <span class="lbl_norm_plane1 label">N1 = (n/a, n/a, n/a)</span>
+                        <span class="tcv_lbl_norm_plane1 tcv_label">N1 = (n/a, n/a, n/a)</span>
                     </div>
                     <div>
-                        <input type="range" min="1" max="100" value="50" class="sld_value_plane1 clip_slider">
-                        <input value=50 class="inp_value_plane1 clip_input"></input>
+                        <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane1 tcv_clip_slider">
+                        <input value=50 class="tcv_inp_value_plane1 tcv_clip_input"></input>
                     </div>
                 </div>
-                <div class="slider_group">
+                <div class="tcv_slider_group">
                     <div>
                         <span class="tooltip"  data-tooltip="Set green clipping plane to view direction">
-                            <input class='btn_norm_plane2 btn plane' type="button" />
+                            <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type="button" />
                         </span>
-                        <span class="lbl_norm_plane2 label">N2 = (n/a, n/a, n/a)</span>
+                        <span class="tcv_lbl_norm_plane2 tcv_label">N2 = (n/a, n/a, n/a)</span>
                     </div>
                     <div>
-                        <input type="range" min="1" max="100" value="50" class="sld_value_plane2 clip_slider">
-                        <input value=50 class="inp_value_plane2 clip_input"></input>
+                        <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane2 tcv_clip_slider">
+                        <input value=50 class="tcv_inp_value_plane2 tcv_clip_input"></input>
                     </div>
                 </div>
-                <div class="slider_group">
+                <div class="tcv_slider_group">
                     <div>
                         <span class="tooltip"  data-tooltip="Set blue clipping plane to view direction">
-                            <input class='btn_norm_plane3 btn plane' type="button" />
+                            <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type="button" />
                         </span>
-                        <span class="lbl_norm_plane3 label">N3 = (n/a, n/a, n/a)</span>
+                        <span class="tcv_lbl_norm_plane3 tcv_label">N3 = (n/a, n/a, n/a)</span>
                     </div>
                     <div>
-                        <input type="range" min="1" max="100" value="50" class="sld_value_plane3 clip_slider">
-                        <input value=50 class="inp_value_plane3 clip_input"></input>
+                        <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane3 tcv_clip_slider">
+                        <input value=50 class="tcv_inp_value_plane3 tcv_clip_input"></input>
                     </div>
                 </div>
-                <div class="clip_checks">
-                    <span class="tooltip"  data-tooltip="Use intersection clipping">
-                        <span class="label">Intersection</span><input  class='clip_intersection check' type="checkbox" />
+                <div class="tcv_clip_checks">
+                    <span class="tcv_tooltip"  data-tooltip="Use intersection clipping">
+                        <span class="tcv_label">Intersection</span><input  class='tcv_clip_intersection tcv_check' type="checkbox" />
                     </span>
-                    <span class="tooltip"  data-tooltip="Show clipping planes">
-                        <span class="label">Planes</span><input class='clip_plane_helpers axes0 check' type="checkbox" />
+                    <span class="tcv_tooltip"  data-tooltip="Show clipping planes">
+                        <span class="tcv_label">Planes</span><input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type="checkbox" />
                     </span>
                 </div>
             </div>
         </div>
     </div>
-    <div class="cad_info round">
-        <div class="box_content mac-scrollbar scroller">
-            <div class="cad_info_container"></div>
+    <div class="tcv_cad_info tcv_round">
+        <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
+            <div class="tcv_cad_info_container"></div>
         </div>
     </div>
     </div>
-    <div class="cad_view">
-        <div class="cad_inset"></div>
-        <div class="cad_animation round">
-            <span class="tooltip"  data-tooltip="Play animation"><input class='play btn' type="button" /></span>
-            <span class="tooltip"  data-tooltip="Pause animation"><input class='pause btn' type="button" /></span>
-            <span class="tooltip"  data-tooltip="Stop and reset animation"><input class='stop btn' type="button" /></span>
+    <div class="tcv_cad_view">
+        <div class="tcv_cad_inset"></div>
+        <div class="tcv_cad_animation tcv_round">
+            <span class="tcv_tooltip"  data-tooltip="Play animation"><input class='tcv_play tcv_btn' type="button" /></span>
+            <span class="tcv_tooltip"  data-tooltip="Pause animation"><input class='tcv_pause tcv_btn' type="button" /></span>
+            <span class="tcv_tooltip"  data-tooltip="Stop and reset animation"><input class='tcv_stop tcv_btn' type="button" /></span>
         </div>
     </div>
     </div>
+</div>
 `;
 
 function px(val) {
@@ -142,10 +144,10 @@ class Slider {
         this.index = index;
         this.display = display;
 
-        this.slider = display.container.getElementsByClassName(`sld_value_plane${index}`)[0];
+        this.slider = display.container.getElementsByClassName(`tcv_sld_value_plane${index}`)[0];
         this.slider.min = min;
         this.slider.max = max;
-        this.input = display.container.getElementsByClassName(`inp_value_plane${index}`)[0];
+        this.input = display.container.getElementsByClassName(`tcv_inp_value_plane${index}`)[0];
         this.input.value = max;
         this.slider.oninput = this.sliderChange;
         this.input.addEventListener('change', this.inputChange);
@@ -182,20 +184,20 @@ class Display {
         this.container = container;
 
         this.container.innerHTML = TEMPLATE;
-        this.cadTool = this.container.getElementsByClassName("cad_toolbar")[0];
-        this.cadView = this.container.getElementsByClassName("cad_view")[0];
-        this.cadInset = this.container.getElementsByClassName('cad_inset')[0];
-        this.cadTree = this.container.getElementsByClassName('cad_tree_container')[0];
-        this.cadClip = this.container.getElementsByClassName('cad_clip_container')[0];
-        this.tabTree = this.container.getElementsByClassName('tab_tree')[0];
-        this.tabClip = this.container.getElementsByClassName('tab_clip')[0];
-        this.cadInfo = this.container.getElementsByClassName('cad_info_container')[0];
-        this.cadAnim = this.container.getElementsByClassName('cad_animation')[0];
+        this.cadTool = this.container.getElementsByClassName("tcv_cad_toolbar")[0];
+        this.cadView = this.container.getElementsByClassName("tcv_cad_view")[0];
+        this.cadInset = this.container.getElementsByClassName('tcv_cad_inset')[0];
+        this.cadTree = this.container.getElementsByClassName('tcv_cad_tree_container')[0];
+        this.cadClip = this.container.getElementsByClassName('tcv_cad_clip_container')[0];
+        this.tabTree = this.container.getElementsByClassName('tcv_tab_tree')[0];
+        this.tabClip = this.container.getElementsByClassName('tcv_tab_clip')[0];
+        this.cadInfo = this.container.getElementsByClassName('tcv_cad_info_container')[0];
+        this.cadAnim = this.container.getElementsByClassName('tcv_cad_animation')[0];
 
         this.planeLabels = []
         for (var i = 1; i < 4; i++) {
             this.planeLabels.push(
-                this.container.getElementsByClassName(`lbl_norm_plane${i}`)[0]
+                this.container.getElementsByClassName(`tcv_lbl_norm_plane${i}`)[0]
             )
         }
 
@@ -214,7 +216,7 @@ class Display {
             document.documentElement.setAttribute('data-theme', 'dark');
         }
         for (var btn of buttons) {
-            var elements = this.container.getElementsByClassName(btn);
+            var elements = this.container.getElementsByClassName(`tcv_${btn}`);
             for (var i = 0; i < elements.length; i++) {
                 var el = elements[i];
                 el.setAttribute("style", `background-image: ${getIconBackground(theme, btn)}`);
@@ -267,25 +269,25 @@ class Display {
     setupUI(viewer) {
         this.viewer = viewer;
 
-        this.setupCheckEvent('axes', this.setAxes, viewer.axes);
-        this.setupCheckEvent('grid', this.setGrid, viewer.grid);
-        this.setupCheckEvent('grid-xy', this.setGrid, viewer.grid);
-        this.setupCheckEvent('grid-xz', this.setGrid, viewer.grid);
-        this.setupCheckEvent('grid-yz', this.setGrid, viewer.grid);
-        this.setupCheckEvent('axes0', this.setAxes0, viewer.axes0);
-        this.setupCheckEvent('ortho', this.setOrtho, viewer.ortho);
-        this.setupCheckEvent('transparent', this.setTransparency, viewer.transparent);
-        this.setupCheckEvent('black_edges', this.setBlackEdges, viewer.black_edges);
+        this.setupCheckEvent('tcv_axes', this.setAxes, viewer.axes);
+        this.setupCheckEvent('tcv_grid', this.setGrid, viewer.grid);
+        this.setupCheckEvent('tcv_grid-xy', this.setGrid, viewer.grid);
+        this.setupCheckEvent('tcv_grid-xz', this.setGrid, viewer.grid);
+        this.setupCheckEvent('tcv_grid-yz', this.setGrid, viewer.grid);
+        this.setupCheckEvent('tcv_axes0', this.setAxes0, viewer.axes0);
+        this.setupCheckEvent('tcv_ortho', this.setOrtho, viewer.ortho);
+        this.setupCheckEvent('tcv_transparent', this.setTransparency, viewer.transparent);
+        this.setupCheckEvent('tcv_black_edges', this.setBlackEdges, viewer.black_edges);
 
-        this.setupClickEvent('reset', this.reset);
-        this.setupClickEvent('resize', this.resize);
+        this.setupClickEvent('tcv_reset', this.reset);
+        this.setupClickEvent('tcv_resize', this.resize);
 
-        const buttons = ["front", "rear", "top", "bottom", "left", "right", "iso"];
+        const buttons = ["tcv_front", "tcv_rear", "tcv_top", "tcv_bottom", "tcv_left", "tcv_right", "tcv_iso"];
         buttons.forEach((name) => {
             this.setupClickEvent(name, this.setView);
         })
 
-        const tabs = ["tab_tree", "tab_clip"];
+        const tabs = ["tcv_tab_tree", "tcv_tab_clip"];
         tabs.forEach((name) => {
             this.setupClickEvent(name, this.selectTab);
         })
@@ -295,16 +297,16 @@ class Display {
             this.clipSliders.push(new Slider(i, 0, 100, this));
         }
 
-        this.setupCheckEvent('clip_plane_helpers', this.setClipPlaneHelpers, false);
-        this.setupCheckEvent('clip_intersection', this.setClipIntersection, false);
+        this.setupCheckEvent('tcv_clip_plane_helpers', this.setClipPlaneHelpers, false);
+        this.setupCheckEvent('tcv_clip_intersection', this.setClipIntersection, false);
 
         for (var i = 1; i < 4; i++) {
-            this.setupClickEvent(`btn_norm_plane${i}`, this.setClipNormal, false);
+            this.setupClickEvent(`tcv_btn_norm_plane${i}`, this.setClipNormal, false);
         }
 
-        this.setupClickEvent("play", this.controlAnimation, false);
-        this.setupClickEvent("pause", this.controlAnimation, false);
-        this.setupClickEvent("stop", this.controlAnimation, false);
+        this.setupClickEvent("tcv_play", this.controlAnimation, false);
+        this.setupClickEvent("tcv_pause", this.controlAnimation, false);
+        this.setupClickEvent("tcv_stop", this.controlAnimation, false);
         this.setAnimationControl(false);
     }
 
@@ -338,7 +340,7 @@ class Display {
     }
 
     setGrid = (e) => {
-        const action = e.target.className.split(" ")[0]
+        const action = e.target.className.split(" ")[0].slice(4);
         this.viewer.setGrid(action);
     }
 
@@ -381,7 +383,7 @@ class Display {
     }
 
     setView = (e) => {
-        const btn = e.target.className.split(" ")[0];
+        const btn = e.target.className.split(" ")[0].slice(4);
         this.viewer.setCamera(btn);
     }
 
@@ -397,14 +399,14 @@ class Display {
     selectTab = (e) => {
         const tab = e.target.className.split(" ")[0];
         var changed = false;
-        if ((tab === "tab_tree") && (this.activeTab !== "tab_tree")) {
+        if ((tab === "tcv_tab_tree") && (this.activeTab !== "tcv_tab_tree")) {
             this.cadTree.style.display = "block";
             this.cadClip.style.display = "none";
             this.viewer.nestedGroup.setBackVisible(false);
             this.viewer.setLocalClipping(false);
             changed = true;
         };
-        if ((tab === "tab_clip") && (this.activeTab !== "tab_clip")) {
+        if ((tab === "tcv_tab_clip") && (this.activeTab !== "tcv_tab_clip")) {
             this.cadTree.style.display = "none";
             this.cadClip.style.display = "block";
             this.viewer.nestedGroup.setBackVisible(true);
@@ -413,10 +415,10 @@ class Display {
         }
         this.activeTab = tab;
         if (changed) {
-            this.tabTree.classList.toggle("tab-selected");
-            this.tabTree.classList.toggle("tab-unselected");
-            this.tabClip.classList.toggle("tab-selected");
-            this.tabClip.classList.toggle("tab-unselected");
+            this.tabTree.classList.toggle("tcv_tab-selected");
+            this.tabTree.classList.toggle("tcv_tab-unselected");
+            this.tabClip.classList.toggle("tcv_tab-selected");
+            this.tabClip.classList.toggle("tcv_tab-unselected");
         }
     }
 
@@ -435,7 +437,7 @@ class Display {
     }
 
     controlAnimation = (e) => {
-        const btn = e.target.className.split(" ")[0];
+        const btn = e.target.className.split(" ")[0].slice(4);
         this.viewer.controlAnimation(btn);
     }
 

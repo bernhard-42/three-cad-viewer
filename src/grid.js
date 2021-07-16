@@ -110,10 +110,10 @@ class Grid {
         }
         this.allGrid = this.computeGrid();
 
-        this.display.checkElement('grid', this.allGrid);
-        this.display.checkElement('grid-xy', this.grid[0]);
-        this.display.checkElement('grid-xz', this.grid[1]);
-        this.display.checkElement('grid-yz', this.grid[2]);
+        this.display.checkElement('tcv_grid', this.allGrid);
+        this.display.checkElement('tcv_grid-xy', this.grid[0]);
+        this.display.checkElement('tcv_grid-xz', this.grid[1]);
+        this.display.checkElement('tcv_grid-yz', this.grid[2]);
 
         this.setVisible();
     }

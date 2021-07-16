@@ -61,7 +61,8 @@ class Viewer {
             alpha: !this.dark,
             antialias: true
         });
-        [this.width, this.height] = this.display.getCadViewSize();
+        // [this.width, this.height] = this.display.getCadViewSize();
+        this.width = this.cadWidth;
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
 
