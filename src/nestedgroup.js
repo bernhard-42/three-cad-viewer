@@ -171,7 +171,7 @@ class NestedGroup {
 
         const vertex_color = (color == null) ? this.edgeColor : color;
 
-        const positions = new Float32Array(vertexList.flat().flat());
+        const positions = new Float32Array(vertexList.flat(2));
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 
@@ -193,15 +193,28 @@ class NestedGroup {
     }
 
     renderShape(shape, color, name) {
-        var positions = new Float32Array(shape.vertices.flat());
-        var normals = new Float32Array(shape.normals.flat());
+        const positions = (
+            (shape.vertices instanceof Float32Array) ?
+                shape.vertices :
+                new Float32Array(shape.vertices.flat())
+        );
+        const normals = (
+            (shape.normals instanceof Float32Array) ?
+                shape.normals :
+                new Float32Array(shape.normals.flat())
+        );
+        const triangles = (
+            (shape.triangles instanceof Uint32Array) ?
+                shape.triangles :
+                new Uint32Array(shape.triangles.flat())
+        );
 
         var group = new ObjectGroup(this.defaultOpacity, this.edgeColor)
 
         var shapeGeometry = new THREE.BufferGeometry();
         shapeGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         shapeGeometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
-        shapeGeometry.setIndex(shape.triangles)
+        shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
 
         const frontMaterial = new THREE.MeshStandardMaterial({
             color: color,
