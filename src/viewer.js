@@ -160,7 +160,7 @@ class Viewer {
 
     initOrbitControls() {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.listenToKeyEvents(window);
+        // this.controls.listenToKeyEvents(window);
         this.controls.target = new THREE.Vector3(...this.bbox.center);
         this.controls.zoomSpeed = 0.5;
         this.controls.panSpeed = 0.5;
