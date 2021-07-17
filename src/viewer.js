@@ -335,8 +335,7 @@ class Viewer {
         // set up the orientation marker
         //
 
-        const [insetWidth, insetHeight] = this.display.getCadInsetSize();
-        this.orientationMarker = new OrientationMarker(insetWidth, insetHeight, this.camera, this.theme);
+        this.orientationMarker = new OrientationMarker(80, 80, this.camera, this.theme);
         this.display.addCadInset(this.orientationMarker.create());
 
         //
