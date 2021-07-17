@@ -180,7 +180,7 @@ class Slider {
 }
 
 class Display {
-    constructor(container, theme) {
+    constructor(container, options) {
         this.container = container;
 
         this.container.innerHTML = TEMPLATE;
@@ -203,23 +203,26 @@ class Display {
 
         this.viewer = null;
 
-        this.cadWidth = 600;
-        this.height = 400;
-        this.treeWidth = 240;
+        this.cadWidth = options.cadWidth;
+        this.height = options.height;
+        this.treeWidth = options.treeWidth;
 
         this.activeTab = "tab_tree";
         this.cadTree.style.display = "block";
         this.cadClip.style.display = "none";
         this.clipSliders = null;
 
-        if (theme === "dark") {
+        if (options.theme === "dark") {
             document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
         }
+
         for (var btn of buttons) {
             var elements = this.container.getElementsByClassName(`tcv_${btn}`);
             for (var i = 0; i < elements.length; i++) {
                 var el = elements[i];
-                el.setAttribute("style", `background-image: ${getIconBackground(theme, btn)}`);
+                el.setAttribute("style", `background-image: ${getIconBackground(options.theme, btn)}`);
             }
         }
 
@@ -312,14 +315,6 @@ class Display {
 
     // setup functions
 
-    getCadViewSize() {
-        return [this.cadView.clientWidth, this.cadView.clientHeight];
-    }
-
-    getCadInsetSize() {
-        return [this.cadInset.clientWidth, this.cadInset.clientHeight];
-    }
-
     addCadView(cadView) {
         this.cadView.appendChild(cadView);
     }
@@ -379,7 +374,7 @@ class Display {
     }
 
     resize = () => {
-        self.viewer.resize();
+        this.viewer.resize();
     }
 
     setView = (e) => {

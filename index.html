@@ -42,9 +42,8 @@
 
         timer.split("loaded");
 
-        const theme = "light";
         const options = {
-            theme: theme,
+            theme: "light",
             ortho: true,
             normalLen: 0,
             cadWidth: 800,
@@ -56,7 +55,7 @@
         }
 
         const container = document.getElementById("cad_view_001")
-        const display = new Display(container, theme);
+        const display = new Display(container, options);
         timer.split("display");
 
         const viewer = new Viewer(display, needsAnimationLoop, options);
