@@ -60,6 +60,7 @@
     background-position-x: center;
     background-position-y: center;
     background-repeat: no-repeat;
+    padding: 0px;
 }
 
 .tcv_indent {
