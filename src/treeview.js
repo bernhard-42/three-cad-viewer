@@ -123,7 +123,7 @@ class TreeView {
         });
         img_button.setAttribute("icon_id", icon_id);
         if (icon_id == 0) {
-          img_button.classList.add("indent");
+          img_button.classList.add("tcv_indent");
         }
         if (model.states[icon_id] != States.empty) { // no events on empty icon
           img_button.addEventListener("click", e => { // jshint ignore:line
@@ -150,7 +150,7 @@ class TreeView {
     var toggler = this.container.getElementsByClassName("tcv_t-caret");
     for (var i = 0; i < toggler.length; i++) {
       toggler[i].addEventListener("click", e => { // jshint ignore:line
-        e.target.parentElement.parentElement.querySelector(".nested").classList.toggle("tcv_active");
+        e.target.parentElement.parentElement.querySelector(".tcv_nested").classList.toggle("tcv_active");
         e.target.classList.toggle("tcv_t-caret-down");
       });
     }
