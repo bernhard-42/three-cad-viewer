@@ -206,6 +206,7 @@ class Display {
         this.cadWidth = options.cadWidth;
         this.height = options.height;
         this.treeWidth = options.treeWidth;
+        this.setSizes(options);
 
         this.activeTab = "tab_tree";
         this.cadTree.style.display = "block";
