@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2.js'
-import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry.js'
+import { LineSegmentsGeometry } from './patches.js'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
 import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper'
 import { BoundingBox } from './bbox.js'
