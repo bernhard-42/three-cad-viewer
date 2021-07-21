@@ -436,33 +436,45 @@ class Viewer {
 
     setAxes = (flag) => {
         this.axesHelper.setVisible(flag);
+        this.display.setAxesCheck(flag);
         this.update(true, false)
     }
 
     setGrid = (action) => {
+        console.log(action)
         this.gridHelper.setGrid(action);
         this.update(true, false)
     }
 
     setAxes0 = (flag) => {
         this.gridHelper.setCenter(flag);
+        this.display.setAxes0Check(flag);
         this.axesHelper.setCenter(flag);
         this.update(true, false)
     }
 
     setTransparent = (flag) => {
         this.nestedGroup.setTransparent(flag);
+        this.display.setTransparentCheck(flag);
         this.update(true, false);
     }
 
     setBlackEdges = (flag) => {
         this.nestedGroup.setBlackEdges(flag);
+        this.display.setBlackEdgesCheck(flag);
         this.update(true, false);
     }
 
     setClipIntersection = (flag) => {
         this.nestedGroup.setClipIntersection(flag);
+        this.display.setClipIntersectionCheck(flag);
         this.update(true, false);
+    }
+
+    setClipPlaneHelpers = (flag) => {
+        this.clipping.planeHelpers.visible = flag;
+        this.display.setClipPlaneHelpersCheck(flag);
+        this.update(false, false);
     }
 
     setLocalClipping(flag) {
@@ -494,11 +506,6 @@ class Viewer {
             }
         }
         this.update(true, false);
-    }
-
-    setPlaneHelpers = (flag) => {
-        this.clipping.planeHelpers.visible = flag;
-        this.update(false, false);
     }
 
     refreshPlane = (index, value) => {

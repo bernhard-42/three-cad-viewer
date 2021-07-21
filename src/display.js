@@ -280,7 +280,7 @@ class Display {
         this.setupCheckEvent('tcv_grid-yz', this.setGrid, viewer.grid);
         this.setupCheckEvent('tcv_axes0', this.setAxes0, viewer.axes0);
         this.setupCheckEvent('tcv_ortho', this.setOrtho, viewer.ortho);
-        this.setupCheckEvent('tcv_transparent', this.setTransparency, viewer.transparent);
+        this.setupCheckEvent('tcv_transparent', this.setTransparent, viewer.transparent);
         this.setupCheckEvent('tcv_black_edges', this.setBlackEdges, viewer.black_edges);
 
         this.setupClickEvent('tcv_reset', this.reset);
@@ -335,9 +335,17 @@ class Display {
         this.viewer.setAxes(flag);
     }
 
+    setAxesCheck = (flag) => {
+        this.checkElement("tcv_axes", flag);
+    }
+
     setGrid = (e) => {
         const action = e.target.className.split(" ")[0].slice(4);
         this.viewer.setGrid(action);
+    }
+
+    setGridCheck = (flag) => {
+        this.checkElement("tcv_grid", flag);
     }
 
     setAxes0 = (e) => {
@@ -345,14 +353,26 @@ class Display {
         this.viewer.setAxes0(flag);
     }
 
+    setAxes0Check = (flag) => {
+        this.checkElement("tcv_axes0", flag);
+    }
+
     setOrtho = (e) => {
         const flag = !!e.target.checked;
         this.viewer.switchCamera(flag);
     }
 
-    setTransparency = (e) => {
+    setOrthoCheck = (flag) => {
+        this.checkElement("tcv_ortho", flag);
+    }
+
+    setTransparent = (e) => {
         const flag = !!e.target.checked;
         this.viewer.setTransparent(flag);
+    }
+
+    setTransparentCheck = (flag) => {
+        this.checkElement("tcv_transparent", flag);
     }
 
     setBlackEdges = (e) => {
@@ -360,14 +380,27 @@ class Display {
         this.viewer.setBlackEdges(flag);
     }
 
+    setBlackEdgesCheck = (flag) => {
+        this.checkElement("tcv_black_edges", flag);
+    }
+
     setClipPlaneHelpers = (e) => {
         const flag = !!e.target.checked;
         this.viewer.setPlaneHelpers(flag);
     }
 
+    setClipPlaneHelpersCheck = (flag) => {
+        this.checkElement("tcv_clip_plane_helpers", flag);
+    }
+
     setClipIntersection = (e) => {
         const flag = !!e.target.checked;
         this.viewer.setClipIntersection(flag);
+    }
+
+    setClipIntersectionCheck = (flag) => {
+        const el = this.getElement("tcv_clip_intersection");
+        el.checked = flag;
     }
 
     reset = () => {
