@@ -9,11 +9,7 @@ import { Timer } from './timer.js';
 import { Clipping } from './clipping.js';
 import { Animation } from './animation.js';
 import { Info } from './info.js'
-
-
-function clone(obj) {
-    return JSON.parse(JSON.stringify(obj));
-};
+import { clone, isEqual } from './utils.js';
 
 const defaultDirections = {
     "iso": { "position": [1, 1, 1] },
@@ -27,10 +23,12 @@ const defaultDirections = {
 
 class Viewer {
 
-    constructor(display, needsAnimationLoop, options) {
+    constructor(display, needsAnimationLoop, options, notifyCallback) {
         this.display = display;
         this.needsAnimationLoop = needsAnimationLoop;
         this.setDefaults(options);
+        this.notifyCallback = notifyCallback;
+
         this.display.setSizes({
             cadWidth: this.cadWidth,
             height: this.height,
@@ -65,6 +63,8 @@ class Viewer {
         this.width = this.cadWidth;
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
+        
+        this.lastNotification = {}
 
         this.renderer.domElement.addEventListener('dblclick', this.pick, false);
 
@@ -228,6 +228,28 @@ class Viewer {
         this.clipAction = this.animation.animate(duration, speed);
     }
 
+    notify = (changes) => {
+        if (this.notifyCallback) {
+            var changed = {}
+            Object.keys(changes).forEach((key) => {
+                if (!isEqual(this.lastNotification[key], changes[key])) {
+                    var change = clone(changes[key]);
+                    changed[key] = {
+                        "new": change, 
+                        // map undefined in lastNotification to null to enable JSON exchange
+                        "old": (this.lastNotification[key] == null) ? null : clone(this.lastNotification[key])
+                    };
+                    this.lastNotification[key] = change;
+                }
+            });
+            if (Object.keys(changed).length) {
+                if(this.notifyCallback){
+                    this.notifyCallback(changed);
+                }
+            }
+        }    
+    }
+
     update = (updateMarker, fromAnimationLoop) => {
         if (this.ready & !(this.needsAnimationLoop & !fromAnimationLoop)) {
             if (this.animation) {
@@ -240,6 +262,14 @@ class Viewer {
                 this.orientationMarker.update(this.camera.position, this.controls.target);
                 this.orientationMarker.render();
             }
+        }
+        if (this.notifyCallback) {
+            this.notify(
+                {
+                    "camera_zoom": this.camera.zoom,
+                    "camera_position": this.camera.position.toArray()
+                },
+            );
         }
     }
 
@@ -390,8 +420,14 @@ class Viewer {
 
         this.camera.up = new THREE.Vector3(0, 0, 1)
         this.camera.lookAt(center);
-        this.camera.zoom = (zoom) ? zoom : this.zoom0;
-        this.camera.position.set(...cameraPosition.toArray());
+
+        if(zoom) {
+            this.camera.zoom = (zoom) ? zoom : this.zoom0;
+        }
+
+        if (position) {
+            this.camera.position.set(...cameraPosition.toArray());
+        }
         this.camera.updateProjectionMatrix();
 
         // set x direction for top and bottom view to avoid flickering
@@ -416,11 +452,21 @@ class Viewer {
             // reposition to the last camera position
             this.setupCamera(false, p0, null, z0);
         }
+        this.notify({"ortho": ortho_flag});
     }
 
     setCamera = (dir) => {
         this.setupCamera(true, defaultDirections[dir]["position"], defaultDirections[dir]["rotateZ"], this.camera.zoom);
-        this.update(true, false);
+        // this.update(true, false);
+    }
+
+    setCameraPosition = (x, y, z) => {
+        const rotateZ = ((x < 1e-6) && (y < 1e-6)) ? Math.PI: null;
+        this.setupCamera(false, new THREE.Vector3(x, y, z), null, rotateZ);
+    }
+
+    setCameraZoom = (value) => {
+        this.setupCamera(false, null, null, value);
     }
 
     resize = () => {
@@ -437,12 +483,13 @@ class Viewer {
     setAxes = (flag) => {
         this.axesHelper.setVisible(flag);
         this.display.setAxesCheck(flag);
+        this.notify({ "axes": flag });
         this.update(true, false)
     }
 
     setGrid = (action) => {
-        console.log(action)
         this.gridHelper.setGrid(action);
+        this.notify({ "grid": this.gridHelper.grid });
         this.update(true, false)
     }
 
@@ -450,30 +497,35 @@ class Viewer {
         this.gridHelper.setCenter(flag);
         this.display.setAxes0Check(flag);
         this.axesHelper.setCenter(flag);
+        this.notify({ "axes0": flag });
         this.update(true, false)
     }
 
     setTransparent = (flag) => {
         this.nestedGroup.setTransparent(flag);
         this.display.setTransparentCheck(flag);
+        this.notify({ "transparent": flag });
         this.update(true, false);
     }
 
     setBlackEdges = (flag) => {
         this.nestedGroup.setBlackEdges(flag);
         this.display.setBlackEdgesCheck(flag);
+        this.notify({ "black_edges": flag });
         this.update(true, false);
     }
 
     setClipIntersection = (flag) => {
         this.nestedGroup.setClipIntersection(flag);
         this.display.setClipIntersectionCheck(flag);
+        this.notify({ "clip_intersection": flag });
         this.update(true, false);
     }
-
+    
     setClipPlaneHelpers = (flag) => {
         this.clipping.planeHelpers.visible = flag;
         this.display.setClipPlaneHelpersCheck(flag);
+        this.notify({ "clip_planes": flag });
         this.update(false, false);
     }
 
@@ -487,6 +539,9 @@ class Viewer {
         const normal = cameraPosition.sub(this.controls.target).normalize().negate();
 
         this.clipping.setNormal(index, normal);
+        var notifyObject = {}
+        notifyObject[`clip_normal_${index}`] = normal.toArray();
+        this.notify(notifyObject);
         this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
         this.update(true, false);
     }
@@ -505,7 +560,12 @@ class Viewer {
                 this.states[key][1] = newState[1]
             }
         }
+        this.notify({"states": states})
         this.update(true, false);
+    }
+
+    setTreeState(type, id, icon_id, state) {
+        this.treeview.setState(type, id, icon_id, state);
     }
 
     refreshPlane = (index, value) => {
@@ -550,7 +610,13 @@ class Viewer {
                 break;
             }
         }
-        console.log(nearest);
+
+        this.notify({"lastPick": {
+            "path": nearest.path,
+            "name": nearest.name,
+            "boundingBox": JSON.parse(JSON.stringify(nearest.boundingBox)),
+            "boundingSphere": JSON.parse(JSON.stringify(nearest.boundingSphere)),
+        }})
         this.info.bbInfo(nearest.path, nearest.name, nearest.boundingBox);
     }
 }

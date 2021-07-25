@@ -215,9 +215,23 @@ class TreeView {
     img.setAttribute("style", `background-image: ${this.getIcon(icon_id, state)}`);
   }
 
+  setState(type, id, icon_id, state) {
+    this.handleStateChange(type, id, icon_id, state)
+  }
+
   handle(type, id, icon_id) {
+    this.handleStateChange(type, id, icon_id, null)
+  }
+
+  handleStateChange(type, id, icon_id, state) {
+    console.log(type, id, icon_id, state)
     var node = this.getNode(this.treeModel, id);
-    var newState = (node.states[icon_id] == States.selected) ? States.unselected : States.selected;
+    var newState;
+    if(state == null) {
+      newState = (node.states[icon_id] == States.selected) ? States.unselected : States.selected;
+    } else {
+      newState = state ? States.selected : States.unselected;
+    }
     if (type == "leaf") {
       this.updateState(node, icon_id, newState);
       this.updateNodes(this.treeModel, icon_id);

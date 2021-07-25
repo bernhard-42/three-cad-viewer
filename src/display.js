@@ -153,19 +153,27 @@ class Slider {
         this.input.addEventListener('change', this.inputChange);
     }
 
+    _notify = (value) => {
+        const change = {}
+        change[`clip_slider_${this.index - 1}`] = value;
+        this.display.viewer.notify(change);
+    }
+
     sliderChange = (e) => {
         const value = e.target.value;
         this.input.value = Math.round(1000 * value) / 1000;
         this.display.refreshPlane(this.index, this.input.value);
+        this._notify(value);
     }
-
+    
     inputChange = (e) => {
         const value = Math.max(Math.min(e.target.value, this.slider.max), this.slider.min);
-        if (value != e.target.value) {
-            this.input.value = Math.round(1000 * value) / 1000;
-        }
+        // if (value != e.target.value) {
+        //     this.input.value = Math.round(1000 * value) / 1000;
+        // }
         this.slider.value = value;
         this.display.refreshPlane(this.index, this.input.value);
+        this._notify(value);
     }
 
     setSlider(limit) {
@@ -386,7 +394,7 @@ class Display {
 
     setClipPlaneHelpers = (e) => {
         const flag = !!e.target.checked;
-        this.viewer.setPlaneHelpers(flag);
+        this.viewer.setClipPlaneHelpers(flag);
     }
 
     setClipPlaneHelpersCheck = (flag) => {
@@ -427,15 +435,19 @@ class Display {
 
     selectTab = (e) => {
         const tab = e.target.className.split(" ")[0];
+        this.selectTabByName(tab.slice(8));
+    }
+
+    selectTabByName(tab) {
         var changed = false;
-        if ((tab === "tcv_tab_tree") && (this.activeTab !== "tcv_tab_tree")) {
+        if ((tab === "tree") && (this.activeTab !== "tree")) {
             this.cadTree.style.display = "block";
             this.cadClip.style.display = "none";
             this.viewer.nestedGroup.setBackVisible(false);
             this.viewer.setLocalClipping(false);
             changed = true;
         };
-        if ((tab === "tcv_tab_clip") && (this.activeTab !== "tcv_tab_clip")) {
+        if ((tab === "clip") && (this.activeTab !== "clip")) {
             this.cadTree.style.display = "none";
             this.cadClip.style.display = "block";
             this.viewer.nestedGroup.setBackVisible(true);
@@ -443,6 +455,7 @@ class Display {
             changed = true;
         }
         this.activeTab = tab;
+        this.viewer.notify({"tab": tab})
         if (changed) {
             this.tabTree.classList.toggle("tcv_tab-selected");
             this.tabTree.classList.toggle("tcv_tab-unselected");
