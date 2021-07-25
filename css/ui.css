@@ -1,381 +1,380 @@
 .tcv_cad_viewer {
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    font-family: sans-serif;
-    -webkit-text-size-adjust: none;
-    background-color: var(--tcv-bg-color);
-    color: var(--tcv-font-color);
-    margin:4px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: sans-serif;
+  -webkit-text-size-adjust: none;
+  background-color: var(--tcv-bg-color);
+  color: var(--tcv-font-color);
+  margin: 4px;
 }
 
 .tcv_cad_navigation {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .tcv_cad_body {
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
 }
 
 .tcv_cad_view {
-    width: 600px;
-    height: 400px;
-    position: relative;
-    margin: 2px;
+  width: 600px;
+  height: 400px;
+  position: relative;
+  margin: 2px;
 }
 
 .tcv_cad_tree {
-    display: flex;
-    flex-direction: column;
-    width: 240px;
-    height: 250px;
-    border-style: solid;
-    border-width: 1px;
-    overflow: hidden;
-    border-top: 1px solid lightgray;
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+  height: 250px;
+  border-style: solid;
+  border-width: 1px;
+  overflow: hidden;
+  border-top: 1px solid lightgray;
 }
 
 .tcv_cad_info {
-    width: 240px;
-    height: 146px;
-    font-family: sans-serif;
-    font-size: 12px;
-    border-style: solid;
-    border-width: 1px;
-    overflow: hidden;
+  width: 240px;
+  height: 146px;
+  font-family: sans-serif;
+  font-size: 12px;
+  border-style: solid;
+  border-width: 1px;
+  overflow: hidden;
 }
 
 .tcv_tcv_info_table {
-    display: block; 
-    overflow-x: visible; 
-    white-space: nowrap;
-    font-size: 14px;
-    border-spacing: 0px;
+  display: block;
+  overflow-x: visible;
+  white-space: nowrap;
+  font-size: 14px;
+  border-spacing: 0px;
 }
 
 .tcv_info_header {
-    margin: 1px 0px 6px 8px;
-    font-weight: bold;
+  margin: 1px 0px 6px 8px;
+  font-weight: bold;
 }
 .tcv_small_table {
-    line-height: 14px;
+  line-height: 14px;
 }
 
-.tcv_small_table_row > td, th {
-    padding-left: 6px;
+.tcv_small_table_row > td,
+th {
+  padding-left: 6px;
 }
 
 .tcv_info_row {
-    vertical-align: top !important;
+  vertical-align: top !important;
 }
 
 .tcv_info_num {
-    color: #aaa; 
-    white-space: nowrap;
-    margin: 0px;
+  color: #aaa;
+  white-space: nowrap;
+  margin: 0px;
 }
 
 .tcv_info_red {
-    color: var(--tcv-x-color);
+  color: var(--tcv-x-color);
 }
 
 .tcv_info_green {
-    color: var(--tcv-y-color);
+  color: var(--tcv-y-color);
 }
 
 .tcv_info_blue {
-    color: var(--tcv-z-color);
+  color: var(--tcv-z-color);
 }
 
 .tcv_visible {
-    display: block;
+  display: block;
 }
 
 .tcv_unvisible {
-    display: none;
+  display: none;
 }
 
 .tcv_cad_toolbar {
-    width: 844px;
-    height: 36px;
+  width: 844px;
+  height: 36px;
 }
 
 .tcv_cad_inset {
-    width: 80px;
-    height: 80px;
-    background-color: transparent;
-    border: none;
-    margin: 0;
-    padding: 0px;
-    position: absolute;
-    left: 0px;
-    bottom: 0px;
-    z-index: 100;
+  width: 80px;
+  height: 80px;
+  background-color: transparent;
+  border: none;
+  margin: 0;
+  padding: 0px;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  z-index: 100;
 }
 
 .tcv_cad_animation {
-    height: 36px;
-    background-color: var(--tcv-bg-color);
-    border: none;
-    margin: 0;
-    padding: 0px;
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
-    z-index: 100;
+  height: 36px;
+  background-color: var(--tcv-bg-color);
+  border: none;
+  margin: 0;
+  padding: 0px;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  z-index: 100;
 }
 
 .tcv_round {
-    box-sizing: border-box;
-    /* -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  /* -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box; */
-    border-style: solid;
-    border-width: 1px;
-    border-radius: 6px;
-    border-color: lightgray;
-    margin: 2px;
-    padding: 2px;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 6px;
+  border-color: lightgray;
+  margin: 2px;
+  padding: 2px;
 }
 
 .tcv_box_content {
-    overflow: scroll;
-    height: 100%;
-    margin: 0px 0px 0px 4px;
+  overflow: scroll;
+  height: 100%;
+  margin: 0px 0px 0px 4px;
 }
 
 .tcv_btn {
-    width: 30px;
-    height: 30px;
-    border: 0px;
-    display: inline-block;
-    vertical-align: middle;
-    background-color: transparent;
-    background-repeat: no-repeat;
-    background-position: center;
-    padding: 0px;
+  width: 30px;
+  height: 30px;
+  border: 0px;
+  display: inline-block;
+  vertical-align: middle;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 0px;
 }
 
-
 .tcv_btn:hover {
-    box-shadow: 1px 1px 1px 0 var(--tcv-shadow);
-    background-color: var(--tcv-bg-highligth-color);
+  box-shadow: 1px 1px 1px 0 var(--tcv-shadow);
+  background-color: var(--tcv-bg-highligth-color);
 }
 
 .tcv_btn:active {
-    box-shadow: none;
+  box-shadow: none;
 }
 
 .tcv_tabnav {
-    width: 100%;
-    padding: 0px;
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: stretch;
-
+  width: 100%;
+  padding: 0px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
 }
 
 input[type="button"] {
-    -webkit-appearance:none;
-    -moz-appearance: none;
-    appearance: none;
-    border-radius: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0;
 }
 
 .tcv_tab {
-    width: 50%;
-    height: 24px; 
-    display: inline-block;
-    padding: 0px;
-    border: none;
-    margin-bottom: 6px;
-    background-color: var(--tcv-bg-color);
-    color: var(--tcv-font-color);
-    font-size: 14px;
+  width: 50%;
+  height: 24px;
+  display: inline-block;
+  padding: 0px;
+  border: none;
+  margin-bottom: 6px;
+  background-color: var(--tcv-bg-color);
+  color: var(--tcv-font-color);
+  font-size: 14px;
 }
 
 .tcv_tab:hover {
-    /* background-color: #eee; */
-    font-weight: bold;
+  /* background-color: #eee; */
+  font-weight: bold;
 }
 
 .tcv_tab-left {
-    border-right: 1px solid lightgray;
+  border-right: 1px solid lightgray;
 }
 
 .tcv_tab-right {
-    border-left: 1px solid lightgray;
+  border-left: 1px solid lightgray;
 }
 
 .tcv_tab-selected {
-    border-bottom: none;
-    /* font-weight: bold; */
+  border-bottom: none;
+  /* font-weight: bold; */
 }
 
 .tcv_tab-unselected {
-    border-bottom: 1px solid lightgray;
-    /* font-weight: normal; */
+  border-bottom: 1px solid lightgray;
+  /* font-weight: normal; */
 }
 
 .tcv_vertical-center {
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%);
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
 }
 
 .tcv_label {
-    font-family: sans-serif;
-    font-size: 14px;
-    margin-left: 4px;
-    margin-right: 4px;
-    vertical-align: middle;
+  font-family: sans-serif;
+  font-size: 14px;
+  margin-left: 4px;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 .tcv_check {
-    vertical-align: middle;
-    margin-right: 2px;
-    margin-left: 6px;
+  vertical-align: middle;
+  margin-right: 2px;
+  margin-left: 6px;
 }
 
 .tcv_grid-dropdown {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 .tcv_grid-content {
-    display: none;
-    position: absolute;
-    min-width: 18px;
-    box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-    background-color: var(--tcv-bg-highligth-color);
+  display: none;
+  position: absolute;
+  min-width: 18px;
+  box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  background-color: var(--tcv-bg-highligth-color);
 }
 
 .tcv_grid-dropdown:hover .tcv_grid-content {
-    display: block;
+  display: block;
 }
 
 .tcv_slider_group {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .tcv_clip_checks {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .tcv_clip_input {
-    width: 25%;
-    border: 1px solid #d3d3d3;
-    background-color: var(--tcv-bg-color);
-    color: var(--tcv-font-color); 
+  width: 25%;
+  border: 1px solid #d3d3d3;
+  background-color: var(--tcv-bg-color);
+  color: var(--tcv-font-color);
 }
 
 .tcv_clip_slider {
-    -webkit-appearance: none;
-    width: 60%;
-    height: 5px;
-    border-radius: 2px;  
-    background: #d3d3d3;
-    outline: none;
-    opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-  }
-  
-  .clip_slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%; 
-    background: #53a0e3;
-    cursor: pointer;
-    border:1px solid #48627a;
+  -webkit-appearance: none;
+  width: 60%;
+  height: 5px;
+  border-radius: 2px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+}
+
+.clip_slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #53a0e3;
+  cursor: pointer;
+  border: 1px solid #48627a;
 }
 
 .tcv_clip_slider::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #53a0e3;
-    cursor: pointer;
-    border:1px solid #48627a;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #53a0e3;
+  cursor: pointer;
+  border: 1px solid #48627a;
 }
 
 .tcv_clip_slider:hover {
-      opacity: 1;
+  opacity: 1;
 }
 
 .tcv_lbl_norm_plane1 {
-    color: var(--tcv-x-color);
+  color: var(--tcv-x-color);
 }
 
 .tcv_lbl_norm_plane2 {
-    color: var(--tcv-y-color);
+  color: var(--tcv-y-color);
 }
 
 .tcv_lbl_norm_plane3 {
-    color: var(--tcv-z-color);
+  color: var(--tcv-z-color);
 }
 
 .tcv_mac-scrollbar::-webkit-scrollbar {
-    width: 5px !important;
-    height: 5px !important;
+  width: 5px !important;
+  height: 5px !important;
 }
 
 .tcv_mac-scrollbar::-webkit-scrollbar-thumb {
-    background-color: var(--tcv-scrollbar-thumb) !important;
-    border-radius: 100px !important;
+  background-color: var(--tcv-scrollbar-thumb) !important;
+  border-radius: 100px !important;
 }
 
 .tcv_mac-scrollbar::-webkit-scrollbar-track {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
 .tcv_mac-scrollbar::-webkit-scrollbar-corner {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
 .tcv_mac-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--tcv-scrollbar-hover) !important;
+  background: var(--tcv-scrollbar-hover) !important;
 }
 
 .tcv_mac-scrollbar::-webkit-scrollbar-thumb:active {
-    background: var(--tcv-scrollbar-active) !important;
+  background: var(--tcv-scrollbar-active) !important;
 }
 
 .tcv_mac-scrollbar .widget-html-content {
-    overflow-x: visible;
-    overflow-y: visible;
+  overflow-x: visible;
+  overflow-y: visible;
 }
 
 .tcv_scroller {
-    /* scrollbar-color: #7f7f7f white; */
-    scrollbar-width: thin;
-    background-color: transparent !important;
+  /* scrollbar-color: #7f7f7f white; */
+  scrollbar-width: thin;
+  background-color: transparent !important;
 }
 
-[data-tooltip]:before {            
-    position : absolute;
-    pointer-events: none;
-    content : attr(data-tooltip);
-    white-space: nowrap;
-    opacity : 0;
-    font-size: 11px;
-    font-family: sans-serif;
-    transition: opacity 0.5s;
-    z-index: 100;
-    color: var(--tcv-font-color); 
-    background-color: var(--tcv-bg-tooltip-color);
-    border: solid 1px var(--tcv-bg-tooltip-color);
-    border-radius: 2px;  
-    margin-top: 2.5em;
-    padding: 2px;
+[data-tooltip]:before {
+  position: absolute;
+  pointer-events: none;
+  content: attr(data-tooltip);
+  white-space: nowrap;
+  opacity: 0;
+  font-size: 11px;
+  font-family: sans-serif;
+  transition: opacity 0.5s;
+  z-index: 100;
+  color: var(--tcv-font-color);
+  background-color: var(--tcv-bg-tooltip-color);
+  border: solid 1px var(--tcv-bg-tooltip-color);
+  border-radius: 2px;
+  margin-top: 2.5em;
+  padding: 2px;
 }
 
-[data-tooltip]:hover:before {        
-    opacity : 1;
+[data-tooltip]:hover:before {
+  opacity: 1;
 }

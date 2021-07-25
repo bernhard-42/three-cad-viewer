@@ -1,21 +1,21 @@
-import { getIconBackground } from './icons.js'
+import { getIconBackground } from "./icons.js";
 
 // Some helpers
 
 function tag(name, classList, options) {
   var el = document.createElement(name);
-  if (typeof (classList) != "undefined") {
+  if (typeof classList != "undefined") {
     for (var i in classList) {
       el.classList.add(classList[i]);
     }
   }
-  if (typeof (options) != "undefined") {
+  if (typeof options != "undefined") {
     for (var t in options) {
       el[t] = options[t];
     }
   }
   return el;
-};
+}
 
 const States = {
   unselected: 0,
@@ -24,9 +24,7 @@ const States = {
   empty: 3
 };
 
-
 class TreeView {
-
   constructor(states, tree, cad_handler, theme) {
     this.states = states;
     this.tree = tree;
@@ -90,9 +88,9 @@ class TreeView {
     var li = tag("li");
     var lbl = tag("span", ["tcv_tree_label"]);
     lbl.innerHTML = model.name;
-    var entry = tag("span", ["tcv_node_entry"])
+    var entry = tag("span", ["tcv_node_entry"]);
     if (model.type === "node") {
-      var span = tag("span", ["tcv_node_entry_wrap"])
+      var span = tag("span", ["tcv_node_entry_wrap"]);
       span.appendChild(tag("span", ["tcv_t-caret", "tcv_t-caret-down"]));
       for (icon_id in this.icons) {
         img_button = tag("input", ["tcv_icon"], {
@@ -100,8 +98,13 @@ class TreeView {
           style: `background-image: ${this.getIcon(icon_id, 1)}`
         });
         img_button.setAttribute("icon_id", icon_id);
-        img_button.addEventListener("click", e => { // jshint ignore:line
-          this.handle(model.type, model.id, e.srcElement.getAttribute("icon_id"));
+        img_button.addEventListener("click", (e) => {
+          // jshint ignore:line
+          this.handle(
+            model.type,
+            model.id,
+            e.srcElement.getAttribute("icon_id")
+          );
         });
         entry.appendChild(img_button);
         model.imgs.push(img_button);
@@ -114,20 +117,28 @@ class TreeView {
         lu.appendChild(this.toHtml(model.children[i]));
       }
       li.appendChild(lu);
-
     } else {
       for (icon_id in this.icons) {
         img_button = tag("input", ["tcv_icon"], {
           type: "button",
-          style: `background-image: ${this.getIcon(icon_id, model.states[icon_id])}`
+          style: `background-image: ${this.getIcon(
+            icon_id,
+            model.states[icon_id]
+          )}`
         });
         img_button.setAttribute("icon_id", icon_id);
         if (icon_id == 0) {
           img_button.classList.add("tcv_indent");
         }
-        if (model.states[icon_id] != States.empty) { // no events on empty icon
-          img_button.addEventListener("click", e => { // jshint ignore:line
-            this.handle(model.type, model.id, e.srcElement.getAttribute("icon_id"));
+        if (model.states[icon_id] != States.empty) {
+          // no events on empty icon
+          img_button.addEventListener("click", (e) => {
+            // jshint ignore:line
+            this.handle(
+              model.type,
+              model.id,
+              e.srcElement.getAttribute("icon_id")
+            );
           });
         }
         entry.appendChild(img_button);
@@ -149,8 +160,11 @@ class TreeView {
 
     var toggler = this.container.getElementsByClassName("tcv_t-caret");
     for (var i = 0; i < toggler.length; i++) {
-      toggler[i].addEventListener("click", e => { // jshint ignore:line
-        e.target.parentElement.parentElement.querySelector(".tcv_nested").classList.toggle("tcv_active");
+      toggler[i].addEventListener("click", (e) => {
+        // jshint ignore:line
+        e.target.parentElement.parentElement
+          .querySelector(".tcv_nested")
+          .classList.toggle("tcv_active");
         e.target.classList.toggle("tcv_t-caret-down");
       });
     }
@@ -167,7 +181,8 @@ class TreeView {
   }
 
   updateState(node, icon_id, state) {
-    if (node.states[icon_id] != States.empty) { // ignore empty
+    if (node.states[icon_id] != States.empty) {
+      // ignore empty
       this.states[node.id][icon_id] = state;
       node.states[icon_id] = state;
       this.setIcon(node.imgs[icon_id], icon_id, state);
@@ -192,12 +207,14 @@ class TreeView {
       for (var i in model.children) {
         states.push(this.updateNodes(model.children[i], icon_id));
       }
-      var filtered_states = states.filter(e => e != 3)
+      var filtered_states = states.filter((e) => e != 3);
       if (filtered_states.length == 0) {
         state = 3;
       } else {
-        state = filtered_states.reduce((s1, s2) => (s1 == s2) ? s1 : States.mixed,
-          filtered_states[0]);
+        state = filtered_states.reduce(
+          (s1, s2) => (s1 == s2 ? s1 : States.mixed),
+          filtered_states[0]
+        );
       }
       model.states[icon_id] = state;
       this.setIcon(model.imgs[icon_id], icon_id, state);
@@ -212,23 +229,28 @@ class TreeView {
   }
 
   setIcon(img, icon_id, state) {
-    img.setAttribute("style", `background-image: ${this.getIcon(icon_id, state)}`);
+    img.setAttribute(
+      "style",
+      `background-image: ${this.getIcon(icon_id, state)}`
+    );
   }
 
   setState(type, id, icon_id, state) {
-    this.handleStateChange(type, id, icon_id, state)
+    this.handleStateChange(type, id, icon_id, state);
   }
 
   handle(type, id, icon_id) {
-    this.handleStateChange(type, id, icon_id, null)
+    this.handleStateChange(type, id, icon_id, null);
   }
 
   handleStateChange(type, id, icon_id, state) {
-    console.log(type, id, icon_id, state)
     var node = this.getNode(this.treeModel, id);
     var newState;
-    if(state == null) {
-      newState = (node.states[icon_id] == States.selected) ? States.unselected : States.selected;
+    if (state == null) {
+      newState =
+        node.states[icon_id] == States.selected
+          ? States.unselected
+          : States.selected;
     } else {
       newState = state ? States.selected : States.unselected;
     }

@@ -42,31 +42,31 @@ import dark_stop from "../icons/dark/stop.svg";
 import dark_top from "../icons/dark/top.svg";
 
 const icons = {
-    "bottom": { "light": light_bottom, "dark": dark_bottom },
-    "front": { "light": light_front, "dark": dark_front },
-    "iso": { "light": light_iso, "dark": dark_iso },
-    "left": { "light": light_left, "dark": dark_left },
-    "mesh": { "light": light_mesh, "dark": dark_mesh },
-    "mesh_empty": { "light": light_mesh_empty, "dark": dark_mesh_empty },
-    "mesh_mix": { "light": light_mesh_mix, "dark": dark_mesh_mix },
-    "mesh_no": { "light": light_mesh_no, "dark": dark_mesh_no },
-    "pause": { "light": light_pause, "dark": dark_pause },
-    "plane": { "light": light_plane, "dark": dark_plane },
-    "play": { "light": light_play, "dark": dark_play },
-    "rear": { "light": light_rear, "dark": dark_rear },
-    "reset": { "light": light_reset, "dark": dark_reset },
-    "resize": { "light": light_resize, "dark": dark_resize },
-    "right": { "light": light_right, "dark": dark_right },
-    "shape": { "light": light_shape, "dark": dark_shape },
-    "shape_empty": { "light": light_shape_empty, "dark": dark_shape_empty },
-    "shape_mix": { "light": light_shape_mix, "dark": dark_shape_mix },
-    "shape_no": { "light": light_shape_no, "dark": dark_shape_no },
-    "stop": { "light": light_stop, "dark": dark_stop },
-    "top": { "light": light_top, "dark": dark_top },
-}
+  bottom: { light: light_bottom, dark: dark_bottom },
+  front: { light: light_front, dark: dark_front },
+  iso: { light: light_iso, dark: dark_iso },
+  left: { light: light_left, dark: dark_left },
+  mesh: { light: light_mesh, dark: dark_mesh },
+  mesh_empty: { light: light_mesh_empty, dark: dark_mesh_empty },
+  mesh_mix: { light: light_mesh_mix, dark: dark_mesh_mix },
+  mesh_no: { light: light_mesh_no, dark: dark_mesh_no },
+  pause: { light: light_pause, dark: dark_pause },
+  plane: { light: light_plane, dark: dark_plane },
+  play: { light: light_play, dark: dark_play },
+  rear: { light: light_rear, dark: dark_rear },
+  reset: { light: light_reset, dark: dark_reset },
+  resize: { light: light_resize, dark: dark_resize },
+  right: { light: light_right, dark: dark_right },
+  shape: { light: light_shape, dark: dark_shape },
+  shape_empty: { light: light_shape_empty, dark: dark_shape_empty },
+  shape_mix: { light: light_shape_mix, dark: dark_shape_mix },
+  shape_no: { light: light_shape_no, dark: dark_shape_no },
+  stop: { light: light_stop, dark: dark_stop },
+  top: { light: light_top, dark: dark_top },
+};
 
 function getIconBackground(theme, name) {
-    return `url(data:image/svg+xml;utf8,${escape(icons[name][theme])});`;
+  return `url(data:image/svg+xml;utf8,${escape(icons[name][theme])});`;
 }
 
-export { getIconBackground }
+export { getIconBackground };

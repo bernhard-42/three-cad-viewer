@@ -23,7 +23,7 @@ function isEqual(obj1, obj2) {
 
     if (
       keys1.length == keys2.length &&
-      keys1.every((key) => obj2.hasOwnProperty(key))
+      keys1.every((key) => Object.prototype.hasOwnProperty.call(obj2, key))
     ) {
       return keys1.every((key) => isEqual(obj1[key], obj2[key]));
     } else {
