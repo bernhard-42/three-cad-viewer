@@ -239,7 +239,7 @@ class Viewer {
     this.clipAction = this.animation.animate(duration, speed);
   }
 
-  notify = (changes) => {
+  checkChanges = (changes, notify = true) => {
     if (this.notifyCallback) {
       var changed = {};
       Object.keys(changes).forEach((key) => {
@@ -256,7 +256,7 @@ class Viewer {
           this.lastNotification[key] = change;
         }
       });
-      if (Object.keys(changed).length) {
+      if (notify && Object.keys(changed).length) {
         if (this.notifyCallback) {
           this.notifyCallback(changed);
         }
@@ -264,7 +264,7 @@ class Viewer {
     }
   };
 
-  update = (updateMarker, fromAnimationLoop) => {
+  update = (updateMarker, fromAnimationLoop, notify = true) => {
     if (this.ready & !(this.needsAnimationLoop & !fromAnimationLoop)) {
       if (this.animation) {
         this.animation.update();
@@ -280,12 +280,13 @@ class Viewer {
         this.orientationMarker.render();
       }
     }
-    if (this.notifyCallback) {
-      this.notify({
+    this.checkChanges(
+      {
         camera_zoom: this.camera.zoom,
         camera_position: this.camera.position.toArray()
-      });
-    }
+      },
+      notify
+    );
   };
 
   animate = () => {
@@ -320,9 +321,8 @@ class Viewer {
     //
 
     this.createCameras(this.bb_radius);
-    this.switchCamera(this.ortho, true);
+    this.switchCamera(this.ortho, true, false);
     this.initOrbitControls();
-
     //
     // add lights
     //
@@ -449,7 +449,7 @@ class Viewer {
   // Event handlers
   //
 
-  setupCamera(relative, position, rotateZ, zoom) {
+  setupCamera(relative, position, rotateZ, zoom, notify = true) {
     const center = new THREE.Vector3(...this.bbox.center);
     var cameraPosition = null;
     if (relative) {
@@ -479,23 +479,33 @@ class Viewer {
       this.camera.updateProjectionMatrix();
     }
     this.controls?.update();
-    this.update(true, false);
+    this.update(true, false, notify);
   }
 
-  switchCamera(ortho_flag, init) {
+  setCameraPosition = (x, y, z, notify = true) => {
+    const rotateZ = x < 1e-6 && y < 1e-6 ? Math.PI : null;
+    this.setupCamera(false, new THREE.Vector3(x, y, z), rotateZ, null, notify);
+  };
+
+  setCameraZoom = (value, notify = true) => {
+    this.setupCamera(false, null, null, value, notify);
+  };
+
+  switchCamera(ortho_flag, init, notify = true) {
     var p0 = init ? null : this.camera.position.clone();
     var z0 = init ? null : this.camera.zoom;
 
     this.camera = ortho_flag ? this.oCamera : this.pCamera;
 
     if (init) {
-      this.setupCamera(true, this.position);
+      this.setupCamera(true, this.position, null, null, false);
     } else {
       this.controls.object = this.camera;
       // reposition to the last camera position
-      this.setupCamera(false, p0, null, z0);
+      this.setupCamera(false, p0, null, z0, false);
     }
-    this.notify({ ortho: ortho_flag });
+
+    this.checkChanges({ ortho: ortho_flag }, notify);
   }
 
   setCamera = (dir) => {
@@ -505,16 +515,6 @@ class Viewer {
       defaultDirections[dir]["rotateZ"],
       this.camera.zoom
     );
-    // this.update(true, false);
-  };
-
-  setCameraPosition = (x, y, z) => {
-    const rotateZ = x < 1e-6 && y < 1e-6 ? Math.PI : null;
-    this.setupCamera(false, new THREE.Vector3(x, y, z), null, rotateZ);
-  };
-
-  setCameraZoom = (value) => {
-    this.setupCamera(false, null, null, value);
   };
 
   resize = () => {
@@ -528,52 +528,66 @@ class Viewer {
     this.update(true, false);
   };
 
-  setAxes = (flag) => {
+  setAxes = (flag, notify = true) => {
     this.axesHelper.setVisible(flag);
     this.display.setAxesCheck(flag);
-    this.notify({ axes: flag });
+
+    this.checkChanges({ axes: flag }, notify);
+
     this.update(true, false);
   };
 
-  setGrid = (action) => {
+  setGrid = (action, notify = true) => {
     this.gridHelper.setGrid(action);
-    this.notify({ grid: this.gridHelper.grid });
+
+    this.checkChanges({ grid: this.gridHelper.grid }, notify);
+
     this.update(true, false);
   };
 
-  setAxes0 = (flag) => {
+  setAxes0 = (flag, notify = true) => {
     this.gridHelper.setCenter(flag);
     this.display.setAxes0Check(flag);
     this.axesHelper.setCenter(flag);
-    this.notify({ axes0: flag });
+
+    this.checkChanges({ axes0: flag }, notify);
+
     this.update(true, false);
   };
 
-  setTransparent = (flag) => {
+  setTransparent = (flag, notify = true) => {
     this.nestedGroup.setTransparent(flag);
     this.display.setTransparentCheck(flag);
-    this.notify({ transparent: flag });
+
+    this.checkChanges({ transparent: flag }, notify);
+
     this.update(true, false);
   };
 
-  setBlackEdges = (flag) => {
+  setBlackEdges = (flag, notify = true) => {
     this.nestedGroup.setBlackEdges(flag);
     this.display.setBlackEdgesCheck(flag);
-    this.notify({ black_edges: flag });
+
+    this.checkChanges({ black_edges: flag }, notify);
+
     this.update(true, false);
   };
 
-  setClipIntersection = (flag) => {
+  setClipIntersection = (flag, notify = true) => {
     this.nestedGroup.setClipIntersection(flag);
     this.display.setClipIntersectionCheck(flag);
-    this.notify({ clip_intersection: flag });
+
+    this.checkChanges({ clip_intersection: flag }, notify);
+
     this.update(true, false);
   };
 
-  setClipPlaneHelpers = (flag) => {
+  setClipPlaneHelpers = (flag, notify = true) => {
     this.clipping.planeHelpers.visible = flag;
     this.display.setClipPlaneHelpersCheck(flag);
-    this.notify({ clip_planes: flag });
+
+    this.checkChanges({ clip_planes: flag }, notify);
+
     this.update(false, false);
   };
 
@@ -582,7 +596,7 @@ class Viewer {
     this.update(true, false);
   }
 
-  setClipNormal = (index) => {
+  setClipNormal = (index, notify = true) => {
     const cameraPosition = this.camera.position.clone();
     const normal = cameraPosition
       .sub(this.controls.target)
@@ -592,12 +606,14 @@ class Viewer {
     this.clipping.setNormal(index, normal);
     var notifyObject = {};
     notifyObject[`clip_normal_${index}`] = normal.toArray();
-    this.notify(notifyObject);
+
+    this.checkChanges(notifyObject, notify);
+
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
     this.update(true, false);
   };
 
-  setObjects = (states) => {
+  setObjects = (states, notify = true) => {
     for (var key in this.states) {
       var oldState = this.states[key];
       var newState = states[key];
@@ -611,7 +627,9 @@ class Viewer {
         this.states[key][1] = newState[1];
       }
     }
-    this.notify({ states: states });
+
+    this.checkChanges({ states: states }, notify);
+
     this.update(true, false);
   };
 
@@ -665,7 +683,7 @@ class Viewer {
       }
     }
 
-    this.notify({
+    this.checkChanges({
       lastPick: {
         path: nearest.path,
         name: nearest.name,

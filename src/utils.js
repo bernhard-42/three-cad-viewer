@@ -12,7 +12,7 @@ function clone(obj) {
   }
 }
 
-function isEqual(obj1, obj2) {
+function isEqual(obj1, obj2, tol = 1e-9) {
   if (Array.isArray(obj1) && Array.isArray(obj2)) {
     return (
       obj1.length === obj2.length && obj1.every((v, i) => isEqual(v, obj2[i]))
@@ -30,6 +30,9 @@ function isEqual(obj1, obj2) {
       return false;
     }
   } else {
+    if (Number(obj1) === obj1 && Number(obj2) === obj2) {
+      return Math.abs(obj1 - obj2) < tol;
+    }
     return obj1 === obj2;
   }
 }
