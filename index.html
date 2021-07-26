@@ -33,6 +33,9 @@
         // const Viewer = CadViewer.Viewer;
         // const Display = CadViewer.Display;
         // const Timer = CadViewer.Timer;
+        function nc(change) { 
+            console.log("NOTIFY:", change); 
+        }
 
         const measure = false;
         const timer = new Timer("index", measure);
@@ -58,7 +61,7 @@
         const display = new Display(container, options);
         timer.split("display");
 
-        const viewer = new Viewer(display, needsAnimationLoop, options);
+        const viewer = new Viewer(display, needsAnimationLoop, options, nc);
         viewer._measure = measure;
 
         timer.split("viewer");
