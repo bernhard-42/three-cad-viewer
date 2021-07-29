@@ -171,7 +171,9 @@ class Viewer {
     this.controls.saveState();
 
     if (!this.needsAnimationLoop) {
-      this.controls.addEventListener("change", () => this.update(true, true));
+      this.controls.addEventListener("change", () => {
+        this.update(true, true, true);
+      });
     }
     this.controls.update();
   }
@@ -240,7 +242,7 @@ class Viewer {
   }
 
   checkChanges = (changes, notify = true) => {
-    if (this.notifyCallback) {
+    if (notify && this.notifyCallback) {
       var changed = {};
       Object.keys(changes).forEach((key) => {
         if (!isEqual(this.lastNotification[key], changes[key])) {
@@ -256,16 +258,14 @@ class Viewer {
           this.lastNotification[key] = change;
         }
       });
-      if (notify && Object.keys(changed).length) {
-        if (this.notifyCallback) {
-          this.notifyCallback(changed);
-        }
+      if (Object.keys(changed).length) {
+        this.notifyCallback(changed);
       }
     }
   };
 
   update = (updateMarker, fromAnimationLoop, notify = true) => {
-    if (this.ready & !(this.needsAnimationLoop & !fromAnimationLoop)) {
+    if (this.ready && !(this.needsAnimationLoop && !fromAnimationLoop)) {
       if (this.animation) {
         this.animation.update();
       }
@@ -291,7 +291,7 @@ class Viewer {
 
   animate = () => {
     requestAnimationFrame(this.animate);
-    this.update(true, true);
+    this.update(true, true, true);
   };
 
   render(shapes, states) {
@@ -321,7 +321,7 @@ class Viewer {
     //
 
     this.createCameras(this.bb_radius);
-    this.switchCamera(this.ortho, true, false);
+    this.switchCamera(this.ortho, true);
     this.initOrbitControls();
     //
     // add lights
@@ -451,58 +451,58 @@ class Viewer {
 
   setupCamera(relative, position, rotateZ, zoom, notify = true) {
     const center = new THREE.Vector3(...this.bbox.center);
-    var cameraPosition = null;
-    if (relative) {
-      cameraPosition = new THREE.Vector3(...position)
-        .normalize()
-        .multiplyScalar(this.camera_distance)
-        .add(center);
-    } else {
-      cameraPosition = position;
+
+    if (position != null) {
+      var cameraPosition = relative
+        ? new THREE.Vector3(...position)
+            .normalize()
+            .multiplyScalar(this.camera_distance)
+            .add(center)
+            .toArray()
+        : position;
+
+      this.camera.position.set(...cameraPosition);
+    }
+
+    if (zoom != null) {
+      this.camera.zoom = zoom;
+    }
+
+    if (rotateZ != null) {
+      // set x direction for top and bottom view to avoid flickering
+      this.camera.rotateZ(rotateZ);
     }
 
     this.camera.up = new THREE.Vector3(0, 0, 1);
     this.camera.lookAt(center);
 
-    if (zoom) {
-      this.camera.zoom = zoom ? zoom : this.zoom0;
-    }
-
-    if (position) {
-      this.camera.position.set(...cameraPosition.toArray());
-    }
     this.camera.updateProjectionMatrix();
-
-    // set x direction for top and bottom view to avoid flickering
-    if (rotateZ) {
-      this.camera.rotateZ(rotateZ);
-      this.camera.updateProjectionMatrix();
-    }
     this.controls?.update();
     this.update(true, false, notify);
   }
 
-  setCameraPosition = (x, y, z, notify = true) => {
+  setCameraPosition = (x, y, z, relative = false, notify = true) => {
     const rotateZ = x < 1e-6 && y < 1e-6 ? Math.PI : null;
-    this.setupCamera(false, new THREE.Vector3(x, y, z), rotateZ, null, notify);
+    this.setupCamera(relative, [x, y, z], rotateZ, null, notify);
   };
 
   setCameraZoom = (value, notify = true) => {
     this.setupCamera(false, null, null, value, notify);
   };
 
-  switchCamera(ortho_flag, init, notify = true) {
-    var p0 = init ? null : this.camera.position.clone();
+  switchCamera(ortho_flag, init = false, notify = true) {
+    // except for the first time (init==true) save last position and zoom
+    var p0 = init ? null : this.camera.position.toArray();
     var z0 = init ? null : this.camera.zoom;
 
     this.camera = ortho_flag ? this.oCamera : this.pCamera;
 
     if (init) {
-      this.setupCamera(true, this.position, null, null, false);
+      this.setupCamera(true, this.position, null, null, notify);
     } else {
       this.controls.object = this.camera;
-      // reposition to the last camera position
-      this.setupCamera(false, p0, null, z0, false);
+      // reposition to the last camera position and zoom
+      this.setupCamera(false, p0, null, z0, notify);
     }
 
     this.checkChanges({ ortho: ortho_flag }, notify);
