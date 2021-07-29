@@ -515,7 +515,7 @@ class Display {
       changed = true;
     }
     this.activeTab = tab;
-    this.viewer.notify({ tab: tab });
+    this.viewer.checkChanges({ tab: tab });
     if (changed) {
       this.tabTree.classList.toggle("tcv_tab-selected");
       this.tabTree.classList.toggle("tcv_tab-unselected");
