@@ -170,8 +170,8 @@ class Slider {
 
   _notify = (value) => {
     const change = {};
-    change[`clip_slider_${this.index - 1}`] = value;
-    this.display.viewer.notify(change);
+    change[`clip_slider_${this.index - 1}`] = parseFloat(value);
+    this.display.viewer.checkChanges(change);
   };
 
   sliderChange = (e) => {
