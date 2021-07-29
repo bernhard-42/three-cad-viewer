@@ -81,7 +81,7 @@ class Viewer {
     this.bbFactor = 1.0;
     this.position = [1, 1, 1];
     this.zoom0 = 1.0;
-    this.grid = false;
+    this.grid = [false, false, false];
     this.axes = false;
     this.axes0 = false;
     this.ortho = true;
@@ -352,7 +352,7 @@ class Viewer {
       this.bbox,
       10,
       this.axes0,
-      this.grid ? [true, true, true] : [false, false, false]
+      this.grid
     );
     for (var i = 0; i < 3; i++) {
       this.scene.add(this.gridHelper.gridHelper[i]);
