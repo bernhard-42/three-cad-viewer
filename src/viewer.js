@@ -92,9 +92,8 @@ class Viewer {
     this.transparent = false;
     this.defaultOpacity = 0.4;
     this.normalLen = 0;
-    this.ready = false;
-    this.mixer = null;
-    this.animation = null;
+    this.tools = true;
+    this.timeit = false;
 
     for (var option in options) {
       if (this[option] == null) {
@@ -299,7 +298,7 @@ class Viewer {
 
     this.scene = new THREE.Scene();
 
-    const timer = new Timer("viewer", this._measure);
+    const timer = new Timer("viewer", this.timeit);
 
     //
     // render the input assembly

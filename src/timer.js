@@ -1,22 +1,22 @@
 class Timer {
-  constructor(prefix, measure) {
+  constructor(prefix, timeit) {
     this.prefix = prefix;
-    this.measure = measure;
+    this.timeit = timeit;
     this.start = performance.now();
-    if (measure) {
+    if (timeit) {
       console.warn(`${prefix}:start`);
     }
   }
 
   split(msg) {
-    if (this.measure) {
+    if (this.timeit) {
       const t = performance.now();
       console.warn(`${this.prefix}:${msg} ${t - this.start} ms`);
     }
   }
 
   stop() {
-    if (this.measure) {
+    if (this.timeit) {
       const t = performance.now();
       console.warn(`${this.prefix}:stop ${t - this.start} ms`);
     }

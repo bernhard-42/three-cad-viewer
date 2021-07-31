@@ -37,8 +37,8 @@
             console.log("NOTIFY:", change); 
         }
 
-        const measure = false;
-        const timer = new Timer("index", measure);
+      const timeit = false;
+      const timer = new Timer("index", timeit);
 
         const [shapes, states] = load(hexapod);
         const needsAnimationLoop = (shapes.name == "bottom");
@@ -55,14 +55,17 @@
             normalLen: 0,
             ambientIntensity: 0.9,
             directIntensity: 0.12,
-        }
+        transparent: true,
+        grid: [true, false, false], 
+        timeit: false
+      };
 
         const container = document.getElementById("cad_view_001")
         const display = new Display(container, options);
         timer.split("display");
 
         const viewer = new Viewer(display, needsAnimationLoop, options, nc);
-        viewer._measure = measure;
+      viewer._timeit = timeit;
 
         timer.split("viewer");
 
