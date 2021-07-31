@@ -49,6 +49,10 @@ class Viewer {
     this.orientationMarker = null;
     this.treeview = null;
 
+    this.ready = false;
+    this.mixer = null;
+    this.animation = null;
+
     this.camera_distance = 0;
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
