@@ -34,8 +34,6 @@ class Viewer {
       treeWidth: this.treeWidth
     });
 
-    this._measure = false;
-
     this.nestedGroup = null;
     this.mapping = null;
     this.tree = null;
