@@ -353,6 +353,8 @@ class Viewer {
       this.axes0,
       this.grid
     );
+    this.gridHelper.computeGrid();
+
     for (var i = 0; i < 3; i++) {
       this.scene.add(this.gridHelper.gridHelper[i]);
     }
@@ -538,6 +540,14 @@ class Viewer {
 
   setGrid = (action, notify = true) => {
     this.gridHelper.setGrid(action);
+
+    this.checkChanges({ grid: this.gridHelper.grid }, notify);
+
+    this.update(true, false);
+  };
+
+  setGrids = (xy, xz, yz, notify = true) => {
+    this.gridHelper.setGrids(xy, xz, yz);
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 

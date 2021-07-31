@@ -1,15 +1,15 @@
 import * as THREE from "three";
 
 class Grid {
-  constructor(display, bbox, ticks, axes0, visible) {
+  constructor(display, bbox, ticks, axes0, grid) {
     if (ticks === undefined) {
       ticks = 10;
     }
     this.display = display;
     this.bbox = bbox;
 
-    this.grid = visible;
-    this.allGrid = visible[0] | visible[1] | visible[2];
+    this.grid = grid;
+    this.allGrid = grid[0] | grid[1] | grid[2];
 
     this.gridHelper = [];
     // in case the bbox has the same siez as the nice grid there should be
@@ -96,7 +96,14 @@ class Grid {
   }
 
   computeGrid() {
-    return this.grid[0] | this.grid[1] | this.grid[2];
+    this.allGrid = this.grid[0] | this.grid[1] | this.grid[2];
+
+    this.display.checkElement("tcv_grid", this.allGrid);
+    this.display.checkElement("tcv_grid-xy", this.grid[0]);
+    this.display.checkElement("tcv_grid-xz", this.grid[1]);
+    this.display.checkElement("tcv_grid-yz", this.grid[2]);
+
+    this.setVisible();
   }
 
   setGrid(action) {
@@ -117,14 +124,14 @@ class Grid {
         this.grid[2] = !this.grid[2];
         break;
     }
-    this.allGrid = this.computeGrid();
+    this.computeGrid();
+  }
 
-    this.display.checkElement("tcv_grid", this.allGrid);
-    this.display.checkElement("tcv_grid-xy", this.grid[0]);
-    this.display.checkElement("tcv_grid-xz", this.grid[1]);
-    this.display.checkElement("tcv_grid-yz", this.grid[2]);
-
-    this.setVisible();
+  setGrids(xy, xz, yz) {
+    this.grid[0] = xy;
+    this.grid[1] = xz;
+    this.grid[2] = yz;
+    this.computeGrid();
   }
 
   setCenter(axes0) {
