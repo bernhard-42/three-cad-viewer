@@ -530,6 +530,18 @@ class Viewer {
     this.update(true, false);
   };
 
+  setZoomSpeed = (val) => {
+    this.controls.zoomSpeed = val;
+  };
+
+  setPanSpeed = (val) => {
+    this.controls.panSpeed = val;
+  };
+
+  setRotateSpeed = (val) => {
+    this.controls.rotateSpeed = val;
+  };
+
   setAxes = (flag, notify = true) => {
     this.axesHelper.setVisible(flag);
     this.display.setAxesCheck(flag);
