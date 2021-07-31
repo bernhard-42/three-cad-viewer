@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
     <title>CadQuery Viewer</title>
-    <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css">
+    <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css" />
 
     <!-- UMD import -->
     <!-- <script src='./dist/three-cad-viewer.js'></script> -->
 
-    <script src='./examples/convert.js'></script>
+    <script src="./examples/convert.js"></script>
     <script src="./examples/hexapod.js"></script>
     <!-- <script src="./examples/hexapod-mates.js"></script> -->
     <!-- <script src="./examples/box.js"></script> -->
@@ -18,112 +17,132 @@
     <!-- <script src="./examples/faces.js"></script> -->
     <!-- <script src="./examples/edges.js"></script> -->
     <!-- <script src="./examples/vertices.js"></script> -->
+  </head>
 
-</head>
-
-<body>
+  <body>
     <div id="cad_view_001"></div>
     <div id="cad_view_002"></div>
 
     <script type="module">
-        // ESM import
-        import { Viewer, Display, Timer } from './dist/three-cad-viewer.esm.js'
+      // ESM import
+      import { Viewer, Display, Timer } from "./dist/three-cad-viewer.esm.js";
 
-        // UMD import 
-        // const Viewer = CadViewer.Viewer;
-        // const Display = CadViewer.Display;
-        // const Timer = CadViewer.Timer;
-        function nc(change) { 
-            console.log("NOTIFY:", change); 
-        }
+      // UMD import
+      // const Viewer = CadViewer.Viewer;
+      // const Display = CadViewer.Display;
+      // const Timer = CadViewer.Timer;
+      function nc(change) {
+        console.log("NOTIFY:", change);
+      }
 
       const timeit = false;
       const timer = new Timer("index", timeit);
 
-        const [shapes, states] = load(hexapod);
-        const needsAnimationLoop = (shapes.name == "bottom");
+      const [shapes, states] = load(hexapod);
+      const needsAnimationLoop = shapes.name == "bottom";
 
-        timer.split("loaded");
+      timer.split("loaded");
 
-        const options = {
-            theme: "light",
-            ortho: true,
-            normalLen: 0,
-            cadWidth: 800,
-            height: 600,
-            treeWidth: 240,
-            normalLen: 0,
-            ambientIntensity: 0.9,
-            directIntensity: 0.12,
+      const options = {
+        theme: "light",
+        ortho: true,
+        normalLen: 0,
+        cadWidth: 800,
+        height: 600,
+        treeWidth: 240,
+        ticks: 5,
+        normalLen: 0,
+        ambientIntensity: 0.9,
+        directIntensity: 0.12,
         transparent: true,
         grid: [true, false, false], 
         timeit: false
       };
 
-        const container = document.getElementById("cad_view_001")
-        const display = new Display(container, options);
-        timer.split("display");
+      const container = document.getElementById("cad_view_001");
+      const display = new Display(container, options);
+      timer.split("display");
 
-        const viewer = new Viewer(display, needsAnimationLoop, options, nc);
+      const viewer = new Viewer(display, needsAnimationLoop, options, nc);
       viewer._timeit = timeit;
 
-        timer.split("viewer");
+      timer.split("viewer");
 
-        viewer.render(shapes, states);
-        timer.split("renderer");
-        timer.stop()
+      viewer.render(shapes, states);
+      timer.split("renderer");
+      timer.stop();
 
-        // hexapod animation tracks
+      // hexapod animation tracks
 
-        if (needsAnimationLoop) {
-            const horizontal_angle = 25
+      if (needsAnimationLoop) {
+        const horizontal_angle = 25;
 
-            function isin(el, container) {
-                return container.indexOf(el) >= 0;
-            }
-
-            function intervals(count) {
-                var range = [...Array(count).keys()]
-                return range.map((i) => Math.min(180, (90 + i * Math.floor(360 / count)) % 360));
-            }
-
-            function times(end, count) {
-                var range = [...Array(count + 1).keys()]
-                return range.map((i) => i / count * end)
-            }
-
-            function vertical(count, end, offset) {
-                const ints = intervals(count)
-                var heights = ints.map((x) => Math.round(350 * Math.sin(x / 180 * Math.PI) - 150) / 10)
-                heights.push(heights[0])
-                return [times(end, count), [...heights.slice(offset), ...heights.slice(1, offset + 1)]]
-            }
-
-            function horizontal(end, reverse) {
-                const factor = reverse ? 1 : -1
-                return [times(end, 4), [0, factor * horizontal_angle, 0, -factor * horizontal_angle, 0]]
-            }
-
-            const legNames = ["right_back", "right_middle", "right_front", "left_back", "left_middle", "left_front"];
-            const legGroup = ["left_front", "right_middle", "left_back"];
-
-            for (var name of legNames) {
-                // move upper leg
-                viewer.addAnimationTrack(
-                    `/bottom/${name}`, "rz", ...horizontal(4, isin("middle", name))
-                );
-                // move lower leg
-                viewer.addAnimationTrack(
-                    `/bottom/${name}/lower`, "rz", ...vertical(8, 4, isin(name, legGroup) ? 0 : 4, isin("left", name))
-                );
-            }
-            viewer.initAnimation(4, 2);
+        function isin(el, container) {
+          return container.indexOf(el) >= 0;
         }
 
-        // Enable debugging in browser console
-        window.viewer = viewer
-        console.log("Loaded", new Date())
-    </script>
-</body>
+        function intervals(count) {
+          var range = [...Array(count).keys()];
+          return range.map((i) =>
+            Math.min(180, (90 + i * Math.floor(360 / count)) % 360)
+          );
+        }
 
+        function times(end, count) {
+          var range = [...Array(count + 1).keys()];
+          return range.map((i) => (i / count) * end);
+        }
+
+        function vertical(count, end, offset) {
+          const ints = intervals(count);
+          var heights = ints.map(
+            (x) => Math.round(350 * Math.sin((x / 180) * Math.PI) - 150) / 10
+          );
+          heights.push(heights[0]);
+          return [
+            times(end, count),
+            [...heights.slice(offset), ...heights.slice(1, offset + 1)]
+          ];
+        }
+
+        function horizontal(end, reverse) {
+          const factor = reverse ? 1 : -1;
+          return [
+            times(end, 4),
+            [0, factor * horizontal_angle, 0, -factor * horizontal_angle, 0]
+          ];
+        }
+
+        const legNames = [
+          "right_back",
+          "right_middle",
+          "right_front",
+          "left_back",
+          "left_middle",
+          "left_front"
+        ];
+        const legGroup = ["left_front", "right_middle", "left_back"];
+
+        for (var name of legNames) {
+          // move upper leg
+          viewer.addAnimationTrack(
+            `/bottom/${name}`,
+            "rz",
+            ...horizontal(4, isin("middle", name))
+          );
+          // move lower leg
+          viewer.addAnimationTrack(
+            `/bottom/${name}/lower`,
+            "rz",
+            ...vertical(8, 4, isin(name, legGroup) ? 0 : 4, isin("left", name))
+          );
+        }
+        viewer.initAnimation(4, 2);
+      }
+
+      // Enable debugging in browser console
+      window.viewer = viewer;
+      console.log("Loaded", new Date());
+    </script>
+  </body>
 </html>
