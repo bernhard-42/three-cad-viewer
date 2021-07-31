@@ -459,6 +459,20 @@ class Display {
     this.checkElement("tcv_clip_plane_helpers", flag);
   };
 
+  setTools = (flag) => {
+    var tb = this.getElement("tcv_cad_toolbar");
+    var cn = this.getElement("tcv_cad_navigation");
+    for (var el of [cn, tb]) {
+      if (flag) {
+        el.style.height = "36px";
+        el.style.display = "block";
+      } else {
+        el.style.height = "0px";
+        el.style.display = "none";
+      }
+    }
+  };
+
   setClipIntersection = (e) => {
     const flag = !!e.target.checked;
     this.viewer.setClipIntersection(flag);
