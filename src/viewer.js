@@ -82,6 +82,7 @@ class Viewer {
     this.position = [1, 1, 1];
     this.zoom0 = 1.0;
     this.grid = [false, false, false];
+    this.ticks = 10;
     this.axes = false;
     this.axes0 = false;
     this.ortho = true;
@@ -349,7 +350,7 @@ class Viewer {
     this.gridHelper = new Grid(
       this.display,
       this.bbox,
-      10,
+      this.ticks,
       this.axes0,
       this.grid
     );
