@@ -34,5 +34,5 @@
     "rollup-plugin-svg-import": "^1.5.1",
     "rollup-plugin-terser": "^7.0.2"
   },
-  "babel":{}
+  "babel": {}
 }
