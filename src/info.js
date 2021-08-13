@@ -39,24 +39,25 @@ class Info {
   versionMsg(cqVersion, jcqVersion) {
     this.addHtml(
       `<b>Versions</b>
-            <table>
-                <tr class="tcv_small_table"><td>CadQuery:</td>        <td>${cqVersion}</td> </tr>
-                <tr class="tcv_small_table"><td>Jupyter CadQuery:</td><td>${jcqVersion}</td> </tr>
-            </table>`
+          <table>
+            <tr class="tcv_small_table"><td>CadQuery:</td>        <td>${cqVersion}</td> </tr>
+            <tr class="tcv_small_table"><td>Jupyter CadQuery:</td><td>${jcqVersion}</td> </tr>
+          </table>`
     );
   }
 
-  readyMsg(gridSize) {
+  readyMsg(gridSize, control) {
     var html = `<div class="tcv_info_header">Ready</div>
             <table class="small_table">
-                <tr class="tcv_small_table_row" >           <td>Tick size</td>  <td>${gridSize} mm</td> </tr>
-                <tr class="tcv_small_table_row" >           <td>Axes</td>
-                    <td>
-                        <span class="tcv_info_red"><b>X</b></span>,
-                        <span class="tcv_info_green"><b>Y</b></span>,
-                        <span class="tcv_info_blue"><b>Z</b></span>
-                    </td> 
-                </tr>
+              <tr class="tcv_small_table_row" ><td>Tick size</td>  <td>${gridSize} mm</td> </tr>
+              <tr class="tcv_small_table_row" ><td>Control</td><td>${control}</td></tr>
+              <tr class="tcv_small_table_row" ><td>Axes</td>
+                <td>
+                  <span class="tcv_info_red"><b>X</b></span>,
+                  <span class="tcv_info_green"><b>Y</b></span>,
+                  <span class="tcv_info_blue"><b>Z</b></span>
+                </td> 
+              </tr>
             </table>`;
     this.addHtml(html);
   }

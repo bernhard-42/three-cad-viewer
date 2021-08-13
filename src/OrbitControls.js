@@ -25,11 +25,11 @@ class OrbitControls extends EventDispatcher {
 
     if (domElement === undefined)
       console.warn(
-        'THREE.OrbitControls: The second parameter "domElement" is now mandatory.'
+        "THREE.OrbitControls: The second parameter 'domElement' is now mandatory."
       );
     if (domElement === document)
       console.error(
-        'THREE.OrbitControls: "document" should not be used as the target "domElement". Please use "renderer.domElement" instead.'
+        "THREE.OrbitControls: 'document' should not be used as the target 'domElement'. Please use 'renderer.domElement' instead."
       );
 
     this.object = object;
@@ -71,7 +71,7 @@ class OrbitControls extends EventDispatcher {
 
     // Set to false to disable rotating
     this.enableRotate = true;
-    this.rotateSpeed = 1.0;
+    this.rotateSpeed = 1;
 
     // Set to false to disable panning
     this.enablePan = true;
@@ -301,6 +301,16 @@ class OrbitControls extends EventDispatcher {
       //scope.dispatchEvent( { type: 'dispose' } ); // should this be added here?
     };
 
+    this.rotateUp = function (angle) {
+      rotateUp(angle);
+      scope.update();
+    };
+
+    this.rotateLeft = function (angle) {
+      rotateLeft(angle);
+      scope.update();
+    };
+
     //
     // internals
     //
@@ -315,12 +325,20 @@ class OrbitControls extends EventDispatcher {
       TOUCH_ROTATE: 3,
       TOUCH_PAN: 4,
       TOUCH_DOLLY_PAN: 5,
-      TOUCH_DOLLY_ROTATE: 6
+      TOUCH_DOLLY_ROTATE: 6,
+      YAW: 7,
+      PITCH: 8
     };
 
     let state = STATE.NONE;
 
     const EPS = 0.000001;
+
+    this.modifiers = {
+      shiftKey: STATE.PAN,
+      ctrlKey: STATE.YAW,
+      metaKey: STATE.PITCH
+    };
 
     // current position in spherical coordinates
     const spherical = new Spherical();
@@ -489,18 +507,21 @@ class OrbitControls extends EventDispatcher {
       panStart.set(event.clientX, event.clientY);
     }
 
-    function handleMouseMoveRotate(event) {
+    function handleMouseMoveRotate(event, state) {
       rotateEnd.set(event.clientX, event.clientY);
-
       rotateDelta
         .subVectors(rotateEnd, rotateStart)
         .multiplyScalar(scope.rotateSpeed);
 
       const element = scope.domElement;
 
-      rotateLeft((2 * Math.PI * rotateDelta.x) / element.clientHeight); // yes, height
+      if (state == STATE.ROTATE || state == STATE.YAW) {
+        rotateLeft((2 * Math.PI * rotateDelta.x) / element.clientHeight); // yes, height
+      }
 
-      rotateUp((2 * Math.PI * rotateDelta.y) / element.clientHeight);
+      if (state == STATE.ROTATE || state == STATE.PITCH) {
+        rotateUp((2 * Math.PI * rotateDelta.y) / element.clientHeight);
+      }
 
       rotateStart.copy(rotateEnd);
 
@@ -776,12 +797,30 @@ class OrbitControls extends EventDispatcher {
           break;
 
         case MOUSE.ROTATE:
-          if (event.ctrlKey || event.metaKey || event.shiftKey) {
+          if (event.shiftKey) {
             if (scope.enablePan === false) return;
 
-            handleMouseDownPan(event);
+            scope.modifiers.shiftKey === STATE.PAN
+              ? handleMouseDownPan(event)
+              : handleMouseDownRotate(event);
 
-            state = STATE.PAN;
+            state = scope.modifiers.shiftKey;
+          } else if (event.ctrlKey) {
+            if (scope.enableRotate === false) return;
+
+            scope.modifiers.ctrlKey === STATE.PAN
+              ? handleMouseDownPan(event)
+              : handleMouseDownRotate(event);
+
+            state = scope.modifiers.ctrlKey;
+          } else if (event.metaKey) {
+            if (scope.enableRotate === false) return;
+
+            scope.modifiers.metaKey === STATE.PAN
+              ? handleMouseDownPan(event)
+              : handleMouseDownRotate(event);
+
+            state = scope.modifiers.metaKey;
           } else {
             if (scope.enableRotate === false) return;
 
@@ -836,7 +875,21 @@ class OrbitControls extends EventDispatcher {
         case STATE.ROTATE:
           if (scope.enableRotate === false) return;
 
-          handleMouseMoveRotate(event);
+          handleMouseMoveRotate(event, state);
+
+          break;
+
+        case STATE.YAW:
+          if (scope.enableRotate === false) return;
+
+          handleMouseMoveRotate(event, state);
+
+          break;
+
+        case STATE.PITCH:
+          if (scope.enableRotate === false) return;
+
+          handleMouseMoveRotate(event, state);
 
           break;
 

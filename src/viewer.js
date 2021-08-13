@@ -1,5 +1,7 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+
+import { OrbitControls } from "./OrbitControls.js";
+import { TrackballControls } from "./TrackballControls.js";
 import { NestedGroup } from "./nestedgroup.js";
 import { Grid } from "./grid.js";
 import { AxesHelper } from "./axes.js";
@@ -10,16 +12,7 @@ import { Clipping } from "./clipping.js";
 import { Animation } from "./animation.js";
 import { Info } from "./info.js";
 import { clone, isEqual } from "./utils.js";
-
-const defaultDirections = {
-  iso: { position: [1, 1, 1] },
-  front: { position: [1, 0, 0] },
-  rear: { position: [-1, 0, 0] },
-  left: { position: [0, 1, 0] },
-  right: { position: [0, -1, 0] },
-  top: { position: [0, 0, 1], rotateZ: Math.PI },
-  bottom: { position: [0, 0, -1], rotateZ: Math.PI }
-};
+import { defaultDirections } from "./directions.js";
 
 class Viewer {
   constructor(display, needsAnimationLoop, options, notifyCallback) {
@@ -33,6 +26,8 @@ class Viewer {
       height: this.height,
       treeWidth: this.treeWidth
     });
+
+    window.THREE = THREE;
 
     this.nestedGroup = null;
     this.mapping = null;
@@ -81,13 +76,16 @@ class Viewer {
     this.treeHeight = 250;
     this.theme = "light";
     this.bbFactor = 1.0;
-    this.position = [1, 1, 1];
     this.zoom0 = 1.0;
     this.grid = [false, false, false];
     this.ticks = 10;
     this.axes = false;
     this.axes0 = false;
     this.ortho = true;
+    this.control = "orbit";
+    this.rotateSpeed = 1.0;
+    this.zoomSpeed = 0.5;
+    this.panSpeed = 0.5;
     this.blackEdges = false;
     this.edgeColor = 0x707070;
     this.ambientIntensity = 0.5;
@@ -162,15 +160,11 @@ class Viewer {
     );
   }
 
-  initOrbitControls() {
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    // this.controls.listenToKeyEvents(window);
+  initControls() {
     this.controls.target = new THREE.Vector3(...this.bbox.center);
-    this.controls.zoomSpeed = 0.5;
-    this.controls.panSpeed = 0.5;
-
-    // save default view for reset
-    this.controls.saveState();
+    this.controls.rotateSpeed = this.rotateSpeed;
+    this.controls.zoomSpeed = this.zoomSpeed;
+    this.controls.panSpeed = this.panSpeed;
 
     if (!this.needsAnimationLoop) {
       this.controls.addEventListener("change", () => {
@@ -178,6 +172,23 @@ class Viewer {
       });
     }
     this.controls.update();
+  }
+
+  initTrackballControls() {
+    this.controls = new TrackballControls(
+      this.camera,
+      this.renderer.domElement
+    );
+    this.controls.dynamicDampingFactor = 1;
+    this.initControls();
+  }
+
+  initOrbitControls() {
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.initControls();
+
+    // save default view for reset
+    this.controls.saveState();
   }
 
   getTree(shapes) {
@@ -276,8 +287,8 @@ class Viewer {
 
       if (updateMarker) {
         this.orientationMarker.update(
-          this.camera.position,
-          this.controls.target
+          this.camera.position.clone().sub(this.controls.target0),
+          this.camera.rotation
         );
         this.orientationMarker.render();
       }
@@ -293,6 +304,7 @@ class Viewer {
 
   animate = () => {
     requestAnimationFrame(this.animate);
+    this.controls.update();
     this.update(true, true, true);
   };
 
@@ -324,7 +336,20 @@ class Viewer {
 
     this.createCameras(this.bb_radius);
     this.switchCamera(this.ortho, true);
-    this.initOrbitControls();
+
+    //
+    // build mouse/touch controls
+    //
+
+    switch (this.control) {
+      case "orbit":
+        this.initOrbitControls();
+        break;
+      case "trackball":
+        this.initTrackballControls();
+        break;
+    }
+
     //
     // add lights
     //
@@ -432,7 +457,7 @@ class Viewer {
     //
 
     this.info = new Info(this.display.cadInfo);
-    this.info.readyMsg(this.gridHelper.ticks);
+    this.info.readyMsg(this.gridHelper.ticks, this.control);
 
     //
     // show the rendering
@@ -453,7 +478,7 @@ class Viewer {
   // Event handlers
   //
 
-  setupCamera(relative, position, rotateZ, zoom, notify = true) {
+  setupCamera(relative, position, up, zoom, notify = true) {
     const center = new THREE.Vector3(...this.bbox.center);
 
     if (position != null) {
@@ -472,54 +497,55 @@ class Viewer {
       this.camera.zoom = zoom;
     }
 
-    if (rotateZ != null) {
-      // set x direction for top and bottom view to avoid flickering
-      this.camera.rotateZ(rotateZ);
+    if (this.control == "trackball") {
+      this.camera.up.set(...up);
+    } else {
+      this.camera.up.set(0, 0, 1);
     }
 
-    this.camera.up = new THREE.Vector3(0, 0, 1);
     this.camera.lookAt(center);
 
     this.camera.updateProjectionMatrix();
     this.controls?.update();
+
     this.update(true, false, notify);
   }
 
-  setCameraPosition = (x, y, z, relative = false, notify = true) => {
-    const rotateZ = x < 1e-6 && y < 1e-6 ? Math.PI : null;
-    this.setupCamera(relative, [x, y, z], rotateZ, null, notify);
-  };
-
-  setCameraZoom = (value, notify = true) => {
-    this.setupCamera(false, null, null, value, notify);
-  };
-
-  switchCamera(ortho_flag, init = false, notify = true) {
-    // except for the first time (init==true) save last position and zoom
-    var p0 = init ? null : this.camera.position.toArray();
-    var z0 = init ? null : this.camera.zoom;
-
-    this.camera = ortho_flag ? this.oCamera : this.pCamera;
-
-    if (init) {
-      this.setupCamera(true, this.position, null, null, notify);
-    } else {
-      this.controls.object = this.camera;
-      // reposition to the last camera position and zoom
-      this.setupCamera(false, p0, null, z0, notify);
-    }
-
-    this.checkChanges({ ortho: ortho_flag }, notify);
-  }
-
-  setCamera = (dir) => {
+  setCamera = (dir, notify = null) => {
     this.setupCamera(
       true,
       defaultDirections[dir]["position"],
-      defaultDirections[dir]["rotateZ"],
-      this.camera.zoom
+      defaultDirections[dir]["up"],
+      this.camera.zoom,
+      notify
     );
   };
+
+  setCameraPosition = (x, y, z, relative = false, notify = true) => {
+    const up = null; // TODO fix for trackball
+    this.setupCamera(relative, [x, y, z], up, null, notify);
+  };
+
+  setCameraZoom = (value, notify = true) => {
+    this.setupCamera(false, null, null, null, value, notify);
+  };
+
+  switchCamera(ortho_flag, init = false, notify = true) {
+    this.camera = ortho_flag ? this.oCamera : this.pCamera;
+
+    if (init) {
+      this.setCamera("iso", notify);
+    } else {
+      // TODO fix for trackball
+      var p0 = this.camera.position.toArray();
+      var z0 = this.camera.zoom;
+      var u0 = this.camera.up.toArray();
+      this.controls.object = this.camera;
+      // reposition to the last camera position and zoom
+      this.setupCamera(false, p0, u0, z0, notify);
+    }
+    this.checkChanges({ ortho: ortho_flag }, notify);
+  }
 
   resize = () => {
     this.camera.zoom = this.zoom0;
@@ -717,6 +743,14 @@ class Viewer {
     });
     this.info.bbInfo(nearest.path, nearest.name, nearest.boundingBox);
   };
+
+  pitch(angle) {
+    this.controls.rotateUp((-angle / 180) * Math.PI);
+  }
+
+  yaw(angle) {
+    this.controls.rotateLeft((angle / 180) * Math.PI);
+  }
 }
 
 export { Viewer, defaultDirections };

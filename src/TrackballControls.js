@@ -10,11 +10,11 @@ class TrackballControls extends EventDispatcher {
 
     if (domElement === undefined)
       console.warn(
-        'THREE.TrackballControls: The second parameter "domElement" is now mandatory.'
+        "THREE.TrackballControls: The second parameter 'domElement' is now mandatory."
       );
     if (domElement === document)
       console.error(
-        'THREE.TrackballControls: "document" should not be used as the target "domElement". Please use "renderer.domElement" instead.'
+        "THREE.TrackballControls: 'document' should not be used as the target 'domElement'. Please use 'renderer.domElement' instead."
       );
 
     const scope = this;
@@ -33,7 +33,8 @@ class TrackballControls extends EventDispatcher {
     // API
 
     this.enabled = true;
-
+    this.holroyd = true;
+    this.radius = 0.9; // ndc trackball radius
     this.screen = { left: 0, top: 0, width: 0, height: 0 };
 
     this.rotateSpeed = 1.0;
@@ -74,8 +75,10 @@ class TrackballControls extends EventDispatcher {
       _lastAngle = 0;
 
     const _eye = new Vector3(),
-      _movePrev = new Vector2(),
-      _moveCurr = new Vector2(),
+      _movePrev2 = new Vector2(),
+      _moveCurr2 = new Vector2(),
+      _movePrev3 = new Vector3(),
+      _moveCurr3 = new Vector3(),
       _lastAxis = new Vector3(),
       _zoomStart = new Vector2(),
       _zoomEnd = new Vector2(),
@@ -114,6 +117,33 @@ class TrackballControls extends EventDispatcher {
       };
     })();
 
+    const getMouseOnSphere = (function () {
+      const vector = new Vector3();
+      const r2 = scope.radius * scope.radius;
+
+      function holroyd(x, y) {
+        var d2 = x * x + y * y;
+
+        if (d2 <= r2 / 2) {
+          vector.set(x, y, Math.sqrt(r2 - d2));
+        } else {
+          vector.set(x, y, r2 / (2 * Math.sqrt(d2)));
+        }
+      }
+      return function getMouseOnSphere(pageX, pageY) {
+        // return coords in NDC space
+        holroyd(
+          ((pageX - scope.screen.left - scope.screen.width / 2) /
+            scope.screen.width) *
+            2,
+          ((pageY - scope.screen.top - scope.screen.height / 2) /
+            scope.screen.height) *
+            -2 // flip y axis
+        );
+        return vector;
+      };
+    })();
+
     const getMouseOnCircle = (function () {
       const vector = new Vector2();
 
@@ -124,7 +154,6 @@ class TrackballControls extends EventDispatcher {
           (scope.screen.height + 2 * (scope.screen.top - pageY)) /
             scope.screen.width // screen.width intentional
         );
-
         return vector;
       };
     })();
@@ -138,46 +167,71 @@ class TrackballControls extends EventDispatcher {
         moveDirection = new Vector3();
 
       return function rotateCamera() {
-        moveDirection.set(
-          _moveCurr.x - _movePrev.x,
-          _moveCurr.y - _movePrev.y,
-          0
-        );
-        let angle = moveDirection.length();
+        if (this.holroyd) {
+          const prev = _movePrev3.clone().normalize();
+          const curr = _moveCurr3.clone().normalize();
 
-        if (angle) {
-          _eye.copy(scope.object.position).sub(scope.target);
+          axis.crossVectors(prev, curr);
+          var angle = Math.atan(axis.length() / prev.dot(curr));
 
-          eyeDirection.copy(_eye).normalize();
-          objectUpDirection.copy(scope.object.up).normalize();
-          objectSidewaysDirection
-            .crossVectors(objectUpDirection, eyeDirection)
-            .normalize();
+          if (angle) {
+            axis.normalize();
+            axis.applyQuaternion(scope.object.quaternion);
 
-          objectUpDirection.setLength(_moveCurr.y - _movePrev.y);
-          objectSidewaysDirection.setLength(_moveCurr.x - _movePrev.x);
+            angle *= -2 * scope.rotateSpeed;
+            quaternion.setFromAxisAngle(axis, angle);
 
-          moveDirection.copy(objectUpDirection.add(objectSidewaysDirection));
+            _eye.copy(scope.object.position).sub(scope.target);
+            _eye.applyQuaternion(quaternion);
 
-          axis.crossVectors(moveDirection, _eye).normalize();
+            scope.object.up.applyQuaternion(quaternion);
 
-          angle *= scope.rotateSpeed;
-          quaternion.setFromAxisAngle(axis, angle);
+            _lastAxis.copy(axis);
+            _lastAngle = angle;
+          }
+          _movePrev3.copy(_moveCurr3);
+        } else {
+          moveDirection.set(
+            _moveCurr2.x - _movePrev2.x,
+            _moveCurr2.y - _movePrev2.y,
+            0
+          );
+          let angle = moveDirection.length();
 
-          _eye.applyQuaternion(quaternion);
-          scope.object.up.applyQuaternion(quaternion);
+          if (angle) {
+            _eye.copy(scope.object.position).sub(scope.target);
 
-          _lastAxis.copy(axis);
-          _lastAngle = angle;
-        } else if (!scope.staticMoving && _lastAngle) {
-          _lastAngle *= Math.sqrt(1.0 - scope.dynamicDampingFactor);
-          _eye.copy(scope.object.position).sub(scope.target);
-          quaternion.setFromAxisAngle(_lastAxis, _lastAngle);
-          _eye.applyQuaternion(quaternion);
-          scope.object.up.applyQuaternion(quaternion);
+            eyeDirection.copy(_eye).normalize();
+            objectUpDirection.copy(scope.object.up).normalize();
+            objectSidewaysDirection
+              .crossVectors(objectUpDirection, eyeDirection)
+              .normalize();
+
+            objectUpDirection.setLength(_moveCurr2.y - _movePrev2.y);
+            objectSidewaysDirection.setLength(_moveCurr2.x - _movePrev2.x);
+
+            moveDirection.copy(objectUpDirection.add(objectSidewaysDirection));
+
+            axis.crossVectors(moveDirection, _eye).normalize();
+
+            angle *= scope.rotateSpeed * 6;
+            quaternion.setFromAxisAngle(axis, angle);
+
+            _eye.applyQuaternion(quaternion);
+            scope.object.up.applyQuaternion(quaternion);
+
+            _lastAxis.copy(axis);
+            _lastAngle = angle;
+          } else if (!scope.staticMoving && _lastAngle) {
+            _lastAngle *= Math.sqrt(1.0 - scope.dynamicDampingFactor);
+            _eye.copy(scope.object.position).sub(scope.target);
+            quaternion.setFromAxisAngle(_lastAxis, _lastAngle);
+            _eye.applyQuaternion(quaternion);
+            scope.object.up.applyQuaternion(quaternion);
+          }
+
+          _movePrev2.copy(_moveCurr2);
         }
-
-        _movePrev.copy(_moveCurr);
       };
     })();
 
@@ -197,7 +251,16 @@ class TrackballControls extends EventDispatcher {
           console.warn("THREE.TrackballControls: Unsupported camera type");
         }
       } else {
-        factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * scope.zoomSpeed;
+        // Change to use the same approach as OrbitControls
+        // factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * scope.zoomSpeed;
+        if (Math.abs(_zoomEnd.y - _zoomStart.y) < 1e-6) {
+          return;
+        }
+        factor = Math.pow(0.95, scope.zoomSpeed);
+        if (_zoomEnd.y > _zoomStart.y) {
+          factor = 1 / factor;
+        }
+        // End change
 
         if (factor !== 1.0 && factor > 0.0) {
           if (scope.object.isPerspectiveCamera) {
@@ -438,8 +501,13 @@ class TrackballControls extends EventDispatcher {
       const state = _keyState !== STATE.NONE ? _keyState : _state;
 
       if (state === STATE.ROTATE && !scope.noRotate) {
-        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
-        _movePrev.copy(_moveCurr);
+        if (scope.holroyd) {
+          _moveCurr3.copy(getMouseOnSphere(event.pageX, event.pageY));
+          _movePrev3.copy(_moveCurr3);
+        } else {
+          _moveCurr2.copy(getMouseOnCircle(event.pageX, event.pageY));
+          _movePrev2.copy(_moveCurr2);
+        }
       } else if (state === STATE.ZOOM && !scope.noZoom) {
         _zoomStart.copy(getMouseOnScreen(event.pageX, event.pageY));
         _zoomEnd.copy(_zoomStart);
@@ -465,13 +533,19 @@ class TrackballControls extends EventDispatcher {
       const state = _keyState !== STATE.NONE ? _keyState : _state;
 
       if (state === STATE.ROTATE && !scope.noRotate) {
-        _movePrev.copy(_moveCurr);
-        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
+        if (scope.holroyd) {
+          _movePrev3.copy(_moveCurr3);
+          _moveCurr3.copy(getMouseOnSphere(event.pageX, event.pageY));
+        } else {
+          _movePrev2.copy(_moveCurr2);
+          _moveCurr2.copy(getMouseOnCircle(event.pageX, event.pageY));
+        }
       } else if (state === STATE.ZOOM && !scope.noZoom) {
         _zoomEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
       } else if (state === STATE.PAN && !scope.noPan) {
         _panEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
       }
+      scope.update();
     }
 
     function onMouseUp(event) {
@@ -519,6 +593,7 @@ class TrackballControls extends EventDispatcher {
 
       scope.dispatchEvent(_startEvent);
       scope.dispatchEvent(_endEvent);
+      scope.update();
     }
 
     function touchstart(event) {
@@ -529,24 +604,33 @@ class TrackballControls extends EventDispatcher {
       switch (event.touches.length) {
         case 1:
           _state = STATE.TOUCH_ROTATE;
-          _moveCurr.copy(
-            getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY)
-          );
-          _movePrev.copy(_moveCurr);
+          if (scope.holroyd) {
+            _moveCurr3.copy(
+              getMouseOnSphere(event.touches[0].pageX, event.touches[0].pageY)
+            );
+            _movePrev3.copy(_moveCurr3);
+          } else {
+            _moveCurr2.copy(
+              getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY)
+            );
+            _movePrev2.copy(_moveCurr2);
+          }
           break;
 
         default:
           // 2 or more
           _state = STATE.TOUCH_ZOOM_PAN;
-          const dx = event.touches[0].pageX - event.touches[1].pageX;
-          const dy = event.touches[0].pageY - event.touches[1].pageY;
           _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(
-            dx * dx + dy * dy
+            Math.pow(event.touches[0].pageX - event.touches[1].pageX, 2) +
+              Math.pow(event.touches[0].pageY - event.touches[1].pageY, 2)
           );
 
-          const x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-          const y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-          _panStart.copy(getMouseOnScreen(x, y));
+          _panStart.copy(
+            getMouseOnScreen(
+              (event.touches[0].pageX + event.touches[1].pageX) / 2,
+              (event.touches[0].pageY + event.touches[1].pageY) / 2
+            )
+          );
           _panEnd.copy(_panStart);
           break;
       }
@@ -561,21 +645,25 @@ class TrackballControls extends EventDispatcher {
 
       switch (event.touches.length) {
         case 1:
-          _movePrev.copy(_moveCurr);
-          _moveCurr.copy(
+          _movePrev2.copy(_moveCurr2);
+          _moveCurr2.copy(
             getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY)
           );
           break;
 
         default:
           // 2 or more
-          const dx = event.touches[0].pageX - event.touches[1].pageX;
-          const dy = event.touches[0].pageY - event.touches[1].pageY;
-          _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
+          _touchZoomDistanceEnd = Math.sqrt(
+            Math.pow(event.touches[0].pageX - event.touches[1].pageX, 2) +
+              Math.pow(event.touches[0].pageY - event.touches[1].pageY, 2)
+          );
 
-          const x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-          const y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-          _panEnd.copy(getMouseOnScreen(x, y));
+          _panEnd.copy(
+            getMouseOnScreen(
+              (event.touches[0].pageX + event.touches[1].pageX) / 2,
+              (event.touches[0].pageY + event.touches[1].pageY) / 2
+            )
+          );
           break;
       }
     }
@@ -590,10 +678,17 @@ class TrackballControls extends EventDispatcher {
 
         case 1:
           _state = STATE.TOUCH_ROTATE;
-          _moveCurr.copy(
-            getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY)
-          );
-          _movePrev.copy(_moveCurr);
+          if (scope.holroyd) {
+            _moveCurr3.copy(
+              getMouseOnSphere(event.touches[0].pageX, event.touches[0].pageY)
+            );
+            _movePrev3.copy(_moveCurr3);
+          } else {
+            _moveCurr2.copy(
+              getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY)
+            );
+            _movePrev2.copy(_moveCurr2);
+          }
           break;
       }
 
