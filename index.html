@@ -32,32 +32,36 @@
       // const Display = CadViewer.Display;
       // const Timer = CadViewer.Timer;
       function nc(change) {
-        console.log("NOTIFY:", change);
+        // console.log("NOTIFY:", change);
       }
 
       const timeit = false;
       const timer = new Timer("index", timeit);
 
-      const [shapes, states] = load(hexapod);
-      const needsAnimationLoop = shapes.name == "bottom";
+      const [shapes, states] = load(obj);
 
       timer.split("loaded");
 
       const options = {
         theme: "light",
         ortho: true,
+        control: "trackball",
         normalLen: 0,
         cadWidth: 800,
         height: 600,
         treeWidth: 240,
-        ticks: 5,
+        ticks: 10,
         normalLen: 0,
         ambientIntensity: 0.9,
         directIntensity: 0.12,
-        transparent: true,
-        grid: [true, false, false], 
-        timeit: false
+        transparent: false,
+        axes: true,
+        grid: [false, false, false], 
+        timeit: false,
+        rotateSpeed: 1
       };
+
+      const needsAnimationLoop = false; // options.control=="spin" || shapes.name == "bottom";
 
       const container = document.getElementById("cad_view_001");
       const display = new Display(container, options);
@@ -74,7 +78,7 @@
 
       // hexapod animation tracks
 
-      if (needsAnimationLoop) {
+      if (needsAnimationLoop && shapes.name == "bottom") {
         const horizontal_angle = 25;
 
         function isin(el, container) {
