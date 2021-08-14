@@ -1,7 +1,5 @@
 import * as THREE from "three";
 
-import { OrbitControls } from "./OrbitControls.js";
-import { TrackballControls } from "./TrackballControls.js";
 import { NestedGroup } from "./nestedgroup.js";
 import { Grid } from "./grid.js";
 import { AxesHelper } from "./axes.js";
@@ -13,6 +11,7 @@ import { Animation } from "./animation.js";
 import { Info } from "./info.js";
 import { clone, isEqual } from "./utils.js";
 import { defaultDirections } from "./directions.js";
+import { Controls } from "./controls.js";
 
 class Viewer {
   constructor(display, needsAnimationLoop, options, notifyCallback) {
@@ -55,7 +54,7 @@ class Viewer {
       alpha: !this.dark,
       antialias: true
     });
-    // [this.width, this.height] = this.display.getCadViewSize();
+
     this.width = this.cadWidth;
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.width, this.height);
@@ -158,40 +157,6 @@ class Viewer {
       0.1,
       10 * distance
     );
-  }
-
-  initControls() {
-    this.controls.target = new THREE.Vector3(...this.bbox.center);
-    this.controls.rotateSpeed = this.rotateSpeed;
-    this.controls.zoomSpeed = this.zoomSpeed;
-    this.controls.panSpeed = this.panSpeed;
-
-    if (!this.needsAnimationLoop) {
-      this.controls.addEventListener("change", () => {
-        this.update(true, true, true);
-      });
-    }
-    this.controls.update();
-  }
-
-  initTrackballControls() {
-    this.controls = new TrackballControls(
-      this.camera,
-      this.renderer.domElement
-    );
-    this.controls.dynamicDampingFactor = 1;
-    this.initControls();
-
-    // save default view for reset
-    this.controls.saveState();
-  }
-
-  initOrbitControls() {
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.initControls();
-
-    // save default view for reset
-    this.controls.saveState();
   }
 
   getTree(shapes) {
@@ -343,14 +308,18 @@ class Viewer {
     //
     // build mouse/touch controls
     //
+    this.controls = new Controls(
+      this.control,
+      this.camera,
+      this.bbox.center,
+      this.renderer.domElement,
+      this.rotateSpeed,
+      this.zoomSpeed,
+      this.panSpeed
+    );
 
-    switch (this.control) {
-      case "orbit":
-        this.initOrbitControls();
-        break;
-      case "trackball":
-        this.initTrackballControls();
-        break;
+    if (!this.needsAnimationLoop) {
+      this.controls.addChangeListener(() => this.update(true, true, true));
     }
 
     //
@@ -539,7 +508,7 @@ class Viewer {
     if (init) {
       this.setCamera("iso", notify);
     } else {
-      // TODO fix for trackball
+      // TODO fix for trackball and orbit
       var p0 = this.camera.position.toArray();
       var z0 = this.camera.zoom;
       var u0 = this.camera.up.toArray();
@@ -562,15 +531,15 @@ class Viewer {
   };
 
   setZoomSpeed = (val) => {
-    this.controls.zoomSpeed = val;
+    this.controls.setZoomSpeed(val);
   };
 
   setPanSpeed = (val) => {
-    this.controls.panSpeed = val;
+    this.controls.setPanSpeed(val);
   };
 
   setRotateSpeed = (val) => {
-    this.controls.rotateSpeed = val;
+    this.controls.setRotateSpeed(val);
   };
 
   setAxes = (flag, notify = true) => {
@@ -748,11 +717,15 @@ class Viewer {
   };
 
   pitch(angle) {
-    this.controls.rotateUp((-angle / 180) * Math.PI);
+    this.controls.pitch(angle);
   }
 
   yaw(angle) {
-    this.controls.rotateLeft((angle / 180) * Math.PI);
+    this.controls.yaw(angle);
+  }
+
+  roll(angle) {
+    this.controls.roll(angle);
   }
 }
 
