@@ -729,8 +729,6 @@ class OrbitControls extends EventDispatcher {
         case "pen":
           onMouseDown(event);
           break;
-
-        // TODO touch
       }
     }
 
@@ -742,8 +740,6 @@ class OrbitControls extends EventDispatcher {
         case "pen":
           onMouseMove(event);
           break;
-
-        // TODO touch
       }
     }
 
@@ -753,8 +749,6 @@ class OrbitControls extends EventDispatcher {
         case "pen":
           onMouseUp(event);
           break;
-
-        // TODO touch
       }
     }
 
