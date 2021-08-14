@@ -181,6 +181,9 @@ class Viewer {
     );
     this.controls.dynamicDampingFactor = 1;
     this.initControls();
+
+    // save default view for reset
+    this.controls.saveState();
   }
 
   initOrbitControls() {

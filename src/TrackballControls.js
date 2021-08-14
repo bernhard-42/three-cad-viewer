@@ -86,12 +86,12 @@ class TrackballControls extends EventDispatcher {
       _panEnd = new Vector2();
 
     // for reset
-
-    this.target0 = this.target.clone();
-    this.position0 = this.object.position.clone();
-    this.up0 = this.object.up.clone();
-    this.zoom0 = this.object.zoom;
-
+    this.saveState = function () {
+      this.target0 = this.target.clone();
+      this.position0 = this.object.position.clone();
+      this.up0 = this.object.up.clone();
+      this.zoom0 = this.object.zoom;
+    };
     // methods
 
     this.handleResize = function () {
@@ -421,8 +421,6 @@ class TrackballControls extends EventDispatcher {
         case "pen":
           onMouseDown(event);
           break;
-
-        // TODO touch
       }
     }
 
@@ -434,8 +432,6 @@ class TrackballControls extends EventDispatcher {
         case "pen":
           onMouseMove(event);
           break;
-
-        // TODO touch
       }
     }
 
@@ -447,8 +443,6 @@ class TrackballControls extends EventDispatcher {
         case "pen":
           onMouseUp(event);
           break;
-
-        // TODO touch
       }
     }
 
