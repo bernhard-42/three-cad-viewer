@@ -3,7 +3,7 @@ import { defaultDirections } from "./directions.js";
 
 class Camera {
   constructor(width, height, distance, target, ortho, control) {
-    this.target = target;
+    this.target = new THREE.Vector3(...target);
     this.control = control;
 
     // define the perspective camera
@@ -40,14 +40,12 @@ class Camera {
   }
 
   setupCamera(relative, position, up, zoom) {
-    const center = new THREE.Vector3(...this.target);
-
     if (position != null) {
       var cameraPosition = relative
         ? new THREE.Vector3(...position)
             .normalize()
             .multiplyScalar(this.camera_distance)
-            .add(center)
+            .add(this.target)
             .toArray()
         : position;
 
@@ -64,7 +62,7 @@ class Camera {
       this.camera.up.set(0, 0, 1);
     }
 
-    this.camera.lookAt(center);
+    this.camera.lookAt(this.target);
 
     this.camera.updateProjectionMatrix();
   }
@@ -88,14 +86,21 @@ class Camera {
   };
 
   switchCamera(ortho_flag) {
-    this.camera = ortho_flag ? this.oCamera : this.pCamera;
+    const u0 = this.camera.up.toArray();
+    var p0 = this.camera.position;
+    var z0 = null;
 
-    // TODO fix for trackball and orbit
-    var p0 = this.camera.position.toArray();
-    var z0 = this.camera.zoom;
-    var u0 = this.camera.up.toArray();
+    if (ortho_flag) {
+      z0 = this.camera_distance / p0.clone().sub(this.target).length();
+      p0.multiplyScalar(z0);
+      this.camera = this.oCamera;
+    } else {
+      p0.multiplyScalar(1 / this.camera.zoom);
+      this.camera = this.pCamera;
+    }
+
     // reposition to the last camera position and zoom
-    this.setupCamera(false, p0, u0, z0);
+    this.setupCamera(false, p0.toArray(), u0, z0);
   }
 
   getCamera() {

@@ -266,7 +266,6 @@ class Viewer {
     //
     // create cameras
     //
-
     this.camera = new Camera(
       this.width,
       this.height,
@@ -430,6 +429,7 @@ class Viewer {
 
   switchCamera(ortho_flag, notify = true) {
     this.camera.switchCamera(ortho_flag, notify);
+    this.controls.setCamera(this.camera.getCamera());
 
     this.checkChanges({ ortho: ortho_flag }, notify);
     this.update(true, false, notify);

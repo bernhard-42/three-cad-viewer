@@ -62,6 +62,10 @@ class Controls {
     this.controls.reset();
   }
 
+  setCamera(camera) {
+    this.controls.object = camera;
+  }
+
   getTarget() {
     return this.controls.target;
   }
@@ -82,6 +86,7 @@ class Controls {
     if (this.type == "orbit") {
       this.controls.rotateUp((-angle / 180) * Math.PI);
     } else {
+      // TODO
       console.log("pitch not implmented yet");
     }
   }
@@ -90,6 +95,7 @@ class Controls {
     if (this.type == "orbit") {
       this.controls.rotateLeft((angle / 180) * Math.PI);
     } else {
+      // TODO
       console.log("yaw not implmented yet");
     }
   }
@@ -98,6 +104,7 @@ class Controls {
     if (this.type == "orbit") {
       console.error("roll does not exist for OrbitControls");
     } else {
+      // TODO
       console.log("roll not implmented yet", angle);
     }
   }
