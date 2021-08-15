@@ -12,6 +12,7 @@ import { Info } from "./info.js";
 import { clone, isEqual } from "./utils.js";
 import { defaultDirections } from "./directions.js";
 import { Controls } from "./controls.js";
+import { Camera } from "./camera.js";
 
 class Viewer {
   constructor(display, needsAnimationLoop, options, notifyCallback) {
@@ -123,42 +124,6 @@ class Viewer {
     return nestedGroup;
   }
 
-  createCameras(distance) {
-    //
-    // define the perspective camera
-    //
-
-    const aspect = this.width / this.height;
-
-    // calculate FOV
-    const dfactor = 5;
-    this.camera_distance = dfactor * distance;
-    var fov = ((2 * Math.atan(1 / dfactor)) / Math.PI) * 180;
-
-    this.pCamera = new THREE.PerspectiveCamera(
-      fov,
-      aspect,
-      0.1,
-      100 * distance
-    );
-
-    //
-    // define the orthographic camera
-    //
-
-    const w = distance * 1.3;
-    const h = (distance * 1.3) / aspect;
-
-    this.oCamera = new THREE.OrthographicCamera(
-      -w,
-      w,
-      h,
-      -h,
-      0.1,
-      10 * distance
-    );
-  }
-
   getTree(shapes) {
     const delim = "/";
 
@@ -251,20 +216,20 @@ class Viewer {
         this.animation.update();
       }
 
-      this.renderer.render(this.scene, this.camera);
+      this.renderer.render(this.scene, this.camera.getCamera());
 
       if (updateMarker) {
         this.orientationMarker.update(
-          this.camera.position.clone().sub(this.controls.target0),
-          this.camera.rotation
+          this.camera.getPosition().clone().sub(this.controls.getTarget()),
+          this.camera.getRotation()
         );
         this.orientationMarker.render();
       }
     }
     this.checkChanges(
       {
-        camera_zoom: this.camera.zoom,
-        camera_position: this.camera.position.toArray()
+        camera_zoom: this.camera.getZoom(),
+        camera_position: this.camera.getPosition().toArray()
       },
       notify
     );
@@ -302,15 +267,23 @@ class Viewer {
     // create cameras
     //
 
-    this.createCameras(this.bb_radius);
-    this.switchCamera(this.ortho, true);
+    this.camera = new Camera(
+      this.width,
+      this.height,
+      this.bb_radius,
+      this.bbox.center,
+      this.ortho,
+      this.control
+    );
+    this.setCamera("iso");
 
     //
     // build mouse/touch controls
     //
+
     this.controls = new Controls(
       this.control,
-      this.camera,
+      this.camera.getCamera(),
       this.bbox.center,
       this.renderer.domElement,
       this.rotateSpeed,
@@ -402,7 +375,7 @@ class Viewer {
     this.orientationMarker = new OrientationMarker(
       80,
       80,
-      this.camera,
+      this.camera.getCamera(),
       this.theme
     );
     this.display.addCadInset(this.orientationMarker.create());
@@ -450,77 +423,20 @@ class Viewer {
   // Event handlers
   //
 
-  setupCamera(relative, position, up, zoom, notify = true) {
-    const center = new THREE.Vector3(...this.bbox.center);
+  setCamera = (dir, notify = null) => {
+    this.camera.setCamera(dir, notify);
+    this.update(true, false, notify);
+  };
 
-    if (position != null) {
-      var cameraPosition = relative
-        ? new THREE.Vector3(...position)
-            .normalize()
-            .multiplyScalar(this.camera_distance)
-            .add(center)
-            .toArray()
-        : position;
+  switchCamera(ortho_flag, notify = true) {
+    this.camera.switchCamera(ortho_flag, notify);
 
-      this.camera.position.set(...cameraPosition);
-    }
-
-    if (zoom != null) {
-      this.camera.zoom = zoom;
-    }
-
-    if (this.control == "trackball") {
-      this.camera.up.set(...up);
-    } else {
-      this.camera.up.set(0, 0, 1);
-    }
-
-    this.camera.lookAt(center);
-
-    this.camera.updateProjectionMatrix();
-    this.controls?.update();
-
+    this.checkChanges({ ortho: ortho_flag }, notify);
     this.update(true, false, notify);
   }
 
-  setCamera = (dir, notify = null) => {
-    this.setupCamera(
-      true,
-      defaultDirections[dir]["position"],
-      defaultDirections[dir]["up"],
-      this.camera.zoom,
-      notify
-    );
-  };
-
-  setCameraPosition = (x, y, z, relative = false, notify = true) => {
-    const up = null; // TODO fix for trackball
-    this.setupCamera(relative, [x, y, z], up, null, notify);
-  };
-
-  setCameraZoom = (value, notify = true) => {
-    this.setupCamera(false, null, null, null, value, notify);
-  };
-
-  switchCamera(ortho_flag, init = false, notify = true) {
-    this.camera = ortho_flag ? this.oCamera : this.pCamera;
-
-    if (init) {
-      this.setCamera("iso", notify);
-    } else {
-      // TODO fix for trackball and orbit
-      var p0 = this.camera.position.toArray();
-      var z0 = this.camera.zoom;
-      var u0 = this.camera.up.toArray();
-      this.controls.object = this.camera;
-      // reposition to the last camera position and zoom
-      this.setupCamera(false, p0, u0, z0, notify);
-    }
-    this.checkChanges({ ortho: ortho_flag }, notify);
-  }
-
   resize = () => {
-    this.camera.zoom = this.zoom0;
+    this.camera.setZoom(this.zoom0);
     this.camera.updateProjectionMatrix();
     this.update(true, false);
   };
@@ -619,7 +535,7 @@ class Viewer {
   }
 
   setClipNormal = (index, notify = true) => {
-    const cameraPosition = this.camera.position.clone();
+    const cameraPosition = this.camera.getPosition().clone();
     const normal = cameraPosition
       .sub(this.controls.target)
       .normalize()
@@ -685,7 +601,7 @@ class Viewer {
     this.mouse.x = ((e.pageX - offsetX) / this.width) * 2 - 1;
     this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
 
-    this.raycaster.setFromCamera(this.mouse, this.camera);
+    this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
 
     const objects = this.raycaster.intersectObjects(
       this.scene.children.slice(0, 1),

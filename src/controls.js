@@ -62,6 +62,10 @@ class Controls {
     this.controls.reset();
   }
 
+  getTarget() {
+    return this.controls.target;
+  }
+
   setZoomSpeed(val) {
     this.controls.zoomSpeed = val;
   }
