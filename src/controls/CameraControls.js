@@ -25,6 +25,12 @@ var CameraControls = function ( object, domElement ) {
 	// Set to true to enable trackball behavior
 	this.trackball = false;
 
+	// Set to true to enable holroyd trackball behavior
+	this.holroyd = true;
+	// parameters for holroyd projection
+    this.radius = 0.9; // ndc trackball radius
+    this.screen = { left: 0, top: 0, width: 0, height: 0 };
+
 	// How far you can dolly in and out ( PerspectiveCamera only )
 	this.minDistance = 0;
 	this.maxDistance = Infinity;
@@ -142,6 +148,7 @@ var CameraControls = function ( object, domElement ) {
 
 		var q = new Quaternion();
 		var vec = new Vector3();
+		const axis = new Vector3();
 
 		return function update() {
 
@@ -149,7 +156,7 @@ var CameraControls = function ( object, domElement ) {
 
 			offset.copy( position ).sub( scope.target );
 
-			if ( scope.trackball ) {
+			if ( scope.trackball && ! scope.holroyd ) {
 
 				// rotate around screen-space y-axis
 
@@ -183,6 +190,31 @@ var CameraControls = function ( object, domElement ) {
 
 				offset.multiplyScalar( scale );
 				offset.clampLength( scope.minDistance, scope.maxDistance );
+
+			} else if ( scope.trackball && scope.holroyd ) {
+
+				axis.crossVectors(rotateStart3, rotateEnd3);
+				var angle = Math.atan(axis.length() / rotateStart3.dot(rotateEnd3));
+				
+				if (angle) {
+				  axis.normalize();
+				  axis.applyQuaternion(scope.object.quaternion);
+	  
+				  var factor = ( scope.enableDamping ) ? scope.dampingFactor : 1;
+
+				  angle *= -2 * factor * scope.rotateSpeed;
+
+				  q.setFromAxisAngle(axis, angle);
+
+				  scope.object.quaternion.premultiply( q );
+				  offset.applyQuaternion( q );
+				}
+				
+				offset.multiplyScalar( scale );
+				offset.clampLength( scope.minDistance, scope.maxDistance );
+
+				rotateStart3.set(0,0,0);
+				rotateEnd3.set(0,0,0);
 
 			} else {
 
@@ -345,6 +377,8 @@ var CameraControls = function ( object, domElement ) {
 	var rotateStart = new Vector2();
 	var rotateEnd = new Vector2();
 	var rotateDelta = new Vector2();
+	var rotateStart3 = new Vector3();
+	var rotateEnd3 = new Vector3();
 
 	var panStart = new Vector2();
 	var panEnd = new Vector2();
@@ -353,6 +387,17 @@ var CameraControls = function ( object, domElement ) {
 	var dollyStart = new Vector2();
 	var dollyEnd = new Vector2();
 	var dollyDelta = new Vector2();
+
+	const setSize = function () {
+		const box = scope.domElement.getBoundingClientRect();
+		const d = scope.domElement.ownerDocument.documentElement;
+		scope.screen = {
+			left: box.left + window.pageXOffset - d.clientLeft,
+			top: box.top + window.pageYOffset - d.clientTop,
+			width: box.width,
+			height: box.height,
+		};
+	};
 
 	function getAutoRotationAngle() {
 
@@ -501,6 +546,34 @@ var CameraControls = function ( object, domElement ) {
 
 	}
 
+	const getMouseOnSphere = (function () {
+		const vector = new Vector3();
+		const r2 = scope.radius * scope.radius;
+  
+		function holroyd(x, y) {
+			var d2 = x * x + y * y;
+	
+			if (d2 <= r2 / 2) {
+				vector.set(x, y, Math.sqrt(r2 - d2));
+			} else {
+				vector.set(x, y, r2 / (2 * Math.sqrt(d2)));
+			}
+		}
+
+		return function getMouseOnSphere(pageCoord) {
+			// return coords in NDC space
+			holroyd(
+				((pageCoord.x - scope.screen.left - scope.screen.width / 2) /
+				scope.screen.width) *
+				2,
+				((pageCoord.y - scope.screen.top - scope.screen.height / 2) /
+				scope.screen.height) *
+				-2 // flip y axis
+			);
+			return vector;
+		};
+	})();
+
 	//
 	// event callbacks - update the object state
 	//
@@ -527,13 +600,21 @@ var CameraControls = function ( object, domElement ) {
 
 		rotateEnd.set( event.clientX, event.clientY );
 
-		rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
+		if (scope.trackball && scope.holroyd) {
 
-		var element = scope.domElement;
+			rotateStart3 = getMouseOnSphere(rotateStart).clone();
+			rotateEnd3 = getMouseOnSphere(rotateEnd).clone();
 
-		rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
+		} else {
 
-		rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
+			var element = scope.domElement;
+
+			rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );	
+
+			rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
+			rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
+
+		}
 
 		rotateStart.copy( rotateEnd );
 
@@ -715,14 +796,22 @@ var CameraControls = function ( object, domElement ) {
 
 		}
 
-		rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
+		if (scope.trackball && scope.holroyd) {
 
-		var element = scope.domElement;
+			rotateStart3 = getMouseOnSphere(rotateStart).clone();
+			rotateEnd3 = getMouseOnSphere(rotateEnd).clone();
 
-		rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
+		} else {
 
-		rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
+			rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
 
+			var element = scope.domElement;
+
+			rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
+
+			rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
+
+		}
 		rotateStart.copy( rotateEnd );
 
 	}
@@ -1142,6 +1231,8 @@ var CameraControls = function ( object, domElement ) {
 	}
 
 	//
+
+	setSize();
 
 	scope.domElement.addEventListener( 'contextmenu', onContextMenu, false );
 

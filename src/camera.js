@@ -5,6 +5,10 @@ class Camera {
   constructor(width, height, distance, target, ortho, control) {
     this.target = new THREE.Vector3(...target);
     this.control = control;
+    this.ortho = ortho;
+
+    this.yaxis = new THREE.Vector3(0, 1, 0);
+    this.zaxis = new THREE.Vector3(0, 0, 1);
 
     // define the perspective camera
 
@@ -37,9 +41,10 @@ class Camera {
     );
 
     this.camera = ortho ? this.oCamera : this.pCamera;
+    this.camera.up.set(0, 0, 1);
   }
 
-  setupCamera(relative, position, up, zoom) {
+  setupCamera(relative, position, zoom) {
     if (position != null) {
       var cameraPosition = relative
         ? new THREE.Vector3(...position)
@@ -56,14 +61,14 @@ class Camera {
       this.camera.zoom = zoom;
     }
 
-    if (this.control == "trackball") {
-      this.camera.up.set(...up);
-    } else {
-      this.camera.up.set(0, 0, 1);
-    }
+    this.camera.up.set(0, 0, 1);
 
     this.camera.lookAt(this.target);
 
+    this.camera.updateProjectionMatrix();
+  }
+
+  updateProjectionMatrix() {
     this.camera.updateProjectionMatrix();
   }
 
@@ -71,36 +76,31 @@ class Camera {
     this.setupCamera(
       true,
       defaultDirections[dir]["position"],
-      defaultDirections[dir]["up"],
       this.camera.zoom
     );
   };
 
-  setCameraPosition = (x, y, z, relative = false) => {
-    const up = null; // TODO fix for trackball
-    this.setupCamera(relative, [x, y, z], up, null);
-  };
-
-  setCameraZoom = (value) => {
-    this.setupCamera(false, null, null, null, value);
-  };
-
   switchCamera(ortho_flag) {
-    const u0 = this.camera.up.toArray();
     var p0 = this.camera.position;
     var z0 = null;
 
     if (ortho_flag) {
-      z0 = this.camera_distance / p0.clone().sub(this.target).length();
+      // Orthographic camera uses both zoom and position
+      z0 = this.getZoom();
       p0.multiplyScalar(z0);
       this.camera = this.oCamera;
+      this.ortho = true;
     } else {
-      p0.multiplyScalar(1 / this.camera.zoom);
+      // Perspective camera scalar multiplies zoom to position
+      p0.sub(this.target)
+        .multiplyScalar(1 / this.getZoom())
+        .add(this.target);
       this.camera = this.pCamera;
+      this.ortho = false;
     }
 
     // reposition to the last camera position and zoom
-    this.setupCamera(false, p0.toArray(), u0, z0);
+    this.setupCamera(false, p0.toArray(), z0);
   }
 
   getCamera() {
@@ -108,20 +108,34 @@ class Camera {
   }
 
   getZoom() {
-    return this.camera.zoom;
+    if (this.ortho) {
+      return this.camera.zoom;
+    } else {
+      var p = this.camera.position.clone().sub(this.target);
+      return this.camera_distance / p.length();
+    }
   }
 
   setZoom(val) {
-    this.camera.zoom = val;
-  }
+    if (this.ortho) {
+      this.camera.zoom = val;
+    } else {
+      this.camera.position
+        .sub(this.target)
+        .setLength(this.camera_distance / val)
+        .add(this.target);
+    }
 
-  updateProjectionMatrix() {
-    this.camera.updateProjectionMatrix();
+    this.updateProjectionMatrix();
   }
 
   getPosition() {
     return this.camera.position;
   }
+
+  setPosition = (x, y, z, relative = false) => {
+    this.setupCamera(relative, [x, y, z], null);
+  };
 
   getRotation() {
     return this.camera.rotation;

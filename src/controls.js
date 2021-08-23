@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
-import { OrbitControls } from "./controls/OrbitControls.js";
-import { TrackballControls } from "./controls/TrackballControls.js";
+import { CameraControls } from "./controls/CameraControls.js";
 
 class Controls {
   constructor(
@@ -42,12 +41,13 @@ class Controls {
   }
 
   initTrackballControls() {
-    this.controls = new TrackballControls(this.camera, this.domElement);
-    this.controls.dynamicDampingFactor = 1;
+    this.controls = new CameraControls(this.camera, this.domElement);
+    this.controls.trackball = true;
+    this.controls.holroyd = true;
   }
 
   initOrbitControls() {
-    this.controls = new OrbitControls(this.camera, this.domElement);
+    this.controls = new CameraControls(this.camera, this.domElement);
   }
 
   addChangeListener(callback) {
