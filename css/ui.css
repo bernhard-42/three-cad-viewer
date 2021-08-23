@@ -1,3 +1,7 @@
+canvas {
+  outline: none !important;
+}
+
 .tcv_cad_viewer {
   margin: 0;
   display: flex;
