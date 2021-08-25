@@ -39,7 +39,7 @@ class Camera {
       h,
       -h,
       0.1,
-      10 * distance
+      100 * distance
     );
     this.oCamera.up.set(0, 0, 1);
     this.oCamera.lookAt(this.target);
