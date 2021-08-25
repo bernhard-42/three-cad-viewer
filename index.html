@@ -46,6 +46,7 @@
         theme: "light",
         ortho: true,
         control: "trackball",
+        // control: "orbit",
         normalLen: 0,
         cadWidth: 800,
         height: 600,
@@ -61,7 +62,7 @@
         rotateSpeed: 1
       };
 
-      const needsAnimationLoop = false; // options.control=="spin" || shapes.name == "bottom";
+      const needsAnimationLoop = false; // shapes.name == "bottom";
 
       const container = document.getElementById("cad_view_001");
       const display = new Display(container, options);
