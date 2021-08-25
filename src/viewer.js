@@ -274,7 +274,7 @@ class Viewer {
       this.ortho,
       this.control
     );
-    this.setCamera("iso");
+    this.presetCamera("iso");
 
     //
     // build mouse/touch controls
@@ -422,8 +422,8 @@ class Viewer {
   // Event handlers
   //
 
-  setCamera = (dir, notify = null) => {
-    this.camera.setCamera(dir, notify);
+  presetCamera = (dir, notify = null) => {
+    this.camera.presetCamera(dir, notify);
     this.update(true, false, notify);
   };
 

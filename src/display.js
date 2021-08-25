@@ -493,7 +493,7 @@ class Display {
 
   setView = (e) => {
     const btn = e.target.className.split(" ")[0].slice(4);
-    this.viewer.setCamera(btn);
+    this.viewer.presetCamera(btn);
   };
 
   setNormalLabel = (index, normal) => {

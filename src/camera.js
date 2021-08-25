@@ -25,6 +25,8 @@ class Camera {
       0.1,
       100 * distance
     );
+    this.pCamera.up.set(0, 0, 1);
+    this.pCamera.lookAt(this.target);
 
     // define the orthographic camera
 
@@ -39,9 +41,39 @@ class Camera {
       0.1,
       10 * distance
     );
+    this.oCamera.up.set(0, 0, 1);
+    this.oCamera.lookAt(this.target);
 
     this.camera = ortho ? this.oCamera : this.pCamera;
     this.camera.up.set(0, 0, 1);
+  }
+
+  getCamera() {
+    return this.camera;
+  }
+
+  updateProjectionMatrix() {
+    this.camera.updateProjectionMatrix();
+  }
+
+  switchCamera(ortho_flag) {
+    var p0 = this.getPosition().clone();
+    const z0 = this.getZoom();
+    const q0 = this.getQuaternion().clone();
+
+    if (ortho_flag) {
+      this.camera = this.oCamera;
+      this.ortho = true;
+    } else {
+      this.camera = this.pCamera;
+      this.ortho = false;
+    }
+
+    this.setPosition(p0);
+    this.setZoom(z0);
+    this.setQuaternion(q0);
+
+    this.updateProjectionMatrix();
   }
 
   setupCamera(relative, position, zoom) {
@@ -61,51 +93,17 @@ class Camera {
       this.camera.zoom = zoom;
     }
 
-    this.camera.up.set(0, 0, 1);
-
     this.camera.lookAt(this.target);
-
-    this.camera.updateProjectionMatrix();
+    this.updateProjectionMatrix();
   }
 
-  updateProjectionMatrix() {
-    this.camera.updateProjectionMatrix();
-  }
-
-  setCamera = (dir) => {
+  presetCamera = (dir) => {
     this.setupCamera(
       true,
       defaultDirections[dir]["position"],
       this.camera.zoom
     );
   };
-
-  switchCamera(ortho_flag) {
-    var p0 = this.camera.position;
-    var z0 = null;
-
-    if (ortho_flag) {
-      // Orthographic camera uses both zoom and position
-      z0 = this.getZoom();
-      p0.multiplyScalar(z0);
-      this.camera = this.oCamera;
-      this.ortho = true;
-    } else {
-      // Perspective camera scalar multiplies zoom to position
-      p0.sub(this.target)
-        .multiplyScalar(1 / this.getZoom())
-        .add(this.target);
-      this.camera = this.pCamera;
-      this.ortho = false;
-    }
-
-    // reposition to the last camera position and zoom
-    this.setupCamera(false, p0.toArray(), z0);
-  }
-
-  getCamera() {
-    return this.camera;
-  }
 
   getZoom() {
     if (this.ortho) {
@@ -133,8 +131,42 @@ class Camera {
     return this.camera.position;
   }
 
-  setPosition = (x, y, z, relative = false) => {
-    this.setupCamera(relative, [x, y, z], null);
+  setPosition = (x, y = null, z = null, relative = false) => {
+    const scope = this;
+
+    function set() {
+      const first = arguments[0];
+
+      if (Array.isArray(first) && first.length === 3) {
+        scope.setupCamera(y == null ? false : y, first, null);
+      } else if (first instanceof THREE.Vector3) {
+        scope.setupCamera(y == null ? false : y, first.toArray(), null);
+      } else {
+        scope.setupCamera(relative, [x, y, z], null);
+      }
+    }
+    set(x, y, z, relative);
+  };
+
+  getQuaternion() {
+    return this.camera.quaternion;
+  }
+
+  setQuaternion = (x, y = null, z = null, w = null) => {
+    const scope = this;
+
+    function set() {
+      const first = arguments[0];
+
+      if (Array.isArray(first) && first.length === 4) {
+        scope.camera.quaternion.set(...first);
+      } else if (first instanceof THREE.Quaternion) {
+        scope.camera.quaternion.set(...first.toArray());
+      } else {
+        scope.camera.quaternion.set(...arguments);
+      }
+    }
+    set(x, y, z, w);
   };
 
   getRotation() {
