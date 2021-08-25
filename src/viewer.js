@@ -415,6 +415,8 @@ class Viewer {
       this.update(true, false);
     }
 
+    this.reset();
+
     timer.stop();
   }
 
@@ -443,6 +445,7 @@ class Viewer {
 
   reset = () => {
     this.controls.reset();
+    this.camera.lookAtCenter();
     this.update(true, false);
   };
 

@@ -52,6 +52,10 @@ class Camera {
     return this.camera;
   }
 
+  lookAtCenter() {
+    this.camera.lookAt(this.target);
+  }
+
   updateProjectionMatrix() {
     this.camera.updateProjectionMatrix();
   }
