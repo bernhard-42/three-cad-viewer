@@ -289,6 +289,7 @@ class Viewer {
       this.zoomSpeed,
       this.panSpeed
     );
+    this.controls.enableKeys = false;
 
     if (!this.needsAnimationLoop) {
       this.controls.addChangeListener(() => this.update(true, true, true));
