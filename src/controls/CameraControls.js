@@ -388,6 +388,9 @@ var CameraControls = function ( object, domElement ) {
 	var dollyEnd = new Vector2();
 	var dollyDelta = new Vector2();
 
+	var horizontalRotate = true;
+	var verticalRotate = true;
+
 	const setSize = function () {
 		const box = scope.domElement.getBoundingClientRect();
 		const d = scope.domElement.ownerDocument.documentElement;
@@ -413,15 +416,21 @@ var CameraControls = function ( object, domElement ) {
 
 	function rotateLeft( angle ) {
 
-		sphericalDelta.theta -= angle;
-
+		if (horizontalRotate) {
+			sphericalDelta.theta -= angle;
+		}
 	}
+
+	this.rotateLeft = rotateLeft;
 
 	function rotateUp( angle ) {
 
-		sphericalDelta.phi -= angle;
-
+		if (verticalRotate) {
+			sphericalDelta.phi -= angle;
+		}
 	}
+
+	this.rotateUp = rotateUp;
 
 	var panLeft = function () {
 
@@ -562,13 +571,18 @@ var CameraControls = function ( object, domElement ) {
 
 		return function getMouseOnSphere(pageCoord) {
 			// return coords in NDC space
+			
+			const x = ((pageCoord.x - scope.screen.left - scope.screen.width / 2) /
+			scope.screen.width) *
+			2;
+			
+			const y = ((pageCoord.y - scope.screen.top - scope.screen.height / 2) /
+			scope.screen.height) *
+			-2; // flip y axis
+
 			holroyd(
-				((pageCoord.x - scope.screen.left - scope.screen.width / 2) /
-				scope.screen.width) *
-				2,
-				((pageCoord.y - scope.screen.top - scope.screen.height / 2) /
-				scope.screen.height) *
-				-2 // flip y axis
+				horizontalRotate ?  x : 0,
+				verticalRotate ? y : 0 
 			);
 			return vector;
 		};
@@ -934,17 +948,21 @@ var CameraControls = function ( object, domElement ) {
 
 			case MOUSE.ROTATE:
 
-				if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+				if ( event.shiftKey ) {
 
 					if ( scope.enablePan === false ) return;
-
+										
 					handleMouseDownPan( event );
-
+					
 					state = STATE.PAN;
-
+					
+					
 				} else {
 
 					if ( scope.enableRotate === false ) return;
+					
+					if (event.ctrlKey) horizontalRotate = false;
+					if (event.metaKey) verticalRotate = false;
 
 					handleMouseDownRotate( event );
 
@@ -1037,6 +1055,9 @@ var CameraControls = function ( object, domElement ) {
 
 		document.removeEventListener( 'mousemove', onMouseMove, false );
 		document.removeEventListener( 'mouseup', onMouseUp, false );
+		
+		horizontalRotate = true;
+		verticalRotate = true;
 
 		scope.dispatchEvent( endEvent );
 
