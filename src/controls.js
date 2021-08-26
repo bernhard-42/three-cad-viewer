@@ -43,7 +43,7 @@ class Controls {
   initTrackballControls() {
     this.controls = new CameraControls(this.camera, this.domElement);
     this.controls.trackball = true;
-    this.controls.holroyd = true;
+    this.setHolroydTrackball(true);
   }
 
   initOrbitControls() {
@@ -64,6 +64,10 @@ class Controls {
 
   setCamera(camera) {
     this.controls.object = camera;
+  }
+
+  setHolroydTrackball(flag) {
+    this.controls.holroyd = flag;
   }
 
   getTarget() {
