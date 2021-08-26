@@ -6,12 +6,12 @@ import {
 	TOUCH,
 	Vector2,
 	Vector3
-} from 'three';
+} from "three";
 
 var CameraControls = function ( object, domElement ) {
 
-	if ( domElement === undefined ) console.warn( 'THREE.CameraControls: The second parameter "domElement" is now mandatory.' );
-	if ( domElement === document ) console.error( 'THREE.CameraControls: "document" should not be used as the target "domElement". Please use "renderer.domElement" instead.' );
+	if ( domElement === undefined ) console.warn( "THREE.CameraControls: The second parameter \"domElement\" is now mandatory." );
+	if ( domElement === document ) console.error( "THREE.CameraControls: \"document\" should not be used as the target \"domElement\". Please use \"renderer.domElement\" instead." );
 
 	this.object = object;
 	this.domElement = domElement;
@@ -153,6 +153,7 @@ var CameraControls = function ( object, domElement ) {
 		return function update() {
 
 			var position = scope.object.position;
+			var factor;
 
 			offset.copy( position ).sub( scope.target );
 
@@ -164,7 +165,7 @@ var CameraControls = function ( object, domElement ) {
 
 					vec.set( 0, 1, 0 ).applyQuaternion( scope.object.quaternion );
 
-					var factor = ( scope.enableDamping ) ? scope.dampingFactor : 1;
+					factor = ( scope.enableDamping ) ? scope.dampingFactor : 1;
 
 					q.setFromAxisAngle( vec, sphericalDelta.theta * factor );
 
@@ -179,7 +180,7 @@ var CameraControls = function ( object, domElement ) {
 
 					vec.set( 1, 0, 0 ).applyQuaternion( scope.object.quaternion );
 
-					var factor = ( scope.enableDamping ) ? scope.dampingFactor : 1;
+					factor = ( scope.enableDamping ) ? scope.dampingFactor : 1;
 
 					q.setFromAxisAngle( vec, sphericalDelta.phi * factor );
 
@@ -200,7 +201,7 @@ var CameraControls = function ( object, domElement ) {
 				  axis.normalize();
 				  axis.applyQuaternion(scope.object.quaternion);
 	  
-				  var factor = ( scope.enableDamping ) ? scope.dampingFactor : 1;
+				  factor = ( scope.enableDamping ) ? scope.dampingFactor : 1;
 
 				  angle *= -2 * factor * scope.rotateSpeed;
 
@@ -394,18 +395,18 @@ var CameraControls = function ( object, domElement ) {
 
 	this.dispose = function () {
 
-		scope.domElement.removeEventListener( 'contextmenu', onContextMenu, false );
-		scope.domElement.removeEventListener( 'mousedown', onMouseDown, false );
-		scope.domElement.removeEventListener( 'wheel', onMouseWheel, false );
+		scope.domElement.removeEventListener( "contextmenu", onContextMenu, false );
+		scope.domElement.removeEventListener( "mousedown", onMouseDown, false );
+		scope.domElement.removeEventListener( "wheel", onMouseWheel, false );
 
-		scope.domElement.removeEventListener( 'touchstart', onTouchStart, false );
-		scope.domElement.removeEventListener( 'touchend', onTouchEnd, false );
-		scope.domElement.removeEventListener( 'touchmove', onTouchMove, false );
+		scope.domElement.removeEventListener( "touchstart", onTouchStart, false );
+		scope.domElement.removeEventListener( "touchend", onTouchEnd, false );
+		scope.domElement.removeEventListener( "touchmove", onTouchMove, false );
 
-		document.removeEventListener( 'mousemove', onMouseMove, false );
-		document.removeEventListener( 'mouseup', onMouseUp, false );
+		document.removeEventListener( "mousemove", onMouseMove, false );
+		document.removeEventListener( "mouseup", onMouseUp, false );
 
-		scope.domElement.removeEventListener( 'keydown', onKeyDown, false );
+		scope.domElement.removeEventListener( "keydown", onKeyDown, false );
 
 		//scope.dispatchEvent( { type: 'dispose' } ); // should this be added here?
 
@@ -417,9 +418,9 @@ var CameraControls = function ( object, domElement ) {
 
 	var scope = this;
 
-	var changeEvent = { type: 'change' };
-	var startEvent = { type: 'start' };
-	var endEvent = { type: 'end' };
+	var changeEvent = { type: "change" };
+	var startEvent = { type: "start" };
+	var endEvent = { type: "end" };
 
 	var STATE = {
 		NONE: - 1,
@@ -570,7 +571,7 @@ var CameraControls = function ( object, domElement ) {
 			} else {
 
 				// camera neither orthographic nor perspective
-				console.warn( 'WARNING: CameraControls.js encountered an unknown camera type - pan disabled.' );
+				console.warn( "WARNING: CameraControls.js encountered an unknown camera type - pan disabled." );
 				scope.enablePan = false;
 
 			}
@@ -593,7 +594,7 @@ var CameraControls = function ( object, domElement ) {
 
 		} else {
 
-			console.warn( 'WARNING: CameraControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+			console.warn( "WARNING: CameraControls.js encountered an unknown camera type - dolly/zoom disabled." );
 			scope.enableZoom = false;
 
 		}
@@ -614,7 +615,7 @@ var CameraControls = function ( object, domElement ) {
 
 		} else {
 
-			console.warn( 'WARNING: CameraControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+			console.warn( "WARNING: CameraControls.js encountered an unknown camera type - dolly/zoom disabled." );
 			scope.enableZoom = false;
 
 		}
@@ -1068,8 +1069,8 @@ var CameraControls = function ( object, domElement ) {
 
 		if ( state !== STATE.NONE ) {
 
-			document.addEventListener( 'mousemove', onMouseMove, false );
-			document.addEventListener( 'mouseup', onMouseUp, false );
+			document.addEventListener( "mousemove", onMouseMove, false );
+			document.addEventListener( "mouseup", onMouseUp, false );
 
 			scope.dispatchEvent( startEvent );
 
@@ -1119,8 +1120,8 @@ var CameraControls = function ( object, domElement ) {
 
 		handleMouseUp( event );
 
-		document.removeEventListener( 'mousemove', onMouseMove, false );
-		document.removeEventListener( 'mouseup', onMouseUp, false );
+		document.removeEventListener( "mousemove", onMouseMove, false );
+		document.removeEventListener( "mouseup", onMouseUp, false );
 		
 		horizontalRotate = true;
 		verticalRotate = true;
@@ -1321,16 +1322,16 @@ var CameraControls = function ( object, domElement ) {
 
 	setSize();
 
-	scope.domElement.addEventListener( 'contextmenu', onContextMenu, false );
+	scope.domElement.addEventListener( "contextmenu", onContextMenu, false );
 
-	scope.domElement.addEventListener( 'mousedown', onMouseDown, false );
-	scope.domElement.addEventListener( 'wheel', onMouseWheel, false );
+	scope.domElement.addEventListener( "mousedown", onMouseDown, false );
+	scope.domElement.addEventListener( "wheel", onMouseWheel, false );
 
-	scope.domElement.addEventListener( 'touchstart', onTouchStart, false );
-	scope.domElement.addEventListener( 'touchend', onTouchEnd, false );
-	scope.domElement.addEventListener( 'touchmove', onTouchMove, false );
+	scope.domElement.addEventListener( "touchstart", onTouchStart, false );
+	scope.domElement.addEventListener( "touchend", onTouchEnd, false );
+	scope.domElement.addEventListener( "touchmove", onTouchMove, false );
 
-	scope.domElement.addEventListener( 'keydown', onKeyDown, false );
+	scope.domElement.addEventListener( "keydown", onKeyDown, false );
 
 	// make sure element can receive keys.
 
