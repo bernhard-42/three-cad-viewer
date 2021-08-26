@@ -86,24 +86,29 @@ class Controls {
 
   rotateUp(angle) {
     this.controls.rotateUp((-angle / 180) * Math.PI);
+    this.update();
   }
 
   rotateLeft(angle) {
     this.controls.rotateLeft((angle / 180) * Math.PI);
+    this.update();
   }
 
   // Rotations for TrackballControls
 
   rotateX(angle) {
     this.controls.rotateX((angle / 180) * Math.PI);
+    this.update();
   }
 
   rotateY(angle) {
     this.controls.rotateY((angle / 180) * Math.PI);
+    this.update();
   }
 
   rotateZ(angle) {
     this.controls.rotateZ((angle / 180) * Math.PI);
+    this.update();
   }
 }
 
