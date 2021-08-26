@@ -82,31 +82,28 @@ class Controls {
     this.controls.rotateSpeed = val;
   }
 
-  pitch(angle) {
-    if (this.type == "orbit") {
-      this.controls.rotateUp((-angle / 180) * Math.PI);
-    } else {
-      // TODO
-      console.log("pitch not implmented yet");
-    }
+  // Rotations for OrbitControls
+
+  rotateUp(angle) {
+    this.controls.rotateUp((-angle / 180) * Math.PI);
   }
 
-  yaw(angle) {
-    if (this.type == "orbit") {
-      this.controls.rotateLeft((angle / 180) * Math.PI);
-    } else {
-      // TODO
-      console.log("yaw not implmented yet");
-    }
+  rotateLeft(angle) {
+    this.controls.rotateLeft((angle / 180) * Math.PI);
   }
 
-  roll(angle) {
-    if (this.type == "orbit") {
-      console.error("roll does not exist for OrbitControls");
-    } else {
-      // TODO
-      console.log("roll not implmented yet", angle);
-    }
+  // Rotations for TrackballControls
+
+  rotateX(angle) {
+    this.controls.rotateX((angle / 180) * Math.PI);
+  }
+
+  rotateY(angle) {
+    this.controls.rotateY((angle / 180) * Math.PI);
+  }
+
+  rotateZ(angle) {
+    this.controls.rotateZ((angle / 180) * Math.PI);
   }
 }
 

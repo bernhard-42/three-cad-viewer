@@ -322,6 +322,76 @@ var CameraControls = function ( object, domElement ) {
 
 	}();
 
+	const _axes = {
+		"x": new Vector3(1,0,0), 
+		"y": new Vector3(0,1,0), 
+		"z": new Vector3(0,0,1)
+	};
+
+	function rotate (axis, angle) {
+
+		if (scope.trackball) {
+
+			const rotAxis = _axes[axis];			
+			const q = new Quaternion().setFromAxisAngle(rotAxis, angle);
+
+			scope.object.quaternion.premultiply( q );
+			scope.object.position.sub(scope.target).applyQuaternion( q ).add(scope.target);
+
+		} else {
+
+			console.log("not supported for orbit controls");
+
+		}
+
+	};
+
+	this.rotateX = function (angle) {
+
+		rotate("x", angle);
+
+	};
+
+	this.rotateY = function (angle) {
+
+		rotate("y", angle);
+
+	};
+
+	this.rotateZ = function (angle) {
+
+		rotate("z", angle);
+
+	};
+
+	this.rotateLeft = function(angle) {
+		
+		if (!this.trackball) {
+			
+			rotateLeft(angle);
+
+		} else {
+
+			console.log("not supported for trackball controls");
+
+		}
+
+	};
+
+	this.rotateUp = function(angle) {
+		
+		if (!this.trackball) {
+			
+			rotateUp(angle);
+
+		} else {
+
+			console.log("not supported for trackball controls");
+
+		}
+
+	};
+
 	this.dispose = function () {
 
 		scope.domElement.removeEventListener( 'contextmenu', onContextMenu, false );
@@ -421,16 +491,12 @@ var CameraControls = function ( object, domElement ) {
 		}
 	}
 
-	this.rotateLeft = rotateLeft;
-
 	function rotateUp( angle ) {
 
 		if (verticalRotate) {
 			sphericalDelta.phi -= angle;
 		}
 	}
-
-	this.rotateUp = rotateUp;
 
 	var panLeft = function () {
 
