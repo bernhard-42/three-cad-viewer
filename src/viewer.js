@@ -10,7 +10,6 @@ import { Clipping } from "./clipping.js";
 import { Animation } from "./animation.js";
 import { Info } from "./info.js";
 import { clone, isEqual } from "./utils.js";
-import { defaultDirections } from "./directions.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
 
@@ -649,4 +648,4 @@ class Viewer {
   }
 }
 
-export { Viewer, defaultDirections };
+export { Viewer };

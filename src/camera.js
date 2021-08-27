@@ -1,6 +1,14 @@
 import * as THREE from "three";
-import { defaultDirections } from "./directions.js";
 
+const defaultDirections = {
+  iso: [1, 1, 1],
+  front: [1, 0, 0],
+  rear: [-1, 0, 0],
+  left: [0, 1, 0],
+  right: [0, -1, 0],
+  top: [0, 0, 1],
+  bottom: [0, 0, -1]
+};
 class Camera {
   constructor(width, height, distance, target, ortho, control) {
     this.target = new THREE.Vector3(...target);
@@ -102,11 +110,7 @@ class Camera {
   }
 
   presetCamera = (dir) => {
-    this.setupCamera(
-      true,
-      defaultDirections[dir]["position"],
-      this.camera.zoom
-    );
+    this.setupCamera(true, defaultDirections[dir], this.camera.zoom);
   };
 
   getZoom() {
