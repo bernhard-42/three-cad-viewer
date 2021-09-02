@@ -11,7 +11,8 @@
   "scripts": {
     "clean": "rimraf ./dist/*",
     "build": "rollup -c --environment BUILD:production",
-    "start": "rollup -w -c"
+    "start": "rollup -w -c",
+    "jsdoc": "jsdoc src/camera.js src/controls.js src/viewer.js src/display.js src/types.js -t ./node_modules/better-docs"
   },
   "author": "Bernhard Walter",
   "license": "MIT",
@@ -23,6 +24,7 @@
     "@babel/eslint-parser": "^7.14.7",
     "@rollup/plugin-node-resolve": "^13.0.0",
     "@types/three": "^0.128.0",
+    "better-docs": "^2.3.2",
     "eslint": "^7.31.0",
     "eslint-config-prettier": "^8.3.0",
     "prettier": "^2.3.2",
