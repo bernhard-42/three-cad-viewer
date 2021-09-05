@@ -39,9 +39,10 @@
         vertices,        
       ]
 
-      function render(shapes, states) {
+      function render(name, shapes, states) {
         viewer?.dispose();
-        viewer = new Viewer(display, needsAnimationLoop, options, nc);
+        
+        viewer = new Viewer(display, name.startsWith("hexapod"), options, nc);
         viewer._timeit = timeit;
 
         viewer.render(shapes, states);
@@ -50,7 +51,7 @@
 
         // hexapod animation tracks
 
-        if (needsAnimationLoop && shapes.name == "bottom") {
+        if (name.startsWith("hexapod")) {
           const horizontal_angle = 25;
 
           function isin(el, container) {
@@ -146,13 +147,11 @@
         rotateSpeed: 1
       };
 
-      const needsAnimationLoop = true; // shapes.name == "bottom";
-
       const container = document.getElementById("cad_view_001");
       const display = new Display(container, options);
       timer.split("display");
 
-      render(...examples[0]);
+      render("hexapod", ...examples[0]);
 
       timer.split("viewer");
 
@@ -167,7 +166,7 @@
   <body>
     <div id="examples">
       Examples: 
-      <select onchange="render(...window.examples[this.selectedIndex]);">
+      <select onchange="render(this.options.item(this.selectedIndex).text, ...window.examples[this.selectedIndex]);">
         <option value="hexapod">hexapod</option>
         <option value="hexapod_mates">hexapod_mates</option>
         <option value="box">box</option>
