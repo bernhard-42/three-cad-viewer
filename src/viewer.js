@@ -115,7 +115,7 @@ class Viewer {
       }
     }
 
-    this.edgeColor = this.blackEdges ? 0x000000 : this.edgeColor;
+    // this.edgeColor = this.blackEdges ? 0x000000 : this.edgeColor;
   }
 
   /**
@@ -133,9 +133,6 @@ class Viewer {
       this.defaultOpacity,
       this.normalLen
     );
-    nestedGroup.setTransparent(this.transparent);
-    nestedGroup.setBlackEdges(this.blackEdges);
-    nestedGroup.setPolygonOffset(2);
     nestedGroup.render();
     return nestedGroup;
   }
@@ -346,6 +343,10 @@ class Viewer {
 
     this.nestedGroup = this.renderShapes(shapes);
     this.scene.add(this.nestedGroup.render());
+
+    this.nestedGroup.setTransparent(this.transparent);
+    this.nestedGroup.setBlackEdges(this.blackEdges);
+    this.nestedGroup.setPolygonOffset(2);
 
     timer.split("rendered nested group");
 

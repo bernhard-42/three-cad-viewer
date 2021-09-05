@@ -353,7 +353,7 @@ class Display {
     this._setupCheckEvent(
       "tcv_black_edges",
       this.setBlackEdges,
-      viewer.black_edges
+      viewer.blackEdges
     );
 
     this._setupClickEvent("tcv_reset", this.reset);
