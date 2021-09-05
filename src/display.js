@@ -120,12 +120,12 @@ const TEMPLATE = `
     </div>
     </div>
     <div class="tcv_cad_view">
-        <div class="tcv_cad_inset"></div>
         <div class="tcv_cad_animation tcv_round">
             <span class="tcv_tooltip"  data-tooltip="Play animation"><input class='tcv_play tcv_btn' type="button" /></span>
             <span class="tcv_tooltip"  data-tooltip="Pause animation"><input class='tcv_pause tcv_btn' type="button" /></span>
             <span class="tcv_tooltip"  data-tooltip="Stop and reset animation"><input class='tcv_stop tcv_btn' type="button" /></span>
         </div>
+        <div class="tcv_cad_inset"></div>
     </div>
     </div>
 </div>
@@ -240,7 +240,7 @@ class Display {
     }
 
     this.viewer = null;
-
+    this._events = [];
     this.cadWidth = options.cadWidth;
     this.height = options.height;
     this.treeWidth = options.treeWidth;
@@ -275,16 +275,30 @@ class Display {
     if (flag != undefined) {
       el.checked = flag;
     }
+    this._events.push(["change", name, fn]);
   }
 
   // eslint-disable-next-line no-unused-vars
   _setupClickEvent(name, fn, flag) {
     const el = this._getElement(name);
     el.addEventListener("click", fn);
+    this._events.push(["click", name, fn]);
   }
 
   _getElement(name) {
     return this.container.getElementsByClassName(name)[0];
+  }
+
+  dispose() {
+    var type, el_name, fn;
+    for (var ui_event of this._events) {
+      [type, el_name, fn] = ui_event;
+      const el = this._getElement(el_name);
+      el.removeEventListener(type, fn);
+    }
+    this.cadTree.innerHTML = "";
+    this.cadInset.innerHTML = "";
+    this.cadView.removeChild(this.cadView.children[2]);
   }
 
   /**

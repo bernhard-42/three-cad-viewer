@@ -8,20 +8,14 @@
     <!-- UMD import -->
     <!-- <script src='./dist/three-cad-viewer.js'></script> -->
 
-    <script src="./examples/convert.js"></script>
     <script src="./examples/hexapod.js"></script>
-    <!-- <script src="./examples/hexapod-mates.js"></script> -->
-    <!-- <script src="./examples/box.js"></script> -->
-    <!-- <script src="./examples/box1.js"></script> -->
-    <!-- <script src="./examples/boxes.js"></script> -->
-    <!-- <script src="./examples/faces.js"></script> -->
-    <!-- <script src="./examples/edges.js"></script> -->
-    <!-- <script src="./examples/vertices.js"></script> -->
-  </head>
-
-  <body>
-    <div id="cad_view_001"></div>
-    <div id="cad_view_002"></div>
+    <script src="./examples/hexapod-mates.js"></script>
+    <script src="./examples/box.js"></script>
+    <script src="./examples/box1.js"></script>
+    <script src="./examples/boxes.js"></script>
+    <script src="./examples/faces.js"></script>
+    <script src="./examples/edges.js"></script>
+    <script src="./examples/vertices.js"></script>
 
     <script type="module">
       // ESM import
@@ -31,16 +25,105 @@
       // const Viewer = CadViewer.Viewer;
       // const Display = CadViewer.Display;
       // const Timer = CadViewer.Timer;
+
+      var viewer = null;
+
+      const examples = [
+        hexapod,
+        hexapod_mates,
+        box,
+        box1,
+        boxes,
+        faces,
+        edges,
+        vertices,        
+      ]
+
+      function render(shapes, states) {
+        viewer?.dispose();
+        viewer = new Viewer(display, needsAnimationLoop, options, nc);
+        viewer._timeit = timeit;
+
+        viewer.render(shapes, states);
+        timer.split("renderer");
+        timer.stop();
+
+        // hexapod animation tracks
+
+        if (needsAnimationLoop && shapes.name == "bottom") {
+          const horizontal_angle = 25;
+
+          function isin(el, container) {
+            return container.indexOf(el) >= 0;
+          }
+
+          function intervals(count) {
+            var range = [...Array(count).keys()];
+            return range.map((i) =>
+              Math.min(180, (90 + i * Math.floor(360 / count)) % 360)
+            );
+          }
+
+          function times(end, count) {
+            var range = [...Array(count + 1).keys()];
+            return range.map((i) => (i / count) * end);
+          }
+
+          function vertical(count, end, offset) {
+            const ints = intervals(count);
+            var heights = ints.map(
+              (x) => Math.round(350 * Math.sin((x / 180) * Math.PI) - 150) / 10
+            );
+            heights.push(heights[0]);
+            return [
+              times(end, count),
+              [...heights.slice(offset), ...heights.slice(1, offset + 1)]
+            ];
+          }
+
+          function horizontal(end, reverse) {
+            const factor = reverse ? 1 : -1;
+            return [
+              times(end, 4),
+              [0, factor * horizontal_angle, 0, -factor * horizontal_angle, 0]
+            ];
+          }
+
+          const legNames = [
+            "right_back",
+            "right_middle",
+            "right_front",
+            "left_back",
+            "left_middle",
+            "left_front"
+          ];
+          const legGroup = ["left_front", "right_middle", "left_back"];
+
+          for (var name of legNames) {
+            // move upper leg
+            viewer.addAnimationTrack(
+              `/bottom/${name}`,
+              "rz",
+              ...horizontal(4, isin("middle", name))
+            );
+            // move lower leg
+            viewer.addAnimationTrack(
+              `/bottom/${name}/lower`,
+              "rz",
+              ...vertical(8, 4, isin(name, legGroup) ? 0 : 4, isin("left", name))
+            );
+          }
+          viewer.initAnimation(4, 2);
+        }
+        window.viewer = viewer;
+      }
+
       function nc(change) {
         // console.log("NOTIFY:", JSON.stringify(change, null, 2));
       }
 
       const timeit = false;
       const timer = new Timer("index", timeit);
-
-      const [shapes, states] = load(obj);
-
-      timer.split("loaded");
 
       const options = {
         theme: "light",
@@ -62,92 +145,39 @@
         rotateSpeed: 1
       };
 
-      const needsAnimationLoop = false; // shapes.name == "bottom";
+      const needsAnimationLoop = true; // shapes.name == "bottom";
 
       const container = document.getElementById("cad_view_001");
       const display = new Display(container, options);
       timer.split("display");
 
-      const viewer = new Viewer(display, needsAnimationLoop, options, nc);
-      viewer._timeit = timeit;
+      render(...examples[0]);
 
       timer.split("viewer");
 
-      viewer.render(shapes, states);
-      timer.split("renderer");
-      timer.stop();
-
-      // hexapod animation tracks
-
-      if (needsAnimationLoop && shapes.name == "bottom") {
-        const horizontal_angle = 25;
-
-        function isin(el, container) {
-          return container.indexOf(el) >= 0;
-        }
-
-        function intervals(count) {
-          var range = [...Array(count).keys()];
-          return range.map((i) =>
-            Math.min(180, (90 + i * Math.floor(360 / count)) % 360)
-          );
-        }
-
-        function times(end, count) {
-          var range = [...Array(count + 1).keys()];
-          return range.map((i) => (i / count) * end);
-        }
-
-        function vertical(count, end, offset) {
-          const ints = intervals(count);
-          var heights = ints.map(
-            (x) => Math.round(350 * Math.sin((x / 180) * Math.PI) - 150) / 10
-          );
-          heights.push(heights[0]);
-          return [
-            times(end, count),
-            [...heights.slice(offset), ...heights.slice(1, offset + 1)]
-          ];
-        }
-
-        function horizontal(end, reverse) {
-          const factor = reverse ? 1 : -1;
-          return [
-            times(end, 4),
-            [0, factor * horizontal_angle, 0, -factor * horizontal_angle, 0]
-          ];
-        }
-
-        const legNames = [
-          "right_back",
-          "right_middle",
-          "right_front",
-          "left_back",
-          "left_middle",
-          "left_front"
-        ];
-        const legGroup = ["left_front", "right_middle", "left_back"];
-
-        for (var name of legNames) {
-          // move upper leg
-          viewer.addAnimationTrack(
-            `/bottom/${name}`,
-            "rz",
-            ...horizontal(4, isin("middle", name))
-          );
-          // move lower leg
-          viewer.addAnimationTrack(
-            `/bottom/${name}/lower`,
-            "rz",
-            ...vertical(8, 4, isin(name, legGroup) ? 0 : 4, isin("left", name))
-          );
-        }
-        viewer.initAnimation(4, 2);
-      }
-
       // Enable debugging in browser console
-      window.viewer = viewer;
+      window.render = render;
+      window.examples = examples;
+
       console.log("Loaded", new Date());
     </script>
+  </head>
+
+  <body>
+    <div id="examples">
+      Examples: 
+      <select onchange="render(...window.examples[this.selectedIndex]);">
+        <option value="hexapod">hexapod</option>
+        <option value="hexapod_mates">hexapod_mates</option>
+        <option value="box">box</option>
+        <option value="box1">box1</option>
+        <option value="boxes">boxes</option>
+        <option value="faces">faces</option>
+        <option value="edges">edges</option>
+        <option value="vertices">vertices</option>
+      </select>
+    </div>
+    <div id="cad_view_001"></div>
+    <div id="cad_view_002"></div>    
   </body>
 </html>

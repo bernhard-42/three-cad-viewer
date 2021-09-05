@@ -9,7 +9,7 @@ import { Timer } from "./timer.js";
 import { Clipping } from "./clipping.js";
 import { Animation } from "./animation.js";
 import { Info } from "./info.js";
-import { clone, isEqual } from "./utils.js";
+import { clone, isEqual, sceneTraverse } from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
 
@@ -51,6 +51,7 @@ class Viewer {
     this.ready = false;
     this.mixer = null;
     this.animation = null;
+    this.continueAnimation = true;
 
     this.camera_distance = 0;
     this.raycaster = new THREE.Raycaster();
@@ -120,7 +121,7 @@ class Viewer {
   /**
    * Render the shapes of the CAD object.
    * @param {Shapes} shapes - The Shapes object.
-   * @returnsThnaks MAx {THREE.Group} A nested THREE.Group object.
+   * @returns {THREE.Group} A nested THREE.Group object.
    */
   renderShapes(shapes) {
     const nestedGroup = new NestedGroup(
@@ -289,10 +290,43 @@ class Viewer {
    * @function
    */
   animate = () => {
-    requestAnimationFrame(this.animate);
-    this.controls.update();
-    this.update(true, true, true);
+    if (this.continueAnimation) {
+      requestAnimationFrame(this.animate);
+      this.controls.update();
+      this.update(true, true, true);
+    } else {
+      console.log("animation stopped");
+    }
   };
+
+  dispose() {
+    // stop animation
+    this.continueAnimation = false;
+
+    // clear info
+    this.info.dispose();
+
+    // dispose all event handlers and HTML content
+
+    this.display.dispose();
+    this.display = null;
+
+    // dispose scene
+
+    sceneTraverse(this.scene, (o) => {
+      o.geometry?.dispose();
+      o.material?.dispose();
+    });
+    this.scene = null;
+
+    this.camera.dispose();
+    this.controls.dispose();
+    this.orientationMarker.dispose();
+
+    // dispose renderer
+    this.renderer.renderLists.dispose();
+    this.renderer = null;
+  }
 
   /**
    * Render a CAD object and build the navigation tree

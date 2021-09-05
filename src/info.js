@@ -12,6 +12,11 @@ class Info {
     this.chunks = [];
   }
 
+  dispose() {
+    this.clear();
+    this.html.innerHTML = "";
+  }
+
   addText(msg) {
     this.addHtml(`<pre style="white-space: nowrap;">${msg}</pre>`);
   }

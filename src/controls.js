@@ -50,6 +50,10 @@ class Controls {
     this.update();
   }
 
+  dispose() {
+    this.controls.dispose();
+    this.controls = null;
+  }
   /**
    * Initialize Trackball Controls.
    * @param {boolean} [holroyd=true] - enable holroyd (non tumbling) mode.

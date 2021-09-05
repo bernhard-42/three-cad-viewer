@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { AxesHelper } from "./axes.js";
+import { sceneTraverse } from "./utils.js";
 
 class OrientationMarker {
   constructor(width, height, camera, theme) {
@@ -94,6 +95,15 @@ class OrientationMarker {
     this.scene.add(sphere);
 
     return this.renderer.domElement;
+  }
+
+  dispose() {
+    sceneTraverse(this.scene, (o) => {
+      o.geometry?.dispose();
+      o.material?.dispose();
+    });
+    this.scene = null;
+    this.camera = null;
   }
 
   render() {
