@@ -149,6 +149,11 @@ class Camera {
     this.camera.up.set(0, 0, 1);
   }
 
+  dispose() {
+    this.oCamera = null;
+    this.pCamera = null;
+  }
+
   /**
    * Get the current camera.
    * @returns {THREE.Camera} Camera object.
