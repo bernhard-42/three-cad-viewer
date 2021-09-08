@@ -227,25 +227,23 @@ class Viewer {
    * @param {boolean} notify - whether to send notification or not.
    */
   checkChanges = (changes, notify = true) => {
-    if (notify && this.notifyCallback) {
-      var changed = {};
-      Object.keys(changes).forEach((key) => {
-        if (!isEqual(this.lastNotification[key], changes[key])) {
-          var change = clone(changes[key]);
-          changed[key] = {
-            new: change,
-            // map undefined in lastNotification to null to enable JSON exchange
-            old:
-              this.lastNotification[key] == null
-                ? null
-                : clone(this.lastNotification[key])
-          };
-          this.lastNotification[key] = change;
-        }
-      });
-      if (Object.keys(changed).length) {
-        this.notifyCallback(changed);
+    var changed = {};
+    Object.keys(changes).forEach((key) => {
+      if (!isEqual(this.lastNotification[key], changes[key])) {
+        var change = clone(changes[key]);
+        changed[key] = {
+          new: change,
+          // map undefined in lastNotification to null to enable JSON exchange
+          old:
+            this.lastNotification[key] == null
+              ? null
+              : clone(this.lastNotification[key])
+        };
+        this.lastNotification[key] = change;
       }
+    });
+    if (notify && this.notifyCallback && Object.keys(changed).length) {
+      this.notifyCallback(changed);
     }
   };
 
@@ -522,9 +520,9 @@ class Viewer {
    * Move the camera to one of the preset locations
    * @function
    * @param {string} dir - can be "iso", "top", "bottom", "front", "rear", "left", "right"
-   * @param {boolean} notify - whether to send notification or not.
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  presetCamera = (dir, notify = null) => {
+  presetCamera = (dir, notify = true) => {
     this.camera.presetCamera(dir, notify);
     this.update(true, false, notify);
   };
@@ -532,13 +530,50 @@ class Viewer {
   /**
    * Set camera mode to OrthographiCamera or PersepctiveCamera
    * @param {boolean} ortho_flag - whether the camery should be orthographic or persepctive
-   * @param {boolean} notify - whether to send notification or not.
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
   switchCamera(ortho_flag, notify = true) {
     this.camera.switchCamera(ortho_flag, notify);
     this.controls.setCamera(this.camera.getCamera());
 
     this.checkChanges({ ortho: ortho_flag }, notify);
+    this.update(true, false, notify);
+  }
+
+  /**
+   * Get zoom value.
+   * @returns {number} zoom value.
+   **/
+  getCameraZoom() {
+    this.camera.getZoom();
+  }
+
+  /**
+   * Set zoom value.
+   * @param {number} val - float zoom value.
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   **/
+  setCameraZoom(val, notify = true) {
+    this.camera.setZoom(val);
+    this.update(true, false, notify);
+  }
+
+  /**
+   * Get the current camera position.
+   * @returns {THREE.Vector3} camera position.
+   **/
+  getCameraPosition() {
+    return this.camera.getPosition();
+  }
+
+  /**
+   * Set camera position.
+   * @param {(Array(3) | THREE.Vector3)} position - camera position as 3 dim Array [x,y,z] or as Vector3.
+   * @param {relative} [relative=false] - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   **/
+  setCameraPosition(position, relative = false, notify = true) {
+    this.camera.setPosition(position, relative);
     this.update(true, false, notify);
   }
 
@@ -608,7 +643,7 @@ class Viewer {
    * Show/hide grids
    * @function
    * @param {string} action -  one of "grid" (all grids), "grid-xy","grid-xz", "grid-yz"
-   * @param {boolean} notify - whether to send notification or not.
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setGrid = (action, notify = true) => {
     this.gridHelper.setGrid(action);
@@ -624,7 +659,7 @@ class Viewer {
    * @param {boolean} xy - toggle xy grid visibility
    * @param {boolean} xz - toggle xz grid visibility
    * @param {boolean} yz - toggle yz grid visibility
-   * @param {boolean} notify - whether to send notification or not.
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setGrids = (xy, xz, yz, notify = true) => {
     this.gridHelper.setGrids(xy, xz, yz);
@@ -638,7 +673,7 @@ class Viewer {
    * Set whether grids and axes center at the origin or the object's boundary box center
    * @function
    * @param {boolean} flag - whether grids and axes center at the origin (0,0,0)
-   * @param {boolean} notify - whether to send notification or not.
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setAxes0 = (flag, notify = true) => {
     this.gridHelper.setCenter(flag);
@@ -654,7 +689,7 @@ class Viewer {
    * Set CAD objects transparency
    * @function
    * @param {boolean} flag - whether to show the CAD object in transparent mode
-   * @param {boolean} notify - whether to send notification or not.
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setTransparent = (flag, notify = true) => {
     this.nestedGroup.setTransparent(flag);
@@ -669,7 +704,7 @@ class Viewer {
    * Show edges in black or the default edge color
    * @function
    * @param {boolean} flag - whether to show edges in black
-   * @param {boolean} notify - whether to send notification or not.
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setBlackEdges = (flag, notify = true) => {
     this.nestedGroup.setBlackEdges(flag);
@@ -684,7 +719,7 @@ class Viewer {
    * Set the clipping mode to intersection mode
    * @function
    * @param {boolean} flag - whether to use intersection mode
-   * @param {boolean} notify - whether to send notification or not.
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setClipIntersection = (flag, notify = true) => {
     this.nestedGroup.setClipIntersection(flag);
@@ -699,7 +734,7 @@ class Viewer {
    * Show/hide clip plane helpers
    * @function
    * @param {boolean} flag - whether to show clip plane helpers
-   * @param {boolean} notify - whether to send notification or not.
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setClipPlaneHelpers = (flag, notify = true) => {
     this.clipping.planeHelpers.visible = flag;
@@ -723,7 +758,7 @@ class Viewer {
    * Set the normal at index to the current viewing direction
    * @function
    * @param {boolean} index - index of the normal: 0, 1 ,2
-   * @param {boolean} notify - whether to send notification or not.
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setClipNormal = (index, notify = true) => {
     const cameraPosition = this.camera.getPosition().clone();
@@ -746,7 +781,7 @@ class Viewer {
    * Set the rendered shape visibility state according to the states map
    * @function
    * @param {States} states
-   * @param {boolean} notify - whether to send notification or not.
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setObjects = (states, notify = true) => {
     for (var key in this.states) {
