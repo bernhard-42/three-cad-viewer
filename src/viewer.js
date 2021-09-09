@@ -601,27 +601,33 @@ class Viewer {
    * Set zoom speed.
    * @function
    * @param {number} val - the new zoom speed
+   * @param {boolean} notify - whether to send notification or not.
    */
-  setZoomSpeed = (val) => {
+  setZoomSpeed = (val, notify = true) => {
     this.controls.setZoomSpeed(val);
+    this.checkChanges({ grid: this.gridHelper.grid }, notify);
   };
 
   /**
    * Set pan speed.
    * @function
    * @param {number} val - the new pan speed
+   * @param {boolean} notify - whether to send notification or not.
    */
-  setPanSpeed = (val) => {
+  setPanSpeed = (val, notify = true) => {
     this.controls.setPanSpeed(val);
+    this.checkChanges({ grid: this.gridHelper.grid }, notify);
   };
 
   /**
    * Set rotation speed.
    * @function
    * @param {number} val - the new rotation speed.
+   * @param {boolean} notify - whether to send notification or not.
    */
-  setRotateSpeed = (val) => {
+  setRotateSpeed = (val, notify = true) => {
     this.controls.setRotateSpeed(val);
+    this.checkChanges({ grid: this.gridHelper.grid }, notify);
   };
 
   /**
@@ -763,7 +769,7 @@ class Viewer {
   setClipNormal = (index, notify = true) => {
     const cameraPosition = this.camera.getPosition().clone();
     const normal = cameraPosition
-      .sub(this.controls.target)
+      .sub(this.controls.getTarget())
       .normalize()
       .negate();
 
@@ -831,6 +837,70 @@ class Viewer {
         this.clipAction.stop();
         break;
     }
+  };
+
+  /**
+   * Set the default edge color
+   * @function
+   * @param {States} states
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setEdgeColor = (color, notify = true) => {
+    this.nestedGroup.setEdgeColor(color);
+    this.update(true, false, notify);
+  };
+
+  /**
+   * Show/hide the CAD tools
+   * @function
+   * @param {boolean} flag
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setTools = (flag, notify = true) => {
+    this.display.setTools(flag);
+    this.update(true, false, notify);
+  };
+
+  /**
+   * Set the intensity of ambient light
+   * @function
+   * @param {States} states
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setAmbientLight = (val, notify = true) => {
+    for (var el of this.scene.children) {
+      if (el instanceof THREE.AmbientLight) {
+        el.intensity = val;
+      }
+    }
+    this.update(true, false, notify);
+  };
+
+  /**
+   * Set the intensity of directional light
+   * @function
+   * @param {States} states
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setDirectLight = (val, notify = true) => {
+    for (var el of this.scene.children) {
+      if (el instanceof THREE.DirectionalLight) {
+        el.intensity = val;
+      }
+    }
+    this.update(true, false, notify);
+  };
+
+  /**
+   * Set state of a treeview leaf given by an id
+   * @function
+   * @param {string} - id
+   * @param {number[]} - 2 dim array [mesh, edges] = [0/1, 0/1]
+   */
+  setState = (id, state) => {
+    [0, 1].forEach((i) =>
+      this.treeview.handleStateChange("leaf", id, i, state[i])
+    );
   };
 
   /**

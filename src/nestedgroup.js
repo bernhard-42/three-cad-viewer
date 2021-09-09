@@ -38,6 +38,14 @@ class ObjectGroup extends THREE.Group {
     }
   }
 
+  setEdgeColor(color) {
+    if (this.types.edges) {
+      this.edge_color = color;
+      this.types.edges.material.color = new THREE.Color(color);
+      this.types.edges.material.needsUpdate = true;
+    }
+  }
+
   setShapeVisible(flag) {
     if (this.types.back) {
       this.types.back.visible = flag;
@@ -411,6 +419,11 @@ class NestedGroup {
   setBackVisible(flag) {
     this.backVisible = flag;
     this._traverse("setBackVisible", flag);
+  }
+
+  setEdgeColor(color) {
+    this.edge_color = color;
+    this._traverse("setEdgeColor", color);
   }
 
   setClipIntersection(flag) {
