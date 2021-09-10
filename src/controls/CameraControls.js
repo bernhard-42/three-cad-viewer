@@ -639,11 +639,11 @@ var CameraControls = function ( object, domElement ) {
 		return function getMouseOnSphere(pageCoord) {
 			// return coords in NDC space
 			
-			const x = ((pageCoord.x - scope.screen.left - scope.screen.width / 2) /
+			const x = ((pageCoord.x + window.scrollX - scope.screen.left - scope.screen.width / 2) /
 			scope.screen.width) *
 			2;
 			
-			const y = ((pageCoord.y - scope.screen.top - scope.screen.height / 2) /
+			const y = ((pageCoord.y + window.scrollY - scope.screen.top - scope.screen.height / 2) /
 			scope.screen.height) *
 			-2; // flip y axis
 
