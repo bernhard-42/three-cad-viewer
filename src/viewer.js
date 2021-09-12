@@ -70,6 +70,9 @@ class Viewer {
     this.lastNotification = {};
 
     this.renderer.domElement.addEventListener("dblclick", this.pick, false);
+    this.renderer.domElement.addEventListener("contextmenu", (e) =>
+      e.stopPropagation()
+    );
 
     this.display.addCadView(this.renderer.domElement);
 
