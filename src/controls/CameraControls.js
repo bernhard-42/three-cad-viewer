@@ -29,8 +29,7 @@ var CameraControls = function ( object, domElement ) {
 	this.holroyd = true;
 	// parameters for holroyd projection
     this.radius = 0.9; // ndc trackball radius
-    this.screen = { left: 0, top: 0, width: 0, height: 0 };
-	this.debugXY = false;
+    this.debugXY = false;
 
 	// How far you can dolly in and out ( PerspectiveCamera only )
 	this.minDistance = 0;
@@ -463,17 +462,6 @@ var CameraControls = function ( object, domElement ) {
 	var horizontalRotate = true;
 	var verticalRotate = true;
 
-	const setSize = function () {
-		const box = scope.domElement.getBoundingClientRect();
-		const d = scope.domElement.ownerDocument.documentElement;
-		scope.screen = {
-			left: box.left + window.pageXOffset - d.clientLeft,
-			top: box.top + window.pageYOffset - d.clientTop,
-			width: box.width,
-			height: box.height,
-		};
-	};
-
 	function getAutoRotationAngle() {
 
 		return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
@@ -640,8 +628,8 @@ var CameraControls = function ( object, domElement ) {
 		return function getMouseOnSphere(pageCoord) {
 			// return coords in NDC space
 			const rect = scope.domElement.getBoundingClientRect();
-			const x = (pageCoord.x - rect.x) / (scope.screen.width / 2) - 1.0;
-			const y = 1.0 - (pageCoord.y - rect.y) / (scope.screen.height / 2); // flip y axis
+			const x = (pageCoord.x - rect.x) / (rect.width / 2) - 1.0;
+			const y = 1.0 - (pageCoord.y - rect.y) / (rect.height / 2); // flip y axis
 			
 			if (scope.debugXY){
 				console.log(`rect(${rect.x}, ${rect.y}), page(${pageCoord.x}, ${pageCoord.y}), ncd(${x}, ${y})`);
@@ -1318,8 +1306,6 @@ var CameraControls = function ( object, domElement ) {
 	}
 
 	//
-
-	setSize();
 
 	scope.domElement.addEventListener( "contextmenu", onContextMenu, false );
 
