@@ -30,6 +30,7 @@ var CameraControls = function ( object, domElement ) {
 	// parameters for holroyd projection
     this.radius = 0.9; // ndc trackball radius
     this.screen = { left: 0, top: 0, width: 0, height: 0 };
+	this.debugXY = false;
 
 	// How far you can dolly in and out ( PerspectiveCamera only )
 	this.minDistance = 0;
@@ -638,15 +639,13 @@ var CameraControls = function ( object, domElement ) {
 
 		return function getMouseOnSphere(pageCoord) {
 			// return coords in NDC space
+			const rect = scope.domElement.getBoundingClientRect();
+			const x = (pageCoord.x - rect.x) / (scope.screen.width / 2) - 1.0;
+			const y = 1.0 - (pageCoord.y - rect.y) / (scope.screen.height / 2); // flip y axis
 			
-			const x = ((pageCoord.x + window.scrollX - scope.screen.left - scope.screen.width / 2) /
-			scope.screen.width) *
-			2;
-			
-			const y = ((pageCoord.y + window.scrollY - scope.screen.top - scope.screen.height / 2) /
-			scope.screen.height) *
-			-2; // flip y axis
-
+			if (scope.debugXY){
+				console.log(`rect(${rect.x}, ${rect.y}), page(${pageCoord.x}, ${pageCoord.y}), ncd(${x}, ${y})`);
+			}
 			holroyd(
 				horizontalRotate ?  x : 0,
 				verticalRotate ? y : 0 
