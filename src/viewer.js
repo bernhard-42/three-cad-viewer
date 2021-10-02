@@ -895,15 +895,32 @@ class Viewer {
   };
 
   /**
-   * Set state of a treeview leaf given by an id
+   * Set state of one entry of a treeview leaf given by an id
    * @function
    * @param {string} - id
    * @param {number[]} - 2 dim array [mesh, edges] = [0/1, 0/1]
    */
-  setState = (id, state) => {
+  setState = (id, state, notify = true) => {
     [0, 1].forEach((i) =>
       this.treeview.handleStateChange("leaf", id, i, state[i])
     );
+    this.update(true, false, notify);
+  };
+
+  /**
+   * Set states of a treeview leaf
+   * @function
+   * @param {States} - states
+   */
+  setStates = (states, notify = true) => {
+    for (var id in states) {
+      if (
+        states[id][0] != this.states[id][0] ||
+        states[id][1] != this.states[id][1]
+      ) {
+        this.setState(id, states[id], notify);
+      }
+    }
   };
 
   /**
