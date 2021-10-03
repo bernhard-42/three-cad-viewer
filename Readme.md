@@ -4,6 +4,8 @@
 
 The CAD viewer can visualize low level `threejs` objects (tessellated objects)
 
+[Live Examples](https://bernhard-42.github.io/three-cad-viewer/example.html)
+
 ### Shape and Shapes
 
 A Shape contains the attributes
@@ -95,10 +97,6 @@ For the `States` object, see [Class States](https://bernhard-42.github.io/three-
 ```
 
 ## Examples
-
-Several examples can be seen in action in the CAD Viewer:
-
-- [Live Examples](https://bernhard-42.github.io/three-cad-viewer/example.html)
 
 To understand the data format, a look at the simple 1 unit sized box might be helpful:
 
