@@ -297,6 +297,9 @@ class Viewer {
     }
   };
 
+  /**
+   * Remove assets and event handlers.
+   */
   dispose() {
     // stop animation
     this.continueAnimation = false;
