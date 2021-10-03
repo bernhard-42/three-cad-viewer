@@ -12,7 +12,7 @@
     "clean": "rimraf ./dist/*",
     "build": "rollup -c --environment BUILD:production",
     "start": "rollup -w -c",
-    "jsdoc": "jsdoc src/camera.js src/controls.js src/viewer.js src/display.js src/types.js -t ./node_modules/better-docs"
+    "jsdoc": "jsdoc -d docs src/camera.js src/controls.js src/viewer.js src/display.js src/types.js -t ./node_modules/better-docs"
   },
   "author": "Bernhard Walter",
   "license": "MIT",

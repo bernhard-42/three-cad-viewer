@@ -87,13 +87,13 @@
         <article>
             <pre class="prettyprint source linenums"><code>import * as THREE from "three";
 const defaultDirections = {
-  iso: [1, 1, 1],
-  front: [1, 0, 0],
-  rear: [-1, 0, 0],
-  left: [0, 1, 0],
-  right: [0, -1, 0],
-  top: [0, 0, 1],
-  bottom: [0, 0, -1]
+  iso: new THREE.Vector3(1, 1, 1),
+  front: new THREE.Vector3(1, 0, 0),
+  rear: new THREE.Vector3(-1, 0, 0),
+  left: new THREE.Vector3(0, 1, 0),
+  right: new THREE.Vector3(0, -1, 0),
+  top: new THREE.Vector3(0, 0, 1),
+  bottom: new THREE.Vector3(0, 0, -1)
 };
 class Camera {
   /**
@@ -149,6 +149,9 @@ class Camera {
     this.camera.up.set(0, 0, 1);
   }
 
+  /**
+   * Remove assets.
+   */
   dispose() {
     this.oCamera = null;
     this.pCamera = null;
@@ -193,7 +196,7 @@ class Camera {
       this.ortho = false;
     }
 
-    this.setPosition(false, p0);
+    this.setPosition(p0, false);
     this.setZoom(z0);
     this.setQuaternion(q0);
 
@@ -203,20 +206,20 @@ class Camera {
   /**
    * Setup the current camera.
    * @param {boolean} relative - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
-   * @param {number[]} position - array of x,y,z coordinates of the position (relative or absolute).
+   * @param {Vector3} position - the position (relative or absolute).
    * @param {number} zoom - zoom value.
    **/
   setupCamera(relative, position, zoom) {
     if (position != null) {
       var cameraPosition = relative
-        ? new THREE.Vector3(...position)
+        ? position
+            .clone()
             .normalize()
             .multiplyScalar(this.camera_distance)
             .add(this.target)
-            .toArray()
         : position;
 
-      this.camera.position.set(...cameraPosition);
+      this.camera.position.set(...cameraPosition.toArray());
     }
 
     if (zoom != null) {
@@ -276,26 +279,17 @@ class Camera {
   /**
    * Set camera position.
    * @param {relative} - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
-   * @param {(number | Array(3) | THREE.Vector3)} x - float value x of position or position as 3 dim Array [x,y,z] or as Vector3.
-   * @param {number} [y] - float value y of position or null if x is array or Vector3.
-   * @param {number} [z] - float value z of position or null if x is array or Vector3.
+   * @param {(Array(3) | THREE.Vector3)} position - position as 3 dim Array [x,y,z] or as Vector3.
    **/
-  setPosition(relative, x, y = null, z = null) {
+  setPosition(position, relative) {
     const scope = this;
 
-    function set() {
-      const first = arguments[0];
-
-      if (Array.isArray(first) &amp;&amp; first.length === 3) {
-        scope.setupCamera(y == null ? false : y, first, null);
-      } else if (first instanceof THREE.Vector3) {
-        scope.setupCamera(y == null ? false : y, first.toArray(), null);
-      } else {
-        scope.setupCamera(relative, [x, y, z], null);
-      }
-    }
-    set(x, y, z, relative);
-
+    scope.setupCamera(
+      relative,
+      position instanceof THREE.Vector3
+        ? position
+        : new THREE.Vector3(...position)
+    );
     this.updateProjectionMatrix();
   }
 
@@ -308,27 +302,19 @@ class Camera {
   }
 
   /**
-   * Set camera position.
-   * @param {(number|Array(4)|THREE.Vector3)} x - float x value of position or position as 4 dim Array or as Quaternion.
-   * @param {number} [y] - float y value of position or null if x is array or Vector3.
-   * @param {number} [z] - float z value of position or null if x is array or Vector3.
-   * @param {number} [w] - float w value of position or null if x is array or Vector3.
+   * Set camera quaternion.
+   * @param {(Array(4)|THREE.Vector3)} quaternion - quaternion as 4 dim Array or as Quaternion.
    **/
-  setQuaternion(x, y = null, z = null, w = null) {
+  setQuaternion(quaternion) {
     const scope = this;
 
-    function set() {
-      const first = arguments[0];
-
-      if (Array.isArray(first) &amp;&amp; first.length === 4) {
-        scope.camera.quaternion.set(...first);
-      } else if (first instanceof THREE.Quaternion) {
-        scope.camera.quaternion.set(...first.toArray());
-      } else {
-        scope.camera.quaternion.set(...arguments);
-      }
+    if (Array.isArray(quaternion) &amp;&amp; quaternion.length === 4) {
+      scope.camera.quaternion.set(...quaternion);
+    } else if (quaternion instanceof THREE.Quaternion) {
+      scope.camera.quaternion.set(...quaternion.toArray());
+    } else {
+      console.error("wrong type for quaternion", quaternion);
     }
-    set(x, y, z, w);
 
     this.updateProjectionMatrix();
   }

@@ -377,6 +377,103 @@
 
 
     
+    <h4 class="name" id="dispose">
+        <a class="href-link" href="#dispose">#</a>
+        
+        <span class="code-name">
+            
+                dispose<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        Remove assets.
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="camera.js.html" class="button">View Source</a>
+            <span>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line68">line 68</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
     <h4 class="name" id="getCamera">
         <a class="href-link" href="#getCamera">#</a>
         
@@ -442,7 +539,7 @@
         <p class="tag-source">
             <a href="camera.js.html" class="button">View Source</a>
             <span>
-                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line74">line 74</a>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line77">line 77</a>
             </span>
         </p>
     
@@ -564,7 +661,7 @@
         <p class="tag-source">
             <a href="camera.js.html" class="button">View Source</a>
             <span>
-                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line185">line 185</a>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line188">line 188</a>
             </span>
         </p>
     
@@ -686,7 +783,7 @@
         <p class="tag-source">
             <a href="camera.js.html" class="button">View Source</a>
             <span>
-                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line219">line 219</a>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line213">line 213</a>
             </span>
         </p>
     
@@ -808,7 +905,7 @@
         <p class="tag-source">
             <a href="camera.js.html" class="button">View Source</a>
             <span>
-                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line253">line 253</a>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line239">line 239</a>
             </span>
         </p>
     
@@ -930,7 +1027,7 @@
         <p class="tag-source">
             <a href="camera.js.html" class="button">View Source</a>
             <span>
-                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line155">line 155</a>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line158">line 158</a>
             </span>
         </p>
     
@@ -1052,7 +1149,7 @@
         <p class="tag-source">
             <a href="camera.js.html" class="button">View Source</a>
             <span>
-                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line81">line 81</a>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line84">line 84</a>
             </span>
         </p>
     
@@ -1200,7 +1297,7 @@
         <p class="tag-source">
             <a href="camera.js.html" class="button">View Source</a>
             <span>
-                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line147">line 147</a>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line150">line 150</a>
             </span>
         </p>
     
@@ -1237,7 +1334,7 @@
         
         <span class="code-name">
             
-                setPosition<span class="signature">(relative, x, y<span class="signature-attributes">opt</span>, z<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
+                setPosition<span class="signature">(position, position)</span><span class="type-signature"></span>
             
         </span>
     </h4>
@@ -1271,11 +1368,7 @@
             <th>Type</th>
 
             
-            <th>Attributes</th>
-            
 
-            
-            <th>Default</th>
             
 
             <th class="last">Description</th>
@@ -1288,7 +1381,7 @@
             
 <tr class="deep-level-0">
   
-      <td class="name"><code>relative</code></td>
+      <td class="name"><code>position</code></td>
   
 
   <td class="type">
@@ -1301,19 +1394,7 @@
   </td>
 
   
-      <td class="attributes">
-      
 
-      
-
-      
-      </td>
-  
-
-  
-      <td class="default">
-      
-      </td>
   
 
   <td class="description last">flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.</td>
@@ -1325,15 +1406,12 @@
             
 <tr class="deep-level-0">
   
-      <td class="name"><code>x</code></td>
+      <td class="name"><code>position</code></td>
   
 
   <td class="type">
   
       
-<span class="param-type">number</span>
-|
-
 <span class="param-type">Array(3)</span>
 |
 
@@ -1344,104 +1422,10 @@
   </td>
 
   
-      <td class="attributes">
-      
-
-      
-
-      
-      </td>
-  
 
   
-      <td class="default">
-      
-      </td>
-  
 
-  <td class="description last">float value x of position or position as 3 dim Array [x,y,z] or as Vector3.</td>
-</tr>
-
-
-        
-
-            
-<tr class="deep-level-0">
-  
-      <td class="name"><code>y</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">number</span>
-
-
-  
-  </td>
-
-  
-      <td class="attributes">
-      
-          &lt;optional><br>
-      
-
-      
-
-      
-      </td>
-  
-
-  
-      <td class="default">
-      
-          null
-      
-      </td>
-  
-
-  <td class="description last">float value y of position or null if x is array or Vector3.</td>
-</tr>
-
-
-        
-
-            
-<tr class="deep-level-0">
-  
-      <td class="name"><code>z</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">number</span>
-
-
-  
-  </td>
-
-  
-      <td class="attributes">
-      
-          &lt;optional><br>
-      
-
-      
-
-      
-      </td>
-  
-
-  
-      <td class="default">
-      
-          null
-      
-      </td>
-  
-
-  <td class="description last">float value z of position or null if x is array or Vector3.</td>
+  <td class="description last">position as 3 dim Array [x,y,z] or as Vector3.</td>
 </tr>
 
 
@@ -1489,7 +1473,7 @@
         <p class="tag-source">
             <a href="camera.js.html" class="button">View Source</a>
             <span>
-                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line196">line 196</a>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line197">line 197</a>
             </span>
         </p>
     
@@ -1526,7 +1510,7 @@
         
         <span class="code-name">
             
-                setQuaternion<span class="signature">(x, y<span class="signature-attributes">opt</span>, z<span class="signature-attributes">opt</span>, w<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
+                setQuaternion<span class="signature">(quaternion)</span><span class="type-signature"></span>
             
         </span>
     </h4>
@@ -1535,7 +1519,7 @@
     
     
     <div class="description">
-        Set camera position.
+        Set camera quaternion.
     </div>
     
 
@@ -1560,11 +1544,7 @@
             <th>Type</th>
 
             
-            <th>Attributes</th>
-            
 
-            
-            <th>Default</th>
             
 
             <th class="last">Description</th>
@@ -1577,15 +1557,12 @@
             
 <tr class="deep-level-0">
   
-      <td class="name"><code>x</code></td>
+      <td class="name"><code>quaternion</code></td>
   
 
   <td class="type">
   
       
-<span class="param-type">number</span>
-|
-
 <span class="param-type">Array(4)</span>
 |
 
@@ -1596,145 +1573,10 @@
   </td>
 
   
-      <td class="attributes">
-      
-
-      
-
-      
-      </td>
-  
 
   
-      <td class="default">
-      
-      </td>
-  
 
-  <td class="description last">float x value of position or position as 4 dim Array or as Quaternion.</td>
-</tr>
-
-
-        
-
-            
-<tr class="deep-level-0">
-  
-      <td class="name"><code>y</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">number</span>
-
-
-  
-  </td>
-
-  
-      <td class="attributes">
-      
-          &lt;optional><br>
-      
-
-      
-
-      
-      </td>
-  
-
-  
-      <td class="default">
-      
-          null
-      
-      </td>
-  
-
-  <td class="description last">float y value of position or null if x is array or Vector3.</td>
-</tr>
-
-
-        
-
-            
-<tr class="deep-level-0">
-  
-      <td class="name"><code>z</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">number</span>
-
-
-  
-  </td>
-
-  
-      <td class="attributes">
-      
-          &lt;optional><br>
-      
-
-      
-
-      
-      </td>
-  
-
-  
-      <td class="default">
-      
-          null
-      
-      </td>
-  
-
-  <td class="description last">float z value of position or null if x is array or Vector3.</td>
-</tr>
-
-
-        
-
-            
-<tr class="deep-level-0">
-  
-      <td class="name"><code>w</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">number</span>
-
-
-  
-  </td>
-
-  
-      <td class="attributes">
-      
-          &lt;optional><br>
-      
-
-      
-
-      
-      </td>
-  
-
-  
-      <td class="default">
-      
-          null
-      
-      </td>
-  
-
-  <td class="description last">float w value of position or null if x is array or Vector3.</td>
+  <td class="description last">quaternion as 4 dim Array or as Quaternion.</td>
 </tr>
 
 
@@ -1782,7 +1624,7 @@
         <p class="tag-source">
             <a href="camera.js.html" class="button">View Source</a>
             <span>
-                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line230">line 230</a>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line221">line 221</a>
             </span>
         </p>
     
@@ -1897,7 +1739,7 @@
   <td class="type">
   
       
-<span class="param-type">Array.&lt;number></span>
+<span class="param-type"><a href="global.html#Vector3">Vector3</a></span>
 
 
   
@@ -1907,7 +1749,7 @@
 
   
 
-  <td class="description last">array of x,y,z coordinates of the position (relative or absolute).</td>
+  <td class="description last">the position (relative or absolute).</td>
 </tr>
 
 
@@ -1980,7 +1822,7 @@
         <p class="tag-source">
             <a href="camera.js.html" class="button">View Source</a>
             <span>
-                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line122">line 122</a>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line125">line 125</a>
             </span>
         </p>
     
@@ -2128,7 +1970,7 @@
         <p class="tag-source">
             <a href="camera.js.html" class="button">View Source</a>
             <span>
-                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line168">line 168</a>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line171">line 171</a>
             </span>
         </p>
     
@@ -2276,7 +2118,7 @@
         <p class="tag-source">
             <a href="camera.js.html" class="button">View Source</a>
             <span>
-                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line96">line 96</a>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line99">line 99</a>
             </span>
         </p>
     
@@ -2373,7 +2215,7 @@
         <p class="tag-source">
             <a href="camera.js.html" class="button">View Source</a>
             <span>
-                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line88">line 88</a>
+                <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line91">line 91</a>
             </span>
         </p>
     
