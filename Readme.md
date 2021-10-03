@@ -104,5 +104,6 @@ To understand the data format, a look at the simple 1 unit sized box might be he
 
 ## APIs of Viewer, Display, Camera and Controls
 
-[API docs](https://bernhard-42.github.io/three-cad-viewer/Viewer.html) [Github
-repo](https://github.com/bernhard-42/three-cad-viewer)
+- [API docs](https://bernhard-42.github.io/three-cad-viewer/Viewer.html)
+
+Back to [Github repo](https://github.com/bernhard-42/three-cad-viewer)
