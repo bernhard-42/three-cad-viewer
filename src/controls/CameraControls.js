@@ -202,9 +202,9 @@ var CameraControls = function ( object, domElement ) {
 				  axis.applyQuaternion(scope.object.quaternion);
 	  
 				  factor = ( scope.enableDamping ) ? scope.dampingFactor : 1;
-
-				  angle *= -2 * factor * scope.rotateSpeed;
-
+				  console.log(scope.rotateSpeed);
+				  angle *= -2 * factor;
+          
 				  q.setFromAxisAngle(axis, angle);
 
 				  scope.object.quaternion.premultiply( q );
@@ -616,6 +616,8 @@ var CameraControls = function ( object, domElement ) {
 		const r2 = scope.radius * scope.radius;
   
 		function holroyd(x, y) {
+      x *= scope.rotateSpeed;
+      y *= scope.rotateSpeed;
 			var d2 = x * x + y * y;
 	
 			if (d2 <= r2 / 2) {
