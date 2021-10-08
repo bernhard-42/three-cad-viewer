@@ -109,6 +109,13 @@ class Viewer {
     this.normalLen = 0;
     this.tools = true;
     this.timeit = false;
+    this.clipIntersection = false;
+    this.clipPlaneHelpers = false;
+    this.clipNormal = [
+      [-1, 0, 0],
+      [0, -1, 0],
+      [0, 0, -1]
+    ];
 
     for (var option in options) {
       if (this[option] == null) {
@@ -534,52 +541,24 @@ class Viewer {
   };
 
   /**
-   * Set camera mode to OrthographiCamera or PersepctiveCamera
+   * Get camera type.
+   * @returns {string} "ortho" or "perspective".
+   **/
+  getCameraType() {
+    return this.camera.ortho ? "ortho" : "perspective";
+  }
+
+  /**
+   * Set camera mode to OrthographicCamera or PersepctiveCamera (see also setOrtho)
    * @param {boolean} ortho_flag - whether the camery should be orthographic or persepctive
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   switchCamera(ortho_flag, notify = true) {
+    this.ortho = ortho_flag;
     this.camera.switchCamera(ortho_flag, notify);
     this.controls.setCamera(this.camera.getCamera());
 
     this.checkChanges({ ortho: ortho_flag }, notify);
-    this.update(true, false, notify);
-  }
-
-  /**
-   * Get zoom value.
-   * @returns {number} zoom value.
-   **/
-  getCameraZoom() {
-    this.camera.getZoom();
-  }
-
-  /**
-   * Set zoom value.
-   * @param {number} val - float zoom value.
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   **/
-  setCameraZoom(val, notify = true) {
-    this.camera.setZoom(val);
-    this.update(true, false, notify);
-  }
-
-  /**
-   * Get the current camera position.
-   * @returns {THREE.Vector3} camera position.
-   **/
-  getCameraPosition() {
-    return this.camera.getPosition();
-  }
-
-  /**
-   * Set camera position.
-   * @param {(Array(3) | THREE.Vector3)} position - camera position as 3 dim Array [x,y,z] or as Vector3.
-   * @param {relative} [relative=false] - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   **/
-  setCameraPosition(position, relative = false, notify = true) {
-    this.camera.setPosition(position, relative);
     this.update(true, false, notify);
   }
 
@@ -604,160 +583,6 @@ class Viewer {
   };
 
   /**
-   * Set zoom speed.
-   * @function
-   * @param {number} val - the new zoom speed
-   * @param {boolean} notify - whether to send notification or not.
-   */
-  setZoomSpeed = (val, notify = true) => {
-    this.controls.setZoomSpeed(val);
-    this.checkChanges({ grid: this.gridHelper.grid }, notify);
-  };
-
-  /**
-   * Set pan speed.
-   * @function
-   * @param {number} val - the new pan speed
-   * @param {boolean} notify - whether to send notification or not.
-   */
-  setPanSpeed = (val, notify = true) => {
-    this.controls.setPanSpeed(val);
-    this.checkChanges({ grid: this.gridHelper.grid }, notify);
-  };
-
-  /**
-   * Set rotation speed.
-   * @function
-   * @param {number} val - the new rotation speed.
-   * @param {boolean} notify - whether to send notification or not.
-   */
-  setRotateSpeed = (val, notify = true) => {
-    this.controls.setRotateSpeed(val);
-    this.checkChanges({ grid: this.gridHelper.grid }, notify);
-  };
-
-  /**
-   * Show/hide axes helper
-   * @function
-   * @param {boolean} flag - whether to show the axes
-   * @param {boolean} notify - whether to send notification or not.
-   */
-  setAxes = (flag, notify = true) => {
-    this.axesHelper.setVisible(flag);
-    this.display.setAxesCheck(flag);
-
-    this.checkChanges({ axes: flag }, notify);
-
-    this.update(true, false);
-  };
-
-  /**
-   * Show/hide grids
-   * @function
-   * @param {string} action -  one of "grid" (all grids), "grid-xy","grid-xz", "grid-yz"
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setGrid = (action, notify = true) => {
-    this.gridHelper.setGrid(action);
-
-    this.checkChanges({ grid: this.gridHelper.grid }, notify);
-
-    this.update(true, false);
-  };
-
-  /**
-   * Toggle grid visibility
-   * @function
-   * @param {boolean} xy - toggle xy grid visibility
-   * @param {boolean} xz - toggle xz grid visibility
-   * @param {boolean} yz - toggle yz grid visibility
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setGrids = (xy, xz, yz, notify = true) => {
-    this.gridHelper.setGrids(xy, xz, yz);
-
-    this.checkChanges({ grid: this.gridHelper.grid }, notify);
-
-    this.update(true, false);
-  };
-
-  /**
-   * Set whether grids and axes center at the origin or the object's boundary box center
-   * @function
-   * @param {boolean} flag - whether grids and axes center at the origin (0,0,0)
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setAxes0 = (flag, notify = true) => {
-    this.gridHelper.setCenter(flag);
-    this.display.setAxes0Check(flag);
-    this.axesHelper.setCenter(flag);
-
-    this.checkChanges({ axes0: flag }, notify);
-
-    this.update(true, false);
-  };
-
-  /**
-   * Set CAD objects transparency
-   * @function
-   * @param {boolean} flag - whether to show the CAD object in transparent mode
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setTransparent = (flag, notify = true) => {
-    this.nestedGroup.setTransparent(flag);
-    this.display.setTransparentCheck(flag);
-
-    this.checkChanges({ transparent: flag }, notify);
-
-    this.update(true, false);
-  };
-
-  /**
-   * Show edges in black or the default edge color
-   * @function
-   * @param {boolean} flag - whether to show edges in black
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setBlackEdges = (flag, notify = true) => {
-    this.nestedGroup.setBlackEdges(flag);
-    this.display.setBlackEdgesCheck(flag);
-
-    this.checkChanges({ black_edges: flag }, notify);
-
-    this.update(true, false);
-  };
-
-  /**
-   * Set the clipping mode to intersection mode
-   * @function
-   * @param {boolean} flag - whether to use intersection mode
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setClipIntersection = (flag, notify = true) => {
-    this.nestedGroup.setClipIntersection(flag);
-    this.display.setClipIntersectionCheck(flag);
-
-    this.checkChanges({ clip_intersection: flag }, notify);
-
-    this.update(true, false);
-  };
-
-  /**
-   * Show/hide clip plane helpers
-   * @function
-   * @param {boolean} flag - whether to show clip plane helpers
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setClipPlaneHelpers = (flag, notify = true) => {
-    this.clipping.planeHelpers.visible = flag;
-    this.display.setClipPlaneHelpersCheck(flag);
-
-    this.checkChanges({ clip_planes: flag }, notify);
-
-    this.update(false, false);
-  };
-
-  /**
    * Enbable/disable local clipping
    * @param {boolean} flag - whether to enable local clipping
    */
@@ -765,29 +590,6 @@ class Viewer {
     this.renderer.localClippingEnabled = flag;
     this.update(true, false);
   }
-
-  /**
-   * Set the normal at index to the current viewing direction
-   * @function
-   * @param {boolean} index - index of the normal: 0, 1 ,2
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setClipNormal = (index, notify = true) => {
-    const cameraPosition = this.camera.getPosition().clone();
-    const normal = cameraPosition
-      .sub(this.controls.getTarget())
-      .normalize()
-      .negate();
-
-    this.clipping.setNormal(index, normal);
-    var notifyObject = {};
-    notifyObject[`clip_normal_${index}`] = normal.toArray();
-
-    this.checkChanges(notifyObject, notify);
-
-    this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
-    this.update(true, false);
-  };
 
   /**
    * Set the rendered shape visibility state according to the states map
@@ -846,58 +648,6 @@ class Viewer {
   };
 
   /**
-   * Set the default edge color
-   * @function
-   * @param {States} states
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setEdgeColor = (color, notify = true) => {
-    this.nestedGroup.setEdgeColor(color);
-    this.update(true, false, notify);
-  };
-
-  /**
-   * Show/hide the CAD tools
-   * @function
-   * @param {boolean} flag
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setTools = (flag, notify = true) => {
-    this.display.setTools(flag);
-    this.update(true, false, notify);
-  };
-
-  /**
-   * Set the intensity of ambient light
-   * @function
-   * @param {States} states
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setAmbientLight = (val, notify = true) => {
-    for (var el of this.scene.children) {
-      if (el instanceof THREE.AmbientLight) {
-        el.intensity = val;
-      }
-    }
-    this.update(true, false, notify);
-  };
-
-  /**
-   * Set the intensity of directional light
-   * @function
-   * @param {States} states
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setDirectLight = (val, notify = true) => {
-    for (var el of this.scene.children) {
-      if (el instanceof THREE.DirectionalLight) {
-        el.intensity = val;
-      }
-    }
-    this.update(true, false, notify);
-  };
-
-  /**
    * Set state of one entry of a treeview leaf given by an id
    * @function
    * @param {string} - id
@@ -908,22 +658,6 @@ class Viewer {
       this.treeview.handleStateChange("leaf", id, i, state[i])
     );
     this.update(true, false, notify);
-  };
-
-  /**
-   * Set states of a treeview leaf
-   * @function
-   * @param {States} - states
-   */
-  setStates = (states, notify = true) => {
-    for (var id in states) {
-      if (
-        states[id][0] != this.states[id][0] ||
-        states[id][1] != this.states[id][1]
-      ) {
-        this.setState(id, states[id], notify);
-      }
-    }
   };
 
   /**
@@ -968,6 +702,444 @@ class Viewer {
       });
       this.info.bbInfo(nearest.path, nearest.name, nearest.boundingBox);
     }
+  };
+
+  //
+  // Getters and Setters
+  //
+
+  /**
+   * Get whether axes helpers are shon/hidden.
+   * @returns {boolean} axes value.
+   **/
+  getAxes() {
+    return this.axes;
+  }
+
+  /**
+   * Show/hide axes helper
+   * @function
+   * @param {boolean} flag - whether to show the axes
+   * @param {boolean} notify - whether to send notification or not.
+   */
+  setAxes = (flag, notify = true) => {
+    this.axes = flag;
+    this.axesHelper.setVisible(flag);
+    this.display.setAxesCheck(flag);
+
+    this.checkChanges({ axes: flag }, notify);
+
+    this.update(true, false);
+  };
+
+  /**
+   * Show/hide grids
+   * @function
+   * @param {string} action -  one of "grid" (all grids), "grid-xy","grid-xz", "grid-yz"
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setGrid = (action, notify = true) => {
+    this.gridHelper.setGrid(action);
+
+    this.checkChanges({ grid: this.gridHelper.grid }, notify);
+
+    this.update(true, false);
+  };
+
+  /**
+   * Get visibility of grids.
+   * @returns {number[]} grids value.
+   **/
+  getGrids() {
+    return this.grid;
+  }
+
+  /**
+   * Toggle grid visibility
+   * @function
+   * @param {boolean} xy - toggle xy grid visibility
+   * @param {boolean} xz - toggle xz grid visibility
+   * @param {boolean} yz - toggle yz grid visibility
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setGrids = (xy, xz, yz, notify = true) => {
+    this.gridHelper.setGrids(xy, xz, yz);
+    this.grid = this.gridHelper.grid;
+
+    this.checkChanges({ grid: this.gridHelper.grid }, notify);
+
+    this.update(true, false);
+  };
+
+  /**
+   * Get location of axes.
+   * @returns {boolean} axes0 value, true means at origin (0,0,0)
+   **/
+  getAxes0() {
+    return this.axes0;
+  }
+
+  /**
+   * Set whether grids and axes center at the origin or the object's boundary box center
+   * @function
+   * @param {boolean} flag - whether grids and axes center at the origin (0,0,0)
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setAxes0 = (flag, notify = true) => {
+    this.axes0 = flag;
+    this.gridHelper.setCenter(flag);
+    this.display.setAxes0Check(flag);
+    this.axesHelper.setCenter(flag);
+
+    this.checkChanges({ axes0: flag }, notify);
+
+    this.update(true, false);
+  };
+
+  /**
+   * Get transparency state of CAD objects.
+   * @returns {boolean} transparent value.
+   **/
+  getTransparent() {
+    return this.transparent;
+  }
+
+  /**
+   * Set CAD objects transparency
+   * @function
+   * @param {boolean} flag - whether to show the CAD object in transparent mode
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setTransparent = (flag, notify = true) => {
+    this.transparent = flag;
+    this.nestedGroup.setTransparent(flag);
+    this.display.setTransparentCheck(flag);
+
+    this.checkChanges({ transparent: flag }, notify);
+
+    this.update(true, false);
+  };
+
+  /**
+   * Get blackEdges value.
+   * @returns {boolean} blackEdges value.
+   **/
+  getBlackEdges() {
+    return this.blackEdges;
+  }
+
+  /**
+   * Show edges in black or the default edge color
+   * @function
+   * @param {boolean} flag - whether to show edges in black
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setBlackEdges = (flag, notify = true) => {
+    this.blackEdges = flag;
+    this.nestedGroup.setBlackEdges(flag);
+    this.display.setBlackEdgesCheck(flag);
+
+    this.checkChanges({ black_edges: flag }, notify);
+
+    this.update(true, false);
+  };
+
+  /**
+   * Get ortho value.
+   * @returns {number} ortho value.
+   **/
+  getOrtho() {
+    return this.camera.ortho;
+  }
+
+  /**
+   * Get zoom value.
+   * @returns {number} zoom value.
+   **/
+  getCameraZoom() {
+    return this.camera.getZoom();
+  }
+
+  /**
+   * Set zoom value.
+   * @param {number} val - float zoom value.
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   **/
+  setCameraZoom(val, notify = true) {
+    this.camera.setZoom(val);
+    this.update(true, false, notify);
+  }
+
+  /**
+   * Get the current camera position.
+   * @returns {THREE.Vector3} camera position.
+   **/
+  getCameraPosition() {
+    return this.camera.getPosition();
+  }
+
+  /**
+   * Set camera position.
+   * @param {(Array(3) | THREE.Vector3)} position - camera position as 3 dim Array [x,y,z] or as Vector3.
+   * @param {relative} [relative=false] - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   **/
+  setCameraPosition(position, relative = false, notify = true) {
+    this.camera.setPosition(position, relative);
+    this.update(true, false, notify);
+  }
+
+  /**
+   * Get default color of the edges.
+   * @returns {number} edgeColor value.
+   **/
+  getEdgeColor() {
+    return this.edgeColor;
+  }
+
+  /**
+   * Set the default edge color
+   * @function
+   * @param {number} edge color (0xrrggbb)
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setEdgeColor = (color, notify = true) => {
+    this.edgeColor = color;
+    this.nestedGroup.setEdgeColor(color);
+    this.update(true, false, notify);
+  };
+
+  /**
+   * Get whether tools are shown/hidden.
+   * @returns {boolean} tools value.
+   **/
+  getTools() {
+    return this.tools;
+  }
+
+  /**
+   * Show/hide the CAD tools
+   * @function
+   * @param {boolean} flag
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setTools = (flag, notify = true) => {
+    this.tools = flag;
+    this.display.setTools(flag);
+    this.update(true, false, notify);
+  };
+
+  /**
+   * Get intensity of ambient light.
+   * @returns {number} ambientLight value.
+   **/
+  getAmbientLight() {
+    return this.ambientIntensity;
+  }
+
+  /**
+   * Set the intensity of ambient light
+   * @function
+   * @param {States} states
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setAmbientLight = (val, notify = true) => {
+    this.ambientIntensity = val;
+    for (var el of this.scene.children) {
+      if (el instanceof THREE.AmbientLight) {
+        el.intensity = val;
+      }
+    }
+    this.update(true, false, notify);
+  };
+
+  /**
+   * Get intensity of direct light.
+   * @returns {number} directLight value.
+   **/
+  getDirectLight() {
+    return this.directIntensity;
+  }
+  /**
+   * Set the intensity of directional light
+   * @function
+   * @param {States} states
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setDirectLight = (val, notify = true) => {
+    this.directIntensity = val;
+    for (var el of this.scene.children) {
+      if (el instanceof THREE.DirectionalLight) {
+        el.intensity = val;
+      }
+    }
+    this.update(true, false, notify);
+  };
+
+  /**
+   * Get states of a treeview leafs.
+   * @returns {States} states value.
+   **/
+  getStates() {
+    return this.states;
+  }
+
+  /**
+   * Set states of a treeview leafs
+   * @function
+   * @param {States} - states
+   */
+  setStates = (states, notify = true) => {
+    for (var id in states) {
+      if (
+        states[id][0] != this.states[id][0] ||
+        states[id][1] != this.states[id][1]
+      ) {
+        this.setState(id, states[id], notify);
+      }
+    }
+  };
+
+  /**
+   * Get zoom speed.
+   * @returns {number} zoomSpeed value.
+   **/
+  getZoomSpeed() {
+    return this.zoomSpeed;
+  }
+
+  /**
+   * Set zoom speed.
+   * @function
+   * @param {number} val - the new zoom speed
+   * @param {boolean} notify - whether to send notification or not.
+   */
+  setZoomSpeed = (val, notify = true) => {
+    this.zoomSpeed = val;
+    this.controls.setZoomSpeed(val);
+    this.checkChanges({ grid: this.gridHelper.grid }, notify);
+  };
+
+  /**
+   * Get panning speed.
+   * @returns {number} pan speed value.
+   **/
+  getPanSpeed() {
+    return this.panSpeed;
+  }
+
+  /**
+   * Set pan speed.
+   * @function
+   * @param {number} val - the new pan speed
+   * @param {boolean} notify - whether to send notification or not.
+   */
+  setPanSpeed = (val, notify = true) => {
+    this.panSpeed = val;
+    this.controls.setPanSpeed(val);
+    this.checkChanges({ grid: this.gridHelper.grid }, notify);
+  };
+
+  /**
+   * Get rotation speed.
+   * @returns {number} rotation speed value.
+   **/
+  getRotateSpeed() {
+    return this.rotateSpeed;
+  }
+
+  /**
+   * Set rotation speed.
+   * @function
+   * @param {number} val - the new rotation speed.
+   * @param {boolean} notify - whether to send notification or not.
+   */
+  setRotateSpeed = (val, notify = true) => {
+    this.rotateSpeed = val;
+    this.controls.setRotateSpeed(val);
+    this.checkChanges({ grid: this.gridHelper.grid }, notify);
+  };
+
+  /**
+   * Get intersection mode.
+   * @returns {boolean} clip intersection value.
+   **/
+  getClipIntersection() {
+    return this.clipIntersection;
+  }
+
+  /**
+   * Set the clipping mode to intersection mode
+   * @function
+   * @param {boolean} flag - whether to use intersection mode
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setClipIntersection = (flag, notify = true) => {
+    this.clipIntersection = flag;
+    this.nestedGroup.setClipIntersection(flag);
+    this.display.setClipIntersectionCheck(flag);
+
+    this.checkChanges({ clip_intersection: flag }, notify);
+
+    this.update(true, false);
+  };
+
+  /**
+   * Get clipping plane state.
+   * @returns {boolean} clip plane visibility value.
+   **/
+  getClipPlaneHelpers() {
+    return this.clipPlaneHelpers;
+  }
+
+  /**
+   * Show/hide clip plane helpers
+   * @function
+   * @param {boolean} flag - whether to show clip plane helpers
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setClipPlaneHelpers = (flag, notify = true) => {
+    this.clipPlaneHelpers = flag;
+    this.clipping.planeHelpers.visible = flag;
+    this.display.setClipPlaneHelpersCheck(flag);
+
+    this.checkChanges({ clip_planes: flag }, notify);
+
+    this.update(false, false);
+  };
+
+  /**
+   * Get clipping plane state.
+   * @param {boolean} index - index of the normal: 0, 1 ,2
+   * @returns {boolean} clip plane visibility value.
+   **/
+  getClipNormal(index) {
+    return this.clipNormal[index];
+  }
+
+  /**
+   * Set the normal at index to the current viewing direction
+   * @function
+   * @param {boolean} index - index of the normal: 0, 1 ,2
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setClipNormal = (index, notify = true) => {
+    const cameraPosition = this.camera.getPosition().clone();
+    const normal = cameraPosition
+      .sub(this.controls.getTarget())
+      .normalize()
+      .negate();
+
+    this.clipNormal[index] = normal;
+
+    this.clipping.setNormal(index, normal);
+    var notifyObject = {};
+    notifyObject[`clip_normal_${index}`] = normal.toArray();
+
+    this.checkChanges(notifyObject, notify);
+
+    this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
+    this.update(true, false);
   };
 }
 
