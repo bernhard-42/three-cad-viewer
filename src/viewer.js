@@ -758,13 +758,11 @@ class Viewer {
   /**
    * Toggle grid visibility
    * @function
-   * @param {boolean} xy - toggle xy grid visibility
-   * @param {boolean} xz - toggle xz grid visibility
-   * @param {boolean} yz - toggle yz grid visibility
+   * @param {boolean[]} grids - 3 dim grid visibility (xy, xzm yz)
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setGrids = (xy, xz, yz, notify = true) => {
-    this.gridHelper.setGrids(xy, xz, yz);
+  setGrids = (grids, notify = true) => {
+    this.gridHelper.setGrids(...grids);
     this.grid = this.gridHelper.grid;
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
