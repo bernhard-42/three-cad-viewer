@@ -54871,7 +54871,7 @@ class Camera {
     }
 
     if (zoom != null) {
-      this.camera.zoom = zoom;
+      this.setZoom(zoom);
     }
 
     this.camera.lookAt(this.target);
@@ -54882,8 +54882,11 @@ class Camera {
    * Move the camera to a given preset.
    * @param {string} dir - can be "iso", "top", "bottom", "front", "rear", "left", "right"
    **/
-  presetCamera(dir) {
-    this.setupCamera(true, defaultDirections[dir], this.camera.zoom);
+  presetCamera(dir, zoom = null) {
+    if (zoom == null) {
+      zoom = this.camera.zoom;
+    }
+    this.setupCamera(true, defaultDirections[dir], zoom);
   }
 
   /**
@@ -55303,8 +55306,10 @@ class Viewer {
    * Render a CAD object and build the navigation tree
    * @param {Shapes} shapes - the shapes of the CAD object to be rendered
    * @param {States} states - the visibility state of meshes and edges
+   * @param {Vector3} [position=null] - the camera position.
+   * @param {number} [zoom=null] - zoom value.
    */
-  render(shapes, states) {
+  render(shapes, states, position = null, zoom = null) {
     this.states = states;
 
     this.scene = new Scene();
@@ -55341,7 +55346,12 @@ class Viewer {
       this.ortho,
       this.control
     );
-    this.presetCamera("iso");
+
+    if (position == null) {
+      this.presetCamera("iso", zoom);
+    } else {
+      this.setCamera(position, zoom);
+    }
 
     //
     // build mouse/touch controls
@@ -55493,13 +55503,30 @@ class Viewer {
   //
 
   /**
+   * Move the camera to a given locations
+   * @function
+   * @param {Vector3} position - the camera position.
+   * @param {number} [zoom=null] - zoom value.
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setCamera = (position, zoom = null, notify = true) => {
+    this.camera.setupCamera(
+      false,
+      new Vector3(...position),
+      zoom,
+      notify
+    );
+    this.update(true, false, notify);
+  };
+
+  /**
    * Move the camera to one of the preset locations
    * @function
    * @param {string} dir - can be "iso", "top", "bottom", "front", "rear", "left", "right"
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  presetCamera = (dir, notify = true) => {
-    this.camera.presetCamera(dir, notify);
+  presetCamera = (dir, zoom = null, notify = true) => {
+    this.camera.presetCamera(dir, zoom, notify);
     this.update(true, false, notify);
   };
 
