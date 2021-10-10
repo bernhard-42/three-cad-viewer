@@ -283,8 +283,8 @@ class Viewer {
     }
     this.checkChanges(
       {
-        camera_zoom: this.camera.getZoom(),
-        camera_position: this.camera.getPosition().toArray()
+        zoom: this.camera.getZoom(),
+        position: this.camera.getPosition().toArray()
       },
       notify
     );
