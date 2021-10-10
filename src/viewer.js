@@ -557,7 +557,7 @@ class Viewer {
     this.ortho = flag;
     this.camera.switchCamera(flag, notify);
     this.controls.setCamera(this.camera.getCamera());
-    this.display.setOrtho(flag);
+    this.display.setOrthoCheck(flag);
 
     this.checkChanges({ ortho: flag }, notify);
     this.update(true, false, notify);
@@ -849,6 +849,14 @@ class Viewer {
    **/
   getOrtho() {
     return this.camera.ortho;
+  }
+
+  /**
+   * Set/unset camera's orthographic mode.
+   * @param {boolean} whether to set orthographic mode or not.
+   **/
+  setOrtho(flag, notify = true) {
+    this.switchCamera(flag, notify);
   }
 
   /**
