@@ -136,7 +136,7 @@ class Camera {
     }
 
     if (zoom != null) {
-      this.camera.zoom = zoom;
+      this.setZoom(zoom);
     }
 
     this.camera.lookAt(this.target);
@@ -147,8 +147,11 @@ class Camera {
    * Move the camera to a given preset.
    * @param {string} dir - can be "iso", "top", "bottom", "front", "rear", "left", "right"
    **/
-  presetCamera(dir) {
-    this.setupCamera(true, defaultDirections[dir], this.camera.zoom);
+  presetCamera(dir, zoom = null) {
+    if (zoom == null) {
+      zoom = this.camera.zoom;
+    }
+    this.setupCamera(true, defaultDirections[dir], zoom);
   }
 
   /**
