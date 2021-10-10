@@ -53350,7 +53350,7 @@ var CameraControls = function ( object, domElement ) {
 				  axis.applyQuaternion(scope.object.quaternion);
 	  
 				  factor = ( scope.enableDamping ) ? scope.dampingFactor : 1;
-				  console.log(scope.rotateSpeed);
+
 				  angle *= -2 * factor;
           
 				  q.setFromAxisAngle(axis, angle);
@@ -55246,8 +55246,8 @@ class Viewer {
     }
     this.checkChanges(
       {
-        camera_zoom: this.camera.getZoom(),
-        camera_position: this.camera.getPosition().toArray()
+        zoom: this.camera.getZoom(),
+        position: this.camera.getPosition().toArray()
       },
       notify
     );
@@ -55513,15 +55513,16 @@ class Viewer {
 
   /**
    * Set camera mode to OrthographicCamera or PersepctiveCamera (see also setOrtho)
-   * @param {boolean} ortho_flag - whether the camery should be orthographic or persepctive
+   * @param {boolean} flag - whether the camery should be orthographic or persepctive
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  switchCamera(ortho_flag, notify = true) {
-    this.ortho = ortho_flag;
-    this.camera.switchCamera(ortho_flag, notify);
+  switchCamera(flag, notify = true) {
+    this.ortho = flag;
+    this.camera.switchCamera(flag, notify);
     this.controls.setCamera(this.camera.getCamera());
+    this.display.setOrtho(flag);
 
-    this.checkChanges({ ortho: ortho_flag }, notify);
+    this.checkChanges({ ortho: flag }, notify);
     this.update(true, false, notify);
   }
 
@@ -55720,13 +55721,11 @@ class Viewer {
   /**
    * Toggle grid visibility
    * @function
-   * @param {boolean} xy - toggle xy grid visibility
-   * @param {boolean} xz - toggle xz grid visibility
-   * @param {boolean} yz - toggle yz grid visibility
+   * @param {boolean[]} grids - 3 dim grid visibility (xy, xzm yz)
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setGrids = (xy, xz, yz, notify = true) => {
-    this.gridHelper.setGrids(xy, xz, yz);
+  setGrids = (grids, notify = true) => {
+    this.gridHelper.setGrids(...grids);
     this.grid = this.gridHelper.grid;
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
