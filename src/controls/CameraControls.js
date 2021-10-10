@@ -202,7 +202,7 @@ var CameraControls = function ( object, domElement ) {
 				  axis.applyQuaternion(scope.object.quaternion);
 	  
 				  factor = ( scope.enableDamping ) ? scope.dampingFactor : 1;
-				  console.log(scope.rotateSpeed);
+
 				  angle *= -2 * factor;
           
 				  q.setFromAxisAngle(axis, angle);
