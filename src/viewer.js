@@ -550,15 +550,16 @@ class Viewer {
 
   /**
    * Set camera mode to OrthographicCamera or PersepctiveCamera (see also setOrtho)
-   * @param {boolean} ortho_flag - whether the camery should be orthographic or persepctive
+   * @param {boolean} flag - whether the camery should be orthographic or persepctive
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  switchCamera(ortho_flag, notify = true) {
-    this.ortho = ortho_flag;
-    this.camera.switchCamera(ortho_flag, notify);
+  switchCamera(flag, notify = true) {
+    this.ortho = flag;
+    this.camera.switchCamera(flag, notify);
     this.controls.setCamera(this.camera.getCamera());
+    this.display.setOrtho(flag);
 
-    this.checkChanges({ ortho: ortho_flag }, notify);
+    this.checkChanges({ ortho: flag }, notify);
     this.update(true, false, notify);
   }
 
