@@ -540,7 +540,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line191">line 191</a>
+        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line197">line 197</a>
     </li></ul></dd>
     
 
@@ -650,7 +650,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line216">line 216</a>
+        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line222">line 222</a>
     </li></ul></dd>
     
 
@@ -760,7 +760,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line242">line 242</a>
+        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line248">line 248</a>
     </li></ul></dd>
     
 
@@ -870,7 +870,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line161">line 161</a>
+        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line167">line 167</a>
     </li></ul></dd>
     
 
@@ -1117,7 +1117,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line150">line 150</a>
+        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line154">line 154</a>
     </li></ul></dd>
     
 
@@ -1153,7 +1153,7 @@
     
 
     
-    <h4 class="name" id="setPosition"><span class="type-signature"></span>setPosition<span class="signature">(position, position)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setPosition"><span class="type-signature"></span>setPosition<span class="signature">(relative, position)</span><span class="type-signature"></span></h4>
     
 
     
@@ -1197,13 +1197,13 @@
 
         <tr>
             
-                <td class="name"><code>position</code></td>
+                <td class="name"><code>relative</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">relative</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -1280,7 +1280,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line200">line 200</a>
+        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line206">line 206</a>
     </li></ul></dd>
     
 
@@ -1420,7 +1420,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line224">line 224</a>
+        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line230">line 230</a>
     </li></ul></dd>
     
 
@@ -1456,7 +1456,7 @@
     
 
     
-    <h4 class="name" id="setupCamera"><span class="type-signature"></span>setupCamera<span class="signature">(relative, position, zoom)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setupCamera"><span class="type-signature"></span>setupCamera<span class="signature">(relative, position, quaternion, zoom)</span><span class="type-signature"></span></h4>
     
 
     
@@ -1490,6 +1490,8 @@
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -1515,6 +1517,10 @@
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last">flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.</td>
         </tr>
@@ -1529,7 +1535,7 @@
             <td class="type">
             
                 
-<span class="param-type"><a href="global.html#Vector3">Vector3</a></span>
+<span class="param-type">THREE.Vector3</span>
 
 
             
@@ -1538,8 +1544,43 @@
             
 
             
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
 
-            <td class="description last">the position (relative or absolute).</td>
+            <td class="description last">the camera position (relative or absolute).</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>quaternion</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">THREE.Quaternion</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">the camera rotation expressed by a quaternion.</td>
         </tr>
 
     
@@ -1560,6 +1601,12 @@
 
             
 
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
             
 
             <td class="description last">zoom value.</td>
@@ -1603,7 +1650,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line125">line 125</a>
+        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line126">line 126</a>
     </li></ul></dd>
     
 
@@ -1740,7 +1787,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line174">line 174</a>
+        <a href="camera.js.html">camera.js</a>, <a href="camera.js.html#line180">line 180</a>
     </li></ul></dd>
     
 
@@ -2017,7 +2064,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sun Oct 10 2021 16:55:19 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Oct 16 2021 12:23:16 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

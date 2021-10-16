@@ -54585,7 +54585,7 @@ class Controls {
     this.controls.panSpeed = this.panSpeed;
 
     // save default view for reset
-    this.controls.saveState();
+    this.saveState();
     this.update();
   }
 
@@ -54595,6 +54595,13 @@ class Controls {
   dispose() {
     this.controls.dispose();
     this.controls = null;
+  }
+
+  /**
+   * Save state for reset.
+   */
+  saveState() {
+    this.controls.saveState();
   }
 
   /**
@@ -54854,10 +54861,11 @@ class Camera {
   /**
    * Setup the current camera.
    * @param {boolean} relative - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
-   * @param {Vector3} position - the position (relative or absolute).
+   * @param {THREE.Vector3} position - the camera position (relative or absolute).
+   * @param {THREE.Quaternion} quaternion - the camera rotation expressed by a quaternion.
    * @param {number} zoom - zoom value.
    **/
-  setupCamera(relative, position, zoom) {
+  setupCamera(relative, position = null, quaternion = null, zoom = null) {
     if (position != null) {
       var cameraPosition = relative
         ? position
@@ -54870,11 +54878,14 @@ class Camera {
       this.camera.position.set(...cameraPosition.toArray());
     }
 
+    if (quaternion != null) {
+      this.camera.quaternion.set(...quaternion.toArray());
+    }
+
     if (zoom != null) {
       this.setZoom(zoom);
     }
 
-    this.camera.lookAt(this.target);
     this.updateProjectionMatrix();
   }
 
@@ -54886,7 +54897,9 @@ class Camera {
     if (zoom == null) {
       zoom = this.camera.zoom;
     }
-    this.setupCamera(true, defaultDirections[dir], zoom);
+    // For the default directions quaternion can be ignored, it will be reset automatically
+    this.setupCamera(true, defaultDirections[dir], null, zoom);
+    this.lookAtTarget();
   }
 
   /**
@@ -54929,19 +54942,19 @@ class Camera {
 
   /**
    * Set camera position.
-   * @param {relative} - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
+   * @param {boolean} relative - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
    * @param {(Array(3) | THREE.Vector3)} position - position as 3 dim Array [x,y,z] or as Vector3.
    **/
   setPosition(position, relative) {
     const scope = this;
 
-    scope.setupCamera(
-      relative,
-      position instanceof Vector3
-        ? position
-        : new Vector3(...position)
-    );
-    this.updateProjectionMatrix();
+    if (Array.isArray(position) && position.length === 3) {
+      scope.setupCamera(relative, new Vector3(...position));
+    } else if (position instanceof Vector3) {
+      scope.setupCamera(relative, position);
+    } else {
+      console.error("wrong type for position", position);
+    }
   }
 
   /**
@@ -54960,9 +54973,9 @@ class Camera {
     const scope = this;
 
     if (Array.isArray(quaternion) && quaternion.length === 4) {
-      scope.camera.quaternion.set(...quaternion);
+      scope.setupCamera(null, null, new Quaternion(...quaternion));
     } else if (quaternion instanceof Quaternion) {
-      scope.camera.quaternion.set(...quaternion.toArray());
+      scope.setupCamera(null, null, quaternion);
     } else {
       console.error("wrong type for quaternion", quaternion);
     }
@@ -55090,8 +55103,6 @@ class Viewer {
         this[option] = options[option];
       }
     }
-
-    // this.edgeColor = this.blackEdges ? 0x000000 : this.edgeColor;
   }
 
   /**
@@ -55306,12 +55317,12 @@ class Viewer {
    * Render a CAD object and build the navigation tree
    * @param {Shapes} shapes - the shapes of the CAD object to be rendered
    * @param {States} states - the visibility state of meshes and edges
-   * @param {Vector3} [position=null] - the camera position.
+   * @param {number[]} [position=null] - the camera position.
+   * @param {number[]} [quaternion=null] - the camera rotation as quaternion. Only relevant for TrackballControls and needs position to be set, too.
    * @param {number} [zoom=null] - zoom value.
    */
-  render(shapes, states, position = null, zoom = null) {
+  render(shapes, states, position = null, quaternion = null, zoom = null) {
     this.states = states;
-
     this.scene = new Scene();
 
     const timer = new Timer("viewer", this.timeit);
@@ -55336,6 +55347,12 @@ class Viewer {
     timer.split("bounding box");
 
     //
+    // add Info box
+    //
+
+    this.info = new Info(this.display.cadInfo);
+
+    //
     // create cameras
     //
     this.camera = new Camera(
@@ -55347,16 +55364,9 @@ class Viewer {
       this.control
     );
 
-    if (position == null) {
-      this.presetCamera("iso", zoom);
-    } else {
-      this.setCamera(position, zoom);
-    }
-
     //
     // build mouse/touch controls
     //
-
     this.controls = new Controls(
       this.control,
       this.camera.getCamera(),
@@ -55367,6 +55377,28 @@ class Viewer {
       this.panSpeed
     );
     this.controls.enableKeys = false;
+
+    // this needs to happen after the controls have been established
+    if (position == null && quaternion == null) {
+      this.presetCamera("iso", zoom);
+    } else if (position != null) {
+      this.setCamera(false, position, quaternion, zoom);
+      if (quaternion == null) {
+        this.camera.lookAtTarget();
+      }
+    } else {
+      this.info.addHtml(
+        "<b>quaternion needs position to be provided, falling back to ISO view</b>"
+      );
+      this.presetCamera("iso", zoom);
+    }
+
+    // Save the new state again
+    this.controls.saveState();
+
+    //
+    // Register update event if needed
+    //
 
     if (!this.needsAnimationLoop) {
       this.controls.addChangeListener(() => this.update(true, true, true));
@@ -55475,13 +55507,6 @@ class Viewer {
     timer.split("scene done");
 
     //
-    // add Info box
-    //
-
-    this.info = new Info(this.display.cadInfo);
-    this.info.readyMsg(this.gridHelper.ticks, this.control);
-
-    //
     // show the rendering
     //
 
@@ -55493,7 +55518,7 @@ class Viewer {
       this.update(true, false);
     }
 
-    this.reset();
+    this.info.readyMsg(this.gridHelper.ticks, this.control);
 
     timer.stop();
   }
@@ -55505,14 +55530,23 @@ class Viewer {
   /**
    * Move the camera to a given locations
    * @function
-   * @param {Vector3} position - the camera position.
+   * @param {number[]} position - the camera position as 3 dim array [x,y,z]
+   * @param {relative} [relative=false] - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
+   * @param {number[]} quaternion - the camera rotation expressed by a quaternion array [x,y,z,w].
    * @param {number} [zoom=null] - zoom value.
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setCamera = (position, zoom = null, notify = true) => {
+  setCamera = (
+    relative,
+    position,
+    quaternion = null,
+    zoom = null,
+    notify = true
+  ) => {
     this.camera.setupCamera(
-      false,
+      relative,
       new Vector3(...position),
+      quaternion != null ? new Quaternion(...quaternion) : null,
       zoom,
       notify
     );
@@ -55569,7 +55603,6 @@ class Viewer {
    */
   reset = () => {
     this.controls.reset();
-    this.camera.lookAtTarget();
     this.update(true, false);
   };
 
@@ -55869,20 +55902,38 @@ class Viewer {
 
   /**
    * Get the current camera position.
-   * @returns {THREE.Vector3} camera position.
+   * @returns {number[]} camera position as 3 dim array [x,y,z].
    **/
   getCameraPosition() {
-    return this.camera.getPosition();
+    return this.camera.getPosition().toArray();
   }
 
   /**
    * Set camera position.
-   * @param {(Array(3) | THREE.Vector3)} position - camera position as 3 dim Array [x,y,z] or as Vector3.
+   * @param {number[]} position - camera position as 3 dim Array [x,y,z].
    * @param {relative} [relative=false] - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
    * @param {boolean} [notify=true] - whether to send notification or not.
    **/
   setCameraPosition(position, relative = false, notify = true) {
     this.camera.setPosition(position, relative);
+    this.update(true, false, notify);
+  }
+
+  /**
+   * Get the current camera rotation as quaternion.
+   * @returns {number[]} camera rotation as 4 dim quaternion array [x,y,z,w].
+   **/
+  getCameraQuaternion() {
+    return this.camera.getQuaternion().toArray();
+  }
+
+  /**
+   * Set camera rotation via quaternion.
+   * @param {number[]} quaternion - camera rotation as 4 dim quaternion array [x,y,z,w].
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   **/
+  setCameraQuaternion(quaternion, notify = true) {
+    this.camera.setQuaternion(quaternion);
     this.update(true, false, notify);
   }
 
