@@ -46,7 +46,7 @@ class Controls {
     this.controls.panSpeed = this.panSpeed;
 
     // save default view for reset
-    this.controls.saveState();
+    this.saveState();
     this.update();
   }
 
@@ -56,6 +56,13 @@ class Controls {
   dispose() {
     this.controls.dispose();
     this.controls = null;
+  }
+
+  /**
+   * Save state for reset.
+   */
+  saveState() {
+    this.controls.saveState();
   }
 
   /**
