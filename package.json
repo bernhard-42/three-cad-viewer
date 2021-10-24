@@ -1,6 +1,6 @@
 {
   "name": "three-cad-viewer",
-  "version": "0.9.18",
+  "version": "0.9.19",
   "description": "",
   "repository": {
     "type": "git",
@@ -21,13 +21,13 @@
   "author": "Bernhard Walter",
   "license": "MIT",
   "dependencies": {
-    "three": "^0.133.0"
+    "three": "^0.133.1"
   },
   "devDependencies": {
     "@babel/core": "^7.14.8",
     "@babel/eslint-parser": "^7.14.7",
     "@rollup/plugin-node-resolve": "^13.0.0",
-    "@types/three": "^0.133.0",
+    "@types/three": "^0.133.1",
     "eslint": "^7.31.0",
     "eslint-config-prettier": "^8.3.0",
     "prettier": "^2.3.2",
