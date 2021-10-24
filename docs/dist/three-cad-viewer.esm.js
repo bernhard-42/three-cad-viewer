@@ -52954,6 +52954,7 @@ class Animation {
     this.delim = delim;
     this.tracks = [];
     this.mixer = null;
+    this.clip = null;
     this.clipAction = null;
     this.clock = new Clock();
   }
@@ -53029,15 +53030,23 @@ class Animation {
   }
 
   animate(duration, speed) {
-    const clip = new AnimationClip("track", duration, this.tracks);
+    this.clip = new AnimationClip("track", duration, this.tracks);
     this.mixer = new AnimationMixer(this.root);
     this.mixer.timeScale = speed;
     // this.mixer.addEventListener('finished', (e) => { console.log("finished", e) });
     // this.mixer.addEventListener('loop', (e) => { console.log("loop", e) });
 
-    this.clipAction = this.mixer.clipAction(clip);
+    this.clipAction = this.mixer.clipAction(this.clip);
 
     return this.clipAction;
+  }
+
+  dispose() {
+    this.mixer = null;
+    this.clipAction = null;
+    this.clip = null;
+    this.tracks = [];
+    this.root = null;
   }
 
   update() {
@@ -55183,7 +55192,6 @@ class Viewer {
         this.nestedGroup.rootGroup,
         this.nestedGroup.delim
       );
-      this.display.setAnimationControl(true);
     }
     this.animation.addTrack(
       selector,
@@ -55202,9 +55210,23 @@ class Viewer {
   initAnimation(duration, speed) {
     if (!this.needsAnimationLoop) {
       console.error("Start viewer with animation loop");
-      return;
+    } else if (this.animation == null) {
+      console.error("Animation does not have tracks");
+    } else {
+      this.display.setAnimationControl(true);
+      this.clipAction = this.animation.animate(duration, speed);
     }
-    this.clipAction = this.animation.animate(duration, speed);
+  }
+
+  /**
+   * Clear the animation obect and dispose dependent objects
+   */
+  clearAnimation() {
+    if (this.animation) {
+      this.animation.dispose();
+      this.animation = null;
+    }
+    this.display.setAnimationControl(false);
   }
 
   /**
@@ -56167,28 +56189,64 @@ class Viewer {
   }
 
   /**
-   * Set the normal at index to the current viewing direction
+   * Set the normal at index to a given normal
    * @function
-   * @param {boolean} index - index of the normal: 0, 1 ,2
+   * @param {number} index - index of the normal: 0, 1 ,2
+   * @param {number[]} normal - 3 dim array representing the normal
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setClipNormal = (index, notify = true) => {
-    const cameraPosition = this.camera.getPosition().clone();
-    const normal = cameraPosition
-      .sub(this.controls.getTarget())
-      .normalize()
-      .negate();
-
+  setClipNormal(index, normal, notify = true) {
     this.clipNormal[index] = normal;
 
-    this.clipping.setNormal(index, normal);
+    this.clipping.setNormal(index, new Vector3(...normal));
     var notifyObject = {};
-    notifyObject[`clip_normal_${index}`] = normal.toArray();
+    notifyObject[`clip_normal_${index}`] = normal;
 
     this.checkChanges(notifyObject, notify);
 
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
     this.update(true, false);
+  }
+
+  /**
+   * Set the normal at index to the current viewing direction
+   * @function
+   * @param {number} index - index of the normal: 0, 1 ,2
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setClipNormalFromPosition = (index, notify = true) => {
+    const cameraPosition = this.camera.getPosition().clone();
+    const normal = cameraPosition
+      .sub(this.controls.getTarget())
+      .normalize()
+      .negate()
+      .toArray();
+    this.setClipNormal(index, normal, notify);
+  };
+
+  /**
+   * Get clipping slider value.
+   * @function
+   * @param {number} index - index of the normal: 0, 1 ,2
+   * @returns {boolean} clip plane visibility value.
+   **/
+  getClipSlider = (index) => {
+    return this.display.clipSliders[index].getValue();
+  };
+
+  /**
+   * Set clipping slider value.
+   * @function
+   * @param {number} index - index of the normal: 0, 1 ,2
+   * @param {number} value - value for the clipping slide. will be trimmed to slide min/max limits
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setClipSlider = (index, value, notify = true) => {
+    this.display.clipSliders[index].setValue(value, notify);
+    // var notifyObject = {};
+    // notifyObject[`clip_slider_${index}`] = value;
+
+    // this.checkChanges(notifyObject, notify);
   };
 }
 
@@ -56360,10 +56418,10 @@ class Slider {
     this.input.addEventListener("change", this.inputChange);
   }
 
-  _notify = (value) => {
+  _notify = (value, notify = true) => {
     const change = {};
     change[`clip_slider_${this.index - 1}`] = parseFloat(value);
-    this.display.viewer.checkChanges(change);
+    this.display.viewer.checkChanges(change, notify);
   };
 
   sliderChange = (e) => {
@@ -56394,6 +56452,21 @@ class Slider {
     this.slider.value = limit;
     this.input.value = Math.round(1000 * this.slider.max) / 1000;
     this.display.refreshPlane(this.index, this.input.value);
+  }
+
+  getValue() {
+    return parseFloat(this.input.value);
+  }
+
+  setValue(value, notify = true) {
+    const trimmed_value = Math.max(
+      Math.min(value, this.slider.max),
+      this.slider.min
+    );
+    this.input.value = trimmed_value;
+    this.slider.value = value;
+    this.display.refreshPlane(this.index, this.input.value);
+    this._notify(value, notify);
   }
 }
 
@@ -56588,7 +56661,7 @@ class Display {
     for (i = 1; i < 4; i++) {
       this._setupClickEvent(
         `tcv_btn_norm_plane${i}`,
-        this.setClipNormal,
+        this.setClipNormalFromPosition,
         false
       );
     }
@@ -56851,9 +56924,9 @@ class Display {
    * @function
    * @param {Event} e - a DOM click event
    */
-  setClipNormal = (e) => {
+  setClipNormalFromPosition = (e) => {
     const index = parseInt(e.target.classList[0].slice(-1));
-    this.viewer.setClipNormal(index - 1);
+    this.viewer.setClipNormalFromPosition(index - 1);
   };
 
   /**
