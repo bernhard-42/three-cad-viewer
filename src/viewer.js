@@ -204,7 +204,6 @@ class Viewer {
         this.nestedGroup.rootGroup,
         this.nestedGroup.delim
       );
-      this.display.setAnimationControl(true);
     }
     this.animation.addTrack(
       selector,
@@ -223,9 +222,23 @@ class Viewer {
   initAnimation(duration, speed) {
     if (!this.needsAnimationLoop) {
       console.error("Start viewer with animation loop");
-      return;
+    } else if (this.animation == null) {
+      console.error("Animation does not have tracks");
+    } else {
+      this.display.setAnimationControl(true);
+      this.clipAction = this.animation.animate(duration, speed);
     }
-    this.clipAction = this.animation.animate(duration, speed);
+  }
+
+  /**
+   * Clear the animation obect and dispose dependent objects
+   */
+  clearAnimation() {
+    if (this.animation) {
+      this.animation.dispose();
+      this.animation = null;
+    }
+    this.display.setAnimationControl(false);
   }
 
   /**

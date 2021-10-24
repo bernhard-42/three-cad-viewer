@@ -25,6 +25,7 @@ class Animation {
     this.delim = delim;
     this.tracks = [];
     this.mixer = null;
+    this.clip = null;
     this.clipAction = null;
     this.clock = new THREE.Clock();
   }
@@ -100,15 +101,23 @@ class Animation {
   }
 
   animate(duration, speed) {
-    const clip = new THREE.AnimationClip("track", duration, this.tracks);
+    this.clip = new THREE.AnimationClip("track", duration, this.tracks);
     this.mixer = new THREE.AnimationMixer(this.root);
     this.mixer.timeScale = speed;
     // this.mixer.addEventListener('finished', (e) => { console.log("finished", e) });
     // this.mixer.addEventListener('loop', (e) => { console.log("loop", e) });
 
-    this.clipAction = this.mixer.clipAction(clip);
+    this.clipAction = this.mixer.clipAction(this.clip);
 
     return this.clipAction;
+  }
+
+  dispose() {
+    this.mixer = null;
+    this.clipAction = null;
+    this.clip = null;
+    this.tracks = [];
+    this.root = null;
   }
 
   update() {
