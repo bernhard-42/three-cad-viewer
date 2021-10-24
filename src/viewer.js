@@ -1201,28 +1201,64 @@ class Viewer {
   }
 
   /**
-   * Set the normal at index to the current viewing direction
+   * Set the normal at index to a given normal
    * @function
-   * @param {boolean} index - index of the normal: 0, 1 ,2
+   * @param {number} index - index of the normal: 0, 1 ,2
+   * @param {number[]} normal - 3 dim array representing the normal
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setClipNormal = (index, notify = true) => {
-    const cameraPosition = this.camera.getPosition().clone();
-    const normal = cameraPosition
-      .sub(this.controls.getTarget())
-      .normalize()
-      .negate();
-
+  setClipNormal(index, normal, notify = true) {
     this.clipNormal[index] = normal;
 
-    this.clipping.setNormal(index, normal);
+    this.clipping.setNormal(index, new THREE.Vector3(...normal));
     var notifyObject = {};
-    notifyObject[`clip_normal_${index}`] = normal.toArray();
+    notifyObject[`clip_normal_${index}`] = normal;
 
     this.checkChanges(notifyObject, notify);
 
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
     this.update(true, false);
+  }
+
+  /**
+   * Set the normal at index to the current viewing direction
+   * @function
+   * @param {number} index - index of the normal: 0, 1 ,2
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setClipNormalFromPosition = (index, notify = true) => {
+    const cameraPosition = this.camera.getPosition().clone();
+    const normal = cameraPosition
+      .sub(this.controls.getTarget())
+      .normalize()
+      .negate()
+      .toArray();
+    this.setClipNormal(index, normal, notify);
+  };
+
+  /**
+   * Get clipping slider value.
+   * @function
+   * @param {number} index - index of the normal: 0, 1 ,2
+   * @returns {boolean} clip plane visibility value.
+   **/
+  getClipSlider = (index) => {
+    return this.display.clipSliders[index].getValue();
+  };
+
+  /**
+   * Set clipping slider value.
+   * @function
+   * @param {number} index - index of the normal: 0, 1 ,2
+   * @param {number} value - value for the clipping slide. will be trimmed to slide min/max limits
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setClipSlider = (index, value, notify = true) => {
+    this.display.clipSliders[index].setValue(value, notify);
+    // var notifyObject = {};
+    // notifyObject[`clip_slider_${index}`] = value;
+
+    // this.checkChanges(notifyObject, notify);
   };
 }
 

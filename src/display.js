@@ -168,10 +168,10 @@ class Slider {
     this.input.addEventListener("change", this.inputChange);
   }
 
-  _notify = (value) => {
+  _notify = (value, notify = true) => {
     const change = {};
     change[`clip_slider_${this.index - 1}`] = parseFloat(value);
-    this.display.viewer.checkChanges(change);
+    this.display.viewer.checkChanges(change, notify);
   };
 
   sliderChange = (e) => {
@@ -202,6 +202,21 @@ class Slider {
     this.slider.value = limit;
     this.input.value = Math.round(1000 * this.slider.max) / 1000;
     this.display.refreshPlane(this.index, this.input.value);
+  }
+
+  getValue() {
+    return parseFloat(this.input.value);
+  }
+
+  setValue(value, notify = true) {
+    const trimmed_value = Math.max(
+      Math.min(value, this.slider.max),
+      this.slider.min
+    );
+    this.input.value = trimmed_value;
+    this.slider.value = value;
+    this.display.refreshPlane(this.index, this.input.value);
+    this._notify(value, notify);
   }
 }
 
@@ -396,7 +411,7 @@ class Display {
     for (i = 1; i < 4; i++) {
       this._setupClickEvent(
         `tcv_btn_norm_plane${i}`,
-        this.setClipNormal,
+        this.setClipNormalFromPosition,
         false
       );
     }
@@ -659,9 +674,9 @@ class Display {
    * @function
    * @param {Event} e - a DOM click event
    */
-  setClipNormal = (e) => {
+  setClipNormalFromPosition = (e) => {
     const index = parseInt(e.target.classList[0].slice(-1));
-    this.viewer.setClipNormal(index - 1);
+    this.viewer.setClipNormalFromPosition(index - 1);
   };
 
   /**
