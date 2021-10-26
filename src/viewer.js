@@ -17,9 +17,9 @@ class Viewer {
   /**
    * Create Viewer.
    * @param {Display} display - The Display object.
-   * @param {boolean} needsAnimationLoop - Whether to start an anuimation loop or handle camera updates manually.
+   * @param {boolean} needsAnimationLoop - Whether to start an animation loop or handle camera updates via canvas events.
    * @param {ViewerOptions} options - configuration parameters.
-   * @param {NotificationCallback} notifyCallback - The callback to get camera position and zoom changes.
+   * @param {NotificationCallback} notifyCallback - The callback to receive changes of viewer parameters.
    */
   constructor(display, needsAnimationLoop, options, notifyCallback) {
     this.display = display;
@@ -80,8 +80,8 @@ class Viewer {
   }
 
   /**
-   * Create Viewer.
-   * @param {ViewerOptions} options - The Display object.
+   * Enhance the given options by all default values.
+   * @param {ViewerOptions} options - The provided options object for the viewer.
    */
   setDefaults(options) {
     this.cadWidth = 800;
@@ -176,7 +176,7 @@ class Viewer {
   }
 
   /**
-   * Initialize the visibility state of all objects according to the navigation tree setting.
+   * Initialize the visibility state of all objects according to the navigation tree settings.
    */
   initObjectStates() {
     for (var key in this.states) {
@@ -188,7 +188,7 @@ class Viewer {
   }
 
   /**
-   * Add an animation track to the THREE.Group
+   * Add an animation track for a THREE.Group
    * @param {string} selector - path/id of group to be animated.
    * @param {string} action - one of "rx", "ry", "rz" for rotations around axes, "q" for quaternions or "t", "tx", "ty", "tz" for translations.
    * @param {number[]} time - array of times.
@@ -565,9 +565,9 @@ class Viewer {
   /**
    * Move the camera to a given locations
    * @function
-   * @param {number[]} position - the camera position as 3 dim array [x,y,z]
    * @param {relative} [relative=false] - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
-   * @param {number[]} quaternion - the camera rotation expressed by a quaternion array [x,y,z,w].
+   * @param {number[]} position - the camera position as 3 dim array [x,y,z]
+   * @param {number[]} [quaternion=null] - the camera rotation expressed by a quaternion array [x,y,z,w].
    * @param {number} [zoom=null] - zoom value.
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
@@ -592,6 +592,7 @@ class Viewer {
    * Move the camera to one of the preset locations
    * @function
    * @param {string} dir - can be "iso", "top", "bottom", "front", "rear", "left", "right"
+   * @param {number} [zoom=null] - zoom value
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   presetCamera = (dir, zoom = null, notify = true) => {
@@ -714,6 +715,7 @@ class Viewer {
    * @function
    * @param {string} - id
    * @param {number[]} - 2 dim array [mesh, edges] = [0/1, 0/1]
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setState = (id, state, notify = true) => {
     [0, 1].forEach((i) =>
@@ -819,7 +821,7 @@ class Viewer {
   /**
    * Toggle grid visibility
    * @function
-   * @param {boolean[]} grids - 3 dim grid visibility (xy, xzm yz)
+   * @param {boolean[]} grids - 3 dim grid visibility (xy, xz, yz)
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setGrids = (grids, notify = true) => {
