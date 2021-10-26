@@ -266,6 +266,8 @@ class Display {
     this.cadClip.style.display = "none";
     this.clipSliders = null;
 
+    this.lastPlaneState = false;
+
     if (options.theme === "dark") {
       document.documentElement.setAttribute("data-theme", "dark");
     } else {
@@ -700,6 +702,8 @@ class Display {
       this.cadClip.style.display = "none";
       this.viewer.nestedGroup.setBackVisible(false);
       this.viewer.setLocalClipping(false);
+      this.lastPlaneState = this.viewer.getClipPlaneHelpers();
+      this.viewer.setClipPlaneHelpers(false);
       changed = true;
     }
     if (tab === "clip" && this.activeTab !== "clip") {
@@ -707,6 +711,7 @@ class Display {
       this.cadClip.style.display = "block";
       this.viewer.nestedGroup.setBackVisible(true);
       this.viewer.setLocalClipping(true);
+      this.viewer.setClipPlaneHelpers(this.lastPlaneState);
       changed = true;
     }
     this.activeTab = tab;
