@@ -690,11 +690,14 @@ class Viewer {
   /**
    * Handler for the animation control
    * @function
-   * @param {string} btn - the pressed button: "play", "pause", "stop"
+   * @param {string} btn - the pressed button as string: "play", "pause", "stop"
    */
   controlAnimation = (btn) => {
     switch (btn) {
       case "play":
+        if (this.clipAction.paused) {
+          this.clipAction.paused = false;
+        }
         this.clipAction.play();
         break;
       case "pause":
