@@ -45,9 +45,9 @@ class Viewer {
   /**
    * Create Viewer.
    * @param {Display} display - The Display object.
-   * @param {boolean} needsAnimationLoop - Whether to start an anuimation loop or handle camera updates manually.
+   * @param {boolean} needsAnimationLoop - Whether to start an animation loop or handle camera updates via canvas events.
    * @param {ViewerOptions} options - configuration parameters.
-   * @param {NotificationCallback} notifyCallback - The callback to get camera position and zoom changes.
+   * @param {NotificationCallback} notifyCallback - The callback to receive changes of viewer parameters.
    */
   constructor(display, needsAnimationLoop, options, notifyCallback) {
     this.display = display;
@@ -108,8 +108,8 @@ class Viewer {
   }
 
   /**
-   * Create Viewer.
-   * @param {ViewerOptions} options - The Display object.
+   * Enhance the given options by all default values.
+   * @param {ViewerOptions} options - The provided options object for the viewer.
    */
   setDefaults(options) {
     this.cadWidth = 800;
@@ -154,12 +154,16 @@ class Viewer {
     }
   }
 
+  //
+  //  Load Tesselated Shapes
+  //
+
   /**
-   * Render the shapes of the CAD object.
-   * @param {Shapes} shapes - The Shapes object.
+   * Render tessellated shapes of a CAD object.
+   * @param {Shapes} shapes - The Shapes object representing the tessellated CAD object.
    * @returns {THREE.Group} A nested THREE.Group object.
    */
-  renderShapes(shapes) {
+  _renderTessellatedShapes(shapes) {
     const nestedGroup = new NestedGroup(
       shapes,
       this.width,
@@ -176,9 +180,10 @@ class Viewer {
   /**
    * Retrieve the navigation tree from a Shapes object.
    * @param {Shapes} shapes - The Shapes object.
+   * @param {States} states - the visibility state of meshes and edges
    * @returns {NavTree} The navigation tree object.
    */
-  getTree(shapes) {
+  _getTree(shapes, states) {
     const delim = "/";
 
     const _getTree = (subGroup, path) => {
@@ -195,7 +200,7 @@ class Viewer {
         }
       } else {
         result.type = "leaf";
-        result.states = this.states[newPath];
+        result.states = states[newPath];
       }
       return result;
     };
@@ -204,19 +209,24 @@ class Viewer {
   }
 
   /**
-   * Initialize the visibility state of all objects according to the navigation tree setting.
+   * Render the shapes of the CAD object.
+   * @param {Shapes} shapes - The Shapes object.
+   * @param {States} states - the visibility state of meshes and edges
+   * @returns {THREE.Group} A nested THREE.Group object.
    */
-  initObjectStates() {
-    for (var key in this.states) {
-      const state = this.states[key];
-      var obj = this.nestedGroup.groups[key];
-      obj.setShapeVisible(state[0] === 1);
-      obj.setEdgesVisible(state[1] === 1);
-    }
+  renderTessellatedShapes(shapes, states) {
+    return [
+      this._renderTessellatedShapes(shapes),
+      this._getTree(shapes, states)
+    ];
   }
 
+  //
+  //  Animation
+  //
+
   /**
-   * Add an animation track to the THREE.Group
+   * Add an animation track for a THREE.Group
    * @param {string} selector - path/id of group to be animated.
    * @param {string} action - one of "rx", "ry", "rz" for rotations around axes, "q" for quaternions or "t", "tx", "ty", "tz" for translations.
    * @param {number[]} time - array of times.
@@ -268,6 +278,10 @@ class Viewer {
     }
     this.display.setAnimationControl(false);
   }
+
+  //
+  //  Update handling of the renderer
+  //
 
   /**
    * Creates ChangeNotification object if new value != old value and sends change notifications via viewer.notifyCallback.
@@ -344,6 +358,10 @@ class Viewer {
     }
   };
 
+  //
+  //  Clean up
+  //
+
   /**
    * Remove assets and event handlers.
    */
@@ -376,15 +394,32 @@ class Viewer {
     this.renderer = null;
   }
 
+  //
+  //  Rendering
+  //
+
+  /**
+   * Initialize the visibility state of all objects according to the navigation tree settings.
+   */
+  initObjectStates() {
+    for (var key in this.states) {
+      const state = this.states[key];
+      var obj = this.nestedGroup.groups[key];
+      obj.setShapeVisible(state[0] === 1);
+      obj.setEdgesVisible(state[1] === 1);
+    }
+  }
+
   /**
    * Render a CAD object and build the navigation tree
    * @param {Shapes} shapes - the shapes of the CAD object to be rendered
+   * @param {NavTree} tree - The navigation tree object
    * @param {States} states - the visibility state of meshes and edges
    * @param {number[]} [position=null] - the camera position.
    * @param {number[]} [quaternion=null] - the camera rotation as quaternion. Only relevant for TrackballControls and needs position to be set, too.
    * @param {number} [zoom=null] - zoom value.
    */
-  render(shapes, states, position = null, quaternion = null, zoom = null) {
+  render(group, tree, states, position = null, quaternion = null, zoom = null) {
     this.states = states;
     this.scene = new THREE.Scene();
 
@@ -394,7 +429,7 @@ class Viewer {
     // render the input assembly
     //
 
-    this.nestedGroup = this.renderShapes(shapes);
+    this.nestedGroup = group;
     this.scene.add(this.nestedGroup.render());
 
     this.nestedGroup.setTransparent(this.transparent);
@@ -556,7 +591,7 @@ class Viewer {
     // build tree view
     //
 
-    this.tree = this.getTree(shapes);
+    this.tree = tree;
     this.treeview = new TreeView(
       clone(this.states),
       this.tree,
@@ -593,9 +628,9 @@ class Viewer {
   /**
    * Move the camera to a given locations
    * @function
-   * @param {number[]} position - the camera position as 3 dim array [x,y,z]
    * @param {relative} [relative=false] - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
-   * @param {number[]} quaternion - the camera rotation expressed by a quaternion array [x,y,z,w].
+   * @param {number[]} position - the camera position as 3 dim array [x,y,z]
+   * @param {number[]} [quaternion=null] - the camera rotation expressed by a quaternion array [x,y,z,w].
    * @param {number} [zoom=null] - zoom value.
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
@@ -620,6 +655,7 @@ class Viewer {
    * Move the camera to one of the preset locations
    * @function
    * @param {string} dir - can be "iso", "top", "bottom", "front", "rear", "left", "right"
+   * @param {number} [zoom=null] - zoom value
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   presetCamera = (dir, zoom = null, notify = true) => {
@@ -718,11 +754,14 @@ class Viewer {
   /**
    * Handler for the animation control
    * @function
-   * @param {string} btn - the pressed button: "play", "pause", "stop"
+   * @param {string} btn - the pressed button as string: "play", "pause", "stop"
    */
   controlAnimation = (btn) => {
     switch (btn) {
       case "play":
+        if (this.clipAction.paused) {
+          this.clipAction.paused = false;
+        }
         this.clipAction.play();
         break;
       case "pause":
@@ -739,6 +778,7 @@ class Viewer {
    * @function
    * @param {string} - id
    * @param {number[]} - 2 dim array [mesh, edges] = [0/1, 0/1]
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setState = (id, state, notify = true) => {
     [0, 1].forEach((i) =>
@@ -844,7 +884,7 @@ class Viewer {
   /**
    * Toggle grid visibility
    * @function
-   * @param {boolean[]} grids - 3 dim grid visibility (xy, xzm yz)
+   * @param {boolean[]} grids - 3 dim grid visibility (xy, xz, yz)
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setGrids = (grids, notify = true) => {
@@ -1307,7 +1347,7 @@ export { Viewer };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sun Oct 24 2021 13:53:44 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Oct 26 2021 18:05:10 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>
