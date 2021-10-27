@@ -126,9 +126,9 @@ class Viewer {
     }
   }
 
-  //
-  //  Load Tesselated Shapes
-  //
+  // - - - - - - - - - - - - - - - - - - - - - - - -
+  // Load Tesselated Shapes
+  // - - - - - - - - - - - - - - - - - - - - - - - -
 
   /**
    * Render tessellated shapes of a CAD object.
@@ -193,9 +193,9 @@ class Viewer {
     ];
   }
 
-  //
-  //  Animation
-  //
+  // - - - - - - - - - - - - - - - - - - - - - - - -
+  // Animation
+  // - - - - - - - - - - - - - - - - - - - - - - - -
 
   /**
    * Add an animation track for a THREE.Group
@@ -251,9 +251,9 @@ class Viewer {
     this.display.setAnimationControl(false);
   }
 
-  //
-  //  Update handling of the renderer
-  //
+  // - - - - - - - - - - - - - - - - - - - - - - - -
+  // Update handling of the renderer
+  // - - - - - - - - - - - - - - - - - - - - - - - -
 
   /**
    * Creates ChangeNotification object if new value != old value and sends change notifications via viewer.notifyCallback.
@@ -330,9 +330,9 @@ class Viewer {
     }
   };
 
-  //
-  //  Clean up
-  //
+  // - - - - - - - - - - - - - - - - - - - - - - - -
+  // Clean up
+  // - - - - - - - - - - - - - - - - - - - - - - - -
 
   /**
    * Remove assets and event handlers.
@@ -366,9 +366,9 @@ class Viewer {
     this.renderer = null;
   }
 
-  //
-  //  Rendering
-  //
+  // - - - - - - - - - - - - - - - - - - - - - - - -
+  // Rendering
+  // - - - - - - - - - - - - - - - - - - - - - - - -
 
   /**
    * Initialize the visibility state of all objects according to the navigation tree settings.
@@ -593,9 +593,9 @@ class Viewer {
     timer.stop();
   }
 
-  //
+  // - - - - - - - - - - - - - - - - - - - - - - - -
   // Event handlers
-  //
+  // - - - - - - - - - - - - - - - - - - - - - - - -
 
   /**
    * Move the camera to a given locations
