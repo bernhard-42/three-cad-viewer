@@ -126,12 +126,16 @@ class Viewer {
     }
   }
 
+  //
+  //  Load Tesselated Shapes
+  //
+
   /**
-   * Render the shapes of the CAD object.
-   * @param {Shapes} shapes - The Shapes object.
+   * Render tessellated shapes of a CAD object.
+   * @param {Shapes} shapes - The Shapes object representing the tessellated CAD object.
    * @returns {THREE.Group} A nested THREE.Group object.
    */
-  renderShapes(shapes) {
+  _renderTessellatedShapes(shapes) {
     const nestedGroup = new NestedGroup(
       shapes,
       this.width,
@@ -148,9 +152,10 @@ class Viewer {
   /**
    * Retrieve the navigation tree from a Shapes object.
    * @param {Shapes} shapes - The Shapes object.
+   * @param {States} states - the visibility state of meshes and edges
    * @returns {NavTree} The navigation tree object.
    */
-  getTree(shapes) {
+  _getTree(shapes, states) {
     const delim = "/";
 
     const _getTree = (subGroup, path) => {
@@ -167,7 +172,7 @@ class Viewer {
         }
       } else {
         result.type = "leaf";
-        result.states = this.states[newPath];
+        result.states = states[newPath];
       }
       return result;
     };
@@ -176,16 +181,21 @@ class Viewer {
   }
 
   /**
-   * Initialize the visibility state of all objects according to the navigation tree settings.
+   * Render the shapes of the CAD object.
+   * @param {Shapes} shapes - The Shapes object.
+   * @param {States} states - the visibility state of meshes and edges
+   * @returns {THREE.Group} A nested THREE.Group object.
    */
-  initObjectStates() {
-    for (var key in this.states) {
-      const state = this.states[key];
-      var obj = this.nestedGroup.groups[key];
-      obj.setShapeVisible(state[0] === 1);
-      obj.setEdgesVisible(state[1] === 1);
-    }
+  renderTessellatedShapes(shapes, states) {
+    return [
+      this._renderTessellatedShapes(shapes),
+      this._getTree(shapes, states)
+    ];
   }
+
+  //
+  //  Animation
+  //
 
   /**
    * Add an animation track for a THREE.Group
@@ -240,6 +250,10 @@ class Viewer {
     }
     this.display.setAnimationControl(false);
   }
+
+  //
+  //  Update handling of the renderer
+  //
 
   /**
    * Creates ChangeNotification object if new value != old value and sends change notifications via viewer.notifyCallback.
@@ -316,6 +330,10 @@ class Viewer {
     }
   };
 
+  //
+  //  Clean up
+  //
+
   /**
    * Remove assets and event handlers.
    */
@@ -348,15 +366,32 @@ class Viewer {
     this.renderer = null;
   }
 
+  //
+  //  Rendering
+  //
+
+  /**
+   * Initialize the visibility state of all objects according to the navigation tree settings.
+   */
+  initObjectStates() {
+    for (var key in this.states) {
+      const state = this.states[key];
+      var obj = this.nestedGroup.groups[key];
+      obj.setShapeVisible(state[0] === 1);
+      obj.setEdgesVisible(state[1] === 1);
+    }
+  }
+
   /**
    * Render a CAD object and build the navigation tree
    * @param {Shapes} shapes - the shapes of the CAD object to be rendered
+   * @param {NavTree} tree - The navigation tree object
    * @param {States} states - the visibility state of meshes and edges
    * @param {number[]} [position=null] - the camera position.
    * @param {number[]} [quaternion=null] - the camera rotation as quaternion. Only relevant for TrackballControls and needs position to be set, too.
    * @param {number} [zoom=null] - zoom value.
    */
-  render(shapes, states, position = null, quaternion = null, zoom = null) {
+  render(group, tree, states, position = null, quaternion = null, zoom = null) {
     this.states = states;
     this.scene = new THREE.Scene();
 
@@ -366,7 +401,7 @@ class Viewer {
     // render the input assembly
     //
 
-    this.nestedGroup = this.renderShapes(shapes);
+    this.nestedGroup = group;
     this.scene.add(this.nestedGroup.render());
 
     this.nestedGroup.setTransparent(this.transparent);
@@ -528,7 +563,7 @@ class Viewer {
     // build tree view
     //
 
-    this.tree = this.getTree(shapes);
+    this.tree = tree;
     this.treeview = new TreeView(
       clone(this.states),
       this.tree,
