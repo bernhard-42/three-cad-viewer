@@ -960,6 +960,10 @@ var CameraControls = function ( object, domElement ) {
 
 		event.preventDefault();
 
+		// Prevent getting disturbed by higher level event handlers, e.g. Jupyterlab.
+
+		event.stopPropagation();
+
 		// Manually set the focus since calling preventDefault above
 		// prevents the browser from setting it automatically.
 
@@ -1071,7 +1075,13 @@ var CameraControls = function ( object, domElement ) {
 
 		if ( scope.enabled === false ) return;
 
+		// Prevent the browser from scrolling.
+
 		event.preventDefault();
+
+		// Prevent getting disturbed by higher level event handlers, e.g. Jupyterlab.
+
+		event.stopPropagation();
 
 		switch ( state ) {
 
