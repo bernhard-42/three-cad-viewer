@@ -448,6 +448,9 @@ class Viewer {
     );
     this.controls.enableKeys = false;
 
+    // ensure panning works for screen coordinates
+    this.controls.controls.screenSpacePanning = true;
+
     // this needs to happen after the controls have been established
     if (position == null && quaternion == null) {
       this.presetCamera("iso", zoom);
