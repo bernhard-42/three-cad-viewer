@@ -45,6 +45,8 @@ class Controls {
     this.controls.zoomSpeed = this.zoomSpeed;
     this.controls.panSpeed = this.panSpeed;
 
+    this.currentUpdateCallback = null;
+
     // save default view for reset
     this.saveState();
     this.update();
@@ -87,7 +89,20 @@ class Controls {
    * @param {callback} domEventCallback - the callback function.
    **/
   addChangeListener(callback) {
-    this.controls.addEventListener("change", callback);
+    if (this.currentUpdateCallback == null) {
+      this.currentUpdateCallback = callback;
+      this.controls.addEventListener("change", callback);
+    }
+  }
+
+  /**
+   * Remove the event listener callback for the "change" event.
+   **/
+  removeChangeListener() {
+    if (this.currentUpdateCallback != null) {
+      this.controls.removeEventListener("change", this.currentUpdateCallback);
+      this.currentUpdateCallback = null;
+    }
   }
 
   /**

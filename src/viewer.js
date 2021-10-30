@@ -17,15 +17,15 @@ class Viewer {
   /**
    * Create Viewer.
    * @param {Display} display - The Display object.
-   * @param {boolean} needsAnimationLoop - Whether to start an animation loop or handle camera updates via canvas events.
    * @param {ViewerOptions} options - configuration parameters.
    * @param {NotificationCallback} notifyCallback - The callback to receive changes of viewer parameters.
    */
-  constructor(display, needsAnimationLoop, options, notifyCallback) {
+  constructor(display, options, notifyCallback) {
     this.display = display;
-    this.needsAnimationLoop = needsAnimationLoop;
     this.setDefaults(options);
     this.notifyCallback = notifyCallback;
+
+    this.hasAnimationLoop = false;
 
     this.display.setSizes({
       cadWidth: this.cadWidth,
@@ -205,10 +205,6 @@ class Viewer {
    * @param {number[]} values - array of values, the type depends on the action.
    */
   addAnimationTrack(selector, action, time, values) {
-    if (!this.needsAnimationLoop) {
-      console.error("Start viewer with animation loop");
-      return;
-    }
     if (this.animation == null) {
       this.animation = new Animation(
         this.nestedGroup.rootGroup,
@@ -230,14 +226,17 @@ class Viewer {
    * @param {number} speed - speed of the animation.
    */
   initAnimation(duration, speed) {
-    if (!this.needsAnimationLoop) {
-      console.error("Start viewer with animation loop");
-    } else if (this.animation == null) {
+    if (this.animation == null) {
       console.error("Animation does not have tracks");
-    } else {
-      this.display.setAnimationControl(true);
-      this.clipAction = this.animation.animate(duration, speed);
+      return;
     }
+
+    if (!this.hasAnimationLoop) {
+      this.toggleAnimationLoop(true);
+    }
+
+    this.display.setAnimationControl(true);
+    this.clipAction = this.animation.animate(duration, speed);
   }
 
   /**
@@ -249,6 +248,7 @@ class Viewer {
       this.animation = null;
     }
     this.display.setAnimationControl(false);
+    this.toggleAnimationLoop(false);
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -290,8 +290,8 @@ class Viewer {
    * @param {boolean} fromAnimationLoop - whether a animation loop is running in the background. Update will skipped for this case
    * @param {boolean} notify - whether to send notification or not.
    */
-  update = (updateMarker, fromAnimationLoop, notify = true) => {
-    if (this.ready && !(this.needsAnimationLoop && !fromAnimationLoop)) {
+  update = (updateMarker, notify = true) => {
+    if (this.ready) {
       if (this.animation) {
         this.animation.update();
       }
@@ -324,12 +324,33 @@ class Viewer {
     if (this.continueAnimation) {
       requestAnimationFrame(this.animate);
       this.controls.update();
-      this.update(true, true, true);
+      this.update(true, true);
     } else {
-      console.log("animation stopped");
+      console.log("Animation loop stopped");
     }
   };
 
+  toggleAnimationLoop(flag) {
+    if (flag) {
+      this.continueAnimation = true;
+      this.hasAnimationLoop = true;
+      this.controls.removeChangeListener();
+      console.debug("Change listener removed");
+      this.animate();
+      console.debug("Animation loop started");
+    } else {
+      if (this.hasAnimationLoop) {
+        console.debug("Turning animation loop off");
+      }
+      this.continueAnimation = false;
+      this.hasAnimationLoop = false;
+      this.controls.addChangeListener(() => this.update(true, true));
+      console.debug("Change listener registered");
+
+      // ensure last animation cycle has finished
+      setTimeout(() => this.update(true, true), 50);
+    }
+  }
   // - - - - - - - - - - - - - - - - - - - - - - - -
   // Clean up
   // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -470,14 +491,6 @@ class Viewer {
     this.controls.saveState();
 
     //
-    // Register update event if needed
-    //
-
-    if (!this.needsAnimationLoop) {
-      this.controls.addChangeListener(() => this.update(true, true, true));
-    }
-
-    //
     // add lights
     //
 
@@ -583,16 +596,10 @@ class Viewer {
     // show the rendering
     //
 
+    this.toggleAnimationLoop(this.hasAnimationLoop);
+
     this.ready = true;
-
-    if (this.needsAnimationLoop) {
-      this.animate();
-    } else {
-      this.update(true, false);
-    }
-
     this.info.readyMsg(this.gridHelper.ticks, this.control);
-
     timer.stop();
   }
 
@@ -623,7 +630,7 @@ class Viewer {
       zoom,
       notify
     );
-    this.update(true, false, notify);
+    this.update(true, notify);
   };
 
   /**
@@ -635,7 +642,7 @@ class Viewer {
    */
   presetCamera = (dir, zoom = null, notify = true) => {
     this.camera.presetCamera(dir, zoom, notify);
-    this.update(true, false, notify);
+    this.update(true, notify);
   };
 
   /**
@@ -658,7 +665,7 @@ class Viewer {
     this.display.setOrthoCheck(flag);
 
     this.checkChanges({ ortho: flag }, notify);
-    this.update(true, false, notify);
+    this.update(true, notify);
   }
 
   /**
@@ -668,7 +675,7 @@ class Viewer {
   resize = () => {
     this.camera.setZoom(this.zoom0);
     this.camera.updateProjectionMatrix();
-    this.update(true, false);
+    this.update(true);
   };
 
   /**
@@ -677,7 +684,7 @@ class Viewer {
    */
   reset = () => {
     this.controls.reset();
-    this.update(true, false);
+    this.update(true);
   };
 
   /**
@@ -686,7 +693,7 @@ class Viewer {
    */
   setLocalClipping(flag) {
     this.renderer.localClippingEnabled = flag;
-    this.update(true, false);
+    this.update(false);
   }
 
   /**
@@ -712,7 +719,7 @@ class Viewer {
 
     this.checkChanges({ states: states }, notify);
 
-    this.update(true, false);
+    this.update(false);
   };
 
   /**
@@ -723,7 +730,7 @@ class Viewer {
    */
   refreshPlane = (index, value) => {
     this.clipping.setConstant(index, value);
-    this.update(false, false);
+    this.update(false);
   };
 
   /**
@@ -759,7 +766,7 @@ class Viewer {
     [0, 1].forEach((i) =>
       this.treeview.handleStateChange("leaf", id, i, state[i])
     );
-    this.update(true, false, notify);
+    this.update(false, notify);
   };
 
   /**
@@ -831,7 +838,7 @@ class Viewer {
 
     this.checkChanges({ axes: flag }, notify);
 
-    this.update(true, false);
+    this.update(false);
   };
 
   /**
@@ -845,7 +852,7 @@ class Viewer {
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 
-    this.update(true, false);
+    this.update(false);
   };
 
   /**
@@ -868,7 +875,7 @@ class Viewer {
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 
-    this.update(true, false);
+    this.update(false);
   };
 
   /**
@@ -893,7 +900,7 @@ class Viewer {
 
     this.checkChanges({ axes0: flag }, notify);
 
-    this.update(true, false);
+    this.update(false);
   };
 
   /**
@@ -917,7 +924,7 @@ class Viewer {
 
     this.checkChanges({ transparent: flag }, notify);
 
-    this.update(true, false);
+    this.update(false);
   };
 
   /**
@@ -941,7 +948,7 @@ class Viewer {
 
     this.checkChanges({ black_edges: flag }, notify);
 
-    this.update(true, false);
+    this.update(false);
   };
 
   /**
@@ -975,7 +982,7 @@ class Viewer {
    **/
   setCameraZoom(val, notify = true) {
     this.camera.setZoom(val);
-    this.update(true, false, notify);
+    this.update(true, notify);
   }
 
   /**
@@ -994,7 +1001,7 @@ class Viewer {
    **/
   setCameraPosition(position, relative = false, notify = true) {
     this.camera.setPosition(position, relative);
-    this.update(true, false, notify);
+    this.update(true, notify);
   }
 
   /**
@@ -1012,7 +1019,7 @@ class Viewer {
    **/
   setCameraQuaternion(quaternion, notify = true) {
     this.camera.setQuaternion(quaternion);
-    this.update(true, false, notify);
+    this.update(true, notify);
   }
 
   /**
@@ -1032,7 +1039,7 @@ class Viewer {
   setEdgeColor = (color, notify = true) => {
     this.edgeColor = color;
     this.nestedGroup.setEdgeColor(color);
-    this.update(true, false, notify);
+    this.update(false, notify);
   };
 
   /**
@@ -1052,7 +1059,7 @@ class Viewer {
   setTools = (flag, notify = true) => {
     this.tools = flag;
     this.display.setTools(flag);
-    this.update(true, false, notify);
+    this.update(false, notify);
   };
 
   /**
@@ -1076,7 +1083,7 @@ class Viewer {
         el.intensity = val;
       }
     }
-    this.update(true, false, notify);
+    this.update(false, notify);
   };
 
   /**
@@ -1099,7 +1106,7 @@ class Viewer {
         el.intensity = val;
       }
     }
-    this.update(true, false, notify);
+    this.update(false, notify);
   };
 
   /**
@@ -1207,7 +1214,7 @@ class Viewer {
 
     this.checkChanges({ clip_intersection: flag }, notify);
 
-    this.update(true, false);
+    this.update(false);
   };
 
   /**
@@ -1231,7 +1238,7 @@ class Viewer {
 
     this.checkChanges({ clip_planes: flag }, notify);
 
-    this.update(false, false);
+    this.update(false);
   };
 
   /**
@@ -1260,7 +1267,7 @@ class Viewer {
     this.checkChanges(notifyObject, notify);
 
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
-    this.update(true, false);
+    this.update(false);
   }
 
   /**
