@@ -42,7 +42,7 @@
       function render(name, shapes, states) {
         viewer?.dispose();
         
-        viewer = new Viewer(display, name.startsWith("hexapod"), options, nc);
+        viewer = new Viewer(display, options, nc);
         viewer._timeit = timeit;
 
         viewer.render(
