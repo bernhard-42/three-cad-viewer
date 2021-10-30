@@ -29,7 +29,6 @@ var CameraControls = function ( object, domElement ) {
 	this.holroyd = true;
 	// parameters for holroyd projection
     this.radius = 0.9; // ndc trackball radius
-    this.debugXY = false;
 
 	// How far you can dolly in and out ( PerspectiveCamera only )
 	this.minDistance = 0;
@@ -633,9 +632,6 @@ var CameraControls = function ( object, domElement ) {
 			const x = (pageCoord.x - rect.x) / (rect.width / 2) - 1.0;
 			const y = 1.0 - (pageCoord.y - rect.y) / (rect.height / 2); // flip y axis
 			
-			if (scope.debugXY){
-				console.log(`rect(${rect.x}, ${rect.y}), page(${pageCoord.x}, ${pageCoord.y}), ncd(${x}, ${y})`);
-			}
 			holroyd(
 				horizontalRotate ?  x : 0,
 				verticalRotate ? y : 0 
