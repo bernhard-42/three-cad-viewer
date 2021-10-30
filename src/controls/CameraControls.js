@@ -616,8 +616,8 @@ var CameraControls = function ( object, domElement ) {
 		const r2 = scope.radius * scope.radius;
   
 		function holroyd(x, y) {
-      x *= scope.rotateSpeed;
-      y *= scope.rotateSpeed;
+			x *= scope.rotateSpeed;
+			y *= scope.rotateSpeed;
 			var d2 = x * x + y * y;
 	
 			if (d2 <= r2 / 2) {
