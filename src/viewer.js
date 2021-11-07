@@ -1310,6 +1310,35 @@ class Viewer {
 
     // this.checkChanges(notifyObject, notify);
   };
+
+  /**
+   * Replace CadView with an inline png image of the canvas.
+   *
+   * Note: Only the canvas will be shown, no tools and orientation marker
+   */
+  pinAsPng = () => {
+    const canvas = this.display.cadView.children[2];
+    this.renderer.render(this.scene, this.camera.getCamera());
+    canvas.toBlob((blob) => {
+      let reader = new FileReader();
+      const scope = this;
+      reader.addEventListener(
+        "load",
+        function () {
+          var image = document.createElement("img");
+          image.width = scope.cadWidth;
+          image.height = scope.height;
+          image.src = reader.result;
+          for (var c of scope.display.container.children) {
+            scope.display.container.removeChild(c);
+          }
+          scope.display.container.appendChild(image);
+        },
+        false
+      );
+      reader.readAsDataURL(blob);
+    });
+  };
 }
 
 export { Viewer };

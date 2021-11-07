@@ -7,6 +7,7 @@ import light_mesh_empty from "../icons/light/mesh_empty.svg";
 import light_mesh_mix from "../icons/light/mesh_mix.svg";
 import light_mesh_no from "../icons/light/mesh_no.svg";
 import light_pause from "../icons/light/pause.svg";
+import light_pin from "../icons/light/pin.svg";
 import light_plane from "../icons/light/plane.svg";
 import light_play from "../icons/light/play.svg";
 import light_rear from "../icons/light/rear.svg";
@@ -28,6 +29,7 @@ import dark_mesh_empty from "../icons/dark/mesh_empty.svg";
 import dark_mesh_mix from "../icons/dark/mesh_mix.svg";
 import dark_mesh_no from "../icons/dark/mesh_no.svg";
 import dark_pause from "../icons/dark/pause.svg";
+import dark_pin from "../icons/dark/pin.svg";
 import dark_plane from "../icons/dark/plane.svg";
 import dark_play from "../icons/dark/play.svg";
 import dark_rear from "../icons/dark/rear.svg";
@@ -51,6 +53,7 @@ const icons = {
   mesh_mix: { light: light_mesh_mix, dark: dark_mesh_mix },
   mesh_no: { light: light_mesh_no, dark: dark_mesh_no },
   pause: { light: light_pause, dark: dark_pause },
+  pin: { light: light_pin, dark: dark_pin },
   plane: { light: light_plane, dark: dark_plane },
   play: { light: light_play, dark: dark_play },
   rear: { light: light_rear, dark: dark_rear },
@@ -62,7 +65,7 @@ const icons = {
   shape_mix: { light: light_shape_mix, dark: dark_shape_mix },
   shape_no: { light: light_shape_no, dark: dark_shape_no },
   stop: { light: light_stop, dark: dark_stop },
-  top: { light: light_top, dark: dark_top },
+  top: { light: light_top, dark: dark_top }
 };
 
 function getIconBackground(theme, name) {

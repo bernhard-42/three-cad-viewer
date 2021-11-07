@@ -55,6 +55,9 @@ const TEMPLATE = `
     <span class="tcv_tooltip"  data-tooltip="Toggle black edges">
         <span class="tcv_label">Black edges</span><input class='tcv_black_edges tcv_check' type="checkbox" />
     </span>
+    <span class="tcv_tooltip"  data-tooltip="Pin view as PNG image">
+        <input class='tcv_pin tcv_btn tcv_align_right' type="button" />
+    </span>
     </div>
     <div class="tcv_cad_body">
     <div class="tcv_cad_navigation">
@@ -145,6 +148,7 @@ const buttons = [
   "bottom",
   "left",
   "right",
+  "pin",
   "plane",
   "play",
   "pause",
@@ -388,6 +392,8 @@ class Display {
     buttons.forEach((name) => {
       this._setupClickEvent(name, this.setView);
     });
+
+    this._setupClickEvent("tcv_pin", this.pinAsPng);
 
     const tabs = ["tcv_tab_tree", "tcv_tab_clip"];
     tabs.forEach((name) => {
@@ -657,6 +663,15 @@ class Display {
   setView = (e) => {
     const btn = e.target.className.split(" ")[0].slice(4);
     this.viewer.presetCamera(btn);
+  };
+
+  /**
+   * Pin screenshot of canvas as PNG
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  pinAsPng = (e) => {
+    this.viewer.pinAsPng();
   };
 
   /**
