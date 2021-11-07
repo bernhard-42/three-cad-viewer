@@ -1317,7 +1317,7 @@ class Viewer {
    * Note: Only the canvas will be shown, no tools and orientation marker
    */
   pinAsPng = () => {
-    const canvas = this.display.cadView.children[2];
+    const canvas = this.display.cadView.children[3];
     this.renderer.render(this.scene, this.camera.getCamera());
     canvas.toBlob((blob) => {
       let reader = new FileReader();

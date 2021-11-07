@@ -55,8 +55,13 @@ const TEMPLATE = `
     <span class="tcv_tooltip"  data-tooltip="Toggle black edges">
         <span class="tcv_label">Black edges</span><input class='tcv_black_edges tcv_check' type="checkbox" />
     </span>
-    <span class="tcv_tooltip"  data-tooltip="Pin view as PNG image">
-        <input class='tcv_pin tcv_btn tcv_align_right' type="button" />
+    <span class="tcv_align_right">
+      <span class="tcv_tooltip"  data-tooltip="Toggle help">
+          <input class='tcv_help tcv_btn' type="button" />
+      </span>
+      <span class="tcv_tooltip"  data-tooltip="Pin view as PNG image">
+          <input class='tcv_pin tcv_btn' type="button" />
+      </span>
     </span>
     </div>
     <div class="tcv_cad_body">
@@ -129,6 +134,16 @@ const TEMPLATE = `
             <span class="tcv_tooltip"  data-tooltip="Stop and reset animation"><input class='tcv_stop tcv_btn' type="button" /></span>
         </div>
         <div class="tcv_cad_inset"></div>
+        <div class="tcv_cad_help tcv_round">
+          <table class="tcv_cad_help_layout">
+            <tr><td><b>Rotate</b></td><td>&lt;left mouse button&gt;</td></tr>
+            <tr><td><b>Rotate up / down</b></td><td>&lt;Ctrl&gt; + &lt;left mouse button&gt;</td></tr>
+            <tr><td><b>Rotate left / right</b></td><td>&lt;Meta&gt; + &lt;left mouse button&gt;</td></tr>
+            <tr><td><b>Pan</b></td><td>&lt;Shift&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td></tr>
+            <tr><td><b>Zoom</b></td><td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td></tr>
+            <tr><td><b>Pick</b></td><td>&lt;left mouse button&gt; double click</td></tr>
+          </table>
+        </div>
     </div>
     </div>
 </div>
@@ -141,6 +156,7 @@ function px(val) {
 const buttons = [
   "reset",
   "resize",
+  "help",
   "iso",
   "front",
   "rear",
@@ -250,6 +266,8 @@ class Display {
     )[0];
     this.cadAnim =
       this.container.getElementsByClassName("tcv_cad_animation")[0];
+
+    this.cadHelp = this.container.getElementsByClassName("tcv_cad_help")[0];
 
     this.planeLabels = [];
     for (var i = 1; i < 4; i++) {
@@ -394,6 +412,8 @@ class Display {
     });
 
     this._setupClickEvent("tcv_pin", this.pinAsPng);
+    this._setupClickEvent("tcv_help", this.toggleHelp);
+    this.help_shown = true;
 
     const tabs = ["tcv_tab_tree", "tcv_tab_clip"];
     tabs.forEach((name) => {
@@ -428,6 +448,8 @@ class Display {
     this._setupClickEvent("tcv_pause", this.controlAnimation, false);
     this._setupClickEvent("tcv_stop", this.controlAnimation, false);
     this.setAnimationControl(false);
+
+    this.setHelp(false);
   }
 
   // setup functions
@@ -776,6 +798,24 @@ class Display {
   controlAnimation = (e) => {
     const btn = e.target.className.split(" ")[0].slice(4);
     this.viewer.controlAnimation(btn);
+  };
+
+  /**
+   * Show or hide help dialog
+   * @function
+   * @param {boolean} flag - whether to show or hide help dialog
+   */
+  setHelp = (flag) => {
+    this.cadHelp.style.display = flag ? "block" : "none";
+    this.help_shown = flag;
+  };
+
+  /**
+   * Show help dialog
+   * @function
+   */
+  toggleHelp = () => {
+    this.setHelp(!this.help_shown);
   };
 }
 

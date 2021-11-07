@@ -1,5 +1,6 @@
 import light_bottom from "../icons/light/bottom.svg";
 import light_front from "../icons/light/front.svg";
+import light_help from "../icons/light/help.svg";
 import light_iso from "../icons/light/iso.svg";
 import light_left from "../icons/light/left.svg";
 import light_mesh from "../icons/light/mesh.svg";
@@ -22,6 +23,7 @@ import light_stop from "../icons/light/stop.svg";
 import light_top from "../icons/light/top.svg";
 import dark_bottom from "../icons/dark/bottom.svg";
 import dark_front from "../icons/dark/front.svg";
+import dark_help from "../icons/dark/help.svg";
 import dark_iso from "../icons/dark/iso.svg";
 import dark_left from "../icons/dark/left.svg";
 import dark_mesh from "../icons/dark/mesh.svg";
@@ -46,6 +48,7 @@ import dark_top from "../icons/dark/top.svg";
 const icons = {
   bottom: { light: light_bottom, dark: dark_bottom },
   front: { light: light_front, dark: dark_front },
+  help: { light: light_help, dark: dark_help },
   iso: { light: light_iso, dark: dark_iso },
   left: { light: light_left, dark: dark_left },
   mesh: { light: light_mesh, dark: dark_mesh },

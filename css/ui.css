@@ -132,6 +132,22 @@ th {
   z-index: 100;
 }
 
+.tcv_cad_help {
+  /* height: 36px; */
+  background-color: var(--tcv-bg-color);
+  border: none;
+  margin: 0;
+  padding: 0px;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  z-index: 100;
+}
+
+.tcv_cad_help_layout {
+  border-collapse: separate;
+  border-spacing: 4px;}
+
 .tcv_round {
   box-sizing: border-box;
   /* -moz-box-sizing: border-box;
@@ -146,6 +162,7 @@ th {
 
 .tcv_align_right {
   float: right;
+  margin-right: 4px;
 }
 
 .tcv_box_content {
