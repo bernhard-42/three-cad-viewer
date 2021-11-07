@@ -52388,6 +52388,8 @@ var light_bottom = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http
 
 var light_front = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
 
+var light_help = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M23.0,-13.0 A10.0,10.0,0,1,0,22.998476951563912,-12.825475935627155\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<text x=\"7.0\" y=\"-6.0\" font-size=\"20.0\" fill=\"rgb(83,160,227)\" font-family=\"sans-serif\" font-weight=\"bold\" dy=\"0em\">?</text>\n</svg>\n";
+
 var light_iso = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M22.0,-7.5 L22.0,-18.5 L13.0,-13.0 L13.0,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M13.0,-13.0 L13.0,-2.0 L4.0,-7.5 L4.0,-18.5 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M22.0,-18.5 L13.0,-24.0 L4.0,-18.5 L13.0,-13.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
 
 var light_left = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
@@ -52401,6 +52403,8 @@ var light_mesh_mix = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"ht
 var light_mesh_no = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"rgb(83,160,227)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"rgb(83,160,227)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
 
 var light_pause = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"5.2\" y=\"-22.0\" width=\"5.6\" height=\"18.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n<rect x=\"15.2\" y=\"-22.0\" width=\"5.6\" height=\"18.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var light_pin = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"10.0\" y=\"-23.0\" width=\"6.0\" height=\"11.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" />\n<path d=\"M13.0,-3.0 L13.0,-10.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M17.330127018922195,-21.5 A5.0,5.0,0,0,0,8.669872981077805,-21.5\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"rgb(83,160,227)\" stroke-linecap=\"round\" />\n<path d=\"M21.66025403784439,-10.2 A10.0,10.0,0,0,0,4.339745962155613,-10.2\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"rgb(83,160,227)\" stroke-linecap=\"round\" />\n<path d=\"M4.5,-10.2 L21.5,-10.2 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M8.8,-21.4 L17.2,-21.4 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
 
 var light_plane = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M2.0,-5.0 L4.4,-13.0 L24.0,-13.0 L21.0,-5.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M13.0,-9.5 L13.0,-19.5 Z\" fill=\"none\" stroke=\"rgb(83,160,227)\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M11.0,-17.5 L13.0,-19.5 L15.0,-17.5 Z\" fill=\"none\" stroke=\"rgb(83,160,227)\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
 
@@ -52430,6 +52434,8 @@ var dark_bottom = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http:
 
 var dark_front = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
 
+var dark_help = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M23.0,-13.0 A10.0,10.0,0,1,0,22.998476951563912,-12.825475935627155\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<text x=\"7.0\" y=\"-6.0\" font-size=\"20.0\" fill=\"rgb(48, 142, 225)\" font-family=\"sans-serif\" font-weight=\"bold\" dy=\"0em\">?</text>\n</svg>\n";
+
 var dark_iso = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M22.0,-7.5 L22.0,-18.5 L13.0,-13.0 L13.0,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M13.0,-13.0 L13.0,-2.0 L4.0,-7.5 L4.0,-18.5 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M22.0,-18.5 L13.0,-24.0 L4.0,-18.5 L13.0,-13.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
 
 var dark_left = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
@@ -52443,6 +52449,8 @@ var dark_mesh_mix = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"htt
 var dark_mesh_no = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
 
 var dark_pause = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"5.2\" y=\"-22.0\" width=\"5.6\" height=\"18.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n<rect x=\"15.2\" y=\"-22.0\" width=\"5.6\" height=\"18.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var dark_pin = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"10.0\" y=\"-23.0\" width=\"6.0\" height=\"11.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" />\n<path d=\"M13.0,-3.0 L13.0,-10.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M17.330127018922195,-21.5 A5.0,5.0,0,0,0,8.669872981077805,-21.5\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"rgb(48, 142, 225)\" stroke-linecap=\"round\" />\n<path d=\"M21.66025403784439,-10.2 A10.0,10.0,0,0,0,4.339745962155613,-10.2\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"rgb(48, 142, 225)\" stroke-linecap=\"round\" />\n<path d=\"M4.5,-10.2 L21.5,-10.2 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M8.8,-21.4 L17.2,-21.4 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
 
 var dark_plane = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M2.0,-5.0 L4.4,-13.0 L24.0,-13.0 L21.0,-5.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M13.0,-9.5 L13.0,-19.5 Z\" fill=\"none\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M11.0,-17.5 L13.0,-19.5 L15.0,-17.5 Z\" fill=\"none\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
 
@@ -52471,6 +52479,7 @@ var dark_top = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://w
 const icons = {
   bottom: { light: light_bottom, dark: dark_bottom },
   front: { light: light_front, dark: dark_front },
+  help: { light: light_help, dark: dark_help },
   iso: { light: light_iso, dark: dark_iso },
   left: { light: light_left, dark: dark_left },
   mesh: { light: light_mesh, dark: dark_mesh },
@@ -52478,6 +52487,7 @@ const icons = {
   mesh_mix: { light: light_mesh_mix, dark: dark_mesh_mix },
   mesh_no: { light: light_mesh_no, dark: dark_mesh_no },
   pause: { light: light_pause, dark: dark_pause },
+  pin: { light: light_pin, dark: dark_pin },
   plane: { light: light_plane, dark: dark_plane },
   play: { light: light_play, dark: dark_play },
   rear: { light: light_rear, dark: dark_rear },
@@ -52489,7 +52499,7 @@ const icons = {
   shape_mix: { light: light_shape_mix, dark: dark_shape_mix },
   shape_no: { light: light_shape_no, dark: dark_shape_no },
   stop: { light: light_stop, dark: dark_stop },
-  top: { light: light_top, dark: dark_top },
+  top: { light: light_top, dark: dark_top }
 };
 
 function getIconBackground(theme, name) {
@@ -55800,7 +55810,13 @@ class Viewer {
           boundingSphere: JSON.parse(JSON.stringify(nearest.boundingSphere))
         }
       });
-      this.info.bbInfo(nearest.path, nearest.name, nearest.boundingBox);
+      if (e.metaKey) {
+        var update = {};
+        update[`${nearest.path}/${nearest.name}`] = [0, 0];
+        this.setStates(update);
+      } else {
+        this.info.bbInfo(nearest.path, nearest.name, nearest.boundingBox);
+      }
     }
   };
 
@@ -56301,6 +56317,35 @@ class Viewer {
 
     // this.checkChanges(notifyObject, notify);
   };
+
+  /**
+   * Replace CadView with an inline png image of the canvas.
+   *
+   * Note: Only the canvas will be shown, no tools and orientation marker
+   */
+  pinAsPng = () => {
+    const canvas = this.display.cadView.children[3];
+    this.renderer.render(this.scene, this.camera.getCamera());
+    canvas.toBlob((blob) => {
+      let reader = new FileReader();
+      const scope = this;
+      reader.addEventListener(
+        "load",
+        function () {
+          var image = document.createElement("img");
+          image.width = scope.cadWidth;
+          image.height = scope.height;
+          image.src = reader.result;
+          for (var c of scope.display.container.children) {
+            scope.display.container.removeChild(c);
+          }
+          scope.display.container.appendChild(image);
+        },
+        false
+      );
+      reader.readAsDataURL(blob);
+    });
+  };
 }
 
 const TEMPLATE = `
@@ -56357,6 +56402,14 @@ const TEMPLATE = `
     </span>
     <span class="tcv_tooltip"  data-tooltip="Toggle black edges">
         <span class="tcv_label">Black edges</span><input class='tcv_black_edges tcv_check' type="checkbox" />
+    </span>
+    <span class="tcv_align_right">
+      <span class="tcv_tooltip"  data-tooltip="Toggle help">
+          <input class='tcv_help tcv_btn' type="button" />
+      </span>
+      <span class="tcv_tooltip"  data-tooltip="Pin view as PNG image">
+          <input class='tcv_pin tcv_btn' type="button" />
+      </span>
     </span>
     </div>
     <div class="tcv_cad_body">
@@ -56429,6 +56482,20 @@ const TEMPLATE = `
             <span class="tcv_tooltip"  data-tooltip="Stop and reset animation"><input class='tcv_stop tcv_btn' type="button" /></span>
         </div>
         <div class="tcv_cad_inset"></div>
+        <div class="tcv_cad_help tcv_round">
+          <table class="tcv_cad_help_layout">
+            <tr><td><b>Rotate</b></td><td>&lt;left mouse button&gt;</td></tr>
+            <tr><td><b>Rotate up / down</b></td><td>&lt;Ctrl&gt; + &lt;left mouse button&gt;</td></tr>
+            <tr><td><b>Rotate left / right</b></td><td>&lt;Meta&gt; + &lt;left mouse button&gt;</td></tr>
+            <tr><td><b>Pan</b></td><td>&lt;Shift&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td></tr>
+            <tr><td><b>Zoom</b></td><td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td></tr>
+            
+            <tr><td><b>- - - </b></td><td></td></tr>
+
+            <tr><td><b>Pick element</b></td><td>&lt;left mouse button&gt; double click</td></tr>
+            <tr><td><b>Hide element</b></td><td>&lt;Meta&gt; + &lt;left mouse button&gt; double click</td></tr>
+          </table>
+        </div>
     </div>
     </div>
 </div>
@@ -56441,6 +56508,7 @@ function px(val) {
 const buttons = [
   "reset",
   "resize",
+  "help",
   "iso",
   "front",
   "rear",
@@ -56448,6 +56516,7 @@ const buttons = [
   "bottom",
   "left",
   "right",
+  "pin",
   "plane",
   "play",
   "pause",
@@ -56549,6 +56618,8 @@ class Display {
     )[0];
     this.cadAnim =
       this.container.getElementsByClassName("tcv_cad_animation")[0];
+
+    this.cadHelp = this.container.getElementsByClassName("tcv_cad_help")[0];
 
     this.planeLabels = [];
     for (var i = 1; i < 4; i++) {
@@ -56692,6 +56763,10 @@ class Display {
       this._setupClickEvent(name, this.setView);
     });
 
+    this._setupClickEvent("tcv_pin", this.pinAsPng);
+    this._setupClickEvent("tcv_help", this.toggleHelp);
+    this.help_shown = true;
+
     const tabs = ["tcv_tab_tree", "tcv_tab_clip"];
     tabs.forEach((name) => {
       this._setupClickEvent(name, this.selectTab);
@@ -56725,6 +56800,8 @@ class Display {
     this._setupClickEvent("tcv_pause", this.controlAnimation, false);
     this._setupClickEvent("tcv_stop", this.controlAnimation, false);
     this.setAnimationControl(false);
+
+    this.setHelp(false);
   }
 
   // setup functions
@@ -56963,6 +57040,15 @@ class Display {
   };
 
   /**
+   * Pin screenshot of canvas as PNG
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  pinAsPng = (e) => {
+    this.viewer.pinAsPng();
+  };
+
+  /**
    * Handler to set the label of a clipping normal widget
    * @function
    * @param {number} index - index of the normal widget
@@ -57064,6 +57150,24 @@ class Display {
   controlAnimation = (e) => {
     const btn = e.target.className.split(" ")[0].slice(4);
     this.viewer.controlAnimation(btn);
+  };
+
+  /**
+   * Show or hide help dialog
+   * @function
+   * @param {boolean} flag - whether to show or hide help dialog
+   */
+  setHelp = (flag) => {
+    this.cadHelp.style.display = flag ? "block" : "none";
+    this.help_shown = flag;
+  };
+
+  /**
+   * Show help dialog
+   * @function
+   */
+  toggleHelp = () => {
+    this.setHelp(!this.help_shown);
   };
 }
 
