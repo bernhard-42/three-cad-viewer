@@ -141,7 +141,11 @@ const TEMPLATE = `
             <tr><td><b>Rotate left / right</b></td><td>&lt;Meta&gt; + &lt;left mouse button&gt;</td></tr>
             <tr><td><b>Pan</b></td><td>&lt;Shift&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td></tr>
             <tr><td><b>Zoom</b></td><td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td></tr>
-            <tr><td><b>Pick</b></td><td>&lt;left mouse button&gt; double click</td></tr>
+            
+            <tr><td><b>- - - </b></td><td></td></tr>
+
+            <tr><td><b>Pick element</b></td><td>&lt;left mouse button&gt; double click</td></tr>
+            <tr><td><b>Hide element</b></td><td>&lt;Meta&gt; + &lt;left mouse button&gt; double click</td></tr>
           </table>
         </div>
     </div>

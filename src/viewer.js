@@ -809,7 +809,13 @@ class Viewer {
           boundingSphere: JSON.parse(JSON.stringify(nearest.boundingSphere))
         }
       });
-      this.info.bbInfo(nearest.path, nearest.name, nearest.boundingBox);
+      if (e.metaKey) {
+        var update = {};
+        update[`${nearest.path}/${nearest.name}`] = [0, 0];
+        this.setStates(update);
+      } else {
+        this.info.bbInfo(nearest.path, nearest.name, nearest.boundingBox);
+      }
     }
   };
 
