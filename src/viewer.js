@@ -20,10 +20,11 @@ class Viewer {
    * @param {ViewerOptions} options - configuration parameters.
    * @param {NotificationCallback} notifyCallback - The callback to receive changes of viewer parameters.
    */
-  constructor(display, options, notifyCallback) {
+  constructor(display, options, notifyCallback, pinAsPngCallback = null) {
     this.display = display;
     this.setDefaults(options);
     this.notifyCallback = notifyCallback;
+    this.pinAsPngCallback = pinAsPngCallback;
 
     this.hasAnimationLoop = false;
 
@@ -116,6 +117,7 @@ class Viewer {
       [0, -1, 0],
       [0, 0, -1]
     ];
+    this.pinning = false;
 
     for (var option in options) {
       if (this[option] == null) {
@@ -1335,10 +1337,16 @@ class Viewer {
           image.width = scope.cadWidth;
           image.height = scope.height;
           image.src = reader.result;
-          for (var c of scope.display.container.children) {
-            scope.display.container.removeChild(c);
+          if (scope.pinAsPngCallback == null) {
+            // default, replace the elements of the container with the image
+            for (var c of scope.display.container.children) {
+              scope.display.container.removeChild(c);
+            }
+            scope.display.container.appendChild(image);
+          } else {
+            // let callbackl handle the image placement
+            scope.pinAsPngCallback(image);
           }
-          scope.display.container.appendChild(image);
         },
         false
       );

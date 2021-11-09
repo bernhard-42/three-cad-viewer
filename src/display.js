@@ -310,6 +310,11 @@ class Display {
         );
       }
     }
+
+    if (!options.pinning) {
+      const el = this._getElement("tcv_pin");
+      el.style.display = "none";
+    }
   }
 
   _setupCheckEvent(name, fn, flag) {
