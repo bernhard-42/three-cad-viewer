@@ -341,7 +341,7 @@ class Display {
     }
     this.cadTree.innerHTML = "";
     this.cadInset.innerHTML = "";
-    this.cadView.removeChild(this.cadView.children[2]);
+    this.cadView.removeChild(this.cadView.children[3]);
   }
 
   /**
