@@ -170,6 +170,7 @@ th {
   right: 0px;
   bottom: 0px;
   z-index: 100;
+  display: none;
 }
 
 .tcv_cad_help_layout {
