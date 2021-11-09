@@ -701,6 +701,7 @@ class Display {
    * @function
    * @param {Event} e - a DOM click event
    */
+  // eslint-disable-next-line no-unused-vars
   pinAsPng = (e) => {
     this.viewer.pinAsPng();
   };
