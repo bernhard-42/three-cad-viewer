@@ -52969,21 +52969,26 @@ class Animation {
       const position = group.position;
       switch (action) {
         case "t":
-          newValues = values.map((v) => position.clone().add(v));
+          newValues = values.map((v) =>
+            position
+              .clone()
+              .add(new Vector3(...v))
+              .toArray()
+          );
           break;
         case "tx":
           newValues = values.map((v) =>
-            position.clone().add(new Vector3(v, 0, 0))
+            position.clone().add(new Vector3(v, 0, 0)).toArray()
           );
           break;
         case "ty":
           newValues = values.map((v) =>
-            position.clone().add(new Vector3(0, v, 0))
+            position.clone().add(new Vector3(0, v, 0)).toArray()
           );
           break;
         case "tz":
           newValues = values.map((v) =>
-            position.clone().add(new Vector3(0, 0, v))
+            position.clone().add(new Vector3(0, 0, v)).toArray()
           );
           break;
         default:
@@ -52992,7 +52997,11 @@ class Animation {
       }
 
       this.tracks.push(
-        new NumberKeyframeTrack(selector + ".position", times, newValues)
+        new NumberKeyframeTrack(
+          selector + ".position",
+          times,
+          newValues.flat()
+        )
       );
     } else {
       const quaternion = group.quaternion;

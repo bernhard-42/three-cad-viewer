@@ -16,6 +16,8 @@
     <script src="./examples/faces.js"></script>
     <script src="./examples/edges.js"></script>
     <script src="./examples/vertices.js"></script>
+    <script src="./examples/linkage.js"></script>
+    <script src="./examples/linkage-tracks.js"></script>
 
     <script type="module">
       // ESM import
@@ -27,10 +29,11 @@
       // const Timer = CadViewer.Timer;
 
       var viewer = null;
-
+      
       const examples = [
         hexapod,
         hexapod_mates,
+        linkage,
         box,
         box1,
         boxes,
@@ -126,6 +129,11 @@
             );
           }
           viewer.initAnimation(4, 2);
+        } else if (name == "linkage") {
+          for (var track of linkage_tracks) {
+            viewer.addAnimationTrack(...track);
+          }
+          viewer.initAnimation(4, 2);
         }
         window.viewer = viewer;
       }
@@ -181,6 +189,7 @@
       <select onchange="render(this.options.item(this.selectedIndex).text, ...window.examples[this.selectedIndex]);">
         <option value="hexapod">hexapod</option>
         <option value="hexapod_mates">hexapod_mates</option>
+        <option value="linkage">linkage</option>
         <option value="box">box</option>
         <option value="box1">box1</option>
         <option value="boxes">boxes</option>
