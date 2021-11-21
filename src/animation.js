@@ -20,8 +20,7 @@ function fromAxisAngle(axis, angle) {
 }
 
 class Animation {
-  constructor(root, delim) {
-    this.root = root;
+  constructor(delim) {
     this.delim = delim;
     this.tracks = [];
     this.mixer = null;
@@ -109,9 +108,9 @@ class Animation {
     }
   }
 
-  animate(duration, speed) {
+  animate(root, duration, speed) {
     this.clip = new THREE.AnimationClip("track", duration, this.tracks);
-    this.mixer = new THREE.AnimationMixer(this.root);
+    this.mixer = new THREE.AnimationMixer(root);
     this.mixer.timeScale = speed;
     // this.mixer.addEventListener('finished', (e) => { console.log("finished", e) });
     // this.mixer.addEventListener('loop', (e) => { console.log("loop", e) });

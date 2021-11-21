@@ -77,6 +77,10 @@ class Viewer {
 
     this.display.addCadView(this.renderer.domElement);
 
+    console.debug("three-cad-viewer: WebGL Renderer created");
+
+    this.animation = new Animation("|");
+
     this.display.setupUI(this);
   }
 
@@ -207,12 +211,6 @@ class Viewer {
    * @param {number[]} values - array of values, the type depends on the action.
    */
   addAnimationTrack(selector, action, time, values) {
-    if (this.animation == null) {
-      this.animation = new Animation(
-        this.nestedGroup.rootGroup,
-        this.nestedGroup.delim
-      );
-    }
     this.animation.addTrack(
       selector,
       this.nestedGroup.groups[selector],
@@ -232,13 +230,17 @@ class Viewer {
       console.error("Animation does not have tracks");
       return;
     }
-
+    console.debug("three-cad-viewer: Animation initialized");
     if (!this.hasAnimationLoop) {
       this.toggleAnimationLoop(true);
     }
 
     this.display.setAnimationControl(true);
-    this.clipAction = this.animation.animate(duration, speed);
+    this.clipAction = this.animation.animate(
+      this.nestedGroup.rootGroup,
+      duration,
+      speed
+    );
   }
 
   /**
@@ -328,7 +330,7 @@ class Viewer {
       this.controls.update();
       this.update(true, true);
     } else {
-      console.log("Animation loop stopped");
+      console.debug("three-cad-viewer: Animation loop stopped");
     }
   };
 
@@ -337,17 +339,17 @@ class Viewer {
       this.continueAnimation = true;
       this.hasAnimationLoop = true;
       this.controls.removeChangeListener();
-      console.debug("Change listener removed");
+      console.debug("three-cad-viewer: Change listener removed");
       this.animate();
-      console.debug("Animation loop started");
+      console.debug("three-cad-viewer: Animation loop started");
     } else {
       if (this.hasAnimationLoop) {
-        console.debug("Turning animation loop off");
+        console.debug("three-cad-viewer: Turning animation loop off");
       }
       this.continueAnimation = false;
       this.hasAnimationLoop = false;
       this.controls.addChangeListener(() => this.update(true, true));
-      console.debug("Change listener registered");
+      console.debug("three-cad-viewer: Change listener registered");
 
       // ensure last animation cycle has finished
       setTimeout(() => this.update(true, true), 50);
@@ -361,32 +363,67 @@ class Viewer {
    * Remove assets and event handlers.
    */
   dispose() {
-    // stop animation
-    this.continueAnimation = false;
+    this.clear();
 
     // clear info
     this.info.dispose();
+    this.info = null;
 
     // dispose all event handlers and HTML content
-
     this.display.dispose();
     this.display = null;
 
-    // dispose scene
-
-    sceneTraverse(this.scene, (o) => {
-      o.geometry?.dispose();
-      o.material?.dispose();
-    });
-    this.scene = null;
-
-    this.camera.dispose();
-    this.controls.dispose();
     this.orientationMarker.dispose();
 
     // dispose renderer
     this.renderer.renderLists.dispose();
     this.renderer = null;
+  }
+
+  /**
+   * Clear CAD view and remove event handler.
+   */
+  clear() {
+    if (this.scene != null) {
+      // stop animation
+      this.continueAnimation = false;
+
+      // remove change listener if exists
+      if (!this.hasAnimationLoop) {
+        this.controls.removeChangeListener();
+        console.debug("three-cad-viewer: Change listener removed");
+      }
+      this.hasAnimationLoop = false;
+      this.display.setAnimationControl(false);
+
+      if (this.animation != null) {
+        this.animation.dispose();
+      }
+
+      // clear render canvas
+      this.renderer.clear();
+
+      // dispose scene
+
+      sceneTraverse(this.scene, (o) => {
+        o.geometry?.dispose();
+        o.material?.dispose();
+      });
+      this.scene = null;
+
+      // clear tree view
+      this.display.clearCadTree();
+
+      // clear info
+      this.info.dispose();
+
+      // dispose camera and controls
+      this.camera.dispose();
+      this.controls.dispose();
+
+      // dispose scene
+      this.scene = null;
+    }
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - -

@@ -489,7 +489,14 @@ class Display {
   }
 
   /**
-   * Add the Cad Tree and other UI elements like Clipping
+   * Clear the Cad tree
+   */
+  clearCadTree() {
+    this.cadTree.innerHTML = "";
+  }
+
+  /**
+   * Add the Cad tree and other UI elements like Clipping
    * @param {DOMElement} cadTree - the DOM element that contains the cadTree
    */
   addCadTree(cadTree) {
