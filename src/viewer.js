@@ -1,5 +1,6 @@
 import * as THREE from "three";
 
+import { Display } from "./display.js";
 import { NestedGroup } from "./nestedgroup.js";
 import { Grid } from "./grid.js";
 import { AxesHelper } from "./axes.js";
@@ -20,14 +21,13 @@ class Viewer {
    * @param {ViewerOptions} options - configuration parameters.
    * @param {NotificationCallback} notifyCallback - The callback to receive changes of viewer parameters.
    */
-  constructor(display, options, notifyCallback, pinAsPngCallback = null) {
-    this.display = display;
+  constructor(container, options, notifyCallback, pinAsPngCallback = null) {
     this.setDefaults(options);
     this.notifyCallback = notifyCallback;
     this.pinAsPngCallback = pinAsPngCallback;
 
     this.hasAnimationLoop = false;
-
+    this.display = new Display(container, options);
     this.display.setSizes({
       cadWidth: this.cadWidth,
       height: this.height,

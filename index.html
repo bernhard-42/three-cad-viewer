@@ -21,11 +21,10 @@
 
     <script type="module">
       // ESM import
-      import { Viewer, Display, Timer } from "./dist/three-cad-viewer.esm.js";
+      import { Viewer, Timer } from "./dist/three-cad-viewer.esm.js";
 
       // UMD import
       // const Viewer = CadViewer.Viewer;
-      // const Display = CadViewer.Display;
       // const Timer = CadViewer.Timer;
 
       var viewer = null;
@@ -167,8 +166,7 @@
       };
 
       const container = document.getElementById("cad_view_001");
-      const display = new Display(container, options);
-      viewer = new Viewer(display, options, nc);
+      viewer = new Viewer(container, options, nc);
 
       timer.split("display");
 
