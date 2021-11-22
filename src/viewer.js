@@ -58,15 +58,17 @@ class Viewer {
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
 
+    this.width = this.cadWidth;
+
     // setup renderer
     this.renderer = new THREE.WebGLRenderer({
       alpha: !this.dark,
       antialias: true
     });
-
-    this.width = this.cadWidth;
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.width, this.height);
+    this.renderer.setClearColor(0xffffff, 0);
+    this.renderer.autoClear = false;
 
     this.lastNotification = {};
 
@@ -296,20 +298,26 @@ class Viewer {
    */
   update = (updateMarker, notify = true) => {
     if (this.ready) {
-      if (this.animation) {
-        this.animation.update();
-      }
+      this.renderer.clear();
 
+      this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
 
       if (updateMarker) {
+        this.renderer.clearDepth(); // ensure orientation Marker is at the top
+
         this.orientationMarker.update(
           this.camera.getPosition().clone().sub(this.controls.getTarget()),
           this.camera.getRotation()
         );
-        this.orientationMarker.render();
+        this.orientationMarker.render(this.renderer);
+      }
+
+      if (this.animation) {
+        this.animation.update();
       }
     }
+
     this.checkChanges(
       {
         zoom: this.camera.getZoom(),
@@ -612,7 +620,7 @@ class Viewer {
       this.camera.getCamera(),
       this.theme
     );
-    this.display.addCadInset(this.orientationMarker.create());
+    this.orientationMarker.create();
 
     //
     // build tree view
@@ -1362,7 +1370,8 @@ class Viewer {
    * Note: Only the canvas will be shown, no tools and orientation marker
    */
   pinAsPng = () => {
-    const canvas = this.display.cadView.children[3];
+    const canvas = this.display.cadView.children[2];
+    this.renderer.setViewport(0, 0, this.cadWidth, this.height);
     this.renderer.render(this.scene, this.camera.getCamera());
     canvas.toBlob((blob) => {
       let reader = new FileReader();

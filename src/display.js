@@ -133,7 +133,7 @@ const TEMPLATE = `
             <span class="tcv_tooltip"  data-tooltip="Pause animation"><input class='tcv_pause tcv_btn' type="button" /></span>
             <span class="tcv_tooltip"  data-tooltip="Stop and reset animation"><input class='tcv_stop tcv_btn' type="button" /></span>
         </div>
-        <div class="tcv_cad_inset"></div>
+        
         <div class="tcv_cad_help tcv_round">
           <table class="tcv_cad_help_layout">
             <tr><td><b>Rotate</b></td><td>&lt;left mouse button&gt;</td></tr>
@@ -256,7 +256,6 @@ class Display {
     this.container.innerHTML = TEMPLATE;
     this.cadTool = this.container.getElementsByClassName("tcv_cad_toolbar")[0];
     this.cadView = this.container.getElementsByClassName("tcv_cad_view")[0];
-    this.cadInset = this.container.getElementsByClassName("tcv_cad_inset")[0];
     this.cadTree = this.container.getElementsByClassName(
       "tcv_cad_tree_container"
     )[0];
@@ -345,8 +344,7 @@ class Display {
       el.removeEventListener(type, fn);
     }
     this.cadTree.innerHTML = "";
-    this.cadInset.innerHTML = "";
-    this.cadView.removeChild(this.cadView.children[3]);
+    this.cadView.removeChild(this.cadView.children[2]);
   }
 
   /**
@@ -478,14 +476,6 @@ class Display {
    */
   addCadView(cadView) {
     this.cadView.appendChild(cadView);
-  }
-
-  /**
-   * Add the Cad Inset for the orientation marker
-   * @param {DOMElement} cadInset - the DOM element that contains the cadInset
-   */
-  addCadInset(cadInset) {
-    this.cadInset.appendChild(cadInset);
   }
 
   /**

@@ -17,12 +17,6 @@ class OrientationMarker {
     const size = 2.7;
     const length = 60;
 
-    // renderer
-    this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    this.renderer.setClearColor(0x000000, 0);
-    this.renderer.setSize(this.width, this.height);
-    // this.container.appendChild(this.renderer.domElement);
-
     // scene
     this.scene = new THREE.Scene();
 
@@ -94,7 +88,7 @@ class OrientationMarker {
     const sphere = new THREE.Mesh(geometry, material);
     this.scene.add(sphere);
 
-    return this.renderer.domElement;
+    this.scene.background = null;
   }
 
   dispose() {
@@ -106,8 +100,10 @@ class OrientationMarker {
     this.camera = null;
   }
 
-  render() {
-    this.renderer.render(this.scene, this.camera);
+  render(renderer) {
+    renderer.setViewport(0, 0, this.width, this.height);
+
+    renderer.render(this.scene, this.camera);
   }
 
   // handler (bound to OrientationMarker instance)
