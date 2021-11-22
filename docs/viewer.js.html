@@ -28,6 +28,7 @@
         <article>
             <pre class="prettyprint source linenums"><code>import * as THREE from "three";
 
+import { Display } from "./display.js";
 import { NestedGroup } from "./nestedgroup.js";
 import { Grid } from "./grid.js";
 import { AxesHelper } from "./axes.js";
@@ -48,14 +49,13 @@ class Viewer {
    * @param {ViewerOptions} options - configuration parameters.
    * @param {NotificationCallback} notifyCallback - The callback to receive changes of viewer parameters.
    */
-  constructor(display, options, notifyCallback, pinAsPngCallback = null) {
-    this.display = display;
+  constructor(container, options, notifyCallback, pinAsPngCallback = null) {
     this.setDefaults(options);
     this.notifyCallback = notifyCallback;
     this.pinAsPngCallback = pinAsPngCallback;
 
     this.hasAnimationLoop = false;
-
+    this.display = new Display(container, options);
     this.display.setSizes({
       cadWidth: this.cadWidth,
       height: this.height,
@@ -86,15 +86,17 @@ class Viewer {
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
 
+    this.width = this.cadWidth;
+
     // setup renderer
     this.renderer = new THREE.WebGLRenderer({
       alpha: !this.dark,
       antialias: true
     });
-
-    this.width = this.cadWidth;
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.width, this.height);
+    this.renderer.setClearColor(0xffffff, 0);
+    this.renderer.autoClear = false;
 
     this.lastNotification = {};
 
@@ -104,6 +106,10 @@ class Viewer {
     );
 
     this.display.addCadView(this.renderer.domElement);
+
+    console.debug("three-cad-viewer: WebGL Renderer created");
+
+    this.animation = new Animation("|");
 
     this.display.setupUI(this);
   }
@@ -235,12 +241,6 @@ class Viewer {
    * @param {number[]} values - array of values, the type depends on the action.
    */
   addAnimationTrack(selector, action, time, values) {
-    if (this.animation == null) {
-      this.animation = new Animation(
-        this.nestedGroup.rootGroup,
-        this.nestedGroup.delim
-      );
-    }
     this.animation.addTrack(
       selector,
       this.nestedGroup.groups[selector],
@@ -260,13 +260,17 @@ class Viewer {
       console.error("Animation does not have tracks");
       return;
     }
-
+    console.debug("three-cad-viewer: Animation initialized");
     if (!this.hasAnimationLoop) {
       this.toggleAnimationLoop(true);
     }
 
     this.display.setAnimationControl(true);
-    this.clipAction = this.animation.animate(duration, speed);
+    this.clipAction = this.animation.animate(
+      this.nestedGroup.rootGroup,
+      duration,
+      speed
+    );
   }
 
   /**
@@ -322,20 +326,26 @@ class Viewer {
    */
   update = (updateMarker, notify = true) => {
     if (this.ready) {
-      if (this.animation) {
-        this.animation.update();
-      }
+      this.renderer.clear();
 
+      this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
 
       if (updateMarker) {
+        this.renderer.clearDepth(); // ensure orientation Marker is at the top
+
         this.orientationMarker.update(
           this.camera.getPosition().clone().sub(this.controls.getTarget()),
           this.camera.getRotation()
         );
-        this.orientationMarker.render();
+        this.orientationMarker.render(this.renderer);
+      }
+
+      if (this.animation) {
+        this.animation.update();
       }
     }
+
     this.checkChanges(
       {
         zoom: this.camera.getZoom(),
@@ -356,7 +366,7 @@ class Viewer {
       this.controls.update();
       this.update(true, true);
     } else {
-      console.log("Animation loop stopped");
+      console.debug("three-cad-viewer: Animation loop stopped");
     }
   };
 
@@ -365,17 +375,17 @@ class Viewer {
       this.continueAnimation = true;
       this.hasAnimationLoop = true;
       this.controls.removeChangeListener();
-      console.debug("Change listener removed");
+      console.debug("three-cad-viewer: Change listener removed");
       this.animate();
-      console.debug("Animation loop started");
+      console.debug("three-cad-viewer: Animation loop started");
     } else {
       if (this.hasAnimationLoop) {
-        console.debug("Turning animation loop off");
+        console.debug("three-cad-viewer: Turning animation loop off");
       }
       this.continueAnimation = false;
       this.hasAnimationLoop = false;
       this.controls.addChangeListener(() => this.update(true, true));
-      console.debug("Change listener registered");
+      console.debug("three-cad-viewer: Change listener registered");
 
       // ensure last animation cycle has finished
       setTimeout(() => this.update(true, true), 50);
@@ -389,32 +399,67 @@ class Viewer {
    * Remove assets and event handlers.
    */
   dispose() {
-    // stop animation
-    this.continueAnimation = false;
+    this.clear();
 
     // clear info
     this.info.dispose();
+    this.info = null;
 
     // dispose all event handlers and HTML content
-
     this.display.dispose();
     this.display = null;
 
-    // dispose scene
-
-    sceneTraverse(this.scene, (o) => {
-      o.geometry?.dispose();
-      o.material?.dispose();
-    });
-    this.scene = null;
-
-    this.camera.dispose();
-    this.controls.dispose();
     this.orientationMarker.dispose();
 
     // dispose renderer
     this.renderer.renderLists.dispose();
     this.renderer = null;
+  }
+
+  /**
+   * Clear CAD view and remove event handler.
+   */
+  clear() {
+    if (this.scene != null) {
+      // stop animation
+      this.continueAnimation = false;
+
+      // remove change listener if exists
+      if (!this.hasAnimationLoop) {
+        this.controls.removeChangeListener();
+        console.debug("three-cad-viewer: Change listener removed");
+      }
+      this.hasAnimationLoop = false;
+      this.display.setAnimationControl(false);
+
+      if (this.animation != null) {
+        this.animation.dispose();
+      }
+
+      // clear render canvas
+      this.renderer.clear();
+
+      // dispose scene
+
+      sceneTraverse(this.scene, (o) => {
+        o.geometry?.dispose();
+        o.material?.dispose();
+      });
+      this.scene = null;
+
+      // clear tree view
+      this.display.clearCadTree();
+
+      // clear info
+      this.info.dispose();
+
+      // dispose camera and controls
+      this.camera.dispose();
+      this.controls.dispose();
+
+      // dispose scene
+      this.scene = null;
+    }
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -603,7 +648,7 @@ class Viewer {
       this.camera.getCamera(),
       this.theme
     );
-    this.display.addCadInset(this.orientationMarker.create());
+    this.orientationMarker.create();
 
     //
     // build tree view
@@ -1353,7 +1398,8 @@ class Viewer {
    * Note: Only the canvas will be shown, no tools and orientation marker
    */
   pinAsPng = () => {
-    const canvas = this.display.cadView.children[3];
+    const canvas = this.display.cadView.children[2];
+    this.renderer.setViewport(0, 0, this.cadWidth, this.height);
     this.renderer.render(this.scene, this.camera.getCamera());
     canvas.toBlob((blob) => {
       let reader = new FileReader();
@@ -1400,7 +1446,7 @@ export { Viewer };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sun Nov 14 2021 12:02:16 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Nov 22 2021 20:47:45 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

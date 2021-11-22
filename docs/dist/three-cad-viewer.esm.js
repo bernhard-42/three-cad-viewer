@@ -50191,6 +50191,954 @@ var THREE = /*#__PURE__*/Object.freeze({
 	sRGBEncoding: sRGBEncoding
 });
 
+var light_bottom = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var light_front = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var light_help = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M23.0,-13.0 A10.0,10.0,0,1,0,22.998476951563912,-12.825475935627155\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<text x=\"7.0\" y=\"-6.0\" font-size=\"20.0\" fill=\"rgb(83,160,227)\" font-family=\"sans-serif\" font-weight=\"bold\" dy=\"0em\">?</text>\n</svg>\n";
+
+var light_iso = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M22.0,-7.5 L22.0,-18.5 L13.0,-13.0 L13.0,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M13.0,-13.0 L13.0,-2.0 L4.0,-7.5 L4.0,-18.5 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M22.0,-18.5 L13.0,-24.0 L4.0,-18.5 L13.0,-13.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var light_left = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var light_mesh = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M2.0,-6.066666666666666 L2.0,-10.133333333333333 L10.6,-10.133333333333333 L19.2,-10.133333333333333 L19.2,-6.066666666666666 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
+
+var light_mesh_empty = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"#ddd\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"#ddd\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M2.0,-6.066666666666666 L2.0,-10.133333333333333 L10.6,-10.133333333333333 L19.2,-10.133333333333333 L19.2,-6.066666666666666 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
+
+var light_mesh_mix = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-14.2 L12.6,-14.2 L8.6,-10.133333333333333 L8.6,-6.066666666666666 L12.6,-2.0 L6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 Z\" fill=\"rgb(83,160,227)\" stroke=\"rgb(83,160,227)\" stroke-width=\"1.25\" stroke-linejoin=\"square\" stroke-linecap=\"round\" />\n<path d=\"M16.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 L16.6,-2.0 L12.6,-6.066666666666666 L12.6,-10.133333333333333 Z\" fill=\"rgb(83,160,227)\" stroke=\"rgb(83,160,227)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M10.6,-10.133333333333333 L2.0,-10.133333333333333 L2.0,-6.066666666666666 L10.6,-6.066666666666666\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M14.6,-14.2 L6.0,-14.2 L2.0,-10.133333333333333 L2.0,-6.066666666666666 L6.0,-2.0 L14.6,-2.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var light_mesh_no = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"rgb(83,160,227)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"rgb(83,160,227)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
+
+var light_pause = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"5.2\" y=\"-22.0\" width=\"5.6\" height=\"18.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n<rect x=\"15.2\" y=\"-22.0\" width=\"5.6\" height=\"18.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var light_pin = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"10.0\" y=\"-23.0\" width=\"6.0\" height=\"11.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" />\n<path d=\"M13.0,-3.0 L13.0,-10.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M17.330127018922195,-21.5 A5.0,5.0,0,0,0,8.669872981077805,-21.5\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"rgb(83,160,227)\" stroke-linecap=\"round\" />\n<path d=\"M21.66025403784439,-10.2 A10.0,10.0,0,0,0,4.339745962155613,-10.2\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"rgb(83,160,227)\" stroke-linecap=\"round\" />\n<path d=\"M4.5,-10.2 L21.5,-10.2 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M8.8,-21.4 L17.2,-21.4 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var light_plane = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M2.0,-5.0 L4.4,-13.0 L24.0,-13.0 L21.0,-5.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M13.0,-9.5 L13.0,-19.5 Z\" fill=\"none\" stroke=\"rgb(83,160,227)\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M11.0,-17.5 L13.0,-19.5 L15.0,-17.5 Z\" fill=\"none\" stroke=\"rgb(83,160,227)\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var light_play = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M5.0,-4.0 L5.0,-22.0 L21.0,-13.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var light_rear = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var light_reset = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M18.0,-21.660254037844386 A10.0,10.0,0,1,0,23.0,-12.999999999999998\" stroke=\"#444\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M16.0,-18.196152422706632 A6.0,6.0,0,1,0,19.0,-12.999999999999998\" stroke=\"#444\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M17.0,-13.0 L21.0,-17.0 L25.0,-13.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var light_resize = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"2.0\" y=\"-24.0\" width=\"22.0\" height=\"22.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n<path d=\"M6.0,-6.0 L10.0,-10.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-20.0 L16.0,-16.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-6.0 L16.0,-10.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-20.0 L10.0,-16.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-6.0 L6.0,-10.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-6.0 L10.0,-6.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-20.0 L20.0,-16.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-20.0 L16.0,-20.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-20.0 L6.0,-16.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-20.0 L10.0,-20.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-6.0 L20.0,-10.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-6.0 L16.0,-6.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var light_right = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var light_shape = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<ellipse cx=\"12.6\" cy=\"-8.1\" rx=\"5.04\" ry=\"5.04\" fill=\"rgb(83,160,227)\" stroke=\"none\" stroke-width=\"1.25\" />\n<ellipse cx=\"12.6\" cy=\"-8.1\" rx=\"2.1\" ry=\"2.1\" fill=\"#444\" stroke=\"#444\" stroke-width=\"1.25\" />\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var light_shape_empty = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<ellipse cx=\"12.6\" cy=\"-8.1\" rx=\"5.04\" ry=\"5.04\" fill=\"#ddd\" stroke=\"none\" stroke-width=\"1.25\" />\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var light_shape_mix = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M12.6,-13.14 A5.04,5.04,0,0,0,12.599999999999998,-3.0599999999999996\" stroke=\"none\" stroke-width=\"1.25\" fill=\"rgb(83,160,227)\" stroke-linecap=\"round\" />\n<path d=\"M12.6,-10.2 A2.1,2.1,0,0,0,12.6,-6.0\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"#444\" stroke-linecap=\"round\" />\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,15.69914007006101,-13.236830413208175\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M15.69914007006101,-2.9631695867918246 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M12.6,-13.7 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,12.6,-2.5\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var light_shape_no = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var light_stop = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"4.0\" y=\"-22.0\" width=\"18.0\" height=\"18.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var light_top = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var dark_bottom = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var dark_front = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var dark_help = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M23.0,-13.0 A10.0,10.0,0,1,0,22.998476951563912,-12.825475935627155\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<text x=\"7.0\" y=\"-6.0\" font-size=\"20.0\" fill=\"rgb(48, 142, 225)\" font-family=\"sans-serif\" font-weight=\"bold\" dy=\"0em\">?</text>\n</svg>\n";
+
+var dark_iso = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M22.0,-7.5 L22.0,-18.5 L13.0,-13.0 L13.0,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M13.0,-13.0 L13.0,-2.0 L4.0,-7.5 L4.0,-18.5 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M22.0,-18.5 L13.0,-24.0 L4.0,-18.5 L13.0,-13.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var dark_left = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var dark_mesh = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M2.0,-6.066666666666666 L2.0,-10.133333333333333 L10.6,-10.133333333333333 L19.2,-10.133333333333333 L19.2,-6.066666666666666 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
+
+var dark_mesh_empty = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"#666\" stroke=\"#666\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"#666\" stroke=\"#666\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M2.0,-6.066666666666666 L2.0,-10.133333333333333 L10.6,-10.133333333333333 L19.2,-10.133333333333333 L19.2,-6.066666666666666 Z\" fill=\"none\" stroke=\"#666\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
+
+var dark_mesh_mix = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-14.2 L12.6,-14.2 L8.6,-10.133333333333333 L8.6,-6.066666666666666 L12.6,-2.0 L6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"1.25\" stroke-linejoin=\"square\" stroke-linecap=\"round\" />\n<path d=\"M16.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 L16.6,-2.0 L12.6,-6.066666666666666 L12.6,-10.133333333333333 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M10.6,-10.133333333333333 L2.0,-10.133333333333333 L2.0,-6.066666666666666 L10.6,-6.066666666666666\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M14.6,-14.2 L6.0,-14.2 L2.0,-10.133333333333333 L2.0,-6.066666666666666 L6.0,-2.0 L14.6,-2.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var dark_mesh_no = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
+
+var dark_pause = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"5.2\" y=\"-22.0\" width=\"5.6\" height=\"18.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n<rect x=\"15.2\" y=\"-22.0\" width=\"5.6\" height=\"18.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var dark_pin = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"10.0\" y=\"-23.0\" width=\"6.0\" height=\"11.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" />\n<path d=\"M13.0,-3.0 L13.0,-10.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M17.330127018922195,-21.5 A5.0,5.0,0,0,0,8.669872981077805,-21.5\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"rgb(48, 142, 225)\" stroke-linecap=\"round\" />\n<path d=\"M21.66025403784439,-10.2 A10.0,10.0,0,0,0,4.339745962155613,-10.2\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"rgb(48, 142, 225)\" stroke-linecap=\"round\" />\n<path d=\"M4.5,-10.2 L21.5,-10.2 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M8.8,-21.4 L17.2,-21.4 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var dark_plane = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M2.0,-5.0 L4.4,-13.0 L24.0,-13.0 L21.0,-5.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M13.0,-9.5 L13.0,-19.5 Z\" fill=\"none\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M11.0,-17.5 L13.0,-19.5 L15.0,-17.5 Z\" fill=\"none\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var dark_play = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M5.0,-4.0 L5.0,-22.0 L21.0,-13.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var dark_rear = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var dark_reset = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M18.0,-21.660254037844386 A10.0,10.0,0,1,0,23.0,-12.999999999999998\" stroke=\"#ddd\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M16.0,-18.196152422706632 A6.0,6.0,0,1,0,19.0,-12.999999999999998\" stroke=\"#ddd\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M17.0,-13.0 L21.0,-17.0 L25.0,-13.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var dark_resize = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"2.0\" y=\"-24.0\" width=\"22.0\" height=\"22.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n<path d=\"M6.0,-6.0 L10.0,-10.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-20.0 L16.0,-16.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-6.0 L16.0,-10.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-20.0 L10.0,-16.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-6.0 L6.0,-10.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-6.0 L10.0,-6.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-20.0 L20.0,-16.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-20.0 L16.0,-20.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-20.0 L6.0,-16.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-20.0 L10.0,-20.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-6.0 L20.0,-10.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-6.0 L16.0,-6.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var dark_right = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var dark_shape = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<ellipse cx=\"12.6\" cy=\"-8.1\" rx=\"5.04\" ry=\"5.04\" fill=\"rgb(48, 142, 225)\" stroke=\"none\" stroke-width=\"1.25\" />\n<ellipse cx=\"12.6\" cy=\"-8.1\" rx=\"2.1\" ry=\"2.1\" fill=\"#ddd\" stroke=\"#ddd\" stroke-width=\"1.25\" />\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var dark_shape_empty = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<ellipse cx=\"12.6\" cy=\"-8.1\" rx=\"5.04\" ry=\"5.04\" fill=\"#666\" stroke=\"none\" stroke-width=\"1.25\" />\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#666\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#666\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var dark_shape_mix = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M12.6,-13.14 A5.04,5.04,0,0,0,12.599999999999998,-3.0599999999999996\" stroke=\"none\" stroke-width=\"1.25\" fill=\"rgb(48, 142, 225)\" stroke-linecap=\"round\" />\n<path d=\"M12.6,-10.2 A2.1,2.1,0,0,0,12.6,-6.0\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"#ddd\" stroke-linecap=\"round\" />\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,15.69914007006101,-13.236830413208175\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M15.69914007006101,-2.9631695867918246 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M12.6,-13.7 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,12.6,-2.5\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var dark_shape_no = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
+
+var dark_stop = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"4.0\" y=\"-22.0\" width=\"18.0\" height=\"18.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+var dark_top = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
+
+const icons = {
+  bottom: { light: light_bottom, dark: dark_bottom },
+  front: { light: light_front, dark: dark_front },
+  help: { light: light_help, dark: dark_help },
+  iso: { light: light_iso, dark: dark_iso },
+  left: { light: light_left, dark: dark_left },
+  mesh: { light: light_mesh, dark: dark_mesh },
+  mesh_empty: { light: light_mesh_empty, dark: dark_mesh_empty },
+  mesh_mix: { light: light_mesh_mix, dark: dark_mesh_mix },
+  mesh_no: { light: light_mesh_no, dark: dark_mesh_no },
+  pause: { light: light_pause, dark: dark_pause },
+  pin: { light: light_pin, dark: dark_pin },
+  plane: { light: light_plane, dark: dark_plane },
+  play: { light: light_play, dark: dark_play },
+  rear: { light: light_rear, dark: dark_rear },
+  reset: { light: light_reset, dark: dark_reset },
+  resize: { light: light_resize, dark: dark_resize },
+  right: { light: light_right, dark: dark_right },
+  shape: { light: light_shape, dark: dark_shape },
+  shape_empty: { light: light_shape_empty, dark: dark_shape_empty },
+  shape_mix: { light: light_shape_mix, dark: dark_shape_mix },
+  shape_no: { light: light_shape_no, dark: dark_shape_no },
+  stop: { light: light_stop, dark: dark_stop },
+  top: { light: light_top, dark: dark_top }
+};
+
+function getIconBackground(theme, name) {
+  return `url(data:image/svg+xml;utf8,${escape(icons[name][theme])});`;
+}
+
+const TEMPLATE = `
+<div class="tcv_cad_viewer">
+    <div class="tcv_cad_toolbar tcv_round">
+    <span class="tcv_tooltip"  data-tooltip="Show coordinate axis">
+        <span class="tcv_label">Axes</span><input class='tcv_axes tcv_check' type="checkbox" />
+    </span>
+    <div class="tcv_grid-dropdown">
+        <span class="tcv_label">Grid</span><input class='tcv_grid tcv_check' type="checkbox" />
+            <span class="tcv_tooltip"  data-tooltip="Show selective grids">
+            <div class="tcv_grid-content">
+                <div class="tcv_label">- xy</span><input class='tcv_grid-xy tcv_check' type="checkbox"></div>
+                <div class="tcv_label">- xz</span><input class='tcv_grid-xz tcv_check' type="checkbox"></div>
+                <div class="tcv_label">- yz</span><input class='tcv_grid-yz tcv_check' type="checkbox"></div>
+            </div>
+        </span>
+    </div>
+    <span class="tcv_tooltip"  data-tooltip="Move center of axis and grid to (0,0,0)">
+        <span class="tcv_label">@0</span><input class='tcv_axes0 tcv_check' type="checkbox" />
+    </span>
+    <span class="tcv_tooltip"  data-tooltip="Toggle camera between orthographic and perspective view">
+        <span class="tcv_label">Ortho</span><input class='tcv_ortho tcv_check' type="checkbox" />
+    </span>
+    <span class="tcv_tooltip"  data-tooltip="Reset view">
+        <input class='tcv_reset tcv_btn' type="button"/>
+    </span>
+    <span class="tcv_tooltip"  data-tooltip="Fit view">
+        <input class='tcv_resize tcv_btn' type="button" />
+    </span>
+    <span class="tcv_tooltip"  data-tooltip="Switch to iso view">
+        <input class='tcv_iso tcv_btn' type="button" />
+    </span>
+    <span class="tcv_tooltip"  data-tooltip="Switch to front view">
+        <input class='tcv_front tcv_btn' type="button" />
+    </span>
+    <span class="tcv_tooltip"  data-tooltip="Switch to back view">
+        <input class='tcv_rear tcv_btn' type="button" />
+    </span>
+    <span class="tcv_tooltip"  data-tooltip="Switch to top view">
+        <input class='tcv_top tcv_btn' type="button" />
+    </span>
+    <span class="tcv_tooltip"  data-tooltip="Switch to bottom view">
+        <input class='tcv_bottom tcv_btn' type="button" />
+    </span>
+    <span class="tcv_tooltip"  data-tooltip="Switch to left view">
+        <input class='tcv_left tcv_btn' type="button" />
+    </span>
+    <span class="tcv_tooltip"  data-tooltip="Switch to right view">
+        <input class='tcv_right tcv_btn' type="button" />
+    </span>
+    <span class="tcv_tooltip"  data-tooltip="Toggle transparent objects">
+        <span class="tcv_label">Transparent</span><input class='tcv_transparent tcv_check' type="checkbox" />
+    </span>
+    <span class="tcv_tooltip"  data-tooltip="Toggle black edges">
+        <span class="tcv_label">Black edges</span><input class='tcv_black_edges tcv_check' type="checkbox" />
+    </span>
+    <span class="tcv_align_right">
+      <span class="tcv_tooltip"  data-tooltip="Toggle help">
+          <input class='tcv_help tcv_btn' type="button" />
+      </span>
+      <span class="tcv_tooltip"  data-tooltip="Pin view as PNG image">
+          <input class='tcv_pin tcv_btn' type="button" />
+      </span>
+    </span>
+    </div>
+    <div class="tcv_cad_body">
+    <div class="tcv_cad_navigation">
+    <div class="tcv_cad_tree tcv_round">
+        <div class="tcv_tabnav">
+            <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button"/>
+            <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping" type="button"/>
+        </div>
+        <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
+            <div class="tcv_cad_tree_container"></div>
+            <div class="tcv_cad_clip_container">
+                <div class="tcv_slider_group">
+                    <div>
+                        <span class="tcv_tooltip"  data-tooltip="Set red clipping plane to view direction">
+                            <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type="button" />
+                        </span>
+                        <span class="tcv_lbl_norm_plane1 tcv_label">N1 = (n/a, n/a, n/a)</span>
+                    </div>
+                    <div>
+                        <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane1 tcv_clip_slider">
+                        <input value=50 class="tcv_inp_value_plane1 tcv_clip_input"></input>
+                    </div>
+                </div>
+                <div class="tcv_slider_group">
+                    <div>
+                        <span class="tooltip"  data-tooltip="Set green clipping plane to view direction">
+                            <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type="button" />
+                        </span>
+                        <span class="tcv_lbl_norm_plane2 tcv_label">N2 = (n/a, n/a, n/a)</span>
+                    </div>
+                    <div>
+                        <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane2 tcv_clip_slider">
+                        <input value=50 class="tcv_inp_value_plane2 tcv_clip_input"></input>
+                    </div>
+                </div>
+                <div class="tcv_slider_group">
+                    <div>
+                        <span class="tooltip"  data-tooltip="Set blue clipping plane to view direction">
+                            <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type="button" />
+                        </span>
+                        <span class="tcv_lbl_norm_plane3 tcv_label">N3 = (n/a, n/a, n/a)</span>
+                    </div>
+                    <div>
+                        <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane3 tcv_clip_slider">
+                        <input value=50 class="tcv_inp_value_plane3 tcv_clip_input"></input>
+                    </div>
+                </div>
+                <div class="tcv_clip_checks">
+                    <span class="tcv_tooltip"  data-tooltip="Use intersection clipping">
+                        <span class="tcv_label">Intersection</span><input  class='tcv_clip_intersection tcv_check' type="checkbox" />
+                    </span>
+                    <span class="tcv_tooltip"  data-tooltip="Show clipping planes">
+                        <span class="tcv_label">Planes</span><input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type="checkbox" />
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tcv_cad_info tcv_round">
+        <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
+            <div class="tcv_cad_info_container"></div>
+        </div>
+    </div>
+    </div>
+    <div class="tcv_cad_view">
+        <div class="tcv_cad_animation tcv_round">
+            <span class="tcv_tooltip"  data-tooltip="Play animation"><input class='tcv_play tcv_btn' type="button" /></span>
+            <span class="tcv_tooltip"  data-tooltip="Pause animation"><input class='tcv_pause tcv_btn' type="button" /></span>
+            <span class="tcv_tooltip"  data-tooltip="Stop and reset animation"><input class='tcv_stop tcv_btn' type="button" /></span>
+        </div>
+        
+        <div class="tcv_cad_help tcv_round">
+          <table class="tcv_cad_help_layout">
+            <tr><td><b>Rotate</b></td><td>&lt;left mouse button&gt;</td></tr>
+            <tr><td><b>Rotate up / down</b></td><td>&lt;Ctrl&gt; + &lt;left mouse button&gt;</td></tr>
+            <tr><td><b>Rotate left / right</b></td><td>&lt;Meta&gt; + &lt;left mouse button&gt;</td></tr>
+            <tr><td><b>Pan</b></td><td>&lt;Shift&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td></tr>
+            <tr><td><b>Zoom</b></td><td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td></tr>
+            
+            <tr><td><b>- - - </b></td><td></td></tr>
+
+            <tr><td><b>Pick element</b></td><td>&lt;left mouse button&gt; double click</td></tr>
+            <tr><td><b>Hide element</b></td><td>&lt;Meta&gt; + &lt;left mouse button&gt; double click</td></tr>
+          </table>
+        </div>
+    </div>
+    </div>
+</div>
+`;
+
+function px(val) {
+  return `${val}px`;
+}
+
+const buttons = [
+  "reset",
+  "resize",
+  "help",
+  "iso",
+  "front",
+  "rear",
+  "top",
+  "bottom",
+  "left",
+  "right",
+  "pin",
+  "plane",
+  "play",
+  "pause",
+  "stop"
+];
+class Slider {
+  constructor(index, min, max, display) {
+    this.index = index;
+    this.display = display;
+
+    this.slider = display.container.getElementsByClassName(
+      `tcv_sld_value_plane${index}`
+    )[0];
+    this.slider.min = min;
+    this.slider.max = max;
+    this.input = display.container.getElementsByClassName(
+      `tcv_inp_value_plane${index}`
+    )[0];
+    this.input.value = max;
+    this.slider.oninput = this.sliderChange;
+    this.input.addEventListener("change", this.inputChange);
+  }
+
+  _notify = (value, notify = true) => {
+    const change = {};
+    change[`clip_slider_${this.index - 1}`] = parseFloat(value);
+    this.display.viewer.checkChanges(change, notify);
+  };
+
+  sliderChange = (e) => {
+    const value = e.target.value;
+    this.input.value = Math.round(1000 * value) / 1000;
+    this.display.refreshPlane(this.index, this.input.value);
+    this._notify(value);
+  };
+
+  inputChange = (e) => {
+    const value = Math.max(
+      Math.min(e.target.value, this.slider.max),
+      this.slider.min
+    );
+    // if (value != e.target.value) {
+    //     this.input.value = Math.round(1000 * value) / 1000;
+    // }
+    this.slider.value = value;
+    this.display.refreshPlane(this.index, this.input.value);
+    this._notify(value);
+  };
+
+  setSlider(limit) {
+    const exp = Math.abs(Math.round(Math.log10(2 * limit)));
+    this.slider.min = -limit;
+    this.slider.max = limit;
+    this.slider.step = Math.pow(10, -(3 - exp));
+    this.slider.value = limit;
+    this.input.value = Math.round(1000 * this.slider.max) / 1000;
+    this.display.refreshPlane(this.index, this.input.value);
+  }
+
+  getValue() {
+    return parseFloat(this.input.value);
+  }
+
+  setValue(value, notify = true) {
+    const trimmed_value = Math.max(
+      Math.min(value, this.slider.max),
+      this.slider.min
+    );
+    this.input.value = trimmed_value;
+    this.slider.value = value;
+    this.display.refreshPlane(this.index, this.input.value);
+    this._notify(value, notify);
+  }
+}
+
+class Display {
+  /**
+   * Create Display
+   * @param {DOMElement} container - the DOM element, e.g. div, that should contain the Display
+   * @param {} options - display options
+   */
+  constructor(container, options) {
+    this.container = container;
+
+    this.container.innerHTML = TEMPLATE;
+    this.cadTool = this.container.getElementsByClassName("tcv_cad_toolbar")[0];
+    this.cadView = this.container.getElementsByClassName("tcv_cad_view")[0];
+    this.cadTree = this.container.getElementsByClassName(
+      "tcv_cad_tree_container"
+    )[0];
+    this.cadClip = this.container.getElementsByClassName(
+      "tcv_cad_clip_container"
+    )[0];
+    this.tabTree = this.container.getElementsByClassName("tcv_tab_tree")[0];
+    this.tabClip = this.container.getElementsByClassName("tcv_tab_clip")[0];
+    this.cadInfo = this.container.getElementsByClassName(
+      "tcv_cad_info_container"
+    )[0];
+    this.cadAnim =
+      this.container.getElementsByClassName("tcv_cad_animation")[0];
+
+    this.cadHelp = this.container.getElementsByClassName("tcv_cad_help")[0];
+
+    this.planeLabels = [];
+    for (var i = 1; i < 4; i++) {
+      this.planeLabels.push(
+        this.container.getElementsByClassName(`tcv_lbl_norm_plane${i}`)[0]
+      );
+    }
+
+    this.viewer = null;
+    this._events = [];
+    this.cadWidth = options.cadWidth;
+    this.height = options.height;
+    this.treeWidth = options.treeWidth;
+    this.setSizes(options);
+
+    this.activeTab = "tab_tree";
+    this.cadTree.style.display = "block";
+    this.cadClip.style.display = "none";
+    this.clipSliders = null;
+
+    this.lastPlaneState = false;
+
+    if (options.theme === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+
+    for (var btn of buttons) {
+      var elements = this.container.getElementsByClassName(`tcv_${btn}`);
+      for (i = 0; i < elements.length; i++) {
+        var el = elements[i];
+        el.setAttribute(
+          "style",
+          `background-image: ${getIconBackground(options.theme, btn)}`
+        );
+      }
+    }
+
+    if (!options.pinning) {
+      const el = this._getElement("tcv_pin");
+      el.style.display = "none";
+    }
+  }
+
+  _setupCheckEvent(name, fn, flag) {
+    const el = this._getElement(name);
+    el.addEventListener("change", fn);
+    if (flag != undefined) {
+      el.checked = flag;
+    }
+    this._events.push(["change", name, fn]);
+  }
+
+  // eslint-disable-next-line no-unused-vars
+  _setupClickEvent(name, fn, flag) {
+    const el = this._getElement(name);
+    el.addEventListener("click", fn);
+    this._events.push(["click", name, fn]);
+  }
+
+  _getElement(name) {
+    return this.container.getElementsByClassName(name)[0];
+  }
+
+  dispose() {
+    var type, el_name, fn;
+    for (var ui_event of this._events) {
+      [type, el_name, fn] = ui_event;
+      const el = this._getElement(el_name);
+      el.removeEventListener(type, fn);
+    }
+    this.cadTree.innerHTML = "";
+    this.cadView.removeChild(this.cadView.children[2]);
+  }
+
+  /**
+   * Set the width and height of the different UI elements (tree, canvas and info box)
+   * @param {DisplayOptions} options
+   */
+  setSizes(options) {
+    if (options.cadWidth) {
+      this.cadWidth = options.cadWidth;
+      this.cadView.style.width = px(options.cadWidth);
+    }
+    if (options.height) {
+      this.height = options.height;
+      this.cadView.style.height = px(options.height);
+    }
+    if (options.treeWidth) {
+      this.treeWidth = options.treeWidth;
+      this.cadTree.parentElement.parentElement.style.width = px(
+        options.treeWidth
+      );
+      this.cadInfo.parentElement.parentElement.style.width = px(
+        options.treeWidth
+      );
+    }
+    const treeHeight = Math.round((this.height * 2) / 3);
+    this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
+    this.cadInfo.parentElement.parentElement.style.height = px(
+      this.height - treeHeight - 4
+    );
+    this.cadTool.style.width = px(this.treeWidth + this.cadWidth);
+  }
+
+  /**
+   * Set up the UI
+   * @param {Viewer} viewer - the viewer for this UI
+   */
+  setupUI(viewer) {
+    this.viewer = viewer;
+
+    this._setupCheckEvent("tcv_axes", this.setAxes, viewer.axes);
+    this._setupCheckEvent("tcv_grid", this.setGrid, viewer.grid);
+    this._setupCheckEvent("tcv_grid-xy", this.setGrid, viewer.grid);
+    this._setupCheckEvent("tcv_grid-xz", this.setGrid, viewer.grid);
+    this._setupCheckEvent("tcv_grid-yz", this.setGrid, viewer.grid);
+    this._setupCheckEvent("tcv_axes0", this.setAxes0, viewer.axes0);
+    this._setupCheckEvent("tcv_ortho", this.setOrtho, viewer.ortho);
+    this._setupCheckEvent(
+      "tcv_transparent",
+      this.setTransparent,
+      viewer.transparent
+    );
+    this._setupCheckEvent(
+      "tcv_black_edges",
+      this.setBlackEdges,
+      viewer.blackEdges
+    );
+
+    this._setupClickEvent("tcv_reset", this.reset);
+    this._setupClickEvent("tcv_resize", this.resize);
+
+    const buttons = [
+      "tcv_front",
+      "tcv_rear",
+      "tcv_top",
+      "tcv_bottom",
+      "tcv_left",
+      "tcv_right",
+      "tcv_iso"
+    ];
+    buttons.forEach((name) => {
+      this._setupClickEvent(name, this.setView);
+    });
+
+    this._setupClickEvent("tcv_pin", this.pinAsPng);
+    this._setupClickEvent("tcv_help", this.toggleHelp);
+    this.help_shown = true;
+
+    const tabs = ["tcv_tab_tree", "tcv_tab_clip"];
+    tabs.forEach((name) => {
+      this._setupClickEvent(name, this.selectTab);
+    });
+
+    this.clipSliders = [];
+    for (var i = 1; i < 4; i++) {
+      this.clipSliders.push(new Slider(i, 0, 100, this));
+    }
+
+    this._setupCheckEvent(
+      "tcv_clip_plane_helpers",
+      this.setClipPlaneHelpers,
+      false
+    );
+    this._setupCheckEvent(
+      "tcv_clip_intersection",
+      this.setClipIntersection,
+      false
+    );
+
+    for (i = 1; i < 4; i++) {
+      this._setupClickEvent(
+        `tcv_btn_norm_plane${i}`,
+        this.setClipNormalFromPosition,
+        false
+      );
+    }
+
+    this._setupClickEvent("tcv_play", this.controlAnimation, false);
+    this._setupClickEvent("tcv_pause", this.controlAnimation, false);
+    this._setupClickEvent("tcv_stop", this.controlAnimation, false);
+    this.setAnimationControl(false);
+
+    this.setHelp(false);
+  }
+
+  // setup functions
+
+  /**
+   * Check or uncheck a checkbox
+   * @param {string} name - name of the check box, see getElement
+   * @param {boolean} flag - whether to check or uncheck
+   */
+  checkElement(name, flag) {
+    this._getElement(name).checked = flag;
+  }
+
+  /**
+   * Add the Cad View (the canvas for threejs)
+   * @param {DOMElement} cadView - the DOM element that contains the cadView
+   */
+  addCadView(cadView) {
+    this.cadView.appendChild(cadView);
+  }
+
+  /**
+   * Clear the Cad tree
+   */
+  clearCadTree() {
+    this.cadTree.innerHTML = "";
+  }
+
+  /**
+   * Add the Cad tree and other UI elements like Clipping
+   * @param {DOMElement} cadTree - the DOM element that contains the cadTree
+   */
+  addCadTree(cadTree) {
+    this.cadTree.appendChild(cadTree);
+  }
+
+  // handler (bound to Display instance)
+
+  /**
+   *
+   * @function
+   * @param {*} e
+   */
+  setAxes = (e) => {
+    const flag = !!e.target.checked;
+    this.viewer.setAxes(flag);
+  };
+
+  /**
+   * Check/uncheck the axes checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the axes checkbox
+   */
+  setAxesCheck = (flag) => {
+    this.checkElement("tcv_axes", flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the grid parameter
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setGrid = (e) => {
+    const action = e.target.className.split(" ")[0].slice(4);
+    this.viewer.setGrid(action);
+  };
+
+  /**
+   * Check/uncheck the main grid UI element
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the main grid checkbox
+   */
+  setGridCheck = (flag) => {
+    this.checkElement("tcv_grid", flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the axes0 parameter
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setAxes0 = (e) => {
+    const flag = !!e.target.checked;
+    this.viewer.setAxes0(flag);
+  };
+
+  /**
+   * Check/uncheck the Axes0 checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Axes0 checkbox
+   */
+  setAxes0Check = (flag) => {
+    this.checkElement("tcv_axes0", flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the ortho parameter
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setOrtho = (e) => {
+    const flag = !!e.target.checked;
+    this.viewer.switchCamera(flag);
+  };
+
+  /**
+   * Check or uncheck the Ortho checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the ortho checkbox
+   */
+  setOrthoCheck = (flag) => {
+    this.checkElement("tcv_ortho", flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the transparent parameter
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setTransparent = (e) => {
+    const flag = !!e.target.checked;
+    this.viewer.setTransparent(flag);
+  };
+
+  /**
+   * Check or uncheck the Transparent checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Transparent checkbox
+   */
+  setTransparentCheck = (flag) => {
+    this.checkElement("tcv_transparent", flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the black edges parameter
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setBlackEdges = (e) => {
+    const flag = !!e.target.checked;
+    this.viewer.setBlackEdges(flag);
+  };
+
+  /**
+   * Check or uncheck the Black Edges checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
+   */
+  setBlackEdgesCheck = (flag) => {
+    this.checkElement("tcv_black_edges", flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the clip planes parameter
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setClipPlaneHelpers = (e) => {
+    const flag = !!e.target.checked;
+    this.viewer.setClipPlaneHelpers(flag);
+  };
+
+  /**
+   * Check or uncheck the Plane Helpers checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Plane Helpers checkbox
+   */
+  setClipPlaneHelpersCheck = (flag) => {
+    this.checkElement("tcv_clip_plane_helpers", flag);
+  };
+
+  /**
+   * Show or hide the CAD tools
+   * @function
+   * @param {boolean} flag - whether to show or hide the CAD tools
+   */
+  setTools = (flag) => {
+    var tb = this._getElement("tcv_cad_toolbar");
+    var cn = this._getElement("tcv_cad_navigation");
+    for (var el of [cn, tb]) {
+      if (flag) {
+        el.style.height = "36px";
+        el.style.display = "block";
+      } else {
+        el.style.height = "0px";
+        el.style.display = "none";
+      }
+    }
+  };
+
+  /**
+   * Checkbox Handler for setting the clip inersection parameter
+   * @function
+   * @param {*} e
+   */
+  setClipIntersection = (e) => {
+    const flag = !!e.target.checked;
+    this.viewer.setClipIntersection(flag);
+  };
+
+  /**
+   * Check or uncheck the Intersection checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Intersection checkbox
+   */
+  setClipIntersectionCheck = (flag) => {
+    const el = this._getElement("tcv_clip_intersection");
+    el.checked = flag;
+  };
+
+  /**
+   * Handler to reset position, zoom and up of the camera
+   * @function
+   */
+  reset = () => {
+    this.viewer.reset();
+  };
+
+  /**
+   * Handler to reset zoom of the camera
+   * @function
+   */
+  resize = () => {
+    this.viewer.resize();
+  };
+
+  /**
+   * Handler to set camery to a predefined position
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setView = (e) => {
+    const btn = e.target.className.split(" ")[0].slice(4);
+    this.viewer.presetCamera(btn);
+  };
+
+  /**
+   * Pin screenshot of canvas as PNG
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  // eslint-disable-next-line no-unused-vars
+  pinAsPng = (e) => {
+    this.viewer.pinAsPng();
+  };
+
+  /**
+   * Handler to set the label of a clipping normal widget
+   * @function
+   * @param {number} index - index of the normal widget
+   * @param {Vector3} normal - the normal
+   */
+  setNormalLabel = (index, normal) => {
+    this.planeLabels[index].innerHTML = `N=(${normal[0].toFixed(
+      2
+    )}, ${normal[1].toFixed(2)}, ${normal[2].toFixed(2)})`;
+  };
+
+  /**
+   * Set the normal at index to the current viewing direction
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setClipNormalFromPosition = (e) => {
+    const index = parseInt(e.target.classList[0].slice(-1));
+    this.viewer.setClipNormalFromPosition(index - 1);
+  };
+
+  /**
+   * Handler to activate a UI tab (tree / clipping)
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  selectTab = (e) => {
+    const tab = e.target.className.split(" ")[0];
+    this.selectTabByName(tab.slice(8));
+  };
+
+  /**
+   * Activate the UI tab given the name of the tab
+   * @param {string} tab - name of the tab "tree" or "clip"
+   */
+  selectTabByName(tab) {
+    var changed = false;
+    if (tab === "tree" && this.activeTab !== "tree") {
+      this.cadTree.style.display = "block";
+      this.cadClip.style.display = "none";
+      this.viewer.nestedGroup.setBackVisible(false);
+      this.viewer.setLocalClipping(false);
+      this.lastPlaneState = this.viewer.getClipPlaneHelpers();
+      this.viewer.setClipPlaneHelpers(false);
+      changed = true;
+    }
+    if (tab === "clip" && this.activeTab !== "clip") {
+      this.cadTree.style.display = "none";
+      this.cadClip.style.display = "block";
+      this.viewer.nestedGroup.setBackVisible(true);
+      this.viewer.setLocalClipping(true);
+      this.viewer.setClipPlaneHelpers(this.lastPlaneState);
+      changed = true;
+    }
+    this.activeTab = tab;
+    this.viewer.checkChanges({ tab: tab });
+    if (changed) {
+      this.tabTree.classList.toggle("tcv_tab-selected");
+      this.tabTree.classList.toggle("tcv_tab-unselected");
+      this.tabClip.classList.toggle("tcv_tab-selected");
+      this.tabClip.classList.toggle("tcv_tab-unselected");
+    }
+  }
+
+  /**
+   * Set minimum and maximumu of the sliders
+   * @param {number} limit - the value for both minumum and maximum valaue of the slider
+   */
+  setSliders(limit) {
+    for (var i = 0; i < 3; i++) {
+      this.clipSliders[i].setSlider(limit);
+    }
+  }
+
+  /**
+   * Refresh clipping plane
+   * @function
+   * @param {number} index - index of the plane: 0,1,2
+   * @param {number} value - distance on the clipping normal from the center
+   */
+  refreshPlane(index, value) {
+    this.viewer.refreshPlane(index - 1, parseFloat(value));
+  }
+
+  /**
+   * Show or hide the Animation control widget
+   * @function
+   * @param {boolean} flag - whether to show or hide the Animation control widget
+   */
+  setAnimationControl = (flag) => {
+    this.cadAnim.style.display = flag ? "block" : "none";
+  };
+
+  /**
+   * Handler for the animation control
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  controlAnimation = (e) => {
+    const btn = e.target.className.split(" ")[0].slice(4);
+    this.viewer.controlAnimation(btn);
+  };
+
+  /**
+   * Show or hide help dialog
+   * @function
+   * @param {boolean} flag - whether to show or hide help dialog
+   */
+  setHelp = (flag) => {
+    this.cadHelp.style.display = flag ? "block" : "none";
+    this.help_shown = flag;
+  };
+
+  /**
+   * Show help dialog
+   * @function
+   */
+  toggleHelp = () => {
+    this.setHelp(!this.help_shown);
+  };
+}
+
 const _box$1 = new Box3();
 const _vector = new Vector3();
 
@@ -52282,12 +53230,6 @@ class OrientationMarker {
     const size = 2.7;
     const length = 60;
 
-    // renderer
-    this.renderer = new WebGLRenderer({ alpha: true, antialias: true });
-    this.renderer.setClearColor(0x000000, 0);
-    this.renderer.setSize(this.width, this.height);
-    // this.container.appendChild(this.renderer.domElement);
-
     // scene
     this.scene = new Scene();
 
@@ -52359,7 +53301,7 @@ class OrientationMarker {
     const sphere = new Mesh(geometry, material);
     this.scene.add(sphere);
 
-    return this.renderer.domElement;
+    this.scene.background = null;
   }
 
   dispose() {
@@ -52371,8 +53313,10 @@ class OrientationMarker {
     this.camera = null;
   }
 
-  render() {
-    this.renderer.render(this.scene, this.camera);
+  render(renderer) {
+    renderer.setViewport(0, 0, this.width, this.height);
+
+    renderer.render(this.scene, this.camera);
   }
 
   // handler (bound to OrientationMarker instance)
@@ -52382,128 +53326,6 @@ class OrientationMarker {
     this.camera.position.setLength(300);
     this.camera.rotation.copy(rotation);
   }
-}
-
-var light_bottom = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var light_front = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var light_help = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M23.0,-13.0 A10.0,10.0,0,1,0,22.998476951563912,-12.825475935627155\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<text x=\"7.0\" y=\"-6.0\" font-size=\"20.0\" fill=\"rgb(83,160,227)\" font-family=\"sans-serif\" font-weight=\"bold\" dy=\"0em\">?</text>\n</svg>\n";
-
-var light_iso = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M22.0,-7.5 L22.0,-18.5 L13.0,-13.0 L13.0,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M13.0,-13.0 L13.0,-2.0 L4.0,-7.5 L4.0,-18.5 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M22.0,-18.5 L13.0,-24.0 L4.0,-18.5 L13.0,-13.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var light_left = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var light_mesh = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M2.0,-6.066666666666666 L2.0,-10.133333333333333 L10.6,-10.133333333333333 L19.2,-10.133333333333333 L19.2,-6.066666666666666 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
-
-var light_mesh_empty = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"#ddd\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"#ddd\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M2.0,-6.066666666666666 L2.0,-10.133333333333333 L10.6,-10.133333333333333 L19.2,-10.133333333333333 L19.2,-6.066666666666666 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
-
-var light_mesh_mix = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-14.2 L12.6,-14.2 L8.6,-10.133333333333333 L8.6,-6.066666666666666 L12.6,-2.0 L6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 Z\" fill=\"rgb(83,160,227)\" stroke=\"rgb(83,160,227)\" stroke-width=\"1.25\" stroke-linejoin=\"square\" stroke-linecap=\"round\" />\n<path d=\"M16.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 L16.6,-2.0 L12.6,-6.066666666666666 L12.6,-10.133333333333333 Z\" fill=\"rgb(83,160,227)\" stroke=\"rgb(83,160,227)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M10.6,-10.133333333333333 L2.0,-10.133333333333333 L2.0,-6.066666666666666 L10.6,-6.066666666666666\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M14.6,-14.2 L6.0,-14.2 L2.0,-10.133333333333333 L2.0,-6.066666666666666 L6.0,-2.0 L14.6,-2.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var light_mesh_no = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"rgb(83,160,227)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"rgb(83,160,227)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
-
-var light_pause = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"5.2\" y=\"-22.0\" width=\"5.6\" height=\"18.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n<rect x=\"15.2\" y=\"-22.0\" width=\"5.6\" height=\"18.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var light_pin = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"10.0\" y=\"-23.0\" width=\"6.0\" height=\"11.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" />\n<path d=\"M13.0,-3.0 L13.0,-10.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M17.330127018922195,-21.5 A5.0,5.0,0,0,0,8.669872981077805,-21.5\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"rgb(83,160,227)\" stroke-linecap=\"round\" />\n<path d=\"M21.66025403784439,-10.2 A10.0,10.0,0,0,0,4.339745962155613,-10.2\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"rgb(83,160,227)\" stroke-linecap=\"round\" />\n<path d=\"M4.5,-10.2 L21.5,-10.2 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M8.8,-21.4 L17.2,-21.4 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var light_plane = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M2.0,-5.0 L4.4,-13.0 L24.0,-13.0 L21.0,-5.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M13.0,-9.5 L13.0,-19.5 Z\" fill=\"none\" stroke=\"rgb(83,160,227)\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M11.0,-17.5 L13.0,-19.5 L15.0,-17.5 Z\" fill=\"none\" stroke=\"rgb(83,160,227)\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var light_play = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M5.0,-4.0 L5.0,-22.0 L21.0,-13.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var light_rear = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var light_reset = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M18.0,-21.660254037844386 A10.0,10.0,0,1,0,23.0,-12.999999999999998\" stroke=\"#444\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M16.0,-18.196152422706632 A6.0,6.0,0,1,0,19.0,-12.999999999999998\" stroke=\"#444\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M17.0,-13.0 L21.0,-17.0 L25.0,-13.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var light_resize = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"2.0\" y=\"-24.0\" width=\"22.0\" height=\"22.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n<path d=\"M6.0,-6.0 L10.0,-10.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-20.0 L16.0,-16.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-6.0 L16.0,-10.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-20.0 L10.0,-16.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-6.0 L6.0,-10.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-6.0 L10.0,-6.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-20.0 L20.0,-16.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-20.0 L16.0,-20.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-20.0 L6.0,-16.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-20.0 L10.0,-20.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-6.0 L20.0,-10.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-6.0 L16.0,-6.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var light_right = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var light_shape = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<ellipse cx=\"12.6\" cy=\"-8.1\" rx=\"5.04\" ry=\"5.04\" fill=\"rgb(83,160,227)\" stroke=\"none\" stroke-width=\"1.25\" />\n<ellipse cx=\"12.6\" cy=\"-8.1\" rx=\"2.1\" ry=\"2.1\" fill=\"#444\" stroke=\"#444\" stroke-width=\"1.25\" />\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var light_shape_empty = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<ellipse cx=\"12.6\" cy=\"-8.1\" rx=\"5.04\" ry=\"5.04\" fill=\"#ddd\" stroke=\"none\" stroke-width=\"1.25\" />\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var light_shape_mix = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M12.6,-13.14 A5.04,5.04,0,0,0,12.599999999999998,-3.0599999999999996\" stroke=\"none\" stroke-width=\"1.25\" fill=\"rgb(83,160,227)\" stroke-linecap=\"round\" />\n<path d=\"M12.6,-10.2 A2.1,2.1,0,0,0,12.6,-6.0\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"#444\" stroke-linecap=\"round\" />\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,15.69914007006101,-13.236830413208175\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M15.69914007006101,-2.9631695867918246 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M12.6,-13.7 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,12.6,-2.5\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var light_shape_no = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#444\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var light_stop = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"4.0\" y=\"-22.0\" width=\"18.0\" height=\"18.0\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var light_top = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"rgb(83,160,227)\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#444\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var dark_bottom = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var dark_front = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var dark_help = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M23.0,-13.0 A10.0,10.0,0,1,0,22.998476951563912,-12.825475935627155\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<text x=\"7.0\" y=\"-6.0\" font-size=\"20.0\" fill=\"rgb(48, 142, 225)\" font-family=\"sans-serif\" font-weight=\"bold\" dy=\"0em\">?</text>\n</svg>\n";
-
-var dark_iso = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M22.0,-7.5 L22.0,-18.5 L13.0,-13.0 L13.0,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M13.0,-13.0 L13.0,-2.0 L4.0,-7.5 L4.0,-18.5 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M22.0,-18.5 L13.0,-24.0 L4.0,-18.5 L13.0,-13.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var dark_left = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var dark_mesh = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M2.0,-6.066666666666666 L2.0,-10.133333333333333 L10.6,-10.133333333333333 L19.2,-10.133333333333333 L19.2,-6.066666666666666 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
-
-var dark_mesh_empty = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"#666\" stroke=\"#666\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"#666\" stroke=\"#666\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M2.0,-6.066666666666666 L2.0,-10.133333333333333 L10.6,-10.133333333333333 L19.2,-10.133333333333333 L19.2,-6.066666666666666 Z\" fill=\"none\" stroke=\"#666\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
-
-var dark_mesh_mix = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-14.2 L12.6,-14.2 L8.6,-10.133333333333333 L8.6,-6.066666666666666 L12.6,-2.0 L6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"1.25\" stroke-linejoin=\"square\" stroke-linecap=\"round\" />\n<path d=\"M16.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 L16.6,-2.0 L12.6,-6.066666666666666 L12.6,-10.133333333333333 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M10.6,-10.133333333333333 L2.0,-10.133333333333333 L2.0,-6.066666666666666 L10.6,-6.066666666666666\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M14.6,-14.2 L6.0,-14.2 L2.0,-10.133333333333333 L2.0,-6.066666666666666 L6.0,-2.0 L14.6,-2.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var dark_mesh_no = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n<path d=\"M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"square\" />\n</svg>\n";
-
-var dark_pause = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"5.2\" y=\"-22.0\" width=\"5.6\" height=\"18.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n<rect x=\"15.2\" y=\"-22.0\" width=\"5.6\" height=\"18.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var dark_pin = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"10.0\" y=\"-23.0\" width=\"6.0\" height=\"11.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" />\n<path d=\"M13.0,-3.0 L13.0,-10.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M17.330127018922195,-21.5 A5.0,5.0,0,0,0,8.669872981077805,-21.5\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"rgb(48, 142, 225)\" stroke-linecap=\"round\" />\n<path d=\"M21.66025403784439,-10.2 A10.0,10.0,0,0,0,4.339745962155613,-10.2\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"rgb(48, 142, 225)\" stroke-linecap=\"round\" />\n<path d=\"M4.5,-10.2 L21.5,-10.2 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M8.8,-21.4 L17.2,-21.4 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var dark_plane = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M2.0,-5.0 L4.4,-13.0 L24.0,-13.0 L21.0,-5.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M13.0,-9.5 L13.0,-19.5 Z\" fill=\"none\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M11.0,-17.5 L13.0,-19.5 L15.0,-17.5 Z\" fill=\"none\" stroke=\"rgb(48, 142, 225)\" stroke-width=\"2.25\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var dark_play = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M5.0,-4.0 L5.0,-22.0 L21.0,-13.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var dark_rear = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var dark_reset = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<path d=\"M18.0,-21.660254037844386 A10.0,10.0,0,1,0,23.0,-12.999999999999998\" stroke=\"#ddd\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M16.0,-18.196152422706632 A6.0,6.0,0,1,0,19.0,-12.999999999999998\" stroke=\"#ddd\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M17.0,-13.0 L21.0,-17.0 L25.0,-13.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var dark_resize = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"2.0\" y=\"-24.0\" width=\"22.0\" height=\"22.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n<path d=\"M6.0,-6.0 L10.0,-10.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-20.0 L16.0,-16.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-6.0 L16.0,-10.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-20.0 L10.0,-16.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-6.0 L6.0,-10.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-6.0 L10.0,-6.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-20.0 L20.0,-16.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-20.0 L16.0,-20.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-20.0 L6.0,-16.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M6.0,-20.0 L10.0,-20.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-6.0 L20.0,-10.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M20.0,-6.0 L16.0,-6.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var dark_right = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var dark_shape = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<ellipse cx=\"12.6\" cy=\"-8.1\" rx=\"5.04\" ry=\"5.04\" fill=\"rgb(48, 142, 225)\" stroke=\"none\" stroke-width=\"1.25\" />\n<ellipse cx=\"12.6\" cy=\"-8.1\" rx=\"2.1\" ry=\"2.1\" fill=\"#ddd\" stroke=\"#ddd\" stroke-width=\"1.25\" />\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var dark_shape_empty = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<ellipse cx=\"12.6\" cy=\"-8.1\" rx=\"5.04\" ry=\"5.04\" fill=\"#666\" stroke=\"none\" stroke-width=\"1.25\" />\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#666\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#666\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var dark_shape_mix = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M12.6,-13.14 A5.04,5.04,0,0,0,12.599999999999998,-3.0599999999999996\" stroke=\"none\" stroke-width=\"1.25\" fill=\"rgb(48, 142, 225)\" stroke-linecap=\"round\" />\n<path d=\"M12.6,-10.2 A2.1,2.1,0,0,0,12.6,-6.0\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"#ddd\" stroke-linecap=\"round\" />\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,15.69914007006101,-13.236830413208175\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M15.69914007006101,-2.9631695867918246 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M12.6,-13.7 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,12.6,-2.5\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var dark_shape_no = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"25.2\" height=\"16.2\" viewBox=\"0 -16.2 25.2 16.2\">\n<path d=\"M21.77986928011505,-8.399999999999999 A10.6,10.6,0,0,0,3.42013071988495,-8.399999999999999\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n<path d=\"M3.42013071988495,-7.800000000000001 A10.6,10.6,0,0,0,21.77986928011505,-7.800000000000001\" stroke=\"#ddd\" stroke-width=\"1.25\" fill=\"none\" stroke-linecap=\"round\" />\n</svg>\n";
-
-var dark_stop = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"4.0\" y=\"-22.0\" width=\"18.0\" height=\"18.0\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.5\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-var dark_top = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"26.0\" height=\"26.0\" viewBox=\"0 -26.0 26.0 26.0\">\n<rect x=\"8.0\" y=\"-24.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n<path d=\"M2.0,-2.0 L2.0,-18.0 L8.0,-24.0 L8.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-2.0 L8.0,-8.0 L24.0,-8.0 L18.0,-2.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M2.0,-18.0 L8.0,-24.0 L24.0,-24.0 L18.0,-18.0 Z\" fill=\"rgb(48, 142, 225)\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<path d=\"M18.0,-2.0 L18.0,-18.0 L24.0,-24.0 L24.0,-8.0 Z\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n<rect x=\"2.0\" y=\"-18.0\" width=\"16.0\" height=\"16.0\" fill=\"none\" stroke=\"#ddd\" stroke-width=\"1.2\" stroke-linejoin=\"round\" />\n</svg>\n";
-
-const icons = {
-  bottom: { light: light_bottom, dark: dark_bottom },
-  front: { light: light_front, dark: dark_front },
-  help: { light: light_help, dark: dark_help },
-  iso: { light: light_iso, dark: dark_iso },
-  left: { light: light_left, dark: dark_left },
-  mesh: { light: light_mesh, dark: dark_mesh },
-  mesh_empty: { light: light_mesh_empty, dark: dark_mesh_empty },
-  mesh_mix: { light: light_mesh_mix, dark: dark_mesh_mix },
-  mesh_no: { light: light_mesh_no, dark: dark_mesh_no },
-  pause: { light: light_pause, dark: dark_pause },
-  pin: { light: light_pin, dark: dark_pin },
-  plane: { light: light_plane, dark: dark_plane },
-  play: { light: light_play, dark: dark_play },
-  rear: { light: light_rear, dark: dark_rear },
-  reset: { light: light_reset, dark: dark_reset },
-  resize: { light: light_resize, dark: dark_resize },
-  right: { light: light_right, dark: dark_right },
-  shape: { light: light_shape, dark: dark_shape },
-  shape_empty: { light: light_shape_empty, dark: dark_shape_empty },
-  shape_mix: { light: light_shape_mix, dark: dark_shape_mix },
-  shape_no: { light: light_shape_no, dark: dark_shape_no },
-  stop: { light: light_stop, dark: dark_stop },
-  top: { light: light_top, dark: dark_top }
-};
-
-function getIconBackground(theme, name) {
-  return `url(data:image/svg+xml;utf8,${escape(icons[name][theme])});`;
 }
 
 // Some helpers
@@ -52941,8 +53763,7 @@ function fromAxisAngle(axis, angle) {
 }
 
 class Animation {
-  constructor(root, delim) {
-    this.root = root;
+  constructor(delim) {
     this.delim = delim;
     this.tracks = [];
     this.mixer = null;
@@ -53030,9 +53851,9 @@ class Animation {
     }
   }
 
-  animate(duration, speed) {
+  animate(root, duration, speed) {
     this.clip = new AnimationClip("track", duration, this.tracks);
-    this.mixer = new AnimationMixer(this.root);
+    this.mixer = new AnimationMixer(root);
     this.mixer.timeScale = speed;
     // this.mixer.addEventListener('finished', (e) => { console.log("finished", e) });
     // this.mixer.addEventListener('loop', (e) => { console.log("loop", e) });
@@ -55030,14 +55851,13 @@ class Viewer {
    * @param {ViewerOptions} options - configuration parameters.
    * @param {NotificationCallback} notifyCallback - The callback to receive changes of viewer parameters.
    */
-  constructor(display, options, notifyCallback, pinAsPngCallback = null) {
-    this.display = display;
+  constructor(container, options, notifyCallback, pinAsPngCallback = null) {
     this.setDefaults(options);
     this.notifyCallback = notifyCallback;
     this.pinAsPngCallback = pinAsPngCallback;
 
     this.hasAnimationLoop = false;
-
+    this.display = new Display(container, options);
     this.display.setSizes({
       cadWidth: this.cadWidth,
       height: this.height,
@@ -55068,15 +55888,17 @@ class Viewer {
     this.raycaster = new Raycaster();
     this.mouse = new Vector2();
 
+    this.width = this.cadWidth;
+
     // setup renderer
     this.renderer = new WebGLRenderer({
       alpha: !this.dark,
       antialias: true
     });
-
-    this.width = this.cadWidth;
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.width, this.height);
+    this.renderer.setClearColor(0xffffff, 0);
+    this.renderer.autoClear = false;
 
     this.lastNotification = {};
 
@@ -55086,6 +55908,10 @@ class Viewer {
     );
 
     this.display.addCadView(this.renderer.domElement);
+
+    console.debug("three-cad-viewer: WebGL Renderer created");
+
+    this.animation = new Animation("|");
 
     this.display.setupUI(this);
   }
@@ -55217,12 +56043,6 @@ class Viewer {
    * @param {number[]} values - array of values, the type depends on the action.
    */
   addAnimationTrack(selector, action, time, values) {
-    if (this.animation == null) {
-      this.animation = new Animation(
-        this.nestedGroup.rootGroup,
-        this.nestedGroup.delim
-      );
-    }
     this.animation.addTrack(
       selector,
       this.nestedGroup.groups[selector],
@@ -55242,13 +56062,17 @@ class Viewer {
       console.error("Animation does not have tracks");
       return;
     }
-
+    console.debug("three-cad-viewer: Animation initialized");
     if (!this.hasAnimationLoop) {
       this.toggleAnimationLoop(true);
     }
 
     this.display.setAnimationControl(true);
-    this.clipAction = this.animation.animate(duration, speed);
+    this.clipAction = this.animation.animate(
+      this.nestedGroup.rootGroup,
+      duration,
+      speed
+    );
   }
 
   /**
@@ -55304,20 +56128,26 @@ class Viewer {
    */
   update = (updateMarker, notify = true) => {
     if (this.ready) {
-      if (this.animation) {
-        this.animation.update();
-      }
+      this.renderer.clear();
 
+      this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
 
       if (updateMarker) {
+        this.renderer.clearDepth(); // ensure orientation Marker is at the top
+
         this.orientationMarker.update(
           this.camera.getPosition().clone().sub(this.controls.getTarget()),
           this.camera.getRotation()
         );
-        this.orientationMarker.render();
+        this.orientationMarker.render(this.renderer);
+      }
+
+      if (this.animation) {
+        this.animation.update();
       }
     }
+
     this.checkChanges(
       {
         zoom: this.camera.getZoom(),
@@ -55338,7 +56168,7 @@ class Viewer {
       this.controls.update();
       this.update(true, true);
     } else {
-      console.log("Animation loop stopped");
+      console.debug("three-cad-viewer: Animation loop stopped");
     }
   };
 
@@ -55347,17 +56177,17 @@ class Viewer {
       this.continueAnimation = true;
       this.hasAnimationLoop = true;
       this.controls.removeChangeListener();
-      console.debug("Change listener removed");
+      console.debug("three-cad-viewer: Change listener removed");
       this.animate();
-      console.debug("Animation loop started");
+      console.debug("three-cad-viewer: Animation loop started");
     } else {
       if (this.hasAnimationLoop) {
-        console.debug("Turning animation loop off");
+        console.debug("three-cad-viewer: Turning animation loop off");
       }
       this.continueAnimation = false;
       this.hasAnimationLoop = false;
       this.controls.addChangeListener(() => this.update(true, true));
-      console.debug("Change listener registered");
+      console.debug("three-cad-viewer: Change listener registered");
 
       // ensure last animation cycle has finished
       setTimeout(() => this.update(true, true), 50);
@@ -55371,32 +56201,67 @@ class Viewer {
    * Remove assets and event handlers.
    */
   dispose() {
-    // stop animation
-    this.continueAnimation = false;
+    this.clear();
 
     // clear info
     this.info.dispose();
+    this.info = null;
 
     // dispose all event handlers and HTML content
-
     this.display.dispose();
     this.display = null;
 
-    // dispose scene
-
-    sceneTraverse(this.scene, (o) => {
-      o.geometry?.dispose();
-      o.material?.dispose();
-    });
-    this.scene = null;
-
-    this.camera.dispose();
-    this.controls.dispose();
     this.orientationMarker.dispose();
 
     // dispose renderer
     this.renderer.renderLists.dispose();
     this.renderer = null;
+  }
+
+  /**
+   * Clear CAD view and remove event handler.
+   */
+  clear() {
+    if (this.scene != null) {
+      // stop animation
+      this.continueAnimation = false;
+
+      // remove change listener if exists
+      if (!this.hasAnimationLoop) {
+        this.controls.removeChangeListener();
+        console.debug("three-cad-viewer: Change listener removed");
+      }
+      this.hasAnimationLoop = false;
+      this.display.setAnimationControl(false);
+
+      if (this.animation != null) {
+        this.animation.dispose();
+      }
+
+      // clear render canvas
+      this.renderer.clear();
+
+      // dispose scene
+
+      sceneTraverse(this.scene, (o) => {
+        o.geometry?.dispose();
+        o.material?.dispose();
+      });
+      this.scene = null;
+
+      // clear tree view
+      this.display.clearCadTree();
+
+      // clear info
+      this.info.dispose();
+
+      // dispose camera and controls
+      this.camera.dispose();
+      this.controls.dispose();
+
+      // dispose scene
+      this.scene = null;
+    }
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -55585,7 +56450,7 @@ class Viewer {
       this.camera.getCamera(),
       this.theme
     );
-    this.display.addCadInset(this.orientationMarker.create());
+    this.orientationMarker.create();
 
     //
     // build tree view
@@ -56335,7 +57200,8 @@ class Viewer {
    * Note: Only the canvas will be shown, no tools and orientation marker
    */
   pinAsPng = () => {
-    const canvas = this.display.cadView.children[3];
+    const canvas = this.display.cadView.children[2];
+    this.renderer.setViewport(0, 0, this.cadWidth, this.height);
     this.renderer.render(this.scene, this.camera.getCamera());
     canvas.toBlob((blob) => {
       let reader = new FileReader();
@@ -56362,835 +57228,6 @@ class Viewer {
       );
       reader.readAsDataURL(blob);
     });
-  };
-}
-
-const TEMPLATE = `
-<div class="tcv_cad_viewer">
-    <div class="tcv_cad_toolbar tcv_round">
-    <span class="tcv_tooltip"  data-tooltip="Show coordinate axis">
-        <span class="tcv_label">Axes</span><input class='tcv_axes tcv_check' type="checkbox" />
-    </span>
-    <div class="tcv_grid-dropdown">
-        <span class="tcv_label">Grid</span><input class='tcv_grid tcv_check' type="checkbox" />
-            <span class="tcv_tooltip"  data-tooltip="Show selective grids">
-            <div class="tcv_grid-content">
-                <div class="tcv_label">- xy</span><input class='tcv_grid-xy tcv_check' type="checkbox"></div>
-                <div class="tcv_label">- xz</span><input class='tcv_grid-xz tcv_check' type="checkbox"></div>
-                <div class="tcv_label">- yz</span><input class='tcv_grid-yz tcv_check' type="checkbox"></div>
-            </div>
-        </span>
-    </div>
-    <span class="tcv_tooltip"  data-tooltip="Move center of axis and grid to (0,0,0)">
-        <span class="tcv_label">@0</span><input class='tcv_axes0 tcv_check' type="checkbox" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Toggle camera between orthographic and perspective view">
-        <span class="tcv_label">Ortho</span><input class='tcv_ortho tcv_check' type="checkbox" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Reset view">
-        <input class='tcv_reset tcv_btn' type="button"/>
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Fit view">
-        <input class='tcv_resize tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to iso view">
-        <input class='tcv_iso tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to front view">
-        <input class='tcv_front tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to back view">
-        <input class='tcv_rear tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to top view">
-        <input class='tcv_top tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to bottom view">
-        <input class='tcv_bottom tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to left view">
-        <input class='tcv_left tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to right view">
-        <input class='tcv_right tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Toggle transparent objects">
-        <span class="tcv_label">Transparent</span><input class='tcv_transparent tcv_check' type="checkbox" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Toggle black edges">
-        <span class="tcv_label">Black edges</span><input class='tcv_black_edges tcv_check' type="checkbox" />
-    </span>
-    <span class="tcv_align_right">
-      <span class="tcv_tooltip"  data-tooltip="Toggle help">
-          <input class='tcv_help tcv_btn' type="button" />
-      </span>
-      <span class="tcv_tooltip"  data-tooltip="Pin view as PNG image">
-          <input class='tcv_pin tcv_btn' type="button" />
-      </span>
-    </span>
-    </div>
-    <div class="tcv_cad_body">
-    <div class="tcv_cad_navigation">
-    <div class="tcv_cad_tree tcv_round">
-        <div class="tcv_tabnav">
-            <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button"/>
-            <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping" type="button"/>
-        </div>
-        <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-            <div class="tcv_cad_tree_container"></div>
-            <div class="tcv_cad_clip_container">
-                <div class="tcv_slider_group">
-                    <div>
-                        <span class="tcv_tooltip"  data-tooltip="Set red clipping plane to view direction">
-                            <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type="button" />
-                        </span>
-                        <span class="tcv_lbl_norm_plane1 tcv_label">N1 = (n/a, n/a, n/a)</span>
-                    </div>
-                    <div>
-                        <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane1 tcv_clip_slider">
-                        <input value=50 class="tcv_inp_value_plane1 tcv_clip_input"></input>
-                    </div>
-                </div>
-                <div class="tcv_slider_group">
-                    <div>
-                        <span class="tooltip"  data-tooltip="Set green clipping plane to view direction">
-                            <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type="button" />
-                        </span>
-                        <span class="tcv_lbl_norm_plane2 tcv_label">N2 = (n/a, n/a, n/a)</span>
-                    </div>
-                    <div>
-                        <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane2 tcv_clip_slider">
-                        <input value=50 class="tcv_inp_value_plane2 tcv_clip_input"></input>
-                    </div>
-                </div>
-                <div class="tcv_slider_group">
-                    <div>
-                        <span class="tooltip"  data-tooltip="Set blue clipping plane to view direction">
-                            <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type="button" />
-                        </span>
-                        <span class="tcv_lbl_norm_plane3 tcv_label">N3 = (n/a, n/a, n/a)</span>
-                    </div>
-                    <div>
-                        <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane3 tcv_clip_slider">
-                        <input value=50 class="tcv_inp_value_plane3 tcv_clip_input"></input>
-                    </div>
-                </div>
-                <div class="tcv_clip_checks">
-                    <span class="tcv_tooltip"  data-tooltip="Use intersection clipping">
-                        <span class="tcv_label">Intersection</span><input  class='tcv_clip_intersection tcv_check' type="checkbox" />
-                    </span>
-                    <span class="tcv_tooltip"  data-tooltip="Show clipping planes">
-                        <span class="tcv_label">Planes</span><input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type="checkbox" />
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="tcv_cad_info tcv_round">
-        <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-            <div class="tcv_cad_info_container"></div>
-        </div>
-    </div>
-    </div>
-    <div class="tcv_cad_view">
-        <div class="tcv_cad_animation tcv_round">
-            <span class="tcv_tooltip"  data-tooltip="Play animation"><input class='tcv_play tcv_btn' type="button" /></span>
-            <span class="tcv_tooltip"  data-tooltip="Pause animation"><input class='tcv_pause tcv_btn' type="button" /></span>
-            <span class="tcv_tooltip"  data-tooltip="Stop and reset animation"><input class='tcv_stop tcv_btn' type="button" /></span>
-        </div>
-        <div class="tcv_cad_inset"></div>
-        <div class="tcv_cad_help tcv_round">
-          <table class="tcv_cad_help_layout">
-            <tr><td><b>Rotate</b></td><td>&lt;left mouse button&gt;</td></tr>
-            <tr><td><b>Rotate up / down</b></td><td>&lt;Ctrl&gt; + &lt;left mouse button&gt;</td></tr>
-            <tr><td><b>Rotate left / right</b></td><td>&lt;Meta&gt; + &lt;left mouse button&gt;</td></tr>
-            <tr><td><b>Pan</b></td><td>&lt;Shift&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td></tr>
-            <tr><td><b>Zoom</b></td><td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td></tr>
-            
-            <tr><td><b>- - - </b></td><td></td></tr>
-
-            <tr><td><b>Pick element</b></td><td>&lt;left mouse button&gt; double click</td></tr>
-            <tr><td><b>Hide element</b></td><td>&lt;Meta&gt; + &lt;left mouse button&gt; double click</td></tr>
-          </table>
-        </div>
-    </div>
-    </div>
-</div>
-`;
-
-function px(val) {
-  return `${val}px`;
-}
-
-const buttons = [
-  "reset",
-  "resize",
-  "help",
-  "iso",
-  "front",
-  "rear",
-  "top",
-  "bottom",
-  "left",
-  "right",
-  "pin",
-  "plane",
-  "play",
-  "pause",
-  "stop"
-];
-class Slider {
-  constructor(index, min, max, display) {
-    this.index = index;
-    this.display = display;
-
-    this.slider = display.container.getElementsByClassName(
-      `tcv_sld_value_plane${index}`
-    )[0];
-    this.slider.min = min;
-    this.slider.max = max;
-    this.input = display.container.getElementsByClassName(
-      `tcv_inp_value_plane${index}`
-    )[0];
-    this.input.value = max;
-    this.slider.oninput = this.sliderChange;
-    this.input.addEventListener("change", this.inputChange);
-  }
-
-  _notify = (value, notify = true) => {
-    const change = {};
-    change[`clip_slider_${this.index - 1}`] = parseFloat(value);
-    this.display.viewer.checkChanges(change, notify);
-  };
-
-  sliderChange = (e) => {
-    const value = e.target.value;
-    this.input.value = Math.round(1000 * value) / 1000;
-    this.display.refreshPlane(this.index, this.input.value);
-    this._notify(value);
-  };
-
-  inputChange = (e) => {
-    const value = Math.max(
-      Math.min(e.target.value, this.slider.max),
-      this.slider.min
-    );
-    // if (value != e.target.value) {
-    //     this.input.value = Math.round(1000 * value) / 1000;
-    // }
-    this.slider.value = value;
-    this.display.refreshPlane(this.index, this.input.value);
-    this._notify(value);
-  };
-
-  setSlider(limit) {
-    const exp = Math.abs(Math.round(Math.log10(2 * limit)));
-    this.slider.min = -limit;
-    this.slider.max = limit;
-    this.slider.step = Math.pow(10, -(3 - exp));
-    this.slider.value = limit;
-    this.input.value = Math.round(1000 * this.slider.max) / 1000;
-    this.display.refreshPlane(this.index, this.input.value);
-  }
-
-  getValue() {
-    return parseFloat(this.input.value);
-  }
-
-  setValue(value, notify = true) {
-    const trimmed_value = Math.max(
-      Math.min(value, this.slider.max),
-      this.slider.min
-    );
-    this.input.value = trimmed_value;
-    this.slider.value = value;
-    this.display.refreshPlane(this.index, this.input.value);
-    this._notify(value, notify);
-  }
-}
-
-class Display {
-  /**
-   * Create Display
-   * @param {DOMElement} container - the DOM element, e.g. div, that should contain the Display
-   * @param {} options - display options
-   */
-  constructor(container, options) {
-    this.container = container;
-
-    this.container.innerHTML = TEMPLATE;
-    this.cadTool = this.container.getElementsByClassName("tcv_cad_toolbar")[0];
-    this.cadView = this.container.getElementsByClassName("tcv_cad_view")[0];
-    this.cadInset = this.container.getElementsByClassName("tcv_cad_inset")[0];
-    this.cadTree = this.container.getElementsByClassName(
-      "tcv_cad_tree_container"
-    )[0];
-    this.cadClip = this.container.getElementsByClassName(
-      "tcv_cad_clip_container"
-    )[0];
-    this.tabTree = this.container.getElementsByClassName("tcv_tab_tree")[0];
-    this.tabClip = this.container.getElementsByClassName("tcv_tab_clip")[0];
-    this.cadInfo = this.container.getElementsByClassName(
-      "tcv_cad_info_container"
-    )[0];
-    this.cadAnim =
-      this.container.getElementsByClassName("tcv_cad_animation")[0];
-
-    this.cadHelp = this.container.getElementsByClassName("tcv_cad_help")[0];
-
-    this.planeLabels = [];
-    for (var i = 1; i < 4; i++) {
-      this.planeLabels.push(
-        this.container.getElementsByClassName(`tcv_lbl_norm_plane${i}`)[0]
-      );
-    }
-
-    this.viewer = null;
-    this._events = [];
-    this.cadWidth = options.cadWidth;
-    this.height = options.height;
-    this.treeWidth = options.treeWidth;
-    this.setSizes(options);
-
-    this.activeTab = "tab_tree";
-    this.cadTree.style.display = "block";
-    this.cadClip.style.display = "none";
-    this.clipSliders = null;
-
-    this.lastPlaneState = false;
-
-    if (options.theme === "dark") {
-      document.documentElement.setAttribute("data-theme", "dark");
-    } else {
-      document.documentElement.setAttribute("data-theme", "light");
-    }
-
-    for (var btn of buttons) {
-      var elements = this.container.getElementsByClassName(`tcv_${btn}`);
-      for (i = 0; i < elements.length; i++) {
-        var el = elements[i];
-        el.setAttribute(
-          "style",
-          `background-image: ${getIconBackground(options.theme, btn)}`
-        );
-      }
-    }
-
-    if (!options.pinning) {
-      const el = this._getElement("tcv_pin");
-      el.style.display = "none";
-    }
-  }
-
-  _setupCheckEvent(name, fn, flag) {
-    const el = this._getElement(name);
-    el.addEventListener("change", fn);
-    if (flag != undefined) {
-      el.checked = flag;
-    }
-    this._events.push(["change", name, fn]);
-  }
-
-  // eslint-disable-next-line no-unused-vars
-  _setupClickEvent(name, fn, flag) {
-    const el = this._getElement(name);
-    el.addEventListener("click", fn);
-    this._events.push(["click", name, fn]);
-  }
-
-  _getElement(name) {
-    return this.container.getElementsByClassName(name)[0];
-  }
-
-  dispose() {
-    var type, el_name, fn;
-    for (var ui_event of this._events) {
-      [type, el_name, fn] = ui_event;
-      const el = this._getElement(el_name);
-      el.removeEventListener(type, fn);
-    }
-    this.cadTree.innerHTML = "";
-    this.cadInset.innerHTML = "";
-    this.cadView.removeChild(this.cadView.children[3]);
-  }
-
-  /**
-   * Set the width and height of the different UI elements (tree, canvas and info box)
-   * @param {DisplayOptions} options
-   */
-  setSizes(options) {
-    if (options.cadWidth) {
-      this.cadWidth = options.cadWidth;
-      this.cadView.style.width = px(options.cadWidth);
-    }
-    if (options.height) {
-      this.height = options.height;
-      this.cadView.style.height = px(options.height);
-    }
-    if (options.treeWidth) {
-      this.treeWidth = options.treeWidth;
-      this.cadTree.parentElement.parentElement.style.width = px(
-        options.treeWidth
-      );
-      this.cadInfo.parentElement.parentElement.style.width = px(
-        options.treeWidth
-      );
-    }
-    const treeHeight = Math.round((this.height * 2) / 3);
-    this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
-    this.cadInfo.parentElement.parentElement.style.height = px(
-      this.height - treeHeight - 4
-    );
-    this.cadTool.style.width = px(this.treeWidth + this.cadWidth);
-  }
-
-  /**
-   * Set up the UI
-   * @param {Viewer} viewer - the viewer for this UI
-   */
-  setupUI(viewer) {
-    this.viewer = viewer;
-
-    this._setupCheckEvent("tcv_axes", this.setAxes, viewer.axes);
-    this._setupCheckEvent("tcv_grid", this.setGrid, viewer.grid);
-    this._setupCheckEvent("tcv_grid-xy", this.setGrid, viewer.grid);
-    this._setupCheckEvent("tcv_grid-xz", this.setGrid, viewer.grid);
-    this._setupCheckEvent("tcv_grid-yz", this.setGrid, viewer.grid);
-    this._setupCheckEvent("tcv_axes0", this.setAxes0, viewer.axes0);
-    this._setupCheckEvent("tcv_ortho", this.setOrtho, viewer.ortho);
-    this._setupCheckEvent(
-      "tcv_transparent",
-      this.setTransparent,
-      viewer.transparent
-    );
-    this._setupCheckEvent(
-      "tcv_black_edges",
-      this.setBlackEdges,
-      viewer.blackEdges
-    );
-
-    this._setupClickEvent("tcv_reset", this.reset);
-    this._setupClickEvent("tcv_resize", this.resize);
-
-    const buttons = [
-      "tcv_front",
-      "tcv_rear",
-      "tcv_top",
-      "tcv_bottom",
-      "tcv_left",
-      "tcv_right",
-      "tcv_iso"
-    ];
-    buttons.forEach((name) => {
-      this._setupClickEvent(name, this.setView);
-    });
-
-    this._setupClickEvent("tcv_pin", this.pinAsPng);
-    this._setupClickEvent("tcv_help", this.toggleHelp);
-    this.help_shown = true;
-
-    const tabs = ["tcv_tab_tree", "tcv_tab_clip"];
-    tabs.forEach((name) => {
-      this._setupClickEvent(name, this.selectTab);
-    });
-
-    this.clipSliders = [];
-    for (var i = 1; i < 4; i++) {
-      this.clipSliders.push(new Slider(i, 0, 100, this));
-    }
-
-    this._setupCheckEvent(
-      "tcv_clip_plane_helpers",
-      this.setClipPlaneHelpers,
-      false
-    );
-    this._setupCheckEvent(
-      "tcv_clip_intersection",
-      this.setClipIntersection,
-      false
-    );
-
-    for (i = 1; i < 4; i++) {
-      this._setupClickEvent(
-        `tcv_btn_norm_plane${i}`,
-        this.setClipNormalFromPosition,
-        false
-      );
-    }
-
-    this._setupClickEvent("tcv_play", this.controlAnimation, false);
-    this._setupClickEvent("tcv_pause", this.controlAnimation, false);
-    this._setupClickEvent("tcv_stop", this.controlAnimation, false);
-    this.setAnimationControl(false);
-
-    this.setHelp(false);
-  }
-
-  // setup functions
-
-  /**
-   * Check or uncheck a checkbox
-   * @param {string} name - name of the check box, see getElement
-   * @param {boolean} flag - whether to check or uncheck
-   */
-  checkElement(name, flag) {
-    this._getElement(name).checked = flag;
-  }
-
-  /**
-   * Add the Cad View (the canvas for threejs)
-   * @param {DOMElement} cadView - the DOM element that contains the cadView
-   */
-  addCadView(cadView) {
-    this.cadView.appendChild(cadView);
-  }
-
-  /**
-   * Add the Cad Inset for the orientation marker
-   * @param {DOMElement} cadInset - the DOM element that contains the cadInset
-   */
-  addCadInset(cadInset) {
-    this.cadInset.appendChild(cadInset);
-  }
-
-  /**
-   * Add the Cad Tree and other UI elements like Clipping
-   * @param {DOMElement} cadTree - the DOM element that contains the cadTree
-   */
-  addCadTree(cadTree) {
-    this.cadTree.appendChild(cadTree);
-  }
-
-  // handler (bound to Display instance)
-
-  /**
-   *
-   * @function
-   * @param {*} e
-   */
-  setAxes = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.setAxes(flag);
-  };
-
-  /**
-   * Check/uncheck the axes checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the axes checkbox
-   */
-  setAxesCheck = (flag) => {
-    this.checkElement("tcv_axes", flag);
-  };
-
-  /**
-   * Checkbox Handler for setting the grid parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setGrid = (e) => {
-    const action = e.target.className.split(" ")[0].slice(4);
-    this.viewer.setGrid(action);
-  };
-
-  /**
-   * Check/uncheck the main grid UI element
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the main grid checkbox
-   */
-  setGridCheck = (flag) => {
-    this.checkElement("tcv_grid", flag);
-  };
-
-  /**
-   * Checkbox Handler for setting the axes0 parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setAxes0 = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.setAxes0(flag);
-  };
-
-  /**
-   * Check/uncheck the Axes0 checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Axes0 checkbox
-   */
-  setAxes0Check = (flag) => {
-    this.checkElement("tcv_axes0", flag);
-  };
-
-  /**
-   * Checkbox Handler for setting the ortho parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setOrtho = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.switchCamera(flag);
-  };
-
-  /**
-   * Check or uncheck the Ortho checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the ortho checkbox
-   */
-  setOrthoCheck = (flag) => {
-    this.checkElement("tcv_ortho", flag);
-  };
-
-  /**
-   * Checkbox Handler for setting the transparent parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setTransparent = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.setTransparent(flag);
-  };
-
-  /**
-   * Check or uncheck the Transparent checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Transparent checkbox
-   */
-  setTransparentCheck = (flag) => {
-    this.checkElement("tcv_transparent", flag);
-  };
-
-  /**
-   * Checkbox Handler for setting the black edges parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setBlackEdges = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.setBlackEdges(flag);
-  };
-
-  /**
-   * Check or uncheck the Black Edges checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
-   */
-  setBlackEdgesCheck = (flag) => {
-    this.checkElement("tcv_black_edges", flag);
-  };
-
-  /**
-   * Checkbox Handler for setting the clip planes parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setClipPlaneHelpers = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.setClipPlaneHelpers(flag);
-  };
-
-  /**
-   * Check or uncheck the Plane Helpers checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Plane Helpers checkbox
-   */
-  setClipPlaneHelpersCheck = (flag) => {
-    this.checkElement("tcv_clip_plane_helpers", flag);
-  };
-
-  /**
-   * Show or hide the CAD tools
-   * @function
-   * @param {boolean} flag - whether to show or hide the CAD tools
-   */
-  setTools = (flag) => {
-    var tb = this._getElement("tcv_cad_toolbar");
-    var cn = this._getElement("tcv_cad_navigation");
-    for (var el of [cn, tb]) {
-      if (flag) {
-        el.style.height = "36px";
-        el.style.display = "block";
-      } else {
-        el.style.height = "0px";
-        el.style.display = "none";
-      }
-    }
-  };
-
-  /**
-   * Checkbox Handler for setting the clip inersection parameter
-   * @function
-   * @param {*} e
-   */
-  setClipIntersection = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.setClipIntersection(flag);
-  };
-
-  /**
-   * Check or uncheck the Intersection checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Intersection checkbox
-   */
-  setClipIntersectionCheck = (flag) => {
-    const el = this._getElement("tcv_clip_intersection");
-    el.checked = flag;
-  };
-
-  /**
-   * Handler to reset position, zoom and up of the camera
-   * @function
-   */
-  reset = () => {
-    this.viewer.reset();
-  };
-
-  /**
-   * Handler to reset zoom of the camera
-   * @function
-   */
-  resize = () => {
-    this.viewer.resize();
-  };
-
-  /**
-   * Handler to set camery to a predefined position
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setView = (e) => {
-    const btn = e.target.className.split(" ")[0].slice(4);
-    this.viewer.presetCamera(btn);
-  };
-
-  /**
-   * Pin screenshot of canvas as PNG
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  // eslint-disable-next-line no-unused-vars
-  pinAsPng = (e) => {
-    this.viewer.pinAsPng();
-  };
-
-  /**
-   * Handler to set the label of a clipping normal widget
-   * @function
-   * @param {number} index - index of the normal widget
-   * @param {Vector3} normal - the normal
-   */
-  setNormalLabel = (index, normal) => {
-    this.planeLabels[index].innerHTML = `N=(${normal[0].toFixed(
-      2
-    )}, ${normal[1].toFixed(2)}, ${normal[2].toFixed(2)})`;
-  };
-
-  /**
-   * Set the normal at index to the current viewing direction
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setClipNormalFromPosition = (e) => {
-    const index = parseInt(e.target.classList[0].slice(-1));
-    this.viewer.setClipNormalFromPosition(index - 1);
-  };
-
-  /**
-   * Handler to activate a UI tab (tree / clipping)
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  selectTab = (e) => {
-    const tab = e.target.className.split(" ")[0];
-    this.selectTabByName(tab.slice(8));
-  };
-
-  /**
-   * Activate the UI tab given the name of the tab
-   * @param {string} tab - name of the tab "tree" or "clip"
-   */
-  selectTabByName(tab) {
-    var changed = false;
-    if (tab === "tree" && this.activeTab !== "tree") {
-      this.cadTree.style.display = "block";
-      this.cadClip.style.display = "none";
-      this.viewer.nestedGroup.setBackVisible(false);
-      this.viewer.setLocalClipping(false);
-      this.lastPlaneState = this.viewer.getClipPlaneHelpers();
-      this.viewer.setClipPlaneHelpers(false);
-      changed = true;
-    }
-    if (tab === "clip" && this.activeTab !== "clip") {
-      this.cadTree.style.display = "none";
-      this.cadClip.style.display = "block";
-      this.viewer.nestedGroup.setBackVisible(true);
-      this.viewer.setLocalClipping(true);
-      this.viewer.setClipPlaneHelpers(this.lastPlaneState);
-      changed = true;
-    }
-    this.activeTab = tab;
-    this.viewer.checkChanges({ tab: tab });
-    if (changed) {
-      this.tabTree.classList.toggle("tcv_tab-selected");
-      this.tabTree.classList.toggle("tcv_tab-unselected");
-      this.tabClip.classList.toggle("tcv_tab-selected");
-      this.tabClip.classList.toggle("tcv_tab-unselected");
-    }
-  }
-
-  /**
-   * Set minimum and maximumu of the sliders
-   * @param {number} limit - the value for both minumum and maximum valaue of the slider
-   */
-  setSliders(limit) {
-    for (var i = 0; i < 3; i++) {
-      this.clipSliders[i].setSlider(limit);
-    }
-  }
-
-  /**
-   * Refresh clipping plane
-   * @function
-   * @param {number} index - index of the plane: 0,1,2
-   * @param {number} value - distance on the clipping normal from the center
-   */
-  refreshPlane(index, value) {
-    this.viewer.refreshPlane(index - 1, parseFloat(value));
-  }
-
-  /**
-   * Show or hide the Animation control widget
-   * @function
-   * @param {boolean} flag - whether to show or hide the Animation control widget
-   */
-  setAnimationControl = (flag) => {
-    this.cadAnim.style.display = flag ? "block" : "none";
-  };
-
-  /**
-   * Handler for the animation control
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  controlAnimation = (e) => {
-    const btn = e.target.className.split(" ")[0].slice(4);
-    this.viewer.controlAnimation(btn);
-  };
-
-  /**
-   * Show or hide help dialog
-   * @function
-   * @param {boolean} flag - whether to show or hide help dialog
-   */
-  setHelp = (flag) => {
-    this.cadHelp.style.display = flag ? "block" : "none";
-    this.help_shown = flag;
-  };
-
-  /**
-   * Show help dialog
-   * @function
-   */
-  toggleHelp = () => {
-    this.setHelp(!this.help_shown);
   };
 }
 

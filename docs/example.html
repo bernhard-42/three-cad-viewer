@@ -21,15 +21,14 @@
 
     <script type="module">
       // ESM import
-      import { Viewer, Display, Timer } from "./dist/three-cad-viewer.esm.js";
+      import { Viewer, Timer } from "./dist/three-cad-viewer.esm.js";
 
       // UMD import
       // const Viewer = CadViewer.Viewer;
-      // const Display = CadViewer.Display;
       // const Timer = CadViewer.Timer;
 
       var viewer = null;
-      
+
       const examples = [
         hexapod,
         hexapod_mates,
@@ -43,9 +42,8 @@
       ]
 
       function render(name, shapes, states) {
-        viewer?.dispose();
-        
-        viewer = new Viewer(display, options, nc);
+        viewer?.clear();
+
         viewer._timeit = timeit;
 
         viewer.render(
@@ -139,7 +137,7 @@
       }
 
       function nc(change) {
-        console.log("NOTIFY:", JSON.stringify(change, null, 2));
+        // console.debug("index.html:", JSON.stringify(change, null, 2));
       }
 
       const timeit = false;
@@ -168,7 +166,8 @@
       };
 
       const container = document.getElementById("cad_view_001");
-      const display = new Display(container, options);
+      viewer = new Viewer(container, options, nc);
+
       timer.split("display");
 
       render("hexapod", ...examples[0]);

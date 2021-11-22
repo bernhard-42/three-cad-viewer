@@ -3555,7 +3555,7 @@ var faces = [
     loc: null
   },
   {
-    "/Group/Parent_0": [1, 1],
+    "/Group/Parent_0": [0, 1],
     "/Group/Faces_0": [1, 1]
   }
 ];
