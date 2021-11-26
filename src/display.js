@@ -343,8 +343,12 @@ class Display {
       const el = this._getElement(el_name);
       el.removeEventListener(type, fn);
     }
+    // remove cadTree
     this.cadTree.innerHTML = "";
+    // remove canvas
     this.cadView.removeChild(this.cadView.children[2]);
+    // delete view
+    this.container.innerHTML = "";
   }
 
   /**

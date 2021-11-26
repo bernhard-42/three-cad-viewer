@@ -373,19 +373,19 @@ class Viewer {
   dispose() {
     this.clear();
 
-    // clear info
-    this.info.dispose();
-    this.info = null;
-
-    // dispose all event handlers and HTML content
-    this.display.dispose();
-    this.display = null;
-
     this.orientationMarker.dispose();
 
     // dispose renderer
     this.renderer.renderLists.dispose();
+    this.renderer
+      .getContext("webgl2")
+      .getExtension("WEBGL_lose_context")
+      .loseContext();
     this.renderer = null;
+
+    // dispose all event handlers and HTML content
+    this.display.dispose();
+    this.display = null;
   }
 
   /**
