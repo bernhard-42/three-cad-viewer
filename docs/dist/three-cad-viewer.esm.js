@@ -56207,19 +56207,27 @@ class Viewer {
   dispose() {
     this.clear();
 
-    this.orientationMarker.dispose();
+    // dispose the orientation marker
+    if (this.orientationMarker != null) {
+      this.orientationMarker.dispose();
+    }
 
     // dispose renderer
-    this.renderer.renderLists.dispose();
-    this.renderer
-      .getContext("webgl2")
-      .getExtension("WEBGL_lose_context")
-      .loseContext();
-    this.renderer = null;
+    if (this.renderer != null) {
+      this.renderer.renderLists.dispose();
+      this.renderer
+        .getContext("webgl2")
+        .getExtension("WEBGL_lose_context")
+        .loseContext();
+      console.debug("three-cad-viewer: WebGL context disposed");
+      this.renderer = null;
+    }
 
     // dispose all event handlers and HTML content
-    this.display.dispose();
-    this.display = null;
+    if (this.display != null) {
+      this.display.dispose();
+      this.display = null;
+    }
   }
 
   /**
