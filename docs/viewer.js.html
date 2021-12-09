@@ -46,20 +46,22 @@ class Viewer {
   /**
    * Create Viewer.
    * @param {Display} display - The Display object.
-   * @param {ViewerOptions} options - configuration parameters.
+   * @param {DisplayOptions} options - configuration parameters.
    * @param {NotificationCallback} notifyCallback - The callback to receive changes of viewer parameters.
    */
   constructor(container, options, notifyCallback, pinAsPngCallback = null) {
-    this.setDefaults(options);
     this.notifyCallback = notifyCallback;
     this.pinAsPngCallback = pinAsPngCallback;
 
     this.hasAnimationLoop = false;
+
+    this.setDisplayDefaults(options);
+
     this.display = new Display(container, options);
     this.display.setSizes({
       cadWidth: this.cadWidth,
       height: this.height,
-      treeWidth: this.treeWidth
+      treeWidth: this.treeWidth,
     });
 
     window.THREE = THREE;
@@ -82,19 +84,23 @@ class Viewer {
     this.animation = null;
     this.continueAnimation = true;
 
+    this.clipNormals = [
+      [-1, 0, 0],
+      [0, -1, 0],
+      [0, 0, -1],
+    ];
+
     this.camera_distance = 0;
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
 
-    this.width = this.cadWidth;
-
     // setup renderer
     this.renderer = new THREE.WebGLRenderer({
       alpha: !this.dark,
-      antialias: true
+      antialias: true,
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(this.width, this.height);
+    this.renderer.setSize(this.cadWidth, this.height);
     this.renderer.setClearColor(0xffffff, 0);
     this.renderer.autoClear = false;
 
@@ -102,7 +108,7 @@ class Viewer {
 
     this.renderer.domElement.addEventListener("dblclick", this.pick, false);
     this.renderer.domElement.addEventListener("contextmenu", (e) =>
-      e.stopPropagation()
+      e.stopPropagation(),
     );
 
     this.display.addCadView(this.renderer.domElement);
@@ -115,53 +121,132 @@ class Viewer {
   }
 
   /**
-   * Enhance the given options by all default values.
-   * @param {ViewerOptions} options - The provided options object for the viewer.
+   * Enhance the given options for viewer creation by default values.
+   * @param {DisplayOptions} options - The provided options object for the viewer.
    */
-  setDefaults(options) {
-    this.cadWidth = 800;
-    this.height = 600;
-    this.treeWidth = 250;
-    this.treeHeight = 250;
+  setDisplayDefaults(options) {
     this.theme = "light";
-    this.bbFactor = 1.0;
-    this.zoom0 = 1.0;
-    this.grid = [false, false, false];
-    this.ticks = 10;
-    this.axes = false;
-    this.axes0 = false;
-    this.ortho = true;
-    this.control = "orbit";
-    this.rotateSpeed = 1.0;
-    this.zoomSpeed = 0.5;
-    this.panSpeed = 0.5;
-    this.blackEdges = false;
-    this.edgeColor = 0x707070;
-    this.ambientIntensity = 0.5;
-    this.directIntensity = 0.3;
-    this.transparent = false;
-    this.defaultOpacity = 0.4;
-    this.normalLen = 0;
-    this.tools = true;
-    this.timeit = false;
-    this.clipIntersection = false;
-    this.clipPlaneHelpers = false;
-    this.clipNormal = [
-      [-1, 0, 0],
-      [0, -1, 0],
-      [0, 0, -1]
-    ];
+    this.cadWidth = 800;
+    this.treeWidth = 250;
+    this.height = 600;
     this.pinning = false;
 
     for (var option in options) {
       if (this[option] == null) {
-        console.warn(`unknown option ${option} ignored`);
+        console.warn(`Unknown option "${option}" to create a viewer - ignored`);
       } else {
         this[option] = options[option];
       }
     }
   }
 
+  /**
+   * Enhance the given options for rendering by default values.
+   * @param {RenderOptions} options - The provided options object for the viewer.
+   */
+  setRenderDefaults(options) {
+    this.ambientIntensity = 0.5;
+    this.directIntensity = 0.3;
+    this.defaultOpacity = 0.5;
+    this.edgeColor = 0x707070;
+    this.normalLen = 0;
+
+    for (var option in options) {
+      if (this[option] == null) {
+        console.warn(`Unknown option "${option}" to create a viewer - ignored`);
+      } else {
+        this[option] = options[option];
+      }
+    }
+  }
+
+  /**
+   * Enhance the given options for the view by default values.
+   * @param {ViewOptions} options - The provided options object for the viewer.
+   */
+
+  setViewerDefaults(options) {
+    this.axes = false;
+    this.axes0 = false;
+    this.grid = [false, false, false];
+    this.ortho = true;
+    this.transparent = false;
+    this.blackEdges = false;
+
+    this.clipIntersection = false;
+    this.clipPlaneHelpers = false;
+    this.clipNormal0 = [-1, 0, 0];
+    this.clipNormal1 = [0, -1, 0];
+    this.clipNormal2 = [0, 0, -1];
+    this.clipSlider0 = -1;
+    this.clipSlider1 = -1;
+    this.clipSlider2 = -1;
+    this.tools = true;
+    this.control = "orbit";
+    this.ticks = 10;
+
+    this.position = null;
+    this.quaternion = null;
+    this.zoom = null;
+    this.zoom0 = 1.0;
+
+    this.panSpeed = 0.5;
+    this.rotateSpeed = 1.0;
+    this.zoomSpeed = 0.5;
+    this.timeit = false;
+
+    for (var option in options) {
+      if (this[option] == null) {
+        console.warn(`Unknown option ${option} to add shapes - ignored`);
+      } else {
+        this[option] = options[option];
+      }
+    }
+  }
+
+  dumpOptions() {
+    console.log("Display:");
+    console.log("- cadWidth", this.cadWidth);
+    console.log("- control", this.control);
+    console.log("- height", this.height);
+    console.log("- pinning", this.pinning);
+    console.log("- theme", this.theme);
+    console.log("- treeHeight", this.treeHeight);
+    console.log("- treeWidth", this.treeWidth);
+
+    console.log("Render:");
+    console.log("- ambientIntensity", this.ambientIntensity);
+    console.log("- defaultOpacity", this.defaultOpacity);
+    console.log("- directIntensity", this.directIntensity);
+    console.log("- edgeColor", this.edgeColor);
+    console.log("- normalLen", this.normalLen);
+
+    console.log("View:");
+    console.log("- axes", this.axes);
+    console.log("- axes0", this.axes0);
+    console.log("- blackEdges", this.blackEdges);
+    console.log("- clipIntersection", this.clipIntersection);
+    console.log("- clipPlaneHelpers", this.clipPlaneHelpers);
+    console.log("- clipNormal0", this.clipNormal0);
+    console.log("- clipNormal1", this.clipNormal1);
+    console.log("- clipNormal2", this.clipNormal2);
+    console.log("- clipSlider0", this.clipSlider0);
+    console.log("- clipSlider1", this.clipSlider1);
+    console.log("- clipSlider2", this.clipSlider2);
+    console.log("- grid", this.grid);
+    console.log("- ortho", this.ortho);
+    console.log("- panSpeed", this.panSpeed);
+    console.log("- position", this.position);
+    console.log("- quaternion", this.quaternion);
+    console.log("- rotateSpeed", this.rotateSpeed);
+    console.log("- ticks", this.ticks);
+    console.log("- timeit", this.timeit);
+    console.log("- tools", this.tools);
+    console.log("- transparent", this.transparent);
+    console.log("- zoom", this.zoom);
+    console.log("- zoom0", this.zoom0);
+    console.log("- zoomSpeed", this.zoomSpeed);
+  }
   // - - - - - - - - - - - - - - - - - - - - - - - -
   // Load Tesselated Shapes
   // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -174,12 +259,12 @@ class Viewer {
   _renderTessellatedShapes(shapes) {
     const nestedGroup = new NestedGroup(
       shapes,
-      this.width,
+      this.cadWidth,
       this.height,
       this.edgeColor,
       this.transparent,
       this.defaultOpacity,
-      this.normalLen
+      this.normalLen,
     );
     nestedGroup.render();
     return nestedGroup;
@@ -198,7 +283,7 @@ class Viewer {
       const newPath = `${path}${delim}${subGroup.name}`;
       var result = {
         name: subGroup.name,
-        id: newPath
+        id: newPath,
       };
       if (subGroup.parts) {
         result.type = "node";
@@ -220,12 +305,14 @@ class Viewer {
    * Render the shapes of the CAD object.
    * @param {Shapes} shapes - The Shapes object.
    * @param {States} states - the visibility state of meshes and edges
+   * @param {RenderOptions} options - the options for rendering
    * @returns {THREE.Group} A nested THREE.Group object.
    */
-  renderTessellatedShapes(shapes, states) {
+  renderTessellatedShapes(shapes, states, options) {
+    this.setRenderDefaults(options);
     return [
       this._renderTessellatedShapes(shapes),
-      this._getTree(shapes, states)
+      this._getTree(shapes, states),
     ];
   }
 
@@ -246,7 +333,7 @@ class Viewer {
       this.nestedGroup.groups[selector],
       action,
       time,
-      values
+      values,
     );
   }
 
@@ -269,7 +356,7 @@ class Viewer {
     this.clipAction = this.animation.animate(
       this.nestedGroup.rootGroup,
       duration,
-      speed
+      speed,
     );
   }
 
@@ -306,7 +393,7 @@ class Viewer {
           old:
             this.lastNotification[key] == null
               ? null
-              : clone(this.lastNotification[key])
+              : clone(this.lastNotification[key]),
         };
         this.lastNotification[key] = change;
       }
@@ -336,7 +423,7 @@ class Viewer {
 
         this.orientationMarker.update(
           this.camera.getPosition().clone().sub(this.controls.getTarget()),
-          this.camera.getRotation()
+          this.camera.getRotation(),
         );
         this.orientationMarker.render(this.renderer);
       }
@@ -350,9 +437,9 @@ class Viewer {
       {
         zoom: this.camera.getZoom(),
         position: this.camera.getPosition().toArray(),
-        quaternion: this.camera.getQuaternion().toArray()
+        quaternion: this.camera.getQuaternion().toArray(),
       },
-      notify
+      notify,
     );
   };
 
@@ -491,15 +578,15 @@ class Viewer {
    * @param {Shapes} shapes - the shapes of the CAD object to be rendered
    * @param {NavTree} tree - The navigation tree object
    * @param {States} states - the visibility state of meshes and edges
-   * @param {number[]} [position=null] - the camera position.
-   * @param {number[]} [quaternion=null] - the camera rotation as quaternion. Only relevant for TrackballControls and needs position to be set, too.
-   * @param {number} [zoom=null] - zoom value.
+   * @param {ViewerOptions} options - the Viewer options
    */
-  render(group, tree, states, position = null, quaternion = null, zoom = null) {
-    this.states = states;
-    this.scene = new THREE.Scene();
+  render(group, tree, states, options) {
+    this.setViewerDefaults(options);
 
     const timer = new Timer("viewer", this.timeit);
+
+    this.states = states;
+    this.scene = new THREE.Scene();
 
     //
     // render the input assembly
@@ -530,12 +617,12 @@ class Viewer {
     // create cameras
     //
     this.camera = new Camera(
-      this.width,
+      this.cadWidth,
       this.height,
       this.bb_radius,
       this.bbox.center,
       this.ortho,
-      this.control
+      this.control,
     );
 
     //
@@ -548,7 +635,7 @@ class Viewer {
       this.renderer.domElement,
       this.rotateSpeed,
       this.zoomSpeed,
-      this.panSpeed
+      this.panSpeed,
     );
     this.controls.enableKeys = false;
 
@@ -556,18 +643,18 @@ class Viewer {
     this.controls.controls.screenSpacePanning = true;
 
     // this needs to happen after the controls have been established
-    if (position == null &amp;&amp; quaternion == null) {
-      this.presetCamera("iso", zoom);
-    } else if (position != null) {
-      this.setCamera(false, position, quaternion, zoom);
-      if (quaternion == null) {
+    if (options.position == null &amp;&amp; options.quaternion == null) {
+      this.presetCamera("iso", options.zoom);
+    } else if (options.position != null) {
+      this.setCamera(false, options.position, options.quaternion, options.zoom);
+      if (options.quaternion == null) {
         this.camera.lookAtTarget();
       }
     } else {
       this.info.addHtml(
-        "&lt;b>quaternion needs position to be provided, falling back to ISO view&lt;/b>"
+        "&lt;b>quaternion needs position to be provided, falling back to ISO view&lt;/b>",
       );
-      this.presetCamera("iso", zoom);
+      this.presetCamera("iso", options.zoom);
     }
 
     // Save the new state again
@@ -585,7 +672,7 @@ class Viewer {
         for (var zpos of [-this.bb_max, this.bb_max]) {
           const directionalLight = new THREE.DirectionalLight(
             0xffffff,
-            this.directIntensity
+            this.directIntensity,
           );
           directionalLight.position.set(10 * xpos, 10 * ypos, 10 * zpos);
           this.scene.add(directionalLight);
@@ -602,7 +689,7 @@ class Viewer {
       this.bbox,
       this.ticks,
       this.axes0,
-      this.grid
+      this.grid,
     );
     this.gridHelper.computeGrid();
 
@@ -620,11 +707,11 @@ class Viewer {
       this.bbox.center,
       this.gridSize / 2,
       2,
-      this.width,
+      this.cadWidth,
       this.height,
       this.axes0,
       this.axes,
-      this.theme
+      this.theme,
     );
     this.scene.add(this.axesHelper);
 
@@ -637,12 +724,36 @@ class Viewer {
       this.gridSize,
       this.gridSize / 2,
       (index, normal) => this.display.setNormalLabel(index, normal),
-      this.theme
+      this.theme,
     );
+
+    this.display.setSliderLimits(this.gridSize / 2);
+
+    this.setClipSlider(
+      0,
+      this.clipSlider0 == -1 ? this.gridSize / 2 : this.clipSlider0,
+      false,
+    );
+    this.setClipSlider(
+      1,
+      this.clipSlider1 == -1 ? this.gridSize / 2 : this.clipSlider1,
+      false,
+    );
+    this.setClipSlider(
+      2,
+      this.clipSlider2 == -1 ? this.gridSize / 2 : this.clipSlider2,
+      false,
+    );
+
+    this.setClipNormal(0, options.clipNormal0, false);
+    this.setClipNormal(1, options.clipNormal1, false);
+    this.setClipNormal(2, options.clipNormal2, false);
+
+    this.setClipIntersection(options.clipIntersection, false);
+    this.setClipPlaneHelpersCheck(options.clipPlaneHelpers);
 
     this.scene.add(this.clipping.planeHelpers);
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
-    this.display.setSliders(this.gridSize / 2);
 
     this.setLocalClipping(false); // only allow clipping when Clipping tab is selected
 
@@ -654,7 +765,7 @@ class Viewer {
       80,
       80,
       this.camera.getCamera(),
-      this.theme
+      this.theme,
     );
     this.orientationMarker.create();
 
@@ -667,13 +778,26 @@ class Viewer {
       clone(this.states),
       this.tree,
       this.setObjects,
-      this.theme
+      this.theme,
     );
     this.display.addCadTree(this.treeview.render());
 
     this.initObjectStates();
 
     timer.split("scene done");
+
+    //
+    // update UI elements
+    //
+
+    this.display.updateUI(
+      this.axes,
+      this.axes0,
+      this.ortho,
+      this.transparent,
+      this.blackEdges,
+      this.tools,
+    );
 
     //
     // show the rendering
@@ -683,6 +807,7 @@ class Viewer {
 
     this.ready = true;
     this.info.readyMsg(this.gridHelper.ticks, this.control);
+
     timer.stop();
   }
 
@@ -704,14 +829,14 @@ class Viewer {
     position,
     quaternion = null,
     zoom = null,
-    notify = true
+    notify = true,
   ) => {
     this.camera.setupCamera(
       relative,
       new THREE.Vector3(...position),
       quaternion != null ? new THREE.Quaternion(...quaternion) : null,
       zoom,
-      notify
+      notify,
     );
     this.update(true, notify);
   };
@@ -847,7 +972,7 @@ class Viewer {
    */
   setState = (id, state, notify = true) => {
     [0, 1].forEach((i) =>
-      this.treeview.handleStateChange("leaf", id, i, state[i])
+      this.treeview.handleStateChange("leaf", id, i, state[i]),
     );
     this.update(false, notify);
   };
@@ -861,14 +986,14 @@ class Viewer {
     const rect = this.renderer.domElement.getBoundingClientRect();
     const offsetX = rect.x + window.pageXOffset;
     const offsetY = rect.y + window.pageYOffset;
-    this.mouse.x = ((e.pageX - offsetX) / this.width) * 2 - 1;
+    this.mouse.x = ((e.pageX - offsetX) / this.cadWidth) * 2 - 1;
     this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
 
     this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
 
     const objects = this.raycaster.intersectObjects(
       this.scene.children.slice(0, 1),
-      true
+      true,
     );
     var nearest = null;
     for (var object of objects) {
@@ -878,7 +1003,7 @@ class Viewer {
           name: object.object.name,
           boundingBox: object.object.geometry.boundingBox,
           boundingSphere: object.object.geometry.boundingSphere,
-          objectGroup: object.object.parent
+          objectGroup: object.object.parent,
         };
         break;
       }
@@ -889,8 +1014,8 @@ class Viewer {
           path: nearest.path,
           name: nearest.name,
           boundingBox: JSON.parse(JSON.stringify(nearest.boundingBox)),
-          boundingSphere: JSON.parse(JSON.stringify(nearest.boundingSphere))
-        }
+          boundingSphere: JSON.parse(JSON.stringify(nearest.boundingSphere)),
+        },
       });
       if (e.metaKey) {
         var update = {};
@@ -1297,6 +1422,8 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setClipIntersection = (flag, notify = true) => {
+    if (flag == null) return;
+
     this.clipIntersection = flag;
     this.nestedGroup.setClipIntersection(flag);
     this.display.setClipIntersectionCheck(flag);
@@ -1315,15 +1442,27 @@ class Viewer {
   }
 
   /**
+   * Set clip plane helpers check box
+   * @function
+   * @param {boolean} flag - whether to show clip plane helpers
+   */
+  setClipPlaneHelpersCheck(flag) {
+    if (flag == null) return;
+
+    this.display.setClipPlaneHelpersCheck(flag);
+  }
+
+  /**
    * Show/hide clip plane helpers
    * @function
    * @param {boolean} flag - whether to show clip plane helpers
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setClipPlaneHelpers = (flag, notify = true) => {
+    if (flag == null) return;
+
     this.clipPlaneHelpers = flag;
     this.clipping.planeHelpers.visible = flag;
-    this.display.setClipPlaneHelpersCheck(flag);
 
     this.checkChanges({ clip_planes: flag }, notify);
 
@@ -1336,7 +1475,7 @@ class Viewer {
    * @returns {boolean} clip plane visibility value.
    **/
   getClipNormal(index) {
-    return this.clipNormal[index];
+    return this.clipNormals[index];
   }
 
   /**
@@ -1347,7 +1486,9 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setClipNormal(index, normal, notify = true) {
-    this.clipNormal[index] = normal;
+    if (normal == null) return;
+
+    this.clipNormals[index] = normal;
 
     this.clipping.setNormal(index, new THREE.Vector3(...normal));
     var notifyObject = {};
@@ -1393,11 +1534,9 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setClipSlider = (index, value, notify = true) => {
-    this.display.clipSliders[index].setValue(value, notify);
-    // var notifyObject = {};
-    // notifyObject[`clip_slider_${index}`] = value;
+    if (value == -1 || value == null) return;
 
-    // this.checkChanges(notifyObject, notify);
+    this.display.clipSliders[index].setValue(value, notify);
   };
 
   /**
@@ -1430,7 +1569,7 @@ class Viewer {
             scope.pinAsPngCallback(image);
           }
         },
-        false
+        false,
       );
       reader.readAsDataURL(blob);
     });
@@ -1454,7 +1593,7 @@ export { Viewer };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Nov 29 2021 20:56:25 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Thu Dec 09 2021 12:21:29 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -200,7 +200,7 @@ const buttons = [
   "plane",
   "play",
   "pause",
-  "stop"
+  "stop",
 ];
 class Slider {
   constructor(index, min, max, display) {
@@ -208,12 +208,12 @@ class Slider {
     this.display = display;
 
     this.slider = display.container.getElementsByClassName(
-      `tcv_sld_value_plane${index}`
+      `tcv_sld_value_plane${index}`,
     )[0];
     this.slider.min = min;
     this.slider.max = max;
     this.input = display.container.getElementsByClassName(
-      `tcv_inp_value_plane${index}`
+      `tcv_inp_value_plane${index}`,
     )[0];
     this.input.value = max;
     this.slider.oninput = this.sliderChange;
@@ -236,7 +236,7 @@ class Slider {
   inputChange = (e) => {
     const value = Math.max(
       Math.min(e.target.value, this.slider.max),
-      this.slider.min
+      this.slider.min,
     );
     // if (value != e.target.value) {
     //     this.input.value = Math.round(1000 * value) / 1000;
@@ -263,7 +263,7 @@ class Slider {
   setValue(value, notify = true) {
     const trimmed_value = Math.max(
       Math.min(value, this.slider.max),
-      this.slider.min
+      this.slider.min,
     );
     this.input.value = trimmed_value;
     this.slider.value = value;
@@ -285,15 +285,15 @@ class Display {
     this.cadTool = this.container.getElementsByClassName("tcv_cad_toolbar")[0];
     this.cadView = this.container.getElementsByClassName("tcv_cad_view")[0];
     this.cadTree = this.container.getElementsByClassName(
-      "tcv_cad_tree_container"
+      "tcv_cad_tree_container",
     )[0];
     this.cadClip = this.container.getElementsByClassName(
-      "tcv_cad_clip_container"
+      "tcv_cad_clip_container",
     )[0];
     this.tabTree = this.container.getElementsByClassName("tcv_tab_tree")[0];
     this.tabClip = this.container.getElementsByClassName("tcv_tab_clip")[0];
     this.cadInfo = this.container.getElementsByClassName(
-      "tcv_cad_info_container"
+      "tcv_cad_info_container",
     )[0];
     this.cadAnim =
       this.container.getElementsByClassName("tcv_cad_animation")[0];
@@ -303,7 +303,7 @@ class Display {
     this.planeLabels = [];
     for (var i = 1; i &lt; 4; i++) {
       this.planeLabels.push(
-        this.container.getElementsByClassName(`tcv_lbl_norm_plane${i}`)[0]
+        this.container.getElementsByClassName(`tcv_lbl_norm_plane${i}`)[0],
       );
     }
 
@@ -333,7 +333,7 @@ class Display {
         var el = elements[i];
         el.setAttribute(
           "style",
-          `background-image: ${getIconBackground(options.theme, btn)}`
+          `background-image: ${getIconBackground(options.theme, btn)}`,
         );
       }
     }
@@ -395,16 +395,16 @@ class Display {
     if (options.treeWidth) {
       this.treeWidth = options.treeWidth;
       this.cadTree.parentElement.parentElement.style.width = px(
-        options.treeWidth
+        options.treeWidth,
       );
       this.cadInfo.parentElement.parentElement.style.width = px(
-        options.treeWidth
+        options.treeWidth,
       );
     }
     const treeHeight = Math.round((this.height * 2) / 3);
     this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
     this.cadInfo.parentElement.parentElement.style.height = px(
-      this.height - treeHeight - 4
+      this.height - treeHeight - 4,
     );
     this.cadTool.style.width = px(this.treeWidth + this.cadWidth);
   }
@@ -426,12 +426,12 @@ class Display {
     this._setupCheckEvent(
       "tcv_transparent",
       this.setTransparent,
-      viewer.transparent
+      viewer.transparent,
     );
     this._setupCheckEvent(
       "tcv_black_edges",
       this.setBlackEdges,
-      viewer.blackEdges
+      viewer.blackEdges,
     );
 
     this._setupClickEvent("tcv_reset", this.reset);
@@ -444,7 +444,7 @@ class Display {
       "tcv_bottom",
       "tcv_left",
       "tcv_right",
-      "tcv_iso"
+      "tcv_iso",
     ];
     buttons.forEach((name) => {
       this._setupClickEvent(name, this.setView);
@@ -467,19 +467,19 @@ class Display {
     this._setupCheckEvent(
       "tcv_clip_plane_helpers",
       this.setClipPlaneHelpers,
-      false
+      false,
     );
     this._setupCheckEvent(
       "tcv_clip_intersection",
       this.setClipIntersection,
-      false
+      false,
     );
 
     for (i = 1; i &lt; 4; i++) {
       this._setupClickEvent(
         `tcv_btn_norm_plane${i}`,
         this.setClipNormalFromPosition,
-        false
+        false,
       );
     }
 
@@ -491,6 +491,25 @@ class Display {
     this.setHelp(false);
   }
 
+  /**
+   * Check or uncheck a checkbox
+   * @property {boolean} [axes = false] - show X-, Y-, Z-axes.
+   * @property {boolean} [axes0 = false] - show axes at [0,0,0] ot at object center (target).
+   * @property {boolean} [ortho = true] - use an orthographic (true) or perspective camera (false)
+   * @property {boolean} [transparent = false] - show CAD object trasparent.
+   * @property {boolean} [blackEdges = false] - show edges in black and not in edgeColor.
+   * @property {boolean} [clipIntersection = false] - use intersection clipping
+   * @property {boolean} [clipPlaneHelpers = false] - show clipping planes
+   * @property {boolean} [tools = true] - Show/hide all tools.
+   */
+  updateUI(axes, axes0, ortho, transparent, blackEdges, tools) {
+    this.checkElement("tcv_axes", axes);
+    this.checkElement("tcv_axes0", axes0);
+    this.checkElement("tcv_ortho", ortho);
+    this.checkElement("tcv_transparent", transparent);
+    this.checkElement("tcv_black_edges", blackEdges);
+    this.setTools(tools);
+  }
   // setup functions
 
   /**
@@ -648,6 +667,7 @@ class Display {
    */
   setClipPlaneHelpers = (e) => {
     const flag = !!e.target.checked;
+    this.setClipPlaneHelpersCheck(flag);
     this.viewer.setClipPlaneHelpers(flag);
   };
 
@@ -658,6 +678,7 @@ class Display {
    */
   setClipPlaneHelpersCheck = (flag) => {
     this.checkElement("tcv_clip_plane_helpers", flag);
+    this.lastPlaneState = flag;
   };
 
   /**
@@ -743,7 +764,7 @@ class Display {
    */
   setNormalLabel = (index, normal) => {
     this.planeLabels[index].innerHTML = `N=(${normal[0].toFixed(
-      2
+      2,
     )}, ${normal[1].toFixed(2)}, ${normal[2].toFixed(2)})`;
   };
 
@@ -801,10 +822,11 @@ class Display {
   }
 
   /**
-   * Set minimum and maximumu of the sliders
+   * Set minimum and maximum of the sliders
+   * @param {number} index - index of the plane: 0,1,2
    * @param {number} limit - the value for both minumum and maximum valaue of the slider
    */
-  setSliders(limit) {
+  setSliderLimits(limit) {
     for (var i = 0; i &lt; 3; i++) {
       this.clipSliders[i].setSlider(limit);
     }
@@ -875,7 +897,7 @@ export { Display };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Nov 29 2021 20:56:25 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Thu Dec 09 2021 12:21:29 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

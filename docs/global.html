@@ -1376,6 +1376,16 @@
 
 
 
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>options = {
+  "theme": "light",
+  "height": 600,
+  "cadWidth": 800,
+  "treeWidth": 240,
+}</code></pre>
+
+
 
             
                 
@@ -1570,7 +1580,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="types.js.html">types.js</a>, <a href="types.js.html#line206">line 206</a>
+        <a href="types.js.html">types.js</a>, <a href="types.js.html#line213">line 213</a>
     </li></ul></dd>
     
 
@@ -1784,7 +1794,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="types.js.html">types.js</a>, <a href="types.js.html#line199">line 199</a>
+        <a href="types.js.html">types.js</a>, <a href="types.js.html#line206">line 206</a>
     </li></ul></dd>
     
 
@@ -1802,6 +1812,305 @@
     <h5>Example</h5>
     
     <pre class="prettyprint"><code>[x, y, z, w] = [0.5 0.5 0.5 0.5]</code></pre>
+
+
+
+            
+                
+<h4 class="name" id="RenderOptions">RenderOptions</h4>
+
+
+
+
+<div class="description">
+    Viewer options.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>edgeColor</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    0x707070
+                
+                </td>
+            
+
+            <td class="description last">default edge color.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>ambientIntensity</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    0.5
+                
+                </td>
+            
+
+            <td class="description last">ambient light intensity.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>directIntensity</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    0.3
+                
+                </td>
+            
+
+            <td class="description last">direct light intensity.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaultOpacity</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    0.4
+                
+                </td>
+            
+
+            <td class="description last">default opacity level for transparency.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>normalLen</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+
+            <td class="description last">show triangle normals when normalLen > 0.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="types.js.html">types.js</a>, <a href="types.js.html#line148">line 148</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>options = {
+  "normalLen": 0,
+  "ambientIntensity": 0.5,
+  "directIntensity": 0.3,
+}</code></pre>
 
 
 
@@ -1982,7 +2291,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="types.js.html">types.js</a>, <a href="types.js.html#line213">line 213</a>
+        <a href="types.js.html">types.js</a>, <a href="types.js.html#line220">line 220</a>
     </li></ul></dd>
     
 
@@ -2322,7 +2631,7 @@ location.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="types.js.html">types.js</a>, <a href="types.js.html#line242">line 242</a>
+        <a href="types.js.html">types.js</a>, <a href="types.js.html#line249">line 249</a>
     </li></ul></dd>
     
 
@@ -2433,7 +2742,7 @@ whether edges are visible (1) or not (0)
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="types.js.html">types.js</a>, <a href="types.js.html#line288">line 288</a>
+        <a href="types.js.html">types.js</a>, <a href="types.js.html#line295">line 295</a>
     </li></ul></dd>
     
 
@@ -2515,7 +2824,7 @@ whether edges are visible (1) or not (0)
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="types.js.html">types.js</a>, <a href="types.js.html#line192">line 192</a>
+        <a href="types.js.html">types.js</a>, <a href="types.js.html#line199">line 199</a>
     </li></ul></dd>
     
 
@@ -2593,118 +2902,7 @@ whether edges are visible (1) or not (0)
 
         <tr>
             
-                <td class="name"><code>cadWidth</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    800
-                
-                </td>
-            
-
-            <td class="description last">width of CAD canvas.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>height</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    600
-                
-                </td>
-            
-
-            <td class="description last">height of CAD canvas.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>treeWidth</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    250
-                
-                </td>
-            
-
-            <td class="description last">width of tree navigation.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>theme</code></td>
+                <td class="name"><code>control</code></td>
             
 
             <td class="type">
@@ -2729,160 +2927,12 @@ whether edges are visible (1) or not (0)
             
                 <td class="default">
                 
-                    "light"
+                    "orbit"
                 
                 </td>
             
 
-            <td class="description last">theme ["light", "dark"]</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>bbFactor</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    1.0
-                
-                </td>
-            
-
-            <td class="description last">factor to increase bounding box.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>zoom0</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    1.0
-                
-                </td>
-            
-
-            <td class="description last">initial zoom factor.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>grid</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;boolean></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    [false, false, false]
-                
-                </td>
-            
-
-            <td class="description last">initial grid setting, 3-dim.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>ticks</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    10
-                
-                </td>
-            
-
-            <td class="description last">hint for the number of grid ticks.</td>
+            <td class="description last">use OrbitControls or  TrackballControls.</td>
         </tr>
 
     
@@ -2963,6 +3013,43 @@ whether edges are visible (1) or not (0)
 
         <tr>
             
+                <td class="name"><code>grid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;boolean></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    [false, false, false]
+                
+                </td>
+            
+
+            <td class="description last">initial grid setting, 3-dim.</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>ortho</code></td>
             
 
@@ -3000,13 +3087,13 @@ whether edges are visible (1) or not (0)
 
         <tr>
             
-                <td class="name"><code>control</code></td>
+                <td class="name"><code>transparent</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -3025,12 +3112,193 @@ whether edges are visible (1) or not (0)
             
                 <td class="default">
                 
-                    "orbit"
+                    false
                 
                 </td>
             
 
-            <td class="description last">use OrbitControls or  TrackballControls.</td>
+            <td class="description last">show CAD object trasparent.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>blackEdges</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">show edges in black and not in edgeColor.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>clipIntersection</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">use intersection clipping</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>clipPlaneHelpers</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">show clipping planes</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>clipNormal</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">= [[-1,0,0], [0,-1,0], [0,0,-1]] - normal directions for clipping</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>ticks</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    10
+                
+                </td>
+            
+
+            <td class="description last">hint for the number of grid ticks.</td>
         </tr>
 
     
@@ -3148,13 +3416,13 @@ whether edges are visible (1) or not (0)
 
         <tr>
             
-                <td class="name"><code>blackEdges</code></td>
+                <td class="name"><code>position</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">boolean</span>
+<span class="param-type">Array.&lt;number></span>
 
 
             
@@ -3173,19 +3441,56 @@ whether edges are visible (1) or not (0)
             
                 <td class="default">
                 
-                    false
+                    null
                 
                 </td>
             
 
-            <td class="description last">show edges in black and not in edgeColor.</td>
+            <td class="description last">camera position as 3-dim array</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>edgeColor</code></td>
+                <td class="name"><code>quaternion</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">camera rotation as 4-dim quaternion array [x,y,z,w]</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>zoom</code></td>
             
 
             <td class="type">
@@ -3210,19 +3515,19 @@ whether edges are visible (1) or not (0)
             
                 <td class="default">
                 
-                    0x707070
+                    null
                 
                 </td>
             
 
-            <td class="description last">default edge color.</td>
+            <td class="description last">camera zoom value</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>ambientIntensity</code></td>
+                <td class="name"><code>zoom0</code></td>
             
 
             <td class="type">
@@ -3247,160 +3552,12 @@ whether edges are visible (1) or not (0)
             
                 <td class="default">
                 
-                    0.5
+                    1.0
                 
                 </td>
             
 
-            <td class="description last">ambient light intensity.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>directIntensity</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    0.3
-                
-                </td>
-            
-
-            <td class="description last">direct light intensity.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>transparent</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    false
-                
-                </td>
-            
-
-            <td class="description last">show CAD object trasparent.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>defaultOpacity</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    0.4
-                
-                </td>
-            
-
-            <td class="description last">default opacity level for transparency.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>normalLen</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    0
-                
-                </td>
-            
-
-            <td class="description last">show triangle normals when normalLen > 0.</td>
+            <td class="description last">initial zoom factor.</td>
         </tr>
 
     
@@ -3513,7 +3670,7 @@ whether edges are visible (1) or not (0)
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="types.js.html">types.js</a>, <a href="types.js.html#line141">line 141</a>
+        <a href="types.js.html">types.js</a>, <a href="types.js.html#line164">line 164</a>
     </li></ul></dd>
     
 
@@ -3531,23 +3688,11 @@ whether edges are visible (1) or not (0)
     <h5>Example</h5>
     
     <pre class="prettyprint"><code>options = {
-  "theme": "light",
   "ortho": true,
-  "control": "trackball",
-  "normalLen": 0,
-  "cadWidth": 800,
-  "height": 600,
-  "treeWidth": 240,
   "ticks": 10,
-  "ambientIntensity": 0.9,
-  "directIntensity": 0.12,
   "transparent": false,
   "axes": true,
-  "grid": [
-    false,
-    false,
-    false
-  ],
+  "grid": [false, false, false],
   "timeit": false,
   "rotateSpeed": 1
 }</code></pre>
@@ -3574,7 +3719,7 @@ whether edges are visible (1) or not (0)
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Nov 29 2021 20:56:25 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Thu Dec 09 2021 12:21:29 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
