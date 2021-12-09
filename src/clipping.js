@@ -26,7 +26,7 @@ class PlaneHelper extends THREE.Line {
     this.center = center;
 
     const positions2 = [
-      1, 1, 1, -1, 1, 1, -1, -1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1,
+      1, 1, 1, -1, 1, 1, -1, -1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1
     ];
     const geometry2 = new THREE.BufferGeometry();
     geometry2.setAttribute(
@@ -42,7 +42,7 @@ class PlaneHelper extends THREE.Line {
         opacity: 0.05,
         transparent: true,
         depthWrite: false,
-        toneMapped: false,
+        toneMapped: false
       })
     );
     this.add(this.planeMesh);
@@ -71,7 +71,7 @@ class Clipping {
     const normals = [
       new THREE.Vector3(-1, 0, 0),
       new THREE.Vector3(0, -1, 0),
-      new THREE.Vector3(0, 0, -1),
+      new THREE.Vector3(0, 0, -1)
     ];
 
     this.clipPlanes = [];
