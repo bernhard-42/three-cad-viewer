@@ -18,15 +18,17 @@ class Viewer {
   /**
    * Create Viewer.
    * @param {Display} display - The Display object.
-   * @param {ViewerOptions} options - configuration parameters.
+   * @param {DisplayOptions} options - configuration parameters.
    * @param {NotificationCallback} notifyCallback - The callback to receive changes of viewer parameters.
    */
   constructor(container, options, notifyCallback, pinAsPngCallback = null) {
-    this.setDefaults(options);
     this.notifyCallback = notifyCallback;
     this.pinAsPngCallback = pinAsPngCallback;
 
     this.hasAnimationLoop = false;
+
+    this.setDisplayDefaults(options);
+
     this.display = new Display(container, options);
     this.display.setSizes({
       cadWidth: this.cadWidth,
@@ -64,15 +66,13 @@ class Viewer {
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
 
-    this.width = this.cadWidth;
-
     // setup renderer
     this.renderer = new THREE.WebGLRenderer({
       alpha: !this.dark,
       antialias: true
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(this.width, this.height);
+    this.renderer.setSize(this.cadWidth, this.height);
     this.renderer.setClearColor(0xffffff, 0);
     this.renderer.autoClear = false;
 
@@ -93,22 +93,58 @@ class Viewer {
   }
 
   /**
-   * Enhance the given options by all default values.
-   * @param {ViewerOptions} options - The provided options object for the viewer.
+   * Enhance the given options for viewer creation by default values.
+   * @param {DisplayOptions} options - The provided options object for the viewer.
    */
-  setDefaults(options) {
-    this.cadWidth = 800;
-    this.height = 600;
-    this.treeWidth = 250;
-    this.treeHeight = 250;
+  setDisplayDefaults(options) {
     this.theme = "light";
-    this.bbFactor = 1.0;
-    this.zoom0 = 1.0;
-    this.grid = [false, false, false];
-    this.ticks = 10;
+    this.cadWidth = 800;
+    this.treeWidth = 250;
+    this.height = 600;
+    this.pinning = false;
+
+    for (var option in options) {
+      if (this[option] == null) {
+        console.warn(`Unknown option "${option}" to create a viewer - ignored`);
+      } else {
+        this[option] = options[option];
+      }
+    }
+  }
+
+  /**
+   * Enhance the given options for rendering by default values.
+   * @param {RenderOptions} options - The provided options object for the viewer.
+   */
+  setRenderDefaults(options) {
+    this.ambientIntensity = 0.5;
+    this.defaultOpacity = 0.4;
+    this.directIntensity = 0.3;
+    this.edgeColor = 0x707070;
+    this.normalLen = 0;
+
+    for (var option in options) {
+      if (this[option] == null) {
+        console.warn(`Unknown option "${option}" to create a viewer - ignored`);
+      } else {
+        this[option] = options[option];
+      }
+    }
+  }
+
+  /**
+   * Enhance the given options for the view by default values.
+   * @param {ViewOptions} options - The provided options object for the viewer.
+   */
+
+  setViewerDefaults(options) {
     this.axes = false;
     this.axes0 = false;
+    this.grid = [false, false, false];
     this.ortho = true;
+    this.transparent = false;
+    this.blackEdges = false;
+
     this.clipIntersection = false;
     this.clipPlaneHelpers = false;
     this.clipNormal0 = [-1, 0, 0];
@@ -117,37 +153,50 @@ class Viewer {
     this.clipSlider0 = -1;
     this.clipSlider1 = -1;
     this.clipSlider2 = -1;
+    this.tools = true;
     this.control = "orbit";
+    this.ticks = 10;
+
+    this.position = null;
+    this.quaternion = null;
+    this.zoom = null;
+    this.zoom0 = 1.0;
+
+    this.panSpeed = 0.5;
     this.rotateSpeed = 1.0;
     this.zoomSpeed = 0.5;
-    this.panSpeed = 0.5;
-    this.blackEdges = false;
-    this.edgeColor = 0x707070;
-    this.ambientIntensity = 0.5;
-    this.directIntensity = 0.3;
-    this.transparent = false;
-    this.defaultOpacity = 0.4;
-    this.normalLen = 0;
-    this.tools = true;
     this.timeit = false;
-    this.clipIntersection = false;
-    this.clipPlaneHelpers = false;
-    this.clipNormal = [
-      [-1, 0, 0],
-      [0, -1, 0],
-      [0, 0, -1]
-    ];
-    this.pinning = false;
 
     for (var option in options) {
       if (this[option] == null) {
-        console.warn(`unknown option ${option} ignored`);
+        console.warn(`Unknown option ${option} to add shapes - ignored`);
       } else {
         this[option] = options[option];
       }
     }
   }
 
+  dumpOptions() {
+    console.log("Display:");
+    console.log("- cadWidth", this.cadWidth);
+    console.log("- control", this.control);
+    console.log("- height", this.height);
+    console.log("- pinning", this.pinning);
+    console.log("- theme", this.theme);
+    console.log("- treeHeight", this.treeHeight);
+    console.log("- treeWidth", this.treeWidth);
+
+    console.log("Render:");
+    console.log("- ambientIntensity", this.ambientIntensity);
+    console.log("- defaultOpacity", this.defaultOpacity);
+    console.log("- directIntensity", this.directIntensity);
+    console.log("- edgeColor", this.edgeColor);
+    console.log("- normalLen", this.normalLen);
+
+    console.log("View:");
+    console.log("- axes", this.axes);
+    console.log("- axes0", this.axes0);
+    console.log("- blackEdges", this.blackEdges);
     console.log("- clipIntersection", this.clipIntersection);
     console.log("- clipPlaneHelpers", this.clipPlaneHelpers);
     console.log("- clipNormal0", this.clipNormal0);
@@ -156,6 +205,20 @@ class Viewer {
     console.log("- clipSlider0", this.clipSlider0);
     console.log("- clipSlider1", this.clipSlider1);
     console.log("- clipSlider2", this.clipSlider2);
+    console.log("- grid", this.grid);
+    console.log("- ortho", this.ortho);
+    console.log("- panSpeed", this.panSpeed);
+    console.log("- position", this.position);
+    console.log("- quaternion", this.quaternion);
+    console.log("- rotateSpeed", this.rotateSpeed);
+    console.log("- ticks", this.ticks);
+    console.log("- timeit", this.timeit);
+    console.log("- tools", this.tools);
+    console.log("- transparent", this.transparent);
+    console.log("- zoom", this.zoom);
+    console.log("- zoom0", this.zoom0);
+    console.log("- zoomSpeed", this.zoomSpeed);
+  }
   // - - - - - - - - - - - - - - - - - - - - - - - -
   // Load Tesselated Shapes
   // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -168,7 +231,7 @@ class Viewer {
   _renderTessellatedShapes(shapes) {
     const nestedGroup = new NestedGroup(
       shapes,
-      this.width,
+      this.cadWidth,
       this.height,
       this.edgeColor,
       this.transparent,
@@ -214,9 +277,11 @@ class Viewer {
    * Render the shapes of the CAD object.
    * @param {Shapes} shapes - The Shapes object.
    * @param {States} states - the visibility state of meshes and edges
+   * @param {RenderOptions} options - the options for rendering
    * @returns {THREE.Group} A nested THREE.Group object.
    */
-  renderTessellatedShapes(shapes, states) {
+  renderTessellatedShapes(shapes, states, options) {
+    this.setRenderDefaults(options);
     return [
       this._renderTessellatedShapes(shapes),
       this._getTree(shapes, states)
@@ -485,15 +550,15 @@ class Viewer {
    * @param {Shapes} shapes - the shapes of the CAD object to be rendered
    * @param {NavTree} tree - The navigation tree object
    * @param {States} states - the visibility state of meshes and edges
-   * @param {number[]} [position=null] - the camera position.
-   * @param {number[]} [quaternion=null] - the camera rotation as quaternion. Only relevant for TrackballControls and needs position to be set, too.
-   * @param {number} [zoom=null] - zoom value.
+   * @param {ViewerOptions} options - the Viewer options
    */
-  render(group, tree, states, position = null, quaternion = null, zoom = null) {
-    this.states = states;
-    this.scene = new THREE.Scene();
+  render(group, tree, states, options) {
+    this.setViewerDefaults(options);
 
     const timer = new Timer("viewer", this.timeit);
+
+    this.states = states;
+    this.scene = new THREE.Scene();
 
     //
     // render the input assembly
@@ -524,7 +589,7 @@ class Viewer {
     // create cameras
     //
     this.camera = new Camera(
-      this.width,
+      this.cadWidth,
       this.height,
       this.bb_radius,
       this.bbox.center,
@@ -550,18 +615,18 @@ class Viewer {
     this.controls.controls.screenSpacePanning = true;
 
     // this needs to happen after the controls have been established
-    if (position == null && quaternion == null) {
-      this.presetCamera("iso", zoom);
-    } else if (position != null) {
-      this.setCamera(false, position, quaternion, zoom);
-      if (quaternion == null) {
+    if (options.position == null && options.quaternion == null) {
+      this.presetCamera("iso", options.zoom);
+    } else if (options.position != null) {
+      this.setCamera(false, options.position, options.quaternion, options.zoom);
+      if (options.quaternion == null) {
         this.camera.lookAtTarget();
       }
     } else {
       this.info.addHtml(
         "<b>quaternion needs position to be provided, falling back to ISO view</b>"
       );
-      this.presetCamera("iso", zoom);
+      this.presetCamera("iso", options.zoom);
     }
 
     // Save the new state again
@@ -614,7 +679,7 @@ class Viewer {
       this.bbox.center,
       this.gridSize / 2,
       2,
-      this.width,
+      this.cadWidth,
       this.height,
       this.axes0,
       this.axes,
@@ -678,6 +743,19 @@ class Viewer {
     timer.split("scene done");
 
     //
+    // update UI elements
+    //
+
+    this.display.updateUI(
+      this.axes,
+      this.axes0,
+      this.ortho,
+      this.transparent,
+      this.blackEdges,
+      this.tools
+    );
+
+    //
     // show the rendering
     //
 
@@ -685,6 +763,7 @@ class Viewer {
 
     this.ready = true;
     this.info.readyMsg(this.gridHelper.ticks, this.control);
+
     timer.stop();
   }
 
@@ -863,7 +942,7 @@ class Viewer {
     const rect = this.renderer.domElement.getBoundingClientRect();
     const offsetX = rect.x + window.pageXOffset;
     const offsetY = rect.y + window.pageYOffset;
-    this.mouse.x = ((e.pageX - offsetX) / this.width) * 2 - 1;
+    this.mouse.x = ((e.pageX - offsetX) / this.cadWidth) * 2 - 1;
     this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
 
     this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
@@ -1340,7 +1419,6 @@ class Viewer {
 
     this.clipPlaneHelpers = flag;
     this.clipping.planeHelpers.visible = flag;
-    this.display.setClipPlaneHelpersCheck(flag);
 
     this.checkChanges({ clip_planes: flag }, notify);
 

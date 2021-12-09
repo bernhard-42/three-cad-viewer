@@ -463,6 +463,25 @@ class Display {
     this.setHelp(false);
   }
 
+  /**
+   * Check or uncheck a checkbox
+   * @property {boolean} [axes = false] - show X-, Y-, Z-axes.
+   * @property {boolean} [axes0 = false] - show axes at [0,0,0] ot at object center (target).
+   * @property {boolean} [ortho = true] - use an orthographic (true) or perspective camera (false)
+   * @property {boolean} [transparent = false] - show CAD object trasparent.
+   * @property {boolean} [blackEdges = false] - show edges in black and not in edgeColor.
+   * @property {boolean} [clipIntersection = false] - use intersection clipping
+   * @property {boolean} [clipPlaneHelpers = false] - show clipping planes
+   * @property {boolean} [tools = true] - Show/hide all tools.
+   */
+  updateUI(axes, axes0, ortho, transparent, blackEdges, tools) {
+    this.checkElement("tcv_axes", axes);
+    this.checkElement("tcv_axes0", axes0);
+    this.checkElement("tcv_ortho", ortho);
+    this.checkElement("tcv_transparent", transparent);
+    this.checkElement("tcv_black_edges", blackEdges);
+    this.setTools(tools);
+  }
   // setup functions
 
   /**
