@@ -33,7 +33,7 @@ class Viewer {
     this.display.setSizes({
       cadWidth: this.cadWidth,
       height: this.height,
-      treeWidth: this.treeWidth
+      treeWidth: this.treeWidth,
     });
 
     window.THREE = THREE;
@@ -59,7 +59,7 @@ class Viewer {
     this.clipNormals = [
       [-1, 0, 0],
       [0, -1, 0],
-      [0, 0, -1]
+      [0, 0, -1],
     ];
 
     this.camera_distance = 0;
@@ -69,7 +69,7 @@ class Viewer {
     // setup renderer
     this.renderer = new THREE.WebGLRenderer({
       alpha: !this.dark,
-      antialias: true
+      antialias: true,
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.cadWidth, this.height);
@@ -80,7 +80,7 @@ class Viewer {
 
     this.renderer.domElement.addEventListener("dblclick", this.pick, false);
     this.renderer.domElement.addEventListener("contextmenu", (e) =>
-      e.stopPropagation()
+      e.stopPropagation(),
     );
 
     this.display.addCadView(this.renderer.domElement);
@@ -236,7 +236,7 @@ class Viewer {
       this.edgeColor,
       this.transparent,
       this.defaultOpacity,
-      this.normalLen
+      this.normalLen,
     );
     nestedGroup.render();
     return nestedGroup;
@@ -255,7 +255,7 @@ class Viewer {
       const newPath = `${path}${delim}${subGroup.name}`;
       var result = {
         name: subGroup.name,
-        id: newPath
+        id: newPath,
       };
       if (subGroup.parts) {
         result.type = "node";
@@ -284,7 +284,7 @@ class Viewer {
     this.setRenderDefaults(options);
     return [
       this._renderTessellatedShapes(shapes),
-      this._getTree(shapes, states)
+      this._getTree(shapes, states),
     ];
   }
 
@@ -305,7 +305,7 @@ class Viewer {
       this.nestedGroup.groups[selector],
       action,
       time,
-      values
+      values,
     );
   }
 
@@ -328,7 +328,7 @@ class Viewer {
     this.clipAction = this.animation.animate(
       this.nestedGroup.rootGroup,
       duration,
-      speed
+      speed,
     );
   }
 
@@ -365,7 +365,7 @@ class Viewer {
           old:
             this.lastNotification[key] == null
               ? null
-              : clone(this.lastNotification[key])
+              : clone(this.lastNotification[key]),
         };
         this.lastNotification[key] = change;
       }
@@ -395,7 +395,7 @@ class Viewer {
 
         this.orientationMarker.update(
           this.camera.getPosition().clone().sub(this.controls.getTarget()),
-          this.camera.getRotation()
+          this.camera.getRotation(),
         );
         this.orientationMarker.render(this.renderer);
       }
@@ -409,9 +409,9 @@ class Viewer {
       {
         zoom: this.camera.getZoom(),
         position: this.camera.getPosition().toArray(),
-        quaternion: this.camera.getQuaternion().toArray()
+        quaternion: this.camera.getQuaternion().toArray(),
       },
-      notify
+      notify,
     );
   };
 
@@ -594,7 +594,7 @@ class Viewer {
       this.bb_radius,
       this.bbox.center,
       this.ortho,
-      this.control
+      this.control,
     );
 
     //
@@ -607,7 +607,7 @@ class Viewer {
       this.renderer.domElement,
       this.rotateSpeed,
       this.zoomSpeed,
-      this.panSpeed
+      this.panSpeed,
     );
     this.controls.enableKeys = false;
 
@@ -624,7 +624,7 @@ class Viewer {
       }
     } else {
       this.info.addHtml(
-        "<b>quaternion needs position to be provided, falling back to ISO view</b>"
+        "<b>quaternion needs position to be provided, falling back to ISO view</b>",
       );
       this.presetCamera("iso", options.zoom);
     }
@@ -644,7 +644,7 @@ class Viewer {
         for (var zpos of [-this.bb_max, this.bb_max]) {
           const directionalLight = new THREE.DirectionalLight(
             0xffffff,
-            this.directIntensity
+            this.directIntensity,
           );
           directionalLight.position.set(10 * xpos, 10 * ypos, 10 * zpos);
           this.scene.add(directionalLight);
@@ -661,7 +661,7 @@ class Viewer {
       this.bbox,
       this.ticks,
       this.axes0,
-      this.grid
+      this.grid,
     );
     this.gridHelper.computeGrid();
 
@@ -683,7 +683,7 @@ class Viewer {
       this.height,
       this.axes0,
       this.axes,
-      this.theme
+      this.theme,
     );
     this.scene.add(this.axesHelper);
 
@@ -696,7 +696,7 @@ class Viewer {
       this.gridSize,
       this.gridSize / 2,
       (index, normal) => this.display.setNormalLabel(index, normal),
-      this.theme
+      this.theme,
     );
 
     this.setClipNormal(0, options.clipNormal0, false);
@@ -721,7 +721,7 @@ class Viewer {
       80,
       80,
       this.camera.getCamera(),
-      this.theme
+      this.theme,
     );
     this.orientationMarker.create();
 
@@ -734,7 +734,7 @@ class Viewer {
       clone(this.states),
       this.tree,
       this.setObjects,
-      this.theme
+      this.theme,
     );
     this.display.addCadTree(this.treeview.render());
 
@@ -752,7 +752,7 @@ class Viewer {
       this.ortho,
       this.transparent,
       this.blackEdges,
-      this.tools
+      this.tools,
     );
 
     //
@@ -785,14 +785,14 @@ class Viewer {
     position,
     quaternion = null,
     zoom = null,
-    notify = true
+    notify = true,
   ) => {
     this.camera.setupCamera(
       relative,
       new THREE.Vector3(...position),
       quaternion != null ? new THREE.Quaternion(...quaternion) : null,
       zoom,
-      notify
+      notify,
     );
     this.update(true, notify);
   };
@@ -928,7 +928,7 @@ class Viewer {
    */
   setState = (id, state, notify = true) => {
     [0, 1].forEach((i) =>
-      this.treeview.handleStateChange("leaf", id, i, state[i])
+      this.treeview.handleStateChange("leaf", id, i, state[i]),
     );
     this.update(false, notify);
   };
@@ -949,7 +949,7 @@ class Viewer {
 
     const objects = this.raycaster.intersectObjects(
       this.scene.children.slice(0, 1),
-      true
+      true,
     );
     var nearest = null;
     for (var object of objects) {
@@ -959,7 +959,7 @@ class Viewer {
           name: object.object.name,
           boundingBox: object.object.geometry.boundingBox,
           boundingSphere: object.object.geometry.boundingSphere,
-          objectGroup: object.object.parent
+          objectGroup: object.object.parent,
         };
         break;
       }
@@ -970,8 +970,8 @@ class Viewer {
           path: nearest.path,
           name: nearest.name,
           boundingBox: JSON.parse(JSON.stringify(nearest.boundingBox)),
-          boundingSphere: JSON.parse(JSON.stringify(nearest.boundingSphere))
-        }
+          boundingSphere: JSON.parse(JSON.stringify(nearest.boundingSphere)),
+        },
       });
       if (e.metaKey) {
         var update = {};
@@ -1529,7 +1529,7 @@ class Viewer {
             scope.pinAsPngCallback(image);
           }
         },
-        false
+        false,
       );
       reader.readAsDataURL(blob);
     });

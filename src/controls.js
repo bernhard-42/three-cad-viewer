@@ -20,7 +20,7 @@ class Controls {
     domElement,
     rotateSpeed = 1.0,
     zoomSpeed = 1.0,
-    panSpeed = 1.0
+    panSpeed = 1.0,
   ) {
     this.type = type;
     this.camera = camera;

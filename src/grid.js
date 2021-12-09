@@ -17,7 +17,7 @@ class Grid {
     var [axisStart, axisEnd, niceTick] = this.niceBounds(
       -bbox.max * 1.1,
       bbox.max * 1.1,
-      2 * ticks
+      2 * ticks,
     );
     this.size = axisEnd - axisStart;
 
@@ -29,8 +29,8 @@ class Grid {
           this.size,
           this.size / this.ticks,
           0x888888,
-          0xcccccc
-        )
+          0xcccccc,
+        ),
       );
     }
 

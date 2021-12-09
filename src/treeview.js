@@ -21,7 +21,7 @@ const States = {
   unselected: 0,
   selected: 1,
   mixed: 2,
-  empty: 3
+  empty: 3,
 };
 
 class TreeView {
@@ -58,7 +58,7 @@ class TreeView {
       name: tree.name,
       color: tree.color,
       imgs: [],
-      states: []
+      states: [],
     };
     var i = 0;
 
@@ -95,7 +95,7 @@ class TreeView {
       for (icon_id in this.icons) {
         img_button = tag("input", ["tcv_icon"], {
           type: "button",
-          style: `background-image: ${this.getIcon(icon_id, 1)}`
+          style: `background-image: ${this.getIcon(icon_id, 1)}`,
         });
         img_button.setAttribute("icon_id", icon_id);
         img_button.addEventListener("click", (e) => {
@@ -103,7 +103,7 @@ class TreeView {
           this.handle(
             model.type,
             model.id,
-            e.srcElement.getAttribute("icon_id")
+            e.srcElement.getAttribute("icon_id"),
           );
         });
         entry.appendChild(img_button);
@@ -123,8 +123,8 @@ class TreeView {
           type: "button",
           style: `background-image: ${this.getIcon(
             icon_id,
-            model.states[icon_id]
-          )}`
+            model.states[icon_id],
+          )}`,
         });
         img_button.setAttribute("icon_id", icon_id);
         if (icon_id == 0) {
@@ -137,7 +137,7 @@ class TreeView {
             this.handle(
               model.type,
               model.id,
-              e.srcElement.getAttribute("icon_id")
+              e.srcElement.getAttribute("icon_id"),
             );
           });
         }
@@ -213,7 +213,7 @@ class TreeView {
       } else {
         state = filtered_states.reduce(
           (s1, s2) => (s1 == s2 ? s1 : States.mixed),
-          filtered_states[0]
+          filtered_states[0],
         );
       }
       model.states[icon_id] = state;
@@ -231,7 +231,7 @@ class TreeView {
   setIcon(img, icon_id, state) {
     img.setAttribute(
       "style",
-      `background-image: ${this.getIcon(icon_id, state)}`
+      `background-image: ${this.getIcon(icon_id, state)}`,
     );
   }
 

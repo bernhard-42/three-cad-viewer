@@ -12,7 +12,7 @@ class Timer {
     if (this.timeit) {
       const t = performance.now();
       console.info(
-        `three-cad-viewer: ${this.prefix}:${msg} ${t - this.start} ms`
+        `three-cad-viewer: ${this.prefix}:${msg} ${t - this.start} ms`,
       );
     }
   }
@@ -21,7 +21,7 @@ class Timer {
     if (this.timeit) {
       const t = performance.now();
       console.info(
-        `three-cad-viewer: ${this.prefix}:stop ${t - this.start} ms`
+        `three-cad-viewer: ${this.prefix}:stop ${t - this.start} ms`,
       );
     }
   }

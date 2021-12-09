@@ -123,7 +123,7 @@ class NestedGroup {
     transparent,
     opacity,
     normalLen,
-    bb_max
+    bb_max,
   ) {
     this.shapes = shapes;
     this.width = width;
@@ -166,14 +166,14 @@ class NestedGroup {
       transparent: true,
       depthWrite: !this.transparent,
       depthTest: !this.transparent,
-      clipIntersection: false
+      clipIntersection: false,
     });
 
     if (Array.isArray(color)) {
       var colors = color
         .map((c) => [
           new THREE.Color(c).toArray(),
-          new THREE.Color(c).toArray()
+          new THREE.Color(c).toArray(),
         ])
         .flat()
         .flat();
@@ -181,7 +181,7 @@ class NestedGroup {
       lineMaterial.vertexColors = "VertexColors";
     } else {
       lineMaterial.color = new THREE.Color(
-        color == null ? this.edgeColor : color
+        color == null ? this.edgeColor : color,
       );
     }
 
@@ -196,7 +196,7 @@ class NestedGroup {
   renderEdges(edgeList, lineWidth, color, name) {
     var group = new ObjectGroup(
       this.defaultOpacity,
-      color == null ? this.edgeColor : color
+      color == null ? this.edgeColor : color,
     );
 
     var edges = this._renderEdges(edgeList, lineWidth, color);
@@ -211,7 +211,7 @@ class NestedGroup {
   renderVertices(vertexList, size, color, name) {
     var group = new ObjectGroup(
       this.defaultOpacity,
-      color == null ? this.edgeColor : color
+      color == null ? this.edgeColor : color,
     );
 
     const vertex_color = color == null ? this.edgeColor : color;
@@ -220,7 +220,7 @@ class NestedGroup {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
       "position",
-      new THREE.Float32BufferAttribute(positions, 3)
+      new THREE.Float32BufferAttribute(positions, 3),
     );
 
     const material = new THREE.PointsMaterial({
@@ -228,7 +228,7 @@ class NestedGroup {
       sizeAttenuation: false,
       size: size,
       transparent: true,
-      clipIntersection: false
+      clipIntersection: false,
     });
 
     var points = new THREE.Points(geometry, material);
@@ -259,7 +259,7 @@ class NestedGroup {
     var shapeGeometry = new THREE.BufferGeometry();
     shapeGeometry.setAttribute(
       "position",
-      new THREE.BufferAttribute(positions, 3)
+      new THREE.BufferAttribute(positions, 3),
     );
     shapeGeometry.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
     shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
@@ -275,7 +275,7 @@ class NestedGroup {
       depthTest: !this.transparent,
       clipIntersection: false,
       side: THREE.FrontSide,
-      visible: true
+      visible: true,
     });
 
     const backMaterial = new THREE.MeshBasicMaterial({
@@ -289,7 +289,7 @@ class NestedGroup {
       depthWrite: !this.transparent,
       depthTest: !this.transparent,
       clipIntersection: false,
-      visible: this.backVisible
+      visible: this.backVisible,
     });
 
     const front = new THREE.Mesh(shapeGeometry, frontMaterial);
@@ -305,7 +305,7 @@ class NestedGroup {
       const normalsHelper = new VertexNormalsHelper(
         front,
         this.normalLen,
-        0xff00ff
+        0xff00ff,
       );
       group.add(normalsHelper);
     }
@@ -331,7 +331,7 @@ class NestedGroup {
             shape.shape,
             shape.width,
             shape.color,
-            shape.name
+            shape.name,
           );
           break;
         case "vertices":
@@ -339,7 +339,7 @@ class NestedGroup {
             shape.shape,
             shape.size,
             shape.color,
-            shape.name
+            shape.name,
           );
           break;
         default:
@@ -352,7 +352,7 @@ class NestedGroup {
     if (shapes.loc == null) {
       shapes.loc = [
         [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0, 1.0]
+        [0.0, 0.0, 0.0, 1.0],
       ];
     }
     group.position.set(...shapes.loc[0]);
@@ -390,7 +390,7 @@ class NestedGroup {
         b.min.y,
         b.max.y,
         b.min.z,
-        b.max.z
+        b.max.z,
       );
     }
     return this.bbox;

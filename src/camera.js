@@ -6,7 +6,7 @@ const defaultDirections = {
   left: new THREE.Vector3(0, 1, 0),
   right: new THREE.Vector3(0, -1, 0),
   top: new THREE.Vector3(0, 0, 1),
-  bottom: new THREE.Vector3(0, 0, -1)
+  bottom: new THREE.Vector3(0, 0, -1),
 };
 class Camera {
   /**
@@ -37,7 +37,7 @@ class Camera {
       fov,
       aspect,
       0.1,
-      100 * distance
+      100 * distance,
     );
     this.pCamera.up.set(0, 0, 1);
     this.pCamera.lookAt(this.target);
@@ -53,7 +53,7 @@ class Camera {
       h,
       -h,
       0.1,
-      100 * distance
+      100 * distance,
     );
     this.oCamera.up.set(0, 0, 1);
     this.oCamera.lookAt(this.target);

@@ -9,13 +9,13 @@ class PlaneHelper extends THREE.Line {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
       "position",
-      new THREE.Float32BufferAttribute(positions, 3)
+      new THREE.Float32BufferAttribute(positions, 3),
     );
     geometry.computeBoundingSphere();
 
     super(
       geometry,
-      new THREE.LineBasicMaterial({ color: color, toneMapped: false })
+      new THREE.LineBasicMaterial({ color: color, toneMapped: false }),
     );
 
     this.type = "PlaneHelper";
@@ -26,12 +26,12 @@ class PlaneHelper extends THREE.Line {
     this.center = center;
 
     const positions2 = [
-      1, 1, 1, -1, 1, 1, -1, -1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1
+      1, 1, 1, -1, 1, 1, -1, -1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1,
     ];
     const geometry2 = new THREE.BufferGeometry();
     geometry2.setAttribute(
       "position",
-      new THREE.Float32BufferAttribute(positions2, 3)
+      new THREE.Float32BufferAttribute(positions2, 3),
     );
     geometry2.computeBoundingSphere();
 
@@ -42,8 +42,8 @@ class PlaneHelper extends THREE.Line {
         opacity: 0.05,
         transparent: true,
         depthWrite: false,
-        toneMapped: false
-      })
+        toneMapped: false,
+      }),
     );
     this.add(this.planeMesh);
   }
@@ -71,7 +71,7 @@ class Clipping {
     const normals = [
       new THREE.Vector3(-1, 0, 0),
       new THREE.Vector3(0, -1, 0),
-      new THREE.Vector3(0, 0, -1)
+      new THREE.Vector3(0, 0, -1),
     ];
 
     this.clipPlanes = [];
@@ -88,8 +88,8 @@ class Clipping {
         this.clipPlanes[0],
         center,
         size,
-        theme === "light" ? 0xff0000 : 0xff4500
-      )
+        theme === "light" ? 0xff0000 : 0xff4500,
+      ),
     );
     this.planeHelpers.add(
       new PlaneHelper(
@@ -97,8 +97,8 @@ class Clipping {
         this.clipPlanes[1],
         center,
         size,
-        theme === "light" ? 0x00ff00 : 0x32cd32
-      )
+        theme === "light" ? 0x00ff00 : 0x32cd32,
+      ),
     );
     this.planeHelpers.add(
       new PlaneHelper(
@@ -106,8 +106,8 @@ class Clipping {
         this.clipPlanes[2],
         center,
         size,
-        theme === "light" ? 0x0000ff : 0x3b9eff
-      )
+        theme === "light" ? 0x0000ff : 0x3b9eff,
+      ),
     );
     this.planeHelpers.visible = false;
   }

@@ -172,7 +172,7 @@ const buttons = [
   "plane",
   "play",
   "pause",
-  "stop"
+  "stop",
 ];
 class Slider {
   constructor(index, min, max, display) {
@@ -180,12 +180,12 @@ class Slider {
     this.display = display;
 
     this.slider = display.container.getElementsByClassName(
-      `tcv_sld_value_plane${index}`
+      `tcv_sld_value_plane${index}`,
     )[0];
     this.slider.min = min;
     this.slider.max = max;
     this.input = display.container.getElementsByClassName(
-      `tcv_inp_value_plane${index}`
+      `tcv_inp_value_plane${index}`,
     )[0];
     this.input.value = max;
     this.slider.oninput = this.sliderChange;
@@ -208,7 +208,7 @@ class Slider {
   inputChange = (e) => {
     const value = Math.max(
       Math.min(e.target.value, this.slider.max),
-      this.slider.min
+      this.slider.min,
     );
     // if (value != e.target.value) {
     //     this.input.value = Math.round(1000 * value) / 1000;
@@ -235,7 +235,7 @@ class Slider {
   setValue(value, notify = true) {
     const trimmed_value = Math.max(
       Math.min(value, this.slider.max),
-      this.slider.min
+      this.slider.min,
     );
     this.input.value = trimmed_value;
     this.slider.value = value;
@@ -257,15 +257,15 @@ class Display {
     this.cadTool = this.container.getElementsByClassName("tcv_cad_toolbar")[0];
     this.cadView = this.container.getElementsByClassName("tcv_cad_view")[0];
     this.cadTree = this.container.getElementsByClassName(
-      "tcv_cad_tree_container"
+      "tcv_cad_tree_container",
     )[0];
     this.cadClip = this.container.getElementsByClassName(
-      "tcv_cad_clip_container"
+      "tcv_cad_clip_container",
     )[0];
     this.tabTree = this.container.getElementsByClassName("tcv_tab_tree")[0];
     this.tabClip = this.container.getElementsByClassName("tcv_tab_clip")[0];
     this.cadInfo = this.container.getElementsByClassName(
-      "tcv_cad_info_container"
+      "tcv_cad_info_container",
     )[0];
     this.cadAnim =
       this.container.getElementsByClassName("tcv_cad_animation")[0];
@@ -275,7 +275,7 @@ class Display {
     this.planeLabels = [];
     for (var i = 1; i < 4; i++) {
       this.planeLabels.push(
-        this.container.getElementsByClassName(`tcv_lbl_norm_plane${i}`)[0]
+        this.container.getElementsByClassName(`tcv_lbl_norm_plane${i}`)[0],
       );
     }
 
@@ -305,7 +305,7 @@ class Display {
         var el = elements[i];
         el.setAttribute(
           "style",
-          `background-image: ${getIconBackground(options.theme, btn)}`
+          `background-image: ${getIconBackground(options.theme, btn)}`,
         );
       }
     }
@@ -367,16 +367,16 @@ class Display {
     if (options.treeWidth) {
       this.treeWidth = options.treeWidth;
       this.cadTree.parentElement.parentElement.style.width = px(
-        options.treeWidth
+        options.treeWidth,
       );
       this.cadInfo.parentElement.parentElement.style.width = px(
-        options.treeWidth
+        options.treeWidth,
       );
     }
     const treeHeight = Math.round((this.height * 2) / 3);
     this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
     this.cadInfo.parentElement.parentElement.style.height = px(
-      this.height - treeHeight - 4
+      this.height - treeHeight - 4,
     );
     this.cadTool.style.width = px(this.treeWidth + this.cadWidth);
   }
@@ -398,12 +398,12 @@ class Display {
     this._setupCheckEvent(
       "tcv_transparent",
       this.setTransparent,
-      viewer.transparent
+      viewer.transparent,
     );
     this._setupCheckEvent(
       "tcv_black_edges",
       this.setBlackEdges,
-      viewer.blackEdges
+      viewer.blackEdges,
     );
 
     this._setupClickEvent("tcv_reset", this.reset);
@@ -416,7 +416,7 @@ class Display {
       "tcv_bottom",
       "tcv_left",
       "tcv_right",
-      "tcv_iso"
+      "tcv_iso",
     ];
     buttons.forEach((name) => {
       this._setupClickEvent(name, this.setView);
@@ -439,19 +439,19 @@ class Display {
     this._setupCheckEvent(
       "tcv_clip_plane_helpers",
       this.setClipPlaneHelpers,
-      false
+      false,
     );
     this._setupCheckEvent(
       "tcv_clip_intersection",
       this.setClipIntersection,
-      false
+      false,
     );
 
     for (i = 1; i < 4; i++) {
       this._setupClickEvent(
         `tcv_btn_norm_plane${i}`,
         this.setClipNormalFromPosition,
-        false
+        false,
       );
     }
 
@@ -736,7 +736,7 @@ class Display {
    */
   setNormalLabel = (index, normal) => {
     this.planeLabels[index].innerHTML = `N=(${normal[0].toFixed(
-      2
+      2,
     )}, ${normal[1].toFixed(2)}, ${normal[2].toFixed(2)})`;
   };
 

@@ -51,22 +51,22 @@ class Animation {
             position
               .clone()
               .add(new THREE.Vector3(...v))
-              .toArray()
+              .toArray(),
           );
           break;
         case "tx":
           newValues = values.map((v) =>
-            position.clone().add(new THREE.Vector3(v, 0, 0)).toArray()
+            position.clone().add(new THREE.Vector3(v, 0, 0)).toArray(),
           );
           break;
         case "ty":
           newValues = values.map((v) =>
-            position.clone().add(new THREE.Vector3(0, v, 0)).toArray()
+            position.clone().add(new THREE.Vector3(0, v, 0)).toArray(),
           );
           break;
         case "tz":
           newValues = values.map((v) =>
-            position.clone().add(new THREE.Vector3(0, 0, v)).toArray()
+            position.clone().add(new THREE.Vector3(0, 0, v)).toArray(),
           );
           break;
         default:
@@ -78,18 +78,18 @@ class Animation {
         new THREE.NumberKeyframeTrack(
           selector + ".position",
           times,
-          newValues.flat()
-        )
+          newValues.flat(),
+        ),
       );
     } else {
       const quaternion = group.quaternion;
 
       if (action.startsWith("r")) {
         const quatValues = values.map((angle) =>
-          fromAxisAngle(action.slice(1), angle)
+          fromAxisAngle(action.slice(1), angle),
         );
         newValues = quatValues.map((rot) =>
-          quaternion.clone().multiply(rot).toArray()
+          quaternion.clone().multiply(rot).toArray(),
         );
       } else if (action == "q") {
         newValues = values.map((q) => quaternion.clone().multiply(q).toArray());
@@ -102,8 +102,8 @@ class Animation {
         new THREE.QuaternionKeyframeTrack(
           selector + ".quaternion",
           times,
-          newValues.flat()
-        )
+          newValues.flat(),
+        ),
       );
     }
   }

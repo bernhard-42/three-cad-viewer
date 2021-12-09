@@ -27,7 +27,7 @@ class OrientationMarker {
       this.height,
       -this.height,
       1,
-      1000
+      1000,
     );
     this.camera.up = this.cad_camera.up; // important!
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -41,7 +41,7 @@ class OrientationMarker {
       this.height,
       true,
       true,
-      this.theme
+      this.theme,
     );
     this.scene.add(axes);
 
@@ -50,12 +50,12 @@ class OrientationMarker {
         ? [
             [1, 0x45 / 255, 0],
             [0x32 / 255, 0xcd / 255, 0x32 / 255],
-            [0x3b / 255, 0x9e / 255, 1]
+            [0x3b / 255, 0x9e / 255, 1],
           ]
         : [
             [1, 0, 0],
             [0, 0.7, 0],
-            [0, 0, 1]
+            [0, 0, 1],
           ];
     this.cones = [];
     for (var i = 0; i < 3; i++) {
@@ -64,11 +64,11 @@ class OrientationMarker {
         3 * size,
         6 * size,
         20,
-        1
+        1,
       );
       const coneMaterial = new THREE.MeshBasicMaterial({
         color: new THREE.Color(...colors[i]),
-        toneMapped: false
+        toneMapped: false,
       });
       const cone = new THREE.Mesh(coneGeometry, coneMaterial);
       cone.matrixAutoUpdate = false;

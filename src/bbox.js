@@ -20,8 +20,8 @@ class BoundingBox {
     ];
     this.max = Math.max(
       ...[this.xmin, this.xmax, this.ymin, this.ymax, this.zmin, this.zmax].map(
-        (x) => Math.abs(x)
-      )
+        (x) => Math.abs(x),
+      ),
     );
   }
 

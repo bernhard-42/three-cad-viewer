@@ -47,7 +47,7 @@ class Info {
           <table>
             <tr class="tcv_small_table"><td>CadQuery:</td>        <td>${cqVersion}</td> </tr>
             <tr class="tcv_small_table"><td>Jupyter CadQuery:</td><td>${jcqVersion}</td> </tr>
-          </table>`
+          </table>`,
     );
   }
 
