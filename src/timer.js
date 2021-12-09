@@ -4,21 +4,25 @@ class Timer {
     this.timeit = timeit;
     this.start = performance.now();
     if (timeit) {
-      console.warn(`${prefix}:start`);
+      console.info(`three-cad-viewer: ${prefix}:start`);
     }
   }
 
   split(msg) {
     if (this.timeit) {
       const t = performance.now();
-      console.warn(`${this.prefix}:${msg} ${t - this.start} ms`);
+      console.info(
+        `three-cad-viewer: ${this.prefix}:${msg} ${t - this.start} ms`
+      );
     }
   }
 
   stop() {
     if (this.timeit) {
       const t = performance.now();
-      console.warn(`${this.prefix}:stop ${t - this.start} ms`);
+      console.info(
+        `three-cad-viewer: ${this.prefix}:stop ${t - this.start} ms`
+      );
     }
   }
 }
