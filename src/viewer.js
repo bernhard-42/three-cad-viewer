@@ -118,8 +118,8 @@ class Viewer {
    */
   setRenderDefaults(options) {
     this.ambientIntensity = 0.5;
-    this.defaultOpacity = 0.4;
     this.directIntensity = 0.3;
+    this.defaultOpacity = 0.5;
     this.edgeColor = 0x707070;
     this.normalLen = 0;
 
@@ -699,12 +699,28 @@ class Viewer {
       this.theme,
     );
 
+    this.display.setSliderLimits(this.gridSize / 2);
+
+    this.setClipSlider(
+      0,
+      this.clipSlider0 == -1 ? this.gridSize / 2 : this.clipSlider0,
+      false,
+    );
+    this.setClipSlider(
+      1,
+      this.clipSlider1 == -1 ? this.gridSize / 2 : this.clipSlider1,
+      false,
+    );
+    this.setClipSlider(
+      2,
+      this.clipSlider2 == -1 ? this.gridSize / 2 : this.clipSlider2,
+      false,
+    );
+
     this.setClipNormal(0, options.clipNormal0, false);
     this.setClipNormal(1, options.clipNormal1, false);
     this.setClipNormal(2, options.clipNormal2, false);
-    this.setClipSlider(0, options.clipSlider0, false);
-    this.setClipSlider(1, options.clipSlider1, false);
-    this.setClipSlider(2, options.clipSlider2, false);
+
     this.setClipIntersection(options.clipIntersection, false);
     this.setClipPlaneHelpersCheck(options.clipPlaneHelpers);
 
@@ -1493,10 +1509,6 @@ class Viewer {
     if (value == -1 || value == null) return;
 
     this.display.clipSliders[index].setValue(value, notify);
-    var notifyObject = {};
-    notifyObject[`clip_slider_${index}`] = value;
-
-    this.checkChanges(notifyObject, notify);
   };
 
   /**

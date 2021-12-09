@@ -795,13 +795,12 @@ class Display {
 
   /**
    * Set minimum and maximum of the sliders
+   * @param {number} index - index of the plane: 0,1,2
    * @param {number} limit - the value for both minumum and maximum valaue of the slider
    */
-  setSliders(limits) {
+  setSliderLimits(limit) {
     for (var i = 0; i < 3; i++) {
-      if (limits[i] != -1) {
-        this.clipSliders[i].setSlider(limits[i]);
-      }
+      this.clipSliders[i].setSlider(limit);
     }
   }
 
