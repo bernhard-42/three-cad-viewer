@@ -620,6 +620,7 @@ class Display {
    */
   setClipPlaneHelpers = (e) => {
     const flag = !!e.target.checked;
+    this.setClipPlaneHelpersCheck(flag);
     this.viewer.setClipPlaneHelpers(flag);
   };
 
@@ -630,6 +631,7 @@ class Display {
    */
   setClipPlaneHelpersCheck = (flag) => {
     this.checkElement("tcv_clip_plane_helpers", flag);
+    this.lastPlaneState = flag;
   };
 
   /**
@@ -773,12 +775,14 @@ class Display {
   }
 
   /**
-   * Set minimum and maximumu of the sliders
+   * Set minimum and maximum of the sliders
    * @param {number} limit - the value for both minumum and maximum valaue of the slider
    */
-  setSliders(limit) {
+  setSliders(limits) {
     for (var i = 0; i < 3; i++) {
-      this.clipSliders[i].setSlider(limit);
+      if (limits[i] != -1) {
+        this.clipSliders[i].setSlider(limits[i]);
+      }
     }
   }
 

@@ -54,6 +54,12 @@ class Viewer {
     this.animation = null;
     this.continueAnimation = true;
 
+    this.clipNormals = [
+      [-1, 0, 0],
+      [0, -1, 0],
+      [0, 0, -1]
+    ];
+
     this.camera_distance = 0;
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
@@ -103,6 +109,14 @@ class Viewer {
     this.axes = false;
     this.axes0 = false;
     this.ortho = true;
+    this.clipIntersection = false;
+    this.clipPlaneHelpers = false;
+    this.clipNormal0 = [-1, 0, 0];
+    this.clipNormal1 = [0, -1, 0];
+    this.clipNormal2 = [0, 0, -1];
+    this.clipSlider0 = -1;
+    this.clipSlider1 = -1;
+    this.clipSlider2 = -1;
     this.control = "orbit";
     this.rotateSpeed = 1.0;
     this.zoomSpeed = 0.5;
@@ -134,6 +148,14 @@ class Viewer {
     }
   }
 
+    console.log("- clipIntersection", this.clipIntersection);
+    console.log("- clipPlaneHelpers", this.clipPlaneHelpers);
+    console.log("- clipNormal0", this.clipNormal0);
+    console.log("- clipNormal1", this.clipNormal1);
+    console.log("- clipNormal2", this.clipNormal2);
+    console.log("- clipSlider0", this.clipSlider0);
+    console.log("- clipSlider1", this.clipSlider1);
+    console.log("- clipSlider2", this.clipSlider2);
   // - - - - - - - - - - - - - - - - - - - - - - - -
   // Load Tesselated Shapes
   // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -612,9 +634,17 @@ class Viewer {
       this.theme
     );
 
+    this.setClipNormal(0, options.clipNormal0, false);
+    this.setClipNormal(1, options.clipNormal1, false);
+    this.setClipNormal(2, options.clipNormal2, false);
+    this.setClipSlider(0, options.clipSlider0, false);
+    this.setClipSlider(1, options.clipSlider1, false);
+    this.setClipSlider(2, options.clipSlider2, false);
+    this.setClipIntersection(options.clipIntersection, false);
+    this.setClipPlaneHelpersCheck(options.clipPlaneHelpers);
+
     this.scene.add(this.clipping.planeHelpers);
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
-    this.display.setSliders(this.gridSize / 2);
 
     this.setLocalClipping(false); // only allow clipping when Clipping tab is selected
 
@@ -1269,6 +1299,8 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setClipIntersection = (flag, notify = true) => {
+    if (flag == null) return;
+
     this.clipIntersection = flag;
     this.nestedGroup.setClipIntersection(flag);
     this.display.setClipIntersectionCheck(flag);
@@ -1287,12 +1319,25 @@ class Viewer {
   }
 
   /**
+   * Set clip plane helpers check box
+   * @function
+   * @param {boolean} flag - whether to show clip plane helpers
+   */
+  setClipPlaneHelpersCheck(flag) {
+    if (flag == null) return;
+
+    this.display.setClipPlaneHelpersCheck(flag);
+  }
+
+  /**
    * Show/hide clip plane helpers
    * @function
    * @param {boolean} flag - whether to show clip plane helpers
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setClipPlaneHelpers = (flag, notify = true) => {
+    if (flag == null) return;
+
     this.clipPlaneHelpers = flag;
     this.clipping.planeHelpers.visible = flag;
     this.display.setClipPlaneHelpersCheck(flag);
@@ -1308,7 +1353,7 @@ class Viewer {
    * @returns {boolean} clip plane visibility value.
    **/
   getClipNormal(index) {
-    return this.clipNormal[index];
+    return this.clipNormals[index];
   }
 
   /**
@@ -1319,7 +1364,9 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setClipNormal(index, normal, notify = true) {
-    this.clipNormal[index] = normal;
+    if (normal == null) return;
+
+    this.clipNormals[index] = normal;
 
     this.clipping.setNormal(index, new THREE.Vector3(...normal));
     var notifyObject = {};
@@ -1365,11 +1412,13 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setClipSlider = (index, value, notify = true) => {
-    this.display.clipSliders[index].setValue(value, notify);
-    // var notifyObject = {};
-    // notifyObject[`clip_slider_${index}`] = value;
+    if (value == -1 || value == null) return;
 
-    // this.checkChanges(notifyObject, notify);
+    this.display.clipSliders[index].setValue(value, notify);
+    var notifyObject = {};
+    notifyObject[`clip_slider_${index}`] = value;
+
+    this.checkChanges(notifyObject, notify);
   };
 
   /**
