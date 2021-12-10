@@ -1229,6 +1229,26 @@ class Viewer {
   };
 
   /**
+   * Get default opacity.
+   * @returns {number} opacity value.
+   **/
+  getOpacity() {
+    return this.defaultOpacity;
+  }
+
+  /**
+   * Set the default opacity
+   * @function
+   * @param {number} opacity (between 0.0 and 1.0)
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setOpacity = (opacity, notify = true) => {
+    this.defaultOpacity = opacity;
+    this.nestedGroup.setOpacity(opacity);
+    this.update(false, notify);
+  };
+
+  /**
    * Get whether tools are shown/hidden.
    * @returns {boolean} tools value.
    **/

@@ -46,6 +46,16 @@ class ObjectGroup extends THREE.Group {
     }
   }
 
+  setOpacity(opacity) {
+    if (this.types.front || this.types.back) {
+      this.opacity = opacity;
+      this.types.back.material.opacity = this.opacity;
+      this.types.front.material.opacity = this.opacity;
+      this.types.back.material.needsUpdate = true;
+      this.types.front.material.needsUpdate = true;
+    }
+  }
+
   setShapeVisible(flag) {
     if (this.types.back) {
       this.types.back.visible = flag;
@@ -424,6 +434,11 @@ class NestedGroup {
   setEdgeColor(color) {
     this.edge_color = color;
     this._traverse("setEdgeColor", color);
+  }
+
+  setOpacity(opacity) {
+    this.opacity = opacity;
+    this._traverse("setOpacity", opacity);
   }
 
   setClipIntersection(flag) {
