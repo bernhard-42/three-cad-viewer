@@ -286,7 +286,7 @@ class Display {
     this.treeWidth = options.treeWidth;
     this.setSizes(options);
 
-    this.activeTab = "tab_tree";
+    this.activeTab = "tree";
     this.cadTree.style.display = "block";
     this.cadClip.style.display = "none";
     this.clipSliders = null;
