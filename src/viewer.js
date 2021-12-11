@@ -1532,6 +1532,48 @@ class Viewer {
   };
 
   /**
+   * Get reset location value.
+   * @function
+   * @returns {object} - target, position, quaternion, zoom as object.
+   */
+  getResetLocation = () => {
+    const location = this.controls.getResetLocation();
+    return {
+      target0: location.target0.toArray(),
+      position0: location.position0.toArray(),
+      quaternion0: location.quaternion0.toArray(),
+      zoom0: location.zoom0,
+    };
+  };
+
+  /**
+   * Set reset location value.
+   * @function
+   * @param {number[]} target - camera target as 3 dim Array [x,y,z].
+   * @param {number[]} position - camera position as 3 dim Array [x,y,z].
+   * @param {number[]} quaternion - camera rotation as 4 dim quaternion array [x,y,z,w].
+   * @param {number} zoom - camera zoom value.
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setResetLocation = (target, position, quaternion, zoom, notify = true) => {
+    var location = this.getResetLocation();
+    this.controls.setResetLocation(
+      new THREE.Vector3(...target),
+      new THREE.Vector3(...position),
+      new THREE.Vector4(...quaternion),
+      zoom,
+    );
+    if (notify && this.notifyCallback) {
+      this.notifyCallback({
+        target0: { old: location.target0, new: target },
+        position0: { old: location.position0, new: position },
+        quaternion0: { old: location.quaternion0, new: quaternion },
+        zoom0: { old: location.zoom0, new: zoom },
+      });
+    }
+  };
+
+  /**
    * Replace CadView with an inline png image of the canvas.
    *
    * Note: Only the canvas will be shown, no tools and orientation marker

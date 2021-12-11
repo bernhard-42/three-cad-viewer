@@ -167,6 +167,35 @@ class Controls {
     this.controls.rotateSpeed = val;
   }
 
+  /**
+   * Get reset location value.
+   * @function
+   * @returns {object} - target, position, quaternion, zoom as object.
+   */
+  getResetLocation = () => {
+    return {
+      target0: this.controls.target0.clone(),
+      position0: this.controls.position0.clone(),
+      quaternion0: this.controls.quaternion0.clone(),
+      zoom0: this.controls.zoom0,
+    };
+  };
+
+  /**
+   * Set reset location value.
+   * @function
+   * @param {number[]} target - camera target as 3 dim Array [x,y,z].
+   * @param {number[]} position - camera position as 3 dim Array [x,y,z].
+   * @returns {number[]} camera rotation as 4 dim quaternion array [x,y,z,w].
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setResetLocation = (target, position, quaternion, zoom) => {
+    this.controls.target0.copy(target);
+    this.controls.position0.copy(position);
+    this.controls.quaternion0.copy(quaternion);
+    this.controls.zoom0 = zoom;
+  };
+
   // Rotations for OrbitControls
 
   /**
