@@ -1,5 +1,3 @@
-
-(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 /**
  * @license
  * Copyright 2010-2021 Three.js Authors
@@ -50601,7 +50599,7 @@ class Display {
     this.treeWidth = options.treeWidth;
     this.setSizes(options);
 
-    this.activeTab = "tab_tree";
+    this.activeTab = "tree";
     this.cadTree.style.display = "block";
     this.cadClip.style.display = "none";
     this.clipSliders = null;
@@ -52575,6 +52573,16 @@ class ObjectGroup extends Group {
     }
   }
 
+  setOpacity(opacity) {
+    if (this.types.front || this.types.back) {
+      this.opacity = opacity;
+      this.types.back.material.opacity = this.opacity;
+      this.types.front.material.opacity = this.opacity;
+      this.types.back.material.needsUpdate = true;
+      this.types.front.material.needsUpdate = true;
+    }
+  }
+
   setShapeVisible(flag) {
     if (this.types.back) {
       this.types.back.visible = flag;
@@ -52953,6 +52961,11 @@ class NestedGroup {
   setEdgeColor(color) {
     this.edge_color = color;
     this._traverse("setEdgeColor", color);
+  }
+
+  setOpacity(opacity) {
+    this.opacity = opacity;
+    this._traverse("setOpacity", opacity);
   }
 
   setClipIntersection(flag) {
@@ -55579,6 +55592,35 @@ class Controls {
     this.controls.rotateSpeed = val;
   }
 
+  /**
+   * Get reset location value.
+   * @function
+   * @returns {object} - target, position, quaternion, zoom as object.
+   */
+  getResetLocation = () => {
+    return {
+      target0: this.controls.target0.clone(),
+      position0: this.controls.position0.clone(),
+      quaternion0: this.controls.quaternion0.clone(),
+      zoom0: this.controls.zoom0,
+    };
+  };
+
+  /**
+   * Set reset location value.
+   * @function
+   * @param {number[]} target - camera target as 3 dim Array [x,y,z].
+   * @param {number[]} position - camera position as 3 dim Array [x,y,z].
+   * @returns {number[]} camera rotation as 4 dim quaternion array [x,y,z,w].
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setResetLocation = (target, position, quaternion, zoom) => {
+    this.controls.target0.copy(target);
+    this.controls.position0.copy(position);
+    this.controls.quaternion0.copy(quaternion);
+    this.controls.zoom0 = zoom;
+  };
+
   // Rotations for OrbitControls
 
   /**
@@ -55886,10 +55928,18 @@ class Viewer {
    * @param {Display} display - The Display object.
    * @param {DisplayOptions} options - configuration parameters.
    * @param {NotificationCallback} notifyCallback - The callback to receive changes of viewer parameters.
+   * @param {boolean} updateMarker - enforce to redraw orientation marker after evry ui activity
    */
-  constructor(container, options, notifyCallback, pinAsPngCallback = null) {
+  constructor(
+    container,
+    options,
+    notifyCallback,
+    pinAsPngCallback = null,
+    updateMarker = true,
+  ) {
     this.notifyCallback = notifyCallback;
     this.pinAsPngCallback = pinAsPngCallback;
+    this.updateMarker = updateMarker;
 
     this.hasAnimationLoop = false;
 
@@ -56567,21 +56617,12 @@ class Viewer {
 
     this.display.setSliderLimits(this.gridSize / 2);
 
-    this.setClipSlider(
-      0,
-      this.clipSlider0 == -1 ? this.gridSize / 2 : this.clipSlider0,
-      false,
-    );
-    this.setClipSlider(
-      1,
-      this.clipSlider1 == -1 ? this.gridSize / 2 : this.clipSlider1,
-      false,
-    );
-    this.setClipSlider(
-      2,
-      this.clipSlider2 == -1 ? this.gridSize / 2 : this.clipSlider2,
-      false,
-    );
+    this.clipSlider0 = this.gridSize / 2;
+    this.clipSlider1 = this.gridSize / 2;
+    this.clipSlider2 = this.gridSize / 2;
+    this.setClipSlider(0, this.clipSlider0, true);
+    this.setClipSlider(1, this.clipSlider1, true);
+    this.setClipSlider(2, this.clipSlider2, true);
 
     this.setClipNormal(0, options.clipNormal0, false);
     this.setClipNormal(1, options.clipNormal1, false);
@@ -56646,6 +56687,20 @@ class Viewer {
     this.ready = true;
     this.info.readyMsg(this.gridHelper.ticks, this.control);
 
+    //
+    // notify calculated results
+    //
+
+    if (this.notifyCallback) {
+      this.notifyCallback({
+        tab: { old: null, new: this.display.activeTab },
+        target: { old: null, new: this.controls.target },
+        target0: { old: null, new: this.controls.target0 },
+        clip_normal_0: { old: null, new: this.clipNormal0 },
+        clip_normal_1: { old: null, new: this.clipNormal1 },
+        clip_normal_2: { old: null, new: this.clipNormal2 },
+      });
+    }
     timer.stop();
   }
 
@@ -56739,7 +56794,7 @@ class Viewer {
    */
   setLocalClipping(flag) {
     this.renderer.localClippingEnabled = flag;
-    this.update(false);
+    this.update(this.updateMarker);
   }
 
   /**
@@ -56765,7 +56820,7 @@ class Viewer {
 
     this.checkChanges({ states: states }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -56776,7 +56831,7 @@ class Viewer {
    */
   refreshPlane = (index, value) => {
     this.clipping.setConstant(index, value);
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -56812,7 +56867,7 @@ class Viewer {
     [0, 1].forEach((i) =>
       this.treeview.handleStateChange("leaf", id, i, state[i]),
     );
-    this.update(false, notify);
+    this.update(this.updateMarker, notify);
   };
 
   /**
@@ -56890,7 +56945,7 @@ class Viewer {
 
     this.checkChanges({ axes: flag }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -56904,7 +56959,7 @@ class Viewer {
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -56927,7 +56982,7 @@ class Viewer {
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -56952,7 +57007,7 @@ class Viewer {
 
     this.checkChanges({ axes0: flag }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -56976,7 +57031,7 @@ class Viewer {
 
     this.checkChanges({ transparent: flag }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -57000,7 +57055,7 @@ class Viewer {
 
     this.checkChanges({ black_edges: flag }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -57091,7 +57146,27 @@ class Viewer {
   setEdgeColor = (color, notify = true) => {
     this.edgeColor = color;
     this.nestedGroup.setEdgeColor(color);
-    this.update(false, notify);
+    this.update(this.updateMarker, notify);
+  };
+
+  /**
+   * Get default opacity.
+   * @returns {number} opacity value.
+   **/
+  getOpacity() {
+    return this.defaultOpacity;
+  }
+
+  /**
+   * Set the default opacity
+   * @function
+   * @param {number} opacity (between 0.0 and 1.0)
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setOpacity = (opacity, notify = true) => {
+    this.defaultOpacity = opacity;
+    this.nestedGroup.setOpacity(opacity);
+    this.update(this.updateMarker, notify);
   };
 
   /**
@@ -57111,7 +57186,7 @@ class Viewer {
   setTools = (flag, notify = true) => {
     this.tools = flag;
     this.display.setTools(flag);
-    this.update(false, notify);
+    this.update(this.updateMarker, notify);
   };
 
   /**
@@ -57135,7 +57210,7 @@ class Viewer {
         el.intensity = val;
       }
     }
-    this.update(false, notify);
+    this.update(this.updateMarker, notify);
   };
 
   /**
@@ -57158,7 +57233,7 @@ class Viewer {
         el.intensity = val;
       }
     }
-    this.update(false, notify);
+    this.update(this.updateMarker, notify);
   };
 
   /**
@@ -57268,7 +57343,7 @@ class Viewer {
 
     this.checkChanges({ clip_intersection: flag }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -57304,7 +57379,7 @@ class Viewer {
 
     this.checkChanges({ clip_planes: flag }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -57335,7 +57410,8 @@ class Viewer {
     this.checkChanges(notifyObject, notify);
 
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
-    this.update(false);
+
+    this.update(this.updateMarker);
   }
 
   /**
@@ -57375,6 +57451,48 @@ class Viewer {
     if (value == -1 || value == null) return;
 
     this.display.clipSliders[index].setValue(value, notify);
+  };
+
+  /**
+   * Get reset location value.
+   * @function
+   * @returns {object} - target, position, quaternion, zoom as object.
+   */
+  getResetLocation = () => {
+    const location = this.controls.getResetLocation();
+    return {
+      target0: location.target0.toArray(),
+      position0: location.position0.toArray(),
+      quaternion0: location.quaternion0.toArray(),
+      zoom0: location.zoom0,
+    };
+  };
+
+  /**
+   * Set reset location value.
+   * @function
+   * @param {number[]} target - camera target as 3 dim Array [x,y,z].
+   * @param {number[]} position - camera position as 3 dim Array [x,y,z].
+   * @param {number[]} quaternion - camera rotation as 4 dim quaternion array [x,y,z,w].
+   * @param {number} zoom - camera zoom value.
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setResetLocation = (target, position, quaternion, zoom, notify = true) => {
+    var location = this.getResetLocation();
+    this.controls.setResetLocation(
+      new Vector3(...target),
+      new Vector3(...position),
+      new Vector4(...quaternion),
+      zoom,
+    );
+    if (notify && this.notifyCallback) {
+      this.notifyCallback({
+        target0: { old: location.target0, new: target },
+        position0: { old: location.position0, new: position },
+        quaternion0: { old: location.quaternion0, new: quaternion },
+        zoom0: { old: location.zoom0, new: zoom },
+      });
+    }
   };
 
   /**
