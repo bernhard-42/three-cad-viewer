@@ -701,21 +701,12 @@ class Viewer {
 
     this.display.setSliderLimits(this.gridSize / 2);
 
-    this.setClipSlider(
-      0,
-      this.clipSlider0 == -1 ? this.gridSize / 2 : this.clipSlider0,
-      false,
-    );
-    this.setClipSlider(
-      1,
-      this.clipSlider1 == -1 ? this.gridSize / 2 : this.clipSlider1,
-      false,
-    );
-    this.setClipSlider(
-      2,
-      this.clipSlider2 == -1 ? this.gridSize / 2 : this.clipSlider2,
-      false,
-    );
+    this.clipSlider0 = this.gridSize / 2;
+    this.clipSlider1 = this.gridSize / 2;
+    this.clipSlider2 = this.gridSize / 2;
+    this.setClipSlider(0, this.clipSlider0, true);
+    this.setClipSlider(1, this.clipSlider1, true);
+    this.setClipSlider(2, this.clipSlider2, true);
 
     this.setClipNormal(0, options.clipNormal0, false);
     this.setClipNormal(1, options.clipNormal1, false);
@@ -780,6 +771,20 @@ class Viewer {
     this.ready = true;
     this.info.readyMsg(this.gridHelper.ticks, this.control);
 
+    //
+    // notify calculated results
+    //
+
+    if (this.notifyCallback) {
+      this.notifyCallback({
+        tab: { old: null, new: this.display.activeTab },
+        target: { old: null, new: this.controls.target },
+        target0: { old: null, new: this.controls.target0 },
+        clip_normal_0: { old: null, new: this.clipNormal0 },
+        clip_normal_1: { old: null, new: this.clipNormal1 },
+        clip_normal_2: { old: null, new: this.clipNormal2 },
+      });
+    }
     timer.stop();
   }
 
