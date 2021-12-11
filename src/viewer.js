@@ -20,10 +20,18 @@ class Viewer {
    * @param {Display} display - The Display object.
    * @param {DisplayOptions} options - configuration parameters.
    * @param {NotificationCallback} notifyCallback - The callback to receive changes of viewer parameters.
+   * @param {boolean} updateMarker - enforce to redraw orientation marker after evry ui activity
    */
-  constructor(container, options, notifyCallback, pinAsPngCallback = null) {
+  constructor(
+    container,
+    options,
+    notifyCallback,
+    pinAsPngCallback = null,
+    updateMarker = true,
+  ) {
     this.notifyCallback = notifyCallback;
     this.pinAsPngCallback = pinAsPngCallback;
+    this.updateMarker = updateMarker;
 
     this.hasAnimationLoop = false;
 
@@ -878,7 +886,7 @@ class Viewer {
    */
   setLocalClipping(flag) {
     this.renderer.localClippingEnabled = flag;
-    this.update(false);
+    this.update(this.updateMarker);
   }
 
   /**
@@ -904,7 +912,7 @@ class Viewer {
 
     this.checkChanges({ states: states }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -915,7 +923,7 @@ class Viewer {
    */
   refreshPlane = (index, value) => {
     this.clipping.setConstant(index, value);
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -951,7 +959,7 @@ class Viewer {
     [0, 1].forEach((i) =>
       this.treeview.handleStateChange("leaf", id, i, state[i]),
     );
-    this.update(false, notify);
+    this.update(this.updateMarker, notify);
   };
 
   /**
@@ -1029,7 +1037,7 @@ class Viewer {
 
     this.checkChanges({ axes: flag }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -1043,7 +1051,7 @@ class Viewer {
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -1066,7 +1074,7 @@ class Viewer {
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -1091,7 +1099,7 @@ class Viewer {
 
     this.checkChanges({ axes0: flag }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -1115,7 +1123,7 @@ class Viewer {
 
     this.checkChanges({ transparent: flag }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -1139,7 +1147,7 @@ class Viewer {
 
     this.checkChanges({ black_edges: flag }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -1230,7 +1238,7 @@ class Viewer {
   setEdgeColor = (color, notify = true) => {
     this.edgeColor = color;
     this.nestedGroup.setEdgeColor(color);
-    this.update(false, notify);
+    this.update(this.updateMarker, notify);
   };
 
   /**
@@ -1250,7 +1258,7 @@ class Viewer {
   setOpacity = (opacity, notify = true) => {
     this.defaultOpacity = opacity;
     this.nestedGroup.setOpacity(opacity);
-    this.update(false, notify);
+    this.update(this.updateMarker, notify);
   };
 
   /**
@@ -1270,7 +1278,7 @@ class Viewer {
   setTools = (flag, notify = true) => {
     this.tools = flag;
     this.display.setTools(flag);
-    this.update(false, notify);
+    this.update(this.updateMarker, notify);
   };
 
   /**
@@ -1294,7 +1302,7 @@ class Viewer {
         el.intensity = val;
       }
     }
-    this.update(false, notify);
+    this.update(this.updateMarker, notify);
   };
 
   /**
@@ -1317,7 +1325,7 @@ class Viewer {
         el.intensity = val;
       }
     }
-    this.update(false, notify);
+    this.update(this.updateMarker, notify);
   };
 
   /**
@@ -1427,7 +1435,7 @@ class Viewer {
 
     this.checkChanges({ clip_intersection: flag }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -1463,7 +1471,7 @@ class Viewer {
 
     this.checkChanges({ clip_planes: flag }, notify);
 
-    this.update(false);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -1494,7 +1502,8 @@ class Viewer {
     this.checkChanges(notifyObject, notify);
 
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
-    this.update(false);
+
+    this.update(this.updateMarker);
   }
 
   /**
