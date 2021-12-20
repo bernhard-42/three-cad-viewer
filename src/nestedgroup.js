@@ -6,10 +6,11 @@ import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHel
 import { BoundingBox } from "./bbox.js";
 
 class ObjectGroup extends THREE.Group {
-  constructor(opacity, edge_color) {
+  constructor(opacity, edge_color, renderback) {
     super();
     this.opacity = opacity;
     this.edge_color = edge_color;
+    this.renderback = renderback;
     this.types = { front: null, back: null, edges: null, vertrices: null };
   }
 
@@ -74,7 +75,7 @@ class ObjectGroup extends THREE.Group {
 
   setBackVisible(flag) {
     if (this.types.back) {
-      this.types.back.material.visible = flag;
+      this.types.back.material.visible = this.renderback || flag;
     }
   }
 
@@ -250,7 +251,7 @@ class NestedGroup {
     return group;
   }
 
-  renderShape(shape, color, name) {
+  renderShape(shape, color, renderback, name) {
     const positions =
       shape.vertices instanceof Float32Array
         ? shape.vertices
@@ -264,7 +265,7 @@ class NestedGroup {
         ? shape.triangles
         : new Uint32Array(shape.triangles.flat());
 
-    var group = new ObjectGroup(this.defaultOpacity, this.edgeColor);
+    var group = new ObjectGroup(this.defaultOpacity, this.edgeColor, renderback);
 
     var shapeGeometry = new THREE.BufferGeometry();
     shapeGeometry.setAttribute(
@@ -299,7 +300,7 @@ class NestedGroup {
       depthWrite: !this.transparent,
       depthTest: !this.transparent,
       clipIntersection: false,
-      visible: this.backVisible,
+      visible: renderback || this.backVisible,
     });
 
     const front = new THREE.Mesh(shapeGeometry, frontMaterial);
@@ -353,7 +354,7 @@ class NestedGroup {
           );
           break;
         default:
-          mesh = this.renderShape(shape.shape, shape.color, shape.name);
+          mesh = this.renderShape(shape.shape, shape.color, shape.renderback, shape.name);
       }
       return mesh;
     };
