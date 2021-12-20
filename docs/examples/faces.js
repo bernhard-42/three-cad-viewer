@@ -3549,7 +3549,8 @@ var faces = [
             ]
           ]
         },
-        color: "#cc00cc"
+        color: "#cc00cc",
+        renderback: true
       }
     ],
     loc: null
