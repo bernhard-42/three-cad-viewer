@@ -132,7 +132,7 @@ class Viewer {
     this.normalLen = 0;
 
     for (var option in options) {
-      if (this[option] == null) {
+      if (this[option] === undefined) {
         console.warn(`Unknown option "${option}" to create a viewer - ignored`);
       } else {
         this[option] = options[option];
@@ -176,7 +176,7 @@ class Viewer {
     this.timeit = false;
 
     for (var option in options) {
-      if (this[option] == null) {
+      if (this[option] === undefined) {
         console.warn(`Unknown option ${option} to add shapes - ignored`);
       } else {
         this[option] = options[option];
