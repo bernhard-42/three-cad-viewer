@@ -236,7 +236,7 @@ class Viewer {
    * @param {Shapes} shapes - The Shapes object representing the tessellated CAD object.
    * @returns {THREE.Group} A nested THREE.Group object.
    */
-  _renderTessellatedShapes(shapes) {
+  _renderTessellatedShapes(shapes, states) {
     const nestedGroup = new NestedGroup(
       shapes,
       this.cadWidth,
@@ -246,7 +246,7 @@ class Viewer {
       this.defaultOpacity,
       this.normalLen,
     );
-    nestedGroup.render();
+    nestedGroup.render(states);
     return nestedGroup;
   }
 
@@ -291,7 +291,7 @@ class Viewer {
   renderTessellatedShapes(shapes, states, options) {
     this.setRenderDefaults(options);
     return [
-      this._renderTessellatedShapes(shapes),
+      this._renderTessellatedShapes(shapes, states),
       this._getTree(shapes, states),
     ];
   }
@@ -542,18 +542,6 @@ class Viewer {
   // - - - - - - - - - - - - - - - - - - - - - - - -
 
   /**
-   * Initialize the visibility state of all objects according to the navigation tree settings.
-   */
-  initObjectStates() {
-    for (var key in this.states) {
-      const state = this.states[key];
-      var obj = this.nestedGroup.groups[key];
-      obj.setShapeVisible(state[0] === 1);
-      obj.setEdgesVisible(state[1] === 1);
-    }
-  }
-
-  /**
    * Render a CAD object and build the navigation tree
    * @param {Shapes} shapes - the shapes of the CAD object to be rendered
    * @param {NavTree} tree - The navigation tree object
@@ -573,7 +561,7 @@ class Viewer {
     //
 
     this.nestedGroup = group;
-    this.scene.add(this.nestedGroup.render());
+    this.scene.add(this.nestedGroup.render(states));
 
     this.nestedGroup.setTransparent(this.transparent);
     this.nestedGroup.setBlackEdges(this.blackEdges);
@@ -752,8 +740,6 @@ class Viewer {
       this.theme,
     );
     this.display.addCadTree(this.treeview.render());
-
-    this.initObjectStates();
 
     timer.split("scene done");
 

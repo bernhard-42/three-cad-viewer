@@ -166,7 +166,7 @@ class NestedGroup {
     }
   }
 
-  _renderEdges(edgeList, lineWidth, color) {
+  _renderEdges(edgeList, lineWidth, color, state) {
     var positions = new Float32Array(edgeList.flat().flat());
 
     const lineGeometry = new LineSegmentsGeometry();
@@ -195,7 +195,7 @@ class NestedGroup {
         color == null ? this.edgeColor : color,
       );
     }
-
+    lineMaterial.visible = state == 1;
     lineMaterial.resolution.set(this.width, this.height);
 
     var edges = new LineSegments2(lineGeometry, lineMaterial);
@@ -204,13 +204,13 @@ class NestedGroup {
     return edges;
   }
 
-  renderEdges(edgeList, lineWidth, color, name) {
+  renderEdges(edgeList, lineWidth, color, name, state) {
     var group = new ObjectGroup(
       this.defaultOpacity,
       color == null ? this.edgeColor : color,
     );
 
-    var edges = this._renderEdges(edgeList, lineWidth, color);
+    var edges = this._renderEdges(edgeList, lineWidth, color, state);
     if (name) {
       edges.name = name;
     }
@@ -219,7 +219,7 @@ class NestedGroup {
     return group;
   }
 
-  renderVertices(vertexList, size, color, name) {
+  renderVertices(vertexList, size, color, name, state) {
     var group = new ObjectGroup(
       this.defaultOpacity,
       color == null ? this.edgeColor : color,
@@ -240,6 +240,7 @@ class NestedGroup {
       size: size,
       transparent: true,
       clipIntersection: false,
+      visible: state == 1,
     });
 
     var points = new THREE.Points(geometry, material);
@@ -251,7 +252,7 @@ class NestedGroup {
     return group;
   }
 
-  renderShape(shape, color, renderback, name) {
+  renderShape(shape, color, renderback, name, states) {
     const positions =
       shape.vertices instanceof Float32Array
         ? shape.vertices
@@ -265,7 +266,11 @@ class NestedGroup {
         ? shape.triangles
         : new Uint32Array(shape.triangles.flat());
 
-    var group = new ObjectGroup(this.defaultOpacity, this.edgeColor, renderback);
+    var group = new ObjectGroup(
+      this.defaultOpacity,
+      this.edgeColor,
+      renderback,
+    );
 
     var shapeGeometry = new THREE.BufferGeometry();
     shapeGeometry.setAttribute(
@@ -286,7 +291,7 @@ class NestedGroup {
       depthTest: !this.transparent,
       clipIntersection: false,
       side: THREE.FrontSide,
-      visible: true,
+      visible: states[0] == 1,
     });
 
     const backMaterial = new THREE.MeshBasicMaterial({
@@ -300,7 +305,7 @@ class NestedGroup {
       depthWrite: !this.transparent,
       depthTest: !this.transparent,
       clipIntersection: false,
-      visible: renderback || this.backVisible,
+      visible: states[0] == 1 && (renderback || this.backVisible),
     });
 
     const front = new THREE.Mesh(shapeGeometry, frontMaterial);
@@ -325,7 +330,7 @@ class NestedGroup {
 
     const edgeList = shape.edges;
     if (edgeList.length > 0) {
-      var edges = this._renderEdges(edgeList, 1);
+      var edges = this._renderEdges(edgeList, 1, null, states[1]);
       edges.name = name;
       group.addType(edges, "edges");
     }
@@ -333,7 +338,7 @@ class NestedGroup {
     return group;
   }
 
-  renderLoop(shapes, path) {
+  renderLoop(shapes, path, states) {
     const _render = (shape) => {
       var mesh;
       switch (shape.type) {
@@ -343,6 +348,7 @@ class NestedGroup {
             shape.width,
             shape.color,
             shape.name,
+            states[shape.id][1],
           );
           break;
         case "vertices":
@@ -351,10 +357,17 @@ class NestedGroup {
             shape.size,
             shape.color,
             shape.name,
+            states[shape.id][1],
           );
           break;
         default:
-          mesh = this.renderShape(shape.shape, shape.color, shape.renderback, shape.name);
+          mesh = this.renderShape(
+            shape.shape,
+            shape.color,
+            shape.renderback,
+            shape.name,
+            states[shape.id],
+          );
       }
       return mesh;
     };
@@ -375,7 +388,7 @@ class NestedGroup {
 
     for (var shape of shapes.parts) {
       if (shape.parts) {
-        group.add(this.renderLoop(shape, path));
+        group.add(this.renderLoop(shape, path, states));
       } else {
         const objectGroup = _render(shape);
         this.groups[shape.id] = objectGroup;
@@ -385,8 +398,8 @@ class NestedGroup {
     return group;
   }
 
-  render() {
-    this.rootGroup = this.renderLoop(this.shapes, "");
+  render(states) {
+    this.rootGroup = this.renderLoop(this.shapes, "", states);
     return this.rootGroup;
   }
 
