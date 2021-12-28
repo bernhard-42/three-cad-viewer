@@ -166,7 +166,7 @@
         // control: "orbit",
         ortho: true,
         ticks: 10,
-        transparent: true,
+        // transparent: true,
         // blackEdges: true,
         axes: true,
         // axes0: true,
@@ -200,6 +200,10 @@
       viewer = new Viewer(container, displayOptions, nc);
 
       timer.split("display created");
+
+      examples[0][1]["/bottom/bottom_0"] = [1,0]
+      examples[0][1]["/bottom/top/top_0"] = [0,1]
+      examples[0][1]["/bottom/front_stand/front_stand_0"] = [0,0]
 
       render("hexapod", ...examples[0]);
 
