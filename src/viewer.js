@@ -741,11 +741,13 @@ class Viewer {
     );
     this.display.addCadTree(this.treeview.render());
 
+    this.display.selectTabByName("tree");
+
     timer.split("scene done");
 
     //
     // update UI elements
-    //
+    //    
 
     this.display.updateUI(
       this.axes,
