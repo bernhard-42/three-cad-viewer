@@ -1454,7 +1454,8 @@ class Viewer {
 
     this.clipPlaneHelpers = flag;
     this.clipping.planeHelpers.visible = flag;
-
+    this.display.setClipPlaneHelpersCheck(flag);
+    
     this.checkChanges({ clip_planes: flag }, notify);
 
     this.update(this.updateMarker);
