@@ -58,23 +58,23 @@ class ObjectGroup extends THREE.Group {
   }
 
   setShapeVisible(flag) {
-    if (this.types.back) {
-      this.types.back.visible = flag;
-      this.types.front.visible = flag;
+    this.types.front.material.visible = flag;
+    if (this.types.back && this.renderback) {
+      this.types.back.material.visible = flag;
     }
   }
 
   setEdgesVisible(flag) {
     if (this.types.edges) {
-      this.types.edges.visible = flag;
+      this.types.edges.material.visible = flag;
     }
     if (this.types.vertices) {
-      this.types.vertices.visible = flag;
+      this.types.vertices.material.visible = flag;
     }
   }
 
   setBackVisible(flag) {
-    if (this.types.back) {
+    if (this.types.back && this.types.front.material.visible) {
       this.types.back.material.visible = this.renderback || flag;
     }
   }
@@ -364,7 +364,7 @@ class NestedGroup {
           mesh = this.renderShape(
             shape.shape,
             shape.color,
-            shape.renderback,
+            (shape.renderback == null)? false:shape.renderback,
             shape.name,
             states[shape.id],
           );
