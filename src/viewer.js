@@ -61,7 +61,7 @@ class Viewer {
 
     this.ready = false;
     this.mixer = null;
-    this.animation = null;
+    this.animation = new Animation("|");
     this.continueAnimation = true;
 
     this.clipNormals = [
@@ -94,8 +94,6 @@ class Viewer {
     this.display.addCadView(this.renderer.domElement);
 
     console.debug("three-cad-viewer: WebGL Renderer created");
-
-    this.animation = new Animation("|");
 
     this.display.setupUI(this);
   }
@@ -323,7 +321,7 @@ class Viewer {
    * @param {number} speed - speed of the animation.
    */
   initAnimation(duration, speed) {
-    if (this.animation == null) {
+    if (this.animation == null || this.animation.tracks.lenght == 0) {
       console.error("Animation does not have tracks");
       return;
     }
@@ -346,7 +344,6 @@ class Viewer {
   clearAnimation() {
     if (this.animation) {
       this.animation.dispose();
-      this.animation = null;
     }
     this.display.setAnimationControl(false);
     this.toggleAnimationLoop(false);
