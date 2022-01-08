@@ -1166,6 +1166,7 @@ class Viewer {
    **/
   setCameraZoom(val, notify = true) {
     this.camera.setZoom(val);
+    this.controls.update();
     this.update(true, notify);
   }
 
@@ -1185,6 +1186,7 @@ class Viewer {
    **/
   setCameraPosition(position, relative = false, notify = true) {
     this.camera.setPosition(position, relative);
+    this.controls.update();
     this.update(true, notify);
   }
 
@@ -1203,6 +1205,7 @@ class Viewer {
    **/
   setCameraQuaternion(quaternion, notify = true) {
     this.camera.setQuaternion(quaternion);
+    this.controls.update();
     this.update(true, notify);
   }
 
