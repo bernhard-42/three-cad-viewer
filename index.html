@@ -11,6 +11,8 @@
     <script src="./examples/hexapod.js"></script>
     <script src="./examples/hexapod-mates.js"></script>
     <script src="./examples/box.js"></script>
+    <script src="./examples/longbox.js"></script>
+    <script src="./examples/box-edges.js"></script>
     <script src="./examples/box1.js"></script>
     <script src="./examples/boxes.js"></script>
     <script src="./examples/faces.js"></script>
@@ -39,6 +41,8 @@
         faces,
         edges,
         vertices,
+        longbox,
+        boxEdges
       ];
 
       function render(name, shapes, states) {
@@ -162,8 +166,8 @@
       };
 
       const viewerOptions = {
-        control: "trackball",
-        // control: "orbit",
+        // control: "trackball",
+        control: "orbit",
         ortho: true,
         ticks: 10,
         // transparent: true,
@@ -201,9 +205,9 @@
 
       timer.split("display created");
 
-      examples[0][1]["/bottom/bottom_0"] = [1,0]
-      examples[0][1]["/bottom/top/top_0"] = [0,1]
-      examples[0][1]["/bottom/front_stand/front_stand_0"] = [0,0]
+      examples[1][1]["/bottom/bottom_0"] = [1,0]
+      examples[1][1]["/bottom/top/top_0"] = [0,1]
+      examples[1][1]["/bottom/front_stand/front_stand_0"] = [0,0]
 
       render("hexapod", ...examples[0]);
 
@@ -232,6 +236,8 @@
         <option value="faces">faces</option>
         <option value="edges">edges</option>
         <option value="vertices">vertices</option>
+        <option value="longbox">longbox</option>
+        <option value="box-edges">box-edges</option>
       </select>
     </div>
     <div id="cad_view_001"></div>

@@ -44,8 +44,8 @@ class Camera {
 
     // define the orthographic camera
 
-    const w = distance * 1.3;
-    const h = (distance * 1.3) / aspect;
+    const w = distance * 1.35;
+    const h = (distance * 1.35) / aspect;
 
     this.oCamera = new THREE.OrthographicCamera(
       -w,
