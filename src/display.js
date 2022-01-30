@@ -310,10 +310,7 @@ class Display {
       }
     }
 
-    if (!options.pinning) {
-      const el = this._getElement("tcv_pin");
-      el.style.display = "none";
-    }
+    this.setPinning(options.pinning);
   }
 
   _setupCheckEvent(name, fn, flag) {
@@ -717,6 +714,16 @@ class Display {
     const btn = e.target.className.split(" ")[0].slice(4);
     this.viewer.presetCamera(btn);
   };
+
+
+  /**
+   * Show/hide pinning button
+   * @function
+   * @param {boolean} flag - Whether to show/hide the pinning button
+   */  setPinning(flag) {
+    const el = this._getElement("tcv_pin");
+    el.style.display = flag ? "inline-block" : "none";
+  }
 
   /**
    * Pin screenshot of canvas as PNG
