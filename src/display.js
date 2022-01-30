@@ -465,7 +465,7 @@ class Display {
    * @property {boolean} [axes = false] - show X-, Y-, Z-axes.
    * @property {boolean} [axes0 = false] - show axes at [0,0,0] ot at object center (target).
    * @property {boolean} [ortho = true] - use an orthographic (true) or perspective camera (false)
-   * @property {boolean} [transparent = false] - show CAD object trasparent.
+   * @property {boolean} [transparent = false] - show CAD object transparent.
    * @property {boolean} [blackEdges = false] - show edges in black and not in edgeColor.
    * @property {boolean} [clipIntersection = false] - use intersection clipping
    * @property {boolean} [clipPlaneHelpers = false] - show clipping planes
@@ -670,7 +670,7 @@ class Display {
   };
 
   /**
-   * Checkbox Handler for setting the clip inersection parameter
+   * Checkbox Handler for setting the clip intersection parameter
    * @function
    * @param {*} e
    */
@@ -706,7 +706,7 @@ class Display {
   };
 
   /**
-   * Handler to set camery to a predefined position
+   * Handler to set camera to a predefined position
    * @function
    * @param {Event} e - a DOM click event
    */
@@ -803,7 +803,7 @@ class Display {
   /**
    * Set minimum and maximum of the sliders
    * @param {number} index - index of the plane: 0,1,2
-   * @param {number} limit - the value for both minumum and maximum valaue of the slider
+   * @param {number} limit - the value for both minimum and maximum value of the slider
    */
   setSliderLimits(limit) {
     for (var i = 0; i < 3; i++) {
