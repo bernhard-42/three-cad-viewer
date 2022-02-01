@@ -715,12 +715,12 @@ class Display {
     this.viewer.presetCamera(btn);
   };
 
-
   /**
    * Show/hide pinning button
    * @function
    * @param {boolean} flag - Whether to show/hide the pinning button
-   */  setPinning(flag) {
+   */
+  setPinning(flag) {
     const el = this._getElement("tcv_pin");
     el.style.display = flag ? "inline-block" : "none";
   }
@@ -778,8 +778,10 @@ class Display {
       this.cadClip.style.display = "none";
       this.viewer.nestedGroup.setBackVisible(false);
       this.viewer.setLocalClipping(false);
-      this.lastPlaneState = this.viewer.getClipPlaneHelpers();
+      // copy state since setClipHelpers(false) will set to false
+      var lastPlaneState = this.viewer.getClipPlaneHelpers();
       this.viewer.setClipPlaneHelpers(false);
+      this.lastPlaneState = lastPlaneState;
       changed = true;
     }
     if (tab === "clip" && this.activeTab !== "clip") {
