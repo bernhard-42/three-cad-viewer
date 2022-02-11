@@ -12,13 +12,19 @@ To release a new version, call:
    yarn run build
    ```
 
-3. Publish package
+3. Create docs
+
+   ```shell
+   yarn run docs
+   ```
+
+4. Publish package
 
    ```shell
    npm publish
    ```
 
-4. Push release, e.g. 1.2.5
+5. Push release, e.g. 1.2.5
 
    ```shell
    git tag  v1.2.5
