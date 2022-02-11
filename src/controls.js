@@ -144,6 +144,14 @@ class Controls {
   }
 
   /**
+   * Get the lookAt target of the camera.
+   * @param {number[]} target - camera target as THREE.Vector3.
+   **/
+  setTarget(target) {
+    this.controls.target.copy(target);
+  }
+
+  /**
    * Set the zoom speed.
    * @param {number} val - the speed value.
    **/
