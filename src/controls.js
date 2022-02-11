@@ -184,9 +184,9 @@ class Controls {
   /**
    * Set reset location value.
    * @function
-   * @param {number[]} target - camera target as 3 dim Array [x,y,z].
-   * @param {number[]} position - camera position as 3 dim Array [x,y,z].
-   * @returns {number[]} camera rotation as 4 dim quaternion array [x,y,z,w].
+   * @param {number[]} target - camera target as THREE.Vector3.
+   * @param {number[]} position - camera position as THREE.Vector3.
+   * @returns {number[]} camera rotation as THREE.Quaternion.
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setResetLocation = (target, position, quaternion, zoom) => {
