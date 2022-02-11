@@ -51722,12 +51722,12 @@ class Display {
     this.viewer.presetCamera(btn);
   };
 
-
   /**
    * Show/hide pinning button
    * @function
    * @param {boolean} flag - Whether to show/hide the pinning button
-   */  setPinning(flag) {
+   */
+  setPinning(flag) {
     const el = this._getElement("tcv_pin");
     el.style.display = flag ? "inline-block" : "none";
   }
@@ -51785,8 +51785,10 @@ class Display {
       this.cadClip.style.display = "none";
       this.viewer.nestedGroup.setBackVisible(false);
       this.viewer.setLocalClipping(false);
-      this.lastPlaneState = this.viewer.getClipPlaneHelpers();
+      // copy state since setClipHelpers(false) will set to false
+      var lastPlaneState = this.viewer.getClipPlaneHelpers();
       this.viewer.setClipPlaneHelpers(false);
+      this.lastPlaneState = lastPlaneState;
       changed = true;
     }
     if (tab === "clip" && this.activeTab !== "clip") {
@@ -56291,6 +56293,14 @@ class Controls {
   }
 
   /**
+   * Get the lookAt target of the camera.
+   * @param {number[]} target - camera target as THREE.Vector3.
+   **/
+  setTarget(target) {
+    this.controls.target.copy(target);
+  }
+
+  /**
    * Set the zoom speed.
    * @param {number} val - the speed value.
    **/
@@ -56331,9 +56341,9 @@ class Controls {
   /**
    * Set reset location value.
    * @function
-   * @param {number[]} target - camera target as 3 dim Array [x,y,z].
-   * @param {number[]} position - camera position as 3 dim Array [x,y,z].
-   * @returns {number[]} camera rotation as 4 dim quaternion array [x,y,z,w].
+   * @param {number[]} target - camera target as THREE.Vector3.
+   * @param {number[]} position - camera position as THREE.Vector3.
+   * @returns {number[]} camera rotation as THREE.Quaternion.
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setResetLocation = (target, position, quaternion, zoom) => {
@@ -56795,6 +56805,7 @@ class Viewer {
 
     this.position = null;
     this.quaternion = null;
+    this.target = null;
     this.zoom = null;
     this.zoom0 = 1.0;
 
@@ -57215,7 +57226,7 @@ class Viewer {
       this.cadWidth,
       this.height,
       this.bb_radius,
-      this.bbox.center,
+      options.target == null ? this.bbox.center : options.target,
       this.ortho,
       this.control,
     );
@@ -57226,7 +57237,7 @@ class Viewer {
     this.controls = new Controls(
       this.control,
       this.camera.getCamera(),
-      this.bbox.center,
+      options.target == null ? this.bbox.center : options.target,
       this.renderer.domElement,
       this.rotateSpeed,
       this.zoomSpeed,
@@ -57251,6 +57262,7 @@ class Viewer {
       );
       this.presetCamera("iso", options.zoom);
     }
+    this.controls.update();
 
     // Save the new state again
     this.controls.saveState();
@@ -57374,7 +57386,7 @@ class Viewer {
 
     //
     // update UI elements
-    //    
+    //
 
     this.display.updateUI(
       this.axes,
@@ -57840,6 +57852,57 @@ class Viewer {
   }
 
   /**
+   * Get the current camera target.
+   * @returns {number[]} camera target as 3 dim array array [x,y,z].
+   **/
+  getCameraTarget() {
+    return this.controls.getTarget().toArray();
+  }
+
+  /**
+   * Set camera target.
+   * @param {number[]} target - camera target as 3 dim quaternion array [x,y,z].
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   **/
+  setCameraTarget(target, notify = true) {
+    this.controls.setTarget(new Vector3(...target));
+    this.controls.update();
+    this.update(true, notify);
+  }
+
+  getCameraLocationSettings() {
+    return {
+      position: this.getCameraPosition(),
+      quaternioin: this.getCameraQuaternion(),
+      target: this.getCameraTarget(),
+      zoom: this.getCameraZoom(),
+    };
+  }
+
+  setCameraLocationSettings(
+    position = null,
+    quaternion = null,
+    target = null,
+    zoom = null,
+    notify = true,
+  ) {
+    if (position != null) {
+      this.camera.setPosition(position, false);
+    }
+    if (quaternion != null && this.control === "trackball") {
+      this.camera.setQuaternion(quaternion);
+    }
+    if (target != null) {
+      this.controls.setTarget(new Vector3(...target));
+    }
+    if (zoom != null) {
+      this.camera.setZoom(zoom);
+    }
+    this.controls.update();
+    this.update(true, notify);
+  }
+
+  /**
    * Get default color of the edges.
    * @returns {number} edgeColor value.
    **/
@@ -58087,7 +58150,7 @@ class Viewer {
     this.clipPlaneHelpers = flag;
     this.clipping.planeHelpers.visible = flag;
     this.display.setClipPlaneHelpersCheck(flag);
-    
+
     this.checkChanges({ clip_planes: flag }, notify);
 
     this.update(this.updateMarker);
