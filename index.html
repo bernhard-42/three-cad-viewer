@@ -143,7 +143,7 @@
       }
 
       function nc(change) {
-        console.debug("index.html:", JSON.stringify(change, null, 2));
+        // console.debug("index.html:", JSON.stringify(change, null, 2));
       }
 
       const timeit = false;
@@ -166,8 +166,6 @@
       };
 
       const viewerOptions = {
-        control: "trackball",
-        // control: "orbit",
         ortho: true,
         ticks: 10,
         // transparent: true,
@@ -188,44 +186,60 @@
         panSpeed: 0.5,
         // tools: false,
         timeit: timeit,
-        // - orbit
-        // position: [524.6122374185856, -465.1984023313279, 664.4895404848777],
-        // quaternion: null,
-        // - trackball
-        // position: [465.8782888830603, -697.190536071569, 483.79951494225423],
-        // quaternion: [
-        //   0.4885855242772005, 0.08893791491484508, 0.34760375449313335,
-        //   0.7953275190886141,
-        // ],
-        // zoom: 0.5,
+        // position: [529.033598621696, -60.76490228572615, 833.5255981339967],
+        // quaternion: [0.1279694269733356, 0.17808830219432778, 0.792315727012021, 0.5693366061576142],
+        // target: [133.7552476361796, -193.79076438378323, -47.35882179018034],
+        // zoom: 0.8
       };
 
-      const container = document.getElementById("cad_view_001");
-      viewer = new Viewer(container, displayOptions, nc);
+      function showViewer(control) {
+        const container = document.getElementById("cad_view_001");
+        container.innerHTML = ""
+        viewer = new Viewer(container, displayOptions, nc);
 
-      timer.split("display created");
+        timer.split("display created");
+        
+        // control = "orbit"        
+        viewerOptions.control = control;
+        
+        render(window.selectedExample, ...examples[window.selectedIndex]);
+        
+        timer.stop();
+      }
 
-      examples[1][1]["/bottom/bottom_0"] = [1,0]
-      examples[1][1]["/bottom/top/top_0"] = [0,1]
-      examples[1][1]["/bottom/front_stand/front_stand_0"] = [0,0]
+      // examples[1][1]["/bottom/bottom_0"] = [1,0]
+      // examples[1][1]["/bottom/top/top_0"] = [0,1]
+      // examples[1][1]["/bottom/front_stand/front_stand_0"] = [0,0]
 
-      render("hexapod", ...examples[0]);
+      window.selectedIndex = 0;
+      window.selectedExample = "hexapod";
 
-      timer.stop();
+      showViewer("trackball");
 
       // Enable debugging in browser console
       window.render = render;
       window.examples = examples;
+      window.showViewer = showViewer;
 
       console.log("Loaded", new Date());
     </script>
   </head>
 
   <body>
-    <div id="examples">
+    <span id="control">
+      Control:
+      <select
+        onchange="window.showViewer(this.options.item(this.selectedIndex).text);"
+      >
+        <option value="trackball">trackball</option>
+        <option value="orbit">orbit</option>
+      </select>
+    </span> 
+
+    <span id="examples">
       Examples:
       <select
-        onchange="render(this.options.item(this.selectedIndex).text, ...window.examples[this.selectedIndex]);"
+        onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; render(window.selectedExample, ...window.examples[window.selectedIndex]);"
       >
         <option value="hexapod">hexapod</option>
         <option value="hexapod_mates">hexapod_mates</option>
@@ -239,7 +253,7 @@
         <option value="longbox">longbox</option>
         <option value="box-edges">box-edges</option>
       </select>
-    </div>
+    </span>   
     <div id="cad_view_001"></div>
     <div id="cad_view_002"></div>
   </body>
