@@ -57056,6 +57056,7 @@ class Viewer {
         zoom: this.camera.getZoom(),
         position: this.camera.getPosition().toArray(),
         quaternion: this.camera.getQuaternion().toArray(),
+        target: this.controls.getTarget().toArray(),
       },
       notify,
     );
