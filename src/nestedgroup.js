@@ -167,7 +167,10 @@ class NestedGroup {
   }
 
   _renderEdges(edgeList, lineWidth, color, state) {
-    var positions = new Float32Array(edgeList.flat().flat());
+    var positions =
+      edgeList instanceof Float32Array
+        ? edgeList
+        : new Float32Array(edgeList.flat(2));
 
     const lineGeometry = new LineSegmentsGeometry();
     lineGeometry.setPositions(positions);
@@ -186,8 +189,7 @@ class NestedGroup {
           new THREE.Color(c).toArray(),
           new THREE.Color(c).toArray(),
         ])
-        .flat()
-        .flat();
+        .flat(2);
       lineGeometry.setColors(colors);
       lineMaterial.vertexColors = "VertexColors";
     } else {
@@ -227,7 +229,11 @@ class NestedGroup {
 
     const vertex_color = color == null ? this.edgeColor : color;
 
-    const positions = new Float32Array(vertexList.flat(2));
+    const positions =
+      vertexList instanceof Float32Array
+        ? vertexList
+        : new Float32Array(vertexList.flat());
+
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
       "position",
@@ -364,7 +370,7 @@ class NestedGroup {
           mesh = this.renderShape(
             shape.shape,
             shape.color,
-            (shape.renderback == null)? false:shape.renderback,
+            shape.renderback == null ? false : shape.renderback,
             shape.name,
             states[shape.id],
           );
