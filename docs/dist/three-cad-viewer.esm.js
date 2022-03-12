@@ -57616,7 +57616,7 @@ class Viewer {
     );
     var nearest = null;
     for (var object of objects) {
-      if (object.object.visible) {
+      if (object.object.material.visible) {
         nearest = {
           path: object.object.parent.parent.name.replaceAll("|", "/"),
           name: object.object.name,
