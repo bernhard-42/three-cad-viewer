@@ -71,8 +71,15 @@ const TEMPLATE = `
             <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button"/>
             <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping" type="button"/>
         </div>
+        <div class="tcv_cad_tree_toggles">
+            <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value="1" type="button" />
+            <input class='tcv_collapse_all tcv_btn tcv_small_btn' value="C" type="button" />
+            <input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
+        </div>
         <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-            <div class="tcv_cad_tree_container"></div>
+            <div class="tcv_cad_tree_container">
+              <div class="tcv_cad_tree_container"></div>
+            </div>
             <div class="tcv_cad_clip_container">
                 <div class="tcv_slider_group">
                     <div>
@@ -136,17 +143,22 @@ const TEMPLATE = `
         
         <div class="tcv_cad_help tcv_round">
           <table class="tcv_cad_help_layout">
-            <tr><td><b>Rotate</b></td><td>&lt;left mouse button&gt;</td></tr>
-            <tr><td><b>Rotate up / down</b></td><td>&lt;Ctrl&gt; + &lt;left mouse button&gt;</td></tr>
-            <tr><td><b>Rotate left / right</b></td><td>&lt;Meta&gt; + &lt;left mouse button&gt;</td></tr>
-            <tr><td><b>Pan</b></td><td>&lt;Shift&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td></tr>
-            <tr><td><b>Zoom</b></td><td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td></tr>
+            <tr><td></td><td><b>Mouse Navigation</b></td></tr>
+            <tr><td>Rotate</td><td>&lt;left mouse button&gt;</td></tr>
+            <tr><td>Rotate up / down</td><td>&lt;Ctrl&gt; + &lt;left mouse button&gt;</td></tr>
+            <tr><td>Rotate left / right</td><td>&lt;Meta&gt; + &lt;left mouse button&gt;</td></tr>
+            <tr><td>Pan</td><td>&lt;Shift&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td></tr>
+            <tr><td>Zoom</td><td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td></tr>
             
-            <tr><td><b>- - - </b></td><td></td></tr>
+            <tr><td></td><td><b>Mouse Selection</b></td></tr>
+            <tr><td>Pick element</td><td>&lt;left mouse button&gt; double click</td></tr>
+            <tr><td>Hide element</td><td>&lt;Meta&gt; + &lt;left mouse button&gt; double click</td></tr>
 
-            <tr><td><b>Pick element</b></td><td>&lt;left mouse button&gt; double click</td></tr>
-            <tr><td><b>Hide element</b></td><td>&lt;Meta&gt; + &lt;left mouse button&gt; double click</td></tr>
-          </table>
+            <tr><td></td><td><b>CAD Object Tree</b></td></tr>
+            <tr><td>Collapse single leafs</td><td>Button '1' (all nodes with one leaf only)</td></tr>
+            <tr><td>Collapse all nodes</td><td>Button 'C'</td></tr>
+            <tr><td>Expand all nodes</td><td>Button 'E'</td></tr>
+            </table>
         </div>
     </div>
     </div>
@@ -259,6 +271,7 @@ class Display {
     this.cadTree = this.container.getElementsByClassName(
       "tcv_cad_tree_container",
     )[0];
+    this.cadTreeToggles = this.container.getElementsByClassName("tcv_cad_tree_toggles")[0];
     this.cadClip = this.container.getElementsByClassName(
       "tcv_cad_clip_container",
     )[0];
@@ -418,7 +431,11 @@ class Display {
     buttons.forEach((name) => {
       this._setupClickEvent(name, this.setView);
     });
-
+  
+    this._setupClickEvent("tcv_collapse_singles", this.collapseNodes1);
+    this._setupClickEvent("tcv_collapse_all", this.collapseNodes);
+    this._setupClickEvent("tcv_expand", this.expandNodes);
+    
     this._setupClickEvent("tcv_pin", this.pinAsPng);
     this._setupClickEvent("tcv_help", this.toggleHelp);
     this.help_shown = true;
@@ -775,6 +792,7 @@ class Display {
     var changed = false;
     if (tab === "tree" && this.activeTab !== "tree") {
       this.cadTree.style.display = "block";
+      this.cadTreeToggles.style.display = "block";
       this.cadClip.style.display = "none";
       this.viewer.nestedGroup.setBackVisible(false);
       this.viewer.setLocalClipping(false);
@@ -786,6 +804,7 @@ class Display {
     }
     if (tab === "clip" && this.activeTab !== "clip") {
       this.cadTree.style.display = "none";
+      this.cadTreeToggles.style.display = "none";
       this.cadClip.style.display = "block";
       this.viewer.nestedGroup.setBackVisible(true);
       this.viewer.setLocalClipping(true);
@@ -801,6 +820,37 @@ class Display {
       this.tabClip.classList.toggle("tcv_tab-unselected");
     }
   }
+  
+  /**
+   * Collapse all nodes with one leaf only
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  // eslint-disable-next-line no-unused-vars
+  collapseNodes1 = (e) => {
+    this.viewer.treeview.expandNodes(2);
+    this.viewer.treeview.collapseNodes(1);
+  };
+
+  /**
+   * Collapse all nodes
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  // eslint-disable-next-line no-unused-vars
+  collapseNodes = (e) => {
+    this.viewer.treeview.collapseNodes(2);    
+  };
+
+  /**
+   * Expand all nodes
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  // eslint-disable-next-line no-unused-vars
+  expandNodes = (e) => {
+    this.viewer.treeview.expandNodes(2);
+  };
 
   /**
    * Set minimum and maximum of the sliders

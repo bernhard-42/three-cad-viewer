@@ -739,8 +739,13 @@ class Viewer {
       this.setObjects,
       this.theme,
     );
+    
     this.display.addCadTree(this.treeview.render());
-
+    
+    if ([1,2].includes(options.collapse)) {
+      this.treeview.collapseNodes(options.collapse);
+    }
+    
     this.display.selectTabByName("tree");
 
     timer.split("scene done");

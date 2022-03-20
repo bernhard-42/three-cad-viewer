@@ -30,6 +30,12 @@ canvas {
   margin: 2px;
 }
 
+.tcv_cad_tree_toggles {
+  text-align: right;
+  margin-right: 0px;
+  margin-bottom: 3px;
+}
+
 .tcv_cad_tree {
   display: flex;
   flex-direction: column;
@@ -147,7 +153,8 @@ th {
 
 .tcv_cad_help_layout {
   border-collapse: separate;
-  border-spacing: 4px;}
+  border-spacing: 4px;
+}
 
 .tcv_round {
   box-sizing: border-box;
@@ -184,6 +191,14 @@ th {
   padding: 0px;
 }
 
+.tcv_small_btn {
+  width: 14px !important;
+  height: 14px !important;
+  font-size: 11px !important;
+  color: var(--tcv-font-color);
+  border: 1px solid var(--tcv-bg-highligth-color);
+}
+
 .tcv_btn:hover {
   box-shadow: 1px 1px 1px 0 var(--tcv-shadow);
   background-color: var(--tcv-bg-highligth-color);
@@ -214,7 +229,7 @@ input[type="button"] {
   display: inline-block;
   padding: 0px;
   border: none;
-  margin-bottom: 6px;
+  /* margin-bottom: 6px; */
   background-color: var(--tcv-bg-color);
   color: var(--tcv-font-color);
   font-size: 14px;
@@ -285,6 +300,10 @@ input[type="button"] {
 
 .tcv_slider_group {
   margin-bottom: 10px;
+}
+
+.tcv_cad_clip_container {
+  margin-top: 6px;
 }
 
 .tcv_clip_checks {

@@ -88,7 +88,7 @@ class TreeView {
     var li = tag("li");
     var lbl = tag("span", ["tcv_tree_label"]);
     lbl.innerHTML = model.name;
-    var entry = tag("span", ["tcv_node_entry"]);
+    var entry = tag("span", ["tcv_node_entry"], {"id": model.id});
     if (model.type === "node") {
       var span = tag("span", ["tcv_node_entry_wrap"]);
       span.appendChild(tag("span", ["tcv_t-caret", "tcv_t-caret-down"]));
@@ -150,6 +150,19 @@ class TreeView {
     return li;
   }
 
+  toggleTreeNode(el, collapse) {
+    if (collapse == null){
+      el.querySelector(".tcv_nested").classList.toggle("tcv_active");
+      el.getElementsByClassName("tcv_t-caret")[0].classList.toggle("tcv_t-caret-down");
+    } else if (collapse) {
+      el.querySelector(".tcv_nested").classList.remove("tcv_active");
+      el.getElementsByClassName("tcv_t-caret")[0].classList.remove("tcv_t-caret-down");
+    } else {
+      el.querySelector(".tcv_nested").classList.add("tcv_active");
+      el.getElementsByClassName("tcv_t-caret")[0].classList.add("tcv_t-caret-down");
+    }
+  }
+
   render() {
     this.container = tag("ul", ["tcv_toplevel"]);
     this.container.appendChild(this.toHtml(this.treeModel));
@@ -161,11 +174,7 @@ class TreeView {
     var toggler = this.container.getElementsByClassName("tcv_t-caret");
     for (var i = 0; i < toggler.length; i++) {
       toggler[i].addEventListener("click", (e) => {
-        // jshint ignore:line
-        e.target.parentElement.parentElement
-          .querySelector(".tcv_nested")
-          .classList.toggle("tcv_active");
-        e.target.classList.toggle("tcv_t-caret-down");
+        this.toggleTreeNode(e.target.parentElement.parentElement, null);
       });
     }
     return this.container;
@@ -222,6 +231,29 @@ class TreeView {
       state = model.states[icon_id];
     }
     return state;
+  }
+
+  _toggleNodes(mode, collapse) {
+    var walk = (obj) => {
+      if (obj.type == "node") {
+        if(((mode == 1) && (obj.children.length == 1)) || (mode == 2)) {
+          var el = document.getElementById(obj.id).parentElement.parentElement;
+          this.toggleTreeNode(el, collapse);
+        }
+        for (var o of obj.children) {
+          walk(o);
+        }
+      }
+    };
+    walk(this.tree);
+  }
+
+  collapseNodes(mode) {
+    this._toggleNodes(mode, true);
+  }
+
+  expandNodes(mode) {
+    this._toggleNodes(mode, false);
   }
 
   getIcon(icon_id, state) {
