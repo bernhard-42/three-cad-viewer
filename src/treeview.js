@@ -267,6 +267,14 @@ class TreeView {
     );
   }
 
+  hideAll() {
+    [0,1].forEach(i => this.setState("node", this.treeModel.id, i, 0));
+  }
+
+  showAll() {
+    [0,1].forEach(i => this.setState("node", this.treeModel.id, i, 1));
+  }
+
   setState(type, id, icon_id, state) {
     this.handleStateChange(type, id, icon_id, state);
   }

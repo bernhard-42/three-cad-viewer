@@ -153,6 +153,7 @@ const TEMPLATE = `
             <tr><td></td><td><b>Mouse Selection</b></td></tr>
             <tr><td>Pick element</td><td>&lt;left mouse button&gt; double click</td></tr>
             <tr><td>Hide element</td><td>&lt;Meta&gt; + &lt;left mouse button&gt; double click</td></tr>
+            <tr><td>Isolate element</td><td>&lt;Shift&gt; + &lt;left mouse button&gt; double click</td></tr>
 
             <tr><td></td><td><b>CAD Object Tree</b></td></tr>
             <tr><td>Collapse single leafs</td><td>Button '1' (all nodes with one leaf only)</td></tr>
