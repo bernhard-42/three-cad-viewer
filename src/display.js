@@ -272,7 +272,9 @@ class Display {
     this.cadTree = this.container.getElementsByClassName(
       "tcv_cad_tree_container",
     )[0];
-    this.cadTreeToggles = this.container.getElementsByClassName("tcv_cad_tree_toggles")[0];
+    this.cadTreeToggles = this.container.getElementsByClassName(
+      "tcv_cad_tree_toggles",
+    )[0];
     this.cadClip = this.container.getElementsByClassName(
       "tcv_cad_clip_container",
     )[0];
@@ -432,11 +434,11 @@ class Display {
     buttons.forEach((name) => {
       this._setupClickEvent(name, this.setView);
     });
-  
+
     this._setupClickEvent("tcv_collapse_singles", this.collapseNodes1);
     this._setupClickEvent("tcv_collapse_all", this.collapseNodes);
     this._setupClickEvent("tcv_expand", this.expandNodes);
-    
+
     this._setupClickEvent("tcv_pin", this.pinAsPng);
     this._setupClickEvent("tcv_help", this.toggleHelp);
     this.help_shown = true;
@@ -821,7 +823,7 @@ class Display {
       this.tabClip.classList.toggle("tcv_tab-unselected");
     }
   }
-  
+
   /**
    * Collapse all nodes with one leaf only
    * @function
@@ -840,7 +842,7 @@ class Display {
    */
   // eslint-disable-next-line no-unused-vars
   collapseNodes = (e) => {
-    this.viewer.treeview.collapseNodes(2);    
+    this.viewer.treeview.collapseNodes(2);
   };
 
   /**
