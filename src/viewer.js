@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { Display } from "./display.js";
-import { NestedGroup } from "./nestedgroup.js";
+import { NestedGroup, ObjectGroup } from "./nestedgroup.js";
 import { Grid } from "./grid.js";
 import { AxesHelper } from "./axes.js";
 import { OrientationMarker } from "./orientation.js";
@@ -321,7 +321,7 @@ class Viewer {
    * @param {number} duration - overall duration of the anmiation.
    * @param {number} speed - speed of the animation.
    */
-  initAnimation(duration, speed) {
+  initAnimation(duration, speed, repeat = true) {
     if (this.animation == null || this.animation.tracks.lenght == 0) {
       console.error("Animation does not have tracks");
       return;
@@ -336,6 +336,7 @@ class Viewer {
       this.nestedGroup.rootGroup,
       duration,
       speed,
+      repeat,
     );
     this.display.resetAnimationSlider();
   }
@@ -1676,6 +1677,24 @@ class Viewer {
       reader.readAsDataURL(blob);
     });
   };
+
+  explode() {
+    this.clearAnimation();
+    const duration = 2;
+    const speed = 1;
+    for (var id in this.nestedGroup.groups) {
+      if (!(this.nestedGroup.groups[id] instanceof ObjectGroup)) {
+        var v = this.nestedGroup.groups[id].position;
+        this.addAnimationTrack(
+          id,
+          "t",
+          [0, duration],
+          [[0, 0, 0], v.toArray()],
+        );
+      }
+    }
+    this.initAnimation(duration, speed, false);
+  }
 }
 
 export { Viewer };

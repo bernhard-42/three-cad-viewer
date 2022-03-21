@@ -479,4 +479,4 @@ class NestedGroup {
   }
 }
 
-export { NestedGroup };
+export { NestedGroup, ObjectGroup };

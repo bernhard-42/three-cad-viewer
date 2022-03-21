@@ -55,6 +55,9 @@ const TEMPLATE = `
     <span class="tcv_tooltip"  data-tooltip="Toggle black edges">
         <span class="tcv_label">Black edges</span><input class='tcv_black_edges tcv_check' type="checkbox" />
     </span>
+    <span class="tcv_tooltip"  data-tooltip="Explode assembly">
+        <span class="tcv_label">Explode</span><input class='tcv_explode tcv_check' type="checkbox" />
+    </span>
     <span class="tcv_align_right">
       <span class="tcv_tooltip"  data-tooltip="Toggle help">
           <input class='tcv_help tcv_btn' type="button" />
@@ -420,6 +423,8 @@ class Display {
       viewer.blackEdges,
     );
 
+    this._setupCheckEvent("tcv_explode", this.setExplode);
+
     this._setupClickEvent("tcv_reset", this.reset);
     this._setupClickEvent("tcv_resize", this.resize);
 
@@ -644,6 +649,20 @@ class Display {
   setBlackEdges = (e) => {
     const flag = !!e.target.checked;
     this.viewer.setBlackEdges(flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the black edges parameter
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setExplode = (e) => {
+    const flag = !!e.target.checked;
+    if (flag) {
+      this.viewer.explode();
+    } else {
+      this.viewer.clearAnimation();
+    }
   };
 
   /**

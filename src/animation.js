@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { LoopOnce } from "three";
 
 const valid_transforms = ["t", "tx", "ty", "tz", "q", "rx", "ry", "rz"];
 
@@ -57,17 +58,17 @@ class Animation {
           break;
         case "tx":
           newValues = values.map((v) =>
-            position.clone().add(new THREE.Vector3(v, 0, 0)).toArray(),
+            position.add(new THREE.Vector3(v, 0, 0)).toArray(),
           );
           break;
         case "ty":
           newValues = values.map((v) =>
-            position.clone().add(new THREE.Vector3(0, v, 0)).toArray(),
+            position.add(new THREE.Vector3(0, v, 0)).toArray(),
           );
           break;
         case "tz":
           newValues = values.map((v) =>
-            position.clone().add(new THREE.Vector3(0, 0, v)).toArray(),
+            position.add(new THREE.Vector3(0, 0, v)).toArray(),
           );
           break;
         default:
@@ -76,7 +77,7 @@ class Animation {
       }
 
       this.tracks.push(
-        new THREE.NumberKeyframeTrack(
+        new THREE.VectorKeyframeTrack(
           selector + ".position",
           times,
           newValues.flat(),
@@ -109,7 +110,7 @@ class Animation {
     }
   }
 
-  animate(root, duration, speed) {
+  animate(root, duration, speed, repeat) {
     this.clip = new THREE.AnimationClip("track", duration, this.tracks);
     this.mixer = new THREE.AnimationMixer(root);
     this.mixer.timeScale = speed;
@@ -118,7 +119,7 @@ class Animation {
     // this.mixer.addEventListener('loop', (e) => { console.log("loop", e) });
 
     this.clipAction = this.mixer.clipAction(this.clip);
-
+    this.clipAction.setLoop(repeat ? THREE.LoopRepeat : THREE.LoopPingPong);
     return this.clipAction;
   }
 
