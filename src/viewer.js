@@ -740,10 +740,10 @@ class Viewer {
       this.setObjects,
       this.theme,
     );
-    
+
     this.display.addCadTree(this.treeview.render());
-    
-    if ([1,2].includes(options.collapse)) {
+
+    if ([1, 2].includes(options.collapse)) {
       this.treeview.collapseNodes(options.collapse);
     }
 
@@ -997,11 +997,11 @@ class Viewer {
         },
       });
       var update = {};
-      
+
       if (e.metaKey) {
         update[`${nearest.path}/${nearest.name}`] = [0, 0];
         this.setStates(update);
-      } else if(e.shiftKey) {
+      } else if (e.shiftKey) {
         this.treeview.hideAll();
         update[`${nearest.path}/${nearest.name}`] = [1, 1];
         this.setStates(update);
