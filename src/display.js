@@ -904,10 +904,18 @@ class Display {
     this.animationSlider.value = 1000 * currentTime;
   };
 
+  /**
+   * Handler for the animation slider
+   * @function
+   * @param {Event} e - a DOM click event
+   */
   animationChange = (e) => {
     this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
   };
 
+  /**
+   * Reset animation slider to 0
+   */
   resetAnimationSlider() {
     this.animationSlider.value = 0;
   }

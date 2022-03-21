@@ -99,8 +99,15 @@ const TEMPLATE = `
             &lt;input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button"/>
             &lt;input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping" type="button"/>
         &lt;/div>
+        &lt;div class="tcv_cad_tree_toggles">
+            &lt;input class='tcv_collapse_singles tcv_btn tcv_small_btn' value="1" type="button" />
+            &lt;input class='tcv_collapse_all tcv_btn tcv_small_btn' value="C" type="button" />
+            &lt;input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
+        &lt;/div>
         &lt;div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-            &lt;div class="tcv_cad_tree_container">&lt;/div>
+            &lt;div class="tcv_cad_tree_container">
+              &lt;div class="tcv_cad_tree_container">&lt;/div>
+            &lt;/div>
             &lt;div class="tcv_cad_clip_container">
                 &lt;div class="tcv_slider_group">
                     &lt;div>
@@ -157,6 +164,7 @@ const TEMPLATE = `
     &lt;/div>
     &lt;div class="tcv_cad_view">
         &lt;div class="tcv_cad_animation tcv_round">
+            &lt;span>&lt;input type="range" min="0" max="1000" value="0" class="tcv_animation_slider tcv_clip_slider">&lt;/span>
             &lt;span class="tcv_tooltip"  data-tooltip="Play animation">&lt;input class='tcv_play tcv_btn' type="button" />&lt;/span>
             &lt;span class="tcv_tooltip"  data-tooltip="Pause animation">&lt;input class='tcv_pause tcv_btn' type="button" />&lt;/span>
             &lt;span class="tcv_tooltip"  data-tooltip="Stop and reset animation">&lt;input class='tcv_stop tcv_btn' type="button" />&lt;/span>
@@ -164,17 +172,23 @@ const TEMPLATE = `
         
         &lt;div class="tcv_cad_help tcv_round">
           &lt;table class="tcv_cad_help_layout">
-            &lt;tr>&lt;td>&lt;b>Rotate&lt;/b>&lt;/td>&lt;td>&amp;lt;left mouse button&amp;gt;&lt;/td>&lt;/tr>
-            &lt;tr>&lt;td>&lt;b>Rotate up / down&lt;/b>&lt;/td>&lt;td>&amp;lt;Ctrl&amp;gt; + &amp;lt;left mouse button&amp;gt;&lt;/td>&lt;/tr>
-            &lt;tr>&lt;td>&lt;b>Rotate left / right&lt;/b>&lt;/td>&lt;td>&amp;lt;Meta&amp;gt; + &amp;lt;left mouse button&amp;gt;&lt;/td>&lt;/tr>
-            &lt;tr>&lt;td>&lt;b>Pan&lt;/b>&lt;/td>&lt;td>&amp;lt;Shift&amp;gt; + &amp;lt;left mouse button&amp;gt; or &amp;lt;right mouse button&amp;gt;&lt;/td>&lt;/tr>
-            &lt;tr>&lt;td>&lt;b>Zoom&lt;/b>&lt;/td>&lt;td>&amp;lt;mouse wheel&amp;gt; or &amp;lt;middle mouse button&amp;gt;&lt;/td>&lt;/tr>
+            &lt;tr>&lt;td>&lt;/td>&lt;td>&lt;b>Mouse Navigation&lt;/b>&lt;/td>&lt;/tr>
+            &lt;tr>&lt;td>Rotate&lt;/td>&lt;td>&amp;lt;left mouse button&amp;gt;&lt;/td>&lt;/tr>
+            &lt;tr>&lt;td>Rotate up / down&lt;/td>&lt;td>&amp;lt;Ctrl&amp;gt; + &amp;lt;left mouse button&amp;gt;&lt;/td>&lt;/tr>
+            &lt;tr>&lt;td>Rotate left / right&lt;/td>&lt;td>&amp;lt;Meta&amp;gt; + &amp;lt;left mouse button&amp;gt;&lt;/td>&lt;/tr>
+            &lt;tr>&lt;td>Pan&lt;/td>&lt;td>&amp;lt;Shift&amp;gt; + &amp;lt;left mouse button&amp;gt; or &amp;lt;right mouse button&amp;gt;&lt;/td>&lt;/tr>
+            &lt;tr>&lt;td>Zoom&lt;/td>&lt;td>&amp;lt;mouse wheel&amp;gt; or &amp;lt;middle mouse button&amp;gt;&lt;/td>&lt;/tr>
             
-            &lt;tr>&lt;td>&lt;b>- - - &lt;/b>&lt;/td>&lt;td>&lt;/td>&lt;/tr>
+            &lt;tr>&lt;td>&lt;/td>&lt;td>&lt;b>Mouse Selection&lt;/b>&lt;/td>&lt;/tr>
+            &lt;tr>&lt;td>Pick element&lt;/td>&lt;td>&amp;lt;left mouse button&amp;gt; double click&lt;/td>&lt;/tr>
+            &lt;tr>&lt;td>Hide element&lt;/td>&lt;td>&amp;lt;Meta&amp;gt; + &amp;lt;left mouse button&amp;gt; double click&lt;/td>&lt;/tr>
+            &lt;tr>&lt;td>Isolate element&lt;/td>&lt;td>&amp;lt;Shift&amp;gt; + &amp;lt;left mouse button&amp;gt; double click&lt;/td>&lt;/tr>
 
-            &lt;tr>&lt;td>&lt;b>Pick element&lt;/b>&lt;/td>&lt;td>&amp;lt;left mouse button&amp;gt; double click&lt;/td>&lt;/tr>
-            &lt;tr>&lt;td>&lt;b>Hide element&lt;/b>&lt;/td>&lt;td>&amp;lt;Meta&amp;gt; + &amp;lt;left mouse button&amp;gt; double click&lt;/td>&lt;/tr>
-          &lt;/table>
+            &lt;tr>&lt;td>&lt;/td>&lt;td>&lt;b>CAD Object Tree&lt;/b>&lt;/td>&lt;/tr>
+            &lt;tr>&lt;td>Collapse single leafs&lt;/td>&lt;td>Button '1' (all nodes with one leaf only)&lt;/td>&lt;/tr>
+            &lt;tr>&lt;td>Collapse all nodes&lt;/td>&lt;td>Button 'C'&lt;/td>&lt;/tr>
+            &lt;tr>&lt;td>Expand all nodes&lt;/td>&lt;td>Button 'E'&lt;/td>&lt;/tr>
+            &lt;/table>
         &lt;/div>
     &lt;/div>
     &lt;/div>
@@ -286,6 +300,9 @@ class Display {
     this.cadView = this.container.getElementsByClassName("tcv_cad_view")[0];
     this.cadTree = this.container.getElementsByClassName(
       "tcv_cad_tree_container",
+    )[0];
+    this.cadTreeToggles = this.container.getElementsByClassName(
+      "tcv_cad_tree_toggles",
     )[0];
     this.cadClip = this.container.getElementsByClassName(
       "tcv_cad_clip_container",
@@ -447,6 +464,10 @@ class Display {
       this._setupClickEvent(name, this.setView);
     });
 
+    this._setupClickEvent("tcv_collapse_singles", this.collapseNodes1);
+    this._setupClickEvent("tcv_collapse_all", this.collapseNodes);
+    this._setupClickEvent("tcv_expand", this.expandNodes);
+
     this._setupClickEvent("tcv_pin", this.pinAsPng);
     this._setupClickEvent("tcv_help", this.toggleHelp);
     this.help_shown = true;
@@ -483,6 +504,11 @@ class Display {
     this._setupClickEvent("tcv_play", this.controlAnimation, false);
     this._setupClickEvent("tcv_pause", this.controlAnimation, false);
     this._setupClickEvent("tcv_stop", this.controlAnimation, false);
+    this.animationSlider = this.container.getElementsByClassName(
+      "tcv_animation_slider",
+    )[0];
+    this.animationSlider.value = 0;
+    this.animationSlider.addEventListener("input", this.animationChange);
     this.setAnimationControl(false);
 
     this.setHelp(false);
@@ -803,6 +829,7 @@ class Display {
     var changed = false;
     if (tab === "tree" &amp;&amp; this.activeTab !== "tree") {
       this.cadTree.style.display = "block";
+      this.cadTreeToggles.style.display = "block";
       this.cadClip.style.display = "none";
       this.viewer.nestedGroup.setBackVisible(false);
       this.viewer.setLocalClipping(false);
@@ -814,6 +841,7 @@ class Display {
     }
     if (tab === "clip" &amp;&amp; this.activeTab !== "clip") {
       this.cadTree.style.display = "none";
+      this.cadTreeToggles.style.display = "none";
       this.cadClip.style.display = "block";
       this.viewer.nestedGroup.setBackVisible(true);
       this.viewer.setLocalClipping(true);
@@ -829,6 +857,37 @@ class Display {
       this.tabClip.classList.toggle("tcv_tab-unselected");
     }
   }
+
+  /**
+   * Collapse all nodes with one leaf only
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  // eslint-disable-next-line no-unused-vars
+  collapseNodes1 = (e) => {
+    this.viewer.treeview.expandNodes(2);
+    this.viewer.treeview.collapseNodes(1);
+  };
+
+  /**
+   * Collapse all nodes
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  // eslint-disable-next-line no-unused-vars
+  collapseNodes = (e) => {
+    this.viewer.treeview.collapseNodes(2);
+  };
+
+  /**
+   * Expand all nodes
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  // eslint-disable-next-line no-unused-vars
+  expandNodes = (e) => {
+    this.viewer.treeview.expandNodes(2);
+  };
 
   /**
    * Set minimum and maximum of the sliders
@@ -868,7 +927,26 @@ class Display {
   controlAnimation = (e) => {
     const btn = e.target.className.split(" ")[0].slice(4);
     this.viewer.controlAnimation(btn);
+
+    var currentTime = this.viewer.animation.getRelativeTime();
+    this.animationSlider.value = 1000 * currentTime;
   };
+
+  /**
+   * Handler for the animation slider
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  animationChange = (e) => {
+    this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
+  };
+
+  /**
+   * Reset animation slider to 0
+   */
+  resetAnimationSlider() {
+    this.animationSlider.value = 0;
+  }
 
   /**
    * Show or hide help dialog
@@ -906,7 +984,7 @@ export { Display };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Mar 12 2022 19:18:29 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Mar 21 2022 11:50:30 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

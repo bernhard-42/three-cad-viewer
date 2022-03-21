@@ -1,3 +1,5 @@
+
+(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 /**
  * @license
  * Copyright 2010-2022 Three.js Authors
@@ -51078,8 +51080,15 @@ const TEMPLATE = `
             <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button"/>
             <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping" type="button"/>
         </div>
+        <div class="tcv_cad_tree_toggles">
+            <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value="1" type="button" />
+            <input class='tcv_collapse_all tcv_btn tcv_small_btn' value="C" type="button" />
+            <input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
+        </div>
         <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-            <div class="tcv_cad_tree_container"></div>
+            <div class="tcv_cad_tree_container">
+              <div class="tcv_cad_tree_container"></div>
+            </div>
             <div class="tcv_cad_clip_container">
                 <div class="tcv_slider_group">
                     <div>
@@ -51136,6 +51145,7 @@ const TEMPLATE = `
     </div>
     <div class="tcv_cad_view">
         <div class="tcv_cad_animation tcv_round">
+            <span><input type="range" min="0" max="1000" value="0" class="tcv_animation_slider tcv_clip_slider"></span>
             <span class="tcv_tooltip"  data-tooltip="Play animation"><input class='tcv_play tcv_btn' type="button" /></span>
             <span class="tcv_tooltip"  data-tooltip="Pause animation"><input class='tcv_pause tcv_btn' type="button" /></span>
             <span class="tcv_tooltip"  data-tooltip="Stop and reset animation"><input class='tcv_stop tcv_btn' type="button" /></span>
@@ -51143,17 +51153,23 @@ const TEMPLATE = `
         
         <div class="tcv_cad_help tcv_round">
           <table class="tcv_cad_help_layout">
-            <tr><td><b>Rotate</b></td><td>&lt;left mouse button&gt;</td></tr>
-            <tr><td><b>Rotate up / down</b></td><td>&lt;Ctrl&gt; + &lt;left mouse button&gt;</td></tr>
-            <tr><td><b>Rotate left / right</b></td><td>&lt;Meta&gt; + &lt;left mouse button&gt;</td></tr>
-            <tr><td><b>Pan</b></td><td>&lt;Shift&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td></tr>
-            <tr><td><b>Zoom</b></td><td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td></tr>
+            <tr><td></td><td><b>Mouse Navigation</b></td></tr>
+            <tr><td>Rotate</td><td>&lt;left mouse button&gt;</td></tr>
+            <tr><td>Rotate up / down</td><td>&lt;Ctrl&gt; + &lt;left mouse button&gt;</td></tr>
+            <tr><td>Rotate left / right</td><td>&lt;Meta&gt; + &lt;left mouse button&gt;</td></tr>
+            <tr><td>Pan</td><td>&lt;Shift&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td></tr>
+            <tr><td>Zoom</td><td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td></tr>
             
-            <tr><td><b>- - - </b></td><td></td></tr>
+            <tr><td></td><td><b>Mouse Selection</b></td></tr>
+            <tr><td>Pick element</td><td>&lt;left mouse button&gt; double click</td></tr>
+            <tr><td>Hide element</td><td>&lt;Meta&gt; + &lt;left mouse button&gt; double click</td></tr>
+            <tr><td>Isolate element</td><td>&lt;Shift&gt; + &lt;left mouse button&gt; double click</td></tr>
 
-            <tr><td><b>Pick element</b></td><td>&lt;left mouse button&gt; double click</td></tr>
-            <tr><td><b>Hide element</b></td><td>&lt;Meta&gt; + &lt;left mouse button&gt; double click</td></tr>
-          </table>
+            <tr><td></td><td><b>CAD Object Tree</b></td></tr>
+            <tr><td>Collapse single leafs</td><td>Button '1' (all nodes with one leaf only)</td></tr>
+            <tr><td>Collapse all nodes</td><td>Button 'C'</td></tr>
+            <tr><td>Expand all nodes</td><td>Button 'E'</td></tr>
+            </table>
         </div>
     </div>
     </div>
@@ -51265,6 +51281,9 @@ class Display {
     this.cadView = this.container.getElementsByClassName("tcv_cad_view")[0];
     this.cadTree = this.container.getElementsByClassName(
       "tcv_cad_tree_container",
+    )[0];
+    this.cadTreeToggles = this.container.getElementsByClassName(
+      "tcv_cad_tree_toggles",
     )[0];
     this.cadClip = this.container.getElementsByClassName(
       "tcv_cad_clip_container",
@@ -51426,6 +51445,10 @@ class Display {
       this._setupClickEvent(name, this.setView);
     });
 
+    this._setupClickEvent("tcv_collapse_singles", this.collapseNodes1);
+    this._setupClickEvent("tcv_collapse_all", this.collapseNodes);
+    this._setupClickEvent("tcv_expand", this.expandNodes);
+
     this._setupClickEvent("tcv_pin", this.pinAsPng);
     this._setupClickEvent("tcv_help", this.toggleHelp);
     this.help_shown = true;
@@ -51462,6 +51485,11 @@ class Display {
     this._setupClickEvent("tcv_play", this.controlAnimation, false);
     this._setupClickEvent("tcv_pause", this.controlAnimation, false);
     this._setupClickEvent("tcv_stop", this.controlAnimation, false);
+    this.animationSlider = this.container.getElementsByClassName(
+      "tcv_animation_slider",
+    )[0];
+    this.animationSlider.value = 0;
+    this.animationSlider.addEventListener("input", this.animationChange);
     this.setAnimationControl(false);
 
     this.setHelp(false);
@@ -51782,6 +51810,7 @@ class Display {
     var changed = false;
     if (tab === "tree" && this.activeTab !== "tree") {
       this.cadTree.style.display = "block";
+      this.cadTreeToggles.style.display = "block";
       this.cadClip.style.display = "none";
       this.viewer.nestedGroup.setBackVisible(false);
       this.viewer.setLocalClipping(false);
@@ -51793,6 +51822,7 @@ class Display {
     }
     if (tab === "clip" && this.activeTab !== "clip") {
       this.cadTree.style.display = "none";
+      this.cadTreeToggles.style.display = "none";
       this.cadClip.style.display = "block";
       this.viewer.nestedGroup.setBackVisible(true);
       this.viewer.setLocalClipping(true);
@@ -51808,6 +51838,37 @@ class Display {
       this.tabClip.classList.toggle("tcv_tab-unselected");
     }
   }
+
+  /**
+   * Collapse all nodes with one leaf only
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  // eslint-disable-next-line no-unused-vars
+  collapseNodes1 = (e) => {
+    this.viewer.treeview.expandNodes(2);
+    this.viewer.treeview.collapseNodes(1);
+  };
+
+  /**
+   * Collapse all nodes
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  // eslint-disable-next-line no-unused-vars
+  collapseNodes = (e) => {
+    this.viewer.treeview.collapseNodes(2);
+  };
+
+  /**
+   * Expand all nodes
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  // eslint-disable-next-line no-unused-vars
+  expandNodes = (e) => {
+    this.viewer.treeview.expandNodes(2);
+  };
 
   /**
    * Set minimum and maximum of the sliders
@@ -51847,7 +51908,18 @@ class Display {
   controlAnimation = (e) => {
     const btn = e.target.className.split(" ")[0].slice(4);
     this.viewer.controlAnimation(btn);
+
+    var currentTime = this.viewer.animation.getRelativeTime();
+    this.animationSlider.value = 1000 * currentTime;
   };
+
+  animationChange = (e) => {
+    this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
+  };
+
+  resetAnimationSlider() {
+    this.animationSlider.value = 0;
+  }
 
   /**
    * Show or hide help dialog
@@ -54187,7 +54259,7 @@ class TreeView {
     var li = tag("li");
     var lbl = tag("span", ["tcv_tree_label"]);
     lbl.innerHTML = model.name;
-    var entry = tag("span", ["tcv_node_entry"]);
+    var entry = tag("span", ["tcv_node_entry"], {"id": model.id});
     if (model.type === "node") {
       var span = tag("span", ["tcv_node_entry_wrap"]);
       span.appendChild(tag("span", ["tcv_t-caret", "tcv_t-caret-down"]));
@@ -54249,6 +54321,19 @@ class TreeView {
     return li;
   }
 
+  toggleTreeNode(el, collapse) {
+    if (collapse == null){
+      el.querySelector(".tcv_nested").classList.toggle("tcv_active");
+      el.getElementsByClassName("tcv_t-caret")[0].classList.toggle("tcv_t-caret-down");
+    } else if (collapse) {
+      el.querySelector(".tcv_nested").classList.remove("tcv_active");
+      el.getElementsByClassName("tcv_t-caret")[0].classList.remove("tcv_t-caret-down");
+    } else {
+      el.querySelector(".tcv_nested").classList.add("tcv_active");
+      el.getElementsByClassName("tcv_t-caret")[0].classList.add("tcv_t-caret-down");
+    }
+  }
+
   render() {
     this.container = tag("ul", ["tcv_toplevel"]);
     this.container.appendChild(this.toHtml(this.treeModel));
@@ -54260,11 +54345,7 @@ class TreeView {
     var toggler = this.container.getElementsByClassName("tcv_t-caret");
     for (var i = 0; i < toggler.length; i++) {
       toggler[i].addEventListener("click", (e) => {
-        // jshint ignore:line
-        e.target.parentElement.parentElement
-          .querySelector(".tcv_nested")
-          .classList.toggle("tcv_active");
-        e.target.classList.toggle("tcv_t-caret-down");
+        this.toggleTreeNode(e.target.parentElement.parentElement, null);
       });
     }
     return this.container;
@@ -54323,6 +54404,29 @@ class TreeView {
     return state;
   }
 
+  _toggleNodes(mode, collapse) {
+    var walk = (obj) => {
+      if (obj.type == "node") {
+        if(((mode == 1) && (obj.children.length == 1)) || (mode == 2)) {
+          var el = document.getElementById(obj.id).parentElement.parentElement;
+          this.toggleTreeNode(el, collapse);
+        }
+        for (var o of obj.children) {
+          walk(o);
+        }
+      }
+    };
+    walk(this.tree);
+  }
+
+  collapseNodes(mode) {
+    this._toggleNodes(mode, true);
+  }
+
+  expandNodes(mode) {
+    this._toggleNodes(mode, false);
+  }
+
   getIcon(icon_id, state) {
     return this.icons[icon_id][state];
   }
@@ -54332,6 +54436,14 @@ class TreeView {
       "style",
       `background-image: ${this.getIcon(icon_id, state)}`,
     );
+  }
+
+  hideAll() {
+    [0,1].forEach(i => this.setState("node", this.treeModel.id, i, 0));
+  }
+
+  showAll() {
+    [0,1].forEach(i => this.setState("node", this.treeModel.id, i, 1));
   }
 
   setState(type, id, icon_id, state) {
@@ -54549,6 +54661,7 @@ class Animation {
     this.clip = null;
     this.clipAction = null;
     this.clock = new Clock();
+    this.duration = 0;
   }
 
   addTrack(selector, group, action, times, values) {
@@ -54634,12 +54747,24 @@ class Animation {
     this.clip = new AnimationClip("track", duration, this.tracks);
     this.mixer = new AnimationMixer(root);
     this.mixer.timeScale = speed;
+    this.duration = duration;
     // this.mixer.addEventListener('finished', (e) => { console.log("finished", e) });
     // this.mixer.addEventListener('loop', (e) => { console.log("loop", e) });
 
     this.clipAction = this.mixer.clipAction(this.clip);
 
     return this.clipAction;
+  }
+
+  setRelativeTime(fraction) {
+    this.clipAction.play();
+    this.clipAction.paused = true;
+    var currentTime = this.duration * fraction;
+    this.clipAction.time = currentTime;
+  }
+
+  getRelativeTime() {
+    return this.clipAction.time / this.duration;
   }
 
   dispose() {
@@ -56983,6 +57108,7 @@ class Viewer {
       duration,
       speed,
     );
+    this.display.resetAnimationSlider();
   }
 
   /**
@@ -57385,7 +57511,12 @@ class Viewer {
       this.setObjects,
       this.theme,
     );
+
     this.display.addCadTree(this.treeview.render());
+
+    if ([1, 2].includes(options.collapse)) {
+      this.treeview.collapseNodes(options.collapse);
+    }
 
     this.display.selectTabByName("tree");
 
@@ -57636,9 +57767,14 @@ class Viewer {
           boundingSphere: JSON.parse(JSON.stringify(nearest.boundingSphere)),
         },
       });
+      var update = {};
+
       if (e.metaKey) {
-        var update = {};
         update[`${nearest.path}/${nearest.name}`] = [0, 0];
+        this.setStates(update);
+      } else if (e.shiftKey) {
+        this.treeview.hideAll();
+        update[`${nearest.path}/${nearest.name}`] = [1, 1];
         this.setStates(update);
       } else {
         this.info.bbInfo(nearest.path, nearest.name, nearest.boundingBox);
