@@ -329,9 +329,8 @@ input[type="button"] {
   transition: opacity 0.2s;
 }
 
-.clip_slider::-webkit-slider-thumb {
+.tcv_clip_slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  appearance: none;
   width: 12px;
   height: 12px;
   border-radius: 50%;
