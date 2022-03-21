@@ -479,6 +479,7 @@ class Display {
     this.animationSlider = this.container.getElementsByClassName(
       "tcv_animation_slider",
     )[0];
+    this.animationSlider.value = 0;
     this.animationSlider.addEventListener("input", this.animationChange);
     this.setAnimationControl(false);
 
@@ -906,6 +907,10 @@ class Display {
   animationChange = (e) => {
     this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
   };
+
+  resetAnimationSlider() {
+    this.animationSlider.value = 0;
+  }
 
   /**
    * Show or hide help dialog

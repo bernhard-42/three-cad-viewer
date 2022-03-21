@@ -337,6 +337,7 @@ class Viewer {
       duration,
       speed,
     );
+    this.display.resetAnimationSlider();
   }
 
   /**
