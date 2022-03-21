@@ -1,5 +1,3 @@
-
-(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 /**
  * @license
  * Copyright 2010-2022 Three.js Authors
@@ -51064,6 +51062,9 @@ const TEMPLATE = `
     <span class="tcv_tooltip"  data-tooltip="Toggle black edges">
         <span class="tcv_label">Black edges</span><input class='tcv_black_edges tcv_check' type="checkbox" />
     </span>
+    <span class="tcv_tooltip"  data-tooltip="Explode assembly">
+        <span class="tcv_label">Explode</span><input class='tcv_explode tcv_check' type="checkbox" />
+    </span>
     <span class="tcv_align_right">
       <span class="tcv_tooltip"  data-tooltip="Toggle help">
           <input class='tcv_help tcv_btn' type="button" />
@@ -51429,6 +51430,8 @@ class Display {
       viewer.blackEdges,
     );
 
+    this._setupCheckEvent("tcv_explode", this.setExplode);
+
     this._setupClickEvent("tcv_reset", this.reset);
     this._setupClickEvent("tcv_resize", this.resize);
 
@@ -51653,6 +51656,20 @@ class Display {
   setBlackEdges = (e) => {
     const flag = !!e.target.checked;
     this.viewer.setBlackEdges(flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the black edges parameter
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setExplode = (e) => {
+    const flag = !!e.target.checked;
+    if (flag) {
+      this.viewer.explode();
+    } else {
+      this.viewer.clearAnimation();
+    }
   };
 
   /**
@@ -51913,10 +51930,18 @@ class Display {
     this.animationSlider.value = 1000 * currentTime;
   };
 
+  /**
+   * Handler for the animation slider
+   * @function
+   * @param {Event} e - a DOM click event
+   */
   animationChange = (e) => {
     this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
   };
 
+  /**
+   * Reset animation slider to 0
+   */
   resetAnimationSlider() {
     this.animationSlider.value = 0;
   }
@@ -54691,17 +54716,17 @@ class Animation {
           break;
         case "tx":
           newValues = values.map((v) =>
-            position.clone().add(new Vector3(v, 0, 0)).toArray(),
+            position.add(new Vector3(v, 0, 0)).toArray(),
           );
           break;
         case "ty":
           newValues = values.map((v) =>
-            position.clone().add(new Vector3(0, v, 0)).toArray(),
+            position.add(new Vector3(0, v, 0)).toArray(),
           );
           break;
         case "tz":
           newValues = values.map((v) =>
-            position.clone().add(new Vector3(0, 0, v)).toArray(),
+            position.add(new Vector3(0, 0, v)).toArray(),
           );
           break;
         default:
@@ -54710,7 +54735,7 @@ class Animation {
       }
 
       this.tracks.push(
-        new NumberKeyframeTrack(
+        new VectorKeyframeTrack(
           selector + ".position",
           times,
           newValues.flat(),
@@ -54743,7 +54768,7 @@ class Animation {
     }
   }
 
-  animate(root, duration, speed) {
+  animate(root, duration, speed, repeat) {
     this.clip = new AnimationClip("track", duration, this.tracks);
     this.mixer = new AnimationMixer(root);
     this.mixer.timeScale = speed;
@@ -54752,7 +54777,7 @@ class Animation {
     // this.mixer.addEventListener('loop', (e) => { console.log("loop", e) });
 
     this.clipAction = this.mixer.clipAction(this.clip);
-
+    this.clipAction.setLoop(repeat ? LoopRepeat : LoopPingPong);
     return this.clipAction;
   }
 
@@ -57092,7 +57117,7 @@ class Viewer {
    * @param {number} duration - overall duration of the anmiation.
    * @param {number} speed - speed of the animation.
    */
-  initAnimation(duration, speed) {
+  initAnimation(duration, speed, repeat = true) {
     if (this.animation == null || this.animation.tracks.lenght == 0) {
       console.error("Animation does not have tracks");
       return;
@@ -57107,6 +57132,7 @@ class Viewer {
       this.nestedGroup.rootGroup,
       duration,
       speed,
+      repeat,
     );
     this.display.resetAnimationSlider();
   }
@@ -58447,6 +58473,24 @@ class Viewer {
       reader.readAsDataURL(blob);
     });
   };
+
+  explode() {
+    this.clearAnimation();
+    const duration = 2;
+    const speed = 1;
+    for (var id in this.nestedGroup.groups) {
+      if (!(this.nestedGroup.groups[id] instanceof ObjectGroup)) {
+        var v = this.nestedGroup.groups[id].position;
+        this.addAnimationTrack(
+          id,
+          "t",
+          [0, duration],
+          [[0, 0, 0], v.toArray()],
+        );
+      }
+    }
+    this.initAnimation(duration, speed, false);
+  }
 }
 
 export { Display, Timer, Viewer };
