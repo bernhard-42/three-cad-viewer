@@ -136,6 +136,7 @@ const TEMPLATE = `
     </div>
     <div class="tcv_cad_view">
         <div class="tcv_cad_animation tcv_round">
+            <span><input type="range" min="0" max="1000" value="0" class="tcv_animation_slider tcv_clip_slider"></span>
             <span class="tcv_tooltip"  data-tooltip="Play animation"><input class='tcv_play tcv_btn' type="button" /></span>
             <span class="tcv_tooltip"  data-tooltip="Pause animation"><input class='tcv_pause tcv_btn' type="button" /></span>
             <span class="tcv_tooltip"  data-tooltip="Stop and reset animation"><input class='tcv_stop tcv_btn' type="button" /></span>
@@ -475,6 +476,10 @@ class Display {
     this._setupClickEvent("tcv_play", this.controlAnimation, false);
     this._setupClickEvent("tcv_pause", this.controlAnimation, false);
     this._setupClickEvent("tcv_stop", this.controlAnimation, false);
+    this.animationSlider = this.container.getElementsByClassName(
+      "tcv_animation_slider",
+    )[0];
+    this.animationSlider.addEventListener("input", this.animationChange);
     this.setAnimationControl(false);
 
     this.setHelp(false);
@@ -893,6 +898,13 @@ class Display {
   controlAnimation = (e) => {
     const btn = e.target.className.split(" ")[0].slice(4);
     this.viewer.controlAnimation(btn);
+
+    var currentTime = this.viewer.animation.getRelativeTime();
+    this.animationSlider.value = 1000 * currentTime;
+  };
+
+  animationChange = (e) => {
+    this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
   };
 
   /**

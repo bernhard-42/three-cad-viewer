@@ -126,6 +126,10 @@ th {
   z-index: 100;
 }
 
+.tcv_animation_slider {
+  width: 120px !important;
+}
+
 .tcv_cad_animation {
   height: 36px;
   background-color: var(--tcv-bg-color);

@@ -27,6 +27,7 @@ class Animation {
     this.clip = null;
     this.clipAction = null;
     this.clock = new THREE.Clock();
+    this.duration = 0;
   }
 
   addTrack(selector, group, action, times, values) {
@@ -112,12 +113,24 @@ class Animation {
     this.clip = new THREE.AnimationClip("track", duration, this.tracks);
     this.mixer = new THREE.AnimationMixer(root);
     this.mixer.timeScale = speed;
+    this.duration = duration;
     // this.mixer.addEventListener('finished', (e) => { console.log("finished", e) });
     // this.mixer.addEventListener('loop', (e) => { console.log("loop", e) });
 
     this.clipAction = this.mixer.clipAction(this.clip);
 
     return this.clipAction;
+  }
+
+  setRelativeTime(fraction) {
+    this.clipAction.play();
+    this.clipAction.paused = true;
+    var currentTime = this.duration * fraction;
+    this.clipAction.time = currentTime;
+  }
+
+  getRelativeTime() {
+    return this.clipAction.time / this.duration;
   }
 
   dispose() {
