@@ -512,6 +512,8 @@ class Viewer {
         this.animation.dispose();
       }
 
+      this.display.setExplodeCheck(false);
+
       // clear render canvas
       this.renderer.clear();
 
@@ -1682,9 +1684,18 @@ class Viewer {
     this.clearAnimation();
     const duration = 2;
     const speed = 1;
+
+    var v = new THREE.Vector3();
+
+    var bbox = new THREE.Box3().setFromObject(this.nestedGroup.rootGroup);
+    var c = new THREE.Vector3();
+    bbox.getCenter(c);
+
     for (var id in this.nestedGroup.groups) {
       if (!(this.nestedGroup.groups[id] instanceof ObjectGroup)) {
-        var v = this.nestedGroup.groups[id].position;
+        bbox = new THREE.Box3().setFromObject(this.nestedGroup.groups[id]);
+        bbox.getCenter(v);
+        v.sub(c);
         this.addAnimationTrack(
           id,
           "t",

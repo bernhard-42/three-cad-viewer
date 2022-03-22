@@ -55,7 +55,7 @@ const TEMPLATE = `
     <span class="tcv_tooltip"  data-tooltip="Toggle black edges">
         <span class="tcv_label">Black edges</span><input class='tcv_black_edges tcv_check' type="checkbox" />
     </span>
-    <span class="tcv_tooltip"  data-tooltip="Explode assembly">
+    <span class="tcv_explode_widget tcv_tooltip"  data-tooltip="Explode assembly">
         <span class="tcv_label">Explode</span><input class='tcv_explode tcv_check' type="checkbox" />
     </span>
     <span class="tcv_align_right">
@@ -652,6 +652,15 @@ class Display {
   };
 
   /**
+   * Check or uncheck the Black Edges checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
+   */
+  setBlackEdgesCheck = (flag) => {
+    this.checkElement("tcv_black_edges", flag);
+  };
+
+  /**
    * Checkbox Handler for setting the black edges parameter
    * @function
    * @param {Event} e - a DOM click event
@@ -661,17 +670,28 @@ class Display {
     if (flag) {
       this.viewer.explode();
     } else {
+      this.controlAnimationByName("stop");
       this.viewer.clearAnimation();
     }
   };
 
   /**
-   * Check or uncheck the Black Edges checkbox
+   * Check or uncheck the Explode checkbox
    * @function
    * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
    */
-  setBlackEdgesCheck = (flag) => {
-    this.checkElement("tcv_black_edges", flag);
+  setExplodeCheck = (flag) => {
+    this.checkElement("tcv_explode", flag);
+  };
+
+  /**
+   * Show or hide the Explode checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
+   */
+  showExplode = (flag) => {
+    const el = this._getElement("tcv_explode_widget");
+    el.style.display = flag ? "inline-block" : "none";
   };
 
   /**
@@ -911,16 +931,25 @@ class Display {
   };
 
   /**
+   * Handle animation control
+   * @function
+   * @param {string} btn - animation control button name
+   */
+  controlAnimationByName(btn) {
+    this.viewer.controlAnimation(btn);
+
+    var currentTime = this.viewer.animation.getRelativeTime();
+    this.animationSlider.value = 1000 * currentTime;
+  }
+
+  /**
    * Handler for the animation control
    * @function
    * @param {Event} e - a DOM click event
    */
   controlAnimation = (e) => {
     const btn = e.target.className.split(" ")[0].slice(4);
-    this.viewer.controlAnimation(btn);
-
-    var currentTime = this.viewer.animation.getRelativeTime();
-    this.animationSlider.value = 1000 * currentTime;
+    this.controlAnimationByName(btn);
   };
 
   /**
