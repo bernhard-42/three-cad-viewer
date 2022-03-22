@@ -837,7 +837,10 @@ class Display {
    * @param {string} tab - name of the tab "tree" or "clip"
    */
   selectTabByName(tab) {
-    var changed = false;
+    if (!["clip", "tree"].includes(tab)) {
+      return;
+    }
+
     if (tab === "tree" && this.activeTab !== "tree") {
       this.cadTree.style.display = "block";
       this.cadTreeToggles.style.display = "block";
@@ -848,24 +851,26 @@ class Display {
       var lastPlaneState = this.viewer.getClipPlaneHelpers();
       this.viewer.setClipPlaneHelpers(false);
       this.lastPlaneState = lastPlaneState;
-      changed = true;
-    }
-    if (tab === "clip" && this.activeTab !== "clip") {
+    } else if (tab === "clip" && this.activeTab !== "clip") {
       this.cadTree.style.display = "none";
       this.cadTreeToggles.style.display = "none";
       this.cadClip.style.display = "block";
       this.viewer.nestedGroup.setBackVisible(true);
       this.viewer.setLocalClipping(true);
       this.viewer.setClipPlaneHelpers(this.lastPlaneState);
-      changed = true;
     }
     this.activeTab = tab;
     this.viewer.checkChanges({ tab: tab });
-    if (changed) {
-      this.tabTree.classList.toggle("tcv_tab-selected");
-      this.tabTree.classList.toggle("tcv_tab-unselected");
-      this.tabClip.classList.toggle("tcv_tab-selected");
-      this.tabClip.classList.toggle("tcv_tab-unselected");
+    if (tab == "tree") {
+      this.tabTree.classList.add("tcv_tab-selected");
+      this.tabTree.classList.remove("tcv_tab-unselected");
+      this.tabClip.classList.remove("tcv_tab-selected");
+      this.tabClip.classList.add("tcv_tab-unselected");
+    } else {
+      this.tabTree.classList.remove("tcv_tab-selected");
+      this.tabTree.classList.add("tcv_tab-unselected");
+      this.tabClip.classList.add("tcv_tab-selected");
+      this.tabClip.classList.remove("tcv_tab-unselected");
     }
   }
 
