@@ -51062,7 +51062,7 @@ const TEMPLATE = `
     <span class="tcv_tooltip"  data-tooltip="Toggle black edges">
         <span class="tcv_label">Black edges</span><input class='tcv_black_edges tcv_check' type="checkbox" />
     </span>
-    <span class="tcv_tooltip"  data-tooltip="Explode assembly">
+    <span class="tcv_explode_widget tcv_tooltip"  data-tooltip="Explode assembly">
         <span class="tcv_label">Explode</span><input class='tcv_explode tcv_check' type="checkbox" />
     </span>
     <span class="tcv_align_right">
@@ -51337,7 +51337,7 @@ class Display {
       }
     }
 
-    this.setPinning(options.pinning);
+    this.showPinning(options.pinning);
   }
 
   _setupCheckEvent(name, fn, flag) {
@@ -51493,9 +51493,9 @@ class Display {
     )[0];
     this.animationSlider.value = 0;
     this.animationSlider.addEventListener("input", this.animationChange);
-    this.setAnimationControl(false);
+    this.showAnimationControl(false);
 
-    this.setHelp(false);
+    this.showHelp(false);
   }
 
   /**
@@ -51515,7 +51515,7 @@ class Display {
     this.checkElement("tcv_ortho", ortho);
     this.checkElement("tcv_transparent", transparent);
     this.checkElement("tcv_black_edges", blackEdges);
-    this.setTools(tools);
+    this.showTools(tools);
   }
   // setup functions
 
@@ -51659,6 +51659,15 @@ class Display {
   };
 
   /**
+   * Check or uncheck the Black Edges checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
+   */
+  setBlackEdgesCheck = (flag) => {
+    this.checkElement("tcv_black_edges", flag);
+  };
+
+  /**
    * Checkbox Handler for setting the black edges parameter
    * @function
    * @param {Event} e - a DOM click event
@@ -51668,17 +51677,28 @@ class Display {
     if (flag) {
       this.viewer.explode();
     } else {
+      this.controlAnimationByName("stop");
       this.viewer.clearAnimation();
     }
   };
 
   /**
-   * Check or uncheck the Black Edges checkbox
+   * Check or uncheck the Explode checkbox
    * @function
    * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
    */
-  setBlackEdgesCheck = (flag) => {
-    this.checkElement("tcv_black_edges", flag);
+  setExplodeCheck = (flag) => {
+    this.checkElement("tcv_explode", flag);
+  };
+
+  /**
+   * Show or hide the Explode checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
+   */
+  showExplode = (flag) => {
+    const el = this._getElement("tcv_explode_widget");
+    el.style.display = flag ? "inline-block" : "none";
   };
 
   /**
@@ -51707,7 +51727,7 @@ class Display {
    * @function
    * @param {boolean} flag - whether to show or hide the CAD tools
    */
-  setTools = (flag) => {
+  showTools = (flag) => {
     var tb = this._getElement("tcv_cad_toolbar");
     var cn = this._getElement("tcv_cad_navigation");
     for (var el of [cn, tb]) {
@@ -51772,7 +51792,7 @@ class Display {
    * @function
    * @param {boolean} flag - Whether to show/hide the pinning button
    */
-  setPinning(flag) {
+  showPinning(flag) {
     const el = this._getElement("tcv_pin");
     el.style.display = flag ? "inline-block" : "none";
   }
@@ -51913,9 +51933,21 @@ class Display {
    * @function
    * @param {boolean} flag - whether to show or hide the Animation control widget
    */
-  setAnimationControl = (flag) => {
+  showAnimationControl = (flag) => {
     this.cadAnim.style.display = flag ? "block" : "none";
   };
+
+  /**
+   * Handle animation control
+   * @function
+   * @param {string} btn - animation control button name
+   */
+  controlAnimationByName(btn) {
+    this.viewer.controlAnimation(btn);
+
+    var currentTime = this.viewer.animation.getRelativeTime();
+    this.animationSlider.value = 1000 * currentTime;
+  }
 
   /**
    * Handler for the animation control
@@ -51924,10 +51956,7 @@ class Display {
    */
   controlAnimation = (e) => {
     const btn = e.target.className.split(" ")[0].slice(4);
-    this.viewer.controlAnimation(btn);
-
-    var currentTime = this.viewer.animation.getRelativeTime();
-    this.animationSlider.value = 1000 * currentTime;
+    this.controlAnimationByName(btn);
   };
 
   /**
@@ -51951,7 +51980,7 @@ class Display {
    * @function
    * @param {boolean} flag - whether to show or hide help dialog
    */
-  setHelp = (flag) => {
+  showHelp = (flag) => {
     this.cadHelp.style.display = flag ? "block" : "none";
     this.help_shown = flag;
   };
@@ -51961,7 +51990,7 @@ class Display {
    * @function
    */
   toggleHelp = () => {
-    this.setHelp(!this.help_shown);
+    this.showHelp(!this.help_shown);
   };
 }
 
@@ -54284,7 +54313,7 @@ class TreeView {
     var li = tag("li");
     var lbl = tag("span", ["tcv_tree_label"]);
     lbl.innerHTML = model.name;
-    var entry = tag("span", ["tcv_node_entry"], {"id": model.id});
+    var entry = tag("span", ["tcv_node_entry"], { id: model.id });
     if (model.type === "node") {
       var span = tag("span", ["tcv_node_entry_wrap"]);
       span.appendChild(tag("span", ["tcv_t-caret", "tcv_t-caret-down"]));
@@ -54347,15 +54376,21 @@ class TreeView {
   }
 
   toggleTreeNode(el, collapse) {
-    if (collapse == null){
+    if (collapse == null) {
       el.querySelector(".tcv_nested").classList.toggle("tcv_active");
-      el.getElementsByClassName("tcv_t-caret")[0].classList.toggle("tcv_t-caret-down");
+      el.getElementsByClassName("tcv_t-caret")[0].classList.toggle(
+        "tcv_t-caret-down",
+      );
     } else if (collapse) {
       el.querySelector(".tcv_nested").classList.remove("tcv_active");
-      el.getElementsByClassName("tcv_t-caret")[0].classList.remove("tcv_t-caret-down");
+      el.getElementsByClassName("tcv_t-caret")[0].classList.remove(
+        "tcv_t-caret-down",
+      );
     } else {
       el.querySelector(".tcv_nested").classList.add("tcv_active");
-      el.getElementsByClassName("tcv_t-caret")[0].classList.add("tcv_t-caret-down");
+      el.getElementsByClassName("tcv_t-caret")[0].classList.add(
+        "tcv_t-caret-down",
+      );
     }
   }
 
@@ -54432,7 +54467,12 @@ class TreeView {
   _toggleNodes(mode, collapse) {
     var walk = (obj) => {
       if (obj.type == "node") {
-        if(((mode == 1) && (obj.children.length == 1)) || (mode == 2)) {
+        if (
+          (mode == 1 &&
+            obj.children.length === 1 &&
+            obj.children[0].type === "leaf") ||
+          mode == 2
+        ) {
           var el = document.getElementById(obj.id).parentElement.parentElement;
           this.toggleTreeNode(el, collapse);
         }
@@ -54464,11 +54504,11 @@ class TreeView {
   }
 
   hideAll() {
-    [0,1].forEach(i => this.setState("node", this.treeModel.id, i, 0));
+    [0, 1].forEach((i) => this.setState("node", this.treeModel.id, i, 0));
   }
 
   showAll() {
-    [0,1].forEach(i => this.setState("node", this.treeModel.id, i, 1));
+    [0, 1].forEach((i) => this.setState("node", this.treeModel.id, i, 1));
   }
 
   setState(type, id, icon_id, state) {
@@ -57127,7 +57167,7 @@ class Viewer {
       this.toggleAnimationLoop(true);
     }
 
-    this.display.setAnimationControl(true);
+    this.display.showAnimationControl(true);
     this.clipAction = this.animation.animate(
       this.nestedGroup.rootGroup,
       duration,
@@ -57144,7 +57184,7 @@ class Viewer {
     if (this.animation) {
       this.animation.dispose();
     }
-    this.display.setAnimationControl(false);
+    this.display.showAnimationControl(false);
     this.toggleAnimationLoop(false);
   }
 
@@ -57302,11 +57342,13 @@ class Viewer {
         console.debug("three-cad-viewer: Change listener removed");
       }
       this.hasAnimationLoop = false;
-      this.display.setAnimationControl(false);
+      this.display.showAnimationControl(false);
 
       if (this.animation != null) {
         this.animation.dispose();
       }
+
+      this.display.setExplodeCheck(false);
 
       // clear render canvas
       this.renderer.clear();
@@ -58125,9 +58167,9 @@ class Viewer {
    * @param {boolean} flag
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setTools = (flag, notify = true) => {
+  showTools = (flag, notify = true) => {
     this.tools = flag;
-    this.display.setTools(flag);
+    this.display.showTools(flag);
     this.update(this.updateMarker, notify);
   };
 
@@ -58478,9 +58520,18 @@ class Viewer {
     this.clearAnimation();
     const duration = 2;
     const speed = 1;
+
+    var v = new Vector3();
+
+    var bbox = new Box3().setFromObject(this.nestedGroup.rootGroup);
+    var c = new Vector3();
+    bbox.getCenter(c);
+
     for (var id in this.nestedGroup.groups) {
       if (!(this.nestedGroup.groups[id] instanceof ObjectGroup)) {
-        var v = this.nestedGroup.groups[id].position;
+        bbox = new Box3().setFromObject(this.nestedGroup.groups[id]);
+        bbox.getCenter(v);
+        v.sub(c);
         this.addAnimationTrack(
           id,
           "t",

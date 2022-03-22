@@ -2,7 +2,7 @@ var boxEdges = [
   {
     parts: [
       {
-        id: "/Group/Parent_0",
+        id: "/Box with Edges/Parent_0",
         type: "shapes",
         name: "Parent_0",
         shape: {
@@ -136,7 +136,7 @@ var boxEdges = [
         },
       },
       {
-        id: "/Group/Edges_0",
+        id: "/Box with Edges/Edges_0",
         type: "edges",
         name: "Edges_0",
         shape: [
@@ -170,10 +170,10 @@ var boxEdges = [
       },
     ],
     loc: null,
-    name: "Group",
+    name: "Box with Edges",
   },
   {
-    "/Group/Parent_0": [0, 1],
-    "/Group/Edges_0": [3, 1],
+    "/Box with Edges/Parent_0": [0, 1],
+    "/Box with Edges/Edges_0": [3, 1],
   },
 ];

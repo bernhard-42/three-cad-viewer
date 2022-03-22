@@ -2,7 +2,7 @@ var longbox = [
   {
     parts: [
       {
-        id: "/Group/Part_0",
+        id: "/Long Box/Part_0",
         type: "shapes",
         name: "Part_0",
         shape: {
@@ -137,7 +137,7 @@ var longbox = [
       },
     ],
     loc: null,
-    name: "Group",
+    name: "Long Box",
   },
-  { "/Group/Part_0": [1, 1] },
+  { "/Long Box/Part_0": [1, 1] },
 ];
