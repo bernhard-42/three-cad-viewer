@@ -331,7 +331,7 @@ class Viewer {
       this.toggleAnimationLoop(true);
     }
 
-    this.display.setAnimationControl(true);
+    this.display.showAnimationControl(true);
     this.clipAction = this.animation.animate(
       this.nestedGroup.rootGroup,
       duration,
@@ -348,7 +348,7 @@ class Viewer {
     if (this.animation) {
       this.animation.dispose();
     }
-    this.display.setAnimationControl(false);
+    this.display.showAnimationControl(false);
     this.toggleAnimationLoop(false);
   }
 
@@ -506,7 +506,7 @@ class Viewer {
         console.debug("three-cad-viewer: Change listener removed");
       }
       this.hasAnimationLoop = false;
-      this.display.setAnimationControl(false);
+      this.display.showAnimationControl(false);
 
       if (this.animation != null) {
         this.animation.dispose();
@@ -1331,9 +1331,9 @@ class Viewer {
    * @param {boolean} flag
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setTools = (flag, notify = true) => {
+  showTools = (flag, notify = true) => {
     this.tools = flag;
-    this.display.setTools(flag);
+    this.display.showTools(flag);
     this.update(this.updateMarker, notify);
   };
 

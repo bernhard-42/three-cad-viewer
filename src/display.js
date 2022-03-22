@@ -330,7 +330,7 @@ class Display {
       }
     }
 
-    this.setPinning(options.pinning);
+    this.showPinning(options.pinning);
   }
 
   _setupCheckEvent(name, fn, flag) {
@@ -486,9 +486,9 @@ class Display {
     )[0];
     this.animationSlider.value = 0;
     this.animationSlider.addEventListener("input", this.animationChange);
-    this.setAnimationControl(false);
+    this.showAnimationControl(false);
 
-    this.setHelp(false);
+    this.showHelp(false);
   }
 
   /**
@@ -508,7 +508,7 @@ class Display {
     this.checkElement("tcv_ortho", ortho);
     this.checkElement("tcv_transparent", transparent);
     this.checkElement("tcv_black_edges", blackEdges);
-    this.setTools(tools);
+    this.showTools(tools);
   }
   // setup functions
 
@@ -720,7 +720,7 @@ class Display {
    * @function
    * @param {boolean} flag - whether to show or hide the CAD tools
    */
-  setTools = (flag) => {
+  showTools = (flag) => {
     var tb = this._getElement("tcv_cad_toolbar");
     var cn = this._getElement("tcv_cad_navigation");
     for (var el of [cn, tb]) {
@@ -785,7 +785,7 @@ class Display {
    * @function
    * @param {boolean} flag - Whether to show/hide the pinning button
    */
-  setPinning(flag) {
+  showPinning(flag) {
     const el = this._getElement("tcv_pin");
     el.style.display = flag ? "inline-block" : "none";
   }
@@ -926,7 +926,7 @@ class Display {
    * @function
    * @param {boolean} flag - whether to show or hide the Animation control widget
    */
-  setAnimationControl = (flag) => {
+  showAnimationControl = (flag) => {
     this.cadAnim.style.display = flag ? "block" : "none";
   };
 
@@ -973,7 +973,7 @@ class Display {
    * @function
    * @param {boolean} flag - whether to show or hide help dialog
    */
-  setHelp = (flag) => {
+  showHelp = (flag) => {
     this.cadHelp.style.display = flag ? "block" : "none";
     this.help_shown = flag;
   };
@@ -983,7 +983,7 @@ class Display {
    * @function
    */
   toggleHelp = () => {
-    this.setHelp(!this.help_shown);
+    this.showHelp(!this.help_shown);
   };
 }
 
