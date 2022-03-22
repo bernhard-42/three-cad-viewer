@@ -88,7 +88,7 @@ class TreeView {
     var li = tag("li");
     var lbl = tag("span", ["tcv_tree_label"]);
     lbl.innerHTML = model.name;
-    var entry = tag("span", ["tcv_node_entry"], {"id": model.id});
+    var entry = tag("span", ["tcv_node_entry"], { id: model.id });
     if (model.type === "node") {
       var span = tag("span", ["tcv_node_entry_wrap"]);
       span.appendChild(tag("span", ["tcv_t-caret", "tcv_t-caret-down"]));
@@ -151,15 +151,21 @@ class TreeView {
   }
 
   toggleTreeNode(el, collapse) {
-    if (collapse == null){
+    if (collapse == null) {
       el.querySelector(".tcv_nested").classList.toggle("tcv_active");
-      el.getElementsByClassName("tcv_t-caret")[0].classList.toggle("tcv_t-caret-down");
+      el.getElementsByClassName("tcv_t-caret")[0].classList.toggle(
+        "tcv_t-caret-down",
+      );
     } else if (collapse) {
       el.querySelector(".tcv_nested").classList.remove("tcv_active");
-      el.getElementsByClassName("tcv_t-caret")[0].classList.remove("tcv_t-caret-down");
+      el.getElementsByClassName("tcv_t-caret")[0].classList.remove(
+        "tcv_t-caret-down",
+      );
     } else {
       el.querySelector(".tcv_nested").classList.add("tcv_active");
-      el.getElementsByClassName("tcv_t-caret")[0].classList.add("tcv_t-caret-down");
+      el.getElementsByClassName("tcv_t-caret")[0].classList.add(
+        "tcv_t-caret-down",
+      );
     }
   }
 
@@ -236,7 +242,12 @@ class TreeView {
   _toggleNodes(mode, collapse) {
     var walk = (obj) => {
       if (obj.type == "node") {
-        if(((mode == 1) && (obj.children.length == 1)) || (mode == 2)) {
+        if (
+          (mode == 1 &&
+            obj.children.length === 1 &&
+            obj.children[0].type === "leaf") ||
+          mode == 2
+        ) {
           var el = document.getElementById(obj.id).parentElement.parentElement;
           this.toggleTreeNode(el, collapse);
         }
@@ -268,11 +279,11 @@ class TreeView {
   }
 
   hideAll() {
-    [0,1].forEach(i => this.setState("node", this.treeModel.id, i, 0));
+    [0, 1].forEach((i) => this.setState("node", this.treeModel.id, i, 0));
   }
 
   showAll() {
-    [0,1].forEach(i => this.setState("node", this.treeModel.id, i, 1));
+    [0, 1].forEach((i) => this.setState("node", this.treeModel.id, i, 1));
   }
 
   setState(type, id, icon_id, state) {
