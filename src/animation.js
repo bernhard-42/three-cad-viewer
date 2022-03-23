@@ -110,7 +110,7 @@ class Animation {
     }
   }
 
-  animate(root, duration, speed, repeat) {
+  animate(root, duration, speed, repeat = true) {
     this.clip = new THREE.AnimationClip("track", duration, this.tracks);
     this.mixer = new THREE.AnimationMixer(root);
     this.mixer.timeScale = speed;

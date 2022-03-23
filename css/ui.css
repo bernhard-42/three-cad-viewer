@@ -126,6 +126,11 @@ th {
   z-index: 100;
 }
 
+.tcv_animation_label {
+  vertical-align: middle;
+  margin-left: 5px;
+}
+
 .tcv_animation_slider {
   width: 120px !important;
 }
@@ -331,6 +336,7 @@ input[type="button"] {
   opacity: 0.7;
   -webkit-transition: 0.2s;
   transition: opacity 0.2s;
+  vertical-align: middle;
 }
 
 .tcv_clip_slider::-webkit-slider-thumb {

@@ -150,6 +150,7 @@ class Viewer {
     this.ortho = true;
     this.transparent = false;
     this.blackEdges = false;
+    this.collapse = 0;
 
     this.clipIntersection = false;
     this.clipPlaneHelpers = false;
@@ -321,7 +322,7 @@ class Viewer {
    * @param {number} duration - overall duration of the anmiation.
    * @param {number} speed - speed of the animation.
    */
-  initAnimation(duration, speed, repeat = true) {
+  initAnimation(duration, speed, label = "A", repeat = true) {
     if (this.animation == null || this.animation.tracks.lenght == 0) {
       console.error("Animation does not have tracks");
       return;
@@ -338,6 +339,7 @@ class Viewer {
       speed,
       repeat,
     );
+    this.display.setAnimationLabel(label);
     this.display.resetAnimationSlider();
   }
 
@@ -1687,15 +1689,24 @@ class Viewer {
 
     var v = new THREE.Vector3();
 
-    var bbox = new THREE.Box3().setFromObject(this.nestedGroup.rootGroup);
-    var c = new THREE.Vector3();
-    bbox.getCenter(c);
-
     for (var id in this.nestedGroup.groups) {
       if (!(this.nestedGroup.groups[id] instanceof ObjectGroup)) {
-        bbox = new THREE.Box3().setFromObject(this.nestedGroup.groups[id]);
-        bbox.getCenter(v);
-        v.sub(c);
+        var group = this.nestedGroup.groups[id];
+        var b = new THREE.Box3();
+        group.children.forEach((child) => {
+          if (child instanceof ObjectGroup) {
+            b.expandByObject(child);
+          }
+        });
+        b.getCenter(v);
+        v = v.multiplyScalar(2);
+
+        var parent = group.parent;
+        while (parent instanceof THREE.Group) {
+          v = v.applyQuaternion(parent.quaternion.clone().invert());
+          parent = parent.parent;
+        }
+
         this.addAnimationTrack(
           id,
           "t",
@@ -1704,7 +1715,7 @@ class Viewer {
         );
       }
     }
-    this.initAnimation(duration, speed, false);
+    this.initAnimation(duration, speed, "E", false);
   }
 }
 

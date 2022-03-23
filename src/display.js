@@ -139,6 +139,7 @@ const TEMPLATE = `
     </div>
     <div class="tcv_cad_view">
         <div class="tcv_cad_animation tcv_round">
+            <span class="tcv_animation_label">E</span>
             <span><input type="range" min="0" max="1000" value="0" class="tcv_animation_slider tcv_clip_slider"></span>
             <span class="tcv_tooltip"  data-tooltip="Play animation"><input class='tcv_play tcv_btn' type="button" /></span>
             <span class="tcv_tooltip"  data-tooltip="Pause animation"><input class='tcv_pause tcv_btn' type="button" /></span>
@@ -965,6 +966,11 @@ class Display {
   animationChange = (e) => {
     this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
   };
+
+  setAnimationLabel(label) {
+    var el = this._getElement("tcv_animation_label");
+    el.innerHTML = label;
+  }
 
   /**
    * Reset animation slider to 0
