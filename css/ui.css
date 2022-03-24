@@ -281,6 +281,7 @@ input[type="button"] {
   margin-left: 4px;
   margin-right: 4px;
   vertical-align: middle;
+  user-select: none;
 }
 
 .tcv_check {

@@ -4,10 +4,10 @@ const TEMPLATE = `
 <div class="tcv_cad_viewer">
     <div class="tcv_cad_toolbar tcv_round">
     <span class="tcv_tooltip"  data-tooltip="Show coordinate axis">
-        <span class="tcv_label">Axes</span><input class='tcv_axes tcv_check' type="checkbox" />
+        <input class='tcv_axes tcv_check' id='tcv_axes' type="checkbox" /><label for='tcv_axes' class="tcv_label">Axes</label>
     </span>
     <div class="tcv_grid-dropdown">
-        <span class="tcv_label">Grid</span><input class='tcv_grid tcv_check' type="checkbox" />
+        <input class='tcv_grid tcv_check' id='tcv_grid' type="checkbox" /><label for='tcv_grid' class="tcv_label">Grid</label>
             <span class="tcv_tooltip"  data-tooltip="Show selective grids">
             <div class="tcv_grid-content">
                 <div class="tcv_label">- xy</span><input class='tcv_grid-xy tcv_check' type="checkbox"></div>
@@ -17,10 +17,10 @@ const TEMPLATE = `
         </span>
     </div>
     <span class="tcv_tooltip"  data-tooltip="Move center of axis and grid to (0,0,0)">
-        <span class="tcv_label">@0</span><input class='tcv_axes0 tcv_check' type="checkbox" />
+        <input class='tcv_axes0 tcv_check' id='tcv_axes0' type="checkbox" /><label for='tcv_axes0' class="tcv_label">@0</label>
     </span>
     <span class="tcv_tooltip"  data-tooltip="Toggle camera between orthographic and perspective view">
-        <span class="tcv_label">Ortho</span><input class='tcv_ortho tcv_check' type="checkbox" />
+        <input class='tcv_ortho tcv_check' id='tcv_ortho' type="checkbox" /><label for='tcv_ortho' class="tcv_label">Ortho</label>
     </span>
     <span class="tcv_tooltip"  data-tooltip="Reset view">
         <input class='tcv_reset tcv_btn' type="button"/>
@@ -50,13 +50,13 @@ const TEMPLATE = `
         <input class='tcv_right tcv_btn' type="button" />
     </span>
     <span class="tcv_tooltip"  data-tooltip="Toggle transparent objects">
-        <span class="tcv_label">Transparent</span><input class='tcv_transparent tcv_check' type="checkbox" />
+        <input class='tcv_transparent tcv_check' id='tcv_transparent' type="checkbox" /><label for='tcv_transparent' class="tcv_label">Transparent</label>
     </span>
     <span class="tcv_tooltip"  data-tooltip="Toggle black edges">
-        <span class="tcv_label">Black edges</span><input class='tcv_black_edges tcv_check' type="checkbox" />
+        <input class='tcv_black_edges tcv_check' id='tcv_black_edges' type="checkbox" /><label for='tcv_black_edges' class="tcv_label">Black edges</label>
     </span>
-    <span class="tcv_explode_widget tcv_tooltip"  data-tooltip="Explode assembly">
-        <span class="tcv_label">Explode</span><input class='tcv_explode tcv_check' type="checkbox" />
+    <span class="tcv_explode_widget tcv_tooltip"  data-tooltip="Explode assembly (@0 determines explosion center)">
+        <input class='tcv_explode tcv_check' id='tcv_explode' type="checkbox" /><label for='tcv_explode' class="tcv_label">Explode</label>
     </span>
     <span class="tcv_align_right">
       <span class="tcv_tooltip"  data-tooltip="Toggle help">
