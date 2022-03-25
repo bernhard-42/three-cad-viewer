@@ -1713,16 +1713,20 @@ class Viewer {
     });
   };
 
-  explode(duration = 2, speed = 1) {
+  explode(duration = 2, speed = 1, multiplier = 3) {
     this.clearAnimation();
 
     const use_origin = this.getAxes0();
-    var target = new THREE.Vector3();
-    var v = new THREE.Vector3();
+
+    var worldCenterOrOrigin = new THREE.Vector3();
+    var objectCenter = new THREE.Vector3();
+
+    var localObjectCenter = null;
+    var direction = null;
 
     if (!use_origin) {
       var bb = new THREE.Box3().setFromObject(this.nestedGroup.rootGroup);
-      bb.getCenter(target);
+      bb.getCenter(worldCenterOrOrigin);
     }
 
     for (var id in this.nestedGroup.groups) {
@@ -1742,20 +1746,24 @@ class Viewer {
         if (b.isEmpty()) {
           continue;
         }
-        b.getCenter(v);
+        b.getCenter(objectCenter);
 
         // Explode around gloabl center or origin
-        v.sub(target).multiplyScalar(2);
+        objectCenter.sub(worldCenterOrOrigin);
+
         // Use the parent to calculate the local direction
-        var dir = group.parent.worldToLocal(v);
-        dir.sub(group.position);
+        localObjectCenter = group.parent.worldToLocal(objectCenter.clone());
+        direction = group.parent.worldToLocal(
+          objectCenter.clone().multiplyScalar(multiplier),
+        );
+        direction.sub(localObjectCenter);
 
         // build an animation track for the group with this direction
         this.addAnimationTrack(
           id,
           "t",
           [0, duration],
-          [[0, 0, 0], dir.toArray()],
+          [[0, 0, 0], direction.toArray()],
         );
       }
     }
