@@ -86,6 +86,8 @@ class Viewer {
 
     this.lastNotification = {};
 
+    this.keepHighlight = false;
+
     this.renderer.domElement.addEventListener("dblclick", this.pick, false);
     this.renderer.domElement.addEventListener("contextmenu", (e) =>
       e.stopPropagation(),
@@ -380,6 +382,15 @@ class Viewer {
         this.lastNotification[key] = change;
       }
     });
+
+    if (Object.keys(changed).includes("position")) {
+      if (this.keepHighlight) {
+        this.keepHighlight = false;
+      } else {
+        this.display.clearHighlights();
+      }
+    }
+
     if (notify && this.notifyCallback && Object.keys(changed).length) {
       this.notifyCallback(changed);
     }
@@ -618,6 +629,7 @@ class Viewer {
     // this needs to happen after the controls have been established
     if (options.position == null && options.quaternion == null) {
       this.presetCamera("iso", options.zoom);
+      this.display.highlightButton("iso");
     } else if (options.position != null) {
       this.setCamera(false, options.position, options.quaternion, options.zoom);
       if (options.quaternion == null) {

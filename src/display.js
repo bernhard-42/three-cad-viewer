@@ -773,6 +773,29 @@ class Display {
     this.viewer.resize();
   };
 
+  clearHighlights() {
+    const buttons = [
+      "tcv_front",
+      "tcv_rear",
+      "tcv_top",
+      "tcv_bottom",
+      "tcv_left",
+      "tcv_right",
+      "tcv_iso",
+    ];
+    buttons.forEach((btn) => {
+      var el = this._getElement(btn);
+      el.classList.remove("tcv_btn_highlight");
+    });
+  }
+
+  highlightButton(name) {
+    this.clearHighlights();
+    var el = this._getElement(`tcv_${name}`);
+    el.classList.add("tcv_btn_highlight");
+    this.viewer.keepHighlight = true;
+  }
+
   /**
    * Handler to set camera to a predefined position
    * @function
@@ -781,6 +804,7 @@ class Display {
   setView = (e) => {
     const btn = e.target.className.split(" ")[0].slice(4);
     this.viewer.presetCamera(btn);
+    this.highlightButton(btn);
   };
 
   /**

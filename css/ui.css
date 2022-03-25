@@ -200,6 +200,10 @@ th {
   padding: 0px;
 }
 
+.tcv_btn_highlight {
+  border: 1px solid var(--tcv-shadow);
+}
+
 .tcv_small_btn {
   width: 14px !important;
   height: 14px !important;
