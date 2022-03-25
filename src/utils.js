@@ -49,4 +49,17 @@ function sceneTraverse(obj, fn) {
   }
 }
 
-export { clone, isEqual, sceneTraverse };
+function format(v, b = 2, a = 2) {
+  const s = Math.abs(v).toFixed(a);
+  var padding = "";
+  var int = s.split(".")[0];
+  for (var i = int.length; i < b; i++) padding += " ";
+  padding += v < 0 ? "-" : " ";
+  return padding + s;
+}
+
+function prettyPrintVector(v, a, b) {
+  return `${format(v[0], a, b)}, ${format(v[2], a, b)}, ${format(v[2], a, b)}`;
+}
+
+export { clone, isEqual, sceneTraverse, prettyPrintVector };
