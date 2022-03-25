@@ -1713,7 +1713,7 @@ class Viewer {
     });
   };
 
-  explode(duration = 2, speed = 1, multiplier = 2) {
+  explode(duration = 2, speed = 1, multiplier = 2.5) {
     this.clearAnimation();
 
     const use_origin = this.getAxes0();
