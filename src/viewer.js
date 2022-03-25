@@ -937,12 +937,18 @@ class Viewer {
     this.update(this.updateMarker);
   };
 
+  /**
+   * Backup animation (for switch to explode animation)
+   */
   backupAnimation() {
     if (this.animation.hasTracks()) {
       this.backupTracks = this.animation.backup();
     }
   }
 
+  /**
+   * Restore animation (for switch back from explode animation)
+   */
   restoreAnimation() {
     if (this.animation.hasBackup()) {
       var params = this.animation.restore();
