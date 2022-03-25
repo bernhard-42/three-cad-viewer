@@ -1682,36 +1682,49 @@ class Viewer {
     });
   };
 
-  explode() {
+  explode(duration = 2, speed = 1) {
     this.clearAnimation();
-    const duration = 2;
-    const speed = 1;
 
+    const use_origin = this.getAxes0();
+    var target = new THREE.Vector3();
     var v = new THREE.Vector3();
 
+    if (!use_origin) {
+      var bb = new THREE.Box3().setFromObject(this.nestedGroup.rootGroup);
+      bb.getCenter(target);
+    }
+
     for (var id in this.nestedGroup.groups) {
+      // Loop over all Group elements
       if (!(this.nestedGroup.groups[id] instanceof ObjectGroup)) {
         var group = this.nestedGroup.groups[id];
+
+        // Get and combine centers of all bounding boxes of ObjectGroups
+        // Do not use the Group, since it returs the bounding box of the underlying group
+        // hierarchy instead of the object(s)
         var b = new THREE.Box3();
         group.children.forEach((child) => {
           if (child instanceof ObjectGroup) {
             b.expandByObject(child);
           }
         });
-        b.getCenter(v);
-        v = v.multiplyScalar(2);
-
-        var parent = group.parent;
-        while (parent instanceof THREE.Group) {
-          v = v.applyQuaternion(parent.quaternion.clone().invert());
-          parent = parent.parent;
+        if (b.isEmpty()) {
+          continue;
         }
+        b.getCenter(v);
 
+        // Explode around gloabl center or origin
+        v.sub(target).multiplyScalar(2);
+        // Use the parent to calculate the local direction
+        var dir = group.parent.worldToLocal(v);
+        dir.sub(group.position);
+
+        // build an animation track for the group with this direction
         this.addAnimationTrack(
           id,
           "t",
           [0, duration],
-          [[0, 0, 0], v.toArray()],
+          [[0, 0, 0], dir.toArray()],
         );
       }
     }
