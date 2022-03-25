@@ -925,6 +925,20 @@ class Viewer {
     this.update(this.updateMarker);
   };
 
+  backupAnimation() {
+    if (this.animation.hasTracks()) {
+      this.backupTracks = this.animation.backup();
+    }
+  }
+
+  restoreAnimation() {
+    if (this.animation.hasBackup()) {
+      var params = this.animation.restore();
+      console.log(this.animation.tracks, params);
+      this.initAnimation(params.duration, params.speed, "A", params.repeat);
+    }
+  }
+
   /**
    * Handler for the animation control
    * @function

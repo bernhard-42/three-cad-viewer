@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { LoopOnce } from "three";
 
 const valid_transforms = ["t", "tx", "ty", "tz", "q", "rx", "ry", "rz"];
 
@@ -29,6 +28,11 @@ class Animation {
     this.clipAction = null;
     this.clock = new THREE.Clock();
     this.duration = 0;
+    this._backup = [];
+    this.root = null;
+    this.duration = null;
+    this.speed = null;
+    this.repeat = null;
   }
 
   addTrack(selector, group, action, times, values) {
@@ -110,11 +114,43 @@ class Animation {
     }
   }
 
+  backup() {
+    this._backup = {
+      tracks: this.tracks,
+      root: this.root,
+      duration: this.duration,
+      speed: this.speed,
+      repeat: this.repeat,
+    };
+  }
+
+  restore() {
+    this.tracks = this._backup.tracks;
+    return {
+      duration: this._backup.duration,
+      speed: this._backup.speed,
+      repeat: this._backup.repeat,
+    };
+  }
+
+  hasTracks() {
+    return this.tracks != null && this.tracks.length > 0;
+  }
+
+  hasBackup() {
+    return this._backup != null && Object.keys(this._backup).length > 0;
+  }
+
   animate(root, duration, speed, repeat = true) {
+    this.root = root;
+    this.duration = duration;
+    this.speed = speed;
+    this.repeat = repeat;
+
     this.clip = new THREE.AnimationClip("track", duration, this.tracks);
     this.mixer = new THREE.AnimationMixer(root);
     this.mixer.timeScale = speed;
-    this.duration = duration;
+
     // this.mixer.addEventListener('finished', (e) => { console.log("finished", e) });
     // this.mixer.addEventListener('loop', (e) => { console.log("loop", e) });
 

@@ -669,10 +669,12 @@ class Display {
   setExplode = (e) => {
     const flag = !!e.target.checked;
     if (flag) {
+      this.viewer.backupAnimation();
       this.viewer.explode();
     } else {
       this.controlAnimationByName("stop");
       this.viewer.clearAnimation();
+      this.viewer.restoreAnimation();
     }
   };
 
