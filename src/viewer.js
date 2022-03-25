@@ -1713,16 +1713,17 @@ class Viewer {
     });
   };
 
-  explode(duration = 2, speed = 1, multiplier = 3) {
+  explode(duration = 2, speed = 1, multiplier = 2) {
     this.clearAnimation();
 
     const use_origin = this.getAxes0();
 
     var worldCenterOrOrigin = new THREE.Vector3();
-    var objectCenter = new THREE.Vector3();
+    var worldObjectCenter = new THREE.Vector3();
 
-    var localObjectCenter = null;
-    var direction = null;
+    var worldDirection = null;
+    var localDirection = null;
+    var scaledLocalDirection = null;
 
     if (!use_origin) {
       var bb = new THREE.Box3().setFromObject(this.nestedGroup.rootGroup);
@@ -1734,9 +1735,9 @@ class Viewer {
       if (!(this.nestedGroup.groups[id] instanceof ObjectGroup)) {
         var group = this.nestedGroup.groups[id];
 
-        // Get and combine centers of all bounding boxes of ObjectGroups
-        // Do not use the Group, since it returs the bounding box of the underlying group
-        // hierarchy instead of the object(s)
+        // Get and combine all bounding boxes of ObjectGroups
+        // Do not use the Group, since it returns the bounding box of the underlying
+        // group hierarchy instead of the object(s)
         var b = new THREE.Box3();
         group.children.forEach((child) => {
           if (child instanceof ObjectGroup) {
@@ -1746,24 +1747,25 @@ class Viewer {
         if (b.isEmpty()) {
           continue;
         }
-        b.getCenter(objectCenter);
+        b.getCenter(worldObjectCenter);
 
-        // Explode around gloabl center or origin
-        objectCenter.sub(worldCenterOrOrigin);
+        // Explode around global center or origin
+        worldDirection = worldObjectCenter.sub(worldCenterOrOrigin);
+        localDirection = group.parent.worldToLocal(worldDirection.clone());
 
-        // Use the parent to calculate the local direction
-        localObjectCenter = group.parent.worldToLocal(objectCenter.clone());
-        direction = group.parent.worldToLocal(
-          objectCenter.clone().multiplyScalar(multiplier),
+        // Use the parent to calculate the local directions
+        scaledLocalDirection = group.parent.worldToLocal(
+          worldDirection.clone().multiplyScalar(multiplier),
         );
-        direction.sub(localObjectCenter);
+        // and ensure to shift objects at its center and not at its position
+        scaledLocalDirection.sub(localDirection);
 
         // build an animation track for the group with this direction
         this.addAnimationTrack(
           id,
           "t",
           [0, duration],
-          [[0, 0, 0], direction.toArray()],
+          [[0, 0, 0], scaledLocalDirection.toArray()],
         );
       }
     }
