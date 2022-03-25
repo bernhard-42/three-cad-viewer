@@ -1250,7 +1250,7 @@ class Viewer {
   getCameraLocationSettings() {
     return {
       position: this.getCameraPosition(),
-      quaternioin: this.getCameraQuaternion(),
+      quaternion: this.getCameraQuaternion(),
       target: this.getCameraTarget(),
       zoom: this.getCameraZoom(),
     };
