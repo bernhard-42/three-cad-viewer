@@ -1,7 +1,8 @@
 [data-theme="light"] {
   --tcv-font-color: #333;
   --tcv-bg-color: #fff;
-  --tcv-bg-highligth-color: #eee;
+  --tcv-bg-overlay-color: rgba(255, 255, 255, 0.6);
+  --tcv-bg-highlight-color: #eee;
   --tcv-bg-tooltip-color: rgb(226, 238, 248);
   --tcv-x-color: red;
   --tcv-y-color: green;
@@ -15,7 +16,8 @@
 [data-theme="dark"] {
   --tcv-font-color: #ddd;
   --tcv-bg-color: #444;
-  --tcv-bg-highligth-color: rgb(102, 102, 102);
+  --tcv-bg-overlay-color: rgba(68, 68, 68, 0.6);
+  --tcv-bg-highlight-color: rgb(102, 102, 102);
   --tcv-bg-tooltip-color: rgb(77, 109, 138);
   --tcv-x-color: rgb(255, 69, 0);
   --tcv-y-color: rgb(50, 205, 50);

@@ -16,6 +16,7 @@ canvas {
 .tcv_cad_navigation {
   display: flex;
   flex-direction: column;
+  z-index: 100;
 }
 
 .tcv_cad_body {
@@ -28,6 +29,10 @@ canvas {
   height: 400px;
   position: relative;
   margin: 2px;
+}
+
+.tcv_cad_view_glass {
+  position: absolute !important;
 }
 
 .tcv_cad_tree_toggles {
@@ -47,6 +52,10 @@ canvas {
   border-top: 1px solid lightgray;
 }
 
+.tcv_cad_tree_glass {
+  border: none !important;
+}
+
 .tcv_cad_info {
   width: 240px;
   height: 146px;
@@ -55,6 +64,23 @@ canvas {
   border-style: solid;
   border-width: 1px;
   overflow: hidden;
+}
+
+.tcv_cad_info_wrapper {
+  display: flex;
+  flex-direction: row;
+}
+
+.tcv_cad_info_toggler {
+  vertical-align: middle;
+}
+
+.tcv_toggle_info_wrapper {
+  display: none;
+}
+
+.tcv_cad_info_glass {
+  display: none;
 }
 
 .tcv_tcv_info_table {
@@ -137,7 +163,7 @@ th {
 
 .tcv_cad_animation {
   height: 36px;
-  background-color: var(--tcv-bg-color);
+  background-color: var(--tcv-bg-overlay-color);
   border: none;
   margin: 0;
   padding: 0px;
@@ -209,12 +235,13 @@ th {
   height: 14px !important;
   font-size: 11px !important;
   color: var(--tcv-font-color);
-  border: 1px solid var(--tcv-bg-highligth-color);
+  border: 1px solid var(--tcv-bg-highlight-color);
+  background-color: var(--tcv-bg-overlay-color);
 }
 
 .tcv_btn:hover {
   box-shadow: 1px 1px 1px 0 var(--tcv-shadow);
-  background-color: var(--tcv-bg-highligth-color);
+  background-color: var(--tcv-bg-highlight-color);
 }
 
 .tcv_btn:active {
@@ -243,7 +270,7 @@ input[type="button"] {
   padding: 0px;
   border: none;
   /* margin-bottom: 6px; */
-  background-color: var(--tcv-bg-color);
+  background-color: var(--tcv-bg-overlay-color);
   color: var(--tcv-font-color);
   font-size: 14px;
 }
@@ -304,8 +331,8 @@ input[type="button"] {
   position: absolute;
   min-width: 18px;
   box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  background-color: var(--tcv-bg-highligth-color);
+  z-index: 200;
+  background-color: var(--tcv-bg-highlight-color);
 }
 
 .tcv_grid-dropdown:hover .tcv_grid-content {
@@ -327,7 +354,7 @@ input[type="button"] {
 .tcv_clip_input {
   width: 25%;
   border: 1px solid #d3d3d3;
-  background-color: var(--tcv-bg-color);
+  background-color: var(--tcv-bg-overlay-color);
   color: var(--tcv-font-color);
 }
 

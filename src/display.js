@@ -3,139 +3,146 @@ import { getIconBackground } from "./icons.js";
 const TEMPLATE = `
 <div class="tcv_cad_viewer">
     <div class="tcv_cad_toolbar tcv_round">
-    <span class="tcv_tooltip"  data-tooltip="Show coordinate axis">
-        <input class='tcv_axes tcv_check' id='tcv_axes' type="checkbox" /><label for='tcv_axes' class="tcv_label">Axes</label>
-    </span>
-    <div class="tcv_grid-dropdown">
-        <input class='tcv_grid tcv_check' id='tcv_grid' type="checkbox" /><label for='tcv_grid' class="tcv_label">Grid</label>
-            <span class="tcv_tooltip"  data-tooltip="Show selective grids">
-            <div class="tcv_grid-content">
-                <div class="tcv_label">- xy</span><input class='tcv_grid-xy tcv_check' type="checkbox"></div>
-                <div class="tcv_label">- xz</span><input class='tcv_grid-xz tcv_check' type="checkbox"></div>
-                <div class="tcv_label">- yz</span><input class='tcv_grid-yz tcv_check' type="checkbox"></div>
-            </div>
+        <span class="tcv_tooltip"  data-tooltip="Show coordinate axis">
+            <input class='tcv_axes tcv_check' id='tcv_axes' type="checkbox" /><label for='tcv_axes' class="tcv_label">Axes</label>
         </span>
-    </div>
-    <span class="tcv_tooltip"  data-tooltip="Move center of axis and grid to (0,0,0)">
-        <input class='tcv_axes0 tcv_check' id='tcv_axes0' type="checkbox" /><label for='tcv_axes0' class="tcv_label">@0</label>
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Toggle camera between orthographic and perspective view">
-        <input class='tcv_ortho tcv_check' id='tcv_ortho' type="checkbox" /><label for='tcv_ortho' class="tcv_label">Ortho</label>
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Reset view">
-        <input class='tcv_reset tcv_btn' type="button"/>
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Fit view">
-        <input class='tcv_resize tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to iso view">
-        <input class='tcv_iso tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to front view">
-        <input class='tcv_front tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to back view">
-        <input class='tcv_rear tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to top view">
-        <input class='tcv_top tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to bottom view">
-        <input class='tcv_bottom tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to left view">
-        <input class='tcv_left tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Switch to right view">
-        <input class='tcv_right tcv_btn' type="button" />
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Toggle transparent objects">
-        <input class='tcv_transparent tcv_check' id='tcv_transparent' type="checkbox" /><label for='tcv_transparent' class="tcv_label">Transparent</label>
-    </span>
-    <span class="tcv_tooltip"  data-tooltip="Toggle black edges">
-        <input class='tcv_black_edges tcv_check' id='tcv_black_edges' type="checkbox" /><label for='tcv_black_edges' class="tcv_label">Black edges</label>
-    </span>
-    <span class="tcv_explode_widget tcv_tooltip"  data-tooltip="Explode assembly (@0 determines explosion center)">
-        <input class='tcv_explode tcv_check' id='tcv_explode' type="checkbox" /><label for='tcv_explode' class="tcv_label">Explode</label>
-    </span>
-    <span class="tcv_align_right">
-      <span class="tcv_tooltip"  data-tooltip="Toggle help">
-          <input class='tcv_help tcv_btn' type="button" />
-      </span>
-      <span class="tcv_tooltip"  data-tooltip="Pin view as PNG image">
-          <input class='tcv_pin tcv_btn' type="button" />
-      </span>
-    </span>
-    </div>
-    <div class="tcv_cad_body">
-    <div class="tcv_cad_navigation">
-    <div class="tcv_cad_tree tcv_round">
-        <div class="tcv_tabnav">
-            <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button"/>
-            <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping" type="button"/>
+        <div class="tcv_grid-dropdown">
+            <input class='tcv_grid tcv_check' id='tcv_grid' type="checkbox" /><label for='tcv_grid' class="tcv_label">Grid</label>
+                <span class="tcv_tooltip"  data-tooltip="Show selective grids">
+                <div class="tcv_grid-content">
+                    <div class="tcv_label">- xy</span><input class='tcv_grid-xy tcv_check' type="checkbox"></div>
+                    <div class="tcv_label">- xz</span><input class='tcv_grid-xz tcv_check' type="checkbox"></div>
+                    <div class="tcv_label">- yz</span><input class='tcv_grid-yz tcv_check' type="checkbox"></div>
+                </div>
+            </span>
         </div>
-        <div class="tcv_cad_tree_toggles">
-            <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value="1" type="button" />
-            <input class='tcv_collapse_all tcv_btn tcv_small_btn' value="C" type="button" />
-            <input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
+        <span class="tcv_tooltip"  data-tooltip="Move center of axis and grid to (0,0,0)">
+            <input class='tcv_axes0 tcv_check' id='tcv_axes0' type="checkbox" /><label for='tcv_axes0' class="tcv_label">@0</label>
+        </span>
+        <span class="tcv_tooltip"  data-tooltip="Toggle camera between orthographic and perspective view">
+            <input class='tcv_ortho tcv_check' id='tcv_ortho' type="checkbox" /><label for='tcv_ortho' class="tcv_label">Ortho</label>
+        </span>
+        <span class="tcv_tooltip"  data-tooltip="Reset view">
+            <input class='tcv_reset tcv_btn' type="button"/>
+        </span>
+        <span class="tcv_tooltip"  data-tooltip="Fit view">
+            <input class='tcv_resize tcv_btn' type="button" />
+        </span>
+        <span class="tcv_tooltip"  data-tooltip="Switch to iso view">
+            <input class='tcv_iso tcv_btn' type="button" />
+        </span>
+        <span class="tcv_tooltip"  data-tooltip="Switch to front view">
+            <input class='tcv_front tcv_btn' type="button" />
+        </span>
+        <span class="tcv_tooltip"  data-tooltip="Switch to back view">
+            <input class='tcv_rear tcv_btn' type="button" />
+        </span>
+        <span class="tcv_tooltip"  data-tooltip="Switch to top view">
+            <input class='tcv_top tcv_btn' type="button" />
+        </span>
+        <span class="tcv_tooltip"  data-tooltip="Switch to bottom view">
+            <input class='tcv_bottom tcv_btn' type="button" />
+        </span>
+        <span class="tcv_tooltip"  data-tooltip="Switch to left view">
+            <input class='tcv_left tcv_btn' type="button" />
+        </span>
+        <span class="tcv_tooltip"  data-tooltip="Switch to right view">
+            <input class='tcv_right tcv_btn' type="button" />
+        </span>
+        <span class="tcv_tooltip"  data-tooltip="Toggle transparent objects">
+            <input class='tcv_transparent tcv_check' id='tcv_transparent' type="checkbox" /><label for='tcv_transparent' class="tcv_label">Transparent</label>
+        </span>
+        <span class="tcv_tooltip"  data-tooltip="Toggle black edges">
+            <input class='tcv_black_edges tcv_check' id='tcv_black_edges' type="checkbox" /><label for='tcv_black_edges' class="tcv_label">Black edges</label>
+        </span>
+        <span class="tcv_explode_widget tcv_tooltip"  data-tooltip="Explode assembly (@0 determines explosion center)">
+            <input class='tcv_explode tcv_check' id='tcv_explode' type="checkbox" /><label for='tcv_explode' class="tcv_label">Explode</label>
+        </span>
+        <span class="tcv_align_right">
+          <span class="tcv_tooltip"  data-tooltip="Toggle help">
+              <input class='tcv_help tcv_btn' type="button" />
+          </span>
+          <span class="tcv_tooltip"  data-tooltip="Pin view as PNG image">
+              <input class='tcv_pin tcv_btn' type="button" />
+          </span>
+        </span>
         </div>
-        <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-            <div class="tcv_cad_tree_container">
-              <div class="tcv_cad_tree_container"></div>
+        <div class="tcv_cad_body">
+        <div class="tcv_cad_navigation">
+        <div class="tcv_cad_tree tcv_round">
+            <div class="tcv_tabnav">
+                <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button"/>
+                <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping" type="button"/>
             </div>
-            <div class="tcv_cad_clip_container">
-                <div class="tcv_slider_group">
-                    <div>
-                        <span class="tcv_tooltip"  data-tooltip="Set red clipping plane to view direction">
-                            <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type="button" />
-                        </span>
-                        <span class="tcv_lbl_norm_plane1 tcv_label">N1 = (n/a, n/a, n/a)</span>
-                    </div>
-                    <div>
-                        <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane1 tcv_clip_slider">
-                        <input value=50 class="tcv_inp_value_plane1 tcv_clip_input"></input>
-                    </div>
+            <div class="tcv_cad_tree_toggles">
+                <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value="1" type="button" />
+                <input class='tcv_collapse_all tcv_btn tcv_small_btn' value="C" type="button" />
+                <input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
+            </div>
+            <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
+                <div class="tcv_cad_tree_container">
+                  <div class="tcv_cad_tree_container"></div>
                 </div>
-                <div class="tcv_slider_group">
-                    <div>
-                        <span class="tooltip"  data-tooltip="Set green clipping plane to view direction">
-                            <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type="button" />
+                <div class="tcv_cad_clip_container">
+                    <div class="tcv_slider_group">
+                        <div>
+                            <span class="tcv_tooltip"  data-tooltip="Set red clipping plane to view direction">
+                                <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type="button" />
+                            </span>
+                            <span class="tcv_lbl_norm_plane1 tcv_label">N1 = (n/a, n/a, n/a)</span>
+                        </div>
+                        <div>
+                            <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane1 tcv_clip_slider">
+                            <input value=50 class="tcv_inp_value_plane1 tcv_clip_input"></input>
+                        </div>
+                    </div>
+                    <div class="tcv_slider_group">
+                        <div>
+                            <span class="tooltip"  data-tooltip="Set green clipping plane to view direction">
+                                <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type="button" />
+                            </span>
+                            <span class="tcv_lbl_norm_plane2 tcv_label">N2 = (n/a, n/a, n/a)</span>
+                        </div>
+                        <div>
+                            <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane2 tcv_clip_slider">
+                            <input value=50 class="tcv_inp_value_plane2 tcv_clip_input"></input>
+                        </div>
+                    </div>
+                    <div class="tcv_slider_group">
+                        <div>
+                            <span class="tooltip"  data-tooltip="Set blue clipping plane to view direction">
+                                <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type="button" />
+                            </span>
+                            <span class="tcv_lbl_norm_plane3 tcv_label">N3 = (n/a, n/a, n/a)</span>
+                        </div>
+                        <div>
+                            <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane3 tcv_clip_slider">
+                            <input value=50 class="tcv_inp_value_plane3 tcv_clip_input"></input>
+                        </div>
+                    </div>
+                    <div class="tcv_clip_checks">
+                        <span class="tcv_tooltip"  data-tooltip="Use intersection clipping">
+                            <span class="tcv_label">Intersection</span><input  class='tcv_clip_intersection tcv_check' type="checkbox" />
                         </span>
-                        <span class="tcv_lbl_norm_plane2 tcv_label">N2 = (n/a, n/a, n/a)</span>
-                    </div>
-                    <div>
-                        <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane2 tcv_clip_slider">
-                        <input value=50 class="tcv_inp_value_plane2 tcv_clip_input"></input>
-                    </div>
-                </div>
-                <div class="tcv_slider_group">
-                    <div>
-                        <span class="tooltip"  data-tooltip="Set blue clipping plane to view direction">
-                            <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type="button" />
+                        <span class="tcv_tooltip"  data-tooltip="Show clipping planes">
+                            <span class="tcv_label">Planes</span><input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type="checkbox" />
                         </span>
-                        <span class="tcv_lbl_norm_plane3 tcv_label">N3 = (n/a, n/a, n/a)</span>
                     </div>
-                    <div>
-                        <input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane3 tcv_clip_slider">
-                        <input value=50 class="tcv_inp_value_plane3 tcv_clip_input"></input>
-                    </div>
-                </div>
-                <div class="tcv_clip_checks">
-                    <span class="tcv_tooltip"  data-tooltip="Use intersection clipping">
-                        <span class="tcv_label">Intersection</span><input  class='tcv_clip_intersection tcv_check' type="checkbox" />
-                    </span>
-                    <span class="tcv_tooltip"  data-tooltip="Show clipping planes">
-                        <span class="tcv_label">Planes</span><input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type="checkbox" />
-                    </span>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="tcv_cad_info tcv_round">
-        <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-            <div class="tcv_cad_info_container"></div>
+        <div class="tcv_cad_info_wrapper">
+          <div class="tcv_cad_info tcv_round">
+              <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
+                  <div class="tcv_cad_info_container"></div>
+              </div>
+          </div>
+          <div class="tcv_toggle_info_wrapper">
+              <span class="tooltip" data-tooltip="Open/close info box">
+                <input class='tcv_toggle_info tcv_btn tcv_small_btn' value="<" type="button"/>
+              </span>
+          </div>
         </div>
-    </div>
     </div>
     <div class="tcv_cad_view">
         <div class="tcv_cad_animation tcv_round">
@@ -301,6 +308,7 @@ class Display {
     }
 
     this.viewer = null;
+    this._glassMode = false;
     this._events = [];
     this.cadWidth = options.cadWidth;
     this.height = options.height;
@@ -373,7 +381,7 @@ class Display {
    * Set the width and height of the different UI elements (tree, canvas and info box)
    * @param {DisplayOptions} options
    */
-  setSizes(options) {
+  setSizes(options, ratio = 2 / 3) {
     if (options.cadWidth) {
       this.cadWidth = options.cadWidth;
       this.cadView.style.width = px(options.cadWidth);
@@ -391,7 +399,7 @@ class Display {
         options.treeWidth,
       );
     }
-    const treeHeight = Math.round((this.height * 2) / 3);
+    const treeHeight = Math.round(this.height * ratio);
     this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
     this.cadInfo.parentElement.parentElement.style.height = px(
       this.height - treeHeight - 4,
@@ -446,9 +454,12 @@ class Display {
     this._setupClickEvent("tcv_collapse_all", this.collapseNodes);
     this._setupClickEvent("tcv_expand", this.expandNodes);
 
+    this._setupClickEvent("tcv_toggle_info", this.toggleInfo);
+
     this._setupClickEvent("tcv_pin", this.pinAsPng);
     this._setupClickEvent("tcv_help", this.toggleHelp);
     this.help_shown = true;
+    this.info_shown = true;
 
     const tabs = ["tcv_tab_tree", "tcv_tab_clip"];
     tabs.forEach((name) => {
@@ -1022,6 +1033,57 @@ class Display {
   toggleHelp = () => {
     this.showHelp(!this.help_shown);
   };
+
+  showInfo = (flag) => {
+    console.log(this.cadInfo);
+    this.cadInfo.parentNode.parentNode.style.display = flag ? "block" : "none";
+    this._getElement("tcv_toggle_info").value = flag ? "<" : ">";
+    this.info_shown = flag;
+  };
+
+  toggleInfo = () => {
+    this.showInfo(!this.info_shown);
+  };
+
+  glassMode(flag) {
+    if (flag) {
+      this._getElement("tcv_cad_tree").classList.add("tcv_cad_tree_glass");
+      this._getElement("tcv_cad_info").classList.add("tcv_cad_info_glass");
+      this._getElement("tcv_cad_view").classList.add("tcv_cad_view_glass");
+      this.setSizes({
+        cad_width: this.cadWidth,
+        treeWidth: 0,
+        height: this.height,
+      });
+      this._getElement("tcv_cad_toolbar").style.width = px(this.cadWidth);
+      if (this.cadWidth < 1000) {
+        this._getElement("tcv_transparent").nextSibling.innerHTML = "Tr";
+        this._getElement("tcv_black_edges").nextSibling.innerHTML = "BE";
+        this._getElement("tcv_explode").nextSibling.innerHTML = "Ex";
+      }
+      this._getElement("tcv_toggle_info_wrapper").style.display = "block";
+      this.showInfo(false);
+      this._glassMode = true;
+    } else {
+      this._getElement("tcv_cad_tree").classList.remove("tcv_cad_tree_glass");
+      this._getElement("tcv_cad_info").classList.remove("tcv_cad_info_glass");
+      this._getElement("tcv_cad_view").classList.remove("tcv_cad_view_glass");
+      this.setSizes({
+        cad_width: this.cadWidth,
+        treeWidth: this.treeWidth,
+        height: this.height,
+      });
+      this._getElement("tcv_cad_toolbar").style.width = px(
+        this.cadWidth + this.treeWidth,
+      );
+      this._getElement("tcv_transparent").nextSibling.innerHTML = "Transparent";
+      this._getElement("tcv_black_edges").nextSibling.innerHTML = "Black Edges";
+      this._getElement("tcv_explode").nextSibling.innerHTML = "Explode";
+      this._getElement("tcv_toggle_info_wrapper").style.display = "none";
+      this.showInfo(true);
+      this._glassMode = false;
+    }
+  }
 }
 
 export { Display };
