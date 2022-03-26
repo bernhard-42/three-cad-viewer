@@ -132,15 +132,15 @@ const TEMPLATE = `
             </div>
         </div>
         <div class="tcv_cad_info_wrapper">
-          <div class="tcv_cad_info tcv_round">
-              <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-                  <div class="tcv_cad_info_container"></div>
-              </div>
-          </div>
           <div class="tcv_toggle_info_wrapper">
               <span class="tooltip" data-tooltip="Open/close info box">
                 <input class='tcv_toggle_info tcv_btn tcv_small_btn' value="<" type="button"/>
               </span>
+          </div>
+          <div class="tcv_cad_info tcv_round">
+              <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
+                  <div class="tcv_cad_info_container"></div>
+              </div>
           </div>
         </div>
     </div>
@@ -1037,7 +1037,7 @@ class Display {
   showInfo = (flag) => {
     console.log(this.cadInfo);
     this.cadInfo.parentNode.parentNode.style.display = flag ? "block" : "none";
-    this._getElement("tcv_toggle_info").value = flag ? "<" : ">";
+    this._getElement("tcv_toggle_info").value = flag ? "\u25B2" : "\u25BC";
     this.info_shown = flag;
   };
 
@@ -1048,38 +1048,49 @@ class Display {
   glassMode(flag) {
     if (flag) {
       this._getElement("tcv_cad_tree").classList.add("tcv_cad_tree_glass");
+      this._getElement("tcv_cad_tree").style["height"] = null;
+      this._getElement("tcv_cad_tree").style["max-height"] = px(
+        Math.round((this.height * 2) / 3) - 18,
+      );
+
       this._getElement("tcv_cad_info").classList.add("tcv_cad_info_glass");
       this._getElement("tcv_cad_view").classList.add("tcv_cad_view_glass");
-      this.setSizes({
-        cad_width: this.cadWidth,
-        treeWidth: 0,
-        height: this.height,
-      });
+
       this._getElement("tcv_cad_toolbar").style.width = px(this.cadWidth);
+      this._getElement("tcv_cad_body").style.width = px(this.cadWidth);
+
       if (this.cadWidth < 1000) {
         this._getElement("tcv_transparent").nextSibling.innerHTML = "Tr";
         this._getElement("tcv_black_edges").nextSibling.innerHTML = "BE";
         this._getElement("tcv_explode").nextSibling.innerHTML = "Ex";
       }
+
       this._getElement("tcv_toggle_info_wrapper").style.display = "block";
+
       this.showInfo(false);
       this._glassMode = true;
     } else {
       this._getElement("tcv_cad_tree").classList.remove("tcv_cad_tree_glass");
+      this._getElement("tcv_cad_tree").style["max-height"] = null;
+      this._getElement("tcv_cad_tree").style.height = px(
+        Math.round((this.height * 2) / 3),
+      );
       this._getElement("tcv_cad_info").classList.remove("tcv_cad_info_glass");
       this._getElement("tcv_cad_view").classList.remove("tcv_cad_view_glass");
-      this.setSizes({
-        cad_width: this.cadWidth,
-        treeWidth: this.treeWidth,
-        height: this.height,
-      });
+
       this._getElement("tcv_cad_toolbar").style.width = px(
         this.cadWidth + this.treeWidth,
       );
+      this._getElement("tcv_cad_body").style.width = px(
+        this.cadWidth + this.treeWidth + 4,
+      );
+
       this._getElement("tcv_transparent").nextSibling.innerHTML = "Transparent";
       this._getElement("tcv_black_edges").nextSibling.innerHTML = "Black Edges";
       this._getElement("tcv_explode").nextSibling.innerHTML = "Explode";
+
       this._getElement("tcv_toggle_info_wrapper").style.display = "none";
+
       this.showInfo(true);
       this._glassMode = false;
     }

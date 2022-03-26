@@ -164,6 +164,7 @@ class Viewer {
     this.clipSlider2 = -1;
     this.tools = true;
     this.control = "orbit";
+    this.glass = false;
     this.ticks = 10;
 
     this.position = null;
@@ -224,6 +225,7 @@ class Viewer {
     console.log("- ticks", this.ticks);
     console.log("- timeit", this.timeit);
     console.log("- tools", this.tools);
+    console.log("- glass", this.glass);
     console.log("- transparent", this.transparent);
     console.log("- zoom", this.zoom);
     console.log("- zoom0", this.zoom0);
@@ -566,7 +568,8 @@ class Viewer {
    */
   render(group, tree, states, options) {
     this.setViewerDefaults(options);
-
+    this.display.glassMode(options.glass);
+    
     const timer = new Timer("viewer", this.timeit);
 
     this.states = states;
