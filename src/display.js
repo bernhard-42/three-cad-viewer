@@ -312,7 +312,10 @@ class Display {
 
     this.lastPlaneState = false;
 
-    if (options.theme === "dark") {
+    if (
+      options.theme === "dark" ||
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
       document.documentElement.setAttribute("data-theme", "dark");
     } else {
       document.documentElement.setAttribute("data-theme", "light");
