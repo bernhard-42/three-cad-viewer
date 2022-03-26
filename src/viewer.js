@@ -44,6 +44,7 @@ class Viewer {
       height: this.height,
       treeWidth: this.treeWidth,
     });
+    this.display.glassMode(options.glass);
 
     window.THREE = THREE;
 

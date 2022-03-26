@@ -411,7 +411,6 @@ class Display {
     }
 
     this.showPinning(options.pinning);
-    this.glassMode(options.glass);
   }
 
   _setupCheckEvent(name, fn, flag) {
