@@ -312,13 +312,16 @@ class Display {
 
     this.lastPlaneState = false;
 
+    var theme;
     if (
       options.theme === "dark" ||
       window.matchMedia("(prefers-color-scheme: dark)").matches
     ) {
       document.documentElement.setAttribute("data-theme", "dark");
+      theme = "dark";
     } else {
       document.documentElement.setAttribute("data-theme", "light");
+      theme = "light";
     }
 
     for (var btn of buttons) {
@@ -327,7 +330,7 @@ class Display {
         var el = elements[i];
         el.setAttribute(
           "style",
-          `background-image: ${getIconBackground(options.theme, btn)}`,
+          `background-image: ${getIconBackground(theme, btn)}`,
         );
       }
     }

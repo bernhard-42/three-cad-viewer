@@ -569,7 +569,7 @@ class Viewer {
   render(group, tree, states, options) {
     this.setViewerDefaults(options);
     this.display.glassMode(options.glass);
-    
+
     const timer = new Timer("viewer", this.timeit);
 
     this.states = states;
@@ -753,12 +753,18 @@ class Viewer {
     // build tree view
     //
 
+    const theme =
+      options.theme === "dark" ||
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+
     this.tree = tree;
     this.treeview = new TreeView(
       clone(this.states),
       this.tree,
       this.setObjects,
-      this.theme,
+      theme,
     );
 
     this.display.addCadTree(this.treeview.render());
