@@ -1030,6 +1030,11 @@ class Display {
     this.showHelp(!this.help_shown);
   };
 
+  /**
+   * Show or hide info dialog
+   * @function
+   * @param {boolean} flag - whether to show or hide info dialog
+   */
   showInfo = (flag) => {
     console.log(this.cadInfo);
     this.cadInfo.parentNode.parentNode.style.display = flag ? "block" : "none";
@@ -1037,10 +1042,19 @@ class Display {
     this.info_shown = flag;
   };
 
+  /**
+   * Show info dialog
+   * @function
+   */
   toggleInfo = () => {
     this.showInfo(!this.info_shown);
   };
 
+  /**
+   * Enable/disable glass mode
+   * @function
+   * @param {boolean} flag - whether to enable/disable glass mode
+   */
   glassMode(flag) {
     if (flag) {
       this._getElement("tcv_cad_tree").classList.add("tcv_cad_tree_glass");
