@@ -111,6 +111,7 @@ class Viewer {
     this.treeWidth = 250;
     this.height = 600;
     this.pinning = false;
+    this.glass = false;
 
     for (var option in options) {
       if (this[option] == null) {
@@ -569,7 +570,6 @@ class Viewer {
    */
   render(group, tree, states, options) {
     this.setViewerDefaults(options);
-    this.display.glassMode(options.glass);
 
     const timer = new Timer("viewer", this.timeit);
 
