@@ -51695,7 +51695,6 @@ class Display {
     }
 
     this.showPinning(options.pinning);
-    this.glassMode(options.glass);
   }
 
   _setupCheckEvent(name, fn, flag) {
@@ -57368,6 +57367,7 @@ class Viewer {
       height: this.height,
       treeWidth: this.treeWidth,
     });
+    this.display.glassMode(options.glass);
 
     window.THREE = THREE;
 
