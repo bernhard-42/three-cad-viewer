@@ -279,32 +279,22 @@ class Display {
     this.container = container;
 
     this.container.innerHTML = TEMPLATE;
-    this.cadTool = this.container.getElementsByClassName("tcv_cad_toolbar")[0];
-    this.cadView = this.container.getElementsByClassName("tcv_cad_view")[0];
-    this.cadTree = this.container.getElementsByClassName(
-      "tcv_cad_tree_container",
-    )[0];
-    this.cadTreeToggles = this.container.getElementsByClassName(
-      "tcv_cad_tree_toggles",
-    )[0];
-    this.cadClip = this.container.getElementsByClassName(
-      "tcv_cad_clip_container",
-    )[0];
-    this.tabTree = this.container.getElementsByClassName("tcv_tab_tree")[0];
-    this.tabClip = this.container.getElementsByClassName("tcv_tab_clip")[0];
-    this.cadInfo = this.container.getElementsByClassName(
-      "tcv_cad_info_container",
-    )[0];
-    this.cadAnim =
-      this.container.getElementsByClassName("tcv_cad_animation")[0];
+    this.cadBody = this._getElement("tcv_cad_body");
+    this.cadTool = this._getElement("tcv_cad_toolbar");
+    this.cadView = this._getElement("tcv_cad_view");
+    this.cadTree = this._getElement("tcv_cad_tree_container");
+    this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
+    this.cadClip = this._getElement("tcv_cad_clip_container");
+    this.tabTree = this._getElement("tcv_tab_tree");
+    this.tabClip = this._getElement("tcv_tab_clip");
+    this.cadInfo = this._getElement("tcv_cad_info_container");
+    this.cadAnim = this._getElement("tcv_cad_animation");
 
-    this.cadHelp = this.container.getElementsByClassName("tcv_cad_help")[0];
+    this.cadHelp = this._getElement("tcv_cad_help");
 
     this.planeLabels = [];
     for (var i = 1; i < 4; i++) {
-      this.planeLabels.push(
-        this.container.getElementsByClassName(`tcv_lbl_norm_plane${i}`)[0],
-      );
+      this.planeLabels.push(this._getElement(`tcv_lbl_norm_plane${i}`));
     }
 
     this.viewer = null;
