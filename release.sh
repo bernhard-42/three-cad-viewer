@@ -3,10 +3,10 @@ CURRENT_VERSION=$(cat package.json | jq -r .version)
 
 echo v$CURRENT_VERSION
 
-# echo "pushing this release"
-# git tag v$CURRENT_VERSION
-# git push
-# git push --tags
+echo "pushing this release"
+git tag v$CURRENT_VERSION
+git push
+git push --tags
 
 echo "creating github release"
 
