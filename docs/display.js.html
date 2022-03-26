@@ -31,142 +31,150 @@
 const TEMPLATE = `
 &lt;div class="tcv_cad_viewer">
     &lt;div class="tcv_cad_toolbar tcv_round">
-    &lt;span class="tcv_tooltip"  data-tooltip="Show coordinate axis">
-        &lt;span class="tcv_label">Axes&lt;/span>&lt;input class='tcv_axes tcv_check' type="checkbox" />
-    &lt;/span>
-    &lt;div class="tcv_grid-dropdown">
-        &lt;span class="tcv_label">Grid&lt;/span>&lt;input class='tcv_grid tcv_check' type="checkbox" />
-            &lt;span class="tcv_tooltip"  data-tooltip="Show selective grids">
-            &lt;div class="tcv_grid-content">
-                &lt;div class="tcv_label">- xy&lt;/span>&lt;input class='tcv_grid-xy tcv_check' type="checkbox">&lt;/div>
-                &lt;div class="tcv_label">- xz&lt;/span>&lt;input class='tcv_grid-xz tcv_check' type="checkbox">&lt;/div>
-                &lt;div class="tcv_label">- yz&lt;/span>&lt;input class='tcv_grid-yz tcv_check' type="checkbox">&lt;/div>
-            &lt;/div>
+        &lt;span class="tcv_tooltip"  data-tooltip="Show coordinate axis">
+            &lt;input class='tcv_axes tcv_check' id='tcv_axes' type="checkbox" />&lt;label for='tcv_axes' class="tcv_label">Axes&lt;/label>
         &lt;/span>
-    &lt;/div>
-    &lt;span class="tcv_tooltip"  data-tooltip="Move center of axis and grid to (0,0,0)">
-        &lt;span class="tcv_label">@0&lt;/span>&lt;input class='tcv_axes0 tcv_check' type="checkbox" />
-    &lt;/span>
-    &lt;span class="tcv_tooltip"  data-tooltip="Toggle camera between orthographic and perspective view">
-        &lt;span class="tcv_label">Ortho&lt;/span>&lt;input class='tcv_ortho tcv_check' type="checkbox" />
-    &lt;/span>
-    &lt;span class="tcv_tooltip"  data-tooltip="Reset view">
-        &lt;input class='tcv_reset tcv_btn' type="button"/>
-    &lt;/span>
-    &lt;span class="tcv_tooltip"  data-tooltip="Fit view">
-        &lt;input class='tcv_resize tcv_btn' type="button" />
-    &lt;/span>
-    &lt;span class="tcv_tooltip"  data-tooltip="Switch to iso view">
-        &lt;input class='tcv_iso tcv_btn' type="button" />
-    &lt;/span>
-    &lt;span class="tcv_tooltip"  data-tooltip="Switch to front view">
-        &lt;input class='tcv_front tcv_btn' type="button" />
-    &lt;/span>
-    &lt;span class="tcv_tooltip"  data-tooltip="Switch to back view">
-        &lt;input class='tcv_rear tcv_btn' type="button" />
-    &lt;/span>
-    &lt;span class="tcv_tooltip"  data-tooltip="Switch to top view">
-        &lt;input class='tcv_top tcv_btn' type="button" />
-    &lt;/span>
-    &lt;span class="tcv_tooltip"  data-tooltip="Switch to bottom view">
-        &lt;input class='tcv_bottom tcv_btn' type="button" />
-    &lt;/span>
-    &lt;span class="tcv_tooltip"  data-tooltip="Switch to left view">
-        &lt;input class='tcv_left tcv_btn' type="button" />
-    &lt;/span>
-    &lt;span class="tcv_tooltip"  data-tooltip="Switch to right view">
-        &lt;input class='tcv_right tcv_btn' type="button" />
-    &lt;/span>
-    &lt;span class="tcv_tooltip"  data-tooltip="Toggle transparent objects">
-        &lt;span class="tcv_label">Transparent&lt;/span>&lt;input class='tcv_transparent tcv_check' type="checkbox" />
-    &lt;/span>
-    &lt;span class="tcv_tooltip"  data-tooltip="Toggle black edges">
-        &lt;span class="tcv_label">Black edges&lt;/span>&lt;input class='tcv_black_edges tcv_check' type="checkbox" />
-    &lt;/span>
-    &lt;span class="tcv_explode_widget tcv_tooltip"  data-tooltip="Explode assembly">
-        &lt;span class="tcv_label">Explode&lt;/span>&lt;input class='tcv_explode tcv_check' type="checkbox" />
-    &lt;/span>
-    &lt;span class="tcv_align_right">
-      &lt;span class="tcv_tooltip"  data-tooltip="Toggle help">
-          &lt;input class='tcv_help tcv_btn' type="button" />
-      &lt;/span>
-      &lt;span class="tcv_tooltip"  data-tooltip="Pin view as PNG image">
-          &lt;input class='tcv_pin tcv_btn' type="button" />
-      &lt;/span>
-    &lt;/span>
-    &lt;/div>
-    &lt;div class="tcv_cad_body">
-    &lt;div class="tcv_cad_navigation">
-    &lt;div class="tcv_cad_tree tcv_round">
-        &lt;div class="tcv_tabnav">
-            &lt;input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button"/>
-            &lt;input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping" type="button"/>
+        &lt;div class="tcv_grid-dropdown">
+            &lt;input class='tcv_grid tcv_check' id='tcv_grid' type="checkbox" />&lt;label for='tcv_grid' class="tcv_label">Grid&lt;/label>
+                &lt;span class="tcv_tooltip"  data-tooltip="Show selective grids">
+                &lt;div class="tcv_grid-content">
+                    &lt;div class="tcv_label">- xy&lt;/span>&lt;input class='tcv_grid-xy tcv_check' type="checkbox">&lt;/div>
+                    &lt;div class="tcv_label">- xz&lt;/span>&lt;input class='tcv_grid-xz tcv_check' type="checkbox">&lt;/div>
+                    &lt;div class="tcv_label">- yz&lt;/span>&lt;input class='tcv_grid-yz tcv_check' type="checkbox">&lt;/div>
+                &lt;/div>
+            &lt;/span>
         &lt;/div>
-        &lt;div class="tcv_cad_tree_toggles">
-            &lt;input class='tcv_collapse_singles tcv_btn tcv_small_btn' value="1" type="button" />
-            &lt;input class='tcv_collapse_all tcv_btn tcv_small_btn' value="C" type="button" />
-            &lt;input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
+        &lt;span class="tcv_tooltip"  data-tooltip="Move center of axis and grid to (0,0,0)">
+            &lt;input class='tcv_axes0 tcv_check' id='tcv_axes0' type="checkbox" />&lt;label for='tcv_axes0' class="tcv_label">@0&lt;/label>
+        &lt;/span>
+        &lt;span class="tcv_tooltip"  data-tooltip="Toggle camera between orthographic and perspective view">
+            &lt;input class='tcv_ortho tcv_check' id='tcv_ortho' type="checkbox" />&lt;label for='tcv_ortho' class="tcv_label">Ortho&lt;/label>
+        &lt;/span>
+        &lt;span class="tcv_tooltip"  data-tooltip="Reset view">
+            &lt;input class='tcv_reset tcv_btn' type="button"/>
+        &lt;/span>
+        &lt;span class="tcv_tooltip"  data-tooltip="Fit view">
+            &lt;input class='tcv_resize tcv_btn' type="button" />
+        &lt;/span>
+        &lt;span class="tcv_tooltip"  data-tooltip="Switch to iso view">
+            &lt;input class='tcv_iso tcv_btn' type="button" />
+        &lt;/span>
+        &lt;span class="tcv_tooltip"  data-tooltip="Switch to front view">
+            &lt;input class='tcv_front tcv_btn' type="button" />
+        &lt;/span>
+        &lt;span class="tcv_tooltip"  data-tooltip="Switch to back view">
+            &lt;input class='tcv_rear tcv_btn' type="button" />
+        &lt;/span>
+        &lt;span class="tcv_tooltip"  data-tooltip="Switch to top view">
+            &lt;input class='tcv_top tcv_btn' type="button" />
+        &lt;/span>
+        &lt;span class="tcv_tooltip"  data-tooltip="Switch to bottom view">
+            &lt;input class='tcv_bottom tcv_btn' type="button" />
+        &lt;/span>
+        &lt;span class="tcv_tooltip"  data-tooltip="Switch to left view">
+            &lt;input class='tcv_left tcv_btn' type="button" />
+        &lt;/span>
+        &lt;span class="tcv_tooltip"  data-tooltip="Switch to right view">
+            &lt;input class='tcv_right tcv_btn' type="button" />
+        &lt;/span>
+        &lt;span class="tcv_tooltip"  data-tooltip="Toggle transparent objects">
+            &lt;input class='tcv_transparent tcv_check' id='tcv_transparent' type="checkbox" />&lt;label for='tcv_transparent' class="tcv_label">Transparent&lt;/label>
+        &lt;/span>
+        &lt;span class="tcv_tooltip"  data-tooltip="Toggle black edges">
+            &lt;input class='tcv_black_edges tcv_check' id='tcv_black_edges' type="checkbox" />&lt;label for='tcv_black_edges' class="tcv_label">Black edges&lt;/label>
+        &lt;/span>
+        &lt;span class="tcv_explode_widget tcv_tooltip"  data-tooltip="Explode assembly (@0 determines explosion center)">
+            &lt;input class='tcv_explode tcv_check' id='tcv_explode' type="checkbox" />&lt;label for='tcv_explode' class="tcv_label">Explode&lt;/label>
+        &lt;/span>
+        &lt;span class="tcv_align_right">
+          &lt;span class="tcv_tooltip"  data-tooltip="Toggle help">
+              &lt;input class='tcv_help tcv_btn' type="button" />
+          &lt;/span>
+          &lt;span class="tcv_tooltip"  data-tooltip="Pin view as PNG image">
+              &lt;input class='tcv_pin tcv_btn' type="button" />
+          &lt;/span>
+        &lt;/span>
         &lt;/div>
-        &lt;div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-            &lt;div class="tcv_cad_tree_container">
-              &lt;div class="tcv_cad_tree_container">&lt;/div>
+        &lt;div class="tcv_cad_body">
+        &lt;div class="tcv_cad_navigation">
+        &lt;div class="tcv_cad_tree tcv_round">
+            &lt;div class="tcv_tabnav">
+                &lt;input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button"/>
+                &lt;input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping" type="button"/>
             &lt;/div>
-            &lt;div class="tcv_cad_clip_container">
-                &lt;div class="tcv_slider_group">
-                    &lt;div>
-                        &lt;span class="tcv_tooltip"  data-tooltip="Set red clipping plane to view direction">
-                            &lt;input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type="button" />
-                        &lt;/span>
-                        &lt;span class="tcv_lbl_norm_plane1 tcv_label">N1 = (n/a, n/a, n/a)&lt;/span>
-                    &lt;/div>
-                    &lt;div>
-                        &lt;input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane1 tcv_clip_slider">
-                        &lt;input value=50 class="tcv_inp_value_plane1 tcv_clip_input">&lt;/input>
-                    &lt;/div>
+            &lt;div class="tcv_cad_tree_toggles">
+                &lt;input class='tcv_collapse_singles tcv_btn tcv_small_btn' value="1" type="button" />
+                &lt;input class='tcv_collapse_all tcv_btn tcv_small_btn' value="C" type="button" />
+                &lt;input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
+            &lt;/div>
+            &lt;div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
+                &lt;div class="tcv_cad_tree_container">
+                  &lt;div class="tcv_cad_tree_container">&lt;/div>
                 &lt;/div>
-                &lt;div class="tcv_slider_group">
-                    &lt;div>
-                        &lt;span class="tooltip"  data-tooltip="Set green clipping plane to view direction">
-                            &lt;input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type="button" />
+                &lt;div class="tcv_cad_clip_container">
+                    &lt;div class="tcv_slider_group">
+                        &lt;div>
+                            &lt;span class="tcv_tooltip"  data-tooltip="Set red clipping plane to view direction">
+                                &lt;input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type="button" />
+                            &lt;/span>
+                            &lt;span class="tcv_lbl_norm_plane1 tcv_label">N1 = (n/a, n/a, n/a)&lt;/span>
+                        &lt;/div>
+                        &lt;div>
+                            &lt;input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane1 tcv_clip_slider">
+                            &lt;input value=50 class="tcv_inp_value_plane1 tcv_clip_input">&lt;/input>
+                        &lt;/div>
+                    &lt;/div>
+                    &lt;div class="tcv_slider_group">
+                        &lt;div>
+                            &lt;span class="tooltip"  data-tooltip="Set green clipping plane to view direction">
+                                &lt;input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type="button" />
+                            &lt;/span>
+                            &lt;span class="tcv_lbl_norm_plane2 tcv_label">N2 = (n/a, n/a, n/a)&lt;/span>
+                        &lt;/div>
+                        &lt;div>
+                            &lt;input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane2 tcv_clip_slider">
+                            &lt;input value=50 class="tcv_inp_value_plane2 tcv_clip_input">&lt;/input>
+                        &lt;/div>
+                    &lt;/div>
+                    &lt;div class="tcv_slider_group">
+                        &lt;div>
+                            &lt;span class="tooltip"  data-tooltip="Set blue clipping plane to view direction">
+                                &lt;input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type="button" />
+                            &lt;/span>
+                            &lt;span class="tcv_lbl_norm_plane3 tcv_label">N3 = (n/a, n/a, n/a)&lt;/span>
+                        &lt;/div>
+                        &lt;div>
+                            &lt;input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane3 tcv_clip_slider">
+                            &lt;input value=50 class="tcv_inp_value_plane3 tcv_clip_input">&lt;/input>
+                        &lt;/div>
+                    &lt;/div>
+                    &lt;div class="tcv_clip_checks">
+                        &lt;span class="tcv_tooltip"  data-tooltip="Use intersection clipping">
+                            &lt;span class="tcv_label">Intersection&lt;/span>&lt;input  class='tcv_clip_intersection tcv_check' type="checkbox" />
                         &lt;/span>
-                        &lt;span class="tcv_lbl_norm_plane2 tcv_label">N2 = (n/a, n/a, n/a)&lt;/span>
-                    &lt;/div>
-                    &lt;div>
-                        &lt;input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane2 tcv_clip_slider">
-                        &lt;input value=50 class="tcv_inp_value_plane2 tcv_clip_input">&lt;/input>
-                    &lt;/div>
-                &lt;/div>
-                &lt;div class="tcv_slider_group">
-                    &lt;div>
-                        &lt;span class="tooltip"  data-tooltip="Set blue clipping plane to view direction">
-                            &lt;input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type="button" />
+                        &lt;span class="tcv_tooltip"  data-tooltip="Show clipping planes">
+                            &lt;span class="tcv_label">Planes&lt;/span>&lt;input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type="checkbox" />
                         &lt;/span>
-                        &lt;span class="tcv_lbl_norm_plane3 tcv_label">N3 = (n/a, n/a, n/a)&lt;/span>
                     &lt;/div>
-                    &lt;div>
-                        &lt;input type="range" min="1" max="100" value="50" class="tcv_sld_value_plane3 tcv_clip_slider">
-                        &lt;input value=50 class="tcv_inp_value_plane3 tcv_clip_input">&lt;/input>
-                    &lt;/div>
-                &lt;/div>
-                &lt;div class="tcv_clip_checks">
-                    &lt;span class="tcv_tooltip"  data-tooltip="Use intersection clipping">
-                        &lt;span class="tcv_label">Intersection&lt;/span>&lt;input  class='tcv_clip_intersection tcv_check' type="checkbox" />
-                    &lt;/span>
-                    &lt;span class="tcv_tooltip"  data-tooltip="Show clipping planes">
-                        &lt;span class="tcv_label">Planes&lt;/span>&lt;input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type="checkbox" />
-                    &lt;/span>
                 &lt;/div>
             &lt;/div>
         &lt;/div>
-    &lt;/div>
-    &lt;div class="tcv_cad_info tcv_round">
-        &lt;div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-            &lt;div class="tcv_cad_info_container">&lt;/div>
+        &lt;div class="tcv_cad_info_wrapper">
+          &lt;div class="tcv_toggle_info_wrapper">
+              &lt;span class="tooltip" data-tooltip="Open/close info box">
+                &lt;input class='tcv_toggle_info tcv_btn tcv_small_btn' value="&lt;" type="button"/>
+              &lt;/span>
+          &lt;/div>
+          &lt;div class="tcv_cad_info tcv_round">
+              &lt;div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
+                  &lt;div class="tcv_cad_info_container">&lt;/div>
+              &lt;/div>
+          &lt;/div>
         &lt;/div>
-    &lt;/div>
     &lt;/div>
     &lt;div class="tcv_cad_view">
         &lt;div class="tcv_cad_animation tcv_round">
+            &lt;span class="tcv_animation_label">E&lt;/span>
             &lt;span>&lt;input type="range" min="0" max="1000" value="0" class="tcv_animation_slider tcv_clip_slider">&lt;/span>
             &lt;span class="tcv_tooltip"  data-tooltip="Play animation">&lt;input class='tcv_play tcv_btn' type="button" />&lt;/span>
             &lt;span class="tcv_tooltip"  data-tooltip="Pause animation">&lt;input class='tcv_pause tcv_btn' type="button" />&lt;/span>
@@ -299,35 +307,26 @@ class Display {
     this.container = container;
 
     this.container.innerHTML = TEMPLATE;
-    this.cadTool = this.container.getElementsByClassName("tcv_cad_toolbar")[0];
-    this.cadView = this.container.getElementsByClassName("tcv_cad_view")[0];
-    this.cadTree = this.container.getElementsByClassName(
-      "tcv_cad_tree_container",
-    )[0];
-    this.cadTreeToggles = this.container.getElementsByClassName(
-      "tcv_cad_tree_toggles",
-    )[0];
-    this.cadClip = this.container.getElementsByClassName(
-      "tcv_cad_clip_container",
-    )[0];
-    this.tabTree = this.container.getElementsByClassName("tcv_tab_tree")[0];
-    this.tabClip = this.container.getElementsByClassName("tcv_tab_clip")[0];
-    this.cadInfo = this.container.getElementsByClassName(
-      "tcv_cad_info_container",
-    )[0];
-    this.cadAnim =
-      this.container.getElementsByClassName("tcv_cad_animation")[0];
+    this.cadBody = this._getElement("tcv_cad_body");
+    this.cadTool = this._getElement("tcv_cad_toolbar");
+    this.cadView = this._getElement("tcv_cad_view");
+    this.cadTree = this._getElement("tcv_cad_tree_container");
+    this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
+    this.cadClip = this._getElement("tcv_cad_clip_container");
+    this.tabTree = this._getElement("tcv_tab_tree");
+    this.tabClip = this._getElement("tcv_tab_clip");
+    this.cadInfo = this._getElement("tcv_cad_info_container");
+    this.cadAnim = this._getElement("tcv_cad_animation");
 
-    this.cadHelp = this.container.getElementsByClassName("tcv_cad_help")[0];
+    this.cadHelp = this._getElement("tcv_cad_help");
 
     this.planeLabels = [];
     for (var i = 1; i &lt; 4; i++) {
-      this.planeLabels.push(
-        this.container.getElementsByClassName(`tcv_lbl_norm_plane${i}`)[0],
-      );
+      this.planeLabels.push(this._getElement(`tcv_lbl_norm_plane${i}`));
     }
 
     this.viewer = null;
+    this._glassMode = false;
     this._events = [];
     this.cadWidth = options.cadWidth;
     this.height = options.height;
@@ -341,7 +340,10 @@ class Display {
 
     this.lastPlaneState = false;
 
-    if (options.theme === "dark") {
+    if (
+      options.theme === "dark" ||
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
       document.documentElement.setAttribute("data-theme", "dark");
     } else {
       document.documentElement.setAttribute("data-theme", "light");
@@ -400,7 +402,7 @@ class Display {
    * Set the width and height of the different UI elements (tree, canvas and info box)
    * @param {DisplayOptions} options
    */
-  setSizes(options) {
+  setSizes(options, ratio = 2 / 3) {
     if (options.cadWidth) {
       this.cadWidth = options.cadWidth;
       this.cadView.style.width = px(options.cadWidth);
@@ -418,12 +420,15 @@ class Display {
         options.treeWidth,
       );
     }
-    const treeHeight = Math.round((this.height * 2) / 3);
+    const treeHeight = Math.round(options.height * ratio);
     this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
     this.cadInfo.parentElement.parentElement.style.height = px(
-      this.height - treeHeight - 4,
+      options.height - treeHeight - 4,
     );
-    this.cadTool.style.width = px(this.treeWidth + this.cadWidth);
+
+    this.cadTool.style.width = px(options.treeWidth + options.cadWidth + 4);
+    this.cadBody.style.width = px(options.treeWidth + options.cadWidth + 4);
+    this.cadBody.style.height = px(options.height + 4);
   }
 
   /**
@@ -473,9 +478,12 @@ class Display {
     this._setupClickEvent("tcv_collapse_all", this.collapseNodes);
     this._setupClickEvent("tcv_expand", this.expandNodes);
 
+    this._setupClickEvent("tcv_toggle_info", this.toggleInfo);
+
     this._setupClickEvent("tcv_pin", this.pinAsPng);
     this._setupClickEvent("tcv_help", this.toggleHelp);
     this.help_shown = true;
+    this.info_shown = true;
 
     const tabs = ["tcv_tab_tree", "tcv_tab_clip"];
     tabs.forEach((name) => {
@@ -696,10 +704,12 @@ class Display {
   setExplode = (e) => {
     const flag = !!e.target.checked;
     if (flag) {
+      this.viewer.backupAnimation();
       this.viewer.explode();
     } else {
       this.controlAnimationByName("stop");
       this.viewer.clearAnimation();
+      this.viewer.restoreAnimation();
     }
   };
 
@@ -798,6 +808,29 @@ class Display {
     this.viewer.resize();
   };
 
+  clearHighlights() {
+    const buttons = [
+      "tcv_front",
+      "tcv_rear",
+      "tcv_top",
+      "tcv_bottom",
+      "tcv_left",
+      "tcv_right",
+      "tcv_iso",
+    ];
+    buttons.forEach((btn) => {
+      var el = this._getElement(btn);
+      el.classList.remove("tcv_btn_highlight");
+    });
+  }
+
+  highlightButton(name) {
+    this.clearHighlights();
+    var el = this._getElement(`tcv_${name}`);
+    el.classList.add("tcv_btn_highlight");
+    this.viewer.keepHighlight = true;
+  }
+
   /**
    * Handler to set camera to a predefined position
    * @function
@@ -806,6 +839,7 @@ class Display {
   setView = (e) => {
     const btn = e.target.className.split(" ")[0].slice(4);
     this.viewer.presetCamera(btn);
+    this.highlightButton(btn);
   };
 
   /**
@@ -865,7 +899,10 @@ class Display {
    * @param {string} tab - name of the tab "tree" or "clip"
    */
   selectTabByName(tab) {
-    var changed = false;
+    if (!["clip", "tree"].includes(tab)) {
+      return;
+    }
+
     if (tab === "tree" &amp;&amp; this.activeTab !== "tree") {
       this.cadTree.style.display = "block";
       this.cadTreeToggles.style.display = "block";
@@ -876,24 +913,26 @@ class Display {
       var lastPlaneState = this.viewer.getClipPlaneHelpers();
       this.viewer.setClipPlaneHelpers(false);
       this.lastPlaneState = lastPlaneState;
-      changed = true;
-    }
-    if (tab === "clip" &amp;&amp; this.activeTab !== "clip") {
+    } else if (tab === "clip" &amp;&amp; this.activeTab !== "clip") {
       this.cadTree.style.display = "none";
       this.cadTreeToggles.style.display = "none";
       this.cadClip.style.display = "block";
       this.viewer.nestedGroup.setBackVisible(true);
       this.viewer.setLocalClipping(true);
       this.viewer.setClipPlaneHelpers(this.lastPlaneState);
-      changed = true;
     }
     this.activeTab = tab;
     this.viewer.checkChanges({ tab: tab });
-    if (changed) {
-      this.tabTree.classList.toggle("tcv_tab-selected");
-      this.tabTree.classList.toggle("tcv_tab-unselected");
-      this.tabClip.classList.toggle("tcv_tab-selected");
-      this.tabClip.classList.toggle("tcv_tab-unselected");
+    if (tab == "tree") {
+      this.tabTree.classList.add("tcv_tab-selected");
+      this.tabTree.classList.remove("tcv_tab-unselected");
+      this.tabClip.classList.remove("tcv_tab-selected");
+      this.tabClip.classList.add("tcv_tab-unselected");
+    } else {
+      this.tabTree.classList.remove("tcv_tab-selected");
+      this.tabTree.classList.add("tcv_tab-unselected");
+      this.tabClip.classList.add("tcv_tab-selected");
+      this.tabClip.classList.remove("tcv_tab-unselected");
     }
   }
 
@@ -989,6 +1028,11 @@ class Display {
     this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
   };
 
+  setAnimationLabel(label) {
+    var el = this._getElement("tcv_animation_label");
+    el.innerHTML = label;
+  }
+
   /**
    * Reset animation slider to 0
    */
@@ -1013,6 +1057,82 @@ class Display {
   toggleHelp = () => {
     this.showHelp(!this.help_shown);
   };
+
+  /**
+   * Show or hide info dialog
+   * @function
+   * @param {boolean} flag - whether to show or hide info dialog
+   */
+  showInfo = (flag) => {
+    console.log(this.cadInfo);
+    this.cadInfo.parentNode.parentNode.style.display = flag ? "block" : "none";
+    this._getElement("tcv_toggle_info").value = flag ? "\u25B2" : "\u25BC";
+    this.info_shown = flag;
+  };
+
+  /**
+   * Show info dialog
+   * @function
+   */
+  toggleInfo = () => {
+    this.showInfo(!this.info_shown);
+  };
+
+  /**
+   * Enable/disable glass mode
+   * @function
+   * @param {boolean} flag - whether to enable/disable glass mode
+   */
+  glassMode(flag) {
+    if (flag) {
+      this._getElement("tcv_cad_tree").classList.add("tcv_cad_tree_glass");
+      this._getElement("tcv_cad_tree").style["height"] = null;
+      this._getElement("tcv_cad_tree").style["max-height"] = px(
+        Math.round((this.height * 2) / 3) - 18,
+      );
+
+      this._getElement("tcv_cad_info").classList.add("tcv_cad_info_glass");
+      this._getElement("tcv_cad_view").classList.add("tcv_cad_view_glass");
+
+      this._getElement("tcv_cad_toolbar").style.width = px(this.cadWidth);
+      this._getElement("tcv_cad_body").style.width = px(this.cadWidth);
+
+      if (this.cadWidth &lt; 1000) {
+        this._getElement("tcv_transparent").nextSibling.innerHTML = "Tr";
+        this._getElement("tcv_black_edges").nextSibling.innerHTML = "BE";
+        this._getElement("tcv_explode").nextSibling.innerHTML = "Ex";
+      }
+
+      this._getElement("tcv_toggle_info_wrapper").style.display = "block";
+
+      this.showInfo(false);
+      this._glassMode = true;
+    } else {
+      this._getElement("tcv_cad_tree").classList.remove("tcv_cad_tree_glass");
+      this._getElement("tcv_cad_tree").style["max-height"] = null;
+      this._getElement("tcv_cad_tree").style.height = px(
+        Math.round((this.height * 2) / 3),
+      );
+      this._getElement("tcv_cad_info").classList.remove("tcv_cad_info_glass");
+      this._getElement("tcv_cad_view").classList.remove("tcv_cad_view_glass");
+
+      this._getElement("tcv_cad_toolbar").style.width = px(
+        this.cadWidth + this.treeWidth,
+      );
+      this._getElement("tcv_cad_body").style.width = px(
+        this.cadWidth + this.treeWidth + 4,
+      );
+
+      this._getElement("tcv_transparent").nextSibling.innerHTML = "Transparent";
+      this._getElement("tcv_black_edges").nextSibling.innerHTML = "Black Edges";
+      this._getElement("tcv_explode").nextSibling.innerHTML = "Explode";
+
+      this._getElement("tcv_toggle_info_wrapper").style.display = "none";
+
+      this.showInfo(true);
+      this._glassMode = false;
+    }
+  }
 }
 
 export { Display };
@@ -1032,7 +1152,7 @@ export { Display };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Mar 22 2022 09:07:28 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Mar 26 2022 11:37:07 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

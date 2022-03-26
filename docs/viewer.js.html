@@ -114,6 +114,8 @@ class Viewer {
 
     this.lastNotification = {};
 
+    this.keepHighlight = false;
+
     this.renderer.domElement.addEventListener("dblclick", this.pick, false);
     this.renderer.domElement.addEventListener("contextmenu", (e) =>
       e.stopPropagation(),
@@ -178,6 +180,7 @@ class Viewer {
     this.ortho = true;
     this.transparent = false;
     this.blackEdges = false;
+    this.collapse = 0;
 
     this.clipIntersection = false;
     this.clipPlaneHelpers = false;
@@ -189,6 +192,7 @@ class Viewer {
     this.clipSlider2 = -1;
     this.tools = true;
     this.control = "orbit";
+    this.glass = false;
     this.ticks = 10;
 
     this.position = null;
@@ -249,6 +253,7 @@ class Viewer {
     console.log("- ticks", this.ticks);
     console.log("- timeit", this.timeit);
     console.log("- tools", this.tools);
+    console.log("- glass", this.glass);
     console.log("- transparent", this.transparent);
     console.log("- zoom", this.zoom);
     console.log("- zoom0", this.zoom0);
@@ -349,7 +354,7 @@ class Viewer {
    * @param {number} duration - overall duration of the anmiation.
    * @param {number} speed - speed of the animation.
    */
-  initAnimation(duration, speed, repeat = true) {
+  initAnimation(duration, speed, label = "A", repeat = true) {
     if (this.animation == null || this.animation.tracks.lenght == 0) {
       console.error("Animation does not have tracks");
       return;
@@ -366,6 +371,7 @@ class Viewer {
       speed,
       repeat,
     );
+    this.display.setAnimationLabel(label);
     this.display.resetAnimationSlider();
   }
 
@@ -406,6 +412,15 @@ class Viewer {
         this.lastNotification[key] = change;
       }
     });
+
+    if (Object.keys(changed).includes("position")) {
+      if (this.keepHighlight) {
+        this.keepHighlight = false;
+      } else {
+        this.display.clearHighlights();
+      }
+    }
+
     if (notify &amp;&amp; this.notifyCallback &amp;&amp; Object.keys(changed).length) {
       this.notifyCallback(changed);
     }
@@ -581,7 +596,8 @@ class Viewer {
    */
   render(group, tree, states, options) {
     this.setViewerDefaults(options);
-
+    this.display.glassMode(options.glass);
+    
     const timer = new Timer("viewer", this.timeit);
 
     this.states = states;
@@ -644,6 +660,7 @@ class Viewer {
     // this needs to happen after the controls have been established
     if (options.position == null &amp;&amp; options.quaternion == null) {
       this.presetCamera("iso", options.zoom);
+      this.display.highlightButton("iso");
     } else if (options.position != null) {
       this.setCamera(false, options.position, options.quaternion, options.zoom);
       if (options.quaternion == null) {
@@ -950,6 +967,25 @@ class Viewer {
     this.clipping.setConstant(index, value);
     this.update(this.updateMarker);
   };
+
+  /**
+   * Backup animation (for switch to explode animation)
+   */
+  backupAnimation() {
+    if (this.animation.hasTracks()) {
+      this.backupTracks = this.animation.backup();
+    }
+  }
+
+  /**
+   * Restore animation (for switch back from explode animation)
+   */
+  restoreAnimation() {
+    if (this.animation.hasBackup()) {
+      var params = this.animation.restore();
+      this.initAnimation(params.duration, params.speed, "A", params.repeat);
+    }
+  }
 
   /**
    * Handler for the animation control
@@ -1276,7 +1312,7 @@ class Viewer {
   getCameraLocationSettings() {
     return {
       position: this.getCameraPosition(),
-      quaternioin: this.getCameraQuaternion(),
+      quaternion: this.getCameraQuaternion(),
       target: this.getCameraTarget(),
       zoom: this.getCameraZoom(),
     };
@@ -1708,31 +1744,63 @@ class Viewer {
     });
   };
 
-  explode() {
+  explode(duration = 2, speed = 1, multiplier = 2.5) {
     this.clearAnimation();
-    const duration = 2;
-    const speed = 1;
 
-    var v = new THREE.Vector3();
+    const use_origin = this.getAxes0();
 
-    var bbox = new THREE.Box3().setFromObject(this.nestedGroup.rootGroup);
-    var c = new THREE.Vector3();
-    bbox.getCenter(c);
+    var worldCenterOrOrigin = new THREE.Vector3();
+    var worldObjectCenter = new THREE.Vector3();
+
+    var worldDirection = null;
+    var localDirection = null;
+    var scaledLocalDirection = null;
+
+    if (!use_origin) {
+      var bb = new THREE.Box3().setFromObject(this.nestedGroup.rootGroup);
+      bb.getCenter(worldCenterOrOrigin);
+    }
 
     for (var id in this.nestedGroup.groups) {
+      // Loop over all Group elements
       if (!(this.nestedGroup.groups[id] instanceof ObjectGroup)) {
-        bbox = new THREE.Box3().setFromObject(this.nestedGroup.groups[id]);
-        bbox.getCenter(v);
-        v.sub(c);
+        var group = this.nestedGroup.groups[id];
+
+        // Get and combine all bounding boxes of ObjectGroups
+        // Do not use the Group, since it returns the bounding box of the underlying
+        // group hierarchy instead of the object(s)
+        var b = new THREE.Box3();
+        group.children.forEach((child) => {
+          if (child instanceof ObjectGroup) {
+            b.expandByObject(child);
+          }
+        });
+        if (b.isEmpty()) {
+          continue;
+        }
+        b.getCenter(worldObjectCenter);
+
+        // Explode around global center or origin
+        worldDirection = worldObjectCenter.sub(worldCenterOrOrigin);
+        localDirection = group.parent.worldToLocal(worldDirection.clone());
+
+        // Use the parent to calculate the local directions
+        scaledLocalDirection = group.parent.worldToLocal(
+          worldDirection.clone().multiplyScalar(multiplier),
+        );
+        // and ensure to shift objects at its center and not at its position
+        scaledLocalDirection.sub(localDirection);
+
+        // build an animation track for the group with this direction
         this.addAnimationTrack(
           id,
           "t",
           [0, duration],
-          [[0, 0, 0], v.toArray()],
+          [[0, 0, 0], scaledLocalDirection.toArray()],
         );
       }
     }
-    this.initAnimation(duration, speed, false);
+    this.initAnimation(duration, speed, "E", false);
   }
 }
 
@@ -1753,7 +1821,7 @@ export { Viewer };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Mar 22 2022 09:07:28 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Mar 26 2022 11:37:07 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
