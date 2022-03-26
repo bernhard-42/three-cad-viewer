@@ -36,6 +36,7 @@ class Viewer {
     this.hasAnimationLoop = false;
 
     this.setDisplayDefaults(options);
+    this.theme = options.theme;
 
     this.display = new Display(container, options);
     this.display.setSizes({
@@ -105,7 +106,7 @@ class Viewer {
    * @param {DisplayOptions} options - The provided options object for the viewer.
    */
   setDisplayDefaults(options) {
-    this.theme = "light";
+    this.theme = "browser";
     this.cadWidth = 800;
     this.treeWidth = 250;
     this.height = 600;
@@ -754,8 +755,9 @@ class Viewer {
     //
 
     const theme =
-      options.theme === "dark" ||
-      window.matchMedia("(prefers-color-scheme: dark)").matches
+      this.theme === "dark" ||
+      (this.theme === "browser" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 

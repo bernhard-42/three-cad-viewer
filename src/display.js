@@ -315,7 +315,8 @@ class Display {
     var theme;
     if (
       options.theme === "dark" ||
-      window.matchMedia("(prefers-color-scheme: dark)").matches
+      (options.theme == "browser" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
     ) {
       document.documentElement.setAttribute("data-theme", "dark");
       theme = "dark";
