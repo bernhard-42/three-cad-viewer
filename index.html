@@ -138,6 +138,7 @@
           viewer.initAnimation(4, 2);
         }
         window.viewer = viewer;
+        setMode(window.viewerMode)
         timer.split("animation setup done");
         timer.stop();
       }
@@ -204,16 +205,31 @@
         viewerOptions.control = control;
         
         render(window.selectedExample, ...examples[window.selectedIndex]);
-        
+        setMode(window.viewerMode)
         timer.stop();
       }
 
+      function setMode(mode) {
+        if (mode == "no tools") {
+          viewer.showTools(false);
+          viewer.display.glassMode(false);
+        } else if (mode == "glass") {
+          viewer.showTools(true);
+          viewer.display.glassMode(true);
+        } else {
+          viewer.showTools(true);
+          viewer.display.glassMode(false);
+        }
+        window.viewerMode = mode;
+      }
+      
       // examples[1][1]["/bottom/bottom_0"] = [1,0]
       // examples[1][1]["/bottom/top/top_0"] = [0,1]
       // examples[1][1]["/bottom/front_stand/front_stand_0"] = [0,0]
 
       window.selectedIndex = 0;
       window.selectedExample = "hexapod";
+      window.viewerMode = "default";
 
       showViewer("trackball");
 
@@ -221,12 +237,33 @@
       window.render = render;
       window.examples = examples;
       window.showViewer = showViewer;
+      window.setMode = setMode;
 
       console.log("Loaded", new Date());
     </script>
+    <style>
+      @media(prefers-color-scheme: dark) {
+        body {
+          background-color: var(--tcv-bg-color);
+          color: var(--tcv-font-color);
+        }
+      }
+    </style>
   </head>
 
+  
   <body>
+    <span id="control">
+      UI:
+      <select
+        onchange="window.setMode(this.options.item(this.selectedIndex).text);"
+      >
+        <option value="default">default</option>
+        <option value="glass">glass</option>   
+        <option value="notools">no tools</option>
+      </select>
+    </span> 
+
     <span id="control">
       Control:
       <select
