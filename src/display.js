@@ -389,12 +389,15 @@ class Display {
         options.treeWidth,
       );
     }
-    const treeHeight = Math.round(this.height * ratio);
+    const treeHeight = Math.round(options.height * ratio);
     this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
     this.cadInfo.parentElement.parentElement.style.height = px(
-      this.height - treeHeight - 4,
+      options.height - treeHeight - 4,
     );
-    this.cadTool.style.width = px(this.treeWidth + this.cadWidth);
+
+    this.cadTool.style.width = px(options.treeWidth + options.cadWidth + 4);
+    this.cadBody.style.width = px(options.treeWidth + options.cadWidth + 4);
+    this.cadBody.style.height = px(options.height + 4);
   }
 
   /**
