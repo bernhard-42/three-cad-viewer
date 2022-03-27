@@ -533,7 +533,7 @@ class Display {
     this._setupClickEvent("tcv_pin", this.pinAsPng);
     this._setupClickEvent("tcv_help", this.toggleHelp);
     this.help_shown = true;
-    this.info_shown = true;
+    this.info_shown = !this._glassMode;
 
     const tabs = ["tcv_tab_tree", "tcv_tab_clip"];
     tabs.forEach((name) => {
@@ -848,6 +848,7 @@ class Display {
    */
   reset = () => {
     this.viewer.reset();
+    this.clearHighlights();
   };
 
   /**
