@@ -133,6 +133,10 @@ class Animation {
     };
   }
 
+  cleanBackup() {
+    this._backup = [];
+  }
+
   hasTracks() {
     return this.tracks != null && this.tracks.length > 0;
   }

@@ -572,6 +572,8 @@ class Viewer {
   render(group, tree, states, options) {
     this.setViewerDefaults(options);
 
+    this.animation.cleanBackup();
+
     const timer = new Timer("viewer", this.timeit);
 
     this.states = states;
