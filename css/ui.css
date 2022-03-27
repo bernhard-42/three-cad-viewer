@@ -32,7 +32,7 @@ canvas {
 
 .tcv_cad_view_glass {
   position: absolute !important;
-  left: 16px;
+  left: 4px;
 }
 
 .tcv_cad_tree_toggles {
@@ -185,7 +185,7 @@ th {
   margin: 0;
   padding: 0px;
   position: absolute;
-  right: 2px;
+  right: 0px;
   bottom: 0px;
   z-index: 100;
 }
@@ -244,7 +244,7 @@ th {
 }
 
 .tcv_btn_highlight {
-  border: 1px solid var(--tcv-shadow);
+  outline: 1px solid var(--tcv-shadow);
 }
 
 .tcv_small_btn {
@@ -261,7 +261,7 @@ th {
 
 .tcv_btn:hover {
   box-shadow: 1px 1px 1px 0 var(--tcv-shadow);
-  background-color: var(--tcv-bg-overlay-color);
+  background-color: var(--tcv-bg-highlight-color);
 }
 
 .tcv_btn:active {
@@ -296,7 +296,7 @@ input[type="button"] {
 }
 
 .tcv_tab:hover {
-  background-color: var(--tcv-bg-overlay-color);
+  background-color: var(--tcv-bg-highlight-color);
   font-weight: bold;
 }
 
@@ -310,12 +310,12 @@ input[type="button"] {
 
 .tcv_tab-selected {
   border-bottom: none;
-  /* font-weight: bold; */
+  font-weight: bold;
 }
 
 .tcv_tab-unselected {
   border-bottom: 1px solid lightgray;
-  /* font-weight: normal; */
+  font-weight: normal;
 }
 
 .tcv_vertical-center {
