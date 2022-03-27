@@ -1,285 +1,315 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>CadQuery Viewer</title>
-    <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css" /> <!-- 1.5.3 -->
 
-    <!-- UMD import -->
-    <!-- <script src='./dist/three-cad-viewer.js'></script> -->
+<head>
+  <meta charset="utf-8" />
+  <title>CadQuery Viewer</title>
+  <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css" /> <!-- 1.5.4 -->
 
-    <script src="./examples/hexapod.js"></script>
-    <script src="./examples/hexapod-mates.js"></script>
-    <script src="./examples/box.js"></script>
-    <script src="./examples/longbox.js"></script>
-    <script src="./examples/box-edges.js"></script>
-    <script src="./examples/box1.js"></script>
-    <script src="./examples/boxes.js"></script>
-    <script src="./examples/faces.js"></script>
-    <script src="./examples/edges.js"></script>
-    <script src="./examples/vertices.js"></script>
-    <script src="./examples/linkage.js"></script>
-    <script src="./examples/linkage-tracks.js"></script>
+  <!-- UMD import -->
+  <!-- <script src='./dist/three-cad-viewer.js'></script> -->
 
-    <script type="module">
-      // ESM import
-      import { Viewer, Timer } from "./dist/three-cad-viewer.esm.js";
+  <script src="./examples/hexapod.js"></script>
+  <script src="./examples/hexapod-mates.js"></script>
+  <script src="./examples/box.js"></script>
+  <script src="./examples/longbox.js"></script>
+  <script src="./examples/box-edges.js"></script>
+  <script src="./examples/box1.js"></script>
+  <script src="./examples/boxes.js"></script>
+  <script src="./examples/faces.js"></script>
+  <script src="./examples/edges.js"></script>
+  <script src="./examples/vertices.js"></script>
+  <script src="./examples/linkage.js"></script>
+  <script src="./examples/linkage-tracks.js"></script>
 
-      // UMD import
-      // const Viewer = CadViewer.Viewer;
-      // const Timer = CadViewer.Timer;
+  <script type="module">
+    // ESM import
+    import { Viewer, Timer } from "./dist/three-cad-viewer.esm.js";
 
-      var viewer = null;
+    // UMD import
+    // const Viewer = CadViewer.Viewer;
+    // const Timer = CadViewer.Timer;
 
-      const examples = [
-        hexapod,
-        hexapod_mates,
-        linkage,
-        box,
-        box1,
-        boxes,
-        faces,
-        edges,
-        vertices,
-        longbox,
-        boxEdges
-      ];
+    var viewer = null;
 
-      function render(name, shapes, states) {
-        const timer = new Timer("renderer", timeit);
+    const examples = [
+      hexapod,
+      hexapod_mates,
+      linkage,
+      box,
+      box1,
+      boxes,
+      faces,
+      edges,
+      vertices,
+      longbox,
+      boxEdges
+    ];
 
-        viewer?.clear();
+    function render(name, shapes, states) {
+      const timer = new Timer("renderer", timeit);
 
-        viewer._timeit = timeit;
+      viewer?.clear();
 
-        viewer.render(
-          ...viewer.renderTessellatedShapes(shapes, states, renderOptions),
-          states,
-          viewerOptions,
-        );
+      viewer._timeit = timeit;
 
-        timer.split("rendering done");
+      viewer.render(
+        ...viewer.renderTessellatedShapes(shapes, states, renderOptions),
+        states,
+        viewerOptions,
+      );
 
-        // hexapod animation tracks
+      timer.split("rendering done");
 
-        if (name.startsWith("hexapod")) {
-          const horizontal_angle = 25;
+      // hexapod animation tracks
 
-          function isin(el, container) {
-            return container.indexOf(el) >= 0;
-          }
+      if (name.startsWith("hexapod")) {
+        const horizontal_angle = 25;
 
-          function intervals(count) {
-            var range = [...Array(count).keys()];
-            return range.map((i) =>
-              Math.min(180, (90 + i * Math.floor(360 / count)) % 360),
-            );
-          }
+        function isin(el, container) {
+          return container.indexOf(el) >= 0;
+        }
 
-          function times(end, count) {
-            var range = [...Array(count + 1).keys()];
-            return range.map((i) => (i / count) * end);
-          }
+        function intervals(count) {
+          var range = [...Array(count).keys()];
+          return range.map((i) =>
+            Math.min(180, (90 + i * Math.floor(360 / count)) % 360),
+          );
+        }
 
-          function vertical(count, end, offset) {
-            const ints = intervals(count);
-            var heights = ints.map(
-              (x) => Math.round(350 * Math.sin((x / 180) * Math.PI) - 150) / 10,
-            );
-            heights.push(heights[0]);
-            return [
-              times(end, count),
-              [...heights.slice(offset), ...heights.slice(1, offset + 1)],
-            ];
-          }
+        function times(end, count) {
+          var range = [...Array(count + 1).keys()];
+          return range.map((i) => (i / count) * end);
+        }
 
-          function horizontal(end, reverse) {
-            const factor = reverse ? 1 : -1;
-            return [
-              times(end, 4),
-              [0, factor * horizontal_angle, 0, -factor * horizontal_angle, 0],
-            ];
-          }
-
-          const legNames = [
-            "right_back",
-            "right_middle",
-            "right_front",
-            "left_back",
-            "left_middle",
-            "left_front",
+        function vertical(count, end, offset) {
+          const ints = intervals(count);
+          var heights = ints.map(
+            (x) => Math.round(350 * Math.sin((x / 180) * Math.PI) - 150) / 10,
+          );
+          heights.push(heights[0]);
+          return [
+            times(end, count),
+            [...heights.slice(offset), ...heights.slice(1, offset + 1)],
           ];
-          const legGroup = ["left_front", "right_middle", "left_back"];
-
-          for (var name of legNames) {
-            // move upper leg
-            viewer.addAnimationTrack(
-              `/bottom/${name}`,
-              "rz",
-              ...horizontal(4, isin("middle", name)),
-            );
-            // move lower leg
-            viewer.addAnimationTrack(
-              `/bottom/${name}/lower`,
-              "rz",
-              ...vertical(
-                8,
-                4,
-                isin(name, legGroup) ? 0 : 4,
-                isin("left", name),
-              ),
-            );
-          }
-          viewer.initAnimation(4, 2);
-        } else if (name == "linkage") {
-          for (var track of linkage_tracks) {
-            viewer.addAnimationTrack(...track);
-          }
-          viewer.initAnimation(4, 2);
         }
-        window.viewer = viewer;
-        setMode(window.viewerMode)
-        timer.split("animation setup done");
-        timer.stop();
-      }
 
-      function nc(change) {
-        //console.debug("index.html:", JSON.stringify(change, null, 2));
-      }
-
-      const timeit = false;
-      const timer = new Timer("main", timeit);
-
-      const displayOptions = {
-        cadWidth: 800,
-        height: 600,
-        treeWidth: 240,
-        theme: "browser",
-        glass: true,
-        pinning: true,
-      };
-
-      const renderOptions = {
-        ambientIntensity: 0.75,
-        directIntensity: 0.15,
-        edgeColor: 0x707070,
-        defaultOpacity: 0.5,
-        normalLen: 0,
-      };
-
-      const viewerOptions = {
-        ortho: true,
-        ticks: 10,
-        // transparent: true,
-        // blackEdges: true,
-        axes: true,
-        // axes0: true,
-        // grid: [true, false, true],
-        timeit: false,
-        // clipIntersection: true,
-        // clipPlaneHelpers: true,
-        // clipNormal0: [-0.7, 0.25, -0.66],
-        // clipNormal2: [-0.8, -0.4, -0.5],
-        // clipSlider0: 20,
-        // clipSlider1: 10,
-        // clipSlider2: 30,
-        rotateSpeed: 1.0,
-        zoomSpeed: 0.5,
-        panSpeed: 0.5,
-        // tools: false,
-        timeit: timeit,
-        // position: [529.033598621696, -60.76490228572615, 833.5255981339967],
-        // quaternion: [0.1279694269733356, 0.17808830219432778, 0.792315727012021, 0.5693366061576142],
-        // target: [133.7552476361796, -193.79076438378323, -47.35882179018034],
-        // zoom: 0.8
-        collapse: 1,
-      };
-
-      function showViewer(control) {
-        const container = document.getElementById("cad_view_001");
-        container.innerHTML = ""
-        viewer = new Viewer(container, displayOptions, nc);
-
-        timer.split("display created");
-        
-        // control = "orbit"        
-        viewerOptions.control = control;
-        
-        render(window.selectedExample, ...examples[window.selectedIndex]);
-        setMode(window.viewerMode)
-        timer.stop();
-      }
-
-      function setMode(mode) {
-        if (mode == "no tools") {
-          viewer.showTools(false);
-          viewer.display.glassMode(false);
-        } else if (mode == "glass") {
-          viewer.showTools(true);
-          viewer.display.glassMode(true);
-        } else {
-          viewer.showTools(true);
-          viewer.display.glassMode(false);
+        function horizontal(end, reverse) {
+          const factor = reverse ? 1 : -1;
+          return [
+            times(end, 4),
+            [0, factor * horizontal_angle, 0, -factor * horizontal_angle, 0],
+          ];
         }
-        window.viewerMode = mode;
-      }
-      
-      // examples[1][1]["/bottom/bottom_0"] = [1,0]
-      // examples[1][1]["/bottom/top/top_0"] = [0,1]
-      // examples[1][1]["/bottom/front_stand/front_stand_0"] = [0,0]
 
-      window.selectedIndex = 0;
-      window.selectedExample = "hexapod";
-      window.viewerMode = "default";
+        const legNames = [
+          "right_back",
+          "right_middle",
+          "right_front",
+          "left_back",
+          "left_middle",
+          "left_front",
+        ];
+        const legGroup = ["left_front", "right_middle", "left_back"];
 
-      showViewer("trackball");
-
-      // Enable debugging in browser console
-      window.render = render;
-      window.examples = examples;
-      window.showViewer = showViewer;
-      window.setMode = setMode;
-
-      console.log("Loaded", new Date());
-    </script>
-    <style>
-      @media(prefers-color-scheme: dark) {
-        body {
-          background-color: var(--tcv-bg-color);
-          color: var(--tcv-font-color);
+        for (var name of legNames) {
+          // move upper leg
+          viewer.addAnimationTrack(
+            `/bottom/${name}`,
+            "rz",
+            ...horizontal(4, isin("middle", name)),
+          );
+          // move lower leg
+          viewer.addAnimationTrack(
+            `/bottom/${name}/lower`,
+            "rz",
+            ...vertical(
+              8,
+              4,
+              isin(name, legGroup) ? 0 : 4,
+              isin("left", name),
+            ),
+          );
         }
+        viewer.initAnimation(4, 2);
+      } else if (name == "linkage") {
+        for (var track of linkage_tracks) {
+          viewer.addAnimationTrack(...track);
+        }
+        viewer.initAnimation(4, 2);
       }
-    </style>
-  </head>
+      window.viewer = viewer;
+      setMode(window.viewerMode)
+      timer.split("animation setup done");
+      timer.stop();
+    }
 
-  
-  <body>
-    <span id="control">
-      UI:
-      <select
-        onchange="window.setMode(this.options.item(this.selectedIndex).text);"
-      >
+    function nc(change) {
+      //console.debug("index.html:", JSON.stringify(change, null, 2));
+    }
+
+    const timeit = false;
+    const timer = new Timer("main", timeit);
+
+    const displayOptions = {
+      cadWidth: 800,
+      height: 600,
+      treeWidth: 240,
+      theme: "browser",
+      glass: true,
+      pinning: true,
+    };
+
+    const renderOptions = {
+      ambientIntensity: 0.75,
+      directIntensity: 0.15,
+      edgeColor: 0x707070,
+      defaultOpacity: 0.5,
+      normalLen: 0,
+    };
+
+    const viewerOptions = {
+      ortho: true,
+      ticks: 10,
+      // transparent: true,
+      // blackEdges: true,
+      axes: true,
+      // axes0: true,
+      // grid: [true, false, true],
+      timeit: false,
+      // clipIntersection: true,
+      // clipPlaneHelpers: true,
+      // clipNormal0: [-0.7, 0.25, -0.66],
+      // clipNormal2: [-0.8, -0.4, -0.5],
+      // clipSlider0: 20,
+      // clipSlider1: 10,
+      // clipSlider2: 30,
+      rotateSpeed: 1.0,
+      zoomSpeed: 0.5,
+      panSpeed: 0.5,
+      // tools: false,
+      timeit: timeit,
+      // position: [529.033598621696, -60.76490228572615, 833.5255981339967],
+      // quaternion: [0.1279694269733356, 0.17808830219432778, 0.792315727012021, 0.5693366061576142],
+      // target: [133.7552476361796, -193.79076438378323, -47.35882179018034],
+      // zoom: 0.8
+      collapse: 1,
+    };
+
+    function showViewer(control) {
+      const container = document.getElementById("cad_view_001");
+      container.innerHTML = ""
+      viewer = new Viewer(container, displayOptions, nc);
+
+      timer.split("display created");
+
+      // control = "orbit"        
+      viewerOptions.control = control;
+
+      render(window.selectedExample, ...examples[window.selectedIndex]);
+      setMode(window.viewerMode)
+      timer.stop();
+    }
+
+    function setMode(mode) {
+      if (mode == "no tools") {
+        viewer.showTools(false);
+        viewer.display.glassMode(false);
+      } else if (mode == "glass") {
+        viewer.showTools(true);
+        viewer.display.glassMode(true);
+      } else {
+        viewer.showTools(true);
+        viewer.display.glassMode(false);
+      }
+      window.viewerMode = mode;
+    }
+
+    // examples[1][1]["/bottom/bottom_0"] = [1,0]
+    // examples[1][1]["/bottom/top/top_0"] = [0,1]
+    // examples[1][1]["/bottom/front_stand/front_stand_0"] = [0,0]
+
+    window.selectedIndex = 0;
+    window.selectedExample = "hexapod";
+    window.viewerMode = "default";
+
+    showViewer("trackball");
+
+    // Enable debugging in browser console
+    window.render = render;
+    window.examples = examples;
+    window.showViewer = showViewer;
+    window.setMode = setMode;
+
+    console.log("Loaded", new Date());
+  </script>
+  <style>
+    @media(prefers-color-scheme: dark) {
+      body {
+        background-color: var(--tcv-bg-color);
+        color: var(--tcv-font-color);
+      }
+    }
+
+    body {
+      margin: 0px !important;
+    }
+
+    .main {
+      margin: 12px;
+      font-family: sans-serif;
+    }
+
+    .selection {
+      margin-left: 8px;
+    }
+
+    /* .select {
+      border: 1px solid var(--tcv-font-color);
+      border-radius: 0.25em;
+      padding: 2px 4px 2px 4px;
+      text-align: center;
+      font-size: 0.85em;
+    }
+
+    select {
+      appearance: none;
+      outline: none;
+      background-color: transparent;
+      border: none;
+      font-family: inherit;
+      font-size: inherit;
+      cursor: inherit;
+      line-height: inherit;
+    } */
+  </style>
+</head>
+
+
+<body>
+  <div class="main">
+    Demo:
+    <span id="navigation" class="selection">
+      UI
+      <select class="select" onchange="window.setMode(this.options.item(this.selectedIndex).text);">
         <option value="default">default</option>
-        <option value="glass">glass</option>   
+        <option value="glass">glass</option>
         <option value="notools">no tools</option>
       </select>
-    </span> 
+    </span>
 
-    <span id="control">
-      Control:
-      <select
-        onchange="window.showViewer(this.options.item(this.selectedIndex).text);"
-      >
+    <span id="control" class="selection">
+      Control
+      <select class="select" onchange="window.showViewer(this.options.item(this.selectedIndex).text);">
         <option value="trackball">trackball</option>
         <option value="orbit">orbit</option>
       </select>
-    </span> 
+    </span>
 
-    <span id="examples">
-      Examples:
-      <select
-        onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; render(window.selectedExample, ...window.examples[window.selectedIndex]);"
-      >
+    <span id="examples" class="selection">
+      Examples
+      <select class="select"
+        onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; render(window.selectedExample, ...window.examples[window.selectedIndex]);">
         <option value="hexapod">hexapod</option>
         <option value="hexapod_mates">hexapod_mates</option>
         <option value="linkage">linkage</option>
@@ -292,8 +322,10 @@
         <option value="longbox">longbox</option>
         <option value="box-edges">box-edges</option>
       </select>
-    </span>   
-    <div id="cad_view_001"></div>
-    <div id="cad_view_002"></div>
-  </body>
+    </span>
+  </div>
+  <div id="cad_view_001"></div>
+  <div id="cad_view_002"></div>
+</body>
+
 </html>

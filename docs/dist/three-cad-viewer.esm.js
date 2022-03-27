@@ -51817,7 +51817,7 @@ class Display {
     this._setupClickEvent("tcv_pin", this.pinAsPng);
     this._setupClickEvent("tcv_help", this.toggleHelp);
     this.help_shown = true;
-    this.info_shown = true;
+    this.info_shown = !this._glassMode;
 
     const tabs = ["tcv_tab_tree", "tcv_tab_clip"];
     tabs.forEach((name) => {
@@ -52132,6 +52132,7 @@ class Display {
    */
   reset = () => {
     this.viewer.reset();
+    this.clearHighlights();
   };
 
   /**
@@ -52398,8 +52399,6 @@ class Display {
    * @param {boolean} flag - whether to show or hide info dialog
    */
   showInfo = (flag) => {
-    console.log(flag);
-    console.log(this.cadInfo);
     this.cadInfo.parentNode.parentNode.style.display = flag ? "block" : "none";
     this._getElement("tcv_toggle_info").value = flag ? "\u25B2 i" : "\u25BC i";
     this.info_shown = flag;
@@ -55282,6 +55281,10 @@ class Animation {
     };
   }
 
+  cleanBackup() {
+    this._backup = [];
+  }
+
   hasTracks() {
     return this.tracks != null && this.tracks.length > 0;
   }
@@ -57894,6 +57897,8 @@ class Viewer {
    */
   render(group, tree, states, options) {
     this.setViewerDefaults(options);
+
+    this.animation.cleanBackup();
 
     const timer = new Timer("viewer", this.timeit);
 
