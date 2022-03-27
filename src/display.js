@@ -1114,8 +1114,6 @@ class Display {
    * @param {boolean} flag - whether to show or hide info dialog
    */
   showInfo = (flag) => {
-    console.log(flag);
-    console.log(this.cadInfo);
     this.cadInfo.parentNode.parentNode.style.display = flag ? "block" : "none";
     this._getElement("tcv_toggle_info").value = flag ? "\u25B2 i" : "\u25BC i";
     this.info_shown = flag;
