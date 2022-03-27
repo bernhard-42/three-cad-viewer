@@ -1,6 +1,11 @@
 #!/bin/bash
 CURRENT_VERSION=$(cat package.json | jq -r .version)
 
+if [[ "$GITHUB_TOKEN" == "" ]]; then
+    echo "Set GITHUB_TOKEN first"
+    exit 1
+fi
+
 echo v$CURRENT_VERSION
 
 echo "pushing this release"
