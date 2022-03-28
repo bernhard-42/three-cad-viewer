@@ -1792,9 +1792,9 @@ var boxes = [
           {
             parts: [
               {
-                id: "/Group/ensemble/gree box/gree box_0",
+                id: "/Group/ensemble/green box/green box_0",
                 type: "shapes",
-                name: "gree box_0",
+                name: "green box_0",
                 shape: {
                   vertices: [
                     -15.0, 5.0, 4.0, -15.0, 5.0, 7.0, -15.0, 25.0, 4.0, -15.0,
@@ -3029,7 +3029,7 @@ var boxes = [
               [0.0, 0.0, 0.0],
               [0.0, 0.0, 0.0, 1.0],
             ],
-            name: "gree box",
+            name: "green box",
           },
           {
             parts: [
@@ -4340,7 +4340,7 @@ var boxes = [
   },
   {
     "/Group/ensemble/red box/red box_0": [1, 1],
-    "/Group/ensemble/gree box/gree box_0": [1, 1],
+    "/Group/ensemble/green box/green box_0": [1, 1],
     "/Group/ensemble/blue box/blue box_0": [1, 1],
   },
 ];
