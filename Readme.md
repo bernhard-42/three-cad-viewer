@@ -40,7 +40,15 @@ The value 2 is reserved for nodes and shows a mixed state, i.d. some of the chil
 
 For the `States` object, see [Class States](https://bernhard-42.github.io/three-cad-viewer/global.html#States)
 
-## Skeleton:
+### Getting started
+
+1. [install yarn](https://classic.yarnpkg.com/en/docs/install) on your system (ie. `npm i -g yarn`) if not already done;
+2. clone the repository: `git clone https://github.com/bernhard-42/three-cad-viewer.git && cd three-cad-viewer`;
+3. build project: `yarn build`;
+4. Start web server: `yarn serve`;
+5. Go to the page displayed in the logs (ie. `127.0.0.1:8080`) and enjoy!
+
+## Skeleton
 
 ```html
 <html>
