@@ -70,7 +70,7 @@ For the `States` object, see [Class States](https://bernhard-42.github.io/three-
         axes: true,
         grid: [false, false, false],
         timeit: false,
-        rotateSpeed: 1
+        rotateSpeed: 1,
       };
 
       const shapes = {}; // a Shapes object, see example or API docs
@@ -107,3 +107,13 @@ To understand the data format, a look at the simple 1 unit sized box might be he
 - [API docs](https://bernhard-42.github.io/three-cad-viewer/Viewer.html)
 
 Back to [Github repo](https://github.com/bernhard-42/three-cad-viewer)
+
+## Development
+
+Run a web server in watch mode
+
+```bash
+yarn run start
+```
+
+For the deployment, see [Release.md](./Release.md)
