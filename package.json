@@ -16,6 +16,7 @@
     "clean": "rimraf ./dist/*",
     "build": "rollup -c --environment BUILD:production",
     "start": "rollup -w -c",
+    "serve": "http-server",
     "docs": "rm -fr docs; mkdir -p docs/dist; jsdoc -d docs -R Readme.md src/camera.js src/controls.js src/viewer.js src/display.js src/types.js; cp dist/three-cad-viewer.esm.css dist/three-cad-viewer.esm.js docs/dist; cp -R examples/ docs; cp index.html docs/example.html",
     "release": "./release.sh"
   },
@@ -31,6 +32,7 @@
     "@types/three": "^0.137.0",
     "eslint": "^8.1.0",
     "eslint-config-prettier": "^8.3.0",
+    "http-server": "^14.1.0",
     "prettier": "^2.3.2",
     "rimraf": "^3.0.2",
     "rollup": "^2.53.1",
