@@ -85,7 +85,7 @@ class TreeView {
     var icon_id = 0;
     var img_button;
 
-    var li = tag("li");
+    var li = tag("li", [`node${model.id.replaceAll(" ", "_")}`]);
     var lbl = tag("span", ["tcv_tree_label"]);
     lbl.innerHTML = model.name;
     var entry = tag("span", ["tcv_node_entry"], { id: model.id });
@@ -169,9 +169,29 @@ class TreeView {
     }
   }
 
-  render() {
+  render(collapse) {
+    // before the nodes can be collapsed, the DOM element needs to be rendered and added to the container
     this.container = tag("ul", ["tcv_toplevel"]);
-    this.container.appendChild(this.toHtml(this.treeModel));
+
+    // eslint-disable-next-line no-unused-vars
+    var observer = new MutationObserver((_mutuations) => {
+      if (this.container.contains(tree)) {
+        if (collapse > 0 && collapse < 3) {
+          this.collapseNodes(collapse);
+        }
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(this.container, {
+      attributes: false,
+      childList: true,
+      characterData: false,
+      subtree: false,
+    });
+
+    const tree = this.toHtml(this.treeModel);
+    this.container.appendChild(tree);
 
     for (var icon_id in this.icons) {
       this.updateNodes(this.treeModel, icon_id);
@@ -183,6 +203,7 @@ class TreeView {
         this.toggleTreeNode(e.target.parentElement.parentElement, null);
       });
     }
+
     return this.container;
   }
 
@@ -248,8 +269,12 @@ class TreeView {
             obj.children[0].type === "leaf") ||
           mode == 2
         ) {
-          var el = document.getElementById(obj.id).parentElement.parentElement;
-          this.toggleTreeNode(el, collapse);
+          var el = this.container.getElementsByClassName(
+            `node${obj.id.replaceAll(" ", "_")}`,
+          )[0];
+          if (el != null) {
+            this.toggleTreeNode(el, collapse);
+          }
         }
         for (var o of obj.children) {
           walk(o);
