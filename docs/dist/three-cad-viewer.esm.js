@@ -51657,10 +51657,14 @@ class Display {
 
     this.viewer = null;
     this._glassMode = false;
+    this.tools = true;
     this._events = [];
     this.cadWidth = options.cadWidth;
     this.height = options.height;
     this.treeWidth = options.treeWidth;
+
+    this.showTools(options.tools);
+    this.glassMode(options.glass);
     this.setSizes(options);
 
     this.activeTab = "tree";
@@ -51754,14 +51758,22 @@ class Display {
         options.treeWidth,
       );
     }
-    const treeHeight = Math.round(options.height * ratio);
-    this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
-    this.cadInfo.parentElement.parentElement.style.height = px(
-      options.height - treeHeight - 4,
-    );
+    if (!options.glass) {
+      const treeHeight = Math.round(options.height * ratio);
+      this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
+      this.cadInfo.parentElement.parentElement.style.height = px(
+        options.height - treeHeight - 4,
+      );
+    }
 
-    this.cadTool.style.width = px(options.treeWidth + options.cadWidth + 4);
-    this.cadBody.style.width = px(options.treeWidth + options.cadWidth + 4);
+    if (options.tools && !options.glass) {
+      this.cadTool.style.width = px(options.treeWidth + options.cadWidth + 4);
+      this.cadBody.style.width = px(options.treeWidth + options.cadWidth + 4);
+    } else {
+      this.cadTool.style.width = px(options.cadWidth + 2);
+      this.cadBody.style.width = px(options.cadWidth + 2);
+    }
+
     this.cadBody.style.height = px(options.height + 4);
   }
 
@@ -51808,9 +51820,9 @@ class Display {
       this._setupClickEvent(name, this.setView);
     });
 
-    this._setupClickEvent("tcv_collapse_singles", this.collapseNodes1);
-    this._setupClickEvent("tcv_collapse_all", this.collapseNodes);
-    this._setupClickEvent("tcv_expand", this.expandNodes);
+    this._setupClickEvent("tcv_collapse_singles", this.handleCollapseNodes);
+    this._setupClickEvent("tcv_collapse_all", this.handleCollapseNodes);
+    this._setupClickEvent("tcv_expand", this.handleCollapseNodes);
 
     this._setupClickEvent("tcv_toggle_info", this.toggleInfo);
 
@@ -51870,15 +51882,13 @@ class Display {
    * @property {boolean} [blackEdges = false] - show edges in black and not in edgeColor.
    * @property {boolean} [clipIntersection = false] - use intersection clipping
    * @property {boolean} [clipPlaneHelpers = false] - show clipping planes
-   * @property {boolean} [tools = true] - Show/hide all tools.
    */
-  updateUI(axes, axes0, ortho, transparent, blackEdges, tools) {
+  updateUI(axes, axes0, ortho, transparent, blackEdges) {
     this.checkElement("tcv_axes", axes);
     this.checkElement("tcv_axes0", axes0);
     this.checkElement("tcv_ortho", ortho);
     this.checkElement("tcv_transparent", transparent);
     this.checkElement("tcv_black_edges", blackEdges);
-    this.showTools(tools);
   }
   // setup functions
 
@@ -52093,6 +52103,7 @@ class Display {
    * @param {boolean} flag - whether to show or hide the CAD tools
    */
   showTools = (flag) => {
+    this.tools = flag;
     var tb = this._getElement("tcv_cad_toolbar");
     var cn = this._getElement("tcv_cad_navigation");
     for (var el of [cn, tb]) {
@@ -52272,35 +52283,28 @@ class Display {
   }
 
   /**
-   * Collapse all nodes with one leaf only
+   * Collapse nodes handler
    * @function
    * @param {Event} e - a DOM click event
    */
-  // eslint-disable-next-line no-unused-vars
-  collapseNodes1 = (e) => {
-    this.viewer.treeview.expandNodes(2);
-    this.viewer.treeview.collapseNodes(1);
+  handleCollapseNodes = (e) => {
+    this.collapseNodes(e.target.value);
   };
 
   /**
-   * Collapse all nodes
-   * @function
-   * @param {Event} e - a DOM click event
+   * Collapse nodes handler
+   * @param {string} value - 1: collapse all leaf nodes, 2: collapse all nodes, "E": expand all nodes
    */
-  // eslint-disable-next-line no-unused-vars
-  collapseNodes = (e) => {
-    this.viewer.treeview.collapseNodes(2);
-  };
-
-  /**
-   * Expand all nodes
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  // eslint-disable-next-line no-unused-vars
-  expandNodes = (e) => {
-    this.viewer.treeview.expandNodes(2);
-  };
+  collapseNodes(value) {
+    if (value === "1") {
+      this.viewer.treeview.expandNodes();
+      this.viewer.treeview.collapseNodes(1);
+    } else if (value === "C") {
+      this.viewer.treeview.collapseNodes(2);
+    } else if (value === "E") {
+      this.viewer.treeview.expandNodes();
+    }
+  }
 
   /**
    * Set minimum and maximum of the sliders
@@ -52428,9 +52432,6 @@ class Display {
       this._getElement("tcv_cad_info").classList.add("tcv_cad_info_glass");
       this._getElement("tcv_cad_view").classList.add("tcv_cad_view_glass");
 
-      this._getElement("tcv_cad_toolbar").style.width = px(this.cadWidth);
-      this._getElement("tcv_cad_body").style.width = px(this.cadWidth);
-
       this._getElement("tcv_toggle_info_wrapper").style.display = "block";
 
       this.showInfo(false);
@@ -52444,18 +52445,19 @@ class Display {
       this._getElement("tcv_cad_info").classList.remove("tcv_cad_info_glass");
       this._getElement("tcv_cad_view").classList.remove("tcv_cad_view_glass");
 
-      this._getElement("tcv_cad_toolbar").style.width = px(
-        this.cadWidth + this.treeWidth,
-      );
-      this._getElement("tcv_cad_body").style.width = px(
-        this.cadWidth + this.treeWidth + 4,
-      );
-
       this._getElement("tcv_toggle_info_wrapper").style.display = "none";
 
       this.showInfo(true);
       this._glassMode = false;
     }
+    const options = {
+      cadWidth: this.cadWidth,
+      glass: this._glassMode,
+      height: this.height,
+      tools: this.tools,
+      treeWidth: (flag) ? 0 : this.treeWidth    
+    };
+    this.setSizes(options);
   }
 }
 
@@ -54962,8 +54964,8 @@ class TreeView {
     this._toggleNodes(mode, true);
   }
 
-  expandNodes(mode) {
-    this._toggleNodes(mode, false);
+  expandNodes() {
+    this._toggleNodes(2, false);
   }
 
   getIcon(icon_id, state) {
@@ -57389,13 +57391,15 @@ class Viewer {
     this.setDisplayDefaults(options);
     this.theme = options.theme;
 
-    this.display = new Display(container, options);
-    this.display.setSizes({
+    this.display = new Display(container, {
+      theme: this.theme,
       cadWidth: this.cadWidth,
-      height: this.height,
       treeWidth: this.treeWidth,
+      height: this.height,
+      pinning: this.pinning,
+      glass: this.glass,
+      tools: this.tools,
     });
-    this.display.glassMode(options.glass);
 
     window.THREE = THREE;
 
@@ -57464,6 +57468,7 @@ class Viewer {
     this.height = 600;
     this.pinning = false;
     this.glass = false;
+    this.tools = true;
 
     for (var option in options) {
       if (this[option] == null) {
@@ -58138,8 +58143,12 @@ class Viewer {
       this.ortho,
       this.transparent,
       this.blackEdges,
-      this.tools,
     );
+
+    if (this.cadWidth < 600 && this.display._glassMode) {
+      console.info("Small view, collapsing tree");
+      this.display.collapseNodes("C");
+    }
 
     //
     // show the rendering
@@ -59130,6 +59139,25 @@ class Viewer {
       }
     }
     this.initAnimation(duration, speed, "E", false);
+  }
+
+  trimUI(tags, flag) {
+    var display = flag ? "inline-block" : "none";
+    for (var tag of tags) {
+      var el;
+      if (["axes", "axes0", "grid", "ortho", "more", "help"].includes(tag)) {
+        if (tag != "more") {
+          el = this.display._getElement(`tcv_${tag}`);
+          el.style.display = display;
+          if (tag !== "help") {
+            el.nextElementSibling.style.display = display;
+          }
+        } else {
+          el = this.display._getElement(`tcv_${tag}-dropdown`);
+          el.style.display = display;
+        }
+      }
+    }
   }
 }
 

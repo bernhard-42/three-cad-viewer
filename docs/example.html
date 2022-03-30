@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <title>CadQuery Viewer</title>
-  <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css" /> <!-- 1.5.5 -->
+  <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css" /> <!-- 1.5.6 -->
 
   <!-- UMD import -->
   <!-- <script src='./dist/three-cad-viewer.js'></script> -->
@@ -152,12 +152,13 @@
     const timer = new Timer("main", timeit);
 
     const displayOptions = {
-      cadWidth: 800,
-      height: 600,
+      cadWidth: 700,
+      height: 525,
       treeWidth: 240,
       theme: "browser",
-      glass: true,
-      pinning: true,
+      // glass: true,
+      // tools: false,
+      pinning: false,
     };
 
     const renderOptions = {
@@ -209,6 +210,8 @@
       render(window.selectedExample, ...examples[window.selectedIndex]);
       setMode(window.viewerMode)
       timer.stop();
+
+      // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])
     }
 
     function setMode(mode) {
@@ -263,25 +266,6 @@
     .selection {
       margin-left: 8px;
     }
-
-    /* .select {
-      border: 1px solid var(--tcv-font-color);
-      border-radius: 0.25em;
-      padding: 2px 4px 2px 4px;
-      text-align: center;
-      font-size: 0.85em;
-    }
-
-    select {
-      appearance: none;
-      outline: none;
-      background-color: transparent;
-      border: none;
-      font-family: inherit;
-      font-size: inherit;
-      cursor: inherit;
-      line-height: inherit;
-    } */
   </style>
 </head>
 
