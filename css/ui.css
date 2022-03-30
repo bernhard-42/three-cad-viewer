@@ -461,6 +461,8 @@ input[type="button"] {
   color: var(--tcv-z-color);
 }
 
+/*  Scrollbar styling for Chrome like browsers */
+
 .tcv_mac-scrollbar::-webkit-scrollbar {
   width: 5px !important;
   height: 5px !important;
@@ -475,16 +477,20 @@ input[type="button"] {
   background-color: transparent !important;
 }
 
+.tcv_mac-scrollbar::-webkit-scrollbar-piece {
+  background-color: transparent !important;
+}
+
 .tcv_mac-scrollbar::-webkit-scrollbar-corner {
   background-color: transparent !important;
 }
 
 .tcv_mac-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--tcv-scrollbar-hover) !important;
+  background-color: var(--tcv-scrollbar-hover) !important;
 }
 
 .tcv_mac-scrollbar::-webkit-scrollbar-thumb:active {
-  background: var(--tcv-scrollbar-active) !important;
+  background-color: var(--tcv-scrollbar-hover) !important;
 }
 
 .tcv_mac-scrollbar .widget-html-content {
@@ -492,12 +498,20 @@ input[type="button"] {
   overflow-y: visible;
 }
 
+/* Scrollbar styling for Firefox Browser */
+
 .tcv_scroller {
-  /* scrollbar-color: #7f7f7f white; */
   scrollbar-width: thin;
+  scrollbar-color: var(--tcv-scrollbar-thumb) transparent;
   background-color: transparent !important;
 }
 
+.tcv_scroller:hover {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tcv-scrollbar-hover) transparent;
+}
+
+/* tooltips */
 [data-tooltip]:before {
   position: absolute;
   pointer-events: none;
