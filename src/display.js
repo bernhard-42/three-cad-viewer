@@ -373,13 +373,14 @@ class Display {
 
     this.viewer = null;
     this._glassMode = false;
+    this.tools = true;
     this._events = [];
     this.cadWidth = options.cadWidth;
     this.height = options.height;
     this.treeWidth = options.treeWidth;
 
-    this.glassMode(options.glass);
     this.showTools(options.tools);
+    this.glassMode(options.glass);
     this.setSizes(options);
 
     this.activeTab = "tree";
@@ -818,6 +819,7 @@ class Display {
    * @param {boolean} flag - whether to show or hide the CAD tools
    */
   showTools = (flag) => {
+    this.tools = flag;
     var tb = this._getElement("tcv_cad_toolbar");
     var cn = this._getElement("tcv_cad_navigation");
     for (var el of [cn, tb]) {
@@ -1164,6 +1166,14 @@ class Display {
       this.showInfo(true);
       this._glassMode = false;
     }
+    const options = {
+      cadWidth: this.cadWidth,
+      glass: this._glassMode,
+      height: this.height,
+      tools: this.tools,
+      treeWidth: (flag) ? 0 : this.treeWidth    
+    };
+    this.setSizes(options);
   }
 }
 
