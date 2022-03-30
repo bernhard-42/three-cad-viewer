@@ -1787,6 +1787,25 @@ class Viewer {
     }
     this.initAnimation(duration, speed, "E", false);
   }
+
+  trimUI(tags, flag) {
+    var display = flag ? "inline-block" : "none";
+    for (var tag of tags) {
+      var el;
+      if (["axes", "axes0", "grid", "ortho", "more", "help"].includes(tag)) {
+        if (tag != "more") {
+          el = this.display._getElement(`tcv_${tag}`);
+          el.style.display = display;
+          if (tag !== "help") {
+            el.nextElementSibling.style.display = display;
+          }
+        } else {
+          el = this.display._getElement(`tcv_${tag}-dropdown`);
+          el.style.display = display;
+        }
+      }
+    }
+  }
 }
 
 export { Viewer };
