@@ -288,8 +288,8 @@ class TreeView {
     this._toggleNodes(mode, true);
   }
 
-  expandNodes(mode) {
-    this._toggleNodes(mode, false);
+  expandNodes() {
+    this._toggleNodes(2, false);
   }
 
   getIcon(icon_id, state) {

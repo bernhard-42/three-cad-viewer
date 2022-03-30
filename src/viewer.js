@@ -790,6 +790,11 @@ class Viewer {
       this.tools,
     );
 
+    if (this.cadWidth < 600 && this.display._glassMode) {
+      console.info("Small view, collapsing tree");
+      this.display.collapseNodes("C");
+    }
+
     //
     // show the rendering
     //

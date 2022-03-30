@@ -524,9 +524,9 @@ class Display {
       this._setupClickEvent(name, this.setView);
     });
 
-    this._setupClickEvent("tcv_collapse_singles", this.collapseNodes1);
-    this._setupClickEvent("tcv_collapse_all", this.collapseNodes);
-    this._setupClickEvent("tcv_expand", this.expandNodes);
+    this._setupClickEvent("tcv_collapse_singles", this.handleCollapseNodes);
+    this._setupClickEvent("tcv_collapse_all", this.handleCollapseNodes);
+    this._setupClickEvent("tcv_expand", this.handleCollapseNodes);
 
     this._setupClickEvent("tcv_toggle_info", this.toggleInfo);
 
@@ -988,35 +988,28 @@ class Display {
   }
 
   /**
-   * Collapse all nodes with one leaf only
+   * Collapse nodes handler
    * @function
    * @param {Event} e - a DOM click event
    */
-  // eslint-disable-next-line no-unused-vars
-  collapseNodes1 = (e) => {
-    this.viewer.treeview.expandNodes(2);
-    this.viewer.treeview.collapseNodes(1);
+  handleCollapseNodes = (e) => {
+    this.collapseNodes(e.target.value);
   };
 
   /**
-   * Collapse all nodes
-   * @function
-   * @param {Event} e - a DOM click event
+   * Collapse nodes handler
+   * @param {string} value - 1: collapse all leaf nodes, 2: collapse all nodes, "E": expand all nodes
    */
-  // eslint-disable-next-line no-unused-vars
-  collapseNodes = (e) => {
-    this.viewer.treeview.collapseNodes(2);
-  };
-
-  /**
-   * Expand all nodes
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  // eslint-disable-next-line no-unused-vars
-  expandNodes = (e) => {
-    this.viewer.treeview.expandNodes(2);
-  };
+  collapseNodes(value) {
+    if (value === "1") {
+      this.viewer.treeview.expandNodes();
+      this.viewer.treeview.collapseNodes(1);
+    } else if (value === "C") {
+      this.viewer.treeview.collapseNodes(2);
+    } else if (value === "E") {
+      this.viewer.treeview.expandNodes();
+    }
+  }
 
   /**
    * Set minimum and maximum of the sliders
