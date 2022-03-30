@@ -38,13 +38,15 @@ class Viewer {
     this.setDisplayDefaults(options);
     this.theme = options.theme;
 
-    this.display = new Display(container, options);
-    this.display.setSizes({
+    this.display = new Display(container, {
+      theme: this.theme,
       cadWidth: this.cadWidth,
-      height: this.height,
       treeWidth: this.treeWidth,
+      height: this.height,
+      pinning: this.pinning,
+      glass: this.glass,
+      tools: this.tools,
     });
-    this.display.glassMode(options.glass);
 
     window.THREE = THREE;
 
@@ -113,6 +115,7 @@ class Viewer {
     this.height = 600;
     this.pinning = false;
     this.glass = false;
+    this.tools = true;
 
     for (var option in options) {
       if (this[option] == null) {
@@ -787,7 +790,6 @@ class Viewer {
       this.ortho,
       this.transparent,
       this.blackEdges,
-      this.tools,
     );
 
     if (this.cadWidth < 600 && this.display._glassMode) {

@@ -377,6 +377,9 @@ class Display {
     this.cadWidth = options.cadWidth;
     this.height = options.height;
     this.treeWidth = options.treeWidth;
+
+    this.glassMode(options.glass);
+    this.showTools(options.tools);
     this.setSizes(options);
 
     this.activeTab = "tree";
@@ -470,14 +473,22 @@ class Display {
         options.treeWidth,
       );
     }
-    const treeHeight = Math.round(options.height * ratio);
-    this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
-    this.cadInfo.parentElement.parentElement.style.height = px(
-      options.height - treeHeight - 4,
-    );
+    if (!options.glass) {
+      const treeHeight = Math.round(options.height * ratio);
+      this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
+      this.cadInfo.parentElement.parentElement.style.height = px(
+        options.height - treeHeight - 4,
+      );
+    }
 
-    this.cadTool.style.width = px(options.treeWidth + options.cadWidth + 4);
-    this.cadBody.style.width = px(options.treeWidth + options.cadWidth + 4);
+    if (options.tools && !options.glass) {
+      this.cadTool.style.width = px(options.treeWidth + options.cadWidth + 4);
+      this.cadBody.style.width = px(options.treeWidth + options.cadWidth + 4);
+    } else {
+      this.cadTool.style.width = px(options.cadWidth + 2);
+      this.cadBody.style.width = px(options.cadWidth + 2);
+    }
+
     this.cadBody.style.height = px(options.height + 4);
   }
 
@@ -586,15 +597,13 @@ class Display {
    * @property {boolean} [blackEdges = false] - show edges in black and not in edgeColor.
    * @property {boolean} [clipIntersection = false] - use intersection clipping
    * @property {boolean} [clipPlaneHelpers = false] - show clipping planes
-   * @property {boolean} [tools = true] - Show/hide all tools.
    */
-  updateUI(axes, axes0, ortho, transparent, blackEdges, tools) {
+  updateUI(axes, axes0, ortho, transparent, blackEdges) {
     this.checkElement("tcv_axes", axes);
     this.checkElement("tcv_axes0", axes0);
     this.checkElement("tcv_ortho", ortho);
     this.checkElement("tcv_transparent", transparent);
     this.checkElement("tcv_black_edges", blackEdges);
-    this.showTools(tools);
   }
   // setup functions
 
@@ -1137,9 +1146,6 @@ class Display {
       this._getElement("tcv_cad_info").classList.add("tcv_cad_info_glass");
       this._getElement("tcv_cad_view").classList.add("tcv_cad_view_glass");
 
-      this._getElement("tcv_cad_toolbar").style.width = px(this.cadWidth);
-      this._getElement("tcv_cad_body").style.width = px(this.cadWidth);
-
       this._getElement("tcv_toggle_info_wrapper").style.display = "block";
 
       this.showInfo(false);
@@ -1152,13 +1158,6 @@ class Display {
       );
       this._getElement("tcv_cad_info").classList.remove("tcv_cad_info_glass");
       this._getElement("tcv_cad_view").classList.remove("tcv_cad_view_glass");
-
-      this._getElement("tcv_cad_toolbar").style.width = px(
-        this.cadWidth + this.treeWidth,
-      );
-      this._getElement("tcv_cad_body").style.width = px(
-        this.cadWidth + this.treeWidth + 4,
-      );
 
       this._getElement("tcv_toggle_info_wrapper").style.display = "none";
 
