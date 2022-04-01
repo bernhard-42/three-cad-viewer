@@ -117,3 +117,9 @@ yarn run start
 ```
 
 For the deployment, see [Release.md](./Release.md)
+
+# Changes
+
+1.5.7
+
+- fixed ids of checkboxes to be unique across the document
