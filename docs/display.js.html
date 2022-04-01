@@ -28,37 +28,38 @@
         <article>
             <pre class="prettyprint source linenums"><code>import { getIconBackground } from "./icons.js";
 
-const TEMPLATE = `
+function TEMPLATE(id) {
+  return `
 &lt;div class="tcv_cad_viewer">
     &lt;div class="tcv_cad_toolbar tcv_round">
         &lt;span class="tcv_tooltip" data-tooltip="Show coordinate axis">
-            &lt;input class='tcv_axes tcv_check' id='tcv_axes' type="checkbox" />
-            &lt;label for='tcv_axes' class="tcv_label">Axes&lt;/label>
+            &lt;input class='tcv_axes tcv_check' id='tcv_axes_${id}' type="checkbox" />
+            &lt;label for='tcv_axes_${id}' class="tcv_label">Axes&lt;/label>
         &lt;/span>
         &lt;div class="tcv_grid-dropdown">
             &lt;input class='tcv_grid tcv_check' id='tcv_grid' type="checkbox" />&lt;label for='tcv_grid'
                 class="tcv_label">Grid&lt;/label>
             &lt;div class="tcv_grid-content tcv_dropdown-content">
                 &lt;div class="tcv_tooltip" data-tooltip="Show xy grid">
-                    &lt;input class='tcv_grid-xy tcv_check tcv_dropdown-entry' id='tcv_grid-xy' type="checkbox">
-                    &lt;label for='tcv_grid-xy' class="tcv_label tcv_dropdown-entry">xy&lt;/label>
+                    &lt;input class='tcv_grid-xy tcv_check tcv_dropdown-entry' id='tcv_grid-xy_${id}' type="checkbox">
+                    &lt;label for='tcv_grid-xy_${id}' class="tcv_label tcv_dropdown-entry">xy&lt;/label>
                 &lt;/div>
                 &lt;div class="tcv_tooltip" data-tooltip="Show xz grid">
-                    &lt;input class='tcv_grid-xz tcv_check tcv_dropdown-entry' id='tcv_grid-xz' type="checkbox">
-                    &lt;label for='tcv_grid-xz' class="tcv_label tcv_dropdown-entry">xz&lt;/label>
+                    &lt;input class='tcv_grid-xz tcv_check tcv_dropdown-entry' id='tcv_grid-xz_${id}' type="checkbox">
+                    &lt;label for='tcv_grid-xz_${id}' class="tcv_label tcv_dropdown-entry">xz&lt;/label>
                 &lt;/div>
                 &lt;div class="tcv_tooltip" data-tooltip="Show yz grid">
-                    &lt;input class='tcv_grid-yz tcv_check tcv_dropdown-entry' id='tcv_grid-yz' type="checkbox">
-                    &lt;label for='tcv_grid-yz' class="tcv_label tcv_dropdown-entry">yz&lt;/label>
+                    &lt;input class='tcv_grid-yz tcv_check tcv_dropdown-entry' id='tcv_grid-yz_${id}' type="checkbox">
+                    &lt;label for='tcv_grid-yz_${id}' class="tcv_label tcv_dropdown-entry">yz&lt;/label>
                 &lt;/div>
             &lt;/div>
         &lt;/div>
         &lt;span class="tcv_tooltip" data-tooltip="Move center of axis and grid to (0,0,0)">
-            &lt;input class='tcv_axes0 tcv_check' id='tcv_axes0' type="checkbox" />&lt;label for='tcv_axes0'
+            &lt;input class='tcv_axes0 tcv_check' id='tcv_axes0_${id}' type="checkbox" />&lt;label for='tcv_axes0_${id}'
                 class="tcv_label">@0&lt;/label>
         &lt;/span>
         &lt;span class="tcv_tooltip" data-tooltip="Toggle camera between orthographic and perspective view">
-            &lt;input class='tcv_ortho tcv_check' id='tcv_ortho' type="checkbox" />&lt;label for='tcv_ortho'
+            &lt;input class='tcv_ortho tcv_check' id='tcv_ortho_${id}' type="checkbox" />&lt;label for='tcv_ortho_${id}'
                 class="tcv_label">Ortho&lt;/label>
         &lt;/span>
         &lt;span class="tcv_tooltip" data-tooltip="Reset view">
@@ -92,17 +93,17 @@ const TEMPLATE = `
             &lt;button class="tcv_more-btn">More&lt;span class="tcv_more_icon">\u25BC&lt;/span>&lt;/button>
             &lt;div class="tcv_more-content tcv_dropdown-content">
                 &lt;div class="tcv_tooltip" data-tooltip="Toggle transparent objects">
-                    &lt;input class='tcv_transparent tcv_check tcv_dropdown-entry' id='tcv_transparent' type="checkbox" />
-                    &lt;label for='tcv_transparent' class="tcv_label tcv_dropdown-entry">Transparent&lt;/label>
+                    &lt;input class='tcv_transparent tcv_check tcv_dropdown-entry' id='tcv_transparent_${id}' type="checkbox" />
+                    &lt;label for='tcv_transparent_${id}' class="tcv_label tcv_dropdown-entry">Transparent&lt;/label>
                 &lt;/div>
                 &lt;div class="tcv_tooltip" data-tooltip="Toggle black edges">
-                    &lt;input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges' type="checkbox" />
-                    &lt;label for='tcv_black_edges' class="tcv_label tcv_dropdown-entry">Black edges&lt;/label>
+                    &lt;input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges_${id}' type="checkbox" />
+                    &lt;label for='tcv_black_edges_${id}' class="tcv_label tcv_dropdown-entry">Black edges&lt;/label>
                 &lt;/div>
                 &lt;div class="tcv_explode_widget tcv_tooltip"
                     data-tooltip="Explode assembly (@0 determines explosion center)">
-                    &lt;input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode' type="checkbox" />
-                    &lt;label for='tcv_explode' class="tcv_label tcv_dropdown-entry">Explode&lt;/label>
+                    &lt;input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode_${id}' type="checkbox" />
+                    &lt;label for='tcv_explode_${id}' class="tcv_label tcv_dropdown-entry">Explode&lt;/label>
                 &lt;/div>
             &lt;/div>
         &lt;/div>
@@ -279,6 +280,7 @@ const TEMPLATE = `
     &lt;/div>
 &lt;/div>
 `;
+}
 
 function px(val) {
   return `${val}px`;
@@ -380,7 +382,7 @@ class Display {
   constructor(container, options) {
     this.container = container;
 
-    this.container.innerHTML = TEMPLATE;
+    this.container.innerHTML = TEMPLATE(this.container.id);
     this.cadBody = this._getElement("tcv_cad_body");
     this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadView = this._getElement("tcv_cad_view");
@@ -1199,7 +1201,7 @@ class Display {
       glass: this._glassMode,
       height: this.height,
       tools: this.tools,
-      treeWidth: (flag) ? 0 : this.treeWidth    
+      treeWidth: flag ? 0 : this.treeWidth,
     };
     this.setSizes(options);
   }
@@ -1222,7 +1224,7 @@ export { Display };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Mar 30 2022 20:58:55 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Fri Apr 01 2022 19:06:21 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

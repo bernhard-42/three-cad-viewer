@@ -51284,37 +51284,38 @@ function getIconBackground(theme, name) {
   return `url(data:image/svg+xml;utf8,${escape(icons[name][theme])});`;
 }
 
-const TEMPLATE = `
+function TEMPLATE(id) {
+  return `
 <div class="tcv_cad_viewer">
     <div class="tcv_cad_toolbar tcv_round">
         <span class="tcv_tooltip" data-tooltip="Show coordinate axis">
-            <input class='tcv_axes tcv_check' id='tcv_axes' type="checkbox" />
-            <label for='tcv_axes' class="tcv_label">Axes</label>
+            <input class='tcv_axes tcv_check' id='tcv_axes_${id}' type="checkbox" />
+            <label for='tcv_axes_${id}' class="tcv_label">Axes</label>
         </span>
         <div class="tcv_grid-dropdown">
             <input class='tcv_grid tcv_check' id='tcv_grid' type="checkbox" /><label for='tcv_grid'
                 class="tcv_label">Grid</label>
             <div class="tcv_grid-content tcv_dropdown-content">
                 <div class="tcv_tooltip" data-tooltip="Show xy grid">
-                    <input class='tcv_grid-xy tcv_check tcv_dropdown-entry' id='tcv_grid-xy' type="checkbox">
-                    <label for='tcv_grid-xy' class="tcv_label tcv_dropdown-entry">xy</label>
+                    <input class='tcv_grid-xy tcv_check tcv_dropdown-entry' id='tcv_grid-xy_${id}' type="checkbox">
+                    <label for='tcv_grid-xy_${id}' class="tcv_label tcv_dropdown-entry">xy</label>
                 </div>
                 <div class="tcv_tooltip" data-tooltip="Show xz grid">
-                    <input class='tcv_grid-xz tcv_check tcv_dropdown-entry' id='tcv_grid-xz' type="checkbox">
-                    <label for='tcv_grid-xz' class="tcv_label tcv_dropdown-entry">xz</label>
+                    <input class='tcv_grid-xz tcv_check tcv_dropdown-entry' id='tcv_grid-xz_${id}' type="checkbox">
+                    <label for='tcv_grid-xz_${id}' class="tcv_label tcv_dropdown-entry">xz</label>
                 </div>
                 <div class="tcv_tooltip" data-tooltip="Show yz grid">
-                    <input class='tcv_grid-yz tcv_check tcv_dropdown-entry' id='tcv_grid-yz' type="checkbox">
-                    <label for='tcv_grid-yz' class="tcv_label tcv_dropdown-entry">yz</label>
+                    <input class='tcv_grid-yz tcv_check tcv_dropdown-entry' id='tcv_grid-yz_${id}' type="checkbox">
+                    <label for='tcv_grid-yz_${id}' class="tcv_label tcv_dropdown-entry">yz</label>
                 </div>
             </div>
         </div>
         <span class="tcv_tooltip" data-tooltip="Move center of axis and grid to (0,0,0)">
-            <input class='tcv_axes0 tcv_check' id='tcv_axes0' type="checkbox" /><label for='tcv_axes0'
+            <input class='tcv_axes0 tcv_check' id='tcv_axes0_${id}' type="checkbox" /><label for='tcv_axes0_${id}'
                 class="tcv_label">@0</label>
         </span>
         <span class="tcv_tooltip" data-tooltip="Toggle camera between orthographic and perspective view">
-            <input class='tcv_ortho tcv_check' id='tcv_ortho' type="checkbox" /><label for='tcv_ortho'
+            <input class='tcv_ortho tcv_check' id='tcv_ortho_${id}' type="checkbox" /><label for='tcv_ortho_${id}'
                 class="tcv_label">Ortho</label>
         </span>
         <span class="tcv_tooltip" data-tooltip="Reset view">
@@ -51348,17 +51349,17 @@ const TEMPLATE = `
             <button class="tcv_more-btn">More<span class="tcv_more_icon">\u25BC</span></button>
             <div class="tcv_more-content tcv_dropdown-content">
                 <div class="tcv_tooltip" data-tooltip="Toggle transparent objects">
-                    <input class='tcv_transparent tcv_check tcv_dropdown-entry' id='tcv_transparent' type="checkbox" />
-                    <label for='tcv_transparent' class="tcv_label tcv_dropdown-entry">Transparent</label>
+                    <input class='tcv_transparent tcv_check tcv_dropdown-entry' id='tcv_transparent_${id}' type="checkbox" />
+                    <label for='tcv_transparent_${id}' class="tcv_label tcv_dropdown-entry">Transparent</label>
                 </div>
                 <div class="tcv_tooltip" data-tooltip="Toggle black edges">
-                    <input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges' type="checkbox" />
-                    <label for='tcv_black_edges' class="tcv_label tcv_dropdown-entry">Black edges</label>
+                    <input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges_${id}' type="checkbox" />
+                    <label for='tcv_black_edges_${id}' class="tcv_label tcv_dropdown-entry">Black edges</label>
                 </div>
                 <div class="tcv_explode_widget tcv_tooltip"
                     data-tooltip="Explode assembly (@0 determines explosion center)">
-                    <input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode' type="checkbox" />
-                    <label for='tcv_explode' class="tcv_label tcv_dropdown-entry">Explode</label>
+                    <input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode_${id}' type="checkbox" />
+                    <label for='tcv_explode_${id}' class="tcv_label tcv_dropdown-entry">Explode</label>
                 </div>
             </div>
         </div>
@@ -51535,6 +51536,7 @@ const TEMPLATE = `
     </div>
 </div>
 `;
+}
 
 function px(val) {
   return `${val}px`;
@@ -51636,7 +51638,7 @@ class Display {
   constructor(container, options) {
     this.container = container;
 
-    this.container.innerHTML = TEMPLATE;
+    this.container.innerHTML = TEMPLATE(this.container.id);
     this.cadBody = this._getElement("tcv_cad_body");
     this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadView = this._getElement("tcv_cad_view");
@@ -52455,7 +52457,7 @@ class Display {
       glass: this._glassMode,
       height: this.height,
       tools: this.tools,
-      treeWidth: (flag) ? 0 : this.treeWidth    
+      treeWidth: flag ? 0 : this.treeWidth,
     };
     this.setSizes(options);
   }
