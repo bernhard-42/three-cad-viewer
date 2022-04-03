@@ -120,6 +120,11 @@ For the deployment, see [Release.md](./Release.md)
 
 # Changes
 
-1.5.7
+v1.5.7
 
 - fixed ids of checkboxes to be unique across the document
+
+v1.5.8
+
+- fixed glass and tools paramewter handling
+- fixed initial zoom for wide cad views with low height
