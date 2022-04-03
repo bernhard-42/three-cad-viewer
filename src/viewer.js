@@ -177,7 +177,11 @@ class Viewer {
     this.quaternion = null;
     this.target = null;
     this.zoom = null;
-    this.zoom0 = 1.0;
+    if (this.cadWidth >= this.height) {
+      this.zoom0 = (4 / 3) * (this.height / this.cadWidth);
+    } else {
+      this.zoom0 = 4 / 3;
+    }
 
     this.panSpeed = 0.5;
     this.rotateSpeed = 1.0;
