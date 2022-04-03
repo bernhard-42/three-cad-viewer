@@ -174,11 +174,6 @@ class Viewer {
     this.quaternion = null;
     this.target = null;
     this.zoom = null;
-    if (this.cadWidth >= this.height) {
-      this.zoom0 = (4 / 3) * (this.height / this.cadWidth);
-    } else {
-      this.zoom0 = 4 / 3;
-    }
 
     this.panSpeed = 0.5;
     this.rotateSpeed = 1.0;
@@ -235,7 +230,7 @@ class Viewer {
     console.log("- glass", this.glass);
     console.log("- transparent", this.transparent);
     console.log("- zoom", this.zoom);
-    console.log("- zoom0", this.zoom0);
+    console.log("- zoom0", this.controls.getZoom0());
     console.log("- zoomSpeed", this.zoomSpeed);
   }
   // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -796,7 +791,6 @@ class Viewer {
     );
 
     this.display.autoCollapse();
-    this.resize();
 
     //
     // show the rendering
@@ -894,7 +888,7 @@ class Viewer {
    * @function
    */
   resize = () => {
-    this.camera.setZoom(this.zoom0);
+    this.camera.setZoom(this.controls.getZoom0());
     this.camera.updateProjectionMatrix();
     this.update(true);
   };

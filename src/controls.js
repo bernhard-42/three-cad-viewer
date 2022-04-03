@@ -144,6 +144,13 @@ class Controls {
   }
 
   /**
+   * Get the initial zoom value of the camera.
+   **/
+  getZoom0() {
+    return this.controls.zoom0;
+  }
+
+  /**
    * Get the lookAt target of the camera.
    * @param {number[]} target - camera target as THREE.Vector3.
    **/
