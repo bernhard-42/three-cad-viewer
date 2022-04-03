@@ -173,7 +173,11 @@ class Viewer {
     this.position = null;
     this.quaternion = null;
     this.target = null;
-    this.zoom = null;
+
+    this.zoom = 4 / 3;
+    if (this.cadWidth >= this.height) {
+      this.zoom *= this.height / this.cadWidth;
+    }
 
     this.panSpeed = 0.5;
     this.rotateSpeed = 1.0;
@@ -634,10 +638,10 @@ class Viewer {
 
     // this needs to happen after the controls have been established
     if (options.position == null && options.quaternion == null) {
-      this.presetCamera("iso", options.zoom);
+      this.presetCamera("iso", this.zoom);
       this.display.highlightButton("iso");
     } else if (options.position != null) {
-      this.setCamera(false, options.position, options.quaternion, options.zoom);
+      this.setCamera(false, options.position, options.quaternion, this.zoom);
       if (options.quaternion == null) {
         this.camera.lookAtTarget();
       }
@@ -645,7 +649,7 @@ class Viewer {
       this.info.addHtml(
         "<b>quaternion needs position to be provided, falling back to ISO view</b>",
       );
-      this.presetCamera("iso", options.zoom);
+      this.presetCamera("iso", this.zoom);
     }
     this.controls.update();
 
