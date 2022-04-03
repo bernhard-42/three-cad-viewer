@@ -36,7 +36,6 @@ class Viewer {
     this.hasAnimationLoop = false;
 
     this.setDisplayDefaults(options);
-    this.theme = options.theme;
 
     this.display = new Display(container, {
       theme: this.theme,
@@ -168,9 +167,7 @@ class Viewer {
     this.clipSlider0 = -1;
     this.clipSlider1 = -1;
     this.clipSlider2 = -1;
-    this.tools = true;
     this.control = "orbit";
-    this.glass = false;
     this.ticks = 10;
 
     this.position = null;
@@ -577,6 +574,7 @@ class Viewer {
    * @param {ViewerOptions} options - the Viewer options
    */
   render(group, tree, states, options) {
+    console.log(options);
     this.setViewerDefaults(options);
 
     this.animation.cleanBackup();
@@ -794,12 +792,12 @@ class Viewer {
       this.ortho,
       this.transparent,
       this.blackEdges,
+      this.tools,
+      this.glass,
     );
 
-    if (this.cadWidth < 600 && this.display._glassMode) {
-      console.info("Small view, collapsing tree");
-      this.display.collapseNodes("C");
-    }
+    this.display.autoCollapse();
+    this.resize();
 
     //
     // show the rendering
@@ -1733,6 +1731,13 @@ class Viewer {
     });
   };
 
+  /**
+   * Calculate explode trajectories and initiate the animation
+   *
+   * @param {number} [duration=2] - duration of animation.
+   * @param {number} [speed=1] - speed of animation.
+   * @param {number} [multiplier=2.5] - multiplier for length of trajectories.
+   */
   explode(duration = 2, speed = 1, multiplier = 2.5) {
     this.clearAnimation();
 
@@ -1792,6 +1797,12 @@ class Viewer {
     this.initAnimation(duration, speed, "E", false);
   }
 
+  /**
+   * Calculate explode trajectories and initiate the animation
+   *
+   * @param {string[]} tags - e.g. ["axes", "axes0", "grid", "ortho", "more", "help"]
+   * @param {boolean} flag - whether to turn on or off the UI elements.
+   */
   trimUI(tags, flag) {
     var display = flag ? "inline-block" : "none";
     for (var tag of tags) {
@@ -1810,6 +1821,32 @@ class Viewer {
       }
     }
   }
+
+  //
+  // DOESN'T WORK DUE TO CAMERA CANNOT BE CHANGED EASILY
+  //
+  // /**
+  //  * Resize cadWidth, treeWidth and height of thew viewer
+  //  *
+  //  * @param {cadWidth} tags - e.g. ["axes", "axes0", "grid", "ortho", "more", "help"]
+  //  * @param {treeWidth} flag - whether to turn on or off the UI elements.
+  //  * @param {height} flag - whether to turn on or off the UI elements.
+  //  */
+  // resetUISize(cadWidth, treeWidth, height) {
+  //   this.cadWidth = cadWidth;
+  //   this.treeWidth = treeWidth;
+  //   this.height = height;
+  //   this.display.setSizes({
+  //     cadWidth: cadWidth,
+  //     treeWidth: treeWidth,
+  //     height: height,
+  //     tools: this.tools,
+  //     glass: this.glass,
+  //   });
+  //   this.display.autoCollapse();
+  //   this.renderer.setSize(cadWidth, height);
+  //   this.update(true);
+  // }
 }
 
 export { Viewer };
