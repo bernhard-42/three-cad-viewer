@@ -574,7 +574,6 @@ class Viewer {
    * @param {ViewerOptions} options - the Viewer options
    */
   render(group, tree, states, options) {
-    console.log(options);
     this.setViewerDefaults(options);
 
     this.animation.cleanBackup();
