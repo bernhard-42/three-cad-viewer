@@ -57031,6 +57031,13 @@ class Controls {
   }
 
   /**
+   * Get the initial zoom value of the camera.
+   **/
+  getZoom0() {
+    return this.controls.zoom0;
+  }
+
+  /**
    * Get the lookAt target of the camera.
    * @param {number[]} target - camera target as THREE.Vector3.
    **/
@@ -57551,11 +57558,10 @@ class Viewer {
     this.position = null;
     this.quaternion = null;
     this.target = null;
-    this.zoom = null;
+
+    this.zoom = 4 / 3;
     if (this.cadWidth >= this.height) {
-      this.zoom0 = (4 / 3) * (this.height / this.cadWidth);
-    } else {
-      this.zoom0 = 4 / 3;
+      this.zoom *= this.height / this.cadWidth;
     }
 
     this.panSpeed = 0.5;
@@ -57613,7 +57619,7 @@ class Viewer {
     console.log("- glass", this.glass);
     console.log("- transparent", this.transparent);
     console.log("- zoom", this.zoom);
-    console.log("- zoom0", this.zoom0);
+    console.log("- zoom0", this.controls.getZoom0());
     console.log("- zoomSpeed", this.zoomSpeed);
   }
   // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -57952,7 +57958,6 @@ class Viewer {
    * @param {ViewerOptions} options - the Viewer options
    */
   render(group, tree, states, options) {
-    console.log(options);
     this.setViewerDefaults(options);
 
     this.animation.cleanBackup();
@@ -58018,10 +58023,10 @@ class Viewer {
 
     // this needs to happen after the controls have been established
     if (options.position == null && options.quaternion == null) {
-      this.presetCamera("iso", options.zoom);
+      this.presetCamera("iso", this.zoom);
       this.display.highlightButton("iso");
     } else if (options.position != null) {
-      this.setCamera(false, options.position, options.quaternion, options.zoom);
+      this.setCamera(false, options.position, options.quaternion, this.zoom);
       if (options.quaternion == null) {
         this.camera.lookAtTarget();
       }
@@ -58029,7 +58034,7 @@ class Viewer {
       this.info.addHtml(
         "<b>quaternion needs position to be provided, falling back to ISO view</b>",
       );
-      this.presetCamera("iso", options.zoom);
+      this.presetCamera("iso", this.zoom);
     }
     this.controls.update();
 
@@ -58175,7 +58180,6 @@ class Viewer {
     );
 
     this.display.autoCollapse();
-    this.resize();
 
     //
     // show the rendering
@@ -58273,7 +58277,7 @@ class Viewer {
    * @function
    */
   resize = () => {
-    this.camera.setZoom(this.zoom0);
+    this.camera.setZoom(this.controls.getZoom0());
     this.camera.updateProjectionMatrix();
     this.update(true);
   };
