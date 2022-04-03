@@ -51658,15 +51658,14 @@ class Display {
     }
 
     this.viewer = null;
-    this._glassMode = false;
-    this.tools = true;
-    this._events = [];
+    this.glass = options.glass;
+    this.tools = options.tools;
     this.cadWidth = options.cadWidth;
     this.height = options.height;
     this.treeWidth = options.treeWidth;
 
-    this.showTools(options.tools);
-    this.glassMode(options.glass);
+    this._events = [];
+
     this.setSizes(options);
 
     this.activeTab = "tree";
@@ -51831,7 +51830,7 @@ class Display {
     this._setupClickEvent("tcv_pin", this.pinAsPng);
     this._setupClickEvent("tcv_help", this.toggleHelp);
     this.help_shown = true;
-    this.info_shown = !this._glassMode;
+    this.info_shown = !this.glass;
 
     const tabs = ["tcv_tab_tree", "tcv_tab_clip"];
     tabs.forEach((name) => {
@@ -51882,15 +51881,18 @@ class Display {
    * @property {boolean} [ortho = true] - use an orthographic (true) or perspective camera (false)
    * @property {boolean} [transparent = false] - show CAD object transparent.
    * @property {boolean} [blackEdges = false] - show edges in black and not in edgeColor.
-   * @property {boolean} [clipIntersection = false] - use intersection clipping
-   * @property {boolean} [clipPlaneHelpers = false] - show clipping planes
+   * @property {boolean} [tools = true] - show CAD tools.
+   * @property {boolean} [glass = false] - use glass mode, i.e. CAD navigation as overlay.
    */
-  updateUI(axes, axes0, ortho, transparent, blackEdges) {
+  updateUI(axes, axes0, ortho, transparent, blackEdges, tools, glass) {
     this.checkElement("tcv_axes", axes);
     this.checkElement("tcv_axes0", axes0);
     this.checkElement("tcv_ortho", ortho);
     this.checkElement("tcv_transparent", transparent);
     this.checkElement("tcv_black_edges", blackEdges);
+
+    this.showTools(tools);
+    this.glassMode(glass);
   }
   // setup functions
 
@@ -52106,6 +52108,10 @@ class Display {
    */
   showTools = (flag) => {
     this.tools = flag;
+    if (this.viewer) {
+      // not available at first call
+      this.viewer.tools = flag;
+    }
     var tb = this._getElement("tcv_cad_toolbar");
     var cn = this._getElement("tcv_cad_navigation");
     for (var el of [cn, tb]) {
@@ -52419,6 +52425,18 @@ class Display {
   };
 
   /**
+   * Auto collapse tree nodes, when cad width < 600
+   * @function
+   * @param {boolean} flag - whether to enable/disable glass mode
+   */
+  autoCollapse() {
+    if (this.cadWidth < 600 && this.glass) {
+      console.info("Small view, collapsing tree");
+      this.collapseNodes("C");
+    }
+  }
+
+  /**
    * Enable/disable glass mode
    * @function
    * @param {boolean} flag - whether to enable/disable glass mode
@@ -52437,7 +52455,8 @@ class Display {
       this._getElement("tcv_toggle_info_wrapper").style.display = "block";
 
       this.showInfo(false);
-      this._glassMode = true;
+      this.glass = true;
+      this.autoCollapse();
     } else {
       this._getElement("tcv_cad_tree").classList.remove("tcv_cad_tree_glass");
       this._getElement("tcv_cad_tree").style["max-height"] = null;
@@ -52450,11 +52469,15 @@ class Display {
       this._getElement("tcv_toggle_info_wrapper").style.display = "none";
 
       this.showInfo(true);
-      this._glassMode = false;
+      this.glass = false;
+    }
+    if (this.viewer) {
+      // not available at first call
+      this.viewer.glass = false;
     }
     const options = {
       cadWidth: this.cadWidth,
-      glass: this._glassMode,
+      glass: this.glass,
       height: this.height,
       tools: this.tools,
       treeWidth: flag ? 0 : this.treeWidth,
@@ -57391,7 +57414,6 @@ class Viewer {
     this.hasAnimationLoop = false;
 
     this.setDisplayDefaults(options);
-    this.theme = options.theme;
 
     this.display = new Display(container, {
       theme: this.theme,
@@ -57523,16 +57545,18 @@ class Viewer {
     this.clipSlider0 = -1;
     this.clipSlider1 = -1;
     this.clipSlider2 = -1;
-    this.tools = true;
     this.control = "orbit";
-    this.glass = false;
     this.ticks = 10;
 
     this.position = null;
     this.quaternion = null;
     this.target = null;
     this.zoom = null;
-    this.zoom0 = 1.0;
+    if (this.cadWidth >= this.height) {
+      this.zoom0 = (4 / 3) * (this.height / this.cadWidth);
+    } else {
+      this.zoom0 = 4 / 3;
+    }
 
     this.panSpeed = 0.5;
     this.rotateSpeed = 1.0;
@@ -57928,6 +57952,7 @@ class Viewer {
    * @param {ViewerOptions} options - the Viewer options
    */
   render(group, tree, states, options) {
+    console.log(options);
     this.setViewerDefaults(options);
 
     this.animation.cleanBackup();
@@ -58145,12 +58170,12 @@ class Viewer {
       this.ortho,
       this.transparent,
       this.blackEdges,
+      this.tools,
+      this.glass,
     );
 
-    if (this.cadWidth < 600 && this.display._glassMode) {
-      console.info("Small view, collapsing tree");
-      this.display.collapseNodes("C");
-    }
+    this.display.autoCollapse();
+    this.resize();
 
     //
     // show the rendering
@@ -59084,6 +59109,13 @@ class Viewer {
     });
   };
 
+  /**
+   * Calculate explode trajectories and initiate the animation
+   *
+   * @param {number} [duration=2] - duration of animation.
+   * @param {number} [speed=1] - speed of animation.
+   * @param {number} [multiplier=2.5] - multiplier for length of trajectories.
+   */
   explode(duration = 2, speed = 1, multiplier = 2.5) {
     this.clearAnimation();
 
@@ -59143,6 +59175,12 @@ class Viewer {
     this.initAnimation(duration, speed, "E", false);
   }
 
+  /**
+   * Calculate explode trajectories and initiate the animation
+   *
+   * @param {string[]} tags - e.g. ["axes", "axes0", "grid", "ortho", "more", "help"]
+   * @param {boolean} flag - whether to turn on or off the UI elements.
+   */
   trimUI(tags, flag) {
     var display = flag ? "inline-block" : "none";
     for (var tag of tags) {
@@ -59161,6 +59199,32 @@ class Viewer {
       }
     }
   }
+
+  //
+  // DOESN'T WORK DUE TO CAMERA CANNOT BE CHANGED EASILY
+  //
+  // /**
+  //  * Resize cadWidth, treeWidth and height of thew viewer
+  //  *
+  //  * @param {cadWidth} tags - e.g. ["axes", "axes0", "grid", "ortho", "more", "help"]
+  //  * @param {treeWidth} flag - whether to turn on or off the UI elements.
+  //  * @param {height} flag - whether to turn on or off the UI elements.
+  //  */
+  // resetUISize(cadWidth, treeWidth, height) {
+  //   this.cadWidth = cadWidth;
+  //   this.treeWidth = treeWidth;
+  //   this.height = height;
+  //   this.display.setSizes({
+  //     cadWidth: cadWidth,
+  //     treeWidth: treeWidth,
+  //     height: height,
+  //     tools: this.tools,
+  //     glass: this.glass,
+  //   });
+  //   this.display.autoCollapse();
+  //   this.renderer.setSize(cadWidth, height);
+  //   this.update(true);
+  // }
 }
 
 export { Display, Timer, Viewer };
