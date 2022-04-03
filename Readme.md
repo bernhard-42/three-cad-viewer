@@ -128,3 +128,7 @@ v1.5.8
 
 - fixed glass and tools paramewter handling
 - fixed initial zoom for wide cad views with low height
+
+v1.5.9
+
+- fixed a regression from v1.5.8 around initial zoom value handling)

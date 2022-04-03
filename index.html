@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <title>CadQuery Viewer</title>
-  <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css" /> <!-- 1.5.8 -->
+  <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css" /> <!-- 1.5.9 -->
 
   <!-- UMD import -->
   <!-- <script src='./dist/three-cad-viewer.js'></script> -->
@@ -191,7 +191,8 @@
       // position: [529.033598621696, -60.76490228572615, 833.5255981339967],
       // quaternion: [0.1279694269733356, 0.17808830219432778, 0.792315727012021, 0.5693366061576142],
       // target: [133.7552476361796, -193.79076438378323, -47.35882179018034],
-      // zoom: 0.8
+      // zoom: 1,
+      // glass: true,
       collapse: 1,
     };
 
@@ -202,7 +203,7 @@
 
       timer.split("display created");
 
-      // control = "orbit"        
+      // control = "orbit"
       viewerOptions.control = control;
 
       render(window.selectedExample, ...examples[window.selectedIndex]);
