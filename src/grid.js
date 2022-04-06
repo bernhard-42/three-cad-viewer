@@ -15,8 +15,8 @@ class Grid {
     // in case the bbox has the same siez as the nice grid there should be
     // a margin bewteen grid and object. Hence factor 1.1
     var [axisStart, axisEnd, niceTick] = this.niceBounds(
-      -bbox.max * 1.1,
-      bbox.max * 1.1,
+      -bbox.max_dist_from_center() * 1.1,
+      bbox.max_dist_from_center() * 1.1,
       2 * ticks,
     );
     this.size = axisEnd - axisStart;
@@ -143,12 +143,13 @@ class Grid {
       this.gridHelper[1].position.y = -this.size / 2;
       this.gridHelper[2].position.x = -this.size / 2;
     } else {
+      const c = this.bbox.center();
       for (i = 0; i < 3; i++) {
-        this.gridHelper[i].position.set(...this.bbox.center);
+        this.gridHelper[i].position.set(...c);
       }
-      this.gridHelper[0].position.z = -this.size / 2 + this.bbox.center[2];
-      this.gridHelper[1].position.y = -this.size / 2 + this.bbox.center[1];
-      this.gridHelper[2].position.x = -this.size / 2 + this.bbox.center[0];
+      this.gridHelper[0].position.z = -this.size / 2 + c[2];
+      this.gridHelper[1].position.y = -this.size / 2 + c[1];
+      this.gridHelper[2].position.x = -this.size / 2 + c[0];
     }
   }
 

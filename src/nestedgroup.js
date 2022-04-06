@@ -411,17 +411,8 @@ class NestedGroup {
 
   boundingBox() {
     if (this.bbox == null) {
-      var b = new THREE.Box3().setFromObject(this.rootGroup);
-      this.bsphere = new THREE.Sphere();
-      b.getBoundingSphere(this.bsphere);
-      this.bbox = new BoundingBox(
-        b.min.x,
-        b.max.x,
-        b.min.y,
-        b.max.y,
-        b.min.z,
-        b.max.z,
-      );
+      this.bbox = new BoundingBox();
+      this.bbox.setFromObject(this.rootGroup, true);
     }
     return this.bbox;
   }

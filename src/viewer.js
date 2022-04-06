@@ -13,6 +13,7 @@ import { Info } from "./info.js";
 import { clone, isEqual, sceneTraverse } from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
+import { BoxHelper } from "./bbox.js";
 
 class Viewer {
   /**
@@ -88,6 +89,8 @@ class Viewer {
     this.renderer.autoClear = false;
 
     this.lastNotification = {};
+    this.lastBbox = null;
+    this.bboxNeedsUpdate = false;
 
     this.keepHighlight = false;
 
@@ -419,6 +422,15 @@ class Viewer {
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
 
+      if (
+        this.lastBbox != null &&
+        (this.lastBbox.needsUpdate || this.bboxNeedsUpdate)
+      ) {
+        console.log("updated bbox");
+        this.lastBbox.bbox.update();
+        this.lastBbox.needsUpdate = false;
+      }
+
       if (updateMarker) {
         this.renderer.clearDepth(); // ensure orientation Marker is at the top
 
@@ -585,6 +597,7 @@ class Viewer {
     //
     // render the input assembly
     //
+    this.lastBbox = null;
 
     this.nestedGroup = group;
     this.scene.add(this.nestedGroup.render(states));
@@ -597,7 +610,7 @@ class Viewer {
 
     this.bbox = this.nestedGroup.boundingBox();
     this.bb_max = this.bbox.max_dist_from_center();
-    this.bb_radius = this.nestedGroup.bsphere.radius;
+    this.bb_radius = this.bbox.radius();
 
     timer.split("bounding box");
 
@@ -614,7 +627,7 @@ class Viewer {
       this.cadWidth,
       this.height,
       this.bb_radius,
-      options.target == null ? this.bbox.center : options.target,
+      options.target == null ? this.bbox.center() : options.target,
       this.ortho,
       this.control,
     );
@@ -625,7 +638,7 @@ class Viewer {
     this.controls = new Controls(
       this.control,
       this.camera.getCamera(),
-      options.target == null ? this.bbox.center : options.target,
+      options.target == null ? this.bbox.center() : options.target,
       this.renderer.domElement,
       this.rotateSpeed,
       this.zoomSpeed,
@@ -700,7 +713,7 @@ class Viewer {
     //
 
     this.axesHelper = new AxesHelper(
-      this.bbox.center,
+      this.bbox.center(),
       this.gridSize / 2,
       2,
       this.cadWidth,
@@ -772,6 +785,7 @@ class Viewer {
       clone(this.states),
       this.tree,
       this.setObjects,
+      this.setBoundingBox,
       theme,
     );
 
@@ -941,6 +955,30 @@ class Viewer {
     this.update(this.updateMarker);
   };
 
+  setBoundingBox = (id) => {
+    const group = this.nestedGroup.groups[id];
+
+    if (group != null) {
+      if (this.lastBbox != null) {
+        this.scene.remove(this.lastBbox.bbox);
+      }
+      if (
+        this.lastBbox == null ||
+        (this.lastBbox != null && id != this.lastBbox.id)
+      ) {
+        this.lastBbox = {
+          id: id,
+          bbox: new BoxHelper(group, 0xff00ff),
+          needsUpdate: false,
+        };
+        this.scene.add(this.lastBbox.bbox);
+      } else {
+        this.lastBbox = null;
+      }
+      this.update(false, false, false);
+    }
+  };
+
   /**
    * Refresh clipping plane
    * @function
@@ -1039,6 +1077,10 @@ class Viewer {
       }
     }
     if (nearest != null) {
+      nearest.boundingBox = new THREE.Box3().setFromObject(
+        nearest.objectGroup,
+        true,
+      );
       this.checkChanges({
         lastPick: {
           path: nearest.path,
@@ -1058,6 +1100,7 @@ class Viewer {
         this.setStates(update);
       } else {
         this.info.bbInfo(nearest.path, nearest.name, nearest.boundingBox);
+        this.setBoundingBox(`${nearest.path}/${nearest.name}`);
       }
     }
   };

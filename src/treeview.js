@@ -25,10 +25,11 @@ const States = {
 };
 
 class TreeView {
-  constructor(states, tree, cad_handler, theme) {
+  constructor(states, tree, cad_handler, bb_handler, theme) {
     this.states = states;
     this.tree = tree;
     this.cad_handler = cad_handler;
+    this.bb_handler = bb_handler;
     this.theme = theme;
 
     this.setupIcons(theme);
@@ -88,6 +89,10 @@ class TreeView {
     var li = tag("li", [`node${model.id.replaceAll(" ", "_")}`]);
     var lbl = tag("span", ["tcv_tree_label"]);
     lbl.innerHTML = model.name;
+    lbl.id = model.id;
+    lbl.addEventListener("click", (e) => {
+      this.bb_handler(e.target.id);
+    });
     var entry = tag("span", ["tcv_node_entry"], { id: model.id });
     if (model.type === "node") {
       var span = tag("span", ["tcv_node_entry_wrap"]);

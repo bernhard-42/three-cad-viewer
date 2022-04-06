@@ -1070,6 +1070,14 @@ class Display {
 
     var currentTime = this.viewer.animation.getRelativeTime();
     this.animationSlider.value = 1000 * currentTime;
+    if (btn == "play") {
+      this.viewer.bboxNeedsUpdate = true;
+    } else if (btn == "stop") {
+      this.viewer.bboxNeedsUpdate = false;
+      this.viewer.lastBbox.needsUpdate = true;
+    } else {
+      this.viewer.bboxNeedsUpdate = !this.viewer.bboxNeedsUpdate;
+    }
   }
 
   /**
@@ -1089,6 +1097,7 @@ class Display {
    */
   animationChange = (e) => {
     this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
+    this.viewer.lastBbox.needsUpdate = true;
   };
 
   setAnimationLabel(label) {
