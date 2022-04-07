@@ -71,8 +71,13 @@
   margin-left: 6px;
   font-size: 14px;
   font-family: sans-serif;
+  user-select: none;
 }
 
 .tcv_tree_label:hover {
   cursor: pointer;
+}
+
+.tcv_node_selected {
+  color: #308ee1;
 }

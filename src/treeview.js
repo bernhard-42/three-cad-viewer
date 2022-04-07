@@ -31,6 +31,7 @@ class TreeView {
     this.cad_handler = cad_handler;
     this.bb_handler = bb_handler;
     this.theme = theme;
+    this.lastSelection = null;
 
     this.setupIcons(theme);
     this.treeModel = this.toModel(tree);
@@ -92,6 +93,7 @@ class TreeView {
     lbl.id = model.id;
     lbl.addEventListener("click", (e) => {
       this.bb_handler(e.target.id);
+      this.highlightLabel(e.target);
     });
     var entry = tag("span", ["tcv_node_entry"], { id: model.id });
     if (model.type === "node") {
@@ -153,6 +155,23 @@ class TreeView {
       li.appendChild(entry);
     }
     return li;
+  }
+
+  highlightLabel(label) {
+    this.lastSelection?.classList.remove("tcv_node_selected");
+    if (label != this.lastSelection) {
+      label.classList.add("tcv_node_selected");
+      this.lastSelection = label;
+    } else {
+      this.lastSelection = null;
+    }
+  }
+
+  select(id) {
+    var label = this.container.getElementsByClassName(
+      `node${id.replaceAll(" ", "_")}`,
+    )[0].childNodes[0].childNodes[2];
+    this.highlightLabel(label);
   }
 
   toggleTreeNode(el, collapse) {

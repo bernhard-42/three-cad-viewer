@@ -1081,6 +1081,7 @@ class Viewer {
         nearest.objectGroup,
         true,
       );
+      this.treeview.select(`${nearest.path}/${nearest.name}`);
       this.checkChanges({
         lastPick: {
           path: nearest.path,
