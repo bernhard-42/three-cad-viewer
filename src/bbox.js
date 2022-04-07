@@ -1,45 +1,42 @@
 import * as THREE from "three";
+import { ObjectGroup } from "./nestedgroup";
 
 class BoundingBox extends THREE.Box3 {
   constructor() {
     super();
-    this.lastName = null;
-    this.lastBbox = null;
   }
 
   expandByObject(object, precise = false) {
     object.updateWorldMatrix(false, false);
-    const geometry = object.geometry;
 
+    if (object instanceof ObjectGroup) {
+      // for ObjectGroups calculate bounding box of first Mesh only
+      this.expandByObject(object.children[0], precise);
+      return this;
+    }
+    const geometry = object.geometry;
     if (geometry !== undefined) {
       if (
         precise &&
         geometry.attributes != undefined &&
         geometry.attributes.position !== undefined
       ) {
-        if (object.name === this.lastName) {
-          this.copy(this.lastBbox);
+        if (object.type.startsWith("LineSegment")) {
+          var g = geometry.clone();
+          g.applyMatrix4(object.matrixWorld);
+          g.boundingBox = null;
+          g.computeBoundingBox();
+          _bbox.copy(g.boundingBox);
+
+          this.union(_bbox);
         } else {
-          this.lastName = object.name;
-          if (!object.type.startsWith("LineSegment")) {
-            const position = geometry.attributes.position;
-            for (let i = 0, l = position.count; i < l; i++) {
-              _vector3
-                .fromBufferAttribute(position, i)
-                .applyMatrix4(object.matrixWorld);
-              this.expandByPoint(_vector3);
-            }
-          } else {
-            var g = geometry.clone();
-            g.applyMatrix4(object.matrixWorld);
-            g.boundingBox = null;
-            g.computeBoundingBox();
-            _bbox.copy(g.boundingBox);
-
-            this.union(_bbox);
+          const position = geometry.attributes.position;
+          for (let i = 0, l = position.count; i < l; i++) {
+            _vector3
+              .fromBufferAttribute(position, i)
+              .applyMatrix4(object.matrixWorld);
+            this.expandByPoint(_vector3);
           }
-
-          this.lastBbox = this.clone();
         }
       } else {
         if (geometry.boundingBox === null) {
