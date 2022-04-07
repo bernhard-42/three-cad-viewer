@@ -13,7 +13,7 @@ import { Info } from "./info.js";
 import { clone, isEqual, sceneTraverse } from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
-import { BoxHelper } from "./bbox.js";
+import { BoundingBox, BoxHelper } from "./bbox.js";
 
 class Viewer {
   /**
@@ -1077,7 +1077,7 @@ class Viewer {
       }
     }
     if (nearest != null) {
-      nearest.boundingBox = new THREE.Box3().setFromObject(
+      nearest.boundingBox = new BoundingBox().setFromObject(
         nearest.objectGroup,
         true,
       );
