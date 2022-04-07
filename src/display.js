@@ -103,9 +103,7 @@ function TEMPLATE(id) {
                     <input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
                 </div>
                 <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-                    <div class="tcv_cad_tree_container">
-                        <div class="tcv_cad_tree_container"></div>
-                    </div>
+                    <div class="tcv_cad_tree_container"></div>
                     <div class="tcv_cad_clip_container">
                         <div class="tcv_slider_group">
                             <div>

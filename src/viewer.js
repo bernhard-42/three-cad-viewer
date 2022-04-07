@@ -1092,6 +1092,10 @@ class Viewer {
       });
       var update = {};
 
+      if (this.lastBbox != null) {
+        this.scene.remove(this.lastBbox.bbox);
+      }
+
       if (e.metaKey) {
         update[`${nearest.path}/${nearest.name}`] = [0, 0];
         this.setStates(update);

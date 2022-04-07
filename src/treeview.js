@@ -157,11 +157,37 @@ class TreeView {
     return li;
   }
 
+  _labelVisible(label) {
+    const scrollContainer = this.container.parentElement.parentElement;
+    const height = scrollContainer.getBoundingClientRect().height;
+    const scrollTop = scrollContainer.scrollTop;
+    const offsetTop = label.offsetTop - 134;
+    return offsetTop - scrollTop < height - 12 && offsetTop > scrollTop;
+  }
+
+  _openToTop(label) {
+    var li = label.parentElement.parentElement.parentElement.parentElement;
+    while (li.tagName == "LI") {
+      this.toggleTreeNode(li, false);
+      li = li.parentElement.parentElement;
+    }
+  }
+
   highlightLabel(label) {
     this.lastSelection?.classList.remove("tcv_node_selected");
+
     if (label != this.lastSelection) {
+      // open collapsed entries
+      if (label.offsetTop == 0) {
+        this._openToTop(label);
+      }
+
       label.classList.add("tcv_node_selected");
       this.lastSelection = label;
+
+      if (!this._labelVisible(label)) {
+        label.scrollIntoView(false);
+      }
     } else {
       this.lastSelection = null;
     }
