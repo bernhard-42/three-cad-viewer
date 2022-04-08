@@ -1088,6 +1088,8 @@ class Viewer {
       this.treeview.hideAll();
       this.setState(id, [1, 1], nodeType);
       this.setBoundingBox(id);
+      this.setCameraTarget(boundingBox.center());
+      this.info.addHtml("Camera target set to AABB center");
     } else {
       this.info.bbInfo(path, name, boundingBox);
       this.setBoundingBox(id);
