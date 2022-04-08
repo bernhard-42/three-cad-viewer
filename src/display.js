@@ -220,14 +220,28 @@ function TEMPLATE(id) {
                         <td>&lt;left mouse button&gt; double click</td>
                     </tr>
                     <tr>
+                        <td></td>
+                        <td>Click on navigation tree label</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>(Shows axis-aligned bounding box)</td>
+                    </tr>
+                    <tr>
                         <td>Hide element</td>
                         <td>&lt;Meta&gt; + &lt;left mouse button&gt; double click</td>
                     </tr>
                     <tr>
+                        <td></td>
+                        <td>&lt;Meta&gt; + click on navigation tree label</td>
+                    </tr>                    <tr>
                         <td>Isolate element</td>
                         <td>&lt;Shift&gt; + &lt;left mouse button&gt; double click</td>
                     </tr>
-
+                    <tr>
+                        <td></td>
+                        <td>&lt;Shift&gt; + click on navigation tree label</td>
+                    </tr>
                     <tr>
                         <td></td>
                         <td><b>CAD Object Tree</b></td>

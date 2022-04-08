@@ -201,6 +201,7 @@ th {
   bottom: 0px;
   z-index: 100;
   display: none;
+  font-size: 12px;
 }
 
 .tcv_cad_help_layout {
