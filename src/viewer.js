@@ -610,7 +610,7 @@ class Viewer {
 
     this.bbox = this.nestedGroup.boundingBox();
     this.bb_max = this.bbox.max_dist_from_center();
-    this.bb_radius = this.bbox.radius();
+    this.bb_radius = this.bbox.boundingSphere().radius;
 
     timer.split("bounding box");
 
@@ -785,7 +785,7 @@ class Viewer {
       clone(this.states),
       this.tree,
       this.setObjects,
-      this.setBoundingBox,
+      this.handlePick,
       theme,
     );
 
@@ -1034,15 +1034,64 @@ class Viewer {
   /**
    * Set state of one entry of a treeview leaf given by an id
    * @function
-   * @param {string} - id
-   * @param {number[]} - 2 dim array [mesh, edges] = [0/1, 0/1]
+   * @param {string} id - object id
+   * @param {number[]} state - 2 dim array [mesh, edges] = [0/1, 0/1]
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setState = (id, state, notify = true) => {
+  setState = (id, state, nodeType = "leaf", notify = true) => {
     [0, 1].forEach((i) =>
-      this.treeview.handleStateChange("leaf", id, i, state[i]),
+      this.treeview.handleStateChange(nodeType, id, i, state[i]),
     );
     this.update(this.updateMarker, notify);
+  };
+
+  /**
+   * Handle bounding box and notifications for picked elements
+   * @function
+   * @param {string} - path of object
+   * @param {string} - name of object (id = path/name)
+   * @param {boolean} - meta key pressed
+   * @param {boolean} shift - whether to send notification or not.
+   */
+  handlePick = (
+    path,
+    name,
+    meta,
+    shift,
+    nodeType = "leaf",
+    highlight = true,
+  ) => {
+    const id = `${path}/${name}`;
+    const object = this.nestedGroup.groups[id];
+    const boundingBox = new BoundingBox().setFromObject(object, true);
+
+    if (highlight) {
+      this.treeview.selectNode(id);
+    }
+
+    this.checkChanges({
+      lastPick: {
+        path: path,
+        name: name,
+        boundingBox: boundingBox,
+        boundingSphere: boundingBox.boundingSphere(),
+      },
+    });
+
+    if (this.lastBbox != null) {
+      this.scene.remove(this.lastBbox.bbox);
+    }
+
+    if (meta) {
+      this.setState(id, [0, 0], nodeType);
+    } else if (shift) {
+      this.treeview.hideAll();
+      this.setState(id, [1, 1], nodeType);
+      this.setBoundingBox(id);
+    } else {
+      this.info.bbInfo(path, name, boundingBox);
+      this.setBoundingBox(id);
+    }
   };
 
   /**
@@ -1077,36 +1126,7 @@ class Viewer {
       }
     }
     if (nearest != null) {
-      nearest.boundingBox = new BoundingBox().setFromObject(
-        nearest.objectGroup,
-        true,
-      );
-      this.treeview.select(`${nearest.path}/${nearest.name}`);
-      this.checkChanges({
-        lastPick: {
-          path: nearest.path,
-          name: nearest.name,
-          boundingBox: JSON.parse(JSON.stringify(nearest.boundingBox)),
-          boundingSphere: JSON.parse(JSON.stringify(nearest.boundingSphere)),
-        },
-      });
-      var update = {};
-
-      if (this.lastBbox != null) {
-        this.scene.remove(this.lastBbox.bbox);
-      }
-
-      if (e.metaKey) {
-        update[`${nearest.path}/${nearest.name}`] = [0, 0];
-        this.setStates(update);
-      } else if (e.shiftKey) {
-        this.treeview.hideAll();
-        update[`${nearest.path}/${nearest.name}`] = [1, 1];
-        this.setStates(update);
-      } else {
-        this.info.bbInfo(nearest.path, nearest.name, nearest.boundingBox);
-        this.setBoundingBox(`${nearest.path}/${nearest.name}`);
-      }
+      this.handlePick(nearest.path, nearest.name, e.metaKey, e.shiftKey);
     }
   };
 
@@ -1499,7 +1519,7 @@ class Viewer {
         states[id][0] != this.states[id][0] ||
         states[id][1] != this.states[id][1]
       ) {
-        this.setState(id, states[id], notify);
+        this.setState(id, states[id], "leaf", notify);
       }
     }
   };

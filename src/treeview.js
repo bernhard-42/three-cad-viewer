@@ -25,11 +25,11 @@ const States = {
 };
 
 class TreeView {
-  constructor(states, tree, cad_handler, bb_handler, theme) {
+  constructor(states, tree, objectHandler, pickHandler, theme) {
     this.states = states;
     this.tree = tree;
-    this.cad_handler = cad_handler;
-    this.bb_handler = bb_handler;
+    this.objectHandler = objectHandler;
+    this.pickHandler = pickHandler;
     this.theme = theme;
     this.lastSelection = null;
 
@@ -92,8 +92,12 @@ class TreeView {
     lbl.innerHTML = model.name;
     lbl.id = model.id;
     lbl.addEventListener("click", (e) => {
-      this.bb_handler(e.target.id);
-      this.highlightLabel(e.target);
+      const id = e.target.id;
+      const parts = id.split("/");
+      const path = parts.slice(0, -1).join("/");
+      const name = parts[parts.length - 1];
+
+      this.pickHandler(path, name, e.metaKey, e.shiftKey, model.type, true);
     });
     var entry = tag("span", ["tcv_node_entry"], { id: model.id });
     if (model.type === "node") {
@@ -107,7 +111,7 @@ class TreeView {
         img_button.setAttribute("icon_id", icon_id);
         img_button.addEventListener("click", (e) => {
           // jshint ignore:line
-          this.handle(
+          this.handleClick(
             model.type,
             model.id,
             e.srcElement.getAttribute("icon_id"),
@@ -141,7 +145,7 @@ class TreeView {
           // no events on empty icon
           img_button.addEventListener("click", (e) => {
             // jshint ignore:line
-            this.handle(
+            this.handleClick(
               model.type,
               model.id,
               e.srcElement.getAttribute("icon_id"),
@@ -193,11 +197,14 @@ class TreeView {
     }
   }
 
-  select(id) {
-    var label = this.container.getElementsByClassName(
+  selectNode(id) {
+    const el = this.container.getElementsByClassName(
       `node${id.replaceAll(" ", "_")}`,
-    )[0].childNodes[0].childNodes[2];
-    this.highlightLabel(label);
+    )[0];
+    if (el != null) {
+      const label = el.getElementsByClassName("tcv_tree_label")[0];
+      this.highlightLabel(label);
+    }
   }
 
   toggleTreeNode(el, collapse) {
@@ -365,7 +372,7 @@ class TreeView {
     this.handleStateChange(type, id, icon_id, state);
   }
 
-  handle(type, id, icon_id) {
+  handleClick(type, id, icon_id) {
     this.handleStateChange(type, id, icon_id, null);
   }
 
@@ -383,11 +390,11 @@ class TreeView {
     if (type == "leaf") {
       this.updateState(node, icon_id, newState);
       this.updateNodes(this.treeModel, icon_id);
-      this.cad_handler(this.states);
+      this.objectHandler(this.states);
     } else if (type == "node") {
       this.propagateChange(node, icon_id, newState);
       this.updateNodes(this.treeModel, icon_id);
-      this.cad_handler(this.states);
+      this.objectHandler(this.states);
     } else {
       console.error(`Error, unknown type '${type}'`);
     }
