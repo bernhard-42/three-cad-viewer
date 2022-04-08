@@ -61,9 +61,9 @@ class BoundingBox extends THREE.Box3 {
     return Math.max(...this.max.toArray().map((x) => Math.abs(x)));
   }
 
-  radius() {
+  boundingSphere() {
     this.getBoundingSphere(_sphere);
-    return _sphere.radius;
+    return _sphere;
   }
 
   center() {
