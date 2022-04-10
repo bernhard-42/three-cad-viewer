@@ -1088,8 +1088,8 @@ class Viewer {
       },
     });
 
-    if (this.lastBbox != null) {
-      this.scene.remove(this.lastBbox.bbox);
+    if (this.animation.clipAction.isRunning()) {
+      this.bboxNeedsUpdate = true;
     }
 
     if (meta) {
