@@ -1082,37 +1082,39 @@ class Viewer {
     const object = this.nestedGroup.groups[id];
     const boundingBox = new BoundingBox().setFromObject(object, true);
 
-    this.removeLastBbox();
-
-    if (highlight) {
-      this.treeview.selectNode(id);
-    }
-
-    this.checkChanges({
-      lastPick: {
-        path: path,
-        name: name,
-        boundingBox: boundingBox,
-        boundingSphere: boundingBox.boundingSphere(),
-      },
-    });
-
-    if (this.animation.clipAction.isRunning()) {
-      this.bboxNeedsUpdate = true;
-    }
-
-    if (meta) {
-      this.setState(id, [0, 0], nodeType);
-    } else if (shift) {
-      this.treeview.hideAll();
-      this.setState(id, [1, 1], nodeType);
-      this.setBoundingBox(id);
-      const center = boundingBox.center();
-      this.setCameraTarget(center);
-      this.info.centerInfo(center);
+    if(this.lastBbox != null && this.lastBbox.id === id){
+      this.removeLastBbox();
     } else {
-      this.info.bbInfo(path, name, boundingBox);
-      this.setBoundingBox(id);
+      if (highlight) {
+        this.treeview.selectNode(id);
+      }
+
+      this.checkChanges({
+        lastPick: {
+          path: path,
+          name: name,
+          boundingBox: boundingBox,
+          boundingSphere: boundingBox.boundingSphere(),
+        },
+      });
+
+      if (this.animation.clipAction?.isRunning()) {
+        this.bboxNeedsUpdate = true;
+      }
+
+      if (meta) {
+        this.setState(id, [0, 0], nodeType);
+      } else if (shift) {
+        this.treeview.hideAll();
+         this.setState(id, [1, 1], nodeType);
+        this.setBoundingBox(id);
+        const center = boundingBox.center();
+        this.setCameraTarget(center);
+        this.info.centerInfo(center);
+      } else {
+        this.info.bbInfo(path, name, boundingBox);
+        this.setBoundingBox(id);
+      }
     }
   };
 
