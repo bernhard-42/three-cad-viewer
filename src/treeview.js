@@ -177,10 +177,15 @@ class TreeView {
     }
   }
 
-  highlightLabel(label) {
+  removeLabelHighlight() {
     this.lastSelection?.classList.remove("tcv_node_selected");
+    this.lastSelection = null;
+  }
 
-    if (label != this.lastSelection) {
+  highlightLabel(label) {
+    const change = label != this.lastSelection;
+    this.removeLabelHighlight();
+    if (change) {
       // open collapsed entries
       if (label.offsetTop == 0) {
         this._openToTop(label);

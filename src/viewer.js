@@ -1045,6 +1045,14 @@ class Viewer {
     this.update(this.updateMarker, notify);
   };
 
+  removeLastBbox() {
+    if (this.lastBbox != null) {
+      this.scene.remove(this.lastBbox.bbox);
+      this.lastBbox = null;
+      this.treeview.removeLabelHighlight();
+    }
+  }
+  
   /**
    * Handle bounding box and notifications for picked elements
    * @function
@@ -1064,6 +1072,8 @@ class Viewer {
     const id = `${path}/${name}`;
     const object = this.nestedGroup.groups[id];
     const boundingBox = new BoundingBox().setFromObject(object, true);
+
+    this.removeLastBbox();
 
     if (highlight) {
       this.treeview.selectNode(id);
