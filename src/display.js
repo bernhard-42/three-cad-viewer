@@ -1086,7 +1086,9 @@ class Display {
       this.viewer.bboxNeedsUpdate = true;
     } else if (btn == "stop") {
       this.viewer.bboxNeedsUpdate = false;
-      this.viewer.lastBbox.needsUpdate = true;
+      if(this.viewer.lastBbox != null){
+        this.viewer.lastBbox.needsUpdate = true;
+      }
     } else {
       this.viewer.bboxNeedsUpdate = !this.viewer.bboxNeedsUpdate;
     }
