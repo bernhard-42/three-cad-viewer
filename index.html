@@ -53,13 +53,17 @@
 
       viewer._timeit = timeit;
 
+      var shapesStates = viewer.renderTessellatedShapes(shapes, states, renderOptions)
+
+      timer.split("rendering done");
+
       viewer.render(
-        ...viewer.renderTessellatedShapes(shapes, states, renderOptions),
+        ...shapesStates,
         states,
         viewerOptions,
       );
 
-      timer.split("rendering done");
+      timer.split("showing done");
 
       // hexapod animation tracks
 
@@ -145,10 +149,10 @@
     }
 
     function nc(change) {
-      //console.debug("index.html:", JSON.stringify(change, null, 2));
+      // console.debug("index.html:", JSON.stringify(change, null, 2));
     }
 
-    const timeit = false;
+    const timeit = true;
     const timer = new Timer("main", timeit);
 
     const displayOptions = {
@@ -172,10 +176,10 @@
       ticks: 10,
       // transparent: true,
       // blackEdges: true,
-      axes: true,
+      // axes: true,
       // axes0: true,
       // grid: [true, false, true],
-      timeit: false,
+      timeit: true,
       // clipIntersection: true,
       // clipPlaneHelpers: true,
       // clipNormal0: [-0.7, 0.25, -0.66],
@@ -183,6 +187,7 @@
       // clipSlider0: 20,
       // clipSlider1: 10,
       // clipSlider2: 30,
+      // ticks: 50,
       rotateSpeed: 1.0,
       zoomSpeed: 0.5,
       panSpeed: 0.5,
