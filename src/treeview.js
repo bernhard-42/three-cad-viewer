@@ -92,6 +92,8 @@ class TreeView {
     lbl.innerHTML = model.name;
     lbl.id = model.id;
     lbl.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       const id = e.target.id;
       const parts = id.split("/");
       const path = parts.slice(0, -1).join("/");
