@@ -14,7 +14,7 @@
   "module": "dist/three-cad-viewer.esm.js",
   "scripts": {
     "clean": "rimraf ./dist/*",
-    "build": "rollup -c --environment BUILD:production",
+    "build": "echo \"export const version=$(cat package.json | jq .version);\" > src/_version.js && rollup -c --environment BUILD:production",
     "start": "rollup -w -c",
     "docs": "rm -fr docs; mkdir -p docs/dist; jsdoc -d docs -R Readme.md src/camera.js src/controls.js src/viewer.js src/display.js src/types.js; cp dist/three-cad-viewer.esm.css dist/three-cad-viewer.esm.js docs/dist; cp -R examples/ docs; cp index.html docs/example.html",
     "release": "./release.sh"

@@ -14,6 +14,7 @@ import { clone, isEqual, sceneTraverse } from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
 import { BoundingBox, BoxHelper } from "./bbox.js";
+import { version } from "./_version.js";
 
 class Viewer {
   /**
@@ -104,6 +105,14 @@ class Viewer {
     console.debug("three-cad-viewer: WebGL Renderer created");
 
     this.display.setupUI(this);
+  }
+
+  /**
+   * Return three-cad-viewer version as semver string
+   * @returns semver version
+   */
+  version() {
+    return version;
   }
 
   /**
