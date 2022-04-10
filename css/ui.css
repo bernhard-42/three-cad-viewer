@@ -117,9 +117,12 @@ canvas {
   line-height: 14px;
 }
 
-.tcv_small_table_row > td,
-th {
+.tcv_small_table_row > td, th {
   padding-left: 6px;
+}
+
+.tcv_info_line {
+  margin: 4px;
 }
 
 .tcv_info_row {
