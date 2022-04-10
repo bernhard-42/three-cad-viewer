@@ -225,7 +225,7 @@ function TEMPLATE(id) {
                     </tr>
                     <tr>
                         <td></td>
-                        <td>(Shows axis-aligned bounding box)</td>
+                        <td>(Shows axis-aligned bounding box, AABB)</td>
                     </tr>
                     <tr>
                         <td>Hide element</td>
