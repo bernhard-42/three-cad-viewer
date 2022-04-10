@@ -1098,8 +1098,9 @@ class Viewer {
       this.treeview.hideAll();
       this.setState(id, [1, 1], nodeType);
       this.setBoundingBox(id);
-      this.setCameraTarget(boundingBox.center());
-      this.info.addHtml("Camera target set to AABB center");
+      const center = boundingBox.center();
+      this.setCameraTarget(center);
+      this.info.centerInfo(center);
     } else {
       this.info.bbInfo(path, name, boundingBox);
       this.setBoundingBox(id);
@@ -1368,6 +1369,7 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    **/
   setCameraTarget(target, notify = true) {
+    this.camera.getCamera().lookAt(new THREE.Vector3(...target));
     this.controls.setTarget(new THREE.Vector3(...target));
     this.controls.update();
     this.update(true, notify);

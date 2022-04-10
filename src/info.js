@@ -107,6 +107,16 @@ class Info {
     html += "</table>";
     this.addHtml(html);
   }
+  centerInfo(center) {
+    var html =
+      "<div>Camera target set to AABB center:</div>" +
+      "<div class='tcv_info_line'>{ " +
+      `x: ${center[0].toFixed(2)}, ` +
+      `y: ${center[1].toFixed(2)}, ` +
+      `z: ${center[2].toFixed(2)}` +
+      " }</div>";
+    this.addHtml(html);
+  }
 }
 
 export { Info };
