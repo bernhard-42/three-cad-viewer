@@ -195,10 +195,12 @@ class TreeView {
       this.lastSelection = label;
 
       if (!this._labelVisible(label)) {
-        label.scrollIntoView(false);
+        if (label.scrollIntoViewIfNeeded == null) {
+          label.scrollIntoView({ block: "nearest" });
+        } else {
+          label.scrollIntoViewIfNeeded();
+        }
       }
-    } else {
-      this.lastSelection = null;
     }
   }
 
