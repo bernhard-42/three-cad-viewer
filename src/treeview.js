@@ -91,7 +91,8 @@ class TreeView {
     var lbl = tag("span", ["tcv_tree_label"]);
     lbl.innerHTML = model.name;
     lbl.id = model.id;
-    lbl.addEventListener("click", (e) => {
+    
+    lbl.addEventListener("mousedown", (e) => {
       e.preventDefault();
       e.stopPropagation();
       const id = e.target.id;
@@ -100,7 +101,8 @@ class TreeView {
       const name = parts[parts.length - 1];
 
       this.pickHandler(path, name, e.metaKey, e.shiftKey, model.type, true);
-    });
+    }, false);
+
     var entry = tag("span", ["tcv_node_entry"], { id: model.id });
     if (model.type === "node") {
       var span = tag("span", ["tcv_node_entry_wrap"]);
