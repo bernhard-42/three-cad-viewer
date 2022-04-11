@@ -143,7 +143,6 @@
         viewer.initAnimation(4, 2);
       }
       window.viewer = viewer;
-      setMode(window.viewerMode)
       timer.split("animation setup done");
       timer.stop();
     }
@@ -156,11 +155,11 @@
     const timer = new Timer("main", timeit);
 
     const displayOptions = {
-      cadWidth: 700,
+      cadWidth: 710,
       height: 525,
       treeWidth: 240,
       theme: "browser",
-      pinning: false,
+      pinning: true,
     };
 
     const renderOptions = {
@@ -201,35 +200,33 @@
       collapse: 1,
     };
 
-    function showViewer(control) {
+    function showViewer(control, mode) {
       const container = document.getElementById("cad_view_001");
       container.innerHTML = ""
+      if(mode == "glass") {
+        displayOptions.glass = true;
+        displayOptions.tools = true
+      } else if (mode == "no tools") {
+        displayOptions.glass = false;
+        displayOptions.tools = false;
+      } else {
+        displayOptions.glass = false;
+        displayOptions.tools = true;
+      }
+      console.log(control, mode, displayOptions)
+      window.viewerMode = mode;
+      window.controlMode = control;
+
       viewer = new Viewer(container, displayOptions, nc);
 
       timer.split("display created");
 
-      // control = "orbit"
       viewerOptions.control = control;
 
       render(window.selectedExample, ...examples[window.selectedIndex]);
-      setMode(window.viewerMode)
       timer.stop();
 
       // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])
-    }
-
-    function setMode(mode) {
-      if (mode == "no tools") {
-        viewer.showTools(false);
-        viewer.display.glassMode(false);
-      } else if (mode == "glass") {
-        viewer.showTools(true);
-        viewer.display.glassMode(true);
-      } else {
-        viewer.showTools(true);
-        viewer.display.glassMode(false);
-      }
-      window.viewerMode = mode;
     }
 
     // examples[1][1]["/bottom/bottom_0"] = [1,0]
@@ -239,14 +236,15 @@
     window.selectedIndex = 0;
     window.selectedExample = "hexapod";
     window.viewerMode = "default";
+    window.controlMode = "trackball";
 
-    showViewer("trackball");
+    showViewer(window.controlMode, window.viewerMode);
 
     // Enable debugging in browser console
     window.render = render;
     window.examples = examples;
     window.showViewer = showViewer;
-    window.setMode = setMode;
+    // window.setMode = setMode;
 
     console.log("Loaded", new Date());
   </script>
@@ -279,7 +277,7 @@
     Demo:
     <span id="navigation" class="selection">
       UI
-      <select class="select" onchange="window.setMode(this.options.item(this.selectedIndex).text);">
+      <select class="select" onchange="window.showViewer(window.controlMode, this.options.item(this.selectedIndex).text);">
         <option value="default">default</option>
         <option value="glass">glass</option>
         <option value="notools">no tools</option>
@@ -288,7 +286,7 @@
 
     <span id="control" class="selection">
       Control
-      <select class="select" onchange="window.showViewer(this.options.item(this.selectedIndex).text);">
+      <select class="select" onchange="window.showViewer(this.options.item(this.selectedIndex).text, window.viewerMode);">
         <option value="trackball">trackball</option>
         <option value="orbit">orbit</option>
       </select>

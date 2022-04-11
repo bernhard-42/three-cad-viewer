@@ -1,7 +1,9 @@
 import { getIconBackground } from "./icons.js";
 
-function TEMPLATE(id) {
-  return `
+function TEMPLATE(id, more) {
+  const tag = more ? "div" : "span";
+
+  var html = `
 <div class="tcv_cad_viewer">
     <div class="tcv_cad_toolbar tcv_round">
         <span class="tcv_tooltip" data-tooltip="Show coordinate axis">
@@ -60,26 +62,29 @@ function TEMPLATE(id) {
         </span>
         <span class="tcv_tooltip" data-tooltip="Switch to right view">
             <input class='tcv_right tcv_btn' type="button" />
-        </span>
-        <div class="tcv_more-dropdown">
+        </span>`;
+
+  html += more ? `<div class="tcv_more-dropdown">
             <button class="tcv_more-btn">More<span class="tcv_more_icon">\u25BC</span></button>
-            <div class="tcv_more-content tcv_dropdown-content">
-                <div class="tcv_tooltip" data-tooltip="Toggle transparent objects">
+            <div class="tcv_more-content tcv_dropdown-content">` : "";
+
+  html += `     <${tag} class="tcv_tooltip" data-tooltip="Toggle transparent objects">
                     <input class='tcv_transparent tcv_check tcv_dropdown-entry' id='tcv_transparent_${id}' type="checkbox" />
                     <label for='tcv_transparent_${id}' class="tcv_label tcv_dropdown-entry">Transparent</label>
-                </div>
-                <div class="tcv_tooltip" data-tooltip="Toggle black edges">
+                </${tag}>
+                <${tag} class="tcv_tooltip" data-tooltip="Toggle black edges">
                     <input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges_${id}' type="checkbox" />
                     <label for='tcv_black_edges_${id}' class="tcv_label tcv_dropdown-entry">Black edges</label>
-                </div>
-                <div class="tcv_explode_widget tcv_tooltip"
+                </${tag}>
+                <${tag} class="tcv_explode_widget tcv_tooltip"
                     data-tooltip="Explode assembly (@0 determines explosion center)">
                     <input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode_${id}' type="checkbox" />
                     <label for='tcv_explode_${id}' class="tcv_label tcv_dropdown-entry">Explode</label>
-                </div>
-            </div>
-        </div>
-        <span class="tcv_align_right">
+                </${tag}>`;
+  html += more ? `</div>
+        </div>` : "";
+
+  html += `<span class="tcv_align_right">
             <span class="tcv_tooltip" data-tooltip="Toggle help">
                 <input class='tcv_help tcv_btn' type="button" />
             </span>
@@ -264,6 +269,7 @@ function TEMPLATE(id) {
     </div>
 </div>
 `;
+  return html;
 }
 
 function px(val) {
@@ -366,7 +372,8 @@ class Display {
   constructor(container, options) {
     this.container = container;
 
-    this.container.innerHTML = TEMPLATE(this.container.id);
+    const fullWidth = options.cadWidth + (options.glass ? 0 : options.treeWidth);
+    this.container.innerHTML = TEMPLATE(this.container.id, fullWidth < 950);
     this.cadBody = this._getElement("tcv_cad_body");
     this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadView = this._getElement("tcv_cad_view");
