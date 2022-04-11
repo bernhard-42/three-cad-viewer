@@ -29840,7 +29840,7 @@ const _start$1 = /*@__PURE__*/ new Vector3();
 const _end$1 = /*@__PURE__*/ new Vector3();
 const _inverseMatrix$1 = /*@__PURE__*/ new Matrix4();
 const _ray$1 = /*@__PURE__*/ new Ray();
-const _sphere$1 = /*@__PURE__*/ new Sphere();
+const _sphere$1$1 = /*@__PURE__*/ new Sphere();
 
 class Line extends Object3D {
 
@@ -29920,11 +29920,11 @@ class Line extends Object3D {
 
 		if ( geometry.boundingSphere === null ) geometry.computeBoundingSphere();
 
-		_sphere$1.copy( geometry.boundingSphere );
-		_sphere$1.applyMatrix4( matrixWorld );
-		_sphere$1.radius += threshold;
+		_sphere$1$1.copy( geometry.boundingSphere );
+		_sphere$1$1.applyMatrix4( matrixWorld );
+		_sphere$1$1.radius += threshold;
 
-		if ( raycaster.ray.intersectsSphere( _sphere$1 ) === false ) return;
+		if ( raycaster.ray.intersectsSphere( _sphere$1$1 ) === false ) return;
 
 		//
 
@@ -48073,7 +48073,7 @@ function setPoint( point, pointMap, geometry, camera, x, y, z ) {
 
 const _box$4 = /*@__PURE__*/ new Box3();
 
-class BoxHelper extends LineSegments {
+class BoxHelper$1 extends LineSegments {
 
 	constructor( object, color = 0xffff00 ) {
 
@@ -48950,7 +48950,7 @@ function AxisHelper( size ) {
 function BoundingBoxHelper( object, color ) {
 
 	console.warn( 'THREE.BoundingBoxHelper has been deprecated. Creating a THREE.BoxHelper instead.' );
-	return new BoxHelper( object, color );
+	return new BoxHelper$1( object, color );
 
 }
 
@@ -50756,7 +50756,7 @@ var THREE = /*#__PURE__*/Object.freeze({
 	Box3Helper: Box3Helper,
 	BoxBufferGeometry: BoxGeometry,
 	BoxGeometry: BoxGeometry,
-	BoxHelper: BoxHelper,
+	BoxHelper: BoxHelper$1,
 	BufferAttribute: BufferAttribute,
 	BufferGeometry: BufferGeometry,
 	BufferGeometryLoader: BufferGeometryLoader,
@@ -51284,8 +51284,10 @@ function getIconBackground(theme, name) {
   return `url(data:image/svg+xml;utf8,${escape(icons[name][theme])});`;
 }
 
-function TEMPLATE(id) {
-  return `
+function TEMPLATE(id, more) {
+  const tag = more ? "div" : "span";
+
+  var html = `
 <div class="tcv_cad_viewer">
     <div class="tcv_cad_toolbar tcv_round">
         <span class="tcv_tooltip" data-tooltip="Show coordinate axis">
@@ -51344,26 +51346,29 @@ function TEMPLATE(id) {
         </span>
         <span class="tcv_tooltip" data-tooltip="Switch to right view">
             <input class='tcv_right tcv_btn' type="button" />
-        </span>
-        <div class="tcv_more-dropdown">
+        </span>`;
+
+  html += more ? `<div class="tcv_more-dropdown">
             <button class="tcv_more-btn">More<span class="tcv_more_icon">\u25BC</span></button>
-            <div class="tcv_more-content tcv_dropdown-content">
-                <div class="tcv_tooltip" data-tooltip="Toggle transparent objects">
+            <div class="tcv_more-content tcv_dropdown-content">` : "";
+
+  html += `     <${tag} class="tcv_tooltip" data-tooltip="Toggle transparent objects">
                     <input class='tcv_transparent tcv_check tcv_dropdown-entry' id='tcv_transparent_${id}' type="checkbox" />
                     <label for='tcv_transparent_${id}' class="tcv_label tcv_dropdown-entry">Transparent</label>
-                </div>
-                <div class="tcv_tooltip" data-tooltip="Toggle black edges">
+                </${tag}>
+                <${tag} class="tcv_tooltip" data-tooltip="Toggle black edges">
                     <input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges_${id}' type="checkbox" />
                     <label for='tcv_black_edges_${id}' class="tcv_label tcv_dropdown-entry">Black edges</label>
-                </div>
-                <div class="tcv_explode_widget tcv_tooltip"
+                </${tag}>
+                <${tag} class="tcv_explode_widget tcv_tooltip"
                     data-tooltip="Explode assembly (@0 determines explosion center)">
                     <input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode_${id}' type="checkbox" />
                     <label for='tcv_explode_${id}' class="tcv_label tcv_dropdown-entry">Explode</label>
-                </div>
-            </div>
-        </div>
-        <span class="tcv_align_right">
+                </${tag}>`;
+  html += more ? `</div>
+        </div>` : "";
+
+  html += `<span class="tcv_align_right">
             <span class="tcv_tooltip" data-tooltip="Toggle help">
                 <input class='tcv_help tcv_btn' type="button" />
             </span>
@@ -51387,9 +51392,7 @@ function TEMPLATE(id) {
                     <input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
                 </div>
                 <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-                    <div class="tcv_cad_tree_container">
-                        <div class="tcv_cad_tree_container"></div>
-                    </div>
+                    <div class="tcv_cad_tree_container"></div>
                     <div class="tcv_cad_clip_container">
                         <div class="tcv_slider_group">
                             <div>
@@ -51506,14 +51509,28 @@ function TEMPLATE(id) {
                         <td>&lt;left mouse button&gt; double click</td>
                     </tr>
                     <tr>
+                        <td></td>
+                        <td>Click on navigation tree label</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>(Shows axis-aligned bounding box, AABB)</td>
+                    </tr>
+                    <tr>
                         <td>Hide element</td>
                         <td>&lt;Meta&gt; + &lt;left mouse button&gt; double click</td>
                     </tr>
                     <tr>
+                        <td></td>
+                        <td>&lt;Meta&gt; + click on navigation tree label</td>
+                    </tr>                    <tr>
                         <td>Isolate element</td>
                         <td>&lt;Shift&gt; + &lt;left mouse button&gt; double click</td>
                     </tr>
-
+                    <tr>
+                        <td></td>
+                        <td>&lt;Shift&gt; + click on navigation tree label</td>
+                    </tr>
                     <tr>
                         <td></td>
                         <td><b>CAD Object Tree</b></td>
@@ -51536,6 +51553,7 @@ function TEMPLATE(id) {
     </div>
 </div>
 `;
+  return html;
 }
 
 function px(val) {
@@ -51638,7 +51656,8 @@ class Display {
   constructor(container, options) {
     this.container = container;
 
-    this.container.innerHTML = TEMPLATE(this.container.id);
+    const fullWidth = options.cadWidth + (options.glass ? 0 : options.treeWidth);
+    this.container.innerHTML = TEMPLATE(this.container.id, fullWidth < 950);
     this.cadBody = this._getElement("tcv_cad_body");
     this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadView = this._getElement("tcv_cad_view");
@@ -52354,6 +52373,16 @@ class Display {
 
     var currentTime = this.viewer.animation.getRelativeTime();
     this.animationSlider.value = 1000 * currentTime;
+    if (btn == "play") {
+      this.viewer.bboxNeedsUpdate = true;
+    } else if (btn == "stop") {
+      this.viewer.bboxNeedsUpdate = false;
+      if(this.viewer.lastBbox != null){
+        this.viewer.lastBbox.needsUpdate = true;
+      }
+    } else {
+      this.viewer.bboxNeedsUpdate = !this.viewer.bboxNeedsUpdate;
+    }
   }
 
   /**
@@ -52373,6 +52402,7 @@ class Display {
    */
   animationChange = (e) => {
     this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
+    this.viewer.lastBbox.needsUpdate = true;
   };
 
   setAnimationLabel(label) {
@@ -53430,7 +53460,7 @@ const _line = new Line3();
 const _closestPoint = new Vector3();
 
 const _box = new Box3();
-const _sphere = new Sphere();
+const _sphere$1 = new Sphere();
 const _clipToWorldVector = new Vector4();
 
 // Returns the margin required to expand by in world space given the distance from the camera,
@@ -53525,14 +53555,14 @@ class LineSegments2 extends Mesh {
 
 		}
 
-		_sphere.copy( geometry.boundingSphere ).applyMatrix4( matrixWorld );
-		const distanceToSphere = Math.max( camera.near, _sphere.distanceToPoint( ray.origin ) );
+		_sphere$1.copy( geometry.boundingSphere ).applyMatrix4( matrixWorld );
+		const distanceToSphere = Math.max( camera.near, _sphere$1.distanceToPoint( ray.origin ) );
 
 		// increase the sphere bounds by the worst case line screen space width
 		const sphereMargin = getWorldSpaceHalfWidth( camera, distanceToSphere, lineWidth, resolution );
-		_sphere.radius += sphereMargin;
+		_sphere$1.radius += sphereMargin;
 
-		if ( raycaster.ray.intersectsSphere( _sphere ) === false ) {
+		if ( raycaster.ray.intersectsSphere( _sphere$1 ) === false ) {
 
 			return;
 
@@ -53804,45 +53834,155 @@ class VertexNormalsHelper extends LineSegments {
 
 }
 
-class BoundingBox {
-  constructor(xmin, xmax, ymin, ymax, zmin, zmax) {
-    this.xmin = xmin;
-    this.xmax = xmax;
-    this.ymin = ymin;
-    this.ymax = ymax;
-    this.zmin = zmin;
-    this.zmax = zmax;
-    this._calc();
+class BoundingBox extends Box3 {
+  constructor() {
+    super();
   }
 
-  _calc() {
-    this.xsize = this.xmax - this.xmin;
-    this.ysize = this.ymax - this.ymin;
-    this.zsize = this.zmax - this.zmin;
-    this.center = [
-      this.xmin + this.xsize / 2.0,
-      this.ymin + this.ysize / 2.0,
-      this.zmin + this.zsize / 2.0,
-    ];
-    this.max = Math.max(
-      ...[this.xmin, this.xmax, this.ymin, this.ymax, this.zmin, this.zmax].map(
-        (x) => Math.abs(x),
-      ),
-    );
+  expandByObject(object, precise = false) {
+    object.updateWorldMatrix(false, false);
+
+    if (object instanceof ObjectGroup) {
+      // for ObjectGroups calculate bounding box of first Mesh only
+      this.expandByObject(object.children[0], precise);
+      return this;
+    }
+    const geometry = object.geometry;
+    if (geometry !== undefined) {
+      if (
+        precise &&
+        geometry.attributes != undefined &&
+        geometry.attributes.position !== undefined
+      ) {
+        if (object.type.startsWith("LineSegment")) {
+          var g = geometry.clone();
+          g.applyMatrix4(object.matrixWorld);
+          g.boundingBox = null;
+          g.computeBoundingBox();
+          _bbox.copy(g.boundingBox);
+
+          this.union(_bbox);
+        } else {
+          const position = geometry.attributes.position;
+          for (let i = 0, l = position.count; i < l; i++) {
+            _vector3
+              .fromBufferAttribute(position, i)
+              .applyMatrix4(object.matrixWorld);
+            this.expandByPoint(_vector3);
+          }
+        }
+      } else {
+        if (geometry.boundingBox === null) {
+          geometry.computeBoundingBox();
+        }
+        _bbox.copy(geometry.boundingBox);
+        _bbox.applyMatrix4(object.matrixWorld);
+
+        this.union(_bbox);
+      }
+    }
+    const children = object.children;
+
+    for (let i = 0, l = children.length; i < l; i++) {
+      this.expandByObject(children[i], precise);
+    }
+
+    return this;
   }
 
   max_dist_from_center() {
-    var norms = [];
-    for (var x of [this.xmin, this.xmax]) {
-      for (var y of [this.ymin, this.ymax]) {
-        for (var z of [this.zmin, this.zmax]) {
-          norms.push(Math.sqrt(x * x + y * y + z * z));
-        }
-      }
-    }
-    return Math.max(...norms);
+    return Math.max(...this.max.toArray().map((x) => Math.abs(x)));
+  }
+
+  boundingSphere() {
+    this.getBoundingSphere(_sphere);
+    return _sphere;
+  }
+
+  center() {
+    this.getCenter(_vector3);
+    return _vector3.toArray();
   }
 }
+
+class BoxHelper extends LineSegments {
+  constructor(object, color = 0xffff00) {
+    const indices = new Uint16Array([
+      0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7,
+    ]);
+    const positions = new Float32Array(8 * 3);
+
+    const geometry = new BufferGeometry();
+    geometry.setIndex(new BufferAttribute(indices, 1));
+    geometry.setAttribute("position", new BufferAttribute(positions, 3));
+
+    super(
+      geometry,
+      new LineBasicMaterial({ color: color, toneMapped: false }),
+    );
+
+    this.object = object;
+    this.type = "BoxHelper";
+
+    this.matrixAutoUpdate = false;
+
+    this.update();
+  }
+
+  update() {
+    if (this.object !== undefined) {
+      _hbox.setFromObject(this.object, true);
+    }
+
+    if (_hbox.isEmpty()) return;
+
+    const min = _hbox.min;
+    const max = _hbox.max;
+
+    const position = this.geometry.attributes.position;
+    const array = position.array;
+
+    array[0] = max.x;
+    array[1] = max.y;
+    array[2] = max.z;
+    array[3] = min.x;
+    array[4] = max.y;
+    array[5] = max.z;
+    array[6] = min.x;
+    array[7] = min.y;
+    array[8] = max.z;
+    array[9] = max.x;
+    array[10] = min.y;
+    array[11] = max.z;
+    array[12] = max.x;
+    array[13] = max.y;
+    array[14] = min.z;
+    array[15] = min.x;
+    array[16] = max.y;
+    array[17] = min.z;
+    array[18] = min.x;
+    array[19] = min.y;
+    array[20] = min.z;
+    array[21] = max.x;
+    array[22] = min.y;
+    array[23] = min.z;
+
+    position.needsUpdate = true;
+    this.geometry.computeBoundingSphere();
+  }
+
+  setFromObject(object) {
+    this.object = object;
+    this.update();
+
+    return this;
+  }
+}
+
+const _vector3 = new Vector3();
+const _bbox = new BoundingBox();
+const _hbox = new BoundingBox();
+const _sphere = new Sphere();
 
 class ObjectGroup extends Group {
   constructor(opacity, edge_color, renderback) {
@@ -54250,17 +54390,8 @@ class NestedGroup {
 
   boundingBox() {
     if (this.bbox == null) {
-      var b = new Box3().setFromObject(this.rootGroup);
-      this.bsphere = new Sphere();
-      b.getBoundingSphere(this.bsphere);
-      this.bbox = new BoundingBox(
-        b.min.x,
-        b.max.x,
-        b.min.y,
-        b.max.y,
-        b.min.z,
-        b.max.z,
-      );
+      this.bbox = new BoundingBox();
+      this.bbox.setFromObject(this.rootGroup, true);
     }
     return this.bbox;
   }
@@ -54333,8 +54464,8 @@ class Grid {
     // in case the bbox has the same siez as the nice grid there should be
     // a margin bewteen grid and object. Hence factor 1.1
     var [axisStart, axisEnd, niceTick] = this.niceBounds(
-      -bbox.max * 1.1,
-      bbox.max * 1.1,
+      -bbox.max_dist_from_center() * 1.1,
+      bbox.max_dist_from_center() * 1.1,
       2 * ticks,
     );
     this.size = axisEnd - axisStart;
@@ -54461,12 +54592,13 @@ class Grid {
       this.gridHelper[1].position.y = -this.size / 2;
       this.gridHelper[2].position.x = -this.size / 2;
     } else {
+      const c = this.bbox.center();
       for (i = 0; i < 3; i++) {
-        this.gridHelper[i].position.set(...this.bbox.center);
+        this.gridHelper[i].position.set(...c);
       }
-      this.gridHelper[0].position.z = -this.size / 2 + this.bbox.center[2];
-      this.gridHelper[1].position.y = -this.size / 2 + this.bbox.center[1];
-      this.gridHelper[2].position.x = -this.size / 2 + this.bbox.center[0];
+      this.gridHelper[0].position.z = -this.size / 2 + c[2];
+      this.gridHelper[1].position.y = -this.size / 2 + c[1];
+      this.gridHelper[2].position.x = -this.size / 2 + c[0];
     }
   }
 
@@ -54726,11 +54858,13 @@ const States = {
 };
 
 class TreeView {
-  constructor(states, tree, cad_handler, theme) {
+  constructor(states, tree, objectHandler, pickHandler, theme) {
     this.states = states;
     this.tree = tree;
-    this.cad_handler = cad_handler;
+    this.objectHandler = objectHandler;
+    this.pickHandler = pickHandler;
     this.theme = theme;
+    this.lastSelection = null;
 
     this.setupIcons(theme);
     this.treeModel = this.toModel(tree);
@@ -54789,6 +54923,19 @@ class TreeView {
     var li = tag("li", [`node${model.id.replaceAll(" ", "_")}`]);
     var lbl = tag("span", ["tcv_tree_label"]);
     lbl.innerHTML = model.name;
+    lbl.id = model.id;
+    
+    lbl.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = e.target.id;
+      const parts = id.split("/");
+      const path = parts.slice(0, -1).join("/");
+      const name = parts[parts.length - 1];
+
+      this.pickHandler(path, name, e.metaKey, e.shiftKey, model.type, true);
+    }, false);
+
     var entry = tag("span", ["tcv_node_entry"], { id: model.id });
     if (model.type === "node") {
       var span = tag("span", ["tcv_node_entry_wrap"]);
@@ -54801,7 +54948,7 @@ class TreeView {
         img_button.setAttribute("icon_id", icon_id);
         img_button.addEventListener("click", (e) => {
           // jshint ignore:line
-          this.handle(
+          this.handleClick(
             model.type,
             model.id,
             e.srcElement.getAttribute("icon_id"),
@@ -54835,7 +54982,7 @@ class TreeView {
           // no events on empty icon
           img_button.addEventListener("click", (e) => {
             // jshint ignore:line
-            this.handle(
+            this.handleClick(
               model.type,
               model.id,
               e.srcElement.getAttribute("icon_id"),
@@ -54849,6 +54996,59 @@ class TreeView {
       li.appendChild(entry);
     }
     return li;
+  }
+
+  _labelVisible(label) {
+    const scrollContainer = this.container.parentElement.parentElement;
+    const height = scrollContainer.getBoundingClientRect().height;
+    const scrollTop = scrollContainer.scrollTop;
+    const offsetTop = label.offsetTop - 134;
+    return offsetTop - scrollTop < height - 12 && offsetTop > scrollTop;
+  }
+
+  _openToTop(label) {
+    var li = label.parentElement.parentElement.parentElement.parentElement;
+    while (li.tagName == "LI") {
+      this.toggleTreeNode(li, false);
+      li = li.parentElement.parentElement;
+    }
+  }
+
+  removeLabelHighlight() {
+    this.lastSelection?.classList.remove("tcv_node_selected");
+    this.lastSelection = null;
+  }
+
+  highlightLabel(label) {
+    const change = label != this.lastSelection;
+    this.removeLabelHighlight();
+    if (change) {
+      // open collapsed entries
+      if (label.offsetTop == 0) {
+        this._openToTop(label);
+      }
+
+      label.classList.add("tcv_node_selected");
+      this.lastSelection = label;
+
+      if (!this._labelVisible(label)) {
+        if (label.scrollIntoViewIfNeeded == null) {
+          label.scrollIntoView({ block: "nearest" });
+        } else {
+          label.scrollIntoViewIfNeeded();
+        }
+      }
+    }
+  }
+
+  selectNode(id) {
+    const el = this.container.getElementsByClassName(
+      `node${id.replaceAll(" ", "_")}`,
+    )[0];
+    if (el != null) {
+      const label = el.getElementsByClassName("tcv_tree_label")[0];
+      this.highlightLabel(label);
+    }
   }
 
   toggleTreeNode(el, collapse) {
@@ -55016,7 +55216,7 @@ class TreeView {
     this.handleStateChange(type, id, icon_id, state);
   }
 
-  handle(type, id, icon_id) {
+  handleClick(type, id, icon_id) {
     this.handleStateChange(type, id, icon_id, null);
   }
 
@@ -55034,11 +55234,11 @@ class TreeView {
     if (type == "leaf") {
       this.updateState(node, icon_id, newState);
       this.updateNodes(this.treeModel, icon_id);
-      this.cad_handler(this.states);
+      this.objectHandler(this.states);
     } else if (type == "node") {
       this.propagateChange(node, icon_id, newState);
       this.updateNodes(this.treeModel, icon_id);
-      this.cad_handler(this.states);
+      this.objectHandler(this.states);
     } else {
       console.error(`Error, unknown type '${type}'`);
     }
@@ -55494,6 +55694,16 @@ class Info {
             `;
     });
     html += "</table>";
+    this.addHtml(html);
+  }
+  centerInfo(center) {
+    var html =
+      "<div>Camera target set to AABB center:</div>" +
+      "<div class='tcv_info_line'>{ " +
+      `x: ${center[0].toFixed(2)}, ` +
+      `y: ${center[1].toFixed(2)}, ` +
+      `z: ${center[2].toFixed(2)}` +
+      " }</div>";
     this.addHtml(html);
   }
 }
@@ -57399,6 +57609,8 @@ class Camera {
   }
 }
 
+const version="1.6.0";
+
 class Viewer {
   /**
    * Create Viewer.
@@ -57473,6 +57685,8 @@ class Viewer {
     this.renderer.autoClear = false;
 
     this.lastNotification = {};
+    this.lastBbox = null;
+    this.bboxNeedsUpdate = false;
 
     this.keepHighlight = false;
 
@@ -57486,6 +57700,14 @@ class Viewer {
     console.debug("three-cad-viewer: WebGL Renderer created");
 
     this.display.setupUI(this);
+  }
+
+  /**
+   * Return three-cad-viewer version as semver string
+   * @returns semver version
+   */
+  version() {
+    return version;
   }
 
   /**
@@ -57804,6 +58026,15 @@ class Viewer {
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
 
+      if (
+        this.lastBbox != null &&
+        (this.lastBbox.needsUpdate || this.bboxNeedsUpdate)
+      ) {
+        console.log("updated bbox");
+        this.lastBbox.bbox.update();
+        this.lastBbox.needsUpdate = false;
+      }
+
       if (updateMarker) {
         this.renderer.clearDepth(); // ensure orientation Marker is at the top
 
@@ -57970,6 +58201,7 @@ class Viewer {
     //
     // render the input assembly
     //
+    this.lastBbox = null;
 
     this.nestedGroup = group;
     this.scene.add(this.nestedGroup.render(states));
@@ -57982,7 +58214,7 @@ class Viewer {
 
     this.bbox = this.nestedGroup.boundingBox();
     this.bb_max = this.bbox.max_dist_from_center();
-    this.bb_radius = this.nestedGroup.bsphere.radius;
+    this.bb_radius = this.bbox.boundingSphere().radius;
 
     timer.split("bounding box");
 
@@ -57999,7 +58231,7 @@ class Viewer {
       this.cadWidth,
       this.height,
       this.bb_radius,
-      options.target == null ? this.bbox.center : options.target,
+      options.target == null ? this.bbox.center() : options.target,
       this.ortho,
       this.control,
     );
@@ -58010,7 +58242,7 @@ class Viewer {
     this.controls = new Controls(
       this.control,
       this.camera.getCamera(),
-      options.target == null ? this.bbox.center : options.target,
+      options.target == null ? this.bbox.center() : options.target,
       this.renderer.domElement,
       this.rotateSpeed,
       this.zoomSpeed,
@@ -58085,7 +58317,7 @@ class Viewer {
     //
 
     this.axesHelper = new AxesHelper(
-      this.bbox.center,
+      this.bbox.center(),
       this.gridSize / 2,
       2,
       this.cadWidth,
@@ -58157,6 +58389,7 @@ class Viewer {
       clone(this.states),
       this.tree,
       this.setObjects,
+      this.handlePick,
       theme,
     );
 
@@ -58326,6 +58559,30 @@ class Viewer {
     this.update(this.updateMarker);
   };
 
+  setBoundingBox = (id) => {
+    const group = this.nestedGroup.groups[id];
+
+    if (group != null) {
+      if (this.lastBbox != null) {
+        this.scene.remove(this.lastBbox.bbox);
+      }
+      if (
+        this.lastBbox == null ||
+        (this.lastBbox != null && id != this.lastBbox.id)
+      ) {
+        this.lastBbox = {
+          id: id,
+          bbox: new BoxHelper(group, 0xff00ff),
+          needsUpdate: false,
+        };
+        this.scene.add(this.lastBbox.bbox);
+      } else {
+        this.lastBbox = null;
+      }
+      this.update(false, false, false);
+    }
+  };
+
   /**
    * Refresh clipping plane
    * @function
@@ -58381,15 +58638,80 @@ class Viewer {
   /**
    * Set state of one entry of a treeview leaf given by an id
    * @function
-   * @param {string} - id
-   * @param {number[]} - 2 dim array [mesh, edges] = [0/1, 0/1]
+   * @param {string} id - object id
+   * @param {number[]} state - 2 dim array [mesh, edges] = [0/1, 0/1]
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setState = (id, state, notify = true) => {
+  setState = (id, state, nodeType = "leaf", notify = true) => {
     [0, 1].forEach((i) =>
-      this.treeview.handleStateChange("leaf", id, i, state[i]),
+      this.treeview.handleStateChange(nodeType, id, i, state[i]),
     );
     this.update(this.updateMarker, notify);
+  };
+
+  removeLastBbox() {
+    if (this.lastBbox != null) {
+      this.scene.remove(this.lastBbox.bbox);
+      this.lastBbox = null;
+      this.treeview.removeLabelHighlight();
+    }
+  }
+  
+  /**
+   * Handle bounding box and notifications for picked elements
+   * @function
+   * @param {string} - path of object
+   * @param {string} - name of object (id = path/name)
+   * @param {boolean} - meta key pressed
+   * @param {boolean} shift - whether to send notification or not.
+   */
+  handlePick = (
+    path,
+    name,
+    meta,
+    shift,
+    nodeType = "leaf",
+    highlight = true,
+  ) => {
+    const id = `${path}/${name}`;
+    const object = this.nestedGroup.groups[id];
+    const boundingBox = new BoundingBox().setFromObject(object, true);
+
+    if(this.lastBbox != null && this.lastBbox.id === id && !meta && !shift){
+      this.removeLastBbox();
+    } else {
+      if (highlight) {
+        this.treeview.selectNode(id);
+      }
+
+      this.checkChanges({
+        lastPick: {
+          path: path,
+          name: name,
+          boundingBox: boundingBox,
+          boundingSphere: boundingBox.boundingSphere(),
+        },
+      });
+
+      if (this.animation.clipAction?.isRunning()) {
+        this.bboxNeedsUpdate = true;
+      }
+
+      if (meta) {
+        this.setState(id, [0, 0], nodeType);
+      } else if (shift) {
+        this.removeLastBbox();
+        this.treeview.hideAll();
+        this.setState(id, [1, 1], nodeType);
+        const center = boundingBox.center();
+        this.setCameraTarget(center);
+        this.info.centerInfo(center);
+      } else {
+        this.info.bbInfo(path, name, boundingBox);
+        this.setBoundingBox(id);
+      }
+    }
+    this.update(true);
   };
 
   /**
@@ -58424,26 +58746,7 @@ class Viewer {
       }
     }
     if (nearest != null) {
-      this.checkChanges({
-        lastPick: {
-          path: nearest.path,
-          name: nearest.name,
-          boundingBox: JSON.parse(JSON.stringify(nearest.boundingBox)),
-          boundingSphere: JSON.parse(JSON.stringify(nearest.boundingSphere)),
-        },
-      });
-      var update = {};
-
-      if (e.metaKey) {
-        update[`${nearest.path}/${nearest.name}`] = [0, 0];
-        this.setStates(update);
-      } else if (e.shiftKey) {
-        this.treeview.hideAll();
-        update[`${nearest.path}/${nearest.name}`] = [1, 1];
-        this.setStates(update);
-      } else {
-        this.info.bbInfo(nearest.path, nearest.name, nearest.boundingBox);
-      }
+      this.handlePick(nearest.path, nearest.name, e.metaKey, e.shiftKey);
     }
   };
 
@@ -58673,6 +58976,7 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    **/
   setCameraTarget(target, notify = true) {
+    this.camera.getCamera().lookAt(new Vector3(...target));
     this.controls.setTarget(new Vector3(...target));
     this.controls.update();
     this.update(true, notify);
@@ -58836,7 +59140,7 @@ class Viewer {
         states[id][0] != this.states[id][0] ||
         states[id][1] != this.states[id][1]
       ) {
-        this.setState(id, states[id], notify);
+        this.setState(id, states[id], "leaf", notify);
       }
     }
   };

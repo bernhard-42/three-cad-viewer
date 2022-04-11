@@ -41,6 +41,8 @@ import { Info } from "./info.js";
 import { clone, isEqual, sceneTraverse } from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
+import { BoundingBox, BoxHelper } from "./bbox.js";
+import { version } from "./_version.js";
 
 class Viewer {
   /**
@@ -116,6 +118,8 @@ class Viewer {
     this.renderer.autoClear = false;
 
     this.lastNotification = {};
+    this.lastBbox = null;
+    this.bboxNeedsUpdate = false;
 
     this.keepHighlight = false;
 
@@ -129,6 +133,14 @@ class Viewer {
     console.debug("three-cad-viewer: WebGL Renderer created");
 
     this.display.setupUI(this);
+  }
+
+  /**
+   * Return three-cad-viewer version as semver string
+   * @returns semver version
+   */
+  version() {
+    return version;
   }
 
   /**
@@ -447,6 +459,15 @@ class Viewer {
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
 
+      if (
+        this.lastBbox != null &amp;&amp;
+        (this.lastBbox.needsUpdate || this.bboxNeedsUpdate)
+      ) {
+        console.log("updated bbox");
+        this.lastBbox.bbox.update();
+        this.lastBbox.needsUpdate = false;
+      }
+
       if (updateMarker) {
         this.renderer.clearDepth(); // ensure orientation Marker is at the top
 
@@ -613,6 +634,7 @@ class Viewer {
     //
     // render the input assembly
     //
+    this.lastBbox = null;
 
     this.nestedGroup = group;
     this.scene.add(this.nestedGroup.render(states));
@@ -625,7 +647,7 @@ class Viewer {
 
     this.bbox = this.nestedGroup.boundingBox();
     this.bb_max = this.bbox.max_dist_from_center();
-    this.bb_radius = this.nestedGroup.bsphere.radius;
+    this.bb_radius = this.bbox.boundingSphere().radius;
 
     timer.split("bounding box");
 
@@ -642,7 +664,7 @@ class Viewer {
       this.cadWidth,
       this.height,
       this.bb_radius,
-      options.target == null ? this.bbox.center : options.target,
+      options.target == null ? this.bbox.center() : options.target,
       this.ortho,
       this.control,
     );
@@ -653,7 +675,7 @@ class Viewer {
     this.controls = new Controls(
       this.control,
       this.camera.getCamera(),
-      options.target == null ? this.bbox.center : options.target,
+      options.target == null ? this.bbox.center() : options.target,
       this.renderer.domElement,
       this.rotateSpeed,
       this.zoomSpeed,
@@ -728,7 +750,7 @@ class Viewer {
     //
 
     this.axesHelper = new AxesHelper(
-      this.bbox.center,
+      this.bbox.center(),
       this.gridSize / 2,
       2,
       this.cadWidth,
@@ -800,6 +822,7 @@ class Viewer {
       clone(this.states),
       this.tree,
       this.setObjects,
+      this.handlePick,
       theme,
     );
 
@@ -969,6 +992,30 @@ class Viewer {
     this.update(this.updateMarker);
   };
 
+  setBoundingBox = (id) => {
+    const group = this.nestedGroup.groups[id];
+
+    if (group != null) {
+      if (this.lastBbox != null) {
+        this.scene.remove(this.lastBbox.bbox);
+      }
+      if (
+        this.lastBbox == null ||
+        (this.lastBbox != null &amp;&amp; id != this.lastBbox.id)
+      ) {
+        this.lastBbox = {
+          id: id,
+          bbox: new BoxHelper(group, 0xff00ff),
+          needsUpdate: false,
+        };
+        this.scene.add(this.lastBbox.bbox);
+      } else {
+        this.lastBbox = null;
+      }
+      this.update(false, false, false);
+    }
+  };
+
   /**
    * Refresh clipping plane
    * @function
@@ -1024,15 +1071,80 @@ class Viewer {
   /**
    * Set state of one entry of a treeview leaf given by an id
    * @function
-   * @param {string} - id
-   * @param {number[]} - 2 dim array [mesh, edges] = [0/1, 0/1]
+   * @param {string} id - object id
+   * @param {number[]} state - 2 dim array [mesh, edges] = [0/1, 0/1]
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setState = (id, state, notify = true) => {
+  setState = (id, state, nodeType = "leaf", notify = true) => {
     [0, 1].forEach((i) =>
-      this.treeview.handleStateChange("leaf", id, i, state[i]),
+      this.treeview.handleStateChange(nodeType, id, i, state[i]),
     );
     this.update(this.updateMarker, notify);
+  };
+
+  removeLastBbox() {
+    if (this.lastBbox != null) {
+      this.scene.remove(this.lastBbox.bbox);
+      this.lastBbox = null;
+      this.treeview.removeLabelHighlight();
+    }
+  }
+  
+  /**
+   * Handle bounding box and notifications for picked elements
+   * @function
+   * @param {string} - path of object
+   * @param {string} - name of object (id = path/name)
+   * @param {boolean} - meta key pressed
+   * @param {boolean} shift - whether to send notification or not.
+   */
+  handlePick = (
+    path,
+    name,
+    meta,
+    shift,
+    nodeType = "leaf",
+    highlight = true,
+  ) => {
+    const id = `${path}/${name}`;
+    const object = this.nestedGroup.groups[id];
+    const boundingBox = new BoundingBox().setFromObject(object, true);
+
+    if(this.lastBbox != null &amp;&amp; this.lastBbox.id === id &amp;&amp; !meta &amp;&amp; !shift){
+      this.removeLastBbox();
+    } else {
+      if (highlight) {
+        this.treeview.selectNode(id);
+      }
+
+      this.checkChanges({
+        lastPick: {
+          path: path,
+          name: name,
+          boundingBox: boundingBox,
+          boundingSphere: boundingBox.boundingSphere(),
+        },
+      });
+
+      if (this.animation.clipAction?.isRunning()) {
+        this.bboxNeedsUpdate = true;
+      }
+
+      if (meta) {
+        this.setState(id, [0, 0], nodeType);
+      } else if (shift) {
+        this.removeLastBbox();
+        this.treeview.hideAll();
+        this.setState(id, [1, 1], nodeType);
+        const center = boundingBox.center();
+        this.setCameraTarget(center);
+        this.info.centerInfo(center);
+      } else {
+        this.info.bbInfo(path, name, boundingBox);
+        this.setBoundingBox(id);
+      }
+    }
+    this.update(true);
   };
 
   /**
@@ -1067,26 +1179,7 @@ class Viewer {
       }
     }
     if (nearest != null) {
-      this.checkChanges({
-        lastPick: {
-          path: nearest.path,
-          name: nearest.name,
-          boundingBox: JSON.parse(JSON.stringify(nearest.boundingBox)),
-          boundingSphere: JSON.parse(JSON.stringify(nearest.boundingSphere)),
-        },
-      });
-      var update = {};
-
-      if (e.metaKey) {
-        update[`${nearest.path}/${nearest.name}`] = [0, 0];
-        this.setStates(update);
-      } else if (e.shiftKey) {
-        this.treeview.hideAll();
-        update[`${nearest.path}/${nearest.name}`] = [1, 1];
-        this.setStates(update);
-      } else {
-        this.info.bbInfo(nearest.path, nearest.name, nearest.boundingBox);
-      }
+      this.handlePick(nearest.path, nearest.name, e.metaKey, e.shiftKey);
     }
   };
 
@@ -1316,6 +1409,7 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    **/
   setCameraTarget(target, notify = true) {
+    this.camera.getCamera().lookAt(new THREE.Vector3(...target));
     this.controls.setTarget(new THREE.Vector3(...target));
     this.controls.update();
     this.update(true, notify);
@@ -1479,7 +1573,7 @@ class Viewer {
         states[id][0] != this.states[id][0] ||
         states[id][1] != this.states[id][1]
       ) {
-        this.setState(id, states[id], notify);
+        this.setState(id, states[id], "leaf", notify);
       }
     }
   };
@@ -1891,7 +1985,7 @@ export { Viewer };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sun Apr 03 2022 17:42:48 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Apr 11 2022 18:34:35 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

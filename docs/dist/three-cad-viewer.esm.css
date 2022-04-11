@@ -149,9 +149,12 @@ canvas {
   line-height: 14px;
 }
 
-.tcv_small_table_row > td,
-th {
+.tcv_small_table_row > td, th {
   padding-left: 6px;
+}
+
+.tcv_info_line {
+  margin: 4px;
 }
 
 .tcv_info_row {
@@ -233,6 +236,7 @@ th {
   bottom: 0px;
   z-index: 100;
   display: none;
+  font-size: 12px;
 }
 
 .tcv_cad_help_layout {
@@ -641,4 +645,13 @@ input[type="button"] {
   margin-left: 6px;
   font-size: 14px;
   font-family: sans-serif;
+  user-select: none;
+}
+
+.tcv_tree_label:hover {
+  cursor: pointer;
+}
+
+.tcv_node_selected {
+  color: #308ee1;
 }

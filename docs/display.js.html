@@ -28,8 +28,10 @@
         <article>
             <pre class="prettyprint source linenums"><code>import { getIconBackground } from "./icons.js";
 
-function TEMPLATE(id) {
-  return `
+function TEMPLATE(id, more) {
+  const tag = more ? "div" : "span";
+
+  var html = `
 &lt;div class="tcv_cad_viewer">
     &lt;div class="tcv_cad_toolbar tcv_round">
         &lt;span class="tcv_tooltip" data-tooltip="Show coordinate axis">
@@ -88,26 +90,29 @@ function TEMPLATE(id) {
         &lt;/span>
         &lt;span class="tcv_tooltip" data-tooltip="Switch to right view">
             &lt;input class='tcv_right tcv_btn' type="button" />
-        &lt;/span>
-        &lt;div class="tcv_more-dropdown">
+        &lt;/span>`;
+
+  html += more ? `&lt;div class="tcv_more-dropdown">
             &lt;button class="tcv_more-btn">More&lt;span class="tcv_more_icon">\u25BC&lt;/span>&lt;/button>
-            &lt;div class="tcv_more-content tcv_dropdown-content">
-                &lt;div class="tcv_tooltip" data-tooltip="Toggle transparent objects">
+            &lt;div class="tcv_more-content tcv_dropdown-content">` : "";
+
+  html += `     &lt;${tag} class="tcv_tooltip" data-tooltip="Toggle transparent objects">
                     &lt;input class='tcv_transparent tcv_check tcv_dropdown-entry' id='tcv_transparent_${id}' type="checkbox" />
                     &lt;label for='tcv_transparent_${id}' class="tcv_label tcv_dropdown-entry">Transparent&lt;/label>
-                &lt;/div>
-                &lt;div class="tcv_tooltip" data-tooltip="Toggle black edges">
+                &lt;/${tag}>
+                &lt;${tag} class="tcv_tooltip" data-tooltip="Toggle black edges">
                     &lt;input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges_${id}' type="checkbox" />
                     &lt;label for='tcv_black_edges_${id}' class="tcv_label tcv_dropdown-entry">Black edges&lt;/label>
-                &lt;/div>
-                &lt;div class="tcv_explode_widget tcv_tooltip"
+                &lt;/${tag}>
+                &lt;${tag} class="tcv_explode_widget tcv_tooltip"
                     data-tooltip="Explode assembly (@0 determines explosion center)">
                     &lt;input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode_${id}' type="checkbox" />
                     &lt;label for='tcv_explode_${id}' class="tcv_label tcv_dropdown-entry">Explode&lt;/label>
-                &lt;/div>
-            &lt;/div>
-        &lt;/div>
-        &lt;span class="tcv_align_right">
+                &lt;/${tag}>`;
+  html += more ? `&lt;/div>
+        &lt;/div>` : "";
+
+  html += `&lt;span class="tcv_align_right">
             &lt;span class="tcv_tooltip" data-tooltip="Toggle help">
                 &lt;input class='tcv_help tcv_btn' type="button" />
             &lt;/span>
@@ -131,9 +136,7 @@ function TEMPLATE(id) {
                     &lt;input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
                 &lt;/div>
                 &lt;div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-                    &lt;div class="tcv_cad_tree_container">
-                        &lt;div class="tcv_cad_tree_container">&lt;/div>
-                    &lt;/div>
+                    &lt;div class="tcv_cad_tree_container">&lt;/div>
                     &lt;div class="tcv_cad_clip_container">
                         &lt;div class="tcv_slider_group">
                             &lt;div>
@@ -250,14 +253,28 @@ function TEMPLATE(id) {
                         &lt;td>&amp;lt;left mouse button&amp;gt; double click&lt;/td>
                     &lt;/tr>
                     &lt;tr>
+                        &lt;td>&lt;/td>
+                        &lt;td>Click on navigation tree label&lt;/td>
+                    &lt;/tr>
+                    &lt;tr>
+                        &lt;td>&lt;/td>
+                        &lt;td>(Shows axis-aligned bounding box, AABB)&lt;/td>
+                    &lt;/tr>
+                    &lt;tr>
                         &lt;td>Hide element&lt;/td>
                         &lt;td>&amp;lt;Meta&amp;gt; + &amp;lt;left mouse button&amp;gt; double click&lt;/td>
                     &lt;/tr>
                     &lt;tr>
+                        &lt;td>&lt;/td>
+                        &lt;td>&amp;lt;Meta&amp;gt; + click on navigation tree label&lt;/td>
+                    &lt;/tr>                    &lt;tr>
                         &lt;td>Isolate element&lt;/td>
                         &lt;td>&amp;lt;Shift&amp;gt; + &amp;lt;left mouse button&amp;gt; double click&lt;/td>
                     &lt;/tr>
-
+                    &lt;tr>
+                        &lt;td>&lt;/td>
+                        &lt;td>&amp;lt;Shift&amp;gt; + click on navigation tree label&lt;/td>
+                    &lt;/tr>
                     &lt;tr>
                         &lt;td>&lt;/td>
                         &lt;td>&lt;b>CAD Object Tree&lt;/b>&lt;/td>
@@ -280,6 +297,7 @@ function TEMPLATE(id) {
     &lt;/div>
 &lt;/div>
 `;
+  return html;
 }
 
 function px(val) {
@@ -382,7 +400,8 @@ class Display {
   constructor(container, options) {
     this.container = container;
 
-    this.container.innerHTML = TEMPLATE(this.container.id);
+    const fullWidth = options.cadWidth + (options.glass ? 0 : options.treeWidth);
+    this.container.innerHTML = TEMPLATE(this.container.id, fullWidth &lt; 950);
     this.cadBody = this._getElement("tcv_cad_body");
     this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadView = this._getElement("tcv_cad_view");
@@ -1098,6 +1117,16 @@ class Display {
 
     var currentTime = this.viewer.animation.getRelativeTime();
     this.animationSlider.value = 1000 * currentTime;
+    if (btn == "play") {
+      this.viewer.bboxNeedsUpdate = true;
+    } else if (btn == "stop") {
+      this.viewer.bboxNeedsUpdate = false;
+      if(this.viewer.lastBbox != null){
+        this.viewer.lastBbox.needsUpdate = true;
+      }
+    } else {
+      this.viewer.bboxNeedsUpdate = !this.viewer.bboxNeedsUpdate;
+    }
   }
 
   /**
@@ -1117,6 +1146,7 @@ class Display {
    */
   animationChange = (e) => {
     this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
+    this.viewer.lastBbox.needsUpdate = true;
   };
 
   setAnimationLabel(label) {
@@ -1247,7 +1277,7 @@ export { Display };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sun Apr 03 2022 17:42:48 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Apr 11 2022 18:34:35 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>
