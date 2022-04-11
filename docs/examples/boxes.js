@@ -1773,14 +1773,6 @@ var boxes = [
                 color: "#d7191c",
                 renderback: false,
                 accuracy: 0.02,
-                bb: {
-                  xmin: -5.0200001,
-                  xmax: 5.0200001,
-                  ymin: -10.0200001,
-                  ymax: 10.0200001,
-                  zmin: -15.0200001,
-                  zmax: 15.0200001,
-                },
               },
             ],
             loc: [
@@ -3015,14 +3007,6 @@ var boxes = [
                 color: "#abdda4",
                 renderback: false,
                 accuracy: 0.0187,
-                bb: {
-                  xmin: -15.0187001,
-                  xmax: 15.0187001,
-                  ymin: 4.9812999,
-                  ymax: 25.0187001,
-                  zmin: 3.9812999,
-                  zmax: 10.0187001,
-                },
               },
             ],
             loc: [
@@ -4311,14 +4295,6 @@ var boxes = [
                 color: "#2b83ba",
                 renderback: false,
                 accuracy: 0.0187,
-                bb: {
-                  xmin: -15.0187001,
-                  xmax: 15.0187001,
-                  ymin: -0.0187001,
-                  ymax: 20.0187001,
-                  zmin: -10.0187001,
-                  zmax: -3.9812999,
-                },
               },
             ],
             loc: [
