@@ -1082,7 +1082,7 @@ class Viewer {
     const object = this.nestedGroup.groups[id];
     const boundingBox = new BoundingBox().setFromObject(object, true);
 
-    if(this.lastBbox != null && this.lastBbox.id === id){
+    if(this.lastBbox != null && this.lastBbox.id === id && !meta && !shift){
       this.removeLastBbox();
     } else {
       if (highlight) {
@@ -1105,9 +1105,9 @@ class Viewer {
       if (meta) {
         this.setState(id, [0, 0], nodeType);
       } else if (shift) {
+        this.removeLastBbox();
         this.treeview.hideAll();
-         this.setState(id, [1, 1], nodeType);
-        this.setBoundingBox(id);
+        this.setState(id, [1, 1], nodeType);
         const center = boundingBox.center();
         this.setCameraTarget(center);
         this.info.centerInfo(center);
@@ -1116,6 +1116,7 @@ class Viewer {
         this.setBoundingBox(id);
       }
     }
+    this.update(true);
   };
 
   /**
