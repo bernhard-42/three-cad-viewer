@@ -1258,6 +1258,9 @@ class Display {
       treeWidth: flag ? 0 : this.treeWidth,
     };
     this.setSizes(options);
+    
+    const fullWidth = this.cadWidth + (this.glass ? 0 : this.treeWidth);
+    this.handleMoreButton(fullWidth);
   }
 }
 
