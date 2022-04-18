@@ -248,6 +248,21 @@ class Camera {
   getRotation() {
     return this.camera.rotation;
   }
+
+  changeDimensions(distance, width, height) {
+    const aspect = width / height;
+    const w = distance * 1.35;
+    const h = (distance * 1.35) / aspect;
+
+    this.oCamera.left = -w;
+    this.oCamera.right = w;
+    this.oCamera.top = h;
+    this.oCamera.bottom = -h;
+
+    this.pCamera.aspect = aspect;
+
+    this.camera.updateProjectionMatrix();    
+  }
 }
 
 export { Camera };

@@ -29,3 +29,7 @@
   --tcv-scrollbar-active: rgba(255, 255, 255, 0.6);
   --tcv-scrollbar-thumb: rgba(255, 255, 255, 0.2);
 }
+
+.tcv_none {
+  display: none;
+}

@@ -1,7 +1,6 @@
 import { getIconBackground } from "./icons.js";
 
-function TEMPLATE(id, more) {
-  const tag = more ? "div" : "span";
+function TEMPLATE(id) {
 
   var html = `
 <div class="tcv_cad_viewer">
@@ -62,29 +61,27 @@ function TEMPLATE(id, more) {
         </span>
         <span class="tcv_tooltip" data-tooltip="Switch to right view">
             <input class='tcv_right tcv_btn' type="button" />
-        </span>`;
-
-  html += more ? `<div class="tcv_more-dropdown">
+        </span>
+        <div class="tcv_more-dropdown">
             <button class="tcv_more-btn">More<span class="tcv_more_icon">\u25BC</span></button>
-            <div class="tcv_more-content tcv_dropdown-content">` : "";
-
-  html += `     <${tag} class="tcv_tooltip" data-tooltip="Toggle transparent objects">
+            <span class="tcv_more-wrapper tcv_more-content tcv_dropdown-content">
+               <span class="tcv_more_check" class="tcv_tooltip" data-tooltip="Toggle transparent objects">
                     <input class='tcv_transparent tcv_check tcv_dropdown-entry' id='tcv_transparent_${id}' type="checkbox" />
                     <label for='tcv_transparent_${id}' class="tcv_label tcv_dropdown-entry">Transparent</label>
-                </${tag}>
-                <${tag} class="tcv_tooltip" data-tooltip="Toggle black edges">
+                </span class="tcv_more_check">
+                <span class="tcv_more_check" class="tcv_tooltip" data-tooltip="Toggle black edges">
                     <input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges_${id}' type="checkbox" />
                     <label for='tcv_black_edges_${id}' class="tcv_label tcv_dropdown-entry">Black edges</label>
-                </${tag}>
-                <${tag} class="tcv_explode_widget tcv_tooltip"
+                </span class="tcv_more_check">
+                <span class="tcv_more_check" class="tcv_explode_widget tcv_tooltip"
                     data-tooltip="Explode assembly (@0 determines explosion center)">
                     <input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode_${id}' type="checkbox" />
                     <label for='tcv_explode_${id}' class="tcv_label tcv_dropdown-entry">Explode</label>
-                </${tag}>`;
-  html += more ? `</div>
-        </div>` : "";
+                </span class="tcv_more_check">
+            </span>
+        </div>
 
-  html += `<span class="tcv_align_right">
+        <span class="tcv_align_right">
             <span class="tcv_tooltip" data-tooltip="Toggle help">
                 <input class='tcv_help tcv_btn' type="button" />
             </span>
@@ -372,8 +369,9 @@ class Display {
   constructor(container, options) {
     this.container = container;
 
+    this.container.innerHTML = TEMPLATE(this.container.id);
     const fullWidth = options.cadWidth + (options.glass ? 0 : options.treeWidth);
-    this.container.innerHTML = TEMPLATE(this.container.id, fullWidth < 950);
+    this.handleMoreButton(fullWidth);
     this.cadBody = this._getElement("tcv_cad_body");
     this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadView = this._getElement("tcv_cad_view");
@@ -470,6 +468,24 @@ class Display {
     this.cadView.removeChild(this.cadView.children[2]);
     // delete view
     this.container.innerHTML = "";
+  }
+
+  /**
+   * Use More fropdown if overall width < 950px else just check boxes
+   * @param {number} fullWidth - overall width of tree and cad view (taking glass mode into account)
+   */
+  handleMoreButton(fullWidth) {
+    const moreButton = this._getElement("tcv_more-btn");
+    const moreContent = this._getElement("tcv_more-wrapper");
+    if (fullWidth  < 950) {
+      moreButton.classList.remove("tcv_none");
+      moreContent.classList.add("tcv_dropdown-content");
+      moreContent.classList.add("tcv_more-content");  
+    } else {
+      moreButton.classList.add("tcv_none");
+      moreContent.classList.remove("tcv_dropdown-content");
+      moreContent.classList.remove("tcv_more-content");  
+    }
   }
 
   /**

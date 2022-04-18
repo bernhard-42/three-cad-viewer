@@ -1913,31 +1913,36 @@ class Viewer {
     }
   }
 
-  //
-  // DOESN'T WORK DUE TO CAMERA CANNOT BE CHANGED EASILY
-  //
-  // /**
-  //  * Resize cadWidth, treeWidth and height of thew viewer
-  //  *
-  //  * @param {cadWidth} tags - e.g. ["axes", "axes0", "grid", "ortho", "more", "help"]
-  //  * @param {treeWidth} flag - whether to turn on or off the UI elements.
-  //  * @param {height} flag - whether to turn on or off the UI elements.
-  //  */
-  // resetUISize(cadWidth, treeWidth, height) {
-  //   this.cadWidth = cadWidth;
-  //   this.treeWidth = treeWidth;
-  //   this.height = height;
-  //   this.display.setSizes({
-  //     cadWidth: cadWidth,
-  //     treeWidth: treeWidth,
-  //     height: height,
-  //     tools: this.tools,
-  //     glass: this.glass,
-  //   });
-  //   this.display.autoCollapse();
-  //   this.renderer.setSize(cadWidth, height);
-  //   this.update(true);
-  // }
+  /**
+   * Resize UI and renderer
+   *
+   * @param {number} cadWidth - new width of CAD View
+   * @param {number} treeWidth - new width of navigation tree
+   * @param {number} height - new height of CAD View
+   * @param {boolean} [glass=false] - Whether to use glass mode or not
+   */  
+  resizeCadView(cadWidth, treeWidth, height, glass=false) {
+    this.cadWidth = cadWidth;
+    this.height = height;
+    
+    // Adapt renderer dimensions
+    this.renderer.setSize(cadWidth, height);
+
+    // Adapt display dimensions
+    this.display.setSizes({"treeWidth": treeWidth, "cadWidth": cadWidth, "height": height});
+    this.display.cadView.children[2].style.width = `${cadWidth}px`;
+    this.display.cadView.children[2].style.height = `${height}px`;
+    this.display.glassMode(glass);
+    
+    const fullWidth = cadWidth + (glass ? 0 : treeWidth);
+    this.display.handleMoreButton(fullWidth);
+    
+    // Adapt camers to new dimensions
+    this.camera.changeDimensions(this.bb_radius, cadWidth, height);
+
+    // update the this
+    this.update(true);
+  }
 }
 
 export { Viewer };
