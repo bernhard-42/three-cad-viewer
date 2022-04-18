@@ -471,13 +471,13 @@ class Display {
   }
 
   /**
-   * Use More fropdown if overall width < 950px else just check boxes
+   * Use More fropdown if overall width < 970px else just check boxes
    * @param {number} fullWidth - overall width of tree and cad view (taking glass mode into account)
    */
   handleMoreButton(fullWidth) {
     const moreButton = this._getElement("tcv_more-btn");
     const moreContent = this._getElement("tcv_more-wrapper");
-    if (fullWidth  < 950) {
+    if (fullWidth  < 970) {
       moreButton.classList.remove("tcv_none");
       moreContent.classList.add("tcv_dropdown-content");
       moreContent.classList.add("tcv_more-content");  
