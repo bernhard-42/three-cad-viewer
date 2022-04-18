@@ -913,7 +913,10 @@ class Display {
     this.viewer.resize();
   };
 
-  clearHighlights() {
+  /**
+   * Clear all highlights of navigation tree entries
+   */
+   clearHighlights() {
     const buttons = [
       "tcv_front",
       "tcv_rear",
@@ -929,6 +932,10 @@ class Display {
     });
   }
 
+  /**
+   * Highlight the selected navigation tree entry
+   * @param {string} name - A CAD object id (path)
+   */
   highlightButton(name) {
     this.clearHighlights();
     var el = this._getElement(`tcv_${name}`);
@@ -1139,6 +1146,10 @@ class Display {
     }
   };
 
+  /**
+   * Set label text of animation control
+   * @param {string} label - "A" for animation and "E" for Explode control
+   */
   setAnimationLabel(label) {
     var el = this._getElement("tcv_animation_label");
     el.innerHTML = label;
