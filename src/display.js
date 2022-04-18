@@ -1134,7 +1134,9 @@ class Display {
    */
   animationChange = (e) => {
     this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
-    this.viewer.lastBbox.needsUpdate = true;
+    if(this.viewer.lastBbox != null){
+      this.viewer.lastBbox.needsUpdate = true;
+    }
   };
 
   setAnimationLabel(label) {
