@@ -51284,8 +51284,7 @@ function getIconBackground(theme, name) {
   return `url(data:image/svg+xml;utf8,${escape(icons[name][theme])});`;
 }
 
-function TEMPLATE(id, more) {
-  const tag = more ? "div" : "span";
+function TEMPLATE(id) {
 
   var html = `
 <div class="tcv_cad_viewer">
@@ -51346,29 +51345,27 @@ function TEMPLATE(id, more) {
         </span>
         <span class="tcv_tooltip" data-tooltip="Switch to right view">
             <input class='tcv_right tcv_btn' type="button" />
-        </span>`;
-
-  html += more ? `<div class="tcv_more-dropdown">
+        </span>
+        <div class="tcv_more-dropdown">
             <button class="tcv_more-btn">More<span class="tcv_more_icon">\u25BC</span></button>
-            <div class="tcv_more-content tcv_dropdown-content">` : "";
-
-  html += `     <${tag} class="tcv_tooltip" data-tooltip="Toggle transparent objects">
+            <span class="tcv_more-wrapper tcv_more-content tcv_dropdown-content">
+               <span class="tcv_more_check" class="tcv_tooltip" data-tooltip="Toggle transparent objects">
                     <input class='tcv_transparent tcv_check tcv_dropdown-entry' id='tcv_transparent_${id}' type="checkbox" />
                     <label for='tcv_transparent_${id}' class="tcv_label tcv_dropdown-entry">Transparent</label>
-                </${tag}>
-                <${tag} class="tcv_tooltip" data-tooltip="Toggle black edges">
+                </span class="tcv_more_check">
+                <span class="tcv_more_check" class="tcv_tooltip" data-tooltip="Toggle black edges">
                     <input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges_${id}' type="checkbox" />
                     <label for='tcv_black_edges_${id}' class="tcv_label tcv_dropdown-entry">Black edges</label>
-                </${tag}>
-                <${tag} class="tcv_explode_widget tcv_tooltip"
+                </span class="tcv_more_check">
+                <span class="tcv_more_check" class="tcv_explode_widget tcv_tooltip"
                     data-tooltip="Explode assembly (@0 determines explosion center)">
                     <input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode_${id}' type="checkbox" />
                     <label for='tcv_explode_${id}' class="tcv_label tcv_dropdown-entry">Explode</label>
-                </${tag}>`;
-  html += more ? `</div>
-        </div>` : "";
+                </span class="tcv_more_check">
+            </span>
+        </div>
 
-  html += `<span class="tcv_align_right">
+        <span class="tcv_align_right">
             <span class="tcv_tooltip" data-tooltip="Toggle help">
                 <input class='tcv_help tcv_btn' type="button" />
             </span>
@@ -51656,8 +51653,9 @@ class Display {
   constructor(container, options) {
     this.container = container;
 
+    this.container.innerHTML = TEMPLATE(this.container.id);
     const fullWidth = options.cadWidth + (options.glass ? 0 : options.treeWidth);
-    this.container.innerHTML = TEMPLATE(this.container.id, fullWidth < 950);
+    this.handleMoreButton(fullWidth);
     this.cadBody = this._getElement("tcv_cad_body");
     this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadView = this._getElement("tcv_cad_view");
@@ -51754,6 +51752,24 @@ class Display {
     this.cadView.removeChild(this.cadView.children[2]);
     // delete view
     this.container.innerHTML = "";
+  }
+
+  /**
+   * Use More fropdown if overall width < 970px else just check boxes
+   * @param {number} fullWidth - overall width of tree and cad view (taking glass mode into account)
+   */
+  handleMoreButton(fullWidth) {
+    const moreButton = this._getElement("tcv_more-btn");
+    const moreContent = this._getElement("tcv_more-wrapper");
+    if (fullWidth  < 970) {
+      moreButton.classList.remove("tcv_none");
+      moreContent.classList.add("tcv_dropdown-content");
+      moreContent.classList.add("tcv_more-content");  
+    } else {
+      moreButton.classList.add("tcv_none");
+      moreContent.classList.remove("tcv_dropdown-content");
+      moreContent.classList.remove("tcv_more-content");  
+    }
   }
 
   /**
@@ -52181,7 +52197,10 @@ class Display {
     this.viewer.resize();
   };
 
-  clearHighlights() {
+  /**
+   * Clear all highlights of navigation tree entries
+   */
+   clearHighlights() {
     const buttons = [
       "tcv_front",
       "tcv_rear",
@@ -52197,6 +52216,10 @@ class Display {
     });
   }
 
+  /**
+   * Highlight the selected navigation tree entry
+   * @param {string} name - A CAD object id (path)
+   */
   highlightButton(name) {
     this.clearHighlights();
     var el = this._getElement(`tcv_${name}`);
@@ -52402,9 +52425,15 @@ class Display {
    */
   animationChange = (e) => {
     this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
-    this.viewer.lastBbox.needsUpdate = true;
+    if(this.viewer.lastBbox != null){
+      this.viewer.lastBbox.needsUpdate = true;
+    }
   };
 
+  /**
+   * Set label text of animation control
+   * @param {string} label - "A" for animation and "E" for Explode control
+   */
   setAnimationLabel(label) {
     var el = this._getElement("tcv_animation_label");
     el.innerHTML = label;
@@ -52513,6 +52542,9 @@ class Display {
       treeWidth: flag ? 0 : this.treeWidth,
     };
     this.setSizes(options);
+    
+    const fullWidth = this.cadWidth + (this.glass ? 0 : this.treeWidth);
+    this.handleMoreButton(fullWidth);
   }
 }
 
@@ -53842,7 +53874,8 @@ class BoundingBox extends Box3 {
   expandByObject(object, precise = false) {
     object.updateWorldMatrix(false, false);
 
-    if (object instanceof ObjectGroup) {
+    // don't use instanceof => circular dependencies with bbox.js
+    if (object.constructor.name == "ObjectGroup") {
       // for ObjectGroups calculate bounding box of first Mesh only
       this.expandByObject(object.children[0], precise);
       return this;
@@ -57607,9 +57640,24 @@ class Camera {
   getRotation() {
     return this.camera.rotation;
   }
+
+  changeDimensions(distance, width, height) {
+    const aspect = width / height;
+    const w = distance * 1.35;
+    const h = (distance * 1.35) / aspect;
+
+    this.oCamera.left = -w;
+    this.oCamera.right = w;
+    this.oCamera.top = h;
+    this.oCamera.bottom = -h;
+
+    this.pCamera.aspect = aspect;
+
+    this.camera.updateProjectionMatrix();    
+  }
 }
 
-const version="1.6.0";
+const version="1.6.1";
 
 class Viewer {
   /**
@@ -59508,31 +59556,36 @@ class Viewer {
     }
   }
 
-  //
-  // DOESN'T WORK DUE TO CAMERA CANNOT BE CHANGED EASILY
-  //
-  // /**
-  //  * Resize cadWidth, treeWidth and height of thew viewer
-  //  *
-  //  * @param {cadWidth} tags - e.g. ["axes", "axes0", "grid", "ortho", "more", "help"]
-  //  * @param {treeWidth} flag - whether to turn on or off the UI elements.
-  //  * @param {height} flag - whether to turn on or off the UI elements.
-  //  */
-  // resetUISize(cadWidth, treeWidth, height) {
-  //   this.cadWidth = cadWidth;
-  //   this.treeWidth = treeWidth;
-  //   this.height = height;
-  //   this.display.setSizes({
-  //     cadWidth: cadWidth,
-  //     treeWidth: treeWidth,
-  //     height: height,
-  //     tools: this.tools,
-  //     glass: this.glass,
-  //   });
-  //   this.display.autoCollapse();
-  //   this.renderer.setSize(cadWidth, height);
-  //   this.update(true);
-  // }
+  /**
+   * Resize UI and renderer
+   *
+   * @param {number} cadWidth - new width of CAD View
+   * @param {number} treeWidth - new width of navigation tree
+   * @param {number} height - new height of CAD View
+   * @param {boolean} [glass=false] - Whether to use glass mode or not
+   */  
+  resizeCadView(cadWidth, treeWidth, height, glass=false) {
+    this.cadWidth = cadWidth;
+    this.height = height;
+    
+    // Adapt renderer dimensions
+    this.renderer.setSize(cadWidth, height);
+
+    // Adapt display dimensions
+    this.display.setSizes({"treeWidth": treeWidth, "cadWidth": cadWidth, "height": height});
+    this.display.cadView.children[2].style.width = `${cadWidth}px`;
+    this.display.cadView.children[2].style.height = `${height}px`;
+    this.display.glassMode(glass);
+    
+    const fullWidth = cadWidth + (glass ? 0 : treeWidth);
+    this.display.handleMoreButton(fullWidth);
+    
+    // Adapt camers to new dimensions
+    this.camera.changeDimensions(this.bb_radius, cadWidth, height);
+
+    // update the this
+    this.update(true);
+  }
 }
 
 export { Display, Timer, Viewer };
