@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { ObjectGroup } from "./nestedgroup";
 
 class BoundingBox extends THREE.Box3 {
   constructor() {
@@ -9,7 +8,8 @@ class BoundingBox extends THREE.Box3 {
   expandByObject(object, precise = false) {
     object.updateWorldMatrix(false, false);
 
-    if (object instanceof ObjectGroup) {
+    // don't use instanceof => circular dependencies with bbox.js
+    if (object.constructor.name == "ObjectGroup") {
       // for ObjectGroups calculate bounding box of first Mesh only
       this.expandByObject(object.children[0], precise);
       return this;
