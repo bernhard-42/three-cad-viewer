@@ -51197,8 +51197,8 @@ function TEMPLATE(id) {
             <label for='tcv_axes_${id}' class="tcv_label">Axes</label>
         </span>
         <div class="tcv_grid-dropdown">
-            <input class='tcv_grid tcv_check' id='tcv_grid' type="checkbox" /><label for='tcv_grid'
-                class="tcv_label">Grid</label>
+            <input class='tcv_grid tcv_check' id='tcv_grid_${id}' type="checkbox" />
+            <label for='tcv_grid_${id}' class="tcv_label">Grid</label>
             <div class="tcv_grid-content tcv_dropdown-content">
                 <div class="tcv_tooltip" data-tooltip="Show xy grid">
                     <input class='tcv_grid-xy tcv_check tcv_dropdown-entry' id='tcv_grid-xy_${id}' type="checkbox">
@@ -57360,14 +57360,31 @@ class Controls {
 }
 
 const defaultDirections = {
-  iso: new Vector3(1, 1, 1),
-  front: new Vector3(1, 0, 0),
-  rear: new Vector3(-1, 0, 0),
-  left: new Vector3(0, 1, 0),
-  right: new Vector3(0, -1, 0),
-  top: new Vector3(0, 0, 1),
-  bottom: new Vector3(0, 0, -1),
+  y_up: {
+    iso: new Vector3(1, 1, 1),
+    front: new Vector3(0, 0, 1),
+    rear: new Vector3(0, 0, -1),
+    left: new Vector3(-1, 0, 0), // compatible to fusion 360
+    right: new Vector3(1, 0, 0), // compatible to fusion 360
+    top: new Vector3(0, 1, 0),
+    bottom: new Vector3(0, -1, 0),
+  },
+  z_up: {
+    iso: new Vector3(1, 1, 1),
+    front: new Vector3(1, 0, 0),
+    rear: new Vector3(-1, 0, 0),
+    left: new Vector3(0, 1, 0),
+    right: new Vector3(0, -1, 0),
+    top: new Vector3(0, 0, 1),
+    bottom: new Vector3(0, 0, -1),
+  }
 };
+
+const cameraUp = {
+  y_up: [0, 1, 0],
+  z_up: [0, 0, 1],
+};
+
 class Camera {
   /**
    * Create a combined camera (orthographic and persepctive).
@@ -57376,11 +57393,12 @@ class Camera {
    * @param {number} distance - distance from the lookAt point.
    * @param {THREE.Vector3} target - target (Vector3) to look at.
    * @param {boolean} ortho - flag whether the initial camera should be orthographic.
+   * @param {string} up - Z or Y to define whether Z or Y direction is camera up.
    **/
-  constructor(width, height, distance, target, ortho) {
+  constructor(width, height, distance, target, ortho, up) {
     this.target = new Vector3(...target);
     this.ortho = ortho;
-
+    this.up = (up == "Y") ? "y_up" : "z_up";
     this.yaxis = new Vector3(0, 1, 0);
     this.zaxis = new Vector3(0, 0, 1);
 
@@ -57399,7 +57417,7 @@ class Camera {
       0.1,
       100 * distance,
     );
-    this.pCamera.up.set(0, 0, 1);
+    this.pCamera.up.set(...cameraUp[this.up]);
     this.pCamera.lookAt(this.target);
 
     // define the orthographic camera
@@ -57415,11 +57433,11 @@ class Camera {
       0.1,
       100 * distance,
     );
-    this.oCamera.up.set(0, 0, 1);
+    this.oCamera.up.set(...cameraUp[this.up]);
     this.oCamera.lookAt(this.target);
 
     this.camera = ortho ? this.oCamera : this.pCamera;
-    this.camera.up.set(0, 0, 1);
+    this.camera.up.set(...cameraUp[this.up]);
   }
 
   /**
@@ -57516,7 +57534,7 @@ class Camera {
       zoom = this.camera.zoom;
     }
     // For the default directions quaternion can be ignored, it will be reset automatically
-    this.setupCamera(true, defaultDirections[dir], null, zoom);
+    this.setupCamera(true, defaultDirections[this.up][dir], null, zoom);
     this.lookAtTarget();
   }
 
@@ -57585,7 +57603,7 @@ class Camera {
 
   /**
    * Set camera quaternion.
-   * @param {(Array(4)|THREE.Vector3)} quaternion - quaternion as 4 dim Array or as Quaternion.
+   * @param {(Array(4)|THREE.Quaternion)} quaternion - quaternion as 4 dim Array or as Quaternion.
    **/
   setQuaternion(quaternion) {
     const scope = this;
@@ -58249,7 +58267,7 @@ class Viewer {
       this.bb_radius,
       options.target == null ? this.bbox.center() : options.target,
       this.ortho,
-      this.control,
+      options.up,
     );
 
     //

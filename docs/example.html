@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <title>CadQuery Viewer</title>
-  <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css" /> <!-- 1.6.1 -->
+  <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css" /> <!-- 1.6.2 -->
 
   <!-- UMD import -->
   <!-- <script src='./dist/three-cad-viewer.js'></script> -->
@@ -12,6 +12,7 @@
   <script src="./examples/hexapod.js"></script>
   <script src="./examples/hexapod-mates.js"></script>
   <script src="./examples/box.js"></script>
+  <script src="./examples/dirbox.js"></script>
   <script src="./examples/longbox.js"></script>
   <script src="./examples/box-edges.js"></script>
   <script src="./examples/box1.js"></script>
@@ -37,6 +38,7 @@
       hexapod_mates,
       linkage,
       box,
+      dirbox,
       box1,
       boxes,
       faces,
@@ -215,13 +217,17 @@
       }
 
       window.viewerMode = mode;
-      window.controlMode = control;
+      console.log(control);
+      var control_up = control.split("/");
+      window.controlMode = control_up[0];
+      window.up = control_up[1][0];
 
       viewer = new Viewer(container, displayOptions, nc);
 
       timer.split("display created");
 
-      viewerOptions.control = control;
+      viewerOptions.control = window.controlMode;
+      viewerOptions.up = window.up;
 
       render(window.selectedExample, ...examples[window.selectedIndex]);
       timer.stop();
@@ -236,7 +242,7 @@
     window.selectedIndex = 0;
     window.selectedExample = "hexapod";
     window.viewerMode = "default";
-    window.controlMode = "trackball";
+    window.controlMode = "trackball/Z up";
 
     showViewer(window.controlMode, window.viewerMode);
 
@@ -287,8 +293,10 @@
     <span id="control" class="selection">
       Control
       <select class="select" onchange="window.showViewer(this.options.item(this.selectedIndex).text, window.viewerMode);">
-        <option value="trackball">trackball</option>
-        <option value="orbit">orbit</option>
+        <option value="trackball">trackball/Z up</option>
+        <option value="trackball">trackball/Y up</option>
+        <option value="orbit">orbit/Z up</option>
+        <option value="orbit">orbit/Y up</option>
       </select>
     </span>
 
@@ -300,6 +308,7 @@
         <option value="hexapod_mates">hexapod_mates</option>
         <option value="linkage">linkage</option>
         <option value="box">box</option>
+        <option value="box">dirbox</option>
         <option value="box1">box1</option>
         <option value="boxes">boxes</option>
         <option value="faces">faces</option>
