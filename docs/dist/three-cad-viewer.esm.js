@@ -57643,7 +57643,7 @@ class Camera {
   }
 }
 
-const version="1.6.2";
+const version="1.6.3";
 
 class Viewer {
   /**
