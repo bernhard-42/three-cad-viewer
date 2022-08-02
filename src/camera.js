@@ -244,7 +244,7 @@ class Camera {
 
   /**
    * Set camera quaternion.
-   * @param {(Array(4)|THREE.Vector3)} quaternion - quaternion as 4 dim Array or as Quaternion.
+   * @param {(Array(4)|THREE.Quaternion)} quaternion - quaternion as 4 dim Array or as Quaternion.
    **/
   setQuaternion(quaternion) {
     const scope = this;
