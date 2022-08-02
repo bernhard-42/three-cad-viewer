@@ -1,13 +1,31 @@
 import * as THREE from "three";
+
 const defaultDirections = {
-  iso: new THREE.Vector3(1, 1, 1),
-  front: new THREE.Vector3(1, 0, 0),
-  rear: new THREE.Vector3(-1, 0, 0),
-  left: new THREE.Vector3(0, 1, 0),
-  right: new THREE.Vector3(0, -1, 0),
-  top: new THREE.Vector3(0, 0, 1),
-  bottom: new THREE.Vector3(0, 0, -1),
+  y_up: {
+    iso: new THREE.Vector3(1, 1, 1),
+    front: new THREE.Vector3(0, 0, 1),
+    rear: new THREE.Vector3(0, 0, -1),
+    left: new THREE.Vector3(-1, 0, 0), // compatible to fusion 360
+    right: new THREE.Vector3(1, 0, 0), // compatible to fusion 360
+    top: new THREE.Vector3(0, 1, 0),
+    bottom: new THREE.Vector3(0, -1, 0),
+  },
+  z_up: {
+    iso: new THREE.Vector3(1, 1, 1),
+    front: new THREE.Vector3(1, 0, 0),
+    rear: new THREE.Vector3(-1, 0, 0),
+    left: new THREE.Vector3(0, 1, 0),
+    right: new THREE.Vector3(0, -1, 0),
+    top: new THREE.Vector3(0, 0, 1),
+    bottom: new THREE.Vector3(0, 0, -1),
+  }
 };
+
+const cameraUp = {
+  y_up: [0, 1, 0],
+  z_up: [0, 0, 1],
+}
+
 class Camera {
   /**
    * Create a combined camera (orthographic and persepctive).
@@ -16,11 +34,12 @@ class Camera {
    * @param {number} distance - distance from the lookAt point.
    * @param {THREE.Vector3} target - target (Vector3) to look at.
    * @param {boolean} ortho - flag whether the initial camera should be orthographic.
+   * @param {string} up - Z or Y to define whether Z or Y direction is camera up.
    **/
-  constructor(width, height, distance, target, ortho) {
+  constructor(width, height, distance, target, ortho, up) {
     this.target = new THREE.Vector3(...target);
     this.ortho = ortho;
-
+    this.up = (up == "Y") ? "y_up" : "z_up";
     this.yaxis = new THREE.Vector3(0, 1, 0);
     this.zaxis = new THREE.Vector3(0, 0, 1);
 
@@ -39,7 +58,7 @@ class Camera {
       0.1,
       100 * distance,
     );
-    this.pCamera.up.set(0, 0, 1);
+    this.pCamera.up.set(...cameraUp[this.up]);
     this.pCamera.lookAt(this.target);
 
     // define the orthographic camera
@@ -55,11 +74,11 @@ class Camera {
       0.1,
       100 * distance,
     );
-    this.oCamera.up.set(0, 0, 1);
+    this.oCamera.up.set(...cameraUp[this.up]);
     this.oCamera.lookAt(this.target);
 
     this.camera = ortho ? this.oCamera : this.pCamera;
-    this.camera.up.set(0, 0, 1);
+    this.camera.up.set(...cameraUp[this.up]);
   }
 
   /**
@@ -156,7 +175,7 @@ class Camera {
       zoom = this.camera.zoom;
     }
     // For the default directions quaternion can be ignored, it will be reset automatically
-    this.setupCamera(true, defaultDirections[dir], null, zoom);
+    this.setupCamera(true, defaultDirections[this.up][dir], null, zoom);
     this.lookAtTarget();
   }
 

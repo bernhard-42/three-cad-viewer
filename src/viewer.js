@@ -638,7 +638,7 @@ class Viewer {
       this.bb_radius,
       options.target == null ? this.bbox.center() : options.target,
       this.ortho,
-      this.control,
+      options.up,
     );
 
     //
