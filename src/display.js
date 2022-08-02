@@ -10,8 +10,8 @@ function TEMPLATE(id) {
             <label for='tcv_axes_${id}' class="tcv_label">Axes</label>
         </span>
         <div class="tcv_grid-dropdown">
-            <input class='tcv_grid tcv_check' id='tcv_grid' type="checkbox" /><label for='tcv_grid'
-                class="tcv_label">Grid</label>
+            <input class='tcv_grid tcv_check' id='tcv_grid_${id}' type="checkbox" />
+            <label for='tcv_grid_${id}' class="tcv_label">Grid</label>
             <div class="tcv_grid-content tcv_dropdown-content">
                 <div class="tcv_tooltip" data-tooltip="Show xy grid">
                     <input class='tcv_grid-xy tcv_check tcv_dropdown-entry' id='tcv_grid-xy_${id}' type="checkbox">
