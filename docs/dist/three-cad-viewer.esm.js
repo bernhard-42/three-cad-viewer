@@ -53986,9 +53986,10 @@ const _hbox = new BoundingBox();
 const _sphere = new Sphere();
 
 class ObjectGroup extends Group {
-  constructor(opacity, edge_color, renderback) {
+  constructor(opacity, alpha, edge_color, renderback) {
     super();
     this.opacity = opacity;
+    this.alpha = (alpha == null) ? 1.0 : alpha;
     this.edge_color = edge_color;
     this.renderback = renderback;
     this.types = { front: null, back: null, edges: null, vertrices: null };
@@ -54001,12 +54002,14 @@ class ObjectGroup extends Group {
 
   setTransparent(flag) {
     if (this.types.back) {
-      this.types.back.material.opacity = flag ? this.opacity : 1.0;
-      this.types.front.material.opacity = flag ? this.opacity : 1.0;
+      this.types.back.material.opacity = flag ? this.opacity * this.alpha : this.alpha;
+      this.types.front.material.opacity = flag ? this.opacity * this.alpha : this.alpha;
     }
     for (var child of this.children) {
-      child.material.depthWrite = !flag;
-      child.material.depthTest = !flag;
+      // turn depth write off for transparent objects
+      child.material.depthWrite = (this.alpha < 1.0) ? false : !flag;
+      // but keep depth test
+      child.material.depthTest = true;
       child.material.needsUpdate = true;
     }
   }
@@ -54189,6 +54192,7 @@ class NestedGroup {
   renderEdges(edgeList, lineWidth, color, name, state) {
     var group = new ObjectGroup(
       this.defaultOpacity,
+      1.0,
       color == null ? this.edgeColor : color,
     );
 
@@ -54204,6 +54208,7 @@ class NestedGroup {
   renderVertices(vertexList, size, color, name, state) {
     var group = new ObjectGroup(
       this.defaultOpacity,
+      1.0,
       color == null ? this.edgeColor : color,
     );
 
@@ -54238,7 +54243,7 @@ class NestedGroup {
     return group;
   }
 
-  renderShape(shape, color, renderback, name, states) {
+  renderShape(shape, color, alpha, renderback, name, states) {
     const positions =
       shape.vertices instanceof Float32Array
         ? shape.vertices
@@ -54254,10 +54259,16 @@ class NestedGroup {
 
     var group = new ObjectGroup(
       this.defaultOpacity,
+      alpha,
       this.edgeColor,
       renderback,
     );
-
+    
+    if (alpha == null) {
+      alpha = 1.0;
+    } else if (alpha < 1.0) {
+      this.transparent = true;
+    }
     var shapeGeometry = new BufferGeometry();
     shapeGeometry.setAttribute(
       "position",
@@ -54266,20 +54277,26 @@ class NestedGroup {
     shapeGeometry.setAttribute("normal", new BufferAttribute(normals, 3));
     shapeGeometry.setIndex(new BufferAttribute(triangles, 1));
 
+    // see https://stackoverflow.com/a/37651610
+    // "A common draw configuration you see is to draw all the opaque object with depth testing on, 
+    //  turn depth write off, then draw the transparent objects in a back to front order."
+
     const frontMaterial = new MeshStandardMaterial({
       color: color,
       polygonOffset: true,
       polygonOffsetFactor: 1.0,
       polygonOffsetUnits: 1.0,
       transparent: true,
-      opacity: this.transparent ? this.defaultOpacity : 1.0,
+      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
+      // turn depth write off for transparent objects
       depthWrite: !this.transparent,
-      depthTest: !this.transparent,
+      // but keep depth test
+      depthTest: true,
       clipIntersection: false,
       side: FrontSide,
       visible: states[0] == 1,
     });
-
+    
     const backMaterial = new MeshBasicMaterial({
       color: new Color(this.edgeColor),
       side: BackSide,
@@ -54287,9 +54304,11 @@ class NestedGroup {
       polygonOffsetFactor: 1.0,
       polygonOffsetUnits: 1.0,
       transparent: true,
-      opacity: this.transparent ? this.defaultOpacity : 1.0,
+      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
+      // turn depth write off for transparent objects
       depthWrite: !this.transparent,
-      depthTest: !this.transparent,
+      // but keep depth test
+      depthTest: true,
       clipIntersection: false,
       visible: states[0] == 1 && (renderback || this.backVisible),
     });
@@ -54299,6 +54318,12 @@ class NestedGroup {
 
     const back = new Mesh(shapeGeometry, backMaterial);
     back.name = name;
+    
+    // ensure, transparent objects will be rendered at the end
+    if (alpha < 1.0) {
+      back.renderOrder = 999;
+      front.renderOrder = 999;
+    }
 
     group.addType(back, "back");
     group.addType(front, "front");
@@ -54350,6 +54375,7 @@ class NestedGroup {
           mesh = this.renderShape(
             shape.shape,
             shape.color,
+            shape.alpha,
             shape.renderback == null ? false : shape.renderback,
             shape.name,
             states[shape.id],
@@ -57643,7 +57669,7 @@ class Camera {
   }
 }
 
-const version="1.6.3";
+const version="1.6.4";
 
 class Viewer {
   /**
@@ -57809,6 +57835,7 @@ class Viewer {
     this.clipSlider1 = -1;
     this.clipSlider2 = -1;
     this.control = "orbit";
+    this.up = "Z";
     this.ticks = 10;
 
     this.position = null;

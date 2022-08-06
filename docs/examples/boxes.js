@@ -1771,6 +1771,7 @@ var boxes = [
                   ],
                 },
                 color: "#d7191c",
+                alpha: 0.6,
                 renderback: false,
                 accuracy: 0.02,
               },
