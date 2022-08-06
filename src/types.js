@@ -257,6 +257,7 @@
  * @property {Shape} [shape] - Shape object or null if parts != null.
  * @property {Shape} [type] - object type: "shapes", edges", "vertices" if "shape" != null.
  * @property {Shape} [color] - object color if "shape" != null.
+ * @property {Shape} [alpha] - object alpha transparency between 0 and 1 if "shape" != null.
  * @example
  * shapes = {
  *     "name":"Group",
@@ -285,7 +286,8 @@
  *                     [[-0.5,-0.5,0.5],[0.5,-0.5,0.5]],[[-0.5,0.5,-0.5],[0.5,0.5,-0.5]],[[-0.5,0.5,0.5],[0.5,0.5,0.5]]
  *                 ]
  *             },
- *             "color":"#e8b024"
+ *             "color":"#e8b024",
+ *             "alpha": 0.8
  *         }
  *     ],
  *     "loc":null

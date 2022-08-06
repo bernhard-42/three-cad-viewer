@@ -6,9 +6,10 @@ import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHel
 import { BoundingBox } from "./bbox.js";
 
 class ObjectGroup extends THREE.Group {
-  constructor(opacity, edge_color, renderback) {
+  constructor(opacity, alpha, edge_color, renderback) {
     super();
     this.opacity = opacity;
+    this.alpha = (alpha == null) ? 1.0 : alpha;
     this.edge_color = edge_color;
     this.renderback = renderback;
     this.types = { front: null, back: null, edges: null, vertrices: null };
@@ -21,12 +22,14 @@ class ObjectGroup extends THREE.Group {
 
   setTransparent(flag) {
     if (this.types.back) {
-      this.types.back.material.opacity = flag ? this.opacity : 1.0;
-      this.types.front.material.opacity = flag ? this.opacity : 1.0;
+      this.types.back.material.opacity = flag ? this.opacity * this.alpha : this.alpha;
+      this.types.front.material.opacity = flag ? this.opacity * this.alpha : this.alpha;
     }
     for (var child of this.children) {
-      child.material.depthWrite = !flag;
-      child.material.depthTest = !flag;
+      // turn depth write off for transparent objects
+      child.material.depthWrite = (this.alpha < 1.0) ? false : !flag;
+      // but keep depth test
+      child.material.depthTest = true;
       child.material.needsUpdate = true;
     }
   }
@@ -209,6 +212,7 @@ class NestedGroup {
   renderEdges(edgeList, lineWidth, color, name, state) {
     var group = new ObjectGroup(
       this.defaultOpacity,
+      1.0,
       color == null ? this.edgeColor : color,
     );
 
@@ -224,6 +228,7 @@ class NestedGroup {
   renderVertices(vertexList, size, color, name, state) {
     var group = new ObjectGroup(
       this.defaultOpacity,
+      1.0,
       color == null ? this.edgeColor : color,
     );
 
@@ -258,7 +263,7 @@ class NestedGroup {
     return group;
   }
 
-  renderShape(shape, color, renderback, name, states) {
+  renderShape(shape, color, alpha, renderback, name, states) {
     const positions =
       shape.vertices instanceof Float32Array
         ? shape.vertices
@@ -274,10 +279,16 @@ class NestedGroup {
 
     var group = new ObjectGroup(
       this.defaultOpacity,
+      alpha,
       this.edgeColor,
       renderback,
     );
-
+    
+    if (alpha == null) {
+      alpha = 1.0;
+    } else if (alpha < 1.0) {
+      this.transparent = true;
+    }
     var shapeGeometry = new THREE.BufferGeometry();
     shapeGeometry.setAttribute(
       "position",
@@ -286,20 +297,26 @@ class NestedGroup {
     shapeGeometry.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
     shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
 
+    // see https://stackoverflow.com/a/37651610
+    // "A common draw configuration you see is to draw all the opaque object with depth testing on, 
+    //  turn depth write off, then draw the transparent objects in a back to front order."
+
     const frontMaterial = new THREE.MeshStandardMaterial({
       color: color,
       polygonOffset: true,
       polygonOffsetFactor: 1.0,
       polygonOffsetUnits: 1.0,
       transparent: true,
-      opacity: this.transparent ? this.defaultOpacity : 1.0,
+      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
+      // turn depth write off for transparent objects
       depthWrite: !this.transparent,
-      depthTest: !this.transparent,
+      // but keep depth test
+      depthTest: true,
       clipIntersection: false,
       side: THREE.FrontSide,
       visible: states[0] == 1,
     });
-
+    
     const backMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color(this.edgeColor),
       side: THREE.BackSide,
@@ -307,9 +324,11 @@ class NestedGroup {
       polygonOffsetFactor: 1.0,
       polygonOffsetUnits: 1.0,
       transparent: true,
-      opacity: this.transparent ? this.defaultOpacity : 1.0,
+      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
+      // turn depth write off for transparent objects
       depthWrite: !this.transparent,
-      depthTest: !this.transparent,
+      // but keep depth test
+      depthTest: true,
       clipIntersection: false,
       visible: states[0] == 1 && (renderback || this.backVisible),
     });
@@ -319,6 +338,12 @@ class NestedGroup {
 
     const back = new THREE.Mesh(shapeGeometry, backMaterial);
     back.name = name;
+    
+    // ensure, transparent objects will be rendered at the end
+    if (alpha < 1.0) {
+      back.renderOrder = 999;
+      front.renderOrder = 999;
+    }
 
     group.addType(back, "back");
     group.addType(front, "front");
@@ -370,6 +395,7 @@ class NestedGroup {
           mesh = this.renderShape(
             shape.shape,
             shape.color,
+            shape.alpha,
             shape.renderback == null ? false : shape.renderback,
             shape.name,
             states[shape.id],
