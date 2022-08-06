@@ -180,6 +180,7 @@ class Viewer {
     this.clipSlider1 = -1;
     this.clipSlider2 = -1;
     this.control = "orbit";
+    this.up = "Z";
     this.ticks = 10;
 
     this.position = null;
