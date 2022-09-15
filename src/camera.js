@@ -161,10 +161,10 @@ class Camera {
     if (position != null) {
       var cameraPosition = relative
         ? position
-            .clone()
-            .normalize()
-            .multiplyScalar(this.camera_distance)
-            .add(this.target)
+          .clone()
+          .normalize()
+          .multiplyScalar(this.camera_distance)
+          .add(this.target)
         : position;
 
       this.camera.position.set(...cameraPosition.toArray());
@@ -301,7 +301,7 @@ class Camera {
 
     this.pCamera.aspect = aspect;
 
-    this.camera.updateProjectionMatrix();    
+    this.camera.updateProjectionMatrix();
   }
 }
 
