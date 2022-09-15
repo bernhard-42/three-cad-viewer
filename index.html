@@ -14,6 +14,7 @@
   <script src="./examples/box.js"></script>
   <script src="./examples/dirbox.js"></script>
   <script src="./examples/longbox.js"></script>
+  <script src="./examples/orientation-box.js"></script>
   <script src="./examples/box-edges.js"></script>
   <script src="./examples/box1.js"></script>
   <script src="./examples/boxes.js"></script>
@@ -38,6 +39,7 @@
       hexapod_mates,
       linkage,
       box,
+      orient_box,
       dirbox,
       box1,
       boxes,
@@ -205,7 +207,7 @@
     function showViewer(control, mode) {
       const container = document.getElementById("cad_view_001");
       container.innerHTML = ""
-      if(mode == "glass") {
+      if (mode == "glass") {
         displayOptions.glass = true;
         displayOptions.tools = true
       } else if (mode == "no tools") {
@@ -283,7 +285,8 @@
     Demo:
     <span id="navigation" class="selection">
       UI
-      <select class="select" onchange="window.showViewer(window.controlMode, this.options.item(this.selectedIndex).text);">
+      <select class="select"
+        onchange="window.showViewer(window.controlMode, this.options.item(this.selectedIndex).text);">
         <option value="default">default</option>
         <option value="glass">glass</option>
         <option value="notools">no tools</option>
@@ -292,11 +295,14 @@
 
     <span id="control" class="selection">
       Control
-      <select class="select" onchange="window.showViewer(this.options.item(this.selectedIndex).text, window.viewerMode);">
+      <select class="select"
+        onchange="window.showViewer(this.options.item(this.selectedIndex).text, window.viewerMode);">
         <option value="trackball">trackball/Z up</option>
         <option value="trackball">trackball/Y up</option>
+        <option value="trackball">trackball/Legacy</option>
         <option value="orbit">orbit/Z up</option>
         <option value="orbit">orbit/Y up</option>
+        <option value="orbit">orbit/Legacy</option>
       </select>
     </span>
 
@@ -308,6 +314,7 @@
         <option value="hexapod_mates">hexapod_mates</option>
         <option value="linkage">linkage</option>
         <option value="box">box</option>
+        <option value="box">orient_box</option>
         <option value="box">dirbox</option>
         <option value="box1">box1</option>
         <option value="boxes">boxes</option>

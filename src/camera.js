@@ -1,29 +1,39 @@
 import * as THREE from "three";
 
 const defaultDirections = {
-  y_up: {
-    iso: new THREE.Vector3(1, 1, 1),
-    front: new THREE.Vector3(0, 0, 1),
-    rear: new THREE.Vector3(0, 0, -1),
-    left: new THREE.Vector3(-1, 0, 0), // compatible to fusion 360
-    right: new THREE.Vector3(1, 0, 0), // compatible to fusion 360
-    top: new THREE.Vector3(0, 1, 0),
-    bottom: new THREE.Vector3(0, -1, 0),
+  y_up: {                              // compatible to fusion 360
+    iso: { pos: new THREE.Vector3(1, 1, 1), z_rot: 0 },
+    front: { pos: new THREE.Vector3(0, 0, 1), z_rot: 0 },
+    rear: { pos: new THREE.Vector3(0, 0, -1), z_rot: 0 },
+    left: { pos: new THREE.Vector3(-1, 0, 0), z_rot: 0 },
+    right: { pos: new THREE.Vector3(1, 0, 0), z_rot: 0 },
+    top: { pos: new THREE.Vector3(0, 1, 0), z_rot: 0 },
+    bottom: { pos: new THREE.Vector3(0, -1, 0), z_rot: 0 },
   },
-  z_up: {
-    iso: new THREE.Vector3(1, 1, 1),
-    front: new THREE.Vector3(1, 0, 0),
-    rear: new THREE.Vector3(-1, 0, 0),
-    left: new THREE.Vector3(0, 1, 0),
-    right: new THREE.Vector3(0, -1, 0),
-    top: new THREE.Vector3(0, 0, 1),
-    bottom: new THREE.Vector3(0, 0, -1),
+  z_up: {                              // compatible to FreeCAD, OnShape
+    iso: { pos: new THREE.Vector3(1, -1, 1), z_rot: 0 },
+    front: { pos: new THREE.Vector3(0, -1, 0), z_rot: 0 },
+    rear: { pos: new THREE.Vector3(0, 1, 0), z_rot: 0 },
+    left: { pos: new THREE.Vector3(-1, 0, 0), z_rot: 0 },
+    right: { pos: new THREE.Vector3(1, 0, 0), z_rot: 0 },
+    top: { pos: new THREE.Vector3(0, 0, 1), z_rot: -Math.PI / 2 },
+    bottom: { pos: new THREE.Vector3(0, 0, -1), z_rot: -Math.PI / 2 },
+  },
+  legacy: {                            // legacy Z up
+    iso: { pos: new THREE.Vector3(1, 1, 1), z_rot: 0 },
+    front: { pos: new THREE.Vector3(1, 0, 0), z_rot: 0 },
+    rear: { pos: new THREE.Vector3(-1, 0, 0), z_rot: 0 },
+    left: { pos: new THREE.Vector3(0, 1, 0), z_rot: 0 },
+    right: { pos: new THREE.Vector3(0, -1, 0), z_rot: 0 },
+    top: { pos: new THREE.Vector3(0, 0, 1), z_rot: 0 },
+    bottom: { pos: new THREE.Vector3(0, 0, -1), z_rot: 0 },
   }
 };
 
 const cameraUp = {
   y_up: [0, 1, 0],
   z_up: [0, 0, 1],
+  legacy: [0, 0, 1],
 }
 
 class Camera {
@@ -37,9 +47,14 @@ class Camera {
    * @param {string} up - Z or Y to define whether Z or Y direction is camera up.
    **/
   constructor(width, height, distance, target, ortho, up) {
+    const mapping = {
+      "Y": "y_up",
+      "Z": "z_up",
+      "L": "legacy"
+    }
     this.target = new THREE.Vector3(...target);
     this.ortho = ortho;
-    this.up = (up == "Y") ? "y_up" : "z_up";
+    this.up = mapping[up];
     this.yaxis = new THREE.Vector3(0, 1, 0);
     this.zaxis = new THREE.Vector3(0, 0, 1);
 
@@ -175,8 +190,14 @@ class Camera {
       zoom = this.camera.zoom;
     }
     // For the default directions quaternion can be ignored, it will be reset automatically
-    this.setupCamera(true, defaultDirections[this.up][dir], null, zoom);
+    this.setupCamera(true, defaultDirections[this.up][dir].pos, null, zoom);
     this.lookAtTarget();
+    if (defaultDirections[this.up][dir].z_rot != 0) {
+      var quaternion = new THREE.Quaternion();
+      quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), defaultDirections[this.up][dir].z_rot);
+      quaternion.multiply(this.getQuaternion())
+      this.setQuaternion(quaternion);
+    }
   }
 
   /**
