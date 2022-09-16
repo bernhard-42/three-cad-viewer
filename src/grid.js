@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 class Grid {
-  constructor(display, bbox, ticks, axes0, grid) {
+  constructor(display, bbox, ticks, axes0, grid, flipY) {
     if (ticks === undefined) {
       ticks = 10;
     }
@@ -38,7 +38,7 @@ class Grid {
     this.gridHelper[1].rotateY(Math.PI / 2);
     this.gridHelper[2].rotateZ(Math.PI / 2);
 
-    this.setCenter(axes0);
+    this.setCenter(axes0, flipY);
 
     this.setVisible();
   }
@@ -134,13 +134,13 @@ class Grid {
     this.computeGrid();
   }
 
-  setCenter(axes0) {
+  setCenter(axes0, flipY) {
     if (axes0) {
       for (var i = 0; i < 3; i++) {
         this.gridHelper[i].position.set(0, 0, 0);
       }
       this.gridHelper[0].position.z = -this.size / 2;
-      this.gridHelper[1].position.y = -this.size / 2;
+      this.gridHelper[1].position.y = ((flipY ? 1 : -1) * this.size) / 2;
       this.gridHelper[2].position.x = -this.size / 2;
     } else {
       const c = this.bbox.center();
@@ -148,7 +148,7 @@ class Grid {
         this.gridHelper[i].position.set(...c);
       }
       this.gridHelper[0].position.z = -this.size / 2 + c[2];
-      this.gridHelper[1].position.y = -this.size / 2 + c[1];
+      this.gridHelper[1].position.y = ((flipY ? 1 : -1) * this.size) / 2 + c[1];
       this.gridHelper[2].position.x = -this.size / 2 + c[0];
     }
   }

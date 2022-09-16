@@ -1237,7 +1237,7 @@ class Viewer {
    */
   setAxes0 = (flag, notify = true) => {
     this.axes0 = flag;
-    this.gridHelper.setCenter(flag);
+    this.gridHelper.setCenter(flag, this.up == "Z");
     this.display.setAxes0Check(flag);
     this.axesHelper.setCenter(flag);
 
