@@ -709,6 +709,7 @@ class Viewer {
       this.ticks,
       this.axes0,
       this.grid,
+      options.up == "Z",
     );
     this.gridHelper.computeGrid();
 
@@ -1062,7 +1063,7 @@ class Viewer {
       this.treeview.removeLabelHighlight();
     }
   }
-  
+
   /**
    * Handle bounding box and notifications for picked elements
    * @function
@@ -1083,7 +1084,7 @@ class Viewer {
     const object = this.nestedGroup.groups[id];
     const boundingBox = new BoundingBox().setFromObject(object, true);
 
-    if(this.lastBbox != null && this.lastBbox.id === id && !meta && !shift){
+    if (this.lastBbox != null && this.lastBbox.id === id && !meta && !shift) {
       this.removeLastBbox();
     } else {
       if (highlight) {
@@ -1921,23 +1922,27 @@ class Viewer {
    * @param {number} treeWidth - new width of navigation tree
    * @param {number} height - new height of CAD View
    * @param {boolean} [glass=false] - Whether to use glass mode or not
-   */  
-  resizeCadView(cadWidth, treeWidth, height, glass=false) {
+   */
+  resizeCadView(cadWidth, treeWidth, height, glass = false) {
     this.cadWidth = cadWidth;
     this.height = height;
-    
+
     // Adapt renderer dimensions
     this.renderer.setSize(cadWidth, height);
 
     // Adapt display dimensions
-    this.display.setSizes({"treeWidth": treeWidth, "cadWidth": cadWidth, "height": height});
+    this.display.setSizes({
+      treeWidth: treeWidth,
+      cadWidth: cadWidth,
+      height: height,
+    });
     this.display.cadView.children[2].style.width = `${cadWidth}px`;
     this.display.cadView.children[2].style.height = `${height}px`;
     this.display.glassMode(glass);
-    
+
     const fullWidth = cadWidth + (glass ? 0 : treeWidth);
     this.display.handleMoreButton(fullWidth);
-    
+
     // Adapt camers to new dimensions
     this.camera.changeDimensions(this.bb_radius, cadWidth, height);
 
