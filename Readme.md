@@ -120,15 +120,46 @@ For the deployment, see [Release.md](./Release.md)
 
 # Changes
 
-v1.5.7
+v1.7.0
 
-- fixed ids of checkboxes to be unique across the document
+- Changed Z orientation to follow standard CAD programs. The old behaviour can be still used by using uo="L" (legacy)
+
+v1.6.4
+
+- add support for color alpha channel
+
+v1.6.3
+
+- Introduce a new parameter "up" that determines whther camera up is Y (up="Y") or Z (up="Z")
+
+v1.6.2
+
+- Fixed bounding box max_dist_from_center algorithm
+
+v1.6.1
+
+- Increase minimum width to 970
+- Handle more button in glassMode function
+- Allow resizing after view is created
+
+v1.6.0
+
+- Disable jupyter cell select on shift mousedown in cad tree
+- Remove bounding box for isolate mode and improve click states
+- Center isolated objects around bounding box center
+- Extend help for picking/hiding/isolating
+- highlight tree node when element picked
+- A new bounding box algorithm (AABB)
+
+v1.5.9
+
+- fixed a regression from v1.5.8 around initial zoom value handling)
 
 v1.5.8
 
 - fixed glass and tools paramewter handling
 - fixed initial zoom for wide cad views with low height
 
-v1.5.9
+v1.5.7
 
-- fixed a regression from v1.5.8 around initial zoom value handling)
+- fixed ids of checkboxes to be unique across the document
