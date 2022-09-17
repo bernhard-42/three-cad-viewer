@@ -4,16 +4,16 @@
 <head>
   <meta charset="utf-8" />
   <title>CadQuery Viewer</title>
-  <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css" /> <!-- 1.6.3 -->
+  <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css" /> <!-- 1.7.0 -->
 
   <!-- UMD import -->
   <!-- <script src='./dist/three-cad-viewer.js'></script> -->
 
   <script src="./examples/hexapod.js"></script>
-  <script src="./examples/hexapod-mates.js"></script>
   <script src="./examples/box.js"></script>
   <script src="./examples/dirbox.js"></script>
   <script src="./examples/longbox.js"></script>
+  <script src="./examples/orientation-box.js"></script>
   <script src="./examples/box-edges.js"></script>
   <script src="./examples/box1.js"></script>
   <script src="./examples/boxes.js"></script>
@@ -35,9 +35,9 @@
 
     const examples = [
       hexapod,
-      hexapod_mates,
       linkage,
       box,
+      orient_box,
       dirbox,
       box1,
       boxes,
@@ -205,7 +205,7 @@
     function showViewer(control, mode) {
       const container = document.getElementById("cad_view_001");
       container.innerHTML = ""
-      if(mode == "glass") {
+      if (mode == "glass") {
         displayOptions.glass = true;
         displayOptions.tools = true
       } else if (mode == "no tools") {
@@ -283,7 +283,8 @@
     Demo:
     <span id="navigation" class="selection">
       UI
-      <select class="select" onchange="window.showViewer(window.controlMode, this.options.item(this.selectedIndex).text);">
+      <select class="select"
+        onchange="window.showViewer(window.controlMode, this.options.item(this.selectedIndex).text);">
         <option value="default">default</option>
         <option value="glass">glass</option>
         <option value="notools">no tools</option>
@@ -292,11 +293,14 @@
 
     <span id="control" class="selection">
       Control
-      <select class="select" onchange="window.showViewer(this.options.item(this.selectedIndex).text, window.viewerMode);">
+      <select class="select"
+        onchange="window.showViewer(this.options.item(this.selectedIndex).text, window.viewerMode);">
         <option value="trackball">trackball/Z up</option>
         <option value="trackball">trackball/Y up</option>
+        <option value="trackball">trackball/Legacy</option>
         <option value="orbit">orbit/Z up</option>
         <option value="orbit">orbit/Y up</option>
+        <option value="orbit">orbit/Legacy</option>
       </select>
     </span>
 
@@ -305,10 +309,10 @@
       <select class="select"
         onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; render(window.selectedExample, ...window.examples[window.selectedIndex]);">
         <option value="hexapod">hexapod</option>
-        <option value="hexapod_mates">hexapod_mates</option>
         <option value="linkage">linkage</option>
         <option value="box">box</option>
-        <option value="box">dirbox</option>
+        <option value="box">orient-box</option>
+        <option value="box">dir-box</option>
         <option value="box1">box1</option>
         <option value="boxes">boxes</option>
         <option value="faces">faces</option>
