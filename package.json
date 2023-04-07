@@ -22,7 +22,7 @@
   "author": "Bernhard Walter",
   "license": "MIT",
   "dependencies": {
-    "three": "0.139.2"
+    "three": "^0.151.3"
   },
   "devDependencies": {
     "@babel/core": "^7.14.8",
