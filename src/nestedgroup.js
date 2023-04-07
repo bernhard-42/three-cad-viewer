@@ -401,6 +401,11 @@ class NestedGroup {
             states[shape.id],
           );
       }
+      // support object locations
+      if (shape.loc != null) {
+        mesh.position.set(...shape.loc[0]);
+        mesh.quaternion.set(...shape.loc[1]);
+      }
       return mesh;
     };
 
