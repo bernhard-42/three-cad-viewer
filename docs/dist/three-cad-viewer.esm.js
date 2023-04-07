@@ -54263,7 +54263,7 @@ class NestedGroup {
       this.edgeColor,
       renderback,
     );
-    
+
     if (alpha == null) {
       alpha = 1.0;
     } else if (alpha < 1.0) {
@@ -54296,7 +54296,7 @@ class NestedGroup {
       side: FrontSide,
       visible: states[0] == 1,
     });
-    
+
     const backMaterial = new MeshBasicMaterial({
       color: new Color(this.edgeColor),
       side: BackSide,
@@ -54318,7 +54318,7 @@ class NestedGroup {
 
     const back = new Mesh(shapeGeometry, backMaterial);
     back.name = name;
-    
+
     // ensure, transparent objects will be rendered at the end
     if (alpha < 1.0) {
       back.renderOrder = 999;
@@ -54380,6 +54380,11 @@ class NestedGroup {
             shape.name,
             states[shape.id],
           );
+      }
+      // support object locations
+      if (shape.loc != null) {
+        mesh.position.set(...shape.loc[0]);
+        mesh.quaternion.set(...shape.loc[1]);
       }
       return mesh;
     };
@@ -54951,7 +54956,7 @@ class TreeView {
     var lbl = tag("span", ["tcv_tree_label"]);
     lbl.innerHTML = model.name;
     lbl.id = model.id;
-    
+
     lbl.addEventListener("mousedown", (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -55104,8 +55109,13 @@ class TreeView {
     // eslint-disable-next-line no-unused-vars
     var observer = new MutationObserver((_mutuations) => {
       if (this.container.contains(tree)) {
-        if (collapse > 0 && collapse < 3) {
-          this.collapseNodes(collapse);
+        // keep a group with one element expanded
+        if ((this.tree.children.length === 1) && (this.tree.children[0].type === "leaf")) {
+          this.expandNodes();
+        } else {
+          if (collapse > 0 && collapse < 3) {
+            this.collapseNodes(collapse);
+          }
         }
         observer.disconnect();
       }
@@ -57690,7 +57700,7 @@ class Camera {
   }
 }
 
-const version="1.7.0";
+const version="1.7.2";
 
 class Viewer {
   /**
@@ -58462,8 +58472,8 @@ class Viewer {
 
     const theme =
       this.theme === "dark" ||
-      (this.theme === "browser" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
+        (this.theme === "browser" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 
@@ -58496,6 +58506,9 @@ class Viewer {
     );
 
     this.display.autoCollapse();
+    if (this.treeview.tree.children.length === 1) {
+      this.treeview.expandNodes();
+    }
 
     //
     // show the rendering
