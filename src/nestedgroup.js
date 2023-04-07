@@ -283,7 +283,7 @@ class NestedGroup {
       this.edgeColor,
       renderback,
     );
-    
+
     if (alpha == null) {
       alpha = 1.0;
     } else if (alpha < 1.0) {
@@ -316,7 +316,7 @@ class NestedGroup {
       side: THREE.FrontSide,
       visible: states[0] == 1,
     });
-    
+
     const backMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color(this.edgeColor),
       side: THREE.BackSide,
@@ -338,7 +338,7 @@ class NestedGroup {
 
     const back = new THREE.Mesh(shapeGeometry, backMaterial);
     back.name = name;
-    
+
     // ensure, transparent objects will be rendered at the end
     if (alpha < 1.0) {
       back.renderOrder = 999;
