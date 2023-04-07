@@ -786,8 +786,8 @@ class Viewer {
 
     const theme =
       this.theme === "dark" ||
-      (this.theme === "browser" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
+        (this.theme === "browser" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 
@@ -820,6 +820,9 @@ class Viewer {
     );
 
     this.display.autoCollapse();
+    if (this.treeview.tree.children.length === 1) {
+      this.treeview.expandNodes();
+    }
 
     //
     // show the rendering

@@ -91,7 +91,7 @@ class TreeView {
     var lbl = tag("span", ["tcv_tree_label"]);
     lbl.innerHTML = model.name;
     lbl.id = model.id;
-    
+
     lbl.addEventListener("mousedown", (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -244,8 +244,13 @@ class TreeView {
     // eslint-disable-next-line no-unused-vars
     var observer = new MutationObserver((_mutuations) => {
       if (this.container.contains(tree)) {
-        if (collapse > 0 && collapse < 3) {
-          this.collapseNodes(collapse);
+        // keep a group with one element expanded
+        if ((this.tree.children.length === 1) && (this.tree.children[0].type === "leaf")) {
+          this.expandNodes();
+        } else {
+          if (collapse > 0 && collapse < 3) {
+            this.collapseNodes(collapse);
+          }
         }
         observer.disconnect();
       }
