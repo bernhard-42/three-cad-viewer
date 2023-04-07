@@ -218,16 +218,19 @@
 
       window.viewerMode = mode;
       console.log(control);
+      console.log(window.controlMode);
+      window.controlMode = control;
       var control_up = control.split("/");
-      window.controlMode = control_up[0];
-      window.up = control_up[1][0];
+      // console.log(control_up);
+      // window.controlMode = control_up[0];
+      // window.up = control_up[1][0];
 
       viewer = new Viewer(container, displayOptions, nc);
 
       timer.split("display created");
 
-      viewerOptions.control = window.controlMode;
-      viewerOptions.up = window.up;
+      viewerOptions.control = control_up[0];
+      viewerOptions.up = control_up[1][0];
 
       render(window.selectedExample, ...examples[window.selectedIndex]);
       timer.stop();
