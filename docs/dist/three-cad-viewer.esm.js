@@ -57649,15 +57649,13 @@ class Camera {
     this.pCamera.lookAt(this.target);
 
     // define the orthographic camera
-
-    const w = distance * 1.35;
-    const h = (distance * 1.35) / aspect;
+    const pSize = this.projectSize(distance, aspect);
 
     this.oCamera = new OrthographicCamera(
-      -w,
-      w,
-      h,
-      -h,
+      -pSize[0],
+      pSize[0],
+      pSize[1],
+      -pSize[1],
       0.1,
       100 * distance,
     );
@@ -57720,6 +57718,23 @@ class Camera {
     this.setQuaternion(q0);
 
     this.updateProjectionMatrix();
+  }
+
+  /**
+   * Calculate projected size for orthographic ca,era
+   * @param {number} frustum - view frustum.
+   * @param {number} aspect - viewer aspect (width / height).
+   **/
+  projectSize(frustum, aspect) {
+    var w, h;
+    if (aspect < 1) {
+      w = frustum;
+      h = w / aspect;
+    } else {
+      h = frustum;
+      w = h * aspect;
+    }
+    return [w, h];
   }
 
   /**
@@ -57863,13 +57878,12 @@ class Camera {
 
   changeDimensions(distance, width, height) {
     const aspect = width / height;
-    const w = distance * 1.35;
-    const h = (distance * 1.35) / aspect;
+    const pSize = this.projectSize(distance, aspect);
 
-    this.oCamera.left = -w;
-    this.oCamera.right = w;
-    this.oCamera.top = h;
-    this.oCamera.bottom = -h;
+    this.oCamera.left = -pSize[0];
+    this.oCamera.right = pSize[0];
+    this.oCamera.top = pSize[1];
+    this.oCamera.bottom = -pSize[1];
 
     this.pCamera.aspect = aspect;
 
@@ -57877,7 +57891,7 @@ class Camera {
   }
 }
 
-const version="1.7.3";
+const version="1.7.4";
 
 class Viewer {
   /**
@@ -58050,10 +58064,7 @@ class Viewer {
     this.quaternion = null;
     this.target = null;
 
-    this.zoom = 4 / 3;
-    if (this.cadWidth >= this.height) {
-      this.zoom *= this.height / this.cadWidth;
-    }
+    this.zoom = 1;
 
     this.panSpeed = 0.5;
     this.rotateSpeed = 1.0;
