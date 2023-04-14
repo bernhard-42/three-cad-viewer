@@ -34,7 +34,7 @@ const cameraUp = {
   y_up: [0, 1, 0],
   z_up: [0, 0, 1],
   legacy: [0, 0, 1],
-}
+};
 
 class Camera {
   /**
@@ -51,7 +51,7 @@ class Camera {
       "Y": "y_up",
       "Z": "z_up",
       "L": "legacy"
-    }
+    };
     this.target = new THREE.Vector3(...target);
     this.ortho = ortho;
     this.up = mapping[up];
@@ -77,15 +77,13 @@ class Camera {
     this.pCamera.lookAt(this.target);
 
     // define the orthographic camera
-
-    const w = distance * 1.35;
-    const h = (distance * 1.35) / aspect;
+    const pSize = this.projectSize(distance, aspect);
 
     this.oCamera = new THREE.OrthographicCamera(
-      -w,
-      w,
-      h,
-      -h,
+      -pSize[0],
+      pSize[0],
+      pSize[1],
+      -pSize[1],
       0.1,
       100 * distance,
     );
@@ -151,6 +149,23 @@ class Camera {
   }
 
   /**
+   * Calculate projected size for orthographic ca,era
+   * @param {number} frustum - view frustum.
+   * @param {number} aspect - viewer aspect (width / height).
+   **/
+  projectSize(frustum, aspect) {
+    var w, h;
+    if (aspect < 1) {
+      w = frustum;
+      h = w / aspect;
+    } else {
+      h = frustum;
+      w = h * aspect;
+    }
+    return [w, h];
+  }
+
+  /**
    * Setup the current camera.
    * @param {boolean} relative - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
    * @param {THREE.Vector3} position - the camera position (relative or absolute).
@@ -195,7 +210,7 @@ class Camera {
     if (defaultDirections[this.up][dir].z_rot != 0) {
       var quaternion = new THREE.Quaternion();
       quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), defaultDirections[this.up][dir].z_rot);
-      quaternion.multiply(this.getQuaternion())
+      quaternion.multiply(this.getQuaternion());
       this.setQuaternion(quaternion);
     }
   }
@@ -291,13 +306,12 @@ class Camera {
 
   changeDimensions(distance, width, height) {
     const aspect = width / height;
-    const w = distance * 1.35;
-    const h = (distance * 1.35) / aspect;
+    const pSize = this.projectSize(distance, aspect);
 
-    this.oCamera.left = -w;
-    this.oCamera.right = w;
-    this.oCamera.top = h;
-    this.oCamera.bottom = -h;
+    this.oCamera.left = -pSize[0];
+    this.oCamera.right = pSize[0];
+    this.oCamera.top = pSize[1];
+    this.oCamera.bottom = -pSize[1];
 
     this.pCamera.aspect = aspect;
 
