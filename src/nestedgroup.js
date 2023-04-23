@@ -263,7 +263,7 @@ class NestedGroup {
     return group;
   }
 
-  renderShape(shape, color, alpha, renderback, name, states) {
+  renderShape(shape, color, alpha, renderback, path, name, states) {
     const positions =
       shape.vertices instanceof Float32Array
         ? shape.vertices
@@ -283,6 +283,10 @@ class NestedGroup {
       this.edgeColor,
       renderback,
     );
+
+    path = path + this.delim + name;
+    this.groups[path.replaceAll(this.delim, "/")] = group;
+    group.name = path;
 
     if (alpha == null) {
       alpha = 1.0;
@@ -397,6 +401,7 @@ class NestedGroup {
             shape.color,
             shape.alpha,
             shape.renderback == null ? false : shape.renderback,
+            path,
             shape.name,
             states[shape.id],
           );
