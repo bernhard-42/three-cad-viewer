@@ -1847,45 +1847,36 @@ class Viewer {
       var bb = new THREE.Box3().setFromObject(this.nestedGroup.rootGroup);
       bb.getCenter(worldCenterOrOrigin);
     }
-
     for (var id in this.nestedGroup.groups) {
       // Loop over all Group elements
-      if (!(this.nestedGroup.groups[id] instanceof ObjectGroup)) {
-        var group = this.nestedGroup.groups[id];
+      var group = this.nestedGroup.groups[id];
 
-        // Get and combine all bounding boxes of ObjectGroups
-        // Do not use the Group, since it returns the bounding box of the underlying
-        // group hierarchy instead of the object(s)
-        var b = new THREE.Box3();
-        group.children.forEach((child) => {
-          if (child instanceof ObjectGroup) {
-            b.expandByObject(child);
-          }
-        });
-        if (b.isEmpty()) {
-          continue;
-        }
-        b.getCenter(worldObjectCenter);
-
-        // Explode around global center or origin
-        worldDirection = worldObjectCenter.sub(worldCenterOrOrigin);
-        localDirection = group.parent.worldToLocal(worldDirection.clone());
-
-        // Use the parent to calculate the local directions
-        scaledLocalDirection = group.parent.worldToLocal(
-          worldDirection.clone().multiplyScalar(multiplier),
-        );
-        // and ensure to shift objects at its center and not at its position
-        scaledLocalDirection.sub(localDirection);
-
-        // build an animation track for the group with this direction
-        this.addAnimationTrack(
-          id,
-          "t",
-          [0, duration],
-          [[0, 0, 0], scaledLocalDirection.toArray()],
-        );
+      var b = new THREE.Box3();
+      if (group instanceof ObjectGroup) {
+        b.expandByObject(group);
       }
+      if (b.isEmpty()) {
+        continue;
+      }
+      b.getCenter(worldObjectCenter);
+      // Explode around global center or origin
+      worldDirection = worldObjectCenter.sub(worldCenterOrOrigin);
+      localDirection = group.parent.worldToLocal(worldDirection.clone());
+
+      // Use the parent to calculate the local directions
+      scaledLocalDirection = group.parent.worldToLocal(
+        worldDirection.clone().multiplyScalar(multiplier),
+      );
+      // and ensure to shift objects at its center and not at its position
+      scaledLocalDirection.sub(localDirection);
+
+      // build an animation track for the group with this direction
+      this.addAnimationTrack(
+        id,
+        "t",
+        [0, duration],
+        [[0, 0, 0], scaledLocalDirection.toArray()],
+      );
     }
     this.initAnimation(duration, speed, "E", false);
   }
