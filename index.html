@@ -10,6 +10,7 @@
   <!-- <script src='./dist/three-cad-viewer.js'></script> -->
 
   <script src="./examples/hexapod.js"></script>
+  <script src="./examples/hexapod_b3d.js"></script>
   <script src="./examples/box.js"></script>
   <script src="./examples/dirbox.js"></script>
   <script src="./examples/longbox.js"></script>
@@ -35,6 +36,7 @@
 
     const examples = [
       hexapod,
+      hexapod_b3d,
       linkage,
       box,
       orient_box,
@@ -312,6 +314,7 @@
       <select class="select"
         onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; render(window.selectedExample, ...window.examples[window.selectedIndex]);">
         <option value="hexapod">hexapod</option>
+        <option value="hexapod_b3d">hexapod(build123d)</option>
         <option value="linkage">linkage</option>
         <option value="box">box</option>
         <option value="box">orient-box</option>
