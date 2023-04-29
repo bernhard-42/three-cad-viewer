@@ -54366,7 +54366,7 @@ class NestedGroup {
     return edges;
   }
 
-  renderEdges(edgeList, lineWidth, color, name, state) {
+  renderEdges(edgeList, lineWidth, color, path, name, state) {
     var group = new ObjectGroup(
       this.defaultOpacity,
       1.0,
@@ -54379,10 +54379,14 @@ class NestedGroup {
     }
     group.addType(edges, "edges");
 
+    path = path + this.delim + name;
+    this.groups[path.replaceAll(this.delim, "/")] = group;
+    group.name = path;
+
     return group;
   }
 
-  renderVertices(vertexList, size, color, name, state) {
+  renderVertices(vertexList, size, color, path, name, state) {
     var group = new ObjectGroup(
       this.defaultOpacity,
       1.0,
@@ -54416,6 +54420,10 @@ class NestedGroup {
       points.name = name;
     }
     group.addType(points, "vertices");
+
+    path = path + this.delim + name;
+    this.groups[path.replaceAll(this.delim, "/")] = group;
+    group.name = path;
 
     return group;
   }
@@ -54539,6 +54547,7 @@ class NestedGroup {
             shape.shape,
             shape.width,
             shape.color,
+            path,
             shape.name,
             states[shape.id][1],
           );
@@ -54548,6 +54557,7 @@ class NestedGroup {
             shape.shape,
             shape.size,
             shape.color,
+            path,
             shape.name,
             states[shape.id][1],
           );
@@ -57896,7 +57906,7 @@ class Camera {
   }
 }
 
-const version="1.7.8";
+const version="1.7.9";
 
 class Viewer {
   /**
