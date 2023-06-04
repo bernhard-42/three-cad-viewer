@@ -1143,7 +1143,7 @@ class Viewer {
         this.treeview.hideAll();
         this.setState(id, [1, 1], nodeType);
         const center = boundingBox.center();
-        this.setCameraTarget(center);
+        this.controls.setTarget(new THREE.Vector3(...center));
         this.info.centerInfo(center);
       } else {
         this.info.bbInfo(path, name, boundingBox);
