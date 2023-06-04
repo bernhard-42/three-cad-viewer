@@ -100,9 +100,18 @@ function TEMPLATE(id) {
                         type="button" />
                 </div>
                 <div class="tcv_cad_tree_toggles">
-                    <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value="1" type="button" />
-                    <input class='tcv_collapse_all tcv_btn tcv_small_btn' value="C" type="button" />
-                    <input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
+                    <span class="tcv_tooltip" data-tooltip="Collpase nodes with a single leaf">
+                      <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value="1" type="button" />
+                    </span>
+                    <span class="tcv_tooltip" data-tooltip="Expand root node only">
+                      <input class='tcv_expand_root tcv_btn tcv_small_btn' value="R" type="button" />
+                    </span>
+                    <span class="tcv_tooltip" data-tooltip="Collpase tree">
+                      <input class='tcv_collapse_all tcv_btn tcv_small_btn' value="C" type="button" />
+                    </span>
+                    <span class="tcv_tooltip" data-tooltip="Expand tree">
+                      <input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
+                    </span>
                 </div>
                 <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
                     <div class="tcv_cad_tree_container"></div>
@@ -251,6 +260,10 @@ function TEMPLATE(id) {
                     <tr>
                         <td>Collapse single leafs</td>
                         <td>Button '1' (all nodes with one leaf only)</td>
+                    </tr>
+                    <tr>
+                        <td>Expand root only</td>
+                        <td>Button 'R'</td>
                     </tr>
                     <tr>
                         <td>Collapse all nodes</td>
@@ -572,6 +585,7 @@ class Display {
       this._setupClickEvent(name, this.setView);
     });
 
+    this._setupClickEvent("tcv_expand_root", this.handleCollapseNodes);
     this._setupClickEvent("tcv_collapse_singles", this.handleCollapseNodes);
     this._setupClickEvent("tcv_collapse_all", this.handleCollapseNodes);
     this._setupClickEvent("tcv_expand", this.handleCollapseNodes);
@@ -1059,12 +1073,15 @@ class Display {
 
   /**
    * Collapse nodes handler
-   * @param {string} value - 1: collapse all leaf nodes, 2: collapse all nodes, "E": expand all nodes
+   * @param {string} value - 1: collapse all leaf nodes, "R": expand root level only, "C": collapse all nodes, "E": expand all nodes
    */
   collapseNodes(value) {
     if (value === "1") {
       this.viewer.treeview.expandNodes();
       this.viewer.treeview.collapseNodes(1);
+    } else if (value === "R") {
+      this.viewer.treeview.expandNodes();
+      this.viewer.treeview.collapseNodes(3);
     } else if (value === "C") {
       this.viewer.treeview.collapseNodes(2);
     } else if (value === "E") {

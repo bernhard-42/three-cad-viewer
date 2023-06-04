@@ -248,7 +248,7 @@ class TreeView {
         if ((this.tree.children.length === 1) && (this.tree.children[0].type === "leaf")) {
           this.expandNodes();
         } else {
-          if (collapse > 0 && collapse < 3) {
+          if (collapse > 0 && collapse < 4) {
             this.collapseNodes(collapse);
           }
         }
@@ -337,8 +337,9 @@ class TreeView {
     var walk = (obj) => {
       if (obj.type == "node") {
         if (
-          (mode == 1 &&
-            obj.children.length === 1 &&
+          ((mode == 1 || mode == 3) &&
+            (obj.children.length === 1 || mode == 3) &&
+            obj !== this.tree &&
             obj.children[0].type === "leaf") ||
           mode == 2
         ) {
