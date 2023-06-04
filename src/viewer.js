@@ -616,9 +616,10 @@ class Viewer {
     timer.split("rendered nested group");
 
     this.bbox = this.nestedGroup.boundingBox();
+    const center = new THREE.Vector3();
+    this.bbox.getCenter(center);
     this.bb_max = this.bbox.max_dist_from_center();
-    this.bb_radius = this.bbox.boundingSphere().radius;
-
+    this.bb_radius = Math.max(this.bbox.boundingSphere().radius, center.length());
     timer.split("bounding box");
 
     //
