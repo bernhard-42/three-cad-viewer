@@ -52004,12 +52004,16 @@ class Display {
   setExplode = (e) => {
     const flag = !!e.target.checked;
     if (flag) {
-      this.viewer.backupAnimation();
+      if (this.viewer.hasAnimation()) {
+        this.viewer.backupAnimation();
+      }
       this.viewer.explode();
     } else {
-      this.controlAnimationByName("stop");
-      this.viewer.clearAnimation();
-      this.viewer.restoreAnimation();
+      if (this.viewer.hasAnimation()) {
+        this.controlAnimationByName("stop");
+        this.viewer.clearAnimation();
+        this.viewer.restoreAnimation();
+      }
     }
   };
 
@@ -57747,7 +57751,7 @@ class Camera {
   }
 }
 
-const version="1.7.10";
+const version="1.7.11";
 
 class Viewer {
   /**
@@ -58095,6 +58099,15 @@ class Viewer {
     this.display.setAnimationLabel(label);
     this.display.resetAnimationSlider();
   }
+
+
+  /**
+   * Check whether animation object exists
+   */
+  hasAnimation() {
+    return !!this.animation.clipAction;
+  }
+
 
   /**
    * Clear the animation obect and dispose dependent objects
