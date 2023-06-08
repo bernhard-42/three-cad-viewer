@@ -363,6 +363,15 @@ class Viewer {
     this.display.resetAnimationSlider();
   }
 
+
+  /**
+   * Check whether animation object exists
+   */
+  hasAnimation() {
+    return !!this.animation.clipAction;
+  }
+
+
   /**
    * Clear the animation obect and dispose dependent objects
    */

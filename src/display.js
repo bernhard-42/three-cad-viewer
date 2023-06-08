@@ -817,12 +817,16 @@ class Display {
   setExplode = (e) => {
     const flag = !!e.target.checked;
     if (flag) {
-      this.viewer.backupAnimation();
+      if (this.viewer.hasAnimation()) {
+        this.viewer.backupAnimation();
+      }
       this.viewer.explode();
     } else {
-      this.controlAnimationByName("stop");
-      this.viewer.clearAnimation();
-      this.viewer.restoreAnimation();
+      if (this.viewer.hasAnimation()) {
+        this.controlAnimationByName("stop");
+        this.viewer.clearAnimation();
+        this.viewer.restoreAnimation();
+      }
     }
   };
 
