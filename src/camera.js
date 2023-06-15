@@ -308,14 +308,20 @@ class Camera {
     const aspect = width / height;
     const pSize = this.projectSize(distance, aspect);
 
-    this.oCamera.left = -pSize[0];
-    this.oCamera.right = pSize[0];
-    this.oCamera.top = pSize[1];
-    this.oCamera.bottom = -pSize[1];
+    if (this.oCamera){
+      this.oCamera.left = -pSize[0];
+      this.oCamera.right = pSize[0];
+      this.oCamera.top = pSize[1];
+      this.oCamera.bottom = -pSize[1];
+    }
 
-    this.pCamera.aspect = aspect;
-
-    this.camera.updateProjectionMatrix();
+    if (this.pCamera){
+      this.pCamera.aspect = aspect;
+    }
+    
+    if (this.camera) {
+      this.camera.updateProjectionMatrix();
+    }
   }
 }
 

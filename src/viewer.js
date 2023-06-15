@@ -460,17 +460,17 @@ class Viewer {
       if (this.animation) {
         this.animation.update();
       }
-    }
-
-    this.checkChanges(
-      {
-        zoom: this.camera.getZoom(),
-        position: this.camera.getPosition().toArray(),
-        quaternion: this.camera.getQuaternion().toArray(),
-        target: this.controls.getTarget().toArray(),
-      },
-      notify,
-    );
+      
+      this.checkChanges(
+        {
+          zoom: this.camera.getZoom(),
+          position: this.camera.getPosition().toArray(),
+          quaternion: this.camera.getQuaternion().toArray(),
+          target: this.controls.getTarget().toArray(),
+        },
+        notify,
+        );
+      }
   };
 
   /**
@@ -586,6 +586,7 @@ class Viewer {
 
       // dispose scene
       this.scene = null;
+      this.ready = false;
     }
   }
 
