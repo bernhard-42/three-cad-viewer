@@ -143,7 +143,9 @@ class Viewer {
    */
   setRenderDefaults(options) {
     this.ambientIntensity = 0.5;
-    this.directIntensity = 0.3;
+    this.directIntensity = 0.6;
+    this.metalness = 0.7;
+    this.roughness = 0.7;
     this.defaultOpacity = 0.5;
     this.edgeColor = 0x707070;
     this.normalLen = 0;
@@ -264,6 +266,8 @@ class Viewer {
       this.edgeColor,
       this.transparent,
       this.defaultOpacity,
+      this.metalness,
+      this.roughness,
       this.normalLen,
     );
     nestedGroup.render(states);
@@ -437,6 +441,7 @@ class Viewer {
 
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
+      this.directLight.position.copy(this.camera.getCamera().position);
 
       if (
         this.lastBbox != null &&
@@ -621,6 +626,8 @@ class Viewer {
 
     this.nestedGroup.setTransparent(this.transparent);
     this.nestedGroup.setBlackEdges(this.blackEdges);
+    this.nestedGroup.setMetalness(this.metalness);
+    this.nestedGroup.setRoughness(this.roughness);
     this.nestedGroup.setPolygonOffset(2);
 
     timer.split("rendered nested group");
@@ -694,19 +701,13 @@ class Viewer {
     const amb_light = new THREE.AmbientLight(0xffffff, this.ambientIntensity);
     this.scene.add(amb_light);
 
-    for (var xpos of [-this.bb_max, this.bb_max]) {
-      for (var ypos of [-this.bb_max, this.bb_max]) {
-        for (var zpos of [-this.bb_max, this.bb_max]) {
-          const directionalLight = new THREE.DirectionalLight(
-            0xffffff,
-            this.directIntensity,
-          );
-          directionalLight.position.set(10 * xpos, 10 * ypos, 10 * zpos);
-          this.scene.add(directionalLight);
-        }
-      }
-    }
+    // this.directLight = new THREE.PointLight(0xffffff, this.directIntensity);
+    this.directLight = new THREE.DirectionalLight(0xffffff, this.directIntensity);
+    this.scene.add(this.directLight);
 
+    this.setAmbientLight(this.ambientIntensity);
+    this.setDirectLight(this.directIntensity);
+    
     //
     // add grid helpers
     //
@@ -775,6 +776,11 @@ class Viewer {
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
 
     this.setLocalClipping(false); // only allow clipping when Clipping tab is selected
+
+    this.display.metalnessSlider.setValue(this.metalness*100);
+    this.display.roughnessSlider.setValue(this.roughness*100);
+    this.display.ambientlightSlider.setValue(this.ambientIntensity*100);
+    this.display.directionallightSlider.setValue(this.directIntensity*100);
 
     //
     // set up the orientation marker
@@ -855,6 +861,8 @@ class Viewer {
         clip_normal_2: { old: null, new: this.clipNormal2 },
       });
     }
+    this.update(false, false);
+
     timer.stop();
   }
 
@@ -1289,6 +1297,27 @@ class Viewer {
     this.update(this.updateMarker);
   };
 
+  getMetalness = () => {
+    return this.metalness;
+  };
+
+  setMetalness = (value, notify = true) => {
+    this.metalness = value;
+    this.nestedGroup.setMetalness(value);
+    this.checkChanges({ metalness: value }, notify);
+    this.update(this.updateMarker);
+  };
+  getRoughness = () => {
+    return this.roughness;
+  };
+
+  setRoughness = (value, notify = true) => {
+    this.roughness = value;
+    this.nestedGroup.setRoughness(value);
+    this.checkChanges({ roughness: value }, notify);
+    this.update(this.updateMarker);
+  };
+
   /**
    * Get transparency state of CAD objects.
    * @returns {boolean} transparent value.
@@ -1562,11 +1591,7 @@ class Viewer {
    */
   setDirectLight = (val, notify = true) => {
     this.directIntensity = val;
-    for (var el of this.scene.children) {
-      if (el instanceof THREE.DirectionalLight) {
-        el.intensity = val;
-      }
-    }
+    this.directLight.intensity = val;
     this.update(this.updateMarker, notify);
   };
 

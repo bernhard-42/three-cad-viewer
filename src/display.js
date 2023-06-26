@@ -166,6 +166,48 @@ function TEMPLATE(id) {
                             </span>
                         </div>
                     </div>
+                    <div class="tcv_cad_material_container">
+                        <div class="tcv_material_ambientlight tcv_label tcv_clip_checks">
+                          Ambient light intensity (in %)
+                        </div>
+                        <div class="tcv_slider_group">
+                            <div>
+                                <input type="range" min="0" max="20" value="1"
+                                    class="tcv_sld_value_ambientlight tcv_clip_slider">
+                                <input value=1 class="tcv_inp_value_ambientlight tcv_clip_input"></input>
+                            </div>
+                        </div>
+                        <div class="tcv_material_pointlight tcv_label">
+                          Point light intensity (in %)
+                        </div>
+                        <div class="tcv_slider_group">
+                            <div>
+                                <input type="range" min="0" max="40" value="1"
+                                    class="tcv_sld_value_pointlight tcv_clip_slider">
+                                <input value=1 class="tcv_inp_value_pointlight tcv_clip_input"></input>
+                            </div>
+                        </div>
+                        <div class="tcv_material_metalness tcv_label">
+                          Metalness (in %)
+                        </div>
+                        <div class="tcv_slider_group">
+                            <div>
+                                <input type="range" min="0" max="100" value="40"
+                                    class="tcv_sld_value_metalness tcv_clip_slider">
+                                <input value=40 class="tcv_inp_value_metalness tcv_clip_input"></input>
+                            </div>
+                        </div>
+                        <div class="tcv_material_roughness tcv_label">
+                          Roughness (in %)
+                        </div>
+                        <div class="tcv_slider_group">
+                            <div>
+                                <input type="range" min="0" max="100" value="40"
+                                    class="tcv_sld_value_roughness tcv_clip_slider">
+                                <input value=40 class="tcv_inp_value_roughness tcv_clip_input"></input>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="tcv_cad_info_wrapper">
@@ -305,16 +347,22 @@ const buttons = [
 ];
 class Slider {
   constructor(index, min, max, display) {
-    this.index = index;
+    if (index.startsWith("plane")) {
+      this.index = parseInt(index.substring(5));
+      this.type = "plane";
+    } else {
+      this.index = undefined;
+      this.type =index;
+    }
     this.display = display;
 
     this.slider = display.container.getElementsByClassName(
-      `tcv_sld_value_plane${index}`,
+      `tcv_sld_value_${index}`,
     )[0];
     this.slider.min = min;
     this.slider.max = max;
     this.input = display.container.getElementsByClassName(
-      `tcv_inp_value_plane${index}`,
+      `tcv_inp_value_${index}`,
     )[0];
     this.input.value = max;
     this.slider.oninput = this.sliderChange;
@@ -326,11 +374,32 @@ class Slider {
     change[`clip_slider_${this.index - 1}`] = parseFloat(value);
     this.display.viewer.checkChanges(change, notify);
   };
+  _handle(type, index, value) {
+    if (type == "plane"  ){
+      this.display.refreshPlane(index, value);
+    } else if (type === "ambientlight") {
+      if (this.display.viewer.ready){
+        this.display.viewer.setAmbientLight(value/100);
+      }
+    } else if (type === "pointlight") {
+      if (this.display.viewer.ready){
+        this.display.viewer.setDirectLight(value/100);
+      }
+    } else if (type === "metalness") {
+      if (this.display.viewer.ready){
+        this.display.viewer.setMetalness(value/100);
+      }
+    } else if (type === "roughness") {
+      if (this.display.viewer.ready){
+        this.display.viewer.setRoughness(value/100);
+      }
+    } 
+  }
 
   sliderChange = (e) => {
     const value = e.target.value;
     this.input.value = Math.round(1000 * value) / 1000;
-    this.display.refreshPlane(this.index, this.input.value);
+    this._handle(this.type, this.index, this.input.value);
     this._notify(value);
   };
 
@@ -343,7 +412,7 @@ class Slider {
     //     this.input.value = Math.round(1000 * value) / 1000;
     // }
     this.slider.value = value;
-    this.display.refreshPlane(this.index, this.input.value);
+    this._handle(this.type, this.index, this.input.value);
     this._notify(value);
   };
 
@@ -368,7 +437,7 @@ class Slider {
     );
     this.input.value = trimmed_value;
     this.slider.value = value;
-    this.display.refreshPlane(this.index, this.input.value);
+    this._handle(this.type, this.index, this.input.value);
     this._notify(value, notify);
   }
 }
@@ -391,8 +460,10 @@ class Display {
     this.cadTree = this._getElement("tcv_cad_tree_container");
     this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
     this.cadClip = this._getElement("tcv_cad_clip_container");
+    this.cadMaterial = this._getElement("tcv_cad_material_container");
     this.tabTree = this._getElement("tcv_tab_tree");
     this.tabClip = this._getElement("tcv_tab_clip");
+    this.tabMaterial = this._getElement("tcv_tab_material");
     this.cadInfo = this._getElement("tcv_cad_info_container");
     this.cadAnim = this._getElement("tcv_cad_animation");
 
@@ -417,6 +488,7 @@ class Display {
     this.activeTab = "tree";
     this.cadTree.style.display = "block";
     this.cadClip.style.display = "none";
+    this.cadMaterial.style.display = "none";
     this.clipSliders = null;
 
     this.lastPlaneState = false;
@@ -597,16 +669,21 @@ class Display {
     this.help_shown = true;
     this.info_shown = !this.glass;
 
-    const tabs = ["tcv_tab_tree", "tcv_tab_clip"];
+    const tabs = ["tcv_tab_tree", "tcv_tab_clip", "tcv_tab_material"];
     tabs.forEach((name) => {
       this._setupClickEvent(name, this.selectTab);
     });
 
     this.clipSliders = [];
     for (var i = 1; i < 4; i++) {
-      this.clipSliders.push(new Slider(i, 0, 100, this));
+      this.clipSliders.push(new Slider(`plane${i}`, 0, 100, this));
     }
 
+    this.ambientlightSlider = new Slider("ambientlight", 0, 100, this);
+    this.directionallightSlider = new Slider("pointlight", 0, 100, this);
+    this.metalnessSlider = new Slider("metalness", 0, 100, this);
+    this.roughnessSlider = new Slider("roughness", 0, 100, this);
+    
     this._setupCheckEvent(
       "tcv_clip_plane_helpers",
       this.setClipPlaneHelpers,
@@ -1029,7 +1106,7 @@ class Display {
    * @param {string} tab - name of the tab "tree" or "clip"
    */
   selectTabByName(tab) {
-    if (!["clip", "tree"].includes(tab)) {
+    if (!["clip", "tree", "material"].includes(tab)) {
       return;
     }
 
@@ -1037,6 +1114,7 @@ class Display {
       this.cadTree.style.display = "block";
       this.cadTreeToggles.style.display = "block";
       this.cadClip.style.display = "none";
+      this.cadMaterial.style.display = "none";
       this.viewer.nestedGroup.setBackVisible(false);
       this.viewer.setLocalClipping(false);
       // copy state since setClipHelpers(false) will set to false
@@ -1047,22 +1125,43 @@ class Display {
       this.cadTree.style.display = "none";
       this.cadTreeToggles.style.display = "none";
       this.cadClip.style.display = "block";
+      this.cadMaterial.style.display = "none";
       this.viewer.nestedGroup.setBackVisible(true);
       this.viewer.setLocalClipping(true);
       this.viewer.setClipPlaneHelpers(this.lastPlaneState);
+    } else if (tab === "material" && this.activeTab !== "material") {
+      this.cadTree.style.display = "none";
+      this.cadTreeToggles.style.display = "none";
+      this.cadClip.style.display = "none";
+      this.cadMaterial.style.display = "block";
+      this.viewer.nestedGroup.setBackVisible(false);
+      this.viewer.setLocalClipping(false);
+      this.viewer.setClipPlaneHelpers(false);
     }
     this.activeTab = tab;
+    
     this.viewer.checkChanges({ tab: tab });
     if (tab == "tree") {
       this.tabTree.classList.add("tcv_tab-selected");
       this.tabTree.classList.remove("tcv_tab-unselected");
       this.tabClip.classList.remove("tcv_tab-selected");
       this.tabClip.classList.add("tcv_tab-unselected");
-    } else {
+      this.tabMaterial.classList.remove("tcv_tab-selected");
+      this.tabMaterial.classList.add("tcv_tab-unselected");
+    } else if (tab == "clip") {
       this.tabTree.classList.remove("tcv_tab-selected");
       this.tabTree.classList.add("tcv_tab-unselected");
       this.tabClip.classList.add("tcv_tab-selected");
       this.tabClip.classList.remove("tcv_tab-unselected");
+      this.tabMaterial.classList.remove("tcv_tab-selected");
+      this.tabMaterial.classList.add("tcv_tab-unselected");
+    } else {
+      this.tabTree.classList.add("tcv_tab-unselected");
+      this.tabTree.classList.remove("tcv_tab-selected");
+      this.tabClip.classList.add("tcv_tab-unselected");
+      this.tabClip.classList.remove("tcv_tab-selected");
+      this.tabMaterial.classList.add("tcv_tab-selected");
+      this.tabMaterial.classList.remove("tcv_tab-unselected");
     }
   }
 

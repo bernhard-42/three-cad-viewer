@@ -4,6 +4,13 @@ import { LineSegmentsGeometry } from "./patches.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js";
 import { BoundingBox } from "./bbox.js";
+import env_red from "../images/benchy-red.png";
+import env_green from "../images/benchy-green.png";
+import env_ceil from "../images/benchy-ceil.png";
+import env_floor from "../images/benchy-floor.png";
+
+const texture = new THREE.CubeTextureLoader().load([env_ceil, env_ceil, env_ceil, env_ceil, env_ceil, env_ceil]);
+texture.needsUpdate = true;
 
 class ObjectGroup extends THREE.Group {
   constructor(opacity, alpha, edge_color, renderback) {
@@ -18,6 +25,22 @@ class ObjectGroup extends THREE.Group {
   addType(mesh, type) {
     this.add(mesh);
     this.types[type] = mesh;
+  }
+
+  setMetalness(value) {
+    console.log("metalness", value)
+    for (var child of this.children) {
+      child.material.metalness = value;
+      child.material.needsUpdate = true;
+    }
+  }
+  
+  setRoughness(value) {
+    console.log("roughness", value);
+    for (var child of this.children) {
+      child.material.roughness = value;
+      child.material.needsUpdate = true;
+    }
   }
 
   setTransparent(flag) {
@@ -136,14 +159,18 @@ class NestedGroup {
     edgeColor,
     transparent,
     opacity,
+    metalness,
+    roughness,
     normalLen,
-    bb_max,
+    bb_max
   ) {
     this.shapes = shapes;
     this.width = width;
     this.height = height;
     this.edgeColor = edgeColor;
     this.transparent = transparent;
+    this.metalness = metalness;
+    this.roughness = roughness;
     this.defaultOpacity = opacity;
     this.normalLen = normalLen;
     this.blackEdges = false;
@@ -312,9 +339,11 @@ class NestedGroup {
     // see https://stackoverflow.com/a/37651610
     // "A common draw configuration you see is to draw all the opaque object with depth testing on, 
     //  turn depth write off, then draw the transparent objects in a back to front order."
-
     const frontMaterial = new THREE.MeshStandardMaterial({
       color: color,
+      metalness: this.metalness,
+      roughness: this.roughness,
+      envMap: texture,
       polygonOffset: true,
       polygonOffsetFactor: 1.0,
       polygonOffsetUnits: 1.0,
@@ -471,6 +500,16 @@ class NestedGroup {
         }
       }
     }
+  }
+
+  setMetalness(value) {
+    this.metalness = value;
+    this._traverse("setMetalness", value);
+  }
+
+  setRoughness(value) {
+    this.roughness = value;
+    this._traverse("setRoughness", value);
   }
 
   setTransparent(flag) {
