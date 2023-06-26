@@ -96,8 +96,8 @@ function TEMPLATE(id) {
             <div class="tcv_cad_tree tcv_round">
                 <div class="tcv_tabnav">
                     <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button" />
-                    <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping"
-                        type="button" />
+                    <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping" type="button" />
+                    <input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value="Material" type="button" />
                 </div>
                 <div class="tcv_cad_tree_toggles">
                     <span class="tcv_tooltip" data-tooltip="Collpase nodes with a single leaf">
