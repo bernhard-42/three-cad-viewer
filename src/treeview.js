@@ -371,10 +371,7 @@ class TreeView {
   }
 
   setIcon(img, icon_id, state) {
-    img.setAttribute(
-      "style",
-      `background-image: ${this.getIcon(icon_id, state)}`,
-    );
+    img.style.backgroundImage = this.getIcon(icon_id, state);
   }
 
   hideAll() {

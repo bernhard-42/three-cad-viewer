@@ -2,11 +2,11 @@ import process from "process";
 import os from "os";
 import resolve from "@rollup/plugin-node-resolve";
 import css from "rollup-plugin-import-css";
-import svg from "rollup-plugin-svg-import";
 import { terser } from "rollup-plugin-terser";
 import serve from "rollup-plugin-serve";
 import livereload from "rollup-plugin-livereload";
 import pkg from "./package.json";
+import image from "@rollup/plugin-image";
 
 function addMin(name) {
     return `${name.slice(0, -3)}.min.js`;
@@ -17,7 +17,7 @@ const umdName = "CadViewer";
 const default_plugins = [
     resolve(),
     css(),
-    svg({ stringify: true })
+    image(),
 ];
 
 var config;

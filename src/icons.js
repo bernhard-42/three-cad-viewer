@@ -72,7 +72,7 @@ const icons = {
 };
 
 function getIconBackground(theme, name) {
-  return `url(data:image/svg+xml;utf8,${escape(icons[name][theme])});`;
+  return `url("${icons[name][theme]}")`;
 }
 
 export { getIconBackground };
