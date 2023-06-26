@@ -828,9 +828,6 @@ class Viewer {
     );
 
     this.display.autoCollapse();
-    if (this.treeview.tree.children.length === 1) {
-      this.treeview.expandNodes();
-    }
 
     //
     // show the rendering

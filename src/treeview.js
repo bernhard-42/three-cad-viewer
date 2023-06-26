@@ -244,13 +244,8 @@ class TreeView {
     // eslint-disable-next-line no-unused-vars
     var observer = new MutationObserver((_mutuations) => {
       if (this.container.contains(tree)) {
-        // keep a group with one element expanded
-        if ((this.tree.children.length === 1) && (this.tree.children[0].type === "leaf")) {
-          this.expandNodes();
-        } else {
-          if (collapse > 0 && collapse < 4) {
-            this.collapseNodes(collapse);
-          }
+        if (collapse > 0 && collapse < 4) {
+          this.collapseNodes(collapse);
         }
         observer.disconnect();
       }
