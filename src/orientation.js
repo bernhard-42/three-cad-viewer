@@ -1,7 +1,10 @@
 import * as THREE from "three";
 import { AxesHelper } from "./axes.js";
 import { sceneTraverse } from "./utils.js";
+import { FontLoader } from "./fontloader/FontLoader.js";
 
+const length = 54;
+const distance = length + 18;
 class OrientationMarker {
   constructor(width, height, camera, theme) {
     this.width = width;
@@ -11,11 +14,18 @@ class OrientationMarker {
     this.camera = null;
     this.scene = null;
     this.renderer = null;
+    this.labels = [];
+    this.ready = false;
+  }
+  create() {
+    const loader = new FontLoader();
+    loader.load("node_modules/three/examples/fonts/helvetiker_regular.typeface.json", (font) => {
+      this._create(font);
+    });
   }
 
-  create() {
-    const size = 2.7;
-    const length = 60;
+  _create(font) {
+    const size = 2.5;
 
     // scene
     this.scene = new THREE.Scene();
@@ -48,21 +58,21 @@ class OrientationMarker {
     const colors =
       this.theme === "dark"
         ? [
-            [1, 0x45 / 255, 0],
-            [0x32 / 255, 0xcd / 255, 0x32 / 255],
-            [0x3b / 255, 0x9e / 255, 1],
-          ]
+          [1, 0x45 / 255, 0],
+          [0x32 / 255, 0xcd / 255, 0x32 / 255],
+          [0x3b / 255, 0x9e / 255, 1],
+        ]
         : [
-            [1, 0, 0],
-            [0, 0.7, 0],
-            [0, 0, 1],
-          ];
+          [1, 0, 0],
+          [0, 0.7, 0],
+          [0, 0, 1],
+        ];
     this.cones = [];
     for (var i = 0; i < 3; i++) {
       var coneGeometry = new THREE.CylinderGeometry(
         0,
-        3 * size,
-        6 * size,
+        2.5 * size,
+        5 * size,
         20,
         1,
       );
@@ -82,6 +92,25 @@ class OrientationMarker {
     this.cones[2].geometry.translate(0, 0, length);
 
     this.scene.add(...this.cones);
+    const axesNames = ["X", "Y", "Z"];
+
+    for (i = 0; i < 3; i++) {
+      const mat = new THREE.LineBasicMaterial({
+        // color: new THREE.Color(...colors[i]),
+        color: (this.theme === "dark") ? new THREE.Color(0.9, 0.9, 0.9) : new THREE.Color(0, 0, 0),
+        side: THREE.DoubleSide
+      });
+      const shape = font.generateShapes(axesNames[i], 16);
+      const geom = new THREE.ShapeGeometry(shape);
+      geom.computeBoundingBox();
+      const xMid = - 0.5 * (geom.boundingBox.max.x - geom.boundingBox.min.x);
+      const yMid = - 0.5 * (geom.boundingBox.max.y - geom.boundingBox.min.y);
+      geom.translate(xMid, yMid, 0);
+      const label = new THREE.Mesh(geom, mat);
+
+      this.scene.add(label);
+      this.labels.push(label);
+    }
 
     const geometry = new THREE.SphereGeometry(3 * size, 20, 20);
     const material = new THREE.MeshBasicMaterial({ color: 0xa0a0a0 });
@@ -89,6 +118,7 @@ class OrientationMarker {
     this.scene.add(sphere);
 
     this.scene.background = null;
+    this.ready = true;
   }
 
   dispose() {
@@ -101,17 +131,29 @@ class OrientationMarker {
   }
 
   render(renderer) {
-    renderer.setViewport(0, 0, this.width, this.height);
+    if (this.ready) {
+      renderer.setViewport(0, 0, this.width, this.height);
 
-    renderer.render(this.scene, this.camera);
+      renderer.render(this.scene, this.camera);
+    }
   }
 
   // handler (bound to OrientationMarker instance)
 
-  update(position, rotation) {
-    this.camera.position.copy(position);
-    this.camera.position.setLength(300);
-    this.camera.rotation.copy(rotation);
+  update(position, rotation, quaternion) {
+    if (this.ready) {
+      this.camera.position.copy(position);
+      this.camera.position.setLength(300);
+      this.camera.rotation.copy(rotation);
+      for (var i = 0; i < 3; i++) {
+        this.labels[i].position.set(
+          (i == 0) ? distance : 0,
+          (i == 1) ? distance : 0,
+          (i == 2) ? distance : 0
+        );
+        this.labels[i].quaternion.copy(quaternion);
+      }
+    }
   }
 }
 
