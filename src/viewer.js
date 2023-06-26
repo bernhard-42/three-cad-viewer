@@ -453,6 +453,7 @@ class Viewer {
         this.orientationMarker.update(
           this.camera.getPosition().clone().sub(this.controls.getTarget()),
           this.camera.getRotation(),
+          this.camera.getQuaternion()
         );
         this.orientationMarker.render(this.renderer);
       }
