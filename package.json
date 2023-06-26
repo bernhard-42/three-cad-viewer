@@ -34,6 +34,7 @@
     "prettier": "^2.3.2",
     "rimraf": "^3.0.2",
     "rollup": "^2.53.1",
+    "@rollup/plugin-image": "^3.0.2",
     "rollup-plugin-import-css": "^3.0.0",
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-serve": "^1.1.0",
