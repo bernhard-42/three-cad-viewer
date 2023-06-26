@@ -460,7 +460,7 @@ class Viewer {
       if (this.animation) {
         this.animation.update();
       }
-      
+
       this.checkChanges(
         {
           zoom: this.camera.getZoom(),
@@ -469,8 +469,8 @@ class Viewer {
           target: this.controls.getTarget().toArray(),
         },
         notify,
-        );
-      }
+      );
+    }
   };
 
   /**
@@ -927,28 +927,28 @@ class Viewer {
    * @param {number} distance - if provided, new camera distance
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  recenterCamera(notify = true) {    
+  recenterCamera(notify = true) {
     const camera = this.camera.getCamera();
-    
+
     const center = new THREE.Vector3();
     const c = this.bbox.center();
     center.fromArray(c);
-    
+
     const target = new THREE.Vector3();
     const t = this.controls.target;
     target.fromArray(t);
-    
+
     this.camera.camera_distance = 5 * this.bb_radius;
     camera.position.sub(target).add(center);
     this.controls.controls.target = center;
-    
+
     let cameraDir = new THREE.Vector3();
     camera.getWorldDirection(cameraDir);
-    
+
     let p = center.clone().add(cameraDir.normalize().multiplyScalar(-this.camera.camera_distance));
     camera.position.set(p.x, p.y, p.z);
-    
-    this.update(true, notify);    
+
+    this.update(true, notify);
   }
 
   /**
