@@ -12121,7 +12121,7 @@ class ShaderMaterial extends Material {
 
 }
 
-class Camera$1 extends Object3D {
+let Camera$1 = class Camera extends Object3D {
 
 	constructor() {
 
@@ -12183,7 +12183,7 @@ class Camera$1 extends Object3D {
 
 	}
 
-}
+};
 
 class PerspectiveCamera extends Camera$1 {
 
@@ -49945,7 +49945,7 @@ function setPoint( point, pointMap, geometry, camera, x, y, z ) {
 
 const _box$4 = /*@__PURE__*/ new Box3();
 
-class BoxHelper$1 extends LineSegments {
+let BoxHelper$1 = class BoxHelper extends LineSegments {
 
 	constructor( object, color = 0xffff00 ) {
 
@@ -50046,7 +50046,7 @@ class BoxHelper$1 extends LineSegments {
 
 	}
 
-}
+};
 
 class Box3Helper extends LineSegments {
 
@@ -50097,7 +50097,7 @@ class Box3Helper extends LineSegments {
 
 }
 
-class PlaneHelper$1 extends Line {
+let PlaneHelper$1 = class PlaneHelper extends Line {
 
 	constructor( plane, size = 1, hex = 0xffff00 ) {
 
@@ -50150,7 +50150,7 @@ class PlaneHelper$1 extends Line {
 
 	}
 
-}
+};
 
 const _axis = /*@__PURE__*/ new Vector3();
 let _lineGeometry, _coneGeometry;
@@ -50254,7 +50254,7 @@ class ArrowHelper extends Object3D {
 
 }
 
-class AxesHelper$1 extends LineSegments {
+let AxesHelper$1 = class AxesHelper extends LineSegments {
 
 	constructor( size = 1 ) {
 
@@ -50312,7 +50312,7 @@ class AxesHelper$1 extends LineSegments {
 
 	}
 
-}
+};
 
 class ShapePath {
 
@@ -52753,7 +52753,7 @@ class Display {
 const _box$1 = new Box3();
 const _vector = new Vector3();
 
-class LineSegmentsGeometry$1 extends InstancedBufferGeometry {
+let LineSegmentsGeometry$1 = class LineSegmentsGeometry extends InstancedBufferGeometry {
 
 	constructor() {
 
@@ -52977,7 +52977,7 @@ class LineSegmentsGeometry$1 extends InstancedBufferGeometry {
 
 	}
 
-}
+};
 
 /**
  * parameters = {
@@ -52991,6 +52991,7 @@ class LineSegmentsGeometry$1 extends InstancedBufferGeometry {
  *  resolution: <Vector2>, // to be set by renderer
  * }
  */
+
 
 
 UniformsLib.line = {
@@ -55293,7 +55294,7 @@ class OrientationMarker {
   }
   create() {
     const loader = new FontLoader();
-    loader.load("node_modules/three/examples/fonts/helvetiker_regular.typeface.json", (font) => {
+    loader.load("./fonts/helvetiker_regular.typeface.json", (font) => {
       this._create(font);
     });
   }
