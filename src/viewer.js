@@ -708,7 +708,7 @@ class Viewer {
 
     this.setAmbientLight(this.ambientIntensity);
     this.setDirectLight(this.directIntensity);
-    
+
     //
     // add grid helpers
     //

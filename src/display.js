@@ -352,7 +352,7 @@ class Slider {
       this.type = "plane";
     } else {
       this.index = undefined;
-      this.type =index;
+      this.type = index;
     }
     this.display = display;
 
@@ -375,25 +375,25 @@ class Slider {
     this.display.viewer.checkChanges(change, notify);
   };
   _handle(type, index, value) {
-    if (type == "plane"  ){
+    if (type == "plane") {
       this.display.refreshPlane(index, value);
     } else if (type === "ambientlight") {
-      if (this.display.viewer.ready){
-        this.display.viewer.setAmbientLight(value/100);
+      if (this.display.viewer.ready) {
+        this.display.viewer.setAmbientLight(value / 100);
       }
     } else if (type === "pointlight") {
-      if (this.display.viewer.ready){
-        this.display.viewer.setDirectLight(value/100);
+      if (this.display.viewer.ready) {
+        this.display.viewer.setDirectLight(value / 100);
       }
     } else if (type === "metalness") {
-      if (this.display.viewer.ready){
-        this.display.viewer.setMetalness(value/100);
+      if (this.display.viewer.ready) {
+        this.display.viewer.setMetalness(value / 100);
       }
     } else if (type === "roughness") {
-      if (this.display.viewer.ready){
-        this.display.viewer.setRoughness(value/100);
+      if (this.display.viewer.ready) {
+        this.display.viewer.setRoughness(value / 100);
       }
-    } 
+    }
   }
 
   sliderChange = (e) => {
@@ -562,14 +562,14 @@ class Display {
   handleMoreButton(fullWidth) {
     const moreButton = this._getElement("tcv_more-btn");
     const moreContent = this._getElement("tcv_more-wrapper");
-    if (fullWidth  < 970) {
+    if (fullWidth < 970) {
       moreButton.classList.remove("tcv_none");
       moreContent.classList.add("tcv_dropdown-content");
-      moreContent.classList.add("tcv_more-content");  
+      moreContent.classList.add("tcv_more-content");
     } else {
       moreButton.classList.add("tcv_none");
       moreContent.classList.remove("tcv_dropdown-content");
-      moreContent.classList.remove("tcv_more-content");  
+      moreContent.classList.remove("tcv_more-content");
     }
   }
 
@@ -683,7 +683,7 @@ class Display {
     this.directionallightSlider = new Slider("pointlight", 0, 200, this);
     this.metalnessSlider = new Slider("metalness", 0, 100, this);
     this.roughnessSlider = new Slider("roughness", 0, 100, this);
-    
+
     this._setupCheckEvent(
       "tcv_clip_plane_helpers",
       this.setClipPlaneHelpers,
@@ -1011,7 +1011,7 @@ class Display {
   /**
    * Clear all highlights of navigation tree entries
    */
-   clearHighlights() {
+  clearHighlights() {
     const buttons = [
       "tcv_front",
       "tcv_rear",
@@ -1140,7 +1140,7 @@ class Display {
       this.viewer.setClipPlaneHelpers(false);
     }
     this.activeTab = tab;
-    
+
     this.viewer.checkChanges({ tab: tab });
     if (tab == "tree") {
       this.tabTree.classList.add("tcv_tab-selected");
@@ -1237,7 +1237,7 @@ class Display {
       this.viewer.bboxNeedsUpdate = true;
     } else if (btn == "stop") {
       this.viewer.bboxNeedsUpdate = false;
-      if(this.viewer.lastBbox != null){
+      if (this.viewer.lastBbox != null) {
         this.viewer.lastBbox.needsUpdate = true;
       }
     } else {
@@ -1262,7 +1262,7 @@ class Display {
    */
   animationChange = (e) => {
     this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
-    if(this.viewer.lastBbox != null){
+    if (this.viewer.lastBbox != null) {
       this.viewer.lastBbox.needsUpdate = true;
     }
   };
@@ -1379,7 +1379,7 @@ class Display {
       treeWidth: flag ? 0 : this.treeWidth,
     };
     this.setSizes(options);
-    
+
     const fullWidth = this.cadWidth + (this.glass ? 0 : this.treeWidth);
     this.handleMoreButton(fullWidth);
   }
