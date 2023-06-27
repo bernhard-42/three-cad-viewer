@@ -13,6 +13,7 @@
   <script src="./examples/hexapod_b3d.js"></script>
   <script src="./examples/box.js"></script>
   <script src="./examples/dirbox.js"></script>
+  <script src="./examples/torusknot.js"></script>
   <script src="./examples/longbox.js"></script>
   <script src="./examples/orientation-box.js"></script>
   <script src="./examples/box-edges.js"></script>
@@ -44,6 +45,7 @@
       box,
       orient_box,
       dirbox,
+      torusknot,
       box1,
       boxes,
       faces,
@@ -174,9 +176,9 @@
 
     const renderOptions = {
       ambientIntensity: 0.5,
-      directIntensity: 0.6,
-      metalness: 0.7,
-      roughness: 0.7,
+      directIntensity: 0.7,
+      metalness: 0.75,
+      roughness: 0.66,
       edgeColor: 0x707070,
       defaultOpacity: 0.5,
       normalLen: 0,
@@ -327,6 +329,7 @@
         <option value="box">box</option>
         <option value="box">orient-box</option>
         <option value="box">dir-box</option>
+        <option value="torusknot">torusknot</option>
         <option value="box1">box1</option>
         <option value="boxes">boxes</option>
         <option value="faces">faces</option>

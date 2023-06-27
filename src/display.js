@@ -679,8 +679,8 @@ class Display {
       this.clipSliders.push(new Slider(`plane${i}`, 0, 100, this));
     }
 
-    this.ambientlightSlider = new Slider("ambientlight", 0, 100, this);
-    this.directionallightSlider = new Slider("pointlight", 0, 100, this);
+    this.ambientlightSlider = new Slider("ambientlight", 0, 200, this);
+    this.directionallightSlider = new Slider("pointlight", 0, 200, this);
     this.metalnessSlider = new Slider("metalness", 0, 100, this);
     this.roughnessSlider = new Slider("roughness", 0, 100, this);
     
@@ -1047,6 +1047,7 @@ class Display {
     const btn = e.target.className.split(" ")[0].slice(4);
     this.viewer.presetCamera(btn);
     this.highlightButton(btn);
+    this.viewer.update(true, false); // ensure update is called again 
   };
 
   /**

@@ -778,10 +778,10 @@ class Viewer {
 
     this.setLocalClipping(false); // only allow clipping when Clipping tab is selected
 
-    this.display.metalnessSlider.setValue(this.metalness*100);
-    this.display.roughnessSlider.setValue(this.roughness*100);
-    this.display.ambientlightSlider.setValue(this.ambientIntensity*100);
-    this.display.directionallightSlider.setValue(this.directIntensity*100);
+    this.display.metalnessSlider.setValue(this.metalness * 100);
+    this.display.roughnessSlider.setValue(this.roughness * 100);
+    this.display.ambientlightSlider.setValue(this.ambientIntensity * 100);
+    this.display.directionallightSlider.setValue(this.directIntensity * 100);
 
     //
     // set up the orientation marker
@@ -859,7 +859,7 @@ class Viewer {
         clip_normal_2: { old: null, new: this.clipNormal2 },
       });
     }
-    this.update(false, false);
+    this.update(true, false);
 
     timer.stop();
   }

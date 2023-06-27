@@ -4,12 +4,10 @@ import { LineSegmentsGeometry } from "./patches.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js";
 import { BoundingBox } from "./bbox.js";
-// import env_red from "../images/benchy-red.png";
-// import env_green from "../images/benchy-green.png";
-// import env_floor from "../images/benchy-floor.png";
-import env_ceil from "../images/benchy-ceil.png";
+import tile from "../images/white.png";
 
-const texture = new THREE.CubeTextureLoader().load([env_ceil, env_ceil, env_ceil, env_ceil, env_ceil, env_ceil]);
+const texture = new THREE.CubeTextureLoader().load([tile, tile, tile, tile, tile, tile]);
+
 texture.needsUpdate = true;
 
 class ObjectGroup extends THREE.Group {
@@ -33,7 +31,7 @@ class ObjectGroup extends THREE.Group {
       child.material.needsUpdate = true;
     }
   }
-  
+
   setRoughness(value) {
     for (var child of this.children) {
       child.material.roughness = value;
