@@ -2,11 +2,15 @@ import process from "process";
 import os from "os";
 import resolve from "@rollup/plugin-node-resolve";
 import css from "rollup-plugin-import-css";
-import { terser } from "rollup-plugin-terser";
+import terser from "@rollup/plugin-terser";
 import serve from "rollup-plugin-serve";
 import livereload from "rollup-plugin-livereload";
-import pkg from "./package.json";
 import image from "@rollup/plugin-image";
+
+const pkg = {
+    "main": "dist/three-cad-viewer.js",
+    "module": "dist/three-cad-viewer.esm.js"
+};
 
 function addMin(name) {
     return `${name.slice(0, -3)}.min.js`;
