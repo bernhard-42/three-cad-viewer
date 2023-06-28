@@ -339,7 +339,7 @@ class NestedGroup {
       color: color,
       metalness: this.metalness,
       roughness: this.roughness,
-      envMap: texture,
+      // envMap: texture,
       polygonOffset: true,
       polygonOffsetFactor: 1.0,
       polygonOffsetUnits: 1.0,

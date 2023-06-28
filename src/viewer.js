@@ -15,6 +15,7 @@ import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
 import { BoundingBox, BoxHelper } from "./bbox.js";
 import { version } from "./_version.js";
+import { Environment } from "./environment.js";
 
 class Viewer {
   /**
@@ -640,6 +641,9 @@ class Viewer {
     this.bb_radius = Math.max(this.bbox.boundingSphere().radius, center.length());
     timer.split("bounding box");
 
+    const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+    this.scene.environment = pmremGenerator.fromScene(new Environment(this.bb_radius), 0.04).texture;
+
     //
     // add Info box
     //
@@ -783,6 +787,13 @@ class Viewer {
     this.display.ambientlightSlider.setValue(this.ambientIntensity * 100);
     this.display.directionallightSlider.setValue(this.directIntensity * 100);
 
+    const theme =
+      this.theme === "dark" ||
+        (this.theme === "browser" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ? "dark"
+        : "light";
+
     //
     // set up the orientation marker
     //
@@ -791,20 +802,13 @@ class Viewer {
       80,
       80,
       this.camera.getCamera(),
-      this.theme,
+      theme,
     );
     this.orientationMarker.create();
 
     //
     // build tree view
     //
-
-    const theme =
-      this.theme === "dark" ||
-        (this.theme === "browser" &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
-        ? "dark"
-        : "light";
 
     this.tree = tree;
     this.treeview = new TreeView(
