@@ -640,10 +640,6 @@ class Viewer {
     this.bb_radius = Math.max(this.bbox.boundingSphere().radius, center.length());
     timer.split("bounding box");
 
-    // this.pmremGenerator = new THREE.PMREMGenerator(this.renderer);
-    // this.environment = new RoomEnvironment(this.bb_radius);
-    // this.environment = new DebugEnvironment(this.bb_radius);
-    // this.scene.environment = this.pmremGenerator.fromScene(this.environment, 0.4).texture;
 
     //
     // add Info box
