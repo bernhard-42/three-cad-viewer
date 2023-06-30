@@ -168,7 +168,7 @@ function TEMPLATE(id) {
                     </div>
                     <div class="tcv_cad_material_container">
                         <div class="tcv_material_ambientlight tcv_label tcv_clip_checks">
-                          Ambient light intensity (in %)
+                          Ambient light intensity (%)
                         </div>
                         <div class="tcv_slider_group">
                             <div>
@@ -178,7 +178,7 @@ function TEMPLATE(id) {
                             </div>
                         </div>
                         <div class="tcv_material_pointlight tcv_label">
-                          Point light intensity (in %)
+                          Directional light intensity (%)
                         </div>
                         <div class="tcv_slider_group">
                             <div>
@@ -206,6 +206,10 @@ function TEMPLATE(id) {
                                     class="tcv_sld_value_roughness tcv_clip_slider">
                                 <input value=40 class="tcv_inp_value_roughness tcv_clip_input"></input>
                             </div>
+                        </div>
+                        <div class="tcv_material_info">
+                          This is not a full material renderer (e.g. the environment is black), so
+                          not every combination creates expected or good results. 
                         </div>
                     </div>
                 </div>
@@ -435,7 +439,7 @@ class Slider {
       Math.min(value, this.slider.max),
       this.slider.min,
     );
-    this.input.value = trimmed_value;
+    this.input.value = trimmed_value.toFixed(0);
     this.slider.value = value;
     this._handle(this.type, this.index, this.input.value);
     this._notify(value, notify);
@@ -679,8 +683,8 @@ class Display {
       this.clipSliders.push(new Slider(`plane${i}`, 0, 100, this));
     }
 
-    this.ambientlightSlider = new Slider("ambientlight", 0, 200, this);
-    this.directionallightSlider = new Slider("pointlight", 0, 200, this);
+    this.ambientlightSlider = new Slider("ambientlight", 0, 400, this);
+    this.directionallightSlider = new Slider("pointlight", 0, 400, this);
     this.metalnessSlider = new Slider("metalness", 0, 100, this);
     this.roughnessSlider = new Slider("roughness", 0, 100, this);
 

@@ -335,6 +335,7 @@ input[type="button"] {
   font-size: 14px;
   margin-left: 4px;
   margin-right: 4px;
+  padding-bottom: 4px;
   vertical-align: middle;
   user-select: none;
 }
@@ -419,6 +420,7 @@ input[type="button"] {
 
 .tcv_clip_slider {
   -webkit-appearance: none;
+  appearance: none;
   width: 60%;
   height: 5px;
   border-radius: 2px;
@@ -538,4 +540,9 @@ input[type="button"] {
 
 [data-tooltip]:hover:before {
   opacity: 1;
+}
+
+
+.tcv_material_info {
+  font-size: 12px;
 }

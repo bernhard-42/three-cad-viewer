@@ -4,11 +4,7 @@ import { LineSegmentsGeometry } from "./patches.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js";
 import { BoundingBox } from "./bbox.js";
-import tile from "../images/white.png";
 
-const texture = new THREE.CubeTextureLoader().load([tile, tile, tile, tile, tile, tile]);
-
-texture.needsUpdate = true;
 
 class ObjectGroup extends THREE.Group {
   constructor(opacity, alpha, edge_color, renderback) {

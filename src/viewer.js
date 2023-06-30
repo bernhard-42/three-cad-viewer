@@ -15,7 +15,6 @@ import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
 import { BoundingBox, BoxHelper } from "./bbox.js";
 import { version } from "./_version.js";
-import { Environment } from "./environment.js";
 
 class Viewer {
   /**
@@ -641,8 +640,10 @@ class Viewer {
     this.bb_radius = Math.max(this.bbox.boundingSphere().radius, center.length());
     timer.split("bounding box");
 
-    const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
-    this.scene.environment = pmremGenerator.fromScene(new Environment(this.bb_radius), 0.04).texture;
+    // this.pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+    // this.environment = new RoomEnvironment(this.bb_radius);
+    // this.environment = new DebugEnvironment(this.bb_radius);
+    // this.scene.environment = this.pmremGenerator.fromScene(this.environment, 0.4).texture;
 
     //
     // add Info box
