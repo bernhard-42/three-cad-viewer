@@ -20,7 +20,7 @@ const umdName = "CadViewer";
 
 const default_plugins = [
     resolve(),
-    css(),
+    css({ output: "three-cad-viewer.esm.css" }),
     image(),
 ];
 

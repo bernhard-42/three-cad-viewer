@@ -54619,7 +54619,7 @@ class NestedGroup {
       color: color,
       metalness: this.metalness,
       roughness: this.roughness,
-      envMap: texture,
+      // envMap: texture,
       polygonOffset: true,
       polygonOffsetFactor: 1.0,
       polygonOffsetUnits: 1.0,
@@ -58280,7 +58280,57 @@ class Camera {
   }
 }
 
-const version="1.8.0";
+const version="1.8.1";
+
+/**
+ * https://github.com/google/model-viewer/blob/master/packages/model-viewer/src/three-components/EnvironmentScene.ts
+ */
+
+
+class Environment extends Scene {
+
+	constructor(size) {
+
+		super();
+
+		const geometry = new BoxGeometry();
+		geometry.deleteAttribute('uv');
+
+		const roomMaterial = new MeshStandardMaterial({ side: BackSide });
+
+		const mainLight = new PointLight(0xffffff, 5.0, 28, 2);
+		mainLight.position.set(0, size, 0);
+		this.add(mainLight);
+
+		const room = new Mesh(geometry, roomMaterial);
+		room.scale.set(size * 2, size * 2, size * 2);
+		this.add(room);
+	}
+
+	dispose() {
+
+		const resources = new Set();
+
+		this.traverse((object) => {
+
+			if (object.isMesh) {
+
+				resources.add(object.geometry);
+				resources.add(object.material);
+
+			}
+
+		});
+
+		for (const resource of resources) {
+
+			resource.dispose();
+
+		}
+
+	}
+
+}
 
 class Viewer {
   /**
@@ -58906,6 +58956,9 @@ class Viewer {
     this.bb_radius = Math.max(this.bbox.boundingSphere().radius, center.length());
     timer.split("bounding box");
 
+    const pmremGenerator = new PMREMGenerator(this.renderer);
+    this.scene.environment = pmremGenerator.fromScene(new Environment(this.bb_radius), 0.04).texture;
+
     //
     // add Info box
     //
@@ -59049,6 +59102,13 @@ class Viewer {
     this.display.ambientlightSlider.setValue(this.ambientIntensity * 100);
     this.display.directionallightSlider.setValue(this.directIntensity * 100);
 
+    const theme =
+      this.theme === "dark" ||
+        (this.theme === "browser" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ? "dark"
+        : "light";
+
     //
     // set up the orientation marker
     //
@@ -59057,20 +59117,13 @@ class Viewer {
       80,
       80,
       this.camera.getCamera(),
-      this.theme,
+      theme,
     );
     this.orientationMarker.create();
 
     //
     // build tree view
     //
-
-    const theme =
-      this.theme === "dark" ||
-        (this.theme === "browser" &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
-        ? "dark"
-        : "light";
 
     this.tree = tree;
     this.treeview = new TreeView(
