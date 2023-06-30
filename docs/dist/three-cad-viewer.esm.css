@@ -33,7 +33,6 @@
 .tcv_none {
   display: none;
 }
-
 canvas {
   outline: none !important;
 }
@@ -149,13 +148,11 @@ canvas {
   margin: 1px 0px 6px 8px;
   font-weight: bold;
 }
-
 .tcv_small_table {
   line-height: 14px;
 }
 
-.tcv_small_table_row>td,
-th {
+.tcv_small_table_row > td, th {
   padding-left: 6px;
 }
 
@@ -373,6 +370,7 @@ input[type="button"] {
   font-size: 14px;
   margin-left: 4px;
   margin-right: 4px;
+  padding-bottom: 4px;
   vertical-align: middle;
   user-select: none;
 }
@@ -457,6 +455,7 @@ input[type="button"] {
 
 .tcv_clip_slider {
   -webkit-appearance: none;
+  appearance: none;
   width: 60%;
   height: 5px;
   border-radius: 2px;
@@ -578,6 +577,10 @@ input[type="button"] {
   opacity: 1;
 }
 
+
+.tcv_material_info {
+  font-size: 12px;
+}
 .tcv_node_entry_wrap {
   white-space: pre;
 }
