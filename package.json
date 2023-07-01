@@ -22,23 +22,23 @@
   "author": "Bernhard Walter",
   "license": "MIT",
   "dependencies": {
-    "three": "^0.151.3"
+    "three": "^0.154.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.8",
     "@babel/eslint-parser": "^7.14.7",
-    "rollup": "^3.25.3",
-    "rollup-plugin-import-css": "^3.3.1",
-    "rollup-plugin-livereload": "^2.0.5",
-    "rollup-plugin-serve": "^2.0.2",
     "@rollup/plugin-image": "^3.0.2",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-terser": "^0.4.3",
-    "@types/three": "^0.137.0",
+    "@types/three": "^0.152.1",
     "eslint": "^8.1.0",
     "eslint-config-prettier": "^8.3.0",
     "prettier": "^2.3.2",
-    "rimraf": "^3.0.2"
+    "rimraf": "^5.0.1",
+    "rollup": "^3.25.3",
+    "rollup-plugin-import-css": "^3.3.1",
+    "rollup-plugin-livereload": "^2.0.5",
+    "rollup-plugin-serve": "^2.0.2"
   },
   "babel": {}
 }
