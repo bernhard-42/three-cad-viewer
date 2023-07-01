@@ -1,7 +1,8 @@
 import * as THREE from "three";
 import { AxesHelper } from "./axes.js";
 import { sceneTraverse } from "./utils.js";
-import { FontLoader } from "./fontloader/FontLoader.js";
+import { Font } from "./fontloader/FontLoader.js";
+import { helvetiker } from "./font.js";
 
 const length = 54;
 const distance = length + 18;
@@ -18,13 +19,7 @@ class OrientationMarker {
     this.ready = false;
   }
   create() {
-    const loader = new FontLoader();
-    loader.load("./fonts/helvetiker_regular.typeface.json", (font) => {
-      this._create(font);
-    });
-  }
-
-  _create(font) {
+    const font = new Font(helvetiker);
     const size = 2.5;
 
     // scene
