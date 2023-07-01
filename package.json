@@ -15,6 +15,7 @@
   "scripts": {
     "clean": "rimraf ./dist/*",
     "build": "echo \"export const version=$(cat package.json | jq .version);\" > src/_version.js && rollup -c --environment BUILD:production",
+    "prepare": "yarn run build",
     "start": "rollup -w -c",
     "docs": "./build_docs.sh",
     "release": "./release.sh"
