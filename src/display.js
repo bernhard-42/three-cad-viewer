@@ -1110,6 +1110,42 @@ class Display {
   };
 
   /**
+   * Set the ambient light intensity in the UI
+   * @function
+   * @param {number} val - a float between 0 and 4
+   */
+  setAmbientLight = (val) => {
+    this.ambientlightSlider.setValue(val * 100);
+  };
+
+  /**
+   * Set the direct light intensity in the UI
+   * @function
+   * @param {number} val - a float between 0 and 4
+   */
+  setDirectLight = (val) => {
+    this.directionallightSlider.setValue(val * 100);
+  };
+
+  /**
+   * Set material metalness in the UI
+   * @function
+   * @param {number} val - a float between 0 and 1
+   */
+  setMetalness = (val) => {
+    this.metalnessSlider.setValue(val * 100);
+  };
+
+  /**
+   * Set material roughness in the UI
+   * @function
+   * @param {number} val - a float between 0 and 1
+   */
+  setRoughness = (val) => {
+    this.roughnessSlider.setValue(val * 100);
+  };
+
+  /**
    * Activate the UI tab given the name of the tab
    * @param {string} tab - name of the tab "tree" or "clip"
    */
