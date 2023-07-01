@@ -127,4 +127,4 @@ For the deployment, see [Release.md](./Release.md)
 
 # Changes
 
-see [Chages.md](./Changes.md)
+see [Changes.md](./Changes.md)
