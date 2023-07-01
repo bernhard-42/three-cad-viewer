@@ -367,14 +367,12 @@ class Viewer {
     this.display.resetAnimationSlider();
   }
 
-
   /**
    * Check whether animation object exists
    */
   hasAnimation() {
     return !!this.animation.clipAction;
   }
-
 
   /**
    * Clear the animation obect and dispose dependent objects
@@ -458,7 +456,7 @@ class Viewer {
         this.orientationMarker.update(
           this.camera.getPosition().clone().sub(this.controls.getTarget()),
           this.camera.getRotation(),
-          this.camera.getQuaternion()
+          this.camera.getQuaternion(),
         );
         this.orientationMarker.render(this.renderer);
       }
@@ -637,9 +635,11 @@ class Viewer {
     const center = new THREE.Vector3();
     this.bbox.getCenter(center);
     this.bb_max = this.bbox.max_dist_from_center();
-    this.bb_radius = Math.max(this.bbox.boundingSphere().radius, center.length());
+    this.bb_radius = Math.max(
+      this.bbox.boundingSphere().radius,
+      center.length(),
+    );
     timer.split("bounding box");
-
 
     //
     // add Info box
@@ -704,7 +704,10 @@ class Viewer {
     this.scene.add(amb_light);
 
     // this.directLight = new THREE.PointLight(0xffffff, this.directIntensity);
-    this.directLight = new THREE.DirectionalLight(0xffffff, this.directIntensity);
+    this.directLight = new THREE.DirectionalLight(
+      0xffffff,
+      this.directIntensity,
+    );
     this.scene.add(this.directLight);
 
     this.setAmbientLight(this.ambientIntensity);
@@ -786,8 +789,8 @@ class Viewer {
 
     const theme =
       this.theme === "dark" ||
-        (this.theme === "browser" &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      (this.theme === "browser" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 
@@ -932,7 +935,7 @@ class Viewer {
 
   /**
    * TODO: Doesn't work as expected. Needs to be fixed.
-   * 
+   *
    * Set camera mode to OrthographicCamera or PersepctiveCamera (see also setOrtho)
    * @param {number} distance - if provided, new camera distance
    * @param {boolean} [notify=true] - whether to send notification or not.
@@ -955,7 +958,9 @@ class Viewer {
     let cameraDir = new THREE.Vector3();
     camera.getWorldDirection(cameraDir);
 
-    let p = center.clone().add(cameraDir.normalize().multiplyScalar(-this.camera.camera_distance));
+    let p = center
+      .clone()
+      .add(cameraDir.normalize().multiplyScalar(-this.camera.camera_distance));
     camera.position.set(p.x, p.y, p.z);
 
     this.update(true, notify);
