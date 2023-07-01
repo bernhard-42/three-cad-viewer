@@ -188,7 +188,7 @@ function TEMPLATE(id) {
                             </div>
                         </div>
                         <div class="tcv_material_metalness tcv_label">
-                          Metalness (in %)
+                          Metalness (%)
                         </div>
                         <div class="tcv_slider_group">
                             <div>
@@ -198,7 +198,7 @@ function TEMPLATE(id) {
                             </div>
                         </div>
                         <div class="tcv_material_roughness tcv_label">
-                          Roughness (in %)
+                          Roughness (%)
                         </div>
                         <div class="tcv_slider_group">
                             <div>
