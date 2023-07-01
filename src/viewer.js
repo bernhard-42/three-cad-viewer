@@ -1577,6 +1577,7 @@ class Viewer {
         el.intensity = val;
       }
     }
+    this.checkChanges({ ambient_intensity: val }, notify);
     this.update(this.updateMarker, notify);
   };
 
@@ -1596,6 +1597,7 @@ class Viewer {
   setDirectLight = (val, notify = true) => {
     this.directIntensity = val;
     this.directLight.intensity = val;
+    this.checkChanges({ direct_intensity: val }, notify);
     this.update(this.updateMarker, notify);
   };
 

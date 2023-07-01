@@ -373,10 +373,13 @@ class Slider {
   }
 
   _notify = (value, notify = true) => {
-    const change = {};
-    change[`clip_slider_${this.index - 1}`] = parseFloat(value);
-    this.display.viewer.checkChanges(change, notify);
+    if (this.type == "plane") {
+      const change = {};
+      change[`clip_slider_${this.index - 1}`] = parseFloat(value);
+      this.display.viewer.checkChanges(change, notify);
+    }
   };
+
   _handle(type, index, value) {
     if (type == "plane") {
       this.display.refreshPlane(index, value);
