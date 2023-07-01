@@ -53,15 +53,15 @@ class OrientationMarker {
     const colors =
       this.theme === "dark"
         ? [
-          [1, 0x45 / 255, 0],
-          [0x32 / 255, 0xcd / 255, 0x32 / 255],
-          [0x3b / 255, 0x9e / 255, 1],
-        ]
+            [1, 0x45 / 255, 0],
+            [0x32 / 255, 0xcd / 255, 0x32 / 255],
+            [0x3b / 255, 0x9e / 255, 1],
+          ]
         : [
-          [1, 0, 0],
-          [0, 0.7, 0],
-          [0, 0, 1],
-        ];
+            [1, 0, 0],
+            [0, 0.7, 0],
+            [0, 0, 1],
+          ];
     this.cones = [];
     for (var i = 0; i < 3; i++) {
       var coneGeometry = new THREE.CylinderGeometry(
@@ -92,14 +92,17 @@ class OrientationMarker {
     for (i = 0; i < 3; i++) {
       const mat = new THREE.LineBasicMaterial({
         // color: new THREE.Color(...colors[i]),
-        color: (this.theme === "dark") ? new THREE.Color(0.9, 0.9, 0.9) : new THREE.Color(0, 0, 0),
-        side: THREE.DoubleSide
+        color:
+          this.theme === "dark"
+            ? new THREE.Color(0.9, 0.9, 0.9)
+            : new THREE.Color(0, 0, 0),
+        side: THREE.DoubleSide,
       });
       const shape = font.generateShapes(axesNames[i], 16);
       const geom = new THREE.ShapeGeometry(shape);
       geom.computeBoundingBox();
-      const xMid = - 0.5 * (geom.boundingBox.max.x - geom.boundingBox.min.x);
-      const yMid = - 0.5 * (geom.boundingBox.max.y - geom.boundingBox.min.y);
+      const xMid = -0.5 * (geom.boundingBox.max.x - geom.boundingBox.min.x);
+      const yMid = -0.5 * (geom.boundingBox.max.y - geom.boundingBox.min.y);
       geom.translate(xMid, yMid, 0);
       const label = new THREE.Mesh(geom, mat);
 
@@ -142,9 +145,9 @@ class OrientationMarker {
       this.camera.rotation.copy(rotation);
       for (var i = 0; i < 3; i++) {
         this.labels[i].position.set(
-          (i == 0) ? distance : 0,
-          (i == 1) ? distance : 0,
-          (i == 2) ? distance : 0
+          i == 0 ? distance : 0,
+          i == 1 ? distance : 0,
+          i == 2 ? distance : 0,
         );
         this.labels[i].quaternion.copy(quaternion);
       }

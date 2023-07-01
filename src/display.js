@@ -1,7 +1,6 @@
 import { getIconBackground } from "./icons.js";
 
 function TEMPLATE(id) {
-
   var html = `
 <div class="tcv_cad_viewer">
     <div class="tcv_cad_toolbar tcv_round">
@@ -456,7 +455,8 @@ class Display {
     this.container = container;
 
     this.container.innerHTML = TEMPLATE(this.container.id);
-    const fullWidth = options.cadWidth + (options.glass ? 0 : options.treeWidth);
+    const fullWidth =
+      options.cadWidth + (options.glass ? 0 : options.treeWidth);
     this.handleMoreButton(fullWidth);
     this.cadBody = this._getElement("tcv_cad_body");
     this.cadTool = this._getElement("tcv_cad_toolbar");
@@ -1051,7 +1051,7 @@ class Display {
     const btn = e.target.className.split(" ")[0].slice(4);
     this.viewer.presetCamera(btn);
     this.highlightButton(btn);
-    this.viewer.update(true, false); // ensure update is called again 
+    this.viewer.update(true, false); // ensure update is called again
   };
 
   /**
