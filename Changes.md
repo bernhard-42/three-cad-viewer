@@ -1,3 +1,10 @@
+## v1.8.3
+
+**Fixes:**
+
+- Ensure notifications for material properties are sent
+- Add setters for material properties
+
 ## v1.8.2
 
 **Fixes:**
