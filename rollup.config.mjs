@@ -8,78 +8,73 @@ import livereload from "rollup-plugin-livereload";
 import image from "@rollup/plugin-image";
 
 const pkg = {
-    "main": "dist/three-cad-viewer.js",
-    "module": "dist/three-cad-viewer.esm.js"
+  main: "dist/three-cad-viewer.js",
+  module: "dist/three-cad-viewer.esm.js",
 };
 
 function addMin(name) {
-    return `${name.slice(0, -3)}.min.js`;
+  return `${name.slice(0, -3)}.min.js`;
 }
 
 const umdName = "CadViewer";
 
 const default_plugins = [
-    resolve(),
-    css({ output: "three-cad-viewer.esm.css" }),
-    image(),
+  resolve(),
+  css({ output: "three-cad-viewer.css" }),
+  image(),
 ];
 
 var config;
 
 if (process.env.BUILD === "production") {
-    config = [
+  config = [
+    {
+      input: "src/index.js",
+      plugins: [...default_plugins],
+      output: [
         {
-            input: "src/index.js",
-            plugins: [
-                ...default_plugins,
-            ],
-            output: [
-                {
-                    format: "es",
-                    file: pkg.module,
-                },
-                {
-                    format: "umd",
-                    name: umdName,
-                    file: pkg.main,
-                },
-            ]
+          format: "es",
+          file: pkg.module,
         },
         {
-            input: "src/index.js",
-            plugins: [
-                ...default_plugins,
-                terser(),
-            ],
-            output: [
-                {
-                    format: "es",
-                    file: addMin(pkg.module),
-                },
-                {
-                    format: "umd",
-                    name: umdName,
-                    file: addMin(pkg.main),
-                },
-            ]
+          format: "umd",
+          name: umdName,
+          file: pkg.main,
         },
-    ];
+      ],
+    },
+    {
+      input: "src/index.js",
+      plugins: [...default_plugins, terser()],
+      output: [
+        {
+          format: "es",
+          file: addMin(pkg.module),
+        },
+        {
+          format: "umd",
+          name: umdName,
+          file: addMin(pkg.main),
+        },
+      ],
+    },
+  ];
 } else {
-    config = {
-        input: "src/index.js",
-        plugins: [
-            ...default_plugins,
-            serve({
-                host: os.hostname(),
-                port: 8082,
-            }),
-            livereload()
-        ],
-        output: {
-            format: "es",
-            file: pkg.module,
-        }
-    };
+  config = {
+    input: "src/index.js",
+    plugins: [
+      ...default_plugins,
+      serve({
+        host: os.hostname(),
+        port: 8082,
+      }),
+      livereload(),
+    ],
+    output: {
+      format: "es",
+      file: pkg.module,
+    },
+  };
 }
 
 export default config;
