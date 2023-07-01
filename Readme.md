@@ -40,6 +40,13 @@ The value 2 is reserved for nodes and shows a mixed state, i.d. some of the chil
 
 For the `States` object, see [Class States](https://bernhard-42.github.io/three-cad-viewer/global.html#States)
 
+### Getting started
+
+1. [Install yarn](https://classic.yarnpkg.com/en/docs/install) on your system (ie. `npm i -g yarn`) if not already done;
+2. Clone the repository: `git clone https://github.com/bernhard-42/three-cad-viewer.git && cd three-cad-viewer`;
+3. Start web server: `yarn run start` and go to the page displayed in the logs (ie. `127.0.0.1:8080`)
+4. Build project: `yarn run clean; yarn run build; yarn run docs`;
+
 ## Skeleton:
 
 ```html
@@ -120,46 +127,4 @@ For the deployment, see [Release.md](./Release.md)
 
 # Changes
 
-v1.7.0
-
-- Changed Z orientation to follow standard CAD programs. The old behaviour can be still used by using uo="L" (legacy)
-
-v1.6.4
-
-- add support for color alpha channel
-
-v1.6.3
-
-- Introduce a new parameter "up" that determines whther camera up is Y (up="Y") or Z (up="Z")
-
-v1.6.2
-
-- Fixed bounding box max_dist_from_center algorithm
-
-v1.6.1
-
-- Increase minimum width to 970
-- Handle more button in glassMode function
-- Allow resizing after view is created
-
-v1.6.0
-
-- Disable jupyter cell select on shift mousedown in cad tree
-- Remove bounding box for isolate mode and improve click states
-- Center isolated objects around bounding box center
-- Extend help for picking/hiding/isolating
-- highlight tree node when element picked
-- A new bounding box algorithm (AABB)
-
-v1.5.9
-
-- fixed a regression from v1.5.8 around initial zoom value handling)
-
-v1.5.8
-
-- fixed glass and tools paramewter handling
-- fixed initial zoom for wide cad views with low height
-
-v1.5.7
-
-- fixed ids of checkboxes to be unique across the document
+see [Chages.md](./Changes.md)

@@ -64,14 +64,6 @@
 
 - Fix explode
 
-## v1.7.6
-
-**Fixes**
-
-## v1.7.5
-
-**Fixes**
-
 ## v1.7.4
 
 **Fixes**
