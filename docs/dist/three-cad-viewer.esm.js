@@ -52146,10 +52146,13 @@ class Slider {
   }
 
   _notify = (value, notify = true) => {
-    const change = {};
-    change[`clip_slider_${this.index - 1}`] = parseFloat(value);
-    this.display.viewer.checkChanges(change, notify);
+    if (this.type == "plane") {
+      const change = {};
+      change[`clip_slider_${this.index - 1}`] = parseFloat(value);
+      this.display.viewer.checkChanges(change, notify);
+    }
   };
+
   _handle(type, index, value) {
     if (type == "plane") {
       this.display.refreshPlane(index, value);
@@ -52877,6 +52880,42 @@ class Display {
   selectTab = (e) => {
     const tab = e.target.className.split(" ")[0];
     this.selectTabByName(tab.slice(8));
+  };
+
+  /**
+   * Set the ambient light intensity in the UI
+   * @function
+   * @param {number} val - a float between 0 and 4
+   */
+  setAmbientLight = (val) => {
+    this.ambientlightSlider.setValue(val * 100);
+  };
+
+  /**
+   * Set the direct light intensity in the UI
+   * @function
+   * @param {number} val - a float between 0 and 4
+   */
+  setDirectLight = (val) => {
+    this.directionallightSlider.setValue(val * 100);
+  };
+
+  /**
+   * Set material metalness in the UI
+   * @function
+   * @param {number} val - a float between 0 and 1
+   */
+  setMetalness = (val) => {
+    this.metalnessSlider.setValue(val * 100);
+  };
+
+  /**
+   * Set material roughness in the UI
+   * @function
+   * @param {number} val - a float between 0 and 1
+   */
+  setRoughness = (val) => {
+    this.roughnessSlider.setValue(val * 100);
   };
 
   /**
@@ -58684,7 +58723,7 @@ class Camera {
   }
 }
 
-const version="1.8.2";
+const version="1.8.3";
 
 class Viewer {
   /**
@@ -59037,14 +59076,12 @@ class Viewer {
     this.display.resetAnimationSlider();
   }
 
-
   /**
    * Check whether animation object exists
    */
   hasAnimation() {
     return !!this.animation.clipAction;
   }
-
 
   /**
    * Clear the animation obect and dispose dependent objects
@@ -59128,7 +59165,7 @@ class Viewer {
         this.orientationMarker.update(
           this.camera.getPosition().clone().sub(this.controls.getTarget()),
           this.camera.getRotation(),
-          this.camera.getQuaternion()
+          this.camera.getQuaternion(),
         );
         this.orientationMarker.render(this.renderer);
       }
@@ -59307,9 +59344,11 @@ class Viewer {
     const center = new Vector3();
     this.bbox.getCenter(center);
     this.bb_max = this.bbox.max_dist_from_center();
-    this.bb_radius = Math.max(this.bbox.boundingSphere().radius, center.length());
+    this.bb_radius = Math.max(
+      this.bbox.boundingSphere().radius,
+      center.length(),
+    );
     timer.split("bounding box");
-
 
     //
     // add Info box
@@ -59374,7 +59413,10 @@ class Viewer {
     this.scene.add(amb_light);
 
     // this.directLight = new THREE.PointLight(0xffffff, this.directIntensity);
-    this.directLight = new DirectionalLight(0xffffff, this.directIntensity);
+    this.directLight = new DirectionalLight(
+      0xffffff,
+      this.directIntensity,
+    );
     this.scene.add(this.directLight);
 
     this.setAmbientLight(this.ambientIntensity);
@@ -59456,8 +59498,8 @@ class Viewer {
 
     const theme =
       this.theme === "dark" ||
-        (this.theme === "browser" &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      (this.theme === "browser" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 
@@ -59602,7 +59644,7 @@ class Viewer {
 
   /**
    * TODO: Doesn't work as expected. Needs to be fixed.
-   * 
+   *
    * Set camera mode to OrthographicCamera or PersepctiveCamera (see also setOrtho)
    * @param {number} distance - if provided, new camera distance
    * @param {boolean} [notify=true] - whether to send notification or not.
@@ -59625,7 +59667,9 @@ class Viewer {
     let cameraDir = new Vector3();
     camera.getWorldDirection(cameraDir);
 
-    let p = center.clone().add(cameraDir.normalize().multiplyScalar(-this.camera.camera_distance));
+    let p = center
+      .clone()
+      .add(cameraDir.normalize().multiplyScalar(-this.camera.camera_distance));
     camera.position.set(p.x, p.y, p.z);
 
     this.update(true, notify);
@@ -60242,6 +60286,7 @@ class Viewer {
         el.intensity = val;
       }
     }
+    this.checkChanges({ ambient_intensity: val }, notify);
     this.update(this.updateMarker, notify);
   };
 
@@ -60261,6 +60306,7 @@ class Viewer {
   setDirectLight = (val, notify = true) => {
     this.directIntensity = val;
     this.directLight.intensity = val;
+    this.checkChanges({ direct_intensity: val }, notify);
     this.update(this.updateMarker, notify);
   };
 
