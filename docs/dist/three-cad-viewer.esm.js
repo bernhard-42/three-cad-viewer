@@ -55858,11 +55858,15 @@ class OrientationMarker {
 
   // handler (bound to OrientationMarker instance)
 
-  update(position, rotation, quaternion) {
+  update(position, quaternion) {
     if (this.ready) {
-      this.camera.position.copy(position);
-      this.camera.position.setLength(300);
-      this.camera.rotation.copy(rotation);
+      let q = new Quaternion().setFromUnitVectors(
+        new Vector3(0, 0, 1), position.normalize()
+      );
+      this.camera.position.set(0, 0, 1).applyQuaternion(q).multiplyScalar(300);
+
+      this.camera.quaternion.copy(quaternion);
+
       for (var i = 0; i < 3; i++) {
         this.labels[i].position.set(
           i == 0 ? distance : 0,
@@ -58723,7 +58727,7 @@ class Camera {
   }
 }
 
-const version="1.8.3";
+const version="1.8.4";
 
 class Viewer {
   /**
@@ -59164,7 +59168,6 @@ class Viewer {
 
         this.orientationMarker.update(
           this.camera.getPosition().clone().sub(this.controls.getTarget()),
-          this.camera.getRotation(),
           this.camera.getQuaternion(),
         );
         this.orientationMarker.render(this.renderer);
@@ -59616,6 +59619,7 @@ class Viewer {
    */
   presetCamera = (dir, zoom = null, notify = true) => {
     this.camera.presetCamera(dir, zoom, notify);
+    this.controls.setTarget(this.camera.target);
     this.update(true, notify);
   };
 
