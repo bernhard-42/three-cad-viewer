@@ -138,11 +138,15 @@ class OrientationMarker {
 
   // handler (bound to OrientationMarker instance)
 
-  update(position, rotation, quaternion) {
+  update(position, quaternion) {
     if (this.ready) {
-      this.camera.position.copy(position);
-      this.camera.position.setLength(300);
-      this.camera.rotation.copy(rotation);
+      let q = new THREE.Quaternion().setFromUnitVectors(
+        new THREE.Vector3(0, 0, 1), position.normalize()
+      );
+      this.camera.position.set(0, 0, 1).applyQuaternion(q).multiplyScalar(300);
+
+      this.camera.quaternion.copy(quaternion);
+
       for (var i = 0; i < 3; i++) {
         this.labels[i].position.set(
           i == 0 ? distance : 0,

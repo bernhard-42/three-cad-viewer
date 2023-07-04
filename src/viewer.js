@@ -455,7 +455,6 @@ class Viewer {
 
         this.orientationMarker.update(
           this.camera.getPosition().clone().sub(this.controls.getTarget()),
-          this.camera.getRotation(),
           this.camera.getQuaternion(),
         );
         this.orientationMarker.render(this.renderer);
@@ -907,6 +906,7 @@ class Viewer {
    */
   presetCamera = (dir, zoom = null, notify = true) => {
     this.camera.presetCamera(dir, zoom, notify);
+    this.controls.setTarget(this.camera.target);
     this.update(true, notify);
   };
 
