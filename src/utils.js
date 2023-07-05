@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 function clone(obj) {
   if (Array.isArray(obj)) {
     return obj.map((el) => clone(el));
@@ -62,4 +64,12 @@ function prettyPrintVector(v, a, b) {
   return `${format(v[0], a, b)}, ${format(v[2], a, b)}, ${format(v[2], a, b)}`;
 }
 
-export { clone, isEqual, sceneTraverse, prettyPrintVector };
+function vector3(x = 0, y = 0, z = 0) {
+  return new THREE.Vector3(x, y, z);
+}
+
+function quaternion(x = 0, y = 0, z = 0, w = 1) {
+  return new THREE.Quaternion(x, y, z, w);
+}
+
+export { clone, isEqual, sceneTraverse, prettyPrintVector, vector3, quaternion };
