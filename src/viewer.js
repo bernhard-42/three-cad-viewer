@@ -788,8 +788,8 @@ class Viewer {
 
     const theme =
       this.theme === "dark" ||
-      (this.theme === "browser" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
+        (this.theme === "browser" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 
@@ -2013,6 +2013,14 @@ class Viewer {
 
     // update the this
     this.update(true);
+  }
+
+  vector3(x = 0, y = 0, z = 0) {
+    return new THREE.Vector3(x, y, z);
+  }
+
+  quaternion(x = 0, y = 0, z = 0, w = 1) {
+    return new THREE.Quaternion(x, y, z, w);
   }
 }
 
