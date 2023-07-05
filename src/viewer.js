@@ -905,6 +905,7 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   presetCamera = (dir, zoom = null, notify = true) => {
+    this.camera.target = new THREE.Vector3(...this.bbox.center());
     this.camera.presetCamera(dir, zoom, notify);
     this.controls.setTarget(this.camera.target);
     this.update(true, notify);
