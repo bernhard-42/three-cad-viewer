@@ -455,7 +455,6 @@ class Viewer {
 
         this.orientationMarker.update(
           this.camera.getPosition().clone().sub(this.controls.getTarget()),
-          this.camera.getRotation(),
           this.camera.getQuaternion(),
         );
         this.orientationMarker.render(this.renderer);
@@ -789,8 +788,8 @@ class Viewer {
 
     const theme =
       this.theme === "dark" ||
-      (this.theme === "browser" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
+        (this.theme === "browser" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 
@@ -906,7 +905,9 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   presetCamera = (dir, zoom = null, notify = true) => {
+    this.camera.target = new THREE.Vector3(...this.bbox.center());
     this.camera.presetCamera(dir, zoom, notify);
+    this.controls.setTarget(this.camera.target);
     this.update(true, notify);
   };
 
@@ -2012,6 +2013,14 @@ class Viewer {
 
     // update the this
     this.update(true);
+  }
+
+  vector3(x = 0, y = 0, z = 0) {
+    return new THREE.Vector3(x, y, z);
+  }
+
+  quaternion(x = 0, y = 0, z = 0, w = 1) {
+    return new THREE.Quaternion(x, y, z, w);
   }
 }
 
