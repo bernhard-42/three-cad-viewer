@@ -56211,11 +56211,12 @@ class TreeView {
     var walk = (obj) => {
       if (obj.type == "node") {
         if (
-          ((mode == 1 || mode == 3) &&
-            (obj.children.length === 1 || mode == 3) &&
-            obj !== this.tree &&
-            obj.children[0].type === "leaf") ||
-          mode == 2
+          mode === 2 ||
+          (obj !== this.tree &&
+            (mode === 3 ||
+              (mode == 1 &&
+                obj.children.length === 1 &&
+                obj.children[0].type === "leaf")))
         ) {
           var el = this.container.getElementsByClassName(
             `node${obj.id.replaceAll(" ", "_")}`,
@@ -58727,7 +58728,7 @@ class Camera {
   }
 }
 
-const version="1.8.5";
+const version="1.8.6";
 
 class Viewer {
   /**
