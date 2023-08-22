@@ -1338,6 +1338,16 @@ class Display {
   showHelp = (flag) => {
     this.cadHelp.style.display = flag ? "block" : "none";
     this.help_shown = flag;
+    if (flag) {
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          this.showHelp(false);
+        }
+        document.removeEventListener("keydown", this);
+      });
+    } else {
+      document.removeEventListener("keydown", this);
+    }
   };
 
   /**

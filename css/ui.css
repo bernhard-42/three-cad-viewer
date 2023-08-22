@@ -193,6 +193,10 @@ canvas {
   z-index: 100;
 }
 
+.tcv_help {
+  outline: none;
+}
+
 .tcv_cad_help {
   /* height: 36px; */
   background-color: var(--tcv-bg-color);
