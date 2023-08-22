@@ -1,4 +1,5 @@
 import { getIconBackground } from "./icons.js";
+import { KeyMapper } from "./utils.js";
 
 // Some helpers
 
@@ -100,7 +101,7 @@ class TreeView {
       const path = parts.slice(0, -1).join("/");
       const name = parts[parts.length - 1];
 
-      this.pickHandler(path, name, e.metaKey, e.shiftKey, model.type, true);
+      this.pickHandler(path, name, KeyMapper.get(e, "meta"), KeyMapper.get(e, "shift"), model.type, true);
     }, false);
 
     var entry = tag("span", ["tcv_node_entry"], { id: model.id });

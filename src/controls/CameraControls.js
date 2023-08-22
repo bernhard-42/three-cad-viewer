@@ -7,6 +7,7 @@ import {
 	Vector2,
 	Vector3
 } from "three";
+import { KeyMapper } from "../utils.js";
 
 var CameraControls = function ( object, domElement ) {
 
@@ -1004,7 +1005,7 @@ var CameraControls = function ( object, domElement ) {
 
 			case MOUSE.ROTATE:
 
-				if ( event.shiftKey ) {
+				if (KeyMapper.get(event, "shift")) {
 
 					if ( scope.enablePan === false ) return;
 										
@@ -1017,8 +1018,8 @@ var CameraControls = function ( object, domElement ) {
 
 					if ( scope.enableRotate === false ) return;
 					
-					if (event.ctrlKey) horizontalRotate = false;
-					if (event.metaKey) verticalRotate = false;
+					if (KeyMapper.get(event, "ctrl")) horizontalRotate = false;
+					if (KeyMapper.get(event, "meta")) verticalRotate = false;
 
 					handleMouseDownRotate( event );
 
@@ -1030,7 +1031,7 @@ var CameraControls = function ( object, domElement ) {
 
 			case MOUSE.PAN:
 
-				if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+				if (KeyMapper.get(event, "ctrl") || KeyMapper.get(event, "meta") || KeyMapper.get(event, "shift")) {
 
 					if ( scope.enableRotate === false ) return;
 

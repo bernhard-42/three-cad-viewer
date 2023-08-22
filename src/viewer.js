@@ -10,7 +10,7 @@ import { Timer } from "./timer.js";
 import { Clipping } from "./clipping.js";
 import { Animation } from "./animation.js";
 import { Info } from "./info.js";
-import { clone, isEqual, sceneTraverse } from "./utils.js";
+import { clone, isEqual, sceneTraverse, KeyMapper } from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
 import { BoundingBox, BoxHelper } from "./bbox.js";
@@ -38,6 +38,10 @@ class Viewer {
     this.hasAnimationLoop = false;
 
     this.setDisplayDefaults(options);
+
+    if (options.keymap) {
+      KeyMapper.set(options.keymap);
+    }
 
     this.display = new Display(container, {
       theme: this.theme,
@@ -1208,7 +1212,7 @@ class Viewer {
       }
     }
     if (nearest != null) {
-      this.handlePick(nearest.path, nearest.name, e.metaKey, e.shiftKey);
+      this.handlePick(nearest.path, nearest.name, KeyMapper.get(e, "meta"), KeyMapper.get(e, "shift"));
     }
   };
 
@@ -1978,6 +1982,17 @@ class Viewer {
         }
       }
     }
+  }
+
+  /**
+   * Set modifiers for keymap
+   *
+   * @param {config} keymap - e.g. {"shift": "shiftKey", "ctrl": "ctrlKey", "meta": "altKey"}
+   */
+  setKeyMap(config) {
+    const before = KeyMapper.get_config();
+    KeyMapper.set(config);
+    this.display.updateHelp(before, config);
   }
 
   /**

@@ -62,4 +62,33 @@ function prettyPrintVector(v, a, b) {
   return `${format(v[0], a, b)}, ${format(v[2], a, b)}, ${format(v[2], a, b)}`;
 }
 
-export { clone, isEqual, sceneTraverse, prettyPrintVector };
+class _KeyMapper {
+  constructor() {
+    this.keyMapping = {
+      "shift": "shiftKey",
+      "ctrl": "ctrlKey",
+      "meta": "metaKey"
+    };
+  }
+  getshortcuts = (key) => {
+    return this.keyMapping[key].replace("Key", "");
+  };
+
+  get_config() {
+    return Object.assign({}, this.keyMapping);
+  }
+
+  get = (event, key) => {
+    return event[this.keyMapping[key]];
+  };
+
+  set = (config) => {
+    for (var key in config) {
+      this.keyMapping[key] = config[key];
+    }
+  };
+}
+
+const KeyMapper = new _KeyMapper();
+
+export { clone, isEqual, sceneTraverse, prettyPrintVector, KeyMapper };

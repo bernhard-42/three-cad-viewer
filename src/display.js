@@ -1,6 +1,10 @@
 import { getIconBackground } from "./icons.js";
+import { KeyMapper } from "./utils.js";
 
 function TEMPLATE(id) {
+  const shift = KeyMapper.getshortcuts("shift");
+  const ctrl = KeyMapper.getshortcuts("ctrl");
+  const meta = KeyMapper.getshortcuts("meta");
   var html = `
 <div class="tcv_cad_viewer">
     <div class="tcv_cad_toolbar tcv_round">
@@ -252,15 +256,15 @@ function TEMPLATE(id) {
                     </tr>
                     <tr>
                         <td>Rotate up / down</td>
-                        <td>&lt;Ctrl&gt; + &lt;left mouse button&gt;</td>
+                        <td>&lt;${ctrl}&gt; + &lt;left mouse button&gt;</td>
                     </tr>
                     <tr>
                         <td>Rotate left / right</td>
-                        <td>&lt;Meta&gt; + &lt;left mouse button&gt;</td>
+                        <td>&lt;${meta}&gt; + &lt;left mouse button&gt;</td>
                     </tr>
                     <tr>
                         <td>Pan</td>
-                        <td>&lt;Shift&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>
+                        <td>&lt;${shift}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>
                     </tr>
                     <tr>
                         <td>Zoom</td>
@@ -285,18 +289,18 @@ function TEMPLATE(id) {
                     </tr>
                     <tr>
                         <td>Hide element</td>
-                        <td>&lt;Meta&gt; + &lt;left mouse button&gt; double click</td>
+                        <td>&lt;${meta}&gt; + &lt;left mouse button&gt; double click</td>
                     </tr>
                     <tr>
                         <td></td>
-                        <td>&lt;Meta&gt; + click on navigation tree label</td>
+                        <td>&lt;${meta}&gt; + click on navigation tree label</td>
                     </tr>                    <tr>
                         <td>Isolate element</td>
-                        <td>&lt;Shift&gt; + &lt;left mouse button&gt; double click</td>
+                        <td>&lt;${shift}&gt; + &lt;left mouse button&gt; double click</td>
                     </tr>
                     <tr>
                         <td></td>
-                        <td>&lt;Shift&gt; + click on navigation tree label</td>
+                        <td>&lt;${shift}&gt; + click on navigation tree label</td>
                     </tr>
                     <tr>
                         <td></td>
@@ -1425,6 +1429,20 @@ class Display {
 
     const fullWidth = this.cadWidth + (this.glass ? 0 : this.treeWidth);
     this.handleMoreButton(fullWidth);
+  }
+
+  updateHelp(before, after) {
+    console.log("updateHelp", before, after);
+    const help = this._getElement("tcv_cad_help_layout");
+    for (var k in before) {
+      help.innerHTML = help.innerHTML.replaceAll(
+        "&lt;" + before[k].slice(0, -3) + "&gt;",
+        "&lt;_" + after[k].slice(0, -3) + "&gt;");
+    }
+    help.innerHTML = help.innerHTML.replaceAll("_shift", "shift");
+    help.innerHTML = help.innerHTML.replaceAll("_ctrl", "ctrl");
+    help.innerHTML = help.innerHTML.replaceAll("_alt", "alt");
+    help.innerHTML = help.innerHTML.replaceAll("_meta", "meta");
   }
 }
 
