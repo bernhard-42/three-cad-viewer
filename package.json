@@ -13,8 +13,8 @@
   "main": "dist/three-cad-viewer.js",
   "module": "dist/three-cad-viewer.esm.js",
   "scripts": {
-    "clean": "rimraf ./dist/*",
-    "build": "echo \"export const version=$(cat package.json | jq .version);\" > src/_version.js && rollup -c --environment BUILD:production",
+    "clean": "rimraf ./dist/",
+    "build": "node -e 'const { version } = require(\"./package.json\"); require(\"fs\").writeFileSync(\"./src/_version.js\", `export const version = \"${version}\"\n`)' && rollup -c --environment BUILD:production",
     "prepare": "yarn run build",
     "start": "rollup -w -c",
     "docs": "./build_docs.sh",
