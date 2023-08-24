@@ -89,6 +89,11 @@ class _KeyMapper {
   };
 }
 
+// see https://discourse.threejs.org/t/updates-to-lighting-in-three-js-r155/53733
+function scaleLight(intensity) {
+  return Math.round(Math.PI * intensity);
+}
+
 const KeyMapper = new _KeyMapper();
 
-export { clone, isEqual, sceneTraverse, prettyPrintVector, KeyMapper };
+export { clone, isEqual, sceneTraverse, prettyPrintVector, KeyMapper, scaleLight };

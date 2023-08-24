@@ -10,7 +10,7 @@ import { Timer } from "./timer.js";
 import { Clipping } from "./clipping.js";
 import { Animation } from "./animation.js";
 import { Info } from "./info.js";
-import { clone, isEqual, sceneTraverse, KeyMapper } from "./utils.js";
+import { clone, isEqual, sceneTraverse, KeyMapper, scaleLight } from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
 import { BoundingBox, BoxHelper } from "./bbox.js";
@@ -703,13 +703,13 @@ class Viewer {
     // add lights
     //
 
-    const amb_light = new THREE.AmbientLight(0xffffff, this.ambientIntensity);
-    this.scene.add(amb_light);
+    this.ambientLight = new THREE.AmbientLight(0xffffff, scaleLight(this.ambientIntensity));
+    this.scene.add(this.ambientLight);
 
     // this.directLight = new THREE.PointLight(0xffffff, this.directIntensity);
     this.directLight = new THREE.DirectionalLight(
       0xffffff,
-      this.directIntensity,
+      scaleLight(this.directIntensity)
     );
     this.scene.add(this.directLight);
 
@@ -1577,11 +1577,7 @@ class Viewer {
    */
   setAmbientLight = (val, notify = true) => {
     this.ambientIntensity = val;
-    for (var el of this.scene.children) {
-      if (el instanceof THREE.AmbientLight) {
-        el.intensity = val;
-      }
-    }
+    this.ambientLight.intensity = scaleLight(val);
     this.checkChanges({ ambient_intensity: val }, notify);
     this.update(this.updateMarker, notify);
   };
@@ -1601,7 +1597,7 @@ class Viewer {
    */
   setDirectLight = (val, notify = true) => {
     this.directIntensity = val;
-    this.directLight.intensity = val;
+    this.directLight.intensity = scaleLight(val);
     this.checkChanges({ direct_intensity: val }, notify);
     this.update(this.updateMarker, notify);
   };
