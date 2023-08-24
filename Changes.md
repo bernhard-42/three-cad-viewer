@@ -1,3 +1,34 @@
+## v1.8.7
+
+**Features:**
+
+- Key mapping can be changed (viewer.setKeyMap({"shift": "ctrlKey", "ctrl": "shiftKey", "meta": "altKey"}) or as parameter to the viewer
+
+**Fixes:**
+- Switched to threejs r155 and fixed for the breaking change for light intensity
+- "clean" and "build" steps in package,json are Windows friendly (note, docs and release aren't, but you might not need them)
+
+## v1.8.6
+
+**Fixes:**
+
+- Fixed root collapse mode
+
+## v1.8.5
+
+**Fixes:**
+
+- Ensure center is set as target for preset buttons
+- Added Vector3 and Quaternion creator
+
+
+## v1.8.4
+
+**Fixes:**
+
+- Fixed trihedron panning for panned objects
+
+
 ## v1.8.3
 
 **Fixes:**
