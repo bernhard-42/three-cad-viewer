@@ -13,7 +13,7 @@ class ObjectGroup extends THREE.Group {
     this.alpha = (alpha == null) ? 1.0 : alpha;
     this.edge_color = edge_color;
     this.renderback = renderback;
-    this.types = { front: null, back: null, edges: null, vertrices: null };
+    this.types = { front: null, back: null, edges: null, vertices: null };
   }
 
   addType(mesh, type) {
