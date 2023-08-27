@@ -95,7 +95,9 @@ class Viewer {
 
     this.lastNotification = {};
     this.lastBbox = null;
+    this.lastObject = null;
     this.bboxNeedsUpdate = false;
+    this.raycastMode = false;
 
     this.keepHighlight = false;
 
@@ -103,6 +105,7 @@ class Viewer {
     this.renderer.domElement.addEventListener("contextmenu", (e) =>
       e.stopPropagation(),
     );
+    this.renderer.domElement.addEventListener("mousemove", this.onPointerMove);
 
     this.display.addCadView(this.renderer.domElement);
 
@@ -440,6 +443,35 @@ class Viewer {
   update = (updateMarker, notify = true) => {
     if (this.ready) {
       this.renderer.clear();
+
+      if (this.raycastMode) {
+        this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
+
+        const objects = this.raycaster.intersectObjects(
+          this.scene.children.slice(0, 1),
+          true,
+        );
+        for (var object of objects) {
+          if (
+            object.object.material.visible &&
+            (object.distanceToRay == null ||
+              object.distanceToRay < 0.01 * this.bb_radius)
+          ) {
+            const objectGroup = object.object.parent;
+            if (objectGroup !== this.lastObject) {
+              if (this.lastObject != null) {
+                this.lastObject.highlight(false);
+              }
+              this.lastObject = objectGroup;
+              objectGroup.highlight(true);
+              const metric = objectGroup.metrics();
+              const name = objectGroup.name.split("|").slice(-1);
+              this.info.addHtml(`<b>${name} </b>${metric.value}`);
+            }
+            break;
+          }
+        }
+      }
 
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
@@ -1190,12 +1222,6 @@ class Viewer {
    * @param {MouseEvent} e - a DOM MouseEvent
    */
   pick = (e) => {
-    const rect = this.renderer.domElement.getBoundingClientRect();
-    const offsetX = rect.x + window.pageXOffset;
-    const offsetY = rect.y + window.pageYOffset;
-    this.mouse.x = ((e.pageX - offsetX) / this.cadWidth) * 2 - 1;
-    this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
-
     this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
 
     const objects = this.raycaster.intersectObjects(
@@ -1223,6 +1249,19 @@ class Viewer {
         KeyMapper.get(e, "shift"),
       );
     }
+  };
+
+  /**
+   * Get the current mouse position
+   * @function
+   * @param {MouseEvent} e - a DOM MouseEvent
+   */
+  onPointerMove = (e) => {
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    const offsetX = rect.x + window.scrollX;
+    const offsetY = rect.y + window.scrollY;
+    this.mouse.x = ((e.pageX - offsetX) / this.cadWidth) * 2 - 1;
+    this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
   };
 
   //
@@ -1906,6 +1945,15 @@ class Viewer {
       reader.readAsDataURL(blob);
     });
   };
+
+  /**
+   * Set raycast mode
+   * @function
+   * @param {boolean} flag - turn raycast mode on or off
+   */
+  setRaycastMode(flag) {
+    this.raycastMode = flag;
+  }
 
   /**
    * Calculate explode trajectories and initiate the animation

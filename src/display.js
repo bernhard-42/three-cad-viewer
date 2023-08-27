@@ -959,7 +959,22 @@ class Display {
    */
   setTools = (e) => {
     const flag = !!e.target.checked;
+
+    this.viewer.toggleAnimationLoop(flag);
     this.showToolsControl(flag);
+    this.viewer.setRaycastMode(flag);
+
+    if (flag) {
+      if (this.viewer.hasAnimation()) {
+        this.viewer.backupAnimation();
+      }
+    } else {
+      if (this.viewer.hasAnimation()) {
+        this.controlAnimationByName("stop");
+        this.viewer.clearAnimation();
+        this.viewer.restoreAnimation();
+      }
+    }
   };
 
   /**
