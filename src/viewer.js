@@ -464,24 +464,31 @@ class Viewer {
           this.scene.children.slice(0, 1),
           true,
         );
-        for (var object of objects) {
-          if (
-            object.object.material.visible &&
-            (object.distanceToRay == null ||
-              object.distanceToRay < 0.01 * this.bb_radius)
-          ) {
-            const objectGroup = object.object.parent;
-            if (objectGroup !== this.lastObject) {
-              if (this.lastObject != null && !this.lastObject.isSelected) {
-                this.lastObject.highlight(false);
+        if (objects.length > 0) {
+          for (var object of objects) {
+            if (
+              object.object.material.visible &&
+              (object.distanceToRay == null ||
+                object.distanceToRay < 0.01 * this.bb_radius)
+            ) {
+              const objectGroup = object.object.parent;
+              if (objectGroup !== this.lastObject) {
+                if (this.lastObject != null && !this.lastObject.isSelected) {
+                  this.lastObject.highlight(false);
+                }
+                objectGroup.highlight(true);
+                const metric = objectGroup.metrics();
+                const name = objectGroup.name.split("|").slice(-1);
+                this.info.addHtml(`<b>${name} </b>${metric.value}`);
+                this.lastObject = objectGroup;
               }
-              objectGroup.highlight(true);
-              const metric = objectGroup.metrics();
-              const name = objectGroup.name.split("|").slice(-1);
-              this.info.addHtml(`<b>${name} </b>${metric.value}`);
-              this.lastObject = objectGroup;
+              break;
             }
-            break;
+          }
+        } else {
+          if (this.lastObject != null && !this.lastObject.isSelected) {
+            this.lastObject.highlight(false);
+            this.lastObject = null;
           }
         }
       }
@@ -1284,6 +1291,10 @@ class Viewer {
         );
       }
     }
+  };
+
+  getSelection = () => {
+    return this.nestedGroup.selection();
   };
 
   /**

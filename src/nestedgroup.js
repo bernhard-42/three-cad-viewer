@@ -531,6 +531,20 @@ class NestedGroup {
     }
   }
 
+  selection() {
+    var result = [];
+    for (var path in this.groups) {
+      for (var obj of this.groups[path].children) {
+        if (obj instanceof ObjectGroup) {
+          if (obj.isSelected) {
+            result.push(obj);
+          }
+        }
+      }
+    }
+    return result;
+  }
+
   setMetalness(value) {
     this.metalness = value;
     this._traverse("setMetalness", value);
