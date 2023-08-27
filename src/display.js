@@ -913,7 +913,7 @@ class Display {
   };
 
   /**
-   * Checkbox Handler for setting the black edges parameter
+   * Checkbox Handler for setting the explode mode
    * @function
    * @param {Event} e - a DOM click event
    */
