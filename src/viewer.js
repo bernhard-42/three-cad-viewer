@@ -704,13 +704,16 @@ class Viewer {
     // add lights
     //
 
-    this.ambientLight = new THREE.AmbientLight(0xffffff, scaleLight(this.ambientIntensity));
+    this.ambientLight = new THREE.AmbientLight(
+      0xffffff,
+      scaleLight(this.ambientIntensity),
+    );
     this.scene.add(this.ambientLight);
 
     // this.directLight = new THREE.PointLight(0xffffff, this.directIntensity);
     this.directLight = new THREE.DirectionalLight(
       0xffffff,
-      scaleLight(this.directIntensity)
+      scaleLight(this.directIntensity),
     );
     this.scene.add(this.directLight);
 
@@ -793,8 +796,8 @@ class Viewer {
 
     const theme =
       this.theme === "dark" ||
-        (this.theme === "browser" &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      (this.theme === "browser" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 
@@ -1213,7 +1216,12 @@ class Viewer {
       }
     }
     if (nearest != null) {
-      this.handlePick(nearest.path, nearest.name, KeyMapper.get(e, "meta"), KeyMapper.get(e, "shift"));
+      this.handlePick(
+        nearest.path,
+        nearest.name,
+        KeyMapper.get(e, "meta"),
+        KeyMapper.get(e, "shift"),
+      );
     }
   };
 
