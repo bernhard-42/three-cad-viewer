@@ -69,6 +69,7 @@ const icons = {
   shape_no: { light: light_shape_no, dark: dark_shape_no },
   stop: { light: light_stop, dark: dark_stop },
   top: { light: light_top, dark: dark_top },
+  measure: { light: light_resize, dark: dark_resize },
 };
 
 function getIconBackground(theme, name) {

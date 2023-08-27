@@ -76,6 +76,11 @@ function TEMPLATE(id) {
                     <input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges_${id}' type="checkbox" />
                     <label for='tcv_black_edges_${id}' class="tcv_label tcv_dropdown-entry">Black edges</label>
                 </span class="tcv_more_check">
+                <span class="tcv_more_check" class="tcv_tools_widget tcv_tooltip"
+                    data-tooltip="Tools">
+                    <input class='tcv_tools tcv_check tcv_dropdown-entry' id='tcv_tools_${id}' type="checkbox" />
+                    <label for='tcv_tools_${id}' class="tcv_label tcv_dropdown-entry">CAD Tools</label>
+                </span class="tcv_more_check">
                 <span class="tcv_more_check" class="tcv_explode_widget tcv_tooltip"
                     data-tooltip="Explode assembly (@0 determines explosion center)">
                     <input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode_${id}' type="checkbox" />
@@ -232,6 +237,11 @@ function TEMPLATE(id) {
         </div>
 
         <div class="tcv_cad_view">
+            <div class="tcv_cad_tools tcv_round">
+                <span class="tcv_tools_label">T</span>
+                <span class="tcv_tooltip" data-tooltip="Measure"><input class='tcv_measure tcv_btn'
+                        type="button" /></span>
+            </div>
             <div class="tcv_cad_animation tcv_round">
                 <span class="tcv_animation_label">E</span>
                 <span><input type="range" min="0" max="1000" value="0"
@@ -351,6 +361,7 @@ const buttons = [
   "play",
   "pause",
   "stop",
+  "measure",
 ];
 class Slider {
   constructor(index, min, max, display) {
@@ -477,6 +488,7 @@ class Display {
     this.tabMaterial = this._getElement("tcv_tab_material");
     this.cadInfo = this._getElement("tcv_cad_info_container");
     this.cadAnim = this._getElement("tcv_cad_animation");
+    this.cadTools = this._getElement("tcv_cad_tools");
 
     this.cadHelp = this._getElement("tcv_cad_help");
 
@@ -573,7 +585,7 @@ class Display {
   handleMoreButton(fullWidth) {
     const moreButton = this._getElement("tcv_more-btn");
     const moreContent = this._getElement("tcv_more-wrapper");
-    if (fullWidth < 970) {
+    if (fullWidth < 980) {
       moreButton.classList.remove("tcv_none");
       moreContent.classList.add("tcv_dropdown-content");
       moreContent.classList.add("tcv_more-content");
@@ -651,6 +663,7 @@ class Display {
     );
 
     this._setupCheckEvent("tcv_explode", this.setExplode);
+    this._setupCheckEvent("tcv_tools", this.setTools);
 
     this._setupClickEvent("tcv_reset", this.reset);
     this._setupClickEvent("tcv_resize", this.resize);
@@ -723,6 +736,8 @@ class Display {
     this.animationSlider.value = 0;
     this.animationSlider.addEventListener("input", this.animationChange);
     this.showAnimationControl(false);
+
+    this._setupClickEvent("tcv_measure", this.controlMeasure, false);
 
     this.showHelp(false);
   }
@@ -935,6 +950,16 @@ class Display {
   showExplode = (flag) => {
     const el = this._getElement("tcv_explode_widget");
     el.style.display = flag ? "inline-block" : "none";
+  };
+
+  /**
+   * Checkbox Handler for setting the tools mode
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setTools = (e) => {
+    const flag = !!e.target.checked;
+    this.showToolsControl(flag);
   };
 
   /**
@@ -1271,6 +1296,15 @@ class Display {
   };
 
   /**
+   * Show or hide the Tools widget
+   * @function
+   * @param {boolean} flag - whether to show or hide the Tools widget
+   */
+  showToolsControl = (flag) => {
+    this.cadTools.style.display = flag ? "block" : "none";
+  };
+
+  /**
    * Handle animation control
    * @function
    * @param {string} btn - animation control button name
@@ -1329,6 +1363,15 @@ class Display {
   resetAnimationSlider() {
     this.animationSlider.value = 0;
   }
+
+  /**
+   * Handler for the CAD tools
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  controlMeasure = (e) => {
+    console.log("controlMeasure", e);
+  };
 
   /**
    * Show or hide help dialog
