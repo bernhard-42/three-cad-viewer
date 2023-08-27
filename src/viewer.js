@@ -1243,7 +1243,11 @@ class Viewer {
     );
     var nearest = null;
     for (var object of objects) {
-      if (object.object.material.visible) {
+      if (
+        object.object.material.visible &&
+        (object.distanceToRay == null ||
+          object.distanceToRay < 0.01 * this.bb_radius)
+      ) {
         nearest = {
           path: object.object.parent.parent.name.replaceAll("|", "/"),
           name: object.object.name,
