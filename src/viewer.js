@@ -102,12 +102,19 @@ class Viewer {
     this.lastNotification = {};
     this.lastBbox = null;
     this.lastObject = null;
+    this.lastPosition = null;
     this.bboxNeedsUpdate = false;
     this.raycastMode = false;
 
     this.keepHighlight = false;
 
     this.renderer.domElement.addEventListener("dblclick", this.pick, false);
+    this.renderer.domElement.addEventListener(
+      "mousedown",
+      this.selectDown,
+      false,
+    );
+    this.renderer.domElement.addEventListener("mouseup", this.selectUp, false);
     this.renderer.domElement.addEventListener("contextmenu", (e) =>
       e.stopPropagation(),
     );
@@ -465,14 +472,14 @@ class Viewer {
           ) {
             const objectGroup = object.object.parent;
             if (objectGroup !== this.lastObject) {
-              if (this.lastObject != null) {
+              if (this.lastObject != null && !this.lastObject.isSelected) {
                 this.lastObject.highlight(false);
               }
-              this.lastObject = objectGroup;
               objectGroup.highlight(true);
               const metric = objectGroup.metrics();
               const name = objectGroup.name.split("|").slice(-1);
               this.info.addHtml(`<b>${name} </b>${metric.value}`);
+              this.lastObject = objectGroup;
             }
             break;
           }
@@ -1254,6 +1261,24 @@ class Viewer {
         KeyMapper.get(e, "meta"),
         KeyMapper.get(e, "shift"),
       );
+    }
+  };
+
+  selectDown = (e) => {
+    if (this.raycastMode) {
+      this.lastPosition = this.camera.getPosition().clone();
+    }
+  };
+
+  selectUp = (e) => {
+    if (this.raycastMode) {
+      if (this.lastPosition.equals(this.camera.getPosition())) {
+        this.lastObject.isSelected = !this.lastObject.isSelected;
+        this.lastObject.highlight(
+          this.lastObject.isSelected,
+          "S:" + this.lastObject.name,
+        );
+      }
     }
   };
 

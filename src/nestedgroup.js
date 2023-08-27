@@ -14,6 +14,7 @@ class ObjectGroup extends THREE.Group {
     this.renderback = renderback;
     this.types = { front: null, back: null, edges: null, vertices: null };
     this.lastColor = null;
+    this.isSelected = false;
   }
 
   addType(mesh, type) {
@@ -35,20 +36,24 @@ class ObjectGroup extends THREE.Group {
     }
   }
 
-  highlight(flag) {
+  highlight(flag, source) {
     var object = null;
+    var hcolor = null;
     if (this.types.front) {
       object = this.types.front;
+      hcolor = 0xee82ee;
     } else if (this.types.vertices) {
       object = this.types.vertices;
+      hcolor = 0xff00ff;
     } else if (this.types.edges) {
       object = this.types.edges;
+      hcolor = 0xff00ff;
     }
     if (object != null) {
-      if (flag) {
+      if (flag && !this.isSelected) {
         this.lastColor = object.material.color;
       }
-      object.material.color = new THREE.Color(flag ? 0xff00ff : this.lastColor);
+      object.material.color = new THREE.Color(flag ? hcolor : this.lastColor);
       object.material.needsUpdate = true;
     }
   }
