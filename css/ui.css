@@ -177,11 +177,28 @@ canvas {
   margin-left: 5px;
 }
 
+.tcv_tools_label {
+  vertical-align: middle;
+  margin-left: 5px;
+}
+
 .tcv_animation_slider {
   width: 120px !important;
 }
 
 .tcv_cad_animation {
+  height: 36px;
+  background-color: var(--tcv-bg-overlay-color);
+  border: none;
+  margin: 0;
+  padding: 0px;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  z-index: 100;
+}
+
+.tcv_cad_tools {
   height: 36px;
   background-color: var(--tcv-bg-overlay-color);
   border: none;
