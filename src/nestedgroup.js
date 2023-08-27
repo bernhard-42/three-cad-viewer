@@ -13,8 +13,8 @@ class ObjectGroup extends THREE.Group {
     this.edge_color = edge_color;
     this.renderback = renderback;
     this.types = { front: null, back: null, edges: null, vertices: null };
-    this.lastColor = null;
     this.isSelected = false;
+    this.previousDisplayState = { color: null, edgeWidth: null, vertexSize: null };
   }
 
   addType(mesh, type) {
@@ -39,21 +39,44 @@ class ObjectGroup extends THREE.Group {
   highlight(flag, source) {
     var object = null;
     var hcolor = null;
+    const vertexFocusSize = 10; // Size of the points when highlighted
+    const edgeFocusSize = 6; // Size of the edges when highlighted
+
     if (this.types.front) {
       object = this.types.front;
       hcolor = 0xee82ee;
     } else if (this.types.vertices) {
+
       object = this.types.vertices;
       hcolor = 0xff00ff;
+      if (flag && !this.isSelected) {
+        this.previousDisplayState.vertexSize = object.material.size;
+        object.material.size = vertexFocusSize;
+      }
+      else
+        object.material.size = flag ? vertexFocusSize : this.previousDisplayState.vertexSize;
+
+
+
     } else if (this.types.edges) {
+
       object = this.types.edges;
       hcolor = 0xff00ff;
+
+      if (flag && !this.isSelected) {
+        this.previousDisplayState.edgeWidth = object.material.linewidth;
+        object.material.linewidth = edgeFocusSize;
+      }
+      else
+        object.material.linewidth = flag ? edgeFocusSize : this.previousDisplayState.edgeWidth;
+
     }
     if (object != null) {
+
       if (flag && !this.isSelected) {
-        this.lastColor = object.material.color;
+        this.previousDisplayState.color = object.material.color;
       }
-      object.material.color = new THREE.Color(flag ? hcolor : this.lastColor);
+      object.material.color = new THREE.Color(flag ? hcolor : this.previousDisplayState.color);
       object.material.needsUpdate = true;
     }
   }

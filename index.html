@@ -41,9 +41,9 @@
     var viewer = null;
 
     const examples = [
+      drops,
       hexapod,
       hexapod_b3d,
-      drops,
       linkage,
       box,
       orient_box,
@@ -332,9 +332,9 @@
       Examples
       <select class="select"
         onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; render(window.selectedExample, ...window.examples[window.selectedIndex]);">
+        <option value="drops">drops</option>
         <option value="hexapod">hexapod</option>
         <option value="hexapod_b3d">hexapod(build123d)</option>
-        <option value="drops">drops</option>
         <option value="linkage">linkage</option>
         <option value="box">box</option>
         <option value="box">orient-box</option>

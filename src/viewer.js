@@ -87,6 +87,7 @@ class Viewer {
 
     this.camera_distance = 0;
     this.raycaster = new THREE.Raycaster();
+    this.raycaster.params.Line.threshold = 10;
     this.mouse = new THREE.Vector2();
 
     // setup renderer
@@ -446,6 +447,31 @@ class Viewer {
   };
 
   /**
+   * Retrieve all the valid intersected objects by a ray caster from the mouse.
+   * The objects are sorted by their distance from the ray. (The closest first)
+   */
+  _getValidIntersectedObjs() {
+    this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
+
+    const objects = this.raycaster.intersectObjects(
+      this.scene.children.slice(0, 1),
+      true,
+    );
+    var validObjs = [];
+
+    for (var object of objects) {
+      if (
+        object.object.material.visible &&
+        (object.distanceToRay == null ||
+          object.distanceToRay < 0.1)
+      ) {
+        validObjs.push(object);
+      }
+    }
+    return validObjs;
+  }
+
+  /**
    * Render scene and update orientation marker
    * If no animation loop exists, this needs to be called manually after every camera/scene change
    * @function
@@ -458,19 +484,10 @@ class Viewer {
       this.renderer.clear();
 
       if (this.raycastMode) {
-        this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
-
-        const objects = this.raycaster.intersectObjects(
-          this.scene.children.slice(0, 1),
-          true,
-        );
+        const objects = this._getValidIntersectedObjs();
         if (objects.length > 0) {
           for (var object of objects) {
-            if (
-              object.object.material.visible &&
-              (object.distanceToRay == null ||
-                object.distanceToRay < 0.01 * this.bb_radius)
-            ) {
+            {
               const objectGroup = object.object.parent;
               if (objectGroup !== this.lastObject) {
                 if (this.lastObject != null && !this.lastObject.isSelected) {
@@ -848,8 +865,8 @@ class Viewer {
 
     const theme =
       this.theme === "dark" ||
-      (this.theme === "browser" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
+        (this.theme === "browser" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 
@@ -925,6 +942,9 @@ class Viewer {
     this.update(true, false);
 
     timer.stop();
+
+    // TODO DELETE
+    this.display.setTools({ target: { checked: true } });
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1242,29 +1262,15 @@ class Viewer {
    * @param {MouseEvent} e - a DOM MouseEvent
    */
   pick = (e) => {
-    this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
-
-    const objects = this.raycaster.intersectObjects(
-      this.scene.children.slice(0, 1),
-      true,
-    );
-    var nearest = null;
-    for (var object of objects) {
-      if (
-        object.object.material.visible &&
-        (object.distanceToRay == null ||
-          object.distanceToRay < 0.01 * this.bb_radius)
-      ) {
-        nearest = {
-          path: object.object.parent.parent.name.replaceAll("|", "/"),
-          name: object.object.name,
-          boundingBox: object.object.geometry.boundingBox,
-          boundingSphere: object.object.geometry.boundingSphere,
-          objectGroup: object.object.parent,
-        };
-        break;
-      }
-    }
+    const validObjs = this._getValidIntersectedObjs();
+    var nearestObj = validObjs[0]; // The first is the nearest since they are sorted by dist.
+    const nearest = {
+      path: nearestObj.object.parent.parent.name.replaceAll("|", "/"),
+      name: nearestObj.object.name,
+      boundingBox: nearestObj.object.geometry.boundingBox,
+      boundingSphere: nearestObj.object.geometry.boundingSphere,
+      objectGroup: nearestObj.object.parent,
+    };
     if (nearest != null) {
       this.handlePick(
         nearest.path,
