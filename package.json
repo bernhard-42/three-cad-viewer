@@ -17,6 +17,7 @@
     "build": "node -e 'const { version } = require(\"./package.json\"); require(\"fs\").writeFileSync(\"./src/_version.js\", `export const version = \"${version}\"\n`)' && rollup -c --environment BUILD:production",
     "prepare": "yarn run build",
     "start": "rollup -w -c",
+    "debug": "rollup -w -c --environment BUILD:development --sourcemap",
     "docs": "./build_docs.sh",
     "release": "./release.sh"
   },
