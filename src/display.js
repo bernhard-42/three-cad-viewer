@@ -1505,7 +1505,8 @@ class Display {
     for (var k in before) {
       help.innerHTML = help.innerHTML.replaceAll(
         "&lt;" + before[k].slice(0, -3) + "&gt;",
-        "&lt;_" + after[k].slice(0, -3) + "&gt;");
+        "&lt;_" + after[k].slice(0, -3) + "&gt;",
+      );
     }
     help.innerHTML = help.innerHTML.replaceAll("_shift", "shift");
     help.innerHTML = help.innerHTML.replaceAll("_ctrl", "ctrl");

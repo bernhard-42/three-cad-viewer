@@ -5,12 +5,11 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js";
 import { BoundingBox } from "./bbox.js";
 
-
 class ObjectGroup extends THREE.Group {
   constructor(opacity, alpha, edge_color, renderback) {
     super();
     this.opacity = opacity;
-    this.alpha = (alpha == null) ? 1.0 : alpha;
+    this.alpha = alpha == null ? 1.0 : alpha;
     this.edge_color = edge_color;
     this.renderback = renderback;
     this.types = { front: null, back: null, edges: null, vertices: null };
@@ -66,12 +65,16 @@ class ObjectGroup extends THREE.Group {
 
   setTransparent(flag) {
     if (this.types.back) {
-      this.types.back.material.opacity = flag ? this.opacity * this.alpha : this.alpha;
-      this.types.front.material.opacity = flag ? this.opacity * this.alpha : this.alpha;
+      this.types.back.material.opacity = flag
+        ? this.opacity * this.alpha
+        : this.alpha;
+      this.types.front.material.opacity = flag
+        ? this.opacity * this.alpha
+        : this.alpha;
     }
     for (var child of this.children) {
       // turn depth write off for transparent objects
-      child.material.depthWrite = (this.alpha < 1.0) ? false : !flag;
+      child.material.depthWrite = this.alpha < 1.0 ? false : !flag;
       // but keep depth test
       child.material.depthTest = true;
       child.material.needsUpdate = true;
@@ -183,7 +186,7 @@ class NestedGroup {
     metalness,
     roughness,
     normalLen,
-    bb_max
+    bb_max,
   ) {
     this.shapes = shapes;
     this.width = width;
@@ -358,7 +361,7 @@ class NestedGroup {
     shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
 
     // see https://stackoverflow.com/a/37651610
-    // "A common draw configuration you see is to draw all the opaque object with depth testing on, 
+    // "A common draw configuration you see is to draw all the opaque object with depth testing on,
     //  turn depth write off, then draw the transparent objects in a back to front order."
     const frontMaterial = new THREE.MeshStandardMaterial({
       color: color,

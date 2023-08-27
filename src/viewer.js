@@ -10,7 +10,13 @@ import { Timer } from "./timer.js";
 import { Clipping } from "./clipping.js";
 import { Animation } from "./animation.js";
 import { Info } from "./info.js";
-import { clone, isEqual, sceneTraverse, KeyMapper, scaleLight } from "./utils.js";
+import {
+  clone,
+  isEqual,
+  sceneTraverse,
+  KeyMapper,
+  scaleLight,
+} from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
 import { BoundingBox, BoxHelper } from "./bbox.js";
