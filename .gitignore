@@ -4,3 +4,4 @@ TODO
 dist
 !docs/dist
 scratch
+.vscode/launch.json
