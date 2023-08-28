@@ -20,6 +20,7 @@ import {
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
 import { BoundingBox, BoxHelper } from "./bbox.js";
+import { Measurement } from "./measure.js";
 import { version } from "./_version.js";
 
 class Viewer {
@@ -67,9 +68,11 @@ class Viewer {
     this.bbox = null;
     this.bb_max = 0;
     this.scene = null;
+    this.camera = null;
+    this.orthographicCamera = null;
+    this.orthographicScene = null;
     this.gridHelper = null;
     this.axesHelper = null;
-    this.camera = null;
     this.controls = null;
     this.orientationMarker = null;
     this.treeview = null;
@@ -512,6 +515,9 @@ class Viewer {
 
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
+      if (this.measure)
+        this.measure.update(this.camera);
+
       this.directLight.position.copy(this.camera.getCamera().position);
 
       if (
@@ -687,6 +693,7 @@ class Viewer {
 
     this.states = states;
     this.scene = new THREE.Scene();
+    this.orthographicScene = new THREE.Scene();
 
     //
     // render the input assembly
@@ -731,6 +738,22 @@ class Viewer {
       this.ortho,
       options.up,
     );
+
+    // this.orthographicCamera = new THREE.OrthographicCamera(
+    //   -this.bb_radius,
+    //   this.bb_radius,
+    //   -this.bb_radius,
+    //   this.bb_radius,
+    //   0, 100);
+    // this.orthographicCamera.position.z = 50;
+    this.orthographicCamera = new THREE.OrthographicCamera(
+      -10,
+      10,
+      -10,
+      10,
+      0, 100);
+    this.orthographicCamera.position.z = 50;
+    this.orthographicCamera.up = this.camera.up;
 
     //
     // build mouse/touch controls
@@ -2141,6 +2164,21 @@ class Viewer {
 
   quaternion(x = 0, y = 0, z = 0, w = 1) {
     return new THREE.Quaternion(x, y, z, w);
+  }
+
+  _testMeasure() {
+    const selection = this.nestedGroup.selection();
+    if (selection.length != 2 && selection[0].children[0].geometry.boundingSphere == null || selection[0].children[0].geometry.boundingSphere == null) {
+      console.log("Tried to measure something else than 2 vertices");
+    }
+    const pt1 = selection[0].children[0].geometry.boundingSphere.center;
+    const pt2 = selection[1].children[0].geometry.boundingSphere.center;
+    // const pt1 = new THREE.Vector3(-0.4, -0.7, 1.5);
+    // const pt2 = new THREE.Vector3(0.5, 0.5, 0);
+    var measure = new Measurement(this.renderer, pt1, pt2, true);
+    measure.update(this.camera);
+    this.measure = measure;
+    this.update(true, true);
   }
 }
 

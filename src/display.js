@@ -1385,7 +1385,8 @@ class Display {
    * @param {Event} e - a DOM click event
    */
   controlMeasure = (e) => {
-    console.log("controlMeasure", this.viewer.getSelection());
+    console.log("controlMeasure", e);
+    this.viewer._testMeasure();
   };
 
   /**
