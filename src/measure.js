@@ -60,7 +60,7 @@ class Measurement extends THREE.Group {
      * @param {Vector3} point2 The end point to measure
      * @param {boolean} decompose Wheveter to decompose the measurment per axis.
      */
-    constructor(renderer, point1, point2, decompose = true) {
+    constructor(renderer, point1, point2, decompose = false) {
 
         super();
         this.point1 = point1;
@@ -72,6 +72,7 @@ class Measurement extends THREE.Group {
         this.decompose = decompose;
         this._makePanel();
         this._makeLines();
+        this._makeHTMLPanel();
         this.lineScene.add(this);
     }
 
@@ -100,49 +101,116 @@ class Measurement extends THREE.Group {
 
     }
 
+    _makeHTMLPanel() {
+
+        const panel = document.createElement('div');
+        panel.style.position = 'absolute';
+        panel.style.width = '160px';
+        panel.style.height = '200px';
+        panel.style.background = 'radial-gradient(circle, rgba(169, 169, 169, 1) 0%, rgba(169, 255, 255, 0.8) 100%)';
+        panel.style.border = '1.5px solid #000';
+        panel.style.fontFamily = 'Calibri, sans-serif';
+        panel.style.textAlign = 'center';
+
+        const title = document.createElement('div');
+        title.style.fontWeight = 'bold';
+        title.style.fontSize = '25px';
+        title.style.lineHeight = '40px';
+        title.style.color = "Black";
+        title.style.backgroundColor = 'rgba(169, 169, 169, 1)';
+        title.textContent = 'Distance';
+        panel.appendChild(title);
+
+        const total = this.point1.distanceTo(this.point2);
+        const distVec = this.point2.clone().sub(this.point1);
+        const xdist = distVec.x;
+        const ydist = distVec.y;
+        const zdist = distVec.z;
+        const lines = [{ text: `Total : ${total.toFixed(2)}`, class: 'line', color: "black" },
+        { text: `X : ${xdist.toFixed(2)}`, class: 'line', color: "red" },
+        { text: `Y : ${ydist.toFixed(2)}`, class: 'line', color: "green" },
+        { text: `Z : ${zdist.toFixed(2)}`, class: 'line', color: "blue" },
+        ];
+
+        lines.forEach(lineData => {
+            const line = document.createElement('div');
+            line.style.fontWeight = 'bold';
+            line.style.color = lineData.color;
+            line.style.fontSize = '20px';
+            line.style.lineHeight = '30px';
+            line.style.paddingLeft = '10px';
+            line.classList.add(lineData.class);
+            line.textContent = lineData.text;
+            panel.appendChild(line);
+        });
+
+        panel.style.top = '200px';
+        panel.style.left = '300px';
+
+        document.body.appendChild(panel);
+    }
+
     _makePanel() {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
-        canvas.width = 180;
-        canvas.height = 160;
+        const xpadding = 10;
+        const ypadding = 10;
+        canvas.width = 160;
+        canvas.height = 200;
+        const titleRectHeight = 40;
+        const yAxisSpacing = (canvas.height - titleRectHeight - ypadding) / 4;
+        const borderWidth = 3;
+        // const yAxisSpacing = (canvas.height - titleRectHeight) / 3;
 
-        // Draw the rounded rectangle
+        // Create the circular gradient background
+        const gradient = context.createRadialGradient(
+            canvas.width / 2, canvas.height / 2, 0,
+            canvas.width / 2, canvas.height / 2, canvas.width / 2
+        );
+        gradient.addColorStop(0, 'rgba(255, 0, 255, 0.8)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
         context.fillStyle = 'rgba(255, 255, 255, 0.8)';
         context.strokeStyle = '#000';
-        context.lineWidth = 2;
-        const radius = 10;
-        context.beginPath();
-        context.moveTo(radius, 0);
-        context.lineTo(canvas.width - radius, 0);
-        context.quadraticCurveTo(canvas.width, 0, canvas.width, radius);
-        context.lineTo(canvas.width, canvas.height - radius);
-        context.quadraticCurveTo(canvas.width, canvas.height, canvas.width - radius, canvas.height);
-        context.lineTo(radius, canvas.height);
-        context.quadraticCurveTo(0, canvas.height, 0, canvas.height - radius);
-        context.lineTo(0, radius);
-        context.quadraticCurveTo(0, 0, radius, 0);
-        context.closePath();
+        context.lineWidth = borderWidth;
+        context.rect(0, 0, canvas.width, canvas.height);
         context.fill();
         context.stroke();
 
-        // Draw the title and lines
-        context.font = 'Bold 16px Arial';
-        context.fillStyle = '#000';
-        context.textAlign = 'left';
-        context.textBaseline = 'top';
-
-        const title = 'Distance';
-        context.fillText(title, 10, 10);
         const total = this.point1.distanceTo(this.point2);
         const distVec = this.point2.clone().sub(this.point1);
         const xdist = distVec.x;
         const ydist = distVec.y;
         const zdist = distVec.z;
         const lines = [`Total : ${total.toFixed(2)}`, `X : ${xdist.toFixed(2)}`, `Y : ${ydist.toFixed(2)}`, `Z : ${zdist.toFixed(2)}`];
+
+        context.fillStyle = "black";
+        context.fillStyle = "black";
+        context.font = 'Bold 25px Calibri';
+        const title = 'Distance';
+        context.textAlign = "center";
+        context.textBaseline = 'middle';
+        context.fillText(title, canvas.width / 2, titleRectHeight / 2);
+        context.strokeStyle = '#000';
+        context.lineWidth = borderWidth;
+        context.beginPath();
+        context.moveTo(0, titleRectHeight);
+        context.lineTo(canvas.width, titleRectHeight);
+        context.stroke();
+
+        context.font = 'Bold 20px Calibri';
+        context.textAlign = "left";
+        context.textBaseline = 'top';
+        const colors = ["black", "red", "green", "blue"];
         for (let i = 0; i < lines.length; i++) {
-            context.fillText(lines[i], 10, 40 + i * 30); // Adjust the position and spacing
+            context.fillStyle = colors[i];
+            context.fillText(lines[i], xpadding, ypadding + titleRectHeight + i * yAxisSpacing);
         }
+
         const texture = new THREE.CanvasTexture(canvas);
+        texture.minFilter = THREE.LinearFilter;;
         const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: false });
 
         this.sprite = new THREE.Sprite(spriteMaterial);
@@ -152,6 +220,7 @@ class Measurement extends THREE.Group {
 
     update(viewerCamera) {
         this.camera = viewerCamera.camera;
+        this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.clearDepth();
         this.renderer.render(this.lineScene, this.camera);
         this.renderer.clearDepth();
