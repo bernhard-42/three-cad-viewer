@@ -149,6 +149,7 @@ class Display {
     this.cadBody = this._getElement("tcv_cad_body");
     this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadView = this._getElement("tcv_cad_view");
+    this.measurePanel = this._getElement("tcv_measure_panel");
     this.cadTree = this._getElement("tcv_cad_tree_container");
     this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
     this.cadClip = this._getElement("tcv_cad_clip_container");
@@ -229,6 +230,11 @@ class Display {
     this._events.push(["click", name, fn]);
   }
 
+  /**
+   * 
+   * @param {string} name Name of the DOM element 
+   * @returns {DOMElement}
+   */
   _getElement(name) {
     return this.container.getElementsByClassName(name)[0];
   }
@@ -410,6 +416,7 @@ class Display {
     this._setupClickEvent("tcv_measure", this.controlMeasure, false);
 
     this.showHelp(false);
+    this.showMeasurePanel(false);
   }
 
   /**
@@ -1091,6 +1098,14 @@ class Display {
     } else {
       document.removeEventListener("keydown", this);
     }
+  };
+
+  /**
+   * Show or hide the measure panel
+   * @param {boolean} flag 
+   */
+  showMeasurePanel = (flag) => {
+    this.measurePanel.style.display = flag ? "block" : "none";
   };
 
   /**

@@ -529,10 +529,6 @@ class Viewer {
         }
       }
 
-      if (this.measure != null) {
-        this.measure.moveHtmlPanel();
-      }
-
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
       if (this.measure)

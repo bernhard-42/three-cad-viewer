@@ -113,11 +113,13 @@ canvas {
   margin: 1px 0px 6px 8px;
   font-weight: bold;
 }
+
 .tcv_small_table {
   line-height: 14px;
 }
 
-.tcv_small_table_row > td, th {
+.tcv_small_table_row>td,
+th {
   padding-left: 6px;
 }
 
@@ -566,4 +568,85 @@ input[type="button"] {
 
 .tcv_material_info {
   font-size: 12px;
+}
+
+
+/* MEASURE PANEL */
+.tcv_measure_panel {
+  width: 100px;
+  height: 140px;
+  border: none;
+  display: inline-block;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  background-color: none;
+
+}
+
+.tcv_measure_header {
+  background-color: #333;
+  height: 20%;
+  text-align: center;
+  border: 1px solid black;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  font-weight: bold;
+  font-size: 18px;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+#measure_table {
+  width: 100%;
+  height: 80%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.measure_cell {
+  content: attr(data-label);
+  border-top: 1px solid black;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 15px;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+
+.measure_val {
+  color: black;
+  background-color: lightgray;
+}
+
+table#measure_table tr td:first-child {
+  border-right: 1px solid black;
+}
+
+.bottom_cell_right {
+  border-bottom-right-radius: 10px;
+}
+
+.bottom_cell_left {
+  border-bottom-left-radius: 10px;
+}
+
+#tcv_measure_total {
+  background-color: grey;
+}
+
+#tcv_measure_x {
+  background-color: red;
+}
+
+#tcv_measure_y {
+  background-color: rgb(1, 158, 1);
+}
+
+#tcv_measure_z {
+  background-color: blue;
 }

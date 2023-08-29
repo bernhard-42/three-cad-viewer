@@ -4,6 +4,7 @@ import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeome
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Vector3 } from "three";
 
+
 class DistanceLineArrow extends THREE.Group {
 
     /**
@@ -55,7 +56,7 @@ class DistanceLineArrow extends THREE.Group {
 class Measurement extends THREE.Group {
     /**
      * 
-     * @param {THREE.Renderer} renderer The viewer renderer
+     * @param {import ("./viewer.js").Viewer} viewer The viewer instance
      * @param {Vector3} point1 The starting point to measure
      * @param {Vector3} point2 The end point to measure
      * @param {boolean} decompose Wheveter to decompose the measurment per axis.
@@ -70,13 +71,14 @@ class Measurement extends THREE.Group {
         this.renderer = viewer.renderer;
         this.lineScene = new THREE.Scene();
         this.panelScene = new THREE.Scene();
-        this.sprite = null;
         this.decompose = decompose;
-        this._makePanel();
-        this._makeLines();
-        this._makeHTMLPanel();
         this.lineScene.add(this);
-        this.moveHtmlPanel();
+        this.panel = this.viewer.display.measurePanel;
+        this.viewer.display.showMeasurePanel(true);
+        this.initialPos = new Vector3(0, 1, 0).multiplyScalar(this.viewer.bbox.boundingSphere().radius);
+        this._makeLines();
+        this._makeMeasurement();
+        this.movePanel();
     }
 
     _makeLines() {
@@ -85,7 +87,7 @@ class Measurement extends THREE.Group {
         this.add(distanceLine);
 
         const middlePoint = new THREE.Vector3().addVectors(this.point1, this.point2).multiplyScalar(0.5);
-        const connectingLine = new DistanceLineArrow(middlePoint, this.sprite.position, lineWidth, 0x800080);
+        const connectingLine = new DistanceLineArrow(middlePoint, this.initialPos, lineWidth, 0x800080);
         this.add(connectingLine);
 
         if (this.decompose) {
@@ -104,133 +106,28 @@ class Measurement extends THREE.Group {
 
     }
 
-    moveHtmlPanel() {
-        var worldCoord = this.sprite.position;
+    movePanel() {
+        var worldCoord = this.initialPos;
         var screenCoord = worldCoord.clone().project(this.viewer.camera.getCamera());
         screenCoord.x = Math.round((1 + screenCoord.x) * this.viewer.renderer.domElement.offsetWidth / 2);
         screenCoord.y = Math.round((1 - screenCoord.y) * this.viewer.renderer.domElement.offsetHeight / 2);
-        this.panel.style.left = 170 + screenCoord.x + "px";
-        this.panel.style.top = screenCoord.y + "px";
+        const panelStyle = window.getComputedStyle(this.panel);
+        this.panel.style.left = screenCoord.x - parseFloat(panelStyle.width) / 2 + "px";
+        this.panel.style.top = screenCoord.y - parseFloat(panelStyle.height) / 2 + "px";
         console.log(screenCoord);
     }
 
-    _makeHTMLPanel() {
 
-        const panel = document.createElement("div");
-        panel.style.position = "absolute";
-        panel.style.background = "white";
-        panel.style.width = "160px";
-        panel.style.height = "200px";
-        // panel.style.background = "radial-gradient(circle, rgba(169, 169, 169, 1) 0%, rgba(169, 255, 255, 0.8) 100%)";
-        panel.style.border = "1.5px solid #000";
-        panel.style.fontFamily = "Calibri, sans-serif";
-        panel.style.textAlign = "center";
-
-        const title = document.createElement("div");
-        title.style.fontWeight = "bold";
-        title.style.fontSize = "25px";
-        title.style.lineHeight = "40px";
-        title.style.color = "Black";
-        title.style.backgroundColor = "rgba(169, 169, 169, 1)";
-        title.textContent = "Distance";
-        panel.appendChild(title);
-
+    _makeMeasurement() {
         const total = this.point1.distanceTo(this.point2);
         const distVec = this.point2.clone().sub(this.point1);
         const xdist = distVec.x;
         const ydist = distVec.y;
         const zdist = distVec.z;
-        const lines = [{ text: `Total : ${total.toFixed(2)}`, class: "line", color: "black" },
-        { text: `X : ${xdist.toFixed(2)}`, class: "line", color: "red" },
-        { text: `Y : ${ydist.toFixed(2)}`, class: "line", color: "green" },
-        { text: `Z : ${zdist.toFixed(2)}`, class: "line", color: "blue" },
-        ];
-
-        lines.forEach(lineData => {
-            const line = document.createElement("div");
-            line.style.fontWeight = "bold";
-            line.style.color = lineData.color;
-            line.style.fontSize = "20px";
-            line.style.lineHeight = "30px";
-            line.style.paddingLeft = "10px";
-            line.classList.add(lineData.class);
-            line.textContent = lineData.text;
-            panel.appendChild(line);
-        });
-
-        panel.style.top = "200px";
-        panel.style.left = "300px";
-        this.panel = panel;
-        document.body.appendChild(panel);
-    }
-
-    _makePanel() {
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.width = 2;
-        canvas.height = 2;
-        // const xpadding = 10;
-        // const ypadding = 10;
-        // canvas.width = 160;
-        // canvas.height = 200;
-        // const titleRectHeight = 40;
-        // const yAxisSpacing = (canvas.height - titleRectHeight - ypadding) / 4;
-        // const borderWidth = 3;
-        // // const yAxisSpacing = (canvas.height - titleRectHeight) / 3;
-
-        // // Create the circular gradient background
-        // const gradient = context.createRadialGradient(
-        //     canvas.width / 2, canvas.height / 2, 0,
-        //     canvas.width / 2, canvas.height / 2, canvas.width / 2
-        // );
-        // gradient.addColorStop(0, "rgba(255, 0, 255, 0.8)");
-        // gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
-        // context.fillStyle = gradient;
-        // context.fillRect(0, 0, canvas.width, canvas.height);
-
-        // context.fillStyle = "rgba(255, 255, 255, 0.8)";
-        // context.strokeStyle = "#000";
-        // context.lineWidth = borderWidth;
-        // context.rect(0, 0, canvas.width, canvas.height);
-        // context.fill();
-        // context.stroke();
-
-        // const total = this.point1.distanceTo(this.point2);
-        // const distVec = this.point2.clone().sub(this.point1);
-        // const xdist = distVec.x;
-        // const ydist = distVec.y;
-        // const zdist = distVec.z;
-        // const lines = [`Total : ${total.toFixed(2)}`, `X : ${xdist.toFixed(2)}`, `Y : ${ydist.toFixed(2)}`, `Z : ${zdist.toFixed(2)}`];
-
-        // context.fillStyle = "black";
-        // context.font = "Bold 25px Calibri";
-        // const title = "Distance";
-        // context.textAlign = "center";
-        // context.textBaseline = "middle";
-        // context.fillText(title, canvas.width / 2, titleRectHeight / 2);
-        // context.strokeStyle = "#000";
-        // context.lineWidth = borderWidth;
-        // context.beginPath();
-        // context.moveTo(0, titleRectHeight);
-        // context.lineTo(canvas.width, titleRectHeight);
-        // context.stroke();
-
-        // context.font = "Bold 20px Calibri";
-        // context.textAlign = "left";
-        // context.textBaseline = "top";
-        // const colors = ["black", "red", "green", "blue"];
-        // for (let i = 0; i < lines.length; i++) {
-        //     context.fillStyle = colors[i];
-        //     context.fillText(lines[i], xpadding, ypadding + titleRectHeight + i * yAxisSpacing);
-        // }
-
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.minFilter = THREE.LinearFilter;
-        const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: false });
-
-        this.sprite = new THREE.Sprite(spriteMaterial);
-        this.sprite.position.y = 2;
-        this.panelScene.add(this.sprite);
+        this.panel.querySelector("#total").textContent = total.toFixed(2);
+        this.panel.querySelector("#x").textContent = xdist.toFixed(2);
+        this.panel.querySelector("#y").textContent = ydist.toFixed(2);
+        this.panel.querySelector("#z").textContent = zdist.toFixed(2);
     }
 
     update(viewerCamera) {
@@ -240,6 +137,8 @@ class Measurement extends THREE.Group {
         this.renderer.render(this.lineScene, this.camera);
         this.renderer.clearDepth();
         this.renderer.render(this.panelScene, this.camera);
+        this._makeMeasurement();
+        this.movePanel();
     }
 }
 
