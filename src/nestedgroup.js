@@ -14,13 +14,87 @@ class ObjectGroup extends THREE.Group {
     this.renderback = renderback;
     this.types = { front: null, back: null, edges: null, vertices: null };
     this.isSelected = false;
-    this.previousDisplayState = { color: null, edgeWidth: null, vertexSize: null };
+    this.originalColor = null;
+    this.originalWidth = null;
+    this.vertexFocusSize = 10; // Size of the points when highlighted
+    this.edgeFocusWidth = 6; // Size of the edges when highlighted    
   }
 
   addType(mesh, type) {
     this.add(mesh);
     this.types[type] = mesh;
+    if (this.types.vertices) {
+      this.originalColor = this.types.vertices.material.color.clone();
+      this.originalWidth = this.types.vertices.material.size;
+      console.log(this.originalWidth);
+    } else if (this.types.edges && !this.types.front) { // ignore edges of faces
+      this.originalColor = this.types.edges.material.color.clone();
+      this.originalWidth = this.types.edges.material.linewidth;
+
+    } else if (this.types.front) {
+      this.originalColor = this.types.front.material.color.clone();
+    }
   }
+
+  widen(flag) {
+    if (this.types.vertices) {
+      this.types.vertices.material.size = flag ? this.vertexFocusSize : (this.isSelected ? this.vertexFocusSize - 2 : this.originalWidth);
+    } else if (this.types.edges) {
+      this.types.edges.material.linewidth = flag ? this.edgeFocusWidth : (this.isSelected ? this.edgeFocusWidth - 2 : this.originalWidth);
+    }
+  }
+
+  highlight(flag = null) {
+    if (flag == null) {
+      flag = !this.isSelected;
+      this.isSelected = flag;
+    }
+
+    var object = null;
+    var hColor = null;
+    var oColor = null;
+
+    console.log(this.name, "flag", flag, "isSelected", this.isSelected, this.originalColor, this.originalWidth);
+
+    if (this.types.front) {
+      object = this.types.front;
+      hColor = new THREE.Color(0xee82ee);
+      oColor = this.originalColor;
+
+    } else if (this.types.vertices) {
+      object = this.types.vertices;
+      hColor = this.isSelected ? new THREE.Color(0xff0000) : new THREE.Color(0xff00ff);
+      oColor = this.originalColor;
+
+    } else if (this.types.edges) {
+      object = this.types.edges;
+      hColor = this.isSelected ? new THREE.Color(0xff0000) : new THREE.Color(0xff00ff);
+      oColor = this.originalColor;
+    }
+
+    if (object != null) {
+      this.widen(flag);
+      object.material.color = flag ? hColor : oColor;
+      object.material.needsUpdate = true;
+    }
+  }
+
+  clearHighlights() {
+    this.highlight(false);
+    this.isSelected = false;
+    this.widen(false);
+  }
+
+  metrics() {
+    if (this.types.front) {
+      return { name: "face", value: 0 };
+    } else if (this.types.vertices) {
+      return { name: "vertex", value: 0 };
+    } else if (this.types.edges) {
+      return { name: "edge", value: 0 };
+    }
+  }
+
 
   setMetalness(value) {
     for (var child of this.children) {
@@ -33,61 +107,6 @@ class ObjectGroup extends THREE.Group {
     for (var child of this.children) {
       child.material.roughness = value;
       child.material.needsUpdate = true;
-    }
-  }
-
-  highlight(flag, source) {
-    var object = null;
-    var hcolor = null;
-    const vertexFocusSize = 10; // Size of the points when highlighted
-    const edgeFocusSize = 6; // Size of the edges when highlighted
-
-    if (this.types.front) {
-      object = this.types.front;
-      hcolor = 0xee82ee;
-    } else if (this.types.vertices) {
-
-      object = this.types.vertices;
-      hcolor = 0xff00ff;
-      if (flag && !this.isSelected) {
-        this.previousDisplayState.vertexSize = object.material.size;
-        object.material.size = vertexFocusSize;
-      }
-      else
-        object.material.size = flag ? vertexFocusSize : this.previousDisplayState.vertexSize;
-
-
-
-    } else if (this.types.edges) {
-
-      object = this.types.edges;
-      hcolor = 0xff00ff;
-
-      if (flag && !this.isSelected) {
-        this.previousDisplayState.edgeWidth = object.material.linewidth;
-        object.material.linewidth = edgeFocusSize;
-      }
-      else
-        object.material.linewidth = flag ? edgeFocusSize : this.previousDisplayState.edgeWidth;
-
-    }
-    if (object != null) {
-
-      if (flag && !this.isSelected) {
-        this.previousDisplayState.color = object.material.color;
-      }
-      object.material.color = new THREE.Color(flag ? hcolor : this.previousDisplayState.color);
-      object.material.needsUpdate = true;
-    }
-  }
-
-  metrics() {
-    if (this.types.front) {
-      return { name: "face", value: 0 };
-    } else if (this.types.vertices) {
-      return { name: "vertex", value: 0 };
-    } else if (this.types.edges) {
-      return { name: "edge", value: 0 };
     }
   }
 

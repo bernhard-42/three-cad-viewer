@@ -22,6 +22,10 @@ import { Camera } from "./camera.js";
 import { BoundingBox, BoxHelper } from "./bbox.js";
 import { version } from "./_version.js";
 
+const LEFT_MOUSE_BUTTON = 0;
+// const MIDDLE_MOUSE_BUTTON = 1;
+// const RIGHT_MOUSE_BUTTON = 2;
+
 class Viewer {
   /**
    * Create Viewer.
@@ -87,7 +91,8 @@ class Viewer {
 
     this.camera_distance = 0;
     this.raycaster = new THREE.Raycaster();
-    this.raycaster.params.Line.threshold = 10;
+    this.raycaster.params.Line.threshold = 3;
+    this.raycaster.params.Points.threshold = 3;
     this.mouse = new THREE.Vector2();
 
     // setup renderer
@@ -463,13 +468,27 @@ class Viewer {
       if (
         object.object.material.visible &&
         (object.distanceToRay == null ||
-          object.distanceToRay < 0.1)
+          object.distanceToRay < 0.03)
       ) {
         validObjs.push(object);
       }
     }
     return validObjs;
   }
+
+  _release = (clear = false) => {
+    if (this.lastObject != null) {
+      if (!this.lastObject.isSelected) {
+        this.lastObject.highlight(false);
+      }
+
+      this.lastObject.widen(false);
+
+      if (clear) {
+        this.lastObject = null;
+      }
+    }
+  };
 
   /**
    * Render scene and update orientation marker
@@ -480,6 +499,7 @@ class Viewer {
    * @param {boolean} notify - whether to send notification or not.
    */
   update = (updateMarker, notify = true) => {
+
     if (this.ready) {
       this.renderer.clear();
 
@@ -490,9 +510,7 @@ class Viewer {
             {
               const objectGroup = object.object.parent;
               if (objectGroup !== this.lastObject) {
-                if (this.lastObject != null && !this.lastObject.isSelected) {
-                  this.lastObject.highlight(false);
-                }
+                this._release();
                 objectGroup.highlight(true);
                 const metric = objectGroup.metrics();
                 const name = objectGroup.name.split("|").slice(-1);
@@ -503,10 +521,7 @@ class Viewer {
             }
           }
         } else {
-          if (this.lastObject != null && !this.lastObject.isSelected) {
-            this.lastObject.highlight(false);
-            this.lastObject = null;
-          }
+          this._release(true);
         }
       }
 
@@ -1263,6 +1278,9 @@ class Viewer {
    */
   pick = (e) => {
     const validObjs = this._getValidIntersectedObjs();
+    if (validObjs.length == 0) {
+      return;
+    }
     var nearestObj = validObjs[0]; // The first is the nearest since they are sorted by dist.
     const nearest = {
       path: nearestObj.object.parent.parent.name.replaceAll("|", "/"),
@@ -1283,19 +1301,35 @@ class Viewer {
 
   selectDown = (e) => {
     if (this.raycastMode) {
-      this.lastPosition = this.camera.getPosition().clone();
+      if (e.button == LEFT_MOUSE_BUTTON) {
+        this.lastPosition = this.camera.getPosition().clone();
+      }
     }
   };
 
   selectUp = (e) => {
     if (this.raycastMode) {
-      if (this.lastPosition.equals(this.camera.getPosition())) {
-        this.lastObject.isSelected = !this.lastObject.isSelected;
-        this.lastObject.highlight(
-          this.lastObject.isSelected,
-          "S:" + this.lastObject.name,
-        );
+      if (e.button == LEFT_MOUSE_BUTTON) {
+        if (this.lastPosition.equals(this.camera.getPosition())) {
+          if (this.lastObject != null) {
+            this.lastObject.highlight();
+            this.lastObject.widen(false);
+          }
+        }
       }
+    }
+  };
+
+  handleRaycastKey = (key) => {
+    console.log(key);
+    switch (key) {
+      case "Escape":
+        for (var object of this.nestedGroup.selection()) {
+          object.clearHighlights();
+        }
+        break;
+      default:
+        break;
     }
   };
 
@@ -1314,6 +1348,12 @@ class Viewer {
     const offsetY = rect.y + window.scrollY;
     this.mouse.x = ((e.pageX - offsetX) / this.cadWidth) * 2 - 1;
     this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
+  };
+
+  onKeyDown = (e) => {
+    if (e.key === "Escape") {
+      console.log("ESC");
+    }
   };
 
   //
