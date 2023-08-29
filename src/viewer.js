@@ -80,6 +80,7 @@ class Viewer {
     this.controls = null;
     this.orientationMarker = null;
     this.treeview = null;
+    this.measure = null;
 
     this.ready = false;
     this.mixer = null;
@@ -526,6 +527,10 @@ class Viewer {
         } else {
           this._release(true);
         }
+      }
+
+      if (this.measure != null) {
+        this.measure.moveHtmlPanel();
       }
 
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
@@ -2215,7 +2220,8 @@ class Viewer {
     const pt2 = selection[1].children[0].geometry.boundingSphere.center;
     // const pt1 = new THREE.Vector3(-0.4, -0.7, 1.5);
     // const pt2 = new THREE.Vector3(0.5, 0.5, 0);
-    var measure = new Measurement(this.renderer, pt1, pt2, false);
+    var measure = new Measurement(this, pt1, pt2, false);
+    this.measure = measure;
     measure.update(this.camera);
     this.measure = measure;
     this.update(true, true);
