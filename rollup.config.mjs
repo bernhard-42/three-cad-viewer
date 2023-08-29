@@ -6,6 +6,7 @@ import terser from "@rollup/plugin-terser";
 import serve from "rollup-plugin-serve";
 import livereload from "rollup-plugin-livereload";
 import image from "@rollup/plugin-image";
+import { string } from "rollup-plugin-string";
 
 const pkg = {
   main: "dist/three-cad-viewer.js",
@@ -22,6 +23,7 @@ const default_plugins = [
   resolve(),
   css({ output: "three-cad-viewer.css" }),
   image(),
+  string({ include: "src/index.html" })
 ];
 
 var config;
