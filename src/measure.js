@@ -14,7 +14,7 @@ class DistanceLineArrow extends THREE.Group {
      * @param {number} linewidth The thickness of the line
      * @param {THREE.Color} color The color of the line
      */
-    constructor(point1, point2, linewidth, color) {
+    constructor(point1, point2, linewidth, color, withStart = true) {
         super();
         const coneLength = 0.08;
         const lineVec = point1.clone().sub(point2.clone()).normalize();
@@ -45,7 +45,9 @@ class DistanceLineArrow extends THREE.Group {
         startCone.position.copy(start);
         endCone.position.copy(end);
 
-        this.add(startCone);
+        if (withStart) {
+            this.add(startCone);
+        }
         this.add(endCone);
         this.add(line);
     }
@@ -87,7 +89,7 @@ class Measurement extends THREE.Group {
         this.add(distanceLine);
 
         const middlePoint = new THREE.Vector3().addVectors(this.point1, this.point2).multiplyScalar(0.5);
-        const connectingLine = new DistanceLineArrow(middlePoint, this.initialPos, lineWidth, 0x800080);
+        const connectingLine = new DistanceLineArrow(this.initialPos, middlePoint, lineWidth, 0x800080, false);
         this.add(connectingLine);
 
         if (this.decompose) {

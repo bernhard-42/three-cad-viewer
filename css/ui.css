@@ -572,37 +572,31 @@ input[type="button"] {
 
 
 /* MEASURE PANEL */
+
 .tcv_measure_panel {
-  width: 100px;
-  height: 140px;
-  border: none;
+  width: fit-content;
+  height: 112px;
   display: inline-block;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: absolute;
-  background-color: none;
-
+  background-color: var(--tcv-bg-overlay-color);
 }
 
 .tcv_measure_header {
-  background-color: #333;
   height: 20%;
-  text-align: center;
-  border: 1px solid black;
   width: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
   font-weight: bold;
-  font-size: 18px;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-size: 16px;
+  font-family: sans-serif;
+  color: var(--tcv-font-color);
+  border-bottom: 1px solid lightgray;
 }
 
-#measure_table {
-  width: 100%;
+#tcv_measure_table {
   height: 80%;
   border-collapse: collapse;
   table-layout: fixed;
@@ -610,43 +604,42 @@ input[type="button"] {
 
 .measure_cell {
   content: attr(data-label);
-  border-top: 1px solid black;
-  text-align: center;
   vertical-align: middle;
-  font-size: 15px;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-size: 14px;
+  font-family: sans-serif;
+  padding: 3px 5px 1px 5px;
 }
 
+.measure_row_line {
+  width: fit-content;
+  border-bottom: 1px solid lightgray;
+}
 
 .measure_val {
-  color: black;
-  background-color: lightgray;
+  color: val(--tcv-font-color);
+  text-align: right;
+  border-left: 1px solid lightgray;
 }
 
 table#measure_table tr td:first-child {
-  border-right: 1px solid black;
-}
-
-.bottom_cell_right {
-  border-bottom-right-radius: 10px;
-}
-
-.bottom_cell_left {
-  border-bottom-left-radius: 10px;
+  border-right: 1px solid lightgray;
 }
 
 #tcv_measure_total {
-  background-color: grey;
+  color: var(--tcv-font-color);
 }
 
 #tcv_measure_x {
-  background-color: red;
+  color: var(--tcv-x-color);
+  text-align: center
 }
 
 #tcv_measure_y {
-  background-color: rgb(1, 158, 1);
+  color: var(--tcv-y-color);
+  text-align: center;
 }
 
 #tcv_measure_z {
-  background-color: blue;
+  color: var(--tcv-z-color);
+  text-align: center
 }
