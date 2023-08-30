@@ -287,7 +287,7 @@ th {
 }
 
 .tcv_btn:hover {
-  box-shadow: 1px 1px 1px 0 var(--tcv-shadow);
+  box-shadow: 1px px 1px 0 var(--tcv-shadow);
   background-color: var(--tcv-bg-highlight-color);
 }
 
@@ -582,6 +582,7 @@ input[type="button"] {
   justify-content: center;
   position: absolute;
   background-color: var(--tcv-bg-overlay-color);
+  user-select: none;
 }
 
 .tcv_measure_header {
@@ -642,4 +643,8 @@ table#measure_table tr td:first-child {
 #tcv_measure_z {
   color: var(--tcv-z-color);
   text-align: center
+}
+
+.tcv_tool_btn_highlight {
+  background-color: rgba(153, 143, 143, 0.5);
 }

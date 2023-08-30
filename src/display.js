@@ -413,7 +413,7 @@ class Display {
     this.animationSlider.addEventListener("input", this.animationChange);
     this.showAnimationControl(false);
 
-    this._setupClickEvent("tcv_measure", this.controlMeasure, false);
+    this._setupClickEvent("tcv_measure", this.enableMeasureContext, false);
 
     this.showHelp(false);
     this.showMeasurePanel(false);
@@ -1075,9 +1075,18 @@ class Display {
    * @function
    * @param {Event} e - a DOM click event
    */
-  controlMeasure = (e) => {
-    console.log("controlMeasure", e);
-    this.viewer._testMeasure();
+  enableMeasureContext = (e) => {
+    console.log("enableMeasureContext", e);
+    const btn = this._getElement("tcv_measure");
+    if (!this.viewer.measure.contextEnabled) {
+      btn.classList.add("tcv_tool_btn_highlight");
+      this.viewer.measure.enableContext();
+
+    }
+    else {
+      btn.classList.remove("tcv_tool_btn_highlight");
+      this.viewer.measure.disableContext();
+    }
   };
 
   /**

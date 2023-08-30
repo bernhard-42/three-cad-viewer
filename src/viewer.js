@@ -25,7 +25,7 @@ import { version } from "./_version.js";
 
 const LEFT_MOUSE_BUTTON = 0;
 // const MIDDLE_MOUSE_BUTTON = 1;
-// const RIGHT_MOUSE_BUTTON = 2;
+const RIGHT_MOUSE_BUTTON = 2;
 
 class Viewer {
   /**
@@ -80,7 +80,7 @@ class Viewer {
     this.controls = null;
     this.orientationMarker = null;
     this.treeview = null;
-    this.measure = null;
+    this.measure = new Measurement(this);
 
     this.ready = false;
     this.mixer = null;
@@ -125,6 +125,11 @@ class Viewer {
       false,
     );
     this.renderer.domElement.addEventListener("mouseup", this.selectUp, false);
+
+    // Measure handling
+    this.renderer.domElement.addEventListener("keydown", this._handleRemoveLastSelection, false);
+    this.renderer.domElement.addEventListener("mouseup", this._handleRemoveLastSelection, false);
+
     this.renderer.domElement.addEventListener("contextmenu", (e) =>
       e.stopPropagation(),
     );
@@ -531,8 +536,8 @@ class Viewer {
 
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
-      if (this.measure)
-        this.measure.update(this.camera);
+      if (this.measure.contextEnabled)
+        this.measure.update();
 
       this.directLight.position.copy(this.camera.getCamera().position);
 
@@ -1331,6 +1336,14 @@ class Viewer {
     }
   };
 
+  _handleRemoveLastSelection = (e) => {
+    if (!this.measure.contextEnabled)
+      return;
+    if (e.button === RIGHT_MOUSE_BUTTON || e.key === "backspace") {
+      this.measure.removeLastSelectedObj();
+    }
+  };
+
   selectUp = (e) => {
     if (this.raycastMode) {
       if (e.button == LEFT_MOUSE_BUTTON) {
@@ -1338,6 +1351,10 @@ class Viewer {
           if (this.lastObject != null) {
             this.lastObject.highlight();
             this.lastObject.widen(false);
+
+            if (this.measure.contextEnabled)
+              this.measure.handleSelection(this.lastObject);
+
           }
         }
       }
@@ -1348,6 +1365,10 @@ class Viewer {
     console.log(key);
     switch (key) {
       case "Escape":
+        if (this.measure.contextEnabled) {
+          this.measure.removeLastSelectedObj(); // A bit dirty maybe a real method would be better
+          this.measure.removeLastSelectedObj();
+        }
         for (var object of this.nestedGroup.selection()) {
           object.clearHighlights();
         }
@@ -2208,23 +2229,8 @@ class Viewer {
   }
 
   _testMeasure() {
-    const selection = this.nestedGroup.selection();
-    if (selection.length != 2 && selection[0].children[0].geometry.boundingSphere == null || selection[0].children[0].geometry.boundingSphere == null) {
-      console.log("Tried to measure something else than 2 vertices");
-    }
-    const pt1 = selection[0].children[0].geometry.boundingSphere.center;
-    const pt2 = selection[1].children[0].geometry.boundingSphere.center;
-    // const pt1 = new THREE.Vector3(-0.4, -0.7, 1.5);
-    // const pt2 = new THREE.Vector3(0.5, 0.5, 0);
-    var measure = new Measurement(this, pt1, pt2, false);
-    this.measure = measure;
-    measure.update(this.camera);
-    this.measure = measure;
+    this.measure.update();
     this.update(true, true);
-
-
-
-
   }
 }
 

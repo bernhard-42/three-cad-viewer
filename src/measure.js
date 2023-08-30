@@ -3,6 +3,7 @@ import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Vector3 } from "three";
+import { ObjectGroup } from "./nestedgroup.js";
 
 
 class DistanceLineArrow extends THREE.Group {
@@ -55,72 +56,120 @@ class DistanceLineArrow extends THREE.Group {
 
 
 
-class Measurement extends THREE.Group {
+class Measurement {
     /**
      * 
      * @param {import ("./viewer.js").Viewer} viewer The viewer instance
-     * @param {Vector3} point1 The starting point to measure
-     * @param {Vector3} point2 The end point to measure
      * @param {boolean} decompose Wheveter to decompose the measurment per axis.
      */
-    constructor(viewer, point1, point2, decompose = false) {
+    constructor(viewer, decompose = false) {
 
-        super();
-        this.panel = null;
-        this.point1 = point1;
-        this.point2 = point2;
+        this.selectedGeoms = [];
+        this.point1 = null;
+        this.point2 = null;
+        this.contextEnabled = false; // Tells if the measure context is active
         this.viewer = viewer;
-        this.renderer = viewer.renderer;
-        this.lineScene = new THREE.Scene();
-        this.panelScene = new THREE.Scene();
+        this.scene = new THREE.Scene();
         this.decompose = decompose;
-        this.lineScene.add(this);
         this.panel = this.viewer.display.measurePanel;
-        this.viewer.display.showMeasurePanel(true);
-        this.initialPos = new Vector3(0, 1, 0).multiplyScalar(this.viewer.bbox.boundingSphere().radius);
+
+
+
+    }
+
+    enableContext() {
+        this.contextEnabled = true;
+    }
+
+    disableContext() {
+        this.contextEnabled = false;
+        this.selectedGeoms = [];
+        this._hideMeasurement();
+    }
+
+    _hideMeasurement() {
+        this.viewer.display.showMeasurePanel(false);
+        this.scene.clear();
+    }
+
+    _getPoints() {
+        const obj1 = this.selectedGeoms[0];
+        const obj2 = this.selectedGeoms[1];
+        this.point1 = obj1.children[0].geometry.boundingSphere.center;
+        this.point2 = obj2.children[0].geometry.boundingSphere.center;
+    }
+
+    _updateMeasurement() {
+        if (this.selectedGeoms.length != 2) {
+            this._hideMeasurement();
+            return;
+        }
+        this.panelCenter = new Vector3(1, 1, 0).multiplyScalar(this.viewer.bbox.boundingSphere().radius);
+        this._getPoints();
         this._makeLines();
-        this._makeMeasurement();
+        this._computeMeasurementVals();
+        this.viewer.display.showMeasurePanel(true);
         this.movePanel();
     }
 
     _makeLines() {
         const lineWidth = 0.0025;
         const distanceLine = new DistanceLineArrow(this.point1, this.point2, 2 * lineWidth, 0xFF8C00);
-        this.add(distanceLine);
+        this.scene.add(distanceLine);
 
         const middlePoint = new THREE.Vector3().addVectors(this.point1, this.point2).multiplyScalar(0.5);
-        const connectingLine = new DistanceLineArrow(this.initialPos, middlePoint, lineWidth, 0x800080, false);
-        this.add(connectingLine);
+        const connectingLine = new DistanceLineArrow(this.panelCenter, middlePoint, lineWidth, 0x800080, false);
+        this.scene.add(connectingLine);
 
         if (this.decompose) {
             // Create axes lines
             const xEnd = new Vector3(this.point2.x, this.point1.y, this.point1.z);
             const xLine = new DistanceLineArrow(this.point1, xEnd, lineWidth, 0xff0000);
-            this.add(xLine);
+            this.scene.add(xLine);
 
             const yEnd = new Vector3(xEnd.x, this.point2.y, xEnd.z);
             const yLine = new DistanceLineArrow(xEnd, yEnd, lineWidth, 0x00ff00);
-            this.add(yLine);
+            this.scene.add(yLine);
 
             const zLine = new DistanceLineArrow(yEnd, this.point2, lineWidth, 0x0000ff);
-            this.add(zLine);
+            this.scene.add(zLine);
         }
 
     }
 
+    /**
+     * React to each new selected element in the viewer.
+     * @param {ObjectGroup} objGroup 
+     */
+    handleSelection = (objGroup) => {
+
+        this._hideMeasurement();
+        if (this.selectedGeoms.length == 2) {
+            this.removeLastSelectedObj();
+        }
+        this.selectedGeoms.push(objGroup);
+
+        this._updateMeasurement();
+    };
+
     movePanel() {
-        var worldCoord = this.initialPos;
+        var worldCoord = this.panelCenter;
         var screenCoord = worldCoord.clone().project(this.viewer.camera.getCamera());
         screenCoord.x = Math.round((1 + screenCoord.x) * this.viewer.renderer.domElement.offsetWidth / 2);
         screenCoord.y = Math.round((1 - screenCoord.y) * this.viewer.renderer.domElement.offsetHeight / 2);
         const panelStyle = window.getComputedStyle(this.panel);
         this.panel.style.left = screenCoord.x - parseFloat(panelStyle.width) / 2 + "px";
         this.panel.style.top = screenCoord.y - parseFloat(panelStyle.height) / 2 + "px";
-        console.log(screenCoord);
     }
 
+    removeLastSelectedObj() {
+        const lastItem = this.selectedGeoms.pop();
+        if (lastItem)
+            lastItem.clearHighlights();
+        this._updateMeasurement();
+    }
 
-    _makeMeasurement() {
+    _computeMeasurementVals() {
         const total = this.point1.distanceTo(this.point2);
         const distVec = this.point2.clone().sub(this.point1);
         const xdist = distVec.x;
@@ -132,14 +181,10 @@ class Measurement extends THREE.Group {
         this.panel.querySelector("#z").textContent = zdist.toFixed(2);
     }
 
-    update(viewerCamera) {
-        this.camera = viewerCamera.camera;
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.clearDepth();
-        this.renderer.render(this.lineScene, this.camera);
-        this.renderer.clearDepth();
-        this.renderer.render(this.panelScene, this.camera);
-        this._makeMeasurement();
+    update() {
+        const camera = this.viewer.camera.getCamera();
+        this.viewer.renderer.clearDepth();
+        this.viewer.renderer.render(this.scene, camera);
         this.movePanel();
     }
 }

@@ -54,7 +54,7 @@ class ObjectGroup extends THREE.Group {
     var hColor = null;
     var oColor = null;
 
-    console.log(this.name, "flag", flag, "isSelected", this.isSelected, this.originalColor, this.originalWidth);
+    //console.log(this.name, "flag", flag, "isSelected", this.isSelected, this.originalColor, this.originalWidth);
 
     if (this.types.front) {
       object = this.types.front;
