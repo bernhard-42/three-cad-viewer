@@ -234,10 +234,12 @@
         <div class="tcv_cad_view">
             <div class="tcv_cad_tools tcv_round">
                 <span class="tcv_tools_label">T</span>
-                <span class="tcv_tooltip" data-tooltip="Measure"><input class='tcv_measure tcv_tool_btn tcv_btn'
-                        type="button" /></span>
+                <span class="tcv_tooltip" data-tooltip="Measure distance"><input
+                        class='tcv_measure tcv_tool_btn tcv_btn' type="button" /></span>
+                <span class="tcv_tooltip" data-tooltip="Measure size"><input
+                        class='tcv_measure_size tcv_tool_btn tcv_btn' type="button" /></span>
             </div>
-            <div class="tcv_measure_panel tcv_round">
+            <div class="tcv_measure_panel tcv_panel tcv_round">
                 <div class="tcv_measure_header">Distance</div>
                 <table id="tcv_measure_table">
                     <tr class="measure_row_line">
@@ -258,6 +260,26 @@
                     </tr>
                 </table>
             </div>
+
+            <div class="tcv_measure_size_panel tcv_panel tcv_round">
+                <div class="tcv_measure_header">Size</div>
+                <table id="tcv_measure_table">
+                    <tr class="measure_size_row_line" id="volume_row">
+                        <td class="measure_cell" id="tcv_measure_volume">Volume</td>
+                        <td class="measure_cell measure_val" id="volume">volume</td>
+                    </tr>
+                    <tr class="measure_size_row_line" id="area_row">
+                        <td class="measure_cell" id="tcv_measure_area">Area</td>
+                        <td class="measure_cell measure_val" id="area">area</td>
+                    </tr>
+                    <tr class="measure_size_row_line" id="length_row">
+                        <td class="measure_cell" id="tcv_measure_length">Length</td>
+                        <td class="measure_cell measure_val" id="length">length</td>
+                    </tr>
+                </table>
+            </div>
+
+
             <div class="tcv_cad_animation tcv_round">
                 <span class="tcv_animation_label">E</span>
                 <span><input type="range" min="0" max="1000" value="0"

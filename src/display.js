@@ -32,6 +32,7 @@ const buttons = [
   "pause",
   "stop",
   "measure",
+  "measure_size",
 ];
 class Slider {
   constructor(index, min, max, display) {
@@ -150,6 +151,7 @@ class Display {
     this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadView = this._getElement("tcv_cad_view");
     this.measurePanel = this._getElement("tcv_measure_panel");
+    this.measureSizePanel = this._getElement("tcv_measure_size_panel");
     this.cadTree = this._getElement("tcv_cad_tree_container");
     this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
     this.cadClip = this._getElement("tcv_cad_clip_container");
@@ -414,9 +416,11 @@ class Display {
     this.showAnimationControl(false);
 
     this._setupClickEvent("tcv_measure", this.enableMeasureContext, false);
+    this._setupClickEvent("tcv_measure_size", this.enableSizeMeasureContext, false);
 
     this.showHelp(false);
     this.showMeasurePanel(false);
+    this.showMeasureSizePanel(false);
   }
 
   /**
@@ -1078,14 +1082,33 @@ class Display {
   enableMeasureContext = (e) => {
     console.log("enableMeasureContext", e);
     const btn = this._getElement("tcv_measure");
-    if (!this.viewer.measure.contextEnabled) {
+    if (!this.viewer.cadtools.distanceMeasurement.contextEnabled) {
       btn.classList.add("tcv_tool_btn_highlight");
-      this.viewer.measure.enableContext();
+      this.viewer.cadtools.distanceMeasurement.enableContext();
 
     }
     else {
       btn.classList.remove("tcv_tool_btn_highlight");
-      this.viewer.measure.disableContext();
+      this.viewer.cadtools.distanceMeasurement.disableContext();
+    }
+  };
+
+  /**
+ * Handler for the CAD tools
+ * @function
+ * @param {Event} e - a DOM click event
+ */
+  enableSizeMeasureContext = (e) => {
+    console.log("enableSizeMeasureContext", e);
+    const btn = this._getElement("tcv_measure_size");
+    if (!this.viewer.cadtools.sizeMeasurement.contextEnabled) {
+      btn.classList.add("tcv_tool_btn_highlight");
+      this.viewer.cadtools.sizeMeasurement.enableContext();
+
+    }
+    else {
+      btn.classList.remove("tcv_tool_btn_highlight");
+      this.viewer.cadtools.sizeMeasurement.disableContext();
     }
   };
 
@@ -1115,6 +1138,14 @@ class Display {
    */
   showMeasurePanel = (flag) => {
     this.measurePanel.style.display = flag ? "block" : "none";
+  };
+
+  /**
+ * Show or hide the measure size panel
+ * @param {boolean} flag 
+ */
+  showMeasureSizePanel = (flag) => {
+    this.measureSizePanel.style.display = flag ? "block" : "none";
   };
 
   /**

@@ -70,6 +70,7 @@ const icons = {
   stop: { light: light_stop, dark: dark_stop },
   top: { light: light_top, dark: dark_top },
   measure: { light: light_resize, dark: dark_resize },
+  measure_size: { light: light_shape, dark: dark_shape },
 };
 
 function getIconBackground(theme, name) {

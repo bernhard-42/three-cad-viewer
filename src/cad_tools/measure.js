@@ -3,7 +3,6 @@ import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Vector3 } from "three";
-import { ObjectGroup } from "./nestedgroup.js";
 
 
 class DistanceLineArrow extends THREE.Group {
@@ -54,15 +53,13 @@ class DistanceLineArrow extends THREE.Group {
     }
 }
 
-
-
 class Measurement {
     /**
      * 
-     * @param {import ("./viewer.js").Viewer} viewer The viewer instance
-     * @param {boolean} decompose Wheveter to decompose the measurment per axis.
+     * @param {import ("../viewer.js").Viewer} viewer The viewer instance
+     * @param {domElement} panel The panel to display
      */
-    constructor(viewer, decompose = false) {
+    constructor(viewer, panel) {
 
         this.selectedGeoms = [];
         this.point1 = null;
@@ -70,15 +67,14 @@ class Measurement {
         this.contextEnabled = false; // Tells if the measure context is active
         this.viewer = viewer;
         this.scene = new THREE.Scene();
-        this.decompose = decompose;
-        this.panel = this.viewer.display.measurePanel;
-
-
+        this.panel = panel;
+        this.panelCenter = null;
 
     }
 
     enableContext() {
         this.contextEnabled = true;
+        this.panelCenter = new Vector3(1, 1, 0).multiplyScalar(this.viewer.bbox.boundingSphere().radius);
     }
 
     disableContext() {
@@ -88,63 +84,47 @@ class Measurement {
     }
 
     _hideMeasurement() {
-        this.viewer.display.showMeasurePanel(false);
+        this.panel.style.display = "none";
         this.scene.clear();
     }
 
-    _getPoints() {
-        const obj1 = this.selectedGeoms[0];
-        const obj2 = this.selectedGeoms[1];
-        this.point1 = obj1.children[0].geometry.boundingSphere.center;
-        this.point2 = obj2.children[0].geometry.boundingSphere.center;
-    }
-
-    _updateMeasurement() {
-        if (this.selectedGeoms.length != 2) {
-            this._hideMeasurement();
-            return;
-        }
-        this.panelCenter = new Vector3(1, 1, 0).multiplyScalar(this.viewer.bbox.boundingSphere().radius);
-        this._getPoints();
-        this._makeLines();
-        this._computeMeasurementVals();
-        this.viewer.display.showMeasurePanel(true);
-        this.movePanel();
+    _setMeasurementVals() {
+        throw new Error("Subclass needs to override this method");
     }
 
     _makeLines() {
-        const lineWidth = 0.0025;
-        const distanceLine = new DistanceLineArrow(this.point1, this.point2, 2 * lineWidth, 0xFF8C00);
-        this.scene.add(distanceLine);
-
-        const middlePoint = new THREE.Vector3().addVectors(this.point1, this.point2).multiplyScalar(0.5);
-        const connectingLine = new DistanceLineArrow(this.panelCenter, middlePoint, lineWidth, 0x800080, false);
-        this.scene.add(connectingLine);
-
-        if (this.decompose) {
-            // Create axes lines
-            const xEnd = new Vector3(this.point2.x, this.point1.y, this.point1.z);
-            const xLine = new DistanceLineArrow(this.point1, xEnd, lineWidth, 0xff0000);
-            this.scene.add(xLine);
-
-            const yEnd = new Vector3(xEnd.x, this.point2.y, xEnd.z);
-            const yLine = new DistanceLineArrow(xEnd, yEnd, lineWidth, 0x00ff00);
-            this.scene.add(yLine);
-
-            const zLine = new DistanceLineArrow(yEnd, this.point2, lineWidth, 0x0000ff);
-            this.scene.add(zLine);
-        }
-
+        throw new Error("Subclass needs to override this method");
     }
 
     /**
+     * Get the maximum number of selected obj this measurement can handle
+     * @returns {int} The numbers of obj handled by the measurement
+     */
+    _getMaxObjSelected() {
+        throw new Error("Subclass needs to override this method");
+    }
+
+    _updateMeasurement() {
+        if (this.selectedGeoms.length != this._getMaxObjSelected()) {
+            this._hideMeasurement();
+            return;
+        }
+
+        this._makeLines();
+        this._setMeasurementVals();
+        this.panel.style.display = "block";
+        this.movePanel();
+    }
+
+
+    /**
      * React to each new selected element in the viewer.
-     * @param {ObjectGroup} objGroup 
+     * @param {import ("../nestedgroup.js").ObjectGroup} objGroup 
      */
     handleSelection = (objGroup) => {
 
         this._hideMeasurement();
-        if (this.selectedGeoms.length == 2) {
+        if (this.selectedGeoms.length == this._getMaxObjSelected()) {
             this.removeLastSelectedObj();
         }
         this.selectedGeoms.push(objGroup);
@@ -169,7 +149,24 @@ class Measurement {
         this._updateMeasurement();
     }
 
-    _computeMeasurementVals() {
+
+    update() {
+        const camera = this.viewer.camera.getCamera();
+        this.viewer.renderer.clearDepth();
+        this.viewer.renderer.render(this.scene, camera);
+        this.movePanel();
+    }
+}
+
+class DistanceMeasurement extends Measurement {
+    constructor(viewer) {
+        super(viewer, viewer.display.measurePanel);
+        this.point1 = null;
+        this.point2 = null;
+    }
+
+
+    _setMeasurementVals() {
         const total = this.point1.distanceTo(this.point2);
         const distVec = this.point2.clone().sub(this.point1);
         const xdist = distVec.x;
@@ -181,12 +178,74 @@ class Measurement {
         this.panel.querySelector("#z").textContent = zdist.toFixed(2);
     }
 
-    update() {
-        const camera = this.viewer.camera.getCamera();
-        this.viewer.renderer.clearDepth();
-        this.viewer.renderer.render(this.scene, camera);
-        this.movePanel();
+    _getMaxObjSelected() {
+        return 2;
     }
+
+    _getPoints() {
+        const obj1 = this.selectedGeoms[0];
+        const obj2 = this.selectedGeoms[1];
+        this.point1 = obj1.children[0].geometry.boundingSphere.center;
+        this.point2 = obj2.children[0].geometry.boundingSphere.center;
+    }
+
+    _makeLines() {
+
+        this._getPoints();
+
+        const lineWidth = 0.0025;
+        const distanceLine = new DistanceLineArrow(this.point1, this.point2, 2 * lineWidth, 0xFF8C00);
+        this.scene.add(distanceLine);
+
+        const middlePoint = new THREE.Vector3().addVectors(this.point1, this.point2).multiplyScalar(0.5);
+        const connectingLine = new DistanceLineArrow(this.panelCenter, middlePoint, lineWidth, 0x800080, false);
+        this.scene.add(connectingLine);
+    }
+
 }
 
-export { Measurement };
+class SizeMeasurement extends Measurement {
+    constructor(viewer) {
+        super(viewer, viewer.display.measureSizePanel);
+    }
+
+    _hideRows() {
+        this.panel.querySelector("#volume_row").style.display = "none";
+        this.panel.querySelector("#area_row").style.display = "none";
+        this.panel.querySelector("#length_row").style.display = "none";
+    }
+
+    _setMeasurementVals() {
+        this._hideRows();
+        const obj = this.selectedGeoms[0];
+        const isLine = obj.name.match(/.*\|.*edges/);;
+        const isFace = obj.name.match(/.*\|.*faces/);;
+        let row;
+        if (isLine) {
+            this.panel.querySelector("#length").textContent = 12;
+            row = this.panel.querySelector("#length_row");
+        }
+        else if (isFace) {
+            this.panel.querySelector("#area").textContent = 68;
+            row = this.panel.querySelector("#area_row");
+        }
+        row.style.display = "block";
+    }
+
+    _getMaxObjSelected() {
+        return 1;
+    }
+
+    _makeLines() {
+
+        const lineWidth = 0.0025;
+
+        const middlePoint = this.selectedGeoms[0].children[0].geometry.boundingSphere.center;
+        const connectingLine = new DistanceLineArrow(this.panelCenter, middlePoint, lineWidth, 0x800080, false);
+        this.scene.add(connectingLine);
+    }
+
+
+}
+
+export { DistanceMeasurement, SizeMeasurement };

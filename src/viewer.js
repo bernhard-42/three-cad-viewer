@@ -20,12 +20,12 @@ import {
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
 import { BoundingBox, BoxHelper } from "./bbox.js";
-import { Measurement } from "./measure.js";
+import { Tools } from "./cad_tools/tools.js";
 import { version } from "./_version.js";
 
 const LEFT_MOUSE_BUTTON = 0;
 // const MIDDLE_MOUSE_BUTTON = 1;
-const RIGHT_MOUSE_BUTTON = 2;
+
 
 class Viewer {
   /**
@@ -80,7 +80,7 @@ class Viewer {
     this.controls = null;
     this.orientationMarker = null;
     this.treeview = null;
-    this.measure = new Measurement(this);
+    this.cadtools = new Tools(this);
 
     this.ready = false;
     this.mixer = null;
@@ -126,9 +126,9 @@ class Viewer {
     );
     this.renderer.domElement.addEventListener("mouseup", this.selectUp, false);
 
-    // Measure handling
-    this.renderer.domElement.addEventListener("keydown", this._handleRemoveLastSelection, false);
-    this.renderer.domElement.addEventListener("mouseup", this._handleRemoveLastSelection, false);
+    // Tools handling
+    this.renderer.domElement.addEventListener("keydown", (e) => this.cadtools.handleRemoveLastSelection(e), false);
+    this.renderer.domElement.addEventListener("mouseup", (e) => this.cadtools.handleRemoveLastSelection(e), false);
 
     this.renderer.domElement.addEventListener("contextmenu", (e) =>
       e.stopPropagation(),
@@ -536,8 +536,7 @@ class Viewer {
 
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
-      if (this.measure.contextEnabled)
-        this.measure.update();
+      this.cadtools.update();
 
       this.directLight.position.copy(this.camera.getCamera().position);
 
@@ -1336,14 +1335,6 @@ class Viewer {
     }
   };
 
-  _handleRemoveLastSelection = (e) => {
-    if (!this.measure.contextEnabled)
-      return;
-    if (e.button === RIGHT_MOUSE_BUTTON || e.key === "backspace") {
-      this.measure.removeLastSelectedObj();
-    }
-  };
-
   selectUp = (e) => {
     if (this.raycastMode) {
       if (e.button == LEFT_MOUSE_BUTTON) {
@@ -1352,9 +1343,7 @@ class Viewer {
             this.lastObject.highlight();
             this.lastObject.widen(false);
 
-            if (this.measure.contextEnabled)
-              this.measure.handleSelection(this.lastObject);
-
+            this.cadtools.handleSelectedObj(this.lastObject);
           }
         }
       }
@@ -1365,10 +1354,7 @@ class Viewer {
     console.log(key);
     switch (key) {
       case "Escape":
-        if (this.measure.contextEnabled) {
-          this.measure.removeLastSelectedObj(); // A bit dirty maybe a real method would be better
-          this.measure.removeLastSelectedObj();
-        }
+        this.cadtools.handleResetSelection();
         for (var object of this.nestedGroup.selection()) {
           object.clearHighlights();
         }
