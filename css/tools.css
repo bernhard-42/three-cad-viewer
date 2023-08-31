@@ -79,3 +79,7 @@ table#measure_table tr td:first-child {
 #measure_size_row_line {
     display: none;
 }
+
+.tcv_measure_size_panel {
+    height: fit-content;
+}

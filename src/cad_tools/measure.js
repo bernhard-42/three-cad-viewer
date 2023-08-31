@@ -113,7 +113,7 @@ class Measurement {
         this._makeLines();
         this._setMeasurementVals();
         this.panel.style.display = "block";
-        this.movePanel();
+        this._movePanel();
     }
 
 
@@ -132,7 +132,7 @@ class Measurement {
         this._updateMeasurement();
     };
 
-    movePanel() {
+    _movePanel() {
         var worldCoord = this.panelCenter;
         var screenCoord = worldCoord.clone().project(this.viewer.camera.getCamera());
         screenCoord.x = Math.round((1 + screenCoord.x) * this.viewer.renderer.domElement.offsetWidth / 2);
@@ -154,7 +154,7 @@ class Measurement {
         const camera = this.viewer.camera.getCamera();
         this.viewer.renderer.clearDepth();
         this.viewer.renderer.render(this.scene, camera);
-        this.movePanel();
+        this._movePanel();
     }
 }
 
