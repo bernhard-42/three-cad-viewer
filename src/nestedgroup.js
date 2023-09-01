@@ -371,6 +371,12 @@ class NestedGroup {
     return result;
   }
 
+  clearSelection() {
+    for (var object of this.selection()) {
+      object.clearHighlights();
+    }
+  }
+
   setMetalness(value) {
     this.metalness = value;
     this._traverse("setMetalness", value);
