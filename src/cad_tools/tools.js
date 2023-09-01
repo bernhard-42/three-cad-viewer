@@ -1,7 +1,5 @@
 import { DistanceMeasurement, SizeMeasurement } from "./measure";
 
-const RIGHT_MOUSE_BUTTON = 2;
-
 export class Tools {
     /**
      * 
@@ -12,16 +10,12 @@ export class Tools {
         this.sizeMeasurement = new SizeMeasurement(viewer);
     }
 
-    handleRemoveLastSelection(e) {
+    handleRemoveLastSelection() {
         if (this.distanceMeasurement.contextEnabled) {
-            if (e.button === RIGHT_MOUSE_BUTTON || e.key === "backspace") {
-                this.distanceMeasurement.removeLastSelectedObj();
-            }
+            this.distanceMeasurement.removeLastSelectedObj();
         }
         else if (this.sizeMeasurement.contextEnabled) {
-            if (e.button === RIGHT_MOUSE_BUTTON || e.key === "backspace") {
-                this.sizeMeasurement.removeLastSelectedObj();
-            }
+            this.sizeMeasurement.removeLastSelectedObj();
         }
     }
 

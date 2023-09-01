@@ -546,11 +546,6 @@ class Display {
     this.viewer.toggleAnimationLoop(flag);
     this.showToolsControl(flag);
     this.viewer.setRaycastMode(flag);
-    if (flag) {
-      document.addEventListener("keydown", this.onToolsKeyDown);
-    } else {
-      document.removeEventListener("keydown", this.onToolsKeyDown);
-    }
 
     if (flag) {
       if (this.viewer.hasAnimation()) {
@@ -905,15 +900,6 @@ class Display {
    */
   showToolsControl = (flag) => {
     this.cadTools.style.display = flag ? "block" : "none";
-  };
-
-  /**
-   * Handler for the key press event
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  onToolsKeyDown = (e) => {
-    this.viewer.handleRaycastKey(e.key);
   };
 
   /**
