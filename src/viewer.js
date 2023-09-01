@@ -22,10 +22,7 @@ import { Camera } from "./camera.js";
 import { BoundingBox, BoxHelper } from "./bbox.js";
 import { Tools } from "./cad_tools/tools.js";
 import { version } from "./_version.js";
-
-const LEFT_MOUSE_BUTTON = 0;
-// const MIDDLE_MOUSE_BUTTON = 1;
-
+import { Raycaster } from "./raycast.js";
 
 class Viewer {
   /**
@@ -94,9 +91,7 @@ class Viewer {
     ];
 
     this.camera_distance = 0;
-    this.raycaster = new THREE.Raycaster();
-    this.raycaster.params.Line.threshold = 3;
-    this.raycaster.params.Points.threshold = 3;
+
     this.mouse = new THREE.Vector2();
 
     // setup renderer
@@ -112,9 +107,9 @@ class Viewer {
     this.lastNotification = {};
     this.lastBbox = null;
     this.lastObject = null;
+    this.lastSelection = null;
     this.lastPosition = null;
     this.bboxNeedsUpdate = false;
-    this.raycastMode = false;
 
     this.keepHighlight = false;
 
@@ -126,14 +121,9 @@ class Viewer {
     );
     this.renderer.domElement.addEventListener("mouseup", this.selectUp, false);
 
-    // Tools handling
-    this.renderer.domElement.addEventListener("keydown", (e) => this.cadtools.handleRemoveLastSelection(e), false);
-    this.renderer.domElement.addEventListener("mouseup", (e) => this.cadtools.handleRemoveLastSelection(e), false);
-
     this.renderer.domElement.addEventListener("contextmenu", (e) =>
       e.stopPropagation(),
     );
-    this.renderer.domElement.addEventListener("mousemove", this.onPointerMove);
 
     this.display.addCadView(this.renderer.domElement);
 
@@ -460,44 +450,6 @@ class Viewer {
     }
   };
 
-  /**
-   * Retrieve all the valid intersected objects by a ray caster from the mouse.
-   * The objects are sorted by their distance from the ray. (The closest first)
-   */
-  _getValidIntersectedObjs() {
-    this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
-
-    const objects = this.raycaster.intersectObjects(
-      this.scene.children.slice(0, 1),
-      true,
-    );
-    var validObjs = [];
-
-    for (var object of objects) {
-      if (
-        object.object.material.visible &&
-        (object.distanceToRay == null ||
-          object.distanceToRay < 0.03)
-      ) {
-        validObjs.push(object);
-      }
-    }
-    return validObjs;
-  }
-
-  _release = (clear = false) => {
-    if (this.lastObject != null) {
-      if (!this.lastObject.isSelected) {
-        this.lastObject.highlight(false);
-      }
-
-      this.lastObject.widen(false);
-
-      if (clear) {
-        this.lastObject = null;
-      }
-    }
-  };
 
   /**
    * Render scene and update orientation marker
@@ -512,26 +464,8 @@ class Viewer {
     if (this.ready) {
       this.renderer.clear();
 
-      if (this.raycastMode) {
-        const objects = this._getValidIntersectedObjs();
-        if (objects.length > 0) {
-          for (var object of objects) {
-            {
-              const objectGroup = object.object.parent;
-              if (objectGroup !== this.lastObject) {
-                this._release();
-                objectGroup.highlight(true);
-                const metric = objectGroup.metrics();
-                const name = objectGroup.name.split("|").slice(-1);
-                this.info.addHtml(`<b>${name} </b>${metric.value}`);
-                this.lastObject = objectGroup;
-              }
-              break;
-            }
-          }
-        } else {
-          this._release(true);
-        }
+      if (this.raycaster && this.raycaster.raycastMode) {
+        this.handleRaycast();
       }
 
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
@@ -741,6 +675,7 @@ class Viewer {
     );
     timer.split("bounding box");
 
+
     //
     // add Info box
     //
@@ -924,6 +859,20 @@ class Viewer {
       theme,
     );
     this.orientationMarker.create();
+
+    //
+    // initiate raycasting
+    //
+
+    this.raycaster = new Raycaster(
+      this.camera,
+      this.renderer.domElement,
+      this.cadWidth,
+      this.height,
+      this.scene.children.slice(0, 1),
+      this.handleRaycastEvent,
+    );
+
 
     //
     // build tree view
@@ -1305,7 +1254,7 @@ class Viewer {
    * @param {MouseEvent} e - a DOM MouseEvent
    */
   pick = (e) => {
-    const validObjs = this._getValidIntersectedObjs();
+    const validObjs = this.raycaster.getValidIntersectedObjs();
     if (validObjs.length == 0) {
       return;
     }
@@ -1327,63 +1276,93 @@ class Viewer {
     }
   };
 
-  selectDown = (e) => {
-    if (this.raycastMode) {
-      if (e.button == LEFT_MOUSE_BUTTON) {
-        this.lastPosition = this.camera.getPosition().clone();
+
+  //
+  // Handle CAD Tools
+  // 
+
+  _clearSelection = () => {
+    this.nestedGroup.clearSelection();
+    this.cadtools.handleResetSelection();
+  };
+
+  _releaseLastSelected = (clear) => {
+    if (this.lastObject != null) {
+      this.lastObject.unhighlight(true);
+      if (clear) {
+        this.lastObject = null;
       }
     }
   };
 
-  selectUp = (e) => {
-    if (this.raycastMode) {
-      if (e.button == LEFT_MOUSE_BUTTON) {
-        if (this.lastPosition.equals(this.camera.getPosition())) {
-          if (this.lastObject != null) {
-            this.lastObject.highlight();
-            this.lastObject.widen(false);
+  _removeLastSelected = () => {
+    if (this.lastSelection != null) {
+      this.lastSelection.unhighlight(false);
+      this.lastSelection = null;
 
-            this.cadtools.handleSelectedObj(this.lastObject);
-          }
-        }
-      }
+      this.cadtools.handleRemoveLastSelection();
     }
-  };
-
-  handleRaycastKey = (key) => {
-    console.log(key);
-    switch (key) {
-      case "Escape":
-        this.cadtools.handleResetSelection();
-        for (var object of this.nestedGroup.selection()) {
-          object.clearHighlights();
-        }
-        break;
-      default:
-        break;
-    }
-  };
-
-  getSelection = () => {
-    return this.nestedGroup.selection();
   };
 
   /**
-   * Get the current mouse position
+   * Set raycast mode
    * @function
-   * @param {MouseEvent} e - a DOM MouseEvent
+   * @param {boolean} flag - turn raycast mode on or off
    */
-  onPointerMove = (e) => {
-    const rect = this.renderer.domElement.getBoundingClientRect();
-    const offsetX = rect.x + window.scrollX;
-    const offsetY = rect.y + window.scrollY;
-    this.mouse.x = ((e.pageX - offsetX) / this.cadWidth) * 2 - 1;
-    this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
+  setRaycastMode(flag) {
+    if (flag) {
+      this.raycaster.init();
+    } else {
+      this.raycaster.dispose();
+    }
+  }
+
+  handleRaycast = () => {
+    const objects = this.raycaster.getValidIntersectedObjs();
+    if (objects.length > 0) {
+      for (var object of objects) {
+        {
+          const objectGroup = object.object.parent;
+          if (objectGroup !== this.lastObject) {
+            this._releaseLastSelected(false);
+            objectGroup.highlight(true);
+            this.lastObject = objectGroup;
+          }
+          break;
+        }
+      }
+    } else {
+      this._releaseLastSelected(true);
+    }
   };
 
-  onKeyDown = (e) => {
-    if (e.key === "Escape") {
-      console.log("ESC");
+  handleRaycastEvent = (event) => {
+    if (event.key) {
+      switch (event.key) {
+        case "Escape":
+          this._clearSelection();
+          break;
+        case "Backspace":
+          this._removeLastSelected();
+          break;
+        default:
+          break;
+      }
+    } else {
+      switch (event.mouse) {
+        case "left":
+          if (this.lastObject != null) {
+            this.lastObject.toggleSelection();
+            this.cadtools.handleSelectedObj(this.lastObject);
+            this.lastSelection = this.lastObject;
+          }
+          break;
+        case "right":
+          this._removeLastSelected();
+          break;
+        default:
+          break;
+      }
     }
   };
 
@@ -2068,15 +2047,6 @@ class Viewer {
       reader.readAsDataURL(blob);
     });
   };
-
-  /**
-   * Set raycast mode
-   * @function
-   * @param {boolean} flag - turn raycast mode on or off
-   */
-  setRaycastMode(flag) {
-    this.raycastMode = flag;
-  }
 
   /**
    * Calculate explode trajectories and initiate the animation
