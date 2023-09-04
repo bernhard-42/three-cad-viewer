@@ -1,6 +1,7 @@
 import { getIconBackground } from "./icons.js";
 import { KeyMapper } from "./utils.js";
 import { Slider } from "./slider.js";
+import {Toolbar, Button, ClickButton} from "./toolbar.js"
 
 import template from "./index.html";
 
