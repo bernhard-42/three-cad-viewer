@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="25.2" height="16.2" viewBox="0 -16.2 25.2 16.2">
-<path d="M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z" fill="#666" stroke="#666" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="square" />
-<path d="M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z" fill="#666" stroke="#666" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="square" />
-<path d="M2.0,-6.066666666666666 L2.0,-10.133333333333333 L10.6,-10.133333333333333 L19.2,-10.133333333333333 L19.2,-6.066666666666666 Z" fill="none" stroke="#666" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="square" />
+<path d="M6.0,-2.0 L2.0,-6.066666666666666 L2.0,-10.133333333333333 L6.0,-14.2 L14.6,-14.2 L10.6,-10.133333333333333 L10.6,-6.066666666666666 L14.6,-2.0 Z" fill="#666" stroke="#666" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="square" fill-opacity="1.0" />
+<path d="M14.6,-2.0 L10.6,-6.066666666666666 L10.6,-10.133333333333333 L14.6,-14.2 L23.2,-14.2 L19.2,-10.133333333333333 L19.2,-6.066666666666666 L23.2,-2.0 Z" fill="#666" stroke="#666" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="square" fill-opacity="1.0" />
+<path d="M2.0,-6.066666666666666 L2.0,-10.133333333333333 L10.6,-10.133333333333333 L19.2,-10.133333333333333 L19.2,-6.066666666666666 Z" fill="none" stroke="#666" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="square" fill-opacity="1.0" />
 </svg>
