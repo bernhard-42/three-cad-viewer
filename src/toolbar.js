@@ -70,6 +70,14 @@ class BaseButton {
     handler = (e) => {
         console.log("not implemented yet");
     };
+
+    alignRight() {
+        this.html.classList.add("tcv_align_right");
+    }
+
+    show(flag) {
+        this.html.style.display = flag ? "inline-block" : "none";
+    }
 }
 
 class Button extends BaseButton {

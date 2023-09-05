@@ -157,10 +157,12 @@ class Display {
     this.cadTool.addSeparator();
     this.cadTool.defineGroup([this.toolbarButtons["measure"], this.toolbarButtons["size"]]);
 
-    this.toolbarButtons["pin"] = new Button(theme, "pin", "Pin viewer as png", this.pinAsPng);
-    this.cadTool.addButton(this.toolbarButtons["pin"]);
     this.toolbarButtons["help"] = new Button(theme, "help", "Help", this.toggleHelp);
+    this.toolbarButtons["help"].alignRight();
     this.cadTool.addButton(this.toolbarButtons["help"]);
+    this.toolbarButtons["pin"] = new Button(theme, "pin", "Pin viewer as png", this.pinAsPng);
+    this.toolbarButtons["pin"].alignRight();
+    this.cadTool.addButton(this.toolbarButtons["pin"]);
 
     this.showPinning(options.pinning);
   }
@@ -697,8 +699,7 @@ class Display {
    * @param {boolean} flag - Whether to show/hide the pinning button
    */
   showPinning(flag) {
-    const el = this._getElement("tcv_pin");
-    el.style.display = flag ? "inline-block" : "none";
+    this.toolbarButtons["pin"].show(flag);
   }
 
   /**
