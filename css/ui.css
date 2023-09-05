@@ -201,7 +201,7 @@ th {
 }
 
 .tcv_cad_tools {
-  height: 36px;
+  height: 38px;
   background-color: var(--tcv-bg-overlay-color);
   border: none;
   margin: 0;
@@ -270,8 +270,18 @@ th {
   padding: 0px;
 }
 
+.tcv_button_frame {
+  width: fit-content;
+  height: fit-content;
+  display: inline-block;
+  border: 1px solid transparent;
+  margin-left: 1px;
+  margin-right: 1px;
+}
+
 .tcv_btn_highlight {
-  outline: 1px solid var(--tcv-shadow);
+  border: 1px dotted var(--tcv-shadow);
+  border-radius: 6px;
 }
 
 .tcv_btn_click {
@@ -280,6 +290,12 @@ th {
   margin-left: 12px;
   position: absolute;
   border-bottom: 3px inset var(--tcv-theme-led);
+}
+
+.tcv_btn_click2 {
+  border: 1px solid var(--tcv-bg-pressed-border-color);
+  border-radius: 6px;
+  background-color: var(--tcv-bg-pressed-color);
 }
 
 .tcv_separator {
@@ -306,6 +322,7 @@ th {
 .tcv_btn:hover {
   box-shadow: 1px px 1px 0 var(--tcv-shadow);
   background-color: var(--tcv-bg-highlight-color);
+  border-radius: 6px;
 }
 
 .tcv_btn:active {

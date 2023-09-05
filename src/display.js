@@ -604,7 +604,7 @@ class Display {
     var cn = this._getElement("tcv_cad_navigation");
     for (var el of [cn, tb]) {
       if (flag) {
-        el.style.height = "36px";
+        el.style.height = "38px";
         el.style.display = "block";
       } else {
         el.style.height = "0px";

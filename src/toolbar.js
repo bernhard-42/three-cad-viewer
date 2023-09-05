@@ -41,14 +41,15 @@ class BaseButton {
         html.className = "tcv_tooltip";
         html.setAttribute("data-tooltip", tooltip);
 
-        html.appendChild(document.createElement("span"));
-        html.children[0].className = "tcv_click_btn_marker";
+        // html.appendChild(document.createElement("span"));
+        // html.children[0].className = "tcv_click_btn_marker";
+        var frame = html.appendChild(document.createElement("span"));
+        frame.className = "tcv_button_frame";
+        frame.appendChild(document.createElement("input"));
+        frame.children[0].className = "tcv_reset tcv_btn";
 
-        html.appendChild(document.createElement("input"));
-        html.children[1].className = "tcv_reset tcv_btn";
-
-        html.children[1].type = "button";
-        html.children[1].style.backgroundImage = this.svg;
+        frame.children[0].type = "button";
+        frame.children[0].style.backgroundImage = this.svg;
         this.html = html;
 
         this.html.addEventListener("click", (e) => {
@@ -84,9 +85,9 @@ class Button extends BaseButton {
 
     highlight = (flag) => {
         if (flag) {
-            this.html.classList.add("tcv_btn_highlight");
+            this.html.firstChild.classList.add("tcv_btn_highlight");
         } else {
-            this.html.classList.remove("tcv_btn_highlight");
+            this.html.firstChild.classList.remove("tcv_btn_highlight");
         }
     };
 }
@@ -104,14 +105,14 @@ class ClickButton extends BaseButton {
 
     set = (state) => {
         this.state = state;
-        this.html.children[0].classList.toggle("tcv_btn_click", this.state);
+        this.html.children[0].classList.toggle("tcv_btn_click2", this.state);
     };
 
     clearGroup = () => {
         for (var button of this.sameGroup) {
             if (button.state) {
                 button.state = false;
-                button.html.children[0].classList.remove("tcv_btn_click");
+                button.html.children[0].classList.remove("tcv_btn_click2");
                 button.action(this.name, false);
             }
         }
