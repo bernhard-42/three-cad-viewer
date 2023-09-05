@@ -71,7 +71,6 @@ class Display {
     for (var i = 1; i < 4; i++) {
       this.planeLabels.push(this._getElement(`tcv_lbl_norm_plane${i}`));
     }
-
     this.viewer = null;
     this.glass = options.glass;
     this.tools = options.tools;
@@ -219,7 +218,7 @@ class Display {
 
   /**
    * Set up the UI
-   * @param {Viewer} viewer - the viewer for this UI
+   * @param {import ("./viewer.js").Viewer} viewer - the viewer for this UI
    */
   setupUI(viewer) {
     this.viewer = viewer;
