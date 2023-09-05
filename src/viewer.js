@@ -592,7 +592,6 @@ class Viewer {
       }
       this.hasAnimationLoop = false;
       this.display.showAnimationControl(false);
-      this.display.showToolsControl(false);
 
       if (this.animation != null) {
         this.animation.dispose();

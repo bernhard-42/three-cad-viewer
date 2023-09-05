@@ -2,11 +2,10 @@ import { getIconBackground } from "./icons.js";
 
 
 class Toolbar {
-    constructor(containerName) {
-        this.id = containerName;
-        this.container = document
-            .getElementById(containerName)
-            .getElementsByClassName("tcv_cad_toolbar")[0];
+    constructor(container, id) {
+        this.id = id;
+        console.log(this.id);
+        this.container = container;
         this.buttons = {};
     }
 
@@ -34,8 +33,8 @@ class Toolbar {
 }
 
 class BaseButton {
-    constructor(icon, tooltip) {
-        this.svg = getIconBackground(icon);
+    constructor(theme, icon, tooltip) {
+        this.svg = getIconBackground(theme, icon);
         this.name = icon;
 
         var html = document.createElement("span");
@@ -49,7 +48,7 @@ class BaseButton {
         html.children[1].className = "tcv_reset tcv_btn";
 
         html.children[1].type = "button";
-        html.children[1].style.backgroundImage = getIconBackground(icon);
+        html.children[1].style.backgroundImage = this.svg;
         this.html = html;
 
         this.html.addEventListener("click", (e) => {
@@ -66,43 +65,65 @@ class BaseButton {
         this.containerId = id;
     }
 
+    // eslint-disable-next-line no-unused-vars
     handler = (e) => {
         console.log("not implemented yet");
     };
 }
 
 class Button extends BaseButton {
-    constructor(svg, tooltip, action) {
-        super(svg, tooltip);
+    constructor(theme, svg, tooltip, action) {
+        super(theme, svg, tooltip);
         this.action = action;
     }
 
+    // eslint-disable-next-line no-unused-vars
     handler = (e) => {
-        this.action(this, e.button);
+        this.action(this.name);
+    };
+
+    highlight = (flag) => {
+        if (flag) {
+            this.html.classList.add("tcv_btn_highlight");
+        } else {
+            this.html.classList.remove("tcv_btn_highlight");
+        }
     };
 }
 
 class ClickButton extends BaseButton {
-    constructor(svg, tooltip, action, defaultState = false) {
-        super(svg, tooltip);
+    constructor(theme, svg, tooltip, action, defaultState = false) {
+        super(theme, svg, tooltip);
         this.action = action;
-        this.default = defaultState;
+        this.state = defaultState;
         this.sameGroup = [];
     }
+    get = () => {
+        return this.state;
+    };
 
-    handler = (e) => {
-        if (!this.default) {
-            for (var button of this.sameGroup) {
-                if (button.default) {
-                    button.default = false;
-                    button.html.children[0].classList.remove("tcv_btn_click");
-                    button.action(button, e.button, false);
-                }
+    set = (state) => {
+        this.state = state;
+        this.html.children[0].classList.toggle("tcv_btn_click", this.state);
+    };
+
+    clearGroup = () => {
+        for (var button of this.sameGroup) {
+            if (button.state) {
+                button.state = false;
+                button.html.children[0].classList.remove("tcv_btn_click");
+                button.action(this.name, false);
             }
         }
-        this.default = !this.default;
-        this.html.children[0].classList.toggle("tcv_btn_click", this.default);
-        this.action(this, e.button, this.default);
+    };
+
+    // eslint-disable-next-line no-unused-vars
+    handler = (e) => {
+        if (!this.state) {
+            this.clearGroup();
+        }
+        this.set(!this.state);
+        this.action(this.name, this.state);
     };
 
     addGroupMember(button) {
@@ -112,53 +133,3 @@ class ClickButton extends BaseButton {
 
 export { Toolbar, Button, ClickButton };
 
-
-// function resetHandler(button, mouseButton) {
-//     console.log("reset", button.containerId, mouseButton);
-// }
-
-// function resizeHandler(button, mouseButton, state) {
-//     console.log("resize", button.containerId, mouseButton, state);
-// }
-
-// function isoHandler(button, mouseButton, state) {
-//     console.log("iso", button.containerId, mouseButton, state);
-// }
-
-// function init() {
-//     console.log("init");
-//     document.documentElement.setAttribute("data-theme", "light");
-
-//     var toolbar = new Toolbar("cad01");
-
-//     const resetBtn = new Button("reset", "Reset View", resetHandler);
-//     toolbar.addButton(resetBtn);
-
-//     toolbar.addSeparator();
-
-//     const resizeBtn = new ClickButton("resize", "Resize View", resizeHandler);
-//     toolbar.addButton(resizeBtn);
-
-//     const isoBtn = new ClickButton("iso", "Iso View", isoHandler);
-//     toolbar.addButton(isoBtn);
-
-//     var toolbar2 = new Toolbar("cad02");
-
-//     const resetBtn2 = new Button("reset", "Reset View", resetHandler);
-//     toolbar2.addButton(resetBtn2);
-
-//     toolbar2.addSeparator();
-
-//     const resizeBtn2 = new ClickButton("resize", "Resize View", resizeHandler);
-//     toolbar2.addButton(resizeBtn2);
-
-//     const isoBtn2 = new ClickButton("iso", "Iso View", isoHandler);
-//     toolbar2.addButton(isoBtn2);
-
-//     toolbar2.addSeparator();
-
-//     toolbar2.defineGroup([resizeBtn2, isoBtn2]);
-
-//     console.log(toolbar);
-//     console.log(toolbar2);
-// }

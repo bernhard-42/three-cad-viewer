@@ -1,7 +1,7 @@
 import { getIconBackground } from "./icons.js";
 import { KeyMapper } from "./utils.js";
 import { Slider } from "./slider.js";
-import {Toolbar, Button, ClickButton} from "./toolbar.js"
+import { Toolbar, Button, ClickButton } from "./toolbar.js"
 
 import template from "./index.html";
 
@@ -18,23 +18,10 @@ function px(val) {
 }
 
 const buttons = [
-  "reset",
-  "resize",
-  "help",
-  "iso",
-  "front",
-  "rear",
-  "top",
-  "bottom",
-  "left",
-  "right",
-  "pin",
   "plane",
   "play",
   "pause",
   "stop",
-  "measure",
-  "measure_size",
 ];
 
 class Display {
@@ -45,13 +32,15 @@ class Display {
    */
   constructor(container, options) {
     this.container = container;
-
     this.container.innerHTML = TEMPLATE(this.container.id);
-    const fullWidth =
-      options.cadWidth + (options.glass ? 0 : options.treeWidth);
-    this.handleMoreButton(fullWidth);
+    // const fullWidth =
+    //   options.cadWidth + (options.glass ? 0 : options.treeWidth);
+    // this.handleMoreButton(fullWidth);
+
     this.cadBody = this._getElement("tcv_cad_body");
-    this.cadTool = this._getElement("tcv_cad_toolbar");
+
+    // this.cadTool = this._getElement("tcv_cad_toolbar");
+    this.cadTool = new Toolbar(this._getElement("tcv_cad_toolbar"), container.id);
     this.cadView = this._getElement("tcv_cad_view");
     this.measurePanel = this._getElement("tcv_measure_panel");
     this.measureSizePanel = this._getElement("tcv_measure_size_panel");
@@ -116,6 +105,63 @@ class Display {
       }
     }
 
+    this.toolbarButtons = {};
+
+    this.toolbarButtons["axes"] = new ClickButton(theme, "axes", "Show axes", this.setAxes);
+    this.cadTool.addButton(this.toolbarButtons["axes"]);
+    this.toolbarButtons["axes0"] = new ClickButton(theme, "axes0", "Show axes at origin (0,0,0)", this.setAxes0);
+    this.cadTool.addButton(this.toolbarButtons["axes0"]);
+    this.toolbarButtons["grid"] = new ClickButton(theme, "grid", "Show grid", this.setGrid);
+    this.cadTool.addButton(this.toolbarButtons["grid"]);
+    this.cadTool.addSeparator();
+    this.toolbarButtons["perspective"] = new ClickButton(theme, "perspective", "Show grid", this.setOrtho);
+    this.cadTool.addButton(this.toolbarButtons["perspective"]);
+    this.cadTool.addSeparator();
+
+    this.toolbarButtons["reset"] = new Button(theme, "reset", "Reset view", this.reset);
+    this.cadTool.addButton(this.toolbarButtons["reset"]);
+    this.toolbarButtons["resize"] = new Button(theme, "resize", "Resize object", this.resize);
+    this.cadTool.addButton(this.toolbarButtons["resize"]);
+    this.cadTool.addSeparator();
+
+    this.toolbarButtons["iso"] = new Button(theme, "iso", "Switch to iso view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["iso"]);
+    this.toolbarButtons["front"] = new Button(theme, "front", "Switch to front view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["front"]);
+    this.toolbarButtons["rear"] = new Button(theme, "rear", "Switch to back view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["rear"]);
+    this.toolbarButtons["top"] = new Button(theme, "top", "Switch to top view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["top"]);
+    this.toolbarButtons["bottom"] = new Button(theme, "bottom", "Switch to bottom view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["bottom"]);
+    this.toolbarButtons["left"] = new Button(theme, "left", "Switch to left view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["left"]);
+    this.toolbarButtons["right"] = new Button(theme, "right", "Switch to right view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["right"]);
+    this.cadTool.addSeparator();
+
+    this.toolbarButtons["transparent"] = new ClickButton(theme, "transparent", "Show transparent faces", this.setTransparent);
+    this.cadTool.addButton(this.toolbarButtons["transparent"]);
+    this.toolbarButtons["blackedges"] = new ClickButton(theme, "blackedges", "Show black edges", this.setBlackEdges);
+    this.cadTool.addButton(this.toolbarButtons["blackedges"]);
+    this.cadTool.addSeparator();
+
+    this.toolbarButtons["explode"] = new ClickButton(theme, "explode", "Explode assembly", this.setExplode);
+    this.cadTool.addButton(this.toolbarButtons["explode"]);
+    this.cadTool.addSeparator();
+
+    this.toolbarButtons["measure"] = new ClickButton(theme, "measure", "Dimension tool", this.setTools);
+    this.cadTool.addButton(this.toolbarButtons["measure"]);
+    this.toolbarButtons["size"] = new ClickButton(theme, "size", "Size tool", this.setTools);
+    this.cadTool.addButton(this.toolbarButtons["size"]);
+    this.cadTool.addSeparator();
+    this.cadTool.defineGroup([this.toolbarButtons["measure"], this.toolbarButtons["size"]]);
+
+    this.toolbarButtons["pin"] = new Button(theme, "pin", "Pin viewer as png", this.pinAsPng);
+    this.cadTool.addButton(this.toolbarButtons["pin"]);
+    this.toolbarButtons["help"] = new Button(theme, "help", "Help", this.toggleHelp);
+    this.cadTool.addButton(this.toolbarButtons["help"]);
+
     this.showPinning(options.pinning);
   }
 
@@ -164,17 +210,17 @@ class Display {
    * @param {number} fullWidth - overall width of tree and cad view (taking glass mode into account)
    */
   handleMoreButton(fullWidth) {
-    const moreButton = this._getElement("tcv_more-btn");
-    const moreContent = this._getElement("tcv_more-wrapper");
-    if (fullWidth < 980) {
-      moreButton.classList.remove("tcv_none");
-      moreContent.classList.add("tcv_dropdown-content");
-      moreContent.classList.add("tcv_more-content");
-    } else {
-      moreButton.classList.add("tcv_none");
-      moreContent.classList.remove("tcv_dropdown-content");
-      moreContent.classList.remove("tcv_more-content");
-    }
+    // const moreButton = this._getElement("tcv_more-btn");
+    // const moreContent = this._getElement("tcv_more-wrapper");
+    // if (fullWidth < 980) {
+    //   moreButton.classList.remove("tcv_none");
+    //   moreContent.classList.add("tcv_dropdown-content");
+    //   moreContent.classList.add("tcv_more-content");
+    // } else {
+    //   moreButton.classList.add("tcv_none");
+    //   moreContent.classList.remove("tcv_dropdown-content");
+    //   moreContent.classList.remove("tcv_more-content");
+    // }
   }
 
   /**
@@ -208,10 +254,10 @@ class Display {
     }
 
     if (options.tools && !options.glass) {
-      this.cadTool.style.width = px(options.treeWidth + options.cadWidth + 4);
+      this.cadTool.container.style.width = px(options.treeWidth + options.cadWidth + 4);
       this.cadBody.style.width = px(options.treeWidth + options.cadWidth + 4);
     } else {
-      this.cadTool.style.width = px(options.cadWidth + 2);
+      this.cadTool.container.style.width = px(options.cadWidth + 2);
       this.cadBody.style.width = px(options.cadWidth + 2);
     }
 
@@ -225,43 +271,6 @@ class Display {
   setupUI(viewer) {
     this.viewer = viewer;
 
-    this._setupCheckEvent("tcv_axes", this.setAxes, viewer.axes);
-    this._setupCheckEvent("tcv_grid", this.setGrid, viewer.grid);
-    this._setupCheckEvent("tcv_grid-xy", this.setGrid, viewer.grid);
-    this._setupCheckEvent("tcv_grid-xz", this.setGrid, viewer.grid);
-    this._setupCheckEvent("tcv_grid-yz", this.setGrid, viewer.grid);
-    this._setupCheckEvent("tcv_axes0", this.setAxes0, viewer.axes0);
-    this._setupCheckEvent("tcv_ortho", this.setOrtho, viewer.ortho);
-    this._setupCheckEvent(
-      "tcv_transparent",
-      this.setTransparent,
-      viewer.transparent,
-    );
-    this._setupCheckEvent(
-      "tcv_black_edges",
-      this.setBlackEdges,
-      viewer.blackEdges,
-    );
-
-    this._setupCheckEvent("tcv_explode", this.setExplode);
-    this._setupCheckEvent("tcv_tools", this.setTools);
-
-    this._setupClickEvent("tcv_reset", this.reset);
-    this._setupClickEvent("tcv_resize", this.resize);
-
-    const buttons = [
-      "tcv_front",
-      "tcv_rear",
-      "tcv_top",
-      "tcv_bottom",
-      "tcv_left",
-      "tcv_right",
-      "tcv_iso",
-    ];
-    buttons.forEach((name) => {
-      this._setupClickEvent(name, this.setView);
-    });
-
     this._setupClickEvent("tcv_expand_root", this.handleCollapseNodes);
     this._setupClickEvent("tcv_collapse_singles", this.handleCollapseNodes);
     this._setupClickEvent("tcv_collapse_all", this.handleCollapseNodes);
@@ -269,8 +278,6 @@ class Display {
 
     this._setupClickEvent("tcv_toggle_info", this.toggleInfo);
 
-    this._setupClickEvent("tcv_pin", this.pinAsPng);
-    this._setupClickEvent("tcv_help", this.toggleHelp);
     this.help_shown = true;
     this.info_shown = !this.glass;
 
@@ -318,9 +325,6 @@ class Display {
     this.animationSlider.addEventListener("input", this.animationChange);
     this.showAnimationControl(false);
 
-    this._setupClickEvent("tcv_measure", this.enableMeasureContext, false);
-    this._setupClickEvent("tcv_measure_size", this.enableSizeMeasureContext, false);
-
     this.showHelp(false);
     this.showMeasurePanel(false);
     this.showMeasureSizePanel(false);
@@ -337,11 +341,11 @@ class Display {
    * @property {boolean} [glass = false] - use glass mode, i.e. CAD navigation as overlay.
    */
   updateUI(axes, axes0, ortho, transparent, blackEdges, tools, glass) {
-    this.checkElement("tcv_axes", axes);
-    this.checkElement("tcv_axes0", axes0);
-    this.checkElement("tcv_ortho", ortho);
-    this.checkElement("tcv_transparent", transparent);
-    this.checkElement("tcv_black_edges", blackEdges);
+    // this.checkElement("tcv_axes", axes);
+    // this.checkElement("tcv_axes0", axes0);
+    // this.checkElement("tcv_ortho", ortho);
+    // this.checkElement("tcv_transparent", transparent);
+    // this.checkElement("tcv_black_edges", blackEdges);
 
     this.showTools(tools);
     this.glassMode(glass);
@@ -385,10 +389,9 @@ class Display {
   /**
    *
    * @function
-   * @param {*} e
+   * @param {boolean} flag - to set or not
    */
-  setAxes = (e) => {
-    const flag = !!e.target.checked;
+  setAxes = (name, flag) => {
     this.viewer.setAxes(flag);
   };
 
@@ -398,17 +401,16 @@ class Display {
    * @param {boolean} flag - whether to check or uncheck the axes checkbox
    */
   setAxesCheck = (flag) => {
-    this.checkElement("tcv_axes", flag);
+    this.toolbarButtons["axes"].set(flag);
   };
 
   /**
    * Checkbox Handler for setting the grid parameter
    * @function
-   * @param {Event} e - a DOM click event
+   * @param {boolean} flag - to set or not
    */
-  setGrid = (e) => {
-    const action = e.target.className.split(" ")[0].slice(4);
-    this.viewer.setGrid(action);
+  setGrid = (name, flag) => {
+    this.viewer.setGrid("grid", flag);
   };
 
   /**
@@ -423,10 +425,9 @@ class Display {
   /**
    * Checkbox Handler for setting the axes0 parameter
    * @function
-   * @param {Event} e - a DOM click event
+   * @param {boolean} flag - to set or not
    */
-  setAxes0 = (e) => {
-    const flag = !!e.target.checked;
+  setAxes0 = (name, flag) => {
     this.viewer.setAxes0(flag);
   };
 
@@ -436,17 +437,16 @@ class Display {
    * @param {boolean} flag - whether to check or uncheck the Axes0 checkbox
    */
   setAxes0Check = (flag) => {
-    this.checkElement("tcv_axes0", flag);
+    this.toolbarButtons["axes0"].set(flag);
   };
 
   /**
    * Checkbox Handler for setting the ortho parameter
    * @function
-   * @param {Event} e - a DOM click event
+   * @param {boolean} flag - to set or not
    */
-  setOrtho = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.switchCamera(flag);
+  setOrtho = (name, flag) => {
+    this.viewer.switchCamera(!flag);
   };
 
   /**
@@ -455,16 +455,15 @@ class Display {
    * @param {boolean} flag - whether to check or uncheck the ortho checkbox
    */
   setOrthoCheck = (flag) => {
-    this.checkElement("tcv_ortho", flag);
+    this.toolbarButtons["perspective"].set(!flag);
   };
 
   /**
    * Checkbox Handler for setting the transparent parameter
    * @function
-   * @param {Event} e - a DOM click event
+   * @param {boolean} flag - to set or not
    */
-  setTransparent = (e) => {
-    const flag = !!e.target.checked;
+  setTransparent = (name, flag) => {
     this.viewer.setTransparent(flag);
   };
 
@@ -474,16 +473,15 @@ class Display {
    * @param {boolean} flag - whether to check or uncheck the Transparent checkbox
    */
   setTransparentCheck = (flag) => {
-    this.checkElement("tcv_transparent", flag);
+    this.toolbarButtons["transparent"].set(flag);
   };
 
   /**
    * Checkbox Handler for setting the black edges parameter
    * @function
-   * @param {Event} e - a DOM click event
+   * @param {boolean} flag - to set or not
    */
-  setBlackEdges = (e) => {
-    const flag = !!e.target.checked;
+  setBlackEdges = (name, flag) => {
     this.viewer.setBlackEdges(flag);
   };
 
@@ -493,16 +491,15 @@ class Display {
    * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
    */
   setBlackEdgesCheck = (flag) => {
-    this.checkElement("tcv_black_edges", flag);
+    this.toolbarButtons["blackedges"].set(flag);
   };
 
   /**
    * Checkbox Handler for setting the explode mode
    * @function
-   * @param {Event} e - a DOM click event
+   * @param {boolean} flag - to set or not
    */
-  setExplode = (e) => {
-    const flag = !!e.target.checked;
+  setExplode = (name, flag) => {
     if (flag) {
       if (this.viewer.hasAnimation()) {
         this.viewer.backupAnimation();
@@ -523,7 +520,7 @@ class Display {
    * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
    */
   setExplodeCheck = (flag) => {
-    this.checkElement("tcv_explode", flag);
+    this.toolbarButtons["explode"].set(flag);
   };
 
   /**
@@ -539,20 +536,30 @@ class Display {
   /**
    * Checkbox Handler for setting the tools mode
    * @function
-   * @param {Event} e - a DOM click event
+   * @param {boolean} flag - whether to start or stop measure context
    */
-  setTools = (e) => {
-    const flag = !!e.target.checked;
-
+  setTools = (name, flag) => {
     this.viewer.toggleAnimationLoop(flag);
-    this.showToolsControl(flag);
     this.viewer.setRaycastMode(flag);
 
     if (flag) {
       if (this.viewer.hasAnimation()) {
         this.viewer.backupAnimation();
       }
+
+      if (name == "measure") {
+        this.viewer.cadtools.distanceMeasurement.enableContext();
+      } else if (name == "size") {
+        this.viewer.cadtools.sizeMeasurement.enableContext();
+      }
+
     } else {
+      if (name == "measure") {
+        this.viewer.cadtools.distanceMeasurement.disableContext();
+      } else if (name == "size") {
+        this.viewer.cadtools.sizeMeasurement.disableContext();
+      }
+      this.viewer.clearSelection();
       if (this.viewer.hasAnimation()) {
         this.controlAnimationByName("stop");
         this.viewer.clearAnimation();
@@ -648,17 +655,17 @@ class Display {
    */
   clearHighlights() {
     const buttons = [
-      "tcv_front",
-      "tcv_rear",
-      "tcv_top",
-      "tcv_bottom",
-      "tcv_left",
-      "tcv_right",
-      "tcv_iso",
+      "front",
+      "rear",
+      "top",
+      "bottom",
+      "left",
+      "right",
+      "iso",
     ];
     buttons.forEach((btn) => {
-      var el = this._getElement(btn);
-      el.classList.remove("tcv_btn_highlight");
+      var el = this.toolbarButtons[btn];
+      el.highlight(false);
     });
   }
 
@@ -668,8 +675,8 @@ class Display {
    */
   highlightButton(name) {
     this.clearHighlights();
-    var el = this._getElement(`tcv_${name}`);
-    el.classList.add("tcv_btn_highlight");
+    var el = this.toolbarButtons[name];
+    el.highlight(true);
     this.viewer.keepHighlight = true;
   }
 
@@ -678,10 +685,9 @@ class Display {
    * @function
    * @param {Event} e - a DOM click event
    */
-  setView = (e) => {
-    const btn = e.target.className.split(" ")[0].slice(4);
-    this.viewer.presetCamera(btn);
-    this.highlightButton(btn);
+  setView = (button) => {
+    this.viewer.presetCamera(button);
+    this.highlightButton(button);
     this.viewer.update(true, false); // ensure update is called again
   };
 
@@ -895,15 +901,6 @@ class Display {
   };
 
   /**
-   * Show or hide the Tools widget
-   * @function
-   * @param {boolean} flag - whether to show or hide the Tools widget
-   */
-  showToolsControl = (flag) => {
-    this.cadTools.style.display = flag ? "block" : "none";
-  };
-
-  /**
    * Handle animation control
    * @function
    * @param {string} btn - animation control button name
@@ -963,43 +960,43 @@ class Display {
     this.animationSlider.value = 0;
   }
 
-  /**
-   * Handler for the CAD tools
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  enableMeasureContext = (e) => {
-    console.log("enableMeasureContext", e);
-    const btn = this._getElement("tcv_measure");
-    if (!this.viewer.cadtools.distanceMeasurement.contextEnabled) {
-      btn.classList.add("tcv_tool_btn_highlight");
-      this.viewer.cadtools.distanceMeasurement.enableContext();
+  // /**
+  //  * Handler for the CAD tools
+  //  * @function
+  //  * @param {Event} e - a DOM click event
+  //  */
+  // enableMeasureContext = (e) => {
+  //   console.log("enableMeasureContext", e);
+  //   const btn = this._getElement("tcv_measure");
+  //   if (!this.viewer.cadtools.distanceMeasurement.contextEnabled) {
+  //     btn.classList.add("tcv_tool_btn_highlight");
+  //     this.viewer.cadtools.distanceMeasurement.enableContext();
 
-    }
-    else {
-      btn.classList.remove("tcv_tool_btn_highlight");
-      this.viewer.cadtools.distanceMeasurement.disableContext();
-    }
-  };
+  //   }
+  //   else {
+  //     btn.classList.remove("tcv_tool_btn_highlight");
+  //     this.viewer.cadtools.distanceMeasurement.disableContext();
+  //   }
+  // };
 
-  /**
- * Handler for the CAD tools
- * @function
- * @param {Event} e - a DOM click event
- */
-  enableSizeMeasureContext = (e) => {
-    console.log("enableSizeMeasureContext", e);
-    const btn = this._getElement("tcv_measure_size");
-    if (!this.viewer.cadtools.sizeMeasurement.contextEnabled) {
-      btn.classList.add("tcv_tool_btn_highlight");
-      this.viewer.cadtools.sizeMeasurement.enableContext();
+  // /**
+  // * Handler for the CAD tools
+  // * @function
+  // * @param {Event} e - a DOM click event
+  // */
+  // enableSizeMeasureContext = (e) => {
+  //   console.log("enableSizeMeasureContext", e);
+  //   const btn = this._getElement("tcv_measure_size");
+  //   if (!this.viewer.cadtools.sizeMeasurement.contextEnabled) {
+  //     btn.classList.add("tcv_tool_btn_highlight");
+  //     this.viewer.cadtools.sizeMeasurement.enableContext();
 
-    }
-    else {
-      btn.classList.remove("tcv_tool_btn_highlight");
-      this.viewer.cadtools.sizeMeasurement.disableContext();
-    }
-  };
+  //   }
+  //   else {
+  //     btn.classList.remove("tcv_tool_btn_highlight");
+  //     this.viewer.cadtools.sizeMeasurement.disableContext();
+  //   }
+  // };
 
   /**
    * Show or hide help dialog
@@ -1030,9 +1027,9 @@ class Display {
   };
 
   /**
- * Show or hide the measure size panel
- * @param {boolean} flag 
- */
+  * Show or hide the measure size panel
+  * @param {boolean} flag 
+  */
   showMeasureSizePanel = (flag) => {
     this.measureSizePanel.style.display = flag ? "block" : "none";
   };
