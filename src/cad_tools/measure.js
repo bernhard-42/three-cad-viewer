@@ -132,7 +132,7 @@ class Measurement {
         this._updateMeasurement();
     };
 
-    _movePanel() {
+    _movePanel = () => {
         var worldCoord = this.panelCenter;
         var screenCoord = worldCoord.clone().project(this.viewer.camera.getCamera());
         screenCoord.x = Math.round((1 + screenCoord.x) * this.viewer.renderer.domElement.offsetWidth / 2);
@@ -140,7 +140,7 @@ class Measurement {
         const panelStyle = window.getComputedStyle(this.panel);
         this.panel.style.left = screenCoord.x - parseFloat(panelStyle.width) / 2 + "px";
         this.panel.style.top = screenCoord.y - parseFloat(panelStyle.height) / 2 + "px";
-    }
+    };
 
     removeLastSelectedObj() {
         const lastItem = this.selectedGeoms.pop();
