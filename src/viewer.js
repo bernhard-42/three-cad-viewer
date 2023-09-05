@@ -592,7 +592,6 @@ class Viewer {
       }
       this.hasAnimationLoop = false;
       this.display.showAnimationControl(false);
-      this.display.showToolsControl(false);
 
       if (this.animation != null) {
         this.animation.dispose();
@@ -1281,7 +1280,7 @@ class Viewer {
   // Handle CAD Tools
   // 
 
-  _clearSelection = () => {
+  clearSelection = () => {
     this.nestedGroup.clearSelection();
     this.cadtools.handleResetSelection();
   };
@@ -1340,7 +1339,7 @@ class Viewer {
     if (event.key) {
       switch (event.key) {
         case "Escape":
-          this._clearSelection();
+          this.clearSelection();
           break;
         case "Backspace":
           this._removeLastSelected();
@@ -2018,7 +2017,8 @@ class Viewer {
    * Note: Only the canvas will be shown, no tools and orientation marker
    */
   pinAsPng = () => {
-    const canvas = this.display.cadView.children[2];
+    const children = this.display.cadView.children;
+    const canvas = children[children.length - 1];
     this.renderer.setViewport(0, 0, this.cadWidth, this.height);
     this.renderer.render(this.scene, this.camera.getCamera());
     canvas.toBlob((blob) => {

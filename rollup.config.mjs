@@ -67,7 +67,7 @@ if (process.env.BUILD === "production") {
     plugins: [
       ...default_plugins,
       serve({
-        host: os.hostname(),
+        host: "localhost",
         port: 8082,
       }),
       livereload(),

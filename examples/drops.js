@@ -4,9 +4,9 @@ const drops = [
       {
         parts: [
           {
-            id: "/drops/faces/faces[0]",
+            id: "/drops/faces/faces_0",
             type: "shapes",
-            name: "faces[0]",
+            name: "faces_0",
             shape: {
               vertices: [
                 -0.5, -0.699999988079071, -1.399999976158142, -0.5,
@@ -744,9 +744,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[1]",
+            id: "/drops/faces/faces_1",
             type: "shapes",
-            name: "faces[1]",
+            name: "faces_1",
             shape: {
               vertices: [
                 -0.5, -0.699999988079071, -1.399999976158142,
@@ -795,9 +795,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[2]",
+            id: "/drops/faces/faces_2",
             type: "shapes",
-            name: "faces[2]",
+            name: "faces_2",
             shape: {
               vertices: [
                 -0.5, -0.8999999761581421, -1.2000000476837158,
@@ -1468,9 +1468,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[3]",
+            id: "/drops/faces/faces_3",
             type: "shapes",
-            name: "faces[3]",
+            name: "faces_3",
             shape: {
               vertices: [
                 -0.5, 0.699999988079071, -1.399999976158142,
@@ -2063,9 +2063,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[4]",
+            id: "/drops/faces/faces_4",
             type: "shapes",
-            name: "faces[4]",
+            name: "faces_4",
             shape: {
               vertices: [
                 -0.5, -0.8999999761581421, 1.2000000476837158,
@@ -2114,9 +2114,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[5]",
+            id: "/drops/faces/faces_5",
             type: "shapes",
-            name: "faces[5]",
+            name: "faces_5",
             shape: {
               vertices: [
                 -0.5, 0.8999999761581421, -1.2000000476837158,
@@ -2165,9 +2165,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[6]",
+            id: "/drops/faces/faces_6",
             type: "shapes",
-            name: "faces[6]",
+            name: "faces_6",
             shape: {
               vertices: [
                 -0.5, -0.699999988079071, 1.399999976158142,
@@ -2761,9 +2761,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[7]",
+            id: "/drops/faces/faces_7",
             type: "shapes",
-            name: "faces[7]",
+            name: "faces_7",
             shape: {
               vertices: [
                 -0.5, 0.8999999761581421, 1.2000000476837158,
@@ -3262,9 +3262,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[8]",
+            id: "/drops/faces/faces_8",
             type: "shapes",
-            name: "faces[8]",
+            name: "faces_8",
             shape: {
               vertices: [
                 -0.5, 0.699999988079071, 1.399999976158142, -0.4000000059604645,
@@ -3312,9 +3312,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[9]",
+            id: "/drops/faces/faces_9",
             type: "shapes",
-            name: "faces[9]",
+            name: "faces_9",
             shape: {
               vertices: [
                 0.5, 0.5, -1.2246468525851679e-16, 0.5, 0.498043417930603,
@@ -4217,9 +4217,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[10]",
+            id: "/drops/faces/faces_10",
             type: "shapes",
-            name: "faces[10]",
+            name: "faces_10",
             shape: {
               vertices: [
                 -0.4000000059604645, -0.699999988079071, -1.5,
@@ -4266,9 +4266,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[11]",
+            id: "/drops/faces/faces_11",
             type: "shapes",
-            name: "faces[11]",
+            name: "faces_11",
             shape: {
               vertices: [
                 -0.4000000059604645, -1.0, -1.2000000476837158,
@@ -4718,9 +4718,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[12]",
+            id: "/drops/faces/faces_12",
             type: "shapes",
-            name: "faces[12]",
+            name: "faces_12",
             shape: {
               vertices: [
                 -0.4000000059604645, 0.699999988079071, -1.5,
@@ -5068,9 +5068,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[13]",
+            id: "/drops/faces/faces_13",
             type: "shapes",
-            name: "faces[13]",
+            name: "faces_13",
             shape: {
               vertices: [
                 -0.4000000059604645, -1.0, -1.2000000476837158,
@@ -5117,9 +5117,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[14]",
+            id: "/drops/faces/faces_14",
             type: "shapes",
-            name: "faces[14]",
+            name: "faces_14",
             shape: {
               vertices: [
                 -0.4000000059604645, 1.0, -1.2000000476837158,
@@ -5165,9 +5165,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[15]",
+            id: "/drops/faces/faces_15",
             type: "shapes",
-            name: "faces[15]",
+            name: "faces_15",
             shape: {
               vertices: [
                 -0.4000000059604645, -1.0, 1.2000000476837158,
@@ -5514,9 +5514,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[16]",
+            id: "/drops/faces/faces_16",
             type: "shapes",
-            name: "faces[16]",
+            name: "faces_16",
             shape: {
               vertices: [
                 -0.4000000059604645, 0.699999988079071, 1.5, 0.4000000059604645,
@@ -5796,9 +5796,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[17]",
+            id: "/drops/faces/faces_17",
             type: "shapes",
-            name: "faces[17]",
+            name: "faces_17",
             shape: {
               vertices: [
                 -0.4000000059604645, -0.699999988079071, 1.5,
@@ -5844,9 +5844,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[18]",
+            id: "/drops/faces/faces_18",
             type: "shapes",
-            name: "faces[18]",
+            name: "faces_18",
             shape: {
               vertices: [
                 0.5, -0.699999988079071, -1.399999976158142, 0.5,
@@ -6577,9 +6577,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[19]",
+            id: "/drops/faces/faces_19",
             type: "shapes",
-            name: "faces[19]",
+            name: "faces_19",
             shape: {
               vertices: [
                 0.4000000059604645, -0.699999988079071, -1.5, 0.5,
@@ -6628,9 +6628,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[20]",
+            id: "/drops/faces/faces_20",
             type: "shapes",
-            name: "faces[20]",
+            name: "faces_20",
             shape: {
               vertices: [
                 0.4000000059604645, -1.0, -1.2000000476837158, 0.5,
@@ -7221,9 +7221,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[21]",
+            id: "/drops/faces/faces_21",
             type: "shapes",
-            name: "faces[21]",
+            name: "faces_21",
             shape: {
               vertices: [
                 0.4000000059604645, 0.699999988079071, -1.5, 0.5,
@@ -7725,9 +7725,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[22]",
+            id: "/drops/faces/faces_22",
             type: "shapes",
-            name: "faces[22]",
+            name: "faces_22",
             shape: {
               vertices: [
                 0.4000000059604645, -1.0, 1.2000000476837158, 0.5,
@@ -7776,9 +7776,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[23]",
+            id: "/drops/faces/faces_23",
             type: "shapes",
-            name: "faces[23]",
+            name: "faces_23",
             shape: {
               vertices: [
                 0.4000000059604645, 1.0, -1.2000000476837158, 0.5,
@@ -7827,9 +7827,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[24]",
+            id: "/drops/faces/faces_24",
             type: "shapes",
-            name: "faces[24]",
+            name: "faces_24",
             shape: {
               vertices: [
                 0.4000000059604645, -0.699999988079071, 1.5, 0.5,
@@ -8329,9 +8329,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[25]",
+            id: "/drops/faces/faces_25",
             type: "shapes",
-            name: "faces[25]",
+            name: "faces_25",
             shape: {
               vertices: [
                 0.4000000059604645, 1.0, 1.2000000476837158, 0.5,
@@ -8826,9 +8826,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/faces/faces[26]",
+            id: "/drops/faces/faces_26",
             type: "shapes",
-            name: "faces[26]",
+            name: "faces_26",
             shape: {
               vertices: [
                 0.4000000059604645, 0.699999988079071, 1.5, 0.5,
@@ -8887,9 +8887,9 @@ const drops = [
       {
         parts: [
           {
-            id: "/drops/edges/edges[0]",
+            id: "/drops/edges/edges_0",
             type: "edges",
-            name: "edges[0]",
+            name: "edges_0",
             shape: [
               [
                 [-0.5, -0.699999988079071, -1.399999976158142],
@@ -8909,9 +8909,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[1]",
+            id: "/drops/edges/edges_1",
             type: "edges",
-            name: "edges[1]",
+            name: "edges_1",
             shape: [
               [
                 [-0.5, -0.8999999761581421, -1.2000000476837158],
@@ -9779,9 +9779,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[2]",
+            id: "/drops/edges/edges_2",
             type: "edges",
-            name: "edges[2]",
+            name: "edges_2",
             shape: [
               [
                 [-0.5, 0.699999988079071, -1.399999976158142],
@@ -10649,9 +10649,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[3]",
+            id: "/drops/edges/edges_3",
             type: "edges",
-            name: "edges[3]",
+            name: "edges_3",
             shape: [
               [
                 [-0.5, -0.8999999761581421, 1.2000000476837158],
@@ -10671,9 +10671,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[4]",
+            id: "/drops/edges/edges_4",
             type: "edges",
-            name: "edges[4]",
+            name: "edges_4",
             shape: [
               [
                 [-0.5, 0.8999999761581421, -1.2000000476837158],
@@ -10693,9 +10693,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[5]",
+            id: "/drops/edges/edges_5",
             type: "edges",
-            name: "edges[5]",
+            name: "edges_5",
             shape: [
               [
                 [-0.5, -0.699999988079071, 1.399999976158142],
@@ -11563,9 +11563,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[6]",
+            id: "/drops/edges/edges_6",
             type: "edges",
-            name: "edges[6]",
+            name: "edges_6",
             shape: [
               [
                 [-0.5, 0.8999999761581421, 1.2000000476837158],
@@ -12433,9 +12433,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[7]",
+            id: "/drops/edges/edges_7",
             type: "edges",
-            name: "edges[7]",
+            name: "edges_7",
             shape: [
               [
                 [-0.5, 0.699999988079071, 1.399999976158142],
@@ -12455,9 +12455,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[8]",
+            id: "/drops/edges/edges_8",
             type: "edges",
-            name: "edges[8]",
+            name: "edges_8",
             shape: [
               [
                 [-0.5, 0.5, 0.0],
@@ -14905,9 +14905,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[9]",
+            id: "/drops/edges/edges_9",
             type: "edges",
-            name: "edges[9]",
+            name: "edges_9",
             shape: [
               [
                 [-0.5, -0.699999988079071, -1.399999976158142],
@@ -14927,9 +14927,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[10]",
+            id: "/drops/edges/edges_10",
             type: "edges",
-            name: "edges[10]",
+            name: "edges_10",
             shape: [
               [
                 [-0.4000000059604645, -0.699999988079071, -1.5],
@@ -14949,9 +14949,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[11]",
+            id: "/drops/edges/edges_11",
             type: "edges",
-            name: "edges[11]",
+            name: "edges_11",
             shape: [
               [
                 [-0.5, 0.699999988079071, -1.399999976158142],
@@ -14971,9 +14971,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[12]",
+            id: "/drops/edges/edges_12",
             type: "edges",
-            name: "edges[12]",
+            name: "edges_12",
             shape: [
               [
                 [-0.5, -0.8999999761581421, -1.2000000476837158],
@@ -14993,9 +14993,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[13]",
+            id: "/drops/edges/edges_13",
             type: "edges",
-            name: "edges[13]",
+            name: "edges_13",
             shape: [
               [
                 [-0.4000000059604645, -1.0, -1.2000000476837158],
@@ -15875,9 +15875,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[14]",
+            id: "/drops/edges/edges_14",
             type: "edges",
-            name: "edges[14]",
+            name: "edges_14",
             shape: [
               [
                 [-0.4000000059604645, 0.699999988079071, -1.5],
@@ -16757,9 +16757,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[15]",
+            id: "/drops/edges/edges_15",
             type: "edges",
-            name: "edges[15]",
+            name: "edges_15",
             shape: [
               [
                 [-0.5, 0.8999999761581421, -1.2000000476837158],
@@ -16779,9 +16779,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[16]",
+            id: "/drops/edges/edges_16",
             type: "edges",
-            name: "edges[16]",
+            name: "edges_16",
             shape: [
               [
                 [-0.5, -0.8999999761581421, 1.2000000476837158],
@@ -16801,9 +16801,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[17]",
+            id: "/drops/edges/edges_17",
             type: "edges",
-            name: "edges[17]",
+            name: "edges_17",
             shape: [
               [
                 [-0.4000000059604645, -1.0, 1.2000000476837158],
@@ -16823,9 +16823,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[18]",
+            id: "/drops/edges/edges_18",
             type: "edges",
-            name: "edges[18]",
+            name: "edges_18",
             shape: [
               [
                 [-0.4000000059604645, 1.0, -1.2000000476837158],
@@ -16845,9 +16845,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[19]",
+            id: "/drops/edges/edges_19",
             type: "edges",
-            name: "edges[19]",
+            name: "edges_19",
             shape: [
               [
                 [-0.5, 0.8999999761581421, 1.2000000476837158],
@@ -16867,9 +16867,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[20]",
+            id: "/drops/edges/edges_20",
             type: "edges",
-            name: "edges[20]",
+            name: "edges_20",
             shape: [
               [
                 [-0.5, -0.699999988079071, 1.399999976158142],
@@ -16889,9 +16889,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[21]",
+            id: "/drops/edges/edges_21",
             type: "edges",
-            name: "edges[21]",
+            name: "edges_21",
             shape: [
               [
                 [-0.4000000059604645, -0.699999988079071, 1.5],
@@ -17771,9 +17771,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[22]",
+            id: "/drops/edges/edges_22",
             type: "edges",
-            name: "edges[22]",
+            name: "edges_22",
             shape: [
               [
                 [-0.4000000059604645, 1.0, 1.2000000476837158],
@@ -18653,9 +18653,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[23]",
+            id: "/drops/edges/edges_23",
             type: "edges",
-            name: "edges[23]",
+            name: "edges_23",
             shape: [
               [
                 [-0.5, 0.699999988079071, 1.399999976158142],
@@ -18675,9 +18675,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[24]",
+            id: "/drops/edges/edges_24",
             type: "edges",
-            name: "edges[24]",
+            name: "edges_24",
             shape: [
               [
                 [-0.4000000059604645, 0.699999988079071, 1.5],
@@ -18697,9 +18697,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[25]",
+            id: "/drops/edges/edges_25",
             type: "edges",
-            name: "edges[25]",
+            name: "edges_25",
             shape: [
               [
                 [0.5, 0.5, 0.0],
@@ -21151,9 +21151,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[26]",
+            id: "/drops/edges/edges_26",
             type: "edges",
-            name: "edges[26]",
+            name: "edges_26",
             shape: [
               [
                 [-0.5, 0.5, -1.2246468525851679e-16],
@@ -21173,9 +21173,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[27]",
+            id: "/drops/edges/edges_27",
             type: "edges",
-            name: "edges[27]",
+            name: "edges_27",
             shape: [
               [
                 [-0.4000000059604645, -0.699999988079071, -1.5],
@@ -21195,9 +21195,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[28]",
+            id: "/drops/edges/edges_28",
             type: "edges",
-            name: "edges[28]",
+            name: "edges_28",
             shape: [
               [
                 [0.4000000059604645, -0.699999988079071, -1.5],
@@ -21217,9 +21217,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[29]",
+            id: "/drops/edges/edges_29",
             type: "edges",
-            name: "edges[29]",
+            name: "edges_29",
             shape: [
               [
                 [-0.4000000059604645, 0.699999988079071, -1.5],
@@ -21239,9 +21239,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[30]",
+            id: "/drops/edges/edges_30",
             type: "edges",
-            name: "edges[30]",
+            name: "edges_30",
             shape: [
               [
                 [-0.4000000059604645, -1.0, -1.2000000476837158],
@@ -21261,9 +21261,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[31]",
+            id: "/drops/edges/edges_31",
             type: "edges",
-            name: "edges[31]",
+            name: "edges_31",
             shape: [
               [
                 [0.4000000059604645, -1.0, -1.2000000476837158],
@@ -22139,9 +22139,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[32]",
+            id: "/drops/edges/edges_32",
             type: "edges",
-            name: "edges[32]",
+            name: "edges_32",
             shape: [
               [
                 [0.4000000059604645, 0.699999988079071, -1.5],
@@ -23017,9 +23017,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[33]",
+            id: "/drops/edges/edges_33",
             type: "edges",
-            name: "edges[33]",
+            name: "edges_33",
             shape: [
               [
                 [-0.4000000059604645, 1.0, -1.2000000476837158],
@@ -23039,9 +23039,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[34]",
+            id: "/drops/edges/edges_34",
             type: "edges",
-            name: "edges[34]",
+            name: "edges_34",
             shape: [
               [
                 [0.4000000059604645, -1.0, 1.2000000476837158],
@@ -23061,9 +23061,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[35]",
+            id: "/drops/edges/edges_35",
             type: "edges",
-            name: "edges[35]",
+            name: "edges_35",
             shape: [
               [
                 [-0.4000000059604645, -1.0, 1.2000000476837158],
@@ -23083,9 +23083,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[36]",
+            id: "/drops/edges/edges_36",
             type: "edges",
-            name: "edges[36]",
+            name: "edges_36",
             shape: [
               [
                 [0.4000000059604645, 1.0, -1.2000000476837158],
@@ -23105,9 +23105,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[37]",
+            id: "/drops/edges/edges_37",
             type: "edges",
-            name: "edges[37]",
+            name: "edges_37",
             shape: [
               [
                 [-0.4000000059604645, 1.0, 1.2000000476837158],
@@ -23127,9 +23127,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[38]",
+            id: "/drops/edges/edges_38",
             type: "edges",
-            name: "edges[38]",
+            name: "edges_38",
             shape: [
               [
                 [0.4000000059604645, -0.699999988079071, 1.5],
@@ -24005,9 +24005,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[39]",
+            id: "/drops/edges/edges_39",
             type: "edges",
-            name: "edges[39]",
+            name: "edges_39",
             shape: [
               [
                 [-0.4000000059604645, -0.699999988079071, 1.5],
@@ -24027,9 +24027,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[40]",
+            id: "/drops/edges/edges_40",
             type: "edges",
-            name: "edges[40]",
+            name: "edges_40",
             shape: [
               [
                 [-0.4000000059604645, 0.699999988079071, 1.5],
@@ -24049,9 +24049,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[41]",
+            id: "/drops/edges/edges_41",
             type: "edges",
-            name: "edges[41]",
+            name: "edges_41",
             shape: [
               [
                 [0.4000000059604645, 1.0, 1.2000000476837158],
@@ -24927,9 +24927,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[42]",
+            id: "/drops/edges/edges_42",
             type: "edges",
-            name: "edges[42]",
+            name: "edges_42",
             shape: [
               [
                 [0.4000000059604645, 0.699999988079071, 1.5],
@@ -24949,9 +24949,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[43]",
+            id: "/drops/edges/edges_43",
             type: "edges",
-            name: "edges[43]",
+            name: "edges_43",
             shape: [
               [
                 [0.5, -0.699999988079071, -1.399999976158142],
@@ -24971,9 +24971,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[44]",
+            id: "/drops/edges/edges_44",
             type: "edges",
-            name: "edges[44]",
+            name: "edges_44",
             shape: [
               [
                 [0.5, -0.8999999761581421, -1.2000000476837158],
@@ -25841,9 +25841,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[45]",
+            id: "/drops/edges/edges_45",
             type: "edges",
-            name: "edges[45]",
+            name: "edges_45",
             shape: [
               [
                 [0.5, 0.699999988079071, -1.399999976158142],
@@ -26711,9 +26711,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[46]",
+            id: "/drops/edges/edges_46",
             type: "edges",
-            name: "edges[46]",
+            name: "edges_46",
             shape: [
               [
                 [0.5, -0.8999999761581421, 1.2000000476837158],
@@ -26733,9 +26733,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[47]",
+            id: "/drops/edges/edges_47",
             type: "edges",
-            name: "edges[47]",
+            name: "edges_47",
             shape: [
               [
                 [0.5, 0.8999999761581421, -1.2000000476837158],
@@ -26755,9 +26755,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[48]",
+            id: "/drops/edges/edges_48",
             type: "edges",
-            name: "edges[48]",
+            name: "edges_48",
             shape: [
               [
                 [0.5, -0.699999988079071, 1.399999976158142],
@@ -27625,9 +27625,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[49]",
+            id: "/drops/edges/edges_49",
             type: "edges",
-            name: "edges[49]",
+            name: "edges_49",
             shape: [
               [
                 [0.5, 0.8999999761581421, 1.2000000476837158],
@@ -28495,9 +28495,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[50]",
+            id: "/drops/edges/edges_50",
             type: "edges",
-            name: "edges[50]",
+            name: "edges_50",
             shape: [
               [
                 [0.5, 0.699999988079071, 1.399999976158142],
@@ -28517,9 +28517,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[51]",
+            id: "/drops/edges/edges_51",
             type: "edges",
-            name: "edges[51]",
+            name: "edges_51",
             shape: [
               [
                 [0.4000000059604645, -0.699999988079071, -1.5],
@@ -28539,9 +28539,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[52]",
+            id: "/drops/edges/edges_52",
             type: "edges",
-            name: "edges[52]",
+            name: "edges_52",
             shape: [
               [
                 [0.4000000059604645, 0.699999988079071, -1.5],
@@ -28561,9 +28561,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[53]",
+            id: "/drops/edges/edges_53",
             type: "edges",
-            name: "edges[53]",
+            name: "edges_53",
             shape: [
               [
                 [0.4000000059604645, -1.0, -1.2000000476837158],
@@ -28583,9 +28583,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[54]",
+            id: "/drops/edges/edges_54",
             type: "edges",
-            name: "edges[54]",
+            name: "edges_54",
             shape: [
               [
                 [0.4000000059604645, 1.0, -1.2000000476837158],
@@ -28605,9 +28605,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[55]",
+            id: "/drops/edges/edges_55",
             type: "edges",
-            name: "edges[55]",
+            name: "edges_55",
             shape: [
               [
                 [0.4000000059604645, -1.0, 1.2000000476837158],
@@ -28627,9 +28627,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[56]",
+            id: "/drops/edges/edges_56",
             type: "edges",
-            name: "edges[56]",
+            name: "edges_56",
             shape: [
               [
                 [0.4000000059604645, 1.0, 1.2000000476837158],
@@ -28649,9 +28649,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[57]",
+            id: "/drops/edges/edges_57",
             type: "edges",
-            name: "edges[57]",
+            name: "edges_57",
             shape: [
               [
                 [0.4000000059604645, -0.699999988079071, 1.5],
@@ -28671,9 +28671,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/edges/edges[58]",
+            id: "/drops/edges/edges_58",
             type: "edges",
-            name: "edges[58]",
+            name: "edges_58",
             shape: [
               [
                 [0.4000000059604645, 0.699999988079071, 1.5],
@@ -28703,9 +28703,9 @@ const drops = [
       {
         parts: [
           {
-            id: "/drops/vertices/vertices[0]",
+            id: "/drops/vertices/vertices_0",
             type: "vertices",
-            name: "vertices[0]",
+            name: "vertices_0",
             shape: [[-0.5, -0.699999988079071, -1.399999976158142]],
             color: "#707070",
             loc: null,
@@ -28720,9 +28720,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[1]",
+            id: "/drops/vertices/vertices_1",
             type: "vertices",
-            name: "vertices[1]",
+            name: "vertices_1",
             shape: [[-0.5, 0.699999988079071, -1.399999976158142]],
             color: "#707070",
             loc: null,
@@ -28737,9 +28737,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[2]",
+            id: "/drops/vertices/vertices_2",
             type: "vertices",
-            name: "vertices[2]",
+            name: "vertices_2",
             shape: [[-0.5, -0.8999999761581421, -1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -28754,9 +28754,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[3]",
+            id: "/drops/vertices/vertices_3",
             type: "vertices",
-            name: "vertices[3]",
+            name: "vertices_3",
             shape: [[-0.5, 0.8999999761581421, -1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -28771,9 +28771,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[4]",
+            id: "/drops/vertices/vertices_4",
             type: "vertices",
-            name: "vertices[4]",
+            name: "vertices_4",
             shape: [[-0.5, -0.8999999761581421, 1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -28788,9 +28788,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[5]",
+            id: "/drops/vertices/vertices_5",
             type: "vertices",
-            name: "vertices[5]",
+            name: "vertices_5",
             shape: [[-0.5, 0.8999999761581421, 1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -28805,9 +28805,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[6]",
+            id: "/drops/vertices/vertices_6",
             type: "vertices",
-            name: "vertices[6]",
+            name: "vertices_6",
             shape: [[-0.5, -0.699999988079071, 1.399999976158142]],
             color: "#707070",
             loc: null,
@@ -28822,9 +28822,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[7]",
+            id: "/drops/vertices/vertices_7",
             type: "vertices",
-            name: "vertices[7]",
+            name: "vertices_7",
             shape: [[-0.5, 0.699999988079071, 1.399999976158142]],
             color: "#707070",
             loc: null,
@@ -28839,9 +28839,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[8]",
+            id: "/drops/vertices/vertices_8",
             type: "vertices",
-            name: "vertices[8]",
+            name: "vertices_8",
             shape: [[-0.5, 0.5, -1.2246468525851679e-16]],
             color: "#707070",
             loc: null,
@@ -28856,9 +28856,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[9]",
+            id: "/drops/vertices/vertices_9",
             type: "vertices",
-            name: "vertices[9]",
+            name: "vertices_9",
             shape: [[-0.4000000059604645, -0.699999988079071, -1.5]],
             color: "#707070",
             loc: null,
@@ -28873,9 +28873,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[10]",
+            id: "/drops/vertices/vertices_10",
             type: "vertices",
-            name: "vertices[10]",
+            name: "vertices_10",
             shape: [[-0.4000000059604645, 0.699999988079071, -1.5]],
             color: "#707070",
             loc: null,
@@ -28890,9 +28890,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[11]",
+            id: "/drops/vertices/vertices_11",
             type: "vertices",
-            name: "vertices[11]",
+            name: "vertices_11",
             shape: [[-0.4000000059604645, -1.0, -1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -28907,9 +28907,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[12]",
+            id: "/drops/vertices/vertices_12",
             type: "vertices",
-            name: "vertices[12]",
+            name: "vertices_12",
             shape: [[-0.4000000059604645, 1.0, -1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -28924,9 +28924,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[13]",
+            id: "/drops/vertices/vertices_13",
             type: "vertices",
-            name: "vertices[13]",
+            name: "vertices_13",
             shape: [[-0.4000000059604645, -1.0, 1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -28941,9 +28941,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[14]",
+            id: "/drops/vertices/vertices_14",
             type: "vertices",
-            name: "vertices[14]",
+            name: "vertices_14",
             shape: [[-0.4000000059604645, 1.0, 1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -28958,9 +28958,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[15]",
+            id: "/drops/vertices/vertices_15",
             type: "vertices",
-            name: "vertices[15]",
+            name: "vertices_15",
             shape: [[-0.4000000059604645, -0.699999988079071, 1.5]],
             color: "#707070",
             loc: null,
@@ -28975,9 +28975,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[16]",
+            id: "/drops/vertices/vertices_16",
             type: "vertices",
-            name: "vertices[16]",
+            name: "vertices_16",
             shape: [[-0.4000000059604645, 0.699999988079071, 1.5]],
             color: "#707070",
             loc: null,
@@ -28992,9 +28992,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[17]",
+            id: "/drops/vertices/vertices_17",
             type: "vertices",
-            name: "vertices[17]",
+            name: "vertices_17",
             shape: [[0.5, 0.5, -1.2246468525851679e-16]],
             color: "#707070",
             loc: null,
@@ -29009,9 +29009,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[18]",
+            id: "/drops/vertices/vertices_18",
             type: "vertices",
-            name: "vertices[18]",
+            name: "vertices_18",
             shape: [[0.4000000059604645, -0.699999988079071, -1.5]],
             color: "#707070",
             loc: null,
@@ -29026,9 +29026,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[19]",
+            id: "/drops/vertices/vertices_19",
             type: "vertices",
-            name: "vertices[19]",
+            name: "vertices_19",
             shape: [[0.4000000059604645, 0.699999988079071, -1.5]],
             color: "#707070",
             loc: null,
@@ -29043,9 +29043,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[20]",
+            id: "/drops/vertices/vertices_20",
             type: "vertices",
-            name: "vertices[20]",
+            name: "vertices_20",
             shape: [[0.4000000059604645, -1.0, -1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -29060,9 +29060,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[21]",
+            id: "/drops/vertices/vertices_21",
             type: "vertices",
-            name: "vertices[21]",
+            name: "vertices_21",
             shape: [[0.4000000059604645, 1.0, -1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -29077,9 +29077,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[22]",
+            id: "/drops/vertices/vertices_22",
             type: "vertices",
-            name: "vertices[22]",
+            name: "vertices_22",
             shape: [[0.4000000059604645, -1.0, 1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -29094,9 +29094,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[23]",
+            id: "/drops/vertices/vertices_23",
             type: "vertices",
-            name: "vertices[23]",
+            name: "vertices_23",
             shape: [[0.4000000059604645, 1.0, 1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -29111,9 +29111,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[24]",
+            id: "/drops/vertices/vertices_24",
             type: "vertices",
-            name: "vertices[24]",
+            name: "vertices_24",
             shape: [[0.4000000059604645, -0.699999988079071, 1.5]],
             color: "#707070",
             loc: null,
@@ -29128,9 +29128,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[25]",
+            id: "/drops/vertices/vertices_25",
             type: "vertices",
-            name: "vertices[25]",
+            name: "vertices_25",
             shape: [[0.4000000059604645, 0.699999988079071, 1.5]],
             color: "#707070",
             loc: null,
@@ -29145,9 +29145,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[26]",
+            id: "/drops/vertices/vertices_26",
             type: "vertices",
-            name: "vertices[26]",
+            name: "vertices_26",
             shape: [[0.5, -0.699999988079071, -1.399999976158142]],
             color: "#707070",
             loc: null,
@@ -29162,9 +29162,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[27]",
+            id: "/drops/vertices/vertices_27",
             type: "vertices",
-            name: "vertices[27]",
+            name: "vertices_27",
             shape: [[0.5, 0.699999988079071, -1.399999976158142]],
             color: "#707070",
             loc: null,
@@ -29179,9 +29179,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[28]",
+            id: "/drops/vertices/vertices_28",
             type: "vertices",
-            name: "vertices[28]",
+            name: "vertices_28",
             shape: [[0.5, -0.8999999761581421, -1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -29196,9 +29196,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[29]",
+            id: "/drops/vertices/vertices_29",
             type: "vertices",
-            name: "vertices[29]",
+            name: "vertices_29",
             shape: [[0.5, 0.8999999761581421, -1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -29213,9 +29213,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[30]",
+            id: "/drops/vertices/vertices_30",
             type: "vertices",
-            name: "vertices[30]",
+            name: "vertices_30",
             shape: [[0.5, -0.8999999761581421, 1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -29230,9 +29230,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[31]",
+            id: "/drops/vertices/vertices_31",
             type: "vertices",
-            name: "vertices[31]",
+            name: "vertices_31",
             shape: [[0.5, 0.8999999761581421, 1.2000000476837158]],
             color: "#707070",
             loc: null,
@@ -29247,9 +29247,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[32]",
+            id: "/drops/vertices/vertices_32",
             type: "vertices",
-            name: "vertices[32]",
+            name: "vertices_32",
             shape: [[0.5, -0.699999988079071, 1.399999976158142]],
             color: "#707070",
             loc: null,
@@ -29264,9 +29264,9 @@ const drops = [
             },
           },
           {
-            id: "/drops/vertices/vertices[33]",
+            id: "/drops/vertices/vertices_33",
             type: "vertices",
-            name: "vertices[33]",
+            name: "vertices_33",
             shape: [[0.5, 0.699999988079071, 1.399999976158142]],
             color: "#707070",
             loc: null,
@@ -29297,125 +29297,125 @@ const drops = [
     id: "/drops",
   },
   {
-    "/drops/faces/faces[0]": [1, 3],
-    "/drops/faces/faces[1]": [1, 3],
-    "/drops/faces/faces[2]": [1, 3],
-    "/drops/faces/faces[3]": [1, 3],
-    "/drops/faces/faces[4]": [1, 3],
-    "/drops/faces/faces[5]": [1, 3],
-    "/drops/faces/faces[6]": [1, 3],
-    "/drops/faces/faces[7]": [1, 3],
-    "/drops/faces/faces[8]": [1, 3],
-    "/drops/faces/faces[9]": [1, 3],
-    "/drops/faces/faces[10]": [1, 3],
-    "/drops/faces/faces[11]": [1, 3],
-    "/drops/faces/faces[12]": [1, 3],
-    "/drops/faces/faces[13]": [1, 3],
-    "/drops/faces/faces[14]": [1, 3],
-    "/drops/faces/faces[15]": [1, 3],
-    "/drops/faces/faces[16]": [1, 3],
-    "/drops/faces/faces[17]": [1, 3],
-    "/drops/faces/faces[18]": [1, 3],
-    "/drops/faces/faces[19]": [1, 3],
-    "/drops/faces/faces[20]": [1, 3],
-    "/drops/faces/faces[21]": [1, 3],
-    "/drops/faces/faces[22]": [1, 3],
-    "/drops/faces/faces[23]": [1, 3],
-    "/drops/faces/faces[24]": [1, 3],
-    "/drops/faces/faces[25]": [1, 3],
-    "/drops/faces/faces[26]": [1, 3],
-    "/drops/edges/edges[0]": [3, 1],
-    "/drops/edges/edges[1]": [3, 1],
-    "/drops/edges/edges[2]": [3, 1],
-    "/drops/edges/edges[3]": [3, 1],
-    "/drops/edges/edges[4]": [3, 1],
-    "/drops/edges/edges[5]": [3, 1],
-    "/drops/edges/edges[6]": [3, 1],
-    "/drops/edges/edges[7]": [3, 1],
-    "/drops/edges/edges[8]": [3, 1],
-    "/drops/edges/edges[9]": [3, 1],
-    "/drops/edges/edges[10]": [3, 1],
-    "/drops/edges/edges[11]": [3, 1],
-    "/drops/edges/edges[12]": [3, 1],
-    "/drops/edges/edges[13]": [3, 1],
-    "/drops/edges/edges[14]": [3, 1],
-    "/drops/edges/edges[15]": [3, 1],
-    "/drops/edges/edges[16]": [3, 1],
-    "/drops/edges/edges[17]": [3, 1],
-    "/drops/edges/edges[18]": [3, 1],
-    "/drops/edges/edges[19]": [3, 1],
-    "/drops/edges/edges[20]": [3, 1],
-    "/drops/edges/edges[21]": [3, 1],
-    "/drops/edges/edges[22]": [3, 1],
-    "/drops/edges/edges[23]": [3, 1],
-    "/drops/edges/edges[24]": [3, 1],
-    "/drops/edges/edges[25]": [3, 1],
-    "/drops/edges/edges[26]": [3, 1],
-    "/drops/edges/edges[27]": [3, 1],
-    "/drops/edges/edges[28]": [3, 1],
-    "/drops/edges/edges[29]": [3, 1],
-    "/drops/edges/edges[30]": [3, 1],
-    "/drops/edges/edges[31]": [3, 1],
-    "/drops/edges/edges[32]": [3, 1],
-    "/drops/edges/edges[33]": [3, 1],
-    "/drops/edges/edges[34]": [3, 1],
-    "/drops/edges/edges[35]": [3, 1],
-    "/drops/edges/edges[36]": [3, 1],
-    "/drops/edges/edges[37]": [3, 1],
-    "/drops/edges/edges[38]": [3, 1],
-    "/drops/edges/edges[39]": [3, 1],
-    "/drops/edges/edges[40]": [3, 1],
-    "/drops/edges/edges[41]": [3, 1],
-    "/drops/edges/edges[42]": [3, 1],
-    "/drops/edges/edges[43]": [3, 1],
-    "/drops/edges/edges[44]": [3, 1],
-    "/drops/edges/edges[45]": [3, 1],
-    "/drops/edges/edges[46]": [3, 1],
-    "/drops/edges/edges[47]": [3, 1],
-    "/drops/edges/edges[48]": [3, 1],
-    "/drops/edges/edges[49]": [3, 1],
-    "/drops/edges/edges[50]": [3, 1],
-    "/drops/edges/edges[51]": [3, 1],
-    "/drops/edges/edges[52]": [3, 1],
-    "/drops/edges/edges[53]": [3, 1],
-    "/drops/edges/edges[54]": [3, 1],
-    "/drops/edges/edges[55]": [3, 1],
-    "/drops/edges/edges[56]": [3, 1],
-    "/drops/edges/edges[57]": [3, 1],
-    "/drops/edges/edges[58]": [3, 1],
-    "/drops/vertices/vertices[0]": [3, 1],
-    "/drops/vertices/vertices[1]": [3, 1],
-    "/drops/vertices/vertices[2]": [3, 1],
-    "/drops/vertices/vertices[3]": [3, 1],
-    "/drops/vertices/vertices[4]": [3, 1],
-    "/drops/vertices/vertices[5]": [3, 1],
-    "/drops/vertices/vertices[6]": [3, 1],
-    "/drops/vertices/vertices[7]": [3, 1],
-    "/drops/vertices/vertices[8]": [3, 1],
-    "/drops/vertices/vertices[9]": [3, 1],
-    "/drops/vertices/vertices[10]": [3, 1],
-    "/drops/vertices/vertices[11]": [3, 1],
-    "/drops/vertices/vertices[12]": [3, 1],
-    "/drops/vertices/vertices[13]": [3, 1],
-    "/drops/vertices/vertices[14]": [3, 1],
-    "/drops/vertices/vertices[15]": [3, 1],
-    "/drops/vertices/vertices[16]": [3, 1],
-    "/drops/vertices/vertices[17]": [3, 1],
-    "/drops/vertices/vertices[18]": [3, 1],
-    "/drops/vertices/vertices[19]": [3, 1],
-    "/drops/vertices/vertices[20]": [3, 1],
-    "/drops/vertices/vertices[21]": [3, 1],
-    "/drops/vertices/vertices[22]": [3, 1],
-    "/drops/vertices/vertices[23]": [3, 1],
-    "/drops/vertices/vertices[24]": [3, 1],
-    "/drops/vertices/vertices[25]": [3, 1],
-    "/drops/vertices/vertices[26]": [3, 1],
-    "/drops/vertices/vertices[27]": [3, 1],
-    "/drops/vertices/vertices[28]": [3, 1],
-    "/drops/vertices/vertices[29]": [3, 1],
-    "/drops/vertices/vertices[30]": [3, 1],
-    "/drops/vertices/vertices[31]": [3, 1],
-    "/drops/vertices/vertices[32]": [3, 1],
-    "/drops/vertices/vertices[33]": [3, 1],
+    "/drops/faces/faces_0": [1, 3],
+    "/drops/faces/faces_1": [1, 3],
+    "/drops/faces/faces_2": [1, 3],
+    "/drops/faces/faces_3": [1, 3],
+    "/drops/faces/faces_4": [1, 3],
+    "/drops/faces/faces_5": [1, 3],
+    "/drops/faces/faces_6": [1, 3],
+    "/drops/faces/faces_7": [1, 3],
+    "/drops/faces/faces_8": [1, 3],
+    "/drops/faces/faces_9": [1, 3],
+    "/drops/faces/faces_10": [1, 3],
+    "/drops/faces/faces_11": [1, 3],
+    "/drops/faces/faces_12": [1, 3],
+    "/drops/faces/faces_13": [1, 3],
+    "/drops/faces/faces_14": [1, 3],
+    "/drops/faces/faces_15": [1, 3],
+    "/drops/faces/faces_16": [1, 3],
+    "/drops/faces/faces_17": [1, 3],
+    "/drops/faces/faces_18": [1, 3],
+    "/drops/faces/faces_19": [1, 3],
+    "/drops/faces/faces_20": [1, 3],
+    "/drops/faces/faces_21": [1, 3],
+    "/drops/faces/faces_22": [1, 3],
+    "/drops/faces/faces_23": [1, 3],
+    "/drops/faces/faces_24": [1, 3],
+    "/drops/faces/faces_25": [1, 3],
+    "/drops/faces/faces_26": [1, 3],
+    "/drops/edges/edges_0": [3, 1],
+    "/drops/edges/edges_1": [3, 1],
+    "/drops/edges/edges_2": [3, 1],
+    "/drops/edges/edges_3": [3, 1],
+    "/drops/edges/edges_4": [3, 1],
+    "/drops/edges/edges_5": [3, 1],
+    "/drops/edges/edges_6": [3, 1],
+    "/drops/edges/edges_7": [3, 1],
+    "/drops/edges/edges_8": [3, 1],
+    "/drops/edges/edges_9": [3, 1],
+    "/drops/edges/edges_10": [3, 1],
+    "/drops/edges/edges_11": [3, 1],
+    "/drops/edges/edges_12": [3, 1],
+    "/drops/edges/edges_13": [3, 1],
+    "/drops/edges/edges_14": [3, 1],
+    "/drops/edges/edges_15": [3, 1],
+    "/drops/edges/edges_16": [3, 1],
+    "/drops/edges/edges_17": [3, 1],
+    "/drops/edges/edges_18": [3, 1],
+    "/drops/edges/edges_19": [3, 1],
+    "/drops/edges/edges_20": [3, 1],
+    "/drops/edges/edges_21": [3, 1],
+    "/drops/edges/edges_22": [3, 1],
+    "/drops/edges/edges_23": [3, 1],
+    "/drops/edges/edges_24": [3, 1],
+    "/drops/edges/edges_25": [3, 1],
+    "/drops/edges/edges_26": [3, 1],
+    "/drops/edges/edges_27": [3, 1],
+    "/drops/edges/edges_28": [3, 1],
+    "/drops/edges/edges_29": [3, 1],
+    "/drops/edges/edges_30": [3, 1],
+    "/drops/edges/edges_31": [3, 1],
+    "/drops/edges/edges_32": [3, 1],
+    "/drops/edges/edges_33": [3, 1],
+    "/drops/edges/edges_34": [3, 1],
+    "/drops/edges/edges_35": [3, 1],
+    "/drops/edges/edges_36": [3, 1],
+    "/drops/edges/edges_37": [3, 1],
+    "/drops/edges/edges_38": [3, 1],
+    "/drops/edges/edges_39": [3, 1],
+    "/drops/edges/edges_40": [3, 1],
+    "/drops/edges/edges_41": [3, 1],
+    "/drops/edges/edges_42": [3, 1],
+    "/drops/edges/edges_43": [3, 1],
+    "/drops/edges/edges_44": [3, 1],
+    "/drops/edges/edges_45": [3, 1],
+    "/drops/edges/edges_46": [3, 1],
+    "/drops/edges/edges_47": [3, 1],
+    "/drops/edges/edges_48": [3, 1],
+    "/drops/edges/edges_49": [3, 1],
+    "/drops/edges/edges_50": [3, 1],
+    "/drops/edges/edges_51": [3, 1],
+    "/drops/edges/edges_52": [3, 1],
+    "/drops/edges/edges_53": [3, 1],
+    "/drops/edges/edges_54": [3, 1],
+    "/drops/edges/edges_55": [3, 1],
+    "/drops/edges/edges_56": [3, 1],
+    "/drops/edges/edges_57": [3, 1],
+    "/drops/edges/edges_58": [3, 1],
+    "/drops/vertices/vertices_0": [3, 1],
+    "/drops/vertices/vertices_1": [3, 1],
+    "/drops/vertices/vertices_2": [3, 1],
+    "/drops/vertices/vertices_3": [3, 1],
+    "/drops/vertices/vertices_4": [3, 1],
+    "/drops/vertices/vertices_5": [3, 1],
+    "/drops/vertices/vertices_6": [3, 1],
+    "/drops/vertices/vertices_7": [3, 1],
+    "/drops/vertices/vertices_8": [3, 1],
+    "/drops/vertices/vertices_9": [3, 1],
+    "/drops/vertices/vertices_10": [3, 1],
+    "/drops/vertices/vertices_11": [3, 1],
+    "/drops/vertices/vertices_12": [3, 1],
+    "/drops/vertices/vertices_13": [3, 1],
+    "/drops/vertices/vertices_14": [3, 1],
+    "/drops/vertices/vertices_15": [3, 1],
+    "/drops/vertices/vertices_16": [3, 1],
+    "/drops/vertices/vertices_17": [3, 1],
+    "/drops/vertices/vertices_18": [3, 1],
+    "/drops/vertices/vertices_19": [3, 1],
+    "/drops/vertices/vertices_20": [3, 1],
+    "/drops/vertices/vertices_21": [3, 1],
+    "/drops/vertices/vertices_22": [3, 1],
+    "/drops/vertices/vertices_23": [3, 1],
+    "/drops/vertices/vertices_24": [3, 1],
+    "/drops/vertices/vertices_25": [3, 1],
+    "/drops/vertices/vertices_26": [3, 1],
+    "/drops/vertices/vertices_27": [3, 1],
+    "/drops/vertices/vertices_28": [3, 1],
+    "/drops/vertices/vertices_29": [3, 1],
+    "/drops/vertices/vertices_30": [3, 1],
+    "/drops/vertices/vertices_31": [3, 1],
+    "/drops/vertices/vertices_32": [3, 1],
+    "/drops/vertices/vertices_33": [3, 1],
   },
 ];

@@ -98,18 +98,18 @@ class Grid {
   computeGrid() {
     this.allGrid = this.grid[0] | this.grid[1] | this.grid[2];
 
-    this.display.checkElement("tcv_grid", this.allGrid);
-    this.display.checkElement("tcv_grid-xy", this.grid[0]);
-    this.display.checkElement("tcv_grid-xz", this.grid[1]);
-    this.display.checkElement("tcv_grid-yz", this.grid[2]);
+    // this.display.checkElement("tcv_grid", this.allGrid);
+    // this.display.checkElement("tcv_grid-xy", this.grid[0]);
+    // this.display.checkElement("tcv_grid-xz", this.grid[1]);
+    // this.display.checkElement("tcv_grid-yz", this.grid[2]);
 
     this.setVisible();
   }
 
-  setGrid(action) {
+  setGrid(action, flag = null) {
     switch (action) {
       case "grid":
-        this.allGrid = !this.allGrid;
+        this.allGrid = (flag == null) ? !this.allGrid : flag;
         this.grid[0] = this.allGrid;
         this.grid[1] = this.allGrid;
         this.grid[2] = this.allGrid;

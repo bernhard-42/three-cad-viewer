@@ -1,9 +1,6 @@
 <div class="tcv_cad_viewer">
     <div class="tcv_cad_toolbar tcv_round">
-        <span class="tcv_tooltip" data-tooltip="Show coordinate axis">
-            <input class='tcv_axes tcv_check' id='tcv_axes_{{id}}' type="checkbox" />
-            <label for='tcv_axes_{{id}}' class="tcv_label">Axes</label>
-        </span>
+        <!-- 
         <div class="tcv_grid-dropdown">
             <input class='tcv_grid tcv_check' id='tcv_grid_{{id}}' type="checkbox" />
             <label for='tcv_grid_{{id}}' class="tcv_label">Grid</label>
@@ -22,41 +19,7 @@
                 </div>
             </div>
         </div>
-        <span class="tcv_tooltip" data-tooltip="Move center of axis and grid to (0,0,0)">
-            <input class='tcv_axes0 tcv_check' id='tcv_axes0_{{id}}' type="checkbox" /><label for='tcv_axes0_{{id}}'
-                class="tcv_label">@0</label>
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Toggle camera between orthographic and perspective view">
-            <input class='tcv_ortho tcv_check' id='tcv_ortho_{{id}}' type="checkbox" /><label for='tcv_ortho_{{id}}'
-                class="tcv_label">Ortho</label>
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Reset view">
-            <input class='tcv_reset tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Fit view">
-            <input class='tcv_resize tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to iso view">
-            <input class='tcv_iso tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to front view">
-            <input class='tcv_front tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to back view">
-            <input class='tcv_rear tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to top view">
-            <input class='tcv_top tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to bottom view">
-            <input class='tcv_bottom tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to left view">
-            <input class='tcv_left tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to right view">
-            <input class='tcv_right tcv_btn' type="button" />
-        </span>
+
         <div class="tcv_more-dropdown">
             <button class="tcv_more-btn">More<span class="tcv_more_icon">\u25BC</span></button>
             <span class="tcv_more-wrapper tcv_more-content tcv_dropdown-content">
@@ -81,15 +44,15 @@
                 </span class="tcv_more_check">
             </span>
         </div>
-
-        <span class="tcv_align_right">
+        -->
+        <!-- <span class="tcv_align_right">
             <span class="tcv_tooltip" data-tooltip="Toggle help">
                 <input class='tcv_help tcv_btn' type="button" />
             </span>
             <span class="tcv_tooltip" data-tooltip="Pin view as PNG image">
                 <input class='tcv_pin tcv_btn' type="button" />
             </span>
-        </span>
+        </span> -->
     </div>
 
     <div class="tcv_cad_body">
@@ -232,13 +195,6 @@
         </div>
 
         <div class="tcv_cad_view">
-            <div class="tcv_cad_tools tcv_round">
-                <span class="tcv_tools_label">T</span>
-                <span class="tcv_tooltip" data-tooltip="Measure distance"><input
-                        class='tcv_measure tcv_tool_btn tcv_btn' type="button" /></span>
-                <span class="tcv_tooltip" data-tooltip="Measure size"><input
-                        class='tcv_measure_size tcv_tool_btn tcv_btn' type="button" /></span>
-            </div>
             <div class="tcv_measure_panel tcv_panel tcv_round">
                 <div class="tcv_measure_header">Distance</div>
                 <table id="tcv_measure_table">
