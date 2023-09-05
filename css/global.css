@@ -1,4 +1,6 @@
 [data-theme="light"] {
+  --tcv-theme-blue: rgb(83, 160, 227);
+  --tcv-theme-led: rgb(255, 150, 0);
   --tcv-font-color: #333;
   --tcv-bg-color: #fff;
   --tcv-bg-overlay-color: rgba(255, 255, 255, 0.7);
@@ -15,6 +17,8 @@
 }
 
 [data-theme="dark"] {
+  --tcv-theme-blue: rgb(48, 142, 225);
+  --tcv-theme-led: rgb(255, 230, 0);
   --tcv-font-color: #ddd;
   --tcv-bg-color: #444;
   --tcv-bg-overlay-color: rgba(68, 68, 68, 0.7);

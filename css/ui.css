@@ -275,21 +275,18 @@ th {
 }
 
 .tcv_btn_click {
-  width: 22px;
+  width: 8px;
   height: 29px;
-  margin-left: 4px;
+  margin-left: 12px;
   position: absolute;
-}
-
-.tcv_btn_click {
-  border-bottom: 3px inset var(--tcv-theme-blue);
+  border-bottom: 3px inset var(--tcv-theme-led);
 }
 
 .tcv_separator {
-  width: 7px;
+  width: 14px;
   border-left: 1px solid lightgray;
-  margin-left: 2px;
-  padding-right: 2px;
+  margin-left: 5px;
+  padding-right: 5px;
   padding-bottom: 6px;
   padding-top: 3px;
 }
