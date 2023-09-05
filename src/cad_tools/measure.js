@@ -74,7 +74,7 @@ class Measurement {
 
     enableContext() {
         this.contextEnabled = true;
-        this.panelCenter = new Vector3(1, 1, 0).multiplyScalar(this.viewer.bbox.boundingSphere().radius);
+        this.panelCenter = new Vector3(1, 1, 0).multiplyScalar(this.viewer.bbox.boundingSphere().radius / 2);
     }
 
     disableContext() {
