@@ -1280,7 +1280,7 @@ class Viewer {
   // Handle CAD Tools
   // 
 
-  _clearSelection = () => {
+  clearSelection = () => {
     this.nestedGroup.clearSelection();
     this.cadtools.handleResetSelection();
   };
@@ -1339,7 +1339,7 @@ class Viewer {
     if (event.key) {
       switch (event.key) {
         case "Escape":
-          this._clearSelection();
+          this.clearSelection();
           break;
         case "Backspace":
           this._removeLastSelected();
