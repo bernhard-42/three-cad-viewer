@@ -280,7 +280,7 @@ th {
 }
 
 .tcv_btn_highlight {
-  border: 1px dotted var(--tcv-shadow);
+  border-bottom: 1px dotted var(--tcv-shadow);
   border-radius: 6px;
 }
 
