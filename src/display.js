@@ -113,8 +113,12 @@ class Display {
     this.toolbarButtons["grid"] = new ClickButton(theme, "grid", "Show grid", this.setGrid);
     this.cadTool.addButton(this.toolbarButtons["grid"]);
     this.cadTool.addSeparator();
-    this.toolbarButtons["perspective"] = new ClickButton(theme, "perspective", "Show grid", this.setOrtho);
+    this.toolbarButtons["perspective"] = new ClickButton(theme, "perspective", "Use perspective camera", this.setOrtho);
     this.cadTool.addButton(this.toolbarButtons["perspective"]);
+    this.toolbarButtons["transparent"] = new ClickButton(theme, "transparent", "Show transparent faces", this.setTransparent);
+    this.cadTool.addButton(this.toolbarButtons["transparent"]);
+    this.toolbarButtons["blackedges"] = new ClickButton(theme, "blackedges", "Show black edges", this.setBlackEdges);
+    this.cadTool.addButton(this.toolbarButtons["blackedges"]);
     this.cadTool.addSeparator();
 
     this.toolbarButtons["reset"] = new Button(theme, "reset", "Reset view", this.reset);
@@ -139,22 +143,18 @@ class Display {
     this.cadTool.addButton(this.toolbarButtons["right"]);
     this.cadTool.addSeparator();
 
-    this.toolbarButtons["transparent"] = new ClickButton(theme, "transparent", "Show transparent faces", this.setTransparent);
-    this.cadTool.addButton(this.toolbarButtons["transparent"]);
-    this.toolbarButtons["blackedges"] = new ClickButton(theme, "blackedges", "Show black edges", this.setBlackEdges);
-    this.cadTool.addButton(this.toolbarButtons["blackedges"]);
-    this.cadTool.addSeparator();
-
-    this.toolbarButtons["explode"] = new ClickButton(theme, "explode", "Explode assembly", this.setExplode);
+    this.toolbarButtons["explode"] = new ClickButton(theme, "explode", "Explode tool", this.setExplode);
     this.cadTool.addButton(this.toolbarButtons["explode"]);
-    this.cadTool.addSeparator();
-
     this.toolbarButtons["measure"] = new ClickButton(theme, "measure", "Dimension tool", this.setTools);
     this.cadTool.addButton(this.toolbarButtons["measure"]);
     this.toolbarButtons["size"] = new ClickButton(theme, "size", "Size tool", this.setTools);
     this.cadTool.addButton(this.toolbarButtons["size"]);
-    this.cadTool.addSeparator();
-    this.cadTool.defineGroup([this.toolbarButtons["measure"], this.toolbarButtons["size"]]);
+
+    this.cadTool.defineGroup([
+      this.toolbarButtons["explode"],
+      this.toolbarButtons["measure"],
+      this.toolbarButtons["size"],
+    ]);
 
     this.toolbarButtons["help"] = new Button(theme, "help", "Help", this.toggleHelp);
     this.toolbarButtons["help"].alignRight();
