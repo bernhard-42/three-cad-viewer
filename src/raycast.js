@@ -67,7 +67,7 @@ class Raycaster {
      */
     onMouseKeyDown = (e) => {
         if (this.raycastMode) {
-            if (e.button == THREE.MOUSE.LEFT) {
+            if (e.button == THREE.MOUSE.LEFT || e.button == THREE.MOUSE.RIGHT) {
                 this.lastPosition = this.camera.getPosition().clone();
             }
         }
@@ -87,7 +87,9 @@ class Raycaster {
                     this.callback({ mouse: "left" });
                 }
             } else if (e.button == THREE.MOUSE.RIGHT) {
-                this.callback({ mouse: "right" });
+                if (this.lastPosition.equals(this.camera.getPosition())) {
+                    this.callback({ mouse: "right" });
+                }
             }
         }
     };
