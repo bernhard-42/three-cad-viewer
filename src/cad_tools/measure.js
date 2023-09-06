@@ -88,7 +88,8 @@ class Measurement {
 
     enableContext() {
         this.contextEnabled = true;
-        this.panelCenter = new Vector3(1, 1, 0).multiplyScalar(this.viewer.bbox.boundingSphere().radius / 2);
+        this.panelCenter = new Vector3(1, 0, 0);
+
     }
 
     disableContext() {
@@ -99,6 +100,7 @@ class Measurement {
 
     _hideMeasurement() {
         this.panel.style.display = "none";
+        // this.panelCenter = null;
         this.scene.clear();
     }
 
@@ -123,13 +125,34 @@ class Measurement {
             this._hideMeasurement();
             return;
         }
-
+        // this._computePanelCenter(); // TODO Implement good logic for initialisation
         this._makeLines();
         this._setMeasurementVals();
         this.panel.style.display = "block";
         this._movePanel();
     }
 
+
+    _computePanelCenter() {
+
+        const camera = this.viewer.camera.getCamera();
+        const zCam = new THREE.Vector3();
+        const xCam = new THREE.Vector3();
+        const yCam = new THREE.Vector3();
+
+        camera.getWorldDirection(zCam);
+        zCam.multiplyScalar(-1);
+        // Check if zCam is parallel to camera.up
+        if (Math.abs(zCam.dot(camera.up)) >= 0.99) {
+            // Choose a different vector to cross with zCam
+            xCam.crossVectors(new THREE.Vector3(1, 0, 0), zCam).normalize();
+        } else {
+            xCam.crossVectors(camera.up, zCam).normalize();
+        }
+        yCam.crossVectors(zCam, xCam).normalize();
+        const offsetDistance = this.viewer.bbox.boundingSphere().radius;
+        this.panelCenter = this.viewer.bbox.boundingSphere().center.add(xCam.multiplyScalar(offsetDistance));
+    }
 
     /**
      * React to each new selected element in the viewer.
@@ -147,6 +170,7 @@ class Measurement {
     };
 
     _movePanel = () => {
+
         var worldCoord = this.panelCenter;
         var screenCoord = worldCoord.clone().project(this.viewer.camera.getCamera());
         screenCoord.x = Math.round((1 + screenCoord.x) * this.viewer.renderer.domElement.offsetWidth / 2);
@@ -156,31 +180,45 @@ class Measurement {
         this.panel.style.top = screenCoord.y - parseFloat(panelStyle.height) / 2 + "px";
     };
 
+    /**
+     * This handler is responsible to update the panel center vector when the user drag the panel on the screen.
+     * @param {Event} e 
+     * @returns 
+     */
     _dragPanel = (e) => {
         if (!this.panelDragData.clicked)
             return;
+
+        const viewer = this.viewer;
+        const camera = viewer.camera.getCamera();
+
         let x = e.clientX - this.panelDragData.x;
-        let y = -(e.clientY - this.panelDragData.y);
-        x /= this.viewer.renderer.domElement.offsetWidth / 5;
-        y /= this.viewer.renderer.domElement.offsetHeight / 5; // Need to use my brain to put the right factor here, 5 is arbitrary
-        const camera = this.viewer.camera.getCamera();
-        const zCam = new THREE.Vector3();
-        const xCam = new THREE.Vector3();
-        const yCam = new THREE.Vector3();
+        let y = e.clientY - this.panelDragData.y;
+        const viewerWidth = this.viewer.renderer.domElement.offsetWidth;
+        const viewerHeight = this.viewer.renderer.domElement.offsetHeight;
+        const viewerToClientWidthRatio = (0.5 * viewerWidth) / document.documentElement.clientWidth; // I dont get why we need to use half of the viewer width
+        const viewerToClientHeightRatio = (0.5 * viewerHeight) / document.documentElement.clientHeight;
 
-        camera.getWorldDirection(zCam);
-        zCam.multiplyScalar(-1);
-        xCam.crossVectors(camera.up, zCam).normalize();
-        yCam.crossVectors(zCam, xCam).normalize();
-        this.panelCenter.add(xCam.multiplyScalar(x));
-        this.panelCenter.add(yCam.multiplyScalar(y));
+        x /= document.documentElement.clientWidth; // x becomes a percentage of the client width
+        y /= document.documentElement.clientHeight;
+        x /= viewerToClientWidthRatio; // rescale the x value so it represent a percentage of the viewer width
+        y /= viewerToClientHeightRatio;
 
+        // First transform world vec in screen vec
+        // Then add the offset vec and then retransform back to world vec
+        const panelCenter = this.panelCenter.clone().project(camera);
+        const offsetVec = new THREE.Vector3(x, -y, 0);
+        panelCenter.add(offsetVec);
+        panelCenter.unproject(camera);
+        this.panelCenter = panelCenter;
+
+        // Clear and update the scene
         this.scene.clear();
         this._updateMeasurement();
 
+        // Update the drag start position
         this.panelDragData.x = e.clientX;
         this.panelDragData.y = e.clientY;
-
     };
 
     removeLastSelectedObj() {
