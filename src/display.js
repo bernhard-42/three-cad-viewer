@@ -1,7 +1,7 @@
 import { getIconBackground } from "./icons.js";
 import { KeyMapper } from "./utils.js";
 import { Slider } from "./slider.js";
-import { Toolbar, Button, ClickButton } from "./toolbar.js"
+import { Toolbar, Button, ClickButton } from "./toolbar.js";
 
 import template from "./index.html";
 
@@ -549,16 +549,16 @@ class Display {
       }
 
       if (name == "measure") {
-        this.viewer.cadtools.distanceMeasurement.enableContext();
+        this.viewer.cadTools.distanceMeasurement.enableContext();
       } else if (name == "size") {
-        this.viewer.cadtools.sizeMeasurement.enableContext();
+        this.viewer.cadTools.sizeMeasurement.enableContext();
       }
 
     } else {
       if (name == "measure") {
-        this.viewer.cadtools.distanceMeasurement.disableContext();
+        this.viewer.cadTools.distanceMeasurement.disableContext();
       } else if (name == "size") {
-        this.viewer.cadtools.sizeMeasurement.disableContext();
+        this.viewer.cadTools.sizeMeasurement.disableContext();
       }
       this.viewer.clearSelection();
       if (this.viewer.hasAnimation()) {

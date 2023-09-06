@@ -77,7 +77,7 @@ class Viewer {
     this.controls = null;
     this.orientationMarker = null;
     this.treeview = null;
-    this.cadtools = new Tools(this);
+    this.cadTools = new Tools(this);
 
     this.ready = false;
     this.mixer = null;
@@ -114,12 +114,6 @@ class Viewer {
     this.keepHighlight = false;
 
     this.renderer.domElement.addEventListener("dblclick", this.pick, false);
-    this.renderer.domElement.addEventListener(
-      "mousedown",
-      this.selectDown,
-      false,
-    );
-    this.renderer.domElement.addEventListener("mouseup", this.selectUp, false);
 
     this.renderer.domElement.addEventListener("contextmenu", (e) =>
       e.stopPropagation(),
@@ -470,7 +464,7 @@ class Viewer {
 
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
-      this.cadtools.update();
+      this.cadTools.update();
 
       this.directLight.position.copy(this.camera.getCamera().position);
 
@@ -1282,7 +1276,7 @@ class Viewer {
 
   clearSelection = () => {
     this.nestedGroup.clearSelection();
-    this.cadtools.handleResetSelection();
+    this.cadTools.handleResetSelection();
   };
 
   _releaseLastSelected = (clear) => {
@@ -1299,7 +1293,7 @@ class Viewer {
       this.lastSelection.unhighlight(false);
       this.lastSelection = null;
 
-      this.cadtools.handleRemoveLastSelection();
+      this.cadTools.handleRemoveLastSelection();
     }
   };
 
@@ -1352,7 +1346,7 @@ class Viewer {
         case "left":
           if (this.lastObject != null) {
             this.lastObject.toggleSelection();
-            this.cadtools.handleSelectedObj(this.lastObject);
+            this.cadTools.handleSelectedObj(this.lastObject);
             this.lastSelection = this.lastObject;
           }
           break;

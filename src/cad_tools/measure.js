@@ -57,7 +57,7 @@ class Measurement {
     /**
      * 
      * @param {import ("../viewer.js").Viewer} viewer The viewer instance
-     * @param {domElement} panel The panel to display
+     * @param {HTMLElement} panel The panel to display
      */
     constructor(viewer, panel) {
 
@@ -69,6 +69,20 @@ class Measurement {
         this.scene = new THREE.Scene();
         this.panel = panel;
         this.panelCenter = null;
+
+        this.panelDragData = { x: null, y: null, clicked: false };
+        this.panel.addEventListener("mousedown", (e) => {
+            this.panelDragData.clicked = true;
+            this.panelDragData.x = e.clientX;
+            this.panelDragData.y = e.clientY;
+            e.stopPropagation();
+        });
+        document.addEventListener("mouseup", (e) => {
+            this.panelDragData.clicked = false;
+            e.stopPropagation();
+        });
+        document.addEventListener("mousemove", this._dragPanel);
+
 
     }
 
@@ -140,6 +154,33 @@ class Measurement {
         const panelStyle = window.getComputedStyle(this.panel);
         this.panel.style.left = screenCoord.x - parseFloat(panelStyle.width) / 2 + "px";
         this.panel.style.top = screenCoord.y - parseFloat(panelStyle.height) / 2 + "px";
+    };
+
+    _dragPanel = (e) => {
+        if (!this.panelDragData.clicked)
+            return;
+        let x = e.clientX - this.panelDragData.x;
+        let y = -(e.clientY - this.panelDragData.y);
+        x /= this.viewer.renderer.domElement.offsetWidth / 5;
+        y /= this.viewer.renderer.domElement.offsetHeight / 5; // Need to use my brain to put the right factor here, 5 is arbitrary
+        const camera = this.viewer.camera.getCamera();
+        const zCam = new THREE.Vector3();
+        const xCam = new THREE.Vector3();
+        const yCam = new THREE.Vector3();
+
+        camera.getWorldDirection(zCam);
+        zCam.multiplyScalar(-1);
+        xCam.crossVectors(camera.up, zCam).normalize();
+        yCam.crossVectors(zCam, xCam).normalize();
+        this.panelCenter.add(xCam.multiplyScalar(x));
+        this.panelCenter.add(yCam.multiplyScalar(y));
+
+        this.scene.clear();
+        this._updateMeasurement();
+
+        this.panelDragData.x = e.clientX;
+        this.panelDragData.y = e.clientY;
+
     };
 
     removeLastSelectedObj() {
