@@ -732,7 +732,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.00153,
             bb: {
               xmin: -0.5,
@@ -783,7 +783,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000533,
             bb: {
               xmin: -0.5,
@@ -1456,7 +1456,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000233,
             bb: {
               xmin: -0.5,
@@ -2051,7 +2051,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000233,
             bb: {
               xmin: -0.5,
@@ -2102,7 +2102,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000867,
             bb: {
               xmin: -0.5,
@@ -2153,7 +2153,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000867,
             bb: {
               xmin: -0.5,
@@ -2749,7 +2749,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000233,
             bb: {
               xmin: -0.5,
@@ -3250,7 +3250,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000233,
             bb: {
               xmin: -0.5,
@@ -3300,7 +3300,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000533,
             bb: {
               xmin: -0.5,
@@ -4205,7 +4205,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.001,
             bb: {
               xmin: -0.5,
@@ -4254,7 +4254,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000733,
             bb: {
               xmin: -0.4000000059604645,
@@ -4706,7 +4706,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000467,
             bb: {
               xmin: -0.4000000059604645,
@@ -5056,7 +5056,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000467,
             bb: {
               xmin: -0.4000000059604645,
@@ -5105,7 +5105,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.00107,
             bb: {
               xmin: -0.4000000059604645,
@@ -5153,7 +5153,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.00107,
             bb: {
               xmin: -0.4000000059604645,
@@ -5502,7 +5502,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000467,
             bb: {
               xmin: -0.4000000059604645,
@@ -5784,7 +5784,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000467,
             bb: {
               xmin: -0.4000000059604645,
@@ -5832,7 +5832,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000733,
             bb: {
               xmin: -0.4000000059604645,
@@ -6565,7 +6565,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.00153,
             bb: {
               xmin: 0.5,
@@ -6616,7 +6616,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000533,
             bb: {
               xmin: 0.4000000059604645,
@@ -7209,7 +7209,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000233,
             bb: {
               xmin: 0.4000000059604645,
@@ -7713,7 +7713,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000233,
             bb: {
               xmin: 0.4000000059604645,
@@ -7764,7 +7764,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000867,
             bb: {
               xmin: 0.4000000059604645,
@@ -7815,7 +7815,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000867,
             bb: {
               xmin: 0.4000000059604645,
@@ -8317,7 +8317,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000233,
             bb: {
               xmin: 0.4000000059604645,
@@ -8814,7 +8814,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000233,
             bb: {
               xmin: 0.4000000059604645,
@@ -8865,7 +8865,7 @@ const drops = [
             color: "#e8b024",
             alpha: 1.0,
             loc: null,
-            renderback: true,
+            renderback: false,
             accuracy: 0.000533,
             bb: {
               xmin: 0.4000000059604645,
