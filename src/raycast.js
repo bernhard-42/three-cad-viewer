@@ -71,7 +71,6 @@ class Raycaster {
                 this.lastPosition = this.camera.getPosition().clone();
             }
         }
-        console.log("selectDown", this.lastPosition);
     };
 
 
