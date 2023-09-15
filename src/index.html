@@ -195,7 +195,7 @@
         </div>
 
         <div class="tcv_cad_view">
-            <div class="tcv_measure_panel tcv_panel tcv_round">
+            <div class="tcv_distance_measurement_panel tcv_panel tcv_round">
                 <div class="tcv_measure_header">Distance</div>
                 <table id="tcv_measure_table">
                     <tr class="measure_row_line">
@@ -203,34 +203,45 @@
                         <td class="measure_cell measure_val" id="total">total</td>
                     </tr>
                     <tr class="measure_row_line">
-                        <td class="measure_cell" id="tcv_measure_x">X</td>
+                        <td class="measure_cell xtitle" id="tcv_measure_x">X</td>
                         <td class="measure_cell measure_val" id="x">x</td>
                     </tr>
                     <tr class="measure_row_line">
-                        <td class="measure_cell" id="tcv_measure_y">Y</td>
+                        <td class="measure_cell ytitle" id="tcv_measure_y">Y</td>
                         <td class="measure_cell measure_val" id="y">y</td>
                     </tr>
                     <tr>
-                        <td class="measure_cell bottom_cell_left" id="tcv_measure_z">Z</td>
+                        <td class="measure_cell bottom_cell_left ztitle" id="tcv_measure_z">Z</td>
                         <td class="measure_cell measure_val bottom_cell_right" id="z">z</td>
                     </tr>
                 </table>
             </div>
 
-            <div class="tcv_measure_size_panel tcv_panel tcv_round">
-                <div class="tcv_measure_header">Size</div>
+            <div class="tcv_properties_measurement_panel tcv_panel tcv_round">
+                <div class="tcv_measure_header">Properties</div>
+                <div class="tcv_measure_subheader">Shape</div>
                 <table id="tcv_measure_table">
-                    <tr class="measure_size_row_line" id="volume_row">
+                    <tr class="properties_row_line" id="volume_row">
                         <td class="measure_cell" id="tcv_measure_volume">Volume</td>
                         <td class="measure_cell measure_val" id="volume">volume</td>
                     </tr>
-                    <tr class="measure_size_row_line" id="area_row">
+                    <tr class="properties_row_line" id="area_row">
                         <td class="measure_cell" id="tcv_measure_area">Area</td>
                         <td class="measure_cell measure_val" id="area">area</td>
                     </tr>
-                    <tr class="measure_size_row_line" id="length_row">
+                    <tr class="properties_row_line" id="length_row">
                         <td class="measure_cell" id="tcv_measure_length">Length</td>
                         <td class="measure_cell measure_val" id="length">length</td>
+                    </tr>
+                    <tr class="properties_row_line vertex_row" id="vertex_coords_title_row">
+                        <td class="measure_cell vertex_cell xtitle" id="vertex_x">X</td>
+                        <td class="measure_cell vertex_cell ytitle" id="vertex_y">Y</td>
+                        <td class="measure_cell vertex_cell ztitle" id="vertex_z">Z</td>
+                    </tr>
+                    <tr class="properties_row_line vertex_row" id="vertex_coords_row">
+                        <td class="measure_cell vertex_cell" id="x_value">X</td>
+                        <td class="measure_cell vertex_cell" id="y_value">Y</td>
+                        <td class="measure_cell vertex_cell" id="z_value">Z</td>
                     </tr>
                 </table>
             </div>

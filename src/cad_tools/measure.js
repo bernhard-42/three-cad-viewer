@@ -100,7 +100,6 @@ class Measurement {
 
     _hideMeasurement() {
         this.panel.style.display = "none";
-        // this.panelCenter = null;
         this.scene.clear();
     }
 
@@ -239,7 +238,7 @@ class Measurement {
 
 class DistanceMeasurement extends Measurement {
     constructor(viewer) {
-        super(viewer, viewer.display.measurePanel);
+        super(viewer, viewer.display.distanceMeasurementPanel);
         this.point1 = null;
         this.point2 = null;
     }
@@ -273,7 +272,7 @@ class DistanceMeasurement extends Measurement {
         this._getPoints();
 
         const lineWidth = 0.0025;
-        const distanceLine = new DistanceLineArrow(this.point1, this.point2, 2 * lineWidth, 0xFF8C00);
+        const distanceLine = new DistanceLineArrow(this.point1, this.point2, 2 * lineWidth, 0x000000);
         this.scene.add(distanceLine);
 
         const middlePoint = new THREE.Vector3().addVectors(this.point1, this.point2).multiplyScalar(0.5);
@@ -283,32 +282,59 @@ class DistanceMeasurement extends Measurement {
 
 }
 
-class SizeMeasurement extends Measurement {
+class PropertiesMeasurement extends Measurement {
     constructor(viewer) {
-        super(viewer, viewer.display.measureSizePanel);
+        super(viewer, viewer.display.propertiesMeasurementPanel);
     }
 
     _hideRows() {
         this.panel.querySelector("#volume_row").style.display = "none";
         this.panel.querySelector("#area_row").style.display = "none";
         this.panel.querySelector("#length_row").style.display = "none";
+        this.panel.querySelector("#vertex_coords_title_row").style.display = "none";
+        this.panel.querySelector("#vertex_coords_row").style.display = "none";
     }
+
 
     _setMeasurementVals() {
         this._hideRows();
         const obj = this.selectedGeoms[0];
-        const isLine = obj.name.match(/.*\|.*edges/);;
-        const isFace = obj.name.match(/.*\|.*faces/);;
-        let row;
-        if (isLine) {
-            this.panel.querySelector("#length").textContent = 12;
-            row = this.panel.querySelector("#length_row");
+        const isVertex = obj.name.match(/.*\|.*vertices/);
+        const isLine = obj.name.match(/.*\|.*edges/);
+        const isFace = obj.name.match(/.*\|.*faces/);
+        const isVolume = obj.name.match(/.*\|.*volumes/);
+
+        let subheader = this.panel.querySelector(".tcv_measure_subheader");
+        let rows = [];
+        if (isVertex) {
+            const vertex = obj.children[0].geometry.boundingSphere.center;
+            const x = this.panel.querySelector("#x_value");
+            const y = this.panel.querySelector("#y_value");
+            const z = this.panel.querySelector("#z_value");
+            x.textContent = vertex.x.toFixed(2);
+            y.textContent = vertex.y.toFixed(2);
+            z.textContent = vertex.z.toFixed(2);
+            rows.push(this.panel.querySelector("#vertex_coords_title_row"));
+            rows.push(this.panel.querySelector("#vertex_coords_row"));
+            subheader.textContent = "Vertex";
+        }
+        else if (isLine) {
+            this.panel.querySelector("#length").textContent = 1;
+            rows.push(this.panel.querySelector("#length_row"));
+            subheader.textContent = "Edge";
         }
         else if (isFace) {
-            this.panel.querySelector("#area").textContent = 68;
-            row = this.panel.querySelector("#area_row");
+            this.panel.querySelector("#area").textContent = 1;
+            rows.push(this.panel.querySelector("#area_row"));
+            subheader.textContent = "Face";
         }
-        row.style.display = "block";
+        else if (isVolume) {
+            this.panel.querySelector("#volume").textContent = 68;
+            rows.push(this.panel.querySelector("#volume_row"));
+            subheader.textContent = "Solid";
+        }
+        for (const row of rows)
+            row.style.display = "block";
     }
 
     _getMaxObjSelected() {
@@ -327,4 +353,4 @@ class SizeMeasurement extends Measurement {
 
 }
 
-export { DistanceMeasurement, SizeMeasurement };
+export { DistanceMeasurement, PropertiesMeasurement };

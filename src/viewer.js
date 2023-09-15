@@ -929,7 +929,7 @@ class Viewer {
     timer.stop();
 
     // TODO DELETE
-    this.display.setTools({ target: { checked: true } });
+    this.display.setTool({ target: { checked: true } });
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2176,11 +2176,6 @@ class Viewer {
 
   quaternion(x = 0, y = 0, z = 0, w = 1) {
     return new THREE.Quaternion(x, y, z, w);
-  }
-
-  _testMeasure() {
-    this.measure.update();
-    this.update(true, true);
   }
 }
 
