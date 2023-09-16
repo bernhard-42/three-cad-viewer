@@ -102,6 +102,21 @@ export class Tools {
     }
 
     /**
+     * Handle the response from the backend.
+     * @param {Object} response 
+     */
+    handleResponse(response) {
+        const toolType = response.get("tool_type");
+        switch (toolType) {
+            case ToolTypes.DISTANCE:
+                this.distanceMeasurement.handleResponse(response);
+                break;
+            case ToolTypes.PROPERTIES:
+                this.propertiesMeasurement.handleResponse(response);
+        }
+    }
+
+    /**
      * This is called each time the viewer gets updated
      */
     update() {
