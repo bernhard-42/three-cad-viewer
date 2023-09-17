@@ -101,6 +101,7 @@ class Measurement {
     }
 
     _hideMeasurement() {
+        this.responseData = null;
         this.panel.style.display = "none";
         this.scene.clear();
     }
@@ -146,13 +147,19 @@ class Measurement {
 
     }
 
+    /**
+     * Update the measurement panel, if enough shapes have been selected for the current tool,
+     * ask the backend for the real measurement data and display it.
+     * @returns 
+     */
     _updateMeasurement() {
+        const ids = this.selectedShapes.map(shape => shape.name.replaceAll("|", "/"));
+        this.viewer.checkChanges({ selectedShapeIDs: [...ids] });
+
         if (this.selectedShapes.length != this._getMaxObjSelected()) {
             this._hideMeasurement();
             return;
         }
-        const ids = this.selectedShapes.map(shape => shape.name.replaceAll("|", "/"));
-        this.viewer.checkChanges({ selectedShapeIDs: [...ids] });
         const p = new Promise((resolve, reject) => {
             this._waitResponse(resolve, reject);
         });
@@ -198,7 +205,10 @@ class Measurement {
         if (this.selectedShapes.length == this._getMaxObjSelected()) {
             this.removeLastSelectedObj();
         }
-        this.selectedShapes.push(objGroup);
+        if (this.selectedShapes.includes(objGroup))
+            this.selectedShapes.splice(this.selectedShapes.indexOf(objGroup), 1);
+        else
+            this.selectedShapes.push(objGroup);
 
         this._updateMeasurement();
     };
@@ -280,6 +290,7 @@ class DistanceMeasurement extends Measurement {
 
 
     _setMeasurementVals() {
+        this._getPoints();
         const total = this.responseData.distance;
         const distVec = this.point2.clone().sub(this.point1);
         const xdist = distVec.x;
@@ -301,9 +312,6 @@ class DistanceMeasurement extends Measurement {
     }
 
     _makeLines() {
-
-        this._getPoints();
-
         const lineWidth = 0.0025;
         const distanceLine = new DistanceLineArrow(this.point1, this.point2, 2 * lineWidth, 0x000000);
         this.scene.add(distanceLine);
@@ -319,7 +327,7 @@ class DistanceMeasurement extends Measurement {
     */
     handleResponse(response) {
         console.log(response);
-        const data = { distance: response.distance, point1: response.point1, point2: response.point2 };
+        const data = { distance: response.distance, point1: new Vector3(...response.point1), point2: new Vector3(...response.point2) };
         this.responseData = data;
     }
 
@@ -328,7 +336,6 @@ class DistanceMeasurement extends Measurement {
 class PropertiesMeasurement extends Measurement {
     constructor(viewer) {
         super(viewer, viewer.display.propertiesMeasurementPanel);
-        this.shapeType = undefined;
     }
 
     _hideRows() {
@@ -351,8 +358,7 @@ class PropertiesMeasurement extends Measurement {
         let subheader = this.panel.querySelector(".tcv_measure_subheader");
         let rows = [];
         if (isVertex) {
-            this.shapeType = "vertex";
-            const vertex = new Vector3(...this.responseData.vertex_coords);
+            const vertex = this.responseData.vertex_coords;
             const x = this.panel.querySelector("#x_value");
             const y = this.panel.querySelector("#y_value");
             const z = this.panel.querySelector("#z_value");
@@ -364,21 +370,18 @@ class PropertiesMeasurement extends Measurement {
             subheader.textContent = "Vertex";
         }
         else if (isLine) {
-            this.shapeType = "edge";
             const length = this.responseData.length;
             this.panel.querySelector("#length").textContent = length;
             rows.push(this.panel.querySelector("#length_row"));
             subheader.textContent = "Edge";
         }
         else if (isFace) {
-            this.shapeType = "face";
             const area = this.responseData.area;
             this.panel.querySelector("#area").textContent = area;
             rows.push(this.panel.querySelector("#area_row"));
             subheader.textContent = "Face";
         }
         else if (isVolume) {
-            this.shapeType = "volume";
             const volume = this.responseData.volume;
             this.panel.querySelector("#volume").textContent = volume;
             rows.push(this.panel.querySelector("#volume_row"));
@@ -408,21 +411,18 @@ class PropertiesMeasurement extends Measurement {
     handleResponse(response) {
         console.log(response);
         let data;
-        switch (this.shapeType) {
-            case "vertex":
-                data = { x: response.vertex_coords[0], y: response.vertex_coords[1], z: response.vertex_coords[2] };
-                break;
-            case "edge":
-                data = { length: response.length };
-                break;
-            case "face":
-                data = { area: response.area };
-                break;
-            case "volume":
-                data = { volume: response.volume };
-        }
+        if (response.vertex_coords)
+            data = { vertex_coords: new Vector3(...response.vertex_coords) };
+        else if (response.length)
+            data = { length: response.length };
+        else if (response.area)
+            data = { area: response.area };
+        else if (response.volume)
+            data = { volume: response.volume };
 
+        data.center = new Vector3(...response.center);
         this.responseData = data;
+
 
     }
 

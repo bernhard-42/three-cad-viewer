@@ -106,7 +106,8 @@ export class Tools {
      * @param {Object} response 
      */
     handleResponse(response) {
-        const toolType = response.get("tool_type");
+        console.log(response);
+        const toolType = response.tool_type;
         switch (toolType) {
             case ToolTypes.DISTANCE:
                 this.distanceMeasurement.handleResponse(response);
@@ -126,3 +127,4 @@ export class Tools {
             this.propertiesMeasurement.update();
     }
 }
+
