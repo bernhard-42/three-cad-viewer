@@ -1,7 +1,7 @@
 import { getIconBackground } from "./icons.js";
 import { KeyMapper } from "./utils.js";
 import { Slider } from "./slider.js";
-import { Toolbar, Button, ClickButton } from "./toolbar.js";
+import { Toolbar, Button, ClickButton, FilterByDropDownMenu } from "./toolbar.js";
 import { ToolTypes } from "./cad_tools/tools.js";
 
 import template from "./index.html";
@@ -163,6 +163,8 @@ class Display {
     this.toolbarButtons["pin"] = new Button(theme, "pin", "Pin viewer as png", this.pinAsPng);
     this.toolbarButtons["pin"].alignRight();
     this.cadTool.addButton(this.toolbarButtons["pin"]);
+    this.shapeFilterDropDownMenu = new FilterByDropDownMenu();
+
 
     this.showPinning(options.pinning);
   }
@@ -549,16 +551,18 @@ class Display {
         this.viewer.backupAnimation();
       }
 
+      this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster);
+
       if (name == "distance") {
         this.viewer.cadTools.enable(ToolTypes.DISTANCE);
-        this.viewer.checkChanges({activeTool : ToolTypes.DISTANCE});
+        this.viewer.checkChanges({ activeTool: ToolTypes.DISTANCE });
       } else if (name == "properties") {
         this.viewer.cadTools.enable(ToolTypes.PROPERTIES);
-        this.viewer.checkChanges({activeTool : ToolTypes.PROPERTIES});
+        this.viewer.checkChanges({ activeTool: ToolTypes.PROPERTIES });
       }
 
     } else {
-      this.viewer.checkChanges({activeTool : ToolTypes.NONE});
+      this.viewer.checkChanges({ activeTool: ToolTypes.NONE });
       this.viewer.clearSelection();
       if (this.viewer.hasAnimation()) {
         this.controlAnimationByName("stop");
@@ -566,6 +570,7 @@ class Display {
         this.viewer.restoreAnimation();
       }
     }
+    this.shapeFilterDropDownMenu.show(flag);
   };
 
   /**

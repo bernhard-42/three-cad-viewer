@@ -603,3 +603,19 @@ input[type="button"] {
 .tcv_material_info {
   font-size: 12px;
 }
+
+
+#tcv_filter_menu {
+  position: relative;
+}
+
+#shape_filter {
+  background-color: var(--tcv-dropdown-bg);
+  color: var(--tcv-font-color);
+  border: none;
+  float: right;
+  display: none;
+  position: absolute;
+  right: 0px;
+
+}

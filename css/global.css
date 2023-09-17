@@ -16,6 +16,7 @@
   --tcv-scrollbar-hover: rgba(0, 0, 0, 0.3);
   --tcv-scrollbar-active: rgba(0, 0, 0, 0.5);
   --tcv-scrollbar-thumb: rgba(0, 0, 0, 0.1);
+  --tcv-dropdown-bg: #eee;
 }
 
 [data-theme="dark"] {
@@ -36,6 +37,7 @@
   --tcv-scrollbar-hover: rgba(255, 255, 255, 0.4);
   --tcv-scrollbar-active: rgba(255, 255, 255, 0.6);
   --tcv-scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --tcv-dropdown-bg: #333;
 }
 
 .tcv_none {
