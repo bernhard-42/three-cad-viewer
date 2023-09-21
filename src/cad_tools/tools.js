@@ -1,4 +1,4 @@
-import { DistanceMeasurement, PropertiesMeasurement } from "./measure";
+import { AngleMeasurement, DistanceMeasurement, PropertiesMeasurement } from "./measure";
 
 /**
  * Enum representing tool types.
@@ -10,7 +10,8 @@ import { DistanceMeasurement, PropertiesMeasurement } from "./measure";
 export const ToolTypes = {
     NONE: "None",
     DISTANCE: "DistanceMeasurement",
-    PROPERTIES: "PropertiesMeasurement"
+    PROPERTIES: "PropertiesMeasurement",
+    ANGLE: "AngleMeasurement"
 };
 
 export class Tools {
@@ -21,6 +22,7 @@ export class Tools {
     constructor(viewer) {
         this.distanceMeasurement = new DistanceMeasurement(viewer);
         this.propertiesMeasurement = new PropertiesMeasurement(viewer);
+        this.angleMeasurement = new AngleMeasurement(viewer);
         this.enabledTool = null; // There can only be one enabled tool at a time
     }
 
@@ -40,6 +42,9 @@ export class Tools {
                 break;
             case ToolTypes.PROPERTIES:
                 this.propertiesMeasurement.enableContext();
+                break;
+            case ToolTypes.ANGLE:
+                this.angleMeasurement.enableContext();
                 break;
             default:
                 throw new Error(`Unknown tool type: ${toolType}`);
@@ -64,6 +69,9 @@ export class Tools {
             case ToolTypes.PROPERTIES:
                 this.propertiesMeasurement.disableContext();
                 break;
+            case ToolTypes.ANGLE:
+                this.angleMeasurement.disableContext();
+                break;
             default:
                 throw new Error(`Unknown tool type: ${this.enabledTool}`);
         }
@@ -79,6 +87,9 @@ export class Tools {
         else if (this.propertiesMeasurement.contextEnabled) {
             this.propertiesMeasurement.removeLastSelectedObj();
         }
+        else if (this.angleMeasurement.contextEnabled) {
+            this.angleMeasurement.removeLastSelectedObj();
+        }
     }
 
     /**
@@ -90,6 +101,8 @@ export class Tools {
             this.distanceMeasurement.handleSelection(objGroup);
         else if (this.propertiesMeasurement.contextEnabled)
             this.propertiesMeasurement.handleSelection(objGroup);
+        else if (this.angleMeasurement.contextEnabled)
+            this.angleMeasurement.handleSelection(objGroup);
     }
 
     handleResetSelection() {
@@ -99,6 +112,10 @@ export class Tools {
         }
         else if (this.propertiesMeasurement.contextEnabled)
             this.propertiesMeasurement.removeLastSelectedObj();
+        else if (this.angleMeasurement.contextEnabled) {
+            this.angleMeasurement.removeLastSelectedObj();
+            this.angleMeasurement.removeLastSelectedObj();
+        }
     }
 
     /**
@@ -114,6 +131,10 @@ export class Tools {
                 break;
             case ToolTypes.PROPERTIES:
                 this.propertiesMeasurement.handleResponse(response);
+                break;
+            case ToolTypes.ANGLE:
+                this.angleMeasurement.handleResponse(response);
+                break;
         }
     }
 
@@ -125,6 +146,8 @@ export class Tools {
             this.distanceMeasurement.update();
         else if (this.propertiesMeasurement.contextEnabled)
             this.propertiesMeasurement.update();
+        else if (this.angleMeasurement.contextEnabled)
+            this.angleMeasurement.update();
     }
 }
 

@@ -53,6 +53,7 @@ import dark_perspective from "../icons/dark/perspective.svg";
 import dark_explode from "../icons/dark/explode.svg";
 import dark_distance from "../icons/dark/distance.svg";
 import dark_properties from "../icons/dark/properties.svg";
+import dark_angle from "../icons/dark/angle.svg";
 import dark_transparent from "../icons/dark/transparent.svg";
 import dark_blackedges from "../icons/dark/black_edges.svg";
 
@@ -63,6 +64,7 @@ import light_perspective from "../icons/light/perspective.svg";
 import light_explode from "../icons/light/explode.svg";
 import light_distance from "../icons/light/distance.svg";
 import light_properties from "../icons/light/properties.svg";
+import light_angle from "../icons/light/angle.svg";
 import light_transparent from "../icons/light/transparent.svg";
 import light_blackedges from "../icons/light/black_edges.svg";
 
@@ -98,6 +100,7 @@ const icons = {
   explode: { light: light_explode, dark: dark_explode },
   distance: { light: light_distance, dark: dark_distance },
   properties: { light: light_properties, dark: dark_properties },
+  angle: { light: light_angle, dark: dark_angle },
   transparent: { light: light_transparent, dark: dark_transparent },
   blackedges: { light: light_blackedges, dark: dark_blackedges },
 };

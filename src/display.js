@@ -45,6 +45,7 @@ class Display {
     this.cadView = this._getElement("tcv_cad_view");
     this.distanceMeasurementPanel = this._getElement("tcv_distance_measurement_panel");
     this.propertiesMeasurementPanel = this._getElement("tcv_properties_measurement_panel");
+    this.angleMeasurementPanel = this._getElement("tcv_angle_measurement_panel");
     this.cadTree = this._getElement("tcv_cad_tree_container");
     this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
     this.cadClip = this._getElement("tcv_cad_clip_container");
@@ -150,11 +151,14 @@ class Display {
     this.cadTool.addButton(this.toolbarButtons["distance"]);
     this.toolbarButtons["properties"] = new ClickButton(theme, "properties", "Show shape properties", this.setTool);
     this.cadTool.addButton(this.toolbarButtons["properties"]);
+    this.toolbarButtons["angle"] = new ClickButton(theme, "angle", "Measure angle between shapes", this.setTool);
+    this.cadTool.addButton(this.toolbarButtons["angle"]);
 
     this.cadTool.defineGroup([
       this.toolbarButtons["explode"],
       this.toolbarButtons["distance"],
       this.toolbarButtons["properties"],
+      this.toolbarButtons["angle"],
     ]);
 
     this.toolbarButtons["help"] = new Button(theme, "help", "Help", this.toggleHelp);
@@ -332,6 +336,7 @@ class Display {
     this.showHelp(false);
     this.showDistancePanel(false);
     this.showPropertiesPanel(false);
+    this.showAnglePanel(false);
   }
 
   /**
@@ -559,6 +564,10 @@ class Display {
       } else if (name == "properties") {
         this.viewer.cadTools.enable(ToolTypes.PROPERTIES);
         this.viewer.checkChanges({ activeTool: ToolTypes.PROPERTIES });
+      }
+      else if (name == "angle") {
+        this.viewer.cadTools.enable(ToolTypes.ANGLE);
+        this.viewer.checkChanges({ activeTool: ToolTypes.ANGLE });
       }
 
     } else {
@@ -998,6 +1007,14 @@ class Display {
   */
   showPropertiesPanel = (flag) => {
     this.propertiesMeasurementPanel.style.display = flag ? "block" : "none";
+  };
+
+  /**
+   * Show or hide the angle measurement panel
+   * @param {boolean} flag
+   */
+  showAnglePanel = (flag) => {
+    this.angleMeasurementPanel.style.display = flag ? "block" : "none";
   };
 
   /**

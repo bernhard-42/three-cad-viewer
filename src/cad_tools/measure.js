@@ -4,8 +4,9 @@ import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeome
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Vector3 } from "three";
 
+const DEBUG = true;
 
-class DistanceLineArrow extends THREE.Group {
+class MeasureLineArrow extends THREE.Group {
 
     /**
      * 
@@ -13,30 +14,40 @@ class DistanceLineArrow extends THREE.Group {
      * @param {Vector3} point2 The end point of the lind
      * @param {number} linewidth The thickness of the line
      * @param {THREE.Color} color The color of the line
+     * @param {boolean} arrowStart If true, a cone is added at the start of the line
      */
-    constructor(point1, point2, linewidth, color, withStart = true) {
+    constructor(point1, point2, linewidth, color, arrowStart = true, arrowEnd = true) {
         super();
+        this.point1 = point1;
+        this.point2 = point2;
+        this.linewidth = linewidth;
+        this.color = color;
+        this.arrowStart = arrowStart;
+        this.arrowEnd = arrowEnd;
+    }
+
+    initialize() {
         const coneLength = 0.08;
-        const lineVec = point1.clone().sub(point2.clone()).normalize();
-        const start = point1.clone().sub(lineVec.clone().multiplyScalar(coneLength / 2));
-        const end = point2.clone().sub(lineVec.clone().multiplyScalar(-coneLength / 2));
+        const lineVec = this.point1.clone().sub(this.point2.clone()).normalize();
+        const start = this.point1.clone().sub(lineVec.clone().multiplyScalar(coneLength / 2));
+        const end = this.point2.clone().sub(lineVec.clone().multiplyScalar(-coneLength / 2));
 
-        const geom = new LineSegmentsGeometry();
-        geom.setPositions([...start.toArray(), ...end.toArray()]);
-        const material = new LineMaterial({ linewidth: linewidth, color: color });
-        const line = new LineSegments2(geom, material);
+        const material = new LineMaterial({ linewidth: this.linewidth, color: this.color });
+        const constructor = this._lineType();
+        const geom = this._geom(start, end);
+        const line = new constructor(geom, material);
 
-        const coneGeom = new THREE.ConeGeometry(linewidth * 6, coneLength, 10);
-        const coneMaterial = new THREE.MeshBasicMaterial({ color: color });
+        const coneGeom = new THREE.ConeGeometry(this.linewidth * 6, coneLength, 10);
+        const coneMaterial = new THREE.MeshBasicMaterial({ color: this.color });
         const startCone = new THREE.Mesh(coneGeom, coneMaterial);
         const endCone = new THREE.Mesh(coneGeom, coneMaterial);
         coneGeom.center();
         const matrix = new THREE.Matrix4();
         const quaternion = new THREE.Quaternion();
-        matrix.lookAt(point1, point2, startCone.up);
+        matrix.lookAt(this.point1, this.point2, startCone.up);
         quaternion.setFromRotationMatrix(matrix);
         startCone.setRotationFromQuaternion(quaternion);
-        matrix.lookAt(point2, point1, endCone.up);
+        matrix.lookAt(this.point2, this.point1, endCone.up);
         quaternion.setFromRotationMatrix(matrix);
         endCone.setRotationFromQuaternion(quaternion);
         startCone.rotateX((90 * Math.PI) / 180);
@@ -45,13 +56,91 @@ class DistanceLineArrow extends THREE.Group {
         startCone.position.copy(start);
         endCone.position.copy(end);
 
-        if (withStart) {
+        if (this.arrowStart)
             this.add(startCone);
-        }
-        this.add(endCone);
+
+        if (this.arrowEnd)
+            this.add(endCone);
+
         this.add(line);
     }
+
+    _lineType() {
+        throw new Error("Subclass needs to override this method");
+    }
+
+    /**
+     * Get the geometry of the line
+     * @param {Vector3} start vec
+     * @param {Vector3} end vec
+     * @returns 
+     */
+    _geom() {
+        throw new Error("Subclass needs to override this method");
+    }
 }
+
+class DistanceLineArrow extends MeasureLineArrow {
+    constructor(point1, point2, linewidth, color, arrowStart = true, arrowEnd = true) {
+        super(point1, point2, linewidth, color, arrowStart, arrowEnd);
+        this.initialize();
+    }
+
+    _lineType() {
+        return LineSegments2;
+    }
+
+    _geom(start, end) {
+        const geom = new LineSegmentsGeometry();
+        geom.setPositions([...start.toArray(), ...end.toArray()]);
+        return geom;
+    }
+}
+
+class CurvedLineArrow extends MeasureLineArrow {
+    constructor(point1, point2, arcCenter, linewidth, color, arrowStart = true, arrowEnd = true) {
+        super(point1, point2, linewidth, color, arrowStart, arrowEnd);
+        this.arcCenter = arcCenter;
+        this.radius = point1.clone().sub(arcCenter).length();
+        this.initialize();
+    }
+
+    _lineType() {
+        // return THREE.Line2
+        return LineSegments2;
+    }
+
+    /**
+     * Get the geometry of the line
+     * @param {Vector3} start vec
+     * @param {Vector3} end vec
+     * @returns 
+     */
+    _geom(start, end) {
+        const arcPoints = [];
+        const radius = this.radius;
+        const segments = 32;
+        const v1 = start.clone().sub(this.arcCenter);
+        const v2 = end.clone().sub(this.arcCenter);
+        const totalAngle = v1.angleTo(v2);
+
+        for (let i = 0; i <= segments; i++) {
+            const angle = (i / segments) * totalAngle;
+            const x = radius * Math.cos(angle);
+            const y = radius * Math.sin(angle);
+            const pt = new THREE.Vector3(x, y, 0);
+            arcPoints.push(pt);
+            if (i != 0 && i != segments)
+                arcPoints.push(pt); // duplicate the point because it will be the starting point of next segment
+        }
+
+        const geometry = new LineSegmentsGeometry();
+        geometry.setPositions(arcPoints.reduce((acc, vec) => [...acc, ...vec.toArray()], []));
+
+        return geometry;
+    }
+}
+
 
 class Measurement {
     /**
@@ -160,17 +249,24 @@ class Measurement {
             this._hideMeasurement();
             return;
         }
-        const p = new Promise((resolve, reject) => {
-            this._waitResponse(resolve, reject);
-        });
-        p.then((data) => {
-            // this._computePanelCenter(); // TODO Implement good logic for initialisation
 
-            this._setMeasurementVals(data);
+        if (DEBUG) {
+            this._setMeasurementVals();
             this._makeLines();
             this.panel.style.display = "block";
             this._movePanel();
-        });
+        }
+        else {
+            const p = new Promise((resolve, reject) => {
+                this._waitResponse(resolve, reject);
+            });
+            p.then((data) => {
+                this._setMeasurementVals();
+                this._makeLines();
+                this.panel.style.display = "block";
+                this._movePanel();
+            });
+        }
     }
 
 
@@ -291,7 +387,7 @@ class DistanceMeasurement extends Measurement {
 
     _setMeasurementVals() {
         this._getPoints();
-        const total = this.responseData.distance;
+        const total = DEBUG ? 50 : this.responseData.distance;
         const distVec = this.point2.clone().sub(this.point1);
         const xdist = distVec.x;
         const ydist = distVec.y;
@@ -307,8 +403,14 @@ class DistanceMeasurement extends Measurement {
     }
 
     _getPoints() {
-        this.point1 = new Vector3(...this.responseData.point1);
-        this.point2 = new Vector3(...this.responseData.point2);
+        if (DEBUG) {
+            this.point1 = this.selectedShapes[0].children[0].geometry.boundingSphere.center;
+            this.point2 = this.selectedShapes[1].children[0].geometry.boundingSphere.center;
+        }
+        else {
+            this.point1 = new Vector3(...this.responseData.point1);
+            this.point2 = new Vector3(...this.responseData.point2);
+        }
     }
 
     _makeLines() {
@@ -425,8 +527,52 @@ class PropertiesMeasurement extends Measurement {
 
 
     }
+}
+
+class AngleMeasurement extends Measurement {
+    constructor(viewer) {
+        super(viewer, viewer.display.angleMeasurementPanel);
+    }
+
+    _setMeasurementVals() {
+
+    }
+
+    _getMaxObjSelected() {
+        return 2;
+    }
+
+    _getPoints() {
+        if (DEBUG) {
+            this.point1 = this.selectedShapes[0].children[0].geometry.boundingSphere.center;
+            this.point2 = this.selectedShapes[1].children[0].geometry.boundingSphere.center;
+        }
+        else {
+            this.point1 = new Vector3(...this.responseData.point1);
+            this.point2 = new Vector3(...this.responseData.point2);
+        }
+    }
+
+    _makeLines() {
+        const lineWidth = 0.0025;
+        const center = new Vector3();
+        this._getPoints();
+        const angleLine = new CurvedLineArrow(this.point1, this.point2, center, lineWidth, 0x000000);
+        this.scene.add(angleLine);
+
+        const middlePoint = new THREE.Vector3().addVectors(this.point1, this.point2).multiplyScalar(0.5);
+        const connectingLine = new DistanceLineArrow(this.panelCenter, middlePoint, lineWidth, 0x800080, false);
+        this.scene.add(connectingLine);
+
+    }
+
+    handleResponse(response) {
+        console.log(response);
+        const data = { angle: response.angle, point1: new Vector3(...response.point1), point2: new Vector3(...response.point2), planeNormal: new Vector3(...response.plane_normal) };
+        this.responseData = data;
+    }
 
 
 }
 
-export { DistanceMeasurement, PropertiesMeasurement };
+export { DistanceMeasurement, PropertiesMeasurement, AngleMeasurement };
