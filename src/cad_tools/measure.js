@@ -3,8 +3,8 @@ import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Vector3 } from "three";
+import { DEBUG } from "../index.js";
 
-const DEBUG = true;
 
 class MeasureLineArrow extends THREE.Group {
 
@@ -233,7 +233,6 @@ class Measurement {
                 this._waitResponse(resolve, reject);
             }, 100);
         }
-
     }
 
     /**
@@ -535,7 +534,7 @@ class AngleMeasurement extends Measurement {
     }
 
     _setMeasurementVals() {
-
+        this.panel.querySelector("#angle").textContent = this.responseData.angle.toFixed(2) + " °";
     }
 
     _getMaxObjSelected() {
@@ -568,7 +567,7 @@ class AngleMeasurement extends Measurement {
 
     handleResponse(response) {
         console.log(response);
-        const data = { angle: response.angle, point1: new Vector3(...response.point1), point2: new Vector3(...response.point2), planeNormal: new Vector3(...response.plane_normal) };
+        const data = { angle: response.angle, point1: new Vector3(...response.point1), point2: new Vector3(...response.point2) };
         this.responseData = data;
     }
 

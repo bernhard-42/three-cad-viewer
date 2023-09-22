@@ -23,6 +23,7 @@ import { BoundingBox, BoxHelper } from "./bbox.js";
 import { Tools } from "./cad_tools/tools.js";
 import { version } from "./_version.js";
 import { Raycaster } from "./raycast.js";
+import { DEBUG } from "./index.js";
 
 class Viewer {
   /**
@@ -1310,6 +1311,23 @@ class Viewer {
     }
   }
 
+  /**
+   * Promise to wait for a response from the backend
+   * @param {*} resolve 
+   * @param {*} reject Runs infinitely never rejects
+   */
+  waitResponse = (resolve, reject) => {
+    if (this.raycaster.gotResponse()) {
+      console.log("Got response -> ", this.raycaster.validatedObjs);
+      resolve();
+    }
+    else {
+      setTimeout(() => {
+        this.waitResponse(resolve, reject);
+      }, 10);
+    }
+  };
+
   handleRaycast = () => {
     const objects = this.raycaster.getValidIntersectedObjs();
     if (objects.length > 0) {
@@ -1318,11 +1336,8 @@ class Viewer {
       // when true object can be highlighted if false we continue the below loop
       this.checkChanges({ hoveredObjs: objects.map(o => o.object.parent.name) });
 
-      // const promise = new Promise((resolve, reject) => {
-      // };
-
-      for (var object of objects) {
-        {
+      if (DEBUG) {
+        for (var object of objects) {
           const objectGroup = object.object.parent;
           if (objectGroup !== this.lastObject) {
             this._releaseLastSelected(false);
@@ -1331,6 +1346,23 @@ class Viewer {
           }
           break;
         }
+      }
+      else {
+        // Wait indefinitely until data is received
+        const promise = new Promise(this.waitResponse);
+        promise.then(() => {
+          for (var object of objects) {
+            const objectGroup = object.object.parent;
+            if (this.raycaster.validatedObjs.includes(objectGroup.name)) {
+              if (objectGroup !== this.lastObject) {
+                this._releaseLastSelected(false);
+                objectGroup.highlight(true);
+                this.lastObject = objectGroup;
+              }
+            }
+            break;
+          }
+        });
       }
     } else {
       this._releaseLastSelected(true);
@@ -1375,12 +1407,12 @@ class Viewer {
    */
   handleBackendResponse = (response) => {
     if (response.subtype === "filter_response") {
-      this.raycaster.hilightableObjs = response.hilightableObjs;
+      this.raycaster.handleResponse(response);
     }
     else if (response.subtype === "tool_response") {
       this.cadTools.handleResponse(response);
     }
-  }
+  };
 
 
   //

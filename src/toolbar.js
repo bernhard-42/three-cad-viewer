@@ -155,9 +155,9 @@ class FilterByDropDownMenu {
      * Set the raycaster to update the filter mode
     * @param {import ("./viewer.js").Viewer} viewer
     */
-    setViewer(viewer) {
+    setViewer = (viewer) => {
         this.viewer = viewer;
-    }
+    };
 
     handleSelection = () => {
         this.viewer.checkChanges({ topoFilterType: this.selectElement.value });

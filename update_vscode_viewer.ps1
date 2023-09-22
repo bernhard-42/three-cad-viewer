@@ -9,6 +9,12 @@ Write-Host "Version incremented to $newVersionString"
 
 $yarnAddCommand = "yarn add D:\Projets\three-cad-viewer\three-cad-viewer-v$newVersionString.tgz"
 
+# Edit index.js and set DEBUG to false
+$indexJsPath = ".\src\index.js"
+$indexContent = Get-Content -Path $indexJsPath
+$indexContent = $indexContent -replace 'export const DEBUG = true;', 'export const DEBUG = false;'
+$indexContent | Set-Content -Path $indexJsPath
+
 
 yarn install
 yarn add --dev rollup-plugin-string

@@ -16,6 +16,7 @@ class Raycaster {
         this.mouse = new THREE.Vector2();
         this.mouseMoved = false;
         this.validatedObjs = []; // Set by the backend as a reponse after it receive a list of object to validate
+        this._gotResponse = false;
     }
 
     dispose() {
@@ -70,7 +71,21 @@ class Raycaster {
      */
     handleResponse = (response) => {
         this.validatedObjs = response.highlightable_objs;
+        this._gotResponse = true;
     };
+
+    /**
+     * @returns {boolean} true if the backend has responded to the request
+     */
+    gotResponse() {
+        if (this._gotResponse) {
+            this._gotResponse = false;
+            return true;
+        }
+        else
+            return false;
+
+    }
 
     /**
      * Handle left mouse button down event
