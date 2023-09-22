@@ -1,13 +1,5 @@
 import * as THREE from "three";
 
-const FilterType = {
-    None: null,
-    Vertex: "vertex",
-    Edge: "edge",
-    Face: "face",
-    Solid: "solid",
-};
-
 class Raycaster {
     constructor(camera, domElement, width, height, group, callback) {
         this.camera = camera;
@@ -21,10 +13,9 @@ class Raycaster {
         this.raycastMode = false;
 
         this.lastPosition = null;
-
         this.mouse = new THREE.Vector2();
         this.mouseMoved = false;
-        this.filterType = FilterType.None;
+        this.validatedObjs = []; // Set by the backend as a reponse after it receive a list of object to validate
     }
 
     dispose() {
@@ -62,16 +53,24 @@ class Raycaster {
                     const objectGroup = object.object.parent;
                     if (objectGroup == null) continue;
 
-                    const name = objectGroup.metrics().name;
-                    if (this.filterType == FilterType.None)
-                        validObjs.push(object);
-                    else if (name == this.filterType)
-                        validObjs.push(object);
+                    const validIds = validObjs.map((obj) => obj.object.parent.name);
+                    if (validIds.includes(objectGroup.name)) // avoid duplicates
+                        continue;
+                    validObjs.push(object);
                 }
             }
         }
         return validObjs;
     }
+
+    /**
+     * Handle the response from the backend
+     * The response contains the name of the object group that can be highlighted givent the current configuration
+     * @param {object} response 
+     */
+    handleResponse = (response) => {
+        this.validatedObjs = response.highlightable_objs;
+    };
 
     /**
      * Handle left mouse button down event

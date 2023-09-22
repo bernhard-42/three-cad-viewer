@@ -1313,6 +1313,14 @@ class Viewer {
   handleRaycast = () => {
     const objects = this.raycaster.getValidIntersectedObjs();
     if (objects.length > 0) {
+      // Send the obj list to the backend
+      // wait for the backend to respond with a bool list mapping the obj list
+      // when true object can be highlighted if false we continue the below loop
+      this.checkChanges({ hoveredObjs: objects.map(o => o.object.parent.name) });
+
+      // const promise = new Promise((resolve, reject) => {
+      // };
+
       for (var object of objects) {
         {
           const objectGroup = object.object.parent;
@@ -1358,6 +1366,22 @@ class Viewer {
       }
     }
   };
+
+
+  /**
+   * Handle a backend response sent by the backend
+   * The response is a JSON object sent by the Python backend through VSCode
+   * @param {object} response 
+   */
+  handleBackendResponse = (response) => {
+    if (response.subtype === "filter_response") {
+      this.raycaster.hilightableObjs = response.hilightableObjs;
+    }
+    else if (response.subtype === "tool_response") {
+      this.cadTools.handleResponse(response);
+    }
+  }
+
 
   //
   // Getters and Setters

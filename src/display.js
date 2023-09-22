@@ -337,6 +337,7 @@ class Display {
     this.showDistancePanel(false);
     this.showPropertiesPanel(false);
     this.showAnglePanel(false);
+    this.shapeFilterDropDownMenu.setViewer(this.viewer.raycaster);
   }
 
   /**
@@ -556,7 +557,7 @@ class Display {
         this.viewer.backupAnimation();
       }
 
-      this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster);
+      this.shapeFilterDropDownMenu.setViewer(this.viewer.raycaster);
 
       if (name == "distance") {
         this.viewer.cadTools.enable(ToolTypes.DISTANCE);
