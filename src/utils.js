@@ -4,11 +4,7 @@ function clone(obj) {
   } else if (typeof obj === "object") {
     var result = {};
     for (var [k, v] of Object.entries(obj)) {
-      if (v == null) {
-        result[k] = null;
-      } else {
-        result[k] = clone(v);
-      }
+      result[k] = clone(v);
     }
     return result;
   } else {

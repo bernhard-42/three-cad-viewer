@@ -1,5 +1,13 @@
 import * as THREE from "three";
 
+const FilterType = {
+    None: null,
+    Vertex: "vertex",
+    Edge: "edge",
+    Face: "face",
+    Solid: "solid",
+};
+
 class Raycaster {
     constructor(camera, domElement, width, height, group, callback) {
         this.camera = camera;
@@ -13,10 +21,10 @@ class Raycaster {
         this.raycastMode = false;
 
         this.lastPosition = null;
+
         this.mouse = new THREE.Vector2();
         this.mouseMoved = false;
-        this.validatedObjs = []; // Set by the backend as a reponse after it receive a list of object to validate
-        this._gotResponse = false;
+        this.filterType = FilterType.None;
     }
 
     dispose() {
@@ -54,37 +62,15 @@ class Raycaster {
                     const objectGroup = object.object.parent;
                     if (objectGroup == null) continue;
 
-                    const validIds = validObjs.map((obj) => obj.object.parent.name);
-                    if (validIds.includes(objectGroup.name)) // avoid duplicates
-                        continue;
-                    validObjs.push(object);
+                    const name = objectGroup.metrics().name;
+                    if (this.filterType == FilterType.None)
+                        validObjs.push(object);
+                    else if (name == this.filterType)
+                        validObjs.push(object);
                 }
             }
         }
         return validObjs;
-    }
-
-    /**
-     * Handle the response from the backend
-     * The response contains the name of the object group that can be highlighted givent the current configuration
-     * @param {object} response 
-     */
-    handleResponse = (response) => {
-        this.validatedObjs = response.highlightable_objs;
-        this._gotResponse = true;
-    };
-
-    /**
-     * @returns {boolean} true if the backend has responded to the request
-     */
-    gotResponse() {
-        if (this._gotResponse) {
-            this._gotResponse = false;
-            return true;
-        }
-        else
-            return false;
-
     }
 
     /**

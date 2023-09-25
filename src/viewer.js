@@ -1331,13 +1331,8 @@ class Viewer {
   handleRaycast = () => {
     const objects = this.raycaster.getValidIntersectedObjs();
     if (objects.length > 0) {
-      // Send the obj list to the backend
-      // wait for the backend to respond with a bool list mapping the obj list
-      // when true object can be highlighted if false we continue the below loop
-      this.checkChanges({ hoveredObjs: objects.map(o => o.object.parent.name) });
-
-      if (DEBUG) {
-        for (var object of objects) {
+      for (var object of objects) {
+        {
           const objectGroup = object.object.parent;
           if (objectGroup !== this.lastObject) {
             this._releaseLastSelected(false);

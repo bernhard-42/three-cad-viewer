@@ -149,18 +149,23 @@ class FilterByDropDownMenu {
         this.selectElement = document.getElementById("shape_filter");
         this.selectElement.addEventListener("change", this.handleSelection);
         this.selectElement.style.display = "none";
+        this.raycaster = null;
     }
 
     /** 
      * Set the raycaster to update the filter mode
-    * @param {import ("./viewer.js").Viewer} viewer
+    * @param {import ("./raycast.js").Raycaster } raycaster 
     */
-    setViewer = (viewer) => {
-        this.viewer = viewer;
-    };
+    setRaycaster(raycaster) {
+        this.raycaster = raycaster;
+    }
 
     handleSelection = () => {
-        this.viewer.checkChanges({ topoFilterType: this.selectElement.value });
+        const shapeType = this.selectElement.value;
+        if (shapeType == "none")
+            this.raycaster.filterType = null;
+        else
+            this.raycaster.filterType = shapeType;
     };
 
     _keybindSelect = (e) => {
