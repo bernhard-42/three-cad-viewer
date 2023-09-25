@@ -1311,23 +1311,6 @@ class Viewer {
     }
   }
 
-  /**
-   * Promise to wait for a response from the backend
-   * @param {*} resolve 
-   * @param {*} reject Runs infinitely never rejects
-   */
-  waitResponse = (resolve, reject) => {
-    if (this.raycaster.gotResponse()) {
-      console.log("Got response -> ", this.raycaster.validatedObjs);
-      resolve();
-    }
-    else {
-      setTimeout(() => {
-        this.waitResponse(resolve, reject);
-      }, 10);
-    }
-  };
-
   handleRaycast = () => {
     const objects = this.raycaster.getValidIntersectedObjs();
     if (objects.length > 0) {
@@ -1341,23 +1324,6 @@ class Viewer {
           }
           break;
         }
-      }
-      else {
-        // Wait indefinitely until data is received
-        const promise = new Promise(this.waitResponse);
-        promise.then(() => {
-          for (var object of objects) {
-            const objectGroup = object.object.parent;
-            if (this.raycaster.validatedObjs.includes(objectGroup.name)) {
-              if (objectGroup !== this.lastObject) {
-                this._releaseLastSelected(false);
-                objectGroup.highlight(true);
-                this.lastObject = objectGroup;
-              }
-            }
-            break;
-          }
-        });
       }
     } else {
       this._releaseLastSelected(true);
@@ -1401,10 +1367,7 @@ class Viewer {
    * @param {object} response 
    */
   handleBackendResponse = (response) => {
-    if (response.subtype === "filter_response") {
-      this.raycaster.handleResponse(response);
-    }
-    else if (response.subtype === "tool_response") {
+    if (response.subtype === "tool_response") {
       this.cadTools.handleResponse(response);
     }
   };
