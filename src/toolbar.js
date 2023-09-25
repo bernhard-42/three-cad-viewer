@@ -140,5 +140,66 @@ class ClickButton extends BaseButton {
     }
 }
 
-export { Toolbar, Button, ClickButton };
+class FilterByDropDownMenu {
+
+    /**
+     * Initialize a new filter drop down menu, it needs the raycast to update interactively the filter mode
+     */
+    constructor() {
+        this.selectElement = document.getElementById("shape_filter");
+        this.selectElement.addEventListener("change", this.handleSelection);
+        this.selectElement.style.display = "none";
+        this.raycaster = null;
+    }
+
+    /** 
+     * Set the raycaster to update the filter mode
+    * @param {import ("./raycast.js").Raycaster } raycaster 
+    */
+    setRaycaster(raycaster) {
+        this.raycaster = raycaster;
+    }
+
+    handleSelection = () => {
+        const shapeType = this.selectElement.value;
+        if (shapeType == "none")
+            this.raycaster.filterType = null;
+        else
+            this.raycaster.filterType = shapeType;
+    };
+
+    _keybindSelect = (e) => {
+        const validKeys = ["n", "v", "e", "f", "s"];
+        if (validKeys.indexOf(e.key) === -1)
+            return;
+        if (e.key == "n")
+            this.selectElement.value = "none";
+        else if (e.key == "v")
+            this.selectElement.value = "vertex";
+        else if (e.key == "e")
+            this.selectElement.value = "edge";
+        else if (e.key == "f")
+            this.selectElement.value = "face";
+        else if (e.key == "s")
+            this.selectElement.value = "solid";
+
+        this.selectElement.dispatchEvent(new Event("change"));
+    };
+
+
+    /**
+     * Show or hide the drop down menu
+     * @param {boolean} flag 
+     */
+    show(flag) {
+        if (flag)
+            document.addEventListener("keydown", this._keybindSelect);
+        else
+            document.removeEventListener("keydown", this._keybindSelect);
+        this._keybindSelect({ key: "n" });
+        this.selectElement.style.display = flag ? "block" : "none";
+    }
+}
+
+export { Toolbar, Button, ClickButton, FilterByDropDownMenu };
 

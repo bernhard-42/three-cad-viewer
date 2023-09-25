@@ -1,7 +1,8 @@
 import { getIconBackground } from "./icons.js";
 import { KeyMapper } from "./utils.js";
 import { Slider } from "./slider.js";
-import { Toolbar, Button, ClickButton } from "./toolbar.js";
+import { Toolbar, Button, ClickButton, FilterByDropDownMenu } from "./toolbar.js";
+import { ToolTypes } from "./cad_tools/tools.js";
 
 import template from "./index.html";
 
@@ -42,8 +43,9 @@ class Display {
     // this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadTool = new Toolbar(this._getElement("tcv_cad_toolbar"), container.id);
     this.cadView = this._getElement("tcv_cad_view");
-    this.measurePanel = this._getElement("tcv_measure_panel");
-    this.measureSizePanel = this._getElement("tcv_measure_size_panel");
+    this.distanceMeasurementPanel = this._getElement("tcv_distance_measurement_panel");
+    this.propertiesMeasurementPanel = this._getElement("tcv_properties_measurement_panel");
+    this.angleMeasurementPanel = this._getElement("tcv_angle_measurement_panel");
     this.cadTree = this._getElement("tcv_cad_tree_container");
     this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
     this.cadClip = this._getElement("tcv_cad_clip_container");
@@ -145,15 +147,18 @@ class Display {
 
     this.toolbarButtons["explode"] = new ClickButton(theme, "explode", "Explode tool", this.setExplode);
     this.cadTool.addButton(this.toolbarButtons["explode"]);
-    this.toolbarButtons["measure"] = new ClickButton(theme, "measure", "Dimension tool", this.setTools);
-    this.cadTool.addButton(this.toolbarButtons["measure"]);
-    this.toolbarButtons["size"] = new ClickButton(theme, "size", "Size tool", this.setTools);
-    this.cadTool.addButton(this.toolbarButtons["size"]);
+    this.toolbarButtons["distance"] = new ClickButton(theme, "distance", "Measure distance between shapes", this.setTool);
+    this.cadTool.addButton(this.toolbarButtons["distance"]);
+    this.toolbarButtons["properties"] = new ClickButton(theme, "properties", "Show shape properties", this.setTool);
+    this.cadTool.addButton(this.toolbarButtons["properties"]);
+    this.toolbarButtons["angle"] = new ClickButton(theme, "angle", "Measure angle between shapes", this.setTool);
+    this.cadTool.addButton(this.toolbarButtons["angle"]);
 
     this.cadTool.defineGroup([
       this.toolbarButtons["explode"],
-      this.toolbarButtons["measure"],
-      this.toolbarButtons["size"],
+      this.toolbarButtons["distance"],
+      this.toolbarButtons["properties"],
+      this.toolbarButtons["angle"],
     ]);
 
     this.toolbarButtons["help"] = new Button(theme, "help", "Help", this.toggleHelp);
@@ -162,6 +167,8 @@ class Display {
     this.toolbarButtons["pin"] = new Button(theme, "pin", "Pin viewer as png", this.pinAsPng);
     this.toolbarButtons["pin"].alignRight();
     this.cadTool.addButton(this.toolbarButtons["pin"]);
+    this.shapeFilterDropDownMenu = new FilterByDropDownMenu();
+
 
     this.showPinning(options.pinning);
   }
@@ -327,8 +334,9 @@ class Display {
     this.showAnimationControl(false);
 
     this.showHelp(false);
-    this.showMeasurePanel(false);
-    this.showMeasureSizePanel(false);
+    this.showDistancePanel(false);
+    this.showPropertiesPanel(false);
+    this.showAnglePanel(false);
   }
 
   /**
@@ -539,7 +547,7 @@ class Display {
    * @function
    * @param {boolean} flag - whether to start or stop measure context
    */
-  setTools = (name, flag) => {
+  setTool = (name, flag) => {
     this.viewer.toggleAnimationLoop(flag);
     this.viewer.setRaycastMode(flag);
 
@@ -548,18 +556,22 @@ class Display {
         this.viewer.backupAnimation();
       }
 
-      if (name == "measure") {
-        this.viewer.cadTools.distanceMeasurement.enableContext();
-      } else if (name == "size") {
-        this.viewer.cadTools.sizeMeasurement.enableContext();
+      this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster);
+
+      if (name == "distance") {
+        this.viewer.cadTools.enable(ToolTypes.DISTANCE);
+        this.viewer.checkChanges({ activeTool: ToolTypes.DISTANCE });
+      } else if (name == "properties") {
+        this.viewer.cadTools.enable(ToolTypes.PROPERTIES);
+        this.viewer.checkChanges({ activeTool: ToolTypes.PROPERTIES });
+      }
+      else if (name == "angle") {
+        this.viewer.cadTools.enable(ToolTypes.ANGLE);
+        this.viewer.checkChanges({ activeTool: ToolTypes.ANGLE });
       }
 
     } else {
-      if (name == "measure") {
-        this.viewer.cadTools.distanceMeasurement.disableContext();
-      } else if (name == "size") {
-        this.viewer.cadTools.sizeMeasurement.disableContext();
-      }
+      this.viewer.checkChanges({ activeTool: ToolTypes.NONE });
       this.viewer.clearSelection();
       if (this.viewer.hasAnimation()) {
         this.controlAnimationByName("stop");
@@ -567,6 +579,7 @@ class Display {
         this.viewer.restoreAnimation();
       }
     }
+    this.shapeFilterDropDownMenu.show(flag);
   };
 
   /**
@@ -960,44 +973,6 @@ class Display {
     this.animationSlider.value = 0;
   }
 
-  // /**
-  //  * Handler for the CAD tools
-  //  * @function
-  //  * @param {Event} e - a DOM click event
-  //  */
-  // enableMeasureContext = (e) => {
-  //   console.log("enableMeasureContext", e);
-  //   const btn = this._getElement("tcv_measure");
-  //   if (!this.viewer.cadtools.distanceMeasurement.contextEnabled) {
-  //     btn.classList.add("tcv_tool_btn_highlight");
-  //     this.viewer.cadtools.distanceMeasurement.enableContext();
-
-  //   }
-  //   else {
-  //     btn.classList.remove("tcv_tool_btn_highlight");
-  //     this.viewer.cadtools.distanceMeasurement.disableContext();
-  //   }
-  // };
-
-  // /**
-  // * Handler for the CAD tools
-  // * @function
-  // * @param {Event} e - a DOM click event
-  // */
-  // enableSizeMeasureContext = (e) => {
-  //   console.log("enableSizeMeasureContext", e);
-  //   const btn = this._getElement("tcv_measure_size");
-  //   if (!this.viewer.cadtools.sizeMeasurement.contextEnabled) {
-  //     btn.classList.add("tcv_tool_btn_highlight");
-  //     this.viewer.cadtools.sizeMeasurement.enableContext();
-
-  //   }
-  //   else {
-  //     btn.classList.remove("tcv_tool_btn_highlight");
-  //     this.viewer.cadtools.sizeMeasurement.disableContext();
-  //   }
-  // };
-
   /**
    * Show or hide help dialog
    * @function
@@ -1019,19 +994,27 @@ class Display {
   };
 
   /**
-   * Show or hide the measure panel
+   * Show or hide the distance measurement panel
    * @param {boolean} flag 
    */
-  showMeasurePanel = (flag) => {
-    this.measurePanel.style.display = flag ? "block" : "none";
+  showDistancePanel = (flag) => {
+    this.distanceMeasurementPanel.style.display = flag ? "block" : "none";
   };
 
   /**
-  * Show or hide the measure size panel
+  * Show or hide the properties measurement panel
   * @param {boolean} flag 
   */
-  showMeasureSizePanel = (flag) => {
-    this.measureSizePanel.style.display = flag ? "block" : "none";
+  showPropertiesPanel = (flag) => {
+    this.propertiesMeasurementPanel.style.display = flag ? "block" : "none";
+  };
+
+  /**
+   * Show or hide the angle measurement panel
+   * @param {boolean} flag
+   */
+  showAnglePanel = (flag) => {
+    this.angleMeasurementPanel.style.display = flag ? "block" : "none";
   };
 
   /**

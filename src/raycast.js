@@ -1,5 +1,13 @@
 import * as THREE from "three";
 
+const FilterType = {
+    None: null,
+    Vertex: "vertex",
+    Edge: "edge",
+    Face: "face",
+    Solid: "solid",
+};
+
 class Raycaster {
     constructor(camera, domElement, width, height, group, callback) {
         this.camera = camera;
@@ -10,15 +18,13 @@ class Raycaster {
         this.callback = callback;
 
         this.raycaster = new THREE.Raycaster();
-        this.raycaster.params.Line.threshold = 3;
-        this.raycaster.params.Points.threshold = 3;
         this.raycastMode = false;
 
         this.lastPosition = null;
 
         this.mouse = new THREE.Vector2();
         this.mouseMoved = false;
-
+        this.filterType = FilterType.None;
     }
 
     dispose() {
@@ -53,7 +59,14 @@ class Raycaster {
                     (object.distanceToRay == null ||
                         object.distanceToRay < 0.03)
                 ) {
-                    validObjs.push(object);
+                    const objectGroup = object.object.parent;
+                    if (objectGroup == null) continue;
+
+                    const name = objectGroup.metrics().name;
+                    if (this.filterType == FilterType.None)
+                        validObjs.push(object);
+                    else if (name == this.filterType)
+                        validObjs.push(object);
                 }
             }
         }

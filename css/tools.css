@@ -2,7 +2,7 @@
 
 .tcv_panel {
     width: fit-content;
-    height: 112px;
+    height: fit-content;
     display: inline-block;
     flex-direction: column;
     align-items: center;
@@ -19,6 +19,19 @@
     justify-content: center;
     font-weight: bold;
     font-size: 16px;
+    font-family: sans-serif;
+    color: var(--tcv-font-color);
+    border-bottom: 1px solid lightgray;
+}
+
+.tcv_measure_subheader {
+    height: 15%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    font-weight: bold;
+    font-style: italic;
+    font-size: 14px;
     font-family: sans-serif;
     color: var(--tcv-font-color);
     border-bottom: 1px solid lightgray;
@@ -43,10 +56,27 @@
     border-bottom: 1px solid lightgray;
 }
 
+.vertex_row td:last-child {
+    border-right: none;
+}
+
+.vertex_row td {
+    width: 35px;
+}
+
+.vertex_cell {
+    text-align: center;
+    border-right: 1px solid lightgray;
+}
+
 .measure_val {
     color: val(--tcv-font-color);
     text-align: right;
     border-left: 1px solid lightgray;
+}
+
+#vertex_coords_title_row {
+    border-bottom: 1px solid lightgray;
 }
 
 table#measure_table tr td:first-child {
@@ -57,17 +87,17 @@ table#measure_table tr td:first-child {
     color: var(--tcv-font-color);
 }
 
-#tcv_measure_x {
+.xtitle {
     color: var(--tcv-x-color);
     text-align: center
 }
 
-#tcv_measure_y {
+.ytitle {
     color: var(--tcv-y-color);
     text-align: center;
 }
 
-#tcv_measure_z {
+.ztitle {
     color: var(--tcv-z-color);
     text-align: center
 }

@@ -23,6 +23,7 @@ import { BoundingBox, BoxHelper } from "./bbox.js";
 import { Tools } from "./cad_tools/tools.js";
 import { version } from "./_version.js";
 import { Raycaster } from "./raycast.js";
+import { DEBUG } from "./index.js";
 
 class Viewer {
   /**
@@ -929,7 +930,7 @@ class Viewer {
     timer.stop();
 
     // TODO DELETE
-    this.display.setTools({ target: { checked: true } });
+    this.display.setTool({ target: { checked: true } });
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1358,6 +1359,19 @@ class Viewer {
       }
     }
   };
+
+
+  /**
+   * Handle a backend response sent by the backend
+   * The response is a JSON object sent by the Python backend through VSCode
+   * @param {object} response 
+   */
+  handleBackendResponse = (response) => {
+    if (response.subtype === "tool_response") {
+      this.cadTools.handleResponse(response);
+    }
+  };
+
 
   //
   // Getters and Setters
@@ -2176,11 +2190,6 @@ class Viewer {
 
   quaternion(x = 0, y = 0, z = 0, w = 1) {
     return new THREE.Quaternion(x, y, z, w);
-  }
-
-  _testMeasure() {
-    this.measure.update();
-    this.update(true, true);
   }
 }
 
