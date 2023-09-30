@@ -3,10 +3,11 @@ import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Vector3 } from "three";
-import { DEBUG } from "../index.js";
+import { DistancePanel, PropertiesPanel, AnglePanel } from "./ui.js";
 
+const DEBUG = false;
 
-class MeasureLineArrow extends THREE.Group {
+class DistanceLineArrow extends THREE.Group {
 
     /**
      * 
@@ -15,6 +16,7 @@ class MeasureLineArrow extends THREE.Group {
      * @param {number} linewidth The thickness of the line
      * @param {THREE.Color} color The color of the line
      * @param {boolean} arrowStart If true, a cone is added at the start of the line
+     * @param {boolean} arrowEnd If true, a cone is added at the end of the line
      */
     constructor(point1, point2, linewidth, color, arrowStart = true, arrowEnd = true) {
         super();
@@ -24,6 +26,7 @@ class MeasureLineArrow extends THREE.Group {
         this.color = color;
         this.arrowStart = arrowStart;
         this.arrowEnd = arrowEnd;
+        this.initialize();
     }
 
     initialize() {
@@ -33,9 +36,10 @@ class MeasureLineArrow extends THREE.Group {
         const end = this.point2.clone().sub(lineVec.clone().multiplyScalar(-coneLength / 2));
 
         const material = new LineMaterial({ linewidth: this.linewidth, color: this.color });
-        const constructor = this._lineType();
-        const geom = this._geom(start, end);
-        const line = new constructor(geom, material);
+        const geom = new LineSegmentsGeometry();
+        geom.setPositions([...start.toArray(), ...end.toArray()]);
+
+        const line = new LineSegments2(geom, material);
 
         const coneGeom = new THREE.ConeGeometry(this.linewidth * 6, coneLength, 10);
         const coneMaterial = new THREE.MeshBasicMaterial({ color: this.color });
@@ -64,89 +68,13 @@ class MeasureLineArrow extends THREE.Group {
 
         this.add(line);
     }
-
-    _lineType() {
-        throw new Error("Subclass needs to override this method");
-    }
-
-    /**
-     * Get the geometry of the line
-     * @param {Vector3} start vec
-     * @param {Vector3} end vec
-     * @returns 
-     */
-    _geom() {
-        throw new Error("Subclass needs to override this method");
-    }
 }
-
-class DistanceLineArrow extends MeasureLineArrow {
-    constructor(point1, point2, linewidth, color, arrowStart = true, arrowEnd = true) {
-        super(point1, point2, linewidth, color, arrowStart, arrowEnd);
-        this.initialize();
-    }
-
-    _lineType() {
-        return LineSegments2;
-    }
-
-    _geom(start, end) {
-        const geom = new LineSegmentsGeometry();
-        geom.setPositions([...start.toArray(), ...end.toArray()]);
-        return geom;
-    }
-}
-
-class CurvedLineArrow extends MeasureLineArrow {
-    constructor(point1, point2, arcCenter, linewidth, color, arrowStart = true, arrowEnd = true) {
-        super(point1, point2, linewidth, color, arrowStart, arrowEnd);
-        this.arcCenter = arcCenter;
-        this.radius = point1.clone().sub(arcCenter).length();
-        this.initialize();
-    }
-
-    _lineType() {
-        // return THREE.Line2
-        return LineSegments2;
-    }
-
-    /**
-     * Get the geometry of the line
-     * @param {Vector3} start vec
-     * @param {Vector3} end vec
-     * @returns 
-     */
-    _geom(start, end) {
-        const arcPoints = [];
-        const radius = this.radius;
-        const segments = 32;
-        const v1 = start.clone().sub(this.arcCenter);
-        const v2 = end.clone().sub(this.arcCenter);
-        const totalAngle = v1.angleTo(v2);
-
-        for (let i = 0; i <= segments; i++) {
-            const angle = (i / segments) * totalAngle;
-            const x = radius * Math.cos(angle);
-            const y = radius * Math.sin(angle);
-            const pt = new THREE.Vector3(x, y, 0);
-            arcPoints.push(pt);
-            if (i != 0 && i != segments)
-                arcPoints.push(pt); // duplicate the point because it will be the starting point of next segment
-        }
-
-        const geometry = new LineSegmentsGeometry();
-        geometry.setPositions(arcPoints.reduce((acc, vec) => [...acc, ...vec.toArray()], []));
-
-        return geometry;
-    }
-}
-
 
 class Measurement {
     /**
      * 
      * @param {import ("../viewer.js").Viewer} viewer The viewer instance
-     * @param {HTMLElement} panel The panel to display
+     * @param {DistancePanel | PropertiesPanel | AnglePanel} panel The panel to display the measurement
      */
     constructor(viewer, panel) {
 
@@ -159,9 +87,11 @@ class Measurement {
         this.panel = panel;
         this.panelCenter = null;
         this.responseData = null;
+        this.measurementLineColor = 0x000000;
+        this.connectingLineColor = 0x800080;
 
         this.panelDragData = { x: null, y: null, clicked: false };
-        this.panel.addEventListener("mousedown", (e) => {
+        this.panel.registerCallback("mousedown", (e) => {
             this.panelDragData.clicked = true;
             this.panelDragData.x = e.clientX;
             this.panelDragData.y = e.clientY;
@@ -191,7 +121,7 @@ class Measurement {
 
     _hideMeasurement() {
         this.responseData = null;
-        this.panel.style.display = "none";
+        this.panel.show(false);
         this.scene.clear();
     }
 
@@ -252,7 +182,7 @@ class Measurement {
         if (DEBUG) {
             this._setMeasurementVals();
             this._makeLines();
-            this.panel.style.display = "block";
+            this.panel.show(true);
             this._movePanel();
         }
         else {
@@ -314,9 +244,10 @@ class Measurement {
         var screenCoord = worldCoord.clone().project(this.viewer.camera.getCamera());
         screenCoord.x = Math.round((1 + screenCoord.x) * this.viewer.renderer.domElement.offsetWidth / 2);
         screenCoord.y = Math.round((1 - screenCoord.y) * this.viewer.renderer.domElement.offsetHeight / 2);
-        const panelStyle = window.getComputedStyle(this.panel);
-        this.panel.style.left = screenCoord.x - parseFloat(panelStyle.width) / 2 + "px";
-        this.panel.style.top = screenCoord.y - parseFloat(panelStyle.height) / 2 + "px";
+        const panelStyle = window.getComputedStyle(this.panel.html);
+        const x = screenCoord.x - parseFloat(panelStyle.width) / 2;
+        const y = screenCoord.y - parseFloat(panelStyle.height) / 2;
+        this.panel.relocate(x, y);
     };
 
     /**
@@ -378,7 +309,7 @@ class Measurement {
 
 class DistanceMeasurement extends Measurement {
     constructor(viewer) {
-        super(viewer, viewer.display.distanceMeasurementPanel);
+        super(viewer, new DistancePanel());
         this.point1 = null;
         this.point2 = null;
     }
@@ -391,10 +322,10 @@ class DistanceMeasurement extends Measurement {
         const xdist = distVec.x;
         const ydist = distVec.y;
         const zdist = distVec.z;
-        this.panel.querySelector("#total").textContent = total.toFixed(2);
-        this.panel.querySelector("#x").textContent = xdist.toFixed(2);
-        this.panel.querySelector("#y").textContent = ydist.toFixed(2);
-        this.panel.querySelector("#z").textContent = zdist.toFixed(2);
+        this.panel.total = total.toFixed(2);
+        this.panel.x_distance = xdist.toFixed(2);
+        this.panel.y_distance = ydist.toFixed(2);
+        this.panel.z_distance = zdist.toFixed(2);
     }
 
     _getMaxObjSelected() {
@@ -414,11 +345,11 @@ class DistanceMeasurement extends Measurement {
 
     _makeLines() {
         const lineWidth = 0.0025;
-        const distanceLine = new DistanceLineArrow(this.point1, this.point2, 2 * lineWidth, 0x000000);
+        const distanceLine = new DistanceLineArrow(this.point1, this.point2, 2 * lineWidth, this.measurementLineColor);
         this.scene.add(distanceLine);
 
         const middlePoint = new THREE.Vector3().addVectors(this.point1, this.point2).multiplyScalar(0.5);
-        const connectingLine = new DistanceLineArrow(this.panelCenter, middlePoint, lineWidth, 0x800080, false);
+        const connectingLine = new DistanceLineArrow(this.panelCenter, middlePoint, lineWidth, this.connectingLineColor, false);
         this.scene.add(connectingLine);
     }
 
@@ -436,60 +367,29 @@ class DistanceMeasurement extends Measurement {
 
 class PropertiesMeasurement extends Measurement {
     constructor(viewer) {
-        super(viewer, viewer.display.propertiesMeasurementPanel);
+        super(viewer, new PropertiesPanel());
     }
-
-    _hideRows() {
-        this.panel.querySelector("#volume_row").style.display = "none";
-        this.panel.querySelector("#area_row").style.display = "none";
-        this.panel.querySelector("#length_row").style.display = "none";
-        this.panel.querySelector("#vertex_coords_title_row").style.display = "none";
-        this.panel.querySelector("#vertex_coords_row").style.display = "none";
-    }
-
 
     _setMeasurementVals() {
-        this._hideRows();
         const obj = this.selectedShapes[0];
         const isVertex = obj.name.match(/.*\|.*vertices/);
         const isLine = obj.name.match(/.*\|.*edges/);
         const isFace = obj.name.match(/.*\|.*faces/);
-        const isVolume = obj.name.match(/.*\|.*volumes/);
+        const isSolid = obj.name.match(/.*\|.*solids/);
 
-        let subheader = this.panel.querySelector(".tcv_measure_subheader");
-        let rows = [];
-        if (isVertex) {
-            const vertex = this.responseData.vertex_coords;
-            const x = this.panel.querySelector("#x_value");
-            const y = this.panel.querySelector("#y_value");
-            const z = this.panel.querySelector("#z_value");
-            x.textContent = vertex.x.toFixed(2);
-            y.textContent = vertex.y.toFixed(2);
-            z.textContent = vertex.z.toFixed(2);
-            rows.push(this.panel.querySelector("#vertex_coords_title_row"));
-            rows.push(this.panel.querySelector("#vertex_coords_row"));
-            subheader.textContent = "Vertex";
-        }
-        else if (isLine) {
-            const length = this.responseData.length;
-            this.panel.querySelector("#length").textContent = length;
-            rows.push(this.panel.querySelector("#length_row"));
-            subheader.textContent = "Edge";
-        }
-        else if (isFace) {
-            const area = this.responseData.area;
-            this.panel.querySelector("#area").textContent = area;
-            rows.push(this.panel.querySelector("#area_row"));
-            subheader.textContent = "Face";
-        }
-        else if (isVolume) {
-            const volume = this.responseData.volume;
-            this.panel.querySelector("#volume").textContent = volume;
-            rows.push(this.panel.querySelector("#volume_row"));
-            subheader.textContent = "Solid";
-        }
-        for (const row of rows)
-            row.style.display = "block";
+        const subheader = isVertex ? "Vertex" : isLine ? "Edge" : isFace ? "Face" : isSolid ? "Solid" : "Unknown";
+        this.panel.subheader = subheader;
+        const debugProps = {
+            vertex_coords: [0, 41, 82],
+            // volume: 44,
+            // area: 48,
+            // length: 94,
+            // width: 24,
+            // radius: 10,
+            // geom_type: "Circle"
+        };
+        const props = DEBUG ? debugProps : this.responseData;
+        this.panel.setProperties(props);
     }
 
     _getMaxObjSelected() {
@@ -500,8 +400,8 @@ class PropertiesMeasurement extends Measurement {
 
         const lineWidth = 0.0025;
 
-        const middlePoint = this.responseData.center;
-        const connectingLine = new DistanceLineArrow(this.panelCenter, middlePoint, lineWidth, 0x800080, false);
+        const middlePoint = DEBUG ? this.selectedShapes[0].children[0].geometry.boundingSphere.center : this.responseData.center;
+        const connectingLine = new DistanceLineArrow(this.panelCenter, middlePoint, lineWidth, this.connectingLineColor, false);
         this.scene.add(connectingLine);
     }
 
@@ -511,30 +411,24 @@ class PropertiesMeasurement extends Measurement {
      */
     handleResponse(response) {
         console.log(response);
-        let data;
-        if (response.vertex_coords)
-            data = { vertex_coords: new Vector3(...response.vertex_coords) };
-        else if (response.length)
-            data = { length: response.length };
-        else if (response.area)
-            data = { area: response.area };
-        else if (response.volume)
-            data = { volume: response.volume };
-
+        let data = response.clone();
         data.center = new Vector3(...response.center);
         this.responseData = data;
-
-
     }
 }
 
 class AngleMeasurement extends Measurement {
     constructor(viewer) {
-        super(viewer, viewer.display.angleMeasurementPanel);
+        super(viewer, new AnglePanel());
     }
 
     _setMeasurementVals() {
-        this.panel.querySelector("#angle").textContent = this.responseData.angle.toFixed(2) + " °";
+        let angle;
+        if (DEBUG)
+            angle = "DEBUG :90°";
+        else
+            angle = this.responseData.angle.toFixed(2) + " °";
+        this.panel.angle = angle;
     }
 
     _getMaxObjSelected() {
@@ -554,15 +448,11 @@ class AngleMeasurement extends Measurement {
 
     _makeLines() {
         const lineWidth = 0.0025;
-        const center = new Vector3();
         this._getPoints();
-        const angleLine = new CurvedLineArrow(this.point1, this.point2, center, lineWidth, 0x000000);
-        this.scene.add(angleLine);
-
-        const middlePoint = new THREE.Vector3().addVectors(this.point1, this.point2).multiplyScalar(0.5);
-        const connectingLine = new DistanceLineArrow(this.panelCenter, middlePoint, lineWidth, 0x800080, false);
-        this.scene.add(connectingLine);
-
+        const item1Line = new DistanceLineArrow(this.point1, this.panelCenter, lineWidth, this.connectingLineColor, { arrowEnd: false });
+        const item2Line = new DistanceLineArrow(this.point2, this.panelCenter, lineWidth, this.connectingLineColor, { arrowEnd: false });
+        this.scene.add(item1Line);
+        this.scene.add(item2Line);
     }
 
     handleResponse(response) {

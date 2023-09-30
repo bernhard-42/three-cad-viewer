@@ -1,8 +1,9 @@
 import { getIconBackground } from "./icons.js";
 import { KeyMapper } from "./utils.js";
 import { Slider } from "./slider.js";
-import { Toolbar, Button, ClickButton, FilterByDropDownMenu } from "./toolbar.js";
+import { Toolbar, Button, ClickButton } from "./toolbar.js";
 import { ToolTypes } from "./cad_tools/tools.js";
+import { FilterByDropDownMenu } from "./cad_tools/ui.js";
 
 import template from "./index.html";
 

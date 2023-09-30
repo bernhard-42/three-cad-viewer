@@ -37,18 +37,19 @@
     border-bottom: 1px solid lightgray;
 }
 
-#tcv_measure_table {
-    height: 80%;
-    border-collapse: collapse;
-    table-layout: fixed;
-}
-
 .measure_cell {
     content: attr(data-label);
     vertical-align: middle;
     font-size: 14px;
     font-family: sans-serif;
     padding: 3px 5px 1px 5px;
+}
+
+.props_cell {
+    content: attr(data-label);
+    vertical-align: middle;
+    font-size: 14px;
+    font-family: sans-serif;
 }
 
 .measure_row_line {
@@ -73,6 +74,8 @@
     color: val(--tcv-font-color);
     text-align: right;
     border-left: 1px solid lightgray;
+    padding: 5px;
+
 }
 
 #vertex_coords_title_row {
@@ -106,10 +109,15 @@ table#measure_table tr td:first-child {
     background-color: rgba(153, 143, 143, 0.5);
 }
 
-#measure_size_row_line {
-    display: none;
+#tcv_properties_table th {
+    padding: 5px;
+    text-align: left;
 }
 
-.tcv_measure_size_panel {
-    height: fit-content;
+#tcv_properties_table td.props_cell {
+    padding-left: 10px;
+}
+
+#tcv_properties_table tr {
+    border-bottom: 1px solid lightgray;
 }

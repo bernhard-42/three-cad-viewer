@@ -23,7 +23,6 @@ import { BoundingBox, BoxHelper } from "./bbox.js";
 import { Tools } from "./cad_tools/tools.js";
 import { version } from "./_version.js";
 import { Raycaster } from "./raycast.js";
-import { DEBUG } from "./index.js";
 
 class Viewer {
   /**

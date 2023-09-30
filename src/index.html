@@ -219,29 +219,41 @@
 
             <div class="tcv_properties_measurement_panel tcv_panel tcv_round">
                 <div class="tcv_measure_header">Properties</div>
-                <div class="tcv_measure_subheader">Shape</div>
-                <table id="tcv_measure_table">
+                <div class="tcv_measure_subheader" id="subheader">Shape</div>
+                <table id="tcv_properties_table">
                     <tr class="properties_row_line" id="volume_row">
-                        <td class="measure_cell" id="tcv_measure_volume">Volume</td>
-                        <td class="measure_cell measure_val" id="volume">volume</td>
+                        <th class="props_cell" id="volume_title">Volume</th>
+                        <td class="props_cell measure_val" id="volume">volume</td>
                     </tr>
                     <tr class="properties_row_line" id="area_row">
-                        <td class="measure_cell" id="tcv_measure_area">Area</td>
-                        <td class="measure_cell measure_val" id="area">area</td>
+                        <th class="props_cell" id="area_title">Area</th>
+                        <td class="props_cell measure_val" id="area">area</td>
                     </tr>
                     <tr class="properties_row_line" id="length_row">
-                        <td class="measure_cell" id="tcv_measure_length">Length</td>
-                        <td class="measure_cell measure_val" id="length">length</td>
+                        <th class="props_cell" id="length_title">Length</th>
+                        <td class="props_cell measure_val" id="length">length</td>
+                    </tr>
+                    <tr class="properties_row_line" id="width_row">
+                        <th class="props_cell" id="width_title">Width</th>
+                        <td class="props_cell measure_val" id="width">w</td>
+                    </tr>
+                    <tr class="properties_row_line" id="geom_type_row">
+                        <th class="props_cell" id="geom_type_title">Geom</th>
+                        <td class="props_cell measure_val" id="geom_type">g</td>
+                    </tr>
+                    <tr class="properties_row_line" id="radius_row">
+                        <th class="props_cell" id="radius_title">Radius</th>
+                        <td class="props_cell measure_val" id="radius">r</td>
                     </tr>
                     <tr class="properties_row_line vertex_row" id="vertex_coords_title_row">
-                        <td class="measure_cell vertex_cell xtitle" id="vertex_x">X</td>
-                        <td class="measure_cell vertex_cell ytitle" id="vertex_y">Y</td>
-                        <td class="measure_cell vertex_cell ztitle" id="vertex_z">Z</td>
+                        <td class="vertex_cell xtitle" id="vertex_x">X</td>
+                        <td class="vertex_cell ytitle" id="vertex_y">Y</td>
+                        <td class="vertex_cell ztitle" id="vertex_z">Z</td>
                     </tr>
                     <tr class="properties_row_line vertex_row" id="vertex_coords_row">
-                        <td class="measure_cell vertex_cell" id="x_value">X</td>
-                        <td class="measure_cell vertex_cell" id="y_value">Y</td>
-                        <td class="measure_cell vertex_cell" id="z_value">Z</td>
+                        <td class="vertex_cell" id="x_value">X</td>
+                        <td class="vertex_cell" id="y_value">Y</td>
+                        <td class="vertex_cell" id="z_value">Z</td>
                     </tr>
                 </table>
             </div>
@@ -249,13 +261,8 @@
             <div class="tcv_angle_measurement_panel tcv_panel tcv_round">
                 <div class="tcv_measure_header">Angle</div>
                 <table id="tcv_measure_table">
-                    <tr class="measure_row_line">
-                        <td class="measure_cell" id="tcv_measure_angle">Min</td>
-                        <td class="measure_cell measure_val" id="angle">angle</td>
-                    </tr>
-                    <tr class="measure_row_line">
-                        <td class="measure_cell" id="tcv_measure_angle">Max</td>
-                        <td class="measure_cell measure_val" id="angle">angle</td>
+                    <tr>
+                        <td id="angle">angle</td>
                     </tr>
                 </table>
             </div>
