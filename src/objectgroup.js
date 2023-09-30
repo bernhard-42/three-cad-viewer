@@ -1,11 +1,12 @@
 import * as THREE from "three";
 
 class ObjectGroup extends THREE.Group {
-    constructor(opacity, alpha, edge_color, renderback) {
+    constructor(opacity, alpha, edge_color, geomtype, renderback) {
         super();
         this.opacity = opacity;
         this.alpha = alpha == null ? 1.0 : alpha;
         this.edge_color = edge_color;
+        this.geomtype = geomtype;
         this.renderback = renderback;
         this.types = { front: null, back: null, edges: null, vertices: null };
         this.isSelected = false;

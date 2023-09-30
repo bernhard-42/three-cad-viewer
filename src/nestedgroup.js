@@ -91,11 +91,12 @@ class NestedGroup {
     return edges;
   }
 
-  renderEdges(edgeList, lineWidth, color, path, name, state) {
+  renderEdges(edgeList, lineWidth, color, path, name, state, geomtype = null) {
     var group = new ObjectGroup(
       this.defaultOpacity,
       1.0,
       color == null ? this.edgeColor : color,
+      geomtype
     );
 
     var edges = this._renderEdges(edgeList, lineWidth, color, state);
@@ -111,11 +112,12 @@ class NestedGroup {
     return group;
   }
 
-  renderVertices(vertexList, size, color, path, name, state) {
+  renderVertices(vertexList, size, color, path, name, state, geomtype = null) {
     var group = new ObjectGroup(
       this.defaultOpacity,
       1.0,
       color == null ? this.edgeColor : color,
+      geomtype,
     );
 
     const vertex_color = color == null ? this.edgeColor : color;
@@ -153,7 +155,7 @@ class NestedGroup {
     return group;
   }
 
-  renderShape(shape, color, alpha, renderback, path, name, states) {
+  renderShape(shape, color, alpha, renderback, path, name, states, geomtype = null) {
     const positions =
       shape.vertices instanceof Float32Array
         ? shape.vertices
@@ -171,6 +173,7 @@ class NestedGroup {
       this.defaultOpacity,
       alpha,
       this.edgeColor,
+      geomtype,
       renderback,
     );
 
@@ -277,6 +280,7 @@ class NestedGroup {
             path,
             shape.name,
             states[shape.id][1],
+            { geom: "edges", geomtype: shape.geomtype },
           );
           break;
         case "vertices":
@@ -287,6 +291,7 @@ class NestedGroup {
             path,
             shape.name,
             states[shape.id][1],
+            { geom: "vertices", geomtype: shape.geomtype },
           );
           break;
         default:
@@ -298,6 +303,7 @@ class NestedGroup {
             path,
             shape.name,
             states[shape.id],
+            { geom: "faces", geomtype: shape.geomtype },
           );
       }
       // support object locations
