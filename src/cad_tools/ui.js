@@ -60,10 +60,10 @@ class DistancePanel extends Panel {
         return document.getElementsByClassName("tcv_distance_measurement_panel")[0];
     }
 
-    get distance() {
+    get total() {
         return this._getCellValue("total");
     }
-    set distance(value) {
+    set total(value) {
         this._setCellValue("total", value);
     }
 
@@ -103,10 +103,9 @@ class PropertiesPanel extends Panel {
     _hideAllRows() {
         const rows = this.html.getElementsByTagName("tr");
         for (var i = 0; i < rows.length; i++) {
-            if (rows[i].id == "vertex_coords_title_row" || rows[i].id == "vertex_coords_row")
-                continue;
-
             rows[i].style.display = "none";
+            if (rows[i].id == "vertex_coords_title_row")
+                continue;
             const cells = rows[i].getElementsByTagName("td");
             for (var j = 0; j < cells.length; j++) {
                 cells[j].textContent = "";
@@ -177,6 +176,9 @@ class PropertiesPanel extends Panel {
      * @param {object} properties 
      */
     setProperties(properties) {
+        this._hideAllRows();
+
+
         // Define the field names corresponding to table rows
         const fieldToCell = {
             "vertex_coords": ["x_value", "y_value", "z_value"],
@@ -204,7 +206,7 @@ class PropertiesPanel extends Panel {
                         this._setCellValue(cellId[i], value[i]);
                     }
                 } else {
-                    const row = document.getElementById(cellId).closest("tr");;
+                    const row = document.getElementById(cellId).closest("tr");
                     row.style.display = "block";
                 }
 

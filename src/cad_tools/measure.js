@@ -192,7 +192,7 @@ class Measurement {
             p.then((data) => {
                 this._setMeasurementVals();
                 this._makeLines();
-                this.panel.style.display = "block";
+                this.panel.show(true);
                 this._movePanel();
             });
         }
@@ -411,7 +411,7 @@ class PropertiesMeasurement extends Measurement {
      */
     handleResponse(response) {
         console.log(response);
-        let data = response.clone();
+        let data = { ...response };
         data.center = new Vector3(...response.center);
         this.responseData = data;
     }
