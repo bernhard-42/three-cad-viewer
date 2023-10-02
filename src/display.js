@@ -168,7 +168,7 @@ class Display {
     this.toolbarButtons["pin"] = new Button(theme, "pin", "Pin viewer as png", this.pinAsPng);
     this.toolbarButtons["pin"].alignRight();
     this.cadTool.addButton(this.toolbarButtons["pin"]);
-    this.shapeFilterDropDownMenu = new FilterByDropDownMenu();
+    this.shapeFilterDropDownMenu = new FilterByDropDownMenu(this);
 
 
     this.showPinning(options.pinning);

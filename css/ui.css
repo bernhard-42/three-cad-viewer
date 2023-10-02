@@ -599,22 +599,60 @@ input[type="button"] {
   opacity: 1;
 }
 
-
 .tcv_material_info {
   font-size: 12px;
 }
 
-#tcv_filter_menu {
+.tcv_filter_menu {
   position: relative;
 }
 
-#shape_filter {
-  background-color: var(--tcv-dropdown-bg);
+.tcv_filter_dropdown {
+  display: none;
+}
+
+.tcv_filter_icon {
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.tcv_shape_filter {
   color: var(--tcv-font-color);
+  font-size: 13px;
   border: none;
   float: right;
-  display: none;
   position: absolute;
   right: 0px;
+  width: auto;
+}
 
+.tcv_shape_filter:hover {
+  cursor: pointer;
+}
+
+.tcv_shape_filter:hover .tcv_filter_dropdown {
+  display: block;
+  margin-top: 2px;
+  background-color: var(--tcv-bg-overlay-color);
+  cursor: pointer;
+}
+
+.tcv_filter_dropdown_value {
+  margin-left: 2px;
+  margin-right: 2px;
+  margin-top: 1px;
+}
+
+.tcv_filter_value {
+  width: 3em;
+  padding-left: 3px;
+  display: inline-block;
+}
+
+.tcv_filter_dropdown_value:hover {
+  background-color: var(--tcv-bg-pressed-color);
+}
+
+.tcv_filter_content {
+  background-color: var(--tcv-bg-overlay-color);
 }

@@ -243,9 +243,13 @@ class FilterByDropDownMenu {
     /**
      * Initialize a new filter drop down menu, it needs the raycast to update interactively the filter mode
      */
-    constructor() {
-        this.selectElement = document.getElementById("shape_filter");
-        this.selectElement.addEventListener("change", this.handleSelection);
+    constructor(display) {
+        this.display = display;
+        this.selectElement = display._getElement("tcv_shape_filter");
+        for (const option of ["none", "vertex", "edge", "face", "solid"]) {
+            let el = this.display._getElement(`tvc_filter_${option}`);
+            el.addEventListener("click", this.handleSelection);
+        }
         this.selectElement.style.display = "none";
         this.raycaster = null;
     }
@@ -258,8 +262,8 @@ class FilterByDropDownMenu {
         this.raycaster = raycaster;
     }
 
-    handleSelection = () => {
-        const topoType = this.selectElement.value;
+    handleSelection = (ev) => {
+        const topoType = ev.target.innerText.toLowerCase();
         if (this.raycaster == null)
             return;
         if (topoType == "none")
