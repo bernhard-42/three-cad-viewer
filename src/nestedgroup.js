@@ -280,7 +280,7 @@ class NestedGroup {
             path,
             shape.name,
             states[shape.id][1],
-            { geom: "edges", geomtype: shape.geomtype },
+            { topo: "edge", geomtype: shape.geomtype },
           );
           break;
         case "vertices":
@@ -291,7 +291,7 @@ class NestedGroup {
             path,
             shape.name,
             states[shape.id][1],
-            { geom: "vertices", geomtype: shape.geomtype },
+            { topo: "vertex", geomtype: shape.geomtype },
           );
           break;
         default:
@@ -303,7 +303,7 @@ class NestedGroup {
             path,
             shape.name,
             states[shape.id],
-            { geom: "faces", geomtype: shape.geomtype },
+            { topo: "face", geomtype: shape.geomtype },
           );
       }
       // support object locations

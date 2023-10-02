@@ -1,3 +1,4 @@
+import { TopoFilter } from "./../raycast.js";
 
 class Panel {
     constructor() {
@@ -258,11 +259,13 @@ class FilterByDropDownMenu {
     }
 
     handleSelection = () => {
-        const shapeType = this.selectElement.value;
-        if (shapeType == "none")
-            this.raycaster.filterType = null;
+        const topoType = this.selectElement.value;
+        if (this.raycaster == null)
+            return;
+        if (topoType == "none")
+            this.raycaster.filters.topoFilter = [TopoFilter.none];
         else
-            this.raycaster.filterType = shapeType;
+            this.raycaster.filters.topoFilter = [TopoFilter[topoType]];
     };
 
     _keybindSelect = (e) => {

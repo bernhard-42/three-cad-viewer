@@ -1,12 +1,19 @@
 import * as THREE from "three";
 
-const FilterType = {
-    None: null,
-    Vertex: "vertex",
-    Edge: "edge",
-    Face: "face",
-    Solid: "solid",
+export const TopoFilter = {
+    none: null,
+    vertex: "vertex",
+    edge: "edge",
+    face: "face",
+    solid: "solid",
 };
+export const GeomFilter = {
+    none: null,
+    plane: "plane",
+    line: "line",
+    circle: "circle",
+};
+
 
 class Raycaster {
     constructor(camera, domElement, width, height, group, callback) {
@@ -24,7 +31,7 @@ class Raycaster {
 
         this.mouse = new THREE.Vector2();
         this.mouseMoved = false;
-        this.filterType = FilterType.None;
+        this.filters = { topoFilter: [TopoFilter.none], geomFilter: [GeomFilter.none] };
     }
 
     dispose() {
@@ -62,10 +69,18 @@ class Raycaster {
                     const objectGroup = object.object.parent;
                     if (objectGroup == null) continue;
 
-                    const name = objectGroup.metrics().name;
-                    if (this.filterType == FilterType.None)
-                        validObjs.push(object);
-                    else if (name == this.filterType)
+                    const topo = objectGroup.geomtype.topo;
+                    const geom = objectGroup.geomtype.geomtype;
+
+                    // Check if topology is acceptable given the topology filters
+
+                    let valid = this.filters.topoFilter.includes(TopoFilter.none) || this.filters.topoFilter.includes(topo);
+                    if (!valid) continue;
+
+                    // Check if geom is acceptable given the geom filters
+                    valid = this.filters.geomFilter.includes(GeomFilter.none) || this.filters.geomFilter.includes(geom);
+
+                    if (valid)
                         validObjs.push(object);
                 }
             }

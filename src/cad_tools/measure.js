@@ -4,8 +4,9 @@ import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeome
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Vector3 } from "three";
 import { DistancePanel, PropertiesPanel, AnglePanel } from "./ui.js";
+import { GeomFilter } from "../raycast.js";
 
-const DEBUG = false;
+const DEBUG = true;
 
 class DistanceLineArrow extends THREE.Group {
 
@@ -430,6 +431,18 @@ class AngleMeasurement extends Measurement {
             angle = this.responseData.angle.toFixed(2) + " °";
         this.panel.angle = angle;
     }
+
+    enableContext() {
+        super.enableContext();
+        this.viewer.raycaster.filters.geomFilter = [GeomFilter.line, GeomFilter.plane, GeomFilter.circle];
+    }
+
+    disableContext() {
+        super.disableContext();
+        this.viewer.raycaster.filters.geomFilter = [GeomFilter.none];
+    }
+
+
 
     _getMaxObjSelected() {
         return 2;
