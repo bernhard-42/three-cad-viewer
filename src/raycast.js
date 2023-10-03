@@ -120,7 +120,9 @@ class Raycaster {
                     if (!valid) continue;
 
                     // Check if geom is acceptable given the geom filters
-                    valid = this.filters.geomFilter.includes(GeomFilter.none) || this.filters.geomFilter.includes(geom);
+                    valid = (!this.filters.topoFilter.includes(TopoFilter.solid)
+                        && (this.filters.geomFilter.includes(GeomFilter.none)
+                            || this.filters.geomFilter.includes(geom)));
 
                     if (valid) {
                         validObjs.push(object);

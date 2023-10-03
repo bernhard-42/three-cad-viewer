@@ -350,8 +350,8 @@ class DistanceMeasurement extends Measurement {
 
     _getPoints() {
         if (DEBUG) {
-            this.point1 = this.selectedShapes[0].children[0].geometry.boundingSphere.center;
-            this.point2 = this.selectedShapes[1].children[0].geometry.boundingSphere.center;
+            this.point1 = this.selectedShapes[0].obj.children[0].geometry.boundingSphere.center;
+            this.point2 = this.selectedShapes[1].obj.children[0].geometry.boundingSphere.center;
         }
         else {
             this.point1 = new Vector3(...this.responseData.point1);
@@ -450,6 +450,7 @@ class AngleMeasurement extends Measurement {
     enableContext() {
         super.enableContext();
         this.viewer.raycaster.filters.geomFilter = [GeomFilter.line, GeomFilter.plane, GeomFilter.circle];
+        this.viewer.info.addText("When in AngleMeasurement context<br>you cannot pick :<br>- Non planar faces<br>- Curved edges<br>- Solids");
     }
 
     disableContext() {
