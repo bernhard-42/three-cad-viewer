@@ -246,6 +246,8 @@ class FilterByDropDownMenu {
     constructor(display) {
         this.display = display;
         this.selectElement = display._getElement("tcv_shape_filter");
+        this.dropdownElement = display._getElement("tcv_filter_dropdown");
+        this.arrowElement = display._getElement("tcv_filter_icon");
         this.options = ["none", "vertex", "edge", "face", "solid"];
         this.selectElement.style.display = "none";
         this.raycaster = null;
@@ -259,7 +261,7 @@ class FilterByDropDownMenu {
         this.raycaster = raycaster;
     }
 
-    setValue = (topoType) => {
+    _setValue = (topoType) => {
         if (this.raycaster != null) {
             this.display._getElement("tcv_filter_value").innerText = topoType;
             if (topoType == "none") {
@@ -270,36 +272,47 @@ class FilterByDropDownMenu {
         }
     };
 
-    toggleDropdown = (ev) => {
-        let el = this.display._getElement("tcv_filter_dropdown");
-        if (el.classList.contains("tcv_filter_dropdown_active")) {
-            el.classList.remove("tcv_filter_dropdown_active");
-            return;
+    _toggleDropdown = (ev) => {
+        if (ev != null) {
+            ev.stopPropagation();
+        }
+        if (this.dropdownElement.classList.contains("tcv_filter_dropdown_active")) {
+            this.dropdownElement.classList.remove("tcv_filter_dropdown_active");
+            this.arrowElement.innerText = "⏶";
         } else {
-            el.classList.add("tcv_filter_dropdown_active");
+            this.dropdownElement.classList.add("tcv_filter_dropdown_active");
+            this.arrowElement.innerText = "⏷";
         }
     };
 
+    _closeDropdown = (ev) => {
+        if (this.dropdownElement.classList.contains("tcv_filter_dropdown_active")) {
+          this._toggleDropdown(ev);
+        }
+    };
+    
     handleSelection = (ev) => {
         const topoType = ev.target.innerText;
-        this.setValue(topoType);
-        this.toggleDropdown();
+        this._setValue(topoType);
+        this._toggleDropdown(ev);
     };
 
     _keybindSelect = (e) => {
-        const validKeys = ["n", "v", "e", "f", "s"];
+        const validKeys = ["n", "v", "e", "f", "s", "Escape"];
         if (validKeys.indexOf(e.key) === -1)
             return;
         if (e.key == "n")
-            this.setValue("none");
+            this._setValue("None");
         else if (e.key == "v")
-            this.setValue("Vertex");
+            this._setValue("Vertex");
         else if (e.key == "e")
-            this.setValue("Edge");
+            this._setValue("Edge");
         else if (e.key == "f")
-            this.setValue("Face");
+            this._setValue("Face");
         else if (e.key == "s")
-            this.setValue("Solid");
+            this._setValue("Solid");
+        else if (e.key == "Escape")
+            this._closeDropdown();
     };
 
 
@@ -310,19 +323,21 @@ class FilterByDropDownMenu {
     show(flag) {
         if (flag) {
             document.addEventListener("keydown", this._keybindSelect);
-
+            document.addEventListener("click", this._closeDropdown);
+            
             let el = this.display._getElement("tcv_filter_content");
-            el.addEventListener("click", this.toggleDropdown);
-
+            el.addEventListener("click", this._toggleDropdown);
+            
             for (const option of this.options) {
                 el = this.display._getElement(`tvc_filter_${option}`);
                 el.addEventListener("click", this.handleSelection);
             }
         } else {
             document.removeEventListener("keydown", this._keybindSelect);
+            document.removeEventListener("click", this._closeDropdown);
 
             let el = this.display._getElement("tcv_filter_content");
-            el.removeEventListener("click", this.toggleDropdown);
+            el.removeEventListener("click", this._toggleDropdown);
 
             for (const option of this.options) {
                 el = this.display._getElement(`tvc_filter_${option}`);
