@@ -15,6 +15,45 @@ export const GeomFilter = {
 };
 
 
+export class PickedObject {
+    constructor(objectGroup, fromSolid) {
+        this.obj = objectGroup;
+        this.fromSolid = fromSolid;
+    }
+
+    /**
+    * Returns all the faces ObjectGroups that define the solid from the picked object.
+    */
+    _getSolidObjectGroups(solidSubObject) {
+
+        const solidGroup = solidSubObject.parent.parent;
+        let facesGroup;
+        for (let i = 0; i < solidGroup.children.length; i++) {
+            const child = solidGroup.children[i];
+            if (child.name === solidGroup.name + "|faces") {
+                facesGroup = child;
+                break;
+            }
+        }
+
+        return facesGroup.children;
+    }
+
+    /**
+     * If the picked object is part of a solid, returns all the faces ObjectGroups that define the solid.
+     * Otherwise, returns the picked object.
+     * @returns {ObjectGroup[]} The picked objects.
+     */
+    objs() {
+        if (this.fromSolid) {
+            return this._getSolidObjectGroups(this.obj);
+        } else {
+            return [this.obj];
+        }
+
+    }
+}
+
 class Raycaster {
     constructor(camera, domElement, width, height, group, callback) {
         this.camera = camera;
@@ -74,14 +113,19 @@ class Raycaster {
 
                     // Check if topology is acceptable given the topology filters
 
-                    let valid = this.filters.topoFilter.includes(TopoFilter.none) || this.filters.topoFilter.includes(topo);
+                    let valid = (this.filters.topoFilter.includes(TopoFilter.solid)
+                        || this.filters.topoFilter.includes(TopoFilter.none)
+                        || this.filters.topoFilter.includes(topo));
+
                     if (!valid) continue;
 
                     // Check if geom is acceptable given the geom filters
                     valid = this.filters.geomFilter.includes(GeomFilter.none) || this.filters.geomFilter.includes(geom);
 
-                    if (valid)
+                    if (valid) {
                         validObjs.push(object);
+                    }
+
                 }
             }
         }

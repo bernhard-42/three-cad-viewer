@@ -79,7 +79,7 @@ class Measurement {
      */
     constructor(viewer, panel) {
 
-        this.selectedShapes = [];
+        this.selectedShapes = []; // array of dict ObjectGroup, bool
         this.point1 = null;
         this.point2 = null;
         this.contextEnabled = false; // Tells if the measure context is active
@@ -172,7 +172,16 @@ class Measurement {
      * @returns 
      */
     _updateMeasurement() {
-        const ids = this.selectedShapes.map(shape => shape.name.replaceAll("|", "/"));
+        let getId = (shape) => {
+            if (shape.fromSolid) {
+                let solidId = shape.obj.name.replace(/\|faces.*$/, "");
+                return solidId.replaceAll("|", "/");
+            }
+            else {
+                return shape.obj.name.replaceAll("|", "/");
+            }
+        };
+        const ids = this.selectedShapes.map(getId);
         this.viewer.checkChanges({ selectedShapeIDs: [...ids] });
 
         if (this.selectedShapes.length != this._getMaxObjSelected()) {
@@ -223,18 +232,20 @@ class Measurement {
 
     /**
      * React to each new selected element in the viewer.
-     * @param {import ("../nestedgroup.js").ObjectGroup} objGroup 
+     * obj: ObjectGroup 
+     * fromSolid: boolean
+     * @param {object} selectedObj The selected obj.
      */
-    handleSelection = (objGroup) => {
+    handleSelection = (selectedObj) => {
 
         this._hideMeasurement();
         if (this.selectedShapes.length == this._getMaxObjSelected()) {
             this.removeLastSelectedObj();
         }
-        if (this.selectedShapes.includes(objGroup))
-            this.selectedShapes.splice(this.selectedShapes.indexOf(objGroup), 1);
+        if (this.selectedShapes.includes(selectedObj))
+            this.selectedShapes.splice(this.selectedShapes.indexOf(selectedObj), 1);
         else
-            this.selectedShapes.push(objGroup);
+            this.selectedShapes.push(selectedObj);
 
         this._updateMeasurement();
     };
@@ -294,8 +305,12 @@ class Measurement {
 
     removeLastSelectedObj() {
         const lastItem = this.selectedShapes.pop();
-        if (lastItem)
-            lastItem.clearHighlights();
+        if (lastItem) {
+            let objs = lastItem.objs();
+            for (let obj of objs) {
+                obj.clearHighlights();
+            }
+        }
         this._updateMeasurement();
     }
 
@@ -372,13 +387,13 @@ class PropertiesMeasurement extends Measurement {
     }
 
     _setMeasurementVals() {
-        const obj = this.selectedShapes[0];
+        const obj = this.selectedShapes[0].obj;
         const isVertex = obj.name.match(/.*\|.*vertices/);
         const isLine = obj.name.match(/.*\|.*edges/);
         const isFace = obj.name.match(/.*\|.*faces/);
-        const isSolid = obj.name.match(/.*\|.*solids/);
+        const isSolid = this.selectedShapes[0].fromSolid;
 
-        const subheader = isVertex ? "Vertex" : isLine ? "Edge" : isFace ? "Face" : isSolid ? "Solid" : "Unknown";
+        const subheader = isSolid ? "Solid" : isVertex ? "Vertex" : isLine ? "Edge" : isFace ? "Face" : "Unknown";
         this.panel.subheader = subheader;
         const debugProps = {
             vertex_coords: [0, 41, 82],
@@ -401,7 +416,7 @@ class PropertiesMeasurement extends Measurement {
 
         const lineWidth = 0.0025;
 
-        const middlePoint = DEBUG ? this.selectedShapes[0].children[0].geometry.boundingSphere.center : this.responseData.center;
+        const middlePoint = DEBUG ? this.selectedShapes[0].obj.children[0].geometry.boundingSphere.center : this.responseData.center;
         const connectingLine = new DistanceLineArrow(this.panelCenter, middlePoint, lineWidth, this.connectingLineColor, false);
         this.scene.add(connectingLine);
     }
@@ -450,8 +465,8 @@ class AngleMeasurement extends Measurement {
 
     _getPoints() {
         if (DEBUG) {
-            this.point1 = this.selectedShapes[0].children[0].geometry.boundingSphere.center;
-            this.point2 = this.selectedShapes[1].children[0].geometry.boundingSphere.center;
+            this.point1 = this.selectedShapes[0].obj.children[0].geometry.boundingSphere.center;
+            this.point2 = this.selectedShapes[1].obj.children[0].geometry.boundingSphere.center;
         }
         else {
             this.point1 = new Vector3(...this.responseData.point1);

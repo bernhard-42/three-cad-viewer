@@ -22,7 +22,7 @@ import { Camera } from "./camera.js";
 import { BoundingBox, BoxHelper } from "./bbox.js";
 import { Tools } from "./cad_tools/tools.js";
 import { version } from "./_version.js";
-import { Raycaster } from "./raycast.js";
+import { PickedObject, Raycaster, TopoFilter } from "./raycast.js";
 
 class Viewer {
   /**
@@ -106,6 +106,10 @@ class Viewer {
 
     this.lastNotification = {};
     this.lastBbox = null;
+
+    // If fromSolid is true, this means the selected object is from the solid
+    // This is the obj that has been picked but the actual selected obj is the solid
+    // Since we cannot directly pick a solid this is the solution
     this.lastObject = null;
     this.lastSelection = null;
     this.lastPosition = null;
@@ -626,7 +630,7 @@ class Viewer {
 
   /**
    * Render a CAD object and build the navigation tree
-   * @param {Shapes} shapes - the shapes of the CAD object to be rendered
+   * @param {NestedGroup} nestedgroup - the shapes of the CAD object to be rendered
    * @param {NavTree} tree - The navigation tree object
    * @param {States} states - the visibility state of meshes and edges
    * @param {ViewerOptions} options - the Viewer options
@@ -1279,18 +1283,26 @@ class Viewer {
     this.cadTools.handleResetSelection();
   };
 
+
   _releaseLastSelected = (clear) => {
     if (this.lastObject != null) {
-      this.lastObject.unhighlight(true);
+      let objs = this.lastObject.objs();
+      for (let obj of objs) {
+        obj.unhighlight(true);
+      }
+
       if (clear) {
         this.lastObject = null;
-      }
+      };
     }
   };
 
   _removeLastSelected = () => {
     if (this.lastSelection != null) {
-      this.lastSelection.unhighlight(false);
+      let objs = this.lastSelection.objs();
+      for (let obj of objs) {
+        obj.unhighlight(false);
+      }
       this.lastSelection = null;
 
       this.cadTools.handleRemoveLastSelection();
@@ -1318,8 +1330,13 @@ class Viewer {
           const objectGroup = object.object.parent;
           if (objectGroup !== this.lastObject) {
             this._releaseLastSelected(false);
-            objectGroup.highlight(true);
-            this.lastObject = objectGroup;
+            const fromSolid = this.raycaster.filters.topoFilter.includes(TopoFilter.solid);
+
+            const pickedObj = new PickedObject(objectGroup, fromSolid);
+            for (let obj of pickedObj.objs()) {
+              obj.highlight(true);
+            }
+            this.lastObject = pickedObj;
           }
           break;
         }
@@ -1345,7 +1362,10 @@ class Viewer {
       switch (event.mouse) {
         case "left":
           if (this.lastObject != null) {
-            this.lastObject.toggleSelection();
+            const objs = this.lastObject.objs();
+            for (let obj of objs) {
+              obj.toggleSelection();
+            }
             this.cadTools.handleSelectedObj(this.lastObject);
             this.lastSelection = this.lastObject;
           }

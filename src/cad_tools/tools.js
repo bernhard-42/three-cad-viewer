@@ -93,16 +93,18 @@ export class Tools {
     }
 
     /**
-     * @param {import ("../nestedgroup.js").ObjectGroup} objGroup The selected object group.
+     * obj: ObjectGroup 
+     * fromSolid: boolean
+     * @param {object} selectedObj The selected obj.
      */
-    handleSelectedObj(objGroup) {
+    handleSelectedObj(selectedObj) {
 
         if (this.distanceMeasurement.contextEnabled)
-            this.distanceMeasurement.handleSelection(objGroup);
+            this.distanceMeasurement.handleSelection(selectedObj);
         else if (this.propertiesMeasurement.contextEnabled)
-            this.propertiesMeasurement.handleSelection(objGroup);
+            this.propertiesMeasurement.handleSelection(selectedObj);
         else if (this.angleMeasurement.contextEnabled)
-            this.angleMeasurement.handleSelection(objGroup);
+            this.angleMeasurement.handleSelection(selectedObj);
     }
 
     handleResetSelection() {

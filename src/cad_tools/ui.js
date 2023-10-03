@@ -329,7 +329,7 @@ class FilterByDropDownMenu {
                 el.removeEventListener("click", this.handleSelection);
             }
         }
-        this._keybindSelect({ key: "n" });
+
         this.selectElement.style.display = flag ? "block" : "none";
     }
 }
