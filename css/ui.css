@@ -630,13 +630,6 @@ input[type="button"] {
   cursor: pointer;
 }
 
-.tcv_shape_filter:hover .tcv_filter_dropdown {
-  display: block;
-  margin-top: 2px;
-  background-color: var(--tcv-bg-overlay-color);
-  cursor: pointer;
-}
-
 .tcv_filter_dropdown_value {
   margin-left: 2px;
   margin-right: 2px;
@@ -649,8 +642,17 @@ input[type="button"] {
   display: inline-block;
 }
 
+.tcv_filter_dropdown_active {
+  display: block;
+}
+
 .tcv_filter_dropdown_value:hover {
+  cursor: pointer;
   background-color: var(--tcv-bg-pressed-color);
+}
+
+.tcv_filter_dropdown_inactive {
+  display: none;
 }
 
 .tcv_filter_content {
