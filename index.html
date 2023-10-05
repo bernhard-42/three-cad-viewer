@@ -223,8 +223,8 @@
       collapse: 1,
     };
 
-    function showViewer(control, mode) {
-      const container = document.getElementById("cad_view_001");
+    function showViewer(control, mode, containerId) {
+      const container = document.getElementById(containerId);
       container.innerHTML = ""
       if (mode == "glass") {
         displayOptions.glass = true;
@@ -268,7 +268,9 @@
     window.viewerMode = "default";
     window.controlMode = "trackball/Z up";
 
-    showViewer(window.controlMode, window.viewerMode);
+    showViewer(window.controlMode, window.viewerMode, "cad_view_001");
+    showViewer(window.controlMode, window.viewerMode, "cad_view_002");
+
 
     // Enable debugging in browser console
     window.render = render;

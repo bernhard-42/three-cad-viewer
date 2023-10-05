@@ -1,23 +1,28 @@
 import { TopoFilter } from "./../raycast.js";
 
 class Panel {
-    constructor() {
+    /**
+     * @param {import ("../display.js").Display} display 
+     */
+    constructor(display) {
+        this.display = display;
         this.html = this._getHtml();
+        this.html.addEventListener("contextmenu", (ev) => { ev.preventDefault(); });
     }
 
     _getHtml() {
         throw new Error("Not implemented");
     }
 
-    // Helper function to get cell value by ID
-    _getCellValue(cellId) {
-        const cellElement = document.getElementById(cellId);
+    // Helper function to get cell value by the CSS class name
+    _getCellValue(cellClass) {
+        const cellElement = this.display._getElement(cellClass);
         return cellElement ? cellElement.textContent : null;
     }
 
-    // Helper function to set cell value by ID
-    _setCellValue(cellId, value) {
-        const cellElement = document.getElementById(cellId);
+    // Helper function to set cell value by the CSS class name
+    _setCellValue(cellClass, value) {
+        const cellElement = this.display._getElement(cellClass);
         if (cellElement) {
             cellElement.textContent = value;
         }
@@ -53,52 +58,52 @@ class Panel {
 }
 
 class DistancePanel extends Panel {
-    constructor() {
-        super();
+    constructor(display) {
+        super(display);
     }
 
     _getHtml() {
-        return document.getElementsByClassName("tcv_distance_measurement_panel")[0];
+        return this.display._getElement("tcv_distance_measurement_panel");
     }
 
     get total() {
-        return this._getCellValue("total");
+        return this._getCellValue("tcv_total");
     }
     set total(value) {
-        this._setCellValue("total", value);
+        this._setCellValue("tcv_total", value);
     }
 
     get x_distance() {
-        return this._getCellValue("x");
+        return this._getCellValue("tcv_x");
     }
     set x_distance(value) {
-        this._setCellValue("x", value);
+        this._setCellValue("tcv_x", value);
     }
     get y_distance() {
-        return this._getCellValue("y");
+        return this._getCellValue("tcv_y");
     }
     set y_distance(value) {
-        this._setCellValue("y", value);
+        this._setCellValue("tcv_y", value);
     }
     get z_distance() {
-        return this._getCellValue("z");
+        return this._getCellValue("tcv_z");
     }
     set z_distance(value) {
-        this._setCellValue("z", value);
+        this._setCellValue("tcv_z", value);
     }
 
 }
 
 class PropertiesPanel extends Panel {
-    constructor() {
-        super();
+    constructor(display) {
+        super(display);
 
         this._hideAllRows();
     }
 
 
     _getHtml() {
-        return document.getElementsByClassName("tcv_properties_measurement_panel")[0];
+        return this.display._getElement("tcv_properties_measurement_panel");
     }
 
     _hideAllRows() {
@@ -115,15 +120,15 @@ class PropertiesPanel extends Panel {
     }
 
     set subheader(subheader) {
-        this._setCellValue("subheader", subheader);
+        this._setCellValue("tcv_measure_subheader", subheader);
     }
     get subheader() {
-        return this._getCellValue("subheader");
+        return this._getCellValue("tcv_measure_subheader");
     }
 
     _adjustPanelStyle() {
 
-        const table = document.getElementById("tcv_properties_table");
+        const table = this.display._getElement("tcv_properties_table");
 
         // set no border bottom to last displayed row
         const rows = table.getElementsByTagName("tr");
@@ -135,7 +140,7 @@ class PropertiesPanel extends Panel {
             }
         }
 
-        if (document.getElementById("vertex_coords_row").style.display == "block") // no edit on vertex css
+        if (this.display._getElement("tcv_vertex_coords_row").style.display == "block") // no edit on vertex css
             return;
 
         const headers = table.getElementsByTagName("th");
@@ -199,19 +204,19 @@ class PropertiesPanel extends Panel {
             if (value !== null && value !== undefined) {
                 if (Array.isArray(cellId)) {
                     // Only the vertex coordinates are an array
-                    const vertex_title_row = document.getElementById("vertex_coords_title_row");
+                    const vertex_title_row = this.display._getElement("tcv_vertex_coords_title_row");
                     vertex_title_row.style.display = "block";
                     for (let i = 0; i < cellId.length; i++) {
-                        const row = document.getElementById(cellId[i]).closest("tr");
+                        const row = this.display._getElement("tcv_" + cellId[i]).closest("tr");
                         row.style.display = "block";
-                        this._setCellValue(cellId[i], value[i]);
+                        this._setCellValue("tcv_" + cellId[i], value[i]);
                     }
                 } else {
-                    const row = document.getElementById(cellId).closest("tr");
+                    const row = this.display._getElement("tcv_" + cellId).closest("tr");
                     row.style.display = "block";
                 }
 
-                this._setCellValue(cellId, value);
+                this._setCellValue("tcv_" + cellId, value);
             }
         }
 
@@ -220,20 +225,20 @@ class PropertiesPanel extends Panel {
 }
 
 class AnglePanel extends Panel {
-    constructor() {
-        super();
+    constructor(display) {
+        super(display);
     }
 
     _getHtml() {
-        return document.getElementsByClassName("tcv_angle_measurement_panel")[0];
+        return this.display._getElement("tcv_angle_measurement_panel");
     }
 
     get angle() {
-        return this._getCellValue("angle");
+        return this._getCellValue("tcv_angle");
     }
 
     set angle(value) {
-        this._setCellValue("angle", value);
+        this._setCellValue("tcv_angle", value);
     }
 
 }
@@ -287,10 +292,10 @@ class FilterByDropDownMenu {
 
     _closeDropdown = (ev) => {
         if (this.dropdownElement.classList.contains("tcv_filter_dropdown_active")) {
-          this._toggleDropdown(ev);
+            this._toggleDropdown(ev);
         }
     };
-    
+
     handleSelection = (ev) => {
         const topoType = ev.target.innerText;
         this._setValue(topoType);
@@ -324,10 +329,10 @@ class FilterByDropDownMenu {
         if (flag) {
             document.addEventListener("keydown", this._keybindSelect);
             document.addEventListener("click", this._closeDropdown);
-            
+
             let el = this.display._getElement("tcv_filter_content");
             el.addEventListener("click", this._toggleDropdown);
-            
+
             for (const option of this.options) {
                 el = this.display._getElement(`tvc_filter_${option}`);
                 el.addEventListener("click", this.handleSelection);
