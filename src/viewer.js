@@ -2201,6 +2201,12 @@ class Viewer {
 
     // update the this
     this.update(true);
+
+    // update the raycaster
+    if (this.raycaster) {
+      this.raycaster.width = cadWidth;
+      this.raycaster.height = height;
+    }
   }
 
   vector3(x = 0, y = 0, z = 0) {
