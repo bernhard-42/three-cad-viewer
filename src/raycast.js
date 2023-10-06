@@ -55,12 +55,13 @@ export class PickedObject {
 }
 
 class Raycaster {
-    constructor(camera, domElement, width, height, group, callback) {
+    constructor(camera, domElement, width, height, threshold, group, callback) {
         this.camera = camera;
         this.group = group;
         this.domElement = domElement;
         this.width = width;
         this.height = height;
+        this.threshold = threshold;
         this.callback = callback;
 
         this.raycaster = new THREE.Raycaster();
@@ -97,14 +98,11 @@ class Raycaster {
         var validObjs = [];
         if (this.mouseMoved) {
             this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
+            this.raycaster.params.Points.threshold = this.threshold;
             const objects = this.raycaster.intersectObjects(this.group, true);
 
             for (var object of objects) {
-                if (
-                    object.object.material.visible &&
-                    (object.distanceToRay == null ||
-                        object.distanceToRay < 0.03)
-                ) {
+                if (object.object.material.visible) {
                     const objectGroup = object.object.parent;
                     if (objectGroup == null) continue;
 

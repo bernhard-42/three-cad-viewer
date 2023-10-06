@@ -866,6 +866,7 @@ class Viewer {
       this.renderer.domElement,
       this.cadWidth,
       this.height,
+      this.bb_max / 30,
       this.scene.children.slice(0, 1),
       this.handleRaycastEvent,
     );
