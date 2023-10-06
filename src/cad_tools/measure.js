@@ -13,7 +13,7 @@ class DistanceLineArrow extends THREE.Group {
     /**
      * 
      * @param {Vector3} point1 The start point of the line
-     * @param {Vector3} point2 The end point of the lind
+     * @param {Vector3} point2 The end point of the line
      * @param {number} linewidth The thickness of the line
      * @param {THREE.Color} color The color of the line
      * @param {boolean} arrowStart If true, a cone is added at the start of the line
@@ -29,15 +29,26 @@ class DistanceLineArrow extends THREE.Group {
         this.arrowStart = arrowStart;
         this.arrowEnd = arrowEnd;
         this.type = "DistanceLineArrow";
+        this.lineVec = undefined;
         this.initialize();
     }
 
     initialize() {
         const coneLength = this.coneLength;
-        const lineVec = this.point1.clone().sub(this.point2.clone()).normalize();
-        const start = this.point1.clone().sub(lineVec.clone().multiplyScalar(coneLength / 2));
-        const end = this.point2.clone().sub(lineVec.clone().multiplyScalar(-coneLength / 2));
-
+        this.lineVec = this.point1.clone().sub(this.point2.clone()).normalize();
+        let start, end;
+        if (this.arrowStart) {
+            start = this.point1.clone().sub(this.lineVec.clone().multiplyScalar(coneLength / 2));
+        }
+        else {
+            start = this.point1.clone();
+        }
+        if (this.arrowEnd) {
+            end = this.point2.clone().sub(this.lineVec.clone().multiplyScalar(-coneLength / 2));
+        }
+        else {
+            end = this.point2.clone();
+        }
         const material = new LineMaterial({ linewidth: this.linewidth, color: this.color });
         const geom = new LineSegmentsGeometry();
         geom.setPositions([...start.toArray(), ...end.toArray()]);
@@ -48,7 +59,8 @@ class DistanceLineArrow extends THREE.Group {
         const coneMaterial = new THREE.MeshBasicMaterial({ color: this.color });
         const startCone = new THREE.Mesh(coneGeom, coneMaterial);
         const endCone = new THREE.Mesh(coneGeom, coneMaterial);
-        coneGeom.center();
+        startCone.name = "startCone";
+        endCone.name = "endCone";
         const matrix = new THREE.Matrix4();
         const quaternion = new THREE.Quaternion();
         matrix.lookAt(this.point1, this.point2, startCone.up);
@@ -70,6 +82,29 @@ class DistanceLineArrow extends THREE.Group {
             this.add(endCone);
 
         this.add(line);
+    }
+
+    /**
+     * Update the arrow so it keeps the same size on the screen.
+     * @param {number} scaleFactor 
+     */
+    update(scaleFactor) {
+        const newStart = this.point1.clone().sub(this.lineVec.clone().multiplyScalar(scaleFactor * this.coneLength / 2));
+        const newEnd = this.point2.clone().sub(this.lineVec.clone().multiplyScalar(-scaleFactor * this.coneLength / 2));
+        const line = this.children.find((child) => child.type == "LineSegments2");
+        line.geometry.setPositions([...newStart.toArray(), ...newEnd.toArray()]);
+
+        if (this.arrowStart) {
+            const startCone = this.children.find((child) => child.type == "Mesh" && child.name == "startCone");
+            startCone.position.copy(newStart);
+            startCone.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        }
+        if (this.arrowEnd) {
+            const endCone = this.children.find((child) => child.type == "Mesh" && child.name == "endCone");
+            endCone.position.copy(newEnd);
+            endCone.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        }
+
     }
 }
 
@@ -245,7 +280,7 @@ class Measurement {
         if (this.selectedShapes.length == this._getMaxObjSelected()) {
             this.removeLastSelectedObj();
         }
-        if (this.selectedShapes.includes(selectedObj))
+        if (this.selectedShapes.find(o => o.obj.name === selectedObj.obj.name) !== undefined)
             this.selectedShapes.splice(this.selectedShapes.indexOf(selectedObj), 1);
         else
             this.selectedShapes.push(selectedObj);
@@ -324,13 +359,7 @@ class Measurement {
     _adjustArrowsScaleFactor(zoom) {
         const scaleFactor = 1 / zoom;
         for (let child of this.scene.children) {
-            if (child.type == "DistanceLineArrow") {
-                for (let cone of child.children) {
-                    if (cone.type == "Mesh") {
-                        cone.scale.set(scaleFactor, scaleFactor, scaleFactor);
-                    }
-                }
-            }
+            child.update(scaleFactor);
         }
     }
 
