@@ -322,19 +322,19 @@ class FilterByDropDownMenu {
      */
     show(flag) {
         if (flag) {
-            document.addEventListener("keydown", this._keybindSelect);
-            document.addEventListener("click", this._closeDropdown);
-            
+            this.display.container.addEventListener("keydown", this._keybindSelect);
+            this.display.container.addEventListener("click", this._closeDropdown);
+
             let el = this.display._getElement("tcv_filter_content");
             el.addEventListener("click", this._toggleDropdown);
-            
+
             for (const option of this.options) {
                 el = this.display._getElement(`tvc_filter_${option}`);
                 el.addEventListener("click", this.handleSelection);
             }
         } else {
-            document.removeEventListener("keydown", this._keybindSelect);
-            document.removeEventListener("click", this._closeDropdown);
+            this.display.container.removeEventListener("keydown", this._keybindSelect);
+            this.display.container.removeEventListener("click", this._closeDropdown);
 
             let el = this.display._getElement("tcv_filter_content");
             el.removeEventListener("click", this._toggleDropdown);
