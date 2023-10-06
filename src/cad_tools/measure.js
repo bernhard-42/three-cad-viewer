@@ -19,19 +19,21 @@ class DistanceLineArrow extends THREE.Group {
      * @param {boolean} arrowStart If true, a cone is added at the start of the line
      * @param {boolean} arrowEnd If true, a cone is added at the end of the line
      */
-    constructor(point1, point2, linewidth, color, arrowStart = true, arrowEnd = true) {
+    constructor(coneLength, point1, point2, linewidth, color, arrowStart = true, arrowEnd = true) {
         super();
+        this.coneLength = coneLength;
         this.point1 = point1;
         this.point2 = point2;
         this.linewidth = linewidth;
         this.color = color;
         this.arrowStart = arrowStart;
         this.arrowEnd = arrowEnd;
+        this.type = "DistanceLineArrow";
         this.initialize();
     }
 
     initialize() {
-        const coneLength = 0.08;
+        const coneLength = this.coneLength;
         const lineVec = this.point1.clone().sub(this.point2.clone()).normalize();
         const start = this.point1.clone().sub(lineVec.clone().multiplyScalar(coneLength / 2));
         const end = this.point2.clone().sub(lineVec.clone().multiplyScalar(-coneLength / 2));
@@ -42,7 +44,7 @@ class DistanceLineArrow extends THREE.Group {
 
         const line = new LineSegments2(geom, material);
 
-        const coneGeom = new THREE.ConeGeometry(this.linewidth * 6, coneLength, 10);
+        const coneGeom = new THREE.ConeGeometry(coneLength / 4, coneLength, 10);
         const coneMaterial = new THREE.MeshBasicMaterial({ color: this.color });
         const startCone = new THREE.Mesh(coneGeom, coneMaterial);
         const endCone = new THREE.Mesh(coneGeom, coneMaterial);
@@ -90,6 +92,7 @@ class Measurement {
         this.responseData = null;
         this.measurementLineColor = 0x000000;
         this.connectingLineColor = 0x800080;
+        this.coneLength = undefined;
 
         this.panelDragData = { x: null, y: null, clicked: false };
         this.panel.registerCallback("mousedown", (e) => {
@@ -314,9 +317,28 @@ class Measurement {
         this._updateMeasurement();
     }
 
+    /**
+     * Adjust the arrow cones scale factor to ensure they keep the same size on the screen.
+     * @param {number} zoom 
+     */
+    _adjustArrowsScaleFactor(zoom) {
+        const scaleFactor = 1 / zoom;
+        for (let child of this.scene.children) {
+            if (child.type == "DistanceLineArrow") {
+                for (let cone of child.children) {
+                    if (cone.type == "Mesh") {
+                        cone.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                    }
+                }
+            }
+        }
+    }
 
     update() {
         const camera = this.viewer.camera.getCamera();
+        const zoom = this.viewer.camera.getZoom();
+        this.coneLength = this.viewer.bb_radius / 15;
+        this._adjustArrowsScaleFactor(zoom);
         this.viewer.renderer.clearDepth();
         this.viewer.renderer.render(this.scene, camera);
         this._movePanel();
@@ -325,7 +347,7 @@ class Measurement {
 
 class DistanceMeasurement extends Measurement {
     constructor(viewer) {
-        super(viewer, new DistancePanel());
+        super(viewer, new DistancePanel(viewer.display));
         this.point1 = null;
         this.point2 = null;
     }
@@ -361,11 +383,11 @@ class DistanceMeasurement extends Measurement {
 
     _makeLines() {
         const lineWidth = 0.0025;
-        const distanceLine = new DistanceLineArrow(this.point1, this.point2, 2 * lineWidth, this.measurementLineColor);
+        const distanceLine = new DistanceLineArrow(this.coneLength, this.point1, this.point2, 2 * lineWidth, this.measurementLineColor);
         this.scene.add(distanceLine);
 
         const middlePoint = new THREE.Vector3().addVectors(this.point1, this.point2).multiplyScalar(0.5);
-        const connectingLine = new DistanceLineArrow(this.panelCenter, middlePoint, lineWidth, this.connectingLineColor, false);
+        const connectingLine = new DistanceLineArrow(this.coneLength, this.panelCenter, middlePoint, lineWidth, this.connectingLineColor, false);
         this.scene.add(connectingLine);
     }
 
@@ -383,7 +405,7 @@ class DistanceMeasurement extends Measurement {
 
 class PropertiesMeasurement extends Measurement {
     constructor(viewer) {
-        super(viewer, new PropertiesPanel());
+        super(viewer, new PropertiesPanel(viewer.display));
     }
 
     _setMeasurementVals() {
@@ -417,7 +439,7 @@ class PropertiesMeasurement extends Measurement {
         const lineWidth = 0.0025;
 
         const middlePoint = DEBUG ? this.selectedShapes[0].obj.children[0].geometry.boundingSphere.center : this.responseData.center;
-        const connectingLine = new DistanceLineArrow(this.panelCenter, middlePoint, lineWidth, this.connectingLineColor, false);
+        const connectingLine = new DistanceLineArrow(this.coneLength, this.panelCenter, middlePoint, lineWidth, this.connectingLineColor, false);
         this.scene.add(connectingLine);
     }
 
@@ -435,7 +457,7 @@ class PropertiesMeasurement extends Measurement {
 
 class AngleMeasurement extends Measurement {
     constructor(viewer) {
-        super(viewer, new AnglePanel());
+        super(viewer, new AnglePanel(viewer.display));
     }
 
     _setMeasurementVals() {
@@ -478,8 +500,8 @@ class AngleMeasurement extends Measurement {
     _makeLines() {
         const lineWidth = 0.0025;
         this._getPoints();
-        const item1Line = new DistanceLineArrow(this.point1, this.panelCenter, lineWidth, this.connectingLineColor, { arrowEnd: false });
-        const item2Line = new DistanceLineArrow(this.point2, this.panelCenter, lineWidth, this.connectingLineColor, { arrowEnd: false });
+        const item1Line = new DistanceLineArrow(this.coneLength, this.point1, this.panelCenter, lineWidth, this.connectingLineColor, { arrowEnd: false });
+        const item2Line = new DistanceLineArrow(this.coneLength, this.point2, this.panelCenter, lineWidth, this.connectingLineColor, { arrowEnd: false });
         this.scene.add(item1Line);
         this.scene.add(item2Line);
     }
