@@ -472,7 +472,7 @@ class AngleMeasurement extends Measurement {
     enableContext() {
         super.enableContext();
         this.viewer.raycaster.filters.geomFilter = [GeomFilter.line, GeomFilter.plane, GeomFilter.circle];
-        this.viewer.info.addText("When in AngleMeasurement context<br>you cannot pick :<br>- Non planar faces<br>- Curved edges<br>- Solids");
+        this.viewer.info.addHtml("When in angle measurement<br>context you cannot pick :<br>- Non planar faces<br>- Curved edges<br>- Solids");
     }
 
     disableContext() {
