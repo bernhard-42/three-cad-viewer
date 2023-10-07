@@ -70,7 +70,6 @@ class Display {
     this.cadWidth = options.cadWidth;
     this.height = options.height;
     this.treeWidth = options.treeWidth;
-
     this._events = [];
 
     this.setSizes(options);
@@ -172,6 +171,8 @@ class Display {
 
 
     this.showPinning(options.pinning);
+    this.showMeasureTools(options.measureTools);
+
   }
 
   _setupCheckEvent(name, fn, flag) {
@@ -626,6 +627,16 @@ class Display {
         el.style.display = "none";
       }
     }
+  };
+
+  /**
+   * Show or hides measurement tools, measurement tools needs a backend to be used.
+   * @param {boolean} flag 
+   */
+  showMeasureTools = (flag) => {
+    this.toolbarButtons["distance"].show(flag);
+    this.toolbarButtons["properties"].show(flag);
+    this.toolbarButtons["angle"].show(flag);
   };
 
   /**

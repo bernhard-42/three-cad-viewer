@@ -59,6 +59,7 @@ class Viewer {
       pinning: this.pinning,
       glass: this.glass,
       tools: this.tools,
+      measureTools: this.measureTools,
     });
 
     window.THREE = THREE;
@@ -150,6 +151,7 @@ class Viewer {
     this.pinning = false;
     this.glass = false;
     this.tools = true;
+    this.measureTools = false;
 
     for (var option in options) {
       if (this[option] == null) {
