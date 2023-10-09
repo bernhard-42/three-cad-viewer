@@ -223,6 +223,7 @@
       // zoom: 1,
       // glass: true,
       collapse: 1,
+      measureTools: true,
     };
 
     function showViewer(control, mode, containerId) {
@@ -238,8 +239,6 @@
         displayOptions.glass = false;
         displayOptions.tools = true;
       }
-
-      displayOptions.measureTools = true;
 
       window.viewerMode = mode;
       console.log(control);

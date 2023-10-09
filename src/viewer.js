@@ -899,6 +899,8 @@ class Viewer {
 
     this.toggleAnimationLoop(this.hasAnimationLoop);
 
+    this.display.showMeasureTools(options.measureTools);
+
     this.ready = true;
     this.info.readyMsg(this.gridHelper.ticks, this.control);
 
