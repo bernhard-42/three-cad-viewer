@@ -551,6 +551,7 @@ class Display {
    */
   setTool = (name, flag) => {
     this.viewer.toggleAnimationLoop(flag);
+    this.viewer.setPickHandler(!flag);
     this.viewer.setRaycastMode(flag);
 
     if (flag) {

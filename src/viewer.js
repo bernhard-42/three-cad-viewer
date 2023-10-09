@@ -118,7 +118,7 @@ class Viewer {
 
     this.keepHighlight = false;
 
-    this.renderer.domElement.addEventListener("dblclick", this.pick, false);
+    this.setPickHandler(true);
 
     this.renderer.domElement.addEventListener("contextmenu", (e) =>
       e.stopPropagation(),
@@ -1233,6 +1233,14 @@ class Viewer {
     this.update(true);
   };
 
+  setPickHandler(flag) {
+    if (flag) {
+      this.renderer.domElement.addEventListener("dblclick", this.pick, false);
+    } else {
+      this.renderer.domElement.removeEventListener("dblclick", this.pick, false);
+    }
+  }
+
   /**
    * Find the shape that was double clicked and send notification
    * @function
@@ -1330,6 +1338,7 @@ class Viewer {
       this.raycaster.init();
     } else {
       this.raycaster.dispose();
+      this.raycaster = null;
     }
   }
 
