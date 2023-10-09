@@ -92,15 +92,23 @@ class Raycaster {
 
     /**
      * Retrieve all the valid intersected objects by a ray caster from the mouse.
+     */
+    getIntersectedObjs() {
+        this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
+        this.raycaster.params.Points.threshold = this.threshold;
+        this.raycaster.params["Line2"] = { threshold: 4 };
+        var validObjs = this.raycaster.intersectObjects(this.group, true);
+        return validObjs;
+    }
+
+    /**
+     * Retrieve all the valid intersected objects by a ray caster from the mouse.
      * The objects are sorted by their distance from the ray. (The closest first)
      */
     getValidIntersectedObjs() {
         var validObjs = [];
         if (this.mouseMoved) {
-            this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
-            this.raycaster.params.Points.threshold = this.threshold;
-            this.raycaster.params["Line2"] = { threshold: 4 };
-            const objects = this.raycaster.intersectObjects(this.group, true);
+            const objects = this.getIntersectedObjs();
 
             for (var object of objects) {
                 if (object.object.material.visible) {

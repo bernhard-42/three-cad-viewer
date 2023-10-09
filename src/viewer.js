@@ -860,21 +860,6 @@ class Viewer {
     this.orientationMarker.create();
 
     //
-    // initiate raycasting
-    //
-
-    this.raycaster = new Raycaster(
-      this.camera,
-      this.renderer.domElement,
-      this.cadWidth,
-      this.height,
-      this.bb_max / 30,
-      this.scene.children.slice(0, 1),
-      this.handleRaycastEvent,
-    );
-
-
-    //
     // build tree view
     //
 
@@ -1254,7 +1239,19 @@ class Viewer {
    * @param {MouseEvent} e - a DOM MouseEvent
    */
   pick = (e) => {
-    const validObjs = this.raycaster.getValidIntersectedObjs();
+    const raycaster = new Raycaster(
+      this.camera,
+      this.renderer.domElement,
+      this.cadWidth,
+      this.height,
+      this.bb_max / 30,
+      this.scene.children.slice(0, 1),
+      (ev) => { },
+    );
+    raycaster.init();
+    raycaster.onPointerMove(e);
+
+    const validObjs = raycaster.getIntersectedObjs(e);
     if (validObjs.length == 0) {
       return;
     }
@@ -1274,6 +1271,7 @@ class Viewer {
         KeyMapper.get(e, "shift"),
       );
     }
+    raycaster.dispose();
   };
 
 
@@ -1319,6 +1317,16 @@ class Viewer {
    */
   setRaycastMode(flag) {
     if (flag) {
+      // initiate raycasting
+      this.raycaster = new Raycaster(
+        this.camera,
+        this.renderer.domElement,
+        this.cadWidth,
+        this.height,
+        this.bb_max / 30,
+        this.scene.children.slice(0, 1),
+        this.handleRaycastEvent,
+      );
       this.raycaster.init();
     } else {
       this.raycaster.dispose();
