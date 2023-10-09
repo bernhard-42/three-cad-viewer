@@ -921,7 +921,7 @@ class Viewer {
     timer.stop();
 
     // TODO DELETE
-    this.display.setTool({ target: { checked: true } });
+    // this.display.setTool({ target: { checked: true } });
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - -
