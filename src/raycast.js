@@ -97,7 +97,13 @@ class Raycaster {
         this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
         this.raycaster.params.Points.threshold = this.threshold;
         this.raycaster.params["Line2"] = { threshold: 4 };
-        var validObjs = this.raycaster.intersectObjects(this.group, true);
+        var objects = this.raycaster.intersectObjects(this.group, true);
+        var validObjs = [];
+        for (var obj in objects) {
+            if (objects[obj].object.material.visible) {
+                validObjs.push(objects[obj]);
+            }
+        }
         return validObjs;
     }
 
