@@ -352,11 +352,11 @@ class Display {
    * @property {boolean} [glass = false] - use glass mode, i.e. CAD navigation as overlay.
    */
   updateUI(axes, axes0, ortho, transparent, blackEdges, tools, glass) {
-    // this.checkElement("tcv_axes", axes);
-    // this.checkElement("tcv_axes0", axes0);
-    // this.checkElement("tcv_ortho", ortho);
-    // this.checkElement("tcv_transparent", transparent);
-    // this.checkElement("tcv_black_edges", blackEdges);
+    this.toolbarButtons["axes"].set(axes);
+    this.toolbarButtons["axes0"].set(axes0);
+    this.toolbarButtons["perspective"].set(!ortho);
+    this.toolbarButtons["transparent"].set(transparent);
+    this.toolbarButtons["blackedges"].set(blackEdges);
 
     this.showTools(tools);
     this.glassMode(glass);
