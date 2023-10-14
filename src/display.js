@@ -697,7 +697,7 @@ class Display {
   }
 
   /**
-   * Highlight the selected navigation tree entry
+   * Highlight the selected button
    * @param {string} name - A CAD object id (path)
    */
   highlightButton(name) {
