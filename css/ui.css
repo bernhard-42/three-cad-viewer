@@ -342,6 +342,7 @@ input[type="button"] {
   -moz-appearance: none;
   appearance: none;
   border-radius: 0;
+  outline: none;
 }
 
 .tcv_tab {
