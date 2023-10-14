@@ -4,7 +4,6 @@ import { getIconBackground } from "./icons.js";
 class Toolbar {
     constructor(container, id) {
         this.id = id;
-        console.log(this.id);
         this.container = container;
         this.buttons = {};
     }
@@ -101,11 +100,31 @@ class Button extends BaseButton {
 }
 
 class ClickButton extends BaseButton {
-    constructor(theme, svg, tooltip, action, defaultState = false) {
+    constructor(theme, svg, tooltip, action, defaultState = false, dropdown = null) {
         super(theme, svg, tooltip);
         this.action = action;
         this.state = defaultState;
+        this.dropdown = dropdown;
         this.sameGroup = [];
+
+        this.checkElems = {};
+        if (dropdown != null) {
+            const d = document.createElement("span");
+            d.classList.add("tcv_grid-content");
+            d.classList.add("tcv_dropdown-content");
+            d.classList.add("tcv_round");
+            for (var p of dropdown) {
+                const dp = document.createElement("div");
+                dp.className = "tcv_tooltip";
+                dp.setAttribute("data-tooltip", `${tooltip} ${p}`);
+                dp.innerHTML = `<input class='tcv_grid-${p} tcv_check tcv_dropdown-entry' id='tcv_grid-${p}_${this.containerId}' type="checkbox">` +
+                    `<label for='tcv_grid-${p}_${this.containerId}' class="tcv_label tcv_dropdown-entry">${p}</label>`;
+                d.appendChild(dp);
+                this.checkElems[p] = dp.children[0];
+            }
+            this.html.children[0].appendChild(d);
+            this.html.children[0].classList.add("tcv_grid-dropdown");
+        }
     }
     get = () => {
         return this.state;
@@ -128,11 +147,17 @@ class ClickButton extends BaseButton {
 
     // eslint-disable-next-line no-unused-vars
     handler = (e) => {
-        if (!this.state) {
-            this.clearGroup();
+        if (this.dropdown != null && this.dropdown.includes(e.target.innerHTML)) {
+            this.action(`grid-${e.target.innerHTML}`, !this.checkElems[e.target.innerHTML].checked);
+            e.preventDefault();
+            e.stopPropagation();
+        } else if (e.target.type === "button") {
+            if (!this.state) {
+                this.clearGroup();
+            }
+            this.set(!this.state);
+            this.action(this.name, this.state);
         }
-        this.set(!this.state);
-        this.action(this.name, this.state);
     };
 
     addGroupMember(button) {

@@ -421,7 +421,7 @@ input[type="button"] {
   box-shadow: 0px 4px 8px 0px var(--tcv-menu-shadow);
   z-index: 200;
   background-color: var(--tcv-bg-color);
-  padding-top: 8px;
+  padding-top: 2px;
   padding-bottom: 2px;
 }
 

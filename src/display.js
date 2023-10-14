@@ -112,7 +112,7 @@ class Display {
     this.cadTool.addButton(this.toolbarButtons["axes"]);
     this.toolbarButtons["axes0"] = new ClickButton(theme, "axes0", "Show axes at origin (0,0,0)", this.setAxes0);
     this.cadTool.addButton(this.toolbarButtons["axes0"]);
-    this.toolbarButtons["grid"] = new ClickButton(theme, "grid", "Show grid", this.setGrid);
+    this.toolbarButtons["grid"] = new ClickButton(theme, "grid", "Show grid", this.setGrid, null, ["xy", "xz", "yz"]);
     this.cadTool.addButton(this.toolbarButtons["grid"]);
     this.cadTool.addSeparator();
     this.toolbarButtons["perspective"] = new ClickButton(theme, "perspective", "Use perspective camera", this.setOrtho);
@@ -421,7 +421,7 @@ class Display {
    * @param {boolean} flag - to set or not
    */
   setGrid = (name, flag) => {
-    this.viewer.setGrid("grid", flag);
+    this.viewer.setGrid(name, flag);
   };
 
   /**
