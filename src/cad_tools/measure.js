@@ -529,8 +529,8 @@ class AngleMeasurement extends Measurement {
     _makeLines() {
         const lineWidth = 0.0025;
         this._getPoints();
-        const item1Line = new DistanceLineArrow(this.coneLength, this.point1, this.panelCenter, lineWidth, this.connectingLineColor, { arrowEnd: false });
-        const item2Line = new DistanceLineArrow(this.coneLength, this.point2, this.panelCenter, lineWidth, this.connectingLineColor, { arrowEnd: false });
+        const item1Line = new DistanceLineArrow(this.coneLength, this.point1, this.panelCenter, lineWidth, this.connectingLineColor, true, false);
+        const item2Line = new DistanceLineArrow(this.coneLength, this.point2, this.panelCenter, lineWidth, this.connectingLineColor, true, false);
         this.scene.add(item1Line);
         this.scene.add(item2Line);
     }
