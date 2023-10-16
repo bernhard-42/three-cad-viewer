@@ -166,7 +166,7 @@
     }
 
     function nc(change) {
-      console.debug("index.html:", JSON.stringify(change, null, 2));
+      // console.debug("index.html:", JSON.stringify(change, null, 2));
     }
 
     const timeit = false;
@@ -193,6 +193,7 @@
       edgeColor: 0x707070,
       defaultOpacity: 0.5,
       normalLen: 0,
+      measureTools: true,
     };
 
     const viewerOptions = {
@@ -223,7 +224,6 @@
       // zoom: 1,
       // glass: true,
       collapse: 1,
-      measureTools: true,
     };
 
     function showViewer(control, mode, containerId) {
@@ -255,6 +255,7 @@
 
       viewerOptions.control = control_up[0];
       viewerOptions.up = control_up[1][0];
+      viewerOptions.measureTools = displayOptions.tools;
 
       render(window.selectedExample, ...examples[window.selectedIndex]);
       timer.stop();

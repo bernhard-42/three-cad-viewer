@@ -171,7 +171,7 @@ class Display {
 
 
     this.showPinning(options.pinning);
-    this.showMeasureTools(options.measureTools);
+    // this.showMeasureTools(options.measureTools);
 
   }
 

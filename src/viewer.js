@@ -59,7 +59,7 @@ class Viewer {
       pinning: this.pinning,
       glass: this.glass,
       tools: this.tools,
-      measureTools: this.measureTools,
+      measureTools: options.measureTools,
     });
 
     window.THREE = THREE;
@@ -151,7 +151,6 @@ class Viewer {
     this.pinning = false;
     this.glass = false;
     this.tools = true;
-    this.measureTools = false;
 
     for (var option in options) {
       if (this[option] == null) {
@@ -174,6 +173,7 @@ class Viewer {
     this.defaultOpacity = 0.5;
     this.edgeColor = 0x707070;
     this.normalLen = 0;
+    this.measureTools = false;
 
     for (var option in options) {
       if (this[option] === undefined) {
@@ -339,6 +339,124 @@ class Viewer {
    */
   renderTessellatedShapes(shapes, states, options) {
     this.setRenderDefaults(options);
+    var part, shape, i, j;
+    if (options.measureTools) {
+      for (i = 0; i < shapes.parts.length; i++) {
+        part = shapes.parts[i];
+
+        part.parts = [];
+
+        shape = part.shape;
+
+        // decompose faces
+        var new_part = {
+          parts: [],
+          loc: [[0, 0, 0], [0, 0, 0, 1]],
+          name: "faces",
+          id: `${part.id}/faces`,
+        };
+        const vertices = shape.vertices;
+        const normals = shape.normals;
+        for (j = 0; j < shape.triangles.length; j++) {
+          var triangles = shape.triangles[j];
+          var new_shape = {
+            loc: [[0, 0, 0], [0, 0, 0, 1]],
+            name: `faces_${j}`,
+            id: `${part.id}/faces/faces_${j}`,
+            type: "shapes",
+            color: part.color,
+            alpha: part.alpha,
+            renderBack: false,
+            accuracy: part.accuracy,
+            bb: {},
+            shape: {
+              triangles: [...Array(triangles.length).keys()],
+              vertices: triangles.map((s) => [vertices[3 * s], vertices[3 * s + 1], vertices[3 * s + 2]]).flat(),
+              normals: triangles.map((s) => [normals[3 * s], normals[3 * s + 1], normals[3 * s + 2]]).flat(),
+              edges: []
+            }
+          };
+          new_part.parts.push(new_shape);
+          states[new_shape.id] = [1, 3];
+        }
+
+        part.parts.push(new_part);
+
+        // decompose edges
+        var edgeStartPoints = [];
+
+        new_part = {
+          parts: [],
+          loc: [[0, 0, 0], [0, 0, 0, 1]],
+          name: "edges",
+          id: `${part.id}/edges`,
+        };
+        for (j = 0; j < shape.edges.length; j++) {
+          const edge = shape.edges[j];
+          edgeStartPoints.push(edge[0][0]);
+
+          new_shape = {
+            loc: [[0, 0, 0], [0, 0, 0, 1]],
+            name: `edges_${j}`,
+            id: `${part.id}/edges/edges_${j}`,
+            type: "edges",
+            color: "#808080",
+            alpha: 1,
+            renderBack: false,
+            width: 1,
+            accuracy: part.accuracy,
+            bb: {},
+            shape: edge
+          };
+          new_part.parts.push(new_shape);
+          states[new_shape.id] = [3, 1];
+        }
+
+        part.parts.push(new_part);
+
+        // decompose vertices
+        new_part = {
+          parts: [],
+          loc: [[0, 0, 0], [0, 0, 0, 1]],
+          name: "vertices",
+          id: `${part.id}/vertices`,
+        };
+        for (j = 0; j < edgeStartPoints.length; j++) {
+          new_shape = {
+            loc: [[0, 0, 0], [0, 0, 0, 1]],
+            name: `vertices${j}`,
+            id: `${part.id}/vertices/vertices${j}`,
+            type: "vertices",
+            color: "#808080",
+            alpha: 1,
+            renderBack: false,
+            size: 2,
+            accuracy: part.accuracy,
+            bb: {},
+            shape: [edgeStartPoints[j]]
+          };
+          new_part.parts.push(new_shape);
+          states[new_shape.id] = [3, 1];
+        }
+
+        part.parts.push(new_part);
+        delete part.shape;
+        delete part.color;
+        delete part.alpha;
+        delete part.accuracy;
+        delete part.renderBack;
+        delete states[part.id];
+      }
+    } else {
+      for (i = 0; i < shapes.parts.length; i++) {
+        part = shapes.parts[i];
+        shape = part.shape;
+        shape.vertices = shape.vertices.flat();
+        shape.normals = shape.normals.flat();
+        shape.triangles = shape.triangles.flat();
+        shape.edges = shape.edges.flat();
+      }
+    }
     return [
       this._renderTessellatedShapes(shapes, states),
       this._getTree(shapes, states),
