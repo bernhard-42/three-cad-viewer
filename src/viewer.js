@@ -369,6 +369,7 @@ class Viewer {
             renderBack: false,
             accuracy: part.accuracy,
             bb: {},
+            geomtype: shape.face_types[j],
             shape: {
               triangles: [...Array(triangles.length).keys()],
               vertices: triangles.map((s) => [vertices[3 * s], vertices[3 * s + 1], vertices[3 * s + 2]]).flat(),
@@ -406,6 +407,7 @@ class Viewer {
             width: 1,
             accuracy: part.accuracy,
             bb: {},
+            geomtype: shape.edge_types[j],
             shape: edge
           };
           new_part.parts.push(new_shape);
@@ -421,7 +423,7 @@ class Viewer {
           name: "vertices",
           id: `${part.id}/vertices`,
         };
-        for (j = 0; j < edgeStartPoints.length; j++) {
+        for (j = 0; j < shape.obj_vertices.length; j++) {
           new_shape = {
             loc: [[0, 0, 0], [0, 0, 0, 1]],
             name: `vertices${j}`,
@@ -433,7 +435,7 @@ class Viewer {
             size: 2,
             accuracy: part.accuracy,
             bb: {},
-            shape: [edgeStartPoints[j]]
+            shape: [shape.obj_vertices[j]]
           };
           new_part.parts.push(new_shape);
           states[new_shape.id] = [3, 1];

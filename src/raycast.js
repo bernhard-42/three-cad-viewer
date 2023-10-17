@@ -14,6 +14,31 @@ export const GeomFilter = {
     circle: "circle",
 };
 
+const GeomTypes = {
+    "face": [
+        "plane",
+        "cylinder",
+        "cone",
+        "sphere",
+        "torus",
+        "bezier",
+        "bspline",
+        "revolution",
+        "extrusion",
+        "offset",
+        "other"],
+    "edge": [
+        "line",
+        "circle",
+        "ellipse",
+        "hyperbola",
+        "parabola",
+        "bezier",
+        "bspline",
+        "offset",
+        "other"
+    ]
+};
 
 export class PickedObject {
     constructor(objectGroup, fromSolid) {
@@ -121,8 +146,8 @@ class Raycaster {
                     const objectGroup = object.object.parent;
                     if (objectGroup == null) continue;
 
-                    const topo = null; // objectGroup.geomtype.topo.toLowerCase();
-                    const geom = null; // objectGroup.geomtype.geomtype.toLowerCase();
+                    const topo = objectGroup.geomtype.topo;
+                    const geom = GeomTypes[objectGroup.geomtype.geomtype];
 
                     // Check if topology is acceptable given the topology filters
 
