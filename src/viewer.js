@@ -423,7 +423,7 @@ class Viewer {
           name: "vertices",
           id: `${part.id}/vertices`,
         };
-        for (j = 0; j < shape.obj_vertices.length; j++) {
+        for (j = 0; j < shape.obj_vertices.length / 3; j++) {
           new_shape = {
             loc: [[0, 0, 0], [0, 0, 0, 1]],
             name: `vertices${j}`,
@@ -435,7 +435,7 @@ class Viewer {
             size: 2,
             accuracy: part.accuracy,
             bb: {},
-            shape: [shape.obj_vertices[j]]
+            shape: [shape.obj_vertices[3 * j], shape.obj_vertices[3 * j + 1], shape.obj_vertices[3 * j + 2]]
           };
           new_part.parts.push(new_shape);
           states[new_shape.id] = [3, 1];
@@ -453,10 +453,7 @@ class Viewer {
       for (i = 0; i < shapes.parts.length; i++) {
         part = shapes.parts[i];
         shape = part.shape;
-        shape.vertices = shape.vertices.flat();
-        shape.normals = shape.normals.flat();
         shape.triangles = shape.triangles.flat();
-        shape.edges = shape.edges.flat();
       }
     }
     return [
