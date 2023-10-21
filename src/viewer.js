@@ -151,6 +151,7 @@ class Viewer {
     this.pinning = false;
     this.glass = false;
     this.tools = true;
+    this.keymap = { shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey" };
 
     for (var option in options) {
       if (this[option] == null) {
