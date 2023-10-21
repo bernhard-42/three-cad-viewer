@@ -99,7 +99,7 @@ class NestedGroup {
       geomtype
     );
 
-    var edges = this._renderEdges(edgeList, lineWidth, color, state);
+    var edges = this._renderEdges(edgeList.edges, lineWidth, color, state);
     if (name) {
       edges.name = name;
     }
@@ -123,9 +123,9 @@ class NestedGroup {
     const vertex_color = color == null ? this.edgeColor : color;
 
     const positions =
-      vertexList instanceof Float32Array
-        ? vertexList
-        : new Float32Array(vertexList.flat());
+      vertexList.obj_vertices instanceof Float32Array
+        ? vertexList.obj_vertices
+        : new Float32Array(vertexList.obj_vertices);
 
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(

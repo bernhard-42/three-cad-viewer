@@ -348,73 +348,74 @@ class Viewer {
 
         shape = part.shape;
 
-        // decompose faces
-        var new_part = {
-          parts: [],
-          loc: [[0, 0, 0], [0, 0, 0, 1]],
-          name: "faces",
-          id: `${part.id}/faces`,
-        };
-        const vertices = shape.vertices;
-        const normals = shape.normals;
-        for (j = 0; j < shape.triangles.length; j++) {
-          var triangles = shape.triangles[j];
-          var new_shape = {
+        if (part.type == "shapes") {
+          // decompose faces
+          var new_part = {
+            parts: [],
             loc: [[0, 0, 0], [0, 0, 0, 1]],
-            name: `faces_${j}`,
-            id: `${part.id}/faces/faces_${j}`,
-            type: "shapes",
-            color: part.color,
-            alpha: part.alpha,
-            renderBack: false,
-            accuracy: part.accuracy,
-            bb: {},
-            geomtype: shape.face_types[j],
-            shape: {
-              triangles: [...Array(triangles.length).keys()],
-              vertices: triangles.map((s) => [vertices[3 * s], vertices[3 * s + 1], vertices[3 * s + 2]]).flat(),
-              normals: triangles.map((s) => [normals[3 * s], normals[3 * s + 1], normals[3 * s + 2]]).flat(),
-              edges: []
-            }
+            name: "faces",
+            id: `${part.id}/faces`,
           };
-          new_part.parts.push(new_shape);
-          states[new_shape.id] = [1, 3];
+          const vertices = shape.vertices;
+          const normals = shape.normals;
+          for (j = 0; j < shape.triangles.length; j++) {
+            var triangles = shape.triangles[j];
+            var new_shape = {
+              loc: [[0, 0, 0], [0, 0, 0, 1]],
+              name: `faces_${j}`,
+              id: `${part.id}/faces/faces_${j}`,
+              type: "shapes",
+              color: part.color,
+              alpha: part.alpha,
+              renderBack: false,
+              accuracy: part.accuracy,
+              bb: {},
+              geomtype: shape.face_types[j],
+              shape: {
+                triangles: [...Array(triangles.length).keys()],
+                vertices: triangles.map((s) => [vertices[3 * s], vertices[3 * s + 1], vertices[3 * s + 2]]).flat(),
+                normals: triangles.map((s) => [normals[3 * s], normals[3 * s + 1], normals[3 * s + 2]]).flat(),
+                edges: []
+              }
+            };
+            new_part.parts.push(new_shape);
+            states[new_shape.id] = [1, 3];
+          }
+
+          part.parts.push(new_part);
         }
 
-        part.parts.push(new_part);
+        if (part.type == "shapes" || part.type == "edges") {
+          // decompose edges
+          var edgeStartPoints = [];
 
-        // decompose edges
-        var edgeStartPoints = [];
-
-        new_part = {
-          parts: [],
-          loc: [[0, 0, 0], [0, 0, 0, 1]],
-          name: "edges",
-          id: `${part.id}/edges`,
-        };
-        for (j = 0; j < shape.edges.length; j++) {
-          const edge = shape.edges[j];
-          edgeStartPoints.push(edge[0][0]);
-
-          new_shape = {
+          new_part = {
+            parts: [],
             loc: [[0, 0, 0], [0, 0, 0, 1]],
-            name: `edges_${j}`,
-            id: `${part.id}/edges/edges_${j}`,
-            type: "edges",
-            color: "#808080",
-            alpha: 1,
-            renderBack: false,
-            width: 1,
-            accuracy: part.accuracy,
-            bb: {},
-            geomtype: shape.edge_types[j],
-            shape: edge
+            name: "edges",
+            id: `${part.id}/edges`,
           };
-          new_part.parts.push(new_shape);
-          states[new_shape.id] = [3, 1];
-        }
+          for (j = 0; j < shape.edges.length; j++) {
+            const edge = shape.edges[j];
+            edgeStartPoints.push(edge[0][0]);
 
-        part.parts.push(new_part);
+            new_shape = {
+              loc: [[0, 0, 0], [0, 0, 0, 1]],
+              name: `edges_${j}`,
+              id: `${part.id}/edges/edges_${j}`,
+              type: "edges",
+              color: "#808080",
+              width: 1,
+              bb: {},
+              geomtype: shape.edge_types[j],
+              shape: { "edges": edge }
+            };
+            new_part.parts.push(new_shape);
+            states[new_shape.id] = [3, 1];
+          }
+
+          part.parts.push(new_part);
+        }
 
         // decompose vertices
         new_part = {
@@ -423,19 +424,17 @@ class Viewer {
           name: "vertices",
           id: `${part.id}/vertices`,
         };
-        for (j = 0; j < shape.obj_vertices.length / 3; j++) {
+        var vertices = shape.obj_vertices;
+        for (j = 0; j < vertices.length / 3; j++) {
           new_shape = {
             loc: [[0, 0, 0], [0, 0, 0, 1]],
             name: `vertices${j}`,
             id: `${part.id}/vertices/vertices${j}`,
             type: "vertices",
             color: "#808080",
-            alpha: 1,
-            renderBack: false,
-            size: 2,
-            accuracy: part.accuracy,
+            size: 4,
             bb: {},
-            shape: [shape.obj_vertices[3 * j], shape.obj_vertices[3 * j + 1], shape.obj_vertices[3 * j + 2]]
+            shape: { "obj_vertices": [vertices[3 * j], vertices[3 * j + 1], vertices[3 * j + 2]] }
           };
           new_part.parts.push(new_shape);
           states[new_shape.id] = [3, 1];
@@ -448,12 +447,20 @@ class Viewer {
         delete part.accuracy;
         delete part.renderBack;
         delete states[part.id];
+
       }
     } else {
       for (i = 0; i < shapes.parts.length; i++) {
         part = shapes.parts[i];
         shape = part.shape;
-        shape.triangles = shape.triangles.flat();
+        if (part.type == "shapes") {
+          shape.triangles = shape.triangles.flat();
+          shape.edges = shape.edges.flat();
+        } else if (part.type == "edges" || part.type == "shapes") {
+          shape.edges = shape.edges.flat();
+        } else if (part.type == "vertices") {
+          shape.obj_vertices = shape.obj_vertices.flat();
+        }
       }
     }
     return [
