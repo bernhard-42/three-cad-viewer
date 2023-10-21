@@ -291,7 +291,7 @@ class NestedGroup {
             path,
             shape.name,
             states[shape.id][1],
-            { topo: "vertex", geomtype: shape.geomtype },
+            { topo: "vertex", geomtype: null },
           );
           break;
         default:
