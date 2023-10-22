@@ -405,8 +405,8 @@ class Viewer {
               name: `edges_${j}`,
               id: `${part.id}/edges/edges_${j}`,
               type: "edges",
-              color: "#808080",
-              width: 1,
+              color: (part.type == "shapes") ? "#808080" : part.color,
+              width: (part.type == "shapes") ? 1 : part.width,
               bb: {},
               geomtype: shape.edge_types[j],
               shape: { "edges": edge }
@@ -432,8 +432,8 @@ class Viewer {
             name: `vertices${j}`,
             id: `${part.id}/vertices/vertices${j}`,
             type: "vertices",
-            color: "#808080",
-            size: 4,
+            color: (part.type == "shapes") ? "#808080" : part.color,
+            size: (part.type == "shapes") ? 4 : part.size,
             bb: {},
             shape: { "obj_vertices": [vertices[3 * j], vertices[3 * j + 1], vertices[3 * j + 2]] }
           };
