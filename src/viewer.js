@@ -388,8 +388,6 @@ class Viewer {
 
         if (part.type == "shapes" || part.type == "edges") {
           // decompose edges
-          var edgeStartPoints = [];
-
           new_part = {
             parts: [],
             loc: [[0, 0, 0], [0, 0, 0, 1]],
@@ -398,7 +396,6 @@ class Viewer {
           };
           for (j = 0; j < shape.edges.length; j++) {
             const edge = shape.edges[j];
-            edgeStartPoints.push(edge[0][0]);
 
             new_shape = {
               loc: [[0, 0, 0], [0, 0, 0, 1]],
@@ -442,6 +439,7 @@ class Viewer {
         }
 
         part.parts.push(new_part);
+        
         delete part.shape;
         delete part.color;
         delete part.alpha;
