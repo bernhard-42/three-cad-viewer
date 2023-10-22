@@ -432,8 +432,8 @@ class Viewer {
             name: `vertices${j}`,
             id: `${part.id}/vertices/vertices${j}`,
             type: "vertices",
-            color: (part.type == "shapes") ? "#808080" : part.color,
-            size: (part.type == "shapes") ? 4 : part.size,
+            color: (part.type == "shapes" || part.type == "edges") ? "#808080" : part.color,
+            size: (part.type == "shapes" || part.type == "edges") ? 4 : part.size,
             bb: {},
             shape: { "obj_vertices": [vertices[3 * j], vertices[3 * j + 1], vertices[3 * j + 2]] }
           };
