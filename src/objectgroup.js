@@ -12,8 +12,8 @@ class ObjectGroup extends THREE.Group {
         this.isSelected = false;
         this.originalColor = null;
         this.originalWidth = null;
-        this.vertexFocusSize = 10; // Size of the points when highlighted
-        this.edgeFocusWidth = 6; // Size of the edges when highlighted    
+        this.vertexFocusSize = 8; // Size of the points when highlighted
+        this.edgeFocusWidth = 5; // Size of the edges when highlighted    
     }
 
     addType(mesh, type) {
@@ -64,17 +64,17 @@ class ObjectGroup extends THREE.Group {
 
         if (this.types.front) {
             object = this.types.front;
-            hColor = new THREE.Color(0xee82ee);
+            hColor = this.isSelected ? new THREE.Color(0x53a0e3) : new THREE.Color(0x89b9e3);
             oColor = this.originalColor;
 
         } else if (this.types.vertices) {
             object = this.types.vertices;
-            hColor = this.isSelected ? new THREE.Color(0xff0000) : new THREE.Color(0xff00ff);
+            hColor = this.isSelected ? new THREE.Color(0x53a0e3) : new THREE.Color(0x89b9e3);
             oColor = this.originalColor;
 
         } else if (this.types.edges) {
             object = this.types.edges;
-            hColor = this.isSelected ? new THREE.Color(0xff0000) : new THREE.Color(0xff00ff);
+            hColor = this.isSelected ? new THREE.Color(0x53a0e3) : new THREE.Color(0x89b9e3);
             oColor = this.originalColor;
         }
 
