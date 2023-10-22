@@ -459,9 +459,7 @@ class Viewer {
           shape.edges = shape.edges.flat();
         } else if (part.type == "edges" || part.type == "shapes") {
           shape.edges = shape.edges.flat();
-        } else if (part.type == "vertices") {
-          shape.obj_vertices = shape.obj_vertices.flat();
-        }
+        };
       }
     }
     return [
