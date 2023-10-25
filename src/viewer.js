@@ -394,15 +394,17 @@ class Viewer {
             name: "edges",
             id: `${part.id}/edges`,
           };
+          const multiColor = (Array.isArray(part.color) && (part.color.length == shape.edges.length));
+          var color;
           for (j = 0; j < shape.edges.length; j++) {
             const edge = shape.edges[j];
-
+            color = multiColor ? part.color[j] : part.color;
             new_shape = {
               loc: [[0, 0, 0], [0, 0, 0, 1]],
               name: `edges_${j}`,
               id: `${part.id}/edges/edges_${j}`,
               type: "edges",
-              color: (part.type == "shapes") ? "#808080" : part.color,
+              color: (part.type == "shapes") ? "#808080" : color,
               width: (part.type == "shapes") ? 1 : part.width,
               bb: {},
               geomtype: shape.edge_types[j],
