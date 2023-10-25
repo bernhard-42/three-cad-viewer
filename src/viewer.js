@@ -441,7 +441,7 @@ class Viewer {
         }
 
         part.parts.push(new_part);
-        
+
         delete part.shape;
         delete part.color;
         delete part.alpha;
