@@ -332,6 +332,121 @@ class Viewer {
   }
 
   /**
+   * Decompose a CAD object into faces, edges and vertices.
+   * @param {Shapes} shapes - The Shapes object.
+   * @param {States} states - the visibility state of meshes and edges
+   * @returns {Shapes} A decomposed Shapes object.
+   */
+  _decompose(part, states) {
+    const shape = part.shape;
+    var j;
+
+    part.parts = [];
+
+    if (part.type == "shapes") {
+      // decompose faces
+      var new_part = {
+        parts: [],
+        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        name: "faces",
+        id: `${part.id}/faces`,
+      };
+      const vertices = shape.vertices;
+      const normals = shape.normals;
+      for (j = 0; j < shape.triangles.length; j++) {
+        var triangles = shape.triangles[j];
+        var new_shape = {
+          loc: [[0, 0, 0], [0, 0, 0, 1]],
+          name: `faces_${j}`,
+          id: `${part.id}/faces/faces_${j}`,
+          type: "shapes",
+          color: part.color,
+          alpha: part.alpha,
+          renderBack: false,
+          accuracy: part.accuracy,
+          bb: {},
+          geomtype: shape.face_types[j],
+          shape: {
+            triangles: [...Array(triangles.length).keys()],
+            vertices: triangles.map((s) => [vertices[3 * s], vertices[3 * s + 1], vertices[3 * s + 2]]).flat(),
+            normals: triangles.map((s) => [normals[3 * s], normals[3 * s + 1], normals[3 * s + 2]]).flat(),
+            edges: []
+          }
+        };
+        new_part.parts.push(new_shape);
+        states[new_shape.id] = [1, 3];
+      }
+
+      part.parts.push(new_part);
+    }
+
+    if (part.type == "shapes" || part.type == "edges") {
+      // decompose edges
+      new_part = {
+        parts: [],
+        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        name: "edges",
+        id: `${part.id}/edges`,
+      };
+      const multiColor = (Array.isArray(part.color) && (part.color.length == shape.edges.length));
+      var color;
+      for (j = 0; j < shape.edges.length; j++) {
+        const edge = shape.edges[j];
+        color = multiColor ? part.color[j] : part.color;
+        new_shape = {
+          loc: [[0, 0, 0], [0, 0, 0, 1]],
+          name: `edges_${j}`,
+          id: `${part.id}/edges/edges_${j}`,
+          type: "edges",
+          color: (part.type == "shapes") ? "#808080" : color,
+          width: (part.type == "shapes") ? 1 : part.width,
+          bb: {},
+          geomtype: shape.edge_types[j],
+          shape: { "edges": edge }
+        };
+        new_part.parts.push(new_shape);
+        states[new_shape.id] = [3, 1];
+      }
+
+      part.parts.push(new_part);
+    }
+
+    // decompose vertices
+    new_part = {
+      parts: [],
+      loc: [[0, 0, 0], [0, 0, 0, 1]],
+      name: "vertices",
+      id: `${part.id}/vertices`,
+    };
+    var vertices = shape.obj_vertices;
+    for (j = 0; j < vertices.length / 3; j++) {
+      new_shape = {
+        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        name: `vertices${j}`,
+        id: `${part.id}/vertices/vertices${j}`,
+        type: "vertices",
+        color: (part.type == "shapes" || part.type == "edges") ? "#808080" : part.color,
+        size: (part.type == "shapes" || part.type == "edges") ? 4 : part.size,
+        bb: {},
+        shape: { "obj_vertices": [vertices[3 * j], vertices[3 * j + 1], vertices[3 * j + 2]] }
+      };
+      new_part.parts.push(new_shape);
+      states[new_shape.id] = [3, 1];
+    }
+
+    part.parts.push(new_part);
+
+    delete part.shape;
+    delete part.color;
+    delete part.alpha;
+    delete part.accuracy;
+    delete part.renderBack;
+    delete states[part.id];
+
+    return part;
+  };
+
+  /**
    * Render the shapes of the CAD object.
    * @param {Shapes} shapes - The Shapes object.
    * @param {States} states - the visibility state of meshes and edges
@@ -340,131 +455,40 @@ class Viewer {
    */
   renderTessellatedShapes(shapes, states, options) {
     this.setRenderDefaults(options);
-    var part, shape, i, j;
-    if (options.measureTools) {
-      for (i = 0; i < shapes.parts.length; i++) {
-        part = shapes.parts[i];
+    const _render = (shapes, states, measureTools) => {
+      var part, shape;
 
-        part.parts = [];
-
-        shape = part.shape;
-
-        if (part.type == "shapes") {
-          // decompose faces
-          var new_part = {
-            parts: [],
-            loc: [[0, 0, 0], [0, 0, 0, 1]],
-            name: "faces",
-            id: `${part.id}/faces`,
-          };
-          const vertices = shape.vertices;
-          const normals = shape.normals;
-          for (j = 0; j < shape.triangles.length; j++) {
-            var triangles = shape.triangles[j];
-            var new_shape = {
-              loc: [[0, 0, 0], [0, 0, 0, 1]],
-              name: `faces_${j}`,
-              id: `${part.id}/faces/faces_${j}`,
-              type: "shapes",
-              color: part.color,
-              alpha: part.alpha,
-              renderBack: false,
-              accuracy: part.accuracy,
-              bb: {},
-              geomtype: shape.face_types[j],
-              shape: {
-                triangles: [...Array(triangles.length).keys()],
-                vertices: triangles.map((s) => [vertices[3 * s], vertices[3 * s + 1], vertices[3 * s + 2]]).flat(),
-                normals: triangles.map((s) => [normals[3 * s], normals[3 * s + 1], normals[3 * s + 2]]).flat(),
-                edges: []
-              }
-            };
-            new_part.parts.push(new_shape);
-            states[new_shape.id] = [1, 3];
+      if (measureTools) {
+        var i, tmp;
+        let parts = [];
+        for (i = 0; i < shapes.parts.length; i++) {
+          part = shapes.parts[i];
+          if (part.parts != null) {
+            tmp = _render(part, states, options);
+            parts.push(tmp);
+          } else {
+            parts.push(this._decompose(part, states));
           }
-
-          part.parts.push(new_part);
         }
-
-        if (part.type == "shapes" || part.type == "edges") {
-          // decompose edges
-          new_part = {
-            parts: [],
-            loc: [[0, 0, 0], [0, 0, 0, 1]],
-            name: "edges",
-            id: `${part.id}/edges`,
+        shapes.parts = parts;
+      } else {
+        for (i = 0; i < shapes.parts.length; i++) {
+          part = shapes.parts[i];
+          shape = part.shape;
+          if (part.type == "shapes") {
+            shape.triangles = shape.triangles.flat();
+            shape.edges = shape.edges.flat();
+          } else if (part.type == "edges" || part.type == "shapes") {
+            shape.edges = shape.edges.flat();
           };
-          const multiColor = (Array.isArray(part.color) && (part.color.length == shape.edges.length));
-          var color;
-          for (j = 0; j < shape.edges.length; j++) {
-            const edge = shape.edges[j];
-            color = multiColor ? part.color[j] : part.color;
-            new_shape = {
-              loc: [[0, 0, 0], [0, 0, 0, 1]],
-              name: `edges_${j}`,
-              id: `${part.id}/edges/edges_${j}`,
-              type: "edges",
-              color: (part.type == "shapes") ? "#808080" : color,
-              width: (part.type == "shapes") ? 1 : part.width,
-              bb: {},
-              geomtype: shape.edge_types[j],
-              shape: { "edges": edge }
-            };
-            new_part.parts.push(new_shape);
-            states[new_shape.id] = [3, 1];
-          }
-
-          part.parts.push(new_part);
         }
-
-        // decompose vertices
-        new_part = {
-          parts: [],
-          loc: [[0, 0, 0], [0, 0, 0, 1]],
-          name: "vertices",
-          id: `${part.id}/vertices`,
-        };
-        var vertices = shape.obj_vertices;
-        for (j = 0; j < vertices.length / 3; j++) {
-          new_shape = {
-            loc: [[0, 0, 0], [0, 0, 0, 1]],
-            name: `vertices${j}`,
-            id: `${part.id}/vertices/vertices${j}`,
-            type: "vertices",
-            color: (part.type == "shapes" || part.type == "edges") ? "#808080" : part.color,
-            size: (part.type == "shapes" || part.type == "edges") ? 4 : part.size,
-            bb: {},
-            shape: { "obj_vertices": [vertices[3 * j], vertices[3 * j + 1], vertices[3 * j + 2]] }
-          };
-          new_part.parts.push(new_shape);
-          states[new_shape.id] = [3, 1];
-        }
-
-        part.parts.push(new_part);
-
-        delete part.shape;
-        delete part.color;
-        delete part.alpha;
-        delete part.accuracy;
-        delete part.renderBack;
-        delete states[part.id];
-
       }
-    } else {
-      for (i = 0; i < shapes.parts.length; i++) {
-        part = shapes.parts[i];
-        shape = part.shape;
-        if (part.type == "shapes") {
-          shape.triangles = shape.triangles.flat();
-          shape.edges = shape.edges.flat();
-        } else if (part.type == "edges" || part.type == "shapes") {
-          shape.edges = shape.edges.flat();
-        };
-      }
-    }
+      return shapes;
+    };
+    shapes = _render(shapes, states, options.measureTools);
     return [
       this._renderTessellatedShapes(shapes, states),
-      this._getTree(shapes, states),
+      this._getTree(shapes, states)
     ];
   }
 
