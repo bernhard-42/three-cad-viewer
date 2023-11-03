@@ -22,7 +22,6 @@ class ObjectGroup extends THREE.Group {
         if (this.types.vertices) {
             this.originalColor = this.types.vertices.material.color.clone();
             this.originalWidth = this.types.vertices.material.size;
-            console.log(this.originalWidth);
         } else if (this.types.edges && !this.types.front) { // ignore edges of faces
             this.originalColor = this.types.edges.material.color.clone();
             this.originalWidth = this.types.edges.material.linewidth;
