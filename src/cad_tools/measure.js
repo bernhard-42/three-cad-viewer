@@ -6,7 +6,7 @@ import { Vector3 } from "three";
 import { DistancePanel, PropertiesPanel, AnglePanel } from "./ui.js";
 import { GeomFilter } from "../raycast.js";
 
-const DEBUG = true;
+const DEBUG = false;
 
 class DistanceLineArrow extends THREE.Group {
 
@@ -169,7 +169,7 @@ class Measurement {
      * @param {object} response 
      */
     handleResponse(response) {
-        throw new Error("Subclass needs to override this method");
+        this.viewer.info.addHtml(response.center_info);
     }
 
     _setMeasurementVals() {
@@ -425,7 +425,7 @@ class DistanceMeasurement extends Measurement {
     * @param {object} response 
     */
     handleResponse(response) {
-        console.log(response);
+        super.handleResponse(response);
         const data = { distance: response.distance, point1: new Vector3(...response.point1), point2: new Vector3(...response.point2) };
         this.responseData = data;
     }
@@ -477,7 +477,7 @@ class PropertiesMeasurement extends Measurement {
      * @param {object} response 
      */
     handleResponse(response) {
-        console.log(response);
+        super.handleResponse(response);
         let data = { ...response };
         data.center = new Vector3(...response.center);
         this.responseData = data;
@@ -536,7 +536,7 @@ class AngleMeasurement extends Measurement {
     }
 
     handleResponse(response) {
-        console.log(response);
+        super.handleResponse(response);
         const data = { angle: response.angle, point1: new Vector3(...response.point1), point2: new Vector3(...response.point2) };
         this.responseData = data;
     }

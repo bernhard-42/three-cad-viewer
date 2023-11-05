@@ -147,7 +147,9 @@ class Raycaster {
                     if (objectGroup == null) continue;
 
                     const topo = objectGroup.shapeInfo.topo;
-                    const geom = GeomTypes[topo][objectGroup.shapeInfo.geomtype];
+                    let geom;
+                    if (topo !== "vertex")
+                        geom = GeomTypes[topo][objectGroup.shapeInfo.geomtype];
 
                     // Check if topology is acceptable given the topology filters
 
