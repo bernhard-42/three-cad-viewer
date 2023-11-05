@@ -1,12 +1,20 @@
 import * as THREE from "three";
 
 class ObjectGroup extends THREE.Group {
-    constructor(opacity, alpha, edge_color, geomtype, renderback) {
+    /**
+     * 
+     * @param {*} opacity 
+     * @param {*} alpha 
+     * @param {*} edge_color 
+     * @param {object} shapeInfo A dictionary of shape information with a "topo" field and "geomtype" field.
+     * @param {*} renderback 
+     */
+    constructor(opacity, alpha, edge_color, shapeInfo, renderback) {
         super();
         this.opacity = opacity;
         this.alpha = alpha == null ? 1.0 : alpha;
         this.edge_color = edge_color;
-        this.geomtype = geomtype;
+        this.shapeInfo = shapeInfo;
         this.renderback = renderback;
         this.types = { front: null, back: null, edges: null, vertices: null };
         this.isSelected = false;

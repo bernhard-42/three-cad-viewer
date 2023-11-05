@@ -146,8 +146,8 @@ class Raycaster {
                     const objectGroup = object.object.parent;
                     if (objectGroup == null) continue;
 
-                    const topo = objectGroup.geomtype.topo;
-                    const geom = GeomTypes[objectGroup.geomtype.geomtype];
+                    const topo = objectGroup.shapeInfo.topo;
+                    const geom = GeomTypes[topo][objectGroup.shapeInfo.geomtype];
 
                     // Check if topology is acceptable given the topology filters
 
