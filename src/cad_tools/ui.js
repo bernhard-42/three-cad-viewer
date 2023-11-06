@@ -302,6 +302,10 @@ class FilterByDropDownMenu {
         this._toggleDropdown(ev);
     };
 
+    reset = () => {
+        this._setValue("None");
+    };
+
     _keybindSelect = (e) => {
         const validKeys = ["n", "v", "e", "f", "s", "Escape"];
         if (validKeys.indexOf(e.key) === -1)

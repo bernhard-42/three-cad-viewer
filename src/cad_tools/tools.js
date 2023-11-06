@@ -20,6 +20,7 @@ export class Tools {
      * @param {import ("../viewer.js").Viewer} viewer The viewer instance
      */
     constructor(viewer) {
+        this.viewer = viewer;
         this.distanceMeasurement = new DistanceMeasurement(viewer);
         this.propertiesMeasurement = new PropertiesMeasurement(viewer);
         this.angleMeasurement = new AngleMeasurement(viewer);
@@ -33,6 +34,7 @@ export class Tools {
     enable(toolType) {
         // Disable the currently enabled tool (if any)
         if (this.enabledTool) {
+            this.viewer.display.shapeFilterDropDownMenu.reset();
             this._disable();
         }
 

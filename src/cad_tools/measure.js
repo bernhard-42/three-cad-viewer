@@ -212,7 +212,7 @@ class Measurement {
     _updateMeasurement() {
         let getId = (shape) => {
             if (shape.fromSolid) {
-                let solidId = shape.obj.name.replace(/\|faces.*$/, "");
+                let solidId = shape.obj.name.replace(/\|faces.*$/, "").replace(/\|edges.*$/, "").replace(/\|vertices.*$/, "");
                 return solidId.replaceAll("|", "/");
             }
             else {
