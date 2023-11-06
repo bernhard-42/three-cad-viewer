@@ -120,7 +120,7 @@ class Raycaster {
      */
     getIntersectedObjs() {
         this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
-        this.raycaster.params.Points.threshold = this.threshold;
+        this.raycaster.params.Points.threshold = this.threshold / this.camera.getZoom();
         this.raycaster.params["Line2"] = { threshold: 4 };
         var objects = this.raycaster.intersectObjects(this.group, true);
         var validObjs = [];
