@@ -153,7 +153,9 @@ class Raycaster {
 
                     // Check if topology is acceptable given the topology filters
 
-                    let valid = (this.filters.topoFilter.includes(TopoFilter.solid)
+                    const isSubShapeOfSolid = this.filters.topoFilter.includes(TopoFilter.solid) && objectGroup.name.includes("Solid");
+
+                    let valid = (isSubShapeOfSolid
                         || this.filters.topoFilter.includes(TopoFilter.none)
                         || this.filters.topoFilter.includes(topo));
 
