@@ -1,5 +1,6 @@
 var edges_verts = [
     {
+        "version": 2,
         "parts": [
             {
                 "id": "/Group/Wire",

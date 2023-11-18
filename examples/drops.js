@@ -1,5 +1,6 @@
 var drops = [
     {
+        "version": 2,
         "parts": [
             {
                 "id": "/Group/Solid",
