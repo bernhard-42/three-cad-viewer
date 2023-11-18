@@ -457,30 +457,31 @@ class Viewer {
     this.setRenderDefaults(options);
     const _render = (shapes, states, measureTools) => {
       var part, shape;
-
-      if (measureTools) {
-        var i, tmp;
-        let parts = [];
-        for (i = 0; i < shapes.parts.length; i++) {
-          part = shapes.parts[i];
-          if (part.parts != null) {
-            tmp = _render(part, states, options);
-            parts.push(tmp);
-          } else {
-            parts.push(this._decompose(part, states));
+      if (shapes.version == 2) {
+        if (measureTools) {
+          var i, tmp;
+          let parts = [];
+          for (i = 0; i < shapes.parts.length; i++) {
+            part = shapes.parts[i];
+            if (part.parts != null) {
+              tmp = _render(part, states, options);
+              parts.push(tmp);
+            } else {
+              parts.push(this._decompose(part, states));
+            }
           }
-        }
-        shapes.parts = parts;
-      } else {
-        for (i = 0; i < shapes.parts.length; i++) {
-          part = shapes.parts[i];
-          shape = part.shape;
-          if (part.type == "shapes") {
-            shape.triangles = shape.triangles.flat();
-            shape.edges = shape.edges.flat();
-          } else if (part.type == "edges" || part.type == "shapes") {
-            shape.edges = shape.edges.flat();
-          };
+          shapes.parts = parts;
+        } else {
+          for (i = 0; i < shapes.parts.length; i++) {
+            part = shapes.parts[i];
+            shape = part.shape;
+            if (part.type == "shapes") {
+              shape.triangles = shape.triangles.flat();
+              shape.edges = shape.edges.flat();
+            } else if (part.type == "edges" || part.type == "shapes") {
+              shape.edges = shape.edges.flat();
+            };
+          }
         }
       }
       return shapes;
