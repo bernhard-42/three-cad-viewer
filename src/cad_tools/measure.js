@@ -386,9 +386,9 @@ class DistanceMeasurement extends Measurement {
         this._getPoints();
         const total = DEBUG ? 50 : this.responseData.distance;
         const distVec = this.point2.clone().sub(this.point1);
-        const xdist = distVec.x;
-        const ydist = distVec.y;
-        const zdist = distVec.z;
+        const xdist = Math.abs(distVec.x);
+        const ydist = Math.abs(distVec.y);
+        const zdist = Math.abs(distVec.z);
         this.panel.total = total.toFixed(2);
         this.panel.x_distance = xdist.toFixed(2);
         this.panel.y_distance = ydist.toFixed(2);
