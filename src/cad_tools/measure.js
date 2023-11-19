@@ -499,7 +499,7 @@ class AngleMeasurement extends Measurement {
     _setMeasurementVals() {
         let angle;
         if (DEBUG)
-            angle = "DEBUG :90°";
+            angle = "134.56°";
         else
             angle = this.responseData.angle.toFixed(2) + " °";
         this.panel.angle = angle;

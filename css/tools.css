@@ -2,8 +2,6 @@
 
 
 .tcv_panel {
-    width: fit-content;
-    height: fit-content;
     display: inline-block;
     text-align: center;
     position: absolute;
@@ -11,6 +9,8 @@
     user-select: none;
     font-family: sans-serif;
     color: var(--tcv-font-color);
+    padding-left: 3px;
+    padding-right: 3px;
 }
 
 .tcv_properties_table {
@@ -104,4 +104,8 @@
 .tcv_angle {
     font-size: 14px;
     font-family: sans-serif;
+}
+
+.tcv_angle_val {
+    text-align: right;
 }
