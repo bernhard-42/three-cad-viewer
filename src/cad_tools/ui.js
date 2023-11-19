@@ -110,7 +110,7 @@ class PropertiesPanel extends Panel {
         const rows = this.html.getElementsByTagName("tr");
         for (var i = 0; i < rows.length; i++) {
             rows[i].style.display = "none";
-            if (rows[i].id == "vertex_coords_title_row")
+            if (rows[i].classList.contains("tcv_vertex_coords_title_row"))
                 continue;
             const cells = rows[i].getElementsByTagName("td");
             for (var j = 0; j < cells.length; j++) {
@@ -124,50 +124,6 @@ class PropertiesPanel extends Panel {
     }
     get subheader() {
         return this._getCellValue("tcv_measure_subheader");
-    }
-
-    _adjustPanelStyle() {
-
-        const table = this.display._getElement("tcv_properties_table");
-
-        // set no border bottom to last displayed row
-        const rows = table.getElementsByTagName("tr");
-        for (let i = rows.length - 1; i >= 0; i--) {
-            const row = rows[i];
-            if (row.style.display == "block") {
-                row.style.borderBottom = "none";
-                break;
-            }
-        }
-
-        if (this.display._getElement("tcv_vertex_coords_row").style.display == "block") // no edit on vertex css
-            return;
-
-        const headers = table.getElementsByTagName("th");
-        const values = table.getElementsByTagName("td");
-        const fontFactor = 8;
-        let maxWidthHeader = 0;
-        let maxWidthValue = 0;
-
-        // Find the maximum width among the cells in the specified column
-        for (let i = 0; i < headers.length; i++) {
-            const cell = headers[i];
-            const value = values[i];
-            const cellWidth = cell.textContent.length * fontFactor; // Width of the cell's content
-            const cellWidthValue = value.textContent.length * fontFactor; // Width of the cell's content
-            maxWidthHeader = Math.max(maxWidthHeader, cellWidth);
-            maxWidthValue = Math.max(maxWidthValue, cellWidthValue);
-        }
-
-        // Set the width of the specified column to the maximum width
-        for (let i = 0; i < headers.length; i++) {
-            const cell = headers[i];
-            cell.style.width = maxWidthHeader + "px";
-            const value = values[i];
-            value.style.width = maxWidthValue + "px";
-        }
-
-
     }
 
     /**
@@ -205,22 +161,20 @@ class PropertiesPanel extends Panel {
                 if (Array.isArray(cellId)) {
                     // Only the vertex coordinates are an array
                     const vertex_title_row = this.display._getElement("tcv_vertex_coords_title_row");
-                    vertex_title_row.style.display = "block";
+                    vertex_title_row.style.display = "table-row";
                     for (let i = 0; i < cellId.length; i++) {
                         const row = this.display._getElement("tcv_" + cellId[i]).closest("tr");
-                        row.style.display = "block";
+                        row.style.display = "table-row";
                         this._setCellValue("tcv_" + cellId[i], value[i]);
                     }
                 } else {
                     const row = this.display._getElement("tcv_" + cellId).closest("tr");
-                    row.style.display = "block";
+                    row.style.display = "table-row";
                 }
 
                 this._setCellValue("tcv_" + cellId, value);
             }
         }
-
-        this._adjustPanelStyle();
     }
 }
 

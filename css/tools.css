@@ -1,123 +1,107 @@
 /* MEASURE PANEL */
 
+
 .tcv_panel {
     width: fit-content;
     height: fit-content;
     display: inline-block;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    text-align: center;
     position: absolute;
     background-color: var(--tcv-bg-overlay-color);
     user-select: none;
+    font-family: sans-serif;
+    color: var(--tcv-font-color);
+}
+
+.tcv_properties_table {
+    border-collapse: collapse;
 }
 
 .tcv_measure_header {
-    height: 20%;
-    width: 100%;
-    display: flex;
-    justify-content: center;
+    text-align: center;
     font-weight: bold;
     font-size: 16px;
-    font-family: sans-serif;
-    color: var(--tcv-font-color);
     border-bottom: 1px solid lightgray;
+    padding-top: 3px;
+    padding-bottom: 3px;
 }
 
 .tcv_measure_subheader {
-    height: 15%;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    font-weight: bold;
+    text-align: center;
     font-style: italic;
     font-size: 14px;
-    font-family: sans-serif;
-    color: var(--tcv-font-color);
+    border-bottom: 1px solid lightgray;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.tcv_measure_cell_header {
+    border-right: 1px solid lightgray;
+}
+
+.tcv_measure_row_line {
     border-bottom: 1px solid lightgray;
 }
 
-.measure_cell {
-    content: attr(data-label);
-    vertical-align: middle;
-    font-size: 14px;
-    font-family: sans-serif;
-    padding: 3px 5px 1px 5px;
+.tcv_measure_cell {
+    padding: 3px 5px 31px 5px;
 }
 
-.props_cell {
-    content: attr(data-label);
-    vertical-align: middle;
-    font-size: 14px;
-    font-family: sans-serif;
+.tcv_vertex_cell {
+    text-align: center;
+    border-right: 1px solid lightgray;
+    padding: 3px 5px 31px 5px;
 }
 
-.measure_row_line {
-    width: fit-content;
-    border-bottom: 1px solid lightgray;
-}
-
-.vertex_row td:last-child {
+.tcv_vertex_cell:last-child {
     border-right: none;
 }
 
-.vertex_row td {
-    width: 35px;
-}
-
-.vertex_cell {
-    text-align: center;
-    border-right: 1px solid lightgray;
-}
-
-.measure_val {
-    color: val(--tcv-font-color);
-    text-align: right;
-    border-left: 1px solid lightgray;
-    padding: 5px;
-
-}
-
-#vertex_coords_title_row {
+.tcv_props_cell {
+    vertical-align: middle;
+    font-size: 14px;
+    font-family: sans-serif;
     border-bottom: 1px solid lightgray;
 }
 
-table#measure_table tr td:first-child {
-    border-right: 1px solid lightgray;
-}
-
-#tcv_measure_total {
-    color: var(--tcv-font-color);
-}
-
-.xtitle {
-    color: var(--tcv-x-color);
-    text-align: center
-}
-
-.ytitle {
-    color: var(--tcv-y-color);
-    text-align: center;
-}
-
-.ztitle {
-    color: var(--tcv-z-color);
-    text-align: center
-}
-
-.tcv_tool_btn_highlight {
-    background-color: rgba(153, 143, 143, 0.5);
-}
-
-#tcv_properties_table th {
-    padding: 5px;
+.tcv_props_header {
     text-align: left;
+    padding: 3px 5px 3px 5px;
+    border-right: 1px solid lightgray;
 }
 
-#tcv_properties_table td.props_cell {
-    padding-left: 10px;
+.tcv_measure_cell {
+    text-align: left;
+    padding: 3px 5px 3px 5px;
+    font-size: 14px;
 }
 
-#tcv_properties_table tr {
-    border-bottom: 1px solid lightgray;
+.tcv_measure_val {
+    text-align: right;
+    padding: 3px 5px 3px 5px;
+    font-size: 14px;
+}
+
+.tcv_vertex_cell {
+    text-align: center;
+    border-right: 1px solid lightgray;
+    padding: 3px 5px 3px 5px;
+    font-size: 14px;
+}
+
+.tcv_xtitle {
+    color: var(--tcv-x-color);
+}
+
+.tcv_ytitle {
+    color: var(--tcv-y-color);
+}
+
+.tcv_ztitle {
+    color: var(--tcv-z-color);
+}
+
+.tcv_angle {
+    font-size: 14px;
+    font-family: sans-serif;
 }

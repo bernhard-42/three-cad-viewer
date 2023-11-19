@@ -6,7 +6,7 @@ import { Vector3 } from "three";
 import { DistancePanel, PropertiesPanel, AnglePanel } from "./ui.js";
 import { GeomFilter } from "../raycast.js";
 
-const DEBUG = false;
+const DEBUG = true;
 
 class DistanceLineArrow extends THREE.Group {
 
@@ -447,13 +447,20 @@ class PropertiesMeasurement extends Measurement {
         const subheader = isSolid ? "Solid" : isVertex ? "Vertex" : isLine ? "Edge" : isFace ? "Face" : "Unknown";
         this.panel.subheader = subheader;
         const debugProps = {
-            vertex_coords: [0, 41, 82],
-            // volume: 44,
-            // area: 48,
-            // length: 94,
-            // width: 24,
-            // radius: 10,
-            // geom_type: "Circle"
+            volume: 0.44,
+            area: -1.01,
+            length: 2.01,
+            width: 0.01,
+            radius: 1.01,
+            geom_type: "Circle",
+            vertex_coords: [1.34, -4.34, 2.35]
+            // volume: 44444.44,
+            // area: 48.01,
+            // length: 94.01,
+            // width: 24.01,
+            // radius: 10.01,
+            // geom_type: "Circle",
+            // vertex_coords: [10000.34, -41000.34, 82.35]
         };
         const props = DEBUG ? debugProps : this.responseData;
         this.panel.setProperties(props);
