@@ -6,7 +6,7 @@ import { Vector3 } from "three";
 import { DistancePanel, PropertiesPanel, AnglePanel } from "./ui.js";
 import { GeomFilter } from "../raycast.js";
 
-const DEBUG = true;
+const DEBUG = false;
 
 class DistanceLineArrow extends THREE.Group {
 
