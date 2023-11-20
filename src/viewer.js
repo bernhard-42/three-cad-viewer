@@ -349,7 +349,7 @@ class Viewer {
         parts: [],
         loc: [[0, 0, 0], [0, 0, 0, 1]],
         name: "faces",
-        id: `${part.id}/faces`,
+        id: `${part.id}/faces`
       };
       const vertices = shape.vertices;
       const normals = shape.normals;
