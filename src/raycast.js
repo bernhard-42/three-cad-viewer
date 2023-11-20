@@ -152,8 +152,8 @@ class Raycaster {
                         geom = GeomTypes[topo][objectGroup.shapeInfo.geomtype];
 
                     // Check if topology is acceptable given the topology filters
-
-                    const isSubShapeOfSolid = this.filters.topoFilter.includes(TopoFilter.solid) && objectGroup.name.includes("Solid");
+                    const isSolid = objectGroup.subtype === "solid";
+                    const isSubShapeOfSolid = this.filters.topoFilter.includes(TopoFilter.solid) && isSolid;
 
                     let valid = (isSubShapeOfSolid
                         || this.filters.topoFilter.includes(TopoFilter.none)

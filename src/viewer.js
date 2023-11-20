@@ -366,6 +366,7 @@ class Viewer {
           accuracy: part.accuracy,
           bb: {},
           geomtype: shape.face_types[j],
+          subtype: part.subtype,
           shape: {
             triangles: [...Array(triangles.length).keys()],
             vertices: triangles.map((s) => [vertices[3 * s], vertices[3 * s + 1], vertices[3 * s + 2]]).flat(),

@@ -12,6 +12,7 @@
   <script src="./examples/hexapod.js"></script>
   <script src="./examples/hexapod_b3d.js"></script>
   <script src="./examples/drops.js"></script>
+  <script src="./examples/assembly.js"></script>
   <script src="./examples/edges-verts.js"></script>
   <script src="./examples/box.js"></script>
   <script src="./examples/dirbox.js"></script>
@@ -43,6 +44,7 @@
 
     const examples = [
       edges_verts,
+      assembly,
       drops,
       hexapod,
       hexapod_b3d,
@@ -338,6 +340,7 @@
       <select class="select"
         onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; render(window.selectedExample, ...window.examples[window.selectedIndex]);">
         <option value="edges-verts">edges_verts</option>
+        <option value="assembly">assembly</option>
         <option value="drops">drops</option>
         <option value="hexapod">hexapod</option>
         <option value="hexapod_b3d">hexapod(build123d)</option>

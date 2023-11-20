@@ -9,12 +9,13 @@ class ObjectGroup extends THREE.Group {
      * @param {object} shapeInfo A dictionary of shape information with a "topo" field and "geomtype" field.
      * @param {*} renderback 
      */
-    constructor(opacity, alpha, edge_color, shapeInfo, renderback) {
+    constructor(opacity, alpha, edge_color, shapeInfo, subtype, renderback) {
         super();
         this.opacity = opacity;
         this.alpha = alpha == null ? 1.0 : alpha;
         this.edge_color = edge_color;
         this.shapeInfo = shapeInfo;
+        this.subtype = subtype;
         this.renderback = renderback;
         this.types = { front: null, back: null, edges: null, vertices: null };
         this.isSelected = false;
