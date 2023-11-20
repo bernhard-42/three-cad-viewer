@@ -5,6 +5,7 @@ var drops = [
             {
                 "id": "/Group/Solid",
                 "type": "shapes",
+                "subtype": "solid",
                 "name": "Solid",
                 "shape": {
                     "vertices": [
