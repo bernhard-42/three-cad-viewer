@@ -276,7 +276,7 @@ class Display {
 
   /**
    * Set up the UI
-   * @param {import ("./viewer.js").Viewer} viewer - the viewer for this UI
+   * @param {Viewer} viewer - the viewer for this UI
    */
   setupUI(viewer) {
     this.viewer = viewer;
