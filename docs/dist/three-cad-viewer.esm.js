@@ -49377,7 +49377,7 @@ class GLBufferAttribute {
 
 }
 
-class Raycaster {
+let Raycaster$1 = class Raycaster {
 
 	constructor( origin, direction, near = 0, far = Infinity ) {
 
@@ -49453,7 +49453,7 @@ class Raycaster {
 
 	}
 
-}
+};
 
 function ascSort( a, b ) {
 
@@ -51766,7 +51766,7 @@ var THREE = /*#__PURE__*/Object.freeze({
 	RGIntegerFormat: RGIntegerFormat,
 	RawShaderMaterial: RawShaderMaterial,
 	Ray: Ray,
-	Raycaster: Raycaster,
+	Raycaster: Raycaster$1,
 	RectAreaLight: RectAreaLight,
 	RedFormat: RedFormat,
 	RedIntegerFormat: RedIntegerFormat,
@@ -51869,122 +51869,172 @@ var THREE = /*#__PURE__*/Object.freeze({
 	sRGBEncoding: sRGBEncoding
 });
 
-var img$J = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$11 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$I = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$10 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$H = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(83%2c160%2c227)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
+var img$$ = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(83%2c160%2c227)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
 
-var img$G = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$_ = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$F = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$Z = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$E = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3c/svg%3e";
+var img$Y = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$D = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3c/svg%3e";
+var img$X = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$C = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$W = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$B = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3c/svg%3e";
+var img$V = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$A = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$U = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$z = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$T = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$y = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$S = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$x = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$R = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$w = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$Q = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$v = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$P = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$u = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$O = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$t = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$N = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$s = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(83%2c160%2c227)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23444' stroke='%23444' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$M = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(83%2c160%2c227)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23444' stroke='%23444' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$r = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23ddd' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$L = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23ddd' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$q = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23444' stroke-width='1.25' fill='%23444' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$K = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23444' stroke-width='1.25' fill='%23444' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$p = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$J = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$o = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$I = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$n = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$H = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$m = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$G = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$l = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$F = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$k = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(48%2c 142%2c 225)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
+var img$E = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(48%2c 142%2c 225)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
 
-var img$j = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$D = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$i = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$C = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$h = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3c/svg%3e";
+var img$B = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$g = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3c/svg%3e";
+var img$A = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$f = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$z = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$e = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' /%3e%3c/svg%3e";
+var img$y = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$d = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$x = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$c = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$w = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$b = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$v = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$a = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$u = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$9 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$t = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$8 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$s = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$7 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$r = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$6 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$q = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$5 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(48%2c 142%2c 225)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$p = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(48%2c 142%2c 225)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$4 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23666' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$o = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23666' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$3 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23ddd' stroke-width='1.25' fill='%23ddd' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$n = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23ddd' stroke-width='1.25' fill='%23ddd' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$2 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$m = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$1 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$l = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' /%3e%3c/svg%3e";
+var img$k = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+
+var img$j = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='rgb(255%2c 69%2c 0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(50%2c 205%2c 50)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='rgb(59%2c 158%2c 255)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+
+var img$i = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='rgb(255%2c 69%2c 0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(50%2c 205%2c 50)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='rgb(59%2c 158%2c 255)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.6' cy='-10.0' rx='3.0' ry='3.8' fill='none' stroke='%23444' stroke-width='2.4' /%3e%3cellipse cx='6.6' cy='-10.0' rx='2.0' ry='3.0' fill='%23444' stroke='%23ddd' stroke-width='1.4' /%3e%3c/svg%3e";
+
+var img$h = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.0 L23.6%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-9.333333333333332 L23.6%2c-9.333333333333332 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-16.666666666666664 L23.6%2c-16.666666666666664 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-24.0 L23.6%2c-24.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.4 L2.0%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.333333333333332%2c-2.4 L9.333333333333332%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.666666666666664%2c-2.4 L16.666666666666664%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-2.4 L24.0%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+
+var img$g = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='14.0' y='-24.0' width='10.0' height='10.0' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L14.0%2c-14.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-18.0 L24.0%2c-24.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L24.0%2c-14.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L14.0%2c-24.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.875' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+
+var img$f = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cellipse cx='22.5' cy='-13.0' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L20.5%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446562001' cy='-22.03503690480396' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812106%2c-20.132923872213652 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.3143385534380005' cy='-18.583959896778495' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187895%2c-17.40838939219355 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.314338553437999' cy='-7.416040103221507' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187894%2c-8.591610607806452 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446561998' cy='-3.9649630951960404' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812105%2c-5.867076127786348 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='13.0' cy='-13.0' rx='2.0' ry='2.0' fill='%23ddd' stroke='%23ddd' stroke-width='1.75' /%3e%3c/svg%3e";
+
+var img$e = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L2.0%2c-21.0 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-5.0 L24.0%2c-21.0 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L22.0%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-16.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-10.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-16.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-10.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+
+var img$d = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M4.0%2c-21.6 L22.0%2c-21.6 Z' fill='none' stroke='%23ddd' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.2%2c-16.8 L20.8%2c-16.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-16.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-12.8 L20.8%2c-12.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-12.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-8.8 L20.8%2c-8.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-8.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-4.8 L20.8%2c-4.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-4.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3c/svg%3e";
+
+var img$c = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L14.0%2c-22.88 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.80793811328415%2c-6.280377654627602 A15.6%2c15.6%2c0%2c0%2c0%2c12.217398100377466%2c-15.963476998728744' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.0' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+
+var img$b = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' fill-opacity='0.75' /%3e%3c/svg%3e";
+
+var img$a = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='7.833333333333333' y='-23.5' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L7.833333333333333%2c-7.833333333333333 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L7.833333333333333%2c-7.833333333333333 L23.5%2c-7.833333333333333 L18.166666666666664%2c-2.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L23.5%2c-23.5 L18.166666666666664%2c-18.166666666666664 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.166666666666664%2c-2.5 L18.166666666666664%2c-18.166666666666664 L23.5%2c-23.5 L23.5%2c-7.833333333333333 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.5' y='-18.166666666666664' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+
+var img$9 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='red' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(0%2c128%2c0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='blue' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+
+var img$8 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='red' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(0%2c128%2c0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='blue' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.6' cy='-10.0' rx='3.0' ry='3.8' fill='none' stroke='white' stroke-width='2.4' /%3e%3cellipse cx='6.6' cy='-10.0' rx='2.0' ry='3.0' fill='white' stroke='%23444' stroke-width='1.4' /%3e%3c/svg%3e";
+
+var img$7 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.0 L23.6%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-9.333333333333332 L23.6%2c-9.333333333333332 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-16.666666666666664 L23.6%2c-16.666666666666664 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-24.0 L23.6%2c-24.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.4 L2.0%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.333333333333332%2c-2.4 L9.333333333333332%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.666666666666664%2c-2.4 L16.666666666666664%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-2.4 L24.0%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+
+var img$6 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='14.0' y='-24.0' width='10.0' height='10.0' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L14.0%2c-14.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-18.0 L24.0%2c-24.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L24.0%2c-14.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L14.0%2c-24.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.875' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+
+var img$5 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cellipse cx='22.5' cy='-13.0' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L20.5%2c-13.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446562001' cy='-22.03503690480396' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812106%2c-20.132923872213652 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.3143385534380005' cy='-18.583959896778495' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187895%2c-17.40838939219355 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.314338553437999' cy='-7.416040103221507' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187894%2c-8.591610607806452 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446561998' cy='-3.9649630951960404' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812105%2c-5.867076127786348 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='13.0' cy='-13.0' rx='2.0' ry='2.0' fill='%23444' stroke='%23444' stroke-width='1.75' /%3e%3c/svg%3e";
+
+var img$4 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L2.0%2c-21.0 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-5.0 L24.0%2c-21.0 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L22.0%2c-13.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-16.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-10.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-16.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-10.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+
+var img$3 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M4.0%2c-21.6 L22.0%2c-21.6 Z' fill='none' stroke='%23444' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.2%2c-16.8 L20.8%2c-16.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-16.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-12.8 L20.8%2c-12.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-12.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-8.8 L20.8%2c-8.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-8.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-4.8 L20.8%2c-4.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-4.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3c/svg%3e";
+
+var img$2 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L14.0%2c-22.88 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.80793811328415%2c-6.280377654627602 A15.6%2c15.6%2c0%2c0%2c0%2c12.217398100377466%2c-15.963476998728744' stroke='rgb(83%2c160%2c227)' stroke-width='2.0' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+
+var img$1 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' fill-opacity='0.75' /%3e%3c/svg%3e";
+
+var img = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='7.833333333333333' y='-23.5' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L7.833333333333333%2c-7.833333333333333 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L7.833333333333333%2c-7.833333333333333 L23.5%2c-7.833333333333333 L18.166666666666664%2c-2.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L23.5%2c-23.5 L18.166666666666664%2c-18.166666666666664 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.166666666666664%2c-2.5 L18.166666666666664%2c-18.166666666666664 L23.5%2c-23.5 L23.5%2c-7.833333333333333 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.5' y='-18.166666666666664' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
 const icons = {
-  bottom: { light: img$J, dark: img$m },
-  front: { light: img$I, dark: img$l },
-  help: { light: img$H, dark: img$k },
-  iso: { light: img$G, dark: img$j },
-  left: { light: img$F, dark: img$i },
-  mesh: { light: img$E, dark: img$h },
-  mesh_empty: { light: img$D, dark: img$g },
-  mesh_mix: { light: img$C, dark: img$f },
-  mesh_no: { light: img$B, dark: img$e },
-  pause: { light: img$A, dark: img$d },
-  pin: { light: img$z, dark: img$c },
-  plane: { light: img$y, dark: img$b },
-  play: { light: img$x, dark: img$a },
-  rear: { light: img$w, dark: img$9 },
-  reset: { light: img$v, dark: img$8 },
-  resize: { light: img$u, dark: img$7 },
-  right: { light: img$t, dark: img$6 },
-  shape: { light: img$s, dark: img$5 },
-  shape_empty: { light: img$r, dark: img$4 },
-  shape_mix: { light: img$q, dark: img$3 },
-  shape_no: { light: img$p, dark: img$2 },
-  stop: { light: img$o, dark: img$1 },
-  top: { light: img$n, dark: img },
+  bottom: { light: img$11, dark: img$G },
+  front: { light: img$10, dark: img$F },
+  help: { light: img$$, dark: img$E },
+  iso: { light: img$_, dark: img$D },
+  left: { light: img$Z, dark: img$C },
+  mesh: { light: img$Y, dark: img$B },
+  mesh_empty: { light: img$X, dark: img$A },
+  mesh_mix: { light: img$W, dark: img$z },
+  mesh_no: { light: img$V, dark: img$y },
+  pause: { light: img$U, dark: img$x },
+  pin: { light: img$T, dark: img$w },
+  plane: { light: img$S, dark: img$v },
+  play: { light: img$R, dark: img$u },
+  rear: { light: img$Q, dark: img$t },
+  reset: { light: img$P, dark: img$s },
+  resize: { light: img$O, dark: img$r },
+  right: { light: img$N, dark: img$q },
+  shape: { light: img$M, dark: img$p },
+  shape_empty: { light: img$L, dark: img$o },
+  shape_mix: { light: img$K, dark: img$n },
+  shape_no: { light: img$J, dark: img$m },
+  stop: { light: img$I, dark: img$l },
+  top: { light: img$H, dark: img$k },
+  axes: { light: img$9, dark: img$j },
+  axes0: { light: img$8, dark: img$i },
+  grid: { light: img$7, dark: img$h },
+  perspective: { light: img$6, dark: img$g },
+  explode: { light: img$5, dark: img$f },
+  distance: { light: img$4, dark: img$e },
+  properties: { light: img$3, dark: img$d },
+  angle: { light: img$2, dark: img$c },
+  transparent: { light: img$1, dark: img$b },
+  blackedges: { light: img, dark: img$a },
 };
 
 function getIconBackground(theme, name) {
@@ -52076,1459 +52126,268 @@ function scaleLight(intensity) {
 
 const KeyMapper = new _KeyMapper();
 
-function TEMPLATE(id) {
-  const shift = KeyMapper.getshortcuts("shift");
-  const ctrl = KeyMapper.getshortcuts("ctrl");
-  const meta = KeyMapper.getshortcuts("meta");
-  var html = `
-<div class="tcv_cad_viewer">
-    <div class="tcv_cad_toolbar tcv_round">
-        <span class="tcv_tooltip" data-tooltip="Show coordinate axis">
-            <input class='tcv_axes tcv_check' id='tcv_axes_${id}' type="checkbox" />
-            <label for='tcv_axes_${id}' class="tcv_label">Axes</label>
-        </span>
-        <div class="tcv_grid-dropdown">
-            <input class='tcv_grid tcv_check' id='tcv_grid_${id}' type="checkbox" />
-            <label for='tcv_grid_${id}' class="tcv_label">Grid</label>
-            <div class="tcv_grid-content tcv_dropdown-content">
-                <div class="tcv_tooltip" data-tooltip="Show xy grid">
-                    <input class='tcv_grid-xy tcv_check tcv_dropdown-entry' id='tcv_grid-xy_${id}' type="checkbox">
-                    <label for='tcv_grid-xy_${id}' class="tcv_label tcv_dropdown-entry">xy</label>
-                </div>
-                <div class="tcv_tooltip" data-tooltip="Show xz grid">
-                    <input class='tcv_grid-xz tcv_check tcv_dropdown-entry' id='tcv_grid-xz_${id}' type="checkbox">
-                    <label for='tcv_grid-xz_${id}' class="tcv_label tcv_dropdown-entry">xz</label>
-                </div>
-                <div class="tcv_tooltip" data-tooltip="Show yz grid">
-                    <input class='tcv_grid-yz tcv_check tcv_dropdown-entry' id='tcv_grid-yz_${id}' type="checkbox">
-                    <label for='tcv_grid-yz_${id}' class="tcv_label tcv_dropdown-entry">yz</label>
-                </div>
-            </div>
-        </div>
-        <span class="tcv_tooltip" data-tooltip="Move center of axis and grid to (0,0,0)">
-            <input class='tcv_axes0 tcv_check' id='tcv_axes0_${id}' type="checkbox" /><label for='tcv_axes0_${id}'
-                class="tcv_label">@0</label>
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Toggle camera between orthographic and perspective view">
-            <input class='tcv_ortho tcv_check' id='tcv_ortho_${id}' type="checkbox" /><label for='tcv_ortho_${id}'
-                class="tcv_label">Ortho</label>
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Reset view">
-            <input class='tcv_reset tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Fit view">
-            <input class='tcv_resize tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to iso view">
-            <input class='tcv_iso tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to front view">
-            <input class='tcv_front tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to back view">
-            <input class='tcv_rear tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to top view">
-            <input class='tcv_top tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to bottom view">
-            <input class='tcv_bottom tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to left view">
-            <input class='tcv_left tcv_btn' type="button" />
-        </span>
-        <span class="tcv_tooltip" data-tooltip="Switch to right view">
-            <input class='tcv_right tcv_btn' type="button" />
-        </span>
-        <div class="tcv_more-dropdown">
-            <button class="tcv_more-btn">More<span class="tcv_more_icon">\u25BC</span></button>
-            <span class="tcv_more-wrapper tcv_more-content tcv_dropdown-content">
-               <span class="tcv_more_check" class="tcv_tooltip" data-tooltip="Toggle transparent objects">
-                    <input class='tcv_transparent tcv_check tcv_dropdown-entry' id='tcv_transparent_${id}' type="checkbox" />
-                    <label for='tcv_transparent_${id}' class="tcv_label tcv_dropdown-entry">Transparent</label>
-                </span class="tcv_more_check">
-                <span class="tcv_more_check" class="tcv_tooltip" data-tooltip="Toggle black edges">
-                    <input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges_${id}' type="checkbox" />
-                    <label for='tcv_black_edges_${id}' class="tcv_label tcv_dropdown-entry">Black edges</label>
-                </span class="tcv_more_check">
-                <span class="tcv_more_check" class="tcv_explode_widget tcv_tooltip"
-                    data-tooltip="Explode assembly (@0 determines explosion center)">
-                    <input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode_${id}' type="checkbox" />
-                    <label for='tcv_explode_${id}' class="tcv_label tcv_dropdown-entry">Explode</label>
-                </span class="tcv_more_check">
-            </span>
-        </div>
-
-        <span class="tcv_align_right">
-            <span class="tcv_tooltip" data-tooltip="Toggle help">
-                <input class='tcv_help tcv_btn' type="button" />
-            </span>
-            <span class="tcv_tooltip" data-tooltip="Pin view as PNG image">
-                <input class='tcv_pin tcv_btn' type="button" />
-            </span>
-        </span>
-    </div>
-
-    <div class="tcv_cad_body">
-        <div class="tcv_cad_navigation">
-            <div class="tcv_cad_tree tcv_round">
-                <div class="tcv_tabnav">
-                    <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button" />
-                    <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping" type="button" />
-                    <input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value="Material" type="button" />
-                </div>
-                <div class="tcv_cad_tree_toggles">
-                    <span class="tcv_tooltip" data-tooltip="Collpase nodes with a single leaf">
-                      <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value="1" type="button" />
-                    </span>
-                    <span class="tcv_tooltip" data-tooltip="Expand root node only">
-                      <input class='tcv_expand_root tcv_btn tcv_small_btn' value="R" type="button" />
-                    </span>
-                    <span class="tcv_tooltip" data-tooltip="Collpase tree">
-                      <input class='tcv_collapse_all tcv_btn tcv_small_btn' value="C" type="button" />
-                    </span>
-                    <span class="tcv_tooltip" data-tooltip="Expand tree">
-                      <input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
-                    </span>
-                </div>
-                <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-                    <div class="tcv_cad_tree_container"></div>
-                    <div class="tcv_cad_clip_container">
-                        <div class="tcv_slider_group">
-                            <div>
-                                <span class="tcv_tooltip" data-tooltip="Set red clipping plane to view direction">
-                                    <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type="button" />
-                                </span>
-                                <span class="tcv_lbl_norm_plane1 tcv_label">N1 = (n/a, n/a, n/a)</span>
-                            </div>
-                            <div>
-                                <input type="range" min="1" max="100" value="50"
-                                    class="tcv_sld_value_plane1 tcv_clip_slider">
-                                <input value=50 class="tcv_inp_value_plane1 tcv_clip_input"></input>
-                            </div>
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
-                                <span class="tooltip" data-tooltip="Set green clipping plane to view direction">
-                                    <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type="button" />
-                                </span>
-                                <span class="tcv_lbl_norm_plane2 tcv_label">N2 = (n/a, n/a, n/a)</span>
-                            </div>
-                            <div>
-                                <input type="range" min="1" max="100" value="50"
-                                    class="tcv_sld_value_plane2 tcv_clip_slider">
-                                <input value=50 class="tcv_inp_value_plane2 tcv_clip_input"></input>
-                            </div>
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
-                                <span class="tooltip" data-tooltip="Set blue clipping plane to view direction">
-                                    <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type="button" />
-                                </span>
-                                <span class="tcv_lbl_norm_plane3 tcv_label">N3 = (n/a, n/a, n/a)</span>
-                            </div>
-                            <div>
-                                <input type="range" min="1" max="100" value="50"
-                                    class="tcv_sld_value_plane3 tcv_clip_slider">
-                                <input value=50 class="tcv_inp_value_plane3 tcv_clip_input"></input>
-                            </div>
-                        </div>
-                        <div class="tcv_clip_checks">
-                            <span class="tcv_tooltip" data-tooltip="Use intersection clipping">
-                                <span class="tcv_label">Intersection</span><input
-                                    class='tcv_clip_intersection tcv_check' type="checkbox" />
-                            </span>
-                            <span class="tcv_tooltip" data-tooltip="Show clipping planes">
-                                <span class="tcv_label">Planes</span><input
-                                    class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type="checkbox" />
-                            </span>
-                        </div>
-                    </div>
-                    <div class="tcv_cad_material_container">
-                        <div class="tcv_material_ambientlight tcv_label tcv_clip_checks">
-                          Ambient light intensity (%)
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
-                                <input type="range" min="0" max="20" value="1"
-                                    class="tcv_sld_value_ambientlight tcv_clip_slider">
-                                <input value=1 class="tcv_inp_value_ambientlight tcv_clip_input"></input>
-                            </div>
-                        </div>
-                        <div class="tcv_material_pointlight tcv_label">
-                          Directional light intensity (%)
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
-                                <input type="range" min="0" max="40" value="1"
-                                    class="tcv_sld_value_pointlight tcv_clip_slider">
-                                <input value=1 class="tcv_inp_value_pointlight tcv_clip_input"></input>
-                            </div>
-                        </div>
-                        <div class="tcv_material_metalness tcv_label">
-                          Metalness (%)
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
-                                <input type="range" min="0" max="100" value="40"
-                                    class="tcv_sld_value_metalness tcv_clip_slider">
-                                <input value=40 class="tcv_inp_value_metalness tcv_clip_input"></input>
-                            </div>
-                        </div>
-                        <div class="tcv_material_roughness tcv_label">
-                          Roughness (%)
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
-                                <input type="range" min="0" max="100" value="40"
-                                    class="tcv_sld_value_roughness tcv_clip_slider">
-                                <input value=40 class="tcv_inp_value_roughness tcv_clip_input"></input>
-                            </div>
-                        </div>
-                        <div class="tcv_material_info">
-                          This is not a full material renderer (e.g. the environment is black), so
-                          not every combination creates expected or good results. 
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="tcv_cad_info_wrapper">
-                <div class="tcv_toggle_info_wrapper">
-                    <span class="tooltip" data-tooltip="Open/close info box">
-                        <input class='tcv_toggle_info tcv_btn tcv_small_info_btn' value="<" type="button" />
-                    </span>
-                </div>
-                <div class="tcv_cad_info tcv_round">
-                    <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
-                        <div class="tcv_cad_info_container"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="tcv_cad_view">
-            <div class="tcv_cad_animation tcv_round">
-                <span class="tcv_animation_label">E</span>
-                <span><input type="range" min="0" max="1000" value="0"
-                        class="tcv_animation_slider tcv_clip_slider"></span>
-                <span class="tcv_tooltip" data-tooltip="Play animation"><input class='tcv_play tcv_btn'
-                        type="button" /></span>
-                <span class="tcv_tooltip" data-tooltip="Pause animation"><input class='tcv_pause tcv_btn'
-                        type="button" /></span>
-                <span class="tcv_tooltip" data-tooltip="Stop and reset animation"><input class='tcv_stop tcv_btn'
-                        type="button" /></span>
-            </div>
-
-            <div class="tcv_cad_help tcv_round">
-                <table class="tcv_cad_help_layout">
-                    <tr>
-                        <td></td>
-                        <td><b>Mouse Navigation</b></td>
-                    </tr>
-                    <tr>
-                        <td>Rotate</td>
-                        <td>&lt;left mouse button&gt;</td>
-                    </tr>
-                    <tr>
-                        <td>Rotate up / down</td>
-                        <td>&lt;${ctrl}&gt; + &lt;left mouse button&gt;</td>
-                    </tr>
-                    <tr>
-                        <td>Rotate left / right</td>
-                        <td>&lt;${meta}&gt; + &lt;left mouse button&gt;</td>
-                    </tr>
-                    <tr>
-                        <td>Pan</td>
-                        <td>&lt;${shift}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>
-                    </tr>
-                    <tr>
-                        <td>Zoom</td>
-                        <td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td>
-                    </tr>
-
-                    <tr>
-                        <td></td>
-                        <td><b>Mouse Selection</b></td>
-                    </tr>
-                    <tr>
-                        <td>Pick element</td>
-                        <td>&lt;left mouse button&gt; double click</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>Click on navigation tree label</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>(Shows axis-aligned bounding box, AABB)</td>
-                    </tr>
-                    <tr>
-                        <td>Hide element</td>
-                        <td>&lt;${meta}&gt; + &lt;left mouse button&gt; double click</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>&lt;${meta}&gt; + click on navigation tree label</td>
-                    </tr>                    <tr>
-                        <td>Isolate element</td>
-                        <td>&lt;${shift}&gt; + &lt;left mouse button&gt; double click</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>&lt;${shift}&gt; + click on navigation tree label</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td><b>CAD Object Tree</b></td>
-                    </tr>
-                    <tr>
-                        <td>Collapse single leafs</td>
-                        <td>Button '1' (all nodes with one leaf only)</td>
-                    </tr>
-                    <tr>
-                        <td>Expand root only</td>
-                        <td>Button 'R'</td>
-                    </tr>
-                    <tr>
-                        <td>Collapse all nodes</td>
-                        <td>Button 'C'</td>
-                    </tr>
-                    <tr>
-                        <td>Expand all nodes</td>
-                        <td>Button 'E'</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-`;
-  return html;
-}
-
-function px(val) {
-  return `${val}px`;
-}
-
-const buttons = [
-  "reset",
-  "resize",
-  "help",
-  "iso",
-  "front",
-  "rear",
-  "top",
-  "bottom",
-  "left",
-  "right",
-  "pin",
-  "plane",
-  "play",
-  "pause",
-  "stop",
-];
 class Slider {
-  constructor(index, min, max, display) {
-    if (index.startsWith("plane")) {
-      this.index = parseInt(index.substring(5));
-      this.type = "plane";
-    } else {
-      this.index = undefined;
-      this.type = index;
+    constructor(index, min, max, display) {
+        if (index.startsWith("plane")) {
+            this.index = parseInt(index.substring(5));
+            this.type = "plane";
+        } else {
+            this.index = undefined;
+            this.type = index;
+        }
+        this.display = display;
+
+        this.slider = display.container.getElementsByClassName(
+            `tcv_sld_value_${index}`,
+        )[0];
+        this.slider.min = min;
+        this.slider.max = max;
+        this.input = display.container.getElementsByClassName(
+            `tcv_inp_value_${index}`,
+        )[0];
+        this.input.value = max;
+        this.slider.oninput = this.sliderChange;
+        this.input.addEventListener("change", this.inputChange);
     }
-    this.display = display;
 
-    this.slider = display.container.getElementsByClassName(
-      `tcv_sld_value_${index}`,
-    )[0];
-    this.slider.min = min;
-    this.slider.max = max;
-    this.input = display.container.getElementsByClassName(
-      `tcv_inp_value_${index}`,
-    )[0];
-    this.input.value = max;
-    this.slider.oninput = this.sliderChange;
-    this.input.addEventListener("change", this.inputChange);
-  }
+    _notify = (value, notify = true) => {
+        if (this.type == "plane") {
+            const change = {};
+            change[`clip_slider_${this.index - 1}`] = parseFloat(value);
+            this.display.viewer.checkChanges(change, notify);
+        }
+    };
 
-  _notify = (value, notify = true) => {
-    if (this.type == "plane") {
-      const change = {};
-      change[`clip_slider_${this.index - 1}`] = parseFloat(value);
-      this.display.viewer.checkChanges(change, notify);
+    _handle(type, index, value) {
+        if (type == "plane") {
+            this.display.refreshPlane(index, value);
+        } else if (type === "ambientlight") {
+            if (this.display.viewer.ready) {
+                this.display.viewer.setAmbientLight(value / 100);
+            }
+        } else if (type === "pointlight") {
+            if (this.display.viewer.ready) {
+                this.display.viewer.setDirectLight(value / 100);
+            }
+        } else if (type === "metalness") {
+            if (this.display.viewer.ready) {
+                this.display.viewer.setMetalness(value / 100);
+            }
+        } else if (type === "roughness") {
+            if (this.display.viewer.ready) {
+                this.display.viewer.setRoughness(value / 100);
+            }
+        }
     }
-  };
 
-  _handle(type, index, value) {
-    if (type == "plane") {
-      this.display.refreshPlane(index, value);
-    } else if (type === "ambientlight") {
-      if (this.display.viewer.ready) {
-        this.display.viewer.setAmbientLight(value / 100);
-      }
-    } else if (type === "pointlight") {
-      if (this.display.viewer.ready) {
-        this.display.viewer.setDirectLight(value / 100);
-      }
-    } else if (type === "metalness") {
-      if (this.display.viewer.ready) {
-        this.display.viewer.setMetalness(value / 100);
-      }
-    } else if (type === "roughness") {
-      if (this.display.viewer.ready) {
-        this.display.viewer.setRoughness(value / 100);
-      }
+    sliderChange = (e) => {
+        const value = e.target.value;
+        this.input.value = Math.round(1000 * value) / 1000;
+        this._handle(this.type, this.index, this.input.value);
+        this._notify(value);
+    };
+
+    inputChange = (e) => {
+        const value = Math.max(
+            Math.min(e.target.value, this.slider.max),
+            this.slider.min,
+        );
+        // if (value != e.target.value) {
+        //     this.input.value = Math.round(1000 * value) / 1000;
+        // }
+        this.slider.value = value;
+        this._handle(this.type, this.index, this.input.value);
+        this._notify(value);
+    };
+
+    setSlider(limit) {
+        const exp = Math.abs(Math.round(Math.log10(2 * limit)));
+        this.slider.min = -limit;
+        this.slider.max = limit;
+        this.slider.step = Math.pow(10, -(3 - exp));
+        this.slider.value = limit;
+        this.input.value = Math.round(1000 * this.slider.max) / 1000;
+        this.display.refreshPlane(this.index, this.input.value);
     }
-  }
 
-  sliderChange = (e) => {
-    const value = e.target.value;
-    this.input.value = Math.round(1000 * value) / 1000;
-    this._handle(this.type, this.index, this.input.value);
-    this._notify(value);
-  };
+    getValue() {
+        return parseFloat(this.input.value);
+    }
 
-  inputChange = (e) => {
-    const value = Math.max(
-      Math.min(e.target.value, this.slider.max),
-      this.slider.min,
-    );
-    // if (value != e.target.value) {
-    //     this.input.value = Math.round(1000 * value) / 1000;
-    // }
-    this.slider.value = value;
-    this._handle(this.type, this.index, this.input.value);
-    this._notify(value);
-  };
-
-  setSlider(limit) {
-    const exp = Math.abs(Math.round(Math.log10(2 * limit)));
-    this.slider.min = -limit;
-    this.slider.max = limit;
-    this.slider.step = Math.pow(10, -(3 - exp));
-    this.slider.value = limit;
-    this.input.value = Math.round(1000 * this.slider.max) / 1000;
-    this.display.refreshPlane(this.index, this.input.value);
-  }
-
-  getValue() {
-    return parseFloat(this.input.value);
-  }
-
-  setValue(value, notify = true) {
-    const trimmed_value = Math.max(
-      Math.min(value, this.slider.max),
-      this.slider.min,
-    );
-    this.input.value = trimmed_value.toFixed(0);
-    this.slider.value = value;
-    this._handle(this.type, this.index, this.input.value);
-    this._notify(value, notify);
-  }
+    setValue(value, notify = true) {
+        const trimmed_value = Math.max(
+            Math.min(value, this.slider.max),
+            this.slider.min,
+        );
+        this.input.value = trimmed_value.toFixed(0);
+        this.slider.value = value;
+        this._handle(this.type, this.index, this.input.value);
+        this._notify(value, notify);
+    }
 }
 
-class Display {
-  /**
-   * Create Display
-   * @param {DOMElement} container - the DOM element, e.g. div, that should contain the Display
-   * @param {} options - display options
-   */
-  constructor(container, options) {
-    this.container = container;
-
-    this.container.innerHTML = TEMPLATE(this.container.id);
-    const fullWidth =
-      options.cadWidth + (options.glass ? 0 : options.treeWidth);
-    this.handleMoreButton(fullWidth);
-    this.cadBody = this._getElement("tcv_cad_body");
-    this.cadTool = this._getElement("tcv_cad_toolbar");
-    this.cadView = this._getElement("tcv_cad_view");
-    this.cadTree = this._getElement("tcv_cad_tree_container");
-    this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
-    this.cadClip = this._getElement("tcv_cad_clip_container");
-    this.cadMaterial = this._getElement("tcv_cad_material_container");
-    this.tabTree = this._getElement("tcv_tab_tree");
-    this.tabClip = this._getElement("tcv_tab_clip");
-    this.tabMaterial = this._getElement("tcv_tab_material");
-    this.cadInfo = this._getElement("tcv_cad_info_container");
-    this.cadAnim = this._getElement("tcv_cad_animation");
-
-    this.cadHelp = this._getElement("tcv_cad_help");
-
-    this.planeLabels = [];
-    for (var i = 1; i < 4; i++) {
-      this.planeLabels.push(this._getElement(`tcv_lbl_norm_plane${i}`));
+class Toolbar {
+    constructor(container, id) {
+        this.id = id;
+        this.container = container;
+        this.buttons = {};
     }
 
-    this.viewer = null;
-    this.glass = options.glass;
-    this.tools = options.tools;
-    this.cadWidth = options.cadWidth;
-    this.height = options.height;
-    this.treeWidth = options.treeWidth;
-
-    this._events = [];
-
-    this.setSizes(options);
-
-    this.activeTab = "tree";
-    this.cadTree.style.display = "block";
-    this.cadClip.style.display = "none";
-    this.cadMaterial.style.display = "none";
-    this.clipSliders = null;
-
-    this.lastPlaneState = false;
-
-    var theme;
-    if (
-      options.theme === "dark" ||
-      (options.theme == "browser" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      document.documentElement.setAttribute("data-theme", "dark");
-      theme = "dark";
-    } else {
-      document.documentElement.setAttribute("data-theme", "light");
-      theme = "light";
+    addButton(button) {
+        button.setId(this.id);
+        this.buttons[button.name] = button;
+        this.container.appendChild(button.html);
     }
 
-    for (var btn of buttons) {
-      var elements = this.container.getElementsByClassName(`tcv_${btn}`);
-      for (i = 0; i < elements.length; i++) {
-        var el = elements[i];
-        el.setAttribute(
-          "style",
-          `background-image: ${getIconBackground(theme, btn)}`,
-        );
-      }
+    addSeparator() {
+        var html = document.createElement("span");
+        html.className = "tcv_separator";
+        this.container.appendChild(html);
     }
 
-    this.showPinning(options.pinning);
-  }
-
-  _setupCheckEvent(name, fn, flag) {
-    const el = this._getElement(name);
-    el.addEventListener("change", fn);
-    if (flag != undefined) {
-      el.checked = flag;
-    }
-    this._events.push(["change", name, fn]);
-  }
-
-  // eslint-disable-next-line no-unused-vars
-  _setupClickEvent(name, fn, flag) {
-    const el = this._getElement(name);
-    el.addEventListener("click", fn);
-    this._events.push(["click", name, fn]);
-  }
-
-  _getElement(name) {
-    return this.container.getElementsByClassName(name)[0];
-  }
-
-  dispose() {
-    var type, el_name, fn;
-    for (var ui_event of this._events) {
-      [type, el_name, fn] = ui_event;
-      const el = this._getElement(el_name);
-      el.removeEventListener(type, fn);
-    }
-    // remove cadTree
-    this.cadTree.innerHTML = "";
-    // remove canvas
-    this.cadView.removeChild(this.cadView.children[2]);
-    // delete view
-    this.container.innerHTML = "";
-  }
-
-  /**
-   * Use More fropdown if overall width < 970px else just check boxes
-   * @param {number} fullWidth - overall width of tree and cad view (taking glass mode into account)
-   */
-  handleMoreButton(fullWidth) {
-    const moreButton = this._getElement("tcv_more-btn");
-    const moreContent = this._getElement("tcv_more-wrapper");
-    if (fullWidth < 970) {
-      moreButton.classList.remove("tcv_none");
-      moreContent.classList.add("tcv_dropdown-content");
-      moreContent.classList.add("tcv_more-content");
-    } else {
-      moreButton.classList.add("tcv_none");
-      moreContent.classList.remove("tcv_dropdown-content");
-      moreContent.classList.remove("tcv_more-content");
-    }
-  }
-
-  /**
-   * Set the width and height of the different UI elements (tree, canvas and info box)
-   * @param {DisplayOptions} options
-   */
-  setSizes(options, ratio = 2 / 3) {
-    if (options.cadWidth) {
-      this.cadWidth = options.cadWidth;
-      this.cadView.style.width = px(options.cadWidth);
-    }
-    if (options.height) {
-      this.height = options.height;
-      this.cadView.style.height = px(options.height);
-    }
-    if (options.treeWidth) {
-      this.treeWidth = options.treeWidth;
-      this.cadTree.parentElement.parentElement.style.width = px(
-        options.treeWidth,
-      );
-      this.cadInfo.parentElement.parentElement.style.width = px(
-        options.treeWidth,
-      );
-    }
-    if (!options.glass) {
-      const treeHeight = Math.round(options.height * ratio);
-      this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
-      this.cadInfo.parentElement.parentElement.style.height = px(
-        options.height - treeHeight - 4,
-      );
-    }
-
-    if (options.tools && !options.glass) {
-      this.cadTool.style.width = px(options.treeWidth + options.cadWidth + 4);
-      this.cadBody.style.width = px(options.treeWidth + options.cadWidth + 4);
-    } else {
-      this.cadTool.style.width = px(options.cadWidth + 2);
-      this.cadBody.style.width = px(options.cadWidth + 2);
-    }
-
-    this.cadBody.style.height = px(options.height + 4);
-  }
-
-  /**
-   * Set up the UI
-   * @param {Viewer} viewer - the viewer for this UI
-   */
-  setupUI(viewer) {
-    this.viewer = viewer;
-
-    this._setupCheckEvent("tcv_axes", this.setAxes, viewer.axes);
-    this._setupCheckEvent("tcv_grid", this.setGrid, viewer.grid);
-    this._setupCheckEvent("tcv_grid-xy", this.setGrid, viewer.grid);
-    this._setupCheckEvent("tcv_grid-xz", this.setGrid, viewer.grid);
-    this._setupCheckEvent("tcv_grid-yz", this.setGrid, viewer.grid);
-    this._setupCheckEvent("tcv_axes0", this.setAxes0, viewer.axes0);
-    this._setupCheckEvent("tcv_ortho", this.setOrtho, viewer.ortho);
-    this._setupCheckEvent(
-      "tcv_transparent",
-      this.setTransparent,
-      viewer.transparent,
-    );
-    this._setupCheckEvent(
-      "tcv_black_edges",
-      this.setBlackEdges,
-      viewer.blackEdges,
-    );
-
-    this._setupCheckEvent("tcv_explode", this.setExplode);
-
-    this._setupClickEvent("tcv_reset", this.reset);
-    this._setupClickEvent("tcv_resize", this.resize);
-
-    const buttons = [
-      "tcv_front",
-      "tcv_rear",
-      "tcv_top",
-      "tcv_bottom",
-      "tcv_left",
-      "tcv_right",
-      "tcv_iso",
-    ];
-    buttons.forEach((name) => {
-      this._setupClickEvent(name, this.setView);
-    });
-
-    this._setupClickEvent("tcv_expand_root", this.handleCollapseNodes);
-    this._setupClickEvent("tcv_collapse_singles", this.handleCollapseNodes);
-    this._setupClickEvent("tcv_collapse_all", this.handleCollapseNodes);
-    this._setupClickEvent("tcv_expand", this.handleCollapseNodes);
-
-    this._setupClickEvent("tcv_toggle_info", this.toggleInfo);
-
-    this._setupClickEvent("tcv_pin", this.pinAsPng);
-    this._setupClickEvent("tcv_help", this.toggleHelp);
-    this.help_shown = true;
-    this.info_shown = !this.glass;
-
-    const tabs = ["tcv_tab_tree", "tcv_tab_clip", "tcv_tab_material"];
-    tabs.forEach((name) => {
-      this._setupClickEvent(name, this.selectTab);
-    });
-
-    this.clipSliders = [];
-    for (var i = 1; i < 4; i++) {
-      this.clipSliders.push(new Slider(`plane${i}`, 0, 100, this));
-    }
-
-    this.ambientlightSlider = new Slider("ambientlight", 0, 400, this);
-    this.directionallightSlider = new Slider("pointlight", 0, 400, this);
-    this.metalnessSlider = new Slider("metalness", 0, 100, this);
-    this.roughnessSlider = new Slider("roughness", 0, 100, this);
-
-    this._setupCheckEvent(
-      "tcv_clip_plane_helpers",
-      this.setClipPlaneHelpers,
-      false,
-    );
-    this._setupCheckEvent(
-      "tcv_clip_intersection",
-      this.setClipIntersection,
-      false,
-    );
-
-    for (i = 1; i < 4; i++) {
-      this._setupClickEvent(
-        `tcv_btn_norm_plane${i}`,
-        this.setClipNormalFromPosition,
-        false,
-      );
-    }
-
-    this._setupClickEvent("tcv_play", this.controlAnimation, false);
-    this._setupClickEvent("tcv_pause", this.controlAnimation, false);
-    this._setupClickEvent("tcv_stop", this.controlAnimation, false);
-    this.animationSlider = this.container.getElementsByClassName(
-      "tcv_animation_slider",
-    )[0];
-    this.animationSlider.value = 0;
-    this.animationSlider.addEventListener("input", this.animationChange);
-    this.showAnimationControl(false);
-
-    this.showHelp(false);
-  }
-
-  /**
-   * Check or uncheck a checkbox
-   * @property {boolean} [axes = false] - show X-, Y-, Z-axes.
-   * @property {boolean} [axes0 = false] - show axes at [0,0,0] ot at object center (target).
-   * @property {boolean} [ortho = true] - use an orthographic (true) or perspective camera (false)
-   * @property {boolean} [transparent = false] - show CAD object transparent.
-   * @property {boolean} [blackEdges = false] - show edges in black and not in edgeColor.
-   * @property {boolean} [tools = true] - show CAD tools.
-   * @property {boolean} [glass = false] - use glass mode, i.e. CAD navigation as overlay.
-   */
-  updateUI(axes, axes0, ortho, transparent, blackEdges, tools, glass) {
-    this.checkElement("tcv_axes", axes);
-    this.checkElement("tcv_axes0", axes0);
-    this.checkElement("tcv_ortho", ortho);
-    this.checkElement("tcv_transparent", transparent);
-    this.checkElement("tcv_black_edges", blackEdges);
-
-    this.showTools(tools);
-    this.glassMode(glass);
-  }
-  // setup functions
-
-  /**
-   * Check or uncheck a checkbox
-   * @param {string} name - name of the check box, see getElement
-   * @param {boolean} flag - whether to check or uncheck
-   */
-  checkElement(name, flag) {
-    this._getElement(name).checked = flag;
-  }
-
-  /**
-   * Add the Cad View (the canvas for threejs)
-   * @param {DOMElement} cadView - the DOM element that contains the cadView
-   */
-  addCadView(cadView) {
-    this.cadView.appendChild(cadView);
-  }
-
-  /**
-   * Clear the Cad tree
-   */
-  clearCadTree() {
-    this.cadTree.innerHTML = "";
-  }
-
-  /**
-   * Add the Cad tree and other UI elements like Clipping
-   * @param {DOMElement} cadTree - the DOM element that contains the cadTree
-   */
-  addCadTree(cadTree) {
-    this.cadTree.appendChild(cadTree);
-  }
-
-  // handler (bound to Display instance)
-
-  /**
-   *
-   * @function
-   * @param {*} e
-   */
-  setAxes = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.setAxes(flag);
-  };
-
-  /**
-   * Check/uncheck the axes checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the axes checkbox
-   */
-  setAxesCheck = (flag) => {
-    this.checkElement("tcv_axes", flag);
-  };
-
-  /**
-   * Checkbox Handler for setting the grid parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setGrid = (e) => {
-    const action = e.target.className.split(" ")[0].slice(4);
-    this.viewer.setGrid(action);
-  };
-
-  /**
-   * Check/uncheck the main grid UI element
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the main grid checkbox
-   */
-  setGridCheck = (flag) => {
-    this.checkElement("tcv_grid", flag);
-  };
-
-  /**
-   * Checkbox Handler for setting the axes0 parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setAxes0 = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.setAxes0(flag);
-  };
-
-  /**
-   * Check/uncheck the Axes0 checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Axes0 checkbox
-   */
-  setAxes0Check = (flag) => {
-    this.checkElement("tcv_axes0", flag);
-  };
-
-  /**
-   * Checkbox Handler for setting the ortho parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setOrtho = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.switchCamera(flag);
-  };
-
-  /**
-   * Check or uncheck the Ortho checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the ortho checkbox
-   */
-  setOrthoCheck = (flag) => {
-    this.checkElement("tcv_ortho", flag);
-  };
-
-  /**
-   * Checkbox Handler for setting the transparent parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setTransparent = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.setTransparent(flag);
-  };
-
-  /**
-   * Check or uncheck the Transparent checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Transparent checkbox
-   */
-  setTransparentCheck = (flag) => {
-    this.checkElement("tcv_transparent", flag);
-  };
-
-  /**
-   * Checkbox Handler for setting the black edges parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setBlackEdges = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.setBlackEdges(flag);
-  };
-
-  /**
-   * Check or uncheck the Black Edges checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
-   */
-  setBlackEdgesCheck = (flag) => {
-    this.checkElement("tcv_black_edges", flag);
-  };
-
-  /**
-   * Checkbox Handler for setting the black edges parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setExplode = (e) => {
-    const flag = !!e.target.checked;
-    if (flag) {
-      if (this.viewer.hasAnimation()) {
-        this.viewer.backupAnimation();
-      }
-      this.viewer.explode();
-    } else {
-      if (this.viewer.hasAnimation()) {
-        this.controlAnimationByName("stop");
-        this.viewer.clearAnimation();
-        this.viewer.restoreAnimation();
-      }
-    }
-  };
-
-  /**
-   * Check or uncheck the Explode checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
-   */
-  setExplodeCheck = (flag) => {
-    this.checkElement("tcv_explode", flag);
-  };
-
-  /**
-   * Show or hide the Explode checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
-   */
-  showExplode = (flag) => {
-    const el = this._getElement("tcv_explode_widget");
-    el.style.display = flag ? "inline-block" : "none";
-  };
-
-  /**
-   * Checkbox Handler for setting the clip planes parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setClipPlaneHelpers = (e) => {
-    const flag = !!e.target.checked;
-    this.setClipPlaneHelpersCheck(flag);
-    this.viewer.setClipPlaneHelpers(flag);
-  };
-
-  /**
-   * Check or uncheck the Plane Helpers checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Plane Helpers checkbox
-   */
-  setClipPlaneHelpersCheck = (flag) => {
-    this.checkElement("tcv_clip_plane_helpers", flag);
-    this.lastPlaneState = flag;
-  };
-
-  /**
-   * Show or hide the CAD tools
-   * @function
-   * @param {boolean} flag - whether to show or hide the CAD tools
-   */
-  showTools = (flag) => {
-    this.tools = flag;
-    if (this.viewer) {
-      // not available at first call
-      this.viewer.tools = flag;
-    }
-    var tb = this._getElement("tcv_cad_toolbar");
-    var cn = this._getElement("tcv_cad_navigation");
-    for (var el of [cn, tb]) {
-      if (flag) {
-        el.style.height = "36px";
-        el.style.display = "block";
-      } else {
-        el.style.height = "0px";
-        el.style.display = "none";
-      }
-    }
-  };
-
-  /**
-   * Checkbox Handler for setting the clip intersection parameter
-   * @function
-   * @param {*} e
-   */
-  setClipIntersection = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.setClipIntersection(flag);
-  };
-
-  /**
-   * Check or uncheck the Intersection checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Intersection checkbox
-   */
-  setClipIntersectionCheck = (flag) => {
-    const el = this._getElement("tcv_clip_intersection");
-    el.checked = flag;
-  };
-
-  /**
-   * Handler to reset position, zoom and up of the camera
-   * @function
-   */
-  reset = () => {
-    this.viewer.reset();
-    this.clearHighlights();
-  };
-
-  /**
-   * Handler to reset zoom of the camera
-   * @function
-   */
-  resize = () => {
-    this.viewer.resize();
-  };
-
-  /**
-   * Clear all highlights of navigation tree entries
-   */
-  clearHighlights() {
-    const buttons = [
-      "tcv_front",
-      "tcv_rear",
-      "tcv_top",
-      "tcv_bottom",
-      "tcv_left",
-      "tcv_right",
-      "tcv_iso",
-    ];
-    buttons.forEach((btn) => {
-      var el = this._getElement(btn);
-      el.classList.remove("tcv_btn_highlight");
-    });
-  }
-
-  /**
-   * Highlight the selected navigation tree entry
-   * @param {string} name - A CAD object id (path)
-   */
-  highlightButton(name) {
-    this.clearHighlights();
-    var el = this._getElement(`tcv_${name}`);
-    el.classList.add("tcv_btn_highlight");
-    this.viewer.keepHighlight = true;
-  }
-
-  /**
-   * Handler to set camera to a predefined position
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setView = (e) => {
-    const btn = e.target.className.split(" ")[0].slice(4);
-    this.viewer.presetCamera(btn);
-    this.highlightButton(btn);
-    this.viewer.update(true, false); // ensure update is called again
-  };
-
-  /**
-   * Show/hide pinning button
-   * @function
-   * @param {boolean} flag - Whether to show/hide the pinning button
-   */
-  showPinning(flag) {
-    const el = this._getElement("tcv_pin");
-    el.style.display = flag ? "inline-block" : "none";
-  }
-
-  /**
-   * Pin screenshot of canvas as PNG
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  // eslint-disable-next-line no-unused-vars
-  pinAsPng = (e) => {
-    this.viewer.pinAsPng();
-  };
-
-  /**
-   * Handler to set the label of a clipping normal widget
-   * @function
-   * @param {number} index - index of the normal widget
-   * @param {Vector3} normal - the normal
-   */
-  setNormalLabel = (index, normal) => {
-    this.planeLabels[index].innerHTML = `N=(${normal[0].toFixed(
-      2,
-    )}, ${normal[1].toFixed(2)}, ${normal[2].toFixed(2)})`;
-  };
-
-  /**
-   * Set the normal at index to the current viewing direction
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setClipNormalFromPosition = (e) => {
-    const index = parseInt(e.target.classList[0].slice(-1));
-    this.viewer.setClipNormalFromPosition(index - 1);
-  };
-
-  /**
-   * Handler to activate a UI tab (tree / clipping)
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  selectTab = (e) => {
-    const tab = e.target.className.split(" ")[0];
-    this.selectTabByName(tab.slice(8));
-  };
-
-  /**
-   * Set the ambient light intensity in the UI
-   * @function
-   * @param {number} val - a float between 0 and 4
-   */
-  setAmbientLight = (val) => {
-    this.ambientlightSlider.setValue(val * 100);
-  };
-
-  /**
-   * Set the direct light intensity in the UI
-   * @function
-   * @param {number} val - a float between 0 and 4
-   */
-  setDirectLight = (val) => {
-    this.directionallightSlider.setValue(val * 100);
-  };
-
-  /**
-   * Set material metalness in the UI
-   * @function
-   * @param {number} val - a float between 0 and 1
-   */
-  setMetalness = (val) => {
-    this.metalnessSlider.setValue(val * 100);
-  };
-
-  /**
-   * Set material roughness in the UI
-   * @function
-   * @param {number} val - a float between 0 and 1
-   */
-  setRoughness = (val) => {
-    this.roughnessSlider.setValue(val * 100);
-  };
-
-  /**
-   * Activate the UI tab given the name of the tab
-   * @param {string} tab - name of the tab "tree" or "clip"
-   */
-  selectTabByName(tab) {
-    if (!["clip", "tree", "material"].includes(tab)) {
-      return;
-    }
-
-    if (tab === "tree" && this.activeTab !== "tree") {
-      this.cadTree.style.display = "block";
-      this.cadTreeToggles.style.display = "block";
-      this.cadClip.style.display = "none";
-      this.cadMaterial.style.display = "none";
-      this.viewer.nestedGroup.setBackVisible(false);
-      this.viewer.setLocalClipping(false);
-      // copy state since setClipHelpers(false) will set to false
-      var lastPlaneState = this.viewer.getClipPlaneHelpers();
-      this.viewer.setClipPlaneHelpers(false);
-      this.lastPlaneState = lastPlaneState;
-    } else if (tab === "clip" && this.activeTab !== "clip") {
-      this.cadTree.style.display = "none";
-      this.cadTreeToggles.style.display = "none";
-      this.cadClip.style.display = "block";
-      this.cadMaterial.style.display = "none";
-      this.viewer.nestedGroup.setBackVisible(true);
-      this.viewer.setLocalClipping(true);
-      this.viewer.setClipPlaneHelpers(this.lastPlaneState);
-    } else if (tab === "material" && this.activeTab !== "material") {
-      this.cadTree.style.display = "none";
-      this.cadTreeToggles.style.display = "none";
-      this.cadClip.style.display = "none";
-      this.cadMaterial.style.display = "block";
-      this.viewer.nestedGroup.setBackVisible(false);
-      this.viewer.setLocalClipping(false);
-      this.viewer.setClipPlaneHelpers(false);
-    }
-    this.activeTab = tab;
-
-    this.viewer.checkChanges({ tab: tab });
-    if (tab == "tree") {
-      this.tabTree.classList.add("tcv_tab-selected");
-      this.tabTree.classList.remove("tcv_tab-unselected");
-      this.tabClip.classList.remove("tcv_tab-selected");
-      this.tabClip.classList.add("tcv_tab-unselected");
-      this.tabMaterial.classList.remove("tcv_tab-selected");
-      this.tabMaterial.classList.add("tcv_tab-unselected");
-    } else if (tab == "clip") {
-      this.tabTree.classList.remove("tcv_tab-selected");
-      this.tabTree.classList.add("tcv_tab-unselected");
-      this.tabClip.classList.add("tcv_tab-selected");
-      this.tabClip.classList.remove("tcv_tab-unselected");
-      this.tabMaterial.classList.remove("tcv_tab-selected");
-      this.tabMaterial.classList.add("tcv_tab-unselected");
-    } else {
-      this.tabTree.classList.add("tcv_tab-unselected");
-      this.tabTree.classList.remove("tcv_tab-selected");
-      this.tabClip.classList.add("tcv_tab-unselected");
-      this.tabClip.classList.remove("tcv_tab-selected");
-      this.tabMaterial.classList.add("tcv_tab-selected");
-      this.tabMaterial.classList.remove("tcv_tab-unselected");
-    }
-  }
-
-  /**
-   * Collapse nodes handler
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  handleCollapseNodes = (e) => {
-    this.collapseNodes(e.target.value);
-  };
-
-  /**
-   * Collapse nodes handler
-   * @param {string} value - 1: collapse all leaf nodes, "R": expand root level only, "C": collapse all nodes, "E": expand all nodes
-   */
-  collapseNodes(value) {
-    if (value === "1") {
-      this.viewer.treeview.expandNodes();
-      this.viewer.treeview.collapseNodes(1);
-    } else if (value === "R") {
-      this.viewer.treeview.expandNodes();
-      this.viewer.treeview.collapseNodes(3);
-    } else if (value === "C") {
-      this.viewer.treeview.collapseNodes(2);
-    } else if (value === "E") {
-      this.viewer.treeview.expandNodes();
-    }
-  }
-
-  /**
-   * Set minimum and maximum of the sliders
-   * @param {number} index - index of the plane: 0,1,2
-   * @param {number} limit - the value for both minimum and maximum value of the slider
-   */
-  setSliderLimits(limit) {
-    for (var i = 0; i < 3; i++) {
-      this.clipSliders[i].setSlider(limit);
-    }
-  }
-
-  /**
-   * Refresh clipping plane
-   * @function
-   * @param {number} index - index of the plane: 0,1,2
-   * @param {number} value - distance on the clipping normal from the center
-   */
-  refreshPlane(index, value) {
-    this.viewer.refreshPlane(index - 1, parseFloat(value));
-  }
-
-  /**
-   * Show or hide the Animation control widget
-   * @function
-   * @param {boolean} flag - whether to show or hide the Animation control widget
-   */
-  showAnimationControl = (flag) => {
-    this.cadAnim.style.display = flag ? "block" : "none";
-  };
-
-  /**
-   * Handle animation control
-   * @function
-   * @param {string} btn - animation control button name
-   */
-  controlAnimationByName(btn) {
-    this.viewer.controlAnimation(btn);
-
-    var currentTime = this.viewer.animation.getRelativeTime();
-    this.animationSlider.value = 1000 * currentTime;
-    if (btn == "play") {
-      this.viewer.bboxNeedsUpdate = true;
-    } else if (btn == "stop") {
-      this.viewer.bboxNeedsUpdate = false;
-      if (this.viewer.lastBbox != null) {
-        this.viewer.lastBbox.needsUpdate = true;
-      }
-    } else {
-      this.viewer.bboxNeedsUpdate = !this.viewer.bboxNeedsUpdate;
-    }
-  }
-
-  /**
-   * Handler for the animation control
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  controlAnimation = (e) => {
-    const btn = e.target.className.split(" ")[0].slice(4);
-    this.controlAnimationByName(btn);
-  };
-
-  /**
-   * Handler for the animation slider
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  animationChange = (e) => {
-    this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
-    if (this.viewer.lastBbox != null) {
-      this.viewer.lastBbox.needsUpdate = true;
-    }
-  };
-
-  /**
-   * Set label text of animation control
-   * @param {string} label - "A" for animation and "E" for Explode control
-   */
-  setAnimationLabel(label) {
-    var el = this._getElement("tcv_animation_label");
-    el.innerHTML = label;
-  }
-
-  /**
-   * Reset animation slider to 0
-   */
-  resetAnimationSlider() {
-    this.animationSlider.value = 0;
-  }
-
-  /**
-   * Show or hide help dialog
-   * @function
-   * @param {boolean} flag - whether to show or hide help dialog
-   */
-  showHelp = (flag) => {
-    this.cadHelp.style.display = flag ? "block" : "none";
-    this.help_shown = flag;
-    if (flag) {
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-          this.showHelp(false);
+    defineGroup(buttons) {
+        for (var button of buttons) {
+            for (var button2 of buttons) {
+                if (button2 != button) {
+                    button.addGroupMember(button2);
+                }
+            }
         }
-        document.removeEventListener("keydown", this);
-      });
-    } else {
-      document.removeEventListener("keydown", this);
     }
-  };
+}
 
-  /**
-   * Show help dialog
-   * @function
-   */
-  toggleHelp = () => {
-    this.showHelp(!this.help_shown);
-  };
+class BaseButton {
+    constructor(theme, icon, tooltip) {
+        this.svg = getIconBackground(theme, icon);
+        this.name = icon;
 
-  /**
-   * Show or hide info dialog
-   * @function
-   * @param {boolean} flag - whether to show or hide info dialog
-   */
-  showInfo = (flag) => {
-    this.cadInfo.parentNode.parentNode.style.display = flag ? "block" : "none";
-    this._getElement("tcv_toggle_info").value = flag ? "\u25B2 i" : "\u25BC i";
-    this.info_shown = flag;
-  };
+        var html = document.createElement("span");
+        html.className = "tcv_tooltip";
+        html.setAttribute("data-tooltip", tooltip);
 
-  /**
-   * Show info dialog
-   * @function
-   */
-  toggleInfo = () => {
-    this.showInfo(!this.info_shown);
-  };
+        // html.appendChild(document.createElement("span"));
+        // html.children[0].className = "tcv_click_btn_marker";
+        var frame = html.appendChild(document.createElement("span"));
+        frame.className = "tcv_button_frame";
+        frame.appendChild(document.createElement("input"));
+        frame.children[0].className = "tcv_reset tcv_btn";
 
-  /**
-   * Auto collapse tree nodes, when cad width < 600
-   * @function
-   * @param {boolean} flag - whether to enable/disable glass mode
-   */
-  autoCollapse() {
-    if (this.cadWidth < 600 && this.glass) {
-      console.info("Small view, collapsing tree");
-      this.collapseNodes("C");
+        frame.children[0].type = "button";
+        frame.children[0].style.backgroundImage = this.svg;
+        this.html = html;
+
+        this.html.addEventListener("click", (e) => {
+            this.handler(e);
+        });
     }
-  }
 
-  /**
-   * Enable/disable glass mode
-   * @function
-   * @param {boolean} flag - whether to enable/disable glass mode
-   */
-  glassMode(flag) {
-    if (flag) {
-      this._getElement("tcv_cad_tree").classList.add("tcv_cad_tree_glass");
-      this._getElement("tcv_cad_tree").style["height"] = null;
-      this._getElement("tcv_cad_tree").style["max-height"] = px(
-        Math.round((this.height * 2) / 3) - 18,
-      );
-
-      this._getElement("tcv_cad_info").classList.add("tcv_cad_info_glass");
-      this._getElement("tcv_cad_view").classList.add("tcv_cad_view_glass");
-
-      this._getElement("tcv_toggle_info_wrapper").style.display = "block";
-
-      this.showInfo(false);
-      this.glass = true;
-      this.autoCollapse();
-    } else {
-      this._getElement("tcv_cad_tree").classList.remove("tcv_cad_tree_glass");
-      this._getElement("tcv_cad_tree").style["max-height"] = null;
-      this._getElement("tcv_cad_tree").style.height = px(
-        Math.round((this.height * 2) / 3),
-      );
-      this._getElement("tcv_cad_info").classList.remove("tcv_cad_info_glass");
-      this._getElement("tcv_cad_view").classList.remove("tcv_cad_view_glass");
-
-      this._getElement("tcv_toggle_info_wrapper").style.display = "none";
-
-      this.showInfo(true);
-      this.glass = false;
+    dispose() {
+        this.html = "";
+        this.container.removeEventListener("click", this.handler);
     }
-    if (this.viewer) {
-      // not available at first call
-      this.viewer.glass = false;
+
+    setId(id) {
+        this.containerId = id;
     }
-    const options = {
-      cadWidth: this.cadWidth,
-      glass: this.glass,
-      height: this.height,
-      tools: this.tools,
-      treeWidth: flag ? 0 : this.treeWidth,
+
+    // eslint-disable-next-line no-unused-vars
+    handler = (e) => {
+        console.log("not implemented yet");
     };
-    this.setSizes(options);
 
-    const fullWidth = this.cadWidth + (this.glass ? 0 : this.treeWidth);
-    this.handleMoreButton(fullWidth);
-  }
-
-  updateHelp(before, after) {
-    console.log("updateHelp", before, after);
-    const help = this._getElement("tcv_cad_help_layout");
-    for (var k in before) {
-      help.innerHTML = help.innerHTML.replaceAll(
-        "&lt;" + before[k].slice(0, -3) + "&gt;",
-        "&lt;_" + after[k].slice(0, -3) + "&gt;");
+    alignRight() {
+        this.html.classList.add("tcv_align_right");
     }
-    help.innerHTML = help.innerHTML.replaceAll("_shift", "shift");
-    help.innerHTML = help.innerHTML.replaceAll("_ctrl", "ctrl");
-    help.innerHTML = help.innerHTML.replaceAll("_alt", "alt");
-    help.innerHTML = help.innerHTML.replaceAll("_meta", "meta");
-  }
+
+    show(flag) {
+        this.html.style.display = flag ? "inline-block" : "none";
+    }
+}
+
+class Button extends BaseButton {
+    constructor(theme, svg, tooltip, action) {
+        super(theme, svg, tooltip);
+        this.action = action;
+    }
+
+    // eslint-disable-next-line no-unused-vars
+    handler = (e) => {
+        this.action(this.name);
+    };
+
+    highlight = (flag) => {
+        if (flag) {
+            this.html.firstChild.classList.add("tcv_btn_highlight");
+        } else {
+            this.html.firstChild.classList.remove("tcv_btn_highlight");
+        }
+    };
+}
+
+class ClickButton extends BaseButton {
+    constructor(theme, svg, tooltip, action, defaultState = false, dropdown = null) {
+        super(theme, svg, tooltip);
+        this.action = action;
+        this.state = defaultState;
+        this.dropdown = dropdown;
+        this.sameGroup = [];
+
+        this.checkElems = {};
+        if (dropdown != null) {
+            const d = document.createElement("span");
+            d.classList.add("tcv_grid-content");
+            d.classList.add("tcv_dropdown-content");
+            d.classList.add("tcv_round");
+            for (var p of dropdown) {
+                const dp = document.createElement("div");
+                dp.className = "tcv_tooltip";
+                dp.setAttribute("data-tooltip", `${tooltip} ${p}`);
+                dp.innerHTML = `<input class='tcv_grid-${p} tcv_check tcv_dropdown-entry' id='tcv_grid-${p}_${this.containerId}' type="checkbox">` +
+                    `<label for='tcv_grid-${p}_${this.containerId}' class="tcv_label tcv_dropdown-entry">${p}</label>`;
+                d.appendChild(dp);
+                this.checkElems[p] = dp.children[0];
+            }
+            this.html.children[0].appendChild(d);
+            this.html.children[0].classList.add("tcv_grid-dropdown");
+        }
+    }
+    get = () => {
+        return this.state;
+    };
+
+    set = (state) => {
+        this.state = state;
+        this.html.children[0].classList.toggle("tcv_btn_click2", this.state);
+    };
+
+    clearGroup = () => {
+        for (var button of this.sameGroup) {
+            if (button.state) {
+                button.state = false;
+                button.html.children[0].classList.remove("tcv_btn_click2");
+                button.action(this.name, false);
+            }
+        }
+    };
+
+    // eslint-disable-next-line no-unused-vars
+    handler = (e) => {
+        if (this.dropdown != null && this.dropdown.includes(e.target.innerHTML)) {
+            this.action(`grid-${e.target.innerHTML}`, !this.checkElems[e.target.innerHTML].checked);
+            e.preventDefault();
+            e.stopPropagation();
+        } else if (e.target.type === "button") {
+            if (!this.state) {
+                this.clearGroup();
+            }
+            this.set(!this.state);
+            this.action(this.name, this.state);
+        }
+    };
+
+    addGroupMember(button) {
+        this.sameGroup.push(button);
+    }
 }
 
 const _box$1 = new Box3();
@@ -54799,6 +53658,2354 @@ class LineSegments2 extends Mesh {
 
 }
 
+const TopoFilter = {
+    none: null,
+    vertex: "vertex",
+    edge: "edge",
+    face: "face",
+    solid: "solid",
+};
+const GeomFilter = {
+    none: null,
+    plane: "plane",
+    line: "line",
+    circle: "circle",
+};
+
+const GeomTypes = {
+    "face": [
+        "plane",
+        "cylinder",
+        "cone",
+        "sphere",
+        "torus",
+        "bezier",
+        "bspline",
+        "revolution",
+        "extrusion",
+        "offset",
+        "other"],
+    "edge": [
+        "line",
+        "circle",
+        "ellipse",
+        "hyperbola",
+        "parabola",
+        "bezier",
+        "bspline",
+        "offset",
+        "other"
+    ]
+};
+
+class PickedObject {
+    constructor(objectGroup, fromSolid) {
+        this.obj = objectGroup;
+        this.fromSolid = fromSolid;
+    }
+
+    /**
+    * Returns all the faces ObjectGroups that define the solid from the picked object.
+    */
+    _getSolidObjectGroups(solidSubObject) {
+
+        const solidGroup = solidSubObject.parent.parent;
+        let facesGroup;
+        for (let i = 0; i < solidGroup.children.length; i++) {
+            const child = solidGroup.children[i];
+            if (child.name === solidGroup.name + "|faces") {
+                facesGroup = child;
+                break;
+            }
+        }
+
+        return facesGroup.children;
+    }
+
+    /**
+     * If the picked object is part of a solid, returns all the faces ObjectGroups that define the solid.
+     * Otherwise, returns the picked object.
+     * @returns {ObjectGroup[]} The picked objects.
+     */
+    objs() {
+        if (this.fromSolid) {
+            return this._getSolidObjectGroups(this.obj);
+        } else {
+            return [this.obj];
+        }
+
+    }
+}
+
+class Raycaster {
+    constructor(camera, domElement, width, height, threshold, group, callback) {
+        this.camera = camera;
+        this.group = group;
+        this.domElement = domElement;
+        this.width = width;
+        this.height = height;
+        this.threshold = threshold;
+        this.callback = callback;
+
+        this.raycaster = new Raycaster$1();
+        this.raycastMode = false;
+
+        this.lastPosition = null;
+
+        this.mouse = new Vector2();
+        this.mouseMoved = false;
+        this.filters = { topoFilter: [TopoFilter.none], geomFilter: [GeomFilter.none] };
+    }
+
+    dispose() {
+        this.domElement.removeEventListener("mousemove", this.onPointerMove);
+        this.domElement.removeEventListener("mouseup", this.mouseKetUp);
+        this.domElement.removeEventListener("mousedown", this.onMouseKeyDown);
+        this.domElement.removeEventListener("keydown", this.onKeyDown);
+        this.raycastMode = false;
+    }
+
+    init() {
+        this.domElement.addEventListener("mousemove", this.onPointerMove);
+        this.domElement.addEventListener("mouseup", this.onMouseKeyUp, false);
+        this.domElement.addEventListener("mousedown", this.onMouseKeyDown, false);
+        this.domElement.addEventListener("keydown", this.onKeyDown, false);
+        this.raycastMode = true;
+    }
+
+    /**
+     * Retrieve all the valid intersected objects by a ray caster from the mouse.
+     */
+    getIntersectedObjs() {
+        this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
+        this.raycaster.params.Points.threshold = this.threshold / this.camera.getZoom();
+        this.raycaster.params["Line2"] = { threshold: 4 };
+        var objects = this.raycaster.intersectObjects(this.group, true);
+        var validObjs = [];
+        for (var obj in objects) {
+            if (objects[obj].object.material.visible) {
+                validObjs.push(objects[obj]);
+            }
+        }
+        return validObjs;
+    }
+
+    /**
+     * Retrieve all the valid intersected objects by a ray caster from the mouse.
+     * The objects are sorted by their distance from the ray. (The closest first)
+     */
+    getValidIntersectedObjs() {
+        var validObjs = [];
+        if (this.mouseMoved) {
+            const objects = this.getIntersectedObjs();
+
+            for (var object of objects) {
+                if (object.object.material.visible) {
+                    const objectGroup = object.object.parent;
+                    if (objectGroup == null) continue;
+
+                    const topo = objectGroup.shapeInfo.topo;
+                    let geom;
+                    if (topo !== "vertex")
+                        geom = GeomTypes[topo][objectGroup.shapeInfo.geomtype];
+
+                    // Check if topology is acceptable given the topology filters
+                    const isSolid = objectGroup.subtype === "solid";
+                    const isSubShapeOfSolid = this.filters.topoFilter.includes(TopoFilter.solid) && isSolid;
+
+                    let valid = (isSubShapeOfSolid
+                        || this.filters.topoFilter.includes(TopoFilter.none)
+                        || this.filters.topoFilter.includes(topo));
+
+                    if (!valid) continue;
+
+                    // Check if geom is acceptable given the geom filters
+                    valid = (this.filters.geomFilter.includes(GeomFilter.none)
+                        || this.filters.geomFilter.includes(geom)
+                        && !this.filters.topoFilter.includes(TopoFilter.solid));
+
+                    if (valid) {
+                        validObjs.push(object);
+                    }
+
+                }
+            }
+        }
+        return validObjs;
+    }
+
+    /**
+     * Handle left mouse button down event
+     * @function
+     * @param {MouseEvent} e - a DOM MouseEvent
+     */
+    onMouseKeyDown = (e) => {
+        if (this.raycastMode) {
+            if (e.button == MOUSE.LEFT || e.button == MOUSE.RIGHT) {
+                this.lastPosition = this.camera.getPosition().clone();
+            }
+        }
+    };
+
+
+    /**
+     * Handle left mouse button up event
+     * @function
+     * @param {MouseEvent} e - a DOM MouseEvent
+     */
+    onMouseKeyUp = (e) => {
+        if (this.raycastMode) {
+            if (e.button == MOUSE.LEFT) {
+                if (this.lastPosition.equals(this.camera.getPosition())) {
+                    this.callback({ mouse: "left" });
+                }
+            } else if (e.button == MOUSE.RIGHT) {
+                if (this.lastPosition.equals(this.camera.getPosition())) {
+                    this.callback({ mouse: "right" });
+                }
+            }
+        }
+    };
+
+    /**
+     * Handle key down event
+     * @function
+     * @param {MouseEvent} e - a DOM MouseEvent
+     */
+    onKeyDown = (e) => {
+        if (this.raycastMode) {
+            if (e.key == "Backspace") {
+                this.callback({ key: "Backspace" });
+            } else if (e.key == "Escape") {
+                this.callback({ key: "Escape" });
+            }
+        }
+    };
+
+    /**
+     * Get the current mouse position
+     * @function
+     * @param {MouseEvent} e - a DOM MouseEvent
+     */
+    onPointerMove = (e) => {
+        const rect = this.domElement.getBoundingClientRect();
+        const offsetX = rect.x + window.scrollX;
+        const offsetY = rect.y + window.scrollY;
+        this.mouse.x = ((e.pageX - offsetX) / this.width) * 2 - 1;
+        this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
+        this.mouseMoved = true;
+    };
+}
+
+class Panel {
+    /**
+     * @param {import ("../display.js").Display} display 
+     */
+    constructor(display) {
+        this.display = display;
+        this.html = this._getHtml();
+        this.html.addEventListener("contextmenu", (ev) => { ev.preventDefault(); });
+    }
+
+    _getHtml() {
+        throw new Error("Not implemented");
+    }
+
+    // Helper function to get cell value by the CSS class name
+    _getCellValue(cellClass) {
+        const cellElement = this.display._getElement(cellClass);
+        return cellElement ? cellElement.textContent : null;
+    }
+
+    // Helper function to set cell value by the CSS class name
+    _setCellValue(cellClass, value) {
+        const cellElement = this.display._getElement(cellClass);
+        if (cellElement) {
+            cellElement.textContent = value;
+        }
+    }
+
+    /**
+     * Show or hide the panel
+     * @param {boolean} flag 
+     */
+    show = (flag) => {
+        this.html.style.display = flag ? "inline-block" : "none";
+    };
+
+    /**
+     * Sets the position of the panel (with the top left corner at the specified coordinates)
+     * @param {number} x 
+     * @param {number} y 
+     */
+    relocate = (x, y) => {
+        this.html.style.left = `${x}px`;
+        this.html.style.top = `${y}px`;
+    };
+
+
+    /**
+     * Register a callback for a specific event type
+     * @param {string} eventType - The type of event to register the callback for
+     * @param {CallableFunction} callback - The callback function to register
+     */
+    registerCallback(eventType, callback) {
+        this.html.addEventListener(eventType, callback);
+    }
+}
+
+class DistancePanel extends Panel {
+    constructor(display) {
+        super(display);
+    }
+
+    _getHtml() {
+        return this.display._getElement("tcv_distance_measurement_panel");
+    }
+
+    get total() {
+        return this._getCellValue("tcv_total");
+    }
+    set total(value) {
+        this._setCellValue("tcv_total", value);
+    }
+
+    get x_distance() {
+        return this._getCellValue("tcv_x");
+    }
+    set x_distance(value) {
+        this._setCellValue("tcv_x", value);
+    }
+    get y_distance() {
+        return this._getCellValue("tcv_y");
+    }
+    set y_distance(value) {
+        this._setCellValue("tcv_y", value);
+    }
+    get z_distance() {
+        return this._getCellValue("tcv_z");
+    }
+    set z_distance(value) {
+        this._setCellValue("tcv_z", value);
+    }
+
+}
+
+class PropertiesPanel extends Panel {
+    constructor(display) {
+        super(display);
+
+        this._hideAllRows();
+    }
+
+
+    _getHtml() {
+        return this.display._getElement("tcv_properties_measurement_panel");
+    }
+
+    _hideAllRows() {
+        const rows = this.html.getElementsByTagName("tr");
+        for (var i = 0; i < rows.length; i++) {
+            rows[i].style.display = "none";
+            if (rows[i].classList.contains("tcv_vertex_coords_title_row"))
+                continue;
+            const cells = rows[i].getElementsByTagName("td");
+            for (var j = 0; j < cells.length; j++) {
+                cells[j].textContent = "";
+            }
+        }
+    }
+
+    set subheader(subheader) {
+        this._setCellValue("tcv_measure_subheader", subheader);
+    }
+    get subheader() {
+        return this._getCellValue("tcv_measure_subheader");
+    }
+
+    /**
+     * Set the properties of the panel valid props are :
+     * - vertex_coords : [x, y, z] array of numbers
+     * - volume : number
+     * - area : number
+     * - length : number
+     * - width : number
+     * - radius : number
+     * - geom_type : string
+     * @param {object} properties 
+     */
+    setProperties(properties) {
+        this._hideAllRows();
+
+
+        // Define the field names corresponding to table rows
+        const fieldToCell = {
+            "vertex_coords": ["x_value", "y_value", "z_value"],
+            "volume": "volume",
+            "area": "area",
+            "length": "length",
+            "width": "width",
+            "radius": "radius",
+            "geom_type": "geom_type",
+        };
+
+        // Iterate through the fields and set their values
+        for (const field in fieldToCell) {
+            const cellId = fieldToCell[field];
+            const value = properties[field];
+
+            if (value !== null && value !== undefined) {
+                if (Array.isArray(cellId)) {
+                    // Only the vertex coordinates are an array
+                    const vertex_title_row = this.display._getElement("tcv_vertex_coords_title_row");
+                    vertex_title_row.style.display = "table-row";
+                    for (let i = 0; i < cellId.length; i++) {
+                        const row = this.display._getElement("tcv_" + cellId[i]).closest("tr");
+                        row.style.display = "table-row";
+                        this._setCellValue("tcv_" + cellId[i], value[i]);
+                    }
+                } else {
+                    const row = this.display._getElement("tcv_" + cellId).closest("tr");
+                    row.style.display = "table-row";
+                }
+
+                this._setCellValue("tcv_" + cellId, value);
+            }
+        }
+    }
+}
+
+class AnglePanel extends Panel {
+    constructor(display) {
+        super(display);
+    }
+
+    _getHtml() {
+        return this.display._getElement("tcv_angle_measurement_panel");
+    }
+
+    get angle() {
+        return this._getCellValue("tcv_angle");
+    }
+
+    set angle(value) {
+        this._setCellValue("tcv_angle", value);
+    }
+
+}
+
+class FilterByDropDownMenu {
+
+    /**
+     * Initialize a new filter drop down menu, it needs the raycast to update interactively the filter mode
+     */
+    constructor(display) {
+        this.display = display;
+        this.selectElement = display._getElement("tcv_shape_filter");
+        this.dropdownElement = display._getElement("tcv_filter_dropdown");
+        this.arrowElement = display._getElement("tcv_filter_icon");
+        this.options = ["none", "vertex", "edge", "face", "solid"];
+        this.selectElement.style.display = "none";
+        this.raycaster = null;
+    }
+
+    /** 
+     * Set the raycaster to update the filter mode
+    * @param {import ("./../raycast.js").Raycaster } raycaster 
+    */
+    setRaycaster(raycaster) {
+        this.raycaster = raycaster;
+    }
+
+    _setValue = (topoType) => {
+        if (this.raycaster != null) {
+            this.display._getElement("tcv_filter_value").innerText = topoType;
+            if (topoType == "none") {
+                this.raycaster.filters.topoFilter = [TopoFilter.none];
+            } else {
+                this.raycaster.filters.topoFilter = [TopoFilter[topoType.toLowerCase()]];
+            }
+        }
+    };
+
+    _toggleDropdown = (ev) => {
+        if (ev != null) {
+            ev.stopPropagation();
+        }
+        if (this.dropdownElement.classList.contains("tcv_filter_dropdown_active")) {
+            this.dropdownElement.classList.remove("tcv_filter_dropdown_active");
+            this.arrowElement.innerText = "⏶";
+        } else {
+            this.dropdownElement.classList.add("tcv_filter_dropdown_active");
+            this.arrowElement.innerText = "⏷";
+        }
+    };
+
+    _closeDropdown = (ev) => {
+        if (this.dropdownElement.classList.contains("tcv_filter_dropdown_active")) {
+            this._toggleDropdown(ev);
+        }
+    };
+
+    handleSelection = (ev) => {
+        const topoType = ev.target.innerText;
+        this._setValue(topoType);
+        this._toggleDropdown(ev);
+    };
+
+    reset = () => {
+        this._setValue("None");
+    };
+
+    _keybindSelect = (e) => {
+        const validKeys = ["n", "v", "e", "f", "s", "Escape"];
+        if (validKeys.indexOf(e.key) === -1)
+            return;
+        if (e.key == "n")
+            this._setValue("None");
+        else if (e.key == "v")
+            this._setValue("Vertex");
+        else if (e.key == "e")
+            this._setValue("Edge");
+        else if (e.key == "f")
+            this._setValue("Face");
+        else if (e.key == "s")
+            this._setValue("Solid");
+        else if (e.key == "Escape")
+            this._closeDropdown();
+    };
+
+
+    /**
+     * Show or hide the drop down menu
+     * @param {boolean} flag 
+     */
+    show(flag) {
+        if (flag) {
+            this.display.container.addEventListener("keydown", this._keybindSelect);
+            this.display.container.addEventListener("click", this._closeDropdown);
+
+            let el = this.display._getElement("tcv_filter_content");
+            el.addEventListener("click", this._toggleDropdown);
+
+            for (const option of this.options) {
+                el = this.display._getElement(`tvc_filter_${option}`);
+                el.addEventListener("click", this.handleSelection);
+            }
+        } else {
+            this.display.container.removeEventListener("keydown", this._keybindSelect);
+            this.display.container.removeEventListener("click", this._closeDropdown);
+
+            let el = this.display._getElement("tcv_filter_content");
+            el.removeEventListener("click", this._toggleDropdown);
+
+            for (const option of this.options) {
+                el = this.display._getElement(`tvc_filter_${option}`);
+                el.removeEventListener("click", this.handleSelection);
+            }
+        }
+
+        this.selectElement.style.display = flag ? "block" : "none";
+    }
+}
+
+class DistanceLineArrow extends Group {
+
+    /**
+     * 
+     * @param {Vector3} point1 The start point of the line
+     * @param {Vector3} point2 The end point of the line
+     * @param {number} linewidth The thickness of the line
+     * @param {THREE.Color} color The color of the line
+     * @param {boolean} arrowStart If true, a cone is added at the start of the line
+     * @param {boolean} arrowEnd If true, a cone is added at the end of the line
+     */
+    constructor(coneLength, point1, point2, linewidth, color, arrowStart = true, arrowEnd = true) {
+        super();
+        this.coneLength = coneLength;
+        this.point1 = point1;
+        this.point2 = point2;
+        this.linewidth = linewidth;
+        this.color = color;
+        this.arrowStart = arrowStart;
+        this.arrowEnd = arrowEnd;
+        this.type = "DistanceLineArrow";
+        this.lineVec = undefined;
+        this.initialize();
+    }
+
+    initialize() {
+        const coneLength = this.coneLength;
+        this.lineVec = this.point1.clone().sub(this.point2.clone()).normalize();
+        let start, end;
+        if (this.arrowStart) {
+            start = this.point1.clone().sub(this.lineVec.clone().multiplyScalar(coneLength / 2));
+        }
+        else {
+            start = this.point1.clone();
+        }
+        if (this.arrowEnd) {
+            end = this.point2.clone().sub(this.lineVec.clone().multiplyScalar(-coneLength / 2));
+        }
+        else {
+            end = this.point2.clone();
+        }
+        const material = new LineMaterial({ linewidth: this.linewidth, color: this.color });
+        const geom = new LineSegmentsGeometry$1();
+        geom.setPositions([...start.toArray(), ...end.toArray()]);
+
+        const line = new LineSegments2(geom, material);
+
+        const coneGeom = new ConeGeometry(coneLength / 4, coneLength, 10);
+        const coneMaterial = new MeshBasicMaterial({ color: this.color });
+        const startCone = new Mesh(coneGeom, coneMaterial);
+        const endCone = new Mesh(coneGeom, coneMaterial);
+        startCone.name = "startCone";
+        endCone.name = "endCone";
+        const matrix = new Matrix4();
+        const quaternion = new Quaternion();
+        matrix.lookAt(this.point1, this.point2, startCone.up);
+        quaternion.setFromRotationMatrix(matrix);
+        startCone.setRotationFromQuaternion(quaternion);
+        matrix.lookAt(this.point2, this.point1, endCone.up);
+        quaternion.setFromRotationMatrix(matrix);
+        endCone.setRotationFromQuaternion(quaternion);
+        startCone.rotateX((90 * Math.PI) / 180);
+        endCone.rotateX((90 * Math.PI) / 180);
+
+        startCone.position.copy(start);
+        endCone.position.copy(end);
+
+        if (this.arrowStart)
+            this.add(startCone);
+
+        if (this.arrowEnd)
+            this.add(endCone);
+
+        this.add(line);
+    }
+
+    /**
+     * Update the arrow so it keeps the same size on the screen.
+     * @param {number} scaleFactor 
+     */
+    update(scaleFactor) {
+        const newStart = this.point1.clone().sub(this.lineVec.clone().multiplyScalar(scaleFactor * this.coneLength / 2));
+        const newEnd = this.point2.clone().sub(this.lineVec.clone().multiplyScalar(-scaleFactor * this.coneLength / 2));
+        const line = this.children.find((child) => child.type == "LineSegments2");
+        line.geometry.setPositions([...newStart.toArray(), ...newEnd.toArray()]);
+
+        if (this.arrowStart) {
+            const startCone = this.children.find((child) => child.type == "Mesh" && child.name == "startCone");
+            startCone.position.copy(newStart);
+            startCone.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        }
+        if (this.arrowEnd) {
+            const endCone = this.children.find((child) => child.type == "Mesh" && child.name == "endCone");
+            endCone.position.copy(newEnd);
+            endCone.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        }
+
+    }
+}
+
+class Measurement {
+    /**
+     * 
+     * @param {import ("../viewer.js").Viewer} viewer The viewer instance
+     * @param {DistancePanel | PropertiesPanel | AnglePanel} panel The panel to display the measurement
+     */
+    constructor(viewer, panel) {
+
+        this.selectedShapes = []; // array of dict ObjectGroup, bool
+        this.point1 = null;
+        this.point2 = null;
+        this.contextEnabled = false; // Tells if the measure context is active
+        this.viewer = viewer;
+        this.scene = new Scene();
+        this.panel = panel;
+        this.panelCenter = null;
+        this.responseData = null;
+        this.measurementLineColor = 0x000000;
+        this.connectingLineColor = 0x800080;
+        this.coneLength = undefined;
+
+        this.panelDragData = { x: null, y: null, clicked: false };
+        this.panel.registerCallback("mousedown", (e) => {
+            this.panelDragData.clicked = true;
+            this.panelDragData.x = e.clientX;
+            this.panelDragData.y = e.clientY;
+            e.stopPropagation();
+        });
+        document.addEventListener("mouseup", (e) => {
+            this.panelDragData.clicked = false;
+            e.stopPropagation();
+        });
+        document.addEventListener("mousemove", this._dragPanel);
+
+
+    }
+
+    enableContext() {
+        this.contextEnabled = true;
+        this.panelCenter = new Vector3(1, 0, 0);
+
+    }
+
+    disableContext() {
+        this.contextEnabled = false;
+        this.selectedShapes = [];
+        this._hideMeasurement();
+        this.viewer.checkChanges({ selectedShapeIDs: [] });
+    }
+
+    _hideMeasurement() {
+        this.responseData = null;
+        this.panel.show(false);
+        this.scene.clear();
+    }
+
+    /**
+     * Response handler for the measure context
+     * @param {object} response 
+     */
+    handleResponse(response) {
+        this.viewer.info.addHtml(response.center_info);
+    }
+
+    _setMeasurementVals() {
+        throw new Error("Subclass needs to override this method");
+    }
+
+    _makeLines() {
+        throw new Error("Subclass needs to override this method");
+    }
+
+    /**
+     * Get the maximum number of selected obj this measurement can handle
+     * @returns {int} The numbers of obj handled by the measurement
+     */
+    _getMaxObjSelected() {
+        throw new Error("Subclass needs to override this method");
+    }
+
+    /**
+     * Wait for the backend to send the data needed to display the real BREP measurement.
+     * @param {*} resolve 
+     * @param {*} reject 
+     */
+    _waitResponse(resolve, reject) {
+        if (this.responseData) {
+            resolve(this.responseData);
+        }
+        else {
+            setTimeout(() => {
+                this._waitResponse(resolve, reject);
+            }, 100);
+        }
+    }
+
+    /**
+     * Update the measurement panel, if enough shapes have been selected for the current tool,
+     * ask the backend for the real measurement data and display it.
+     * @returns 
+     */
+    _updateMeasurement() {
+        let getId = (shape) => {
+            if (shape.fromSolid) {
+                let solidId = shape.obj.name.replace(/\|faces.*$/, "").replace(/\|edges.*$/, "").replace(/\|vertices.*$/, "");
+                return solidId.replaceAll("|", "/");
+            }
+            else {
+                return shape.obj.name.replaceAll("|", "/");
+            }
+        };
+        const ids = this.selectedShapes.map(getId);
+        this.viewer.checkChanges({ selectedShapeIDs: [...ids] });
+
+        if (this.selectedShapes.length != this._getMaxObjSelected()) {
+            this._hideMeasurement();
+            return;
+        }
+
+        {
+            const p = new Promise((resolve, reject) => {
+                this._waitResponse(resolve, reject);
+            });
+            p.then((data) => {
+                this._setMeasurementVals();
+                this._makeLines();
+                this.panel.show(true);
+                this._movePanel();
+            });
+        }
+    }
+
+
+    _computePanelCenter() {
+
+        const camera = this.viewer.camera.getCamera();
+        const zCam = new Vector3();
+        const xCam = new Vector3();
+        const yCam = new Vector3();
+
+        camera.getWorldDirection(zCam);
+        zCam.multiplyScalar(-1);
+        // Check if zCam is parallel to camera.up
+        if (Math.abs(zCam.dot(camera.up)) >= 0.99) {
+            // Choose a different vector to cross with zCam
+            xCam.crossVectors(new Vector3(1, 0, 0), zCam).normalize();
+        } else {
+            xCam.crossVectors(camera.up, zCam).normalize();
+        }
+        yCam.crossVectors(zCam, xCam).normalize();
+        const offsetDistance = this.viewer.bbox.boundingSphere().radius;
+        this.panelCenter = this.viewer.bbox.boundingSphere().center.add(xCam.multiplyScalar(offsetDistance));
+    }
+
+    /**
+     * React to each new selected element in the viewer.
+     * obj: ObjectGroup 
+     * fromSolid: boolean
+     * @param {object} selectedObj The selected obj.
+     */
+    handleSelection = (selectedObj) => {
+
+        this._hideMeasurement();
+        if (this.selectedShapes.length == this._getMaxObjSelected()) {
+            this.removeLastSelectedObj();
+        }
+        if (this.selectedShapes.find(o => o.obj.name === selectedObj.obj.name) !== undefined)
+            this.selectedShapes.splice(this.selectedShapes.indexOf(selectedObj), 1);
+        else
+            this.selectedShapes.push(selectedObj);
+
+        this._updateMeasurement();
+    };
+
+    _movePanel = () => {
+
+        var worldCoord = this.panelCenter;
+        var screenCoord = worldCoord.clone().project(this.viewer.camera.getCamera());
+        screenCoord.x = Math.round((1 + screenCoord.x) * this.viewer.renderer.domElement.offsetWidth / 2);
+        screenCoord.y = Math.round((1 - screenCoord.y) * this.viewer.renderer.domElement.offsetHeight / 2);
+        const panelStyle = window.getComputedStyle(this.panel.html);
+        const x = screenCoord.x - parseFloat(panelStyle.width) / 2;
+        const y = screenCoord.y - parseFloat(panelStyle.height) / 2;
+        this.panel.relocate(x, y);
+    };
+
+    /**
+     * This handler is responsible to update the panel center vector when the user drag the panel on the screen.
+     * @param {Event} e 
+     * @returns 
+     */
+    _dragPanel = (e) => {
+        if (!this.panelDragData.clicked)
+            return;
+
+        const viewer = this.viewer;
+        const camera = viewer.camera.getCamera();
+
+        let x = e.clientX - this.panelDragData.x;
+        let y = e.clientY - this.panelDragData.y;
+        const viewerWidth = this.viewer.renderer.domElement.offsetWidth;
+        const viewerHeight = this.viewer.renderer.domElement.offsetHeight;
+        const viewerToClientWidthRatio = (0.5 * viewerWidth) / document.documentElement.clientWidth; // I dont get why we need to use half of the viewer width
+        const viewerToClientHeightRatio = (0.5 * viewerHeight) / document.documentElement.clientHeight;
+
+        x /= document.documentElement.clientWidth; // x becomes a percentage of the client width
+        y /= document.documentElement.clientHeight;
+        x /= viewerToClientWidthRatio; // rescale the x value so it represent a percentage of the viewer width
+        y /= viewerToClientHeightRatio;
+
+        // First transform world vec in screen vec
+        // Then add the offset vec and then retransform back to world vec
+        const panelCenter = this.panelCenter.clone().project(camera);
+        const offsetVec = new Vector3(x, -y, 0);
+        panelCenter.add(offsetVec);
+        panelCenter.unproject(camera);
+        this.panelCenter = panelCenter;
+
+        // Clear and update the scene
+        this.scene.clear();
+        this._updateMeasurement();
+
+        // Update the drag start position
+        this.panelDragData.x = e.clientX;
+        this.panelDragData.y = e.clientY;
+    };
+
+    removeLastSelectedObj() {
+        const lastItem = this.selectedShapes.pop();
+        if (lastItem) {
+            let objs = lastItem.objs();
+            for (let obj of objs) {
+                obj.clearHighlights();
+            }
+        }
+        this._updateMeasurement();
+    }
+
+    /**
+     * Adjust the arrow cones scale factor to ensure they keep the same size on the screen.
+     * @param {number} zoom 
+     */
+    _adjustArrowsScaleFactor(zoom) {
+        const scaleFactor = 1 / zoom;
+        for (let child of this.scene.children) {
+            child.update(scaleFactor);
+        }
+    }
+
+    update() {
+        const camera = this.viewer.camera.getCamera();
+        const zoom = this.viewer.camera.getZoom();
+        this.coneLength = this.viewer.bb_radius / 15;
+        this._adjustArrowsScaleFactor(zoom);
+        this.viewer.renderer.clearDepth();
+        this.viewer.renderer.render(this.scene, camera);
+        this._movePanel();
+    }
+}
+
+class DistanceMeasurement extends Measurement {
+    constructor(viewer) {
+        super(viewer, new DistancePanel(viewer.display));
+        this.point1 = null;
+        this.point2 = null;
+    }
+
+
+    _setMeasurementVals() {
+        this._getPoints();
+        const total = this.responseData.distance;
+        const distVec = this.point2.clone().sub(this.point1);
+        const xdist = Math.abs(distVec.x);
+        const ydist = Math.abs(distVec.y);
+        const zdist = Math.abs(distVec.z);
+        this.panel.total = total.toFixed(2);
+        this.panel.x_distance = xdist.toFixed(2);
+        this.panel.y_distance = ydist.toFixed(2);
+        this.panel.z_distance = zdist.toFixed(2);
+    }
+
+    _getMaxObjSelected() {
+        return 2;
+    }
+
+    _getPoints() {
+        {
+            this.point1 = new Vector3(...this.responseData.point1);
+            this.point2 = new Vector3(...this.responseData.point2);
+        }
+    }
+
+    _makeLines() {
+        const lineWidth = 0.0025;
+        const distanceLine = new DistanceLineArrow(this.coneLength, this.point1, this.point2, 2 * lineWidth, this.measurementLineColor);
+        this.scene.add(distanceLine);
+
+        const middlePoint = new Vector3().addVectors(this.point1, this.point2).multiplyScalar(0.5);
+        const connectingLine = new DistanceLineArrow(this.coneLength, this.panelCenter, middlePoint, lineWidth, this.connectingLineColor, false);
+        this.scene.add(connectingLine);
+    }
+
+    /**
+    * Handle the response from the backend.
+    * @param {object} response 
+    */
+    handleResponse(response) {
+        super.handleResponse(response);
+        const data = { distance: response.distance, point1: new Vector3(...response.point1), point2: new Vector3(...response.point2) };
+        this.responseData = data;
+    }
+
+}
+
+class PropertiesMeasurement extends Measurement {
+    constructor(viewer) {
+        super(viewer, new PropertiesPanel(viewer.display));
+    }
+
+    _setMeasurementVals() {
+        const obj = this.selectedShapes[0].obj;
+        const isVertex = obj.name.match(/.*\|.*vertices/);
+        const isLine = obj.name.match(/.*\|.*edges/);
+        const isFace = obj.name.match(/.*\|.*faces/);
+        const isSolid = this.selectedShapes[0].fromSolid;
+
+        const subheader = isSolid ? "Solid" : isVertex ? "Vertex" : isLine ? "Edge" : isFace ? "Face" : "Unknown";
+        this.panel.subheader = subheader;
+        const props = this.responseData;
+        this.panel.setProperties(props);
+    }
+
+    _getMaxObjSelected() {
+        return 1;
+    }
+
+    _makeLines() {
+
+        const lineWidth = 0.0025;
+
+        const middlePoint = this.responseData.center;
+        const connectingLine = new DistanceLineArrow(this.coneLength, this.panelCenter, middlePoint, lineWidth, this.connectingLineColor, false);
+        this.scene.add(connectingLine);
+    }
+
+    /**
+     * Handle the response from the backend.
+     * @param {object} response 
+     */
+    handleResponse(response) {
+        super.handleResponse(response);
+        let data = { ...response };
+        data.center = new Vector3(...response.center);
+        this.responseData = data;
+    }
+}
+
+class AngleMeasurement extends Measurement {
+    constructor(viewer) {
+        super(viewer, new AnglePanel(viewer.display));
+    }
+
+    _setMeasurementVals() {
+        let angle;
+        angle = this.responseData.angle.toFixed(2) + " °";
+        this.panel.angle = angle;
+    }
+
+    enableContext() {
+        super.enableContext();
+        this.viewer.raycaster.filters.geomFilter = [GeomFilter.line, GeomFilter.plane, GeomFilter.circle];
+        this.viewer.info.addHtml("When in angle measurement<br>context you cannot pick :<br>- Non planar faces<br>- Curved edges<br>- Solids");
+    }
+
+    disableContext() {
+        super.disableContext();
+        this.viewer.raycaster.filters.geomFilter = [GeomFilter.none];
+    }
+
+
+
+    _getMaxObjSelected() {
+        return 2;
+    }
+
+    _getPoints() {
+        {
+            this.point1 = new Vector3(...this.responseData.point1);
+            this.point2 = new Vector3(...this.responseData.point2);
+        }
+    }
+
+    _makeLines() {
+        const lineWidth = 0.0025;
+        this._getPoints();
+        const item1Line = new DistanceLineArrow(this.coneLength, this.point1, this.panelCenter, lineWidth, this.connectingLineColor, true, false);
+        const item2Line = new DistanceLineArrow(this.coneLength, this.point2, this.panelCenter, lineWidth, this.connectingLineColor, true, false);
+        this.scene.add(item1Line);
+        this.scene.add(item2Line);
+    }
+
+    handleResponse(response) {
+        super.handleResponse(response);
+        const data = { angle: response.angle, point1: new Vector3(...response.point1), point2: new Vector3(...response.point2) };
+        this.responseData = data;
+    }
+
+
+}
+
+/**
+ * Enum representing tool types.
+ * @typedef {Object} ToolTypes
+ * @property {string} NONE - Represents no tool.
+ * @property {string} DISTANCE - Distance measurement tool.
+ * @property {string} PROPERTIES - Properties measurement tool.
+ */
+const ToolTypes = {
+    NONE: "None",
+    DISTANCE: "DistanceMeasurement",
+    PROPERTIES: "PropertiesMeasurement",
+    ANGLE: "AngleMeasurement"
+};
+
+class Tools {
+    /**
+     * 
+     * @param {import ("../viewer.js").Viewer} viewer The viewer instance
+     */
+    constructor(viewer) {
+        this.viewer = viewer;
+        this.distanceMeasurement = new DistanceMeasurement(viewer);
+        this.propertiesMeasurement = new PropertiesMeasurement(viewer);
+        this.angleMeasurement = new AngleMeasurement(viewer);
+        this.enabledTool = null; // There can only be one enabled tool at a time
+    }
+
+    /**
+     * Enables a specific tool. (Disables the currently enabled tool if any)
+     * @param {ToolTypes} toolType - The type of tool to enable.
+     */
+    enable(toolType) {
+        // Disable the currently enabled tool (if any)
+        if (this.enabledTool) {
+            this.viewer.display.shapeFilterDropDownMenu.reset();
+            this._disable();
+        }
+
+        switch (toolType) {
+            case ToolTypes.DISTANCE:
+                this.distanceMeasurement.enableContext();
+                break;
+            case ToolTypes.PROPERTIES:
+                this.propertiesMeasurement.enableContext();
+                break;
+            case ToolTypes.ANGLE:
+                this.angleMeasurement.enableContext();
+                break;
+            default:
+                throw new Error(`Unknown tool type: ${toolType}`);
+        }
+
+        this.enabledTool = toolType;
+    }
+
+    /**
+    * Disables the currently enabled tool.
+    */
+    _disable() {
+        if (!this.enabledTool) {
+            return; // No tool is currently enabled
+        }
+
+        // Disable the currently enabled tool using a switch statement
+        switch (this.enabledTool) {
+            case ToolTypes.DISTANCE:
+                this.distanceMeasurement.disableContext();
+                break;
+            case ToolTypes.PROPERTIES:
+                this.propertiesMeasurement.disableContext();
+                break;
+            case ToolTypes.ANGLE:
+                this.angleMeasurement.disableContext();
+                break;
+            default:
+                throw new Error(`Unknown tool type: ${this.enabledTool}`);
+        }
+
+        // Reset the currently enabled tool to null
+        this.enabledTool = null;
+    }
+
+    handleRemoveLastSelection() {
+        if (this.distanceMeasurement.contextEnabled) {
+            this.distanceMeasurement.removeLastSelectedObj();
+        }
+        else if (this.propertiesMeasurement.contextEnabled) {
+            this.propertiesMeasurement.removeLastSelectedObj();
+        }
+        else if (this.angleMeasurement.contextEnabled) {
+            this.angleMeasurement.removeLastSelectedObj();
+        }
+    }
+
+    /**
+     * obj: ObjectGroup 
+     * fromSolid: boolean
+     * @param {object} selectedObj The selected obj.
+     */
+    handleSelectedObj(selectedObj) {
+
+        if (this.distanceMeasurement.contextEnabled)
+            this.distanceMeasurement.handleSelection(selectedObj);
+        else if (this.propertiesMeasurement.contextEnabled)
+            this.propertiesMeasurement.handleSelection(selectedObj);
+        else if (this.angleMeasurement.contextEnabled)
+            this.angleMeasurement.handleSelection(selectedObj);
+    }
+
+    handleResetSelection() {
+        if (this.distanceMeasurement.contextEnabled) {
+            this.distanceMeasurement.removeLastSelectedObj();
+            this.distanceMeasurement.removeLastSelectedObj();
+        }
+        else if (this.propertiesMeasurement.contextEnabled)
+            this.propertiesMeasurement.removeLastSelectedObj();
+        else if (this.angleMeasurement.contextEnabled) {
+            this.angleMeasurement.removeLastSelectedObj();
+            this.angleMeasurement.removeLastSelectedObj();
+        }
+    }
+
+    /**
+     * Handle the response from the backend.
+     * @param {Object} response 
+     */
+    handleResponse(response) {
+        console.log(response);
+        const toolType = response.tool_type;
+        switch (toolType) {
+            case ToolTypes.DISTANCE:
+                this.distanceMeasurement.handleResponse(response);
+                break;
+            case ToolTypes.PROPERTIES:
+                this.propertiesMeasurement.handleResponse(response);
+                break;
+            case ToolTypes.ANGLE:
+                this.angleMeasurement.handleResponse(response);
+                break;
+        }
+    }
+
+    /**
+     * This is called each time the viewer gets updated
+     */
+    update() {
+        if (this.distanceMeasurement.contextEnabled)
+            this.distanceMeasurement.update();
+        else if (this.propertiesMeasurement.contextEnabled)
+            this.propertiesMeasurement.update();
+        else if (this.angleMeasurement.contextEnabled)
+            this.angleMeasurement.update();
+    }
+}
+
+var template = "<div class=\"tcv_cad_viewer\">\n    <div class=\"tcv_cad_toolbar tcv_round\">\n        <!-- \n        <div class=\"tcv_grid-dropdown\">\n            <input class='tcv_grid tcv_check' id='tcv_grid_{{id}}' type=\"checkbox\" />\n            <label for='tcv_grid_{{id}}' class=\"tcv_label\">Grid</label>\n            <div class=\"tcv_grid-content tcv_dropdown-content\">\n                <div class=\"tcv_tooltip\" data-tooltip=\"Show xy grid\">\n                    <input class='tcv_grid-xy tcv_check tcv_dropdown-entry' id='tcv_grid-xy_{{id}}' type=\"checkbox\">\n                    <label for='tcv_grid-xy_{{id}}' class=\"tcv_label tcv_dropdown-entry\">xy</label>\n                </div>\n                <div class=\"tcv_tooltip\" data-tooltip=\"Show xz grid\">\n                    <input class='tcv_grid-xz tcv_check tcv_dropdown-entry' id='tcv_grid-xz_{{id}}' type=\"checkbox\">\n                    <label for='tcv_grid-xz_{{id}}' class=\"tcv_label tcv_dropdown-entry\">xz</label>\n                </div>\n                <div class=\"tcv_tooltip\" data-tooltip=\"Show yz grid\">\n                    <input class='tcv_grid-yz tcv_check tcv_dropdown-entry' id='tcv_grid-yz_{{id}}' type=\"checkbox\">\n                    <label for='tcv_grid-yz_{{id}}' class=\"tcv_label tcv_dropdown-entry\">yz</label>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_more-dropdown\">\n            <button class=\"tcv_more-btn\">More<span class=\"tcv_more_icon\">\\u25BC</span></button>\n            <span class=\"tcv_more-wrapper tcv_more-content tcv_dropdown-content\">\n                <span class=\"tcv_more_check\" class=\"tcv_tooltip\" data-tooltip=\"Toggle transparent objects\">\n                    <input class='tcv_transparent tcv_check tcv_dropdown-entry' id='tcv_transparent_{{id}}'\n                        type=\"checkbox\" />\n                    <label for='tcv_transparent_{{id}}' class=\"tcv_label tcv_dropdown-entry\">Transparent</label>\n                </span class=\"tcv_more_check\">\n                <span class=\"tcv_more_check\" class=\"tcv_tooltip\" data-tooltip=\"Toggle black edges\">\n                    <input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges_{{id}}'\n                        type=\"checkbox\" />\n                    <label for='tcv_black_edges_{{id}}' class=\"tcv_label tcv_dropdown-entry\">Black edges</label>\n                </span class=\"tcv_more_check\">\n                <span class=\"tcv_more_check\" class=\"tcv_tools_widget tcv_tooltip\" data-tooltip=\"Tools\">\n                    <input class='tcv_tools tcv_check tcv_dropdown-entry' id='tcv_tools_{{id}}' type=\"checkbox\" />\n                    <label for='tcv_tools_{{id}}' class=\"tcv_label tcv_dropdown-entry\">CAD Tools</label>\n                </span class=\"tcv_more_check\">\n                <span class=\"tcv_more_check\" class=\"tcv_explode_widget tcv_tooltip\"\n                    data-tooltip=\"Explode assembly (@0 determines explosion center)\">\n                    <input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode_{{id}}' type=\"checkbox\" />\n                    <label for='tcv_explode_{{id}}' class=\"tcv_label tcv_dropdown-entry\">Explode</label>\n                </span class=\"tcv_more_check\">\n            </span>\n        </div>\n        -->\n        <!-- <span class=\"tcv_align_right\">\n            <span class=\"tcv_tooltip\" data-tooltip=\"Toggle help\">\n                <input class='tcv_help tcv_btn' type=\"button\" />\n            </span>\n            <span class=\"tcv_tooltip\" data-tooltip=\"Pin view as PNG image\">\n                <input class='tcv_pin tcv_btn' type=\"button\" />\n            </span>\n        </span> -->\n    </div>\n\n    <div class=\"tcv_cad_body\">\n        <div class=\"tcv_cad_navigation\">\n            <div class=\"tcv_cad_tree tcv_round\">\n                <div class=\"tcv_tabnav\">\n                    <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value=\"Tree\" type=\"button\" />\n                    <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Clipping\"\n                        type=\"button\" />\n                    <input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Material\"\n                        type=\"button\" />\n                </div>\n                <div class=\"tcv_cad_tree_toggles\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase nodes with a single leaf\">\n                        <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value=\"1\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand root node only\">\n                        <input class='tcv_expand_root tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase tree\">\n                        <input class='tcv_collapse_all tcv_btn tcv_small_btn' value=\"C\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand tree\">\n                        <input class='tcv_expand tcv_btn tcv_small_btn' value=\"E\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                    <div class=\"tcv_cad_tree_container\"></div>\n                    <div class=\"tcv_cad_clip_container\">\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Set red clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane1 tcv_label\">N1 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane1 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane1 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set green clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane2 tcv_label\">N2 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane2 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane2 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set blue clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane3 tcv_label\">N3 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane3 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane3 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_clip_checks\">\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Use intersection clipping\">\n                                <span class=\"tcv_label\">Intersection</span><input\n                                    class='tcv_clip_intersection tcv_check' type=\"checkbox\" />\n                            </span>\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Show clipping planes\">\n                                <span class=\"tcv_label\">Planes</span><input\n                                    class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type=\"checkbox\" />\n                            </span>\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_material_container\">\n                        <div class=\"tcv_material_ambientlight tcv_label tcv_clip_checks\">\n                            Ambient light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"20\" value=\"1\"\n                                    class=\"tcv_sld_value_ambientlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_ambientlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_pointlight tcv_label\">\n                            Directional light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"40\" value=\"1\"\n                                    class=\"tcv_sld_value_pointlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_pointlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_metalness tcv_label\">\n                            Metalness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_metalness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_metalness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_roughness tcv_label\">\n                            Roughness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_roughness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_roughness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_info\">\n                            This is not a full material renderer (e.g. the environment is black), so\n                            not every combination creates expected or good results.\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div class=\"tcv_cad_info_wrapper\">\n                <div class=\"tcv_toggle_info_wrapper\">\n                    <span class=\"tooltip\" data-tooltip=\"Open/close info box\">\n                        <input class='tcv_toggle_info tcv_btn tcv_small_info_btn' value=\"<\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_cad_info tcv_round\">\n                    <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                        <div class=\"tcv_cad_info_container\"></div>\n                    </div>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_cad_view\">\n            <div class=\"tcv_distance_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Distance</div>\n                <table class=\"tcv_properties_table\">\n                    <tr class=\"tcv_measure_row_line\">\n                        <td class=\"tcv_measure_cell tcv_measure_cell_header\">Total</td>\n                        <td class=\"tcv_measure_cell tcv_measure_val tcv_total\">total</td>\n                    </tr>\n                    <tr class=\"tcv_measure_row_line\">\n                        <td class=\"tcv_measure_cell tcv_measure_cell_header tcv_xtitle\">X</td>\n                        <td class=\"tcv_measure_cell tcv_measure_val tcv_x\">x</td>\n                    </tr>\n                    <tr class=\"tcv_measure_row_line\">\n                        <td class=\"tcv_measure_cell tcv_measure_cell_header tcv_ytitle\">Y</td>\n                        <td class=\"tcv_measure_cell tcv_measure_val tcv_y\">y</td>\n                    </tr>\n                    <tr>\n                        <td class=\"tcv_measure_cell tcv_measure_cell_header tcv_bottom_cell_left tcv_ztitle\">Z</td>\n                        <td class=\"tcv_measure_cell tcv_measure_val bottom_cell_right tcv_z\">z</td>\n                    </tr>\n                </table>\n            </div>\n\n            <div class=\"tcv_properties_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Properties</div>\n                <div class=\"tcv_measure_subheader\">Shape</div>\n                <table class=\"tcv_properties_table\">\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Volume</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_volume\" colspan=\"3\">volume</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Area</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_area\" colspan=\"3\">area</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Length</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_length\" colspan=\"3\">length</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Width</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_width\" colspan=\"3\">w</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Geom</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_geom_type\" colspan=\"3\">g</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Radius</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_radius\" colspan=\"3\">r</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line vertex_row tcv_vertex_coords_title_row\">\n                        <td class=\"tcv_vertex_cell tcv_xtitle\" colspan=\"2\">X</td>\n                        <td class=\"tcv_vertex_cell tcv_ytitle\" colspan=\"2\">Y</td>\n                        <td class=\"tcv_vertex_cell tcv_ztitle\" colspan=\"2\">Z</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line vertex_row tcv_vertex_coords_row\">\n                        <td class=\"tcv_vertex_cell tcv_x_value\" colspan=\"2\">X</td>\n                        <td class=\"tcv_vertex_cell tcv_y_value\" colspan=\"2\">Y</td>\n                        <td class=\"tcv_vertex_cell tcv_z_value\" colspan=\"2\">Z</td>\n                    </tr>\n                </table>\n            </div>\n\n            <div class=\"tcv_angle_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Angle</div>\n                <table class=\"tcv_properties_table\">\n                    <tr class=\"tcv_properties_row_line\">\n                        <td class=\"tcv_angle tcv_measure_val\">angle</td>\n                    </tr>\n                </table>\n            </div>\n\n            <div class=\"tcv_cad_animation tcv_round\">\n                <span class=\"tcv_animation_label\">E</span>\n                <span><input type=\"range\" min=\"0\" max=\"1000\" value=\"0\"\n                        class=\"tcv_animation_slider tcv_clip_slider\"></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Play animation\"><input class='tcv_play tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Pause animation\"><input class='tcv_pause tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Stop and reset animation\"><input class='tcv_stop tcv_btn'\n                        type=\"button\" /></span>\n            </div>\n\n            <div class=\"tcv_cad_help tcv_round\">\n                <table class=\"tcv_cad_help_layout\">\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Navigation</b></td>\n                    </tr>\n                    <tr>\n                        <td>Rotate</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate up / down</td>\n                        <td>&lt;{{ctrl}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate left / right</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Pan</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Zoom</td>\n                        <td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td>\n                    </tr>\n\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Selection</b></td>\n                    </tr>\n                    <tr>\n                        <td>Pick element</td>\n                        <td>&lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>Click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>(Shows axis-aligned bounding box, AABB)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide element</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{meta}}&gt; + click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td>Isolate element</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{shift}}&gt; + click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td><b>CAD Object Tree</b></td>\n                    </tr>\n                    <tr>\n                        <td>Collapse single leafs</td>\n                        <td>Button '1' (all nodes with one leaf only)</td>\n                    </tr>\n                    <tr>\n                        <td>Expand root only</td>\n                        <td>Button 'R'</td>\n                    </tr>\n                    <tr>\n                        <td>Collapse all nodes</td>\n                        <td>Button 'C'</td>\n                    </tr>\n                    <tr>\n                        <td>Expand all nodes</td>\n                        <td>Button 'E'</td>\n                    </tr>\n                </table>\n            </div>\n            <div class=\"tcv_filter_menu\">\n                <div class=\"tcv_drop_down tcv_shape_filter\">\n                    <span class=\"tcv_round tcv_filter_content\"><span class=\"tcv_filter_value\">None</span>\n                        <span class=\"tcv_filter_icon\">⏶\n                        </span></span>\n                    <div class=\"tcv_filter_dropdown tcv_round\">\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_none\">None</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_vertex\">Vertex</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_edge\">Edge</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_face\">Face</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_solid\">Solid</div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>";
+
+function TEMPLATE(id) {
+  const shift = KeyMapper.getshortcuts("shift");
+  const ctrl = KeyMapper.getshortcuts("ctrl");
+  const meta = KeyMapper.getshortcuts("meta");
+  var html = template.replaceAll("{{id}}", id).replaceAll("{{shift}}", shift).replaceAll("{{ctrl}}", ctrl).replaceAll("{{meta}}", meta);
+  return html;
+}
+
+function px(val) {
+  return `${val}px`;
+}
+
+const buttons = [
+  "plane",
+  "play",
+  "pause",
+  "stop",
+];
+
+class Display {
+  /**
+   * Create Display
+   * @param {DOMElement} container - the DOM element, e.g. div, that should contain the Display
+   * @param {} options - display options
+   */
+  constructor(container, options) {
+    this.container = container;
+    this.container.innerHTML = TEMPLATE(this.container.id);
+    // const fullWidth =
+    //   options.cadWidth + (options.glass ? 0 : options.treeWidth);
+    // this.handleMoreButton(fullWidth);
+
+    this.cadBody = this._getElement("tcv_cad_body");
+
+    // this.cadTool = this._getElement("tcv_cad_toolbar");
+    this.cadTool = new Toolbar(this._getElement("tcv_cad_toolbar"), container.id);
+    this.cadView = this._getElement("tcv_cad_view");
+    this.distanceMeasurementPanel = this._getElement("tcv_distance_measurement_panel");
+    this.propertiesMeasurementPanel = this._getElement("tcv_properties_measurement_panel");
+    this.angleMeasurementPanel = this._getElement("tcv_angle_measurement_panel");
+    this.cadTree = this._getElement("tcv_cad_tree_container");
+    this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
+    this.cadClip = this._getElement("tcv_cad_clip_container");
+    this.cadMaterial = this._getElement("tcv_cad_material_container");
+    this.tabTree = this._getElement("tcv_tab_tree");
+    this.tabClip = this._getElement("tcv_tab_clip");
+    this.tabMaterial = this._getElement("tcv_tab_material");
+    this.cadInfo = this._getElement("tcv_cad_info_container");
+    this.cadAnim = this._getElement("tcv_cad_animation");
+    this.cadTools = this._getElement("tcv_cad_tools");
+
+    this.cadHelp = this._getElement("tcv_cad_help");
+
+    this.planeLabels = [];
+    for (var i = 1; i < 4; i++) {
+      this.planeLabels.push(this._getElement(`tcv_lbl_norm_plane${i}`));
+    }
+    this.viewer = null;
+    this.glass = options.glass;
+    this.tools = options.tools;
+    this.cadWidth = options.cadWidth;
+    this.height = options.height;
+    this.treeWidth = options.treeWidth;
+    this._events = [];
+
+    this.setSizes(options);
+
+    this.activeTab = "tree";
+    this.cadTree.style.display = "block";
+    this.cadClip.style.display = "none";
+    this.cadMaterial.style.display = "none";
+    this.clipSliders = null;
+
+    this.lastPlaneState = false;
+
+    var theme;
+    if (
+      options.theme === "dark" ||
+      (options.theme == "browser" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      document.documentElement.setAttribute("data-theme", "dark");
+      theme = "dark";
+    } else {
+      document.documentElement.setAttribute("data-theme", "light");
+      theme = "light";
+    }
+
+    for (var btn of buttons) {
+      var elements = this.container.getElementsByClassName(`tcv_${btn}`);
+      for (i = 0; i < elements.length; i++) {
+        var el = elements[i];
+        el.setAttribute(
+          "style",
+          `background-image: ${getIconBackground(theme, btn)}`,
+        );
+      }
+    }
+
+    this.toolbarButtons = {};
+
+    this.toolbarButtons["axes"] = new ClickButton(theme, "axes", "Show axes", this.setAxes);
+    this.cadTool.addButton(this.toolbarButtons["axes"]);
+    this.toolbarButtons["axes0"] = new ClickButton(theme, "axes0", "Show axes at origin (0,0,0)", this.setAxes0);
+    this.cadTool.addButton(this.toolbarButtons["axes0"]);
+    this.toolbarButtons["grid"] = new ClickButton(theme, "grid", "Show grid", this.setGrid, null, ["xy", "xz", "yz"]);
+    this.cadTool.addButton(this.toolbarButtons["grid"]);
+    this.cadTool.addSeparator();
+    this.toolbarButtons["perspective"] = new ClickButton(theme, "perspective", "Use perspective camera", this.setOrtho);
+    this.cadTool.addButton(this.toolbarButtons["perspective"]);
+    this.toolbarButtons["transparent"] = new ClickButton(theme, "transparent", "Show transparent faces", this.setTransparent);
+    this.cadTool.addButton(this.toolbarButtons["transparent"]);
+    this.toolbarButtons["blackedges"] = new ClickButton(theme, "blackedges", "Show black edges", this.setBlackEdges);
+    this.cadTool.addButton(this.toolbarButtons["blackedges"]);
+    this.cadTool.addSeparator();
+
+    this.toolbarButtons["reset"] = new Button(theme, "reset", "Reset view", this.reset);
+    this.cadTool.addButton(this.toolbarButtons["reset"]);
+    this.toolbarButtons["resize"] = new Button(theme, "resize", "Resize object", this.resize);
+    this.cadTool.addButton(this.toolbarButtons["resize"]);
+    this.cadTool.addSeparator();
+
+    this.toolbarButtons["iso"] = new Button(theme, "iso", "Switch to iso view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["iso"]);
+    this.toolbarButtons["front"] = new Button(theme, "front", "Switch to front view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["front"]);
+    this.toolbarButtons["rear"] = new Button(theme, "rear", "Switch to back view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["rear"]);
+    this.toolbarButtons["top"] = new Button(theme, "top", "Switch to top view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["top"]);
+    this.toolbarButtons["bottom"] = new Button(theme, "bottom", "Switch to bottom view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["bottom"]);
+    this.toolbarButtons["left"] = new Button(theme, "left", "Switch to left view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["left"]);
+    this.toolbarButtons["right"] = new Button(theme, "right", "Switch to right view", this.setView);
+    this.cadTool.addButton(this.toolbarButtons["right"]);
+    this.cadTool.addSeparator();
+
+    this.toolbarButtons["explode"] = new ClickButton(theme, "explode", "Explode tool", this.setExplode);
+    this.cadTool.addButton(this.toolbarButtons["explode"]);
+    this.toolbarButtons["distance"] = new ClickButton(theme, "distance", "Measure distance between shapes", this.setTool);
+    this.cadTool.addButton(this.toolbarButtons["distance"]);
+    this.toolbarButtons["properties"] = new ClickButton(theme, "properties", "Show shape properties", this.setTool);
+    this.cadTool.addButton(this.toolbarButtons["properties"]);
+    this.toolbarButtons["angle"] = new ClickButton(theme, "angle", "Measure angle between shapes", this.setTool);
+    this.cadTool.addButton(this.toolbarButtons["angle"]);
+
+    this.cadTool.defineGroup([
+      this.toolbarButtons["explode"],
+      this.toolbarButtons["distance"],
+      this.toolbarButtons["properties"],
+      this.toolbarButtons["angle"],
+    ]);
+
+    this.toolbarButtons["help"] = new Button(theme, "help", "Help", this.toggleHelp);
+    this.toolbarButtons["help"].alignRight();
+    this.cadTool.addButton(this.toolbarButtons["help"]);
+    this.toolbarButtons["pin"] = new Button(theme, "pin", "Pin viewer as png", this.pinAsPng);
+    this.toolbarButtons["pin"].alignRight();
+    this.cadTool.addButton(this.toolbarButtons["pin"]);
+    this.shapeFilterDropDownMenu = new FilterByDropDownMenu(this);
+
+
+    this.showPinning(options.pinning);
+    // this.showMeasureTools(options.measureTools);
+
+  }
+
+  _setupCheckEvent(name, fn, flag) {
+    const el = this._getElement(name);
+    el.addEventListener("change", fn);
+    if (flag != undefined) {
+      el.checked = flag;
+    }
+    this._events.push(["change", name, fn]);
+  }
+
+  // eslint-disable-next-line no-unused-vars
+  _setupClickEvent(name, fn, flag) {
+    const el = this._getElement(name);
+    el.addEventListener("click", fn);
+    this._events.push(["click", name, fn]);
+  }
+
+  /**
+   * 
+   * @param {string} name Name of the DOM element 
+   * @returns {DOMElement}
+   */
+  _getElement(name) {
+    return this.container.getElementsByClassName(name)[0];
+  }
+
+  dispose() {
+    var type, el_name, fn;
+    for (var ui_event of this._events) {
+      [type, el_name, fn] = ui_event;
+      const el = this._getElement(el_name);
+      el.removeEventListener(type, fn);
+    }
+    // remove cadTree
+    this.cadTree.innerHTML = "";
+    // remove canvas
+    this.cadView.removeChild(this.cadView.children[2]);
+    // delete view
+    this.container.innerHTML = "";
+  }
+
+  /**
+   * Use More fropdown if overall width < 970px else just check boxes
+   * @param {number} fullWidth - overall width of tree and cad view (taking glass mode into account)
+   */
+  handleMoreButton(fullWidth) {
+    // const moreButton = this._getElement("tcv_more-btn");
+    // const moreContent = this._getElement("tcv_more-wrapper");
+    // if (fullWidth < 980) {
+    //   moreButton.classList.remove("tcv_none");
+    //   moreContent.classList.add("tcv_dropdown-content");
+    //   moreContent.classList.add("tcv_more-content");
+    // } else {
+    //   moreButton.classList.add("tcv_none");
+    //   moreContent.classList.remove("tcv_dropdown-content");
+    //   moreContent.classList.remove("tcv_more-content");
+    // }
+  }
+
+  /**
+   * Set the width and height of the different UI elements (tree, canvas and info box)
+   * @param {DisplayOptions} options
+   */
+  setSizes(options, ratio = 2 / 3) {
+    if (options.cadWidth) {
+      this.cadWidth = options.cadWidth;
+      this.cadView.style.width = px(options.cadWidth);
+    }
+    if (options.height) {
+      this.height = options.height;
+      this.cadView.style.height = px(options.height);
+    }
+    if (options.treeWidth) {
+      this.treeWidth = options.treeWidth;
+      this.cadTree.parentElement.parentElement.style.width = px(
+        options.treeWidth,
+      );
+      this.cadInfo.parentElement.parentElement.style.width = px(
+        options.treeWidth,
+      );
+    }
+    if (!options.glass) {
+      const treeHeight = Math.round(options.height * ratio);
+      this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
+      this.cadInfo.parentElement.parentElement.style.height = px(
+        options.height - treeHeight - 4,
+      );
+    }
+
+    if (options.tools && !options.glass) {
+      this.cadTool.container.style.width = px(options.treeWidth + options.cadWidth + 4);
+      this.cadBody.style.width = px(options.treeWidth + options.cadWidth + 4);
+    } else {
+      this.cadTool.container.style.width = px(options.cadWidth + 2);
+      this.cadBody.style.width = px(options.cadWidth + 2);
+    }
+
+    this.cadBody.style.height = px(options.height + 4);
+  }
+
+  /**
+   * Set up the UI
+   * @param {import ("./viewer.js").Viewer} viewer - the viewer for this UI
+   */
+  setupUI(viewer) {
+    this.viewer = viewer;
+
+    this._setupClickEvent("tcv_expand_root", this.handleCollapseNodes);
+    this._setupClickEvent("tcv_collapse_singles", this.handleCollapseNodes);
+    this._setupClickEvent("tcv_collapse_all", this.handleCollapseNodes);
+    this._setupClickEvent("tcv_expand", this.handleCollapseNodes);
+
+    this._setupClickEvent("tcv_toggle_info", this.toggleInfo);
+
+    this.help_shown = true;
+    this.info_shown = !this.glass;
+
+    const tabs = ["tcv_tab_tree", "tcv_tab_clip", "tcv_tab_material"];
+    tabs.forEach((name) => {
+      this._setupClickEvent(name, this.selectTab);
+    });
+
+    this.clipSliders = [];
+    for (var i = 1; i < 4; i++) {
+      this.clipSliders.push(new Slider(`plane${i}`, 0, 100, this));
+    }
+
+    this.ambientlightSlider = new Slider("ambientlight", 0, 400, this);
+    this.directionallightSlider = new Slider("pointlight", 0, 400, this);
+    this.metalnessSlider = new Slider("metalness", 0, 100, this);
+    this.roughnessSlider = new Slider("roughness", 0, 100, this);
+
+    this._setupCheckEvent(
+      "tcv_clip_plane_helpers",
+      this.setClipPlaneHelpers,
+      false,
+    );
+    this._setupCheckEvent(
+      "tcv_clip_intersection",
+      this.setClipIntersection,
+      false,
+    );
+
+    for (i = 1; i < 4; i++) {
+      this._setupClickEvent(
+        `tcv_btn_norm_plane${i}`,
+        this.setClipNormalFromPosition,
+        false,
+      );
+    }
+
+    this._setupClickEvent("tcv_play", this.controlAnimation, false);
+    this._setupClickEvent("tcv_pause", this.controlAnimation, false);
+    this._setupClickEvent("tcv_stop", this.controlAnimation, false);
+    this.animationSlider = this.container.getElementsByClassName(
+      "tcv_animation_slider",
+    )[0];
+    this.animationSlider.value = 0;
+    this.animationSlider.addEventListener("input", this.animationChange);
+    this.showAnimationControl(false);
+
+    this.showHelp(false);
+    this.showDistancePanel(false);
+    this.showPropertiesPanel(false);
+    this.showAnglePanel(false);
+  }
+
+  /**
+   * Check or uncheck a checkbox
+   * @property {boolean} [axes = false] - show X-, Y-, Z-axes.
+   * @property {boolean} [axes0 = false] - show axes at [0,0,0] ot at object center (target).
+   * @property {boolean} [ortho = true] - use an orthographic (true) or perspective camera (false)
+   * @property {boolean} [transparent = false] - show CAD object transparent.
+   * @property {boolean} [blackEdges = false] - show edges in black and not in edgeColor.
+   * @property {boolean} [tools = true] - show CAD tools.
+   * @property {boolean} [glass = false] - use glass mode, i.e. CAD navigation as overlay.
+   */
+  updateUI(axes, axes0, ortho, transparent, blackEdges, tools, glass) {
+    this.toolbarButtons["axes"].set(axes);
+    this.toolbarButtons["axes0"].set(axes0);
+    this.toolbarButtons["perspective"].set(!ortho);
+    this.toolbarButtons["transparent"].set(transparent);
+    this.toolbarButtons["blackedges"].set(blackEdges);
+
+    this.showTools(tools);
+    this.glassMode(glass);
+  }
+  // setup functions
+
+  /**
+   * Check or uncheck a checkbox
+   * @param {string} name - name of the check box, see getElement
+   * @param {boolean} flag - whether to check or uncheck
+   */
+  checkElement(name, flag) {
+    this._getElement(name).checked = flag;
+  }
+
+  /**
+   * Add the Cad View (the canvas for threejs)
+   * @param {DOMElement} cadView - the DOM element that contains the cadView
+   */
+  addCadView(cadView) {
+    this.cadView.appendChild(cadView);
+  }
+
+  /**
+   * Clear the Cad tree
+   */
+  clearCadTree() {
+    this.cadTree.innerHTML = "";
+  }
+
+  /**
+   * Add the Cad tree and other UI elements like Clipping
+   * @param {DOMElement} cadTree - the DOM element that contains the cadTree
+   */
+  addCadTree(cadTree) {
+    this.cadTree.appendChild(cadTree);
+  }
+
+  // handler (bound to Display instance)
+
+  /**
+   *
+   * @function
+   * @param {boolean} flag - to set or not
+   */
+  setAxes = (name, flag) => {
+    this.viewer.setAxes(flag);
+  };
+
+  /**
+   * Check/uncheck the axes checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the axes checkbox
+   */
+  setAxesCheck = (flag) => {
+    this.toolbarButtons["axes"].set(flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the grid parameter
+   * @function
+   * @param {boolean} flag - to set or not
+   */
+  setGrid = (name, flag) => {
+    this.viewer.setGrid(name, flag);
+  };
+
+  /**
+   * Check/uncheck the main grid UI element
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the main grid checkbox
+   */
+  setGridCheck = (flag) => {
+    this.checkElement("tcv_grid", flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the axes0 parameter
+   * @function
+   * @param {boolean} flag - to set or not
+   */
+  setAxes0 = (name, flag) => {
+    this.viewer.setAxes0(flag);
+  };
+
+  /**
+   * Check/uncheck the Axes0 checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Axes0 checkbox
+   */
+  setAxes0Check = (flag) => {
+    this.toolbarButtons["axes0"].set(flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the ortho parameter
+   * @function
+   * @param {boolean} flag - to set or not
+   */
+  setOrtho = (name, flag) => {
+    this.viewer.switchCamera(!flag);
+  };
+
+  /**
+   * Check or uncheck the Ortho checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the ortho checkbox
+   */
+  setOrthoCheck = (flag) => {
+    this.toolbarButtons["perspective"].set(!flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the transparent parameter
+   * @function
+   * @param {boolean} flag - to set or not
+   */
+  setTransparent = (name, flag) => {
+    this.viewer.setTransparent(flag);
+  };
+
+  /**
+   * Check or uncheck the Transparent checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Transparent checkbox
+   */
+  setTransparentCheck = (flag) => {
+    this.toolbarButtons["transparent"].set(flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the black edges parameter
+   * @function
+   * @param {boolean} flag - to set or not
+   */
+  setBlackEdges = (name, flag) => {
+    this.viewer.setBlackEdges(flag);
+  };
+
+  /**
+   * Check or uncheck the Black Edges checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
+   */
+  setBlackEdgesCheck = (flag) => {
+    this.toolbarButtons["blackedges"].set(flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the explode mode
+   * @function
+   * @param {boolean} flag - to set or not
+   */
+  setExplode = (name, flag) => {
+    if (flag) {
+      if (this.viewer.hasAnimation()) {
+        this.viewer.backupAnimation();
+      }
+      this.viewer.explode();
+    } else {
+      if (this.viewer.hasAnimation()) {
+        this.controlAnimationByName("stop");
+        this.viewer.clearAnimation();
+        this.viewer.restoreAnimation();
+      }
+    }
+  };
+
+  /**
+   * Check or uncheck the Explode checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
+   */
+  setExplodeCheck = (flag) => {
+    this.toolbarButtons["explode"].set(flag);
+  };
+
+  /**
+   * Show or hide the Explode checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
+   */
+  showExplode = (flag) => {
+    const el = this._getElement("tcv_explode_widget");
+    el.style.display = flag ? "inline-block" : "none";
+  };
+
+  /**
+   * Checkbox Handler for setting the tools mode
+   * @function
+   * @param {boolean} flag - whether to start or stop measure context
+   */
+  setTool = (name, flag) => {
+    this.viewer.toggleAnimationLoop(flag);
+    this.viewer.setPickHandler(!flag);
+    this.viewer.setRaycastMode(flag);
+
+    if (flag) {
+      if (this.viewer.hasAnimation()) {
+        this.viewer.backupAnimation();
+      }
+
+      this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster);
+
+      if (name == "distance") {
+        this.viewer.cadTools.enable(ToolTypes.DISTANCE);
+        this.viewer.checkChanges({ activeTool: ToolTypes.DISTANCE });
+      } else if (name == "properties") {
+        this.viewer.cadTools.enable(ToolTypes.PROPERTIES);
+        this.viewer.checkChanges({ activeTool: ToolTypes.PROPERTIES });
+      }
+      else if (name == "angle") {
+        this.viewer.cadTools.enable(ToolTypes.ANGLE);
+        this.viewer.checkChanges({ activeTool: ToolTypes.ANGLE });
+      }
+
+    } else {
+      this.viewer.checkChanges({ activeTool: ToolTypes.NONE });
+      this.viewer.clearSelection();
+      if (this.viewer.hasAnimation()) {
+        this.controlAnimationByName("stop");
+        this.viewer.clearAnimation();
+        this.viewer.restoreAnimation();
+      }
+    }
+    this.shapeFilterDropDownMenu.show(flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the clip planes parameter
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setClipPlaneHelpers = (e) => {
+    const flag = !!e.target.checked;
+    this.setClipPlaneHelpersCheck(flag);
+    this.viewer.setClipPlaneHelpers(flag);
+  };
+
+  /**
+   * Check or uncheck the Plane Helpers checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Plane Helpers checkbox
+   */
+  setClipPlaneHelpersCheck = (flag) => {
+    this.checkElement("tcv_clip_plane_helpers", flag);
+    this.lastPlaneState = flag;
+  };
+
+  /**
+   * Show or hide the CAD tools
+   * @function
+   * @param {boolean} flag - whether to show or hide the CAD tools
+   */
+  showTools = (flag) => {
+    this.tools = flag;
+    if (this.viewer) {
+      // not available at first call
+      this.viewer.tools = flag;
+    }
+    var tb = this._getElement("tcv_cad_toolbar");
+    var cn = this._getElement("tcv_cad_navigation");
+    for (var el of [cn, tb]) {
+      if (flag) {
+        el.style.height = "38px";
+        el.style.display = "block";
+      } else {
+        el.style.height = "0px";
+        el.style.display = "none";
+      }
+    }
+  };
+
+  /**
+   * Show or hides measurement tools, measurement tools needs a backend to be used.
+   * @param {boolean} flag 
+   */
+  showMeasureTools = (flag) => {
+    this.toolbarButtons["distance"].show(flag);
+    this.toolbarButtons["properties"].show(flag);
+    this.toolbarButtons["angle"].show(flag);
+  };
+
+  /**
+   * Checkbox Handler for setting the clip intersection parameter
+   * @function
+   * @param {*} e
+   */
+  setClipIntersection = (e) => {
+    const flag = !!e.target.checked;
+    this.viewer.setClipIntersection(flag);
+  };
+
+  /**
+   * Check or uncheck the Intersection checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the Intersection checkbox
+   */
+  setClipIntersectionCheck = (flag) => {
+    const el = this._getElement("tcv_clip_intersection");
+    el.checked = flag;
+  };
+
+  /**
+   * Handler to reset position, zoom and up of the camera
+   * @function
+   */
+  reset = () => {
+    this.viewer.reset();
+    this.clearHighlights();
+  };
+
+  /**
+   * Handler to reset zoom of the camera
+   * @function
+   */
+  resize = () => {
+    this.viewer.resize();
+  };
+
+  /**
+   * Clear all highlights of navigation tree entries
+   */
+  clearHighlights() {
+    const buttons = [
+      "front",
+      "rear",
+      "top",
+      "bottom",
+      "left",
+      "right",
+      "iso",
+    ];
+    buttons.forEach((btn) => {
+      var el = this.toolbarButtons[btn];
+      el.highlight(false);
+    });
+  }
+
+  /**
+   * Highlight the selected button
+   * @param {string} name - A CAD object id (path)
+   */
+  highlightButton(name) {
+    this.clearHighlights();
+    var el = this.toolbarButtons[name];
+    el.highlight(true);
+    this.viewer.keepHighlight = true;
+  }
+
+  /**
+   * Handler to set camera to a predefined position
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setView = (button) => {
+    this.viewer.presetCamera(button);
+    this.highlightButton(button);
+    this.viewer.update(true, false); // ensure update is called again
+  };
+
+  /**
+   * Show/hide pinning button
+   * @function
+   * @param {boolean} flag - Whether to show/hide the pinning button
+   */
+  showPinning(flag) {
+    this.toolbarButtons["pin"].show(flag);
+  }
+
+  /**
+   * Pin screenshot of canvas as PNG
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  // eslint-disable-next-line no-unused-vars
+  pinAsPng = (e) => {
+    this.viewer.pinAsPng();
+  };
+
+  /**
+   * Handler to set the label of a clipping normal widget
+   * @function
+   * @param {number} index - index of the normal widget
+   * @param {Vector3} normal - the normal
+   */
+  setNormalLabel = (index, normal) => {
+    this.planeLabels[index].innerHTML = `N=(${normal[0].toFixed(
+      2,
+    )}, ${normal[1].toFixed(2)}, ${normal[2].toFixed(2)})`;
+  };
+
+  /**
+   * Set the normal at index to the current viewing direction
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setClipNormalFromPosition = (e) => {
+    const index = parseInt(e.target.classList[0].slice(-1));
+    this.viewer.setClipNormalFromPosition(index - 1);
+  };
+
+  /**
+   * Handler to activate a UI tab (tree / clipping)
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  selectTab = (e) => {
+    const tab = e.target.className.split(" ")[0];
+    this.selectTabByName(tab.slice(8));
+  };
+
+  /**
+   * Set the ambient light intensity in the UI
+   * @function
+   * @param {number} val - a float between 0 and 4
+   */
+  setAmbientLight = (val) => {
+    this.ambientlightSlider.setValue(val * 100);
+  };
+
+  /**
+   * Set the direct light intensity in the UI
+   * @function
+   * @param {number} val - a float between 0 and 4
+   */
+  setDirectLight = (val) => {
+    this.directionallightSlider.setValue(val * 100);
+  };
+
+  /**
+   * Set material metalness in the UI
+   * @function
+   * @param {number} val - a float between 0 and 1
+   */
+  setMetalness = (val) => {
+    this.metalnessSlider.setValue(val * 100);
+  };
+
+  /**
+   * Set material roughness in the UI
+   * @function
+   * @param {number} val - a float between 0 and 1
+   */
+  setRoughness = (val) => {
+    this.roughnessSlider.setValue(val * 100);
+  };
+
+  /**
+   * Activate the UI tab given the name of the tab
+   * @param {string} tab - name of the tab "tree" or "clip"
+   */
+  selectTabByName(tab) {
+    if (!["clip", "tree", "material"].includes(tab)) {
+      return;
+    }
+
+    if (tab === "tree" && this.activeTab !== "tree") {
+      this.cadTree.style.display = "block";
+      this.cadTreeToggles.style.display = "block";
+      this.cadClip.style.display = "none";
+      this.cadMaterial.style.display = "none";
+      this.viewer.nestedGroup.setBackVisible(false);
+      this.viewer.setLocalClipping(false);
+      // copy state since setClipHelpers(false) will set to false
+      var lastPlaneState = this.viewer.getClipPlaneHelpers();
+      this.viewer.setClipPlaneHelpers(false);
+      this.lastPlaneState = lastPlaneState;
+    } else if (tab === "clip" && this.activeTab !== "clip") {
+      this.cadTree.style.display = "none";
+      this.cadTreeToggles.style.display = "none";
+      this.cadClip.style.display = "block";
+      this.cadMaterial.style.display = "none";
+      this.viewer.nestedGroup.setBackVisible(true);
+      this.viewer.setLocalClipping(true);
+      this.viewer.setClipPlaneHelpers(this.lastPlaneState);
+    } else if (tab === "material" && this.activeTab !== "material") {
+      this.cadTree.style.display = "none";
+      this.cadTreeToggles.style.display = "none";
+      this.cadClip.style.display = "none";
+      this.cadMaterial.style.display = "block";
+      this.viewer.nestedGroup.setBackVisible(false);
+      this.viewer.setLocalClipping(false);
+      this.viewer.setClipPlaneHelpers(false);
+    }
+    this.activeTab = tab;
+
+    this.viewer.checkChanges({ tab: tab });
+    if (tab == "tree") {
+      this.tabTree.classList.add("tcv_tab-selected");
+      this.tabTree.classList.remove("tcv_tab-unselected");
+      this.tabClip.classList.remove("tcv_tab-selected");
+      this.tabClip.classList.add("tcv_tab-unselected");
+      this.tabMaterial.classList.remove("tcv_tab-selected");
+      this.tabMaterial.classList.add("tcv_tab-unselected");
+    } else if (tab == "clip") {
+      this.tabTree.classList.remove("tcv_tab-selected");
+      this.tabTree.classList.add("tcv_tab-unselected");
+      this.tabClip.classList.add("tcv_tab-selected");
+      this.tabClip.classList.remove("tcv_tab-unselected");
+      this.tabMaterial.classList.remove("tcv_tab-selected");
+      this.tabMaterial.classList.add("tcv_tab-unselected");
+    } else {
+      this.tabTree.classList.add("tcv_tab-unselected");
+      this.tabTree.classList.remove("tcv_tab-selected");
+      this.tabClip.classList.add("tcv_tab-unselected");
+      this.tabClip.classList.remove("tcv_tab-selected");
+      this.tabMaterial.classList.add("tcv_tab-selected");
+      this.tabMaterial.classList.remove("tcv_tab-unselected");
+    }
+  }
+
+  /**
+   * Collapse nodes handler
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  handleCollapseNodes = (e) => {
+    this.collapseNodes(e.target.value);
+  };
+
+  /**
+   * Collapse nodes handler
+   * @param {string} value - 1: collapse all leaf nodes, "R": expand root level only, "C": collapse all nodes, "E": expand all nodes
+   */
+  collapseNodes(value) {
+    if (value === "1") {
+      this.viewer.treeview.expandNodes();
+      this.viewer.treeview.collapseNodes(1);
+    } else if (value === "R") {
+      this.viewer.treeview.expandNodes();
+      this.viewer.treeview.collapseNodes(3);
+    } else if (value === "C") {
+      this.viewer.treeview.collapseNodes(2);
+    } else if (value === "E") {
+      this.viewer.treeview.expandNodes();
+    }
+  }
+
+  /**
+   * Set minimum and maximum of the sliders
+   * @param {number} index - index of the plane: 0,1,2
+   * @param {number} limit - the value for both minimum and maximum value of the slider
+   */
+  setSliderLimits(limit) {
+    for (var i = 0; i < 3; i++) {
+      this.clipSliders[i].setSlider(limit);
+    }
+  }
+
+  /**
+   * Refresh clipping plane
+   * @function
+   * @param {number} index - index of the plane: 0,1,2
+   * @param {number} value - distance on the clipping normal from the center
+   */
+  refreshPlane(index, value) {
+    this.viewer.refreshPlane(index - 1, parseFloat(value));
+  }
+
+  /**
+   * Show or hide the Animation control widget
+   * @function
+   * @param {boolean} flag - whether to show or hide the Animation control widget
+   */
+  showAnimationControl = (flag) => {
+    this.cadAnim.style.display = flag ? "block" : "none";
+  };
+
+  /**
+   * Handle animation control
+   * @function
+   * @param {string} btn - animation control button name
+   */
+  controlAnimationByName(btn) {
+    this.viewer.controlAnimation(btn);
+
+    var currentTime = this.viewer.animation.getRelativeTime();
+    this.animationSlider.value = 1000 * currentTime;
+    if (btn == "play") {
+      this.viewer.bboxNeedsUpdate = true;
+    } else if (btn == "stop") {
+      this.viewer.bboxNeedsUpdate = false;
+      if (this.viewer.lastBbox != null) {
+        this.viewer.lastBbox.needsUpdate = true;
+      }
+    } else {
+      this.viewer.bboxNeedsUpdate = !this.viewer.bboxNeedsUpdate;
+    }
+  }
+
+  /**
+   * Handler for the animation control
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  controlAnimation = (e) => {
+    const btn = e.target.className.split(" ")[0].slice(4);
+    this.controlAnimationByName(btn);
+  };
+
+  /**
+   * Handler for the animation slider
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  animationChange = (e) => {
+    this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
+    if (this.viewer.lastBbox != null) {
+      this.viewer.lastBbox.needsUpdate = true;
+    }
+  };
+
+  /**
+   * Set label text of animation control
+   * @param {string} label - "A" for animation and "E" for Explode control
+   */
+  setAnimationLabel(label) {
+    var el = this._getElement("tcv_animation_label");
+    el.innerHTML = label;
+  }
+
+  /**
+   * Reset animation slider to 0
+   */
+  resetAnimationSlider() {
+    this.animationSlider.value = 0;
+  }
+
+  /**
+   * Show or hide help dialog
+   * @function
+   * @param {boolean} flag - whether to show or hide help dialog
+   */
+  showHelp = (flag) => {
+    this.cadHelp.style.display = flag ? "block" : "none";
+    this.help_shown = flag;
+    if (flag) {
+      this.container.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          this.showHelp(false);
+        }
+        this.container.removeEventListener("keydown", this);
+      });
+    } else {
+      this.container.removeEventListener("keydown", this);
+    }
+  };
+
+  /**
+   * Show or hide the distance measurement panel
+   * @param {boolean} flag 
+   */
+  showDistancePanel = (flag) => {
+    this.distanceMeasurementPanel.style.display = flag ? "block" : "none";
+  };
+
+  /**
+  * Show or hide the properties measurement panel
+  * @param {boolean} flag 
+  */
+  showPropertiesPanel = (flag) => {
+    this.propertiesMeasurementPanel.style.display = flag ? "block" : "none";
+  };
+
+  /**
+   * Show or hide the angle measurement panel
+   * @param {boolean} flag
+   */
+  showAnglePanel = (flag) => {
+    this.angleMeasurementPanel.style.display = flag ? "block" : "none";
+  };
+
+  /**
+   * Show help dialog
+   * @function
+   */
+  toggleHelp = () => {
+    this.showHelp(!this.help_shown);
+  };
+
+  /**
+   * Show or hide info dialog
+   * @function
+   * @param {boolean} flag - whether to show or hide info dialog
+   */
+  showInfo = (flag) => {
+    this.cadInfo.parentNode.parentNode.style.display = flag ? "block" : "none";
+    this._getElement("tcv_toggle_info").value = flag ? "\u25B2 i" : "\u25BC i";
+    this.info_shown = flag;
+  };
+
+  /**
+   * Show info dialog
+   * @function
+   */
+  toggleInfo = () => {
+    this.showInfo(!this.info_shown);
+  };
+
+  /**
+   * Auto collapse tree nodes, when cad width < 600
+   * @function
+   * @param {boolean} flag - whether to enable/disable glass mode
+   */
+  autoCollapse() {
+    if (this.cadWidth < 600 && this.glass) {
+      console.info("Small view, collapsing tree");
+      this.collapseNodes("C");
+    }
+  }
+
+  /**
+   * Enable/disable glass mode
+   * @function
+   * @param {boolean} flag - whether to enable/disable glass mode
+   */
+  glassMode(flag) {
+    if (flag) {
+      this._getElement("tcv_cad_tree").classList.add("tcv_cad_tree_glass");
+      this._getElement("tcv_cad_tree").style["height"] = null;
+      this._getElement("tcv_cad_tree").style["max-height"] = px(
+        Math.round((this.height * 2) / 3) - 18,
+      );
+
+      this._getElement("tcv_cad_info").classList.add("tcv_cad_info_glass");
+      this._getElement("tcv_cad_view").classList.add("tcv_cad_view_glass");
+
+      this._getElement("tcv_toggle_info_wrapper").style.display = "block";
+
+      this.showInfo(false);
+      this.glass = true;
+      this.autoCollapse();
+    } else {
+      this._getElement("tcv_cad_tree").classList.remove("tcv_cad_tree_glass");
+      this._getElement("tcv_cad_tree").style["max-height"] = null;
+      this._getElement("tcv_cad_tree").style.height = px(
+        Math.round((this.height * 2) / 3),
+      );
+      this._getElement("tcv_cad_info").classList.remove("tcv_cad_info_glass");
+      this._getElement("tcv_cad_view").classList.remove("tcv_cad_view_glass");
+
+      this._getElement("tcv_toggle_info_wrapper").style.display = "none";
+
+      this.showInfo(true);
+      this.glass = false;
+    }
+    if (this.viewer) {
+      // not available at first call
+      this.viewer.glass = false;
+    }
+    const options = {
+      cadWidth: this.cadWidth,
+      glass: this.glass,
+      height: this.height,
+      tools: this.tools,
+      treeWidth: flag ? 0 : this.treeWidth,
+    };
+    this.setSizes(options);
+
+    const fullWidth = this.cadWidth + (this.glass ? 0 : this.treeWidth);
+    this.handleMoreButton(fullWidth);
+  }
+
+  updateHelp(before, after) {
+    console.log("updateHelp", before, after);
+    const help = this._getElement("tcv_cad_help_layout");
+    for (var k in before) {
+      help.innerHTML = help.innerHTML.replaceAll(
+        "&lt;" + before[k].slice(0, -3) + "&gt;",
+        "&lt;_" + after[k].slice(0, -3) + "&gt;",
+      );
+    }
+    help.innerHTML = help.innerHTML.replaceAll("_shift", "shift");
+    help.innerHTML = help.innerHTML.replaceAll("_ctrl", "ctrl");
+    help.innerHTML = help.innerHTML.replaceAll("_alt", "alt");
+    help.innerHTML = help.innerHTML.replaceAll("_meta", "meta");
+  }
+}
+
 class LineSegmentsGeometry extends LineSegmentsGeometry$1 {
   toJSON() {
     // skip the broken toJSON method of _LineSegmentsGeometry
@@ -55066,140 +56273,239 @@ const _hbox = new BoundingBox();
 const _sphere = new Sphere();
 
 class ObjectGroup extends Group {
-  constructor(opacity, alpha, edge_color, renderback) {
-    super();
-    this.opacity = opacity;
-    this.alpha = (alpha == null) ? 1.0 : alpha;
-    this.edge_color = edge_color;
-    this.renderback = renderback;
-    this.types = { front: null, back: null, edges: null, vertrices: null };
-  }
+    /**
+     * 
+     * @param {*} opacity 
+     * @param {*} alpha 
+     * @param {*} edge_color 
+     * @param {object} shapeInfo A dictionary of shape information with a "topo" field and "geomtype" field.
+     * @param {*} renderback 
+     */
+    constructor(opacity, alpha, edge_color, shapeInfo, subtype, renderback) {
+        super();
+        this.opacity = opacity;
+        this.alpha = alpha == null ? 1.0 : alpha;
+        this.edge_color = edge_color;
+        this.shapeInfo = shapeInfo;
+        this.subtype = subtype;
+        this.renderback = renderback;
+        this.types = { front: null, back: null, edges: null, vertices: null };
+        this.isSelected = false;
+        this.originalColor = null;
+        this.originalWidth = null;
+        this.vertexFocusSize = 8; // Size of the points when highlighted
+        this.edgeFocusWidth = 5; // Size of the edges when highlighted    
+    }
 
-  addType(mesh, type) {
-    this.add(mesh);
-    this.types[type] = mesh;
-  }
+    addType(mesh, type) {
+        this.add(mesh);
+        this.types[type] = mesh;
+        if (this.types.vertices) {
+            this.originalColor = this.types.vertices.material.color.clone();
+            this.originalWidth = this.types.vertices.material.size;
+        } else if (this.types.edges && !this.types.front) { // ignore edges of faces
+            this.originalColor = this.types.edges.material.color.clone();
+            this.originalWidth = this.types.edges.material.linewidth;
 
-  setMetalness(value) {
-    for (var child of this.children) {
-      child.material.metalness = value;
-      child.material.needsUpdate = true;
+        } else if (this.types.front) {
+            this.originalColor = this.types.front.material.color.clone();
+        }
     }
-  }
 
-  setRoughness(value) {
-    for (var child of this.children) {
-      child.material.roughness = value;
-      child.material.needsUpdate = true;
+    widen(flag) {
+        if (this.types.vertices) {
+            this.types.vertices.material.size = flag ? this.vertexFocusSize : (this.isSelected ? this.vertexFocusSize - 2 : this.originalWidth);
+        } else if (this.types.edges) {
+            this.types.edges.material.linewidth = flag ? this.edgeFocusWidth : (this.isSelected ? this.edgeFocusWidth - 2 : this.originalWidth);
+        }
     }
-  }
 
-  setTransparent(flag) {
-    if (this.types.back) {
-      this.types.back.material.opacity = flag ? this.opacity * this.alpha : this.alpha;
-      this.types.front.material.opacity = flag ? this.opacity * this.alpha : this.alpha;
+    toggleSelection() {
+        const flag = !this.isSelected;
+        this.isSelected = flag;
+        this.highlight(flag);
+        this.widen(false);
     }
-    for (var child of this.children) {
-      // turn depth write off for transparent objects
-      child.material.depthWrite = (this.alpha < 1.0) ? false : !flag;
-      // but keep depth test
-      child.material.depthTest = true;
-      child.material.needsUpdate = true;
-    }
-  }
 
-  setBlackEdges(flag) {
-    if (this.types.edges) {
-      const color = flag ? 0x000000 : this.edge_color;
-      this.types.edges.material.color = new Color(color);
-      this.types.edges.material.needsUpdate = true;
+    unhighlight(keepSelection) {
+        if (!keepSelection || !this.isSelected) {
+            this.isSelected = false;
+            this.highlight(false);
+        }
+        this.widen(false);
     }
-  }
 
-  setEdgeColor(color) {
-    if (this.types.edges) {
-      this.edge_color = color;
-      this.types.edges.material.color = new Color(color);
-      this.types.edges.material.needsUpdate = true;
-    }
-  }
+    highlight(flag) {
+        var object = null;
+        var hColor = null;
+        var oColor = null;
 
-  setOpacity(opacity) {
-    if (this.types.front || this.types.back) {
-      this.opacity = opacity;
-      this.types.back.material.opacity = this.opacity;
-      this.types.front.material.opacity = this.opacity;
-      this.types.back.material.needsUpdate = true;
-      this.types.front.material.needsUpdate = true;
-    }
-  }
+        //console.log(this.name, "flag", flag, "isSelected", this.isSelected, this.originalColor, this.originalWidth);
 
-  setShapeVisible(flag) {
-    this.types.front.material.visible = flag;
-    if (this.types.back && this.renderback) {
-      this.types.back.material.visible = flag;
-    }
-  }
+        if (this.types.front) {
+            object = this.types.front;
+            hColor = this.isSelected ? new Color(0x53a0e3) : new Color(0x89b9e3);
+            oColor = this.originalColor;
 
-  setEdgesVisible(flag) {
-    if (this.types.edges) {
-      this.types.edges.material.visible = flag;
-    }
-    if (this.types.vertices) {
-      this.types.vertices.material.visible = flag;
-    }
-  }
+        } else if (this.types.vertices) {
+            object = this.types.vertices;
+            hColor = this.isSelected ? new Color(0x53a0e3) : new Color(0x89b9e3);
+            oColor = this.originalColor;
 
-  setBackVisible(flag) {
-    if (this.types.back && this.types.front.material.visible) {
-      this.types.back.material.visible = this.renderback || flag;
-    }
-  }
+        } else if (this.types.edges) {
+            object = this.types.edges;
+            hColor = this.isSelected ? new Color(0x53a0e3) : new Color(0x89b9e3);
+            oColor = this.originalColor;
+        }
 
-  setClipIntersection(flag) {
-    for (var child of this.children) {
-      child.material.clipIntersection = flag;
-      child.material.clipIntersection = flag;
-      child.material.clipIntersection = flag;
+        if (object != null) {
+            this.widen(flag);
+            object.material.color = flag ? hColor : oColor;
+            object.material.needsUpdate = true;
+        }
     }
-  }
 
-  setClipPlanes(planes) {
-    if (this.types.back) {
-      this.types.back.material.clippingPlanes = planes;
+    clearHighlights() {
+        this.highlight(false);
+        this.isSelected = false;
+        this.widen(false);
     }
-    if (this.types.front) {
-      this.types.front.material.clippingPlanes = planes;
-    }
-    if (this.types.edges) {
-      this.types.edges.material.clippingPlanes = planes;
-    }
-    if (this.types.vertices) {
-      this.types.vertices.material.clippingPlanes = planes;
-    }
-    this.updateMaterials(true);
-  }
 
-  setPolygonOffset(offset) {
-    if (this.types.back) {
-      this.types.back.material.polygonOffsetUnits = offset;
+    metrics() {
+        if (this.types.front) {
+            return { name: "face", value: 0 };
+        } else if (this.types.vertices) {
+            return { name: "vertex", value: 0 };
+        } else if (this.types.edges) {
+            return { name: "edge", value: 0 };
+        }
     }
-  }
 
-  updateMaterials(flag) {
-    if (this.types.back) {
-      this.types.back.material.needsUpdate = flag;
+
+    setMetalness(value) {
+        for (var child of this.children) {
+            child.material.metalness = value;
+            child.material.needsUpdate = true;
+        }
     }
-    if (this.types.front) {
-      this.types.front.material.needsUpdate = flag;
+
+    setRoughness(value) {
+        for (var child of this.children) {
+            child.material.roughness = value;
+            child.material.needsUpdate = true;
+        }
     }
-    if (this.types.edges) {
-      this.types.edges.material.needsUpdate = flag;
+
+    setTransparent(flag) {
+        if (this.types.back) {
+            this.types.back.material.opacity = flag
+                ? this.opacity * this.alpha
+                : this.alpha;
+            this.types.front.material.opacity = flag
+                ? this.opacity * this.alpha
+                : this.alpha;
+        }
+        for (var child of this.children) {
+            // turn depth write off for transparent objects
+            child.material.depthWrite = this.alpha < 1.0 ? false : !flag;
+            // but keep depth test
+            child.material.depthTest = true;
+            child.material.needsUpdate = true;
+        }
     }
-    if (this.types.vertices) {
-      this.types.vertices.material.needsUpdate = flag;
+
+    setBlackEdges(flag) {
+        if (this.types.edges) {
+            const color = flag ? 0x000000 : this.edge_color;
+            this.types.edges.material.color = new Color(color);
+            this.types.edges.material.needsUpdate = true;
+        }
     }
-  }
+
+    setEdgeColor(color) {
+        if (this.types.edges) {
+            this.edge_color = color;
+            this.types.edges.material.color = new Color(color);
+            this.types.edges.material.needsUpdate = true;
+        }
+    }
+
+    setOpacity(opacity) {
+        if (this.types.front || this.types.back) {
+            this.opacity = opacity;
+            this.types.back.material.opacity = this.opacity;
+            this.types.front.material.opacity = this.opacity;
+            this.types.back.material.needsUpdate = true;
+            this.types.front.material.needsUpdate = true;
+        }
+    }
+
+    setShapeVisible(flag) {
+        this.types.front.material.visible = flag;
+        if (this.types.back && this.renderback) {
+            this.types.back.material.visible = flag;
+        }
+    }
+
+    setEdgesVisible(flag) {
+        if (this.types.edges) {
+            this.types.edges.material.visible = flag;
+        }
+        if (this.types.vertices) {
+            this.types.vertices.material.visible = flag;
+        }
+    }
+
+    setBackVisible(flag) {
+        if (this.types.back && this.types.front.material.visible) {
+            this.types.back.material.visible = this.renderback || flag;
+        }
+    }
+
+    setClipIntersection(flag) {
+        for (var child of this.children) {
+            child.material.clipIntersection = flag;
+            child.material.clipIntersection = flag;
+            child.material.clipIntersection = flag;
+        }
+    }
+
+    setClipPlanes(planes) {
+        if (this.types.back) {
+            this.types.back.material.clippingPlanes = planes;
+        }
+        if (this.types.front) {
+            this.types.front.material.clippingPlanes = planes;
+        }
+        if (this.types.edges) {
+            this.types.edges.material.clippingPlanes = planes;
+        }
+        if (this.types.vertices) {
+            this.types.vertices.material.clippingPlanes = planes;
+        }
+        this.updateMaterials(true);
+    }
+
+    setPolygonOffset(offset) {
+        if (this.types.back) {
+            this.types.back.material.polygonOffsetUnits = offset;
+        }
+    }
+
+    updateMaterials(flag) {
+        if (this.types.back) {
+            this.types.back.material.needsUpdate = flag;
+        }
+        if (this.types.front) {
+            this.types.front.material.needsUpdate = flag;
+        }
+        if (this.types.edges) {
+            this.types.edges.material.needsUpdate = flag;
+        }
+        if (this.types.vertices) {
+            this.types.vertices.material.needsUpdate = flag;
+        }
+    }
 }
 
 class NestedGroup {
@@ -55213,7 +56519,7 @@ class NestedGroup {
     metalness,
     roughness,
     normalLen,
-    bb_max
+    bb_max,
   ) {
     this.shapes = shapes;
     this.width = width;
@@ -55287,14 +56593,21 @@ class NestedGroup {
     return edges;
   }
 
-  renderEdges(edgeList, lineWidth, color, path, name, state) {
+  renderEdges(edgeList, lineWidth, color, path, name, state, geomtype = null) {
     var group = new ObjectGroup(
       this.defaultOpacity,
       1.0,
       color == null ? this.edgeColor : color,
+      geomtype,
+      "edges"
     );
 
-    var edges = this._renderEdges(edgeList, lineWidth, color, state);
+    var edges = this._renderEdges(
+      (edgeList.edges)
+        ? edgeList.edges // protocol version 2
+        : edgeList,  // protocol version 1
+      lineWidth, color, state
+    );
     if (name) {
       edges.name = name;
     }
@@ -55307,20 +56620,27 @@ class NestedGroup {
     return group;
   }
 
-  renderVertices(vertexList, size, color, path, name, state) {
+  renderVertices(vertexList, size, color, path, name, state, geomtype = null) {
     var group = new ObjectGroup(
       this.defaultOpacity,
       1.0,
       color == null ? this.edgeColor : color,
+      geomtype,
+      "vertices"
     );
 
     const vertex_color = color == null ? this.edgeColor : color;
 
-    const positions =
-      vertexList instanceof Float32Array
-        ? vertexList
+    let positions;
+    if (vertexList.obj_vertices) { // protocol version 2
+      positions = vertexList.obj_vertices instanceof Float32Array
+        ? vertexList.obj_vertices
+        : new Float32Array(vertexList.obj_vertices);
+    } else {  // protocol version 1
+      positions = vertexList instanceof Float32Array
+        ? vertexList.flat()
         : new Float32Array(vertexList.flat());
-
+    }
     const geometry = new BufferGeometry();
     geometry.setAttribute(
       "position",
@@ -55349,7 +56669,7 @@ class NestedGroup {
     return group;
   }
 
-  renderShape(shape, color, alpha, renderback, path, name, states) {
+  renderShape(shape, color, alpha, renderback, path, name, states, geomtype = null, subtype = null) {
     const positions =
       shape.vertices instanceof Float32Array
         ? shape.vertices
@@ -55367,6 +56687,8 @@ class NestedGroup {
       this.defaultOpacity,
       alpha,
       this.edgeColor,
+      geomtype,
+      subtype,
       renderback,
     );
 
@@ -55388,7 +56710,7 @@ class NestedGroup {
     shapeGeometry.setIndex(new BufferAttribute(triangles, 1));
 
     // see https://stackoverflow.com/a/37651610
-    // "A common draw configuration you see is to draw all the opaque object with depth testing on, 
+    // "A common draw configuration you see is to draw all the opaque object with depth testing on,
     //  turn depth write off, then draw the transparent objects in a back to front order."
     const frontMaterial = new MeshStandardMaterial({
       color: color,
@@ -55473,6 +56795,7 @@ class NestedGroup {
             path,
             shape.name,
             states[shape.id][1],
+            { topo: "edge", geomtype: shape.geomtype },
           );
           break;
         case "vertices":
@@ -55483,6 +56806,7 @@ class NestedGroup {
             path,
             shape.name,
             states[shape.id][1],
+            { topo: "vertex", geomtype: null },
           );
           break;
         default:
@@ -55494,6 +56818,8 @@ class NestedGroup {
             path,
             shape.name,
             states[shape.id],
+            { topo: "face", geomtype: shape.geomtype },
+            shape.subtype,
           );
       }
       // support object locations
@@ -55550,6 +56876,26 @@ class NestedGroup {
           obj[func](flag);
         }
       }
+    }
+  }
+
+  selection() {
+    var result = [];
+    for (var path in this.groups) {
+      for (var obj of this.groups[path].children) {
+        if (obj instanceof ObjectGroup) {
+          if (obj.isSelected) {
+            result.push(obj);
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  clearSelection() {
+    for (var object of this.selection()) {
+      object.clearHighlights();
     }
   }
 
@@ -55704,7 +57050,7 @@ class Grid {
   computeGrid() {
     this.allGrid = this.grid[0] | this.grid[1] | this.grid[2];
 
-    this.display.checkElement("tcv_grid", this.allGrid);
+    this.display.toolbarButtons["grid"].set(this.allGrid);
     this.display.checkElement("tcv_grid-xy", this.grid[0]);
     this.display.checkElement("tcv_grid-xz", this.grid[1]);
     this.display.checkElement("tcv_grid-yz", this.grid[2]);
@@ -55712,10 +57058,10 @@ class Grid {
     this.setVisible();
   }
 
-  setGrid(action) {
+  setGrid(action, flag = null) {
     switch (action) {
       case "grid":
-        this.allGrid = !this.allGrid;
+        this.allGrid = (flag == null) ? !this.allGrid : flag;
         this.grid[0] = this.allGrid;
         this.grid[1] = this.allGrid;
         this.grid[2] = this.allGrid;
@@ -56052,15 +57398,15 @@ class OrientationMarker {
     const colors =
       this.theme === "dark"
         ? [
-            [1, 0x45 / 255, 0],
-            [0x32 / 255, 0xcd / 255, 0x32 / 255],
-            [0x3b / 255, 0x9e / 255, 1],
-          ]
+          [1, 69 / 255, 0],
+          [50 / 255, 205 / 255, 50 / 255],
+          [59 / 255, 158 / 255, 1],
+        ]
         : [
-            [1, 0, 0],
-            [0, 0.7, 0],
-            [0, 0, 1],
-          ];
+          [1, 0, 0],
+          [0, 0.5, 0],
+          [0, 0, 1],
+        ];
     this.cones = [];
     for (var i = 0; i < 3; i++) {
       var coneGeometry = new CylinderGeometry(
@@ -59007,7 +60353,7 @@ class Camera {
   }
 }
 
-const version = "1.8.7";
+const version = "2.1.0";
 
 class Viewer {
   /**
@@ -59044,6 +60390,7 @@ class Viewer {
       pinning: this.pinning,
       glass: this.glass,
       tools: this.tools,
+      measureTools: options.measureTools,
     });
 
     window.THREE = THREE;
@@ -59054,12 +60401,15 @@ class Viewer {
     this.bbox = null;
     this.bb_max = 0;
     this.scene = null;
+    this.camera = null;
+    this.orthographicCamera = null;
+    this.orthographicScene = null;
     this.gridHelper = null;
     this.axesHelper = null;
-    this.camera = null;
     this.controls = null;
     this.orientationMarker = null;
     this.treeview = null;
+    this.cadTools = new Tools(this);
 
     this.ready = false;
     this.mixer = null;
@@ -59073,7 +60423,7 @@ class Viewer {
     ];
 
     this.camera_distance = 0;
-    this.raycaster = new Raycaster();
+
     this.mouse = new Vector2();
 
     // setup renderer
@@ -59088,11 +60438,19 @@ class Viewer {
 
     this.lastNotification = {};
     this.lastBbox = null;
+
+    // If fromSolid is true, this means the selected object is from the solid
+    // This is the obj that has been picked but the actual selected obj is the solid
+    // Since we cannot directly pick a solid this is the solution
+    this.lastObject = null;
+    this.lastSelection = null;
+    this.lastPosition = null;
     this.bboxNeedsUpdate = false;
 
     this.keepHighlight = false;
 
-    this.renderer.domElement.addEventListener("dblclick", this.pick, false);
+    this.setPickHandler(true);
+
     this.renderer.domElement.addEventListener("contextmenu", (e) =>
       e.stopPropagation(),
     );
@@ -59124,6 +60482,7 @@ class Viewer {
     this.pinning = false;
     this.glass = false;
     this.tools = true;
+    this.keymap = { shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey" };
 
     for (var option in options) {
       if (this[option] == null) {
@@ -59146,6 +60505,7 @@ class Viewer {
     this.defaultOpacity = 0.5;
     this.edgeColor = 0x707070;
     this.normalLen = 0;
+    this.measureTools = false;
 
     for (var option in options) {
       if (this[option] === undefined) {
@@ -59303,6 +60663,122 @@ class Viewer {
   }
 
   /**
+   * Decompose a CAD object into faces, edges and vertices.
+   * @param {Shapes} shapes - The Shapes object.
+   * @param {States} states - the visibility state of meshes and edges
+   * @returns {Shapes} A decomposed Shapes object.
+   */
+  _decompose(part, states) {
+    const shape = part.shape;
+    var j;
+
+    part.parts = [];
+
+    if (part.type == "shapes") {
+      // decompose faces
+      var new_part = {
+        parts: [],
+        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        name: "faces",
+        id: `${part.id}/faces`
+      };
+      const vertices = shape.vertices;
+      const normals = shape.normals;
+      for (j = 0; j < shape.triangles.length; j++) {
+        var triangles = shape.triangles[j];
+        var new_shape = {
+          loc: [[0, 0, 0], [0, 0, 0, 1]],
+          name: `faces_${j}`,
+          id: `${part.id}/faces/faces_${j}`,
+          type: "shapes",
+          color: part.color,
+          alpha: part.alpha,
+          renderBack: false,
+          accuracy: part.accuracy,
+          bb: {},
+          geomtype: shape.face_types[j],
+          subtype: part.subtype,
+          shape: {
+            triangles: [...Array(triangles.length).keys()],
+            vertices: triangles.map((s) => [vertices[3 * s], vertices[3 * s + 1], vertices[3 * s + 2]]).flat(),
+            normals: triangles.map((s) => [normals[3 * s], normals[3 * s + 1], normals[3 * s + 2]]).flat(),
+            edges: []
+          }
+        };
+        new_part.parts.push(new_shape);
+        states[new_shape.id] = [1, 3];
+      }
+
+      part.parts.push(new_part);
+    }
+
+    if (part.type == "shapes" || part.type == "edges") {
+      // decompose edges
+      new_part = {
+        parts: [],
+        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        name: "edges",
+        id: `${part.id}/edges`,
+      };
+      const multiColor = (Array.isArray(part.color) && (part.color.length == shape.edges.length));
+      var color;
+      for (j = 0; j < shape.edges.length; j++) {
+        const edge = shape.edges[j];
+        color = multiColor ? part.color[j] : part.color;
+        new_shape = {
+          loc: [[0, 0, 0], [0, 0, 0, 1]],
+          name: `edges_${j}`,
+          id: `${part.id}/edges/edges_${j}`,
+          type: "edges",
+          color: (part.type == "shapes") ? "#808080" : color,
+          width: (part.type == "shapes") ? 1 : part.width,
+          bb: {},
+          geomtype: shape.edge_types[j],
+          shape: { "edges": edge }
+        };
+        new_part.parts.push(new_shape);
+        states[new_shape.id] = [3, 1];
+      }
+
+      part.parts.push(new_part);
+    }
+
+    // decompose vertices
+    new_part = {
+      parts: [],
+      loc: [[0, 0, 0], [0, 0, 0, 1]],
+      name: "vertices",
+      id: `${part.id}/vertices`,
+    };
+    var vertices = shape.obj_vertices;
+    for (j = 0; j < vertices.length / 3; j++) {
+      new_shape = {
+        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        name: `vertices${j}`,
+        id: `${part.id}/vertices/vertices${j}`,
+        type: "vertices",
+        color: (part.type == "shapes" || part.type == "edges") ? "#808080" : part.color,
+        size: (part.type == "shapes" || part.type == "edges") ? 4 : part.size,
+        bb: {},
+        shape: { "obj_vertices": [vertices[3 * j], vertices[3 * j + 1], vertices[3 * j + 2]] }
+      };
+      new_part.parts.push(new_shape);
+      states[new_shape.id] = [3, 1];
+    }
+
+    part.parts.push(new_part);
+
+    delete part.shape;
+    delete part.color;
+    delete part.alpha;
+    delete part.accuracy;
+    delete part.renderBack;
+    delete states[part.id];
+
+    return part;
+  };
+
+  /**
    * Render the shapes of the CAD object.
    * @param {Shapes} shapes - The Shapes object.
    * @param {States} states - the visibility state of meshes and edges
@@ -59311,9 +60787,40 @@ class Viewer {
    */
   renderTessellatedShapes(shapes, states, options) {
     this.setRenderDefaults(options);
+    const _render = (shapes, states, measureTools) => {
+      var part, shape;
+      if (shapes.version == 2) {
+        if (measureTools) {
+          var i, tmp;
+          let parts = [];
+          for (i = 0; i < shapes.parts.length; i++) {
+            part = shapes.parts[i];
+            if (part.parts != null) {
+              tmp = _render(part, states, options);
+              parts.push(tmp);
+            } else {
+              parts.push(this._decompose(part, states));
+            }
+          }
+          shapes.parts = parts;
+        } else {
+          for (i = 0; i < shapes.parts.length; i++) {
+            part = shapes.parts[i];
+            shape = part.shape;
+            if (part.type == "shapes") {
+              shape.triangles = shape.triangles.flat();
+              shape.edges = shape.edges.flat();
+            } else if (part.type == "edges" || part.type == "shapes") {
+              shape.edges = shape.edges.flat();
+            }          }
+        }
+      }
+      return shapes;
+    };
+    shapes = _render(shapes, states, options.measureTools);
     return [
       this._renderTessellatedShapes(shapes, states),
-      this._getTree(shapes, states),
+      this._getTree(shapes, states)
     ];
   }
 
@@ -59422,6 +60929,7 @@ class Viewer {
     }
   };
 
+
   /**
    * Render scene and update orientation marker
    * If no animation loop exists, this needs to be called manually after every camera/scene change
@@ -59431,11 +60939,18 @@ class Viewer {
    * @param {boolean} notify - whether to send notification or not.
    */
   update = (updateMarker, notify = true) => {
+
     if (this.ready) {
       this.renderer.clear();
 
+      if (this.raycaster && this.raycaster.raycastMode) {
+        this.handleRaycast();
+      }
+
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
+      this.cadTools.update();
+
       this.directLight.position.copy(this.camera.getCamera().position);
 
       if (
@@ -59596,7 +61111,7 @@ class Viewer {
 
   /**
    * Render a CAD object and build the navigation tree
-   * @param {Shapes} shapes - the shapes of the CAD object to be rendered
+   * @param {NestedGroup} nestedgroup - the shapes of the CAD object to be rendered
    * @param {NavTree} tree - The navigation tree object
    * @param {States} states - the visibility state of meshes and edges
    * @param {ViewerOptions} options - the Viewer options
@@ -59610,6 +61125,7 @@ class Viewer {
 
     this.states = states;
     this.scene = new Scene();
+    this.orthographicScene = new Scene();
 
     //
     // render the input assembly
@@ -59637,6 +61153,7 @@ class Viewer {
     );
     timer.split("bounding box");
 
+
     //
     // add Info box
     //
@@ -59654,6 +61171,22 @@ class Viewer {
       this.ortho,
       options.up,
     );
+
+    // this.orthographicCamera = new THREE.OrthographicCamera(
+    //   -this.bb_radius,
+    //   this.bb_radius,
+    //   -this.bb_radius,
+    //   this.bb_radius,
+    //   0, 100);
+    // this.orthographicCamera.position.z = 50;
+    this.orthographicCamera = new OrthographicCamera(
+      -10,
+      10,
+      -10,
+      10,
+      0, 100);
+    this.orthographicCamera.position.z = 50;
+    this.orthographicCamera.up = this.camera.up;
 
     //
     // build mouse/touch controls
@@ -59696,13 +61229,16 @@ class Viewer {
     // add lights
     //
 
-    this.ambientLight = new AmbientLight(0xffffff, scaleLight(this.ambientIntensity));
+    this.ambientLight = new AmbientLight(
+      0xffffff,
+      scaleLight(this.ambientIntensity),
+    );
     this.scene.add(this.ambientLight);
 
     // this.directLight = new THREE.PointLight(0xffffff, this.directIntensity);
     this.directLight = new DirectionalLight(
       0xffffff,
-      scaleLight(this.directIntensity)
+      scaleLight(this.directIntensity),
     );
     this.scene.add(this.directLight);
 
@@ -59841,6 +61377,8 @@ class Viewer {
     //
 
     this.toggleAnimationLoop(this.hasAnimationLoop);
+
+    this.display.showMeasureTools(options.measureTools);
 
     this.ready = true;
     this.info.readyMsg(this.gridHelper.ticks, this.control);
@@ -60173,41 +61711,179 @@ class Viewer {
     this.update(true);
   };
 
+  setPickHandler(flag) {
+    if (flag) {
+      this.renderer.domElement.addEventListener("dblclick", this.pick, false);
+    } else {
+      this.renderer.domElement.removeEventListener("dblclick", this.pick, false);
+    }
+  }
+
   /**
    * Find the shape that was double clicked and send notification
    * @function
    * @param {MouseEvent} e - a DOM MouseEvent
    */
   pick = (e) => {
-    const rect = this.renderer.domElement.getBoundingClientRect();
-    const offsetX = rect.x + window.pageXOffset;
-    const offsetY = rect.y + window.pageYOffset;
-    this.mouse.x = ((e.pageX - offsetX) / this.cadWidth) * 2 - 1;
-    this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
-
-    this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
-
-    const objects = this.raycaster.intersectObjects(
+    const raycaster = new Raycaster(
+      this.camera,
+      this.renderer.domElement,
+      this.cadWidth,
+      this.height,
+      this.bb_max / 30,
       this.scene.children.slice(0, 1),
-      true,
+      (ev) => { },
     );
-    var nearest = null;
-    for (var object of objects) {
-      if (object.object.material.visible) {
-        nearest = {
-          path: object.object.parent.parent.name.replaceAll("|", "/"),
-          name: object.object.name,
-          boundingBox: object.object.geometry.boundingBox,
-          boundingSphere: object.object.geometry.boundingSphere,
-          objectGroup: object.object.parent,
-        };
-        break;
-      }
+    raycaster.init();
+    raycaster.onPointerMove(e);
+
+    const validObjs = raycaster.getIntersectedObjs(e);
+    if (validObjs.length == 0) {
+      return;
     }
+    var nearestObj = validObjs[0]; // The first is the nearest since they are sorted by dist.
+    const nearest = {
+      path: nearestObj.object.parent.parent.name.replaceAll("|", "/"),
+      name: nearestObj.object.name,
+      boundingBox: nearestObj.object.geometry.boundingBox,
+      boundingSphere: nearestObj.object.geometry.boundingSphere,
+      objectGroup: nearestObj.object.parent,
+    };
     if (nearest != null) {
-      this.handlePick(nearest.path, nearest.name, KeyMapper.get(e, "meta"), KeyMapper.get(e, "shift"));
+      this.handlePick(
+        nearest.path,
+        nearest.name,
+        KeyMapper.get(e, "meta"),
+        KeyMapper.get(e, "shift"),
+      );
+    }
+    raycaster.dispose();
+  };
+
+
+  //
+  // Handle CAD Tools
+  // 
+
+  clearSelection = () => {
+    this.nestedGroup.clearSelection();
+    this.cadTools.handleResetSelection();
+  };
+
+
+  _releaseLastSelected = (clear) => {
+    if (this.lastObject != null) {
+      let objs = this.lastObject.objs();
+      for (let obj of objs) {
+        obj.unhighlight(true);
+      }
+
+      if (clear) {
+        this.lastObject = null;
+      }    }
+  };
+
+  _removeLastSelected = () => {
+    if (this.lastSelection != null) {
+      let objs = this.lastSelection.objs();
+      for (let obj of objs) {
+        obj.unhighlight(false);
+      }
+      this.lastSelection = null;
+
+      this.cadTools.handleRemoveLastSelection();
     }
   };
+
+  /**
+   * Set raycast mode
+   * @function
+   * @param {boolean} flag - turn raycast mode on or off
+   */
+  setRaycastMode(flag) {
+    if (flag) {
+      // initiate raycasting
+      this.raycaster = new Raycaster(
+        this.camera,
+        this.renderer.domElement,
+        this.cadWidth,
+        this.height,
+        this.bb_max / 30,
+        this.scene.children.slice(0, 1),
+        this.handleRaycastEvent,
+      );
+      this.raycaster.init();
+    } else {
+      this.raycaster.dispose();
+      this.raycaster = null;
+    }
+  }
+
+  handleRaycast = () => {
+    const objects = this.raycaster.getValidIntersectedObjs();
+    if (objects.length > 0) {
+      for (var object of objects) {
+        {
+          const objectGroup = object.object.parent;
+          if (objectGroup !== this.lastObject) {
+            this._releaseLastSelected(false);
+            const fromSolid = this.raycaster.filters.topoFilter.includes(TopoFilter.solid);
+
+            const pickedObj = new PickedObject(objectGroup, fromSolid);
+            for (let obj of pickedObj.objs()) {
+              obj.highlight(true);
+            }
+            this.lastObject = pickedObj;
+          }
+          break;
+        }
+      }
+    } else {
+      this._releaseLastSelected(true);
+    }
+  };
+
+  handleRaycastEvent = (event) => {
+    if (event.key) {
+      switch (event.key) {
+        case "Escape":
+          this.clearSelection();
+          break;
+        case "Backspace":
+          this._removeLastSelected();
+          break;
+      }
+    } else {
+      switch (event.mouse) {
+        case "left":
+          if (this.lastObject != null) {
+            const objs = this.lastObject.objs();
+            for (let obj of objs) {
+              obj.toggleSelection();
+            }
+            this.cadTools.handleSelectedObj(this.lastObject);
+            this.lastSelection = this.lastObject;
+          }
+          break;
+        case "right":
+          this._removeLastSelected();
+          break;
+      }
+    }
+  };
+
+
+  /**
+   * Handle a backend response sent by the backend
+   * The response is a JSON object sent by the Python backend through VSCode
+   * @param {object} response 
+   */
+  handleBackendResponse = (response) => {
+    if (response.subtype === "tool_response") {
+      this.cadTools.handleResponse(response);
+    }
+  };
+
 
   //
   // Getters and Setters
@@ -60861,7 +62537,8 @@ class Viewer {
    * Note: Only the canvas will be shown, no tools and orientation marker
    */
   pinAsPng = () => {
-    const canvas = this.display.cadView.children[2];
+    const children = this.display.cadView.children;
+    const canvas = children[children.length - 1];
     this.renderer.setViewport(0, 0, this.cadWidth, this.height);
     this.renderer.render(this.scene, this.camera.getCamera());
     canvas.toBlob((blob) => {
@@ -61017,6 +62694,12 @@ class Viewer {
 
     // update the this
     this.update(true);
+
+    // update the raycaster
+    if (this.raycaster) {
+      this.raycaster.width = cadWidth;
+      this.raycaster.height = height;
+    }
   }
 
   vector3(x = 0, y = 0, z = 0) {
