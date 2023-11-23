@@ -55145,7 +55145,7 @@ class Display {
 
   /**
    * Set up the UI
-   * @param {import ("./viewer.js").Viewer} viewer - the viewer for this UI
+   * @param {Viewer} viewer - the viewer for this UI
    */
   setupUI(viewer) {
     this.viewer = viewer;
@@ -60353,7 +60353,7 @@ class Camera {
   }
 }
 
-const version = "2.1.0";
+const version = "2.1.1";
 
 class Viewer {
   /**
@@ -60730,7 +60730,7 @@ class Viewer {
           name: `edges_${j}`,
           id: `${part.id}/edges/edges_${j}`,
           type: "edges",
-          color: (part.type == "shapes") ? "#808080" : color,
+          color: (part.type == "shapes") ? this.edgeColor : color,
           width: (part.type == "shapes") ? 1 : part.width,
           bb: {},
           geomtype: shape.edge_types[j],
@@ -60757,7 +60757,7 @@ class Viewer {
         name: `vertices${j}`,
         id: `${part.id}/vertices/vertices${j}`,
         type: "vertices",
-        color: (part.type == "shapes" || part.type == "edges") ? "#808080" : part.color,
+        color: (part.type == "shapes" || part.type == "edges") ? this.edgeColor : part.color,
         size: (part.type == "shapes" || part.type == "edges") ? 4 : part.size,
         bb: {},
         shape: { "obj_vertices": [vertices[3 * j], vertices[3 * j + 1], vertices[3 * j + 2]] }
