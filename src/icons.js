@@ -45,6 +45,30 @@ import dark_shape_no from "../icons/dark/shape_no.svg";
 import dark_stop from "../icons/dark/stop.svg";
 import dark_top from "../icons/dark/top.svg";
 
+
+import dark_axes from "../icons/dark/axes.svg";
+import dark_axes0 from "../icons/dark/axes0.svg";
+import dark_grid from "../icons/dark/grid.svg";
+import dark_perspective from "../icons/dark/perspective.svg";
+import dark_explode from "../icons/dark/explode.svg";
+import dark_distance from "../icons/dark/distance.svg";
+import dark_properties from "../icons/dark/properties.svg";
+import dark_angle from "../icons/dark/angle.svg";
+import dark_transparent from "../icons/dark/transparent.svg";
+import dark_blackedges from "../icons/dark/black_edges.svg";
+
+import light_axes from "../icons/light/axes.svg";
+import light_axes0 from "../icons/light/axes0.svg";
+import light_grid from "../icons/light/grid.svg";
+import light_perspective from "../icons/light/perspective.svg";
+import light_explode from "../icons/light/explode.svg";
+import light_distance from "../icons/light/distance.svg";
+import light_properties from "../icons/light/properties.svg";
+import light_angle from "../icons/light/angle.svg";
+import light_transparent from "../icons/light/transparent.svg";
+import light_blackedges from "../icons/light/black_edges.svg";
+
+
 const icons = {
   bottom: { light: light_bottom, dark: dark_bottom },
   front: { light: light_front, dark: dark_front },
@@ -69,6 +93,16 @@ const icons = {
   shape_no: { light: light_shape_no, dark: dark_shape_no },
   stop: { light: light_stop, dark: dark_stop },
   top: { light: light_top, dark: dark_top },
+  axes: { light: light_axes, dark: dark_axes },
+  axes0: { light: light_axes0, dark: dark_axes0 },
+  grid: { light: light_grid, dark: dark_grid },
+  perspective: { light: light_perspective, dark: dark_perspective },
+  explode: { light: light_explode, dark: dark_explode },
+  distance: { light: light_distance, dark: dark_distance },
+  properties: { light: light_properties, dark: dark_properties },
+  angle: { light: light_angle, dark: dark_angle },
+  transparent: { light: light_transparent, dark: dark_transparent },
+  blackedges: { light: light_blackedges, dark: dark_blackedges },
 };
 
 function getIconBackground(theme, name) {

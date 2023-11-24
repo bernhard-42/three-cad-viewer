@@ -11,6 +11,11 @@
 
   <script src="./examples/hexapod.js"></script>
   <script src="./examples/hexapod_b3d.js"></script>
+  <!-- 
+  <script src="./examples/drops.js"></script>
+  <script src="./examples/assembly.js"></script>
+  <script src="./examples/edges-verts.js"></script> 
+-->
   <script src="./examples/box.js"></script>
   <script src="./examples/dirbox.js"></script>
   <script src="./examples/torusknot.js"></script>
@@ -40,6 +45,9 @@
     var viewer = null;
 
     const examples = [
+      // edges_verts,
+      // assembly,
+      // drops,
       hexapod,
       hexapod_b3d,
       linkage,
@@ -169,7 +177,7 @@
     const timer = new Timer("main", timeit);
 
     const displayOptions = {
-      cadWidth: 730,
+      cadWidth: 830,
       height: 525,
       treeWidth: 240,
       theme: "browser",
@@ -189,6 +197,7 @@
       edgeColor: 0x707070,
       defaultOpacity: 0.5,
       normalLen: 0,
+      measureTools: false,
     };
 
     const viewerOptions = {
@@ -219,10 +228,11 @@
       // zoom: 1,
       // glass: true,
       collapse: 1,
+      measureTools: false,
     };
 
-    function showViewer(control, mode) {
-      const container = document.getElementById("cad_view_001");
+    function showViewer(control, mode, containerId) {
+      const container = document.getElementById(containerId);
       container.innerHTML = ""
       if (mode == "glass") {
         displayOptions.glass = true;
@@ -262,11 +272,12 @@
     // examples[1][1]["/bottom/front_stand/front_stand_0"] = [0,0]
 
     window.selectedIndex = 0;
-    window.selectedExample = "hexapod";
+    window.selectedExample = "drops";
     window.viewerMode = "default";
     window.controlMode = "trackball/Z up";
 
-    showViewer(window.controlMode, window.viewerMode);
+    showViewer(window.controlMode, window.viewerMode, "cad_view_001");
+    // showViewer(window.controlMode, window.viewerMode, "cad_view_002");
 
     // Enable debugging in browser console
     window.render = render;
@@ -330,6 +341,11 @@
       Examples
       <select class="select"
         onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; render(window.selectedExample, ...window.examples[window.selectedIndex]);">
+        <!-- 
+        <option value="edges-verts">edges_verts</option>
+        <option value="assembly">assembly</option>
+        <option value="drops">drops</option>
+      -->
         <option value="hexapod">hexapod</option>
         <option value="hexapod_b3d">hexapod(build123d)</option>
         <option value="linkage">linkage</option>

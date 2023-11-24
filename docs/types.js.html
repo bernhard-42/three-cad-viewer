@@ -248,77 +248,96 @@
 /**
  * A tessellated 3D shape.
  * @typedef {Object} Shape
- * @property {Edge[]} edges - list of simple edges defining an multi point edge.
- * @property {Vector3[]} normals - list of 3-dim vertex normals.
- * @property {number[]} triangles - flattened list of 3-dim triangle id's.
- * @property {Vector3[]} vertices - list of 3-dim vertices.
+ * @property {Vector3[]} vertices - flattened list of 3-dim vertices defining the triangles.
+ * @property {Vector3[]} normals - flattened list of 3-dim vertex normals.
+ * @property {number[]} triangles - flattened list of 3-dim triangle id's per face.
+ * @property {Edge[]} edges - list of edge segments defining an multi point edge per face.
+ * @property {Vector3[]} obj_vertices - flattened list of 3-dim vertices of the CAD object.
+ * @property {number[]} edge_types - OCP types of the edges.
+ * @property {number[]} face_types - OCP types of the faces.
  * @example
- * shape = {
- *     "vertices":[
- *         [-0.5,-0.5,-0.5],[-0.5,-0.5,0.5],[-0.5,0.5,-0.5],[-0.5,0.5,0.5],[0.5,-0.5,-0.5],[0.5,-0.5,0.5],
- *         [0.5,0.5,-0.5],[0.5,0.5,0.5],[-0.5,-0.5,-0.5],[0.5,-0.5,-0.5],[-0.5,-0.5,0.5],[0.5,-0.5,0.5],
- *         [-0.5,0.5,-0.5],[0.5,0.5,-0.5],[-0.5,0.5,0.5],[0.5,0.5,0.5],[-0.5,-0.5,-0.5],[-0.5,0.5,-0.5],
- *         [0.5,-0.5,-0.5],[0.5,0.5,-0.5],[-0.5,-0.5,0.5],[-0.5,0.5,0.5],[0.5,-0.5,0.5],[0.5,0.5,0.5]
- *     ],
- *     "triangles":[1,2,0,1,3,2,5,4,6,5,6,7,11,8,9,11,10,8,15,13,12,15,12,14,19,16,17,19,18,16,23,21,20,23,20,22],
- *     "normals":[
- *         [-1,0,0],[-1,0,0],[-1,0,0],[-1,0,0],[1,0,0],[1,0,0],[1,0,0],[1,0,0],[0,-1,0],[0,-1,0],[0,-1,0],
- *         [0,-1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,0,-1],[0,0,-1],[0,0,-1],[0,0,-1],[0,0,1],[0,0,1],[0,0,1],[0,0,1]
- *     ],
- *     "edges":[
- *         [[-0.5,-0.5,-0.5],[-0.5,-0.5,0.5]],[[-0.5,-0.5,0.5],[-0.5,0.5,0.5]],[[-0.5,0.5,-0.5],[-0.5,0.5,0.5]],
- *         [[-0.5,-0.5,-0.5],[-0.5,0.5,-0.5]],[[0.5,-0.5,-0.5],[0.5,-0.5,0.5]],[[0.5,-0.5,0.5],[0.5,0.5,0.5]],
- *         [[0.5,0.5,-0.5],[0.5,0.5,0.5]],[[0.5,-0.5,-0.5],[0.5,0.5,-0.5]],[[-0.5,-0.5,-0.5],[0.5,-0.5,-0.5]],
- *         [[-0.5,-0.5,0.5],[0.5,-0.5,0.5]],[[-0.5,0.5,-0.5],[0.5,0.5,-0.5]],[[-0.5,0.5,0.5],[0.5,0.5,0.5]]
- *     ]
- * }
+ * shape: {
+ *      "vertices": [
+ *          -0.5, -1.0, -1.5, -0.5, -1.0, 1.5, -0.5, 1.0, -1.5, -0.5, 1.0, 1.5, 0.5, -1.0, -1.5, 0.5, -1.0, 1.5,
+ *          0.5, 1.0, -1.5, 0.5, 1.0, 1.5, -0.5, -1.0, -1.5, 0.5, -1.0, -1.5, -0.5, -1.0, 1.5, 0.5, -1.0, 1.5,
+ *          -0.5, 1.0, -1.5, 0.5, 1.0, -1.5, -0.5, 1.0, 1.5, 0.5, 1.0, 1.5, -0.5, -1.0, -1.5, -0.5, 1.0, -1.5, 
+ *          0.5, -1.0, -1.5, 0.5, 1.0, -1.5, -0.5, -1.0, 1.5, -0.5, 1.0, 1.5, 0.5, -1.0, 1.5, 0.5, 1.0, 1.5
+ *      ], 
+ *      "triangles": [
+ *          [1, 2, 0, 1, 3, 2], 
+ *          [5, 4, 6, 5, 6, 7], 
+ *          [11, 8, 9, 11, 10, 8], 
+ *          [15, 13, 12, 15, 12, 14], 
+ *          [19, 16, 17, 19, 18, 16], 
+ *          [23, 21, 20, 23, 20, 22]
+ *      ], 
+ *      "normals": [
+ *          -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0,
+ *          1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0,
+ *          -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, -0.0, -1.0, -0.0, -0.0, -1.0,
+ *          -0.0, -0.0, -1.0, -0.0, -0.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0
+ *      ], 
+ *      "edges": [
+ *          [ [[-0.5, -1.0, -1.5], [-0.5, -1.0, 1.5]] ],
+ *          [ [[-0.5, -1.0, 1.5],  [-0.5, 1.0, 1.5]]  ],
+ *          [ [[-0.5, 1.0, -1.5],  [-0.5, 1.0, 1.5]]  ],
+ *          [ [[-0.5, -1.0, -1.5], [-0.5, 1.0, -1.5]] ],
+ *          [ [[0.5, -1.0, -1.5],  [0.5, -1.0, 1.5]]  ],
+ *          [ [[0.5, -1.0, 1.5],   [0.5, 1.0, 1.5]]   ],
+ *          [ [[0.5, 1.0, -1.5],   [0.5, 1.0, 1.5]]   ],
+ *          [ [[0.5, -1.0, -1.5],  [0.5, 1.0, -1.5]]  ],
+ *          [ [[-0.5, -1.0, -1.5], [0.5, -1.0, -1.5]] ],
+ *          [ [[-0.5, -1.0, 1.5],  [0.5, -1.0, 1.5]]  ],
+ *          [ [[-0.5, 1.0, -1.5],  [0.5, 1.0, -1.5]]  ],
+ *          [ [[-0.5, 1.0, 1.5],   [0.5, 1.0, 1.5]]   ]
+ *      ], 
+ *      "obj_vertices": [
+ *          -0.5, -1.0, 1.5, -0.5, -1.0, -1.5, -0.5, 1.0, 1.5, -0.5, 1.0, -1.5, 0.5, -1.0, 1.5, 0.5, -1.0, -1.5, 
+ *          0.5, 1.0, 1.5, 0.5, 1.0, -1.5
+ *      ], 
+ *      "face_types": [0, 0, 0, 0, 0, 0], 
+ *      "edge_types": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ *  }
  */
 
 /**
  * Hierachical/groupd objects of type Shape.
  * @typedef {Object} Shapes
+ * @property {number} version - protocol version.
  * @property {string} name - group name.
  * @property {string} id - id of the group. It is a '/' separated path.
- * @property {Array} [loc] - a tuple of a 3-dim position [x,y,z] and a 4-dim quaternion [x,y,z,w] describing the group's
+ * @property {Array} [loc] - a tuple of a 3-dim position [x,y,z] and a 4-dim quaternion [x,y,z,w] describing the group's location.
  * @property {Shapes[]} [parts] - children of the group as list of shapes.
- * location.
- * @property {Shape} [shape] - Shape object or null if parts != null.
- * @property {Shape} [type] - object type: "shapes", edges", "vertices" if "shape" != null.
- * @property {Shape} [color] - object color if "shape" != null.
- * @property {Shape} [alpha] - object alpha transparency between 0 and 1 if "shape" != null.
+ * @property {Shape} [shape] - Shape object or null, if parts != null.
+ * @property {string} [type] - object type: "shapes", edges", "vertices", if "shape" != null.
+ * @property {string} [subtype] - object subtype: only for type=="shapes": "solid" or "faces", if "shape" != null.
+ * @property {string} [color] - rbg object color in CSS format, if "shape" != null.
+ * @property {number} [alpha] - object alpha transparency between 0 and 1, if "shape" != null.
+ * @property {boolean} [renderback] - whether to render the back of the face or not, if "shape" != null.
+ * @property {map} [bb] - bounding box as map with xmin, xmax, ymin, ymax, zmin, zmax, if "shape" != null.
  * @example
  * shapes = {
- *     "name":"Group",
- *     "id":"/Group",
- *     "parts":[
- *         {
- *             "name":"Part_0",
- *             "id":"/Group/Part_0",
- *             "type":"shapes",
- *             "shape":{
- *                 "vertices":[
- *                     [-0.5,-0.5,-0.5],[-0.5,-0.5,0.5],[-0.5,0.5,-0.5],[-0.5,0.5,0.5],[0.5,-0.5,-0.5],[0.5,-0.5,0.5],
- *                     [0.5,0.5,-0.5],[0.5,0.5,0.5],[-0.5,-0.5,-0.5],[0.5,-0.5,-0.5],[-0.5,-0.5,0.5],[0.5,-0.5,0.5],
- *                     [-0.5,0.5,-0.5],[0.5,0.5,-0.5],[-0.5,0.5,0.5],[0.5,0.5,0.5],[-0.5,-0.5,-0.5],[-0.5,0.5,-0.5],
- *                     [0.5,-0.5,-0.5],[0.5,0.5,-0.5],[-0.5,-0.5,0.5],[-0.5,0.5,0.5],[0.5,-0.5,0.5],[0.5,0.5,0.5]
- *                 ],
- *                 "triangles":[1,2,0,1,3,2,5,4,6,5,6,7,11,8,9,11,10,8,15,13,12,15,12,14,19,16,17,19,18,16,23,21,20,23,20,22],
- *                 "normals":[
- *                     [-1,0,0],[-1,0,0],[-1,0,0],[-1,0,0],[1,0,0],[1,0,0],[1,0,0],[1,0,0],[0,-1,0],[0,-1,0],[0,-1,0],
- *                     [0,-1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,0,-1],[0,0,-1],[0,0,-1],[0,0,-1],[0,0,1],[0,0,1],[0,0,1],[0,0,1]
- *                 ],
- *                 "edges":[
- *                     [[-0.5,-0.5,-0.5],[-0.5,-0.5,0.5]],[[-0.5,-0.5,0.5],[-0.5,0.5,0.5]],[[-0.5,0.5,-0.5],[-0.5,0.5,0.5]],
- *                     [[-0.5,-0.5,-0.5],[-0.5,0.5,-0.5]],[[0.5,-0.5,-0.5],[0.5,-0.5,0.5]],[[0.5,-0.5,0.5],[0.5,0.5,0.5]],
- *                     [[0.5,0.5,-0.5],[0.5,0.5,0.5]],[[0.5,-0.5,-0.5],[0.5,0.5,-0.5]],[[-0.5,-0.5,-0.5],[0.5,-0.5,-0.5]],
- *                     [[-0.5,-0.5,0.5],[0.5,-0.5,0.5]],[[-0.5,0.5,-0.5],[0.5,0.5,-0.5]],[[-0.5,0.5,0.5],[0.5,0.5,0.5]]
- *                 ]
- *             },
- *             "color":"#e8b024",
- *             "alpha": 0.8
- *         }
- *     ],
- *     "loc":null
+ *    "version": 2, 
+ *    "parts": [
+ *        {
+ *            "name": "Solid", 
+ *            "id": "/Group/Solid", 
+ *            "loc": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]], 
+ *            "shape": see Shape
+ *            "type": "shapes", 
+ *            "subtype": "solid", 
+ *            "color": "#e8b024", 
+ *            "alpha": 1.0, 
+ *            "renderback": false, 
+ *            "accuracy": 0.002, 
+ *            "bb": {
+ *                "xmin": -0.5, "xmax": 0.5, "ymin": -1.0, "ymax": 1.0, "zmin": -1.5, "zmax": 1.5
+ *            }
+ *        }
+ *    ], 
+ *    "loc": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]], 
+ *    "name": "Group", 
+ *    "id": "/Group"
  * }
  * */
 
@@ -352,7 +371,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Aug 24 2023 09:13:22 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Nov 23 2023 22:23:14 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

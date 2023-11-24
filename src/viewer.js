@@ -10,11 +10,19 @@ import { Timer } from "./timer.js";
 import { Clipping } from "./clipping.js";
 import { Animation } from "./animation.js";
 import { Info } from "./info.js";
-import { clone, isEqual, sceneTraverse, KeyMapper, scaleLight } from "./utils.js";
+import {
+  clone,
+  isEqual,
+  sceneTraverse,
+  KeyMapper,
+  scaleLight,
+} from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
 import { BoundingBox, BoxHelper } from "./bbox.js";
+import { Tools } from "./cad_tools/tools.js";
 import { version } from "./_version.js";
+import { PickedObject, Raycaster, TopoFilter } from "./raycast.js";
 
 class Viewer {
   /**
@@ -51,6 +59,7 @@ class Viewer {
       pinning: this.pinning,
       glass: this.glass,
       tools: this.tools,
+      measureTools: options.measureTools,
     });
 
     window.THREE = THREE;
@@ -61,12 +70,15 @@ class Viewer {
     this.bbox = null;
     this.bb_max = 0;
     this.scene = null;
+    this.camera = null;
+    this.orthographicCamera = null;
+    this.orthographicScene = null;
     this.gridHelper = null;
     this.axesHelper = null;
-    this.camera = null;
     this.controls = null;
     this.orientationMarker = null;
     this.treeview = null;
+    this.cadTools = new Tools(this);
 
     this.ready = false;
     this.mixer = null;
@@ -80,7 +92,7 @@ class Viewer {
     ];
 
     this.camera_distance = 0;
-    this.raycaster = new THREE.Raycaster();
+
     this.mouse = new THREE.Vector2();
 
     // setup renderer
@@ -95,11 +107,19 @@ class Viewer {
 
     this.lastNotification = {};
     this.lastBbox = null;
+
+    // If fromSolid is true, this means the selected object is from the solid
+    // This is the obj that has been picked but the actual selected obj is the solid
+    // Since we cannot directly pick a solid this is the solution
+    this.lastObject = null;
+    this.lastSelection = null;
+    this.lastPosition = null;
     this.bboxNeedsUpdate = false;
 
     this.keepHighlight = false;
 
-    this.renderer.domElement.addEventListener("dblclick", this.pick, false);
+    this.setPickHandler(true);
+
     this.renderer.domElement.addEventListener("contextmenu", (e) =>
       e.stopPropagation(),
     );
@@ -131,6 +151,7 @@ class Viewer {
     this.pinning = false;
     this.glass = false;
     this.tools = true;
+    this.keymap = { shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey" };
 
     for (var option in options) {
       if (this[option] == null) {
@@ -153,6 +174,7 @@ class Viewer {
     this.defaultOpacity = 0.5;
     this.edgeColor = 0x707070;
     this.normalLen = 0;
+    this.measureTools = false;
 
     for (var option in options) {
       if (this[option] === undefined) {
@@ -310,6 +332,122 @@ class Viewer {
   }
 
   /**
+   * Decompose a CAD object into faces, edges and vertices.
+   * @param {Shapes} shapes - The Shapes object.
+   * @param {States} states - the visibility state of meshes and edges
+   * @returns {Shapes} A decomposed Shapes object.
+   */
+  _decompose(part, states) {
+    const shape = part.shape;
+    var j;
+
+    part.parts = [];
+
+    if (part.type == "shapes") {
+      // decompose faces
+      var new_part = {
+        parts: [],
+        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        name: "faces",
+        id: `${part.id}/faces`
+      };
+      const vertices = shape.vertices;
+      const normals = shape.normals;
+      for (j = 0; j < shape.triangles.length; j++) {
+        var triangles = shape.triangles[j];
+        var new_shape = {
+          loc: [[0, 0, 0], [0, 0, 0, 1]],
+          name: `faces_${j}`,
+          id: `${part.id}/faces/faces_${j}`,
+          type: "shapes",
+          color: part.color,
+          alpha: part.alpha,
+          renderBack: false,
+          accuracy: part.accuracy,
+          bb: {},
+          geomtype: shape.face_types[j],
+          subtype: part.subtype,
+          shape: {
+            triangles: [...Array(triangles.length).keys()],
+            vertices: triangles.map((s) => [vertices[3 * s], vertices[3 * s + 1], vertices[3 * s + 2]]).flat(),
+            normals: triangles.map((s) => [normals[3 * s], normals[3 * s + 1], normals[3 * s + 2]]).flat(),
+            edges: []
+          }
+        };
+        new_part.parts.push(new_shape);
+        states[new_shape.id] = [1, 3];
+      }
+
+      part.parts.push(new_part);
+    }
+
+    if (part.type == "shapes" || part.type == "edges") {
+      // decompose edges
+      new_part = {
+        parts: [],
+        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        name: "edges",
+        id: `${part.id}/edges`,
+      };
+      const multiColor = (Array.isArray(part.color) && (part.color.length == shape.edges.length));
+      var color;
+      for (j = 0; j < shape.edges.length; j++) {
+        const edge = shape.edges[j];
+        color = multiColor ? part.color[j] : part.color;
+        new_shape = {
+          loc: [[0, 0, 0], [0, 0, 0, 1]],
+          name: `edges_${j}`,
+          id: `${part.id}/edges/edges_${j}`,
+          type: "edges",
+          color: (part.type == "shapes") ? this.edgeColor : color,
+          width: (part.type == "shapes") ? 1 : part.width,
+          bb: {},
+          geomtype: shape.edge_types[j],
+          shape: { "edges": edge }
+        };
+        new_part.parts.push(new_shape);
+        states[new_shape.id] = [3, 1];
+      }
+
+      part.parts.push(new_part);
+    }
+
+    // decompose vertices
+    new_part = {
+      parts: [],
+      loc: [[0, 0, 0], [0, 0, 0, 1]],
+      name: "vertices",
+      id: `${part.id}/vertices`,
+    };
+    var vertices = shape.obj_vertices;
+    for (j = 0; j < vertices.length / 3; j++) {
+      new_shape = {
+        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        name: `vertices${j}`,
+        id: `${part.id}/vertices/vertices${j}`,
+        type: "vertices",
+        color: (part.type == "shapes" || part.type == "edges") ? this.edgeColor : part.color,
+        size: (part.type == "shapes" || part.type == "edges") ? 4 : part.size,
+        bb: {},
+        shape: { "obj_vertices": [vertices[3 * j], vertices[3 * j + 1], vertices[3 * j + 2]] }
+      };
+      new_part.parts.push(new_shape);
+      states[new_shape.id] = [3, 1];
+    }
+
+    part.parts.push(new_part);
+
+    delete part.shape;
+    delete part.color;
+    delete part.alpha;
+    delete part.accuracy;
+    delete part.renderBack;
+    delete states[part.id];
+
+    return part;
+  };
+
+  /**
    * Render the shapes of the CAD object.
    * @param {Shapes} shapes - The Shapes object.
    * @param {States} states - the visibility state of meshes and edges
@@ -318,9 +456,41 @@ class Viewer {
    */
   renderTessellatedShapes(shapes, states, options) {
     this.setRenderDefaults(options);
+    const _render = (shapes, states, measureTools) => {
+      var part, shape;
+      if (shapes.version == 2) {
+        if (measureTools) {
+          var i, tmp;
+          let parts = [];
+          for (i = 0; i < shapes.parts.length; i++) {
+            part = shapes.parts[i];
+            if (part.parts != null) {
+              tmp = _render(part, states, options);
+              parts.push(tmp);
+            } else {
+              parts.push(this._decompose(part, states));
+            }
+          }
+          shapes.parts = parts;
+        } else {
+          for (i = 0; i < shapes.parts.length; i++) {
+            part = shapes.parts[i];
+            shape = part.shape;
+            if (part.type == "shapes") {
+              shape.triangles = shape.triangles.flat();
+              shape.edges = shape.edges.flat();
+            } else if (part.type == "edges" || part.type == "shapes") {
+              shape.edges = shape.edges.flat();
+            };
+          }
+        }
+      }
+      return shapes;
+    };
+    shapes = _render(shapes, states, options.measureTools);
     return [
       this._renderTessellatedShapes(shapes, states),
-      this._getTree(shapes, states),
+      this._getTree(shapes, states)
     ];
   }
 
@@ -429,6 +599,7 @@ class Viewer {
     }
   };
 
+
   /**
    * Render scene and update orientation marker
    * If no animation loop exists, this needs to be called manually after every camera/scene change
@@ -438,11 +609,18 @@ class Viewer {
    * @param {boolean} notify - whether to send notification or not.
    */
   update = (updateMarker, notify = true) => {
+
     if (this.ready) {
       this.renderer.clear();
 
+      if (this.raycaster && this.raycaster.raycastMode) {
+        this.handleRaycast();
+      }
+
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
+      this.cadTools.update();
+
       this.directLight.position.copy(this.camera.getCamera().position);
 
       if (
@@ -603,7 +781,7 @@ class Viewer {
 
   /**
    * Render a CAD object and build the navigation tree
-   * @param {Shapes} shapes - the shapes of the CAD object to be rendered
+   * @param {NestedGroup} nestedgroup - the shapes of the CAD object to be rendered
    * @param {NavTree} tree - The navigation tree object
    * @param {States} states - the visibility state of meshes and edges
    * @param {ViewerOptions} options - the Viewer options
@@ -617,6 +795,7 @@ class Viewer {
 
     this.states = states;
     this.scene = new THREE.Scene();
+    this.orthographicScene = new THREE.Scene();
 
     //
     // render the input assembly
@@ -644,6 +823,7 @@ class Viewer {
     );
     timer.split("bounding box");
 
+
     //
     // add Info box
     //
@@ -661,6 +841,22 @@ class Viewer {
       this.ortho,
       options.up,
     );
+
+    // this.orthographicCamera = new THREE.OrthographicCamera(
+    //   -this.bb_radius,
+    //   this.bb_radius,
+    //   -this.bb_radius,
+    //   this.bb_radius,
+    //   0, 100);
+    // this.orthographicCamera.position.z = 50;
+    this.orthographicCamera = new THREE.OrthographicCamera(
+      -10,
+      10,
+      -10,
+      10,
+      0, 100);
+    this.orthographicCamera.position.z = 50;
+    this.orthographicCamera.up = this.camera.up;
 
     //
     // build mouse/touch controls
@@ -703,13 +899,16 @@ class Viewer {
     // add lights
     //
 
-    this.ambientLight = new THREE.AmbientLight(0xffffff, scaleLight(this.ambientIntensity));
+    this.ambientLight = new THREE.AmbientLight(
+      0xffffff,
+      scaleLight(this.ambientIntensity),
+    );
     this.scene.add(this.ambientLight);
 
     // this.directLight = new THREE.PointLight(0xffffff, this.directIntensity);
     this.directLight = new THREE.DirectionalLight(
       0xffffff,
-      scaleLight(this.directIntensity)
+      scaleLight(this.directIntensity),
     );
     this.scene.add(this.directLight);
 
@@ -848,6 +1047,8 @@ class Viewer {
     //
 
     this.toggleAnimationLoop(this.hasAnimationLoop);
+
+    this.display.showMeasureTools(options.measureTools);
 
     this.ready = true;
     this.info.readyMsg(this.gridHelper.ticks, this.control);
@@ -1180,41 +1381,184 @@ class Viewer {
     this.update(true);
   };
 
+  setPickHandler(flag) {
+    if (flag) {
+      this.renderer.domElement.addEventListener("dblclick", this.pick, false);
+    } else {
+      this.renderer.domElement.removeEventListener("dblclick", this.pick, false);
+    }
+  }
+
   /**
    * Find the shape that was double clicked and send notification
    * @function
    * @param {MouseEvent} e - a DOM MouseEvent
    */
   pick = (e) => {
-    const rect = this.renderer.domElement.getBoundingClientRect();
-    const offsetX = rect.x + window.pageXOffset;
-    const offsetY = rect.y + window.pageYOffset;
-    this.mouse.x = ((e.pageX - offsetX) / this.cadWidth) * 2 - 1;
-    this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
-
-    this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
-
-    const objects = this.raycaster.intersectObjects(
+    const raycaster = new Raycaster(
+      this.camera,
+      this.renderer.domElement,
+      this.cadWidth,
+      this.height,
+      this.bb_max / 30,
       this.scene.children.slice(0, 1),
-      true,
+      (ev) => { },
     );
-    var nearest = null;
-    for (var object of objects) {
-      if (object.object.material.visible) {
-        nearest = {
-          path: object.object.parent.parent.name.replaceAll("|", "/"),
-          name: object.object.name,
-          boundingBox: object.object.geometry.boundingBox,
-          boundingSphere: object.object.geometry.boundingSphere,
-          objectGroup: object.object.parent,
-        };
-        break;
-      }
+    raycaster.init();
+    raycaster.onPointerMove(e);
+
+    const validObjs = raycaster.getIntersectedObjs(e);
+    if (validObjs.length == 0) {
+      return;
     }
+    var nearestObj = validObjs[0]; // The first is the nearest since they are sorted by dist.
+    const nearest = {
+      path: nearestObj.object.parent.parent.name.replaceAll("|", "/"),
+      name: nearestObj.object.name,
+      boundingBox: nearestObj.object.geometry.boundingBox,
+      boundingSphere: nearestObj.object.geometry.boundingSphere,
+      objectGroup: nearestObj.object.parent,
+    };
     if (nearest != null) {
-      this.handlePick(nearest.path, nearest.name, KeyMapper.get(e, "meta"), KeyMapper.get(e, "shift"));
+      this.handlePick(
+        nearest.path,
+        nearest.name,
+        KeyMapper.get(e, "meta"),
+        KeyMapper.get(e, "shift"),
+      );
+    }
+    raycaster.dispose();
+  };
+
+
+  //
+  // Handle CAD Tools
+  // 
+
+  clearSelection = () => {
+    this.nestedGroup.clearSelection();
+    this.cadTools.handleResetSelection();
+  };
+
+
+  _releaseLastSelected = (clear) => {
+    if (this.lastObject != null) {
+      let objs = this.lastObject.objs();
+      for (let obj of objs) {
+        obj.unhighlight(true);
+      }
+
+      if (clear) {
+        this.lastObject = null;
+      };
     }
   };
+
+  _removeLastSelected = () => {
+    if (this.lastSelection != null) {
+      let objs = this.lastSelection.objs();
+      for (let obj of objs) {
+        obj.unhighlight(false);
+      }
+      this.lastSelection = null;
+
+      this.cadTools.handleRemoveLastSelection();
+    }
+  };
+
+  /**
+   * Set raycast mode
+   * @function
+   * @param {boolean} flag - turn raycast mode on or off
+   */
+  setRaycastMode(flag) {
+    if (flag) {
+      // initiate raycasting
+      this.raycaster = new Raycaster(
+        this.camera,
+        this.renderer.domElement,
+        this.cadWidth,
+        this.height,
+        this.bb_max / 30,
+        this.scene.children.slice(0, 1),
+        this.handleRaycastEvent,
+      );
+      this.raycaster.init();
+    } else {
+      this.raycaster.dispose();
+      this.raycaster = null;
+    }
+  }
+
+  handleRaycast = () => {
+    const objects = this.raycaster.getValidIntersectedObjs();
+    if (objects.length > 0) {
+      for (var object of objects) {
+        {
+          const objectGroup = object.object.parent;
+          if (objectGroup !== this.lastObject) {
+            this._releaseLastSelected(false);
+            const fromSolid = this.raycaster.filters.topoFilter.includes(TopoFilter.solid);
+
+            const pickedObj = new PickedObject(objectGroup, fromSolid);
+            for (let obj of pickedObj.objs()) {
+              obj.highlight(true);
+            }
+            this.lastObject = pickedObj;
+          }
+          break;
+        }
+      }
+    } else {
+      this._releaseLastSelected(true);
+    }
+  };
+
+  handleRaycastEvent = (event) => {
+    if (event.key) {
+      switch (event.key) {
+        case "Escape":
+          this.clearSelection();
+          break;
+        case "Backspace":
+          this._removeLastSelected();
+          break;
+        default:
+          break;
+      }
+    } else {
+      switch (event.mouse) {
+        case "left":
+          if (this.lastObject != null) {
+            const objs = this.lastObject.objs();
+            for (let obj of objs) {
+              obj.toggleSelection();
+            }
+            this.cadTools.handleSelectedObj(this.lastObject);
+            this.lastSelection = this.lastObject;
+          }
+          break;
+        case "right":
+          this._removeLastSelected();
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
+
+  /**
+   * Handle a backend response sent by the backend
+   * The response is a JSON object sent by the Python backend through VSCode
+   * @param {object} response 
+   */
+  handleBackendResponse = (response) => {
+    if (response.subtype === "tool_response") {
+      this.cadTools.handleResponse(response);
+    }
+  };
+
 
   //
   // Getters and Setters
@@ -1868,7 +2212,8 @@ class Viewer {
    * Note: Only the canvas will be shown, no tools and orientation marker
    */
   pinAsPng = () => {
-    const canvas = this.display.cadView.children[2];
+    const children = this.display.cadView.children;
+    const canvas = children[children.length - 1];
     this.renderer.setViewport(0, 0, this.cadWidth, this.height);
     this.renderer.render(this.scene, this.camera.getCamera());
     canvas.toBlob((blob) => {
@@ -2024,6 +2369,12 @@ class Viewer {
 
     // update the this
     this.update(true);
+
+    // update the raycaster
+    if (this.raycaster) {
+      this.raycaster.width = cadWidth;
+      this.raycaster.height = height;
+    }
   }
 
   vector3(x = 0, y = 0, z = 0) {

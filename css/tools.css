@@ -1,0 +1,111 @@
+/* MEASURE PANEL */
+
+
+.tcv_panel {
+    display: inline-block;
+    text-align: center;
+    position: absolute;
+    background-color: var(--tcv-bg-overlay-color);
+    user-select: none;
+    font-family: sans-serif;
+    color: var(--tcv-font-color);
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.tcv_properties_table {
+    border-collapse: collapse;
+}
+
+.tcv_measure_header {
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    border-bottom: 1px solid lightgray;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.tcv_measure_subheader {
+    text-align: center;
+    font-style: italic;
+    font-size: 14px;
+    border-bottom: 1px solid lightgray;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.tcv_measure_cell_header {
+    border-right: 1px solid lightgray;
+}
+
+.tcv_measure_row_line {
+    border-bottom: 1px solid lightgray;
+}
+
+.tcv_measure_cell {
+    padding: 3px 5px 31px 5px;
+}
+
+.tcv_vertex_cell {
+    text-align: center;
+    border-right: 1px solid lightgray;
+    padding: 3px 5px 31px 5px;
+}
+
+.tcv_vertex_cell:last-child {
+    border-right: none;
+}
+
+.tcv_props_cell {
+    vertical-align: middle;
+    font-size: 14px;
+    font-family: sans-serif;
+    border-bottom: 1px solid lightgray;
+}
+
+.tcv_props_header {
+    text-align: left;
+    padding: 3px 5px 3px 5px;
+    border-right: 1px solid lightgray;
+}
+
+.tcv_measure_cell {
+    text-align: left;
+    padding: 3px 5px 3px 5px;
+    font-size: 14px;
+}
+
+.tcv_measure_val {
+    text-align: right;
+    padding: 3px 5px 3px 5px;
+    font-size: 14px;
+}
+
+.tcv_vertex_cell {
+    text-align: center;
+    border-right: 1px solid lightgray;
+    padding: 3px 5px 3px 5px;
+    font-size: 14px;
+}
+
+.tcv_xtitle {
+    color: var(--tcv-x-color);
+}
+
+.tcv_ytitle {
+    color: var(--tcv-y-color);
+}
+
+.tcv_ztitle {
+    color: var(--tcv-z-color);
+}
+
+.tcv_angle {
+    font-size: 14px;
+    font-family: sans-serif;
+}
+
+.tcv_angle_val {
+    text-align: right;
+}

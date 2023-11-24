@@ -4,144 +4,7 @@ import { LineSegmentsGeometry } from "./patches.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js";
 import { BoundingBox } from "./bbox.js";
-
-
-class ObjectGroup extends THREE.Group {
-  constructor(opacity, alpha, edge_color, renderback) {
-    super();
-    this.opacity = opacity;
-    this.alpha = (alpha == null) ? 1.0 : alpha;
-    this.edge_color = edge_color;
-    this.renderback = renderback;
-    this.types = { front: null, back: null, edges: null, vertices: null };
-  }
-
-  addType(mesh, type) {
-    this.add(mesh);
-    this.types[type] = mesh;
-  }
-
-  setMetalness(value) {
-    for (var child of this.children) {
-      child.material.metalness = value;
-      child.material.needsUpdate = true;
-    }
-  }
-
-  setRoughness(value) {
-    for (var child of this.children) {
-      child.material.roughness = value;
-      child.material.needsUpdate = true;
-    }
-  }
-
-  setTransparent(flag) {
-    if (this.types.back) {
-      this.types.back.material.opacity = flag ? this.opacity * this.alpha : this.alpha;
-      this.types.front.material.opacity = flag ? this.opacity * this.alpha : this.alpha;
-    }
-    for (var child of this.children) {
-      // turn depth write off for transparent objects
-      child.material.depthWrite = (this.alpha < 1.0) ? false : !flag;
-      // but keep depth test
-      child.material.depthTest = true;
-      child.material.needsUpdate = true;
-    }
-  }
-
-  setBlackEdges(flag) {
-    if (this.types.edges) {
-      const color = flag ? 0x000000 : this.edge_color;
-      this.types.edges.material.color = new THREE.Color(color);
-      this.types.edges.material.needsUpdate = true;
-    }
-  }
-
-  setEdgeColor(color) {
-    if (this.types.edges) {
-      this.edge_color = color;
-      this.types.edges.material.color = new THREE.Color(color);
-      this.types.edges.material.needsUpdate = true;
-    }
-  }
-
-  setOpacity(opacity) {
-    if (this.types.front || this.types.back) {
-      this.opacity = opacity;
-      this.types.back.material.opacity = this.opacity;
-      this.types.front.material.opacity = this.opacity;
-      this.types.back.material.needsUpdate = true;
-      this.types.front.material.needsUpdate = true;
-    }
-  }
-
-  setShapeVisible(flag) {
-    this.types.front.material.visible = flag;
-    if (this.types.back && this.renderback) {
-      this.types.back.material.visible = flag;
-    }
-  }
-
-  setEdgesVisible(flag) {
-    if (this.types.edges) {
-      this.types.edges.material.visible = flag;
-    }
-    if (this.types.vertices) {
-      this.types.vertices.material.visible = flag;
-    }
-  }
-
-  setBackVisible(flag) {
-    if (this.types.back && this.types.front.material.visible) {
-      this.types.back.material.visible = this.renderback || flag;
-    }
-  }
-
-  setClipIntersection(flag) {
-    for (var child of this.children) {
-      child.material.clipIntersection = flag;
-      child.material.clipIntersection = flag;
-      child.material.clipIntersection = flag;
-    }
-  }
-
-  setClipPlanes(planes) {
-    if (this.types.back) {
-      this.types.back.material.clippingPlanes = planes;
-    }
-    if (this.types.front) {
-      this.types.front.material.clippingPlanes = planes;
-    }
-    if (this.types.edges) {
-      this.types.edges.material.clippingPlanes = planes;
-    }
-    if (this.types.vertices) {
-      this.types.vertices.material.clippingPlanes = planes;
-    }
-    this.updateMaterials(true);
-  }
-
-  setPolygonOffset(offset) {
-    if (this.types.back) {
-      this.types.back.material.polygonOffsetUnits = offset;
-    }
-  }
-
-  updateMaterials(flag) {
-    if (this.types.back) {
-      this.types.back.material.needsUpdate = flag;
-    }
-    if (this.types.front) {
-      this.types.front.material.needsUpdate = flag;
-    }
-    if (this.types.edges) {
-      this.types.edges.material.needsUpdate = flag;
-    }
-    if (this.types.vertices) {
-      this.types.vertices.material.needsUpdate = flag;
-    }
-  }
-}
+import { ObjectGroup } from "./objectgroup.js";
 
 class NestedGroup {
   constructor(
@@ -154,7 +17,7 @@ class NestedGroup {
     metalness,
     roughness,
     normalLen,
-    bb_max
+    bb_max,
   ) {
     this.shapes = shapes;
     this.width = width;
@@ -228,14 +91,21 @@ class NestedGroup {
     return edges;
   }
 
-  renderEdges(edgeList, lineWidth, color, path, name, state) {
+  renderEdges(edgeList, lineWidth, color, path, name, state, geomtype = null) {
     var group = new ObjectGroup(
       this.defaultOpacity,
       1.0,
       color == null ? this.edgeColor : color,
+      geomtype,
+      "edges"
     );
 
-    var edges = this._renderEdges(edgeList, lineWidth, color, state);
+    var edges = this._renderEdges(
+      (edgeList.edges)
+        ? edgeList.edges // protocol version 2
+        : edgeList,  // protocol version 1
+      lineWidth, color, state
+    );
     if (name) {
       edges.name = name;
     }
@@ -248,20 +118,27 @@ class NestedGroup {
     return group;
   }
 
-  renderVertices(vertexList, size, color, path, name, state) {
+  renderVertices(vertexList, size, color, path, name, state, geomtype = null) {
     var group = new ObjectGroup(
       this.defaultOpacity,
       1.0,
       color == null ? this.edgeColor : color,
+      geomtype,
+      "vertices"
     );
 
     const vertex_color = color == null ? this.edgeColor : color;
 
-    const positions =
-      vertexList instanceof Float32Array
-        ? vertexList
+    let positions;
+    if (vertexList.obj_vertices) { // protocol version 2
+      positions = vertexList.obj_vertices instanceof Float32Array
+        ? vertexList.obj_vertices
+        : new Float32Array(vertexList.obj_vertices);
+    } else {  // protocol version 1
+      positions = vertexList instanceof Float32Array
+        ? vertexList.flat()
         : new Float32Array(vertexList.flat());
-
+    }
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
       "position",
@@ -290,7 +167,7 @@ class NestedGroup {
     return group;
   }
 
-  renderShape(shape, color, alpha, renderback, path, name, states) {
+  renderShape(shape, color, alpha, renderback, path, name, states, geomtype = null, subtype = null) {
     const positions =
       shape.vertices instanceof Float32Array
         ? shape.vertices
@@ -308,6 +185,8 @@ class NestedGroup {
       this.defaultOpacity,
       alpha,
       this.edgeColor,
+      geomtype,
+      subtype,
       renderback,
     );
 
@@ -329,7 +208,7 @@ class NestedGroup {
     shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
 
     // see https://stackoverflow.com/a/37651610
-    // "A common draw configuration you see is to draw all the opaque object with depth testing on, 
+    // "A common draw configuration you see is to draw all the opaque object with depth testing on,
     //  turn depth write off, then draw the transparent objects in a back to front order."
     const frontMaterial = new THREE.MeshStandardMaterial({
       color: color,
@@ -414,6 +293,7 @@ class NestedGroup {
             path,
             shape.name,
             states[shape.id][1],
+            { topo: "edge", geomtype: shape.geomtype },
           );
           break;
         case "vertices":
@@ -424,6 +304,7 @@ class NestedGroup {
             path,
             shape.name,
             states[shape.id][1],
+            { topo: "vertex", geomtype: null },
           );
           break;
         default:
@@ -435,6 +316,8 @@ class NestedGroup {
             path,
             shape.name,
             states[shape.id],
+            { topo: "face", geomtype: shape.geomtype },
+            shape.subtype,
           );
       }
       // support object locations
@@ -491,6 +374,26 @@ class NestedGroup {
           obj[func](flag);
         }
       }
+    }
+  }
+
+  selection() {
+    var result = [];
+    for (var path in this.groups) {
+      for (var obj of this.groups[path].children) {
+        if (obj instanceof ObjectGroup) {
+          if (obj.isSelected) {
+            result.push(obj);
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  clearSelection() {
+    for (var object of this.selection()) {
+      object.clearHighlights();
     }
   }
 

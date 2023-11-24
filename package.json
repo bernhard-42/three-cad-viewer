@@ -1,6 +1,6 @@
 {
   "name": "three-cad-viewer",
-  "version": "1.8.7",
+  "version": "2.1.1",
   "description": "",
   "repository": {
     "type": "git",
@@ -14,20 +14,21 @@
   "module": "dist/three-cad-viewer.esm.js",
   "scripts": {
     "clean": "rimraf ./dist/",
-    "build": "node -e 'const { version } = require(\"./package.json\"); require(\"fs\").writeFileSync(\"./src/_version.js\", `export const version = \"${version}\"\n`)' && rollup -c --environment BUILD:production",
+    "build": "node ./copy_version.js && rollup -c --environment BUILD:production",
     "prepare": "yarn run build",
     "start": "rollup -w -c",
+    "debug": "rollup -w -c --environment BUILD:development --sourcemap",
     "docs": "./build_docs.sh",
     "release": "./release.sh"
   },
   "author": "Bernhard Walter",
   "license": "MIT",
   "dependencies": {
-    "three": "0.155.0"
+    "three": "0.158.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.8",
-    "@babel/eslint-parser": "^7.14.7",
+    "@babel/core": "^7.23.3",
+    "@babel/eslint-parser": "^7.23.3",
     "@rollup/plugin-image": "^3.0.2",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-terser": "^0.4.3",
@@ -36,9 +37,11 @@
     "prettier": "^2.3.2",
     "rimraf": "^5.0.1",
     "rollup": "^3.25.3",
+    "rollup-plugin-html": "^0.2.1",
     "rollup-plugin-import-css": "^3.3.1",
     "rollup-plugin-livereload": "^2.0.5",
-    "rollup-plugin-serve": "^2.0.2"
+    "rollup-plugin-serve": "^2.0.2",
+    "rollup-plugin-string": "^3.0.0"
   },
   "babel": {}
 }
