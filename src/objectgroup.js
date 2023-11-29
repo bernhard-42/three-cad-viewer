@@ -145,6 +145,7 @@ class ObjectGroup extends THREE.Group {
     setBlackEdges(flag) {
         if (this.types.edges) {
             const color = flag ? 0x000000 : this.edge_color;
+            this.originalColor = new THREE.Color(color);
             this.types.edges.material.color = new THREE.Color(color);
             this.types.edges.material.needsUpdate = true;
         }
