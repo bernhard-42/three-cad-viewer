@@ -2357,8 +2357,6 @@ class Viewer {
       cadWidth: cadWidth,
       height: height,
     });
-    this.display.cadView.children[2].style.width = `${cadWidth}px`;
-    this.display.cadView.children[2].style.height = `${height}px`;
     this.display.glassMode(glass);
 
     const fullWidth = cadWidth + (glass ? 0 : treeWidth);
