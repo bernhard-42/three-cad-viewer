@@ -145,12 +145,20 @@ class ClickButton extends BaseButton {
         }
     };
 
-    // eslint-disable-next-line no-unused-vars
+    extractIdFromName = (name) => {
+        const match = "grid-";
+        const start = name.indexOf(match) + match.length;
+        const end = name.indexOf("_", start);
+        const result = name.slice(start, end);
+        return result;
+    };
+
     handler = (e) => {
-        if (this.dropdown != null && this.dropdown.includes(e.target.innerHTML)) {
-            this.action(`grid-${e.target.innerHTML}`, !this.checkElems[e.target.innerHTML].checked);
-            e.preventDefault();
-            e.stopPropagation();
+        const id = this.extractIdFromName(e.target.id);
+        if (this.dropdown != null && id && this.dropdown.includes(id)) {
+            const newstate = e.target.checked;
+            this.action(`grid-${id}`, newstate);
+            this.checkElems[id].checked = newstate;
         } else if (e.target.type === "button") {
             if (!this.state) {
                 this.clearGroup();
