@@ -144,7 +144,7 @@ function createPlaneGroup(
   color,
   edges,
 ) {
-  material.color.set(color);
+  material.color.set(new THREE.Color(color));
 
   var group = new THREE.Group();
   var otherCenters = [...center];
