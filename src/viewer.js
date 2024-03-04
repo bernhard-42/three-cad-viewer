@@ -965,7 +965,7 @@ class Viewer {
     //
 
     this.clipping = new Clipping(
-      this.bbox.center,
+      this.bbox.center(),
       this.gridSize,
       this.gridSize / 2,
       this.nestedGroup,
