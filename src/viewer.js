@@ -968,6 +968,7 @@ class Viewer {
       this.bbox.center,
       this.gridSize,
       this.gridSize / 2,
+      this.nestedGroup,
       (index, normal) => this.display.setNormalLabel(index, normal),
       this.theme,
     );
