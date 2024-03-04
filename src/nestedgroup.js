@@ -369,10 +369,9 @@ class NestedGroup {
 
   _traverse(func, flag) {
     for (var path in this.groups) {
-      for (var obj of this.groups[path].children) {
-        if (obj instanceof ObjectGroup) {
-          obj[func](flag);
-        }
+      var obj = this.groups[path];
+      if (obj instanceof ObjectGroup) {
+        obj[func](flag);
       }
     }
   }
