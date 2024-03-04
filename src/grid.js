@@ -15,8 +15,8 @@ class Grid {
     // in case the bbox has the same siez as the nice grid there should be
     // a margin bewteen grid and object. Hence factor 1.1
     var [axisStart, axisEnd, niceTick] = this.niceBounds(
-      -bbox.max_dist_from_center() * 1.1,
-      bbox.max_dist_from_center() * 1.1,
+      -bbox.boundingSphere().radius * 1.1,
+      bbox.boundingSphere().radius * 1.1,
       2 * ticks,
     );
     this.size = axisEnd - axisStart;
