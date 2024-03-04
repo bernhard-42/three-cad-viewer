@@ -112,15 +112,19 @@ class ObjectGroup extends THREE.Group {
 
     setMetalness(value) {
         for (var child of this.children) {
-            child.material.metalness = value;
-            child.material.needsUpdate = true;
+            if (!child.name.startsWith("clipping")) {
+                child.material.metalness = value;
+                child.material.needsUpdate = true;
+            }
         }
     }
 
     setRoughness(value) {
         for (var child of this.children) {
-            child.material.roughness = value;
-            child.material.needsUpdate = true;
+            if (!child.name.startsWith("clipping")) {
+                child.material.roughness = value;
+                child.material.needsUpdate = true;
+            }
         }
     }
 
@@ -134,11 +138,13 @@ class ObjectGroup extends THREE.Group {
                 : this.alpha;
         }
         for (var child of this.children) {
-            // turn depth write off for transparent objects
-            child.material.depthWrite = this.alpha < 1.0 ? false : !flag;
-            // but keep depth test
-            child.material.depthTest = true;
-            child.material.needsUpdate = true;
+            if (!child.name.startsWith("clipping")){
+                // turn depth write off for transparent objects
+                child.material.depthWrite = this.alpha < 1.0 ? false : !flag;
+                // but keep depth test
+                child.material.depthTest = true;
+                child.material.needsUpdate = true;
+            }
         }
     }
 
