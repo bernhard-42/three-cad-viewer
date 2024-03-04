@@ -144,7 +144,7 @@ class Viewer {
    * @param {DisplayOptions} options - The provided options object for the viewer.
    */
   setDisplayDefaults(options) {
-    this.theme = "browser";
+    this.theme = "light";
     this.cadWidth = 800;
     this.treeWidth = 250;
     this.height = 600;
@@ -159,6 +159,15 @@ class Viewer {
       } else {
         this[option] = options[option];
       }
+    }
+    if (
+      options.theme === "dark" ||
+      (options.theme == "browser" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      this.theme = "dark";
+    } else {
+      this.theme = "light";
     }
   }
 
