@@ -134,6 +134,36 @@ class PlaneMesh extends THREE.Mesh {
   }
 }
 
+function createPlaneGroup(
+  name,
+  index,
+  plane,
+  center,
+  size,
+  material,
+  color,
+  edges,
+) {
+  material.color.set(color);
+
+  var group = new THREE.Group();
+  var otherCenters = [...center];
+  otherCenters[index] = 0;
+  group.position.set(...otherCenters); // needed for the plane help to be at the correct location
+
+  group.add(
+    new PlaneMesh(index, plane, center, size, material, color, name, edges),
+  );
+  return group;
+}
+
+function createStencil(name, material, geometry, plane) {
+  material.clippingPlanes = [plane];
+  var mesh = new THREE.Mesh(geometry, material);
+  mesh.name = name;
+  return mesh;
+}
+
 class Clipping {
   constructor(center, size, distance, nestedGroup, uiCallback, theme) {
     this.center = center;
@@ -142,7 +172,6 @@ class Clipping {
 
     this.clipPlanes = [];
     this.planeHelpers = new THREE.Group();
-    // this.planeHelpers.position.set(...center); // needed for the plane help to be at the correct location
 
     var i;
     for (i = 0; i < 3; i++) {
@@ -151,24 +180,18 @@ class Clipping {
       this.uiCallback(i, normals[i].toArray());
 
       const material = planeHelperMaterial.clone();
-      material.color.set(planeColors[theme][i]);
-      var planeHelperGroup = new THREE.Group();
-      var otherCenters = [...center];
-      otherCenters[i] = 0;
-      planeHelperGroup.position.set(...otherCenters); // needed for the plane help to be at the correct location
-      planeHelperGroup.add(
-        new PlaneMesh(
+      this.planeHelpers.add(
+        createPlaneGroup(
+          "PlaneHelper",
           i,
-          this.clipPlanes[i],
+          plane,
           center,
           size,
           material,
           planeColors[theme][i],
-          "PlaneHelper",
           true,
         ),
       );
-      this.planeHelpers.add(planeHelperGroup);
     }
     this.planeHelpers.visible = false;
 
@@ -186,44 +209,43 @@ class Clipping {
 
         var group = nestedGroup.groups[path];
         if (group instanceof ObjectGroup) {
-          var frontMaterial = frontStencilMaterial.clone();
-          frontMaterial.clippingPlanes = [plane];
-          var frontMesh = new THREE.Mesh(group.shapeGeometry, frontMaterial);
-          frontMesh.name = `frontStencil-${i}`;
+          clippingGroup.add(
+            createStencil(
+              `frontStencil-${i}`,
+              frontStencilMaterial.clone(),
+              group.shapeGeometry,
+              plane,
+            ),
+          );
 
-          var backMaterial = backStencilMaterial.clone();
-          backMaterial.clippingPlanes = [plane];
-          var backMesh = new THREE.Mesh(group.shapeGeometry, backMaterial);
-          backMesh.name = `backStencil-${i}`;
+          clippingGroup.add(
+            createStencil(
+              `backStencil-${i}`,
+              backStencilMaterial.clone(),
+              group.shapeGeometry,
+              plane,
+            ),
+          );
 
-          clippingGroup.add(frontMesh);
-          clippingGroup.add(backMesh);
           group.addType(clippingGroup, `clipping-${i}`);
         }
       }
 
-      var planeGroup = new THREE.Group();
-      planeGroup.name = `clippingPlane-${i}`;
-      otherCenters = [...center];
-      otherCenters[i] = 0;
-      planeGroup.position.set(...otherCenters); // needed for the plane help to be at the correct location
-
       var planeMaterial = stencilPlaneMaterial.clone();
-      planeMaterial.color.set(planeColors[theme][i]);
       planeMaterial.clippingPlanes = otherPlanes;
 
-      var planeMesh = new PlaneMesh(
-        i,
-        plane,
-        center,
-        0.95 * size,
-        planeMaterial,
-        planeColors[theme][i],
-        "StencilPlane",
-        false,
+      nestedGroup.rootGroup.add(
+        createPlaneGroup(
+          "StencilPlane",
+          i,
+          plane,
+          center,
+          size,
+          planeMaterial,
+          planeColors[theme][i],
+          false,
+        ),
       );
-      planeGroup.add(planeMesh);
-      nestedGroup.rootGroup.add(planeGroup);
     }
   }
 
