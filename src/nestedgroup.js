@@ -206,6 +206,7 @@ class NestedGroup {
     );
     shapeGeometry.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
     shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
+    group.shapeGeometry = shapeGeometry;
 
     // see https://stackoverflow.com/a/37651610
     // "A common draw configuration you see is to draw all the opaque object with depth testing on,
