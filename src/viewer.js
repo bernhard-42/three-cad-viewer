@@ -972,11 +972,11 @@ class Viewer {
       this.theme,
     );
 
-    this.display.setSliderLimits(this.gridSize / 2);
+    this.display.setSliderLimits(this.gridSize / 2, this.bbox.center());
 
-    this.clipSlider0 = this.gridSize / 2;
-    this.clipSlider1 = this.gridSize / 2;
-    this.clipSlider2 = this.gridSize / 2;
+    this.clipSlider0 = this.bbox.center()[0] + this.gridSize / 2;
+    this.clipSlider1 = this.bbox.center()[1] + this.gridSize / 2;
+    this.clipSlider2 = this.bbox.center()[2] + this.gridSize / 2;
     this.setClipSlider(0, this.clipSlider0, true);
     this.setClipSlider(1, this.clipSlider1, true);
     this.setClipSlider(2, this.clipSlider2, true);

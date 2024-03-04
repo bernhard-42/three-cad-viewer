@@ -901,9 +901,9 @@ class Display {
    * @param {number} index - index of the plane: 0,1,2
    * @param {number} limit - the value for both minimum and maximum value of the slider
    */
-  setSliderLimits(limit) {
+  setSliderLimits(limit, center) {
     for (var i = 0; i < 3; i++) {
-      this.clipSliders[i].setSlider(limit);
+      this.clipSliders[i].setSlider(limit, center[i]);
     }
   }
 

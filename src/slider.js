@@ -72,12 +72,12 @@ class Slider {
         this._notify(value);
     };
 
-    setSlider(limit) {
+    setSlider(limit, center) {
         const exp = Math.abs(Math.round(Math.log10(2 * limit)));
-        this.slider.min = -limit;
-        this.slider.max = limit;
+        this.slider.min = center - limit;
+        this.slider.max = center + limit;
         this.slider.step = Math.pow(10, -(3 - exp));
-        this.slider.value = limit;
+        this.slider.value = center + limit;
         this.input.value = Math.round(1000 * this.slider.max) / 1000;
         this.display.refreshPlane(this.index, this.input.value);
     }
