@@ -1462,6 +1462,7 @@ class Viewer {
       this.height,
       this.bb_max / 30,
       this.scene.children.slice(0, 1),
+      // eslint-disable-next-line no-unused-vars
       (ev) => {},
     );
     raycaster.init();
