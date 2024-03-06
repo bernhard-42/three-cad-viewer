@@ -192,6 +192,13 @@ class Viewer {
         this[option] = options[option];
       }
     }
+
+    this.materialSettings = {
+      ambientIntensity: this.ambientIntensity,
+      directIntensity: this.directIntensity,
+      metalness: this.metalness,
+      roughness: this.roughness,
+    };
   }
 
   /**
@@ -356,16 +363,22 @@ class Viewer {
       // decompose faces
       var new_part = {
         parts: [],
-        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        loc: [
+          [0, 0, 0],
+          [0, 0, 0, 1],
+        ],
         name: "faces",
-        id: `${part.id}/faces`
+        id: `${part.id}/faces`,
       };
       const vertices = shape.vertices;
       const normals = shape.normals;
       for (j = 0; j < shape.triangles.length; j++) {
         var triangles = shape.triangles[j];
         var new_shape = {
-          loc: [[0, 0, 0], [0, 0, 0, 1]],
+          loc: [
+            [0, 0, 0],
+            [0, 0, 0, 1],
+          ],
           name: `faces_${j}`,
           id: `${part.id}/faces/faces_${j}`,
           type: "shapes",
@@ -378,10 +391,22 @@ class Viewer {
           subtype: part.subtype,
           shape: {
             triangles: [...Array(triangles.length).keys()],
-            vertices: triangles.map((s) => [vertices[3 * s], vertices[3 * s + 1], vertices[3 * s + 2]]).flat(),
-            normals: triangles.map((s) => [normals[3 * s], normals[3 * s + 1], normals[3 * s + 2]]).flat(),
-            edges: []
-          }
+            vertices: triangles
+              .map((s) => [
+                vertices[3 * s],
+                vertices[3 * s + 1],
+                vertices[3 * s + 2],
+              ])
+              .flat(),
+            normals: triangles
+              .map((s) => [
+                normals[3 * s],
+                normals[3 * s + 1],
+                normals[3 * s + 2],
+              ])
+              .flat(),
+            edges: [],
+          },
         };
         new_part.parts.push(new_shape);
         states[new_shape.id] = [1, 3];
@@ -394,25 +419,32 @@ class Viewer {
       // decompose edges
       new_part = {
         parts: [],
-        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        loc: [
+          [0, 0, 0],
+          [0, 0, 0, 1],
+        ],
         name: "edges",
         id: `${part.id}/edges`,
       };
-      const multiColor = (Array.isArray(part.color) && (part.color.length == shape.edges.length));
+      const multiColor =
+        Array.isArray(part.color) && part.color.length == shape.edges.length;
       var color;
       for (j = 0; j < shape.edges.length; j++) {
         const edge = shape.edges[j];
         color = multiColor ? part.color[j] : part.color;
         new_shape = {
-          loc: [[0, 0, 0], [0, 0, 0, 1]],
+          loc: [
+            [0, 0, 0],
+            [0, 0, 0, 1],
+          ],
           name: `edges_${j}`,
           id: `${part.id}/edges/edges_${j}`,
           type: "edges",
-          color: (part.type == "shapes") ? this.edgeColor : color,
-          width: (part.type == "shapes") ? 1 : part.width,
+          color: part.type == "shapes" ? this.edgeColor : color,
+          width: part.type == "shapes" ? 1 : part.width,
           bb: {},
           geomtype: shape.edge_types[j],
-          shape: { "edges": edge }
+          shape: { edges: edge },
         };
         new_part.parts.push(new_shape);
         states[new_shape.id] = [3, 1];
@@ -424,21 +456,36 @@ class Viewer {
     // decompose vertices
     new_part = {
       parts: [],
-      loc: [[0, 0, 0], [0, 0, 0, 1]],
+      loc: [
+        [0, 0, 0],
+        [0, 0, 0, 1],
+      ],
       name: "vertices",
       id: `${part.id}/vertices`,
     };
     var vertices = shape.obj_vertices;
     for (j = 0; j < vertices.length / 3; j++) {
       new_shape = {
-        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        loc: [
+          [0, 0, 0],
+          [0, 0, 0, 1],
+        ],
         name: `vertices${j}`,
         id: `${part.id}/vertices/vertices${j}`,
         type: "vertices",
-        color: (part.type == "shapes" || part.type == "edges") ? this.edgeColor : part.color,
-        size: (part.type == "shapes" || part.type == "edges") ? 4 : part.size,
+        color:
+          part.type == "shapes" || part.type == "edges"
+            ? this.edgeColor
+            : part.color,
+        size: part.type == "shapes" || part.type == "edges" ? 4 : part.size,
         bb: {},
-        shape: { "obj_vertices": [vertices[3 * j], vertices[3 * j + 1], vertices[3 * j + 2]] }
+        shape: {
+          obj_vertices: [
+            vertices[3 * j],
+            vertices[3 * j + 1],
+            vertices[3 * j + 2],
+          ],
+        },
       };
       new_part.parts.push(new_shape);
       states[new_shape.id] = [3, 1];
@@ -454,7 +501,7 @@ class Viewer {
     delete states[part.id];
 
     return part;
-  };
+  }
 
   /**
    * Render the shapes of the CAD object.
@@ -490,7 +537,7 @@ class Viewer {
               shape.edges = shape.edges.flat();
             } else if (part.type == "edges" || part.type == "shapes") {
               shape.edges = shape.edges.flat();
-            };
+            }
           }
         }
       }
@@ -499,7 +546,7 @@ class Viewer {
     shapes = _render(shapes, states, options.measureTools);
     return [
       this._renderTessellatedShapes(shapes, states),
-      this._getTree(shapes, states)
+      this._getTree(shapes, states),
     ];
   }
 
@@ -608,7 +655,6 @@ class Viewer {
     }
   };
 
-
   /**
    * Render scene and update orientation marker
    * If no animation loop exists, this needs to be called manually after every camera/scene change
@@ -618,7 +664,6 @@ class Viewer {
    * @param {boolean} notify - whether to send notification or not.
    */
   update = (updateMarker, notify = true) => {
-
     if (this.ready) {
       this.renderer.clear();
 
@@ -832,7 +877,6 @@ class Viewer {
     );
     timer.split("bounding box");
 
-
     //
     // add Info box
     //
@@ -863,7 +907,9 @@ class Viewer {
       10,
       -10,
       10,
-      0, 100);
+      0,
+      100,
+    );
     this.orthographicCamera.position.z = 50;
     this.orthographicCamera.up = this.camera.up;
 
@@ -1001,8 +1047,8 @@ class Viewer {
 
     const theme =
       this.theme === "dark" ||
-        (this.theme === "browser" &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      (this.theme === "browser" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 
@@ -1395,7 +1441,11 @@ class Viewer {
     if (flag) {
       this.renderer.domElement.addEventListener("dblclick", this.pick, false);
     } else {
-      this.renderer.domElement.removeEventListener("dblclick", this.pick, false);
+      this.renderer.domElement.removeEventListener(
+        "dblclick",
+        this.pick,
+        false,
+      );
     }
   }
 
@@ -1412,7 +1462,7 @@ class Viewer {
       this.height,
       this.bb_max / 30,
       this.scene.children.slice(0, 1),
-      (ev) => { },
+      (ev) => {},
     );
     raycaster.init();
     raycaster.onPointerMove(e);
@@ -1440,16 +1490,14 @@ class Viewer {
     raycaster.dispose();
   };
 
-
   //
   // Handle CAD Tools
-  // 
+  //
 
   clearSelection = () => {
     this.nestedGroup.clearSelection();
     this.cadTools.handleResetSelection();
   };
-
 
   _releaseLastSelected = (clear) => {
     if (this.lastObject != null) {
@@ -1460,7 +1508,7 @@ class Viewer {
 
       if (clear) {
         this.lastObject = null;
-      };
+      }
     }
   };
 
@@ -1508,7 +1556,9 @@ class Viewer {
           const objectGroup = object.object.parent;
           if (objectGroup !== this.lastObject) {
             this._releaseLastSelected(false);
-            const fromSolid = this.raycaster.filters.topoFilter.includes(TopoFilter.solid);
+            const fromSolid = this.raycaster.filters.topoFilter.includes(
+              TopoFilter.solid,
+            );
 
             const pickedObj = new PickedObject(objectGroup, fromSolid);
             for (let obj of pickedObj.objs()) {
@@ -1557,18 +1607,16 @@ class Viewer {
     }
   };
 
-
   /**
    * Handle a backend response sent by the backend
    * The response is a JSON object sent by the Python backend through VSCode
-   * @param {object} response 
+   * @param {object} response
    */
   handleBackendResponse = (response) => {
     if (response.subtype === "tool_response") {
       this.cadTools.handleResponse(response);
     }
   };
-
 
   //
   // Getters and Setters
