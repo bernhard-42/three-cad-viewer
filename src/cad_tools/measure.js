@@ -258,6 +258,7 @@ class Measurement {
       const p = new Promise((resolve, reject) => {
         this._waitResponse(resolve, reject);
       });
+      // eslint-disable-next-line no-unused-vars
       p.then((data) => {
         this._setMeasurementVals();
         this._makeLines();

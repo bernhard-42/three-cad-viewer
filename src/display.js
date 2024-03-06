@@ -332,6 +332,7 @@ class Display {
    * Use More fropdown if overall width < 970px else just check boxes
    * @param {number} fullWidth - overall width of tree and cad view (taking glass mode into account)
    */
+  // eslint-disable-next-line no-unused-vars
   handleMoreButton(fullWidth) {
     // const moreButton = this._getElement("tcv_more-btn");
     // const moreContent = this._getElement("tcv_more-wrapper");
@@ -1222,8 +1223,8 @@ class Display {
     };
     this.setSizes(options);
 
-    const fullWidth = this.cadWidth + (this.glass ? 0 : this.treeWidth);
-    this.handleMoreButton(fullWidth);
+    // const fullWidth = this.cadWidth + (this.glass ? 0 : this.treeWidth);
+    // this.handleMoreButton(fullWidth);
   }
 
   updateHelp(before, after) {
