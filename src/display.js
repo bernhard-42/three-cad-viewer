@@ -402,6 +402,8 @@ class Display {
     this._setupClickEvent("tcv_collapse_all", this.handleCollapseNodes);
     this._setupClickEvent("tcv_expand", this.handleCollapseNodes);
 
+    this._setupClickEvent("tcv_material_reset", this.handleMaterialReset);
+
     this._setupClickEvent("tcv_toggle_info", this.toggleInfo);
 
     this.help_shown = true;
@@ -909,6 +911,15 @@ class Display {
    */
   setRoughness = (val) => {
     this.roughnessSlider.setValue(val * 100);
+  };
+
+  /**
+   * Reset material values to original values
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  handleMaterialReset = (e) => {
+    this.viewer.resetMaterial();
   };
 
   /**

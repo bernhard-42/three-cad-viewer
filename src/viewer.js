@@ -1681,6 +1681,20 @@ class Viewer {
     this.update(this.updateMarker);
   };
 
+  resetMaterial = () => {
+    this.setMetalness(this.materialSettings.metalness, true);
+    this.display.setMetalness(this.materialSettings.metalness);
+
+    this.setRoughness(this.materialSettings.roughness, true);
+    this.display.setRoughness(this.materialSettings.roughness);
+
+    this.setAmbientLight(this.materialSettings.ambientIntensity, true);
+    this.display.setAmbientLight(this.materialSettings.ambientIntensity);
+
+    this.setDirectLight(this.materialSettings.directIntensity, true);
+    this.display.setDirectLight(this.materialSettings.directIntensity);
+  };
+
   /**
    * Get transparency state of CAD objects.
    * @returns {boolean} transparent value.
