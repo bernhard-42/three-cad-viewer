@@ -2123,6 +2123,12 @@ class Viewer {
     this.nestedGroup.setClipIntersection(flag);
     this.display.setClipIntersectionCheck(flag);
 
+    for (var group of this.nestedGroup.rootGroup.children) {
+      if (group.name === "StencilPlane") {
+        group.visible = !flag;
+      }
+    }
+
     this.checkChanges({ clip_intersection: flag }, notify);
 
     this.update(this.updateMarker);
