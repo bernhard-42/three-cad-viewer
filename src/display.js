@@ -11,7 +11,11 @@ function TEMPLATE(id) {
   const shift = KeyMapper.getshortcuts("shift");
   const ctrl = KeyMapper.getshortcuts("ctrl");
   const meta = KeyMapper.getshortcuts("meta");
-  var html = template.replaceAll("{{id}}", id).replaceAll("{{shift}}", shift).replaceAll("{{ctrl}}", ctrl).replaceAll("{{meta}}", meta);
+  var html = template
+    .replaceAll("{{id}}", id)
+    .replaceAll("{{shift}}", shift)
+    .replaceAll("{{ctrl}}", ctrl)
+    .replaceAll("{{meta}}", meta);
   return html;
 }
 
@@ -19,12 +23,7 @@ function px(val) {
   return `${val}px`;
 }
 
-const buttons = [
-  "plane",
-  "play",
-  "pause",
-  "stop",
-];
+const buttons = ["plane", "play", "pause", "stop"];
 
 class Display {
   /**
@@ -42,11 +41,20 @@ class Display {
     this.cadBody = this._getElement("tcv_cad_body");
 
     // this.cadTool = this._getElement("tcv_cad_toolbar");
-    this.cadTool = new Toolbar(this._getElement("tcv_cad_toolbar"), container.id);
+    this.cadTool = new Toolbar(
+      this._getElement("tcv_cad_toolbar"),
+      container.id,
+    );
     this.cadView = this._getElement("tcv_cad_view");
-    this.distanceMeasurementPanel = this._getElement("tcv_distance_measurement_panel");
-    this.propertiesMeasurementPanel = this._getElement("tcv_properties_measurement_panel");
-    this.angleMeasurementPanel = this._getElement("tcv_angle_measurement_panel");
+    this.distanceMeasurementPanel = this._getElement(
+      "tcv_distance_measurement_panel",
+    );
+    this.propertiesMeasurementPanel = this._getElement(
+      "tcv_properties_measurement_panel",
+    );
+    this.angleMeasurementPanel = this._getElement(
+      "tcv_angle_measurement_panel",
+    );
     this.cadTree = this._getElement("tcv_cad_tree_container");
     this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
     this.cadClip = this._getElement("tcv_cad_clip_container");
@@ -108,50 +116,147 @@ class Display {
 
     this.toolbarButtons = {};
 
-    this.toolbarButtons["axes"] = new ClickButton(theme, "axes", "Show axes", this.setAxes);
+    this.toolbarButtons["axes"] = new ClickButton(
+      theme,
+      "axes",
+      "Show axes",
+      this.setAxes,
+    );
     this.cadTool.addButton(this.toolbarButtons["axes"]);
-    this.toolbarButtons["axes0"] = new ClickButton(theme, "axes0", "Show axes at origin (0,0,0)", this.setAxes0);
+    this.toolbarButtons["axes0"] = new ClickButton(
+      theme,
+      "axes0",
+      "Show axes at origin (0,0,0)",
+      this.setAxes0,
+    );
     this.cadTool.addButton(this.toolbarButtons["axes0"]);
-    this.toolbarButtons["grid"] = new ClickButton(theme, "grid", "Show grid", this.setGrid, null, ["xy", "xz", "yz"]);
+    this.toolbarButtons["grid"] = new ClickButton(
+      theme,
+      "grid",
+      "Show grid",
+      this.setGrid,
+      null,
+      ["xy", "xz", "yz"],
+    );
     this.cadTool.addButton(this.toolbarButtons["grid"]);
     this.cadTool.addSeparator();
-    this.toolbarButtons["perspective"] = new ClickButton(theme, "perspective", "Use perspective camera", this.setOrtho);
+    this.toolbarButtons["perspective"] = new ClickButton(
+      theme,
+      "perspective",
+      "Use perspective camera",
+      this.setOrtho,
+    );
     this.cadTool.addButton(this.toolbarButtons["perspective"]);
-    this.toolbarButtons["transparent"] = new ClickButton(theme, "transparent", "Show transparent faces", this.setTransparent);
+    this.toolbarButtons["transparent"] = new ClickButton(
+      theme,
+      "transparent",
+      "Show transparent faces",
+      this.setTransparent,
+    );
     this.cadTool.addButton(this.toolbarButtons["transparent"]);
-    this.toolbarButtons["blackedges"] = new ClickButton(theme, "blackedges", "Show black edges", this.setBlackEdges);
+    this.toolbarButtons["blackedges"] = new ClickButton(
+      theme,
+      "blackedges",
+      "Show black edges",
+      this.setBlackEdges,
+    );
     this.cadTool.addButton(this.toolbarButtons["blackedges"]);
     this.cadTool.addSeparator();
 
-    this.toolbarButtons["reset"] = new Button(theme, "reset", "Reset view", this.reset);
+    this.toolbarButtons["reset"] = new Button(
+      theme,
+      "reset",
+      "Reset view",
+      this.reset,
+    );
     this.cadTool.addButton(this.toolbarButtons["reset"]);
-    this.toolbarButtons["resize"] = new Button(theme, "resize", "Resize object", this.resize);
+    this.toolbarButtons["resize"] = new Button(
+      theme,
+      "resize",
+      "Resize object",
+      this.resize,
+    );
     this.cadTool.addButton(this.toolbarButtons["resize"]);
     this.cadTool.addSeparator();
 
-    this.toolbarButtons["iso"] = new Button(theme, "iso", "Switch to iso view", this.setView);
+    this.toolbarButtons["iso"] = new Button(
+      theme,
+      "iso",
+      "Switch to iso view",
+      this.setView,
+    );
     this.cadTool.addButton(this.toolbarButtons["iso"]);
-    this.toolbarButtons["front"] = new Button(theme, "front", "Switch to front view", this.setView);
+    this.toolbarButtons["front"] = new Button(
+      theme,
+      "front",
+      "Switch to front view",
+      this.setView,
+    );
     this.cadTool.addButton(this.toolbarButtons["front"]);
-    this.toolbarButtons["rear"] = new Button(theme, "rear", "Switch to back view", this.setView);
+    this.toolbarButtons["rear"] = new Button(
+      theme,
+      "rear",
+      "Switch to back view",
+      this.setView,
+    );
     this.cadTool.addButton(this.toolbarButtons["rear"]);
-    this.toolbarButtons["top"] = new Button(theme, "top", "Switch to top view", this.setView);
+    this.toolbarButtons["top"] = new Button(
+      theme,
+      "top",
+      "Switch to top view",
+      this.setView,
+    );
     this.cadTool.addButton(this.toolbarButtons["top"]);
-    this.toolbarButtons["bottom"] = new Button(theme, "bottom", "Switch to bottom view", this.setView);
+    this.toolbarButtons["bottom"] = new Button(
+      theme,
+      "bottom",
+      "Switch to bottom view",
+      this.setView,
+    );
     this.cadTool.addButton(this.toolbarButtons["bottom"]);
-    this.toolbarButtons["left"] = new Button(theme, "left", "Switch to left view", this.setView);
+    this.toolbarButtons["left"] = new Button(
+      theme,
+      "left",
+      "Switch to left view",
+      this.setView,
+    );
     this.cadTool.addButton(this.toolbarButtons["left"]);
-    this.toolbarButtons["right"] = new Button(theme, "right", "Switch to right view", this.setView);
+    this.toolbarButtons["right"] = new Button(
+      theme,
+      "right",
+      "Switch to right view",
+      this.setView,
+    );
     this.cadTool.addButton(this.toolbarButtons["right"]);
     this.cadTool.addSeparator();
 
-    this.toolbarButtons["explode"] = new ClickButton(theme, "explode", "Explode tool", this.setExplode);
+    this.toolbarButtons["explode"] = new ClickButton(
+      theme,
+      "explode",
+      "Explode tool",
+      this.setExplode,
+    );
     this.cadTool.addButton(this.toolbarButtons["explode"]);
-    this.toolbarButtons["distance"] = new ClickButton(theme, "distance", "Measure distance between shapes", this.setTool);
+    this.toolbarButtons["distance"] = new ClickButton(
+      theme,
+      "distance",
+      "Measure distance between shapes",
+      this.setTool,
+    );
     this.cadTool.addButton(this.toolbarButtons["distance"]);
-    this.toolbarButtons["properties"] = new ClickButton(theme, "properties", "Show shape properties", this.setTool);
+    this.toolbarButtons["properties"] = new ClickButton(
+      theme,
+      "properties",
+      "Show shape properties",
+      this.setTool,
+    );
     this.cadTool.addButton(this.toolbarButtons["properties"]);
-    this.toolbarButtons["angle"] = new ClickButton(theme, "angle", "Measure angle between shapes", this.setTool);
+    this.toolbarButtons["angle"] = new ClickButton(
+      theme,
+      "angle",
+      "Measure angle between shapes",
+      this.setTool,
+    );
     this.cadTool.addButton(this.toolbarButtons["angle"]);
 
     this.cadTool.defineGroup([
@@ -161,18 +266,26 @@ class Display {
       this.toolbarButtons["angle"],
     ]);
 
-    this.toolbarButtons["help"] = new Button(theme, "help", "Help", this.toggleHelp);
+    this.toolbarButtons["help"] = new Button(
+      theme,
+      "help",
+      "Help",
+      this.toggleHelp,
+    );
     this.toolbarButtons["help"].alignRight();
     this.cadTool.addButton(this.toolbarButtons["help"]);
-    this.toolbarButtons["pin"] = new Button(theme, "pin", "Pin viewer as png", this.pinAsPng);
+    this.toolbarButtons["pin"] = new Button(
+      theme,
+      "pin",
+      "Pin viewer as png",
+      this.pinAsPng,
+    );
     this.toolbarButtons["pin"].alignRight();
     this.cadTool.addButton(this.toolbarButtons["pin"]);
     this.shapeFilterDropDownMenu = new FilterByDropDownMenu(this);
 
-
     this.showPinning(options.pinning);
     // this.showMeasureTools(options.measureTools);
-
   }
 
   _setupCheckEvent(name, fn, flag) {
@@ -192,8 +305,8 @@ class Display {
   }
 
   /**
-   * 
-   * @param {string} name Name of the DOM element 
+   *
+   * @param {string} name Name of the DOM element
    * @returns {DOMElement}
    */
   _getElement(name) {
@@ -264,7 +377,9 @@ class Display {
     }
 
     if (options.tools && !options.glass) {
-      this.cadTool.container.style.width = px(options.treeWidth + options.cadWidth + 4);
+      this.cadTool.container.style.width = px(
+        options.treeWidth + options.cadWidth + 4,
+      );
       this.cadBody.style.width = px(options.treeWidth + options.cadWidth + 4);
     } else {
       this.cadTool.container.style.width = px(options.cadWidth + 2);
@@ -567,12 +682,10 @@ class Display {
       } else if (name == "properties") {
         this.viewer.cadTools.enable(ToolTypes.PROPERTIES);
         this.viewer.checkChanges({ activeTool: ToolTypes.PROPERTIES });
-      }
-      else if (name == "angle") {
+      } else if (name == "angle") {
         this.viewer.cadTools.enable(ToolTypes.ANGLE);
         this.viewer.checkChanges({ activeTool: ToolTypes.ANGLE });
       }
-
     } else {
       this.viewer.checkChanges({ activeTool: ToolTypes.NONE });
       this.viewer.clearSelection();
@@ -632,7 +745,7 @@ class Display {
 
   /**
    * Show or hides measurement tools, measurement tools needs a backend to be used.
-   * @param {boolean} flag 
+   * @param {boolean} flag
    */
   showMeasureTools = (flag) => {
     this.toolbarButtons["distance"].show(flag);
@@ -681,15 +794,7 @@ class Display {
    * Clear all highlights of navigation tree entries
    */
   clearHighlights() {
-    const buttons = [
-      "front",
-      "rear",
-      "top",
-      "bottom",
-      "left",
-      "right",
-      "iso",
-    ];
+    const buttons = ["front", "rear", "top", "bottom", "left", "right", "iso"];
     buttons.forEach((btn) => {
       var el = this.toolbarButtons[btn];
       el.highlight(false);
@@ -1008,16 +1113,16 @@ class Display {
 
   /**
    * Show or hide the distance measurement panel
-   * @param {boolean} flag 
+   * @param {boolean} flag
    */
   showDistancePanel = (flag) => {
     this.distanceMeasurementPanel.style.display = flag ? "block" : "none";
   };
 
   /**
-  * Show or hide the properties measurement panel
-  * @param {boolean} flag 
-  */
+   * Show or hide the properties measurement panel
+   * @param {boolean} flag
+   */
   showPropertiesPanel = (flag) => {
     this.propertiesMeasurementPanel.style.display = flag ? "block" : "none";
   };

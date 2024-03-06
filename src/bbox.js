@@ -58,7 +58,12 @@ class BoundingBox extends THREE.Box3 {
   }
 
   max_dist_from_center() {
-    return Math.max(...this.min.toArray().concat(this.max.toArray()).map((x) => Math.abs(x)));
+    return Math.max(
+      ...this.min
+        .toArray()
+        .concat(this.max.toArray())
+        .map((x) => Math.abs(x)),
+    );
   }
 
   boundingSphere() {

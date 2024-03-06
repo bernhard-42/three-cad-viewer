@@ -109,7 +109,7 @@ class Grid {
   setGrid(action, flag = null) {
     switch (action) {
       case "grid":
-        this.allGrid = (flag == null) ? !this.allGrid : flag;
+        this.allGrid = flag == null ? !this.allGrid : flag;
         this.grid[0] = this.allGrid;
         this.grid[1] = this.allGrid;
         this.grid[2] = this.allGrid;

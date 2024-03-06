@@ -45,7 +45,6 @@ import dark_shape_no from "../icons/dark/shape_no.svg";
 import dark_stop from "../icons/dark/stop.svg";
 import dark_top from "../icons/dark/top.svg";
 
-
 import dark_axes from "../icons/dark/axes.svg";
 import dark_axes0 from "../icons/dark/axes0.svg";
 import dark_grid from "../icons/dark/grid.svg";
@@ -67,7 +66,6 @@ import light_properties from "../icons/light/properties.svg";
 import light_angle from "../icons/light/angle.svg";
 import light_transparent from "../icons/light/transparent.svg";
 import light_blackedges from "../icons/light/black_edges.svg";
-
 
 const icons = {
   bottom: { light: light_bottom, dark: dark_bottom },

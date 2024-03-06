@@ -1,7 +1,8 @@
 import * as THREE from "three";
 
 const defaultDirections = {
-  y_up: {                              // compatible to fusion 360
+  y_up: {
+    // compatible to fusion 360
     iso: { pos: new THREE.Vector3(1, 1, 1), z_rot: 0 },
     front: { pos: new THREE.Vector3(0, 0, 1), z_rot: 0 },
     rear: { pos: new THREE.Vector3(0, 0, -1), z_rot: 0 },
@@ -10,7 +11,8 @@ const defaultDirections = {
     top: { pos: new THREE.Vector3(0, 1, 0), z_rot: 0 },
     bottom: { pos: new THREE.Vector3(0, -1, 0), z_rot: 0 },
   },
-  z_up: {                              // compatible to FreeCAD, OnShape
+  z_up: {
+    // compatible to FreeCAD, OnShape
     iso: { pos: new THREE.Vector3(1, -1, 1), z_rot: 0 },
     front: { pos: new THREE.Vector3(0, -1, 0), z_rot: 0 },
     rear: { pos: new THREE.Vector3(0, 1, 0), z_rot: 0 },
@@ -19,7 +21,8 @@ const defaultDirections = {
     top: { pos: new THREE.Vector3(0, 0, 1), z_rot: -Math.PI / 2 },
     bottom: { pos: new THREE.Vector3(0, 0, -1), z_rot: -Math.PI / 2 },
   },
-  legacy: {                            // legacy Z up
+  legacy: {
+    // legacy Z up
     iso: { pos: new THREE.Vector3(1, 1, 1), z_rot: 0 },
     front: { pos: new THREE.Vector3(1, 0, 0), z_rot: 0 },
     rear: { pos: new THREE.Vector3(-1, 0, 0), z_rot: 0 },
@@ -27,7 +30,7 @@ const defaultDirections = {
     right: { pos: new THREE.Vector3(0, -1, 0), z_rot: 0 },
     top: { pos: new THREE.Vector3(0, 0, 1), z_rot: 0 },
     bottom: { pos: new THREE.Vector3(0, 0, -1), z_rot: 0 },
-  }
+  },
 };
 
 const cameraUp = {
@@ -48,9 +51,9 @@ class Camera {
    **/
   constructor(width, height, distance, target, ortho, up) {
     const mapping = {
-      "Y": "y_up",
-      "Z": "z_up",
-      "L": "legacy"
+      Y: "y_up",
+      Z: "z_up",
+      L: "legacy",
     };
     this.target = new THREE.Vector3(...target);
     this.ortho = ortho;
@@ -176,10 +179,10 @@ class Camera {
     if (position != null) {
       var cameraPosition = relative
         ? position
-          .clone()
-          .normalize()
-          .multiplyScalar(this.camera_distance)
-          .add(this.target)
+            .clone()
+            .normalize()
+            .multiplyScalar(this.camera_distance)
+            .add(this.target)
         : position;
 
       this.camera.position.set(...cameraPosition.toArray());
@@ -209,7 +212,10 @@ class Camera {
     this.lookAtTarget();
     if (defaultDirections[this.up][dir].z_rot != 0) {
       var quaternion = new THREE.Quaternion();
-      quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), defaultDirections[this.up][dir].z_rot);
+      quaternion.setFromAxisAngle(
+        new THREE.Vector3(0, 0, 1),
+        defaultDirections[this.up][dir].z_rot,
+      );
       quaternion.multiply(this.getQuaternion());
       this.setQuaternion(quaternion);
     }
@@ -308,17 +314,17 @@ class Camera {
     const aspect = width / height;
     const pSize = this.projectSize(distance, aspect);
 
-    if (this.oCamera){
+    if (this.oCamera) {
       this.oCamera.left = -pSize[0];
       this.oCamera.right = pSize[0];
       this.oCamera.top = pSize[1];
       this.oCamera.bottom = -pSize[1];
     }
 
-    if (this.pCamera){
+    if (this.pCamera) {
       this.pCamera.aspect = aspect;
     }
-    
+
     if (this.camera) {
       this.camera.updateProjectionMatrix();
     }
