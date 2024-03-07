@@ -462,8 +462,17 @@ input[type="button"] {
   margin-bottom: 10px;
 }
 
+.tcv_material_ambientlight {
+  margin-top: 4px;
+}
+
 .tcv_cad_clip_container {
-  margin-top: 6px;
+  margin-top: 0px;
+  overflow: hidden;
+}
+
+.tcv_cad_material_container {
+  overflow: hidden;
 }
 
 .tcv_clip_checks {
