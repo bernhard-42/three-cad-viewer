@@ -2124,9 +2124,18 @@ class Viewer {
     this.nestedGroup.setClipIntersection(flag);
     this.display.setClipIntersectionCheck(flag);
 
-    for (var group of this.nestedGroup.rootGroup.children) {
-      if (group.name === "StencilPlane") {
-        group.visible = !flag;
+    var i = 0;
+    for (var child of this.nestedGroup.rootGroup.children) {
+      if (child.name === "StencilPlane") {
+        if (flag) {
+          child.children[0].material.clippingPlanes =
+            this.clipping.reverseClipPlanes.filter((_, j) => j !== i);
+          i++;
+        } else {
+          child.children[0].material.clippingPlanes =
+            this.clipping.clipPlanes.filter((_, j) => j !== i);
+          i++;
+        }
       }
     }
 

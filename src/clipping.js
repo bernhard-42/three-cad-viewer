@@ -172,12 +172,19 @@ class Clipping {
     this.uiCallback = uiCallback;
 
     this.clipPlanes = [];
+    this.reverseClipPlanes = [];
     this.planeHelpers = new THREE.Group();
-
+    this.max = [0, 0, 0];
     var i;
     for (i = 0; i < 3; i++) {
       const plane = new THREE.Plane(normals[i], distance);
       this.clipPlanes.push(plane);
+      const reversePlane = new THREE.Plane(
+        normals[i].clone().negate(),
+        distance,
+      );
+      this.reverseClipPlanes.push(reversePlane);
+
       this.uiCallback(i, normals[i].toArray());
 
       const material = planeHelperMaterial.clone();
@@ -193,6 +200,7 @@ class Clipping {
           true,
         ),
       );
+      this.max[i] = center[i] + size / 2;
     }
     this.planeHelpers.visible = false;
 
@@ -251,11 +259,13 @@ class Clipping {
   }
 
   setConstant(index, value) {
-    this.clipPlanes[index].constant = value; // + this.center[index];
+    this.clipPlanes[index].constant = value;
+    this.reverseClipPlanes[index].constant = -value;
   }
 
   setNormal = (index, normal) => {
     this.clipPlanes[index].normal = normal;
+    this.reverseClipPlanes[index].normal = normal.negate();
     this.uiCallback(index, normal.toArray());
   };
 }
