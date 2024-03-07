@@ -147,6 +147,7 @@ function createPlaneGroup(
   material.color.set(new THREE.Color(color));
 
   var group = new THREE.Group();
+  group.name = name;
   var otherCenters = [...center];
   otherCenters[index] = 0;
   group.position.set(...otherCenters); // needed for the plane help to be at the correct location
