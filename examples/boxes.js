@@ -8,6 +8,7 @@ var boxes = [
               {
                 id: "/Group/ensemble/red box/red box_0",
                 type: "shapes",
+                subtype: "solid",
                 name: "red box_0",
                 shape: {
                   vertices: [
@@ -1787,6 +1788,7 @@ var boxes = [
               {
                 id: "/Group/ensemble/green box/green box_0",
                 type: "shapes",
+                subtype: "solid",
                 name: "green box_0",
                 shape: {
                   vertices: [
@@ -3021,6 +3023,7 @@ var boxes = [
               {
                 id: "/Group/ensemble/blue box/blue box_0",
                 type: "shapes",
+                subtype: "solid",
                 name: "blue box_0",
                 shape: {
                   vertices: [

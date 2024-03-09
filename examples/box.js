@@ -7,6 +7,7 @@ var box = [
         name: "Part_0",
         id: "/Box/Part_0",
         type: "shapes",
+        subtype: "solid",
         shape: {
           vertices: [
             [-5, 8, -13],

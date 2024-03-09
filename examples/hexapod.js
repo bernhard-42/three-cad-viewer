@@ -4,6 +4,7 @@ var hexapod = [
       {
         id: "/bottom/bottom_0",
         type: "shapes",
+        subtype: "solid",
         name: "bottom_0",
         shape: {
           vertices: [
@@ -6587,6 +6588,7 @@ var hexapod = [
           {
             id: "/bottom/top/top_0",
             type: "shapes",
+            subtype: "solid",
             name: "top_0",
             shape: {
               vertices: [
@@ -14752,6 +14754,7 @@ var hexapod = [
           {
             id: "/bottom/front_stand/front_stand_0",
             type: "shapes",
+            subtype: "solid",
             name: "front_stand_0",
             shape: {
               vertices: [
@@ -15109,6 +15112,7 @@ var hexapod = [
           {
             id: "/bottom/back_stand/back_stand_0",
             type: "shapes",
+            subtype: "solid",
             name: "back_stand_0",
             shape: {
               vertices: [
@@ -15466,6 +15470,7 @@ var hexapod = [
           {
             id: "/bottom/right_back/right_back_0",
             type: "shapes",
+            subtype: "solid",
             name: "right_back_0",
             shape: {
               vertices: [
@@ -18716,6 +18721,7 @@ var hexapod = [
               {
                 id: "/bottom/right_back/lower/lower_0",
                 type: "shapes",
+                subtype: "solid",
                 name: "lower_0",
                 shape: {
                   vertices: [
@@ -20843,6 +20849,7 @@ var hexapod = [
           {
             id: "/bottom/right_middle/right_middle_0",
             type: "shapes",
+            subtype: "solid",
             name: "right_middle_0",
             shape: {
               vertices: [
@@ -24093,6 +24100,7 @@ var hexapod = [
               {
                 id: "/bottom/right_middle/lower/lower_0",
                 type: "shapes",
+                subtype: "solid",
                 name: "lower_0",
                 shape: {
                   vertices: [
@@ -26220,6 +26228,7 @@ var hexapod = [
           {
             id: "/bottom/right_front/right_front_0",
             type: "shapes",
+            subtype: "solid",
             name: "right_front_0",
             shape: {
               vertices: [
@@ -29470,6 +29479,7 @@ var hexapod = [
               {
                 id: "/bottom/right_front/lower/lower_0",
                 type: "shapes",
+                subtype: "solid",
                 name: "lower_0",
                 shape: {
                   vertices: [
@@ -31597,6 +31607,7 @@ var hexapod = [
           {
             id: "/bottom/left_back/left_back_0",
             type: "shapes",
+            subtype: "solid",
             name: "left_back_0",
             shape: {
               vertices: [
@@ -34847,6 +34858,7 @@ var hexapod = [
               {
                 id: "/bottom/left_back/lower/lower_0",
                 type: "shapes",
+                subtype: "solid",
                 name: "lower_0",
                 shape: {
                   vertices: [
@@ -36974,6 +36986,7 @@ var hexapod = [
           {
             id: "/bottom/left_middle/left_middle_0",
             type: "shapes",
+            subtype: "solid",
             name: "left_middle_0",
             shape: {
               vertices: [
@@ -40224,6 +40237,7 @@ var hexapod = [
               {
                 id: "/bottom/left_middle/lower/lower_0",
                 type: "shapes",
+                subtype: "solid",
                 name: "lower_0",
                 shape: {
                   vertices: [
@@ -42351,6 +42365,7 @@ var hexapod = [
           {
             id: "/bottom/left_front/left_front_0",
             type: "shapes",
+            subtype: "solid",
             name: "left_front_0",
             shape: {
               vertices: [
@@ -45601,6 +45616,7 @@ var hexapod = [
               {
                 id: "/bottom/left_front/lower/lower_0",
                 type: "shapes",
+                subtype: "solid",
                 name: "lower_0",
                 shape: {
                   vertices: [

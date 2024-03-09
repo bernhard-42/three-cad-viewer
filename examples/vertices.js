@@ -7,6 +7,7 @@ var vertices = [
         name: "Parent_0",
         id: "/Vertices/Parent_0",
         type: "shapes",
+        subtype: "edges",
         shape: {
           vertices: [
             [-5, -8, -13],
