@@ -266,8 +266,8 @@ class Clipping {
   }
 
   setNormal = (index, normal) => {
-    this.clipPlanes[index].normal = normal;
-    this.reverseClipPlanes[index].normal = normal.negate();
+    this.clipPlanes[index].normal = normal.clone();
+    this.reverseClipPlanes[index].normal = normal.clone().negate();
     this.uiCallback(index, normal.toArray());
   };
 }
