@@ -4,6 +4,7 @@ var longbox = [
       {
         id: "/Long Box/Part_0",
         type: "shapes",
+        subtype: "solid",
         name: "Part_0",
         shape: {
           vertices: [
