@@ -392,7 +392,7 @@ class NestedGroup {
         group.add(this.renderLoop(shape, path, states));
       } else {
         const has_texture = shape.texture != null;
-        var texture = has_texture ? shapes.textures[shape.texture.ref] : null;
+        var texture = has_texture ? shape.texture.image : null;
         var width = has_texture ? shape.texture.width : null;
         var height = has_texture ? shape.texture.height : null;
         const objectGroup = _render(shape, texture, width, height);
