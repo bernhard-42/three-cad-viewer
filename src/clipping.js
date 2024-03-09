@@ -217,7 +217,7 @@ class Clipping {
         clippingGroup.name = `clipping-${i}`;
 
         var group = nestedGroup.groups[path];
-        if (group instanceof ObjectGroup) {
+        if (group instanceof ObjectGroup && group.subtype === "solid") {
           clippingGroup.add(
             createStencil(
               `frontStencil-${i}`,
@@ -240,21 +240,23 @@ class Clipping {
         }
       }
 
-      var planeMaterial = stencilPlaneMaterial.clone();
-      planeMaterial.clippingPlanes = otherPlanes;
+      if (group.subtype === "solid") {
+        var planeMaterial = stencilPlaneMaterial.clone();
+        planeMaterial.clippingPlanes = otherPlanes;
 
-      nestedGroup.rootGroup.add(
-        createPlaneGroup(
-          "StencilPlane",
-          i,
-          plane,
-          center,
-          size,
-          planeMaterial,
-          planeColors[theme][i],
-          false,
-        ),
-      );
+        nestedGroup.rootGroup.add(
+          createPlaneGroup(
+            "StencilPlane",
+            i,
+            plane,
+            center,
+            size,
+            planeMaterial,
+            planeColors[theme][i],
+            false,
+          ),
+        );
+      }
     }
   }
 
