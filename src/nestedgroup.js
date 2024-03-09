@@ -97,14 +97,16 @@ class NestedGroup {
       1.0,
       color == null ? this.edgeColor : color,
       geomtype,
-      "edges"
+      "edges",
     );
 
     var edges = this._renderEdges(
-      (edgeList.edges)
+      edgeList.edges
         ? edgeList.edges // protocol version 2
-        : edgeList,  // protocol version 1
-      lineWidth, color, state
+        : edgeList, // protocol version 1
+      lineWidth,
+      color,
+      state,
     );
     if (name) {
       edges.name = name;
@@ -124,20 +126,24 @@ class NestedGroup {
       1.0,
       color == null ? this.edgeColor : color,
       geomtype,
-      "vertices"
+      "vertices",
     );
 
     const vertex_color = color == null ? this.edgeColor : color;
 
     let positions;
-    if (vertexList.obj_vertices) { // protocol version 2
-      positions = vertexList.obj_vertices instanceof Float32Array
-        ? vertexList.obj_vertices
-        : new Float32Array(vertexList.obj_vertices);
-    } else {  // protocol version 1
-      positions = vertexList instanceof Float32Array
-        ? vertexList.flat()
-        : new Float32Array(vertexList.flat());
+    if (vertexList.obj_vertices) {
+      // protocol version 2
+      positions =
+        vertexList.obj_vertices instanceof Float32Array
+          ? vertexList.obj_vertices
+          : new Float32Array(vertexList.obj_vertices);
+    } else {
+      // protocol version 1
+      positions =
+        vertexList instanceof Float32Array
+          ? vertexList.flat()
+          : new Float32Array(vertexList.flat());
     }
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
