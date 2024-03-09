@@ -17,6 +17,7 @@
   <script src="./examples/edges-verts.js"></script> 
 -->
   <script src="./examples/box.js"></script>
+  <script src="./examples/image-face.js"></script>
   <script src="./examples/dirbox.js"></script>
   <script src="./examples/torusknot.js"></script>
   <script src="./examples/profile4040.js"></script>
@@ -52,6 +53,7 @@
       hexapod_b3d,
       linkage,
       box,
+      image_face,
       orient_box,
       dirbox,
       torusknot,
@@ -246,8 +248,8 @@
       }
 
       window.viewerMode = mode;
-      console.log(control);
-      console.log(window.controlMode);
+      // console.log(control);
+      // console.log(window.controlMode);
       window.controlMode = control;
       var control_up = control.split("/");
       // console.log(control_up);
@@ -317,7 +319,7 @@
     <span id="navigation" class="selection">
       UI
       <select class="select"
-        onchange="window.showViewer(window.controlMode, this.options.item(this.selectedIndex).text);">
+        onchange="window.showViewer(window.controlMode, this.options.item(this.selectedIndex).text, 'cad_view_001');">
         <option value="default">default</option>
         <option value="glass">glass</option>
         <option value="notools">no tools</option>
@@ -327,7 +329,7 @@
     <span id="control" class="selection">
       Control
       <select class="select"
-        onchange="window.showViewer(this.options.item(this.selectedIndex).text, window.viewerMode);">
+        onchange="window.showViewer(this.options.item(this.selectedIndex).text, window.viewerMode, 'cad_view_001');">
         <option value="trackball">trackball/Z up</option>
         <option value="trackball">trackball/Y up</option>
         <option value="trackball">trackball/Legacy</option>
@@ -350,8 +352,9 @@
         <option value="hexapod_b3d">hexapod(build123d)</option>
         <option value="linkage">linkage</option>
         <option value="box">box</option>
-        <option value="box">orient-box</option>
-        <option value="box">dir-box</option>
+        <option value="image-face">image-face</option>
+        <option value="orient-box">orient-box</option>
+        <option value="dir-box">dir-box</option>
         <option value="torusknot">torusknot</option>
         <option value="profile4040">profile4040</option>
         <option value="box1">box1</option>
