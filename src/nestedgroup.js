@@ -173,7 +173,20 @@ class NestedGroup {
     return group;
   }
 
-  renderShape(shape, color, alpha, renderback, path, name, states, geomtype = null, subtype = null) {
+  renderShape(
+    shape,
+    color,
+    alpha,
+    renderback,
+    path,
+    name,
+    states,
+    geomtype = null,
+    subtype = null,
+    texture_data = null,
+    texture_width = null,
+    texture_height = null,
+  ) {
     const positions =
       shape.vertices instanceof Float32Array
         ? shape.vertices
@@ -205,36 +218,58 @@ class NestedGroup {
     } else if (alpha < 1.0) {
       this.transparent = true;
     }
-    var shapeGeometry = new THREE.BufferGeometry();
-    shapeGeometry.setAttribute(
-      "position",
-      new THREE.BufferAttribute(positions, 3),
-    );
-    shapeGeometry.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
-    shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
-    group.shapeGeometry = shapeGeometry;
 
-    // see https://stackoverflow.com/a/37651610
-    // "A common draw configuration you see is to draw all the opaque object with depth testing on,
-    //  turn depth write off, then draw the transparent objects in a back to front order."
-    const frontMaterial = new THREE.MeshStandardMaterial({
-      color: color,
-      metalness: this.metalness,
-      roughness: this.roughness,
-      // envMap: texture,
-      polygonOffset: true,
-      polygonOffsetFactor: 1.0,
-      polygonOffsetUnits: 1.0,
-      transparent: true,
-      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
-      // turn depth write off for transparent objects
-      depthWrite: !this.transparent,
-      // but keep depth test
-      depthTest: true,
-      clipIntersection: false,
-      side: THREE.FrontSide,
-      visible: states[0] == 1,
-    });
+    var shapeGeometry;
+    var texture = null;
+    var frontMaterial = null;
+
+    if (texture_data != null) {
+      const url = `data:image/${texture_data.format};base64,${texture_data.data}`;
+      var img = new Image();
+      img.setAttribute("src", url);
+      shapeGeometry = new THREE.PlaneGeometry(texture_width, texture_height);
+      texture = new THREE.Texture(img);
+      texture.needsUpdate = true;
+      frontMaterial = new THREE.MeshBasicMaterial({
+        color: "#ffffff",
+        map: texture,
+      });
+    } else {
+      shapeGeometry = new THREE.BufferGeometry();
+      shapeGeometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(positions, 3),
+      );
+      shapeGeometry.setAttribute(
+        "normal",
+        new THREE.BufferAttribute(normals, 3),
+      );
+      shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
+      group.shapeGeometry = shapeGeometry;
+
+      // see https://stackoverflow.com/a/37651610
+      // "A common draw configuration you see is to draw all the opaque object with depth testing on,
+      //  turn depth write off, then draw the transparent objects in a back to front order."
+      frontMaterial = new THREE.MeshStandardMaterial({
+        color: color,
+        metalness: this.metalness,
+        roughness: this.roughness,
+        // envMap: texture,
+        polygonOffset: true,
+        polygonOffsetFactor: 1.0,
+        polygonOffsetUnits: 1.0,
+        transparent: true,
+        opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
+        // turn depth write off for transparent objects
+        depthWrite: !this.transparent,
+        // but keep depth test
+        depthTest: true,
+        clipIntersection: false,
+        side: THREE.FrontSide,
+        visible: states[0] == 1,
+        map: texture,
+      });
+    }
 
     const backMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color(this.edgeColor),
@@ -252,11 +287,11 @@ class NestedGroup {
       visible: states[0] == 1 && (renderback || this.backVisible),
     });
 
-    const front = new THREE.Mesh(shapeGeometry, frontMaterial);
-    front.name = name;
-
     const back = new THREE.Mesh(shapeGeometry, backMaterial);
     back.name = name;
+
+    const front = new THREE.Mesh(shapeGeometry, frontMaterial);
+    front.name = name;
 
     // ensure, transparent objects will be rendered at the end
     if (alpha < 1.0) {
@@ -289,7 +324,7 @@ class NestedGroup {
   }
 
   renderLoop(shapes, path, states) {
-    const _render = (shape) => {
+    const _render = (shape, texture, width, height) => {
       var mesh;
       switch (shape.type) {
         case "edges":
@@ -325,6 +360,9 @@ class NestedGroup {
             states[shape.id],
             { topo: "face", geomtype: shape.geomtype },
             shape.subtype,
+            texture,
+            width,
+            height,
           );
       }
       // support object locations
@@ -353,7 +391,11 @@ class NestedGroup {
       if (shape.parts) {
         group.add(this.renderLoop(shape, path, states));
       } else {
-        const objectGroup = _render(shape);
+        const has_texture = shape.texture != null;
+        var texture = has_texture ? shapes.textures[shape.texture.ref] : null;
+        var width = has_texture ? shape.texture.width : null;
+        var height = has_texture ? shape.texture.height : null;
+        const objectGroup = _render(shape, texture, width, height);
         this.groups[shape.id] = objectGroup;
         group.add(objectGroup);
       }
