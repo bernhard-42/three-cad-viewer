@@ -233,7 +233,9 @@ class NestedGroup {
       frontMaterial = new THREE.MeshBasicMaterial({
         color: "#ffffff",
         map: texture,
+        side: THREE.DoubleSide,
       });
+      renderback = false;
     } else {
       shapeGeometry = new THREE.BufferGeometry();
       shapeGeometry.setAttribute(
