@@ -228,8 +228,11 @@ class NestedGroup {
       var img = new Image();
       img.setAttribute("src", url);
       shapeGeometry = new THREE.PlaneGeometry(texture_width, texture_height);
+
       texture = new THREE.Texture(img);
       texture.needsUpdate = true;
+      texture.colorSpace = THREE.SRGBColorSpace;
+
       frontMaterial = new THREE.MeshBasicMaterial({
         color: "#ffffff",
         map: texture,
