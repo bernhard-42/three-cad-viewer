@@ -44,8 +44,9 @@ For the `States` object, see [Class States](https://bernhard-42.github.io/three-
 
 1. [Install yarn](https://classic.yarnpkg.com/en/docs/install) on your system (ie. `npm i -g yarn`) if not already done;
 2. Clone the repository: `git clone https://github.com/bernhard-42/three-cad-viewer.git && cd three-cad-viewer`;
-3. Start web server: `yarn run start` and go to the page displayed in the logs (ie. `127.0.0.1:8080`)
-4. Build project: `yarn run clean; yarn run build; yarn run docs`;
+3. Run `yarn install` to install dependencies
+4. Start web server: `yarn run start` and go to the page displayed in the logs (ie. `127.0.0.1:8080`)
+5. Build project: `yarn run clean; yarn run build; yarn run docs`;
 
 ## Skeleton:
 
