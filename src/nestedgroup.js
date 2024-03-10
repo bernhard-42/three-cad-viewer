@@ -274,7 +274,7 @@ class NestedGroup {
     }
 
     const backMaterial = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(this.edgeColor),
+      color: new THREE.Color(this.edgeColor * 1.25),
       side: THREE.BackSide,
       polygonOffset: true,
       polygonOffsetFactor: 1.0,
