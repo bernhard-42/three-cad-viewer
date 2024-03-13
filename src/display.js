@@ -434,6 +434,7 @@ class Display {
       this.setClipIntersection,
       false,
     );
+    this._setupCheckEvent("tcv_clip_caps", this.setClipCaps, false);
 
     for (i = 1; i < 4; i++) {
       this._setupClickEvent(
@@ -764,6 +765,16 @@ class Display {
   setClipIntersection = (e) => {
     const flag = !!e.target.checked;
     this.viewer.setClipIntersection(flag);
+  };
+
+  /**
+   * Checkbox Handler for toggling the clip caps
+   * @function
+   * @param {*} e
+   */
+  setClipCaps = (e) => {
+    const flag = !!e.target.checked;
+    this.viewer.setClipCaps(flag);
   };
 
   /**

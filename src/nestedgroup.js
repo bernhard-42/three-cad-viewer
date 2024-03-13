@@ -276,8 +276,15 @@ class NestedGroup {
       });
     }
 
+    const backColor =
+      group.subtype === "solid"
+        ? color
+        : new THREE.Color(
+            Math.round(Math.min(0xffffff, this.edgeColor * 1.25)),
+          );
+
     const backMaterial = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(this.edgeColor * 1.25),
+      color: backColor,
       side: THREE.BackSide,
       polygonOffset: true,
       polygonOffsetFactor: 1.0,

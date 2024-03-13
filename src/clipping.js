@@ -17,7 +17,7 @@ const planeHelperMaterial = new THREE.MeshBasicMaterial({
   transparent: true,
   depthWrite: false,
   toneMapped: false,
-  side: THREE.DoubleSide,
+  side: THREE.FrontSide,
 });
 
 // everywhere that the back faces are visible (clipped region) the stencil
@@ -52,9 +52,11 @@ const frontStencilMaterial = new THREE.MeshBasicMaterial({
 
 // draw the plane everywhere that the stencil buffer != 0, which will
 // only be in the clipped region where back faces are visible.
-const stencilPlaneMaterial = new THREE.MeshStandardMaterial({
-  metalness: 0.1,
-  roughness: 0.75,
+const stencilPlaneMaterial = new THREE.MeshBasicMaterial({
+  metalness: 1,
+  roughness: 1,
+  opacity: 1.0,
+  transparent: false,
   stencilWrite: true,
   stencilRef: 0,
   stencilFunc: THREE.NotEqualStencilFunc,
@@ -161,11 +163,14 @@ class Clipping {
     this.center = center;
     this.distance = size / 2;
     this.display = display;
+    this.nestedGroup = nestedGroup;
 
     this.clipPlanes = [];
     this.reverseClipPlanes = [];
 
     this.planeHelpers = new THREE.Group();
+    this.planeHelpers.name = "PlaneHelpers";
+    this.planeHelperMaterials = [];
 
     var i;
     for (i = 0; i < 3; i++) {
@@ -181,7 +186,7 @@ class Clipping {
       this.display.setNormalLabel(i, normals[i].toArray());
 
       const material = planeHelperMaterial.clone();
-
+      this.planeHelperMaterials.push(material);
       this.planeHelpers.add(
         new PlaneMesh(
           i,
@@ -265,6 +270,14 @@ class Clipping {
     this.reverseClipPlanes[index].normal = normal.clone().negate();
     this.setConstant(index, this.distance);
     this.display.setNormalLabel(index, normals[index].toArray());
+  };
+
+  setVisible = (flag) => {
+    for (var child of this.nestedGroup.rootGroup.children) {
+      if (child.type === "StencilPlane") {
+        child.material.visible = !flag;
+      }
+    }
   };
 }
 

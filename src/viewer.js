@@ -1779,6 +1779,7 @@ class Viewer {
     this.transparent = flag;
     this.nestedGroup.setTransparent(flag);
     this.display.setTransparentCheck(flag);
+    this.clipping.setTransparent(flag);
 
     this.checkChanges({ transparent: flag }, notify);
 
@@ -2159,6 +2160,18 @@ class Viewer {
 
     this.checkChanges({ clip_intersection: flag }, notify);
 
+    this.update(this.updateMarker);
+  };
+
+  /**
+   * Set the clipping mode to intersection mode
+   * @function
+   * @param {boolean} flag - whether to use intersection mode
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setClipCaps = (flag) => {
+    if (flag == null) return;
+    this.clipping.setVisible(flag);
     this.update(this.updateMarker);
   };
 
