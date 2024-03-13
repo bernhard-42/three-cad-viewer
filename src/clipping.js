@@ -64,6 +64,21 @@ const stencilPlaneMaterial = new THREE.MeshStandardMaterial({
   side: THREE.DoubleSide,
 });
 
+class CenteredPlane extends THREE.Plane {
+  constructor(normal, constant, center) {
+    super(normal, constant);
+    this.center = center;
+    this.setConstant(constant);
+  }
+
+  setConstant(value) {
+    this.centeredConstant = value;
+    const c = this.distanceToPoint(new THREE.Vector3(...this.center));
+    const z = this.distanceToPoint(new THREE.Vector3(0, 0, 0));
+    this.constant = z - c + value;
+  }
+}
+
 class PlaneMesh extends THREE.Mesh {
   static matrix = new THREE.Matrix4();
 
@@ -78,7 +93,7 @@ class PlaneMesh extends THREE.Mesh {
       new THREE.Float32BufferAttribute(meshPositions, 3),
     );
     meshGeometry.computeBoundingSphere();
-
+    material.color.set(new THREE.Color(color));
     super(meshGeometry, material);
 
     this.type = type;
@@ -130,32 +145,8 @@ class PlaneMesh extends THREE.Mesh {
     this.quaternion.setFromRotationMatrix(PlaneMesh.matrix);
 
     this.translateZ(this.plane.constant);
-    THREE.Line.prototype.updateMatrixWorld.call(this, force);
+    super.updateMatrixWorld(this, force);
   }
-}
-
-function createPlaneGroup(
-  name,
-  index,
-  plane,
-  center,
-  size,
-  material,
-  color,
-  edges,
-) {
-  material.color.set(new THREE.Color(color));
-
-  var group = new THREE.Group();
-  group.name = name;
-  var otherCenters = [...center];
-  otherCenters[index] = 0;
-  group.position.set(...otherCenters); // needed for the plane help to be at the correct location
-
-  group.add(
-    new PlaneMesh(index, plane, center, size, material, color, name, edges),
-  );
-  return group;
 }
 
 function createStencil(name, material, geometry, plane) {
@@ -166,41 +157,43 @@ function createStencil(name, material, geometry, plane) {
 }
 
 class Clipping {
-  constructor(center, size, distance, nestedGroup, uiCallback, theme) {
+  constructor(center, size, nestedGroup, display, theme) {
     this.center = center;
-    this.distance = distance;
-    this.uiCallback = uiCallback;
+    this.distance = size / 2;
+    this.display = display;
 
     this.clipPlanes = [];
     this.reverseClipPlanes = [];
+
     this.planeHelpers = new THREE.Group();
-    this.max = [0, 0, 0];
+
     var i;
     for (i = 0; i < 3; i++) {
-      const plane = new THREE.Plane(normals[i], distance);
+      const plane = new CenteredPlane(normals[i], this.distance, center);
       this.clipPlanes.push(plane);
-      const reversePlane = new THREE.Plane(
+      const reversePlane = new CenteredPlane(
         normals[i].clone().negate(),
-        distance,
+        -this.distance,
+        center,
       );
       this.reverseClipPlanes.push(reversePlane);
 
-      this.uiCallback(i, normals[i].toArray());
+      this.display.setNormalLabel(i, normals[i].toArray());
 
       const material = planeHelperMaterial.clone();
+
       this.planeHelpers.add(
-        createPlaneGroup(
-          "PlaneHelper",
+        new PlaneMesh(
           i,
           plane,
           center,
           size,
           material,
           planeColors[theme][i],
+          "PlaneHelper",
           true,
         ),
       );
-      this.max[i] = center[i] + size / 2;
     }
     this.planeHelpers.visible = false;
 
@@ -242,17 +235,18 @@ class Clipping {
 
       if (group.subtype === "solid") {
         var planeMaterial = stencilPlaneMaterial.clone();
+        planeMaterial.color.set(new THREE.Color(planeColors[theme][i]));
         planeMaterial.clippingPlanes = otherPlanes;
 
         nestedGroup.rootGroup.add(
-          createPlaneGroup(
-            "StencilPlane",
+          new PlaneMesh(
             i,
             plane,
             center,
             size,
             planeMaterial,
             planeColors[theme][i],
+            "StencilPlane",
             false,
           ),
         );
@@ -261,14 +255,16 @@ class Clipping {
   }
 
   setConstant(index, value) {
-    this.clipPlanes[index].constant = value;
-    this.reverseClipPlanes[index].constant = -value;
+    this.clipPlanes[index].setConstant(value);
+    this.reverseClipPlanes[index].setConstant(-value);
+    console.log("setConstant", value, this.clipPlanes[index].constant);
   }
 
   setNormal = (index, normal) => {
     this.clipPlanes[index].normal = normal.clone();
     this.reverseClipPlanes[index].normal = normal.clone().negate();
-    this.uiCallback(index, normal.toArray());
+    this.setConstant(index, this.distance);
+    this.display.setNormalLabel(index, normals[index].toArray());
   };
 }
 

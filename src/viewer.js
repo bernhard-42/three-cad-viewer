@@ -1006,24 +1006,41 @@ class Viewer {
     );
     this.scene.add(this.axesHelper);
 
+    // const geometry = new THREE.SphereGeometry(this.gridSize / 2, 32, 16);
+    // const material = new THREE.MeshBasicMaterial({
+    //   color: 0xffff00,
+    //   opacity: 0.2,
+    //   transparent: true,
+    //   depthWrite: false,
+    // });
+    // const sphere = new THREE.Mesh(geometry, material);
+    // const sgroup = new THREE.Group();
+    // sgroup.add(sphere);
+    // sgroup.position.set(...this.bbox.center());
+    // this.scene.add(sgroup);
+
     //
     // set up clipping planes and helpers
     //
-
+    const cSize =
+      1.1 *
+      Math.max(
+        Math.abs(this.bbox.min.length()),
+        Math.abs(this.bbox.max.length()),
+      );
     this.clipping = new Clipping(
       this.bbox.center(),
-      this.gridSize,
-      this.gridSize / 2,
+      2 * cSize,
       this.nestedGroup,
-      (index, normal) => this.display.setNormalLabel(index, normal),
+      this.display,
       this.theme,
     );
 
     this.display.setSliderLimits(this.gridSize / 2, this.bbox.center());
 
-    this.clipSlider0 = this.bbox.center()[0] + this.gridSize / 2;
-    this.clipSlider1 = this.bbox.center()[1] + this.gridSize / 2;
-    this.clipSlider2 = this.bbox.center()[2] + this.gridSize / 2;
+    this.clipSlider0 = this.gridSize / 2;
+    this.clipSlider1 = this.gridSize / 2;
+    this.clipSlider2 = this.gridSize / 2;
     this.setClipSlider(0, this.clipSlider0, true);
     this.setClipSlider(1, this.clipSlider1, true);
     this.setClipSlider(2, this.clipSlider2, true);
@@ -2126,14 +2143,15 @@ class Viewer {
 
     var i = 0;
     for (var child of this.nestedGroup.rootGroup.children) {
-      if (child.name === "StencilPlane") {
+      if (child.type === "StencilPlane") {
         if (flag) {
-          child.children[0].material.clippingPlanes =
+          child.material.clippingPlanes =
             this.clipping.reverseClipPlanes.filter((_, j) => j !== i);
           i++;
         } else {
-          child.children[0].material.clippingPlanes =
-            this.clipping.clipPlanes.filter((_, j) => j !== i);
+          child.material.clippingPlanes = this.clipping.clipPlanes.filter(
+            (_, j) => j !== i,
+          );
           i++;
         }
       }
@@ -2203,6 +2221,8 @@ class Viewer {
     this.clipNormals[index] = normal;
 
     this.clipping.setNormal(index, new THREE.Vector3(...normal));
+    this.clipping.setConstant(index, this.gridSize / 2);
+    this.setClipSlider(index, this.gridSize / 2);
     var notifyObject = {};
     notifyObject[`clip_normal_${index}`] = normal;
 
