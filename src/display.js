@@ -950,6 +950,7 @@ class Display {
       this.cadMaterial.style.display = "none";
       this.viewer.nestedGroup.setBackVisible(false);
       this.viewer.setLocalClipping(false);
+      this.viewer.clipping.setVisible(false);
       // copy state since setClipHelpers(false) will set to false
       var lastPlaneState = this.viewer.getClipPlaneHelpers();
       this.viewer.setClipPlaneHelpers(false);
@@ -962,6 +963,7 @@ class Display {
       this.viewer.nestedGroup.setBackVisible(true);
       this.viewer.setLocalClipping(true);
       this.viewer.setClipPlaneHelpers(this.lastPlaneState);
+      this.viewer.clipping.setVisible(true);
     } else if (tab === "material" && this.activeTab !== "material") {
       this.cadTree.style.display = "none";
       this.cadTreeToggles.style.display = "none";
@@ -970,6 +972,7 @@ class Display {
       this.viewer.nestedGroup.setBackVisible(false);
       this.viewer.setLocalClipping(false);
       this.viewer.setClipPlaneHelpers(false);
+      this.viewer.clipping.setVisible(false);
     }
     this.activeTab = tab;
 

@@ -301,6 +301,19 @@ class Clipping {
       i++;
     };
   };
+
+  setVisible = (flag) => {
+
+    var pmGroup;
+    for (pmGroup of this.nestedGroup.rootGroup.children) {
+      if (pmGroup.name === "PlaneMeshes") {
+        break;
+      }
+    }
+    for (var group of pmGroup.children) {
+      group.material.visible = flag;
+    };
+  };
 }
 
 export { Clipping };

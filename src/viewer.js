@@ -1059,6 +1059,8 @@ class Viewer {
 
     this.setLocalClipping(false); // only allow clipping when Clipping tab is selected
 
+    this.clipping.setVisible(false);
+
     this.display.metalnessSlider.setValue(this.metalness * 100);
     this.display.roughnessSlider.setValue(this.roughness * 100);
     this.display.ambientlightSlider.setValue(this.ambientIntensity * 100);
