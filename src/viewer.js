@@ -79,6 +79,7 @@ class Viewer {
     this.orientationMarker = null;
     this.treeview = null;
     this.cadTools = new Tools(this);
+    this.newTreeBehavior = options.newTreeBehavior;
 
     this.ready = false;
     this.mixer = null;
@@ -152,6 +153,7 @@ class Viewer {
     this.glass = false;
     this.tools = true;
     this.keymap = { shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey" };
+    this.newTreeBehavior = true;
 
     for (var option in options) {
       if (this[option] == null) {
@@ -1092,6 +1094,7 @@ class Viewer {
       this.setObjects,
       this.handlePick,
       theme,
+      this.newTreeBehavior
     );
 
     this.display.addCadTree(this.treeview.render(options.collapse));

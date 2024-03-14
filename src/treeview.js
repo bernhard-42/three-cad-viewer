@@ -26,12 +26,13 @@ const States = {
 };
 
 class TreeView {
-  constructor(states, tree, objectHandler, pickHandler, theme) {
+  constructor(states, tree, objectHandler, pickHandler, theme, newTreeBehavior) {
     this.states = states;
     this.tree = tree;
     this.objectHandler = objectHandler;
     this.pickHandler = pickHandler;
     this.theme = theme;
+    this.newTreeBehavior = newTreeBehavior;
     this.lastSelection = null;
 
     this.setupIcons(theme);
@@ -401,10 +402,19 @@ class TreeView {
     if (type == "leaf") {
       this.updateState(node, icon_id, newState);
       this.updateNodes(this.treeModel, icon_id);
+      if (this.newTreeBehavior && icon_id == 0) {
+        this.updateState(node, 1, newState);
+        this.updateNodes(this.treeModel, 1);
+      }
       this.objectHandler(this.states);
     } else if (type == "node") {
       this.propagateChange(node, icon_id, newState);
       this.updateNodes(this.treeModel, icon_id);
+      if (this.newTreeBehavior && icon_id == 0) {
+        this.objectHandler(this.states);
+        this.propagateChange(node, 1, newState);
+        this.updateNodes(this.treeModel, 1);
+      }
       this.objectHandler(this.states);
     } else {
       console.error(`Error, unknown type '${type}'`);
