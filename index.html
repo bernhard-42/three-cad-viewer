@@ -274,8 +274,8 @@
     // examples[1][1]["/bottom/front_stand/front_stand_0"] = [0,0]
 
     window.selectedIndex = 0;
-    window.selectedExample = "drops";
-    window.viewerMode = "default";
+    window.selectedExample = "hexapod";
+    window.viewerMode = "glass";
     window.controlMode = "trackball/Z up";
 
     showViewer(window.controlMode, window.viewerMode, "cad_view_001");
@@ -320,8 +320,8 @@
       UI
       <select class="select"
         onchange="window.showViewer(window.controlMode, this.options.item(this.selectedIndex).text, 'cad_view_001');">
-        <option value="default">default</option>
         <option value="glass">glass</option>
+        <option value="default">default</option>
         <option value="notools">no tools</option>
       </select>
     </span>
@@ -342,7 +342,7 @@
     <span id="examples" class="selection">
       Examples
       <select class="select"
-        onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; render(window.selectedExample, ...window.examples[window.selectedIndex]);">
+        onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; showViewer(window.controlMode, window.viewerMode, 'cad_view_001')">
         <!-- 
         <option value="edges-verts">edges_verts</option>
         <option value="assembly">assembly</option>
