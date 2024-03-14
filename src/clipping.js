@@ -279,7 +279,7 @@ class Clipping {
     this.display.setNormalLabel(index, normals[index].toArray());
   };
 
-  setVisible = (flag) => {
+  setObjectColorCaps = (flag) => {
 
     var pmGroup;
     for (pmGroup of this.nestedGroup.rootGroup.children) {

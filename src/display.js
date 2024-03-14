@@ -434,7 +434,7 @@ class Display {
       this.setClipIntersection,
       false,
     );
-    this._setupCheckEvent("tcv_clip_caps", this.setClipCaps, false);
+    this._setupCheckEvent("tcv_clip_caps", this.setObjectColorCaps, false);
 
     for (i = 1; i < 4; i++) {
       this._setupClickEvent(
@@ -772,9 +772,9 @@ class Display {
    * @function
    * @param {*} e
    */
-  setClipCaps = (e) => {
+  setObjectColorCaps = (e) => {
     const flag = !!e.target.checked;
-    this.viewer.setClipCaps(flag);
+    this.viewer.setObjectColorCaps(flag);
   };
 
   /**
