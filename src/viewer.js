@@ -1066,8 +1066,8 @@ class Viewer {
 
     const theme =
       this.theme === "dark" ||
-      (this.theme === "browser" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
+        (this.theme === "browser" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 
@@ -1483,7 +1483,7 @@ class Viewer {
       this.bb_max / 30,
       this.scene.children.slice(0, 1),
       // eslint-disable-next-line no-unused-vars
-      (ev) => {},
+      (ev) => { },
     );
     raycaster.init();
     raycaster.onPointerMove(e);
