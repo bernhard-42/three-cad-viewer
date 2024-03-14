@@ -53,8 +53,8 @@ const frontStencilMaterial = new THREE.MeshBasicMaterial({
 // draw the plane everywhere that the stencil buffer != 0, which will
 // only be in the clipped region where back faces are visible.
 const stencilPlaneMaterial = new THREE.MeshBasicMaterial({
-  metalness: 1,
-  roughness: 1,
+  metalness: 0.3,
+  roughness: 0.65,
   opacity: 1.0,
   transparent: false,
   stencilWrite: true,
@@ -163,6 +163,7 @@ class Clipping {
     this.center = center;
     this.distance = size / 2;
     this.display = display;
+    this.theme = theme;
     this.nestedGroup = nestedGroup;
 
     this.clipPlanes = [];
@@ -171,6 +172,7 @@ class Clipping {
     this.planeHelpers = new THREE.Group();
     this.planeHelpers.name = "PlaneHelpers";
     this.planeHelperMaterials = [];
+    this.objectColors = [];
 
     var i;
     for (i = 0; i < 3; i++) {
@@ -205,6 +207,8 @@ class Clipping {
     /*
     Stencils
     */
+    var planeMeshGroup = new THREE.Group();
+    planeMeshGroup.name = "PlaneMeshes";
 
     for (i = 0; i < 3; i++) {
       const plane = this.clipPlanes[i];
@@ -216,6 +220,8 @@ class Clipping {
 
         var group = nestedGroup.groups[path];
         if (group instanceof ObjectGroup && group.subtype === "solid") {
+          this.objectColors.push(group.children[0].material.color.getHex());
+
           clippingGroup.add(
             createStencil(
               `frontStencil-${i}`,
@@ -235,34 +241,35 @@ class Clipping {
           );
 
           group.addType(clippingGroup, `clipping-${i}`);
+
+          var planeMaterial = stencilPlaneMaterial.clone();
+          planeMaterial.color.set(new THREE.Color(planeColors[theme][i]));
+          planeMaterial.clippingPlanes = otherPlanes;
+
+
+          planeMeshGroup.add(
+            new PlaneMesh(
+              i,
+              plane,
+              center,
+              size,
+              planeMaterial,
+              planeColors[theme][i],
+              // group.children[0].material.color.getHex(),
+              "StencilPlane",
+              false,
+            )
+          );
         }
       }
-
-      if (group.subtype === "solid") {
-        var planeMaterial = stencilPlaneMaterial.clone();
-        planeMaterial.color.set(new THREE.Color(planeColors[theme][i]));
-        planeMaterial.clippingPlanes = otherPlanes;
-
-        nestedGroup.rootGroup.add(
-          new PlaneMesh(
-            i,
-            plane,
-            center,
-            size,
-            planeMaterial,
-            planeColors[theme][i],
-            "StencilPlane",
-            false,
-          ),
-        );
-      }
     }
+    nestedGroup.rootGroup.add(planeMeshGroup);
   }
+
 
   setConstant(index, value) {
     this.clipPlanes[index].setConstant(value);
     this.reverseClipPlanes[index].setConstant(-value);
-    console.log("setConstant", value, this.clipPlanes[index].constant);
   }
 
   setNormal = (index, normal) => {
@@ -273,11 +280,26 @@ class Clipping {
   };
 
   setVisible = (flag) => {
-    for (var child of this.nestedGroup.rootGroup.children) {
-      if (child.type === "StencilPlane") {
-        child.material.visible = !flag;
+
+    var pmGroup;
+    for (pmGroup of this.nestedGroup.rootGroup.children) {
+      if (pmGroup.name === "PlaneMeshes") {
+        break;
       }
     }
+    var i = 0, j = -1;
+    const len = Object.keys(pmGroup.children).length / 3;
+    for (var group of pmGroup.children) {
+      if (i % len === 0) {
+        j++;
+      }
+      if (flag) {
+        group.material.color.set(new THREE.Color(this.objectColors[i]));
+      } else {
+        group.material.color.set(new THREE.Color(planeColors[this.theme][j]));
+      }
+      i++;
+    };
   };
 }
 
