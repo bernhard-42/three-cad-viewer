@@ -1782,7 +1782,6 @@ class Viewer {
     this.transparent = flag;
     this.nestedGroup.setTransparent(flag);
     this.display.setTransparentCheck(flag);
-    this.clipping.setTransparent(flag);
 
     this.checkChanges({ transparent: flag }, notify);
 
@@ -2147,16 +2146,18 @@ class Viewer {
 
     var i = 0;
     for (var child of this.nestedGroup.rootGroup.children) {
-      if (child.type === "StencilPlane") {
-        if (flag) {
-          child.material.clippingPlanes =
-            this.clipping.reverseClipPlanes.filter((_, j) => j !== i);
-          i++;
-        } else {
-          child.material.clippingPlanes = this.clipping.clipPlanes.filter(
-            (_, j) => j !== i,
-          );
-          i++;
+      if (child.name == "PlaneMeshes") {
+        for (var mesh of child.children) {
+          if (flag) {
+            mesh.material.clippingPlanes =
+              this.clipping.reverseClipPlanes.filter((_, j) => j !== i);
+            i++;
+          } else {
+            mesh.material.clippingPlanes = this.clipping.clipPlanes.filter(
+              (_, j) => j !== i,
+            );
+            i++;
+          }
         }
       }
     }
