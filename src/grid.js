@@ -3,7 +3,7 @@ import { Font } from "./fontloader/FontLoader.js";
 import { helvetiker } from "./font.js";
 
 class Grid {
-  constructor(display, bbox, ticks, centerGrid, axes0, grid, flipY) {
+  constructor(display, bbox, ticks, centerGrid, axes0, grid, flipY, theme) {
     if (ticks === undefined) {
       ticks = 10;
     }
@@ -37,36 +37,50 @@ class Grid {
         new THREE.GridHelper(
           this.size,
           this.size / this.ticks,
-          0x888888,
-          0xcccccc,
+          theme === "dark" ? 0xcccccc : 0x777777,
+          theme == "dark" ? 0x999999 : 0xbbbbbb,
         ),
       );
       const mat = new THREE.LineBasicMaterial({
         color:
-          this.theme === "dark"
-            ? new THREE.Color(0.4, 0.4, 0.4)
-            : new THREE.Color(0.5, 0.5, 0.5),
+          theme === "dark"
+            ? new THREE.Color(0.5, 0.5, 0.5)
+            : new THREE.Color(0.4, 0.4, 0.4),
         side: THREE.DoubleSide,
       });
+      var dir;
+      var geom;
       for (var x = -this.size / 2; x <= this.size / 2; x += this.ticks) {
-        const shape = font.generateShapes(x.toFixed(1), this.size / 100);
-        var geom = new THREE.ShapeGeometry(shape);
-        geom.computeBoundingBox();
-        const xMid = -0.5 * (geom.boundingBox.max.x - geom.boundingBox.min.x);
-        const yMid = -0.5 * (geom.boundingBox.max.y - geom.boundingBox.min.y);
-
-        geom.translate(xMid, 2 * yMid - this.size / 200, 0);
-        geom.rotateX(-Math.PI / 2);
+        geom = this.createNumber(x, font);
+        if (i == 0) {
+          geom.rotateX(-Math.PI / 2);
+          geom.rotateY(Math.PI / 2);
+        } else if (i == 1) {
+          geom.rotateX(Math.PI / 2);
+          geom.rotateY(-Math.PI / 2);
+        } else {
+          geom.rotateX(Math.PI / 2);
+          geom.rotateY(-Math.PI / 2);
+        }
         const label = new THREE.Mesh(geom, mat);
-        label.position.set(x, 0, 0);
+        dir = i == 1 ? -1 : 1;
+        label.position.set(dir * x, 0, 0);
         group.add(label);
 
         if (Math.abs(x) < 1e-6) continue;
 
-        geom = geom.clone();
-        geom.translate(-xMid + this.size / 200, yMid, 0);
+        geom = this.createNumber(x, font);
+        if (i == 0) {
+          geom.rotateX(-Math.PI / 2);
+        } else if (i == 1) {
+          geom.rotateX(-Math.PI / 2);
+          geom.rotateZ(Math.PI);
+        } else {
+          geom.rotateX(Math.PI / 2);
+        }
         const label2 = new THREE.Mesh(geom, mat);
-        label2.position.set(0, 0, x);
+        dir = i == 0 ? -1 : 1;
+        label2.position.set(0, 0, dir * x);
         group.add(label2);
       }
       this.gridHelper.push(group);
@@ -79,6 +93,18 @@ class Grid {
     this.setCenter(axes0, flipY);
 
     this.setVisible();
+  }
+
+  createNumber(x, font) {
+    console.log(this.size);
+    const shape = font.generateShapes(x.toFixed(1), this.size / 120);
+    var geom = new THREE.ShapeGeometry(shape);
+
+    geom.computeBoundingBox();
+    var xMid = -0.5 * (geom.boundingBox.max.x - geom.boundingBox.min.x);
+    var yMid = -0.5 * (geom.boundingBox.max.y - geom.boundingBox.min.y);
+    geom.translate(xMid, yMid, 0);
+    return geom;
   }
 
   // https://stackoverflow.com/questions/4947682/intelligently-calculating-chart-tick-positions

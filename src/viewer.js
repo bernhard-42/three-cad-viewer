@@ -984,6 +984,7 @@ class Viewer {
       this.axes0,
       this.grid,
       options.up == "Z",
+      this.theme,
     );
     this.gridHelper.computeGrid();
 
@@ -1069,8 +1070,8 @@ class Viewer {
 
     const theme =
       this.theme === "dark" ||
-        (this.theme === "browser" &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      (this.theme === "browser" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 
@@ -1097,7 +1098,7 @@ class Viewer {
       this.setObjects,
       this.handlePick,
       theme,
-      this.newTreeBehavior
+      this.newTreeBehavior,
     );
 
     this.display.addCadTree(this.treeview.render(options.collapse));
@@ -1486,7 +1487,7 @@ class Viewer {
       this.bb_max / 30,
       this.scene.children.slice(0, 1),
       // eslint-disable-next-line no-unused-vars
-      (ev) => { },
+      (ev) => {},
     );
     raycaster.init();
     raycaster.onPointerMove(e);
