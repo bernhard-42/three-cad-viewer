@@ -1,30 +1,39 @@
 import * as THREE from "three";
+import { Font } from "./fontloader/FontLoader.js";
+import { helvetiker } from "./font.js";
 
 class Grid {
-  constructor(display, bbox, ticks, axes0, grid, flipY) {
+  constructor(display, bbox, ticks, centerGrid, axes0, grid, flipY) {
     if (ticks === undefined) {
       ticks = 10;
     }
     this.display = display;
     this.bbox = bbox;
-
+    this.centerGrid = centerGrid;
     this.grid = grid;
     this.allGrid = grid[0] | grid[1] | grid[2];
+    const s = new THREE.Vector3();
+    bbox.getSize(s);
+    const s2 = Math.max(s.x, s.y, s.z);
+    // const s2 = bbox.boundingSphere().radius;
 
     this.gridHelper = [];
     // in case the bbox has the same siez as the nice grid there should be
     // a margin bewteen grid and object. Hence factor 1.1
     var [axisStart, axisEnd, niceTick] = this.niceBounds(
-      -bbox.boundingSphere().radius * 1.1,
-      bbox.boundingSphere().radius * 1.1,
+      -s2 * 1.05,
+      s2 * 1.05,
       2 * ticks,
     );
     this.size = axisEnd - axisStart;
 
+    const font = new Font(helvetiker);
+
     this.ticks = niceTick;
 
     for (var i = 0; i < 3; i++) {
-      this.gridHelper.push(
+      var group = new THREE.Group();
+      group.add(
         new THREE.GridHelper(
           this.size,
           this.size / this.ticks,
@@ -32,6 +41,35 @@ class Grid {
           0xcccccc,
         ),
       );
+      const mat = new THREE.LineBasicMaterial({
+        color:
+          this.theme === "dark"
+            ? new THREE.Color(0.4, 0.4, 0.4)
+            : new THREE.Color(0.5, 0.5, 0.5),
+        side: THREE.DoubleSide,
+      });
+      for (var x = -this.size / 2; x <= this.size / 2; x += this.ticks) {
+        const shape = font.generateShapes(x.toFixed(1), this.size / 100);
+        var geom = new THREE.ShapeGeometry(shape);
+        geom.computeBoundingBox();
+        const xMid = -0.5 * (geom.boundingBox.max.x - geom.boundingBox.min.x);
+        const yMid = -0.5 * (geom.boundingBox.max.y - geom.boundingBox.min.y);
+
+        geom.translate(xMid, 2 * yMid - this.size / 200, 0);
+        geom.rotateX(-Math.PI / 2);
+        const label = new THREE.Mesh(geom, mat);
+        label.position.set(x, 0, 0);
+        group.add(label);
+
+        if (Math.abs(x) < 1e-6) continue;
+
+        geom = geom.clone();
+        geom.translate(-xMid + this.size / 200, yMid, 0);
+        const label2 = new THREE.Mesh(geom, mat);
+        label2.position.set(0, 0, x);
+        group.add(label2);
+      }
+      this.gridHelper.push(group);
     }
 
     this.gridHelper[0].rotateX(Math.PI / 2);
@@ -139,17 +177,25 @@ class Grid {
       for (var i = 0; i < 3; i++) {
         this.gridHelper[i].position.set(0, 0, 0);
       }
-      this.gridHelper[0].position.z = -this.size / 2;
-      this.gridHelper[1].position.y = ((flipY ? 1 : -1) * this.size) / 2;
-      this.gridHelper[2].position.x = -this.size / 2;
+      this.gridHelper[0].position.z = this.centerGrid ? 0 : -this.size / 2;
+      this.gridHelper[1].position.y = this.centerGrid
+        ? 0
+        : ((flipY ? 1 : -1) * this.size) / 2;
+      this.gridHelper[2].position.x = this.centerGrid ? 0 : -this.size / 2;
     } else {
       const c = this.bbox.center();
       for (i = 0; i < 3; i++) {
         this.gridHelper[i].position.set(...c);
       }
-      this.gridHelper[0].position.z = -this.size / 2 + c[2];
-      this.gridHelper[1].position.y = ((flipY ? 1 : -1) * this.size) / 2 + c[1];
-      this.gridHelper[2].position.x = -this.size / 2 + c[0];
+      this.gridHelper[0].position.z = this.centerGrid
+        ? c[2]
+        : -this.size / 2 + c[2];
+      this.gridHelper[1].position.y = this.centerGrid
+        ? c[1]
+        : ((flipY ? 1 : -1) * this.size) / 2 + c[1];
+      this.gridHelper[2].position.x = this.centerGrid
+        ? c[0]
+        : -this.size / 2 + c[0];
     }
   }
 
