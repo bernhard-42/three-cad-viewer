@@ -1677,8 +1677,8 @@ class Viewer {
    * @param {string} action -  one of "grid" (all grids), "grid-xy","grid-xz", "grid-yz"
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setGrid = (action, notify = true) => {
-    this.gridHelper.setGrid(action);
+  setGrid = (action, flag, notify = true) => {
+    this.gridHelper.setGrid(action, flag);
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 
