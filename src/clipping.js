@@ -273,10 +273,11 @@ class Clipping {
   }
 
   setNormal = (index, normal) => {
-    this.clipPlanes[index].normal = normal.clone();
-    this.reverseClipPlanes[index].normal = normal.clone().negate();
+    var n = normal.clone();
+    this.clipPlanes[index].normal = n;
+    this.reverseClipPlanes[index].normal = n.clone().negate();
     this.setConstant(index, this.distance);
-    this.display.setNormalLabel(index, normals[index].toArray());
+    this.display.setNormalLabel(index, n.toArray());
   };
 
   setObjectColorCaps = (flag) => {
