@@ -17,7 +17,7 @@ const planeHelperMaterial = new THREE.MeshBasicMaterial({
   transparent: true,
   depthWrite: false,
   toneMapped: false,
-  side: THREE.FrontSide,
+  side: THREE.DoubleSide,
 });
 
 // everywhere that the back faces are visible (clipped region) the stencil
