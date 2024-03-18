@@ -177,6 +177,7 @@ class Clipping {
     var i;
     for (i = 0; i < 3; i++) {
       const plane = new CenteredPlane(normals[i], this.distance, center);
+
       this.clipPlanes.push(plane);
       const reversePlane = new CenteredPlane(
         normals[i].clone().negate(),
@@ -205,6 +206,12 @@ class Clipping {
       );
     }
     this.planeHelpers.visible = false;
+
+    // Add clipping planes to the help planes
+    for (i = 0; i < 3; i++) {
+      const otherPlanes = this.clipPlanes.filter((_, j) => j !== i);
+      this.planeHelpers.children[i].material.clippingPlanes = otherPlanes;
+    }
 
     /*
     Stencils
