@@ -2197,9 +2197,10 @@ class Viewer {
    * @param {boolean} flag - whether to use intersection mode
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setObjectColorCaps = (flag) => {
+  setObjectColorCaps = (flag, notify = true) => {
     if (flag == null) return;
     this.clipping.setObjectColorCaps(flag);
+    this.checkChanges({ clip_object_color: flag }, notify);
     this.update(this.updateMarker);
   };
 
