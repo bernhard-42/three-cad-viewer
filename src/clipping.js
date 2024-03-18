@@ -151,6 +151,7 @@ class Clipping {
     this.planeHelpers.name = "PlaneHelpers";
     this.planeHelperMaterials = [];
     this.objectColors = [];
+    this.objectColorCaps = false;
 
     var i;
     for (i = 0; i < 3; i++) {
@@ -264,6 +265,10 @@ class Clipping {
     this.display.setNormalLabel(index, n.toArray());
   };
 
+  getObjectColorCaps = () => {
+    return this.objectColorCaps;
+  };
+
   setObjectColorCaps = (flag) => {
 
     var pmGroup;
@@ -285,6 +290,7 @@ class Clipping {
       }
       i++;
     };
+    this.objectColorCaps = flag;
   };
 
   setVisible = (flag) => {

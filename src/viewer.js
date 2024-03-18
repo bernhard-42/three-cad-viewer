@@ -2184,7 +2184,15 @@ class Viewer {
   };
 
   /**
-   * Set the clipping mode to intersection mode
+   * Get whether the clipping caps color status
+   * @returns {boolean} color caps value (object color (true) or RGB (false)).
+   */
+  getObjectColorCaps = () => {
+    return this.clipping.getObjectColorCaps();
+  };
+
+  /**
+   * Toggle the clipping caps color between object color and RGB
    * @function
    * @param {boolean} flag - whether to use intersection mode
    * @param {boolean} [notify=true] - whether to send notification or not.
