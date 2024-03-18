@@ -273,6 +273,7 @@ class NestedGroup {
         side: THREE.FrontSide,
         visible: states[0] == 1,
         map: texture,
+        name:"frontMaterial"
       });
     }
 
@@ -297,6 +298,7 @@ class NestedGroup {
       depthTest: true,
       clipIntersection: false,
       visible: states[0] == 1 && (renderback || this.backVisible),
+      name: "backMaterial"
     });
 
     const back = new THREE.Mesh(shapeGeometry, backMaterial);
