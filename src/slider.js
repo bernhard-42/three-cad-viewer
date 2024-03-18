@@ -91,7 +91,7 @@ class Slider {
             Math.min(value, this.slider.max),
             this.slider.min,
         );
-        this.input.value = trimmed_value.toFixed(0);
+        this.input.value = Math.round(1000 * trimmed_value) / 1000;
         this.slider.value = value;
         this._handle(this.type, this.index, this.input.value);
         this._notify(value, notify);
