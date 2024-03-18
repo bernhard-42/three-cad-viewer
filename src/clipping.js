@@ -200,7 +200,7 @@ class Clipping {
           material,
           planeColors[theme][i],
           "PlaneHelper",
-          true,
+          false,
         ),
       );
     }
