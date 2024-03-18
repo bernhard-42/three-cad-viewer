@@ -33,6 +33,7 @@ class Grid {
 
     for (var i = 0; i < 3; i++) {
       var group = new THREE.Group();
+      group.name = `GridHelper-${i}`;
       group.add(
         new THREE.GridHelper(
           this.size,

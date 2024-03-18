@@ -40,6 +40,7 @@ class AxesHelper extends LineSegments2 {
     this.center = center;
 
     this.type = "AxesHelper";
+    this.name = "AxesHelper";
     this.visible = visible;
     this.setCenter(axes0);
   }
