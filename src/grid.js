@@ -99,7 +99,7 @@ class Grid {
     // experimentally detected: p1=(size=640, font_size=7.1) p2=(size=2.2, font_size=0.035)
     const m = (0.035 - 7.1) / (2.2 - 640);
     const fontSize = m * (this.size - 640) + 7.1;
-    console.log(this.size, fontSize);
+
     const shape = font.generateShapes(x.toFixed(1), fontSize);
     var geom = new THREE.ShapeGeometry(shape);
 
