@@ -26,10 +26,10 @@ const backStencilMaterial = new THREE.MeshBasicMaterial({
   depthWrite: false,
   depthTest: false,
   colorWrite: false,
-  stencilWrite: true,
-  stencilFunc: THREE.AlwaysStencilFunc,
   side: THREE.BackSide,
 
+  stencilWrite: true,
+  stencilFunc: THREE.AlwaysStencilFunc,
   stencilFail: THREE.IncrementWrapStencilOp,
   stencilZFail: THREE.IncrementWrapStencilOp,
   stencilZPass: THREE.IncrementWrapStencilOp,
@@ -41,10 +41,10 @@ const frontStencilMaterial = new THREE.MeshBasicMaterial({
   depthWrite: false,
   depthTest: false,
   colorWrite: false,
-  stencilWrite: true,
-  stencilFunc: THREE.AlwaysStencilFunc,
   side: THREE.FrontSide,
 
+  stencilWrite: true,
+  stencilFunc: THREE.AlwaysStencilFunc,
   stencilFail: THREE.DecrementWrapStencilOp,
   stencilZFail: THREE.DecrementWrapStencilOp,
   stencilZPass: THREE.DecrementWrapStencilOp,
@@ -52,18 +52,22 @@ const frontStencilMaterial = new THREE.MeshBasicMaterial({
 
 // draw the plane everywhere that the stencil buffer != 0, which will
 // only be in the clipped region where back faces are visible.
-const stencilPlaneMaterial = new THREE.MeshBasicMaterial({
+const stencilPlaneMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.3,
   roughness: 0.65,
   opacity: 1.0,
   transparent: false,
+  side: THREE.DoubleSide,
+  polygonOffset: true,
+  polygonOffsetFactor: 1.0,
+  polygonOffsetUnits: 1.0,
+
   stencilWrite: true,
   stencilRef: 0,
   stencilFunc: THREE.NotEqualStencilFunc,
   stencilFail: THREE.ReplaceStencilOp,
   stencilZFail: THREE.ReplaceStencilOp,
   stencilZPass: THREE.ReplaceStencilOp,
-  side: THREE.DoubleSide,
 });
 
 class CenteredPlane extends THREE.Plane {
@@ -84,16 +88,8 @@ class CenteredPlane extends THREE.Plane {
 class PlaneMesh extends THREE.Mesh {
   static matrix = new THREE.Matrix4();
 
-  constructor(index, plane, center, size, material, color, type, edges) {
-    const meshPositions = [
-      1, 1, 0, -1, 1, 0, -1, -1, 0, 1, 1, 0, -1, -1, 0, 1, -1, 0,
-    ];
-
-    const meshGeometry = new THREE.BufferGeometry();
-    meshGeometry.setAttribute(
-      "position",
-      new THREE.Float32BufferAttribute(meshPositions, 3),
-    );
+  constructor(index, plane, center, size, material, color, type) {
+    const meshGeometry = new THREE.PlaneGeometry(2, 2);
     meshGeometry.computeBoundingSphere();
     material.color.set(new THREE.Color(color));
     super(meshGeometry, material);
@@ -103,24 +99,6 @@ class PlaneMesh extends THREE.Mesh {
     this.plane = plane;
     this.size = size;
     this.center = center;
-
-    if (edges) {
-      const linePositions = [-1, -1, 0, -1, 1, 0, 1, 1, 0, 1, -1, 0, -1, -1, 0];
-
-      const lineGeometry = new THREE.BufferGeometry();
-      lineGeometry.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(linePositions, 3),
-      );
-      lineGeometry.computeBoundingSphere();
-
-      this.line = new THREE.Line(
-        lineGeometry,
-        new THREE.LineBasicMaterial({ color: color, toneMapped: false }),
-      );
-
-      this.add(this.line);
-    }
   }
 
   dispose = () => {
@@ -201,7 +179,6 @@ class Clipping {
           material,
           planeColors[theme][i],
           "PlaneHelper",
-          false,
         ),
       );
     }
@@ -264,7 +241,6 @@ class Clipping {
               planeMaterial,
               planeColors[theme][i],
               `StencilPlane-${i}-${j}`,
-              false,
             )
           );
           j++;
