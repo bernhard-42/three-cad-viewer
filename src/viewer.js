@@ -2148,19 +2148,31 @@ class Viewer {
     this.nestedGroup.setClipIntersection(flag);
     this.display.setClipIntersectionCheck(flag);
 
-    var i = 0;
     for (var child of this.nestedGroup.rootGroup.children) {
       if (child.name == "PlaneMeshes") {
-        for (var mesh of child.children) {
+        for (var capPlane of child.children) {
           if (flag) {
-            mesh.material.clippingPlanes =
-              this.clipping.reverseClipPlanes.filter((_, j) => j !== i);
-            i++;
+            capPlane.material.clippingPlanes =
+              this.clipping.reverseClipPlanes.filter((_, j) => j !== capPlane.index);
           } else {
-            mesh.material.clippingPlanes = this.clipping.clipPlanes.filter(
-              (_, j) => j !== i,
+            capPlane.material.clippingPlanes = this.clipping.clipPlanes.filter(
+              (_, j) => j !== capPlane.index,
             );
-            i++;
+          }
+        }
+      }
+    }
+
+    for (child of this.scene.children) {
+      if (child.name == "PlaneHelpers") {
+        for (var helper of child.children) {
+          if (flag) {
+            helper.material.clippingPlanes =
+              this.clipping.reverseClipPlanes.filter((_, j) => j !== helper.index);
+          } else {
+            helper.material.clippingPlanes = this.clipping.clipPlanes.filter(
+              (_, j) => j !== helper.index,
+            );
           }
         }
       }

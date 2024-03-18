@@ -133,7 +133,7 @@ class PlaneMesh extends THREE.Mesh {
   };
 
   onAfterRender = (renderer) => {
-    if (this.type === "StencilPlane") {
+    if (this.type.startsWith("StencilPlane")) {
       renderer.clearStencil();
     }
   };
@@ -215,7 +215,7 @@ class Clipping {
     for (i = 0; i < 3; i++) {
       const plane = this.clipPlanes[i];
       const otherPlanes = this.clipPlanes.filter((_, j) => j !== i);
-
+      var j = 0;
       for (var path in nestedGroup.groups) {
         var clippingGroup = new THREE.Group();
         clippingGroup.name = `clipping-${i}`;
@@ -226,7 +226,7 @@ class Clipping {
 
           clippingGroup.add(
             createStencil(
-              `frontStencil-${i}`,
+              `frontStencil-${i}-${j}`,
               frontStencilMaterial.clone(),
               group.shapeGeometry,
               plane,
@@ -235,7 +235,7 @@ class Clipping {
 
           clippingGroup.add(
             createStencil(
-              `backStencil-${i}`,
+              `backStencil-${i}-${j}`,
               backStencilMaterial.clone(),
               group.shapeGeometry,
               plane,
@@ -248,7 +248,6 @@ class Clipping {
           planeMaterial.color.set(new THREE.Color(planeColors[theme][i]));
           planeMaterial.clippingPlanes = otherPlanes;
 
-
           planeMeshGroup.add(
             new PlaneMesh(
               i,
@@ -257,11 +256,11 @@ class Clipping {
               size,
               planeMaterial,
               planeColors[theme][i],
-              // group.children[0].material.color.getHex(),
-              "StencilPlane",
+              `StencilPlane-${i}-${j}`,
               false,
             )
           );
+          j++;
         }
       }
     }
