@@ -13,7 +13,7 @@ const planeColors = {
 };
 
 const planeHelperMaterial = new THREE.MeshBasicMaterial({
-  opacity: 0.05,
+  opacity: 0.1,
   transparent: true,
   depthWrite: false,
   toneMapped: false,
@@ -188,6 +188,8 @@ class Clipping {
       this.display.setNormalLabel(i, normals[i].toArray());
 
       const material = planeHelperMaterial.clone();
+      material.opacity = (theme === "dark") ? 0.2 : 0.1;
+
       this.planeHelperMaterials.push(material);
       this.planeHelpers.add(
         new PlaneMesh(
