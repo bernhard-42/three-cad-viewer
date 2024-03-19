@@ -219,6 +219,7 @@ class Viewer {
 
     this.clipIntersection = false;
     this.clipPlaneHelpers = false;
+    this.clipObjectColors = false;
     this.clipNormal0 = [-1, 0, 0];
     this.clipNormal1 = [0, -1, 0];
     this.clipNormal2 = [0, 0, -1];
@@ -272,6 +273,7 @@ class Viewer {
     console.log("- blackEdges", this.blackEdges);
     console.log("- clipIntersection", this.clipIntersection);
     console.log("- clipPlaneHelpers", this.clipPlaneHelpers);
+    console.log("- clipObjectColors", this.clipObjectColors);
     console.log("- clipNormal0", this.clipNormal0);
     console.log("- clipNormal1", this.clipNormal1);
     console.log("- clipNormal2", this.clipNormal2);
@@ -1042,18 +1044,21 @@ class Viewer {
 
     this.display.setSliderLimits(this.gridSize / 2, this.bbox.center());
 
-    this.clipSlider0 = this.gridSize / 2;
-    this.clipSlider1 = this.gridSize / 2;
-    this.clipSlider2 = this.gridSize / 2;
-    this.setClipSlider(0, this.clipSlider0, true);
-    this.setClipSlider(1, this.clipSlider1, true);
-    this.setClipSlider(2, this.clipSlider2, true);
-
     this.setClipNormal(0, options.clipNormal0, false);
     this.setClipNormal(1, options.clipNormal1, false);
     this.setClipNormal(2, options.clipNormal2, false);
 
+    this.clipSlider0 = (options.clipSlider0 != null) ? (options.clipSlider0) : this.gridSize / 2;
+    this.clipSlider1 = (options.clipSlider1 != null) ? (options.clipSlider1) : this.gridSize / 2;
+    this.clipSlider2 = (options.clipSlider2 != null) ? (options.clipSlider2) : this.gridSize / 2;
+
+    this.setClipSlider(0, this.clipSlider0, true);
+    this.setClipSlider(1, this.clipSlider1, true);
+    this.setClipSlider(2, this.clipSlider2, true);
+
+
     this.setClipIntersection(options.clipIntersection, false);
+    this.setObjectColorCaps(options.clipObjectColors, false);
     this.setClipPlaneHelpersCheck(options.clipPlaneHelpers);
 
     this.scene.add(this.clipping.planeHelpers);
@@ -1070,8 +1075,8 @@ class Viewer {
 
     const theme =
       this.theme === "dark" ||
-      (this.theme === "browser" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
+        (this.theme === "browser" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 
