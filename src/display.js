@@ -962,6 +962,7 @@ class Display {
       this.cadMaterial.style.display = "none";
       this.viewer.nestedGroup.setBackVisible(true);
       this.viewer.setLocalClipping(true);
+      this.viewer.setClipIntersection(this.viewer.clipIntersection);
       this.viewer.setClipPlaneHelpers(this.lastPlaneState);
       this.viewer.clipping.setVisible(true);
     } else if (tab === "material" && this.activeTab !== "material") {
