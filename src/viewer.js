@@ -2259,14 +2259,14 @@ class Viewer {
    */
   setClipNormal(index, normal, notify = true) {
     if (normal == null) return;
+    const normal1 = new THREE.Vector3(...normal).normalize().toArray();
+    this.clipNormals[index] = normal1;
 
-    this.clipNormals[index] = normal;
-
-    this.clipping.setNormal(index, new THREE.Vector3(...normal));
+    this.clipping.setNormal(index, new THREE.Vector3(...normal1));
     this.clipping.setConstant(index, this.gridSize / 2);
     this.setClipSlider(index, this.gridSize / 2);
     var notifyObject = {};
-    notifyObject[`clip_normal_${index}`] = normal;
+    notifyObject[`clip_normal_${index}`] = normal1;
 
     this.checkChanges(notifyObject, notify);
 
