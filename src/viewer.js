@@ -2206,7 +2206,7 @@ class Viewer {
     if (flag == null) return;
     this.clipping.setObjectColorCaps(flag);
     this.display.setClipObjectColorsCheck(flag);
-    this.checkChanges({ clip_object_color: flag }, notify);
+    this.checkChanges({ clip_object_colors: flag }, notify);
     this.update(this.updateMarker);
   };
 
