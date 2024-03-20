@@ -768,22 +768,32 @@ class Display {
   };
 
   /**
-   * Checkbox Handler for toggling the clip caps
-   * @function
-   * @param {*} e
-   */
-  setObjectColorCaps = (e) => {
-    const flag = !!e.target.checked;
-    this.viewer.setObjectColorCaps(flag);
-  };
-
-  /**
    * Check or uncheck the Intersection checkbox
    * @function
    * @param {boolean} flag - whether to check or uncheck the Intersection checkbox
    */
   setClipIntersectionCheck = (flag) => {
     const el = this._getElement("tcv_clip_intersection");
+    el.checked = flag;
+  };
+
+  /**
+   * Checkbox Handler for toggling the clip caps
+   * @function
+   * @param {*} e
+   */
+  setObjectColorCaps = (e) => {
+    const flag = !!e.target.checked;
+    this.viewer.setClipObjectColorCaps(flag);
+  };
+
+  /**
+   * Check or uncheck the Intersection checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the object colors checkbox
+   */
+  setClipObjectColorsCheck = (flag) => {
+    const el = this._getElement("tcv_clip_caps");
     el.checked = flag;
   };
 
@@ -965,6 +975,7 @@ class Display {
       this.viewer.setClipIntersection(this.viewer.clipIntersection);
       this.viewer.setClipPlaneHelpers(this.lastPlaneState);
       this.viewer.clipping.setVisible(true);
+      this.viewer.update(true, false);
     } else if (tab === "material" && this.activeTab !== "material") {
       this.cadTree.style.display = "none";
       this.cadTreeToggles.style.display = "none";

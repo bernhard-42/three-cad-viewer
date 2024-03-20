@@ -1058,7 +1058,7 @@ class Viewer {
 
 
     this.setClipIntersection(options.clipIntersection, false);
-    this.setObjectColorCaps(options.clipObjectColors, false);
+    this.setClipObjectColorCaps(options.clipObjectColors, false);
     this.setClipPlaneHelpersCheck(options.clipPlaneHelpers);
 
     this.scene.add(this.clipping.planeHelpers);
@@ -1492,7 +1492,7 @@ class Viewer {
       this.bb_max / 30,
       this.scene.children.slice(0, 1),
       // eslint-disable-next-line no-unused-vars
-      (ev) => {},
+      (ev) => { },
     );
     raycaster.init();
     raycaster.onPointerMove(e);
@@ -2202,9 +2202,10 @@ class Viewer {
    * @param {boolean} flag - whether to use intersection mode
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setObjectColorCaps = (flag, notify = true) => {
+  setClipObjectColorCaps = (flag, notify = true) => {
     if (flag == null) return;
     this.clipping.setObjectColorCaps(flag);
+    this.display.setClipObjectColorsCheck(flag);
     this.checkChanges({ clip_object_color: flag }, notify);
     this.update(this.updateMarker);
   };
