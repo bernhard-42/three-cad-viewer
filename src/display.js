@@ -87,6 +87,7 @@ class Display {
     this.cadClip.style.display = "none";
     this.cadMaterial.style.display = "none";
     this.clipSliders = null;
+    this.explodeFlag = false;
 
     this.lastPlaneState = false;
 
@@ -630,17 +631,22 @@ class Display {
    * @param {boolean} flag - to set or not
    */
   setExplode = (name, flag) => {
+    if (flag && this.explodeFlag) return;
+    if (!flag && !this.explodeFlag) return;
+
     if (flag) {
       if (this.viewer.hasAnimation()) {
         this.viewer.backupAnimation();
       }
       this.viewer.explode();
+      this.explodeFlag = true;
     } else {
       if (this.viewer.hasAnimation()) {
         this.controlAnimationByName("stop");
         this.viewer.clearAnimation();
         this.viewer.restoreAnimation();
       }
+      this.explodeFlag = false;
     }
   };
 
