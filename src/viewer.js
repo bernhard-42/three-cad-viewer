@@ -1044,9 +1044,9 @@ class Viewer {
 
     this.display.setSliderLimits(this.gridSize / 2, this.bbox.center());
 
-    this.setClipNormal(0, options.clipNormal0, false);
-    this.setClipNormal(1, options.clipNormal1, false);
-    this.setClipNormal(2, options.clipNormal2, false);
+    this.setClipNormal(0, options.clipNormal0, true);
+    this.setClipNormal(1, options.clipNormal1, true);
+    this.setClipNormal(2, options.clipNormal2, true);
 
     this.clipSlider0 = (options.clipSlider0 != null) ? (options.clipSlider0) : this.gridSize / 2;
     this.clipSlider1 = (options.clipSlider1 != null) ? (options.clipSlider1) : this.gridSize / 2;
@@ -1057,9 +1057,9 @@ class Viewer {
     this.setClipSlider(2, this.clipSlider2, true);
 
 
-    this.setClipIntersection(options.clipIntersection, false);
-    this.setClipObjectColorCaps(options.clipObjectColors, false);
-    this.setClipPlaneHelpersCheck(options.clipPlaneHelpers);
+    this.setClipIntersection(options.clipIntersection, true);
+    this.setClipObjectColorCaps(options.clipObjectColors, true);
+    this.setClipPlaneHelpersCheck(options.clipPlaneHelpers, true);
 
     this.scene.add(this.clipping.planeHelpers);
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
