@@ -17,6 +17,7 @@
   <script src="./examples/edges-verts.js"></script> 
 -->
   <script src="./examples/box.js"></script>
+  <script src="./examples/image-face.js"></script>
   <script src="./examples/dirbox.js"></script>
   <script src="./examples/torusknot.js"></script>
   <script src="./examples/profile4040.js"></script>
@@ -52,6 +53,7 @@
       hexapod_b3d,
       linkage,
       box,
+      image_face,
       orient_box,
       dirbox,
       torusknot,
@@ -203,14 +205,16 @@
     const viewerOptions = {
       ortho: true,
       ticks: 10,
+      centerGrid: false,
       // transparent: true,
       // blackEdges: true,
       // axes: true,
       // axes0: true,
       // grid: [true, false, true],
       timeit: true,
-      // clipIntersection: true,
-      // clipPlaneHelpers: true,
+      // clipIntersection: false,
+      // clipPlaneHelpers: false,
+      // clipObjectColors: true,
       // clipNormal0: [-0.7, 0.25, -0.66],
       // clipNormal2: [-0.8, -0.4, -0.5],
       // clipSlider0: 20,
@@ -244,10 +248,11 @@
         displayOptions.glass = false;
         displayOptions.tools = true;
       }
+      displayOptions.newTreeBehavior = true;
 
       window.viewerMode = mode;
-      console.log(control);
-      console.log(window.controlMode);
+      // console.log(control);
+      // console.log(window.controlMode);
       window.controlMode = control;
       var control_up = control.split("/");
       // console.log(control_up);
@@ -272,8 +277,8 @@
     // examples[1][1]["/bottom/front_stand/front_stand_0"] = [0,0]
 
     window.selectedIndex = 0;
-    window.selectedExample = "drops";
-    window.viewerMode = "default";
+    window.selectedExample = "hexapod";
+    window.viewerMode = "glass";
     window.controlMode = "trackball/Z up";
 
     showViewer(window.controlMode, window.viewerMode, "cad_view_001");
@@ -317,9 +322,9 @@
     <span id="navigation" class="selection">
       UI
       <select class="select"
-        onchange="window.showViewer(window.controlMode, this.options.item(this.selectedIndex).text);">
-        <option value="default">default</option>
+        onchange="window.showViewer(window.controlMode, this.options.item(this.selectedIndex).text, 'cad_view_001');">
         <option value="glass">glass</option>
+        <option value="default">default</option>
         <option value="notools">no tools</option>
       </select>
     </span>
@@ -327,7 +332,7 @@
     <span id="control" class="selection">
       Control
       <select class="select"
-        onchange="window.showViewer(this.options.item(this.selectedIndex).text, window.viewerMode);">
+        onchange="window.showViewer(this.options.item(this.selectedIndex).text, window.viewerMode, 'cad_view_001');">
         <option value="trackball">trackball/Z up</option>
         <option value="trackball">trackball/Y up</option>
         <option value="trackball">trackball/Legacy</option>
@@ -340,7 +345,7 @@
     <span id="examples" class="selection">
       Examples
       <select class="select"
-        onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; render(window.selectedExample, ...window.examples[window.selectedIndex]);">
+        onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; showViewer(window.controlMode, window.viewerMode, 'cad_view_001')">
         <!-- 
         <option value="edges-verts">edges_verts</option>
         <option value="assembly">assembly</option>
@@ -350,8 +355,9 @@
         <option value="hexapod_b3d">hexapod(build123d)</option>
         <option value="linkage">linkage</option>
         <option value="box">box</option>
-        <option value="box">orient-box</option>
-        <option value="box">dir-box</option>
+        <option value="image-face">image-face</option>
+        <option value="orient-box">orient-box</option>
+        <option value="dir-box">dir-box</option>
         <option value="torusknot">torusknot</option>
         <option value="profile4040">profile4040</option>
         <option value="box1">box1</option>

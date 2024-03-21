@@ -4,8 +4,8 @@ var boxEdges = [
       {
         id: "/Box with Edges/Parent_0",
         type: "shapes",
-        subtype: "solid",
         name: "Parent_0",
+        subtype: "faces",
         shape: {
           vertices: [
             [-0.5, -0.5, -1.0],

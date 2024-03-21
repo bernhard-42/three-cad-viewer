@@ -2161,7 +2161,6 @@ var vertices = [
         name: "Vertices_0",
         id: "/Vertices/Vertices_0",
         type: "vertices",
-        subtype: "solid",
         shape: [
           [-5, -8, -13],
           [-5, -8, 13],

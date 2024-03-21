@@ -7,7 +7,7 @@ var faces = [
         name: "Parent_0",
         id: "/Faces/Parent_0",
         type: "shapes",
-        subtype: "solid",
+        subtype: "faces",
         shape: {
           vertices: [
             [-5, -8, -13],

@@ -469,6 +469,7 @@ input[type="button"] {
   background-color: var(--tcv-bg-color);
   padding-top: 2px;
   padding-bottom: 2px;
+  margin-top: 0px;
 }
 
 .tcv_dropdown-entry {
@@ -506,8 +507,17 @@ input[type="button"] {
   margin-bottom: 10px;
 }
 
+.tcv_material_ambientlight {
+  margin-top: 4px;
+}
+
 .tcv_cad_clip_container {
-  margin-top: 6px;
+  margin-top: 0px;
+  overflow: hidden;
+}
+
+.tcv_cad_material_container {
+  overflow: hidden;
 }
 
 .tcv_clip_checks {
@@ -704,6 +714,7 @@ input[type="button"] {
 .tcv_filter_content {
   background-color: var(--tcv-bg-overlay-color);
 }
+
 .tcv_node_entry_wrap {
   white-space: pre;
 }

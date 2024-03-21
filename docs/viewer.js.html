@@ -107,6 +107,7 @@ class Viewer {
     this.orientationMarker = null;
     this.treeview = null;
     this.cadTools = new Tools(this);
+    this.newTreeBehavior = options.newTreeBehavior;
 
     this.ready = false;
     this.mixer = null;
@@ -172,7 +173,7 @@ class Viewer {
    * @param {DisplayOptions} options - The provided options object for the viewer.
    */
   setDisplayDefaults(options) {
-    this.theme = "browser";
+    this.theme = "light";
     this.cadWidth = 800;
     this.treeWidth = 250;
     this.height = 600;
@@ -180,6 +181,7 @@ class Viewer {
     this.glass = false;
     this.tools = true;
     this.keymap = { shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey" };
+    this.newTreeBehavior = true;
 
     for (var option in options) {
       if (this[option] == null) {
@@ -187,6 +189,15 @@ class Viewer {
       } else {
         this[option] = options[option];
       }
+    }
+    if (
+      options.theme === "dark" ||
+      (options.theme == "browser" &amp;&amp;
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      this.theme = "dark";
+    } else {
+      this.theme = "light";
     }
   }
 
@@ -211,6 +222,13 @@ class Viewer {
         this[option] = options[option];
       }
     }
+
+    this.materialSettings = {
+      ambientIntensity: this.ambientIntensity,
+      directIntensity: this.directIntensity,
+      metalness: this.metalness,
+      roughness: this.roughness,
+    };
   }
 
   /**
@@ -229,6 +247,7 @@ class Viewer {
 
     this.clipIntersection = false;
     this.clipPlaneHelpers = false;
+    this.clipObjectColors = false;
     this.clipNormal0 = [-1, 0, 0];
     this.clipNormal1 = [0, -1, 0];
     this.clipNormal2 = [0, 0, -1];
@@ -238,7 +257,7 @@ class Viewer {
     this.control = "orbit";
     this.up = "Z";
     this.ticks = 10;
-
+    this.centerGrid = false;
     this.position = null;
     this.quaternion = null;
     this.target = null;
@@ -282,6 +301,7 @@ class Viewer {
     console.log("- blackEdges", this.blackEdges);
     console.log("- clipIntersection", this.clipIntersection);
     console.log("- clipPlaneHelpers", this.clipPlaneHelpers);
+    console.log("- clipObjectColors", this.clipObjectColors);
     console.log("- clipNormal0", this.clipNormal0);
     console.log("- clipNormal1", this.clipNormal1);
     console.log("- clipNormal2", this.clipNormal2);
@@ -375,16 +395,22 @@ class Viewer {
       // decompose faces
       var new_part = {
         parts: [],
-        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        loc: [
+          [0, 0, 0],
+          [0, 0, 0, 1],
+        ],
         name: "faces",
-        id: `${part.id}/faces`
+        id: `${part.id}/faces`,
       };
       const vertices = shape.vertices;
       const normals = shape.normals;
       for (j = 0; j &lt; shape.triangles.length; j++) {
         var triangles = shape.triangles[j];
         var new_shape = {
-          loc: [[0, 0, 0], [0, 0, 0, 1]],
+          loc: [
+            [0, 0, 0],
+            [0, 0, 0, 1],
+          ],
           name: `faces_${j}`,
           id: `${part.id}/faces/faces_${j}`,
           type: "shapes",
@@ -397,10 +423,22 @@ class Viewer {
           subtype: part.subtype,
           shape: {
             triangles: [...Array(triangles.length).keys()],
-            vertices: triangles.map((s) => [vertices[3 * s], vertices[3 * s + 1], vertices[3 * s + 2]]).flat(),
-            normals: triangles.map((s) => [normals[3 * s], normals[3 * s + 1], normals[3 * s + 2]]).flat(),
-            edges: []
-          }
+            vertices: triangles
+              .map((s) => [
+                vertices[3 * s],
+                vertices[3 * s + 1],
+                vertices[3 * s + 2],
+              ])
+              .flat(),
+            normals: triangles
+              .map((s) => [
+                normals[3 * s],
+                normals[3 * s + 1],
+                normals[3 * s + 2],
+              ])
+              .flat(),
+            edges: [],
+          },
         };
         new_part.parts.push(new_shape);
         states[new_shape.id] = [1, 3];
@@ -413,25 +451,32 @@ class Viewer {
       // decompose edges
       new_part = {
         parts: [],
-        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        loc: [
+          [0, 0, 0],
+          [0, 0, 0, 1],
+        ],
         name: "edges",
         id: `${part.id}/edges`,
       };
-      const multiColor = (Array.isArray(part.color) &amp;&amp; (part.color.length == shape.edges.length));
+      const multiColor =
+        Array.isArray(part.color) &amp;&amp; part.color.length == shape.edges.length;
       var color;
       for (j = 0; j &lt; shape.edges.length; j++) {
         const edge = shape.edges[j];
         color = multiColor ? part.color[j] : part.color;
         new_shape = {
-          loc: [[0, 0, 0], [0, 0, 0, 1]],
+          loc: [
+            [0, 0, 0],
+            [0, 0, 0, 1],
+          ],
           name: `edges_${j}`,
           id: `${part.id}/edges/edges_${j}`,
           type: "edges",
-          color: (part.type == "shapes") ? this.edgeColor : color,
-          width: (part.type == "shapes") ? 1 : part.width,
+          color: part.type == "shapes" ? this.edgeColor : color,
+          width: part.type == "shapes" ? 1 : part.width,
           bb: {},
           geomtype: shape.edge_types[j],
-          shape: { "edges": edge }
+          shape: { edges: edge },
         };
         new_part.parts.push(new_shape);
         states[new_shape.id] = [3, 1];
@@ -443,21 +488,36 @@ class Viewer {
     // decompose vertices
     new_part = {
       parts: [],
-      loc: [[0, 0, 0], [0, 0, 0, 1]],
+      loc: [
+        [0, 0, 0],
+        [0, 0, 0, 1],
+      ],
       name: "vertices",
       id: `${part.id}/vertices`,
     };
     var vertices = shape.obj_vertices;
     for (j = 0; j &lt; vertices.length / 3; j++) {
       new_shape = {
-        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        loc: [
+          [0, 0, 0],
+          [0, 0, 0, 1],
+        ],
         name: `vertices${j}`,
         id: `${part.id}/vertices/vertices${j}`,
         type: "vertices",
-        color: (part.type == "shapes" || part.type == "edges") ? this.edgeColor : part.color,
-        size: (part.type == "shapes" || part.type == "edges") ? 4 : part.size,
+        color:
+          part.type == "shapes" || part.type == "edges"
+            ? this.edgeColor
+            : part.color,
+        size: part.type == "shapes" || part.type == "edges" ? 4 : part.size,
         bb: {},
-        shape: { "obj_vertices": [vertices[3 * j], vertices[3 * j + 1], vertices[3 * j + 2]] }
+        shape: {
+          obj_vertices: [
+            vertices[3 * j],
+            vertices[3 * j + 1],
+            vertices[3 * j + 2],
+          ],
+        },
       };
       new_part.parts.push(new_shape);
       states[new_shape.id] = [3, 1];
@@ -473,7 +533,7 @@ class Viewer {
     delete states[part.id];
 
     return part;
-  };
+  }
 
   /**
    * Render the shapes of the CAD object.
@@ -509,7 +569,7 @@ class Viewer {
               shape.edges = shape.edges.flat();
             } else if (part.type == "edges" || part.type == "shapes") {
               shape.edges = shape.edges.flat();
-            };
+            }
           }
         }
       }
@@ -518,7 +578,7 @@ class Viewer {
     shapes = _render(shapes, states, options.measureTools);
     return [
       this._renderTessellatedShapes(shapes, states),
-      this._getTree(shapes, states)
+      this._getTree(shapes, states),
     ];
   }
 
@@ -627,7 +687,6 @@ class Viewer {
     }
   };
 
-
   /**
    * Render scene and update orientation marker
    * If no animation loop exists, this needs to be called manually after every camera/scene change
@@ -637,7 +696,6 @@ class Viewer {
    * @param {boolean} notify - whether to send notification or not.
    */
   update = (updateMarker, notify = true) => {
-
     if (this.ready) {
       this.renderer.clear();
 
@@ -851,7 +909,6 @@ class Viewer {
     );
     timer.split("bounding box");
 
-
     //
     // add Info box
     //
@@ -882,7 +939,9 @@ class Viewer {
       10,
       -10,
       10,
-      0, 100);
+      0,
+      100,
+    );
     this.orthographicCamera.position.z = 50;
     this.orthographicCamera.up = this.camera.up;
 
@@ -951,9 +1010,11 @@ class Viewer {
       this.display,
       this.bbox,
       this.ticks,
+      this.centerGrid,
       this.axes0,
       this.grid,
       options.up == "Z",
+      this.theme,
     );
     this.gridHelper.computeGrid();
 
@@ -979,38 +1040,61 @@ class Viewer {
     );
     this.scene.add(this.axesHelper);
 
+    // const geometry = new THREE.SphereGeometry(this.gridSize / 2, 32, 16);
+    // const material = new THREE.MeshBasicMaterial({
+    //   color: 0xffff00,
+    //   opacity: 0.2,
+    //   transparent: true,
+    //   depthWrite: false,
+    // });
+    // const sphere = new THREE.Mesh(geometry, material);
+    // const sgroup = new THREE.Group();
+    // sgroup.add(sphere);
+    // sgroup.position.set(...this.bbox.center());
+    // this.scene.add(sgroup);
+
     //
     // set up clipping planes and helpers
     //
-
+    const cSize =
+      1.1 *
+      Math.max(
+        Math.abs(this.bbox.min.length()),
+        Math.abs(this.bbox.max.length()),
+      );
     this.clipping = new Clipping(
-      this.bbox.center,
-      this.gridSize,
-      this.gridSize / 2,
-      (index, normal) => this.display.setNormalLabel(index, normal),
+      this.bbox.center(),
+      2 * cSize,
+      this.nestedGroup,
+      this.display,
       this.theme,
     );
 
-    this.display.setSliderLimits(this.gridSize / 2);
+    this.display.setSliderLimits(this.gridSize / 2, this.bbox.center());
 
-    this.clipSlider0 = this.gridSize / 2;
-    this.clipSlider1 = this.gridSize / 2;
-    this.clipSlider2 = this.gridSize / 2;
+    this.setClipNormal(0, options.clipNormal0, true);
+    this.setClipNormal(1, options.clipNormal1, true);
+    this.setClipNormal(2, options.clipNormal2, true);
+
+    this.clipSlider0 = (options.clipSlider0 != null) ? (options.clipSlider0) : this.gridSize / 2;
+    this.clipSlider1 = (options.clipSlider1 != null) ? (options.clipSlider1) : this.gridSize / 2;
+    this.clipSlider2 = (options.clipSlider2 != null) ? (options.clipSlider2) : this.gridSize / 2;
+
     this.setClipSlider(0, this.clipSlider0, true);
     this.setClipSlider(1, this.clipSlider1, true);
     this.setClipSlider(2, this.clipSlider2, true);
 
-    this.setClipNormal(0, options.clipNormal0, false);
-    this.setClipNormal(1, options.clipNormal1, false);
-    this.setClipNormal(2, options.clipNormal2, false);
 
-    this.setClipIntersection(options.clipIntersection, false);
-    this.setClipPlaneHelpersCheck(options.clipPlaneHelpers);
+    this.setClipIntersection(options.clipIntersection, true);
+    this.setClipObjectColorCaps(options.clipObjectColors, true);
+    this.setClipPlaneHelpersCheck(options.clipPlaneHelpers, true);
 
     this.scene.add(this.clipping.planeHelpers);
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
 
     this.setLocalClipping(false); // only allow clipping when Clipping tab is selected
+
+    this.clipping.setVisible(false);
 
     this.display.metalnessSlider.setValue(this.metalness * 100);
     this.display.roughnessSlider.setValue(this.roughness * 100);
@@ -1047,6 +1131,7 @@ class Viewer {
       this.setObjects,
       this.handlePick,
       theme,
+      this.newTreeBehavior,
     );
 
     this.display.addCadTree(this.treeview.render(options.collapse));
@@ -1413,7 +1498,11 @@ class Viewer {
     if (flag) {
       this.renderer.domElement.addEventListener("dblclick", this.pick, false);
     } else {
-      this.renderer.domElement.removeEventListener("dblclick", this.pick, false);
+      this.renderer.domElement.removeEventListener(
+        "dblclick",
+        this.pick,
+        false,
+      );
     }
   }
 
@@ -1430,6 +1519,7 @@ class Viewer {
       this.height,
       this.bb_max / 30,
       this.scene.children.slice(0, 1),
+      // eslint-disable-next-line no-unused-vars
       (ev) => { },
     );
     raycaster.init();
@@ -1458,16 +1548,14 @@ class Viewer {
     raycaster.dispose();
   };
 
-
   //
   // Handle CAD Tools
-  // 
+  //
 
   clearSelection = () => {
     this.nestedGroup.clearSelection();
     this.cadTools.handleResetSelection();
   };
-
 
   _releaseLastSelected = (clear) => {
     if (this.lastObject != null) {
@@ -1478,7 +1566,7 @@ class Viewer {
 
       if (clear) {
         this.lastObject = null;
-      };
+      }
     }
   };
 
@@ -1526,7 +1614,9 @@ class Viewer {
           const objectGroup = object.object.parent;
           if (objectGroup !== this.lastObject) {
             this._releaseLastSelected(false);
-            const fromSolid = this.raycaster.filters.topoFilter.includes(TopoFilter.solid);
+            const fromSolid = this.raycaster.filters.topoFilter.includes(
+              TopoFilter.solid,
+            );
 
             const pickedObj = new PickedObject(objectGroup, fromSolid);
             for (let obj of pickedObj.objs()) {
@@ -1575,18 +1665,16 @@ class Viewer {
     }
   };
 
-
   /**
    * Handle a backend response sent by the backend
    * The response is a JSON object sent by the Python backend through VSCode
-   * @param {object} response 
+   * @param {object} response
    */
   handleBackendResponse = (response) => {
     if (response.subtype === "tool_response") {
       this.cadTools.handleResponse(response);
     }
   };
-
 
   //
   // Getters and Setters
@@ -1622,8 +1710,8 @@ class Viewer {
    * @param {string} action -  one of "grid" (all grids), "grid-xy","grid-xz", "grid-yz"
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setGrid = (action, notify = true) => {
-    this.gridHelper.setGrid(action);
+  setGrid = (action, flag, notify = true) => {
+    this.gridHelper.setGrid(action, flag);
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 
@@ -1697,6 +1785,20 @@ class Viewer {
     this.nestedGroup.setRoughness(value);
     this.checkChanges({ roughness: value }, notify);
     this.update(this.updateMarker);
+  };
+
+  resetMaterial = () => {
+    this.setMetalness(this.materialSettings.metalness, true);
+    this.display.setMetalness(this.materialSettings.metalness);
+
+    this.setRoughness(this.materialSettings.roughness, true);
+    this.display.setRoughness(this.materialSettings.roughness);
+
+    this.setAmbientLight(this.materialSettings.ambientIntensity, true);
+    this.display.setAmbientLight(this.materialSettings.ambientIntensity);
+
+    this.setDirectLight(this.materialSettings.directIntensity, true);
+    this.display.setDirectLight(this.materialSettings.directIntensity);
   };
 
   /**
@@ -2079,8 +2181,60 @@ class Viewer {
     this.nestedGroup.setClipIntersection(flag);
     this.display.setClipIntersectionCheck(flag);
 
+    for (var child of this.nestedGroup.rootGroup.children) {
+      if (child.name == "PlaneMeshes") {
+        for (var capPlane of child.children) {
+          if (flag) {
+            capPlane.material.clippingPlanes =
+              this.clipping.reverseClipPlanes.filter((_, j) => j !== capPlane.index);
+          } else {
+            capPlane.material.clippingPlanes = this.clipping.clipPlanes.filter(
+              (_, j) => j !== capPlane.index,
+            );
+          }
+        }
+      }
+    }
+
+    for (child of this.scene.children) {
+      if (child.name == "PlaneHelpers") {
+        for (var helper of child.children) {
+          if (flag) {
+            helper.material.clippingPlanes =
+              this.clipping.reverseClipPlanes.filter((_, j) => j !== helper.index);
+          } else {
+            helper.material.clippingPlanes = this.clipping.clipPlanes.filter(
+              (_, j) => j !== helper.index,
+            );
+          }
+        }
+      }
+    }
+
     this.checkChanges({ clip_intersection: flag }, notify);
 
+    this.update(this.updateMarker);
+  };
+
+  /**
+   * Get whether the clipping caps color status
+   * @returns {boolean} color caps value (object color (true) or RGB (false)).
+   */
+  getObjectColorCaps = () => {
+    return this.clipping.getObjectColorCaps();
+  };
+
+  /**
+   * Toggle the clipping caps color between object color and RGB
+   * @function
+   * @param {boolean} flag - whether to use intersection mode
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setClipObjectColorCaps = (flag, notify = true) => {
+    if (flag == null) return;
+    this.clipping.setObjectColorCaps(flag);
+    this.display.setClipObjectColorsCheck(flag);
+    this.checkChanges({ clip_object_colors: flag }, notify);
     this.update(this.updateMarker);
   };
 
@@ -2139,12 +2293,14 @@ class Viewer {
    */
   setClipNormal(index, normal, notify = true) {
     if (normal == null) return;
+    const normal1 = new THREE.Vector3(...normal).normalize().toArray();
+    this.clipNormals[index] = normal1;
 
-    this.clipNormals[index] = normal;
-
-    this.clipping.setNormal(index, new THREE.Vector3(...normal));
+    this.clipping.setNormal(index, new THREE.Vector3(...normal1));
+    this.clipping.setConstant(index, this.gridSize / 2);
+    this.setClipSlider(index, this.gridSize / 2);
     var notifyObject = {};
-    notifyObject[`clip_normal_${index}`] = normal;
+    notifyObject[`clip_normal_${index}`] = normal1;
 
     this.checkChanges(notifyObject, notify);
 
@@ -2429,7 +2585,7 @@ export { Viewer };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Wed Nov 29 2023 21:15:58 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Mar 21 2024 20:10:34 GMT+0100 (Mitteleuropäische Normalzeit)
 </footer>
 
 <script> prettyPrint(); </script>
