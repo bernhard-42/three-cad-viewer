@@ -58521,7 +58521,7 @@ class ObjectGroup extends Group {
                 : this.alpha;
         }
         for (var child of this.children) {
-            if (!child.name.startsWith("clipping")){
+            if (!child.name.startsWith("clipping")) {
                 // turn depth write off for transparent objects
                 child.material.depthWrite = this.alpha < 1.0 ? false : !flag;
                 // but keep depth test
@@ -58560,6 +58560,12 @@ class ObjectGroup extends Group {
 
     setShapeVisible(flag) {
         this.types.front.material.visible = flag;
+        for (var t of ["clipping-0", "clipping-1", "clipping-2"]) {
+            if (this.types[t]) {
+                this.types[t].children[0].material.visible = flag;
+                this.types[t].children[1].material.visible = flag;
+            }
+        }
         if (this.types.back && this.renderback) {
             this.types.back.material.visible = flag;
         }
@@ -58902,9 +58908,7 @@ class NestedGroup {
     const backColor =
       group.subtype === "solid"
         ? color
-        : new Color(
-            Math.round(Math.min(0xffffff, this.edgeColor * 1.25)),
-          );
+        : new Color(this.edgeColor).lerp(new Color(1, 1, 1), 0.15);
 
     const backMaterial = new MeshBasicMaterial({
       color: backColor,
@@ -62856,7 +62860,7 @@ class Camera {
   }
 }
 
-const version = "2.2.0";
+const version = "2.2.1";
 
 class Viewer {
   /**
