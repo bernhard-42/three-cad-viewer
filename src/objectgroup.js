@@ -177,6 +177,12 @@ class ObjectGroup extends THREE.Group {
 
     setShapeVisible(flag) {
         this.types.front.material.visible = flag;
+        for (var t of ["clipping-0", "clipping-1", "clipping-2"]) {
+            if (this.types[t]) {
+                this.types[t].children[0].material.visible = flag;
+                this.types[t].children[1].material.visible = flag;
+            }
+        }
         if (this.types.back && this.renderback) {
             this.types.back.material.visible = flag;
         }
