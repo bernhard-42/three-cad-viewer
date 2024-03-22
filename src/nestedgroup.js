@@ -280,9 +280,7 @@ class NestedGroup {
     const backColor =
       group.subtype === "solid"
         ? color
-        : new THREE.Color(
-            Math.round(Math.min(0xffffff, this.edgeColor * 1.25)),
-          );
+        : new THREE.Color(this.edgeColor).lerp(new THREE.Color(1, 1, 1), 0.15);
 
     const backMaterial = new THREE.MeshBasicMaterial({
       color: backColor,
