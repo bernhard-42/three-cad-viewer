@@ -138,7 +138,7 @@ class ObjectGroup extends THREE.Group {
                 : this.alpha;
         }
         for (var child of this.children) {
-            if (!child.name.startsWith("clipping")){
+            if (!child.name.startsWith("clipping")) {
                 // turn depth write off for transparent objects
                 child.material.depthWrite = this.alpha < 1.0 ? false : !flag;
                 // but keep depth test
