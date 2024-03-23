@@ -55685,6 +55685,8 @@ class Raycaster {
                     const objectGroup = object.object.parent;
                     if (objectGroup == null) continue;
 
+                    if (!objectGroup.shapeInfo) continue;  // clipping plane
+
                     const topo = objectGroup.shapeInfo.topo;
                     let geom;
                     if (topo !== "vertex")
@@ -62862,7 +62864,7 @@ class Camera {
   }
 }
 
-const version = "2.2.3";
+const version = "2.2.4";
 
 class Viewer {
   /**
