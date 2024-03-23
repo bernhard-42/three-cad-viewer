@@ -4320,7 +4320,7 @@ var boxes = [
   },
   {
     "/Group/ensemble/red box/red box_0": [1, 1],
-    "/Group/ensemble/green box/green box_0": [1, 1],
+    "/Group/ensemble/green box/green box_0": [0, 1],
     "/Group/ensemble/blue box/blue box_0": [1, 1],
   },
 ];
