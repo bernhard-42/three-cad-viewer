@@ -62860,7 +62860,7 @@ class Camera {
   }
 }
 
-const version = "2.2.1";
+const version = "2.2.2";
 
 class Viewer {
   /**
@@ -63965,6 +63965,9 @@ class Viewer {
 
     this.display.autoCollapse();
 
+    // ensure all for all deselected objects the stencil planes are invisible
+    this.setObjects(this.states, true, true);
+
     //
     // show the rendering
     //
@@ -64129,12 +64132,12 @@ class Viewer {
    * @param {States} states
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setObjects = (states, notify = true) => {
+  setObjects = (states, force = false, notify = true) => {
     for (var key in this.states) {
       var oldState = this.states[key];
       var newState = states[key];
       var objectGroup = this.nestedGroup.groups[key];
-      if (oldState[0] != newState[0]) {
+      if (force || oldState[0] != newState[0]) {
         objectGroup.setShapeVisible(newState[0] === 1);
         this.states[key][0] = newState[0];
       }
@@ -64888,6 +64891,17 @@ class Viewer {
    **/
   getStates() {
     return this.states;
+  }
+
+  /**
+   * Get state of a treeview leafs for a path.
+   * separator can be / or |
+   * @param {string} path - path of the object
+   * @returns {number[]} state value in the form of [mesh, edges] = [0/1, 0/1]
+   **/
+  getState(path) {
+    var p = path.replaceAll("|", "/");
+    return this.getStates()[p];
   }
 
   /**
