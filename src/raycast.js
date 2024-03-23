@@ -146,6 +146,8 @@ class Raycaster {
                     const objectGroup = object.object.parent;
                     if (objectGroup == null) continue;
 
+                    if (!objectGroup.shapeInfo) continue;  // clipping plane
+
                     const topo = objectGroup.shapeInfo.topo;
                     let geom;
                     if (topo !== "vertex")
