@@ -1127,6 +1127,9 @@ class Viewer {
 
     this.display.autoCollapse();
 
+    // ensure all for all deselected objects the stencil planes are invisible
+    this.setObjects(this.states, true, true);
+
     //
     // show the rendering
     //
@@ -1291,12 +1294,12 @@ class Viewer {
    * @param {States} states
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setObjects = (states, notify = true) => {
+  setObjects = (states, force = false, notify = true) => {
     for (var key in this.states) {
       var oldState = this.states[key];
       var newState = states[key];
       var objectGroup = this.nestedGroup.groups[key];
-      if (oldState[0] != newState[0]) {
+      if (force || oldState[0] != newState[0]) {
         objectGroup.setShapeVisible(newState[0] === 1);
         this.states[key][0] = newState[0];
       }
