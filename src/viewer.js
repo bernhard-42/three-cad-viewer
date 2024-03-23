@@ -2060,6 +2060,17 @@ class Viewer {
   }
 
   /**
+   * Get state of a treeview leafs for a path.
+   * separator can be / or |
+   * @param {string} path - path of the object
+   * @returns {number[]} state value in the form of [mesh, edges] = [0/1, 0/1]
+   **/
+  getState(path) {
+    var p = path.replaceAll("|", "/");
+    return this.getStates()[p];
+  }
+
+  /**
    * Set states of a treeview leafs
    * @function
    * @param {States} - states
