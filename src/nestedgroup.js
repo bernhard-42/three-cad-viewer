@@ -5,6 +5,7 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js";
 import { BoundingBox } from "./bbox.js";
 import { ObjectGroup } from "./objectgroup.js";
+import { flatten } from "./utils.js";
 
 class NestedGroup {
   constructor(
@@ -55,7 +56,7 @@ class NestedGroup {
     var positions =
       edgeList instanceof Float32Array
         ? edgeList
-        : new Float32Array(edgeList);
+        : new Float32Array(flatten(edgeList, 2));
 
     const lineGeometry = new LineSegmentsGeometry();
     lineGeometry.setPositions(positions);
@@ -103,7 +104,7 @@ class NestedGroup {
     var edges = this._renderEdges(
       edgeList.edges
         ? edgeList.edges // protocol version 2
-        : edgeList, // protocol version 1
+        : flatten(edgeList), // protocol version 1
       lineWidth,
       color,
       state,
@@ -143,7 +144,7 @@ class NestedGroup {
       positions =
         vertexList instanceof Float32Array
           ? vertexList
-          : new Float32Array(vertexList);
+          : new Float32Array(flatten(vertexList));
     }
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
@@ -190,15 +191,15 @@ class NestedGroup {
     const positions =
       shape.vertices instanceof Float32Array
         ? shape.vertices
-        : new Float32Array(shape.vertices);
+        : new Float32Array(flatten(shape.vertices));
     const normals =
       shape.normals instanceof Float32Array
         ? shape.normals
-        : new Float32Array(shape.normals);
+        : new Float32Array(flatten(shape.normals));
     const triangles =
       shape.triangles instanceof Uint32Array
         ? shape.triangles
-        : new Uint32Array(shape.triangles);
+        : new Uint32Array(flatten(shape.triangles));
 
     var group = new ObjectGroup(
       this.defaultOpacity,

@@ -11,6 +11,9 @@ function clone(obj) {
     return obj;
   }
 }
+function flatten(arr, depth = 1) {
+  return (Array.isArray(arr)) ? arr.flat(depth) : arr;
+}
 
 function isEqual(obj1, obj2, tol = 1e-9) {
   if (Array.isArray(obj1) && Array.isArray(obj2)) {
@@ -96,4 +99,4 @@ function scaleLight(intensity) {
 
 const KeyMapper = new _KeyMapper();
 
-export { clone, isEqual, sceneTraverse, prettyPrintVector, KeyMapper, scaleLight };
+export { clone, flatten, isEqual, sceneTraverse, prettyPrintVector, KeyMapper, scaleLight };
