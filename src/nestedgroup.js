@@ -273,7 +273,7 @@ class NestedGroup {
         side: THREE.FrontSide,
         visible: states[0] == 1,
         map: texture,
-        name:"frontMaterial"
+        name: "frontMaterial"
       });
     }
 
