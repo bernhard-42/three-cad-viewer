@@ -1152,7 +1152,7 @@ class Viewer {
       });
     }
     timer.split("notification done");
-    
+
     this.update(true, false);
     timer.split("update done");
     timer.stop();
