@@ -55,7 +55,7 @@ class NestedGroup {
     var positions =
       edgeList instanceof Float32Array
         ? edgeList
-        : new Float32Array(edgeList.flat(2));
+        : new Float32Array(edgeList);
 
     const lineGeometry = new LineSegmentsGeometry();
     lineGeometry.setPositions(positions);
@@ -142,8 +142,8 @@ class NestedGroup {
       // protocol version 1
       positions =
         vertexList instanceof Float32Array
-          ? vertexList.flat()
-          : new Float32Array(vertexList.flat());
+          ? vertexList
+          : new Float32Array(vertexList);
     }
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
@@ -190,15 +190,15 @@ class NestedGroup {
     const positions =
       shape.vertices instanceof Float32Array
         ? shape.vertices
-        : new Float32Array(shape.vertices.flat());
+        : new Float32Array(shape.vertices);
     const normals =
       shape.normals instanceof Float32Array
         ? shape.normals
-        : new Float32Array(shape.normals.flat());
+        : new Float32Array(shape.normals);
     const triangles =
       shape.triangles instanceof Uint32Array
         ? shape.triangles
-        : new Uint32Array(shape.triangles.flat());
+        : new Uint32Array(shape.triangles);
 
     var group = new ObjectGroup(
       this.defaultOpacity,

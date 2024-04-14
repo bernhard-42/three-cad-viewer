@@ -378,6 +378,17 @@ class Viewer {
       const normals = shape.normals;
       for (j = 0; j < shape.triangles.length; j++) {
         var triangles = shape.triangles[j];
+        var vecs = new Float32Array(triangles.length * 3);
+        var norms = new Float32Array(triangles.length * 3);
+        for (var i = 0; i < triangles.length; i++) {
+          var s = triangles[i];
+          vecs[3 * i] = vertices[3 * s];
+          vecs[3 * i + 1] = vertices[3 * s + 1];
+          vecs[3 * i + 2] = vertices[3 * s + 2];
+          norms[3 * i] = normals[3 * s];
+          norms[3 * i + 1] = normals[3 * s + 1];
+          norms[3 * i + 2] = normals[3 * s + 2];
+        }
         var new_shape = {
           loc: [
             [0, 0, 0],
@@ -395,20 +406,8 @@ class Viewer {
           subtype: part.subtype,
           shape: {
             triangles: [...Array(triangles.length).keys()],
-            vertices: triangles
-              .map((s) => [
-                vertices[3 * s],
-                vertices[3 * s + 1],
-                vertices[3 * s + 2],
-              ])
-              .flat(),
-            normals: triangles
-              .map((s) => [
-                normals[3 * s],
-                normals[3 * s + 1],
-                normals[3 * s + 2],
-              ])
-              .flat(),
+            vertices: vecs,
+            normals: norms,
             edges: [],
           },
         };
@@ -517,7 +516,7 @@ class Viewer {
   renderTessellatedShapes(shapes, states, options) {
     this.setRenderDefaults(options);
     const _render = (shapes, states, measureTools) => {
-      var part, shape;
+      var part;
       if (shapes.version == 2) {
         if (measureTools) {
           var i, tmp;
@@ -532,17 +531,6 @@ class Viewer {
             }
           }
           shapes.parts = parts;
-        } else {
-          for (i = 0; i < shapes.parts.length; i++) {
-            part = shapes.parts[i];
-            shape = part.shape;
-            if (part.type == "shapes") {
-              shape.triangles = shape.triangles.flat();
-              shape.edges = shape.edges.flat();
-            } else if (part.type == "edges" || part.type == "shapes") {
-              shape.edges = shape.edges.flat();
-            }
-          }
         }
       }
       return shapes;
