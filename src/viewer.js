@@ -1120,12 +1120,12 @@ class Viewer {
       this.tools,
       this.glass,
     );
-
+    timer.split("ui updated");
     this.display.autoCollapse();
 
     // ensure all for all deselected objects the stencil planes are invisible
     this.setObjects(this.states, true, true);
-
+    timer.split("stencil done");
     //
     // show the rendering
     //
@@ -1140,7 +1140,7 @@ class Viewer {
     //
     // notify calculated results
     //
-
+    timer.split("show done");
     if (this.notifyCallback) {
       this.notifyCallback({
         tab: { old: null, new: this.display.activeTab },
@@ -1151,8 +1151,10 @@ class Viewer {
         clip_normal_2: { old: null, new: this.clipNormal2 },
       });
     }
+    timer.split("notification done");
+    
     this.update(true, false);
-
+    timer.split("update done");
     timer.stop();
   }
 
