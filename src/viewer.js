@@ -316,6 +316,12 @@ class Viewer {
       this.roughness,
       this.normalLen,
     );
+    if (shapes.bb) {
+      this.bbox = new BoundingBox(
+        new THREE.Vector3(shapes.bb.xmin, shapes.bb.ymin, shapes.bb.zmin),
+        new THREE.Vector3(shapes.bb.xmax, shapes.bb.ymax, shapes.bb.zmax)
+      );
+    }
     nestedGroup.render(states);
     return nestedGroup;
   }
@@ -859,7 +865,9 @@ class Viewer {
 
     timer.split("rendered nested group");
 
-    this.bbox = this.nestedGroup.boundingBox();
+    if (!this.bbox) {
+      this.bbox = this.nestedGroup.boundingBox();
+    }
     const center = new THREE.Vector3();
     this.bbox.getCenter(center);
     this.bb_max = this.bbox.max_dist_from_center();
