@@ -380,10 +380,19 @@ class Viewer {
         name: "faces",
         id: `${part.id}/faces`,
       };
+      var triangles;
       const vertices = shape.vertices;
       const normals = shape.normals;
-      for (j = 0; j < shape.triangles.length; j++) {
-        var triangles = shape.triangles[j];
+      const num = (shape.triangles_per_face) ? shape.triangles_per_face.length : shape.triangles.length;
+      var current = 0;
+      for (j = 0; j < num; j++) {
+        if (shape.triangles_per_face) {
+          triangles = shape.triangles.subarray(current, current + 3 * shape.triangles_per_face[j]);
+          current += 3 * shape.triangles_per_face[j];
+        } else {
+          triangles = shape.triangles[j];
+        }
+
         var vecs = new Float32Array(triangles.length * 3);
         var norms = new Float32Array(triangles.length * 3);
         for (var i = 0; i < triangles.length; i++) {
@@ -438,8 +447,17 @@ class Viewer {
       const multiColor =
         Array.isArray(part.color) && part.color.length == shape.edges.length;
       var color;
-      for (j = 0; j < shape.edges.length; j++) {
-        const edge = shape.edges[j];
+
+      const num = (shape.segments_per_edge) ? shape.segments_per_edge.length : shape.triangles.length;
+      current = 0;
+      var edge;
+      for (j = 0; j < num; j++) {
+        if (shape.segments_per_edge) {
+          edge = shape.edges.subarray(current, current + 6 * shape.segments_per_edge[j]);
+          current += 6 * shape.segments_per_edge[j];
+        } else {
+          edge = shape.edges[j];
+        }
         color = multiColor ? part.color[j] : part.color;
         new_shape = {
           loc: [
@@ -523,7 +541,7 @@ class Viewer {
     this.setRenderDefaults(options);
     const _render = (shapes, states, measureTools) => {
       var part;
-      if (shapes.version == 2) {
+      if (shapes.version == 2 || shapes.version == 3) {
         if (measureTools) {
           var i, tmp;
           let parts = [];
