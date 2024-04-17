@@ -62864,7 +62864,7 @@ class Camera {
   }
 }
 
-const version = "2.2.5";
+const version = "2.3.0";
 
 class Viewer {
   /**
