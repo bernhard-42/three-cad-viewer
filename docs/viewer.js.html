@@ -344,6 +344,12 @@ class Viewer {
       this.roughness,
       this.normalLen,
     );
+    if (shapes.bb) {
+      this.bbox = new BoundingBox(
+        new THREE.Vector3(shapes.bb.xmin, shapes.bb.ymin, shapes.bb.zmin),
+        new THREE.Vector3(shapes.bb.xmax, shapes.bb.ymax, shapes.bb.zmax)
+      );
+    }
     nestedGroup.render(states);
     return nestedGroup;
   }
@@ -402,10 +408,30 @@ class Viewer {
         name: "faces",
         id: `${part.id}/faces`,
       };
+      var triangles;
       const vertices = shape.vertices;
       const normals = shape.normals;
-      for (j = 0; j &lt; shape.triangles.length; j++) {
-        var triangles = shape.triangles[j];
+      const num = (shape.triangles_per_face) ? shape.triangles_per_face.length : shape.triangles.length;
+      var current = 0;
+      for (j = 0; j &lt; num; j++) {
+        if (shape.triangles_per_face) {
+          triangles = shape.triangles.subarray(current, current + 3 * shape.triangles_per_face[j]);
+          current += 3 * shape.triangles_per_face[j];
+        } else {
+          triangles = shape.triangles[j];
+        }
+
+        var vecs = new Float32Array(triangles.length * 3);
+        var norms = new Float32Array(triangles.length * 3);
+        for (var i = 0; i &lt; triangles.length; i++) {
+          var s = triangles[i];
+          vecs[3 * i] = vertices[3 * s];
+          vecs[3 * i + 1] = vertices[3 * s + 1];
+          vecs[3 * i + 2] = vertices[3 * s + 2];
+          norms[3 * i] = normals[3 * s];
+          norms[3 * i + 1] = normals[3 * s + 1];
+          norms[3 * i + 2] = normals[3 * s + 2];
+        }
         var new_shape = {
           loc: [
             [0, 0, 0],
@@ -423,20 +449,8 @@ class Viewer {
           subtype: part.subtype,
           shape: {
             triangles: [...Array(triangles.length).keys()],
-            vertices: triangles
-              .map((s) => [
-                vertices[3 * s],
-                vertices[3 * s + 1],
-                vertices[3 * s + 2],
-              ])
-              .flat(),
-            normals: triangles
-              .map((s) => [
-                normals[3 * s],
-                normals[3 * s + 1],
-                normals[3 * s + 2],
-              ])
-              .flat(),
+            vertices: vecs,
+            normals: norms,
             edges: [],
           },
         };
@@ -461,8 +475,17 @@ class Viewer {
       const multiColor =
         Array.isArray(part.color) &amp;&amp; part.color.length == shape.edges.length;
       var color;
-      for (j = 0; j &lt; shape.edges.length; j++) {
-        const edge = shape.edges[j];
+
+      const num = (shape.segments_per_edge) ? shape.segments_per_edge.length : shape.triangles.length;
+      current = 0;
+      var edge;
+      for (j = 0; j &lt; num; j++) {
+        if (shape.segments_per_edge) {
+          edge = shape.edges.subarray(current, current + 6 * shape.segments_per_edge[j]);
+          current += 6 * shape.segments_per_edge[j];
+        } else {
+          edge = shape.edges[j];
+        }
         color = multiColor ? part.color[j] : part.color;
         new_shape = {
           loc: [
@@ -545,8 +568,8 @@ class Viewer {
   renderTessellatedShapes(shapes, states, options) {
     this.setRenderDefaults(options);
     const _render = (shapes, states, measureTools) => {
-      var part, shape;
-      if (shapes.version == 2) {
+      var part;
+      if (shapes.version == 2 || shapes.version == 3) {
         if (measureTools) {
           var i, tmp;
           let parts = [];
@@ -560,17 +583,6 @@ class Viewer {
             }
           }
           shapes.parts = parts;
-        } else {
-          for (i = 0; i &lt; shapes.parts.length; i++) {
-            part = shapes.parts[i];
-            shape = part.shape;
-            if (part.type == "shapes") {
-              shape.triangles = shape.triangles.flat();
-              shape.edges = shape.edges.flat();
-            } else if (part.type == "edges" || part.type == "shapes") {
-              shape.edges = shape.edges.flat();
-            }
-          }
         }
       }
       return shapes;
@@ -899,7 +911,9 @@ class Viewer {
 
     timer.split("rendered nested group");
 
-    this.bbox = this.nestedGroup.boundingBox();
+    if (!this.bbox) {
+      this.bbox = this.nestedGroup.boundingBox();
+    }
     const center = new THREE.Vector3();
     this.bbox.getCenter(center);
     this.bb_max = this.bbox.max_dist_from_center();
@@ -1152,12 +1166,12 @@ class Viewer {
       this.tools,
       this.glass,
     );
-
+    timer.split("ui updated");
     this.display.autoCollapse();
 
     // ensure all for all deselected objects the stencil planes are invisible
     this.setObjects(this.states, true, true);
-
+    timer.split("stencil done");
     //
     // show the rendering
     //
@@ -1172,7 +1186,7 @@ class Viewer {
     //
     // notify calculated results
     //
-
+    timer.split("show done");
     if (this.notifyCallback) {
       this.notifyCallback({
         tab: { old: null, new: this.display.activeTab },
@@ -1183,8 +1197,10 @@ class Viewer {
         clip_normal_2: { old: null, new: this.clipNormal2 },
       });
     }
-    this.update(true, false);
+    timer.split("notification done");
 
+    this.update(true, false);
+    timer.split("update done");
     timer.stop();
   }
 
@@ -2599,7 +2615,7 @@ export { Viewer };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sat Mar 23 2024 17:26:01 GMT+0100 (Mitteleuropäische Normalzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Wed Apr 17 2024 20:15:36 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

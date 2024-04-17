@@ -18209,7 +18209,7 @@ const mat2array = new Float32Array( 4 );
 
 // Flattening for arrays of vectors and matrices
 
-function flatten( array, nBlocks, blockSize ) {
+function flatten$1( array, nBlocks, blockSize ) {
 
 	const firstElem = array[ 0 ];
 
@@ -18826,7 +18826,7 @@ function setValueV1fArray( gl, v ) {
 
 function setValueV2fArray( gl, v ) {
 
-	const data = flatten( v, this.size, 2 );
+	const data = flatten$1( v, this.size, 2 );
 
 	gl.uniform2fv( this.addr, data );
 
@@ -18834,7 +18834,7 @@ function setValueV2fArray( gl, v ) {
 
 function setValueV3fArray( gl, v ) {
 
-	const data = flatten( v, this.size, 3 );
+	const data = flatten$1( v, this.size, 3 );
 
 	gl.uniform3fv( this.addr, data );
 
@@ -18842,7 +18842,7 @@ function setValueV3fArray( gl, v ) {
 
 function setValueV4fArray( gl, v ) {
 
-	const data = flatten( v, this.size, 4 );
+	const data = flatten$1( v, this.size, 4 );
 
 	gl.uniform4fv( this.addr, data );
 
@@ -18852,7 +18852,7 @@ function setValueV4fArray( gl, v ) {
 
 function setValueM2Array( gl, v ) {
 
-	const data = flatten( v, this.size, 4 );
+	const data = flatten$1( v, this.size, 4 );
 
 	gl.uniformMatrix2fv( this.addr, false, data );
 
@@ -18860,7 +18860,7 @@ function setValueM2Array( gl, v ) {
 
 function setValueM3Array( gl, v ) {
 
-	const data = flatten( v, this.size, 9 );
+	const data = flatten$1( v, this.size, 9 );
 
 	gl.uniformMatrix3fv( this.addr, false, data );
 
@@ -18868,7 +18868,7 @@ function setValueM3Array( gl, v ) {
 
 function setValueM4Array( gl, v ) {
 
-	const data = flatten( v, this.size, 16 );
+	const data = flatten$1( v, this.size, 16 );
 
 	gl.uniformMatrix4fv( this.addr, false, data );
 
@@ -54010,6 +54010,9 @@ function clone(obj) {
     return obj;
   }
 }
+function flatten(arr, depth = 1) {
+  return (Array.isArray(arr)) ? arr.flat(depth) : arr;
+}
 
 function isEqual(obj1, obj2, tol = 1e-9) {
   if (Array.isArray(obj1) && Array.isArray(obj2)) {
@@ -58230,9 +58233,6 @@ class VertexNormalsHelper extends LineSegments {
 }
 
 class BoundingBox extends Box3 {
-  constructor() {
-    super();
-  }
 
   expandByObject(object, precise = false) {
     object.updateWorldMatrix(false, false);
@@ -58687,7 +58687,7 @@ class NestedGroup {
     var positions =
       edgeList instanceof Float32Array
         ? edgeList
-        : new Float32Array(edgeList.flat(2));
+        : new Float32Array(flatten(edgeList, 2));
 
     const lineGeometry = new LineSegmentsGeometry();
     lineGeometry.setPositions(positions);
@@ -58735,7 +58735,7 @@ class NestedGroup {
     var edges = this._renderEdges(
       edgeList.edges
         ? edgeList.edges // protocol version 2
-        : edgeList, // protocol version 1
+        : flatten(edgeList), // protocol version 1
       lineWidth,
       color,
       state,
@@ -58774,8 +58774,8 @@ class NestedGroup {
       // protocol version 1
       positions =
         vertexList instanceof Float32Array
-          ? vertexList.flat()
-          : new Float32Array(vertexList.flat());
+          ? vertexList
+          : new Float32Array(flatten(vertexList));
     }
     const geometry = new BufferGeometry();
     geometry.setAttribute(
@@ -58822,15 +58822,15 @@ class NestedGroup {
     const positions =
       shape.vertices instanceof Float32Array
         ? shape.vertices
-        : new Float32Array(shape.vertices.flat());
+        : new Float32Array(flatten(shape.vertices));
     const normals =
       shape.normals instanceof Float32Array
         ? shape.normals
-        : new Float32Array(shape.normals.flat());
+        : new Float32Array(flatten(shape.normals));
     const triangles =
       shape.triangles instanceof Uint32Array
         ? shape.triangles
-        : new Uint32Array(shape.triangles.flat());
+        : new Uint32Array(flatten(shape.triangles));
 
     var group = new ObjectGroup(
       this.defaultOpacity,
@@ -58905,7 +58905,7 @@ class NestedGroup {
         side: FrontSide,
         visible: states[0] == 1,
         map: texture,
-        name:"frontMaterial"
+        name: "frontMaterial"
       });
     }
 
@@ -60244,7 +60244,7 @@ class Timer {
     this.timeit = timeit;
     this.start = performance.now();
     if (timeit) {
-      console.info(`three-cad-viewer: Timer ${prefix}:start`);
+      console.info(`three-cad-viewer: ${prefix}:timer start`);
     }
   }
 
@@ -60252,7 +60252,7 @@ class Timer {
     if (this.timeit) {
       const t = performance.now();
       console.info(
-        `three-cad-viewer: Timer ${this.prefix}:${msg} ${(
+        `three-cad-viewer: ${this.prefix}:${msg}:timer split ${(
           t - this.start
         ).toFixed(1)} ms`,
       );
@@ -60263,9 +60263,9 @@ class Timer {
     if (this.timeit) {
       const t = performance.now();
       console.info(
-        `three-cad-viewer: Timer ${this.prefix}:stop ${(t - this.start).toFixed(
+        `three-cad-viewer: ${this.prefix}:timer stop ${(t - this.start).toFixed(
           1,
-        )} ms`,
+        )} ms:`,
       );
     }
   }
@@ -62864,7 +62864,7 @@ class Camera {
   }
 }
 
-const version = "2.2.4";
+const version = "2.2.5";
 
 class Viewer {
   /**
@@ -63158,6 +63158,12 @@ class Viewer {
       this.roughness,
       this.normalLen,
     );
+    if (shapes.bb) {
+      this.bbox = new BoundingBox(
+        new Vector3(shapes.bb.xmin, shapes.bb.ymin, shapes.bb.zmin),
+        new Vector3(shapes.bb.xmax, shapes.bb.ymax, shapes.bb.zmax)
+      );
+    }
     nestedGroup.render(states);
     return nestedGroup;
   }
@@ -63216,10 +63222,30 @@ class Viewer {
         name: "faces",
         id: `${part.id}/faces`,
       };
+      var triangles;
       const vertices = shape.vertices;
       const normals = shape.normals;
-      for (j = 0; j < shape.triangles.length; j++) {
-        var triangles = shape.triangles[j];
+      const num = (shape.triangles_per_face) ? shape.triangles_per_face.length : shape.triangles.length;
+      var current = 0;
+      for (j = 0; j < num; j++) {
+        if (shape.triangles_per_face) {
+          triangles = shape.triangles.subarray(current, current + 3 * shape.triangles_per_face[j]);
+          current += 3 * shape.triangles_per_face[j];
+        } else {
+          triangles = shape.triangles[j];
+        }
+
+        var vecs = new Float32Array(triangles.length * 3);
+        var norms = new Float32Array(triangles.length * 3);
+        for (var i = 0; i < triangles.length; i++) {
+          var s = triangles[i];
+          vecs[3 * i] = vertices[3 * s];
+          vecs[3 * i + 1] = vertices[3 * s + 1];
+          vecs[3 * i + 2] = vertices[3 * s + 2];
+          norms[3 * i] = normals[3 * s];
+          norms[3 * i + 1] = normals[3 * s + 1];
+          norms[3 * i + 2] = normals[3 * s + 2];
+        }
         var new_shape = {
           loc: [
             [0, 0, 0],
@@ -63237,20 +63263,8 @@ class Viewer {
           subtype: part.subtype,
           shape: {
             triangles: [...Array(triangles.length).keys()],
-            vertices: triangles
-              .map((s) => [
-                vertices[3 * s],
-                vertices[3 * s + 1],
-                vertices[3 * s + 2],
-              ])
-              .flat(),
-            normals: triangles
-              .map((s) => [
-                normals[3 * s],
-                normals[3 * s + 1],
-                normals[3 * s + 2],
-              ])
-              .flat(),
+            vertices: vecs,
+            normals: norms,
             edges: [],
           },
         };
@@ -63275,8 +63289,17 @@ class Viewer {
       const multiColor =
         Array.isArray(part.color) && part.color.length == shape.edges.length;
       var color;
-      for (j = 0; j < shape.edges.length; j++) {
-        const edge = shape.edges[j];
+
+      const num = (shape.segments_per_edge) ? shape.segments_per_edge.length : shape.triangles.length;
+      current = 0;
+      var edge;
+      for (j = 0; j < num; j++) {
+        if (shape.segments_per_edge) {
+          edge = shape.edges.subarray(current, current + 6 * shape.segments_per_edge[j]);
+          current += 6 * shape.segments_per_edge[j];
+        } else {
+          edge = shape.edges[j];
+        }
         color = multiColor ? part.color[j] : part.color;
         new_shape = {
           loc: [
@@ -63359,8 +63382,8 @@ class Viewer {
   renderTessellatedShapes(shapes, states, options) {
     this.setRenderDefaults(options);
     const _render = (shapes, states, measureTools) => {
-      var part, shape;
-      if (shapes.version == 2) {
+      var part;
+      if (shapes.version == 2 || shapes.version == 3) {
         if (measureTools) {
           var i, tmp;
           let parts = [];
@@ -63374,17 +63397,6 @@ class Viewer {
             }
           }
           shapes.parts = parts;
-        } else {
-          for (i = 0; i < shapes.parts.length; i++) {
-            part = shapes.parts[i];
-            shape = part.shape;
-            if (part.type == "shapes") {
-              shape.triangles = shape.triangles.flat();
-              shape.edges = shape.edges.flat();
-            } else if (part.type == "edges" || part.type == "shapes") {
-              shape.edges = shape.edges.flat();
-            }
-          }
         }
       }
       return shapes;
@@ -63713,7 +63725,9 @@ class Viewer {
 
     timer.split("rendered nested group");
 
-    this.bbox = this.nestedGroup.boundingBox();
+    if (!this.bbox) {
+      this.bbox = this.nestedGroup.boundingBox();
+    }
     const center = new Vector3();
     this.bbox.getCenter(center);
     this.bb_max = this.bbox.max_dist_from_center();
@@ -63966,12 +63980,12 @@ class Viewer {
       this.tools,
       this.glass,
     );
-
+    timer.split("ui updated");
     this.display.autoCollapse();
 
     // ensure all for all deselected objects the stencil planes are invisible
     this.setObjects(this.states, true, true);
-
+    timer.split("stencil done");
     //
     // show the rendering
     //
@@ -63986,7 +64000,7 @@ class Viewer {
     //
     // notify calculated results
     //
-
+    timer.split("show done");
     if (this.notifyCallback) {
       this.notifyCallback({
         tab: { old: null, new: this.display.activeTab },
@@ -63997,8 +64011,10 @@ class Viewer {
         clip_normal_2: { old: null, new: this.clipNormal2 },
       });
     }
-    this.update(true, false);
+    timer.split("notification done");
 
+    this.update(true, false);
+    timer.split("update done");
     timer.stop();
   }
 
