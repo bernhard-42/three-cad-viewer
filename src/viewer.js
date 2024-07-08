@@ -448,7 +448,7 @@ class Viewer {
         Array.isArray(part.color) && part.color.length == shape.edges.length;
       var color;
 
-      const num = (shape.segments_per_edge) ? shape.segments_per_edge.length : shape.triangles.length;
+      const num = (shape.segments_per_edge) ? shape.segments_per_edge.length : shape.edges.length;
       current = 0;
       var edge;
       for (j = 0; j < num; j++) {
