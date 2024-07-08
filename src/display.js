@@ -676,8 +676,6 @@ class Display {
    */
   setTool = (name, flag) => {
     this.viewer.toggleAnimationLoop(flag);
-    this.viewer.setPickHandler(!flag);
-    this.viewer.setRaycastMode(flag);
 
     if (flag) {
       if (this.viewer.hasAnimation()) {
@@ -707,6 +705,8 @@ class Display {
         this.viewer.restoreAnimation();
       }
     }
+    this.viewer.setPickHandler(!flag);
+    this.viewer.setRaycastMode(flag);
     this.shapeFilterDropDownMenu.show(flag);
   };
 
