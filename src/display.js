@@ -683,6 +683,7 @@ class Display {
       if (this.viewer.hasAnimation()) {
         this.viewer.backupAnimation();
       }
+      this.viewer.toggleGroup(true);
 
       this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster);
 
@@ -697,6 +698,7 @@ class Display {
         this.viewer.checkChanges({ activeTool: ToolTypes.ANGLE });
       }
     } else {
+      this.viewer.toggleGroup(false);
       this.viewer.checkChanges({ activeTool: ToolTypes.NONE });
       this.viewer.clearSelection();
       if (this.viewer.hasAnimation()) {

@@ -109,6 +109,14 @@ class Viewer {
     this.lastNotification = {};
     this.lastBbox = null;
 
+    // measure supporting exploded shapes and compact shapes
+    this.explodedGroup = null;
+    this.explodedTree = null;
+    this.explodedStates = null;
+    this.compactGroup = null;
+    this.compactTree = null;
+    this.compactStates = null;
+
     // If fromSolid is true, this means the selected object is from the solid
     // This is the obj that has been picked but the actual selected obj is the solid
     // Since we cannot directly pick a solid this is the solution
@@ -319,7 +327,7 @@ class Viewer {
     if (shapes.bb) {
       this.bbox = new BoundingBox(
         new THREE.Vector3(shapes.bb.xmin, shapes.bb.ymin, shapes.bb.zmin),
-        new THREE.Vector3(shapes.bb.xmax, shapes.bb.ymax, shapes.bb.zmax)
+        new THREE.Vector3(shapes.bb.xmax, shapes.bb.ymax, shapes.bb.zmax),
       );
     }
     nestedGroup.render(states);
@@ -383,11 +391,16 @@ class Viewer {
       var triangles;
       const vertices = shape.vertices;
       const normals = shape.normals;
-      const num = (shape.triangles_per_face) ? shape.triangles_per_face.length : shape.triangles.length;
+      const num = shape.triangles_per_face
+        ? shape.triangles_per_face.length
+        : shape.triangles.length;
       var current = 0;
       for (j = 0; j < num; j++) {
         if (shape.triangles_per_face) {
-          triangles = shape.triangles.subarray(current, current + 3 * shape.triangles_per_face[j]);
+          triangles = shape.triangles.subarray(
+            current,
+            current + 3 * shape.triangles_per_face[j],
+          );
           current += 3 * shape.triangles_per_face[j];
         } else {
           triangles = shape.triangles[j];
@@ -448,12 +461,17 @@ class Viewer {
         Array.isArray(part.color) && part.color.length == shape.edges.length;
       var color;
 
-      const num = (shape.segments_per_edge) ? shape.segments_per_edge.length : shape.edges.length;
+      const num = shape.segments_per_edge
+        ? shape.segments_per_edge.length
+        : shape.edges.length;
       current = 0;
       var edge;
       for (j = 0; j < num; j++) {
         if (shape.segments_per_edge) {
-          edge = shape.edges.subarray(current, current + 6 * shape.segments_per_edge[j]);
+          edge = shape.edges.subarray(
+            current,
+            current + 6 * shape.segments_per_edge[j],
+          );
           current += 6 * shape.segments_per_edge[j];
         } else {
           edge = shape.edges[j];
@@ -538,32 +556,41 @@ class Viewer {
    * @returns {THREE.Group} A nested THREE.Group object.
    */
   renderTessellatedShapes(shapes, states, options) {
-    this.setRenderDefaults(options);
-    const _render = (shapes, states, measureTools) => {
+    const _render = (shapes, states) => {
       var part;
       if (shapes.version == 2 || shapes.version == 3) {
-        if (measureTools) {
-          var i, tmp;
-          let parts = [];
-          for (i = 0; i < shapes.parts.length; i++) {
-            part = shapes.parts[i];
-            if (part.parts != null) {
-              tmp = _render(part, states, options);
-              parts.push(tmp);
-            } else {
-              parts.push(this._decompose(part, states));
-            }
+        var i, tmp;
+        let parts = [];
+        for (i = 0; i < shapes.parts.length; i++) {
+          part = shapes.parts[i];
+          if (part.parts != null) {
+            tmp = _render(part, states, options);
+            parts.push(tmp);
+          } else {
+            parts.push(this._decompose(part, states));
           }
-          shapes.parts = parts;
         }
+        shapes.parts = parts;
       }
       return shapes;
     };
-    shapes = _render(shapes, states, options.measureTools);
-    return [
-      this._renderTessellatedShapes(shapes, states),
-      this._getTree(shapes, states),
-    ];
+
+    this.setRenderDefaults(options);
+
+    this.compactGroup = this._renderTessellatedShapes(shapes, states);
+    this.compactTree = this._getTree(shapes, states);
+    this.compactStates = states;
+
+    this.explodedStates = structuredClone(states);
+    var exploded_shapes = _render(structuredClone(shapes), this.explodedStates);
+
+    this.explodedGroup = this._renderTessellatedShapes(
+      exploded_shapes,
+      this.explodedStates,
+    );
+    this.explodedTree = this._getTree(exploded_shapes, this.explodedStates);
+
+    return [this.compactGroup, this.compactTree];
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -849,6 +876,42 @@ class Viewer {
   // Rendering
   // - - - - - - - - - - - - - - - - - - - - - - - -
 
+  toggleGroup(exploded) {
+    var group, tree, states;
+    if (exploded) {
+      group = this.explodedGroup;
+      tree = this.explodedTree;
+      states = this.explodedStates;
+    } else {
+      group = this.compactGroup;
+      tree = this.compactTree;
+      states = this.compactStates;
+    }
+    this.nestedGroup = group;
+    this.nestedGroup.setTransparent(this.transparent);
+    this.nestedGroup.setBlackEdges(this.blackEdges);
+    this.nestedGroup.setMetalness(this.metalness);
+    this.nestedGroup.setRoughness(this.roughness);
+    this.nestedGroup.setPolygonOffset(2);
+
+    this.scene.children[0] = this.nestedGroup.render(states);
+
+    this.tree = tree;
+    this.treeview = new TreeView(
+      clone(states),
+      this.tree,
+      this.setObjects,
+      this.handlePick,
+      this.theme,
+      this.newTreeBehavior,
+    );
+    this.update(true, true);
+
+    this.display.clearCadTree();
+    this.display.addCadTree(this.treeview.render(this.collapse));
+    this.display.selectTabByName("tree");
+  }
+
   /**
    * Render a CAD object and build the navigation tree
    * @param {NestedGroup} nestedgroup - the shapes of the CAD object to be rendered
@@ -1062,14 +1125,16 @@ class Viewer {
     this.setClipNormal(1, options.clipNormal1, true);
     this.setClipNormal(2, options.clipNormal2, true);
 
-    this.clipSlider0 = (options.clipSlider0 != null) ? (options.clipSlider0) : this.gridSize / 2;
-    this.clipSlider1 = (options.clipSlider1 != null) ? (options.clipSlider1) : this.gridSize / 2;
-    this.clipSlider2 = (options.clipSlider2 != null) ? (options.clipSlider2) : this.gridSize / 2;
+    this.clipSlider0 =
+      options.clipSlider0 != null ? options.clipSlider0 : this.gridSize / 2;
+    this.clipSlider1 =
+      options.clipSlider1 != null ? options.clipSlider1 : this.gridSize / 2;
+    this.clipSlider2 =
+      options.clipSlider2 != null ? options.clipSlider2 : this.gridSize / 2;
 
     this.setClipSlider(0, this.clipSlider0, true);
     this.setClipSlider(1, this.clipSlider1, true);
     this.setClipSlider(2, this.clipSlider2, true);
-
 
     this.setClipIntersection(options.clipIntersection, true);
     this.setClipObjectColorCaps(options.clipObjectColors, true);
@@ -1089,8 +1154,8 @@ class Viewer {
 
     const theme =
       this.theme === "dark" ||
-        (this.theme === "browser" &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      (this.theme === "browser" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
 
@@ -1150,7 +1215,7 @@ class Viewer {
 
     this.toggleAnimationLoop(this.hasAnimationLoop);
 
-    this.display.showMeasureTools(options.measureTools);
+    this.display.showMeasureTools(true);
 
     this.ready = true;
     this.info.readyMsg(this.gridHelper.ticks, this.control);
@@ -1511,7 +1576,7 @@ class Viewer {
       this.bb_max / 30,
       this.scene.children.slice(0, 1),
       // eslint-disable-next-line no-unused-vars
-      (ev) => { },
+      (ev) => {},
     );
     raycaster.init();
     raycaster.onPointerMove(e);
@@ -2188,7 +2253,9 @@ class Viewer {
         for (var capPlane of child.children) {
           if (flag) {
             capPlane.material.clippingPlanes =
-              this.clipping.reverseClipPlanes.filter((_, j) => j !== capPlane.index);
+              this.clipping.reverseClipPlanes.filter(
+                (_, j) => j !== capPlane.index,
+              );
           } else {
             capPlane.material.clippingPlanes = this.clipping.clipPlanes.filter(
               (_, j) => j !== capPlane.index,
@@ -2203,7 +2270,9 @@ class Viewer {
         for (var helper of child.children) {
           if (flag) {
             helper.material.clippingPlanes =
-              this.clipping.reverseClipPlanes.filter((_, j) => j !== helper.index);
+              this.clipping.reverseClipPlanes.filter(
+                (_, j) => j !== helper.index,
+              );
           } else {
             helper.material.clippingPlanes = this.clipping.clipPlanes.filter(
               (_, j) => j !== helper.index,
