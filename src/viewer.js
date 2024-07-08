@@ -887,6 +887,8 @@ class Viewer {
       tree = this.compactTree;
       states = this.compactStates;
     }
+    this.states = states;
+
     this.nestedGroup = group;
     this.nestedGroup.setTransparent(this.transparent);
     this.nestedGroup.setBlackEdges(this.blackEdges);
@@ -905,6 +907,7 @@ class Viewer {
       this.theme,
       this.newTreeBehavior,
     );
+
     this.update(true, true);
 
     this.display.clearCadTree();
