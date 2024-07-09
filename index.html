@@ -77,13 +77,12 @@
 
       viewer._timeit = timeit;
 
-      var shapesStates = viewer.renderTessellatedShapes(shapes, states, renderOptions)
-
       timer.split("rendering done");
 
       viewer.render(
-        ...shapesStates,
+        shapes,
         states,
+        renderOptions,
         viewerOptions,
       );
 
@@ -233,6 +232,7 @@
       // glass: true,
       collapse: 1,
       measureTools: false,
+      newTreeBehaviour: true,
     };
 
     function showViewer(control, mode, containerId) {
