@@ -100,6 +100,7 @@ class Viewer {
     this.renderer = new THREE.WebGLRenderer({
       alpha: !this.dark,
       antialias: true,
+      stencil: true,
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.cadWidth, this.height);
