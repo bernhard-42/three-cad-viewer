@@ -1022,6 +1022,14 @@ class Display {
   }
 
   /**
+   * Toggle visibility of the clipping tab
+   * @function
+   */
+  toggleClippingTab = (flag) => {
+    this.tabClip.style["display"] = flag ? "" : "none";
+  };
+
+  /**
    * Collapse nodes handler
    * @function
    * @param {Event} e - a DOM click event
