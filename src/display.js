@@ -682,7 +682,7 @@ class Display {
         this.viewer.backupAnimation();
       }
       this.viewer.toggleGroup(true);
-
+      this.viewer.setRaycastMode(flag);
       this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster);
 
       if (name == "distance") {
@@ -704,9 +704,9 @@ class Display {
         this.viewer.clearAnimation();
         this.viewer.restoreAnimation();
       }
+      this.viewer.setRaycastMode(flag);
     }
     this.viewer.setPickHandler(!flag);
-    this.viewer.setRaycastMode(flag);
     this.shapeFilterDropDownMenu.show(flag);
   };
 
