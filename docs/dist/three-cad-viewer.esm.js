@@ -56813,7 +56813,7 @@ class DistanceMeasurement extends Measurement {
   }
 
   _makeLines() {
-    const lineWidth = 0.0025;
+    const lineWidth = 1.5;
     const distanceLine = new DistanceLineArrow(
       this.coneLength,
       this.point1,
@@ -56867,12 +56867,12 @@ class PropertiesMeasurement extends Measurement {
     const subheader = isSolid
       ? "Solid"
       : isVertex
-      ? "Vertex"
-      : isLine
-      ? "Edge"
-      : isFace
-      ? "Face"
-      : "Unknown";
+        ? "Vertex"
+        : isLine
+          ? "Edge"
+          : isFace
+            ? "Face"
+            : "Unknown";
     this.panel.subheader = subheader;
     const props = this.responseData;
     this.panel.setProperties(props);
@@ -56883,7 +56883,7 @@ class PropertiesMeasurement extends Measurement {
   }
 
   _makeLines() {
-    const lineWidth = 0.0025;
+    const lineWidth = 1.5;
 
     const middlePoint = this.responseData.center;
     const connectingLine = new DistanceLineArrow(
@@ -56949,7 +56949,7 @@ class AngleMeasurement extends Measurement {
   }
 
   _makeLines() {
-    const lineWidth = 0.0025;
+    const lineWidth = 1.5;
     this._getPoints();
     const item1Line = new DistanceLineArrow(
       this.coneLength,
@@ -57812,7 +57812,7 @@ class Display {
         this.viewer.backupAnimation();
       }
       this.viewer.toggleGroup(true);
-
+      this.viewer.setRaycastMode(flag);
       this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster);
 
       if (name == "distance") {
@@ -57834,9 +57834,9 @@ class Display {
         this.viewer.clearAnimation();
         this.viewer.restoreAnimation();
       }
+      this.viewer.setRaycastMode(flag);
     }
     this.viewer.setPickHandler(!flag);
-    this.viewer.setRaycastMode(flag);
     this.shapeFilterDropDownMenu.show(flag);
   };
 
@@ -58997,7 +58997,7 @@ class NestedGroup {
     var positions =
       edgeList instanceof Float32Array
         ? edgeList
-        : new Float32Array(flatten(edgeList, 2));
+        : new Float32Array(flatten(edgeList, 3));
 
     const lineGeometry = new LineSegmentsGeometry();
     lineGeometry.setPositions(positions);
@@ -59215,7 +59215,7 @@ class NestedGroup {
         side: FrontSide,
         visible: states[0] == 1,
         map: texture,
-        name: "frontMaterial"
+        name: "frontMaterial",
       });
     }
 
@@ -59238,7 +59238,7 @@ class NestedGroup {
       depthTest: true,
       clipIntersection: false,
       visible: states[0] == 1 && (renderback || this.backVisible),
-      name: "backMaterial"
+      name: "backMaterial",
     });
 
     const back = new Mesh(shapeGeometry, backMaterial);
@@ -63174,7 +63174,7 @@ class Camera {
   }
 }
 
-const version = "3.0.0";
+const version = "3.0.1";
 
 class Viewer {
   /**
