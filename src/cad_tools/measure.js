@@ -440,7 +440,7 @@ class DistanceMeasurement extends Measurement {
   }
 
   _makeLines() {
-    const lineWidth = 0.0025;
+    const lineWidth = 1.5;
     const distanceLine = new DistanceLineArrow(
       this.coneLength,
       this.point1,
@@ -526,7 +526,7 @@ class PropertiesMeasurement extends Measurement {
   }
 
   _makeLines() {
-    const lineWidth = 0.0025;
+    const lineWidth = 1.5;
 
     const middlePoint = DEBUG
       ? this.selectedShapes[0].obj.children[0].geometry.boundingSphere.center
@@ -600,7 +600,7 @@ class AngleMeasurement extends Measurement {
   }
 
   _makeLines() {
-    const lineWidth = 0.0025;
+    const lineWidth = 1.5;
     this._getPoints();
     const item1Line = new DistanceLineArrow(
       this.coneLength,
