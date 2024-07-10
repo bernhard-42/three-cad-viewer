@@ -494,12 +494,12 @@ class PropertiesMeasurement extends Measurement {
     const subheader = isSolid
       ? "Solid"
       : isVertex
-      ? "Vertex"
-      : isLine
-      ? "Edge"
-      : isFace
-      ? "Face"
-      : "Unknown";
+        ? "Vertex"
+        : isLine
+          ? "Edge"
+          : isFace
+            ? "Face"
+            : "Unknown";
     this.panel.subheader = subheader;
     const debugProps = {
       volume: 0.44,
