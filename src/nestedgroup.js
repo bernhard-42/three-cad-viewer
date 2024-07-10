@@ -56,7 +56,7 @@ class NestedGroup {
     var positions =
       edgeList instanceof Float32Array
         ? edgeList
-        : new Float32Array(flatten(edgeList, 2));
+        : new Float32Array(flatten(edgeList, 3));
 
     const lineGeometry = new LineSegmentsGeometry();
     lineGeometry.setPositions(positions);
