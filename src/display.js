@@ -1026,7 +1026,12 @@ class Display {
    * @function
    */
   toggleClippingTab = (flag) => {
-    this.tabClip.style["display"] = flag ? "" : "none";
+    if (flag) {
+      this.tabClip.removeAttribute("disabled");
+    } else {
+      this.tabClip.setAttribute("disabled", "true");
+    }
+    this.tabClip.classList.toggle("tcv_tab-disabled", !flag);
   };
 
   /**

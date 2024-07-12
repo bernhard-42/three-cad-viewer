@@ -380,6 +380,10 @@ input[type="button"] {
   font-weight: normal;
 }
 
+.tcv_tab-disabled {
+  color: var(--tcv-bg-pressed-color);
+}
+
 .tcv_vertical-center {
   margin: 0;
   position: absolute;
