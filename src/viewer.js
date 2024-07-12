@@ -242,6 +242,8 @@ class Viewer {
     this.position = null;
     this.quaternion = null;
     this.target = null;
+    this.measureTools = true;
+    this.newTreeBehaviour = true;
 
     this.zoom = 1;
 
