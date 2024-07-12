@@ -57219,6 +57219,8 @@ class Display {
     this.clipSliders = null;
     this.explodeFlag = false;
 
+    this.currentButton = null;
+
     this.lastPlaneState = false;
 
     var theme;
@@ -57811,7 +57813,12 @@ class Display {
       if (this.viewer.hasAnimation()) {
         this.viewer.backupAnimation();
       }
-      this.viewer.toggleGroup(true);
+      if (
+        ["distance", "properties", "angle"].includes(name) &&
+        !["distance", "properties", "angle"].includes(this.currentButton)
+      ) {
+        this.viewer.toggleGroup(true);
+      }
       this.viewer.setRaycastMode(flag);
       this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster);
 
@@ -57825,8 +57832,12 @@ class Display {
         this.viewer.cadTools.enable(ToolTypes.ANGLE);
         this.viewer.checkChanges({ activeTool: ToolTypes.ANGLE });
       }
+      this.currentButton = name;
     } else {
-      this.viewer.toggleGroup(false);
+      if (this.currentButton == name) {
+        this.viewer.toggleGroup(false);
+        this.currentButton = null;
+      }
       this.viewer.checkChanges({ activeTool: ToolTypes.NONE });
       this.viewer.clearSelection();
       if (this.viewer.hasAnimation()) {
@@ -58156,7 +58167,12 @@ class Display {
    * @function
    */
   toggleClippingTab = (flag) => {
-    this.tabClip.style["display"] = flag ? "" : "none";
+    if (flag) {
+      this.tabClip.removeAttribute("disabled");
+    } else {
+      this.tabClip.setAttribute("disabled", "true");
+    }
+    this.tabClip.classList.toggle("tcv_tab-disabled", !flag);
   };
 
   /**
@@ -63174,7 +63190,7 @@ class Camera {
   }
 }
 
-const version = "3.0.1";
+const version = "3.0.2";
 
 class Viewer {
   /**
@@ -63394,6 +63410,8 @@ class Viewer {
     this.position = null;
     this.quaternion = null;
     this.target = null;
+    this.measureTools = true;
+    this.newTreeBehaviour = true;
 
     this.zoom = 1;
 
