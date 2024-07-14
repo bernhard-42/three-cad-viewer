@@ -430,11 +430,11 @@ class Viewer {
           type: "shapes",
           color: part.color,
           alpha: part.alpha,
-          renderBack: false,
+          renderback: true,
           accuracy: part.accuracy,
           bb: {},
           geomtype: shape.face_types[j],
-          subtype: part.subtype,
+          subtype: "face",
           shape: {
             triangles: [...Array(triangles.length).keys()],
             vertices: vecs,
