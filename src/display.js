@@ -503,6 +503,13 @@ class Display {
   }
 
   /**
+   * Get the DOM canvas element
+   */
+  getCanvas() {
+    return this.cadView.children[this.cadView.children.length - 1];
+  }
+
+  /**
    * Clear the Cad tree
    */
   clearCadTree() {
