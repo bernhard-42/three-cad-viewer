@@ -2509,6 +2509,11 @@ class Viewer {
    * Note: Only the canvas will be shown, no tools and orientation marker
    */
   getImage = (taskId) => {
+    // canvas.toBlob can be very slow when anmation loop is off!
+    const animationLoop = this.hasAnimationLoop;
+    if (!animationLoop) {
+      this.toggleAnimationLoop(true);
+    }
     let result = new Promise((resolve, reject) => {
       const canvas = this.display.getCanvas();
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
@@ -2517,7 +2522,13 @@ class Viewer {
         let reader = new FileReader();
         reader.addEventListener(
           "load",
-          () => resolve({ task: taskId, dataUrl: reader.result }),
+          () => {
+            resolve({ task: taskId, dataUrl: reader.result });
+            // set animation loop back to the stored value
+            if (!animationLoop) {
+              this.toggleAnimationLoop(false);
+            }
+          },
           false,
         );
         reader.readAsDataURL(blob);
