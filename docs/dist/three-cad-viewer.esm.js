@@ -57633,6 +57633,13 @@ class Display {
   }
 
   /**
+   * Get the DOM canvas element
+   */
+  getCanvas() {
+    return this.cadView.children[this.cadView.children.length - 1];
+  }
+
+  /**
    * Clear the Cad tree
    */
   clearCadTree() {
@@ -63190,7 +63197,7 @@ class Camera {
   }
 }
 
-const version = "3.0.2";
+const version = "3.0.3";
 
 class Viewer {
   /**
@@ -65650,35 +65657,45 @@ class Viewer {
    * Note: Only the canvas will be shown, no tools and orientation marker
    */
   pinAsPng = () => {
-    const children = this.display.cadView.children;
-    const canvas = children[children.length - 1];
-    this.renderer.setViewport(0, 0, this.cadWidth, this.height);
-    this.renderer.render(this.scene, this.camera.getCamera());
-    canvas.toBlob((blob) => {
-      let reader = new FileReader();
-      const scope = this;
-      reader.addEventListener(
-        "load",
-        function () {
-          var image = document.createElement("img");
-          image.width = scope.cadWidth;
-          image.height = scope.height;
-          image.src = reader.result;
-          if (scope.pinAsPngCallback == null) {
-            // default, replace the elements of the container with the image
-            for (var c of scope.display.container.children) {
-              scope.display.container.removeChild(c);
-            }
-            scope.display.container.appendChild(image);
-          } else {
-            // let callbackl handle the image placement
-            scope.pinAsPngCallback(image);
-          }
-        },
-        false,
-      );
-      reader.readAsDataURL(blob);
+    const screenshot = this.getImage("screenshot");
+    screenshot.then((data) => {
+      var image = document.createElement("img");
+      image.width = this.cadWidth;
+      image.height = this.height;
+      image.src = data.dataUrl;
+      if (this.pinAsPngCallback == null) {
+        // default, replace the elements of the container with the image
+        for (var c of this.display.container.children) {
+          this.display.container.removeChild(c);
+        }
+        this.display.container.appendChild(image);
+      }
     });
+  };
+
+  /**
+   * Get the current canvas as png data.
+   * @function
+   * @param {string} taksId - and id to identify the screenshot
+   * Note: Only the canvas will be shown, no tools and orientation marker
+   */
+  getImage = (taskId) => {
+    let result = new Promise((resolve, reject) => {
+      const canvas = this.display.getCanvas();
+      this.renderer.setViewport(0, 0, this.cadWidth, this.height);
+      this.renderer.render(this.scene, this.camera.getCamera());
+      canvas.toBlob((blob) => {
+        let reader = new FileReader();
+        reader.addEventListener(
+          "load",
+          () => resolve({ task: taskId, dataUrl: reader.result }),
+          false,
+        );
+        reader.readAsDataURL(blob);
+      });
+    });
+
+    return result;
   };
 
   /**
