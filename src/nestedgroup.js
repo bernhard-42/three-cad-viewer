@@ -179,6 +179,7 @@ class NestedGroup {
     color,
     alpha,
     renderback,
+    exploded,
     path,
     name,
     states,
@@ -279,7 +280,7 @@ class NestedGroup {
     }
 
     const backColor =
-      group.subtype === "solid"
+      group.subtype === "solid" && !exploded
         ? color
         : new THREE.Color(this.edgeColor).lerp(new THREE.Color(1, 1, 1), 0.15);
 
@@ -368,6 +369,7 @@ class NestedGroup {
             shape.color,
             shape.alpha,
             shape.renderback == null ? false : shape.renderback,
+            shape.exploded,
             path,
             shape.name,
             states[shape.id],

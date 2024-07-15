@@ -434,7 +434,8 @@ class Viewer {
           accuracy: part.accuracy,
           bb: {},
           geomtype: shape.face_types[j],
-          subtype: "face",
+          subtype: part.subtype,
+          exploded: true,
           shape: {
             triangles: [...Array(triangles.length).keys()],
             vertices: vecs,
