@@ -888,17 +888,18 @@ class Viewer {
    */
   toggleGroup(exploded) {
     var timer = new Timer("toggleGroup", true);
+    var _config = () => {
+      this.nestedGroup.setTransparent(this.transparent);
+      this.nestedGroup.setBlackEdges(this.blackEdges);
+      this.nestedGroup.setMetalness(this.metalness);
+      this.nestedGroup.setRoughness(this.roughness);
+      this.nestedGroup.setPolygonOffset(2);
+    };
+
     if (
       (this.compactGroup == null && !exploded) ||
       (this.explodedGroup == null && exploded)
     ) {
-      var _config = () => {
-        this.nestedGroup.setTransparent(this.transparent);
-        this.nestedGroup.setBlackEdges(this.blackEdges);
-        this.nestedGroup.setMetalness(this.metalness);
-        this.nestedGroup.setRoughness(this.roughness);
-        this.nestedGroup.setPolygonOffset(2);
-      };
       this.setRenderDefaults(this.renderOptions);
 
       var result;
@@ -910,6 +911,7 @@ class Viewer {
             this.states,
           );
           this.nestedGroup = result["group"];
+          this.explodedNestedGroup = result["group"];
           _config();
           this.explodedStates = result["states"];
           this.explodedTree = result["tree"];
@@ -923,6 +925,7 @@ class Viewer {
             this.states,
           );
           this.nestedGroup = result["group"];
+          this.compactNestedGroup = result["group"];
           _config();
           this.compactStates = result["states"];
           this.compactTree = result["tree"];
@@ -930,8 +933,13 @@ class Viewer {
         }
       }
       timer.split(`rendered${exploded ? " exploded" : " compact"} shapes`);
+    } else {
+      this.nestedGroup = exploded
+        ? this.explodedNestedGroup
+        : this.compactNestedGroup;
+      _config();
     }
-
+    
     this.states = exploded ? this.explodedStates : this.compactStates;
     this.tree = exploded ? this.explodedTree : this.compactTree;
     this.scene.children[0] = exploded ? this.explodedGroup : this.compactGroup;
