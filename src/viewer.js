@@ -114,9 +114,11 @@ class Viewer {
     this.explodedGroup = null;
     this.explodedTree = null;
     this.explodedStates = null;
+    this.explodedNestedGroup = null;
     this.compactGroup = null;
     this.compactTree = null;
     this.compactStates = null;
+    this.compactNestedGroup = null;
 
     // If fromSolid is true, this means the selected object is from the solid
     // This is the obj that has been picked but the actual selected obj is the solid
