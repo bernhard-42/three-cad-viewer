@@ -14,6 +14,7 @@
   <!-- 
     <script src="./examples/assembly.js"></script>
     <script src="./examples/edges-verts.js"></script> 
+    <script src="./examples/transpalet.js"></script>
     -->
     <script src="./examples/box.js"></script>
     <script src="./examples/image-face.js"></script>
@@ -46,10 +47,11 @@
     var viewer = null;
 
     const examples = [
-      // edges_verts,
-      // assembly,
       hexapod,
       hexapod_b3d,
+      // transpalet,
+      // edges_verts,
+      // assembly,
       linkage,
       box,
       image_face,
@@ -67,7 +69,7 @@
       single_edges,
       single_vertices,
       longbox,
-      boxEdges
+      boxEdges,
     ];
 
     function render(name, shapes, states) {
@@ -231,7 +233,7 @@
       // zoom: 1,
       // glass: true,
       collapse: 1,
-      measureTools: false,
+      measureTools: true,
       newTreeBehaviour: true,
     };
 
@@ -346,12 +348,13 @@
       Examples
       <select class="select"
         onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; showViewer(window.controlMode, window.viewerMode, 'cad_view_001')">
+        <option value="hexapod">hexapod</option>
+        <option value="hexapod_b3d">hexapod(build123d)</option>
         <!-- 
         <option value="edges-verts">edges_verts</option>
         <option value="assembly">assembly</option>
+        <option value="transpalet">transpalet</option>        
         -->
-        <option value="hexapod">hexapod</option>
-        <option value="hexapod_b3d">hexapod(build123d)</option>
         <option value="linkage">linkage</option>
         <option value="box">box</option>
         <option value="image-face">image-face</option>
