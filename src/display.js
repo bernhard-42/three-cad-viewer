@@ -1067,15 +1067,13 @@ class Display {
    */
   collapseNodes(value) {
     if (value === "1") {
-      this.viewer.treeview.expandNodes();
-      this.viewer.treeview.collapseNodes(1);
+      this.viewer.treeview.openLevel(-1);
     } else if (value === "R") {
-      this.viewer.treeview.expandNodes();
-      this.viewer.treeview.collapseNodes(3);
+      this.viewer.treeview.openLevel(1);
     } else if (value === "C") {
-      this.viewer.treeview.collapseNodes(2);
+      this.viewer.treeview.collapseAll();
     } else if (value === "E") {
-      this.viewer.treeview.expandNodes();
+      this.viewer.treeview.expandAll();
     }
   }
 

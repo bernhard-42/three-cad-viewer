@@ -7,6 +7,26 @@ import { BoundingBox } from "./bbox.js";
 import { ObjectGroup } from "./objectgroup.js";
 import { flatten } from "./utils.js";
 
+class States {
+  constructor(states) {
+    this.states = states;
+  }
+  convert(states) {
+    const parts = id.split("/");
+    var node = states;
+    for (var i = 1; i++; i < parts.length) {
+      node = node[parts[i]];
+    }
+    return node;
+  }
+  getState(path, index) {
+    return this.convert(this.states[path])[index];
+  }
+  getStates(path) {
+    return this.convert(this.states[path]);
+  }
+}
+
 class NestedGroup {
   constructor(
     shapes,
@@ -337,7 +357,7 @@ class NestedGroup {
     return group;
   }
 
-  renderLoop(shapes, path, states) {
+  renderLoop(shapes, path) {
     const _render = (shape, texture, width, height) => {
       var mesh;
       switch (shape.type) {
@@ -348,7 +368,7 @@ class NestedGroup {
             shape.color,
             path,
             shape.name,
-            states[shape.id][1],
+            shape.state[1],
             { topo: "edge", geomtype: shape.geomtype },
           );
           break;
@@ -359,7 +379,7 @@ class NestedGroup {
             shape.color,
             path,
             shape.name,
-            states[shape.id][1],
+            shape.state[1],
             { topo: "vertex", geomtype: null },
           );
           break;
@@ -372,7 +392,7 @@ class NestedGroup {
             shape.exploded,
             path,
             shape.name,
-            states[shape.id],
+            shape.state,
             { topo: "face", geomtype: shape.geomtype },
             shape.subtype,
             texture,
@@ -404,7 +424,7 @@ class NestedGroup {
 
     for (var shape of shapes.parts) {
       if (shape.parts) {
-        group.add(this.renderLoop(shape, path, states));
+        group.add(this.renderLoop(shape, path));
       } else {
         const has_texture = shape.texture != null;
         var texture = has_texture ? shape.texture.image : null;
@@ -418,8 +438,8 @@ class NestedGroup {
     return group;
   }
 
-  render(states) {
-    this.rootGroup = this.renderLoop(this.shapes, "", states);
+  render() {
+    this.rootGroup = this.renderLoop(this.shapes, "");
     return this.rootGroup;
   }
 
@@ -513,4 +533,4 @@ class NestedGroup {
   }
 }
 
-export { NestedGroup, ObjectGroup };
+export { NestedGroup, ObjectGroup, States };
