@@ -1,7 +1,6 @@
 import * as THREE from "three";
-
 class Info {
-  constructor(html) {
+  constructor(html, theme) {
     this.html = html;
     this.clear();
   }

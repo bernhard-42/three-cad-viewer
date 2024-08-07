@@ -982,7 +982,7 @@ class Viewer {
     // add Info box
     //
 
-    this.info = new Info(this.display.cadInfo);
+    this.info = new Info(this.display.cadInfo, this.theme);
 
     //
     // create cameras

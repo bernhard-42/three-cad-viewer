@@ -1,4 +1,4 @@
-import { getIconBackground } from "./icons.js";
+import { getIconBackground, getIconSvg } from "./icons.js";
 import { KeyMapper } from "./utils.js";
 import { Slider } from "./slider.js";
 import { Toolbar, Button, ClickButton } from "./toolbar.js";
@@ -289,6 +289,11 @@ class Display {
 
     this.showPinning(options.pinning);
     // this.showMeasureTools(options.measureTools);
+
+    this.infoIcons = {
+      right: getIconSvg(theme, "nav_closed"),
+      down: getIconSvg(theme, "nav_open"),
+    };
   }
 
   _setupCheckEvent(name, fn, flag) {
@@ -1226,7 +1231,10 @@ class Display {
    */
   showInfo = (flag) => {
     this.cadInfo.parentNode.parentNode.style.display = flag ? "block" : "none";
-    this._getElement("tcv_toggle_info").value = flag ? "\u25B2 i" : "\u25BC i";
+    // this._getElement("tcv_toggle_info").value = flag ? "\u25B2 i" : "\u25BC i";
+    this._getElement("tcv_toggle_info").innerHTML = flag
+      ? `${this.infoIcons["down"]}`
+      : `${this.infoIcons["right"]}`;
     this.info_shown = flag;
   };
 

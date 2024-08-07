@@ -14,7 +14,7 @@
 .tv-node-content {
   display: flex;
   align-items: center;
-  padding: 2px 2px 2px 0px;
+  padding: 2px 0px 2px 0px;
   height: 16px;
 }
 
@@ -22,7 +22,7 @@
   display: inline-block;
   width: 16px;
   height: 16px;
-  margin-right: 5px;
+  margin-right: 1px;
   cursor: pointer;
   vertical-align: middle;
   flex-shrink: 0;
@@ -35,9 +35,9 @@
 
 .tv-icon {
   display: inline-block;
-  width: 16px;
-  height: 16px;
-  margin-right: 5px;
+  width: 24px;
+  height: 24px;
+  margin-right: 2px;
   vertical-align: middle;
   flex-shrink: 0;
 }
@@ -53,6 +53,7 @@
 
 .tv-node-label {
   cursor: pointer;
+  margin-left: 4px;
   font-size: 14px;
   font-family: sans-serif;
 }

@@ -21,6 +21,7 @@ import light_shape_mix from "../icons/light/shape_mix.svg";
 import light_shape_no from "../icons/light/shape_no.svg";
 import light_stop from "../icons/light/stop.svg";
 import light_top from "../icons/light/top.svg";
+
 import dark_bottom from "../icons/dark/bottom.svg";
 import dark_front from "../icons/dark/front.svg";
 import dark_help from "../icons/dark/help.svg";
@@ -67,6 +68,12 @@ import light_angle from "../icons/light/angle.svg";
 import light_transparent from "../icons/light/transparent.svg";
 import light_blackedges from "../icons/light/black_edges.svg";
 
+import light_nav_open from "../icons/light/nav_open.svg";
+import dark_nav_open from "../icons/dark/nav_open.svg";
+
+import light_nav_closed from "../icons/light/nav_closed.svg";
+import dark_nav_closed from "../icons/dark/nav_closed.svg";
+
 const icons = {
   bottom: { light: light_bottom, dark: dark_bottom },
   front: { light: light_front, dark: dark_front },
@@ -101,10 +108,15 @@ const icons = {
   angle: { light: light_angle, dark: dark_angle },
   transparent: { light: light_transparent, dark: dark_transparent },
   blackedges: { light: light_blackedges, dark: dark_blackedges },
+  nav_open: { light: light_nav_open, dark: dark_nav_open },
+  nav_closed: { light: light_nav_closed, dark: dark_nav_closed },
 };
 
 function getIconBackground(theme, name) {
   return `url("${icons[name][theme]}")`;
 }
+function getIconSvg(theme, name) {
+  return decodeURIComponent(icons[name][theme]).substring(19);
+}
 
-export { getIconBackground };
+export { getIconBackground, getIconSvg };

@@ -1,4 +1,4 @@
-import { getIconBackground } from "./icons.js";
+import { getIconSvg } from "./icons.js";
 import { KeyMapper } from "./utils.js";
 
 const States = {
@@ -67,22 +67,22 @@ class TreeView {
       '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">';
     this.viewIcons = [
       [
-        `${svgPrefix}<circle cx="16" cy="16" r="14" fill="none" stroke="#007bff" stroke-width="2" /></svg>`,
-        `${svgPrefix}<circle cx="16" cy="16" r="14" fill="#007bff" /></svg>`,
-        `${svgPrefix}<circle cx="16" cy="16" r="14" fill="none" stroke="#007bff" stroke-width="2" /><path d="M16 2 A14 14 0 0 1 16 30" fill="#007bff" /></svg>`,
-        `${svgPrefix}<circle cx="16" cy="16" r="14" fill="#c0c0c0" /></svg>`,
+        getIconSvg(theme, "shape_no"),
+        getIconSvg(theme, "shape"),
+        getIconSvg(theme, "shape_mix"),
+        getIconSvg(theme, "shape_empty"),
       ],
       [
-        `${svgPrefix}<rect x="4" y="4" width="24" height="24" fill="none" stroke="#28a745" stroke-width="2" /></svg>`,
-        `${svgPrefix}<rect x="4" y="4" width="24" height="24" fill="#28a745" /></svg>`,
-        `${svgPrefix}<rect x="4" y="4" width="24" height="24" fill="none" stroke="#28a745" stroke-width="2" /><rect x="4" y="4" width="24" height="12" fill="#28a745" /></svg>`,
-        `${svgPrefix}<rect x="4" y="4" width="24" height="24" fill="#c0c0c0" /></svg>`,
+        getIconSvg(theme, "mesh_no"),
+        getIconSvg(theme, "mesh"),
+        getIconSvg(theme, "mesh_mix"),
+        getIconSvg(theme, "mesh_empty"),
       ],
     ];
+
     this.navIcons = {
-      right:
-        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M6 12.796V3.204L11.481 8 6 12.796z" fill="#333"/></svg>',
-      down: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M3.204 6h9.592L8 11.481 3.204 6z" fill="#333"/></svg>',
+      right: getIconSvg(theme, "nav_closed"),
+      down: getIconSvg(theme, "nav_open"),
     };
 
     this.tree = tree;

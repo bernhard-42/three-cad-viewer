@@ -82,7 +82,17 @@ canvas {
 
 .tcv_toggle_info_wrapper {
   display: none;
-  margin-left: 6px;
+  margin-left: 4px;
+}
+
+.tcv_info_label {
+  font-size: 12px;
+  font-family: sans-serif;
+  font-weight: bold;
+  margin-left: 4px;
+  padding-bottom: 4px;
+  vertical-align: top;
+  user-select: none;
 }
 
 .tcv_cad_info_glass {
