@@ -705,6 +705,9 @@ class TreeView {
    */
   hideAll() {
     this.toggleIcon(this.root, 0, false);
+    if (!this.linkIcons) {
+      this.toggleIcon(this.root, 1, false);
+    }
   }
 
   /**
@@ -712,6 +715,9 @@ class TreeView {
    */
   showAll() {
     this.toggleIcon(this.root, 0, true);
+    if (!this.linkIcons) {
+      this.toggleIcon(this.root, 1, true);
+    }
   }
 
   /**

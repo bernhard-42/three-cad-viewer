@@ -245,7 +245,6 @@ class Viewer {
     this.quaternion = null;
     this.target = null;
     this.measureTools = true;
-    this.newTreeBehaviour = true;
 
     this.zoom = 1;
 
@@ -1535,6 +1534,7 @@ class Viewer {
         this.treeview.hideAll();
         this.setState(id, [1, 1], nodeType);
         const center = boundingBox.center();
+        this.treeview.openPath(id);
         this.controls.setTarget(new THREE.Vector3(...center));
         this.info.centerInfo(center);
       } else {
