@@ -937,6 +937,7 @@ class Viewer {
     timer.split("added tree to display");
     timer.stop();
     this.display.toggleClippingTab(!exploded);
+    this.treeview.openLevel(1);
   }
 
   /**
