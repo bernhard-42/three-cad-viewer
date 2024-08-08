@@ -72,7 +72,7 @@
       boxEdges,
     ];
 
-    function render(name, shapes, states) {
+    function render(name, shapes) {
       const timer = new Timer("renderer", timeit);
 
       viewer?.clear();
@@ -83,7 +83,6 @@
 
       viewer.render(
         shapes,
-        states,
         renderOptions,
         viewerOptions,
       );
@@ -266,7 +265,7 @@
       viewerOptions.control = control_up[0];
       viewerOptions.up = control_up[1][0];
 
-      render(window.selectedExample, ...examples[window.selectedIndex]);
+      render(window.selectedExample, examples[window.selectedIndex]);
       timer.stop();
 
       // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])
