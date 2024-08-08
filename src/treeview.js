@@ -562,9 +562,10 @@ class TreeView {
   /**
    * Toggles the color of the label for a given node.
    * @param {Node} node - The node for which to toggle the label color.
+   * @param {str} path - If node is null, the path for which to toggle the label color.
    */
-  toggleLabelColor(node) {
-    const nodePath = this.getNodePath(node);
+  toggleLabelColor(node, path = null) {
+    const nodePath = path == null ? this.getNodePath(node) : path;
     const nodeElement = this.container.querySelector(
       `[data-path="${nodePath}"]`,
     );

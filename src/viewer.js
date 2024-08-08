@@ -1513,6 +1513,7 @@ class Viewer {
 
     if (this.lastBbox != null && this.lastBbox.id === id && !meta && !shift) {
       this.removeLastBbox();
+      this.treeview.toggleLabelColor(null, id);
     } else {
       this.checkChanges({
         lastPick: {
