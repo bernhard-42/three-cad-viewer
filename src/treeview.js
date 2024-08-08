@@ -129,16 +129,12 @@ class TreeView {
         for (let s of [0, 1]) {
           if (
             states[States.mixed][s] ||
-            ((states[States.selected][s] || states[States.disabled][s]) &&
-              (states[States.unselected][s] || states[States.disabled][s]))
+            (states[States.selected][s] && states[States.unselected][s])
           ) {
             result[s] = States.mixed;
-          } else if (states[States.selected][s] || states[States.disabled][s]) {
+          } else if (states[States.selected][s]) {
             result[s] = States.selected;
-          } else if (
-            states[States.unselected][s] ||
-            states[States.disabled][s]
-          ) {
+          } else if (states[States.unselected][s]) {
             result[s] = States.unselected;
           } else if (states[States.disabled][s]) {
             result[s] = States.disabled;
