@@ -189,7 +189,8 @@
         "shift": "shiftKey",
         "ctrl": "ctrlKey",
         "meta": "metaKey"
-      }
+      },
+      newTreeBehavior: true,
     };
 
     const renderOptions = {
@@ -200,7 +201,6 @@
       edgeColor: 0x707070,
       defaultOpacity: 0.5,
       normalLen: 0,
-      measureTools: false,
     };
 
     const viewerOptions = {
@@ -234,7 +234,6 @@
       // glass: true,
       collapse: 1,
       measureTools: true,
-      newTreeBehaviour: true,
     };
 
     function showViewer(control, mode, containerId) {
@@ -250,7 +249,6 @@
         displayOptions.glass = false;
         displayOptions.tools = true;
       }
-      displayOptions.newTreeBehavior = true;
 
       window.viewerMode = mode;
       // console.log(control);
