@@ -265,7 +265,8 @@ th {
 .tcv_box_content {
   overflow: scroll;
   height: 100%;
-  /* margin: 0px 0px 0px 4px; */
+  margin: 0px 0px 0px 4px;
+  padding-top: 2px;
 }
 
 .tcv_btn {
