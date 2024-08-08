@@ -306,7 +306,7 @@ class TreeView {
    * @param {Node} node - The node that was clicked.
    * @returns {void}
    */
-  onLabelClick(node, e) {
+  handleLabelClick(node, e) {
     this.pickHandler(
       this.getNodePath(this.getParent(node)),
       node.name,
@@ -474,7 +474,7 @@ class TreeView {
 
     label.onclick = (e) => {
       e.stopPropagation();
-      this.onLabelClick(node, e);
+      this.handleLabelClick(node, e);
     };
 
     nodeContent.appendChild(label);
