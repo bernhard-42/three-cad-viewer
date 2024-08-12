@@ -1,5 +1,6 @@
 import { getIconSvg } from "./icons.js";
 import { KeyMapper } from "./utils.js";
+import { Timer } from "./timer.js";
 
 const States = {
   unselected: 0,
@@ -10,38 +11,6 @@ const States = {
 
 const StateClasses = ["unselected", "selected", "mixed", "disabled"];
 var Counter = 0;
-
-/**
- * A timer for measuring performance.
- */
-class Timer {
-  /**
-   * Creates a new Timer instance.
-   * @param {string} prefix - The prefix to be used in log messages.
-   */
-  constructor(prefix) {
-    this.start = performance.now();
-    this.last = this.start;
-    this.prefix = prefix;
-  }
-
-  /**
-   * Logs the time elapsed since the last split.
-   * @param {string} msg - The message to be included in the log.
-   */
-  split(msg) {
-    var t = performance.now();
-    console.log(`${this.prefix} - ${msg}: ${t - this.last}`);
-    this.last = t;
-  }
-
-  /**
-   * Logs the overall time elapsed since the timer was started.
-   */
-  stop() {
-    console.log(`${this.prefix} - overall: ${performance.now() - this.start}`);
-  }
-}
 
 /**
  * A tree viewer component with lazy loading of large trees.
@@ -100,7 +69,6 @@ class TreeView {
 
     this.maxLevel = 0;
     this.root = this.buildTreeStructure(this.tree);
-    t.split("build");
 
     this.container = document.createElement("ul");
     this.container.classList.add("tcv_toplevel");
@@ -108,8 +76,6 @@ class TreeView {
     this.container.addEventListener("scroll", this.handleScroll);
 
     this.lastLabel = null;
-
-    t.stop();
 
     return this.container;
   }
@@ -935,12 +901,15 @@ class TreeView {
     this.traverse(this.root, setLevel);
     const el = this.getDomNode(this.getNodePath(this.root));
     el.scrollIntoView({ behaviour: "smooth", block: "start" });
+    var t = new Timer("update", true);
     for (var i = 0; i <= (level == -1 ? this.maxLevel : level); i++) {
       if (this.debug) {
         console.log("update => openLevel");
       }
       this.update();
+      t.split(`round ${i}`);
     }
+    t.stop();
   }
 
   /**
