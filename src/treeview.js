@@ -59,6 +59,7 @@ class TreeView {
     tree,
     objectHandler,
     pickHandler,
+    updateHandler,
     theme,
     linkIcons,
     debug = false,
@@ -88,6 +89,7 @@ class TreeView {
     this.tree = tree;
     this.objectHandler = objectHandler;
     this.pickHandler = pickHandler;
+    this.updateHandler = updateHandler;
     this.theme = theme;
     this.linkIcons = linkIcons;
     this.debug = debug;
@@ -694,6 +696,7 @@ class TreeView {
       this.updateParentStates(node, i);
       this.updateChildrenStates(node, i);
       this.update(null, i);
+      this.updateHandler();
     }
   }
 

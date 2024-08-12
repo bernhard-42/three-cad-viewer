@@ -923,6 +923,7 @@ class Viewer {
       this.tree,
       this.setObject,
       this.handlePick,
+      this.update,
       this.theme,
       this.newTreeBehavior,
     );
