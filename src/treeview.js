@@ -64,9 +64,7 @@ class TreeView {
     this.debug = debug;
   }
 
-  create(collapse /* TODO */) {
-    var t = new Timer("tree");
-
+  create() {
     this.maxLevel = 0;
     this.root = this.buildTreeStructure(this.tree);
 
