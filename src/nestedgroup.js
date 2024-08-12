@@ -134,9 +134,8 @@ class NestedGroup {
     }
     group.addType(edges, "edges");
 
-    path = path + this.delim + name;
-    this.groups[path.replaceAll(this.delim, "/")] = group;
-    group.name = path;
+    this.groups[path] = group;
+    group.name = path.replaceAll("/", this.delim);
 
     return group;
   }
@@ -187,9 +186,8 @@ class NestedGroup {
     }
     group.addType(points, "vertices");
 
-    path = path + this.delim + name;
-    this.groups[path.replaceAll(this.delim, "/")] = group;
-    group.name = path;
+    this.groups[path] = group;
+    group.name = path.replaceAll("/", this.delim);
 
     return group;
   }
@@ -231,9 +229,8 @@ class NestedGroup {
       renderback,
     );
 
-    path = path + this.delim + name;
-    this.groups[path.replaceAll(this.delim, "/")] = group;
-    group.name = path;
+    this.groups[path] = group;
+    group.name = path.replaceAll("/", this.delim);
 
     if (alpha == null) {
       alpha = 1.0;
@@ -357,7 +354,7 @@ class NestedGroup {
     return group;
   }
 
-  renderLoop(shapes, path) {
+  renderLoop(shapes) {
     const _render = (shape, texture, width, height) => {
       var mesh;
       switch (shape.type) {
@@ -366,7 +363,7 @@ class NestedGroup {
             shape.shape,
             shape.width,
             shape.color,
-            path,
+            shape.id,
             shape.name,
             shape.state[1],
             { topo: "edge", geomtype: shape.geomtype },
@@ -377,7 +374,7 @@ class NestedGroup {
             shape.shape,
             shape.size,
             shape.color,
-            path,
+            shape.id,
             shape.name,
             shape.state[1],
             { topo: "vertex", geomtype: null },
@@ -390,7 +387,7 @@ class NestedGroup {
             shape.alpha,
             shape.renderback == null ? false : shape.renderback,
             shape.exploded,
-            path,
+            shape.id,
             shape.name,
             shape.state,
             { topo: "face", geomtype: shape.geomtype },
@@ -418,13 +415,12 @@ class NestedGroup {
     group.position.set(...shapes.loc[0]);
     group.quaternion.set(...shapes.loc[1]);
 
-    path = path + this.delim + shapes.name;
-    this.groups[path.replaceAll(this.delim, "/")] = group;
-    group.name = path;
+    this.groups[shapes.id] = group;
+    group.name = shapes.id.replaceAll("/", "|");
 
     for (var shape of shapes.parts) {
       if (shape.parts) {
-        group.add(this.renderLoop(shape, path));
+        group.add(this.renderLoop(shape));
       } else {
         const has_texture = shape.texture != null;
         var texture = has_texture ? shape.texture.image : null;
@@ -439,7 +435,7 @@ class NestedGroup {
   }
 
   render() {
-    this.rootGroup = this.renderLoop(this.shapes, "");
+    this.rootGroup = this.renderLoop(this.shapes);
     return this.rootGroup;
   }
 
