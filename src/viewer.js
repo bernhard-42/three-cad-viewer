@@ -929,16 +929,33 @@ class Viewer {
     );
     timer.split("rendered tree");
 
-    this.update(true, true);
-
     this.display.clearCadTree();
-    this.display.addCadTree(this.treeview.create(this.collapse));
+    const t = this.treeview.create();
+
+    this.display.addCadTree(t);
     this.treeview.render();
+    timer.split("rendered tree");
     this.display.selectTabByName("tree");
-    timer.split("added tree to display");
+    timer.split("collapse tree");
+    switch (this.collapse) {
+      case 0:
+        this.treeview.expandAll();
+        break;
+      case 1:
+        this.treeview.openLevel(-1);
+        break;
+      case 2:
+        this.treeview.collapseAll();
+        break;
+
+      case 3:
+        this.treeview.openLevel(1);
+        break;
+      default:
+        break;
+    }
     timer.stop();
     this.display.toggleClippingTab(!exploded);
-    this.treeview.openLevel(1);
   }
 
   /**
