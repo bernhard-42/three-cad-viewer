@@ -56,6 +56,7 @@ class Display {
       "tcv_angle_measurement_panel",
     );
     this.cadTree = this._getElement("tcv_cad_tree_container");
+    this.cadTreeScrollContainer = this._getElement("tcv_box_content");
     this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
     this.cadClip = this._getElement("tcv_cad_clip_container");
     this.cadMaterial = this._getElement("tcv_cad_material_container");

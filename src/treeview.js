@@ -26,6 +26,7 @@ class TreeView {
    */
   constructor(
     tree,
+    scrollContainer,
     objectHandler,
     pickHandler,
     updateHandler,
@@ -56,6 +57,8 @@ class TreeView {
     };
 
     this.tree = tree;
+    this.offset = 12;
+    this.scrollContainer = scrollContainer;
     this.objectHandler = objectHandler;
     this.pickHandler = pickHandler;
     this.updateHandler = updateHandler;
@@ -71,7 +74,7 @@ class TreeView {
     this.container = document.createElement("ul");
     this.container.classList.add("tcv_toplevel");
 
-    this.container.addEventListener("scroll", this.handleScroll);
+    this.scrollContainer.addEventListener("scroll", this.handleScroll);
 
     this.lastLabel = null;
 
@@ -180,12 +183,14 @@ class TreeView {
     const isElementVisible = (el, containerRect) => {
       const rect = el.getBoundingClientRect();
       const result =
-        rect.height > 0 && rect.top >= -12 && rect.top <= containerRect.bottom;
+        rect.height > 0 &&
+        rect.top >= -this.offset &&
+        rect.top <= containerRect.bottom + this.offset;
       return result;
     };
 
     const elements = this.container.querySelectorAll(".tv-tree-node");
-    const containerRect = this.container.getBoundingClientRect();
+    const containerRect = this.scrollContainer.getBoundingClientRect();
     const visibleElements = Array.from(elements).filter((el) =>
       isElementVisible(el, containerRect),
     );
@@ -221,7 +226,7 @@ class TreeView {
   handleScroll = () => {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
-        const scrollTop = this.container.scrollTop;
+        const scrollTop = this.scrollContainer.scrollTop;
         this.lastScrollTop = scrollTop;
         if (this.debug) {
           console.log("update => scroll");

@@ -921,11 +921,13 @@ class Viewer {
 
     this.treeview = new TreeView(
       this.tree,
+      this.display.cadTreeScrollContainer,
       this.setObject,
       this.handlePick,
       this.update,
       this.theme,
       this.newTreeBehavior,
+      false,
     );
     timer.split("rendered tree");
 
@@ -1265,6 +1267,7 @@ class Viewer {
     timer.split("notification done");
 
     this.update(true, false);
+    this.treeview.update();
     timer.split("update done");
     timer.stop();
   }
