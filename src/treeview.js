@@ -632,7 +632,13 @@ class TreeView {
   updateObject = (node, iconNumber) => {
     var icons = iconNumber == 0 && this.linkIcons ? [0, 1] : [iconNumber];
     for (var i of icons) {
-      this.objectHandler(this.getNodePath(node), node.state[i], i);
+      this.objectHandler(
+        this.getNodePath(node),
+        node.state[i],
+        i,
+        false,
+        false,
+      );
     }
   };
 

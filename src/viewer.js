@@ -1388,7 +1388,7 @@ class Viewer {
    * @param {number} iconNumber - The icon number.
    * @param {boolean} [notify=true] - Whether to notify the changes.
    */
-  setObject = (path, state, iconNumber, notify = true) => {
+  setObject = (path, state, iconNumber, notify = true, update = true) => {
     var objectGroup = this.nestedGroup.groups[path];
     if (objectGroup != null && objectGroup instanceof ObjectGroup) {
       if (iconNumber == 0) {
@@ -1396,8 +1396,12 @@ class Viewer {
       } else {
         objectGroup.setEdgesVisible(state === 1);
       }
-      this.checkChanges({ states: this.getStates() }, notify);
-      this.update(this.updateMarker);
+      if (notify) {
+        this.checkChanges({ states: this.getStates() }, notify);
+      }
+      if (update) {
+        this.update(this.updateMarker);
+      }
     }
   };
 
