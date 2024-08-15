@@ -146,6 +146,7 @@ class PropertiesPanel extends Panel {
       length: "length",
       width: "width",
       radius: "radius",
+      radius2: "radius2",
       geom_type: "geom_type",
     };
 

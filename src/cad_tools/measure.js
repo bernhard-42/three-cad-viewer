@@ -507,6 +507,7 @@ class PropertiesMeasurement extends Measurement {
       length: 2.01,
       width: 0.01,
       radius: 1.01,
+      radius2: 2.02,
       geom_type: "Circle",
       vertex_coords: [1.34, -4.34, 2.35],
       // volume: 44444.44,
