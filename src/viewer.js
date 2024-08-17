@@ -111,13 +111,9 @@ class Viewer {
     this.lastBbox = null;
 
     // measure supporting exploded shapes and compact shapes
-    this.explodedGroup = null;
     this.explodedTree = null;
-    // this.explodedStates = null;
-    this.explodedNestedGroup = null;
-    this.compactGroup = null;
     this.compactTree = null;
-    // this.compactStates = null;
+    this.explodedNestedGroup = null;
     this.compactNestedGroup = null;
 
     // If fromSolid is true, this means the selected object is from the solid
@@ -883,28 +879,28 @@ class Viewer {
     };
 
     if (
-      (this.compactGroup == null && !exploded) ||
-      (this.explodedGroup == null && exploded)
+      (this.compactNestedGroup == null && !exploded) ||
+      (this.explodedNestedGroup == null && exploded)
     ) {
       this.setRenderDefaults(this.renderOptions);
       var result;
       if (exploded) {
-        if (this.explodedGroup == null) {
+        if (this.explodedNestedGroup == null) {
           result = this.renderTessellatedShapes(exploded, this.shapes);
           this.nestedGroup = result["group"];
           this.explodedNestedGroup = result["group"];
           _config();
           this.explodedTree = result["tree"];
-          this.explodedGroup = this.nestedGroup.render();
+          this.nestedGroup.render();
         }
       } else {
-        if (this.compactGroup == null) {
+        if (this.compactNestedGroup == null) {
           result = this.renderTessellatedShapes(exploded, this.shapes);
           this.nestedGroup = result["group"];
           this.compactNestedGroup = result["group"];
           _config();
           this.compactTree = result["tree"];
-          this.compactGroup = this.nestedGroup.render();
+          this.nestedGroup.render();
         }
       }
       timer.split(`rendered${exploded ? " exploded" : " compact"} shapes`);
@@ -916,7 +912,7 @@ class Viewer {
     }
 
     this.tree = exploded ? this.explodedTree : this.compactTree;
-    this.scene.children[0] = exploded ? this.explodedGroup : this.compactGroup;
+    this.scene.children[0] = this.nestedGroup.rootGroup;
     timer.split("added shapes to scene");
 
     this.treeview = new TreeView(
@@ -929,10 +925,10 @@ class Viewer {
       this.newTreeBehavior,
       false,
     );
-    timer.split("rendered tree");
 
     this.display.clearCadTree();
     const t = this.treeview.create();
+    timer.split("created tree");
 
     this.display.addCadTree(t);
     this.treeview.render();
