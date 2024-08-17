@@ -30,6 +30,7 @@ class TreeView {
     objectHandler,
     pickHandler,
     updateHandler,
+    notificationHandler,
     theme,
     linkIcons,
     debug = false,
@@ -62,6 +63,7 @@ class TreeView {
     this.objectHandler = objectHandler;
     this.pickHandler = pickHandler;
     this.updateHandler = updateHandler;
+    this.notificationHandler = notificationHandler;
     this.theme = theme;
     this.linkIcons = linkIcons;
     this.debug = debug;
@@ -635,13 +637,7 @@ class TreeView {
   updateObject = (node, iconNumber) => {
     var icons = iconNumber == 0 && this.linkIcons ? [0, 1] : [iconNumber];
     for (var i of icons) {
-      this.objectHandler(
-        this.getNodePath(node),
-        node.state[i],
-        i,
-        false,
-        false,
-      );
+      this.objectHandler(this.getNodePath(node), node.state[i], i, true, false);
     }
   };
 
@@ -675,6 +671,7 @@ class TreeView {
       this.update(null, i);
     }
     this.updateHandler();
+    this.notificationHandler();
   }
 
   /**

@@ -687,6 +687,13 @@ class Viewer {
   };
 
   /**
+   * Notifies the states by checking for changes and passing the states to the checkChanges method.
+   */
+  notifyStates = () => {
+    this.checkChanges({ states: this.getStates() }, true);
+  };
+
+  /**
    * Render scene and update orientation marker
    * If no animation loop exists, this needs to be called manually after every camera/scene change
    * @function
@@ -982,6 +989,7 @@ class Viewer {
       this.setObject,
       this.handlePick,
       this.update,
+      this.notifyStates,
       this.theme,
       this.newTreeBehavior,
       false,
@@ -1474,7 +1482,8 @@ class Viewer {
         objectGroup.setEdgesVisible(state === 1);
       }
       if (notify) {
-        this.checkChanges({ states: this.getStates() }, notify);
+        const state = {};
+        state[path] = this.getState(path);
       }
       if (update) {
         this.update(this.updateMarker);
