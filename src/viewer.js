@@ -1487,9 +1487,12 @@ class Viewer {
    * @param {string} id - The ID of the group.
    */
   setBoundingBox = (id) => {
-    const group = this.nestedGroup.groups[id];
-
+    var group = this.nestedGroup.groups[id];
     if (group != null) {
+      // ignore planeMesh group of root object
+      var planeMeshGroup = group.children[group.children.length - 1];
+      group.children = group.children.slice(0, group.children.length - 1);
+
       if (this.lastBbox != null) {
         this.scene.remove(this.lastBbox.bbox);
       }
@@ -1506,6 +1509,10 @@ class Viewer {
       } else {
         this.lastBbox = null;
       }
+
+      // add back planeMesh group
+      group.children.push(planeMeshGroup);
+
       this.update(false, false, false);
     }
   };
@@ -1592,7 +1599,16 @@ class Viewer {
   handlePick = (path, name, meta, shift, nodeType = "leaf") => {
     const id = `${path}/${name}`;
     const object = this.nestedGroup.groups[id];
-    const boundingBox = new BoundingBox().setFromObject(object, true);
+    var boundingBox;
+    if (object.parent != null) {
+      boundingBox = new BoundingBox().setFromObject(object, true);
+    } else {
+      // ignore PlaneMesh group
+      boundingBox = new BoundingBox();
+      for (var i = 0; i < object.children.length - 1; i++) {
+        boundingBox = boundingBox.expandByObject(object.children[i]);
+      }
+    }
 
     if (this.lastBbox != null && this.lastBbox.id === id && !meta && !shift) {
       this.removeLastBbox();
