@@ -659,13 +659,15 @@ class TreeView {
     }
     var icons = iconNumber == 0 ? (this.linkIcons ? [0, 1] : [0]) : [1];
     for (var i of icons) {
-      if (force != null) {
-        node.state[i] = force ? 1 : 0;
-      } else {
-        node.state[i] =
-          currentState === States.selected
-            ? States.unselected
-            : States.selected;
+      if (node.state[i] != 3) {
+        if (force != null) {
+          node.state[i] = force ? 1 : 0;
+        } else {
+          node.state[i] =
+            currentState === States.selected
+              ? States.unselected
+              : States.selected;
+        }
       }
       this.updateObject(node, iconNumber);
       this.updateParentStates(node, i);
