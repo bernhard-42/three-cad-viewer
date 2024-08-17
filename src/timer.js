@@ -3,6 +3,7 @@ class Timer {
     this.prefix = prefix;
     this.timeit = timeit;
     this.start = performance.now();
+    this.last = this.start;
     if (timeit) {
       console.info(`three-cad-viewer: ${prefix}:timer start`);
     }
@@ -13,9 +14,10 @@ class Timer {
       const t = performance.now();
       console.info(
         `three-cad-viewer: ${this.prefix}:${msg}:timer split ${(
-          t - this.start
+          t - this.last
         ).toFixed(1)} ms`,
       );
+      this.last = t;
     }
   }
 
