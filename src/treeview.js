@@ -909,15 +909,12 @@ class TreeView {
     this.traverse(this.root, setLevel);
     const el = this.getDomNode(this.getNodePath(this.root));
     el.scrollIntoView({ behaviour: "smooth", block: "start" });
-    var t = new Timer("update", true);
     for (var i = 0; i <= (level == -1 ? this.maxLevel : level); i++) {
       if (this.debug) {
         console.log("update => openLevel");
       }
       this.update();
-      t.split(`round ${i}`);
     }
-    t.stop();
   }
 
   /**

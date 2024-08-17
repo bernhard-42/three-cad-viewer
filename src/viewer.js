@@ -931,7 +931,7 @@ class Viewer {
    * @param exploded - whether to render the exploded or compact version
    */
   toggleGroup(exploded) {
-    var timer = new Timer("toggleGroup", true);
+    var timer = new Timer("toggleGroup", this.timeit);
     var _config = () => {
       this.nestedGroup.setTransparent(this.transparent);
       this.nestedGroup.setBlackEdges(this.blackEdges);
@@ -1002,6 +1002,7 @@ class Viewer {
     this.display.addCadTree(t);
     this.treeview.render();
     timer.split("rendered tree");
+
     this.display.selectTabByName("tree");
     timer.split("collapse tree");
     switch (this.collapse) {
@@ -1021,6 +1022,8 @@ class Viewer {
       default:
         break;
     }
+    this.checkChanges({ states: this.getStates() }, true);
+    timer.split("notify state changes");
     timer.stop();
     this.display.toggleClippingTab(!exploded);
   }
