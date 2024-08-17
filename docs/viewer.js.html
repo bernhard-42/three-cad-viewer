@@ -139,12 +139,10 @@ class Viewer {
     this.lastBbox = null;
 
     // measure supporting exploded shapes and compact shapes
-    this.explodedGroup = null;
     this.explodedTree = null;
-    this.explodedStates = null;
-    this.compactGroup = null;
     this.compactTree = null;
-    this.compactStates = null;
+    this.explodedNestedGroup = null;
+    this.compactNestedGroup = null;
 
     // If fromSolid is true, this means the selected object is from the solid
     // This is the obj that has been picked but the actual selected obj is the solid
@@ -167,6 +165,7 @@ class Viewer {
     console.debug("three-cad-viewer: WebGL Renderer created");
 
     this.display.setupUI(this);
+    window.viewer = this;
   }
 
   /**
@@ -244,7 +243,6 @@ class Viewer {
    * Enhance the given options for the view by default values.
    * @param {ViewOptions} options - The provided options object for the viewer.
    */
-
   setViewerDefaults(options) {
     this.axes = false;
     this.axes0 = false;
@@ -271,7 +269,6 @@ class Viewer {
     this.quaternion = null;
     this.target = null;
     this.measureTools = true;
-    this.newTreeBehaviour = true;
 
     this.zoom = 1;
 
@@ -343,7 +340,7 @@ class Viewer {
    * @param {Shapes} shapes - The Shapes object representing the tessellated CAD object.
    * @returns {THREE.Group} A nested THREE.Group object.
    */
-  _renderTessellatedShapes(shapes, states) {
+  _renderTessellatedShapes(shapes) {
     const nestedGroup = new NestedGroup(
       shapes,
       this.cadWidth,
@@ -361,7 +358,7 @@ class Viewer {
         new THREE.Vector3(shapes.bb.xmax, shapes.bb.ymax, shapes.bb.zmax),
       );
     }
-    nestedGroup.render(states);
+    nestedGroup.render();
     return nestedGroup;
   }
 
@@ -371,38 +368,29 @@ class Viewer {
    * @param {States} states - the visibility state of meshes and edges
    * @returns {NavTree} The navigation tree object.
    */
-  _getTree(shapes, states) {
-    const delim = "/";
-
-    const _getTree = (subGroup, path) => {
-      const newPath = `${path}${delim}${subGroup.name}`;
-      var result = {
-        name: subGroup.name,
-        id: newPath,
-      };
-      if (subGroup.parts) {
-        result.type = "node";
-        result.children = [];
-        for (var part of subGroup.parts) {
-          result.children.push(_getTree(part, newPath));
+  _getTree(shapes) {
+    const _getTree = (parts) => {
+      var result = {};
+      for (var part of parts) {
+        if (part.parts != null) {
+          result[part.name] = _getTree(part.parts);
+        } else {
+          result[part.name] = part.state;
         }
-      } else {
-        result.type = "leaf";
-        result.states = states[newPath];
       }
       return result;
     };
-
-    return _getTree(shapes, "");
+    var tree = {};
+    tree[shapes.name] = _getTree(shapes.parts);
+    return tree;
   }
 
   /**
    * Decompose a CAD object into faces, edges and vertices.
    * @param {Shapes} shapes - The Shapes object.
-   * @param {States} states - the visibility state of meshes and edges
    * @returns {Shapes} A decomposed Shapes object.
    */
-  _decompose(part, states) {
+  _decompose(part) {
     const shape = part.shape;
     var j;
 
@@ -458,11 +446,13 @@ class Viewer {
           type: "shapes",
           color: part.color,
           alpha: part.alpha,
-          renderBack: false,
+          renderback: true,
+          state: [1, 3],
           accuracy: part.accuracy,
           bb: {},
           geomtype: shape.face_types[j],
           subtype: part.subtype,
+          exploded: true,
           shape: {
             triangles: [...Array(triangles.length).keys()],
             vertices: vecs,
@@ -471,7 +461,6 @@ class Viewer {
           },
         };
         new_part.parts.push(new_shape);
-        states[new_shape.id] = [1, 3];
       }
 
       part.parts.push(new_part);
@@ -517,13 +506,13 @@ class Viewer {
           id: `${part.id}/edges/edges_${j}`,
           type: "edges",
           color: part.type == "shapes" ? this.edgeColor : color,
+          state: [3, 1],
           width: part.type == "shapes" ? 1 : part.width,
           bb: {},
           geomtype: shape.edge_types[j],
           shape: { edges: edge },
         };
         new_part.parts.push(new_shape);
-        states[new_shape.id] = [3, 1];
       }
 
       part.parts.push(new_part);
@@ -553,6 +542,7 @@ class Viewer {
           part.type == "shapes" || part.type == "edges"
             ? this.edgeColor
             : part.color,
+        state: [3, 1],
         size: part.type == "shapes" || part.type == "edges" ? 4 : part.size,
         bb: {},
         shape: {
@@ -564,7 +554,6 @@ class Viewer {
         },
       };
       new_part.parts.push(new_shape);
-      states[new_shape.id] = [3, 1];
     }
 
     part.parts.push(new_part);
@@ -574,7 +563,6 @@ class Viewer {
     delete part.alpha;
     delete part.accuracy;
     delete part.renderBack;
-    delete states[part.id];
 
     return part;
   }
@@ -586,8 +574,8 @@ class Viewer {
    * @param {RenderOptions} options - the options for rendering
    * @returns {THREE.Group} A nested THREE.Group object.
    */
-  renderTessellatedShapes(exploded, shapes, states) {
-    const _render = (shapes, states) => {
+  renderTessellatedShapes(exploded, shapes) {
+    const _render = (shapes) => {
       var part;
       if (shapes.version == 2 || shapes.version == 3) {
         var i, tmp;
@@ -595,10 +583,10 @@ class Viewer {
         for (i = 0; i &lt; shapes.parts.length; i++) {
           part = shapes.parts[i];
           if (part.parts != null) {
-            tmp = _render(part, states);
+            tmp = _render(part);
             parts.push(tmp);
           } else {
-            parts.push(this._decompose(part, states));
+            parts.push(this._decompose(part));
           }
         }
         shapes.parts = parts;
@@ -606,23 +594,18 @@ class Viewer {
       return shapes;
     };
 
-    var exploded_states = structuredClone(states);
     var exploded_shapes;
     if (exploded) {
-      exploded_shapes = _render(structuredClone(shapes), exploded_states);
+      exploded_shapes = _render(structuredClone(shapes));
     } else {
       exploded_shapes = structuredClone(shapes);
     }
-    var nested_group = this._renderTessellatedShapes(
-      exploded_shapes,
-      exploded_states,
-    );
-    var rendered_tree = this._getTree(exploded_shapes, exploded_states);
+    var nested_group = this._renderTessellatedShapes(exploded_shapes);
+    var rendered_tree = this._getTree(exploded_shapes);
 
     return {
       group: nested_group,
       tree: rendered_tree,
-      states: exploded_states,
     };
   }
 
@@ -729,6 +712,13 @@ class Viewer {
     if (notify &amp;&amp; this.notifyCallback &amp;&amp; Object.keys(changed).length) {
       this.notifyCallback(changed);
     }
+  };
+
+  /**
+   * Notifies the states by checking for changes and passing the states to the checkChanges method.
+   */
+  notifyStates = () => {
+    this.checkChanges({ states: this.getStates() }, true);
   };
 
   /**
@@ -910,10 +900,66 @@ class Viewer {
   // - - - - - - - - - - - - - - - - - - - - - - - -
 
   /**
+   * Synchronizes the states of two tree structures recursively.
+   *
+   * @param {Array|Object} compactTree - The compact tree structure.
+   * @param {Array|Object} expandedTree - The expanded tree structure.
+   * @param {string} path - The current path in the tree structure.
+   */
+  syncTreeStates = (compactTree, expandedTree, exploded, path) => {
+    if (Array.isArray(compactTree)) {
+      if (exploded) {
+        for (var t in expandedTree) {
+          for (var l in expandedTree[t]) {
+            const id = `${path}/${t}/${l}`;
+            const objectGroup = this.explodedNestedGroup.groups[id];
+            for (var i of [0, 1]) {
+              if (i == 0) {
+                objectGroup.setShapeVisible(compactTree[0] == 1);
+              } else {
+                objectGroup.setEdgesVisible(compactTree[1] == 1);
+              }
+              if (expandedTree[t][l][i] != 3) {
+                expandedTree[t][l][i] = compactTree[i];
+              }
+            }
+          }
+        }
+      } else {
+        const objectGroup = this.compactNestedGroup.groups[path];
+        for (var i of [0, 1]) {
+          var visible = false;
+          for (var t in expandedTree) {
+            for (var l in expandedTree[t]) {
+              if (expandedTree[t][l][i] == 1) {
+                visible = true;
+              }
+            }
+          }
+          if (i == 0) {
+            objectGroup.setShapeVisible(visible);
+          } else {
+            objectGroup.setEdgesVisible(visible);
+          }
+          if (compactTree[i] != 3) {
+            compactTree[i] = visible ? 1 : 0;
+          }
+        }
+      }
+    } else {
+      for (var key in compactTree) {
+        var id = `${path}/${key}`;
+        this.syncTreeStates(compactTree[key], expandedTree[key], exploded, id);
+      }
+    }
+  };
+
+  /**
    * Toggle the two version of the NestedGroup
    * @param exploded - whether to render the exploded or compact version
    */
   toggleGroup(exploded) {
+    var timer = new Timer("toggleGroup", this.timeit);
     var _config = () => {
       this.nestedGroup.setTransparent(this.transparent);
       this.nestedGroup.setBlackEdges(this.blackEdges);
@@ -921,56 +967,92 @@ class Viewer {
       this.nestedGroup.setRoughness(this.roughness);
       this.nestedGroup.setPolygonOffset(2);
     };
-    this.setRenderDefaults(this.renderOptions);
 
-    var result;
-    if (exploded) {
-      if (this.explodedGroup == null) {
-        result = this.renderTessellatedShapes(
-          exploded,
-          this.shapes,
-          this.states,
-        );
-        this.nestedGroup = result["group"];
-        _config();
-        this.explodedStates = result["states"];
-        this.explodedTree = result["tree"];
-        this.explodedGroup = this.nestedGroup.render(result["states"]);
+    if (
+      (this.compactNestedGroup == null &amp;&amp; !exploded) ||
+      (this.explodedNestedGroup == null &amp;&amp; exploded)
+    ) {
+      this.setRenderDefaults(this.renderOptions);
+      var result;
+      if (exploded) {
+        if (this.explodedNestedGroup == null) {
+          result = this.renderTessellatedShapes(exploded, this.shapes);
+          this.nestedGroup = result["group"];
+          this.explodedNestedGroup = result["group"];
+          _config();
+          this.explodedTree = result["tree"];
+          this.nestedGroup.render();
+        }
+      } else {
+        if (this.compactNestedGroup == null) {
+          result = this.renderTessellatedShapes(exploded, this.shapes);
+          this.nestedGroup = result["group"];
+          this.compactNestedGroup = result["group"];
+          _config();
+          this.compactTree = result["tree"];
+          this.nestedGroup.render();
+        }
       }
+      timer.split(`rendered${exploded ? " exploded" : " compact"} shapes`);
     } else {
-      if (this.compactGroup == null) {
-        result = this.renderTessellatedShapes(
-          exploded,
-          this.shapes,
-          this.states,
-        );
-        this.nestedGroup = result["group"];
-        _config();
-        this.compactStates = result["states"];
-        this.compactTree = result["tree"];
-        this.compactGroup = this.nestedGroup.render(this.states);
-      }
+      this.nestedGroup = exploded
+        ? this.explodedNestedGroup
+        : this.compactNestedGroup;
+      _config();
     }
 
-    this.states = exploded ? this.explodedStates : this.compactStates;
+    // only sync if both trees exist
+    if (this.explodedTree) {
+      this.syncTreeStates(this.compactTree, this.explodedTree, exploded, "");
+    }
+    timer.split("synched tree states");
+
     this.tree = exploded ? this.explodedTree : this.compactTree;
-    this.scene.children[0] = exploded ? this.explodedGroup : this.compactGroup;
+    this.scene.children[0] = this.nestedGroup.rootGroup;
+    timer.split("added shapes to scene");
 
     this.treeview = new TreeView(
-      structuredClone(this.states),
       this.tree,
-      this.setObjects,
+      this.display.cadTreeScrollContainer,
+      this.setObject,
       this.handlePick,
+      this.update,
+      this.notifyStates,
       this.theme,
       this.newTreeBehavior,
+      false,
     );
 
-    this.update(true, true);
-
     this.display.clearCadTree();
-    this.display.addCadTree(this.treeview.render(this.collapse));
-    this.display.selectTabByName("tree");
+    const t = this.treeview.create();
+    timer.split("created tree");
 
+    this.display.addCadTree(t);
+    this.treeview.render();
+    timer.split("rendered tree");
+
+    this.display.selectTabByName("tree");
+    timer.split("collapse tree");
+    switch (this.collapse) {
+      case 0:
+        this.treeview.expandAll();
+        break;
+      case 1:
+        this.treeview.openLevel(-1);
+        break;
+      case 2:
+        this.treeview.collapseAll();
+        break;
+
+      case 3:
+        this.treeview.openLevel(1);
+        break;
+      default:
+        break;
+    }
+    this.checkChanges({ states: this.getStates() }, true);
+    timer.split("notify state changes");
+    timer.stop();
     this.display.toggleClippingTab(!exploded);
   }
 
@@ -981,9 +1063,8 @@ class Viewer {
    * @param {ViewerOptions} viewerOptions - the viewer options
    * @param {RenderOptions} renderOptions - the render options
    */
-  render(shapes, states, renderOptions, viewerOptions) {
+  render(shapes, renderOptions, viewerOptions) {
     this.shapes = shapes;
-    this.states = states;
     this.renderOptions = renderOptions;
     this.setViewerDefaults(viewerOptions);
 
@@ -1017,7 +1098,7 @@ class Viewer {
     // add Info box
     //
 
-    this.info = new Info(this.display.cadInfo);
+    this.info = new Info(this.display.cadInfo, this.theme);
 
     //
     // create cameras
@@ -1253,8 +1334,6 @@ class Viewer {
     timer.split("ui updated");
     this.display.autoCollapse();
 
-    // ensure all for all deselected objects the stencil planes are invisible
-    this.setObjects(this.states, true, true);
     timer.split("stencil done");
     //
     // show the rendering
@@ -1284,6 +1363,7 @@ class Viewer {
     timer.split("notification done");
 
     this.update(true, false);
+    this.treeview.update();
     timer.split("update done");
     timer.stop();
   }
@@ -1417,35 +1497,42 @@ class Viewer {
   }
 
   /**
-   * Set the rendered shape visibility state according to the states map
-   * @function
-   * @param {States} states
-   * @param {boolean} [notify=true] - whether to send notification or not.
+   * Sets the visibility state of an object in the viewer.
+   *
+   * @param {string} path - The path of the object.
+   * @param {number} state - The visibility state (0 or 1).
+   * @param {number} iconNumber - The icon number.
+   * @param {boolean} [notify=true] - Whether to notify the changes.
    */
-  setObjects = (states, force = false, notify = true) => {
-    for (var key in this.states) {
-      var oldState = this.states[key];
-      var newState = states[key];
-      var objectGroup = this.nestedGroup.groups[key];
-      if (force || oldState[0] != newState[0]) {
-        objectGroup.setShapeVisible(newState[0] === 1);
-        this.states[key][0] = newState[0];
+  setObject = (path, state, iconNumber, notify = true, update = true) => {
+    var objectGroup = this.nestedGroup.groups[path];
+    if (objectGroup != null &amp;&amp; objectGroup instanceof ObjectGroup) {
+      if (iconNumber == 0) {
+        objectGroup.setShapeVisible(state === 1);
+      } else {
+        objectGroup.setEdgesVisible(state === 1);
       }
-      if (oldState[1] != newState[1]) {
-        objectGroup.setEdgesVisible(newState[1] === 1);
-        this.states[key][1] = newState[1];
+      if (notify) {
+        const state = {};
+        state[path] = this.getState(path);
+      }
+      if (update) {
+        this.update(this.updateMarker);
       }
     }
-
-    this.checkChanges({ states: states }, notify);
-
-    this.update(this.updateMarker);
   };
 
+  /**
+   * Sets the bounding box for a given ID.
+   * @param {string} id - The ID of the group.
+   */
   setBoundingBox = (id) => {
-    const group = this.nestedGroup.groups[id];
-
+    var group = this.nestedGroup.groups[id];
     if (group != null) {
+      // ignore planeMesh group of root object
+      var planeMeshGroup = group.children[group.children.length - 1];
+      group.children = group.children.slice(0, group.children.length - 1);
+
       if (this.lastBbox != null) {
         this.scene.remove(this.lastBbox.bbox);
       }
@@ -1462,6 +1549,10 @@ class Viewer {
       } else {
         this.lastBbox = null;
       }
+
+      // add back planeMesh group
+      group.children.push(planeMeshGroup);
+
       this.update(false, false, false);
     }
   };
@@ -1523,12 +1614,10 @@ class Viewer {
    * @function
    * @param {string} id - object id
    * @param {number[]} state - 2 dim array [mesh, edges] = [0/1, 0/1]
-   * @param {boolean} [notify=true] - whether to send notification or not.
+   * @p^aram {boolean} [notify=true] - whether to send notification or not.
    */
   setState = (id, state, nodeType = "leaf", notify = true) => {
-    [0, 1].forEach((i) =>
-      this.treeview.handleStateChange(nodeType, id, i, state[i]),
-    );
+    this.treeview.setState(id, state);
     this.update(this.updateMarker, notify);
   };
 
@@ -1536,7 +1625,6 @@ class Viewer {
     if (this.lastBbox != null) {
       this.scene.remove(this.lastBbox.bbox);
       this.lastBbox = null;
-      this.treeview.removeLabelHighlight();
     }
   }
 
@@ -1548,25 +1636,24 @@ class Viewer {
    * @param {boolean} - meta key pressed
    * @param {boolean} shift - whether to send notification or not.
    */
-  handlePick = (
-    path,
-    name,
-    meta,
-    shift,
-    nodeType = "leaf",
-    highlight = true,
-  ) => {
+  handlePick = (path, name, meta, shift, nodeType = "leaf") => {
     const id = `${path}/${name}`;
     const object = this.nestedGroup.groups[id];
-    const boundingBox = new BoundingBox().setFromObject(object, true);
+    var boundingBox;
+    if (object.parent != null) {
+      boundingBox = new BoundingBox().setFromObject(object, true);
+    } else {
+      // ignore PlaneMesh group
+      boundingBox = new BoundingBox();
+      for (var i = 0; i &lt; object.children.length - 1; i++) {
+        boundingBox = boundingBox.expandByObject(object.children[i]);
+      }
+    }
 
     if (this.lastBbox != null &amp;&amp; this.lastBbox.id === id &amp;&amp; !meta &amp;&amp; !shift) {
       this.removeLastBbox();
+      this.treeview.toggleLabelColor(null, id);
     } else {
-      if (highlight) {
-        this.treeview.selectNode(id);
-      }
-
       this.checkChanges({
         lastPick: {
           path: path,
@@ -1587,11 +1674,13 @@ class Viewer {
         this.treeview.hideAll();
         this.setState(id, [1, 1], nodeType);
         const center = boundingBox.center();
+        this.treeview.openPath(id);
         this.controls.setTarget(new THREE.Vector3(...center));
         this.info.centerInfo(center);
       } else {
         this.info.bbInfo(path, name, boundingBox);
         this.setBoundingBox(id);
+        this.treeview.openPath(id);
       }
     }
     this.update(true);
@@ -2184,7 +2273,7 @@ class Viewer {
    * @returns {States} states value.
    **/
   getStates() {
-    return this.states;
+    return this.treeview.getStates();
   }
 
   /**
@@ -2195,7 +2284,7 @@ class Viewer {
    **/
   getState(path) {
     var p = path.replaceAll("|", "/");
-    return this.getStates()[p];
+    return this.treeview.getState(p);
   }
 
   /**
@@ -2203,15 +2292,8 @@ class Viewer {
    * @function
    * @param {States} - states
    */
-  setStates = (states, notify = true) => {
-    for (var id in states) {
-      if (
-        states[id][0] != this.states[id][0] ||
-        states[id][1] != this.states[id][1]
-      ) {
-        this.setState(id, states[id], "leaf", notify);
-      }
-    }
+  setStates = (states) => {
+    this.treeview.setStates(states);
   };
 
   /**
@@ -2537,6 +2619,11 @@ class Viewer {
    * Note: Only the canvas will be shown, no tools and orientation marker
    */
   getImage = (taskId) => {
+    // canvas.toBlob can be very slow when anmation loop is off!
+    const animationLoop = this.hasAnimationLoop;
+    if (!animationLoop) {
+      this.toggleAnimationLoop(true);
+    }
     let result = new Promise((resolve, reject) => {
       const canvas = this.display.getCanvas();
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
@@ -2545,7 +2632,13 @@ class Viewer {
         let reader = new FileReader();
         reader.addEventListener(
           "load",
-          () => resolve({ task: taskId, dataUrl: reader.result }),
+          () => {
+            resolve({ task: taskId, dataUrl: reader.result });
+            // set animation loop back to the stored value
+            if (!animationLoop) {
+              this.toggleAnimationLoop(false);
+            }
+          },
           false,
         );
         reader.readAsDataURL(blob);
@@ -2713,7 +2806,7 @@ export { Viewer };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Jul 14 2024 12:40:33 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sat Aug 17 2024 13:54:58 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -54127,176 +54127,189 @@ var THREE = /*#__PURE__*/Object.freeze({
 	createCanvasElement: createCanvasElement
 });
 
-var img$11 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$15 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$10 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$14 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$$ = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(83%2c160%2c227)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
+var img$13 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(83%2c160%2c227)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
 
-var img$_ = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$12 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$Z = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$11 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$Y = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$10 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$X = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$$ = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$W = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$_ = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$V = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$Z = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$U = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$Y = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$T = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$X = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$S = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$W = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$R = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$V = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$Q = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$U = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$P = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$T = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$O = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$S = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$N = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$R = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$M = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(83%2c160%2c227)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23444' stroke='%23444' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$Q = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(83%2c160%2c227)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23444' stroke='%23444' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$L = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23ddd' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$P = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23ddd' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$K = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23444' stroke-width='1.25' fill='%23444' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$O = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23444' stroke-width='1.25' fill='%23444' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$J = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$N = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$I = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$M = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$H = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$L = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$G = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$K = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$F = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$J = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$E = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(48%2c 142%2c 225)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
+var img$I = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(48%2c 142%2c 225)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
 
-var img$D = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$H = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$C = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$G = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$B = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$F = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$A = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$E = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$z = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$D = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$y = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$C = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$x = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$B = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$w = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$A = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$v = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$z = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$u = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$y = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$t = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$x = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$s = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$w = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$r = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$v = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$q = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$u = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$p = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(48%2c 142%2c 225)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$t = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(48%2c 142%2c 225)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$o = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23666' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$s = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23666' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$n = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23ddd' stroke-width='1.25' fill='%23ddd' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$r = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23ddd' stroke-width='1.25' fill='%23ddd' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$m = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$q = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$l = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$p = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$k = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$o = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$j = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='rgb(255%2c 69%2c 0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(50%2c 205%2c 50)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='rgb(59%2c 158%2c 255)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$n = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='rgb(255%2c 69%2c 0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(50%2c 205%2c 50)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='rgb(59%2c 158%2c 255)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$i = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='rgb(255%2c 69%2c 0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(50%2c 205%2c 50)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='rgb(59%2c 158%2c 255)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.6' cy='-10.0' rx='3.0' ry='3.8' fill='none' stroke='%23444' stroke-width='2.4' /%3e%3cellipse cx='6.6' cy='-10.0' rx='2.0' ry='3.0' fill='%23444' stroke='%23ddd' stroke-width='1.4' /%3e%3c/svg%3e";
+var img$m = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='rgb(255%2c 69%2c 0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(50%2c 205%2c 50)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='rgb(59%2c 158%2c 255)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.6' cy='-10.0' rx='3.0' ry='3.8' fill='none' stroke='%23444' stroke-width='2.4' /%3e%3cellipse cx='6.6' cy='-10.0' rx='2.0' ry='3.0' fill='%23444' stroke='%23ddd' stroke-width='1.4' /%3e%3c/svg%3e";
 
-var img$h = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.0 L23.6%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-9.333333333333332 L23.6%2c-9.333333333333332 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-16.666666666666664 L23.6%2c-16.666666666666664 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-24.0 L23.6%2c-24.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.4 L2.0%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.333333333333332%2c-2.4 L9.333333333333332%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.666666666666664%2c-2.4 L16.666666666666664%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-2.4 L24.0%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$l = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.0 L23.6%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-9.333333333333332 L23.6%2c-9.333333333333332 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-16.666666666666664 L23.6%2c-16.666666666666664 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-24.0 L23.6%2c-24.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.4 L2.0%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.333333333333332%2c-2.4 L9.333333333333332%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.666666666666664%2c-2.4 L16.666666666666664%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-2.4 L24.0%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$g = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='14.0' y='-24.0' width='10.0' height='10.0' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L14.0%2c-14.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-18.0 L24.0%2c-24.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L24.0%2c-14.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L14.0%2c-24.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.875' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$k = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='14.0' y='-24.0' width='10.0' height='10.0' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L14.0%2c-14.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-18.0 L24.0%2c-24.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L24.0%2c-14.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L14.0%2c-24.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.875' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$f = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cellipse cx='22.5' cy='-13.0' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L20.5%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446562001' cy='-22.03503690480396' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812106%2c-20.132923872213652 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.3143385534380005' cy='-18.583959896778495' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187895%2c-17.40838939219355 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.314338553437999' cy='-7.416040103221507' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187894%2c-8.591610607806452 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446561998' cy='-3.9649630951960404' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812105%2c-5.867076127786348 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='13.0' cy='-13.0' rx='2.0' ry='2.0' fill='%23ddd' stroke='%23ddd' stroke-width='1.75' /%3e%3c/svg%3e";
+var img$j = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cellipse cx='22.5' cy='-13.0' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L20.5%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446562001' cy='-22.03503690480396' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812106%2c-20.132923872213652 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.3143385534380005' cy='-18.583959896778495' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187895%2c-17.40838939219355 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.314338553437999' cy='-7.416040103221507' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187894%2c-8.591610607806452 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446561998' cy='-3.9649630951960404' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812105%2c-5.867076127786348 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='13.0' cy='-13.0' rx='2.0' ry='2.0' fill='%23ddd' stroke='%23ddd' stroke-width='1.75' /%3e%3c/svg%3e";
 
-var img$e = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L2.0%2c-21.0 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-5.0 L24.0%2c-21.0 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L22.0%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-16.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-10.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-16.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-10.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$i = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L2.0%2c-21.0 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-5.0 L24.0%2c-21.0 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L22.0%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-16.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-10.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-16.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-10.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$d = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M4.0%2c-21.6 L22.0%2c-21.6 Z' fill='none' stroke='%23ddd' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.2%2c-16.8 L20.8%2c-16.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-16.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-12.8 L20.8%2c-12.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-12.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-8.8 L20.8%2c-8.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-8.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-4.8 L20.8%2c-4.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-4.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3c/svg%3e";
+var img$h = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M4.0%2c-21.6 L22.0%2c-21.6 Z' fill='none' stroke='%23ddd' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.2%2c-16.8 L20.8%2c-16.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-16.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-12.8 L20.8%2c-12.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-12.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-8.8 L20.8%2c-8.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-8.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-4.8 L20.8%2c-4.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-4.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3c/svg%3e";
 
-var img$c = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L14.0%2c-22.88 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.80793811328415%2c-6.280377654627602 A15.6%2c15.6%2c0%2c0%2c0%2c12.217398100377466%2c-15.963476998728744' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.0' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$g = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L14.0%2c-22.88 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.80793811328415%2c-6.280377654627602 A15.6%2c15.6%2c0%2c0%2c0%2c12.217398100377466%2c-15.963476998728744' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.0' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$b = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' fill-opacity='0.75' /%3e%3c/svg%3e";
+var img$f = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' fill-opacity='0.75' /%3e%3c/svg%3e";
 
-var img$a = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='7.833333333333333' y='-23.5' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L7.833333333333333%2c-7.833333333333333 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L7.833333333333333%2c-7.833333333333333 L23.5%2c-7.833333333333333 L18.166666666666664%2c-2.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L23.5%2c-23.5 L18.166666666666664%2c-18.166666666666664 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.166666666666664%2c-2.5 L18.166666666666664%2c-18.166666666666664 L23.5%2c-23.5 L23.5%2c-7.833333333333333 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.5' y='-18.166666666666664' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$e = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='7.833333333333333' y='-23.5' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L7.833333333333333%2c-7.833333333333333 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L7.833333333333333%2c-7.833333333333333 L23.5%2c-7.833333333333333 L18.166666666666664%2c-2.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L23.5%2c-23.5 L18.166666666666664%2c-18.166666666666664 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.166666666666664%2c-2.5 L18.166666666666664%2c-18.166666666666664 L23.5%2c-23.5 L23.5%2c-7.833333333333333 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.5' y='-18.166666666666664' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$9 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='red' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(0%2c128%2c0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='blue' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$d = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='red' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(0%2c128%2c0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='blue' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$8 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='red' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(0%2c128%2c0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='blue' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.6' cy='-10.0' rx='3.0' ry='3.8' fill='none' stroke='white' stroke-width='2.4' /%3e%3cellipse cx='6.6' cy='-10.0' rx='2.0' ry='3.0' fill='white' stroke='%23444' stroke-width='1.4' /%3e%3c/svg%3e";
+var img$c = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='red' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(0%2c128%2c0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='blue' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.6' cy='-10.0' rx='3.0' ry='3.8' fill='none' stroke='white' stroke-width='2.4' /%3e%3cellipse cx='6.6' cy='-10.0' rx='2.0' ry='3.0' fill='white' stroke='%23444' stroke-width='1.4' /%3e%3c/svg%3e";
 
-var img$7 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.0 L23.6%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-9.333333333333332 L23.6%2c-9.333333333333332 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-16.666666666666664 L23.6%2c-16.666666666666664 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-24.0 L23.6%2c-24.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.4 L2.0%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.333333333333332%2c-2.4 L9.333333333333332%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.666666666666664%2c-2.4 L16.666666666666664%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-2.4 L24.0%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$b = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.0 L23.6%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-9.333333333333332 L23.6%2c-9.333333333333332 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-16.666666666666664 L23.6%2c-16.666666666666664 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-24.0 L23.6%2c-24.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.4 L2.0%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.333333333333332%2c-2.4 L9.333333333333332%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.666666666666664%2c-2.4 L16.666666666666664%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-2.4 L24.0%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$6 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='14.0' y='-24.0' width='10.0' height='10.0' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L14.0%2c-14.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-18.0 L24.0%2c-24.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L24.0%2c-14.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L14.0%2c-24.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.875' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$a = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='14.0' y='-24.0' width='10.0' height='10.0' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L14.0%2c-14.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-18.0 L24.0%2c-24.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L24.0%2c-14.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L14.0%2c-24.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.875' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$5 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cellipse cx='22.5' cy='-13.0' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L20.5%2c-13.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446562001' cy='-22.03503690480396' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812106%2c-20.132923872213652 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.3143385534380005' cy='-18.583959896778495' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187895%2c-17.40838939219355 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.314338553437999' cy='-7.416040103221507' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187894%2c-8.591610607806452 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446561998' cy='-3.9649630951960404' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812105%2c-5.867076127786348 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='13.0' cy='-13.0' rx='2.0' ry='2.0' fill='%23444' stroke='%23444' stroke-width='1.75' /%3e%3c/svg%3e";
+var img$9 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cellipse cx='22.5' cy='-13.0' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L20.5%2c-13.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446562001' cy='-22.03503690480396' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812106%2c-20.132923872213652 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.3143385534380005' cy='-18.583959896778495' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187895%2c-17.40838939219355 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.314338553437999' cy='-7.416040103221507' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187894%2c-8.591610607806452 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446561998' cy='-3.9649630951960404' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812105%2c-5.867076127786348 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='13.0' cy='-13.0' rx='2.0' ry='2.0' fill='%23444' stroke='%23444' stroke-width='1.75' /%3e%3c/svg%3e";
 
-var img$4 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L2.0%2c-21.0 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-5.0 L24.0%2c-21.0 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L22.0%2c-13.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-16.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-10.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-16.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-10.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$8 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L2.0%2c-21.0 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-5.0 L24.0%2c-21.0 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L22.0%2c-13.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-16.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-10.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-16.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-10.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$3 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M4.0%2c-21.6 L22.0%2c-21.6 Z' fill='none' stroke='%23444' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.2%2c-16.8 L20.8%2c-16.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-16.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-12.8 L20.8%2c-12.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-12.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-8.8 L20.8%2c-8.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-8.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-4.8 L20.8%2c-4.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-4.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3c/svg%3e";
+var img$7 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M4.0%2c-21.6 L22.0%2c-21.6 Z' fill='none' stroke='%23444' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.2%2c-16.8 L20.8%2c-16.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-16.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-12.8 L20.8%2c-12.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-12.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-8.8 L20.8%2c-8.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-8.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-4.8 L20.8%2c-4.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-4.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3c/svg%3e";
 
-var img$2 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L14.0%2c-22.88 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.80793811328415%2c-6.280377654627602 A15.6%2c15.6%2c0%2c0%2c0%2c12.217398100377466%2c-15.963476998728744' stroke='rgb(83%2c160%2c227)' stroke-width='2.0' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$6 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L14.0%2c-22.88 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.80793811328415%2c-6.280377654627602 A15.6%2c15.6%2c0%2c0%2c0%2c12.217398100377466%2c-15.963476998728744' stroke='rgb(83%2c160%2c227)' stroke-width='2.0' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$1 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' fill-opacity='0.75' /%3e%3c/svg%3e";
+var img$5 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' fill-opacity='0.75' /%3e%3c/svg%3e";
 
-var img = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='7.833333333333333' y='-23.5' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L7.833333333333333%2c-7.833333333333333 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L7.833333333333333%2c-7.833333333333333 L23.5%2c-7.833333333333333 L18.166666666666664%2c-2.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L23.5%2c-23.5 L18.166666666666664%2c-18.166666666666664 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.166666666666664%2c-2.5 L18.166666666666664%2c-18.166666666666664 L23.5%2c-23.5 L23.5%2c-7.833333333333333 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.5' y='-18.166666666666664' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$4 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='7.833333333333333' y='-23.5' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L7.833333333333333%2c-7.833333333333333 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L7.833333333333333%2c-7.833333333333333 L23.5%2c-7.833333333333333 L18.166666666666664%2c-2.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L23.5%2c-23.5 L18.166666666666664%2c-18.166666666666664 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.166666666666664%2c-2.5 L18.166666666666664%2c-18.166666666666664 L23.5%2c-23.5 L23.5%2c-7.833333333333333 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.5' y='-18.166666666666664' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+
+var img$3 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e %3cpath d='M3.204 6h9.592L8 11.481 3.204 6z' fill='%23333'/%3e%3c/svg%3e";
+
+var img$2 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e %3cpath d='M3.204 6h9.592L8 11.481 3.204 6z' fill='%23ddd'/%3e%3c/svg%3e";
+
+var img$1 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e %3cpath d='M6 12.796V3.204L11.481 8 6 12.796z' fill='%23333'/%3e%3c/svg%3e";
+
+var img = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e %3cpath d='M6 12.796V3.204L11.481 8 6 12.796z' fill='%23ddd'/%3e%3c/svg%3e";
 
 const icons = {
-  bottom: { light: img$11, dark: img$G },
-  front: { light: img$10, dark: img$F },
-  help: { light: img$$, dark: img$E },
-  iso: { light: img$_, dark: img$D },
-  left: { light: img$Z, dark: img$C },
-  mesh: { light: img$Y, dark: img$B },
-  mesh_empty: { light: img$X, dark: img$A },
-  mesh_mix: { light: img$W, dark: img$z },
-  mesh_no: { light: img$V, dark: img$y },
-  pause: { light: img$U, dark: img$x },
-  pin: { light: img$T, dark: img$w },
-  plane: { light: img$S, dark: img$v },
-  play: { light: img$R, dark: img$u },
-  rear: { light: img$Q, dark: img$t },
-  reset: { light: img$P, dark: img$s },
-  resize: { light: img$O, dark: img$r },
-  right: { light: img$N, dark: img$q },
-  shape: { light: img$M, dark: img$p },
-  shape_empty: { light: img$L, dark: img$o },
-  shape_mix: { light: img$K, dark: img$n },
-  shape_no: { light: img$J, dark: img$m },
-  stop: { light: img$I, dark: img$l },
-  top: { light: img$H, dark: img$k },
-  axes: { light: img$9, dark: img$j },
-  axes0: { light: img$8, dark: img$i },
-  grid: { light: img$7, dark: img$h },
-  perspective: { light: img$6, dark: img$g },
-  explode: { light: img$5, dark: img$f },
-  distance: { light: img$4, dark: img$e },
-  properties: { light: img$3, dark: img$d },
-  angle: { light: img$2, dark: img$c },
-  transparent: { light: img$1, dark: img$b },
-  blackedges: { light: img, dark: img$a },
+  bottom: { light: img$15, dark: img$K },
+  front: { light: img$14, dark: img$J },
+  help: { light: img$13, dark: img$I },
+  iso: { light: img$12, dark: img$H },
+  left: { light: img$11, dark: img$G },
+  mesh: { light: img$10, dark: img$F },
+  mesh_empty: { light: img$$, dark: img$E },
+  mesh_mix: { light: img$_, dark: img$D },
+  mesh_no: { light: img$Z, dark: img$C },
+  pause: { light: img$Y, dark: img$B },
+  pin: { light: img$X, dark: img$A },
+  plane: { light: img$W, dark: img$z },
+  play: { light: img$V, dark: img$y },
+  rear: { light: img$U, dark: img$x },
+  reset: { light: img$T, dark: img$w },
+  resize: { light: img$S, dark: img$v },
+  right: { light: img$R, dark: img$u },
+  shape: { light: img$Q, dark: img$t },
+  shape_empty: { light: img$P, dark: img$s },
+  shape_mix: { light: img$O, dark: img$r },
+  shape_no: { light: img$N, dark: img$q },
+  stop: { light: img$M, dark: img$p },
+  top: { light: img$L, dark: img$o },
+  axes: { light: img$d, dark: img$n },
+  axes0: { light: img$c, dark: img$m },
+  grid: { light: img$b, dark: img$l },
+  perspective: { light: img$a, dark: img$k },
+  explode: { light: img$9, dark: img$j },
+  distance: { light: img$8, dark: img$i },
+  properties: { light: img$7, dark: img$h },
+  angle: { light: img$6, dark: img$g },
+  transparent: { light: img$5, dark: img$f },
+  blackedges: { light: img$4, dark: img$e },
+  nav_open: { light: img$3, dark: img$2 },
+  nav_closed: { light: img$1, dark: img },
 };
 
 function getIconBackground(theme, name) {
   return `url("${icons[name][theme]}")`;
+}
+function getIconSvg(theme, name) {
+  return decodeURIComponent(icons[name][theme]).substring(19);
 }
 
 function clone(obj) {
@@ -56229,6 +56242,7 @@ class PropertiesPanel extends Panel {
       length: "length",
       width: "width",
       radius: "radius",
+      radius2: "radius2",
       geom_type: "geom_type",
     };
 
@@ -57135,7 +57149,7 @@ class Tools {
   }
 }
 
-var template = "<div class=\"tcv_cad_viewer\">\n    <div class=\"tcv_cad_toolbar tcv_round\">\n        <!-- \n        <div class=\"tcv_grid-dropdown\">\n            <input class='tcv_grid tcv_check' id='tcv_grid_{{id}}' type=\"checkbox\" />\n            <label for='tcv_grid_{{id}}' class=\"tcv_label\">Grid</label>\n            <div class=\"tcv_grid-content tcv_dropdown-content\">\n                <div class=\"tcv_tooltip\" data-tooltip=\"Show xy grid\">\n                    <input class='tcv_grid-xy tcv_check tcv_dropdown-entry' id='tcv_grid-xy_{{id}}' type=\"checkbox\">\n                    <label for='tcv_grid-xy_{{id}}' class=\"tcv_label tcv_dropdown-entry\">xy</label>\n                </div>\n                <div class=\"tcv_tooltip\" data-tooltip=\"Show xz grid\">\n                    <input class='tcv_grid-xz tcv_check tcv_dropdown-entry' id='tcv_grid-xz_{{id}}' type=\"checkbox\">\n                    <label for='tcv_grid-xz_{{id}}' class=\"tcv_label tcv_dropdown-entry\">xz</label>\n                </div>\n                <div class=\"tcv_tooltip\" data-tooltip=\"Show yz grid\">\n                    <input class='tcv_grid-yz tcv_check tcv_dropdown-entry' id='tcv_grid-yz_{{id}}' type=\"checkbox\">\n                    <label for='tcv_grid-yz_{{id}}' class=\"tcv_label tcv_dropdown-entry\">yz</label>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_more-dropdown\">\n            <button class=\"tcv_more-btn\">More<span class=\"tcv_more_icon\">\\u25BC</span></button>\n            <span class=\"tcv_more-wrapper tcv_more-content tcv_dropdown-content\">\n                <span class=\"tcv_more_check\" class=\"tcv_tooltip\" data-tooltip=\"Toggle transparent objects\">\n                    <input class='tcv_transparent tcv_check tcv_dropdown-entry' id='tcv_transparent_{{id}}'\n                        type=\"checkbox\" />\n                    <label for='tcv_transparent_{{id}}' class=\"tcv_label tcv_dropdown-entry\">Transparent</label>\n                </span class=\"tcv_more_check\">\n                <span class=\"tcv_more_check\" class=\"tcv_tooltip\" data-tooltip=\"Toggle black edges\">\n                    <input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges_{{id}}'\n                        type=\"checkbox\" />\n                    <label for='tcv_black_edges_{{id}}' class=\"tcv_label tcv_dropdown-entry\">Black edges</label>\n                </span class=\"tcv_more_check\">\n                <span class=\"tcv_more_check\" class=\"tcv_tools_widget tcv_tooltip\" data-tooltip=\"Tools\">\n                    <input class='tcv_tools tcv_check tcv_dropdown-entry' id='tcv_tools_{{id}}' type=\"checkbox\" />\n                    <label for='tcv_tools_{{id}}' class=\"tcv_label tcv_dropdown-entry\">CAD Tools</label>\n                </span class=\"tcv_more_check\">\n                <span class=\"tcv_more_check\" class=\"tcv_explode_widget tcv_tooltip\"\n                    data-tooltip=\"Explode assembly (@0 determines explosion center)\">\n                    <input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode_{{id}}' type=\"checkbox\" />\n                    <label for='tcv_explode_{{id}}' class=\"tcv_label tcv_dropdown-entry\">Explode</label>\n                </span class=\"tcv_more_check\">\n            </span>\n        </div>\n        -->\n        <!-- <span class=\"tcv_align_right\">\n            <span class=\"tcv_tooltip\" data-tooltip=\"Toggle help\">\n                <input class='tcv_help tcv_btn' type=\"button\" />\n            </span>\n            <span class=\"tcv_tooltip\" data-tooltip=\"Pin view as PNG image\">\n                <input class='tcv_pin tcv_btn' type=\"button\" />\n            </span>\n        </span> -->\n    </div>\n\n    <div class=\"tcv_cad_body\">\n        <div class=\"tcv_cad_navigation\">\n            <div class=\"tcv_cad_tree tcv_round\">\n                <div class=\"tcv_tabnav\">\n                    <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value=\"Tree\" type=\"button\" />\n                    <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Clipping\"\n                        type=\"button\" />\n                    <input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Material\"\n                        type=\"button\" />\n                </div>\n                <div class=\"tcv_cad_tree_toggles\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase nodes with a single leaf\">\n                        <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value=\"1\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand root node only\">\n                        <input class='tcv_expand_root tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase tree\">\n                        <input class='tcv_collapse_all tcv_btn tcv_small_btn' value=\"C\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand tree\">\n                        <input class='tcv_expand tcv_btn tcv_small_btn' value=\"E\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                    <div class=\"tcv_cad_tree_container\"></div>\n                    <div class=\"tcv_cad_clip_container\">\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Set red clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane1 tcv_label\">N1 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane1 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane1 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set green clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane2 tcv_label\">N2 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane2 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane2 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set blue clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane3 tcv_label\">N3 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane3 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane3 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_clip_checks\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Use intersection clipping\">\n                                    <input class='tcv_clip_intersection tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Intersection</span>\n                                </span>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Show clipping planes\">\n                                    <input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Planes</span>\n                                </span>\n                            </div>\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Use object color caps instead of RGB\">\n                                <input class='tcv_clip_caps tcv_axes0 tcv_check' type=\"checkbox\" />\n                                <span class=\"tcv_label\">Use object color caps</span>\n                            </span>\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_material_container\">\n                        <div class=\"tcv_cad_tree_toggles\">\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Reset to original values\">\n                                <input class='tcv_material_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                            </span>\n                        </div>\n                        <div class=\"tcv_material_ambientlight tcv_label\">\n                            Ambient light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"20\" value=\"1\"\n                                    class=\"tcv_sld_value_ambientlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_ambientlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_pointlight tcv_label\">\n                            Directional light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"40\" value=\"1\"\n                                    class=\"tcv_sld_value_pointlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_pointlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_metalness tcv_label\">\n                            Metalness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_metalness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_metalness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_roughness tcv_label\">\n                            Roughness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_roughness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_roughness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_info\">\n                            This is not a full material renderer (e.g. the environment is black), so\n                            not every combination creates expected or good results.\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div class=\"tcv_cad_info_wrapper\">\n                <div class=\"tcv_toggle_info_wrapper\">\n                    <span class=\"tooltip\" data-tooltip=\"Open/close info box\">\n                        <input class='tcv_toggle_info tcv_btn tcv_small_info_btn' value=\"<\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_cad_info tcv_round\">\n                    <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                        <div class=\"tcv_cad_info_container\"></div>\n                    </div>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_cad_view\">\n            <div class=\"tcv_distance_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Distance</div>\n                <table class=\"tcv_properties_table\">\n                    <tr class=\"tcv_measure_row_line\">\n                        <td class=\"tcv_measure_cell tcv_measure_cell_header\">Total</td>\n                        <td class=\"tcv_measure_cell tcv_measure_val tcv_total\">total</td>\n                    </tr>\n                    <tr class=\"tcv_measure_row_line\">\n                        <td class=\"tcv_measure_cell tcv_measure_cell_header tcv_xtitle\">X</td>\n                        <td class=\"tcv_measure_cell tcv_measure_val tcv_x\">x</td>\n                    </tr>\n                    <tr class=\"tcv_measure_row_line\">\n                        <td class=\"tcv_measure_cell tcv_measure_cell_header tcv_ytitle\">Y</td>\n                        <td class=\"tcv_measure_cell tcv_measure_val tcv_y\">y</td>\n                    </tr>\n                    <tr>\n                        <td class=\"tcv_measure_cell tcv_measure_cell_header tcv_bottom_cell_left tcv_ztitle\">Z</td>\n                        <td class=\"tcv_measure_cell tcv_measure_val bottom_cell_right tcv_z\">z</td>\n                    </tr>\n                </table>\n            </div>\n\n            <div class=\"tcv_properties_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Properties</div>\n                <div class=\"tcv_measure_subheader\">Shape</div>\n                <table class=\"tcv_properties_table\">\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Volume</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_volume\" colspan=\"3\">volume</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Area</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_area\" colspan=\"3\">area</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Length</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_length\" colspan=\"3\">length</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Width</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_width\" colspan=\"3\">w</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Geom</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_geom_type\" colspan=\"3\">g</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Radius</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_radius\" colspan=\"3\">r</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line vertex_row tcv_vertex_coords_title_row\">\n                        <td class=\"tcv_vertex_cell tcv_xtitle\" colspan=\"2\">X</td>\n                        <td class=\"tcv_vertex_cell tcv_ytitle\" colspan=\"2\">Y</td>\n                        <td class=\"tcv_vertex_cell tcv_ztitle\" colspan=\"2\">Z</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line vertex_row tcv_vertex_coords_row\">\n                        <td class=\"tcv_vertex_cell tcv_x_value\" colspan=\"2\">X</td>\n                        <td class=\"tcv_vertex_cell tcv_y_value\" colspan=\"2\">Y</td>\n                        <td class=\"tcv_vertex_cell tcv_z_value\" colspan=\"2\">Z</td>\n                    </tr>\n                </table>\n            </div>\n\n            <div class=\"tcv_angle_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Angle</div>\n                <table class=\"tcv_properties_table\">\n                    <tr class=\"tcv_properties_row_line\">\n                        <td class=\"tcv_angle tcv_measure_val\">angle</td>\n                    </tr>\n                </table>\n            </div>\n\n            <div class=\"tcv_cad_animation tcv_round\">\n                <span class=\"tcv_animation_label\">E</span>\n                <span><input type=\"range\" min=\"0\" max=\"1000\" value=\"0\"\n                        class=\"tcv_animation_slider tcv_clip_slider\"></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Play animation\"><input class='tcv_play tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Pause animation\"><input class='tcv_pause tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Stop and reset animation\"><input class='tcv_stop tcv_btn'\n                        type=\"button\" /></span>\n            </div>\n\n            <div class=\"tcv_cad_help tcv_round\">\n                <table class=\"tcv_cad_help_layout\">\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Navigation</b></td>\n                    </tr>\n                    <tr>\n                        <td>Rotate</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate up / down</td>\n                        <td>&lt;{{ctrl}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate left / right</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Pan</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Zoom</td>\n                        <td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td>\n                    </tr>\n\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Selection</b></td>\n                    </tr>\n                    <tr>\n                        <td>Pick element</td>\n                        <td>&lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>Click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>(Shows axis-aligned bounding box, AABB)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide element</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{meta}}&gt; + click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td>Isolate element</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{shift}}&gt; + click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td><b>CAD Object Tree</b></td>\n                    </tr>\n                    <tr>\n                        <td>Collapse single leafs</td>\n                        <td>Button '1' (all nodes with one leaf only)</td>\n                    </tr>\n                    <tr>\n                        <td>Expand root only</td>\n                        <td>Button 'R'</td>\n                    </tr>\n                    <tr>\n                        <td>Collapse all nodes</td>\n                        <td>Button 'C'</td>\n                    </tr>\n                    <tr>\n                        <td>Expand all nodes</td>\n                        <td>Button 'E'</td>\n                    </tr>\n                </table>\n            </div>\n            <div class=\"tcv_filter_menu\">\n                <div class=\"tcv_drop_down tcv_shape_filter\">\n                    <span class=\"tcv_round tcv_filter_content\"><span class=\"tcv_filter_value\">None</span>\n                        <span class=\"tcv_filter_icon\">⏶\n                        </span></span>\n                    <div class=\"tcv_filter_dropdown tcv_round\">\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_none\">None</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_vertex\">Vertex</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_edge\">Edge</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_face\">Face</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_solid\">Solid</div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>";
+var template = "<div class=\"tcv_cad_viewer\">\n    <div class=\"tcv_cad_toolbar tcv_round\">\n        <!-- \n        <div class=\"tcv_grid-dropdown\">\n            <input class='tcv_grid tcv_check' id='tcv_grid_{{id}}' type=\"checkbox\" />\n            <label for='tcv_grid_{{id}}' class=\"tcv_label\">Grid</label>\n            <div class=\"tcv_grid-content tcv_dropdown-content\">\n                <div class=\"tcv_tooltip\" data-tooltip=\"Show xy grid\">\n                    <input class='tcv_grid-xy tcv_check tcv_dropdown-entry' id='tcv_grid-xy_{{id}}' type=\"checkbox\">\n                    <label for='tcv_grid-xy_{{id}}' class=\"tcv_label tcv_dropdown-entry\">xy</label>\n                </div>\n                <div class=\"tcv_tooltip\" data-tooltip=\"Show xz grid\">\n                    <input class='tcv_grid-xz tcv_check tcv_dropdown-entry' id='tcv_grid-xz_{{id}}' type=\"checkbox\">\n                    <label for='tcv_grid-xz_{{id}}' class=\"tcv_label tcv_dropdown-entry\">xz</label>\n                </div>\n                <div class=\"tcv_tooltip\" data-tooltip=\"Show yz grid\">\n                    <input class='tcv_grid-yz tcv_check tcv_dropdown-entry' id='tcv_grid-yz_{{id}}' type=\"checkbox\">\n                    <label for='tcv_grid-yz_{{id}}' class=\"tcv_label tcv_dropdown-entry\">yz</label>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_more-dropdown\">\n            <button class=\"tcv_more-btn\">More<span class=\"tcv_more_icon\">\\u25BC</span></button>\n            <span class=\"tcv_more-wrapper tcv_more-content tcv_dropdown-content\">\n                <span class=\"tcv_more_check\" class=\"tcv_tooltip\" data-tooltip=\"Toggle transparent objects\">\n                    <input class='tcv_transparent tcv_check tcv_dropdown-entry' id='tcv_transparent_{{id}}'\n                        type=\"checkbox\" />\n                    <label for='tcv_transparent_{{id}}' class=\"tcv_label tcv_dropdown-entry\">Transparent</label>\n                </span class=\"tcv_more_check\">\n                <span class=\"tcv_more_check\" class=\"tcv_tooltip\" data-tooltip=\"Toggle black edges\">\n                    <input class='tcv_black_edges tcv_check tcv_dropdown-entry' id='tcv_black_edges_{{id}}'\n                        type=\"checkbox\" />\n                    <label for='tcv_black_edges_{{id}}' class=\"tcv_label tcv_dropdown-entry\">Black edges</label>\n                </span class=\"tcv_more_check\">\n                <span class=\"tcv_more_check\" class=\"tcv_tools_widget tcv_tooltip\" data-tooltip=\"Tools\">\n                    <input class='tcv_tools tcv_check tcv_dropdown-entry' id='tcv_tools_{{id}}' type=\"checkbox\" />\n                    <label for='tcv_tools_{{id}}' class=\"tcv_label tcv_dropdown-entry\">CAD Tools</label>\n                </span class=\"tcv_more_check\">\n                <span class=\"tcv_more_check\" class=\"tcv_explode_widget tcv_tooltip\"\n                    data-tooltip=\"Explode assembly (@0 determines explosion center)\">\n                    <input class='tcv_explode tcv_check tcv_dropdown-entry' id='tcv_explode_{{id}}' type=\"checkbox\" />\n                    <label for='tcv_explode_{{id}}' class=\"tcv_label tcv_dropdown-entry\">Explode</label>\n                </span class=\"tcv_more_check\">\n            </span>\n        </div>\n        -->\n        <!-- <span class=\"tcv_align_right\">\n            <span class=\"tcv_tooltip\" data-tooltip=\"Toggle help\">\n                <input class='tcv_help tcv_btn' type=\"button\" />\n            </span>\n            <span class=\"tcv_tooltip\" data-tooltip=\"Pin view as PNG image\">\n                <input class='tcv_pin tcv_btn' type=\"button\" />\n            </span>\n        </span> -->\n    </div>\n\n    <div class=\"tcv_cad_body\">\n        <div class=\"tcv_cad_navigation\">\n            <div class=\"tcv_cad_tree tcv_round\">\n                <div class=\"tcv_tabnav\">\n                    <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value=\"Tree\" type=\"button\" />\n                    <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Clipping\"\n                        type=\"button\" />\n                    <input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Material\"\n                        type=\"button\" />\n                </div>\n                <div class=\"tcv_cad_tree_toggles\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase nodes with a single leaf\">\n                        <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value=\"1\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand root node only\">\n                        <input class='tcv_expand_root tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase tree\">\n                        <input class='tcv_collapse_all tcv_btn tcv_small_btn' value=\"C\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand tree\">\n                        <input class='tcv_expand tcv_btn tcv_small_btn' value=\"E\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                    <div class=\"tcv_cad_tree_container\"></div>\n                    <div class=\"tcv_cad_clip_container\">\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Set red clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane1 tcv_label\">N1 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane1 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane1 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set green clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane2 tcv_label\">N2 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane2 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane2 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set blue clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane3 tcv_label\">N3 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane3 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane3 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_clip_checks\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Use intersection clipping\">\n                                    <input class='tcv_clip_intersection tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Intersection</span>\n                                </span>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Show clipping planes\">\n                                    <input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Planes</span>\n                                </span>\n                            </div>\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Use object color caps instead of RGB\">\n                                <input class='tcv_clip_caps tcv_axes0 tcv_check' type=\"checkbox\" />\n                                <span class=\"tcv_label\">Use object color caps</span>\n                            </span>\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_material_container\">\n                        <div class=\"tcv_cad_tree_toggles\">\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Reset to original values\">\n                                <input class='tcv_material_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                            </span>\n                        </div>\n                        <div class=\"tcv_material_ambientlight tcv_label\">\n                            Ambient light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"20\" value=\"1\"\n                                    class=\"tcv_sld_value_ambientlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_ambientlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_pointlight tcv_label\">\n                            Directional light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"40\" value=\"1\"\n                                    class=\"tcv_sld_value_pointlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_pointlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_metalness tcv_label\">\n                            Metalness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_metalness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_metalness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_roughness tcv_label\">\n                            Roughness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_roughness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_roughness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_info\">\n                            This is not a full material renderer (e.g. the environment is black), so\n                            not every combination creates expected or good results.\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div class=\"tcv_cad_info_wrapper\">\n                <div class=\"tcv_toggle_info_wrapper\">\n                    <!-- <span class=\"tooltip\" data-tooltip=\"Open/close info box\"> -->\n                        <!-- <input class='tcv_toggle_info tcv_btn tcv_small_info_btn' value=\"<\" type=\"button\" /> -->\n                        <span class='tcv_toggle_info'></span><span class=\"tcv_info_label\">Info</span>\n                    <!-- </span> -->\n                </div>\n                <div class=\"tcv_cad_info tcv_round\">\n                    <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                        <div class=\"tcv_cad_info_container\"></div>\n                    </div>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_cad_view\">\n            <div class=\"tcv_distance_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Distance</div>\n                <table class=\"tcv_properties_table\">\n                    <tr class=\"tcv_measure_row_line\">\n                        <td class=\"tcv_measure_cell tcv_measure_cell_header\">Total</td>\n                        <td class=\"tcv_measure_cell tcv_measure_val tcv_total\">total</td>\n                    </tr>\n                    <tr class=\"tcv_measure_row_line\">\n                        <td class=\"tcv_measure_cell tcv_measure_cell_header tcv_xtitle\">X</td>\n                        <td class=\"tcv_measure_cell tcv_measure_val tcv_x\">x</td>\n                    </tr>\n                    <tr class=\"tcv_measure_row_line\">\n                        <td class=\"tcv_measure_cell tcv_measure_cell_header tcv_ytitle\">Y</td>\n                        <td class=\"tcv_measure_cell tcv_measure_val tcv_y\">y</td>\n                    </tr>\n                    <tr>\n                        <td class=\"tcv_measure_cell tcv_measure_cell_header tcv_bottom_cell_left tcv_ztitle\">Z</td>\n                        <td class=\"tcv_measure_cell tcv_measure_val bottom_cell_right tcv_z\">z</td>\n                    </tr>\n                </table>\n            </div>\n\n            <div class=\"tcv_properties_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Properties</div>\n                <div class=\"tcv_measure_subheader\">Shape</div>\n                <table class=\"tcv_properties_table\">\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Volume</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_volume\" colspan=\"3\">volume</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Area</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_area\" colspan=\"3\">area</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Length</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_length\" colspan=\"3\">length</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Width</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_width\" colspan=\"3\">w</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Geom</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_geom_type\" colspan=\"3\">g</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Radius</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_radius\" colspan=\"3\">r</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line\">\n                        <th class=\"tcv_props_cell tcv_props_header\" colspan=\"3\">Radius2</th>\n                        <td class=\"tcv_props_cell tcv_measure_val tcv_radius2\" colspan=\"3\">r</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line vertex_row tcv_vertex_coords_title_row\">\n                        <td class=\"tcv_vertex_cell tcv_xtitle\" colspan=\"2\">X</td>\n                        <td class=\"tcv_vertex_cell tcv_ytitle\" colspan=\"2\">Y</td>\n                        <td class=\"tcv_vertex_cell tcv_ztitle\" colspan=\"2\">Z</td>\n                    </tr>\n                    <tr class=\"tcv_properties_row_line vertex_row tcv_vertex_coords_row\">\n                        <td class=\"tcv_vertex_cell tcv_x_value\" colspan=\"2\">X</td>\n                        <td class=\"tcv_vertex_cell tcv_y_value\" colspan=\"2\">Y</td>\n                        <td class=\"tcv_vertex_cell tcv_z_value\" colspan=\"2\">Z</td>\n                    </tr>\n                </table>\n            </div>\n\n            <div class=\"tcv_angle_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Angle</div>\n                <table class=\"tcv_properties_table\">\n                    <tr class=\"tcv_properties_row_line\">\n                        <td class=\"tcv_angle tcv_measure_val\">angle</td>\n                    </tr>\n                </table>\n            </div>\n\n            <div class=\"tcv_cad_animation tcv_round\">\n                <span class=\"tcv_animation_label\">E</span>\n                <span><input type=\"range\" min=\"0\" max=\"1000\" value=\"0\"\n                        class=\"tcv_animation_slider tcv_clip_slider\"></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Play animation\"><input class='tcv_play tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Pause animation\"><input class='tcv_pause tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Stop and reset animation\"><input class='tcv_stop tcv_btn'\n                        type=\"button\" /></span>\n            </div>\n\n            <div class=\"tcv_cad_help tcv_round\">\n                <table class=\"tcv_cad_help_layout\">\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Navigation</b></td>\n                    </tr>\n                    <tr>\n                        <td>Rotate</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate up / down</td>\n                        <td>&lt;{{ctrl}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate left / right</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Pan</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Zoom</td>\n                        <td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td>\n                    </tr>\n\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Selection</b></td>\n                    </tr>\n                    <tr>\n                        <td>Pick element</td>\n                        <td>&lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>Click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>(Shows axis-aligned bounding box, AABB)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide element</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{meta}}&gt; + click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td>Isolate element</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{shift}}&gt; + click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td><b>CAD Object Tree</b></td>\n                    </tr>\n                    <tr>\n                        <td>Collapse single leafs</td>\n                        <td>Button '1' (all nodes with one leaf only)</td>\n                    </tr>\n                    <tr>\n                        <td>Expand root only</td>\n                        <td>Button 'R'</td>\n                    </tr>\n                    <tr>\n                        <td>Collapse all nodes</td>\n                        <td>Button 'C'</td>\n                    </tr>\n                    <tr>\n                        <td>Expand all nodes</td>\n                        <td>Button 'E'</td>\n                    </tr>\n                </table>\n            </div>\n            <div class=\"tcv_filter_menu\">\n                <div class=\"tcv_drop_down tcv_shape_filter\">\n                    <span class=\"tcv_round tcv_filter_content\"><span class=\"tcv_filter_value\">None</span>\n                        <span class=\"tcv_filter_icon\">⏶\n                        </span></span>\n                    <div class=\"tcv_filter_dropdown tcv_round\">\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_none\">None</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_vertex\">Vertex</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_edge\">Edge</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_face\">Face</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_solid\">Solid</div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>";
 
 function TEMPLATE(id) {
   const shift = KeyMapper.getshortcuts("shift");
@@ -57186,6 +57200,7 @@ class Display {
       "tcv_angle_measurement_panel",
     );
     this.cadTree = this._getElement("tcv_cad_tree_container");
+    this.cadTreeScrollContainer = this._getElement("tcv_box_content");
     this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
     this.cadClip = this._getElement("tcv_cad_clip_container");
     this.cadMaterial = this._getElement("tcv_cad_material_container");
@@ -57419,6 +57434,11 @@ class Display {
 
     this.showPinning(options.pinning);
     // this.showMeasureTools(options.measureTools);
+
+    this.infoIcons = {
+      right: getIconSvg(theme, "nav_closed"),
+      down: getIconSvg(theme, "nav_open"),
+    };
   }
 
   _setupCheckEvent(name, fn, flag) {
@@ -58197,15 +58217,13 @@ class Display {
    */
   collapseNodes(value) {
     if (value === "1") {
-      this.viewer.treeview.expandNodes();
-      this.viewer.treeview.collapseNodes(1);
+      this.viewer.treeview.openLevel(-1);
     } else if (value === "R") {
-      this.viewer.treeview.expandNodes();
-      this.viewer.treeview.collapseNodes(3);
+      this.viewer.treeview.openLevel(1);
     } else if (value === "C") {
-      this.viewer.treeview.collapseNodes(2);
+      this.viewer.treeview.collapseAll();
     } else if (value === "E") {
-      this.viewer.treeview.expandNodes();
+      this.viewer.treeview.expandAll();
     }
   }
 
@@ -58358,7 +58376,10 @@ class Display {
    */
   showInfo = (flag) => {
     this.cadInfo.parentNode.parentNode.style.display = flag ? "block" : "none";
-    this._getElement("tcv_toggle_info").value = flag ? "\u25B2 i" : "\u25BC i";
+    // this._getElement("tcv_toggle_info").value = flag ? "\u25B2 i" : "\u25BC i";
+    this._getElement("tcv_toggle_info").innerHTML = flag
+      ? `${this.infoIcons["down"]}`
+      : `${this.infoIcons["right"]}`;
     this.info_shown = flag;
   };
 
@@ -59078,9 +59099,8 @@ class NestedGroup {
     }
     group.addType(edges, "edges");
 
-    path = path + this.delim + name;
-    this.groups[path.replaceAll(this.delim, "/")] = group;
-    group.name = path;
+    this.groups[path] = group;
+    group.name = path.replaceAll("/", this.delim);
 
     return group;
   }
@@ -59131,9 +59151,8 @@ class NestedGroup {
     }
     group.addType(points, "vertices");
 
-    path = path + this.delim + name;
-    this.groups[path.replaceAll(this.delim, "/")] = group;
-    group.name = path;
+    this.groups[path] = group;
+    group.name = path.replaceAll("/", this.delim);
 
     return group;
   }
@@ -59143,6 +59162,7 @@ class NestedGroup {
     color,
     alpha,
     renderback,
+    exploded,
     path,
     name,
     states,
@@ -59174,9 +59194,8 @@ class NestedGroup {
       renderback,
     );
 
-    path = path + this.delim + name;
-    this.groups[path.replaceAll(this.delim, "/")] = group;
-    group.name = path;
+    this.groups[path] = group;
+    group.name = path.replaceAll("/", this.delim);
 
     if (alpha == null) {
       alpha = 1.0;
@@ -59243,7 +59262,7 @@ class NestedGroup {
     }
 
     const backColor =
-      group.subtype === "solid"
+      group.subtype === "solid" && !exploded
         ? color
         : new Color(this.edgeColor).lerp(new Color(1, 1, 1), 0.15);
 
@@ -59300,7 +59319,7 @@ class NestedGroup {
     return group;
   }
 
-  renderLoop(shapes, path, states) {
+  renderLoop(shapes) {
     const _render = (shape, texture, width, height) => {
       var mesh;
       switch (shape.type) {
@@ -59309,9 +59328,9 @@ class NestedGroup {
             shape.shape,
             shape.width,
             shape.color,
-            path,
+            shape.id,
             shape.name,
-            states[shape.id][1],
+            shape.state[1],
             { topo: "edge", geomtype: shape.geomtype },
           );
           break;
@@ -59320,9 +59339,9 @@ class NestedGroup {
             shape.shape,
             shape.size,
             shape.color,
-            path,
+            shape.id,
             shape.name,
-            states[shape.id][1],
+            shape.state[1],
             { topo: "vertex", geomtype: null },
           );
           break;
@@ -59332,9 +59351,10 @@ class NestedGroup {
             shape.color,
             shape.alpha,
             shape.renderback == null ? false : shape.renderback,
-            path,
+            shape.exploded,
+            shape.id,
             shape.name,
-            states[shape.id],
+            shape.state,
             { topo: "face", geomtype: shape.geomtype },
             shape.subtype,
             texture,
@@ -59360,13 +59380,12 @@ class NestedGroup {
     group.position.set(...shapes.loc[0]);
     group.quaternion.set(...shapes.loc[1]);
 
-    path = path + this.delim + shapes.name;
-    this.groups[path.replaceAll(this.delim, "/")] = group;
-    group.name = path;
+    this.groups[shapes.id] = group;
+    group.name = shapes.id.replaceAll("/", "|");
 
     for (var shape of shapes.parts) {
       if (shape.parts) {
-        group.add(this.renderLoop(shape, path, states));
+        group.add(this.renderLoop(shape));
       } else {
         const has_texture = shape.texture != null;
         var texture = has_texture ? shape.texture.image : null;
@@ -59380,8 +59399,8 @@ class NestedGroup {
     return group;
   }
 
-  render(states) {
-    this.rootGroup = this.renderLoop(this.shapes, "", states);
+  render() {
+    this.rootGroup = this.renderLoop(this.shapes);
     return this.rootGroup;
   }
 
@@ -60150,432 +60169,12 @@ class OrientationMarker {
   }
 }
 
-// Some helpers
-
-function tag(name, classList, options) {
-  var el = document.createElement(name);
-  if (typeof classList != "undefined") {
-    for (var i in classList) {
-      el.classList.add(classList[i]);
-    }
-  }
-  if (typeof options != "undefined") {
-    for (var t in options) {
-      el[t] = options[t];
-    }
-  }
-  return el;
-}
-
-const States = {
-  unselected: 0,
-  selected: 1,
-  mixed: 2,
-  empty: 3,
-};
-
-class TreeView {
-  constructor(states, tree, objectHandler, pickHandler, theme, newTreeBehavior) {
-    this.states = states;
-    this.tree = tree;
-    this.objectHandler = objectHandler;
-    this.pickHandler = pickHandler;
-    this.theme = theme;
-    this.newTreeBehavior = newTreeBehavior;
-    this.lastSelection = null;
-
-    this.setupIcons(theme);
-    this.treeModel = this.toModel(tree);
-  }
-
-  setupIcons(theme) {
-    var shapes = {};
-    shapes[States.unselected] = getIconBackground(theme, "shape_no");
-    shapes[States.selected] = getIconBackground(theme, "shape");
-    shapes[States.mixed] = getIconBackground(theme, "shape_mix");
-    shapes[States.empty] = getIconBackground(theme, "shape_empty");
-
-    var meshes = {};
-    meshes[States.unselected] = getIconBackground(theme, "mesh_no");
-    meshes[States.selected] = getIconBackground(theme, "mesh");
-    meshes[States.mixed] = getIconBackground(theme, "mesh_mix");
-    meshes[States.empty] = getIconBackground(theme, "mesh_empty");
-
-    this.icons = [shapes, meshes];
-  }
-
-  toModel(tree) {
-    var model = {
-      id: tree.id,
-      type: tree.type,
-      name: tree.name,
-      color: tree.color,
-      imgs: [],
-      states: [],
-    };
-    var i = 0;
-
-    if (tree.type === "node") {
-      for (i in this.icons) {
-        model.states.push(States.selected);
-      }
-      model.children = [];
-      for (i in tree.children) {
-        model.children.push(this.toModel(tree.children[i]));
-      }
-    } else if (tree.type === "leaf") {
-      var state = this.states[tree.id];
-      for (i in this.icons) {
-        model.states.push(state[i]);
-      }
-    } else {
-      console.error(`Error, unknown type '${tree.type}'`);
-    }
-    return model;
-  }
-
-  toHtml(model) {
-    var icon_id = 0;
-    var img_button;
-
-    var li = tag("li", [`node${model.id.replaceAll(" ", "_")}`]);
-    var lbl = tag("span", ["tcv_tree_label"]);
-    lbl.innerHTML = model.name;
-    lbl.id = model.id;
-
-    lbl.addEventListener("mousedown", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const id = e.target.id;
-      const parts = id.split("/");
-      const path = parts.slice(0, -1).join("/");
-      const name = parts[parts.length - 1];
-
-      this.pickHandler(path, name, KeyMapper.get(e, "meta"), KeyMapper.get(e, "shift"), model.type, true);
-    }, false);
-
-    var entry = tag("span", ["tcv_node_entry"], { id: model.id });
-    if (model.type === "node") {
-      var span = tag("span", ["tcv_node_entry_wrap"]);
-      span.appendChild(tag("span", ["tcv_t-caret", "tcv_t-caret-down"]));
-      for (icon_id in this.icons) {
-        img_button = tag("input", ["tcv_icon"], {
-          type: "button",
-          style: `background-image: ${this.getIcon(icon_id, 1)}`,
-        });
-        img_button.setAttribute("icon_id", icon_id);
-        img_button.addEventListener("click", (e) => {
-          // jshint ignore:line
-          this.handleClick(
-            model.type,
-            model.id,
-            e.srcElement.getAttribute("icon_id"),
-          );
-        });
-        entry.appendChild(img_button);
-        model.imgs.push(img_button);
-      }
-      entry.appendChild(lbl);
-      span.appendChild(entry);
-      li.append(span);
-      var lu = tag("ul", ["tcv_nested", "tcv_active"]);
-      for (var i in model.children) {
-        lu.appendChild(this.toHtml(model.children[i]));
-      }
-      li.appendChild(lu);
-    } else {
-      for (icon_id in this.icons) {
-        img_button = tag("input", ["tcv_icon"], {
-          type: "button",
-          style: `background-image: ${this.getIcon(
-            icon_id,
-            model.states[icon_id],
-          )}`,
-        });
-        img_button.setAttribute("icon_id", icon_id);
-        if (icon_id == 0) {
-          img_button.classList.add("tcv_indent");
-        }
-        if (model.states[icon_id] != States.empty) {
-          // no events on empty icon
-          img_button.addEventListener("click", (e) => {
-            // jshint ignore:line
-            this.handleClick(
-              model.type,
-              model.id,
-              e.srcElement.getAttribute("icon_id"),
-            );
-          });
-        }
-        entry.appendChild(img_button);
-        model.imgs.push(img_button);
-      }
-      entry.appendChild(lbl);
-      li.appendChild(entry);
-    }
-    return li;
-  }
-
-  _labelVisible(label) {
-    const scrollContainer = this.container.parentElement.parentElement;
-    const height = scrollContainer.getBoundingClientRect().height;
-    const scrollTop = scrollContainer.scrollTop;
-    const offsetTop = label.offsetTop - 134;
-    return offsetTop - scrollTop < height - 12 && offsetTop > scrollTop;
-  }
-
-  _openToTop(label) {
-    var li = label.parentElement.parentElement.parentElement.parentElement;
-    while (li.tagName == "LI") {
-      this.toggleTreeNode(li, false);
-      li = li.parentElement.parentElement;
-    }
-  }
-
-  removeLabelHighlight() {
-    this.lastSelection?.classList.remove("tcv_node_selected");
-    this.lastSelection = null;
-  }
-
-  highlightLabel(label) {
-    const change = label != this.lastSelection;
-    this.removeLabelHighlight();
-    if (change) {
-      // open collapsed entries
-      if (label.offsetTop == 0) {
-        this._openToTop(label);
-      }
-
-      label.classList.add("tcv_node_selected");
-      this.lastSelection = label;
-
-      if (!this._labelVisible(label)) {
-        if (label.scrollIntoViewIfNeeded == null) {
-          label.scrollIntoView({ block: "nearest" });
-        } else {
-          label.scrollIntoViewIfNeeded();
-        }
-      }
-    }
-  }
-
-  selectNode(id) {
-    const el = this.container.getElementsByClassName(
-      `node${id.replaceAll(" ", "_")}`,
-    )[0];
-    if (el != null) {
-      const label = el.getElementsByClassName("tcv_tree_label")[0];
-      this.highlightLabel(label);
-    }
-  }
-
-  toggleTreeNode(el, collapse) {
-    if (collapse == null) {
-      el.querySelector(".tcv_nested").classList.toggle("tcv_active");
-      el.getElementsByClassName("tcv_t-caret")[0].classList.toggle(
-        "tcv_t-caret-down",
-      );
-    } else if (collapse) {
-      el.querySelector(".tcv_nested").classList.remove("tcv_active");
-      el.getElementsByClassName("tcv_t-caret")[0].classList.remove(
-        "tcv_t-caret-down",
-      );
-    } else {
-      el.querySelector(".tcv_nested").classList.add("tcv_active");
-      el.getElementsByClassName("tcv_t-caret")[0].classList.add(
-        "tcv_t-caret-down",
-      );
-    }
-  }
-
-  render(collapse) {
-    // before the nodes can be collapsed, the DOM element needs to be rendered and added to the container
-    this.container = tag("ul", ["tcv_toplevel"]);
-
-    // eslint-disable-next-line no-unused-vars
-    var observer = new MutationObserver((_mutuations) => {
-      if (this.container.contains(tree)) {
-        if (collapse > 0 && collapse < 4) {
-          this.collapseNodes(collapse);
-        }
-        observer.disconnect();
-      }
-    });
-
-    observer.observe(this.container, {
-      attributes: false,
-      childList: true,
-      characterData: false,
-      subtree: false,
-    });
-
-    const tree = this.toHtml(this.treeModel);
-    this.container.appendChild(tree);
-
-    for (var icon_id in this.icons) {
-      this.updateNodes(this.treeModel, icon_id);
-    }
-
-    var toggler = this.container.getElementsByClassName("tcv_t-caret");
-    for (var i = 0; i < toggler.length; i++) {
-      toggler[i].addEventListener("click", (e) => {
-        this.toggleTreeNode(e.target.parentElement.parentElement, null);
-      });
-    }
-
-    return this.container;
-  }
-
-  getNode(node, id) {
-    if (node.id == id) return node;
-    for (var i in node.children) {
-      var result = this.getNode(node.children[i], id);
-      if (result != null) return result;
-    }
-    return null;
-  }
-
-  updateState(node, icon_id, state) {
-    if (node.states[icon_id] != States.empty) {
-      // ignore empty
-      this.states[node.id][icon_id] = state;
-      node.states[icon_id] = state;
-      this.setIcon(node.imgs[icon_id], icon_id, state);
-    }
-  }
-
-  propagateChange(node, icon_id, state) {
-    for (var i in node.children) {
-      var subNode = node.children[i];
-      if (subNode.type == "leaf") {
-        this.updateState(subNode, icon_id, state);
-      } else {
-        this.propagateChange(subNode, icon_id, state);
-      }
-    }
-  }
-
-  updateNodes(model, icon_id) {
-    var state = 0;
-    if (model.type === "node") {
-      var states = [];
-      for (var i in model.children) {
-        states.push(this.updateNodes(model.children[i], icon_id));
-      }
-      var filtered_states = states.filter((e) => e != 3);
-      if (filtered_states.length == 0) {
-        state = 3;
-      } else {
-        state = filtered_states.reduce(
-          (s1, s2) => (s1 == s2 ? s1 : States.mixed),
-          filtered_states[0],
-        );
-      }
-      model.states[icon_id] = state;
-      this.setIcon(model.imgs[icon_id], icon_id, state);
-    } else {
-      state = model.states[icon_id];
-    }
-    return state;
-  }
-
-  _toggleNodes(mode, collapse) {
-    var walk = (obj) => {
-      if (obj.type == "node") {
-        if (
-          mode === 2 ||
-          (obj !== this.tree &&
-            (mode === 3 ||
-              (mode == 1 &&
-                obj.children.length === 1 &&
-                obj.children[0].type === "leaf")))
-        ) {
-          var el = this.container.getElementsByClassName(
-            `node${obj.id.replaceAll(" ", "_")}`,
-          )[0];
-          if (el != null) {
-            this.toggleTreeNode(el, collapse);
-          }
-        }
-        for (var o of obj.children) {
-          walk(o);
-        }
-      }
-    };
-    walk(this.tree);
-  }
-
-  collapseNodes(mode) {
-    this._toggleNodes(mode, true);
-  }
-
-  expandNodes() {
-    this._toggleNodes(2, false);
-  }
-
-  getIcon(icon_id, state) {
-    return this.icons[icon_id][state];
-  }
-
-  setIcon(img, icon_id, state) {
-    img.style.backgroundImage = this.getIcon(icon_id, state);
-  }
-
-  hideAll() {
-    [0, 1].forEach((i) => this.setState("node", this.treeModel.id, i, 0));
-  }
-
-  showAll() {
-    [0, 1].forEach((i) => this.setState("node", this.treeModel.id, i, 1));
-  }
-
-  setState(type, id, icon_id, state) {
-    this.handleStateChange(type, id, icon_id, state);
-  }
-
-  handleClick(type, id, icon_id) {
-    this.handleStateChange(type, id, icon_id, null);
-  }
-
-  handleStateChange(type, id, icon_id, state) {
-    var node = this.getNode(this.treeModel, id);
-    var newState;
-    if (state == null) {
-      newState =
-        node.states[icon_id] == States.selected
-          ? States.unselected
-          : States.selected;
-    } else {
-      newState = state ? States.selected : States.unselected;
-    }
-    if (type == "leaf") {
-      this.updateState(node, icon_id, newState);
-      this.updateNodes(this.treeModel, icon_id);
-      if (this.newTreeBehavior && icon_id == 0) {
-        this.updateState(node, 1, newState);
-        this.updateNodes(this.treeModel, 1);
-      }
-      this.objectHandler(this.states);
-    } else if (type == "node") {
-      this.propagateChange(node, icon_id, newState);
-      this.updateNodes(this.treeModel, icon_id);
-      if (this.newTreeBehavior && icon_id == 0) {
-        this.objectHandler(this.states);
-        this.propagateChange(node, 1, newState);
-        this.updateNodes(this.treeModel, 1);
-      }
-      this.objectHandler(this.states);
-    } else {
-      console.error(`Error, unknown type '${type}'`);
-    }
-  }
-}
-
 class Timer {
   constructor(prefix, timeit) {
     this.prefix = prefix;
     this.timeit = timeit;
     this.start = performance.now();
+    this.last = this.start;
     if (timeit) {
       console.info(`three-cad-viewer: ${prefix}:timer start`);
     }
@@ -60586,9 +60185,10 @@ class Timer {
       const t = performance.now();
       console.info(
         `three-cad-viewer: ${this.prefix}:${msg}:timer split ${(
-          t - this.start
+          t - this.last
         ).toFixed(1)} ms`,
       );
+      this.last = t;
     }
   }
 
@@ -60601,6 +60201,932 @@ class Timer {
         )} ms:`,
       );
     }
+  }
+}
+
+const States = {
+  unselected: 0,
+  selected: 1,
+  mixed: 2,
+  disabled: 3,
+};
+var Counter = 0;
+
+/**
+ * A tree viewer component with lazy loading of large trees.
+ */
+
+class TreeView {
+  /**
+   * Constructs a TreeView object.
+   *
+   * @param {HTMLElement} container - The container element for the tree view.
+   * @param {Object} tree - The tree structure data.
+   * @param {boolean} [debug=false] - Indicates whether to enable debug mode.
+   */
+  constructor(
+    tree,
+    scrollContainer,
+    objectHandler,
+    pickHandler,
+    updateHandler,
+    notificationHandler,
+    theme,
+    linkIcons,
+    debug = false,
+  ) {
+    this.viewIcons = [
+      [
+        getIconSvg(theme, "shape_no"),
+        getIconSvg(theme, "shape"),
+        getIconSvg(theme, "shape_mix"),
+        getIconSvg(theme, "shape_empty"),
+      ],
+      [
+        getIconSvg(theme, "mesh_no"),
+        getIconSvg(theme, "mesh"),
+        getIconSvg(theme, "mesh_mix"),
+        getIconSvg(theme, "mesh_empty"),
+      ],
+    ];
+
+    this.navIcons = {
+      right: getIconSvg(theme, "nav_closed"),
+      down: getIconSvg(theme, "nav_open"),
+    };
+
+    this.tree = tree;
+    this.offset = 12;
+    this.scrollContainer = scrollContainer;
+    this.objectHandler = objectHandler;
+    this.pickHandler = pickHandler;
+    this.updateHandler = updateHandler;
+    this.notificationHandler = notificationHandler;
+    this.theme = theme;
+    this.linkIcons = linkIcons;
+    this.debug = debug;
+  }
+
+  create() {
+    this.maxLevel = 0;
+    this.root = this.buildTreeStructure(this.tree);
+
+    this.container = document.createElement("ul");
+    this.container.classList.add("tcv_toplevel");
+
+    this.scrollContainer.addEventListener("scroll", this.handleScroll);
+
+    this.lastLabel = null;
+
+    return this.container;
+  }
+
+  /************************************************************************************
+   *  Tree creation and synching
+   ************************************************************************************/
+
+  /**
+   * Builds a tree structure based on the provided data.
+   *
+   * @param {Object} data - The data used to build the tree structure.
+   * @returns {Object} - The root node of the tree structure.
+   */
+  buildTreeStructure(data) {
+    const build = (data, path, level) => {
+      var result = [-1, -1];
+      const calcState = (states) => {
+        for (let s of [0, 1]) {
+          if (
+            states[States.mixed][s] ||
+            (states[States.selected][s] && states[States.unselected][s])
+          ) {
+            result[s] = States.mixed;
+          } else if (states[States.selected][s]) {
+            result[s] = States.selected;
+          } else if (states[States.unselected][s]) {
+            result[s] = States.unselected;
+          } else if (states[States.disabled][s]) {
+            result[s] = States.disabled;
+          }
+        }
+        return result;
+      };
+
+      const tree = {};
+
+      if (this.maxLevel < level) {
+        this.maxLevel = level;
+      }
+
+      var trackStates = [
+        [false, false],
+        [false, false],
+        [false, false],
+        [false, false],
+      ];
+
+      for (const key in data) {
+        var currentPath = "";
+
+        if (path == null) {
+          currentPath = key;
+        } else {
+          currentPath = `${path}/${key}`;
+        }
+        let childStates;
+        const value = data[key];
+        if (Array.isArray(value)) {
+          childStates = value;
+          trackStates[value[0]][0] = true;
+          trackStates[value[1]][1] = true;
+          tree[key] = {
+            name: key,
+            state: childStates,
+            path: currentPath,
+            rendered: false,
+            level: level,
+          };
+        } else {
+          let children;
+          [children, childStates] = build(value, currentPath, level + 1);
+          trackStates[childStates[0]][0] = true;
+          trackStates[childStates[1]][1] = true;
+          tree[key] = {
+            name: key,
+            state: childStates,
+            path: currentPath,
+            rendered: false,
+            level: level,
+            children,
+            expanded: false,
+          };
+        }
+      }
+
+      const newState = calcState(trackStates);
+
+      return [tree, newState];
+    };
+    const root = build(data, null, 0)[0];
+    return root[Object.keys(root)[0]];
+  }
+
+  /************************************************************************************
+   * Visble elements handling
+   ************************************************************************************/
+
+  /**
+   * Retrieves the visible elements within the container.
+   * @returns {Element[]} An array of visible elements.
+   */
+  getVisibleElements() {
+    const isElementVisible = (el, containerRect) => {
+      const rect = el.getBoundingClientRect();
+      const result =
+        rect.height > 0 &&
+        rect.top >= -this.offset &&
+        rect.top <= containerRect.bottom + this.offset;
+      return result;
+    };
+
+    const elements = this.container.querySelectorAll(".tv-tree-node");
+    const containerRect = this.scrollContainer.getBoundingClientRect();
+    const visibleElements = Array.from(elements).filter((el) =>
+      isElementVisible(el, containerRect),
+    );
+    if (this.debug) {
+      Counter++;
+      console.log(
+        `\n${Counter}> visible elements (${visibleElements.length}):`,
+      );
+      for (let i in visibleElements) {
+        const el = visibleElements[i];
+        const node = this.findNodeByPath(el.dataset.path);
+        console.log(
+          node.path,
+          node.state[0],
+          node.state[1],
+          " => ",
+          el.dataset.state0,
+          el.dataset.state1,
+        );
+      }
+    }
+
+    return visibleElements;
+  }
+
+  /************************************************************************************
+   *  Handlers
+   ************************************************************************************/
+
+  /**
+   * Handles the scroll event.
+   */
+  handleScroll = () => {
+    if (!this.ticking) {
+      window.requestAnimationFrame(() => {
+        const scrollTop = this.scrollContainer.scrollTop;
+        this.lastScrollTop = scrollTop;
+        if (this.debug) {
+          console.log("update => scroll");
+        }
+        this.update();
+
+        this.ticking = false;
+      });
+      this.ticking = true;
+    }
+  };
+
+  /**
+   * Handles the click event on a navigation node.
+   *
+   * @param {Object} node - The node associated with the navigation marker.
+   * @returns {Function} - The event handler function.
+   */
+  handleNavigationClick = (node) => {
+    return (e) => {
+      e.stopPropagation();
+      node.expanded = !node.expanded;
+      this.showChildContainer(node);
+      if (this.debug) {
+        console.log("update => navClick");
+      }
+      this.update();
+    };
+  };
+
+  /**
+   * Handles the click event on an icon.
+   *
+   * @param {Node} node - The node associated with the icon.
+   * @param {string} s - The icon number 's'.
+   * @returns {Function} - The event handler function.
+   */
+  handleIconClick = (node, s) => {
+    return (e) => {
+      e.stopPropagation();
+      this.toggleIcon(node, s);
+    };
+  };
+
+  /**
+   * Handles the click event on a label.
+   *
+   * @param {Node} node - The node that was clicked.
+   * @returns {void}
+   */
+  handleLabelClick(node, e) {
+    this.pickHandler(
+      this.getNodePath(this.getParent(node)),
+      node.name,
+      KeyMapper.get(e, "meta"),
+      KeyMapper.get(e, "shift"),
+      this.isLeaf(node) ? "leaf" : "node",
+      true,
+    );
+
+    console.log(`Label clicked: ${this.getNodePath(node)}`);
+  }
+
+  /**
+   * Updates the tree view with the given prefix.
+   *
+   * @param {string|null} prefix - The prefix to filter the visible elements.
+   *                               If null, all elements are considered.
+   */
+  update = (prefix = null) => {
+    const visibleElements = this.getVisibleElements().filter(
+      (p) => prefix == null || p.dataset.path.startsWith(prefix),
+    );
+    for (var el of visibleElements) {
+      const path = el.dataset.path;
+
+      const node = this.findNodeByPath(path);
+      if (node != null) {
+        // render the actual node
+        if (!node.rendered) {
+          this.renderNode(node, el);
+          node.rendered = true;
+        }
+        // render placeholders for all children
+        if (node.expanded) {
+          const childrenContainer = el.querySelector(".tv-children");
+          if (
+            childrenContainer != null &&
+            childrenContainer.children != null &&
+            childrenContainer.children.length === 0
+          ) {
+            for (var key in node.children) {
+              const child = node.children[key];
+              this.renderPlaceholder(child, childrenContainer);
+            }
+            this.showChildContainer(node);
+            this.update(path);
+          }
+        }
+
+        // and adapt the icons the the state
+        for (let s in [0, 1]) {
+          const domState = el.dataset[`state${s}`];
+          const state = node.state[s];
+          if (domState != state) {
+            this.updateIconInDOM(node, s);
+          }
+        }
+        this.showChildContainer(node);
+      } else {
+        console.error(`Node not found: ${path}`);
+      }
+    }
+  };
+
+  /************************************************************************************
+   *  Rendering routines
+   ************************************************************************************/
+
+  /**
+   * Renders the tree view by clearing the container, rendering the placeholder,
+   * and updating the tree.
+   */
+  render() {
+    this.container.innerHTML = "";
+    this.renderPlaceholder(this.root, this.container);
+    if (this.debug) {
+      console.log("update => render");
+    }
+    this.update();
+  }
+
+  /**
+   * Renders a placeholder node in the tree view.
+   *
+   * @param {Object} node - The node object to render.
+   * @param {HTMLElement} container - The container element to append the rendered node to.
+   * @param {string|null} openPath - The path of the node to be opened, or null if no node should be opened.
+   */
+  renderPlaceholder(node, container, openPath = null) {
+    if (this.debug) {
+      console.log("renderPlaceholder", node.path, node.level);
+    }
+    const nodeElement = document.createElement("div");
+    nodeElement.className = "tv-tree-node";
+    nodeElement.dataset.path = this.getNodePath(node);
+    nodeElement.dataset.openPath = openPath;
+    nodeElement.dataset.state0 = node.state[0];
+    nodeElement.dataset.state1 = node.state[1];
+
+    const nodeContent = document.createElement("div");
+    nodeContent.className = "tv-node-content";
+    if (this.debug) {
+      nodeContent.innerText = node.path;
+    }
+    nodeElement.appendChild(nodeContent);
+    container.appendChild(nodeElement);
+  }
+
+  /**
+   * Renders a node in the tree view to replace the placeholder.
+   *
+   * @param {Object} node - The node object to render.
+   * @param {HTMLElement} parentElement - The parent element to append the rendered node to.
+   * @returns {HTMLElement} - The container element for the node's children, if any.
+   */
+  renderNode(node, parentElement) {
+    if (this.debug) {
+      console.log("renderNode", node.path, node.level);
+    }
+    const nodeContent = document.createElement("div");
+    nodeContent.className = "tv-node-content";
+    parentElement.removeChild(parentElement.firstChild);
+    parentElement.appendChild(nodeContent);
+
+    const navMarker = document.createElement("span");
+    navMarker.className = "tv-nav-marker";
+    navMarker.innerHTML = node.children
+      ? node.expanded
+        ? this.navIcons.down
+        : this.navIcons.right
+      : "";
+
+    navMarker.onclick = this.handleNavigationClick(node);
+
+    nodeContent.dataset.state0 = node.state[0];
+    nodeContent.dataset.state1 = node.state[1];
+
+    nodeContent.appendChild(navMarker);
+
+    for (var s of [0, 1]) {
+      const icon = document.createElement("span");
+      const state = node.state[s];
+      var className = `tv-icon tv-icon${s}`;
+      if (state !== States.disabled) {
+        className += " tv-pointer";
+      }
+      icon.className = className;
+      icon.innerHTML = this.viewIcons[s][state];
+      if (state !== States.disabled) {
+        icon.onmousedown = (e) => {
+          e.preventDefault();
+        };
+        icon.onclick = this.handleIconClick(node, s);
+      }
+      nodeContent.appendChild(icon);
+    }
+
+    const label = document.createElement("span");
+    label.className = "tv-node-label";
+    label.textContent = node.name;
+
+    label.onmousedown = (e) => {
+      e.preventDefault();
+    };
+
+    label.onclick = (e) => {
+      e.stopPropagation();
+      this.handleLabelClick(node, e);
+    };
+
+    nodeContent.appendChild(label);
+
+    let childrenContainer = null;
+    if (node.children) {
+      childrenContainer = document.createElement("div");
+      childrenContainer.className = "tv-children";
+      childrenContainer.style.display = "none";
+      parentElement.appendChild(childrenContainer);
+    }
+    return childrenContainer;
+  }
+
+  /************************************************************************************
+   *  DOM functions
+   ************************************************************************************/
+
+  /**
+   * Retrieves the DOM node with the specified path.
+   *
+   * @param {string} path - The path of the DOM node to retrieve.
+   * @returns {Element|null} - The DOM node with the specified path, or null if not found.
+   */
+  getDomNode = (path) => {
+    return this.container.querySelector(`[data-path="${path}"]`);
+  };
+
+  /**
+   * Shows or hides the child container of a node based on the expanded parameter.
+   *
+   * @param {object} node - The node object.
+   */
+  showChildContainer(node) {
+    if (node.expanded == null) return;
+
+    const path = this.getNodePath(node);
+    const nodeElement = this.getDomNode(path);
+    if (nodeElement) {
+      const childrenContainer = nodeElement.querySelector(".tv-children");
+      if (childrenContainer) {
+        const isExpanded = childrenContainer.style.display !== "none";
+        if (isExpanded !== node.expanded) {
+          childrenContainer.style.display = node.expanded ? "block" : "none";
+          nodeElement.querySelector(`.tv-nav-marker`).innerHTML = node.expanded
+            ? this.navIcons.down
+            : this.navIcons.right;
+          if (!node.expanded) {
+            if (this.debug) {
+              console.log("update => showChildContainer");
+            }
+            this.update();
+          }
+        }
+      }
+    } else {
+      console.error(`Element not found: ${path}`);
+    }
+  }
+
+  /**
+   * Updates the icon in the DOM for a given node.
+   *
+   * @param {Node} node - The node to update the icon for.
+   * @param {number} iconNumber - The icon number to update.
+   */
+  updateIconInDOM(node, iconNumber) {
+    const nodePath = this.getNodePath(node);
+    const nodeElement = this.container.querySelector(
+      `[data-path="${nodePath}"]`,
+    );
+    if (nodeElement) {
+      const icon = nodeElement.querySelector(`.tv-icon${iconNumber}`);
+      if (icon) {
+        icon.innerHTML = this.viewIcons[iconNumber][node.state[iconNumber]];
+      }
+      nodeElement.dataset[`state${iconNumber}`] = node.state[iconNumber];
+    }
+  }
+
+  /**
+   * Toggles the color of the label for a given node.
+   * @param {Node} node - The node for which to toggle the label color.
+   * @param {str} path - If node is null, the path for which to toggle the label color.
+   */
+  toggleLabelColor(node, path = null) {
+    const nodePath = path == null ? this.getNodePath(node) : path;
+    const nodeElement = this.container.querySelector(
+      `[data-path="${nodePath}"]`,
+    );
+    if (this.lastLabel) {
+      this.lastLabel.classList.remove("tv-node-label-highlight");
+    }
+    if (nodeElement) {
+      const label = nodeElement.querySelector(`.tv-node-label`);
+      if (label) {
+        if (this.lastLabel === label) {
+          this.lastLabel = null;
+        } else {
+          label.classList.toggle("tv-node-label-highlight");
+          this.lastLabel = label;
+        }
+      }
+    }
+  }
+
+  /************************************************************************************
+   *  Tree handling functions
+   ************************************************************************************/
+
+  /**
+   * Traverses a tree-like structure and applies a callback function to each node.
+   * @param {Object} node - The root node of the tree.
+   * @param {Function} callback - The callback function to be applied to each node.
+   */
+  traverse(node, callback) {
+    callback(node);
+    if (node.children) {
+      for (let key of Object.keys(node.children)) {
+        this.traverse(node.children[key], callback);
+      }
+    }
+  }
+
+  /**
+   * Checks if a given node is a leaf node.
+   *
+   * @param {Object} node - The node to check.
+   * @returns {boolean} - Returns true if the node is a leaf node, false otherwise.
+   */
+  isLeaf(node) {
+    return node.children == null;
+  }
+
+  /**
+   * Returns the path of a given node.
+   *
+   * @param {Node} node - The node object.
+   * @returns {string} The path of the node.
+   */
+  getNodePath(node) {
+    if (node == null) {
+      return "";
+    }
+    return "/" + node.path;
+  }
+
+  /**
+   * Finds a node in the tree by its path.
+   *
+   * @param {string|string[]} path - The path of the node to find. Can be either a string or an array of strings.
+   * @returns {object|null} - The found node or null if the node is not found.
+   */
+  findNodeByPath(path) {
+    var parts = Array.isArray(path) ? path : path.split("/").filter(Boolean);
+
+    let current = this.root;
+    for (let i = 1; i < parts.length; i++) {
+      const part = parts[i];
+      if (current.children[part]) {
+        current = current.children[part];
+      } else {
+        return null;
+      }
+    }
+    return current;
+  }
+
+  /**
+   * Retrieves the parent node of the given node.
+   *
+   * @param {Object} node - The node for which to find the parent.
+   * @returns {Object|null} - The parent node if found, or null if the given node is the root node.
+   */
+  getParent(node) {
+    const parentPath = node.path.substring(0, node.path.lastIndexOf("/"));
+    if (parentPath.length === 0) {
+      return null;
+    }
+    return this.findNodeByPath(parentPath);
+  }
+
+  /**
+   * Updates the object based on the provided node.
+   * @param {Object} node - The node to update the object with.
+   */
+  updateObject = (node, iconNumber) => {
+    var icons = iconNumber == 0 && this.linkIcons ? [0, 1] : [iconNumber];
+    for (var i of icons) {
+      this.objectHandler(this.getNodePath(node), node.state[i], i, true, false);
+    }
+  };
+
+  /**
+   * Toggles the state of an icon for a given node.
+   *
+   * @param {Node} node - The node for which to toggle the icon state.
+   * @param {number} iconNumber - The index of the icon to toggle.
+   * @returns {void}
+   */
+  toggleIcon(node, iconNumber, force = null) {
+    const currentState = node.state[iconNumber];
+    if (currentState === States.disabled) {
+      return;
+    }
+    var icons = iconNumber == 0 ? (this.linkIcons ? [0, 1] : [0]) : [1];
+    for (var i of icons) {
+      if (node.state[i] != 3) {
+        if (force != null) {
+          node.state[i] = force ? 1 : 0;
+        } else {
+          node.state[i] =
+            currentState === States.selected
+              ? States.unselected
+              : States.selected;
+        }
+      }
+      this.updateObject(node, iconNumber);
+      this.updateParentStates(node, i);
+      this.updateChildrenStates(node, i);
+      this.update(null, i);
+    }
+    this.updateHandler();
+    this.notificationHandler();
+  }
+
+  /**
+   * Hides all nodes in the tree.
+   */
+  hideAll() {
+    this.toggleIcon(this.root, 0, false);
+    if (!this.linkIcons) {
+      this.toggleIcon(this.root, 1, false);
+    }
+  }
+
+  /**
+   * Shows all nodes in the tree.
+   */
+  showAll() {
+    this.toggleIcon(this.root, 0, true);
+    if (!this.linkIcons) {
+      this.toggleIcon(this.root, 1, true);
+    }
+  }
+
+  /**
+   * Shows the node specified by the given path.
+   *
+   * @param {string} path - The path of the node to be shown.
+   */
+  show(path) {
+    const node = this.findNodeByPath(path);
+    if (node) {
+      this.toggleIcon(node, 0, true);
+    }
+  }
+
+  /**
+   * Retrieves the states of a node specified by the given path.
+   *
+   * @param {string} path - The path of the node.
+   * @returns {object|null} - The states of the node, or null if the node is not found.
+   */
+  getState(path) {
+    const node = this.findNodeByPath(path);
+    return node ? node.state : null;
+  }
+
+  /**
+   * Retrieves the states of all leaf nodes in the tree.
+   * @returns {Object} An object containing the states of all leaf nodes.
+   */
+  getStates() {
+    const states = {};
+    const getStates = (node) => {
+      if (this.isLeaf(node)) {
+        states[this.getNodePath(node)] = node.state;
+      }
+    };
+    this.traverse(this.root, getStates);
+    return states;
+  }
+
+  /**
+   * Sets the state of a node identified by the given path.
+   *
+   * @param {string} path - The path of the node.
+   * @param {Array} state - The new state of the node.
+   */
+  setState(path, state) {
+    const node = this.findNodeByPath(path);
+    if (node) {
+      this.toggleIcon(node, 0, state[0]);
+      this.toggleIcon(node, 1, state[1]);
+    }
+  }
+
+  /**
+   * Sets the states of the nodes based on the provided states object.
+   *
+   * @param {Object} states - The states object containing the node paths and their corresponding states.
+   */
+  setStates(states) {
+    for (var path in states) {
+      this.setState(path, states[path]);
+    }
+    this.update();
+  }
+
+  /**
+   * Hides the node specified by the given path.
+   *
+   * @param {string} path - The path of the node to hide.
+   */
+  hide(path) {
+    const node = this.findNodeByPath(path);
+    if (node) {
+      this.toggleIcon(node, 0, false);
+    }
+  }
+
+  /**
+   * Updates the state of parent nodes based on the state of their children.
+   *
+   * @param {Node} node - The node whose parent states need to be updated.
+   * @param {number} iconNumber - The icon number representing the state.
+   */
+  updateParentStates(node, iconNumber) {
+    let current = this.getParent(node);
+    while (current) {
+      const children = Object.values(current.children);
+      const allSelected = children.every(
+        (child) =>
+          child.state[iconNumber] === States.selected ||
+          child.state[iconNumber] === States.disabled,
+      );
+      const allUnselected = children.every(
+        (child) =>
+          child.state[iconNumber] === States.unselected ||
+          child.state[iconNumber] === States.disabled,
+      );
+      const newState = allSelected
+        ? States.selected
+        : allUnselected
+          ? States.unselected
+          : States.mixed;
+      if (current.state[iconNumber] !== newState) {
+        if (current.state[iconNumber] !== States.disabled) {
+          current.state[iconNumber] = newState;
+          this.updateObject(current, iconNumber);
+        }
+      }
+      current = this.getParent(current);
+    }
+  }
+
+  /**
+   * Updates the states of the children nodes based on the given icon number.
+   *
+   * @param {Object} node - The node whose children states need to be updated.
+   * @param {number} iconNumber - The icon number to determine the new state of the children nodes.
+   */
+  updateChildrenStates(node, iconNumber) {
+    const newState = node.state[iconNumber];
+    const updateChildren = (current) => {
+      if (current.state[iconNumber] !== newState) {
+        if (current.state[iconNumber] !== States.disabled) {
+          current.state[iconNumber] = newState;
+          this.updateObject(current, iconNumber);
+        }
+      }
+      if (current.children) {
+        for (var child in current.children) {
+          updateChildren(current.children[child]);
+        }
+      }
+    };
+    updateChildren(node);
+  }
+
+  /************************************************************************************
+   *  Tree handling high level API
+   ************************************************************************************/
+
+  /**
+   * Opens the specified path in the tree view.
+   *
+   * @param {string} path - The path to open in the tree view.
+   */
+  openPath(path) {
+    const parts = path.split("/").filter(Boolean);
+    var current = "";
+    var node;
+    for (var part of parts) {
+      current += "/" + part;
+      node = this.findNodeByPath(current);
+      const el = this.getDomNode(current);
+      if (el != null) {
+        el.children[0].scrollIntoView({ behaviour: "smooth", block: "center" });
+      }
+      if (node) {
+        node.expanded = true;
+        this.showChildContainer(node);
+        if (this.debug) {
+          console.log("update => openPath");
+        }
+        this.update();
+      } else {
+        console.error(`Path not found: ${current}`);
+        break;
+      }
+    }
+    this.toggleLabelColor(node);
+  }
+
+  /**
+   * Closes the specified path in the tree view.
+   *
+   * @param {string} path - The path to be closed.
+   */
+  closePath(path) {
+    const node = this.findNodeByPath(path);
+    if (node) {
+      node.expanded = false;
+      this.showChildContainer(node);
+      const el = this.getDomNode(path);
+      if (el != null) {
+        el.scrollIntoView({ behaviour: "smooth", block: "start" });
+      }
+      if (this.debug) {
+        console.log("update => collapsePath");
+      }
+      this.update();
+    } else {
+      console.error(`Path not found: ${path}`);
+    }
+  }
+
+  /**
+   * Opens the specified level in the tree view.
+   * @param {number} level - The level to open.
+   */
+  openLevel(level) {
+    const setLevel = (node) => {
+      if (this.isLeaf(node)) return;
+
+      if (level == -1) {
+        node.expanded =
+          node.children != null &&
+          !(
+            Object.keys(node.children).length == 1 &&
+            this.isLeaf(Object.values(node.children)[0])
+          );
+      } else {
+        node.expanded = node.level < level;
+      }
+    };
+    this.traverse(this.root, setLevel);
+    const el = this.getDomNode(this.getNodePath(this.root));
+    el.scrollIntoView({ behaviour: "smooth", block: "start" });
+    for (var i = 0; i <= (level == -1 ? this.maxLevel : level); i++) {
+      if (this.debug) {
+        console.log("update => openLevel");
+      }
+      this.update();
+    }
+  }
+
+  /**
+   * Collapses all nodes in the tree view.
+   */
+  collapseAll() {
+    this.openLevel(0);
+  }
+
+  /**
+   * Expands all nodes in the treeview.
+   */
+  expandAll() {
+    this.openLevel(this.maxLevel);
   }
 }
 
@@ -61098,7 +61624,7 @@ class Animation {
 }
 
 class Info {
-  constructor(html) {
+  constructor(html, theme) {
     this.html = html;
     this.clear();
   }
@@ -63197,7 +63723,7 @@ class Camera {
   }
 }
 
-const version = "3.0.3";
+const version = "3.1.2";
 
 class Viewer {
   /**
@@ -63286,12 +63812,10 @@ class Viewer {
     this.lastBbox = null;
 
     // measure supporting exploded shapes and compact shapes
-    this.explodedGroup = null;
     this.explodedTree = null;
-    this.explodedStates = null;
-    this.compactGroup = null;
     this.compactTree = null;
-    this.compactStates = null;
+    this.explodedNestedGroup = null;
+    this.compactNestedGroup = null;
 
     // If fromSolid is true, this means the selected object is from the solid
     // This is the obj that has been picked but the actual selected obj is the solid
@@ -63314,6 +63838,7 @@ class Viewer {
     console.debug("three-cad-viewer: WebGL Renderer created");
 
     this.display.setupUI(this);
+    window.viewer = this;
   }
 
   /**
@@ -63391,7 +63916,6 @@ class Viewer {
    * Enhance the given options for the view by default values.
    * @param {ViewOptions} options - The provided options object for the viewer.
    */
-
   setViewerDefaults(options) {
     this.axes = false;
     this.axes0 = false;
@@ -63418,7 +63942,6 @@ class Viewer {
     this.quaternion = null;
     this.target = null;
     this.measureTools = true;
-    this.newTreeBehaviour = true;
 
     this.zoom = 1;
 
@@ -63490,7 +64013,7 @@ class Viewer {
    * @param {Shapes} shapes - The Shapes object representing the tessellated CAD object.
    * @returns {THREE.Group} A nested THREE.Group object.
    */
-  _renderTessellatedShapes(shapes, states) {
+  _renderTessellatedShapes(shapes) {
     const nestedGroup = new NestedGroup(
       shapes,
       this.cadWidth,
@@ -63508,7 +64031,7 @@ class Viewer {
         new Vector3(shapes.bb.xmax, shapes.bb.ymax, shapes.bb.zmax),
       );
     }
-    nestedGroup.render(states);
+    nestedGroup.render();
     return nestedGroup;
   }
 
@@ -63518,38 +64041,29 @@ class Viewer {
    * @param {States} states - the visibility state of meshes and edges
    * @returns {NavTree} The navigation tree object.
    */
-  _getTree(shapes, states) {
-    const delim = "/";
-
-    const _getTree = (subGroup, path) => {
-      const newPath = `${path}${delim}${subGroup.name}`;
-      var result = {
-        name: subGroup.name,
-        id: newPath,
-      };
-      if (subGroup.parts) {
-        result.type = "node";
-        result.children = [];
-        for (var part of subGroup.parts) {
-          result.children.push(_getTree(part, newPath));
+  _getTree(shapes) {
+    const _getTree = (parts) => {
+      var result = {};
+      for (var part of parts) {
+        if (part.parts != null) {
+          result[part.name] = _getTree(part.parts);
+        } else {
+          result[part.name] = part.state;
         }
-      } else {
-        result.type = "leaf";
-        result.states = states[newPath];
       }
       return result;
     };
-
-    return _getTree(shapes, "");
+    var tree = {};
+    tree[shapes.name] = _getTree(shapes.parts);
+    return tree;
   }
 
   /**
    * Decompose a CAD object into faces, edges and vertices.
    * @param {Shapes} shapes - The Shapes object.
-   * @param {States} states - the visibility state of meshes and edges
    * @returns {Shapes} A decomposed Shapes object.
    */
-  _decompose(part, states) {
+  _decompose(part) {
     const shape = part.shape;
     var j;
 
@@ -63605,11 +64119,13 @@ class Viewer {
           type: "shapes",
           color: part.color,
           alpha: part.alpha,
-          renderBack: false,
+          renderback: true,
+          state: [1, 3],
           accuracy: part.accuracy,
           bb: {},
           geomtype: shape.face_types[j],
           subtype: part.subtype,
+          exploded: true,
           shape: {
             triangles: [...Array(triangles.length).keys()],
             vertices: vecs,
@@ -63618,7 +64134,6 @@ class Viewer {
           },
         };
         new_part.parts.push(new_shape);
-        states[new_shape.id] = [1, 3];
       }
 
       part.parts.push(new_part);
@@ -63664,13 +64179,13 @@ class Viewer {
           id: `${part.id}/edges/edges_${j}`,
           type: "edges",
           color: part.type == "shapes" ? this.edgeColor : color,
+          state: [3, 1],
           width: part.type == "shapes" ? 1 : part.width,
           bb: {},
           geomtype: shape.edge_types[j],
           shape: { edges: edge },
         };
         new_part.parts.push(new_shape);
-        states[new_shape.id] = [3, 1];
       }
 
       part.parts.push(new_part);
@@ -63700,6 +64215,7 @@ class Viewer {
           part.type == "shapes" || part.type == "edges"
             ? this.edgeColor
             : part.color,
+        state: [3, 1],
         size: part.type == "shapes" || part.type == "edges" ? 4 : part.size,
         bb: {},
         shape: {
@@ -63711,7 +64227,6 @@ class Viewer {
         },
       };
       new_part.parts.push(new_shape);
-      states[new_shape.id] = [3, 1];
     }
 
     part.parts.push(new_part);
@@ -63721,7 +64236,6 @@ class Viewer {
     delete part.alpha;
     delete part.accuracy;
     delete part.renderBack;
-    delete states[part.id];
 
     return part;
   }
@@ -63733,8 +64247,8 @@ class Viewer {
    * @param {RenderOptions} options - the options for rendering
    * @returns {THREE.Group} A nested THREE.Group object.
    */
-  renderTessellatedShapes(exploded, shapes, states) {
-    const _render = (shapes, states) => {
+  renderTessellatedShapes(exploded, shapes) {
+    const _render = (shapes) => {
       var part;
       if (shapes.version == 2 || shapes.version == 3) {
         var i, tmp;
@@ -63742,10 +64256,10 @@ class Viewer {
         for (i = 0; i < shapes.parts.length; i++) {
           part = shapes.parts[i];
           if (part.parts != null) {
-            tmp = _render(part, states);
+            tmp = _render(part);
             parts.push(tmp);
           } else {
-            parts.push(this._decompose(part, states));
+            parts.push(this._decompose(part));
           }
         }
         shapes.parts = parts;
@@ -63753,23 +64267,18 @@ class Viewer {
       return shapes;
     };
 
-    var exploded_states = structuredClone(states);
     var exploded_shapes;
     if (exploded) {
-      exploded_shapes = _render(structuredClone(shapes), exploded_states);
+      exploded_shapes = _render(structuredClone(shapes));
     } else {
       exploded_shapes = structuredClone(shapes);
     }
-    var nested_group = this._renderTessellatedShapes(
-      exploded_shapes,
-      exploded_states,
-    );
-    var rendered_tree = this._getTree(exploded_shapes, exploded_states);
+    var nested_group = this._renderTessellatedShapes(exploded_shapes);
+    var rendered_tree = this._getTree(exploded_shapes);
 
     return {
       group: nested_group,
       tree: rendered_tree,
-      states: exploded_states,
     };
   }
 
@@ -63876,6 +64385,13 @@ class Viewer {
     if (notify && this.notifyCallback && Object.keys(changed).length) {
       this.notifyCallback(changed);
     }
+  };
+
+  /**
+   * Notifies the states by checking for changes and passing the states to the checkChanges method.
+   */
+  notifyStates = () => {
+    this.checkChanges({ states: this.getStates() }, true);
   };
 
   /**
@@ -64057,10 +64573,66 @@ class Viewer {
   // - - - - - - - - - - - - - - - - - - - - - - - -
 
   /**
+   * Synchronizes the states of two tree structures recursively.
+   *
+   * @param {Array|Object} compactTree - The compact tree structure.
+   * @param {Array|Object} expandedTree - The expanded tree structure.
+   * @param {string} path - The current path in the tree structure.
+   */
+  syncTreeStates = (compactTree, expandedTree, exploded, path) => {
+    if (Array.isArray(compactTree)) {
+      if (exploded) {
+        for (var t in expandedTree) {
+          for (var l in expandedTree[t]) {
+            const id = `${path}/${t}/${l}`;
+            const objectGroup = this.explodedNestedGroup.groups[id];
+            for (var i of [0, 1]) {
+              if (i == 0) {
+                objectGroup.setShapeVisible(compactTree[0] == 1);
+              } else {
+                objectGroup.setEdgesVisible(compactTree[1] == 1);
+              }
+              if (expandedTree[t][l][i] != 3) {
+                expandedTree[t][l][i] = compactTree[i];
+              }
+            }
+          }
+        }
+      } else {
+        const objectGroup = this.compactNestedGroup.groups[path];
+        for (var i of [0, 1]) {
+          var visible = false;
+          for (var t in expandedTree) {
+            for (var l in expandedTree[t]) {
+              if (expandedTree[t][l][i] == 1) {
+                visible = true;
+              }
+            }
+          }
+          if (i == 0) {
+            objectGroup.setShapeVisible(visible);
+          } else {
+            objectGroup.setEdgesVisible(visible);
+          }
+          if (compactTree[i] != 3) {
+            compactTree[i] = visible ? 1 : 0;
+          }
+        }
+      }
+    } else {
+      for (var key in compactTree) {
+        var id = `${path}/${key}`;
+        this.syncTreeStates(compactTree[key], expandedTree[key], exploded, id);
+      }
+    }
+  };
+
+  /**
    * Toggle the two version of the NestedGroup
    * @param exploded - whether to render the exploded or compact version
    */
   toggleGroup(exploded) {
+    var timer = new Timer("toggleGroup", this.timeit);
     var _config = () => {
       this.nestedGroup.setTransparent(this.transparent);
       this.nestedGroup.setBlackEdges(this.blackEdges);
@@ -64068,56 +64640,90 @@ class Viewer {
       this.nestedGroup.setRoughness(this.roughness);
       this.nestedGroup.setPolygonOffset(2);
     };
-    this.setRenderDefaults(this.renderOptions);
 
-    var result;
-    if (exploded) {
-      if (this.explodedGroup == null) {
-        result = this.renderTessellatedShapes(
-          exploded,
-          this.shapes,
-          this.states,
-        );
-        this.nestedGroup = result["group"];
-        _config();
-        this.explodedStates = result["states"];
-        this.explodedTree = result["tree"];
-        this.explodedGroup = this.nestedGroup.render(result["states"]);
+    if (
+      (this.compactNestedGroup == null && !exploded) ||
+      (this.explodedNestedGroup == null && exploded)
+    ) {
+      this.setRenderDefaults(this.renderOptions);
+      var result;
+      if (exploded) {
+        if (this.explodedNestedGroup == null) {
+          result = this.renderTessellatedShapes(exploded, this.shapes);
+          this.nestedGroup = result["group"];
+          this.explodedNestedGroup = result["group"];
+          _config();
+          this.explodedTree = result["tree"];
+          this.nestedGroup.render();
+        }
+      } else {
+        if (this.compactNestedGroup == null) {
+          result = this.renderTessellatedShapes(exploded, this.shapes);
+          this.nestedGroup = result["group"];
+          this.compactNestedGroup = result["group"];
+          _config();
+          this.compactTree = result["tree"];
+          this.nestedGroup.render();
+        }
       }
+      timer.split(`rendered${exploded ? " exploded" : " compact"} shapes`);
     } else {
-      if (this.compactGroup == null) {
-        result = this.renderTessellatedShapes(
-          exploded,
-          this.shapes,
-          this.states,
-        );
-        this.nestedGroup = result["group"];
-        _config();
-        this.compactStates = result["states"];
-        this.compactTree = result["tree"];
-        this.compactGroup = this.nestedGroup.render(this.states);
-      }
+      this.nestedGroup = exploded
+        ? this.explodedNestedGroup
+        : this.compactNestedGroup;
+      _config();
     }
 
-    this.states = exploded ? this.explodedStates : this.compactStates;
+    // only sync if both trees exist
+    if (this.explodedTree) {
+      this.syncTreeStates(this.compactTree, this.explodedTree, exploded, "");
+    }
+    timer.split("synched tree states");
+
     this.tree = exploded ? this.explodedTree : this.compactTree;
-    this.scene.children[0] = exploded ? this.explodedGroup : this.compactGroup;
+    this.scene.children[0] = this.nestedGroup.rootGroup;
+    timer.split("added shapes to scene");
 
     this.treeview = new TreeView(
-      structuredClone(this.states),
       this.tree,
-      this.setObjects,
+      this.display.cadTreeScrollContainer,
+      this.setObject,
       this.handlePick,
+      this.update,
+      this.notifyStates,
       this.theme,
       this.newTreeBehavior,
+      false,
     );
 
-    this.update(true, true);
-
     this.display.clearCadTree();
-    this.display.addCadTree(this.treeview.render(this.collapse));
-    this.display.selectTabByName("tree");
+    const t = this.treeview.create();
+    timer.split("created tree");
 
+    this.display.addCadTree(t);
+    this.treeview.render();
+    timer.split("rendered tree");
+
+    this.display.selectTabByName("tree");
+    timer.split("collapse tree");
+    switch (this.collapse) {
+      case 0:
+        this.treeview.expandAll();
+        break;
+      case 1:
+        this.treeview.openLevel(-1);
+        break;
+      case 2:
+        this.treeview.collapseAll();
+        break;
+
+      case 3:
+        this.treeview.openLevel(1);
+        break;
+    }
+    this.checkChanges({ states: this.getStates() }, true);
+    timer.split("notify state changes");
+    timer.stop();
     this.display.toggleClippingTab(!exploded);
   }
 
@@ -64128,9 +64734,8 @@ class Viewer {
    * @param {ViewerOptions} viewerOptions - the viewer options
    * @param {RenderOptions} renderOptions - the render options
    */
-  render(shapes, states, renderOptions, viewerOptions) {
+  render(shapes, renderOptions, viewerOptions) {
     this.shapes = shapes;
-    this.states = states;
     this.renderOptions = renderOptions;
     this.setViewerDefaults(viewerOptions);
 
@@ -64164,7 +64769,7 @@ class Viewer {
     // add Info box
     //
 
-    this.info = new Info(this.display.cadInfo);
+    this.info = new Info(this.display.cadInfo, this.theme);
 
     //
     // create cameras
@@ -64400,8 +65005,6 @@ class Viewer {
     timer.split("ui updated");
     this.display.autoCollapse();
 
-    // ensure all for all deselected objects the stencil planes are invisible
-    this.setObjects(this.states, true, true);
     timer.split("stencil done");
     //
     // show the rendering
@@ -64431,6 +65034,7 @@ class Viewer {
     timer.split("notification done");
 
     this.update(true, false);
+    this.treeview.update();
     timer.split("update done");
     timer.stop();
   }
@@ -64564,35 +65168,41 @@ class Viewer {
   }
 
   /**
-   * Set the rendered shape visibility state according to the states map
-   * @function
-   * @param {States} states
-   * @param {boolean} [notify=true] - whether to send notification or not.
+   * Sets the visibility state of an object in the viewer.
+   *
+   * @param {string} path - The path of the object.
+   * @param {number} state - The visibility state (0 or 1).
+   * @param {number} iconNumber - The icon number.
+   * @param {boolean} [notify=true] - Whether to notify the changes.
    */
-  setObjects = (states, force = false, notify = true) => {
-    for (var key in this.states) {
-      var oldState = this.states[key];
-      var newState = states[key];
-      var objectGroup = this.nestedGroup.groups[key];
-      if (force || oldState[0] != newState[0]) {
-        objectGroup.setShapeVisible(newState[0] === 1);
-        this.states[key][0] = newState[0];
+  setObject = (path, state, iconNumber, notify = true, update = true) => {
+    var objectGroup = this.nestedGroup.groups[path];
+    if (objectGroup != null && objectGroup instanceof ObjectGroup) {
+      if (iconNumber == 0) {
+        objectGroup.setShapeVisible(state === 1);
+      } else {
+        objectGroup.setEdgesVisible(state === 1);
       }
-      if (oldState[1] != newState[1]) {
-        objectGroup.setEdgesVisible(newState[1] === 1);
-        this.states[key][1] = newState[1];
+      if (notify) {
+        this.getState(path);
+      }
+      if (update) {
+        this.update(this.updateMarker);
       }
     }
-
-    this.checkChanges({ states: states }, notify);
-
-    this.update(this.updateMarker);
   };
 
+  /**
+   * Sets the bounding box for a given ID.
+   * @param {string} id - The ID of the group.
+   */
   setBoundingBox = (id) => {
-    const group = this.nestedGroup.groups[id];
-
+    var group = this.nestedGroup.groups[id];
     if (group != null) {
+      // ignore planeMesh group of root object
+      var planeMeshGroup = group.children[group.children.length - 1];
+      group.children = group.children.slice(0, group.children.length - 1);
+
       if (this.lastBbox != null) {
         this.scene.remove(this.lastBbox.bbox);
       }
@@ -64609,6 +65219,10 @@ class Viewer {
       } else {
         this.lastBbox = null;
       }
+
+      // add back planeMesh group
+      group.children.push(planeMeshGroup);
+
       this.update(false, false, false);
     }
   };
@@ -64670,12 +65284,10 @@ class Viewer {
    * @function
    * @param {string} id - object id
    * @param {number[]} state - 2 dim array [mesh, edges] = [0/1, 0/1]
-   * @param {boolean} [notify=true] - whether to send notification or not.
+   * @p^aram {boolean} [notify=true] - whether to send notification or not.
    */
   setState = (id, state, nodeType = "leaf", notify = true) => {
-    [0, 1].forEach((i) =>
-      this.treeview.handleStateChange(nodeType, id, i, state[i]),
-    );
+    this.treeview.setState(id, state);
     this.update(this.updateMarker, notify);
   };
 
@@ -64683,7 +65295,6 @@ class Viewer {
     if (this.lastBbox != null) {
       this.scene.remove(this.lastBbox.bbox);
       this.lastBbox = null;
-      this.treeview.removeLabelHighlight();
     }
   }
 
@@ -64695,25 +65306,24 @@ class Viewer {
    * @param {boolean} - meta key pressed
    * @param {boolean} shift - whether to send notification or not.
    */
-  handlePick = (
-    path,
-    name,
-    meta,
-    shift,
-    nodeType = "leaf",
-    highlight = true,
-  ) => {
+  handlePick = (path, name, meta, shift, nodeType = "leaf") => {
     const id = `${path}/${name}`;
     const object = this.nestedGroup.groups[id];
-    const boundingBox = new BoundingBox().setFromObject(object, true);
+    var boundingBox;
+    if (object.parent != null) {
+      boundingBox = new BoundingBox().setFromObject(object, true);
+    } else {
+      // ignore PlaneMesh group
+      boundingBox = new BoundingBox();
+      for (var i = 0; i < object.children.length - 1; i++) {
+        boundingBox = boundingBox.expandByObject(object.children[i]);
+      }
+    }
 
     if (this.lastBbox != null && this.lastBbox.id === id && !meta && !shift) {
       this.removeLastBbox();
+      this.treeview.toggleLabelColor(null, id);
     } else {
-      if (highlight) {
-        this.treeview.selectNode(id);
-      }
-
       this.checkChanges({
         lastPick: {
           path: path,
@@ -64734,11 +65344,13 @@ class Viewer {
         this.treeview.hideAll();
         this.setState(id, [1, 1], nodeType);
         const center = boundingBox.center();
+        this.treeview.openPath(id);
         this.controls.setTarget(new Vector3(...center));
         this.info.centerInfo(center);
       } else {
         this.info.bbInfo(path, name, boundingBox);
         this.setBoundingBox(id);
+        this.treeview.openPath(id);
       }
     }
     this.update(true);
@@ -65327,7 +65939,7 @@ class Viewer {
    * @returns {States} states value.
    **/
   getStates() {
-    return this.states;
+    return this.treeview.getStates();
   }
 
   /**
@@ -65338,7 +65950,7 @@ class Viewer {
    **/
   getState(path) {
     var p = path.replaceAll("|", "/");
-    return this.getStates()[p];
+    return this.treeview.getState(p);
   }
 
   /**
@@ -65346,15 +65958,8 @@ class Viewer {
    * @function
    * @param {States} - states
    */
-  setStates = (states, notify = true) => {
-    for (var id in states) {
-      if (
-        states[id][0] != this.states[id][0] ||
-        states[id][1] != this.states[id][1]
-      ) {
-        this.setState(id, states[id], "leaf", notify);
-      }
-    }
+  setStates = (states) => {
+    this.treeview.setStates(states);
   };
 
   /**
@@ -65680,6 +66285,11 @@ class Viewer {
    * Note: Only the canvas will be shown, no tools and orientation marker
    */
   getImage = (taskId) => {
+    // canvas.toBlob can be very slow when anmation loop is off!
+    const animationLoop = this.hasAnimationLoop;
+    if (!animationLoop) {
+      this.toggleAnimationLoop(true);
+    }
     let result = new Promise((resolve, reject) => {
       const canvas = this.display.getCanvas();
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
@@ -65688,7 +66298,13 @@ class Viewer {
         let reader = new FileReader();
         reader.addEventListener(
           "load",
-          () => resolve({ task: taskId, dataUrl: reader.result }),
+          () => {
+            resolve({ task: taskId, dataUrl: reader.result });
+            // set animation loop back to the stored value
+            if (!animationLoop) {
+              this.toggleAnimationLoop(false);
+            }
+          },
           false,
         );
         reader.readAsDataURL(blob);

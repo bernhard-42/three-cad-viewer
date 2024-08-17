@@ -12,27 +12,28 @@
   <script src="./examples/hexapod.js"></script>
   <script src="./examples/hexapod_b3d.js"></script>
   <!-- 
-  <script src="./examples/drops.js"></script>
-  <script src="./examples/assembly.js"></script>
-  <script src="./examples/edges-verts.js"></script> 
--->
-  <script src="./examples/box.js"></script>
-  <script src="./examples/image-face.js"></script>
-  <script src="./examples/dirbox.js"></script>
-  <script src="./examples/torusknot.js"></script>
-  <script src="./examples/profile4040.js"></script>
-  <script src="./examples/longbox.js"></script>
-  <script src="./examples/orientation-box.js"></script>
-  <script src="./examples/box-edges.js"></script>
-  <script src="./examples/single-faces.js"></script>
-  <script src="./examples/single-edges.js"></script>
-  <script src="./examples/single-vertices.js"></script>
-  <script src="./examples/box1.js"></script>
-  <script src="./examples/boxes.js"></script>
-  <script src="./examples/faces.js"></script>
-  <script src="./examples/edges.js"></script>
-  <script src="./examples/vertices.js"></script>
-  <script src="./examples/linkage.js"></script>
+    <script src="./examples/assembly.js"></script>
+    <script src="./examples/edges-verts.js"></script> 
+    <script src="./examples/transpalet.js"></script>
+    -->
+    <script src="./examples/box.js"></script>
+    <script src="./examples/image-face.js"></script>
+    <script src="./examples/dirbox.js"></script>
+    <script src="./examples/torusknot.js"></script>
+    <script src="./examples/profile4040.js"></script>
+    <script src="./examples/longbox.js"></script>
+    <script src="./examples/orientation-box.js"></script>
+    <script src="./examples/box-edges.js"></script>
+    <script src="./examples/single-faces.js"></script>
+    <script src="./examples/single-edges.js"></script>
+    <script src="./examples/single-vertices.js"></script>
+    <script src="./examples/box1.js"></script>
+    <script src="./examples/boxes.js"></script>
+    <script src="./examples/faces.js"></script>
+    <script src="./examples/edges.js"></script>
+    <script src="./examples/vertices.js"></script>
+    <script src="./examples/drops.js"></script>
+    <script src="./examples/linkage.js"></script>
   <script src="./examples/linkage-tracks.js"></script>
 
   <script type="module">
@@ -46,11 +47,11 @@
     var viewer = null;
 
     const examples = [
-      // edges_verts,
-      // assembly,
-      // drops,
       hexapod,
       hexapod_b3d,
+      // transpalet,
+      // edges_verts,
+      // assembly,
       linkage,
       box,
       image_face,
@@ -62,15 +63,16 @@
       boxes,
       faces,
       edges,
+      vertices,
+      drops,
       single_faces,
       single_edges,
       single_vertices,
-      vertices,
       longbox,
-      boxEdges
+      boxEdges,
     ];
 
-    function render(name, shapes, states) {
+    function render(name, shapes) {
       const timer = new Timer("renderer", timeit);
 
       viewer?.clear();
@@ -81,7 +83,6 @@
 
       viewer.render(
         shapes,
-        states,
         renderOptions,
         viewerOptions,
       );
@@ -187,7 +188,8 @@
         "shift": "shiftKey",
         "ctrl": "ctrlKey",
         "meta": "metaKey"
-      }
+      },
+      newTreeBehavior: true,
     };
 
     const renderOptions = {
@@ -198,7 +200,6 @@
       edgeColor: 0x707070,
       defaultOpacity: 0.5,
       normalLen: 0,
-      measureTools: false,
     };
 
     const viewerOptions = {
@@ -230,9 +231,8 @@
       // target: [133.7552476361796, -193.79076438378323, -47.35882179018034],
       // zoom: 1,
       // glass: true,
-      collapse: 1,
-      measureTools: false,
-      newTreeBehaviour: true,
+      collapse: 3,
+      measureTools: true,
     };
 
     function showViewer(control, mode, containerId) {
@@ -248,7 +248,6 @@
         displayOptions.glass = false;
         displayOptions.tools = true;
       }
-      displayOptions.newTreeBehavior = true;
 
       window.viewerMode = mode;
       // console.log(control);
@@ -266,7 +265,7 @@
       viewerOptions.control = control_up[0];
       viewerOptions.up = control_up[1][0];
 
-      render(window.selectedExample, ...examples[window.selectedIndex]);
+      render(window.selectedExample, examples[window.selectedIndex]);
       timer.stop();
 
       // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])
@@ -346,13 +345,13 @@
       Examples
       <select class="select"
         onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; showViewer(window.controlMode, window.viewerMode, 'cad_view_001')">
+        <option value="hexapod">hexapod</option>
+        <option value="hexapod_b3d">hexapod(build123d)</option>
         <!-- 
         <option value="edges-verts">edges_verts</option>
         <option value="assembly">assembly</option>
-        <option value="drops">drops</option>
-      -->
-        <option value="hexapod">hexapod</option>
-        <option value="hexapod_b3d">hexapod(build123d)</option>
+        <option value="transpalet">transpalet</option>        
+        -->
         <option value="linkage">linkage</option>
         <option value="box">box</option>
         <option value="image-face">image-face</option>
@@ -364,10 +363,11 @@
         <option value="boxes">boxes</option>
         <option value="faces">faces</option>
         <option value="edges">edges</option>
+        <option value="vertices">vertices</option>
+        <option value="drops">drops</option>        
         <option value="single_faces">single faces</option>
         <option value="single_edges">single edges</option>
         <option value="single_vertices">single vertices</option>
-        <option value="vertices">vertices</option>
         <option value="longbox">longbox</option>
         <option value="box-edges">box-edges</option>
       </select>

@@ -127,7 +127,17 @@ canvas {
 
 .tcv_toggle_info_wrapper {
   display: none;
-  margin-left: 6px;
+  margin-left: 4px;
+}
+
+.tcv_info_label {
+  font-size: 12px;
+  font-family: sans-serif;
+  font-weight: bold;
+  margin-left: 4px;
+  padding-bottom: 4px;
+  vertical-align: top;
+  user-select: none;
 }
 
 .tcv_cad_info_glass {
@@ -301,6 +311,7 @@ th {
   overflow: scroll;
   height: 100%;
   margin: 0px 0px 0px 4px;
+  padding-top: 2px;
 }
 
 .tcv_btn {
@@ -719,38 +730,10 @@ input[type="button"] {
   background-color: var(--tcv-bg-overlay-color);
 }
 
-.tcv_node_entry_wrap {
-  white-space: pre;
-}
 
-.tcv_node_entry {
-  white-space: nowrap;
-  padding-top: 4px;
-}
-
-.tcv_t-caret {
-  cursor: pointer;
-  -webkit-user-select: none;
-  /* Safari 3.1+ */
-  -moz-user-select: none;
-  /* Firefox 2+ */
-  -ms-user-select: none;
-  /* IE 10+ */
-  user-select: none;
-}
-
-.tcv_t-caret::before {
-  content: "\25B6\FE0E";
-  font-size: 12px;
-  /* color: black; */
-  display: inline-block;
-  margin-right: 2px;
-}
-
-.tcv_t-caret-down::before {
-  -ms-transform: rotate(90deg);
-  -webkit-transform: rotate(90deg);
-  transform: rotate(90deg);
+.tv-tree-node {
+  display: flex;
+  flex-direction: column;
 }
 
 .tcv_toplevel {
@@ -760,48 +743,61 @@ input[type="button"] {
   margin-block-end: 0px !important;
 }
 
-.tcv_nested {
-  display: none;
-  list-style-type: none;
-  padding-inline-start: 16px;
+.tv-node-content {
+  display: flex;
+  align-items: center;
+  padding: 2px 0px 2px 0px;
+  height: 16px;
 }
 
-.tcv_active {
-  display: block;
-}
-
-.tcv_icon {
-  width: 26px !important;
-  /* height: 18px !important; */
-  vertical-align: middle;
-  border: none;
+.tv-nav-marker {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 1px;
   cursor: pointer;
-  margin: 2px 1px 2px 0px;
-  background: transparent;
-  background-position-x: center;
-  background-position-y: center;
-  background-repeat: no-repeat;
-  padding: 0px;
+  vertical-align: middle;
+  flex-shrink: 0;
 }
 
-.tcv_indent {
-  margin-left: 12px;
+.tv-nav-marker svg {
+  width: 100%;
+  height: 100%;
 }
 
-.tcv_tree_label {
-  margin-left: 6px;
+.tv-icon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin-right: 2px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.tv-pointer {
+  cursor: pointer;
+}
+
+.tv-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.tv-node-label {
+  cursor: pointer;
+  margin-left: 4px;
   font-size: 14px;
   font-family: sans-serif;
-  user-select: none;
 }
 
-.tcv_tree_label:hover {
-  cursor: pointer;
+.tv-node-label-highlight {
+  color: rgb(112, 160, 220);
 }
 
-.tcv_node_selected {
-  color: #308ee1;
+.tv-children {
+  margin-left: 20px;
 }
+
 /* MEASURE PANEL */
 
 
