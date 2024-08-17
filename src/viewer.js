@@ -865,6 +865,61 @@ class Viewer {
   // - - - - - - - - - - - - - - - - - - - - - - - -
 
   /**
+   * Synchronizes the states of two tree structures recursively.
+   *
+   * @param {Array|Object} compactTree - The compact tree structure.
+   * @param {Array|Object} expandedTree - The expanded tree structure.
+   * @param {string} path - The current path in the tree structure.
+   */
+  syncTreeStates = (compactTree, expandedTree, exploded, path) => {
+    if (Array.isArray(compactTree)) {
+      if (exploded) {
+        for (var t in expandedTree) {
+          for (var l in expandedTree[t]) {
+            const id = `${path}/${t}/${l}`;
+            const objectGroup = this.explodedNestedGroup.groups[id];
+            for (var i of [0, 1]) {
+              if (i == 0) {
+                objectGroup.setShapeVisible(compactTree[0] == 1);
+              } else {
+                objectGroup.setEdgesVisible(compactTree[1] == 1);
+              }
+              if (expandedTree[t][l][i] != 3) {
+                expandedTree[t][l][i] = compactTree[i];
+              }
+            }
+          }
+        }
+      } else {
+        const objectGroup = this.compactNestedGroup.groups[path];
+        for (var i of [0, 1]) {
+          var visible = false;
+          for (var t in expandedTree) {
+            for (var l in expandedTree[t]) {
+              if (expandedTree[t][l][i] == 1) {
+                visible = true;
+              }
+            }
+          }
+          if (i == 0) {
+            objectGroup.setShapeVisible(visible);
+          } else {
+            objectGroup.setEdgesVisible(visible);
+          }
+          if (compactTree[i] != 3) {
+            compactTree[i] = visible ? 1 : 0;
+          }
+        }
+      }
+    } else {
+      for (var key in compactTree) {
+        var id = `${path}/${key}`;
+        this.syncTreeStates(compactTree[key], expandedTree[key], exploded, id);
+      }
+    }
+  };
+
+  /**
    * Toggle the two version of the NestedGroup
    * @param exploded - whether to render the exploded or compact version
    */
@@ -910,6 +965,12 @@ class Viewer {
         : this.compactNestedGroup;
       _config();
     }
+
+    // only sync if both trees exist
+    if (this.explodedTree) {
+      this.syncTreeStates(this.compactTree, this.explodedTree, exploded, "");
+    }
+    timer.split("synched tree states");
 
     this.tree = exploded ? this.explodedTree : this.compactTree;
     this.scene.children[0] = this.nestedGroup.rootGroup;
