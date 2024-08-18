@@ -201,7 +201,7 @@ class Raycaster {
         if (this.raycastMode) {
             if (e.button == THREE.MOUSE.LEFT) {
                 if (this.lastPosition.equals(this.camera.getPosition())) {
-                    this.callback({ mouse: "left" });
+                    this.callback({ mouse: "left", shift: e.shiftKey });
                 }
             } else if (e.button == THREE.MOUSE.RIGHT) {
                 if (this.lastPosition.equals(this.camera.getPosition())) {

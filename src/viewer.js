@@ -1838,6 +1838,14 @@ class Viewer {
               obj.toggleSelection();
             }
             this.cadTools.handleSelectedObj(this.lastObject);
+            if (event.shift) {
+              this.treeview.openPath(
+                this.lastObject.obj.name.replaceAll(
+                  this.nestedGroup.delim,
+                  "/",
+                ),
+              );
+            }
             this.lastSelection = this.lastObject;
           }
           break;
