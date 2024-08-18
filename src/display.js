@@ -691,6 +691,7 @@ class Display {
    */
   setTool = (name, flag) => {
     this.viewer.toggleAnimationLoop(flag);
+    this.showAnimationControl(!flag);
 
     if (flag) {
       if (this.viewer.hasAnimation()) {
