@@ -1797,7 +1797,9 @@ class Viewer {
       for (var object of objects) {
         {
           const objectGroup = object.object.parent;
-          if (objectGroup !== this.lastObject) {
+          var name = objectGroup ? objectGroup.name : null;
+          var last_name = this.lastObject ? this.lastObject.obj.name : null;
+          if (name !== last_name) {
             this._releaseLastSelected(false);
             const fromSolid = this.raycaster.filters.topoFilter.includes(
               TopoFilter.solid,
