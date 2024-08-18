@@ -1,3 +1,5 @@
+
+(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 /**
  * @license
  * Copyright 2010-2024 Three.js Authors
@@ -54326,7 +54328,7 @@ function clone(obj) {
   }
 }
 function flatten(arr, depth = 1) {
-  return (Array.isArray(arr)) ? arr.flat(depth) : arr;
+  return Array.isArray(arr) ? arr.flat(depth) : arr;
 }
 
 function isEqual(obj1, obj2, tol = 1e-9) {
@@ -54369,9 +54371,9 @@ function sceneTraverse(obj, fn) {
 class _KeyMapper {
   constructor() {
     this.keyMapping = {
-      "shift": "shiftKey",
-      "ctrl": "ctrlKey",
-      "meta": "metaKey"
+      shift: "shiftKey",
+      ctrl: "ctrlKey",
+      meta: "metaKey",
     };
   }
   getshortcuts = (key) => {
@@ -54401,275 +54403,283 @@ function scaleLight(intensity) {
 const KeyMapper = new _KeyMapper();
 
 class Slider {
-    constructor(index, min, max, display) {
-        if (index.startsWith("plane")) {
-            this.index = parseInt(index.substring(5));
-            this.type = "plane";
-        } else {
-            this.index = undefined;
-            this.type = index;
-        }
-        this.display = display;
-
-        this.slider = display.container.getElementsByClassName(
-            `tcv_sld_value_${index}`,
-        )[0];
-        this.slider.min = min;
-        this.slider.max = max;
-        this.input = display.container.getElementsByClassName(
-            `tcv_inp_value_${index}`,
-        )[0];
-        this.input.value = max;
-        this.slider.oninput = this.sliderChange;
-        this.input.addEventListener("change", this.inputChange);
+  constructor(index, min, max, display) {
+    if (index.startsWith("plane")) {
+      this.index = parseInt(index.substring(5));
+      this.type = "plane";
+    } else {
+      this.index = undefined;
+      this.type = index;
     }
+    this.display = display;
 
-    _notify = (value, notify = true) => {
-        if (this.type == "plane") {
-            const change = {};
-            change[`clip_slider_${this.index - 1}`] = parseFloat(value);
-            this.display.viewer.checkChanges(change, notify);
-        }
-    };
+    this.slider = display.container.getElementsByClassName(
+      `tcv_sld_value_${index}`,
+    )[0];
+    this.slider.min = min;
+    this.slider.max = max;
+    this.input = display.container.getElementsByClassName(
+      `tcv_inp_value_${index}`,
+    )[0];
+    this.input.value = max;
+    this.slider.oninput = this.sliderChange;
+    this.input.addEventListener("change", this.inputChange);
+  }
 
-    _handle(type, index, value) {
-        if (type == "plane") {
-            this.display.refreshPlane(index, value);
-        } else if (type === "ambientlight") {
-            if (this.display.viewer.ready) {
-                this.display.viewer.setAmbientLight(value / 100);
-            }
-        } else if (type === "pointlight") {
-            if (this.display.viewer.ready) {
-                this.display.viewer.setDirectLight(value / 100);
-            }
-        } else if (type === "metalness") {
-            if (this.display.viewer.ready) {
-                this.display.viewer.setMetalness(value / 100);
-            }
-        } else if (type === "roughness") {
-            if (this.display.viewer.ready) {
-                this.display.viewer.setRoughness(value / 100);
-            }
-        }
+  _notify = (value, notify = true) => {
+    if (this.type == "plane") {
+      const change = {};
+      change[`clip_slider_${this.index - 1}`] = parseFloat(value);
+      this.display.viewer.checkChanges(change, notify);
     }
+  };
 
-    sliderChange = (e) => {
-        const value = e.target.value;
-        this.input.value = Math.round(1000 * value) / 1000;
-        this._handle(this.type, this.index, this.input.value);
-        this._notify(value);
-    };
-
-    inputChange = (e) => {
-        const value = Math.max(
-            Math.min(e.target.value, this.slider.max),
-            this.slider.min,
-        );
-        // if (value != e.target.value) {
-        //     this.input.value = Math.round(1000 * value) / 1000;
-        // }
-        this.slider.value = value;
-        this._handle(this.type, this.index, this.input.value);
-        this._notify(value);
-    };
-
-    setSlider(limit) {
-        const exp = Math.abs(Math.round(Math.log10(2 * limit)));
-        this.slider.min = -limit;
-        this.slider.max = limit;
-        this.slider.step = Math.pow(10, -(3 - exp));
-        this.slider.value = limit;
-        this.input.value = Math.round(1000 * this.slider.max) / 1000;
-        this.display.refreshPlane(this.index, this.input.value);
+  _handle(type, index, value) {
+    if (type == "plane") {
+      this.display.refreshPlane(index, value);
+    } else if (type === "ambientlight") {
+      if (this.display.viewer.ready) {
+        this.display.viewer.setAmbientLight(value / 100);
+      }
+    } else if (type === "pointlight") {
+      if (this.display.viewer.ready) {
+        this.display.viewer.setDirectLight(value / 100);
+      }
+    } else if (type === "metalness") {
+      if (this.display.viewer.ready) {
+        this.display.viewer.setMetalness(value / 100);
+      }
+    } else if (type === "roughness") {
+      if (this.display.viewer.ready) {
+        this.display.viewer.setRoughness(value / 100);
+      }
     }
+  }
 
-    getValue() {
-        return parseFloat(this.input.value);
-    }
+  sliderChange = (e) => {
+    const value = e.target.value;
+    this.input.value = Math.round(1000 * value) / 1000;
+    this._handle(this.type, this.index, this.input.value);
+    this._notify(value);
+  };
 
-    setValue(value, notify = true) {
-        const trimmed_value = Math.max(
-            Math.min(value, this.slider.max),
-            this.slider.min,
-        );
-        this.input.value = Math.round(1000 * trimmed_value) / 1000;
-        this.slider.value = value;
-        this._handle(this.type, this.index, this.input.value);
-        this._notify(value, notify);
-    }
+  inputChange = (e) => {
+    const value = Math.max(
+      Math.min(e.target.value, this.slider.max),
+      this.slider.min,
+    );
+    // if (value != e.target.value) {
+    //     this.input.value = Math.round(1000 * value) / 1000;
+    // }
+    this.slider.value = value;
+    this._handle(this.type, this.index, this.input.value);
+    this._notify(value);
+  };
+
+  setSlider(limit) {
+    const exp = Math.abs(Math.round(Math.log10(2 * limit)));
+    this.slider.min = -limit;
+    this.slider.max = limit;
+    this.slider.step = Math.pow(10, -(3 - exp));
+    this.slider.value = limit;
+    this.input.value = Math.round(1000 * this.slider.max) / 1000;
+    this.display.refreshPlane(this.index, this.input.value);
+  }
+
+  getValue() {
+    return parseFloat(this.input.value);
+  }
+
+  setValue(value, notify = true) {
+    const trimmed_value = Math.max(
+      Math.min(value, this.slider.max),
+      this.slider.min,
+    );
+    this.input.value = Math.round(1000 * trimmed_value) / 1000;
+    this.slider.value = value;
+    this._handle(this.type, this.index, this.input.value);
+    this._notify(value, notify);
+  }
 }
 
 class Toolbar {
-    constructor(container, id) {
-        this.id = id;
-        this.container = container;
-        this.buttons = {};
-    }
+  constructor(container, id) {
+    this.id = id;
+    this.container = container;
+    this.buttons = {};
+  }
 
-    addButton(button) {
-        button.setId(this.id);
-        this.buttons[button.name] = button;
-        this.container.appendChild(button.html);
-    }
+  addButton(button) {
+    button.setId(this.id);
+    this.buttons[button.name] = button;
+    this.container.appendChild(button.html);
+  }
 
-    addSeparator() {
-        var html = document.createElement("span");
-        html.className = "tcv_separator";
-        this.container.appendChild(html);
-    }
+  addSeparator() {
+    var html = document.createElement("span");
+    html.className = "tcv_separator";
+    this.container.appendChild(html);
+  }
 
-    defineGroup(buttons) {
-        for (var button of buttons) {
-            for (var button2 of buttons) {
-                if (button2 != button) {
-                    button.addGroupMember(button2);
-                }
-            }
+  defineGroup(buttons) {
+    for (var button of buttons) {
+      for (var button2 of buttons) {
+        if (button2 != button) {
+          button.addGroupMember(button2);
         }
+      }
     }
+  }
 }
 
 class BaseButton {
-    constructor(theme, icon, tooltip) {
-        this.svg = getIconBackground(theme, icon);
-        this.name = icon;
+  constructor(theme, icon, tooltip) {
+    this.svg = getIconBackground(theme, icon);
+    this.name = icon;
 
-        var html = document.createElement("span");
-        html.className = "tcv_tooltip";
-        html.setAttribute("data-tooltip", tooltip);
+    var html = document.createElement("span");
+    html.className = "tcv_tooltip";
+    html.setAttribute("data-tooltip", tooltip);
 
-        // html.appendChild(document.createElement("span"));
-        // html.children[0].className = "tcv_click_btn_marker";
-        var frame = html.appendChild(document.createElement("span"));
-        frame.className = "tcv_button_frame";
-        frame.appendChild(document.createElement("input"));
-        frame.children[0].className = "tcv_reset tcv_btn";
+    // html.appendChild(document.createElement("span"));
+    // html.children[0].className = "tcv_click_btn_marker";
+    var frame = html.appendChild(document.createElement("span"));
+    frame.className = "tcv_button_frame";
+    frame.appendChild(document.createElement("input"));
+    frame.children[0].className = "tcv_reset tcv_btn";
 
-        frame.children[0].type = "button";
-        frame.children[0].style.backgroundImage = this.svg;
-        this.html = html;
+    frame.children[0].type = "button";
+    frame.children[0].style.backgroundImage = this.svg;
+    this.html = html;
 
-        this.html.addEventListener("click", (e) => {
-            this.handler(e);
-        });
-    }
+    this.html.addEventListener("click", (e) => {
+      this.handler(e);
+    });
+  }
 
-    dispose() {
-        this.html = "";
-        this.container.removeEventListener("click", this.handler);
-    }
+  dispose() {
+    this.html = "";
+    this.container.removeEventListener("click", this.handler);
+  }
 
-    setId(id) {
-        this.containerId = id;
-    }
+  setId(id) {
+    this.containerId = id;
+  }
 
-    // eslint-disable-next-line no-unused-vars
-    handler = (e) => {
-        console.log("not implemented yet");
-    };
+  // eslint-disable-next-line no-unused-vars
+  handler = (e) => {
+    console.log("not implemented yet");
+  };
 
-    alignRight() {
-        this.html.classList.add("tcv_align_right");
-    }
+  alignRight() {
+    this.html.classList.add("tcv_align_right");
+  }
 
-    show(flag) {
-        this.html.style.display = flag ? "inline-block" : "none";
-    }
+  show(flag) {
+    this.html.style.display = flag ? "inline-block" : "none";
+  }
 }
 
 class Button extends BaseButton {
-    constructor(theme, svg, tooltip, action) {
-        super(theme, svg, tooltip);
-        this.action = action;
+  constructor(theme, svg, tooltip, action) {
+    super(theme, svg, tooltip);
+    this.action = action;
+  }
+
+  // eslint-disable-next-line no-unused-vars
+  handler = (e) => {
+    this.action(this.name);
+  };
+
+  highlight = (flag) => {
+    if (flag) {
+      this.html.firstChild.classList.add("tcv_btn_highlight");
+    } else {
+      this.html.firstChild.classList.remove("tcv_btn_highlight");
     }
-
-    // eslint-disable-next-line no-unused-vars
-    handler = (e) => {
-        this.action(this.name);
-    };
-
-    highlight = (flag) => {
-        if (flag) {
-            this.html.firstChild.classList.add("tcv_btn_highlight");
-        } else {
-            this.html.firstChild.classList.remove("tcv_btn_highlight");
-        }
-    };
+  };
 }
 
 class ClickButton extends BaseButton {
-    constructor(theme, svg, tooltip, action, defaultState = false, dropdown = null) {
-        super(theme, svg, tooltip);
-        this.action = action;
-        this.state = defaultState;
-        this.dropdown = dropdown;
-        this.sameGroup = [];
+  constructor(
+    theme,
+    svg,
+    tooltip,
+    action,
+    defaultState = false,
+    dropdown = null,
+  ) {
+    super(theme, svg, tooltip);
+    this.action = action;
+    this.state = defaultState;
+    this.dropdown = dropdown;
+    this.sameGroup = [];
 
-        this.checkElems = {};
-        if (dropdown != null) {
-            const d = document.createElement("span");
-            d.classList.add("tcv_grid-content");
-            d.classList.add("tcv_dropdown-content");
-            d.classList.add("tcv_round");
-            for (var p of dropdown) {
-                const dp = document.createElement("div");
-                dp.className = "tcv_tooltip";
-                dp.setAttribute("data-tooltip", `${tooltip} ${p}`);
-                dp.innerHTML = `<input class='tcv_grid-${p} tcv_check tcv_dropdown-entry' id='tcv_grid-${p}_${this.containerId}' type="checkbox">` +
-                    `<label for='tcv_grid-${p}_${this.containerId}' class="tcv_label tcv_dropdown-entry">${p}</label>`;
-                d.appendChild(dp);
-                this.checkElems[p] = dp.children[0];
-            }
-            this.html.children[0].appendChild(d);
-            this.html.children[0].classList.add("tcv_grid-dropdown");
-        }
+    this.checkElems = {};
+    if (dropdown != null) {
+      const d = document.createElement("span");
+      d.classList.add("tcv_grid-content");
+      d.classList.add("tcv_dropdown-content");
+      d.classList.add("tcv_round");
+      for (var p of dropdown) {
+        const dp = document.createElement("div");
+        dp.className = "tcv_tooltip";
+        dp.setAttribute("data-tooltip", `${tooltip} ${p}`);
+        dp.innerHTML =
+          `<input class='tcv_grid-${p} tcv_check tcv_dropdown-entry' id='tcv_grid-${p}_${this.containerId}' type="checkbox">` +
+          `<label for='tcv_grid-${p}_${this.containerId}' class="tcv_label tcv_dropdown-entry">${p}</label>`;
+        d.appendChild(dp);
+        this.checkElems[p] = dp.children[0];
+      }
+      this.html.children[0].appendChild(d);
+      this.html.children[0].classList.add("tcv_grid-dropdown");
     }
-    get = () => {
-        return this.state;
-    };
+  }
+  get = () => {
+    return this.state;
+  };
 
-    set = (state) => {
-        this.state = state;
-        this.html.children[0].classList.toggle("tcv_btn_click2", this.state);
-    };
+  set = (state) => {
+    this.state = state;
+    this.html.children[0].classList.toggle("tcv_btn_click2", this.state);
+  };
 
-    clearGroup = () => {
-        for (var button of this.sameGroup) {
-            if (button.state) {
-                button.state = false;
-                button.html.children[0].classList.remove("tcv_btn_click2");
-                button.action(this.name, false);
-            }
-        }
-    };
-
-    extractIdFromName = (name) => {
-        const match = "grid-";
-        const start = name.indexOf(match) + match.length;
-        const end = name.indexOf("_", start);
-        const result = name.slice(start, end);
-        return result;
-    };
-
-    handler = (e) => {
-        const id = this.extractIdFromName(e.target.id);
-        if (this.dropdown != null && id && this.dropdown.includes(id)) {
-            const newstate = e.target.checked;
-            this.action(`grid-${id}`, newstate);
-            this.checkElems[id].checked = newstate;
-        } else if (e.target.type === "button") {
-            if (!this.state) {
-                this.clearGroup();
-            }
-            this.set(!this.state);
-            this.action(this.name, this.state);
-        }
-    };
-
-    addGroupMember(button) {
-        this.sameGroup.push(button);
+  clearGroup = () => {
+    for (var button of this.sameGroup) {
+      if (button.state) {
+        button.state = false;
+        button.html.children[0].classList.remove("tcv_btn_click2");
+        button.action(button.name, false);
+      }
     }
+  };
+
+  extractIdFromName = (name) => {
+    const match = "grid-";
+    const start = name.indexOf(match) + match.length;
+    const end = name.indexOf("_", start);
+    const result = name.slice(start, end);
+    return result;
+  };
+
+  handler = (e) => {
+    const id = this.extractIdFromName(e.target.id);
+    if (this.dropdown != null && id && this.dropdown.includes(id)) {
+      const newstate = e.target.checked;
+      this.action(`grid-${id}`, newstate);
+      this.checkElems[id].checked = newstate;
+    } else if (e.target.type === "button") {
+      if (!this.state) {
+        this.clearGroup();
+      }
+      this.set(!this.state);
+      this.action(this.name, this.state);
+    }
+  };
+
+  addGroupMember(button) {
+    this.sameGroup.push(button);
+  }
 }
 
 const _box$1 = new Box3();
@@ -55856,244 +55866,248 @@ class LineSegments2 extends Mesh {
 }
 
 const TopoFilter = {
-    none: null,
-    vertex: "vertex",
-    edge: "edge",
-    face: "face",
-    solid: "solid",
+  none: null,
+  vertex: "vertex",
+  edge: "edge",
+  face: "face",
+  solid: "solid",
 };
 const GeomFilter = {
-    none: null,
-    plane: "plane",
-    line: "line",
-    circle: "circle",
+  none: null,
+  plane: "plane",
+  line: "line",
+  circle: "circle",
 };
 
 const GeomTypes = {
-    "face": [
-        "plane",
-        "cylinder",
-        "cone",
-        "sphere",
-        "torus",
-        "bezier",
-        "bspline",
-        "revolution",
-        "extrusion",
-        "offset",
-        "other"],
-    "edge": [
-        "line",
-        "circle",
-        "ellipse",
-        "hyperbola",
-        "parabola",
-        "bezier",
-        "bspline",
-        "offset",
-        "other"
-    ]
+  face: [
+    "plane",
+    "cylinder",
+    "cone",
+    "sphere",
+    "torus",
+    "bezier",
+    "bspline",
+    "revolution",
+    "extrusion",
+    "offset",
+    "other",
+  ],
+  edge: [
+    "line",
+    "circle",
+    "ellipse",
+    "hyperbola",
+    "parabola",
+    "bezier",
+    "bspline",
+    "offset",
+    "other",
+  ],
 };
 
 class PickedObject {
-    constructor(objectGroup, fromSolid) {
-        this.obj = objectGroup;
-        this.fromSolid = fromSolid;
+  constructor(objectGroup, fromSolid) {
+    this.obj = objectGroup;
+    this.fromSolid = fromSolid;
+  }
+
+  /**
+   * Returns all the faces ObjectGroups that define the solid from the picked object.
+   */
+  _getSolidObjectGroups(solidSubObject) {
+    const solidGroup = solidSubObject.parent.parent;
+    let facesGroup;
+    for (let i = 0; i < solidGroup.children.length; i++) {
+      const child = solidGroup.children[i];
+      if (child.name === solidGroup.name + "|faces") {
+        facesGroup = child;
+        break;
+      }
     }
 
-    /**
-    * Returns all the faces ObjectGroups that define the solid from the picked object.
-    */
-    _getSolidObjectGroups(solidSubObject) {
+    return facesGroup.children;
+  }
 
-        const solidGroup = solidSubObject.parent.parent;
-        let facesGroup;
-        for (let i = 0; i < solidGroup.children.length; i++) {
-            const child = solidGroup.children[i];
-            if (child.name === solidGroup.name + "|faces") {
-                facesGroup = child;
-                break;
-            }
-        }
-
-        return facesGroup.children;
+  /**
+   * If the picked object is part of a solid, returns all the faces ObjectGroups that define the solid.
+   * Otherwise, returns the picked object.
+   * @returns {ObjectGroup[]} The picked objects.
+   */
+  objs() {
+    if (this.fromSolid) {
+      return this._getSolidObjectGroups(this.obj);
+    } else {
+      return [this.obj];
     }
-
-    /**
-     * If the picked object is part of a solid, returns all the faces ObjectGroups that define the solid.
-     * Otherwise, returns the picked object.
-     * @returns {ObjectGroup[]} The picked objects.
-     */
-    objs() {
-        if (this.fromSolid) {
-            return this._getSolidObjectGroups(this.obj);
-        } else {
-            return [this.obj];
-        }
-
-    }
+  }
 }
 
 class Raycaster {
-    constructor(camera, domElement, width, height, threshold, group, callback) {
-        this.camera = camera;
-        this.group = group;
-        this.domElement = domElement;
-        this.width = width;
-        this.height = height;
-        this.threshold = threshold;
-        this.callback = callback;
+  constructor(camera, domElement, width, height, threshold, group, callback) {
+    this.camera = camera;
+    this.group = group;
+    this.domElement = domElement;
+    this.width = width;
+    this.height = height;
+    this.threshold = threshold;
+    this.callback = callback;
 
-        this.raycaster = new Raycaster$1();
-        this.raycastMode = false;
+    this.raycaster = new Raycaster$1();
+    this.raycastMode = false;
 
-        this.lastPosition = null;
+    this.lastPosition = null;
 
-        this.mouse = new Vector2();
-        this.mouseMoved = false;
-        this.filters = { topoFilter: [TopoFilter.none], geomFilter: [GeomFilter.none] };
-    }
-
-    dispose() {
-        this.domElement.removeEventListener("mousemove", this.onPointerMove);
-        this.domElement.removeEventListener("mouseup", this.mouseKetUp);
-        this.domElement.removeEventListener("mousedown", this.onMouseKeyDown);
-        this.domElement.removeEventListener("keydown", this.onKeyDown);
-        this.raycastMode = false;
-    }
-
-    init() {
-        this.domElement.addEventListener("mousemove", this.onPointerMove);
-        this.domElement.addEventListener("mouseup", this.onMouseKeyUp, false);
-        this.domElement.addEventListener("mousedown", this.onMouseKeyDown, false);
-        this.domElement.addEventListener("keydown", this.onKeyDown, false);
-        this.raycastMode = true;
-    }
-
-    /**
-     * Retrieve all the valid intersected objects by a ray caster from the mouse.
-     */
-    getIntersectedObjs() {
-        this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
-        this.raycaster.params.Points.threshold = this.threshold / this.camera.getZoom();
-        this.raycaster.params["Line2"] = { threshold: 4 };
-        var objects = this.raycaster.intersectObjects(this.group, true);
-        var validObjs = [];
-        for (var obj in objects) {
-            if (objects[obj].object.material.visible) {
-                validObjs.push(objects[obj]);
-            }
-        }
-        return validObjs;
-    }
-
-    /**
-     * Retrieve all the valid intersected objects by a ray caster from the mouse.
-     * The objects are sorted by their distance from the ray. (The closest first)
-     */
-    getValidIntersectedObjs() {
-        var validObjs = [];
-        if (this.mouseMoved) {
-            const objects = this.getIntersectedObjs();
-
-            for (var object of objects) {
-                if (object.object.material.visible) {
-                    const objectGroup = object.object.parent;
-                    if (objectGroup == null) continue;
-
-                    if (!objectGroup.shapeInfo) continue;  // clipping plane
-
-                    const topo = objectGroup.shapeInfo.topo;
-                    let geom;
-                    if (topo !== "vertex")
-                        geom = GeomTypes[topo][objectGroup.shapeInfo.geomtype];
-
-                    // Check if topology is acceptable given the topology filters
-                    const isSolid = objectGroup.subtype === "solid";
-                    const isSubShapeOfSolid = this.filters.topoFilter.includes(TopoFilter.solid) && isSolid;
-
-                    let valid = (isSubShapeOfSolid
-                        || this.filters.topoFilter.includes(TopoFilter.none)
-                        || this.filters.topoFilter.includes(topo));
-
-                    if (!valid) continue;
-
-                    // Check if geom is acceptable given the geom filters
-                    valid = (this.filters.geomFilter.includes(GeomFilter.none)
-                        || this.filters.geomFilter.includes(geom)
-                        && !this.filters.topoFilter.includes(TopoFilter.solid));
-
-                    if (valid) {
-                        validObjs.push(object);
-                    }
-
-                }
-            }
-        }
-        return validObjs;
-    }
-
-    /**
-     * Handle left mouse button down event
-     * @function
-     * @param {MouseEvent} e - a DOM MouseEvent
-     */
-    onMouseKeyDown = (e) => {
-        if (this.raycastMode) {
-            if (e.button == MOUSE.LEFT || e.button == MOUSE.RIGHT) {
-                this.lastPosition = this.camera.getPosition().clone();
-            }
-        }
+    this.mouse = new Vector2();
+    this.mouseMoved = false;
+    this.filters = {
+      topoFilter: [TopoFilter.none],
+      geomFilter: [GeomFilter.none],
     };
+  }
 
+  dispose() {
+    this.domElement.removeEventListener("mousemove", this.onPointerMove);
+    this.domElement.removeEventListener("mouseup", this.mouseKetUp);
+    this.domElement.removeEventListener("mousedown", this.onMouseKeyDown);
+    this.domElement.removeEventListener("keydown", this.onKeyDown);
+    this.raycastMode = false;
+  }
 
-    /**
-     * Handle left mouse button up event
-     * @function
-     * @param {MouseEvent} e - a DOM MouseEvent
-     */
-    onMouseKeyUp = (e) => {
-        if (this.raycastMode) {
-            if (e.button == MOUSE.LEFT) {
-                if (this.lastPosition.equals(this.camera.getPosition())) {
-                    this.callback({ mouse: "left" });
-                }
-            } else if (e.button == MOUSE.RIGHT) {
-                if (this.lastPosition.equals(this.camera.getPosition())) {
-                    this.callback({ mouse: "right" });
-                }
-            }
+  init() {
+    this.domElement.addEventListener("mousemove", this.onPointerMove);
+    this.domElement.addEventListener("mouseup", this.onMouseKeyUp, false);
+    this.domElement.addEventListener("mousedown", this.onMouseKeyDown, false);
+    this.domElement.addEventListener("keydown", this.onKeyDown, false);
+    this.raycastMode = true;
+  }
+
+  /**
+   * Retrieve all the valid intersected objects by a ray caster from the mouse.
+   */
+  getIntersectedObjs() {
+    this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
+    this.raycaster.params.Points.threshold =
+      this.threshold / this.camera.getZoom();
+    this.raycaster.params["Line2"] = { threshold: 4 };
+    var objects = this.raycaster.intersectObjects(this.group, true);
+    var validObjs = [];
+    for (var obj in objects) {
+      if (objects[obj].object.material.visible) {
+        validObjs.push(objects[obj]);
+      }
+    }
+    return validObjs;
+  }
+
+  /**
+   * Retrieve all the valid intersected objects by a ray caster from the mouse.
+   * The objects are sorted by their distance from the ray. (The closest first)
+   */
+  getValidIntersectedObjs() {
+    var validObjs = [];
+    if (this.mouseMoved) {
+      const objects = this.getIntersectedObjs();
+
+      for (var object of objects) {
+        if (object.object.material.visible) {
+          const objectGroup = object.object.parent;
+          if (objectGroup == null) continue;
+
+          if (!objectGroup.shapeInfo) continue; // clipping plane
+
+          const topo = objectGroup.shapeInfo.topo;
+          let geom;
+          if (topo !== "vertex")
+            geom = GeomTypes[topo][objectGroup.shapeInfo.geomtype];
+
+          // Check if topology is acceptable given the topology filters
+          const isSolid = objectGroup.subtype === "solid";
+          const isSubShapeOfSolid =
+            this.filters.topoFilter.includes(TopoFilter.solid) && isSolid;
+
+          let valid =
+            isSubShapeOfSolid ||
+            this.filters.topoFilter.includes(TopoFilter.none) ||
+            this.filters.topoFilter.includes(topo);
+
+          if (!valid) continue;
+
+          // Check if geom is acceptable given the geom filters
+          valid =
+            this.filters.geomFilter.includes(GeomFilter.none) ||
+            (this.filters.geomFilter.includes(geom) &&
+              !this.filters.topoFilter.includes(TopoFilter.solid));
+
+          if (valid) {
+            validObjs.push(object);
+          }
         }
-    };
+      }
+    }
+    return validObjs;
+  }
 
-    /**
-     * Handle key down event
-     * @function
-     * @param {MouseEvent} e - a DOM MouseEvent
-     */
-    onKeyDown = (e) => {
-        if (this.raycastMode) {
-            if (e.key == "Backspace") {
-                this.callback({ key: "Backspace" });
-            } else if (e.key == "Escape") {
-                this.callback({ key: "Escape" });
-            }
+  /**
+   * Handle left mouse button down event
+   * @function
+   * @param {MouseEvent} e - a DOM MouseEvent
+   */
+  onMouseKeyDown = (e) => {
+    if (this.raycastMode) {
+      if (e.button == MOUSE.LEFT || e.button == MOUSE.RIGHT) {
+        this.lastPosition = this.camera.getPosition().clone();
+      }
+    }
+  };
+
+  /**
+   * Handle left mouse button up event
+   * @function
+   * @param {MouseEvent} e - a DOM MouseEvent
+   */
+  onMouseKeyUp = (e) => {
+    if (this.raycastMode) {
+      if (e.button == MOUSE.LEFT) {
+        if (this.lastPosition.equals(this.camera.getPosition())) {
+          this.callback({ mouse: "left", shift: e.shiftKey });
         }
-    };
+      } else if (e.button == MOUSE.RIGHT) {
+        if (this.lastPosition.equals(this.camera.getPosition())) {
+          this.callback({ mouse: "right" });
+        }
+      }
+    }
+  };
 
-    /**
-     * Get the current mouse position
-     * @function
-     * @param {MouseEvent} e - a DOM MouseEvent
-     */
-    onPointerMove = (e) => {
-        const rect = this.domElement.getBoundingClientRect();
-        const offsetX = rect.x + window.scrollX;
-        const offsetY = rect.y + window.scrollY;
-        this.mouse.x = ((e.pageX - offsetX) / this.width) * 2 - 1;
-        this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
-        this.mouseMoved = true;
-    };
+  /**
+   * Handle key down event
+   * @function
+   * @param {MouseEvent} e - a DOM MouseEvent
+   */
+  onKeyDown = (e) => {
+    if (this.raycastMode) {
+      if (e.key == "Backspace") {
+        this.callback({ key: "Backspace" });
+      } else if (e.key == "Escape") {
+        this.callback({ key: "Escape" });
+      }
+    }
+  };
+
+  /**
+   * Get the current mouse position
+   * @function
+   * @param {MouseEvent} e - a DOM MouseEvent
+   */
+  onPointerMove = (e) => {
+    const rect = this.domElement.getBoundingClientRect();
+    const offsetX = rect.x + window.scrollX;
+    const offsetY = rect.y + window.scrollY;
+    this.mouse.x = ((e.pageX - offsetX) / this.width) * 2 - 1;
+    this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
+    this.mouseMoved = true;
+  };
 }
 
 class Panel {
@@ -57837,6 +57851,7 @@ class Display {
     this.viewer.toggleAnimationLoop(flag);
 
     if (flag) {
+      this.showAnimationControl(false);
       if (this.viewer.hasAnimation()) {
         this.viewer.backupAnimation();
       }
@@ -57871,6 +57886,7 @@ class Display {
         this.controlAnimationByName("stop");
         this.viewer.clearAnimation();
         this.viewer.restoreAnimation();
+        this.showAnimationControl(true);
       }
       this.viewer.setRaycastMode(flag);
     }
@@ -58587,7 +58603,6 @@ class VertexNormalsHelper extends LineSegments {
 }
 
 class BoundingBox extends Box3 {
-
   expandByObject(object, precise = false) {
     object.updateWorldMatrix(false, false);
 
@@ -58740,256 +58755,267 @@ const _hbox = new BoundingBox();
 const _sphere = new Sphere();
 
 class ObjectGroup extends Group {
-    /**
-     * 
-     * @param {*} opacity 
-     * @param {*} alpha 
-     * @param {*} edge_color 
-     * @param {object} shapeInfo A dictionary of shape information with a "topo" field and "geomtype" field.
-     * @param {*} renderback 
-     */
-    constructor(opacity, alpha, edge_color, shapeInfo, subtype, renderback) {
-        super();
-        this.opacity = opacity;
-        this.alpha = alpha == null ? 1.0 : alpha;
-        this.edge_color = edge_color;
-        this.shapeInfo = shapeInfo;
-        this.subtype = subtype;
-        this.renderback = renderback;
-        this.types = { front: null, back: null, edges: null, vertices: null };
-        this.isSelected = false;
-        this.originalColor = null;
-        this.originalWidth = null;
-        this.vertexFocusSize = 8; // Size of the points when highlighted
-        this.edgeFocusWidth = 5; // Size of the edges when highlighted    
+  /**
+   *
+   * @param {*} opacity
+   * @param {*} alpha
+   * @param {*} edge_color
+   * @param {object} shapeInfo A dictionary of shape information with a "topo" field and "geomtype" field.
+   * @param {*} renderback
+   */
+  constructor(opacity, alpha, edge_color, shapeInfo, subtype, renderback) {
+    super();
+    this.opacity = opacity;
+    this.alpha = alpha == null ? 1.0 : alpha;
+    this.edge_color = edge_color;
+    this.shapeInfo = shapeInfo;
+    this.subtype = subtype;
+    this.renderback = renderback;
+    this.types = { front: null, back: null, edges: null, vertices: null };
+    this.isSelected = false;
+    this.originalColor = null;
+    this.originalWidth = null;
+    this.vertexFocusSize = 8; // Size of the points when highlighted
+    this.edgeFocusWidth = 5; // Size of the edges when highlighted
+  }
+
+  addType(mesh, type) {
+    this.add(mesh);
+    this.types[type] = mesh;
+    if (this.types.vertices) {
+      this.originalColor = this.types.vertices.material.color.clone();
+      this.originalWidth = this.types.vertices.material.size;
+    } else if (this.types.edges && !this.types.front) {
+      // ignore edges of faces
+      this.originalColor = this.types.edges.material.color.clone();
+      this.originalWidth = this.types.edges.material.linewidth;
+    } else if (this.types.front) {
+      this.originalColor = this.types.front.material.color.clone();
+    }
+  }
+
+  widen(flag) {
+    if (this.types.vertices) {
+      this.types.vertices.material.size = flag
+        ? this.vertexFocusSize
+        : this.isSelected
+          ? this.vertexFocusSize - 2
+          : this.originalWidth;
+    } else if (this.types.edges) {
+      this.types.edges.material.linewidth = flag
+        ? this.edgeFocusWidth
+        : this.isSelected
+          ? this.edgeFocusWidth - 2
+          : this.originalWidth;
+    }
+  }
+
+  toggleSelection() {
+    const flag = !this.isSelected;
+    this.isSelected = flag;
+    this.highlight(flag);
+    this.widen(false);
+  }
+
+  unhighlight(keepSelection) {
+    if (!keepSelection || !this.isSelected) {
+      this.isSelected = false;
+      this.highlight(false);
+    }
+    this.widen(false);
+  }
+
+  highlight(flag) {
+    var object = null;
+    var hColor = null;
+    var oColor = null;
+
+    //console.log(this.name, "flag", flag, "isSelected", this.isSelected, this.originalColor, this.originalWidth);
+
+    if (this.types.front) {
+      object = this.types.front;
+      hColor = this.isSelected
+        ? new Color(0x53a0e3)
+        : new Color(0x89b9e3);
+      oColor = this.originalColor;
+    } else if (this.types.vertices) {
+      object = this.types.vertices;
+      hColor = this.isSelected
+        ? new Color(0x53a0e3)
+        : new Color(0x89b9e3);
+      oColor = this.originalColor;
+    } else if (this.types.edges) {
+      object = this.types.edges;
+      hColor = this.isSelected
+        ? new Color(0x53a0e3)
+        : new Color(0x89b9e3);
+      oColor = this.originalColor;
     }
 
-    addType(mesh, type) {
-        this.add(mesh);
-        this.types[type] = mesh;
-        if (this.types.vertices) {
-            this.originalColor = this.types.vertices.material.color.clone();
-            this.originalWidth = this.types.vertices.material.size;
-        } else if (this.types.edges && !this.types.front) { // ignore edges of faces
-            this.originalColor = this.types.edges.material.color.clone();
-            this.originalWidth = this.types.edges.material.linewidth;
-
-        } else if (this.types.front) {
-            this.originalColor = this.types.front.material.color.clone();
-        }
+    if (object != null) {
+      this.widen(flag);
+      object.material.color = flag ? hColor : oColor;
+      object.material.needsUpdate = true;
     }
+  }
 
-    widen(flag) {
-        if (this.types.vertices) {
-            this.types.vertices.material.size = flag ? this.vertexFocusSize : (this.isSelected ? this.vertexFocusSize - 2 : this.originalWidth);
-        } else if (this.types.edges) {
-            this.types.edges.material.linewidth = flag ? this.edgeFocusWidth : (this.isSelected ? this.edgeFocusWidth - 2 : this.originalWidth);
-        }
+  clearHighlights() {
+    this.highlight(false);
+    this.isSelected = false;
+    this.widen(false);
+  }
+
+  metrics() {
+    if (this.types.front) {
+      return { name: "face", value: 0 };
+    } else if (this.types.vertices) {
+      return { name: "vertex", value: 0 };
+    } else if (this.types.edges) {
+      return { name: "edge", value: 0 };
     }
+  }
 
-    toggleSelection() {
-        const flag = !this.isSelected;
-        this.isSelected = flag;
-        this.highlight(flag);
-        this.widen(false);
+  setMetalness(value) {
+    for (var child of this.children) {
+      if (!child.name.startsWith("clipping")) {
+        child.material.metalness = value;
+        child.material.needsUpdate = true;
+      }
     }
+  }
 
-    unhighlight(keepSelection) {
-        if (!keepSelection || !this.isSelected) {
-            this.isSelected = false;
-            this.highlight(false);
-        }
-        this.widen(false);
+  setRoughness(value) {
+    for (var child of this.children) {
+      if (!child.name.startsWith("clipping")) {
+        child.material.roughness = value;
+        child.material.needsUpdate = true;
+      }
     }
+  }
 
-    highlight(flag) {
-        var object = null;
-        var hColor = null;
-        var oColor = null;
-
-        //console.log(this.name, "flag", flag, "isSelected", this.isSelected, this.originalColor, this.originalWidth);
-
-        if (this.types.front) {
-            object = this.types.front;
-            hColor = this.isSelected ? new Color(0x53a0e3) : new Color(0x89b9e3);
-            oColor = this.originalColor;
-
-        } else if (this.types.vertices) {
-            object = this.types.vertices;
-            hColor = this.isSelected ? new Color(0x53a0e3) : new Color(0x89b9e3);
-            oColor = this.originalColor;
-
-        } else if (this.types.edges) {
-            object = this.types.edges;
-            hColor = this.isSelected ? new Color(0x53a0e3) : new Color(0x89b9e3);
-            oColor = this.originalColor;
-        }
-
-        if (object != null) {
-            this.widen(flag);
-            object.material.color = flag ? hColor : oColor;
-            object.material.needsUpdate = true;
-        }
+  setTransparent(flag) {
+    if (this.types.back) {
+      this.types.back.material.opacity = flag
+        ? this.opacity * this.alpha
+        : this.alpha;
+      this.types.front.material.opacity = flag
+        ? this.opacity * this.alpha
+        : this.alpha;
     }
-
-    clearHighlights() {
-        this.highlight(false);
-        this.isSelected = false;
-        this.widen(false);
+    for (var child of this.children) {
+      if (!child.name.startsWith("clipping")) {
+        // turn depth write off for transparent objects
+        child.material.depthWrite = this.alpha < 1.0 ? false : !flag;
+        // but keep depth test
+        child.material.depthTest = true;
+        child.material.needsUpdate = true;
+      }
     }
+  }
 
-    metrics() {
-        if (this.types.front) {
-            return { name: "face", value: 0 };
-        } else if (this.types.vertices) {
-            return { name: "vertex", value: 0 };
-        } else if (this.types.edges) {
-            return { name: "edge", value: 0 };
-        }
+  setBlackEdges(flag) {
+    if (this.types.edges) {
+      const color = flag ? 0x000000 : this.edge_color;
+      this.originalColor = new Color(color);
+      this.types.edges.material.color = new Color(color);
+      this.types.edges.material.needsUpdate = true;
     }
+  }
 
-
-    setMetalness(value) {
-        for (var child of this.children) {
-            if (!child.name.startsWith("clipping")) {
-                child.material.metalness = value;
-                child.material.needsUpdate = true;
-            }
-        }
+  setEdgeColor(color) {
+    if (this.types.edges) {
+      this.edge_color = color;
+      this.types.edges.material.color = new Color(color);
+      this.types.edges.material.needsUpdate = true;
     }
+  }
 
-    setRoughness(value) {
-        for (var child of this.children) {
-            if (!child.name.startsWith("clipping")) {
-                child.material.roughness = value;
-                child.material.needsUpdate = true;
-            }
-        }
+  setOpacity(opacity) {
+    if (this.types.front || this.types.back) {
+      this.opacity = opacity;
+      this.types.back.material.opacity = this.opacity;
+      this.types.front.material.opacity = this.opacity;
+      this.types.back.material.needsUpdate = true;
+      this.types.front.material.needsUpdate = true;
     }
+  }
 
-    setTransparent(flag) {
-        if (this.types.back) {
-            this.types.back.material.opacity = flag
-                ? this.opacity * this.alpha
-                : this.alpha;
-            this.types.front.material.opacity = flag
-                ? this.opacity * this.alpha
-                : this.alpha;
-        }
-        for (var child of this.children) {
-            if (!child.name.startsWith("clipping")) {
-                // turn depth write off for transparent objects
-                child.material.depthWrite = this.alpha < 1.0 ? false : !flag;
-                // but keep depth test
-                child.material.depthTest = true;
-                child.material.needsUpdate = true;
-            }
-        }
+  setShapeVisible(flag) {
+    if (this.types.front) {
+      this.types.front.material.visible = flag;
     }
+    for (var t of ["clipping-0", "clipping-1", "clipping-2"]) {
+      if (this.types[t]) {
+        this.types[t].children[0].material.visible = flag;
+        this.types[t].children[1].material.visible = flag;
+      }
+    }
+    if (this.types.back && this.renderback) {
+      this.types.back.material.visible = flag;
+    }
+  }
 
-    setBlackEdges(flag) {
-        if (this.types.edges) {
-            const color = flag ? 0x000000 : this.edge_color;
-            this.originalColor = new Color(color);
-            this.types.edges.material.color = new Color(color);
-            this.types.edges.material.needsUpdate = true;
-        }
+  setEdgesVisible(flag) {
+    if (this.types.edges) {
+      this.types.edges.material.visible = flag;
     }
+    if (this.types.vertices) {
+      this.types.vertices.material.visible = flag;
+    }
+  }
 
-    setEdgeColor(color) {
-        if (this.types.edges) {
-            this.edge_color = color;
-            this.types.edges.material.color = new Color(color);
-            this.types.edges.material.needsUpdate = true;
-        }
+  setBackVisible(flag) {
+    if (this.types.back && this.types.front.material.visible) {
+      this.types.back.material.visible = this.renderback || flag;
     }
+  }
 
-    setOpacity(opacity) {
-        if (this.types.front || this.types.back) {
-            this.opacity = opacity;
-            this.types.back.material.opacity = this.opacity;
-            this.types.front.material.opacity = this.opacity;
-            this.types.back.material.needsUpdate = true;
-            this.types.front.material.needsUpdate = true;
-        }
+  setClipIntersection(flag) {
+    for (var child of this.children) {
+      if (!child.name.startsWith("clipping")) {
+        child.material.clipIntersection = flag;
+        child.material.clipIntersection = flag;
+        child.material.clipIntersection = flag;
+      }
     }
+  }
 
-    setShapeVisible(flag) {
-        if (this.types.front) {
-            this.types.front.material.visible = flag;
-        }
-        for (var t of ["clipping-0", "clipping-1", "clipping-2"]) {
-            if (this.types[t]) {
-                this.types[t].children[0].material.visible = flag;
-                this.types[t].children[1].material.visible = flag;
-            }
-        }
-        if (this.types.back && this.renderback) {
-            this.types.back.material.visible = flag;
-        }
+  setClipPlanes(planes) {
+    if (this.types.back) {
+      this.types.back.material.clippingPlanes = planes;
     }
+    if (this.types.front) {
+      this.types.front.material.clippingPlanes = planes;
+    }
+    if (this.types.edges) {
+      this.types.edges.material.clippingPlanes = planes;
+    }
+    if (this.types.vertices) {
+      this.types.vertices.material.clippingPlanes = planes;
+    }
+    this.updateMaterials(true);
+  }
 
-    setEdgesVisible(flag) {
-        if (this.types.edges) {
-            this.types.edges.material.visible = flag;
-        }
-        if (this.types.vertices) {
-            this.types.vertices.material.visible = flag;
-        }
+  setPolygonOffset(offset) {
+    if (this.types.back) {
+      this.types.back.material.polygonOffsetUnits = offset;
     }
+  }
 
-    setBackVisible(flag) {
-        if (this.types.back && this.types.front.material.visible) {
-            this.types.back.material.visible = this.renderback || flag;
-        }
+  updateMaterials(flag) {
+    if (this.types.back) {
+      this.types.back.material.needsUpdate = flag;
     }
-
-    setClipIntersection(flag) {
-        for (var child of this.children) {
-            if (!child.name.startsWith("clipping")) {
-                child.material.clipIntersection = flag;
-                child.material.clipIntersection = flag;
-                child.material.clipIntersection = flag;
-            }
-        }
+    if (this.types.front) {
+      this.types.front.material.needsUpdate = flag;
     }
-
-    setClipPlanes(planes) {
-        if (this.types.back) {
-            this.types.back.material.clippingPlanes = planes;
-        }
-        if (this.types.front) {
-            this.types.front.material.clippingPlanes = planes;
-        }
-        if (this.types.edges) {
-            this.types.edges.material.clippingPlanes = planes;
-        }
-        if (this.types.vertices) {
-            this.types.vertices.material.clippingPlanes = planes;
-        }
-        this.updateMaterials(true);
+    if (this.types.edges) {
+      this.types.edges.material.needsUpdate = flag;
     }
-
-    setPolygonOffset(offset) {
-        if (this.types.back) {
-            this.types.back.material.polygonOffsetUnits = offset;
-        }
+    if (this.types.vertices) {
+      this.types.vertices.material.needsUpdate = flag;
     }
-
-    updateMaterials(flag) {
-        if (this.types.back) {
-            this.types.back.material.needsUpdate = flag;
-        }
-        if (this.types.front) {
-            this.types.front.material.needsUpdate = flag;
-        }
-        if (this.types.edges) {
-            this.types.edges.material.needsUpdate = flag;
-        }
-        if (this.types.vertices) {
-            this.types.vertices.material.needsUpdate = flag;
-        }
-    }
+  }
 }
 
 class NestedGroup {
@@ -60063,15 +60089,15 @@ class OrientationMarker {
     const colors =
       this.theme === "dark"
         ? [
-          [1, 69 / 255, 0],
-          [50 / 255, 205 / 255, 50 / 255],
-          [59 / 255, 158 / 255, 1],
-        ]
+            [1, 69 / 255, 0],
+            [50 / 255, 205 / 255, 50 / 255],
+            [59 / 255, 158 / 255, 1],
+          ]
         : [
-          [1, 0, 0],
-          [0, 0.5, 0],
-          [0, 0, 1],
-        ];
+            [1, 0, 0],
+            [0, 0.5, 0],
+            [0, 0, 1],
+          ];
     this.cones = [];
     for (var i = 0; i < 3; i++) {
       var coneGeometry = new CylinderGeometry(
@@ -60151,7 +60177,8 @@ class OrientationMarker {
   update(position, quaternion) {
     if (this.ready) {
       let q = new Quaternion().setFromUnitVectors(
-        new Vector3(0, 0, 1), position.normalize()
+        new Vector3(0, 0, 1),
+        position.normalize(),
       );
       this.camera.position.set(0, 0, 1).applyQuaternion(q).multiplyScalar(300);
 
@@ -61297,7 +61324,7 @@ class Clipping {
       this.display.setNormalLabel(i, normals[i].toArray());
 
       const material = planeHelperMaterial.clone();
-      material.opacity = (theme === "dark") ? 0.2 : 0.1;
+      material.opacity = theme === "dark" ? 0.2 : 0.1;
 
       this.planeHelperMaterials.push(material);
       this.planeHelpers.add(
@@ -61371,7 +61398,7 @@ class Clipping {
               planeMaterial,
               planeColors[theme][i],
               `StencilPlane-${i}-${j}`,
-            )
+            ),
           );
           j++;
         }
@@ -61379,7 +61406,6 @@ class Clipping {
     }
     nestedGroup.rootGroup.add(planeMeshGroup);
   }
-
 
   setConstant(index, value) {
     this.clipPlanes[index].setConstant(value);
@@ -61399,14 +61425,14 @@ class Clipping {
   };
 
   setObjectColorCaps = (flag) => {
-
     var pmGroup;
     for (pmGroup of this.nestedGroup.rootGroup.children) {
       if (pmGroup.name === "PlaneMeshes") {
         break;
       }
     }
-    var i = 0, j = -1;
+    var i = 0,
+      j = -1;
     const len = Object.keys(pmGroup.children).length / 3;
     for (var group of pmGroup.children) {
       if (i % len === 0) {
@@ -61418,11 +61444,11 @@ class Clipping {
         group.material.color.set(new Color(planeColors[this.theme][j]));
       }
       i++;
-    }    this.objectColorCaps = flag;
+    }
+    this.objectColorCaps = flag;
   };
 
   setVisible = (flag) => {
-
     var pmGroup;
     for (pmGroup of this.nestedGroup.rootGroup.children) {
       if (pmGroup.name === "PlaneMeshes") {
@@ -61431,7 +61457,8 @@ class Clipping {
     }
     for (var group of pmGroup.children) {
       group.material.visible = flag;
-    }  };
+    }
+  };
 }
 
 const valid_transforms = ["t", "tx", "ty", "tz", "q", "rx", "ry", "rz"];
@@ -63723,7 +63750,7 @@ class Camera {
   }
 }
 
-const version = "3.1.2";
+const version = "3.1.3";
 
 class Viewer {
   /**
@@ -64133,6 +64160,9 @@ class Viewer {
             edges: [],
           },
         };
+        if (part.texture) {
+          new_shape.texture = part.texture;
+        }
         new_part.parts.push(new_shape);
       }
 
@@ -64248,6 +64278,41 @@ class Viewer {
    * @returns {THREE.Group} A nested THREE.Group object.
    */
   renderTessellatedShapes(exploded, shapes) {
+    const _convertArrays = (shape) => {
+      if (shape.triangles != null && !(shape.triangles instanceof Uint32Array))
+        shape.triangles = new Uint32Array(shape.triangles);
+      if (shape.edges != null && !(shape.edges instanceof Float32Array))
+        shape.edges = new Float32Array(shape.edges);
+      if (shape.vertices != null && !(shape.vertices instanceof Float32Array))
+        shape.vertices = new Float32Array(shape.vertices);
+      if (shape.normals != null && !(shape.normals instanceof Float32Array))
+        shape.normals = new Float32Array(shape.normals);
+      if (
+        shape.obj_vertices != null &&
+        !(shape.obj_vertices instanceof Float32Array)
+      )
+        shape.obj_vertices = new Float32Array(shape.obj_vertices);
+      if (
+        shape.face_types != null &&
+        !(shape.face_types instanceof Uint32Array)
+      )
+        shape.face_types = new Uint32Array(shape.face_types);
+      if (
+        shape.edge_types != null &&
+        !(shape.edge_types instanceof Uint32Array)
+      )
+        shape.edge_types = new Uint32Array(shape.edge_types);
+      if (
+        shape.triangles_per_face != null &&
+        !(shape.triangles_per_face instanceof Uint32Array)
+      )
+        shape.triangles_per_face = new Uint32Array(shape.triangles_per_face);
+      if (
+        shape.segments_per_edge != null &&
+        !(shape.segments_per_edge instanceof Uint32Array)
+      )
+        shape.segments_per_edge = new Uint32Array(shape.segments_per_edge);
+    };
     const _render = (shapes) => {
       var part;
       if (shapes.version == 2 || shapes.version == 3) {
@@ -64255,6 +64320,9 @@ class Viewer {
         let parts = [];
         for (i = 0; i < shapes.parts.length; i++) {
           part = shapes.parts[i];
+          if (part.shape != null) {
+            _convertArrays(part.shape);
+          }
           if (part.parts != null) {
             tmp = _render(part);
             parts.push(tmp);
@@ -64654,7 +64722,6 @@ class Viewer {
           this.explodedNestedGroup = result["group"];
           _config();
           this.explodedTree = result["tree"];
-          this.nestedGroup.render();
         }
       } else {
         if (this.compactNestedGroup == null) {
@@ -64663,7 +64730,6 @@ class Viewer {
           this.compactNestedGroup = result["group"];
           _config();
           this.compactTree = result["tree"];
-          this.nestedGroup.render();
         }
       }
       timer.split(`rendered${exploded ? " exploded" : " compact"} shapes`);
@@ -65437,6 +65503,10 @@ class Viewer {
       let objs = this.lastSelection.objs();
       for (let obj of objs) {
         obj.unhighlight(false);
+        this.treeview.toggleLabelColor(
+          null,
+          obj.name.replaceAll(this.nestedGroup.delim, "/"),
+        );
       }
       this.lastSelection = null;
 
@@ -65474,7 +65544,9 @@ class Viewer {
       for (var object of objects) {
         {
           const objectGroup = object.object.parent;
-          if (objectGroup !== this.lastObject) {
+          var name = objectGroup ? objectGroup.name : null;
+          var last_name = this.lastObject ? this.lastObject.obj.name : null;
+          if (name !== last_name) {
             this._releaseLastSelected(false);
             const fromSolid = this.raycaster.filters.topoFilter.includes(
               TopoFilter.solid,
@@ -65513,6 +65585,14 @@ class Viewer {
               obj.toggleSelection();
             }
             this.cadTools.handleSelectedObj(this.lastObject);
+            if (event.shift) {
+              this.treeview.openPath(
+                this.lastObject.obj.name.replaceAll(
+                  this.nestedGroup.delim,
+                  "/",
+                ),
+              );
+            }
             this.lastSelection = this.lastObject;
           }
           break;
@@ -66456,3 +66536,4 @@ class Viewer {
 }
 
 export { Display, Timer, Viewer };
+//# sourceMappingURL=three-cad-viewer.esm.js.map

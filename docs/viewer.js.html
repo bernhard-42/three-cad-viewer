@@ -365,7 +365,6 @@ class Viewer {
   /**
    * Retrieve the navigation tree from a Shapes object.
    * @param {Shapes} shapes - The Shapes object.
-   * @param {States} states - the visibility state of meshes and edges
    * @returns {NavTree} The navigation tree object.
    */
   _getTree(shapes) {
@@ -460,6 +459,9 @@ class Viewer {
             edges: [],
           },
         };
+        if (part.texture) {
+          new_shape.texture = part.texture;
+        }
         new_part.parts.push(new_shape);
       }
 
@@ -569,12 +571,46 @@ class Viewer {
 
   /**
    * Render the shapes of the CAD object.
+   * @param {boolean} exploded - Whether to render the compact or exploded version
    * @param {Shapes} shapes - The Shapes object.
-   * @param {States} states - the visibility state of meshes and edges
-   * @param {RenderOptions} options - the options for rendering
    * @returns {THREE.Group} A nested THREE.Group object.
    */
   renderTessellatedShapes(exploded, shapes) {
+    const _convertArrays = (shape) => {
+      if (shape.triangles != null &amp;&amp; !(shape.triangles instanceof Uint32Array))
+        shape.triangles = new Uint32Array(shape.triangles);
+      if (shape.edges != null &amp;&amp; !(shape.edges instanceof Float32Array))
+        shape.edges = new Float32Array(shape.edges);
+      if (shape.vertices != null &amp;&amp; !(shape.vertices instanceof Float32Array))
+        shape.vertices = new Float32Array(shape.vertices);
+      if (shape.normals != null &amp;&amp; !(shape.normals instanceof Float32Array))
+        shape.normals = new Float32Array(shape.normals);
+      if (
+        shape.obj_vertices != null &amp;&amp;
+        !(shape.obj_vertices instanceof Float32Array)
+      )
+        shape.obj_vertices = new Float32Array(shape.obj_vertices);
+      if (
+        shape.face_types != null &amp;&amp;
+        !(shape.face_types instanceof Uint32Array)
+      )
+        shape.face_types = new Uint32Array(shape.face_types);
+      if (
+        shape.edge_types != null &amp;&amp;
+        !(shape.edge_types instanceof Uint32Array)
+      )
+        shape.edge_types = new Uint32Array(shape.edge_types);
+      if (
+        shape.triangles_per_face != null &amp;&amp;
+        !(shape.triangles_per_face instanceof Uint32Array)
+      )
+        shape.triangles_per_face = new Uint32Array(shape.triangles_per_face);
+      if (
+        shape.segments_per_edge != null &amp;&amp;
+        !(shape.segments_per_edge instanceof Uint32Array)
+      )
+        shape.segments_per_edge = new Uint32Array(shape.segments_per_edge);
+    };
     const _render = (shapes) => {
       var part;
       if (shapes.version == 2 || shapes.version == 3) {
@@ -582,6 +618,9 @@ class Viewer {
         let parts = [];
         for (i = 0; i &lt; shapes.parts.length; i++) {
           part = shapes.parts[i];
+          if (part.shape != null) {
+            _convertArrays(part.shape);
+          }
           if (part.parts != null) {
             tmp = _render(part);
             parts.push(tmp);
@@ -981,7 +1020,6 @@ class Viewer {
           this.explodedNestedGroup = result["group"];
           _config();
           this.explodedTree = result["tree"];
-          this.nestedGroup.render();
         }
       } else {
         if (this.compactNestedGroup == null) {
@@ -990,7 +1028,6 @@ class Viewer {
           this.compactNestedGroup = result["group"];
           _config();
           this.compactTree = result["tree"];
-          this.nestedGroup.render();
         }
       }
       timer.split(`rendered${exploded ? " exploded" : " compact"} shapes`);
@@ -1059,7 +1096,6 @@ class Viewer {
   /**
    * Render a CAD object and build the navigation tree
    * @param {Shapes} shapes - the Shapes object representing the tessellated CAD object
-   * @param {States} states - the visibility state of meshes and edges
    * @param {ViewerOptions} viewerOptions - the viewer options
    * @param {RenderOptions} renderOptions - the render options
    */
@@ -1767,6 +1803,10 @@ class Viewer {
       let objs = this.lastSelection.objs();
       for (let obj of objs) {
         obj.unhighlight(false);
+        this.treeview.toggleLabelColor(
+          null,
+          obj.name.replaceAll(this.nestedGroup.delim, "/"),
+        );
       }
       this.lastSelection = null;
 
@@ -1804,7 +1844,9 @@ class Viewer {
       for (var object of objects) {
         {
           const objectGroup = object.object.parent;
-          if (objectGroup !== this.lastObject) {
+          var name = objectGroup ? objectGroup.name : null;
+          var last_name = this.lastObject ? this.lastObject.obj.name : null;
+          if (name !== last_name) {
             this._releaseLastSelected(false);
             const fromSolid = this.raycaster.filters.topoFilter.includes(
               TopoFilter.solid,
@@ -1845,6 +1887,14 @@ class Viewer {
               obj.toggleSelection();
             }
             this.cadTools.handleSelectedObj(this.lastObject);
+            if (event.shift) {
+              this.treeview.openPath(
+                this.lastObject.obj.name.replaceAll(
+                  this.nestedGroup.delim,
+                  "/",
+                ),
+              );
+            }
             this.lastSelection = this.lastObject;
           }
           break;
@@ -2238,7 +2288,7 @@ class Viewer {
   /**
    * Set the intensity of ambient light
    * @function
-   * @param {States} states
+   * @param {number} val - the new ambient light intensity
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setAmbientLight = (val, notify = true) => {
@@ -2258,7 +2308,7 @@ class Viewer {
   /**
    * Set the intensity of directional light
    * @function
-   * @param {States} states
+   * @param {number} val - the new direct light intensity
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setDirectLight = (val, notify = true) => {
@@ -2270,7 +2320,6 @@ class Viewer {
 
   /**
    * Get states of a treeview leafs.
-   * @returns {States} states value.
    **/
   getStates() {
     return this.treeview.getStates();
@@ -2290,7 +2339,7 @@ class Viewer {
   /**
    * Set states of a treeview leafs
    * @function
-   * @param {States} - states
+   * @param {dict} - states
    */
   setStates = (states) => {
     this.treeview.setStates(states);
@@ -2806,7 +2855,7 @@ export { Viewer };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sat Aug 17 2024 13:54:58 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Aug 18 2024 17:14:42 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>
