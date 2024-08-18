@@ -1760,6 +1760,10 @@ class Viewer {
       let objs = this.lastSelection.objs();
       for (let obj of objs) {
         obj.unhighlight(false);
+        this.treeview.toggleLabelColor(
+          null,
+          obj.name.replaceAll(this.nestedGroup.delim, "/"),
+        );
       }
       this.lastSelection = null;
 
