@@ -551,23 +551,38 @@ class Viewer {
    */
   renderTessellatedShapes(exploded, shapes) {
     const _convertArrays = (shape) => {
-      if (!(shape.triangles instanceof Uint32Array))
+      if (shape.triangles != null && !(shape.triangles instanceof Uint32Array))
         shape.triangles = new Uint32Array(shape.triangles);
-      if (!(shape.edges instanceof Float32Array))
+      if (shape.edges != null && !(shape.edges instanceof Float32Array))
         shape.edges = new Float32Array(shape.edges);
-      if (!(shape.vertices instanceof Float32Array))
+      if (shape.vertices != null && !(shape.vertices instanceof Float32Array))
         shape.vertices = new Float32Array(shape.vertices);
-      if (!(shape.normals instanceof Float32Array))
+      if (shape.normals != null && !(shape.normals instanceof Float32Array))
         shape.normals = new Float32Array(shape.normals);
-      if (!(shape.obj_vertices instanceof Float32Array))
+      if (
+        shape.obj_vertices != null &&
+        !(shape.obj_vertices instanceof Float32Array)
+      )
         shape.obj_vertices = new Float32Array(shape.obj_vertices);
-      if (!(shape.face_types instanceof Uint32Array))
+      if (
+        shape.face_types != null &&
+        !(shape.face_types instanceof Uint32Array)
+      )
         shape.face_types = new Uint32Array(shape.face_types);
-      if (!(shape.edge_types instanceof Uint32Array))
+      if (
+        shape.edge_types != null &&
+        !(shape.edge_types instanceof Uint32Array)
+      )
         shape.edge_types = new Uint32Array(shape.edge_types);
-      if (!(shape.triangles_per_face instanceof Uint32Array))
+      if (
+        shape.triangles_per_face != null &&
+        !(shape.triangles_per_face instanceof Uint32Array)
+      )
         shape.triangles_per_face = new Uint32Array(shape.triangles_per_face);
-      if (!(shape.segments_per_edge instanceof Uint32Array))
+      if (
+        shape.segments_per_edge != null &&
+        !(shape.segments_per_edge instanceof Uint32Array)
+      )
         shape.segments_per_edge = new Uint32Array(shape.segments_per_edge);
     };
     const _render = (shapes) => {
