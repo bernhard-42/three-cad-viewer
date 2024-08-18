@@ -337,7 +337,6 @@ class Viewer {
   /**
    * Retrieve the navigation tree from a Shapes object.
    * @param {Shapes} shapes - The Shapes object.
-   * @param {States} states - the visibility state of meshes and edges
    * @returns {NavTree} The navigation tree object.
    */
   _getTree(shapes) {
@@ -544,9 +543,8 @@ class Viewer {
 
   /**
    * Render the shapes of the CAD object.
+   * @param {boolean} exploded - Whether to render the compact or exploded version
    * @param {Shapes} shapes - The Shapes object.
-   * @param {States} states - the visibility state of meshes and edges
-   * @param {RenderOptions} options - the options for rendering
    * @returns {THREE.Group} A nested THREE.Group object.
    */
   renderTessellatedShapes(exploded, shapes) {
@@ -1070,7 +1068,6 @@ class Viewer {
   /**
    * Render a CAD object and build the navigation tree
    * @param {Shapes} shapes - the Shapes object representing the tessellated CAD object
-   * @param {States} states - the visibility state of meshes and edges
    * @param {ViewerOptions} viewerOptions - the viewer options
    * @param {RenderOptions} renderOptions - the render options
    */
@@ -2263,7 +2260,7 @@ class Viewer {
   /**
    * Set the intensity of ambient light
    * @function
-   * @param {States} states
+   * @param {number} val - the new ambient light intensity
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setAmbientLight = (val, notify = true) => {
@@ -2283,7 +2280,7 @@ class Viewer {
   /**
    * Set the intensity of directional light
    * @function
-   * @param {States} states
+   * @param {number} val - the new direct light intensity
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setDirectLight = (val, notify = true) => {
@@ -2295,7 +2292,6 @@ class Viewer {
 
   /**
    * Get states of a treeview leafs.
-   * @returns {States} states value.
    **/
   getStates() {
     return this.treeview.getStates();
@@ -2315,7 +2311,7 @@ class Viewer {
   /**
    * Set states of a treeview leafs
    * @function
-   * @param {States} - states
+   * @param {dict} - states
    */
   setStates = (states) => {
     this.treeview.setStates(states);
