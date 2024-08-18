@@ -547,6 +547,26 @@ class Viewer {
    * @returns {THREE.Group} A nested THREE.Group object.
    */
   renderTessellatedShapes(exploded, shapes) {
+    const _convertArrays = (shape) => {
+      if (!(shape.triangles instanceof Uint32Array))
+        shape.triangles = new Uint32Array(shape.triangles);
+      if (!(shape.edges instanceof Float32Array))
+        shape.edges = new Float32Array(shape.edges);
+      if (!(shape.vertices instanceof Float32Array))
+        shape.vertices = new Float32Array(shape.vertices);
+      if (!(shape.normals instanceof Float32Array))
+        shape.normals = new Float32Array(shape.normals);
+      if (!(shape.obj_vertices instanceof Float32Array))
+        shape.obj_vertices = new Float32Array(shape.obj_vertices);
+      if (!(shape.face_types instanceof Uint32Array))
+        shape.face_types = new Uint32Array(shape.face_types);
+      if (!(shape.edge_types instanceof Uint32Array))
+        shape.edge_types = new Uint32Array(shape.edge_types);
+      if (!(shape.triangles_per_face instanceof Uint32Array))
+        shape.triangles_per_face = new Uint32Array(shape.triangles_per_face);
+      if (!(shape.segments_per_edge instanceof Uint32Array))
+        shape.segments_per_edge = new Uint32Array(shape.segments_per_edge);
+    };
     const _render = (shapes) => {
       var part;
       if (shapes.version == 2 || shapes.version == 3) {
@@ -554,6 +574,9 @@ class Viewer {
         let parts = [];
         for (i = 0; i < shapes.parts.length; i++) {
           part = shapes.parts[i];
+          if (part.shape != null) {
+            _convertArrays(part.shape);
+          }
           if (part.parts != null) {
             tmp = _render(part);
             parts.push(tmp);
