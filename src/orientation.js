@@ -53,15 +53,15 @@ class OrientationMarker {
     const colors =
       this.theme === "dark"
         ? [
-          [1, 69 / 255, 0],
-          [50 / 255, 205 / 255, 50 / 255],
-          [59 / 255, 158 / 255, 1],
-        ]
+            [1, 69 / 255, 0],
+            [50 / 255, 205 / 255, 50 / 255],
+            [59 / 255, 158 / 255, 1],
+          ]
         : [
-          [1, 0, 0],
-          [0, 0.5, 0],
-          [0, 0, 1],
-        ];
+            [1, 0, 0],
+            [0, 0.5, 0],
+            [0, 0, 1],
+          ];
     this.cones = [];
     for (var i = 0; i < 3; i++) {
       var coneGeometry = new THREE.CylinderGeometry(
@@ -141,7 +141,8 @@ class OrientationMarker {
   update(position, quaternion) {
     if (this.ready) {
       let q = new THREE.Quaternion().setFromUnitVectors(
-        new THREE.Vector3(0, 0, 1), position.normalize()
+        new THREE.Vector3(0, 0, 1),
+        position.normalize(),
       );
       this.camera.position.set(0, 0, 1).applyQuaternion(q).multiplyScalar(300);
 

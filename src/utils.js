@@ -12,7 +12,7 @@ function clone(obj) {
   }
 }
 function flatten(arr, depth = 1) {
-  return (Array.isArray(arr)) ? arr.flat(depth) : arr;
+  return Array.isArray(arr) ? arr.flat(depth) : arr;
 }
 
 function isEqual(obj1, obj2, tol = 1e-9) {
@@ -68,9 +68,9 @@ function prettyPrintVector(v, a, b) {
 class _KeyMapper {
   constructor() {
     this.keyMapping = {
-      "shift": "shiftKey",
-      "ctrl": "ctrlKey",
-      "meta": "metaKey"
+      shift: "shiftKey",
+      ctrl: "ctrlKey",
+      meta: "metaKey",
     };
   }
   getshortcuts = (key) => {
@@ -99,4 +99,12 @@ function scaleLight(intensity) {
 
 const KeyMapper = new _KeyMapper();
 
-export { clone, flatten, isEqual, sceneTraverse, prettyPrintVector, KeyMapper, scaleLight };
+export {
+  clone,
+  flatten,
+  isEqual,
+  sceneTraverse,
+  prettyPrintVector,
+  KeyMapper,
+  scaleLight,
+};

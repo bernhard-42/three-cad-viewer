@@ -168,7 +168,7 @@ class Clipping {
       this.display.setNormalLabel(i, normals[i].toArray());
 
       const material = planeHelperMaterial.clone();
-      material.opacity = (theme === "dark") ? 0.2 : 0.1;
+      material.opacity = theme === "dark" ? 0.2 : 0.1;
 
       this.planeHelperMaterials.push(material);
       this.planeHelpers.add(
@@ -242,7 +242,7 @@ class Clipping {
               planeMaterial,
               planeColors[theme][i],
               `StencilPlane-${i}-${j}`,
-            )
+            ),
           );
           j++;
         }
@@ -250,7 +250,6 @@ class Clipping {
     }
     nestedGroup.rootGroup.add(planeMeshGroup);
   }
-
 
   setConstant(index, value) {
     this.clipPlanes[index].setConstant(value);
@@ -270,14 +269,14 @@ class Clipping {
   };
 
   setObjectColorCaps = (flag) => {
-
     var pmGroup;
     for (pmGroup of this.nestedGroup.rootGroup.children) {
       if (pmGroup.name === "PlaneMeshes") {
         break;
       }
     }
-    var i = 0, j = -1;
+    var i = 0,
+      j = -1;
     const len = Object.keys(pmGroup.children).length / 3;
     for (var group of pmGroup.children) {
       if (i % len === 0) {
@@ -289,12 +288,11 @@ class Clipping {
         group.material.color.set(new THREE.Color(planeColors[this.theme][j]));
       }
       i++;
-    };
+    }
     this.objectColorCaps = flag;
   };
 
   setVisible = (flag) => {
-
     var pmGroup;
     for (pmGroup of this.nestedGroup.rootGroup.children) {
       if (pmGroup.name === "PlaneMeshes") {
@@ -303,7 +301,7 @@ class Clipping {
     }
     for (var group of pmGroup.children) {
       group.material.visible = flag;
-    };
+    }
   };
 }
 

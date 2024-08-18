@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
 class BoundingBox extends THREE.Box3 {
-
   expandByObject(object, precise = false) {
     object.updateWorldMatrix(false, false);
 
