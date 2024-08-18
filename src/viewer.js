@@ -976,7 +976,6 @@ class Viewer {
           this.explodedNestedGroup = result["group"];
           _config();
           this.explodedTree = result["tree"];
-          this.nestedGroup.render();
         }
       } else {
         if (this.compactNestedGroup == null) {
@@ -985,7 +984,6 @@ class Viewer {
           this.compactNestedGroup = result["group"];
           _config();
           this.compactTree = result["tree"];
-          this.nestedGroup.render();
         }
       }
       timer.split(`rendered${exploded ? " exploded" : " compact"} shapes`);
