@@ -691,9 +691,9 @@ class Display {
    */
   setTool = (name, flag) => {
     this.viewer.toggleAnimationLoop(flag);
-    this.showAnimationControl(!flag);
 
     if (flag) {
+      this.showAnimationControl(false);
       if (this.viewer.hasAnimation()) {
         this.viewer.backupAnimation();
       }
@@ -728,6 +728,7 @@ class Display {
         this.controlAnimationByName("stop");
         this.viewer.clearAnimation();
         this.viewer.restoreAnimation();
+        this.showAnimationControl(true);
       }
       this.viewer.setRaycastMode(flag);
     }
