@@ -432,6 +432,9 @@ class Viewer {
             edges: [],
           },
         };
+        if (part.texture) {
+          new_shape.texture = part.texture;
+        }
         new_part.parts.push(new_shape);
       }
 
