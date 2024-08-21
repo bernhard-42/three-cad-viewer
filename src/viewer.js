@@ -111,9 +111,9 @@ class Viewer {
     this.lastBbox = null;
 
     // measure supporting exploded shapes and compact shapes
-    this.explodedTree = null;
+    this.expandedTree = null;
     this.compactTree = null;
-    this.explodedNestedGroup = null;
+    this.expandedNestedGroup = null;
     this.compactNestedGroup = null;
 
     // If fromSolid is true, this means the selected object is from the solid
@@ -923,7 +923,7 @@ class Viewer {
         for (var t in expandedTree) {
           for (var l in expandedTree[t]) {
             const id = `${path}/${t}/${l}`;
-            const objectGroup = this.explodedNestedGroup.groups[id];
+            const objectGroup = this.expandedNestedGroup.groups[id];
             for (var i of [0, 1]) {
               if (i == 0) {
                 objectGroup.setShapeVisible(compactTree[0] == 1);
@@ -967,9 +967,9 @@ class Viewer {
 
   /**
    * Toggle the two version of the NestedGroup
-   * @param exploded - whether to render the exploded or compact version
+   * @param expanded - whether to render the exploded or compact version
    */
-  toggleGroup(exploded) {
+  toggleGroup(expanded) {
     var timer = new Timer("toggleGroup", this.timeit);
     var _config = () => {
       this.nestedGroup.setTransparent(this.transparent);
@@ -980,43 +980,43 @@ class Viewer {
     };
 
     if (
-      (this.compactNestedGroup == null && !exploded) ||
-      (this.explodedNestedGroup == null && exploded)
+      (this.compactNestedGroup == null && !expanded) ||
+      (this.expandedNestedGroup == null && expanded)
     ) {
       this.setRenderDefaults(this.renderOptions);
       var result;
-      if (exploded) {
-        if (this.explodedNestedGroup == null) {
-          result = this.renderTessellatedShapes(exploded, this.shapes);
+      if (expanded) {
+        if (this.expandedNestedGroup == null) {
+          result = this.renderTessellatedShapes(expanded, this.shapes);
           this.nestedGroup = result["group"];
-          this.explodedNestedGroup = result["group"];
+          this.expandedNestedGroup = result["group"];
           _config();
-          this.explodedTree = result["tree"];
+          this.expandedTree = result["tree"];
         }
       } else {
         if (this.compactNestedGroup == null) {
-          result = this.renderTessellatedShapes(exploded, this.shapes);
+          result = this.renderTessellatedShapes(expanded, this.shapes);
           this.nestedGroup = result["group"];
           this.compactNestedGroup = result["group"];
           _config();
           this.compactTree = result["tree"];
         }
       }
-      timer.split(`rendered${exploded ? " exploded" : " compact"} shapes`);
+      timer.split(`rendered${expanded ? " exploded" : " compact"} shapes`);
     } else {
-      this.nestedGroup = exploded
-        ? this.explodedNestedGroup
+      this.nestedGroup = expanded
+        ? this.expandedNestedGroup
         : this.compactNestedGroup;
       _config();
     }
 
     // only sync if both trees exist
-    if (this.explodedTree) {
-      this.syncTreeStates(this.compactTree, this.explodedTree, exploded, "");
+    if (this.expandedTree) {
+      this.syncTreeStates(this.compactTree, this.expandedTree, expanded, "");
     }
     timer.split("synched tree states");
 
-    this.tree = exploded ? this.explodedTree : this.compactTree;
+    this.tree = expanded ? this.expandedTree : this.compactTree;
     this.scene.children[0] = this.nestedGroup.rootGroup;
     timer.split("added shapes to scene");
 
@@ -1062,7 +1062,7 @@ class Viewer {
     this.checkChanges({ states: this.getStates() }, true);
     timer.split("notify state changes");
     timer.stop();
-    this.display.toggleClippingTab(!exploded);
+    this.display.toggleClippingTab(!expanded);
   }
 
   /**
