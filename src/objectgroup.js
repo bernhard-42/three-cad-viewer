@@ -20,6 +20,7 @@ class ObjectGroup extends THREE.Group {
     this.types = { front: null, back: null, edges: null, vertices: null };
     this.isSelected = false;
     this.originalColor = null;
+    this.originalBackColor = null;
     this.originalWidth = null;
     this.vertexFocusSize = 8; // Size of the points when highlighted
     this.edgeFocusWidth = 5; // Size of the edges when highlighted
@@ -37,6 +38,8 @@ class ObjectGroup extends THREE.Group {
       this.originalWidth = this.types.edges.material.linewidth;
     } else if (this.types.front) {
       this.originalColor = this.types.front.material.color.clone();
+    } else if (this.types.back) {
+      this.originalBackColor = this.types.back.material.color.clone();
     }
   }
 
@@ -100,6 +103,18 @@ class ObjectGroup extends THREE.Group {
 
     if (object != null) {
       this.widen(flag);
+      object.material.color = flag ? hColor : oColor;
+      object.material.needsUpdate = true;
+    }
+
+    if (this.types.back) {
+      object = this.types.back;
+      hColor = this.isSelected
+        ? new THREE.Color(0x53a0e3)
+        : new THREE.Color(0x89b9e3);
+      oColor = this.originalBackColor;
+    }
+    if (object != null) {
       object.material.color = flag ? hColor : oColor;
       object.material.needsUpdate = true;
     }
