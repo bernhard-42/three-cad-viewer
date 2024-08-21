@@ -1783,6 +1783,7 @@ class Viewer {
       this.lastSelection = null;
 
       this.cadTools.handleRemoveLastSelection();
+      this.lastObject = null;
     }
   };
 
@@ -1818,7 +1819,7 @@ class Viewer {
           const objectGroup = object.object.parent;
           var name = objectGroup ? objectGroup.name : null;
           var last_name = this.lastObject ? this.lastObject.obj.name : null;
-          if (name !== last_name) {
+          if (name != null && name !== last_name) {
             this._releaseLastSelected(false);
             const fromSolid = this.raycaster.filters.topoFilter.includes(
               TopoFilter.solid,
@@ -1834,7 +1835,9 @@ class Viewer {
         }
       }
     } else {
-      this._releaseLastSelected(true);
+      if (this.lastObject != null) {
+        this._releaseLastSelected(true);
+      }
     }
   };
 
@@ -1857,6 +1860,9 @@ class Viewer {
             const objs = this.lastObject.objs();
             for (let obj of objs) {
               obj.toggleSelection();
+            }
+            if (this.lastSelection?.obj.name != this.lastObject.obj.name) {
+              this.cadTools.handleRemoveLastSelected();
             }
             this.cadTools.handleSelectedObj(this.lastObject);
             if (event.shift) {

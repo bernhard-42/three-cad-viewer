@@ -110,6 +110,19 @@ export class Tools {
       this.angleMeasurement.handleSelection(selectedObj);
   }
 
+  /**
+   * obj: ObjectGroup
+   * fromSolid: boolean
+   */
+  handleRemoveLastSelected() {
+    if (this.distanceMeasurement.contextEnabled)
+      this.distanceMeasurement.removeLastSelectedObj();
+    else if (this.propertiesMeasurement.contextEnabled)
+      this.propertiesMeasurement.removeLastSelectedObj();
+    else if (this.angleMeasurement.contextEnabled)
+      this.angleMeasurement.removeLastSelectedObj();
+  }
+
   handleResetSelection() {
     if (this.distanceMeasurement.contextEnabled) {
       this.distanceMeasurement.removeLastSelectedObj();

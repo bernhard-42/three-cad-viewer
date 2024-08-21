@@ -298,9 +298,6 @@ class Measurement {
    */
   handleSelection = (selectedObj) => {
     this._hideMeasurement();
-    if (this.selectedShapes.length == this._getMaxObjSelected()) {
-      this.removeLastSelectedObj();
-    }
     if (
       this.selectedShapes.find((o) => o.obj.name === selectedObj.obj.name) !==
       undefined
@@ -371,14 +368,16 @@ class Measurement {
   };
 
   removeLastSelectedObj() {
-    const lastItem = this.selectedShapes.pop();
-    if (lastItem) {
-      let objs = lastItem.objs();
-      for (let obj of objs) {
-        obj.clearHighlights();
+    if (this.selectedShapes.length == this._getMaxObjSelected()) {
+      const lastItem = this.selectedShapes.pop();
+      if (lastItem) {
+        let objs = lastItem.objs();
+        for (let obj of objs) {
+          obj.clearHighlights();
+        }
       }
+      this._updateMeasurement();
     }
-    this._updateMeasurement();
   }
 
   /**
