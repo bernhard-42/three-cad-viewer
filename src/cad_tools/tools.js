@@ -125,13 +125,13 @@ export class Tools {
 
   handleResetSelection() {
     if (this.distanceMeasurement.contextEnabled) {
-      this.distanceMeasurement.removeLastSelectedObj();
-      this.distanceMeasurement.removeLastSelectedObj();
+      this.distanceMeasurement.removeLastSelectedObj(true);
+      this.distanceMeasurement.removeLastSelectedObj(true);
     } else if (this.propertiesMeasurement.contextEnabled)
-      this.propertiesMeasurement.removeLastSelectedObj();
+      this.propertiesMeasurement.removeLastSelectedObj(true);
     else if (this.angleMeasurement.contextEnabled) {
-      this.angleMeasurement.removeLastSelectedObj();
-      this.angleMeasurement.removeLastSelectedObj();
+      this.angleMeasurement.removeLastSelectedObj(true);
+      this.angleMeasurement.removeLastSelectedObj(true);
     }
   }
 

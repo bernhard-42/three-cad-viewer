@@ -367,8 +367,8 @@ class Measurement {
     this.panelDragData.y = e.clientY;
   };
 
-  removeLastSelectedObj() {
-    if (this.selectedShapes.length == this._getMaxObjSelected()) {
+  removeLastSelectedObj(force = false) {
+    if (force || this.selectedShapes.length == this._getMaxObjSelected()) {
       const lastItem = this.selectedShapes.pop();
       if (lastItem) {
         let objs = lastItem.objs();
