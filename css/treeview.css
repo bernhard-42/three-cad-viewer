@@ -16,6 +16,7 @@
   align-items: center;
   padding: 2px 0px 2px 0px;
   height: 16px;
+  min-width: max-content;
 }
 
 .tv-nav-marker {
