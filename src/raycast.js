@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { KeyMapper } from "./utils";
 
 export const TopoFilter = {
   none: null,
@@ -205,7 +206,7 @@ class Raycaster {
     if (this.raycastMode) {
       if (e.button == THREE.MOUSE.LEFT) {
         if (this.lastPosition.equals(this.camera.getPosition())) {
-          this.callback({ mouse: "left", shift: e.shiftKey });
+          this.callback({ mouse: "left", shift: KeyMapper.get(e, "shift") });
         }
       } else if (e.button == THREE.MOUSE.RIGHT) {
         if (this.lastPosition.equals(this.camera.getPosition())) {
