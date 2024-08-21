@@ -428,10 +428,12 @@ class DistanceMeasurement extends Measurement {
 
   _getPoints() {
     if (DEBUG) {
-      this.point1 =
-        this.selectedShapes[0].obj.children[0].geometry.boundingSphere.center;
-      this.point2 =
-        this.selectedShapes[1].obj.children[0].geometry.boundingSphere.center;
+      var obj1 = this.selectedShapes[0].obj;
+      var obj2 = this.selectedShapes[1].obj;
+      this.point1 = obj1.children[0].geometry.boundingSphere.center.clone();
+      this.point1 = obj1.localToWorld(this.point1);
+      this.point2 = obj2.children[0].geometry.boundingSphere.center.clone();
+      this.point2 = obj2.localToWorld(this.point2);
     } else {
       this.point1 = new Vector3(...this.responseData.point1);
       this.point2 = new Vector3(...this.responseData.point2);
@@ -527,10 +529,13 @@ class PropertiesMeasurement extends Measurement {
 
   _makeLines() {
     const lineWidth = 1.5;
-
-    const middlePoint = DEBUG
-      ? this.selectedShapes[0].obj.children[0].geometry.boundingSphere.center
-      : this.responseData.center;
+    var worldCenter;
+    if (DEBUG) {
+      const obj = this.selectedShapes[0].obj;
+      const center = obj.children[0].geometry.boundingSphere.center.clone();
+      worldCenter = obj.localToWorld(center);
+    }
+    const middlePoint = DEBUG ? worldCenter : this.responseData.center;
     const connectingLine = new DistanceLineArrow(
       this.coneLength,
       this.panelCenter,
@@ -589,10 +594,12 @@ class AngleMeasurement extends Measurement {
 
   _getPoints() {
     if (DEBUG) {
-      this.point1 =
-        this.selectedShapes[0].obj.children[0].geometry.boundingSphere.center;
-      this.point2 =
-        this.selectedShapes[1].obj.children[0].geometry.boundingSphere.center;
+      var obj1 = this.selectedShapes[0].obj;
+      var obj2 = this.selectedShapes[1].obj;
+      this.point1 = obj1.children[0].geometry.boundingSphere.center.clone();
+      this.point1 = obj1.localToWorld(this.point1);
+      this.point2 = obj2.children[0].geometry.boundingSphere.center.clone();
+      this.point2 = obj2.localToWorld(this.point2);
     } else {
       this.point1 = new Vector3(...this.responseData.point1);
       this.point2 = new Vector3(...this.responseData.point2);
