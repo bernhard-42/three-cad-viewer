@@ -147,7 +147,7 @@ class ClickButton extends BaseButton {
       if (button.state) {
         button.state = false;
         button.html.children[0].classList.remove("tcv_btn_click2");
-        button.action(button.name, false);
+        button.action(this.name, false);
       }
     }
   };
