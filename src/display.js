@@ -718,7 +718,7 @@ class Display {
       }
       this.currentButton = name;
     } else {
-      if (this.currentButton == name) {
+      if (this.currentButton == name || name == "explode") {
         this.viewer.toggleGroup(false);
         this.currentButton = null;
       }
