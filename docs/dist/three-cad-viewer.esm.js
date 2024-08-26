@@ -63774,7 +63774,7 @@ class Camera {
   }
 }
 
-const version = "3.1.5";
+const version = "3.1.6";
 
 class Viewer {
   /**
@@ -64240,8 +64240,9 @@ class Viewer {
         };
         new_part.parts.push(new_shape);
       }
-
-      part.parts.push(new_part);
+      if (new_part.parts.length > 0) {
+        part.parts.push(new_part);
+      }
     }
 
     // decompose vertices
@@ -64281,9 +64282,9 @@ class Viewer {
       };
       new_part.parts.push(new_shape);
     }
-
-    part.parts.push(new_part);
-
+    if (new_part.parts.length > 0) {
+      part.parts.push(new_part);
+    }
     delete part.shape;
     delete part.color;
     delete part.alpha;
@@ -64304,11 +64305,11 @@ class Viewer {
       if (shape.triangles != null && !(shape.triangles instanceof Uint32Array))
         shape.triangles = new Uint32Array(shape.triangles);
       if (shape.edges != null && !(shape.edges instanceof Float32Array))
-        shape.edges = new Float32Array(shape.edges);
+        shape.edges = new Float32Array(flatten(shape.edges, 3));
       if (shape.vertices != null && !(shape.vertices instanceof Float32Array))
         shape.vertices = new Float32Array(shape.vertices);
       if (shape.normals != null && !(shape.normals instanceof Float32Array))
-        shape.normals = new Float32Array(shape.normals);
+        shape.normals = new Float32Array(flatten(shape.normals, 2));
       if (
         shape.obj_vertices != null &&
         !(shape.obj_vertices instanceof Float32Array)
