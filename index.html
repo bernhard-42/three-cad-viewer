@@ -229,6 +229,11 @@
     };
 
     function showViewer(control, mode, containerId) {
+      if (window.viewer != null) {
+        window.viewer.hasAnimationLoop = false;
+        window.viewer.continueAnimation = false;
+      }
+
       const container = document.getElementById(containerId);
       container.innerHTML = ""
       if (mode == "glass") {
