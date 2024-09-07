@@ -71,6 +71,7 @@ class _KeyMapper {
       shift: "shiftKey",
       ctrl: "ctrlKey",
       meta: "metaKey",
+      alt: "altKey",
     };
   }
   getshortcuts = (key) => {

@@ -1646,7 +1646,7 @@ class Viewer {
    * @param {boolean} - meta key pressed
    * @param {boolean} shift - whether to send notification or not.
    */
-  handlePick = (path, name, meta, shift, nodeType = "leaf") => {
+  handlePick = (path, name, meta, shift, alt, point, nodeType = "leaf") => {
     const id = `${path}/${name}`;
     const object = this.nestedGroup.groups[id];
     var boundingBox;
@@ -1677,16 +1677,21 @@ class Viewer {
         this.bboxNeedsUpdate = true;
       }
 
-      if (meta) {
-        this.setState(id, [0, 0], nodeType);
+      if (shift && meta) {
+        this.removeLastBbox();
+        this.treeview.openPath(id);
+        this.setCameraTarget(point);
+        this.info.centerInfo(center);
       } else if (shift) {
         this.removeLastBbox();
         this.treeview.hideAll();
         this.setState(id, [1, 1], nodeType);
         const center = boundingBox.center();
         this.treeview.openPath(id);
-        this.controls.setTarget(new THREE.Vector3(...center));
+        this.setCameraTarget(new THREE.Vector3(...center));
         this.info.centerInfo(center);
+      } else if (meta) {
+        this.setState(id, [0, 0], nodeType);
       } else {
         this.info.bbInfo(path, name, boundingBox);
         this.setBoundingBox(id);
@@ -1745,6 +1750,8 @@ class Viewer {
         nearest.name,
         KeyMapper.get(e, "meta"),
         KeyMapper.get(e, "shift"),
+        KeyMapper.get(e, "alt"),
+        nearestObj.point,
       );
     }
     raycaster.dispose();
