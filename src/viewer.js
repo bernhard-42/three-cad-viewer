@@ -1479,11 +1479,11 @@ class Viewer {
   }
 
   /**
-   * Reset zoom to the initiale value
+   * Reset zoom to 1.0
    * @function
    */
   resize = () => {
-    this.camera.setZoom(this.controls.getZoom0());
+    this.camera.setZoom(1.0);
     this.camera.updateProjectionMatrix();
     this.update(true);
   };
