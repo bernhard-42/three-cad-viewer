@@ -86,13 +86,13 @@ export class Tools {
     this.enabledTool = null;
   }
 
-  handleRemoveLastSelection() {
+  handleRemoveLastSelection(force = false) {
     if (this.distanceMeasurement.contextEnabled) {
-      this.distanceMeasurement.removeLastSelectedObj();
+      this.distanceMeasurement.removeLastSelectedObj(force);
     } else if (this.propertiesMeasurement.contextEnabled) {
-      this.propertiesMeasurement.removeLastSelectedObj();
+      this.propertiesMeasurement.removeLastSelectedObj(force);
     } else if (this.angleMeasurement.contextEnabled) {
-      this.angleMeasurement.removeLastSelectedObj();
+      this.angleMeasurement.removeLastSelectedObj(force);
     }
   }
 

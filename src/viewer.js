@@ -1793,6 +1793,8 @@ class Viewer {
 
       this.cadTools.handleRemoveLastSelection();
       this.lastObject = null;
+    } else {
+      this.cadTools.handleRemoveLastSelection(true);
     }
   };
 
