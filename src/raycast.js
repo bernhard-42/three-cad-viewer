@@ -205,11 +205,11 @@ class Raycaster {
   onMouseKeyUp = (e) => {
     if (this.raycastMode) {
       if (e.button == THREE.MOUSE.LEFT) {
-        if (this.lastPosition.equals(this.camera.getPosition())) {
+        if (this.lastPosition.distanceTo(this.camera.getPosition()) < 1e-6) {
           this.callback({ mouse: "left", shift: KeyMapper.get(e, "shift") });
         }
       } else if (e.button == THREE.MOUSE.RIGHT) {
-        if (this.lastPosition.equals(this.camera.getPosition())) {
+        if (this.lastPosition.distanceTo(this.camera.getPosition()) < 1e-6) {
           this.callback({ mouse: "right" });
         }
       }
