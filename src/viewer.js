@@ -50,7 +50,7 @@ class Viewer {
    * @param {boolean} updateMarker - enforce to redraw orientation marker after evry ui activity
    */
   constructor(
-    container,
+    display,
     options,
     notifyCallback,
     pinAsPngCallback = null,
@@ -67,17 +67,7 @@ class Viewer {
     if (options.keymap) {
       KeyMapper.set(options.keymap);
     }
-
-    this.display = new Display(container, {
-      theme: this.theme,
-      cadWidth: this.cadWidth,
-      treeWidth: this.treeWidth,
-      height: this.height,
-      pinning: this.pinning,
-      glass: this.glass,
-      tools: this.tools,
-      measureTools: options.measureTools,
-    });
+    this.display = display;
 
     window.THREE = THREE;
 
