@@ -157,7 +157,7 @@ function scaleLight(intensity) {
   return Math.round(Math.PI * intensity);
 }
 
-memSize(obj, tag = "obj") {
+function memSize(obj, tag = "obj") {
   for (var attr in obj) {
     if (attr != "parent") {
       try {
