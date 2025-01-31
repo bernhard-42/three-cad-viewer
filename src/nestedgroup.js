@@ -5,7 +5,8 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js";
 import { BoundingBox } from "./bbox.js";
 import { ObjectGroup } from "./objectgroup.js";
-import { flatten } from "./utils.js";
+import { Group } from "./group.js";
+import { flatten, disposeShapes } from "./utils.js";
 
 class States {
   constructor(states) {
@@ -59,6 +60,23 @@ class NestedGroup {
     this.groups = {};
 
     this.clipPlanes = null;
+  }
+
+  dispose() {
+    if (this.groups) {
+      for (var k in this.groups) {
+        this.groups[k].dispose();
+      }
+      this.groups = null;
+    }
+    if (this.rootGroup) {
+      this.rootGroup.dispose();
+      this.rootGroup = null;
+    }
+    if (this.shapes) {
+      disposeShapes(this.shapes);
+      this.shapes = null;
+    }
   }
 
   _dump(ind) {
@@ -405,7 +423,7 @@ class NestedGroup {
       return mesh;
     };
 
-    var group = new THREE.Group();
+    var group = new Group();
     if (shapes.loc == null) {
       shapes.loc = [
         [0.0, 0.0, 0.0],

@@ -166,4 +166,10 @@ export class Tools {
     else if (this.angleMeasurement.contextEnabled)
       this.angleMeasurement.update();
   }
+
+  dispose() {
+    this.distanceMeasurement.dispose();
+    this.angleMeasurement.dispose();
+    this.propertiesMeasurement.dispose();
+  }
 }

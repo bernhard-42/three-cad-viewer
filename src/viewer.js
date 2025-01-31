@@ -13,10 +13,11 @@ import { Info } from "./info.js";
 import {
   clone,
   isEqual,
-  sceneTraverse,
   KeyMapper,
   scaleLight,
   flatten,
+  disposeGeometry,
+  disposeShapes,
 } from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
@@ -24,6 +25,21 @@ import { BoundingBox, BoxHelper } from "./bbox.js";
 import { Tools } from "./cad_tools/tools.js";
 import { version } from "./_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "./raycast.js";
+
+THREE.Mesh.prototype.dispose = function () {
+  if (this.geometry) {
+    this.geometry.dispose();
+    disposeGeometry(this.geometry);
+  }
+
+  if (this.material) {
+    if (Array.isArray(this.material)) {
+      this.material.forEach((material) => material.dispose());
+    } else {
+      this.material.dispose();
+    }
+  }
+};
 
 class Viewer {
   /**
@@ -835,6 +851,27 @@ class Viewer {
    */
   dispose() {
     this.clear();
+    disposeShapes(this.shapes);
+    this.shapes = null;
+
+    if (this.expandedNestedGroup != null) {
+      this.expandedNestedGroup.dispose();
+      this.expandedNestedGroup = null;
+    }
+    if (this.compactNestedGroup != null) {
+      this.compactNestedGroup.dispose();
+      this.compactNestedGroup = null;
+    }
+    if (this.nestedGroup != null) {
+      this.nestedGroup.dispose();
+      this.nestedGroup = null;
+    }
+    if (this.gridHelper) {
+      for (var i in this.gridHelper.gridHelper) {
+        this.gridHelper.gridHelper[i].dispose();
+        this.gridHelper.gridHelper[i] = null;
+      }
+    }
 
     // dispose the orientation marker
     if (this.orientationMarker != null) {
@@ -852,10 +889,40 @@ class Viewer {
       this.renderer = null;
     }
 
-    // dispose all event handlers and HTML content
-    if (this.display != null) {
-      this.display.dispose();
-      this.display = null;
+    this.ambientLight.dispose();
+    this.ambientLight = null;
+    this.directLight.dispose();
+    this.directLight = null;
+    this.materialSettings = null;
+    this.clipping = null;
+    this.camera = null;
+    this.gridHelper = null;
+    this.axesHelper = null;
+    this.controls = null;
+    this.orientationMarker = null;
+    this.compactTree = null;
+    this.cadTools.dispose();
+    this.cadTools = null;
+    this.clipAction = null;
+    this.treeview.dispose();
+    this.treeview = null;
+    this.animation = null;
+    this.clipNormals = null;
+    this.lastNotification = null;
+    this.orthographicCamera = null;
+    this.clipNormal0 = null;
+    this.clipNormal1 = null;
+    this.clipNormal2 = null;
+    this.display = null;
+    this.renderOptions = null;
+    this.mouse = null;
+    this.tree = null;
+    this.info = null;
+    this.bbox = null;
+    this.keymap = null;
+    if (this.raycaster) {
+      this.raycaster.dispose();
+      this.raycaster = null;
     }
   }
 
@@ -865,6 +932,7 @@ class Viewer {
   clear() {
     if (this.scene != null) {
       // stop animation
+      this.hasAnimationLoop = false;
       this.continueAnimation = false;
 
       // remove change listener if exists
@@ -886,11 +954,13 @@ class Viewer {
 
       // dispose scene
 
-      sceneTraverse(this.scene, (o) => {
-        o.geometry?.dispose();
-        o.material?.dispose();
-      });
-      this.scene = null;
+      for (var i in this.scene.children) {
+        this.scene.children[i].dispose();
+        this.scene.children[i] = null;
+      }
+
+      this.clipping.dispose();
+      this.clipping = null;
 
       // clear tree view
       this.display.clearCadTree();

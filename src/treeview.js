@@ -930,6 +930,14 @@ class TreeView {
   expandAll() {
     this.openLevel(this.maxLevel);
   }
+
+  dispose() {
+    this.viewIcons = null;
+    this.root = null;
+    this.tree = null;
+    this.navIcons = null;
+    this.scrollContainer.removeEventListener("scroll", this.handleScroll);
+  }
 }
 
 export { TreeView };

@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { ObjectGroup } from "./objectgroup.js";
+import { Group } from "./group.js";
 
 const normals = [
   new THREE.Vector3(-1, 0, 0),
@@ -101,15 +102,6 @@ class PlaneMesh extends THREE.Mesh {
     this.center = center;
   }
 
-  dispose = () => {
-    this.geometry.dispose();
-    this.material.dispose();
-    for (var i = 0; i < this.children.length; i++) {
-      this.children[i].geometry.dispose();
-      this.children[i].material.dispose();
-    }
-  };
-
   onAfterRender = (renderer) => {
     if (this.type.startsWith("StencilPlane")) {
       renderer.clearStencil();
@@ -147,7 +139,7 @@ class Clipping {
     this.clipPlanes = [];
     this.reverseClipPlanes = [];
 
-    this.planeHelpers = new THREE.Group();
+    this.planeHelpers = new Group();
     this.planeHelpers.name = "PlaneHelpers";
     this.planeHelperMaterials = [];
     this.objectColors = [];
@@ -194,7 +186,7 @@ class Clipping {
     /*
     Stencils
     */
-    var planeMeshGroup = new THREE.Group();
+    var planeMeshGroup = new Group();
     planeMeshGroup.name = "PlaneMeshes";
 
     for (i = 0; i < 3; i++) {
@@ -202,7 +194,7 @@ class Clipping {
       const otherPlanes = this.clipPlanes.filter((_, j) => j !== i);
       var j = 0;
       for (var path in nestedGroup.groups) {
-        var clippingGroup = new THREE.Group();
+        var clippingGroup = new Group();
         clippingGroup.name = `clipping-${i}`;
 
         var group = nestedGroup.groups[path];
@@ -303,6 +295,23 @@ class Clipping {
       group.material.visible = flag;
     }
   };
+
+  dispose() {
+    this.planeHelpers.dispose();
+    this.planeHelpers = null;
+
+    for (var i in this.planeHelperMaterials) {
+      this.planeHelperMaterials[i].dispose();
+      this.planeHelperMaterials[i] = null;
+    }
+    this.planeHelperMaterials = null;
+    this.nestedGroup = null;
+    this.clipPlanes = null;
+    this.reverseClipPlanes = null;
+    this.objectColors = null;
+    this.display = null;
+    this.center = null;
+  }
 }
 
 export { Clipping };

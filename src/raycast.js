@@ -108,6 +108,9 @@ class Raycaster {
     this.domElement.removeEventListener("mousedown", this.onMouseKeyDown);
     this.domElement.removeEventListener("keydown", this.onKeyDown);
     this.raycastMode = false;
+    this.groups = null;
+    this.domElement = null;
+    this.camera = null;
   }
 
   init() {

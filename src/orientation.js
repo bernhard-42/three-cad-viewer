@@ -126,6 +126,9 @@ class OrientationMarker {
     });
     this.scene = null;
     this.camera = null;
+    this.cad_camera = null;
+    this.cones = null;
+    this.labels = null;
   }
 
   render(renderer) {

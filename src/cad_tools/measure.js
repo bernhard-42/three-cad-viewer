@@ -400,6 +400,15 @@ class Measurement {
     this.viewer.renderer.render(this.scene, camera);
     this._movePanel();
   }
+  dispose() {
+    for (var i in this.scene.children) {
+      this.scene.children[i].dispose();
+      this.scene.children[i] = null;
+    }
+    this.panel = null;
+    this.viewer = null;
+    this.scene = null;
+  }
 }
 
 class DistanceMeasurement extends Measurement {

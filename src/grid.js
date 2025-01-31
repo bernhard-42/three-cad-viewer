@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { Font } from "./fontloader/FontLoader.js";
 import { helvetiker } from "./font.js";
+import { Group } from "./group.js";
 
 class Grid {
   constructor(display, bbox, ticks, centerGrid, axes0, grid, flipY, theme) {
@@ -32,7 +33,7 @@ class Grid {
     this.ticks = niceTick;
 
     for (var i = 0; i < 3; i++) {
-      var group = new THREE.Group();
+      var group = new Group();
       group.name = `GridHelper-${i}`;
       group.add(
         new THREE.GridHelper(
@@ -232,6 +233,12 @@ class Grid {
   setVisible() {
     for (var i = 0; i < 3; i++) {
       this.gridHelper[i].visible = this.grid[i];
+    }
+  }
+  dispose() {
+    for (var i = 0; i < 3; i++) {
+      this.gridHelper[i].dispose();
+      this.gridHelper[i] = null;
     }
   }
 }
