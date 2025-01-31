@@ -2737,7 +2737,7 @@ class Viewer {
               this.toggleAnimationLoop(false);
             }
           },
-          false,
+          { once: true },
         );
         reader.readAsDataURL(blob);
       });
