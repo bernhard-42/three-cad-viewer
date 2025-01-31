@@ -505,7 +505,12 @@ class Display {
    * @param {DOMElement} cadView - the DOM element that contains the cadView
    */
   addCadView(cadView) {
-    this.cadView.appendChild(cadView);
+    var canvas = this.cadView.querySelector("canvas");
+    if (canvas) {
+      this.cadView.replaceChild(cadView, canvas);
+    } else {
+      this.cadView.appendChild(cadView);
+    }
   }
 
   /**
