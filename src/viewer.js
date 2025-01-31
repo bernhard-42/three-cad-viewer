@@ -139,11 +139,11 @@ class Viewer {
       e.stopPropagation(),
     );
 
+    this.display.setupUI(this);
+
     this.display.addCadView(this.renderer.domElement);
 
     console.debug("three-cad-viewer: WebGL Renderer created");
-
-    this.display.setupUI(this);
     window.viewer = this;
   }
 
