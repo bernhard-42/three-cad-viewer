@@ -278,6 +278,14 @@ class Display {
     );
     this.toolbarButtons["help"].alignRight();
     this.cadTool.addButton(this.toolbarButtons["help"]);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && this.help_shown) {
+        e.preventDefault();
+        this.showHelp(false);
+      }
+    });
+
     this.toolbarButtons["pin"] = new Button(
       theme,
       "pin",
@@ -1188,16 +1196,6 @@ class Display {
   showHelp = (flag) => {
     this.cadHelp.style.display = flag ? "block" : "none";
     this.help_shown = flag;
-    if (flag) {
-      this.container.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-          this.showHelp(false);
-        }
-        this.container.removeEventListener("keydown", this);
-      });
-    } else {
-      this.container.removeEventListener("keydown", this);
-    }
   };
 
   /**
@@ -1319,7 +1317,6 @@ class Display {
   }
 
   updateHelp(before, after) {
-    console.log("updateHelp", before, after);
     const help = this._getElement("tcv_cad_help_layout");
     for (var k in before) {
       help.innerHTML = help.innerHTML.replaceAll(
