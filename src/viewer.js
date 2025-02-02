@@ -2720,6 +2720,7 @@ class Viewer {
     if (!animationLoop) {
       this.toggleAnimationLoop(true);
     }
+    this.orientationMarker.setVisible(false);
     let result = new Promise((resolve, reject) => {
       const canvas = this.display.getCanvas();
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
@@ -2734,6 +2735,7 @@ class Viewer {
             if (!animationLoop) {
               this.toggleAnimationLoop(false);
             }
+            this.orientationMarker.setVisible(true);
           },
           { once: true },
         );

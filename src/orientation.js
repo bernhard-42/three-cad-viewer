@@ -119,6 +119,12 @@ class OrientationMarker {
     this.ready = true;
   }
 
+  setVisible(flag) {
+    for (var child of this.scene.children) {
+      child.visible = flag;
+    }
+  }
+
   dispose() {
     sceneTraverse(this.scene, (o) => {
       o.geometry?.dispose();
