@@ -236,12 +236,9 @@
         window.viewer.dispose()
         window.viewer = null;
       }
-      if (window.display==null){
-        const container = document.getElementById(containerId);
-        container.innerHTML = ""
-        if (mode == "glass") {
+      if (mode == "glass") {
           displayOptions.glass = true;
-          displayOptions.tools = true
+          displayOptions.tools = true;
         } else if (mode == "no tools") {
           displayOptions.glass = false;
           displayOptions.tools = false;
@@ -249,10 +246,17 @@
           displayOptions.glass = false;
           displayOptions.tools = true;
         }
+      if (window.display==null){
+        const container = document.getElementById(containerId);
+        container.innerHTML = ""
 
         window.display = new Display(container, displayOptions)
       }
       window.viewerMode = mode;
+
+      window.display.glassMode(displayOptions.glass);
+      window.display.showTools(displayOptions.tools);
+
       // console.log(control);
       // console.log(window.controlMode);
       window.controlMode = control;
@@ -269,6 +273,8 @@
       viewerOptions.up = control_up[1][0];
 
       render(window.selectedExample, structuredClone(examples[window.selectedIndex]));
+
+
       timer.stop();
 
       // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])
