@@ -945,8 +945,10 @@ class Viewer {
       // dispose scene
 
       for (var i in this.scene.children) {
-        this.scene.children[i].dispose();
-        this.scene.children[i] = null;
+        if (this.scene.children[i]) {
+          this.scene.children[i].dispose();
+          this.scene.children[i] = null;
+        ^}
       }
 
       this.clipping.dispose();
@@ -1709,6 +1711,9 @@ class Viewer {
   handlePick = (path, name, meta, shift, alt, point, nodeType = "leaf") => {
     const id = `${path}/${name}`;
     const object = this.nestedGroup.groups[id];
+    if (object == null) {
+      return;
+    }
     var boundingBox;
     if (object.parent != null) {
       boundingBox = new BoundingBox().setFromObject(object, true);
