@@ -945,7 +945,7 @@ class Viewer {
       // dispose scene
 
       for (var i in this.scene.children) {
-        if (this.scene.children[i]) {
+        if (this.scene.children[i] != null) {
           this.scene.children[i].dispose();
           this.scene.children[i] = null;
         }
