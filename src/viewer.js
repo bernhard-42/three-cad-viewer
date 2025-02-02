@@ -948,7 +948,7 @@ class Viewer {
         if (this.scene.children[i]) {
           this.scene.children[i].dispose();
           this.scene.children[i] = null;
-        ^}
+        }
       }
 
       this.clipping.dispose();
