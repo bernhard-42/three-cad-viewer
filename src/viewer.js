@@ -1601,10 +1601,6 @@ class Viewer {
   setBoundingBox = (id) => {
     var group = this.nestedGroup.groups[id];
     if (group != null) {
-      // ignore planeMesh group of root object
-      var planeMeshGroup = group.children[group.children.length - 1];
-      group.children = group.children.slice(0, group.children.length - 1);
-
       if (this.lastBbox != null) {
         this.scene.remove(this.lastBbox.bbox);
       }
@@ -1621,9 +1617,6 @@ class Viewer {
       } else {
         this.lastBbox = null;
       }
-
-      // add back planeMesh group
-      group.children.push(planeMeshGroup);
 
       this.update(false, false, false);
     }
