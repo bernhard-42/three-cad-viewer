@@ -2031,6 +2031,21 @@ class Viewer {
   };
 
   /**
+   * Set grid center
+   * @function
+   * @param {boolean[]} center - true for centering grid at (0,0,0)
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setGridCenter = (center, notify = true) => {
+    this.gridHelper.centerGrid = center;
+    this.gridHelper.setCenter(this.axes0, this.up == "Z");
+
+    this.checkChanges({ gridCenter: this.gridHelper.centerGrid }, notify);
+
+    this.update(this.updateMarker);
+  };
+
+  /**
    * Get location of axes.
    * @returns {boolean} axes0 value, true means at origin (0,0,0)
    **/
