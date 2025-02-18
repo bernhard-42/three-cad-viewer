@@ -34,13 +34,14 @@
 
   <script type="module">
     // ESM import
-    import { Viewer, Timer } from "./dist/three-cad-viewer.esm.js";
+    import { Viewer, Display, Timer } from "./dist/three-cad-viewer.esm.js";
 
     // UMD import
     // const Viewer = CadViewer.Viewer;
     // const Timer = CadViewer.Timer;
 
     var viewer = null;
+    var display = null;
 
     const examples = [
       hexapod,
@@ -64,7 +65,7 @@
       single_vertices,
     ];
 
-    function render(name, shapes) {
+    function render(name, shapes) { 
       const timer = new Timer("renderer", timeit);
 
       viewer?.clear();
@@ -227,27 +228,35 @@
       collapse: 3,
       measureTools: false,
     };
-
+    
     function showViewer(control, mode, containerId) {
       if (window.viewer != null) {
         window.viewer.hasAnimationLoop = false;
         window.viewer.continueAnimation = false;
+        window.viewer.dispose()
+        window.viewer = null;
       }
-
-      const container = document.getElementById(containerId);
-      container.innerHTML = ""
       if (mode == "glass") {
-        displayOptions.glass = true;
-        displayOptions.tools = true
-      } else if (mode == "no tools") {
-        displayOptions.glass = false;
-        displayOptions.tools = false;
-      } else {
-        displayOptions.glass = false;
-        displayOptions.tools = true;
-      }
+          displayOptions.glass = true;
+          displayOptions.tools = true;
+        } else if (mode == "no tools") {
+          displayOptions.glass = false;
+          displayOptions.tools = false;
+        } else {
+          displayOptions.glass = false;
+          displayOptions.tools = true;
+        }
+      if (window.display==null){
+        const container = document.getElementById(containerId);
+        container.innerHTML = ""
 
+        window.display = new Display(container, displayOptions)
+      }
       window.viewerMode = mode;
+
+      window.display.glassMode(displayOptions.glass);
+      window.display.showTools(displayOptions.tools);
+
       // console.log(control);
       // console.log(window.controlMode);
       window.controlMode = control;
@@ -256,14 +265,16 @@
       // window.controlMode = control_up[0];
       // window.up = control_up[1][0];
 
-      viewer = new Viewer(container, displayOptions, nc);
+      viewer = new Viewer(window.display, displayOptions, nc);
 
       timer.split("display created");
 
       viewerOptions.control = control_up[0];
       viewerOptions.up = control_up[1][0];
 
-      render(window.selectedExample, examples[window.selectedIndex]);
+      render(window.selectedExample, structuredClone(examples[window.selectedIndex]));
+
+
       timer.stop();
 
       // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])

@@ -279,10 +279,12 @@ th {
   padding: 0px;
   position: absolute;
   right: 0px;
-  bottom: 0px;
+  top: 0px;
   z-index: 100;
   display: none;
   font-size: 12px;
+  max-height: 100%;
+  overflow: scroll;
 }
 
 .tcv_cad_help_layout {
