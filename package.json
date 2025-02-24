@@ -45,5 +45,6 @@
     "rollup-plugin-serve": "^1.1.1",
     "rollup-plugin-string": "^3.0.0"
   },
-  "babel": {}
+  "babel": {},
+  "packageManager": "yarn@1.22.22"
 }
