@@ -64958,7 +64958,7 @@ class Camera {
   }
 }
 
-const version = "3.2.0";
+const version = "3.2.1";
 
 Mesh.prototype.dispose = function () {
   if (this.geometry) {
