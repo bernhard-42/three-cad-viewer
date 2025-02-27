@@ -1,5 +1,13 @@
 # Change log
 
+## v3.2.2
+
+- Fix updating orientation marker after changes in treeview
+
+## v3.2.1
+
+- Fix removing orientation marker from screenshot
+
 ## v3.2.0
 
 **Features**
