@@ -670,7 +670,7 @@ class TreeView {
       this.updateChildrenStates(node, i);
       this.update(null, i);
     }
-    this.updateHandler();
+    this.updateHandler(true);
     this.notificationHandler();
   }
 
