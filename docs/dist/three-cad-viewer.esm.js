@@ -62087,7 +62087,7 @@ class TreeView {
       this.updateChildrenStates(node, i);
       this.update(null, i);
     }
-    this.updateHandler();
+    this.updateHandler(true);
     this.notificationHandler();
   }
 
@@ -64958,7 +64958,7 @@ class Camera {
   }
 }
 
-const version = "3.2.1";
+const version = "3.2.2";
 
 Mesh.prototype.dispose = function () {
   if (this.geometry) {
