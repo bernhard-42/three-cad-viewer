@@ -715,6 +715,7 @@ class Display {
         !["distance", "properties", "angle"].includes(this.currentButton)
       ) {
         this.viewer.toggleGroup(true);
+        this.viewer.toggleTab(true);
       }
       this.viewer.setRaycastMode(flag);
       this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster);
@@ -733,6 +734,7 @@ class Display {
     } else {
       if (this.currentButton == name || name == "explode") {
         this.viewer.toggleGroup(false);
+        this.viewer.toggleTab(false);
         this.currentButton = null;
       }
       this.viewer.checkChanges({ activeTool: ToolTypes.NONE });

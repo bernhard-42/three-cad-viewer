@@ -1,5 +1,9 @@
 # Change log
 
+## v3.2.3
+
+- Fix toggleTab after dispose is called
+
 ## v3.2.2
 
 - Fix updating orientation marker after changes in treeview
