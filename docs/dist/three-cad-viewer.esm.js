@@ -58955,6 +58955,7 @@ class Display {
         !["distance", "properties", "angle"].includes(this.currentButton)
       ) {
         this.viewer.toggleGroup(true);
+        this.viewer.toggleTab(true);
       }
       this.viewer.setRaycastMode(flag);
       this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster);
@@ -58973,6 +58974,7 @@ class Display {
     } else {
       if (this.currentButton == name || name == "explode") {
         this.viewer.toggleGroup(false);
+        this.viewer.toggleTab(false);
         this.currentButton = null;
       }
       this.viewer.checkChanges({ activeTool: ToolTypes.NONE });
@@ -64958,7 +64960,7 @@ class Camera {
   }
 }
 
-const version = "3.2.2";
+const version = "3.2.3";
 
 Mesh.prototype.dispose = function () {
   if (this.geometry) {
@@ -66037,7 +66039,16 @@ class Viewer {
     this.display.addCadTree(t);
     this.treeview.render();
     timer.split("rendered tree");
+    timer.stop();
+  }
 
+  /**
+   * Toggle tab and ensure collaps is treated correctly
+   * Needs to be called in sync with toggleGroup!
+   * @param boolean disable - true to disable clipping tab
+   */
+  toggleTab(disable) {
+    var timer = new Timer("toggleTab", this.timeit);
     this.display.selectTabByName("tree");
     timer.split("collapse tree");
     switch (this.collapse) {
@@ -66058,7 +66069,7 @@ class Viewer {
     this.checkChanges({ states: this.getStates() }, true);
     timer.split("notify state changes");
     timer.stop();
-    this.display.toggleClippingTab(!expanded);
+    this.display.toggleClippingTab(!disable);
   }
 
   /**
@@ -66297,6 +66308,8 @@ class Viewer {
     this.setLocalClipping(false); // only allow clipping when Clipping tab is selected
 
     this.clipping.setVisible(false);
+
+    this.toggleTab(false);
 
     this.display.metalnessSlider.setValue(this.metalness * 100);
     this.display.roughnessSlider.setValue(this.roughness * 100);
