@@ -3,33 +3,33 @@ import * as THREE from "three";
 const defaultDirections = {
   y_up: {
     // compatible to fusion 360
-    iso: { pos: new THREE.Vector3(1, 1, 1), z_rot: 0 },
-    front: { pos: new THREE.Vector3(0, 0, 1), z_rot: 0 },
-    rear: { pos: new THREE.Vector3(0, 0, -1), z_rot: 0 },
-    left: { pos: new THREE.Vector3(-1, 0, 0), z_rot: 0 },
-    right: { pos: new THREE.Vector3(1, 0, 0), z_rot: 0 },
-    top: { pos: new THREE.Vector3(0, 1, 0), z_rot: 0 },
-    bottom: { pos: new THREE.Vector3(0, -1, 0), z_rot: 0 },
+    iso: { pos: new THREE.Vector3(1, 1, 1), quat: null },
+    front: { pos: new THREE.Vector3(0, 0, 1), quat: null },
+    rear: { pos: new THREE.Vector3(0, 0, -1), quat: null },
+    left: { pos: new THREE.Vector3(-1, 0, 0), quat: null },
+    right: { pos: new THREE.Vector3(1, 0, 0), quat: null },
+    top: { pos: new THREE.Vector3(0, 1, 0), quat: null },
+    bottom: { pos: new THREE.Vector3(0, -1, 0), quat: null },
   },
   z_up: {
     // compatible to FreeCAD, OnShape
-    iso: { pos: new THREE.Vector3(1, -1, 1), z_rot: 0 },
-    front: { pos: new THREE.Vector3(0, -1, 0), z_rot: 0 },
-    rear: { pos: new THREE.Vector3(0, 1, 0), z_rot: 0 },
-    left: { pos: new THREE.Vector3(-1, 0, 0), z_rot: 0 },
-    right: { pos: new THREE.Vector3(1, 0, 0), z_rot: 0 },
-    top: { pos: new THREE.Vector3(0, 0, 1), z_rot: -Math.PI / 2 },
-    bottom: { pos: new THREE.Vector3(0, 0, -1), z_rot: -Math.PI / 2 },
+    iso: { pos: new THREE.Vector3(1, -1, 1), quat: null },
+    front: { pos: new THREE.Vector3(0, -1, 0), quat: null },
+    rear: { pos: new THREE.Vector3(0, 1, 0), quat: null },
+    left: { pos: new THREE.Vector3(-1, 0, 0), quat: null },
+    right: { pos: new THREE.Vector3(1, 0, 0), quat: null },
+    top: { pos: new THREE.Vector3(0, 0, 1), quat: [0, 0, 0, 1] },
+    bottom: { pos: new THREE.Vector3(0, 0, -1), quat: [1, 0, 0, 0] },
   },
   legacy: {
     // legacy Z up
-    iso: { pos: new THREE.Vector3(1, 1, 1), z_rot: 0 },
-    front: { pos: new THREE.Vector3(1, 0, 0), z_rot: 0 },
-    rear: { pos: new THREE.Vector3(-1, 0, 0), z_rot: 0 },
-    left: { pos: new THREE.Vector3(0, 1, 0), z_rot: 0 },
-    right: { pos: new THREE.Vector3(0, -1, 0), z_rot: 0 },
-    top: { pos: new THREE.Vector3(0, 0, 1), z_rot: 0 },
-    bottom: { pos: new THREE.Vector3(0, 0, -1), z_rot: 0 },
+    iso: { pos: new THREE.Vector3(1, 1, 1), quat: null },
+    front: { pos: new THREE.Vector3(1, 0, 0), quat: null },
+    rear: { pos: new THREE.Vector3(-1, 0, 0), quat: null },
+    left: { pos: new THREE.Vector3(0, 1, 0), quat: null },
+    right: { pos: new THREE.Vector3(0, -1, 0), quat: null },
+    top: { pos: new THREE.Vector3(0, 0, 1), quat: null },
+    bottom: { pos: new THREE.Vector3(0, 0, -1), quat: null },
   },
 };
 
@@ -210,13 +210,9 @@ class Camera {
     // For the default directions quaternion can be ignored, it will be reset automatically
     this.setupCamera(true, defaultDirections[this.up][dir].pos, null, zoom);
     this.lookAtTarget();
-    if (defaultDirections[this.up][dir].z_rot != 0) {
-      var quaternion = new THREE.Quaternion();
-      quaternion.setFromAxisAngle(
-        new THREE.Vector3(0, 0, 1),
-        defaultDirections[this.up][dir].z_rot,
-      );
-      quaternion.multiply(this.getQuaternion());
+
+    if (defaultDirections[this.up][dir].quat != null) {
+      var quaternion = defaultDirections[this.up][dir].quat;
       this.setQuaternion(quaternion);
     }
   }
