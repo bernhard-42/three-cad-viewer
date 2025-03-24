@@ -75,18 +75,12 @@ export class Tools {
     switch (this.enabledTool) {
       case ToolTypes.DISTANCE:
         this.distanceMeasurement.disableContext();
-        this.viewer.display.setTool("distance", false);
-        this.viewer.display.toolbarButtons["distance"].set(false);
         break;
       case ToolTypes.PROPERTIES:
         this.propertiesMeasurement.disableContext();
-        this.viewer.display.setTool("properties", false);
-        this.viewer.display.toolbarButtons["properties"].set(false);
         break;
       case ToolTypes.ANGLE:
         this.angleMeasurement.disableContext();
-        this.viewer.display.setTool("angle", false);
-        this.viewer.display.toolbarButtons["angle"].set(false);
         break;
       default:
         throw new Error(`Unknown tool type: ${this.enabledTool}`);

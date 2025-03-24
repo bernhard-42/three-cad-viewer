@@ -945,6 +945,10 @@ class Viewer {
       // deselect measurement tools
       if (this.cadTools) {
         this.cadTools.disable();
+        if (this.display.currentButton != null) {
+          this.display.toolbarButtons[this.display.currentButton].set(false);
+          this.display.setTool(this.display.currentButton, false);
+        }
       }
 
       // dispose scene
