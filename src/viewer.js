@@ -942,6 +942,11 @@ class Viewer {
       // clear render canvas
       this.renderer.clear();
 
+      // deselect measurement tools
+      if (this.cadTools) {
+        this.cadTools.disable();
+      }
+
       // dispose scene
 
       for (var i in this.scene.children) {
@@ -1886,7 +1891,9 @@ class Viewer {
       );
       this.raycaster.init();
     } else {
-      this.raycaster.dispose();
+      if (this.raycaster) {
+        this.raycaster.dispose();
+      }
       this.raycaster = null;
     }
   }
