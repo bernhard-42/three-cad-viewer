@@ -94,6 +94,12 @@ class DistanceLineArrow extends THREE.Group {
     this.add(line);
   }
 
+  dispose() {
+    this.children.forEach((child) => {
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) child.material.dispose();
+    });
+  }
   /**
    * Update the arrow so it keeps the same size on the screen.
    * @param {number} scaleFactor
