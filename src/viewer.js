@@ -938,6 +938,7 @@ class Viewer {
       }
 
       this.display.setExplodeCheck(false);
+      this.display.setExplode("", false);
 
       // clear render canvas
       this.renderer.clear();
