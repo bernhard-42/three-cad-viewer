@@ -166,10 +166,7 @@ class Measurement {
       this.panelDragData.y = e.clientY;
       e.stopPropagation();
     });
-    document.addEventListener("mouseup", (e) => {
-      this.panelDragData.clicked = false;
-      e.stopPropagation();
-    });
+    document.addEventListener("mouseup", this._mouseup);
     document.addEventListener("mousemove", this._dragPanel);
   }
 
@@ -314,6 +311,11 @@ class Measurement {
     this._updateMeasurement();
   };
 
+  _mouseup = (e) => {
+    this.panelDragData.clicked = false;
+    e.stopPropagation();
+  };
+
   _movePanel = () => {
     var worldCoord = this.panelCenter;
     var screenCoord = worldCoord
@@ -407,10 +409,14 @@ class Measurement {
     this._movePanel();
   }
   dispose() {
+    document.removeEventListener("mouseup", this._mouseup);
+    document.removeEventListener("mousemove", this._dragPanel);
+
     for (var i in this.scene.children) {
       this.scene.children[i].dispose();
       this.scene.children[i] = null;
     }
+    this.panel.dispose();
     this.panel = null;
     this.viewer = null;
     this.scene = null;

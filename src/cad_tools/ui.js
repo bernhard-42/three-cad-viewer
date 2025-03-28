@@ -7,6 +7,7 @@ class Panel {
   constructor(display) {
     this.display = display;
     this.html = this._getHtml();
+    this.callbacks = [];
     this.html.addEventListener("contextmenu", (ev) => {
       ev.preventDefault();
     });
@@ -54,7 +55,14 @@ class Panel {
    * @param {CallableFunction} callback - The callback function to register
    */
   registerCallback(eventType, callback) {
+    this.callbacks.push({ callback: callback, type: eventType });
     this.html.addEventListener(eventType, callback);
+  }
+
+  dispose() {
+    for (var callback of this.callbacks) {
+      this.html.removeEventListener(callback.type, callback.callback);
+    }
   }
 }
 
