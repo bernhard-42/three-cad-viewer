@@ -154,6 +154,9 @@ class Measurement {
     this.scene = new THREE.Scene();
     this.panel = panel;
     this.panelCenter = null;
+    this.panelX = null;
+    this.panelY = null;
+    this.panelShown = false;
     this.responseData = null;
     this.measurementLineColor = 0x000000;
     this.connectingLineColor = 0x800080;
@@ -271,28 +274,6 @@ class Measurement {
     }
   }
 
-  _computePanelCenter() {
-    const camera = this.viewer.camera.getCamera();
-    const zCam = new THREE.Vector3();
-    const xCam = new THREE.Vector3();
-    const yCam = new THREE.Vector3();
-
-    camera.getWorldDirection(zCam);
-    zCam.multiplyScalar(-1);
-    // Check if zCam is parallel to camera.up
-    if (Math.abs(zCam.dot(camera.up)) >= 0.99) {
-      // Choose a different vector to cross with zCam
-      xCam.crossVectors(new THREE.Vector3(1, 0, 0), zCam).normalize();
-    } else {
-      xCam.crossVectors(camera.up, zCam).normalize();
-    }
-    yCam.crossVectors(zCam, xCam).normalize();
-    const offsetDistance = this.viewer.bbox.boundingSphere().radius;
-    this.panelCenter = this.viewer.bbox
-      .boundingSphere()
-      .center.add(xCam.multiplyScalar(offsetDistance));
-  }
-
   /**
    * React to each new selected element in the viewer.
    * obj: ObjectGroup
@@ -317,20 +298,31 @@ class Measurement {
   };
 
   _movePanel = () => {
-    var worldCoord = this.panelCenter;
-    var screenCoord = worldCoord
-      .clone()
-      .project(this.viewer.camera.getCamera());
-    screenCoord.x = Math.round(
-      ((1 + screenCoord.x) * this.viewer.renderer.domElement.offsetWidth) / 2,
-    );
-    screenCoord.y = Math.round(
-      ((1 - screenCoord.y) * this.viewer.renderer.domElement.offsetHeight) / 2,
-    );
-    const panelStyle = window.getComputedStyle(this.panel.html);
-    const x = screenCoord.x - parseFloat(panelStyle.width) / 2;
-    const y = screenCoord.y - parseFloat(panelStyle.height) / 2;
-    this.panel.relocate(x, y);
+    if (!this.panel.isVisible()) return;
+
+    const canvasRect = this.viewer.renderer.domElement.getBoundingClientRect();
+    const panelRect = this.panel.html.getBoundingClientRect();
+    if (this.panelX == null) {
+      this.panelX = canvasRect.width - panelRect.width - 2;
+      this.panelY = canvasRect.height - panelRect.height - 2;
+    }
+
+    this.panel.relocate(this.panelX, this.panelY);
+
+    const panelCenterX = this.panelX + panelRect.width / 2;
+    const panelCenterY = this.panelY + panelRect.height / 2;
+    const ndcX = panelCenterX / (canvasRect.width / 2) - 1;
+    const ndcY = 1 - panelCenterY / (canvasRect.height / 2);
+    const ndcZ = this.viewer.ortho ? -0.9 : 1; // seems like a nice default ...
+    var panelCenter = new THREE.Vector3(ndcX, ndcY, ndcZ);
+
+    const camera = this.viewer.camera.getCamera();
+    camera.updateProjectionMatrix();
+    camera.updateMatrixWorld();
+    this.panelCenter = panelCenter.unproject(camera);
+
+    this.scene.clear();
+    this._makeLines();
   };
 
   /**
@@ -340,33 +332,31 @@ class Measurement {
    */
   _dragPanel = (e) => {
     if (!this.panelDragData.clicked) return;
+    const panelRect = this.panel.html.getBoundingClientRect();
+    const canvasRect = this.viewer.renderer.domElement.getBoundingClientRect();
+    let dx = e.clientX - this.panelDragData.x;
+    let dy = e.clientY - this.panelDragData.y;
 
-    const viewer = this.viewer;
-    const camera = viewer.camera.getCamera();
+    if (
+      !(
+        (panelRect.x + dx < canvasRect.x && e.movementX <= 0) ||
+        (panelRect.x + dx > canvasRect.x + canvasRect.width - panelRect.width &&
+          e.movementX >= 0)
+      )
+    ) {
+      this.panelX += dx;
+    }
+    if (
+      !(
+        (panelRect.y + dy < canvasRect.y && e.movementY <= 0) ||
+        (panelRect.y + dy >
+          canvasRect.y + canvasRect.height - panelRect.height &&
+          e.movementY >= 0)
+      )
+    ) {
+      this.panelY += dy;
+    }
 
-    let x = e.clientX - this.panelDragData.x;
-    let y = e.clientY - this.panelDragData.y;
-    const viewerWidth = this.viewer.renderer.domElement.offsetWidth;
-    const viewerHeight = this.viewer.renderer.domElement.offsetHeight;
-    const viewerToClientWidthRatio =
-      (0.5 * viewerWidth) / document.documentElement.clientWidth; // I dont get why we need to use half of the viewer width
-    const viewerToClientHeightRatio =
-      (0.5 * viewerHeight) / document.documentElement.clientHeight;
-
-    x /= document.documentElement.clientWidth; // x becomes a percentage of the client width
-    y /= document.documentElement.clientHeight;
-    x /= viewerToClientWidthRatio; // rescale the x value so it represent a percentage of the viewer width
-    y /= viewerToClientHeightRatio;
-
-    // First transform world vec in screen vec
-    // Then add the offset vec and then retransform back to world vec
-    const panelCenter = this.panelCenter.clone().project(camera);
-    const offsetVec = new THREE.Vector3(x, -y, 0);
-    panelCenter.add(offsetVec);
-    panelCenter.unproject(camera);
-    this.panelCenter = panelCenter;
-
-    // Clear and update the scene
     this.scene.clear();
     this._updateMeasurement();
 
@@ -408,6 +398,7 @@ class Measurement {
     this.viewer.renderer.render(this.scene, camera);
     this._movePanel();
   }
+
   dispose() {
     document.removeEventListener("mouseup", this._mouseup);
     document.removeEventListener("mousemove", this._dragPanel);
@@ -437,10 +428,10 @@ class DistanceMeasurement extends Measurement {
     const xdist = Math.abs(distVec.x);
     const ydist = Math.abs(distVec.y);
     const zdist = Math.abs(distVec.z);
-    this.panel.total = total.toFixed(2);
-    this.panel.x_distance = xdist.toFixed(2);
-    this.panel.y_distance = ydist.toFixed(2);
-    this.panel.z_distance = zdist.toFixed(2);
+    this.panel.total = total.toFixed(3);
+    this.panel.x_distance = xdist.toFixed(3);
+    this.panel.y_distance = ydist.toFixed(3);
+    this.panel.z_distance = zdist.toFixed(3);
   }
 
   _getMaxObjSelected() {
@@ -481,6 +472,7 @@ class DistanceMeasurement extends Measurement {
       middlePoint,
       lineWidth,
       this.connectingLineColor,
+      false,
       false,
     );
     this.scene.add(connectingLine);
@@ -524,14 +516,14 @@ class PropertiesMeasurement extends Measurement {
             : "Unknown";
     this.panel.subheader = subheader;
     const debugProps = {
-      volume: 0.44,
-      area: -1.01,
-      length: 2.01,
-      width: 0.01,
-      radius: 1.01,
-      radius2: 2.02,
+      volume: 0.445,
+      area: -1.012,
+      length: 2.012,
+      width: 0.012,
+      radius: 1.012,
+      radius2: 2.023,
       geom_type: "Circle",
-      vertex_coords: [1.34, -4.34, 2.35],
+      vertex_coords: [1.3456, -4.3456, 2.3567],
       // volume: 44444.44,
       // area: 48.01,
       // length: 94.01,
@@ -564,6 +556,7 @@ class PropertiesMeasurement extends Measurement {
       lineWidth,
       this.connectingLineColor,
       false,
+      false,
     );
     this.scene.add(connectingLine);
   }
@@ -587,7 +580,7 @@ class AngleMeasurement extends Measurement {
 
   _setMeasurementVals() {
     let angle;
-    if (DEBUG) angle = "134.56°";
+    if (DEBUG) angle = "134.5678°";
     else angle = this.responseData.angle.toFixed(2) + " °";
     this.panel.angle = angle;
   }
@@ -636,7 +629,7 @@ class AngleMeasurement extends Measurement {
       this.panelCenter,
       lineWidth,
       this.connectingLineColor,
-      true,
+      false,
       false,
     );
     const item2Line = new DistanceLineArrow(
@@ -645,7 +638,7 @@ class AngleMeasurement extends Measurement {
       this.panelCenter,
       lineWidth,
       this.connectingLineColor,
-      true,
+      false,
       false,
     );
     this.scene.add(item1Line);
