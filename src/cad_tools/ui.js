@@ -40,6 +40,13 @@ class Panel {
   };
 
   /**
+   * Get status of the panel
+   */
+  isVisible = () => {
+    return this.html.style.display == "inline-block";
+  };
+
+  /**
    * Sets the position of the panel (with the top left corner at the specified coordinates)
    * @param {number} x
    * @param {number} y
