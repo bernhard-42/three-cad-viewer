@@ -392,7 +392,9 @@ class Measurement {
   update() {
     const camera = this.viewer.camera.getCamera();
     const zoom = this.viewer.camera.getZoom();
-    this.coneLength = this.viewer.bb_radius / 15;
+    this.coneLength =
+      this.viewer.bb_radius /
+      (Math.max(this.viewer.cadWidth, this.viewer.height) / 60);
     this._adjustArrowsScaleFactor(zoom);
     this.viewer.renderer.clearDepth();
     this.viewer.renderer.render(this.scene, camera);
