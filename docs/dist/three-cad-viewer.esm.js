@@ -57173,6 +57173,7 @@ class Panel {
   constructor(display) {
     this.display = display;
     this.html = this._getHtml();
+    this.callbacks = [];
     this.html.addEventListener("contextmenu", (ev) => {
       ev.preventDefault();
     });
@@ -57205,6 +57206,13 @@ class Panel {
   };
 
   /**
+   * Get status of the panel
+   */
+  isVisible = () => {
+    return this.html.style.display == "inline-block";
+  };
+
+  /**
    * Sets the position of the panel (with the top left corner at the specified coordinates)
    * @param {number} x
    * @param {number} y
@@ -57220,7 +57228,14 @@ class Panel {
    * @param {CallableFunction} callback - The callback function to register
    */
   registerCallback(eventType, callback) {
+    this.callbacks.push({ callback: callback, type: eventType });
     this.html.addEventListener(eventType, callback);
+  }
+
+  dispose() {
+    for (var callback of this.callbacks) {
+      this.html.removeEventListener(callback.type, callback.callback);
+    }
   }
 }
 
@@ -57561,6 +57576,12 @@ class DistanceLineArrow extends Group$1 {
     this.add(line);
   }
 
+  dispose() {
+    this.children.forEach((child) => {
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) child.material.dispose();
+    });
+  }
   /**
    * Update the arrow so it keeps the same size on the screen.
    * @param {number} scaleFactor
@@ -57581,7 +57602,10 @@ class DistanceLineArrow extends Group$1 {
           .multiplyScalar((-scaleFactor * this.coneLength) / 2),
       );
     const line = this.children.find((child) => child.type == "LineSegments2");
-    line.geometry.setPositions([...newStart.toArray(), ...newEnd.toArray()]);
+    line.geometry.setPositions([
+      ...(this.arrowStart ? newStart.toArray() : this.point1),
+      ...(this.arrowEnd ? newEnd.toArray() : this.point2),
+    ]);
 
     if (this.arrowStart) {
       const startCone = this.children.find(
@@ -57615,6 +57639,9 @@ class Measurement {
     this.scene = new Scene();
     this.panel = panel;
     this.panelCenter = null;
+    this.panelX = null;
+    this.panelY = null;
+    this.panelShown = false;
     this.responseData = null;
     this.measurementLineColor = 0x000000;
     this.connectingLineColor = 0x800080;
@@ -57627,10 +57654,7 @@ class Measurement {
       this.panelDragData.y = e.clientY;
       e.stopPropagation();
     });
-    document.addEventListener("mouseup", (e) => {
-      this.panelDragData.clicked = false;
-      e.stopPropagation();
-    });
+    document.addEventListener("mouseup", this._mouseup);
     document.addEventListener("mousemove", this._dragPanel);
   }
 
@@ -57730,28 +57754,6 @@ class Measurement {
     }
   }
 
-  _computePanelCenter() {
-    const camera = this.viewer.camera.getCamera();
-    const zCam = new Vector3();
-    const xCam = new Vector3();
-    const yCam = new Vector3();
-
-    camera.getWorldDirection(zCam);
-    zCam.multiplyScalar(-1);
-    // Check if zCam is parallel to camera.up
-    if (Math.abs(zCam.dot(camera.up)) >= 0.99) {
-      // Choose a different vector to cross with zCam
-      xCam.crossVectors(new Vector3(1, 0, 0), zCam).normalize();
-    } else {
-      xCam.crossVectors(camera.up, zCam).normalize();
-    }
-    yCam.crossVectors(zCam, xCam).normalize();
-    const offsetDistance = this.viewer.bbox.boundingSphere().radius;
-    this.panelCenter = this.viewer.bbox
-      .boundingSphere()
-      .center.add(xCam.multiplyScalar(offsetDistance));
-  }
-
   /**
    * React to each new selected element in the viewer.
    * obj: ObjectGroup
@@ -57770,21 +57772,37 @@ class Measurement {
     this._updateMeasurement();
   };
 
+  _mouseup = (e) => {
+    this.panelDragData.clicked = false;
+    e.stopPropagation();
+  };
+
   _movePanel = () => {
-    var worldCoord = this.panelCenter;
-    var screenCoord = worldCoord
-      .clone()
-      .project(this.viewer.camera.getCamera());
-    screenCoord.x = Math.round(
-      ((1 + screenCoord.x) * this.viewer.renderer.domElement.offsetWidth) / 2,
-    );
-    screenCoord.y = Math.round(
-      ((1 - screenCoord.y) * this.viewer.renderer.domElement.offsetHeight) / 2,
-    );
-    const panelStyle = window.getComputedStyle(this.panel.html);
-    const x = screenCoord.x - parseFloat(panelStyle.width) / 2;
-    const y = screenCoord.y - parseFloat(panelStyle.height) / 2;
-    this.panel.relocate(x, y);
+    if (!this.panel.isVisible()) return;
+
+    const canvasRect = this.viewer.renderer.domElement.getBoundingClientRect();
+    const panelRect = this.panel.html.getBoundingClientRect();
+    if (this.panelX == null) {
+      this.panelX = canvasRect.width - panelRect.width - 2;
+      this.panelY = canvasRect.height - panelRect.height - 2;
+    }
+
+    this.panel.relocate(this.panelX, this.panelY);
+
+    const panelCenterX = this.panelX + panelRect.width / 2;
+    const panelCenterY = this.panelY + panelRect.height / 2;
+    const ndcX = panelCenterX / (canvasRect.width / 2) - 1;
+    const ndcY = 1 - panelCenterY / (canvasRect.height / 2);
+    const ndcZ = this.viewer.ortho ? -0.9 : 1; // seems like a nice default ...
+    var panelCenter = new Vector3(ndcX, ndcY, ndcZ);
+
+    const camera = this.viewer.camera.getCamera();
+    camera.updateProjectionMatrix();
+    camera.updateMatrixWorld();
+    this.panelCenter = panelCenter.unproject(camera);
+
+    this.scene.clear();
+    this._makeLines();
   };
 
   /**
@@ -57794,33 +57812,31 @@ class Measurement {
    */
   _dragPanel = (e) => {
     if (!this.panelDragData.clicked) return;
+    const panelRect = this.panel.html.getBoundingClientRect();
+    const canvasRect = this.viewer.renderer.domElement.getBoundingClientRect();
+    let dx = e.clientX - this.panelDragData.x;
+    let dy = e.clientY - this.panelDragData.y;
 
-    const viewer = this.viewer;
-    const camera = viewer.camera.getCamera();
+    if (
+      !(
+        (panelRect.x + dx < canvasRect.x && e.movementX <= 0) ||
+        (panelRect.x + dx > canvasRect.x + canvasRect.width - panelRect.width &&
+          e.movementX >= 0)
+      )
+    ) {
+      this.panelX += dx;
+    }
+    if (
+      !(
+        (panelRect.y + dy < canvasRect.y && e.movementY <= 0) ||
+        (panelRect.y + dy >
+          canvasRect.y + canvasRect.height - panelRect.height &&
+          e.movementY >= 0)
+      )
+    ) {
+      this.panelY += dy;
+    }
 
-    let x = e.clientX - this.panelDragData.x;
-    let y = e.clientY - this.panelDragData.y;
-    const viewerWidth = this.viewer.renderer.domElement.offsetWidth;
-    const viewerHeight = this.viewer.renderer.domElement.offsetHeight;
-    const viewerToClientWidthRatio =
-      (0.5 * viewerWidth) / document.documentElement.clientWidth; // I dont get why we need to use half of the viewer width
-    const viewerToClientHeightRatio =
-      (0.5 * viewerHeight) / document.documentElement.clientHeight;
-
-    x /= document.documentElement.clientWidth; // x becomes a percentage of the client width
-    y /= document.documentElement.clientHeight;
-    x /= viewerToClientWidthRatio; // rescale the x value so it represent a percentage of the viewer width
-    y /= viewerToClientHeightRatio;
-
-    // First transform world vec in screen vec
-    // Then add the offset vec and then retransform back to world vec
-    const panelCenter = this.panelCenter.clone().project(camera);
-    const offsetVec = new Vector3(x, -y, 0);
-    panelCenter.add(offsetVec);
-    panelCenter.unproject(camera);
-    this.panelCenter = panelCenter;
-
-    // Clear and update the scene
     this.scene.clear();
     this._updateMeasurement();
 
@@ -57856,17 +57872,24 @@ class Measurement {
   update() {
     const camera = this.viewer.camera.getCamera();
     const zoom = this.viewer.camera.getZoom();
-    this.coneLength = this.viewer.bb_radius / 15;
+    this.coneLength =
+      this.viewer.bb_radius /
+      (Math.max(this.viewer.cadWidth, this.viewer.height) / 60);
     this._adjustArrowsScaleFactor(zoom);
     this.viewer.renderer.clearDepth();
     this.viewer.renderer.render(this.scene, camera);
     this._movePanel();
   }
+
   dispose() {
+    document.removeEventListener("mouseup", this._mouseup);
+    document.removeEventListener("mousemove", this._dragPanel);
+
     for (var i in this.scene.children) {
       this.scene.children[i].dispose();
       this.scene.children[i] = null;
     }
+    this.panel.dispose();
     this.panel = null;
     this.viewer = null;
     this.scene = null;
@@ -57887,10 +57910,10 @@ class DistanceMeasurement extends Measurement {
     const xdist = Math.abs(distVec.x);
     const ydist = Math.abs(distVec.y);
     const zdist = Math.abs(distVec.z);
-    this.panel.total = total.toFixed(2);
-    this.panel.x_distance = xdist.toFixed(2);
-    this.panel.y_distance = ydist.toFixed(2);
-    this.panel.z_distance = zdist.toFixed(2);
+    this.panel.total = total.toFixed(3);
+    this.panel.x_distance = xdist.toFixed(3);
+    this.panel.y_distance = ydist.toFixed(3);
+    this.panel.z_distance = zdist.toFixed(3);
   }
 
   _getMaxObjSelected() {
@@ -57924,6 +57947,7 @@ class DistanceMeasurement extends Measurement {
       middlePoint,
       lineWidth,
       this.connectingLineColor,
+      false,
       false,
     );
     this.scene.add(connectingLine);
@@ -57983,6 +58007,7 @@ class PropertiesMeasurement extends Measurement {
       middlePoint,
       lineWidth,
       this.connectingLineColor,
+      false,
       false,
     );
     this.scene.add(connectingLine);
@@ -58048,7 +58073,7 @@ class AngleMeasurement extends Measurement {
       this.panelCenter,
       lineWidth,
       this.connectingLineColor,
-      true,
+      false,
       false,
     );
     const item2Line = new DistanceLineArrow(
@@ -58057,7 +58082,7 @@ class AngleMeasurement extends Measurement {
       this.panelCenter,
       lineWidth,
       this.connectingLineColor,
-      true,
+      false,
       false,
     );
     this.scene.add(item1Line);
@@ -58108,10 +58133,7 @@ class Tools {
    */
   enable(toolType) {
     // Disable the currently enabled tool (if any)
-    if (this.enabledTool) {
-      this.viewer.display.shapeFilterDropDownMenu.reset();
-      this._disable();
-    }
+    this.disable();
 
     switch (toolType) {
       case ToolTypes.DISTANCE:
@@ -58128,6 +58150,13 @@ class Tools {
     }
 
     this.enabledTool = toolType;
+  }
+
+  disable() {
+    if (this.enabledTool) {
+      this.viewer.display.shapeFilterDropDownMenu.reset();
+      this._disable();
+    }
   }
 
   /**
@@ -64632,33 +64661,33 @@ class Controls {
 const defaultDirections = {
   y_up: {
     // compatible to fusion 360
-    iso: { pos: new Vector3(1, 1, 1), z_rot: 0 },
-    front: { pos: new Vector3(0, 0, 1), z_rot: 0 },
-    rear: { pos: new Vector3(0, 0, -1), z_rot: 0 },
-    left: { pos: new Vector3(-1, 0, 0), z_rot: 0 },
-    right: { pos: new Vector3(1, 0, 0), z_rot: 0 },
-    top: { pos: new Vector3(0, 1, 0), z_rot: 0 },
-    bottom: { pos: new Vector3(0, -1, 0), z_rot: 0 },
+    iso: { pos: new Vector3(1, 1, 1), quat: null },
+    front: { pos: new Vector3(0, 0, 1), quat: null },
+    rear: { pos: new Vector3(0, 0, -1), quat: null },
+    left: { pos: new Vector3(-1, 0, 0), quat: null },
+    right: { pos: new Vector3(1, 0, 0), quat: null },
+    top: { pos: new Vector3(0, 1, 0), quat: null },
+    bottom: { pos: new Vector3(0, -1, 0), quat: null },
   },
   z_up: {
     // compatible to FreeCAD, OnShape
-    iso: { pos: new Vector3(1, -1, 1), z_rot: 0 },
-    front: { pos: new Vector3(0, -1, 0), z_rot: 0 },
-    rear: { pos: new Vector3(0, 1, 0), z_rot: 0 },
-    left: { pos: new Vector3(-1, 0, 0), z_rot: 0 },
-    right: { pos: new Vector3(1, 0, 0), z_rot: 0 },
-    top: { pos: new Vector3(0, 0, 1), z_rot: -Math.PI / 2 },
-    bottom: { pos: new Vector3(0, 0, -1), z_rot: -Math.PI / 2 },
+    iso: { pos: new Vector3(1, -1, 1), quat: null },
+    front: { pos: new Vector3(0, -1, 0), quat: null },
+    rear: { pos: new Vector3(0, 1, 0), quat: null },
+    left: { pos: new Vector3(-1, 0, 0), quat: null },
+    right: { pos: new Vector3(1, 0, 0), quat: null },
+    top: { pos: new Vector3(0, 0, 1), quat: [0, 0, 0, 1] },
+    bottom: { pos: new Vector3(0, 0, -1), quat: [1, 0, 0, 0] },
   },
   legacy: {
     // legacy Z up
-    iso: { pos: new Vector3(1, 1, 1), z_rot: 0 },
-    front: { pos: new Vector3(1, 0, 0), z_rot: 0 },
-    rear: { pos: new Vector3(-1, 0, 0), z_rot: 0 },
-    left: { pos: new Vector3(0, 1, 0), z_rot: 0 },
-    right: { pos: new Vector3(0, -1, 0), z_rot: 0 },
-    top: { pos: new Vector3(0, 0, 1), z_rot: 0 },
-    bottom: { pos: new Vector3(0, 0, -1), z_rot: 0 },
+    iso: { pos: new Vector3(1, 1, 1), quat: null },
+    front: { pos: new Vector3(1, 0, 0), quat: null },
+    rear: { pos: new Vector3(-1, 0, 0), quat: null },
+    left: { pos: new Vector3(0, 1, 0), quat: null },
+    right: { pos: new Vector3(0, -1, 0), quat: null },
+    top: { pos: new Vector3(0, 0, 1), quat: null },
+    bottom: { pos: new Vector3(0, 0, -1), quat: null },
   },
 };
 
@@ -64839,13 +64868,9 @@ class Camera {
     // For the default directions quaternion can be ignored, it will be reset automatically
     this.setupCamera(true, defaultDirections[this.up][dir].pos, null, zoom);
     this.lookAtTarget();
-    if (defaultDirections[this.up][dir].z_rot != 0) {
-      var quaternion = new Quaternion();
-      quaternion.setFromAxisAngle(
-        new Vector3(0, 0, 1),
-        defaultDirections[this.up][dir].z_rot,
-      );
-      quaternion.multiply(this.getQuaternion());
+
+    if (defaultDirections[this.up][dir].quat != null) {
+      var quaternion = defaultDirections[this.up][dir].quat;
       this.setQuaternion(quaternion);
     }
   }
@@ -64960,7 +64985,7 @@ class Camera {
   }
 }
 
-const version = "3.2.3";
+const version = "3.3.0";
 
 Mesh.prototype.dispose = function () {
   if (this.geometry) {
@@ -65874,9 +65899,19 @@ class Viewer {
       }
 
       this.display.setExplodeCheck(false);
+      this.display.setExplode("", false);
 
       // clear render canvas
       this.renderer.clear();
+
+      // deselect measurement tools
+      if (this.cadTools) {
+        this.cadTools.disable();
+        if (this.display.currentButton != null) {
+          this.display.toolbarButtons[this.display.currentButton].set(false);
+          this.display.setTool(this.display.currentButton, false);
+        }
+      }
 
       // dispose scene
 
@@ -66819,7 +66854,9 @@ class Viewer {
       );
       this.raycaster.init();
     } else {
-      this.raycaster.dispose();
+      if (this.raycaster) {
+        this.raycaster.dispose();
+      }
       this.raycaster = null;
     }
   }
