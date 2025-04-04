@@ -120,7 +120,10 @@ class DistanceLineArrow extends THREE.Group {
           .multiplyScalar((-scaleFactor * this.coneLength) / 2),
       );
     const line = this.children.find((child) => child.type == "LineSegments2");
-    line.geometry.setPositions([...newStart.toArray(), ...newEnd.toArray()]);
+    line.geometry.setPositions([
+      ...(this.arrowStart ? newStart.toArray() : this.point1),
+      ...(this.arrowEnd ? newEnd.toArray() : this.point2),
+    ]);
 
     if (this.arrowStart) {
       const startCone = this.children.find(
