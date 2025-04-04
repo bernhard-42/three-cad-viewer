@@ -1,5 +1,17 @@
 # Change log
 
+## v3.3.0
+
+**Features**
+
+- Change measure panel to be stable
+
+**Fixes**
+
+- Fix top and bottom skew for up=Z
+- Add dispose methods to measure classes
+- Fix switching object while measurement is active
+
 ## v3.2.3
 
 - Fix toggleTab after dispose is called
