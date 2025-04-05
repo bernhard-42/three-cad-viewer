@@ -47,7 +47,16 @@ class BoundingBox extends THREE.Box3 {
     const children = object.children;
 
     for (let i = 0, l = children.length; i < l; i++) {
-      this.expandByObject(children[i], precise);
+      if (
+        !(
+          children[i].name == "PlaneMeshes" &&
+          children[i].children &&
+          children[i].children.length > 0 &&
+          children[i].children[0].type.startsWith("StencilPlane")
+        )
+      ) {
+        this.expandByObject(children[i], precise);
+      }
     }
 
     return this;
