@@ -57634,6 +57634,7 @@ class Measurement {
     this.selectedShapes = []; // array of dict ObjectGroup, bool
     this.point1 = null;
     this.point2 = null;
+    this.middlePoint = null;
     this.contextEnabled = false; // Tells if the measure context is active
     this.viewer = viewer;
     this.scene = new Scene();
@@ -57782,9 +57783,29 @@ class Measurement {
 
     const canvasRect = this.viewer.renderer.domElement.getBoundingClientRect();
     const panelRect = this.panel.html.getBoundingClientRect();
-    if (this.panelX == null) {
-      this.panelX = canvasRect.width - panelRect.width - 2;
-      this.panelY = canvasRect.height - panelRect.height - 2;
+
+    if (this.panelX == null && this.middlePoint != null) {
+      let center = this.middlePoint
+        .clone()
+        .project(this.viewer.camera.getCamera());
+      let panelX = (center.x + 1) * (canvasRect.width / 2);
+      let panelY = (1 - center.y) * (canvasRect.height / 2);
+
+      if (panelX < canvasRect.width / 2) {
+        this.panelX = panelX + panelRect.width / 2;
+      } else {
+        this.panelX = panelX - panelRect.width - panelRect.width / 2;
+      }
+      this.panelX = Math.max(
+        0,
+        Math.min(canvasRect.width - panelRect.width, this.panelX),
+      );
+
+      this.panelY = panelY;
+      this.panelY = Math.max(
+        0,
+        Math.min(canvasRect.height - panelRect.height, this.panelY),
+      );
     }
 
     this.panel.relocate(this.panelX, this.panelY);
@@ -57901,6 +57922,7 @@ class DistanceMeasurement extends Measurement {
     super(viewer, new DistancePanel(viewer.display));
     this.point1 = null;
     this.point2 = null;
+    this.middlePoint = null;
   }
 
   _setMeasurementVals() {
@@ -57938,13 +57960,13 @@ class DistanceMeasurement extends Measurement {
     );
     this.scene.add(distanceLine);
 
-    const middlePoint = new Vector3()
+    this.middlePoint = new Vector3()
       .addVectors(this.point1, this.point2)
       .multiplyScalar(0.5);
     const connectingLine = new DistanceLineArrow(
       this.coneLength,
       this.panelCenter,
-      middlePoint,
+      this.middlePoint,
       lineWidth,
       this.connectingLineColor,
       false,
@@ -57971,6 +57993,7 @@ class DistanceMeasurement extends Measurement {
 class PropertiesMeasurement extends Measurement {
   constructor(viewer) {
     super(viewer, new PropertiesPanel(viewer.display));
+    this.middlePoint = null;
   }
 
   _setMeasurementVals() {
@@ -58000,11 +58023,11 @@ class PropertiesMeasurement extends Measurement {
 
   _makeLines() {
     const lineWidth = 1.5;
-    const middlePoint = this.responseData.center;
+    this.middlePoint = this.responseData.center;
     const connectingLine = new DistanceLineArrow(
       this.coneLength,
       this.panelCenter,
-      middlePoint,
+      this.middlePoint,
       lineWidth,
       this.connectingLineColor,
       false,
@@ -58028,6 +58051,7 @@ class PropertiesMeasurement extends Measurement {
 class AngleMeasurement extends Measurement {
   constructor(viewer) {
     super(viewer, new AnglePanel(viewer.display));
+    this.middlePoint = null;
   }
 
   _setMeasurementVals() {
@@ -58087,6 +58111,9 @@ class AngleMeasurement extends Measurement {
     );
     this.scene.add(item1Line);
     this.scene.add(item2Line);
+    this.middlePoint = new Vector3()
+      .addVectors(this.point1, this.point2)
+      .multiplyScalar(0.5);
   }
 
   handleResponse(response) {
@@ -59766,7 +59793,16 @@ class BoundingBox extends Box3 {
     const children = object.children;
 
     for (let i = 0, l = children.length; i < l; i++) {
-      this.expandByObject(children[i], precise);
+      if (
+        !(
+          children[i].name == "PlaneMeshes" &&
+          children[i].children &&
+          children[i].children.length > 0 &&
+          children[i].children[0].type.startsWith("StencilPlane")
+        )
+      ) {
+        this.expandByObject(children[i], precise);
+      }
     }
 
     return this;
@@ -62282,6 +62318,33 @@ class TreeView {
    ************************************************************************************/
 
   /**
+   * Scrolls the parent container to center the specified element within the visible area.
+   * Ensures the scrolling does not exceed the scrollable bounds of the parent container.
+   *
+   * @param {HTMLElement} element - The DOM element to center within the scroll container.
+   */
+  scrollCentered(element) {
+    if (element != null) {
+      let parent = this.scrollContainer;
+
+      // Calculate the center position of the element relative to the parent
+      const elementHeight = element.offsetHeight;
+      const parentHeight = parent.clientHeight;
+
+      // Calculate scroll position that would center the element
+      const elementOffset = element.offsetTop - parent.offsetTop;
+      const scrollTop = elementOffset - parentHeight / 2 + elementHeight / 2;
+
+      // Ensure we don't scroll beyond the parent's scrollable area
+      const maxScroll = parent.scrollHeight - parentHeight;
+      const clampedScrollTop = Math.max(0, Math.min(scrollTop, maxScroll));
+
+      // Perform the scroll
+      parent.scrollTo({ top: clampedScrollTop, behavior: "smooth" });
+    }
+  }
+
+  /**
    * Opens the specified path in the tree view.
    *
    * @param {string} path - The path to open in the tree view.
@@ -62290,13 +62353,11 @@ class TreeView {
     const parts = path.split("/").filter(Boolean);
     var current = "";
     var node;
+    let el;
     for (var part of parts) {
       current += "/" + part;
       node = this.findNodeByPath(current);
-      const el = this.getDomNode(current);
-      if (el != null) {
-        el.children[0].scrollIntoView({ behaviour: "smooth", block: "center" });
-      }
+      el = this.getDomNode(current);
       if (node) {
         node.expanded = true;
         this.showChildContainer(node);
@@ -62309,6 +62370,7 @@ class TreeView {
         break;
       }
     }
+    this.scrollCentered(el);
     this.toggleLabelColor(node);
   }
 
@@ -62324,7 +62386,8 @@ class TreeView {
       this.showChildContainer(node);
       const el = this.getDomNode(path);
       if (el != null) {
-        el.scrollIntoView({ behaviour: "smooth", block: "start" });
+        const parent = this.scrollContainer;
+        parent.scrollTop = el.offsetTop - parent.offsetTop;
       }
       if (this.debug) {
         console.log("update => collapsePath");
@@ -62356,7 +62419,10 @@ class TreeView {
     };
     this.traverse(this.root, setLevel);
     const el = this.getDomNode(this.getNodePath(this.root));
-    el.scrollIntoView({ behaviour: "smooth", block: "start" });
+    if (el != null) {
+      const parent = this.scrollContainer;
+      parent.scrollTop = el.offsetTop - parent.offsetTop;
+    }
     for (var i = 0; i <= (level == -1 ? this.maxLevel : level); i++) {
       if (this.debug) {
         console.log("update => openLevel");
@@ -64985,7 +65051,7 @@ class Camera {
   }
 }
 
-const version = "3.3.0";
+const version = "3.3.2";
 
 Mesh.prototype.dispose = function () {
   if (this.geometry) {
