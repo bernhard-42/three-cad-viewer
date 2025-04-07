@@ -152,6 +152,7 @@ class Measurement {
     this.selectedShapes = []; // array of dict ObjectGroup, bool
     this.point1 = null;
     this.point2 = null;
+    this.middlePoint = null;
     this.contextEnabled = false; // Tells if the measure context is active
     this.viewer = viewer;
     this.scene = new THREE.Scene();
@@ -305,9 +306,29 @@ class Measurement {
 
     const canvasRect = this.viewer.renderer.domElement.getBoundingClientRect();
     const panelRect = this.panel.html.getBoundingClientRect();
-    if (this.panelX == null) {
-      this.panelX = canvasRect.width - panelRect.width - 2;
-      this.panelY = canvasRect.height - panelRect.height - 2;
+
+    if (this.panelX == null && this.middlePoint != null) {
+      let center = this.middlePoint
+        .clone()
+        .project(this.viewer.camera.getCamera());
+      let panelX = (center.x + 1) * (canvasRect.width / 2);
+      let panelY = (1 - center.y) * (canvasRect.height / 2);
+
+      if (panelX < canvasRect.width / 2) {
+        this.panelX = panelX + panelRect.width / 2;
+      } else {
+        this.panelX = panelX - panelRect.width - panelRect.width / 2;
+      }
+      this.panelX = Math.max(
+        0,
+        Math.min(canvasRect.width - panelRect.width, this.panelX),
+      );
+
+      this.panelY = panelY;
+      this.panelY = Math.max(
+        0,
+        Math.min(canvasRect.height - panelRect.height, this.panelY),
+      );
     }
 
     this.panel.relocate(this.panelX, this.panelY);
@@ -424,6 +445,7 @@ class DistanceMeasurement extends Measurement {
     super(viewer, new DistancePanel(viewer.display));
     this.point1 = null;
     this.point2 = null;
+    this.middlePoint = null;
   }
 
   _setMeasurementVals() {
@@ -468,13 +490,13 @@ class DistanceMeasurement extends Measurement {
     );
     this.scene.add(distanceLine);
 
-    const middlePoint = new THREE.Vector3()
+    this.middlePoint = new THREE.Vector3()
       .addVectors(this.point1, this.point2)
       .multiplyScalar(0.5);
     const connectingLine = new DistanceLineArrow(
       this.coneLength,
       this.panelCenter,
-      middlePoint,
+      this.middlePoint,
       lineWidth,
       this.connectingLineColor,
       false,
@@ -501,6 +523,7 @@ class DistanceMeasurement extends Measurement {
 class PropertiesMeasurement extends Measurement {
   constructor(viewer) {
     super(viewer, new PropertiesPanel(viewer.display));
+    this.middlePoint = null;
   }
 
   _setMeasurementVals() {
@@ -553,11 +576,11 @@ class PropertiesMeasurement extends Measurement {
       const center = obj.children[0].geometry.boundingSphere.center.clone();
       worldCenter = obj.localToWorld(center);
     }
-    const middlePoint = DEBUG ? worldCenter : this.responseData.center;
+    this.middlePoint = DEBUG ? worldCenter : this.responseData.center;
     const connectingLine = new DistanceLineArrow(
       this.coneLength,
       this.panelCenter,
-      middlePoint,
+      this.middlePoint,
       lineWidth,
       this.connectingLineColor,
       false,
@@ -581,6 +604,7 @@ class PropertiesMeasurement extends Measurement {
 class AngleMeasurement extends Measurement {
   constructor(viewer) {
     super(viewer, new AnglePanel(viewer.display));
+    this.middlePoint = null;
   }
 
   _setMeasurementVals() {
@@ -648,6 +672,9 @@ class AngleMeasurement extends Measurement {
     );
     this.scene.add(item1Line);
     this.scene.add(item2Line);
+    this.middlePoint = new THREE.Vector3()
+      .addVectors(this.point1, this.point2)
+      .multiplyScalar(0.5);
   }
 
   handleResponse(response) {
