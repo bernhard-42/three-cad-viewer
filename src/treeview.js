@@ -834,6 +834,33 @@ class TreeView {
    ************************************************************************************/
 
   /**
+   * Scrolls the parent container to center the specified element within the visible area.
+   * Ensures the scrolling does not exceed the scrollable bounds of the parent container.
+   *
+   * @param {HTMLElement} element - The DOM element to center within the scroll container.
+   */
+  scrollCentered(element) {
+    if (element != null) {
+      let parent = this.scrollContainer;
+
+      // Calculate the center position of the element relative to the parent
+      const elementHeight = element.offsetHeight;
+      const parentHeight = parent.clientHeight;
+
+      // Calculate scroll position that would center the element
+      const elementOffset = element.offsetTop - parent.offsetTop;
+      const scrollTop = elementOffset - parentHeight / 2 + elementHeight / 2;
+
+      // Ensure we don't scroll beyond the parent's scrollable area
+      const maxScroll = parent.scrollHeight - parentHeight;
+      const clampedScrollTop = Math.max(0, Math.min(scrollTop, maxScroll));
+
+      // Perform the scroll
+      parent.scrollTo({ top: clampedScrollTop, behavior: "smooth" });
+    }
+  }
+
+  /**
    * Opens the specified path in the tree view.
    *
    * @param {string} path - The path to open in the tree view.
@@ -842,13 +869,11 @@ class TreeView {
     const parts = path.split("/").filter(Boolean);
     var current = "";
     var node;
+    let el;
     for (var part of parts) {
       current += "/" + part;
       node = this.findNodeByPath(current);
-      const el = this.getDomNode(current);
-      if (el != null) {
-        el.children[0].scrollIntoView({ behaviour: "smooth", block: "center" });
-      }
+      el = this.getDomNode(current);
       if (node) {
         node.expanded = true;
         this.showChildContainer(node);
@@ -861,6 +886,7 @@ class TreeView {
         break;
       }
     }
+    this.scrollCentered(el);
     this.toggleLabelColor(node);
   }
 
@@ -876,7 +902,8 @@ class TreeView {
       this.showChildContainer(node);
       const el = this.getDomNode(path);
       if (el != null) {
-        el.scrollIntoView({ behaviour: "smooth", block: "start" });
+        const parent = this.scrollContainer;
+        parent.scrollTop = el.offsetTop - parent.offsetTop;
       }
       if (this.debug) {
         console.log("update => collapsePath");
@@ -908,7 +935,10 @@ class TreeView {
     };
     this.traverse(this.root, setLevel);
     const el = this.getDomNode(this.getNodePath(this.root));
-    el.scrollIntoView({ behaviour: "smooth", block: "start" });
+    if (el != null) {
+      const parent = this.scrollContainer;
+      parent.scrollTop = el.offsetTop - parent.offsetTop;
+    }
     for (var i = 0; i <= (level == -1 ? this.maxLevel : level); i++) {
       if (this.debug) {
         console.log("update => openLevel");
