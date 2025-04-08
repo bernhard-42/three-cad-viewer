@@ -100,10 +100,10 @@ class Display {
       (options.theme == "browser" &&
         window.matchMedia("(prefers-color-scheme: dark)").matches)
     ) {
-      document.documentElement.setAttribute("data-theme", "dark");
+      this.container.setAttribute("data-theme", "dark");
       theme = "dark";
     } else {
-      document.documentElement.setAttribute("data-theme", "light");
+      this.container.setAttribute("data-theme", "light");
       theme = "light";
     }
 
