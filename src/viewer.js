@@ -1353,9 +1353,9 @@ class Viewer {
 
     this.display.setSliderLimits(this.gridSize / 2, this.bbox.center());
 
-    this.setClipNormal(0, viewerOptions.clipNormal0, true);
-    this.setClipNormal(1, viewerOptions.clipNormal1, true);
-    this.setClipNormal(2, viewerOptions.clipNormal2, true);
+    this.setClipNormal(0, viewerOptions.clipNormal0, null, true);
+    this.setClipNormal(1, viewerOptions.clipNormal1, null, true);
+    this.setClipNormal(2, viewerOptions.clipNormal2, null, true);
 
     this.clipSlider0 =
       viewerOptions.clipSlider0 != null
@@ -2623,16 +2623,17 @@ class Viewer {
    * @function
    * @param {number} index - index of the normal: 0, 1 ,2
    * @param {number[]} normal - 3 dim array representing the normal
+   * @param {number} [value=null] - value of the slider, if given
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setClipNormal(index, normal, notify = true) {
+  setClipNormal(index, normal, value = null, notify = true) {
     if (normal == null) return;
     const normal1 = new THREE.Vector3(...normal).normalize().toArray();
     this.clipNormals[index] = normal1;
 
     this.clipping.setNormal(index, new THREE.Vector3(...normal1));
     this.clipping.setConstant(index, this.gridSize / 2);
-    this.setClipSlider(index, this.gridSize / 2);
+    this.setClipSlider(index, value == null ? this.gridSize / 2 : value);
     var notifyObject = {};
     notifyObject[`clip_normal_${index}`] = normal1;
 
@@ -2656,7 +2657,7 @@ class Viewer {
       .normalize()
       .negate()
       .toArray();
-    this.setClipNormal(index, normal, notify);
+    this.setClipNormal(index, normal, null, notify);
   };
 
   /**
