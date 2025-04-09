@@ -58396,10 +58396,10 @@ class Display {
       (options.theme == "browser" &&
         window.matchMedia("(prefers-color-scheme: dark)").matches)
     ) {
-      document.documentElement.setAttribute("data-theme", "dark");
+      this.container.setAttribute("data-theme", "dark");
       theme = "dark";
     } else {
-      document.documentElement.setAttribute("data-theme", "light");
+      this.container.setAttribute("data-theme", "light");
       theme = "light";
     }
 
@@ -66378,9 +66378,9 @@ class Viewer {
 
     this.display.setSliderLimits(this.gridSize / 2, this.bbox.center());
 
-    this.setClipNormal(0, viewerOptions.clipNormal0, true);
-    this.setClipNormal(1, viewerOptions.clipNormal1, true);
-    this.setClipNormal(2, viewerOptions.clipNormal2, true);
+    this.setClipNormal(0, viewerOptions.clipNormal0, null, true);
+    this.setClipNormal(1, viewerOptions.clipNormal1, null, true);
+    this.setClipNormal(2, viewerOptions.clipNormal2, null, true);
 
     this.clipSlider0 =
       viewerOptions.clipSlider0 != null
@@ -67113,39 +67113,120 @@ class Viewer {
     this.update(this.updateMarker);
   };
 
+  /**
+   * Get intensity of ambient light.
+   * @returns {number} ambientLight value.
+   **/
+  getAmbientLight() {
+    return this.ambientIntensity;
+  }
+
+  /**
+   * Set the intensity of ambient light
+   * @function
+   * @param {number} val - the new ambient light intensity
+   * @param {boolean} [ui=false] - if true, set the UI slider value
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setAmbientLight = (val, ui = false, notify = true) => {
+    this.ambientIntensity = val;
+    this.ambientLight.intensity = scaleLight(val);
+    this.checkChanges({ ambient_intensity: val }, notify);
+    this.update(this.updateMarker, notify);
+    if (ui) {
+      this.display.setAmbientLight(val);
+    }
+  };
+
+  /**
+   * Get intensity of direct light.
+   * @returns {number} directLight value.
+   **/
+  getDirectLight() {
+    return this.directIntensity;
+  }
+  /**
+   * Set the intensity of directional light
+   * @function
+   * @param {number} val - the new direct light intensity
+   * @param {boolean} [ui=false] - if true, set the UI slider value
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setDirectLight = (val, ui = false, notify = true) => {
+    this.directIntensity = val;
+    this.directLight.intensity = scaleLight(val);
+    this.checkChanges({ direct_intensity: val }, notify);
+    this.update(this.updateMarker, notify);
+    if (ui) {
+      this.display.setDirectLight(val);
+    }
+  };
+
+  /**
+   * Retrieves the metalness value.
+   *
+   * @returns {number} The current metalness value.
+   */
   getMetalness = () => {
     return this.metalness;
   };
 
-  setMetalness = (value, notify = true) => {
+  /**
+   * Sets the metalness value for the viewer and updates related properties.
+   *
+   * @param {number} value - The metalness value to set.
+   * @param {boolean} [ui=false] - Whether to update the UI with the new metalness value.
+   * @param {boolean} [notify=true] - Whether to notify about the changes.
+   */
+  setMetalness = (value, ui = false, notify = true) => {
     this.metalness = value;
     this.nestedGroup.setMetalness(value);
     this.checkChanges({ metalness: value }, notify);
     this.update(this.updateMarker);
+    if (ui) {
+      this.display.setMetalness(value);
+    }
   };
+
+  /**
+   * Retrieves the roughness value.
+   *
+   * @returns {number} The current roughness value.
+   */
   getRoughness = () => {
     return this.roughness;
   };
 
-  setRoughness = (value, notify = true) => {
+  /**
+   * Sets the roughness value for the viewer and updates related components.
+   *
+   * @param {number} value - The roughness value to set.
+   * @param {boolean} [ui=false] - Whether to update the UI directly.
+   * @param {boolean} [notify=true] - Whether to notify about the changes.
+   * @returns {void}
+   */
+  setRoughness = (value, ui = false, notify = true) => {
     this.roughness = value;
     this.nestedGroup.setRoughness(value);
     this.checkChanges({ roughness: value }, notify);
     this.update(this.updateMarker);
+    if (ui) {
+      this.display.setRoughness(value);
+    }
   };
 
+  /**
+   * Resets the material settings of the viewer to their default values.
+   * Updates the metalness, roughness, ambient light intensity, and direct light intensity
+   * based on the current material settings.
+   *
+   * @returns {void}
+   */
   resetMaterial = () => {
-    this.setMetalness(this.materialSettings.metalness, true);
-    this.display.setMetalness(this.materialSettings.metalness);
-
-    this.setRoughness(this.materialSettings.roughness, true);
-    this.display.setRoughness(this.materialSettings.roughness);
-
-    this.setAmbientLight(this.materialSettings.ambientIntensity, true);
-    this.display.setAmbientLight(this.materialSettings.ambientIntensity);
-
-    this.setDirectLight(this.materialSettings.directIntensity, true);
-    this.display.setDirectLight(this.materialSettings.directIntensity);
+    this.setMetalness(this.materialSettings.metalness, true, true);
+    this.setRoughness(this.materialSettings.roughness, true, true);
+    this.setAmbientLight(this.materialSettings.ambientIntensity, true, true);
+    this.setDirectLight(this.materialSettings.directIntensity, true, true);
   };
 
   /**
@@ -67383,47 +67464,6 @@ class Viewer {
   };
 
   /**
-   * Get intensity of ambient light.
-   * @returns {number} ambientLight value.
-   **/
-  getAmbientLight() {
-    return this.ambientIntensity;
-  }
-
-  /**
-   * Set the intensity of ambient light
-   * @function
-   * @param {number} val - the new ambient light intensity
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setAmbientLight = (val, notify = true) => {
-    this.ambientIntensity = val;
-    this.ambientLight.intensity = scaleLight(val);
-    this.checkChanges({ ambient_intensity: val }, notify);
-    this.update(this.updateMarker, notify);
-  };
-
-  /**
-   * Get intensity of direct light.
-   * @returns {number} directLight value.
-   **/
-  getDirectLight() {
-    return this.directIntensity;
-  }
-  /**
-   * Set the intensity of directional light
-   * @function
-   * @param {number} val - the new direct light intensity
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setDirectLight = (val, notify = true) => {
-    this.directIntensity = val;
-    this.directLight.intensity = scaleLight(val);
-    this.checkChanges({ direct_intensity: val }, notify);
-    this.update(this.updateMarker, notify);
-  };
-
-  /**
    * Get states of a treeview leafs.
    **/
   getStates() {
@@ -67643,16 +67683,17 @@ class Viewer {
    * @function
    * @param {number} index - index of the normal: 0, 1 ,2
    * @param {number[]} normal - 3 dim array representing the normal
+   * @param {number} [value=null] - value of the slider, if given
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setClipNormal(index, normal, notify = true) {
+  setClipNormal(index, normal, value = null, notify = true) {
     if (normal == null) return;
     const normal1 = new Vector3(...normal).normalize().toArray();
     this.clipNormals[index] = normal1;
 
     this.clipping.setNormal(index, new Vector3(...normal1));
     this.clipping.setConstant(index, this.gridSize / 2);
-    this.setClipSlider(index, this.gridSize / 2);
+    this.setClipSlider(index, value == null ? this.gridSize / 2 : value);
     var notifyObject = {};
     notifyObject[`clip_normal_${index}`] = normal1;
 
@@ -67676,7 +67717,7 @@ class Viewer {
       .normalize()
       .negate()
       .toArray();
-    this.setClipNormal(index, normal, notify);
+    this.setClipNormal(index, normal, null, notify);
   };
 
   /**
