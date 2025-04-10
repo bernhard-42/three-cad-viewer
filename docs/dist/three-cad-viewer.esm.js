@@ -67693,10 +67693,12 @@ class Viewer {
 
     this.clipping.setNormal(index, new Vector3(...normal1));
     this.clipping.setConstant(index, this.gridSize / 2);
-    this.setClipSlider(index, value == null ? this.gridSize / 2 : value);
+    if (value == null) value = this.gridSize / 2;
+    this.setClipSlider(index, value);
+
     var notifyObject = {};
     notifyObject[`clip_normal_${index}`] = normal1;
-
+    notifyObject[`clip_slider_${index}`] = value;
     this.checkChanges(notifyObject, notify);
 
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
@@ -67718,6 +67720,10 @@ class Viewer {
       .negate()
       .toArray();
     this.setClipNormal(index, normal, null, notify);
+
+    var notifyObject = {};
+    notifyObject[`clip_normal_${index}`] = normal;
+    this.checkChanges(notifyObject, notify);
   };
 
   /**
