@@ -65051,7 +65051,7 @@ class Camera {
   }
 }
 
-const version = "3.3.2";
+const version = "3.3.3";
 
 Mesh.prototype.dispose = function () {
   if (this.geometry) {
@@ -67083,7 +67083,7 @@ class Viewer {
     this.gridHelper.centerGrid = center;
     this.gridHelper.setCenter(this.axes0, this.up == "Z");
 
-    this.checkChanges({ gridCenter: this.gridHelper.centerGrid }, notify);
+    this.checkChanges({ center_grid: this.gridHelper.centerGrid }, notify);
 
     this.update(this.updateMarker);
   };
