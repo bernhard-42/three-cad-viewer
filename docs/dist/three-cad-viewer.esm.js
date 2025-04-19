@@ -56747,10 +56747,16 @@ class Measurement {
     }
 
     {
-      this._setMeasurementVals();
-      this._makeLines();
-      this.panel.show(true);
-      this._movePanel();
+      const p = new Promise((resolve, reject) => {
+        this._waitResponse(resolve, reject);
+      });
+      // eslint-disable-next-line no-unused-vars
+      p.then((data) => {
+        this._setMeasurementVals();
+        this._makeLines();
+        this.panel.show(true);
+        this._movePanel();
+      });
     }
   }
 
@@ -56926,7 +56932,7 @@ class DistanceMeasurement extends Measurement {
 
   _setMeasurementVals() {
     this._getPoints();
-    const total = 50 ;
+    const total = this.responseData.distance;
     const distVec = this.point2.clone().sub(this.point1);
     const xdist = Math.abs(distVec.x);
     const ydist = Math.abs(distVec.y);
@@ -56943,12 +56949,8 @@ class DistanceMeasurement extends Measurement {
 
   _getPoints() {
     {
-      var obj1 = this.selectedShapes[0].obj;
-      var obj2 = this.selectedShapes[1].obj;
-      this.point1 = obj1.children[0].geometry.boundingSphere.center.clone();
-      this.point1 = obj1.localToWorld(this.point1);
-      this.point2 = obj2.children[0].geometry.boundingSphere.center.clone();
-      this.point2 = obj2.localToWorld(this.point2);
+      this.point1 = new Vector3(...this.responseData.point1);
+      this.point2 = new Vector3(...this.responseData.point2);
     }
   }
 
@@ -57016,24 +57018,7 @@ class PropertiesMeasurement extends Measurement {
             ? "Face"
             : "Unknown";
     this.panel.subheader = subheader;
-    const debugProps = {
-      volume: 0.445,
-      area: -1.012,
-      length: 2.012,
-      width: 0.012,
-      radius: 1.012,
-      radius2: 2.023,
-      geom_type: "Circle",
-      vertex_coords: [1.3456, -4.3456, 2.3567],
-      // volume: 44444.44,
-      // area: 48.01,
-      // length: 94.01,
-      // width: 24.01,
-      // radius: 10.01,
-      // geom_type: "Circle",
-      // vertex_coords: [10000.34, -41000.34, 82.35]
-    };
-    const props = debugProps ;
+    const props = this.responseData;
     this.panel.setProperties(props);
   }
 
@@ -57043,13 +57028,7 @@ class PropertiesMeasurement extends Measurement {
 
   _makeLines() {
     const lineWidth = 1.5;
-    var worldCenter;
-    {
-      const obj = this.selectedShapes[0].obj;
-      const center = obj.children[0].geometry.boundingSphere.center.clone();
-      worldCenter = obj.localToWorld(center);
-    }
-    this.middlePoint = worldCenter ;
+    this.middlePoint = this.responseData.center;
     const connectingLine = new DistanceLineArrow(
       this.coneLength,
       this.panelCenter,
@@ -57082,7 +57061,7 @@ class AngleMeasurement extends Measurement {
 
   _setMeasurementVals() {
     let angle;
-    angle = "134.5678°";
+    angle = this.responseData.angle.toFixed(2) + " °";
     this.panel.angle = angle;
   }
 
@@ -57109,12 +57088,8 @@ class AngleMeasurement extends Measurement {
 
   _getPoints() {
     {
-      var obj1 = this.selectedShapes[0].obj;
-      var obj2 = this.selectedShapes[1].obj;
-      this.point1 = obj1.children[0].geometry.boundingSphere.center.clone();
-      this.point1 = obj1.localToWorld(this.point1);
-      this.point2 = obj2.children[0].geometry.boundingSphere.center.clone();
-      this.point2 = obj2.localToWorld(this.point2);
+      this.point1 = new Vector3(...this.responseData.point1);
+      this.point2 = new Vector3(...this.responseData.point2);
     }
   }
 
@@ -64079,7 +64054,7 @@ class Camera {
   }
 }
 
-const version = "3.3.4";
+const version = "3.3.3";
 
 Mesh.prototype.dispose = function () {
   if (this.geometry) {
