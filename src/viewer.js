@@ -1151,8 +1151,8 @@ class Viewer {
   /**
    * Render a CAD object and build the navigation tree
    * @param {Shapes} shapes - the Shapes object representing the tessellated CAD object
-   * @param {ViewerOptions} viewerOptions - the viewer options
    * @param {RenderOptions} renderOptions - the render options
+   * @param {ViewerOptions} viewerOptions - the viewer options
    */
   render(shapes, renderOptions, viewerOptions) {
     this.shapes = shapes;
