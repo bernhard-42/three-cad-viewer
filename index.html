@@ -9,6 +9,8 @@
   <!-- UMD import -->
   <!-- <script src='./dist/three-cad-viewer.js'></script> -->
 
+    <script src="./examples/straight_heater_doped.js"></script>
+    <script src="./examples/sky130.js"></script>
     <script src="./examples/hexapod.js"></script>
   
     <script src="./examples/assembly.js"></script>
@@ -44,6 +46,9 @@
     var display = null;
 
     const examples = [
+      box1,
+      straight_heater_doped,
+      sky130,
       hexapod,
       // transpalet,
       assembly,
@@ -54,7 +59,6 @@
       dirbox,
       torusknot,
       profile4040,
-      box1,
       boxes,
       faces,
       edges,
@@ -65,8 +69,40 @@
       single_vertices,
     ];
 
+    function fromB64(s) {
+        let bytes = atob(s);
+        let uint = new Uint8Array(bytes.length);
+        for (var i = 0; i < bytes.length; i++) uint[i] = bytes[i].charCodeAt(0);
+        return uint;
+    }
+
+    function convert(obj) {
+        var vectorArray = [];
+        var buffer = fromB64(obj.buffer);
+        if (obj.dtype === "float32") {
+            var coords = new Float32Array(buffer.buffer);
+            vectorArray = new Array(coords.length / 2);
+            for (let i = 0, j = 0; i < coords.length; i += 2, j++) {
+                vectorArray[j] = new THREE.Vector2(coords[i], coords[i + 1]);
+            }
+        } else {
+            console.log("Error: unknown dtype", obj.dtype);
+        }
+        return vectorArray;
+    }
+
     function render(name, shapes) { 
       const timer = new Timer("renderer", timeit);
+
+      if(shapes.format == "GDS") {
+        for (var index in shapes.parts) {
+          const layer = shapes.parts[index];
+          for (var index2 in layer.parts) {
+            var part = layer.parts[index2];
+            part.shape.polygon = convert(part.shape.polygon);
+          }
+        }                
+      }
 
       viewer?.clear();
 
@@ -285,7 +321,7 @@
     // examples[1][1]["/bottom/front_stand/front_stand_0"] = [0,0]
 
     window.selectedIndex = 0;
-    window.selectedExample = "hexapod";
+    window.selectedExample = "box1";
     window.viewerMode = "glass";
     window.controlMode = "trackball/Z up";
 
@@ -354,6 +390,10 @@
       Examples
       <select class="select"
         onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; showViewer(window.controlMode, window.viewerMode, 'cad_view_001')">
+        
+        <option value="box1">box1</option>
+        <option value="straight_heater_doped">straight_heater_doped</option>
+        <option value="sky130">sky130</option>
         <option value="hexapod">hexapod</option>
         <!-- <option value="transpalet">transpalet</option>         -->
         
@@ -366,7 +406,6 @@
         <option value="dir-box">dir-box</option>
         <option value="torusknot">torusknot</option>
         <option value="profile4040">profile4040</option>
-        <option value="box1">box1</option>
         <option value="boxes">boxes</option>
         <option value="faces">faces</option>
         <option value="edges">edges</option>

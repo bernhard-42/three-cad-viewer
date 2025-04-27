@@ -371,6 +371,102 @@ class NestedGroup {
 
     return group;
   }
+  renderPolygon(
+    shape,
+    color,
+    alpha,
+    renderback,
+    exploded,
+    path,
+    name,
+    states,
+    geomtype = null,
+    subtype = null,
+  ) {
+    function createShape(points) {
+      const shape = new THREE.Shape();
+      shape.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        shape.lineTo(points[i].x, points[i].y);
+      }
+      shape.closePath();
+      return shape;
+    }
+
+    var group = new ObjectGroup(
+      this.defaultOpacity,
+      1.0,
+      this.edgeColor,
+      geomtype,
+      subtype,
+      renderback,
+    );
+    // see https://stackoverflow.com/a/37651610
+    // "A common draw configuration you see is to draw all the opaque object with depth testing on,
+    //  turn depth write off, then draw the transparent objects in a back to front order."
+    var frontMaterial = new THREE.MeshStandardMaterial({
+      color: color,
+      metalness: this.metalness,
+      roughness: this.roughness,
+      // envMap: texture,
+      polygonOffset: true,
+      polygonOffsetFactor: 1.0,
+      polygonOffsetUnits: 1.0,
+      transparent: true,
+      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
+      // turn depth write off for transparent objects
+      depthWrite: !this.transparent,
+      // but keep depth test
+      depthTest: true,
+      clipIntersection: false,
+      side: THREE.FrontSide,
+      visible: states[0] == 1,
+      name: "frontMaterial",
+    });
+
+    var backColor =
+      group.subtype === "solid" && !exploded
+        ? color
+        : new THREE.Color(this.edgeColor).lerp(new THREE.Color(1, 1, 1), 0.15);
+
+    var backMaterial = new THREE.MeshBasicMaterial({
+      color: backColor,
+      side: THREE.BackSide,
+      polygonOffset: true,
+      polygonOffsetFactor: 1.0,
+      polygonOffsetUnits: 1.0,
+      transparent: true,
+      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
+      // turn depth write off for transparent objects
+      depthWrite: !this.transparent,
+      // but keep depth test
+      depthTest: true,
+      clipIntersection: false,
+      visible: states[0] == 1 && (renderback || this.backVisible),
+      name: "backMaterial",
+    });
+
+    var polygon = shape.polygon;
+    var height = shape.height;
+
+    var shape = createShape(polygon);
+    const extrudeSettings = {
+      depth: height,
+      bevelEnabled: false,
+    };
+    const shapeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+
+    const back = new THREE.Mesh(shapeGeometry, backMaterial);
+    back.name = name;
+
+    const front = new THREE.Mesh(shapeGeometry, frontMaterial);
+    front.name = name;
+
+    group.addType(back, "back");
+    group.addType(front, "front");
+
+    return group;
+  }
 
   renderLoop(shapes) {
     const _render = (shape, texture, width, height) => {
@@ -396,6 +492,20 @@ class NestedGroup {
             shape.name,
             shape.state[1],
             { topo: "vertex", geomtype: null },
+          );
+          break;
+        case "polygon":
+          mesh = this.renderPolygon(
+            shape.shape,
+            shape.color,
+            1.0,
+            shape.renderback == null ? false : shape.renderback,
+            false, //exploded
+            shape.id,
+            shape.name,
+            shape.state,
+            { topo: "face", geomtype: shape.geomtype },
+            shape.subtype,
           );
           break;
         default:

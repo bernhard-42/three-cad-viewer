@@ -1169,7 +1169,6 @@ class Viewer {
     //
     // add shapes and cad tree
     //
-
     this.toggleGroup(false);
     timer.split("scene and tree done");
 
