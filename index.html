@@ -11,6 +11,8 @@
 
     <script src="./examples/straight_heater_doped.js"></script>
     <script src="./examples/sky130.js"></script>
+    <script src="./examples/sram_2_16.js"></script>
+    <script src="./examples/sram_32_1024.js"></script>
     <script src="./examples/hexapod.js"></script>
   
     <script src="./examples/assembly.js"></script>
@@ -49,6 +51,8 @@
       box1,
       straight_heater_doped,
       sky130,
+      sram_2_16,
+      sram_32_1024,
       hexapod,
       // transpalet,
       assembly,
@@ -97,11 +101,13 @@
       if(shapes.format == "GDS") {
         for (var index in shapes.parts) {
           const layer = shapes.parts[index];
-          for (var index2 in layer.parts) {
-            var part = layer.parts[index2];
-            part.shape.polygon = convert(part.shape.polygon);
+          var conv = []
+          for (var index2 in layer.shape.polygons) {
+            conv.push(convert(layer.shape.polygons[index2]));
           }
-        }                
+          layer.shape.polygons = conv;
+        }
+        timer.split("convert polygons");                
       }
 
       viewer?.clear();
@@ -209,10 +215,10 @@
     const timer = new Timer("main", timeit);
 
     const displayOptions = {
-      cadWidth: 830,
-      height: 525,
+      cadWidth: 1050,
+      height: 600,
       treeWidth: 240,
-      theme: "browser",
+      theme: "dark",
       pinning: true,
       keymap: {
         "shift": "shiftKey",
@@ -255,12 +261,11 @@
       zoomSpeed: 0.5,
       panSpeed: 0.5,
       // tools: false,
-      timeit: timeit,
       // position: [529.033598621696, -60.76490228572615, 833.5255981339967],
       // quaternion: [0.1279694269733356, 0.17808830219432778, 0.792315727012021, 0.5693366061576142],
       // target: [133.7552476361796, -193.79076438378323, -47.35882179018034],
       // zoom: 1,
-      // glass: true,
+      glass: false,
       collapse: 3,
       measureTools: false,
     };
@@ -394,6 +399,8 @@
         <option value="box1">box1</option>
         <option value="straight_heater_doped">straight_heater_doped</option>
         <option value="sky130">sky130</option>
+        <option value="sram_2_16">sram_2_16</option>
+        <option value="sram_32_1024">sram_32_1024</option>
         <option value="hexapod">hexapod</option>
         <!-- <option value="transpalet">transpalet</option>         -->
         

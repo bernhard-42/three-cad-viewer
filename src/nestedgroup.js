@@ -6,7 +6,8 @@ import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHel
 import { BoundingBox } from "./bbox.js";
 import { ObjectGroup } from "./objectgroup.js";
 import { Group } from "./group.js";
-import { flatten, disposeShapes } from "./utils.js";
+import { flatten, flatten32, disposeShapes } from "./utils.js";
+import { Timer } from "./timer.js";
 
 class States {
   constructor(states) {
@@ -40,6 +41,7 @@ class NestedGroup {
     roughness,
     normalLen,
     bb_max,
+    timeit = false,
   ) {
     this.shapes = shapes;
     this.width = width;
@@ -58,7 +60,7 @@ class NestedGroup {
     this.bbox = null;
     this.bsphere = null;
     this.groups = {};
-
+    this.timeit = timeit;
     this.clipPlanes = null;
   }
 
@@ -348,6 +350,7 @@ class NestedGroup {
       front.renderOrder = 999;
     }
 
+    group.name = path.replaceAll("/", this.delim);
     group.addType(back, "back");
     group.addType(front, "front");
 
@@ -383,15 +386,47 @@ class NestedGroup {
     geomtype = null,
     subtype = null,
   ) {
-    function createShape(points) {
-      const shape = new THREE.Shape();
-      shape.moveTo(points[0].x, points[0].y);
-      for (let i = 1; i < points.length; i++) {
-        shape.lineTo(points[i].x, points[i].y);
+    function createEdges(points, h) {
+      const n = points.length;
+      const len = n * 2 * 3;
+      const edges = new Float32Array(3 * len);
+
+      let idx = 0;
+      for (let i = 0; i < n; i++) {
+        const a = points[i];
+        const b = points[(i + 1) % n];
+
+        edges[idx++] = a.x;
+        edges[idx++] = a.y;
+        edges[idx++] = 0;
+        edges[idx++] = b.x;
+        edges[idx++] = b.y;
+        edges[idx++] = 0;
       }
-      shape.closePath();
-      return shape;
+      for (let i = 0; i < n; i++) {
+        const a = points[i];
+        const b = points[(i + 1) % n];
+
+        edges[len + idx++] = a.x;
+        edges[len + idx++] = a.y;
+        edges[len + idx++] = h;
+        edges[len + idx++] = b.x;
+        edges[len + idx++] = b.y;
+        edges[len + idx++] = h;
+      }
+      for (let i = 0; i < n; i++) {
+        const a = points[i];
+
+        edges[2 * len + idx++] = a.x;
+        edges[2 * len + idx++] = a.y;
+        edges[2 * len + idx++] = 0;
+        edges[2 * len + idx++] = a.x;
+        edges[2 * len + idx++] = a.y;
+        edges[2 * len + idx++] = h;
+      }
+      return edges;
     }
+    var timer = new Timer(`renderPolygon ${name}`, this.timeit);
 
     var group = new ObjectGroup(
       this.defaultOpacity,
@@ -445,16 +480,29 @@ class NestedGroup {
       visible: states[0] == 1 && (renderback || this.backVisible),
       name: "backMaterial",
     });
+    timer.split("create materials");
 
-    var polygon = shape.polygon;
+    var shapes = [];
+    var edgeList = [];
     var height = shape.height;
+    var points = 0;
+    var polygonShape = null;
+    for (var index in shape.polygons) {
+      var polygon = shape.polygons[index];
+      edgeList.push(createEdges(polygon, height));
+      points += polygon.length;
+      polygonShape = new THREE.Shape(polygon);
+      polygonShape.closePath();
+      shapes.push(polygonShape);
+    }
+    timer.split("create shapes");
 
-    var shape = createShape(polygon);
     const extrudeSettings = {
       depth: height,
       bevelEnabled: false,
     };
-    const shapeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    const shapeGeometry = new THREE.ExtrudeGeometry(shapes, extrudeSettings);
+    timer.split(`extrude geometry (${shape.polygons.length}, ${points})`);
 
     const back = new THREE.Mesh(shapeGeometry, backMaterial);
     back.name = name;
@@ -464,7 +512,17 @@ class NestedGroup {
 
     group.addType(back, "back");
     group.addType(front, "front");
+    timer.split("create meshes");
 
+    edgeList = flatten32(edgeList);
+    if (edgeList.length > 0) {
+      var edges = this._renderEdges(edgeList, 0.5, null, states[1]);
+      edges.name = name;
+      group.addType(edges, "edges");
+    }
+    timer.split("create edges");
+
+    timer.stop();
     return group;
   }
 

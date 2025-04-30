@@ -17,6 +17,22 @@ function flatten(arr, depth = 1) {
   return Array.isArray(arr) ? arr.flat(depth) : arr;
 }
 
+function flatten32(arrays) {
+  let totalLength = 0;
+  for (let arr of arrays) totalLength += arr.length;
+
+  // 2. Allocate output array
+  let result = new Float32Array(totalLength);
+
+  // 3. Copy each Float32Array into result
+  let offset = 0;
+  for (let arr of arrays) {
+    result.set(arr, offset);
+    offset += arr.length;
+  }
+  return result;
+}
+
 function isEqual(obj1, obj2, tol = 1e-9) {
   if (Array.isArray(obj1) && Array.isArray(obj2)) {
     return (
@@ -175,6 +191,7 @@ const KeyMapper = new _KeyMapper();
 export {
   clone,
   flatten,
+  flatten32,
   isEqual,
   sceneTraverse,
   prettyPrintVector,

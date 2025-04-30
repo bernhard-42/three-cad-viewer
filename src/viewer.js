@@ -330,6 +330,8 @@ class Viewer {
       this.metalness,
       this.roughness,
       this.normalLen,
+      null,
+      this.timeit,
     );
     if (shapes.bb) {
       this.bbox = new BoundingBox(
@@ -619,6 +621,7 @@ class Viewer {
     } else {
       exploded_shapes = structuredClone(shapes);
     }
+
     var nested_group = this._renderTessellatedShapes(exploded_shapes);
     var rendered_tree = this._getTree(exploded_shapes);
 
@@ -1814,7 +1817,19 @@ class Viewer {
     if (validObjs.length == 0) {
       return;
     }
-    var nearestObj = validObjs[0]; // The first is the nearest since they are sorted by dist.
+    var nearestObj = null;
+    if (this.shapes.format == "GDS") {
+      // The first Mesh is the nearest since they are sorted by dist.
+      for (var i = 0; i < validObjs.length; i++) {
+        if (validObjs[i].object instanceof THREE.Mesh) {
+          nearestObj = validObjs[i];
+          break;
+        }
+      }
+    } else {
+      // The first is the nearest since they are sorted by dist.
+      var nearestObj = validObjs[0];
+    }
     const nearest = {
       path: nearestObj.object.parent.parent.name.replaceAll("|", "/"),
       name: nearestObj.object.name,

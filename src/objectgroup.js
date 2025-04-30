@@ -53,6 +53,9 @@ class ObjectGroup extends THREE.Group {
       for (var i in this.children) {
         if (this.children[i] instanceof THREE.Points) {
           disposeGeometry(this.children[i]);
+        } else if (this.children[i] instanceof THREE.LineSegments) {
+          this.children[i].geometry.dispose();
+          this.children[i].material.dispose();
         } else {
           this.children[i].dispose();
         }
