@@ -85,27 +85,40 @@
         var buffer = fromB64(obj.buffer);
         if (obj.dtype === "float32") {
             var coords = new Float32Array(buffer.buffer);
-            vectorArray = new Array(coords.length / 2);
-            for (let i = 0, j = 0; i < coords.length; i += 2, j++) {
-                vectorArray[j] = new THREE.Vector2(coords[i], coords[i + 1]);
-            }
+            // vectorArray = new Array(coords.length / 2);
+            // for (let i = 0, j = 0; i < coords.length; i += 2, j++) {
+            //     vectorArray[j] = new THREE.Vector2(coords[i], coords[i + 1]);
+            // }
         } else {
             console.log("Error: unknown dtype", obj.dtype);
         }
-        return vectorArray;
+        // return vectorArray;
+        return coords;
     }
 
     function render(name, shapes) { 
       const timer = new Timer("renderer", timeit);
 
       if(shapes.format == "GDS") {
+        for (var index in shapes.instances) {
+          shapes.instances[index] = convert(shapes.instances[index]);
+        }
         for (var index in shapes.parts) {
           const layer = shapes.parts[index];
-          var conv = []
-          for (var index2 in layer.shape.polygons) {
-            conv.push(convert(layer.shape.polygons[index2]));
+          if(shapes.version == 1) {
+            var conv = []
+            for (var index2 in layer.shape.refs) {
+              conv.push(convert(layer.shape.polygons[index2]));
+            }
+            layer.shape.polygons = conv;
+          } else {
+          // var conv = []
+          
+            for (var index2 in layer.parts){
+              const part = layer.parts[index2];
+              part.shape.offsets = convert(part.shape.offsets);
+            }
           }
-          layer.shape.polygons = conv;
         }
         timer.split("convert polygons");                
       }
@@ -215,8 +228,8 @@
     const timer = new Timer("main", timeit);
 
     const displayOptions = {
-      cadWidth: 1050,
-      height: 600,
+      cadWidth: 1750,
+      height: 900,
       treeWidth: 240,
       theme: "dark",
       pinning: true,

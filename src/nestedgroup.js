@@ -57,6 +57,7 @@ class NestedGroup {
     this.bb_max = bb_max;
     this.delim = "|";
     this.rootGroup = null;
+    this.instances = null;
     this.bbox = null;
     this.bsphere = null;
     this.groups = {};
@@ -374,6 +375,170 @@ class NestedGroup {
 
     return group;
   }
+
+  renderInstancedPolygon(
+    shape,
+    color,
+    alpha,
+    renderback,
+    exploded,
+    path,
+    name,
+    states,
+    geomtype = null,
+    subtype = null,
+  ) {
+    var timer = new Timer(`renderPolygon ${name}`, this.timeit);
+
+    var group = new ObjectGroup(
+      this.defaultOpacity,
+      1.0,
+      this.edgeColor,
+      geomtype,
+      subtype,
+      renderback,
+    );
+    group.name = path.replaceAll("/", this.delim);
+    this.groups[path] = group;
+
+    var ref = shape.ref;
+    var offsets = shape.offsets;
+    var vertices = this.instances[ref];
+    const n = vertices.length / 2;
+    const points = new Array(n);
+    for (let i = 0; i < n; i++) {
+      points[i] = new THREE.Vector2(vertices[2 * i], vertices[2 * i + 1]);
+    }
+    const polygon = new THREE.Shape(points);
+
+    const extrudeSettings = {
+      depth: shape.height,
+      bevelEnabled: false,
+    };
+    const polyGeometry = new THREE.ExtrudeGeometry(polygon, extrudeSettings);
+
+    // const polyMaterial = new THREE.MeshBasicMaterial({
+    //   color: color,
+    //   polygonOffset: true,
+    //   polygonOffsetFactor: 1.0,
+    //   polygonOffsetUnits: 1.0,
+    // });
+    // see https://stackoverflow.com/a/37651610
+    // "A common draw configuration you see is to draw all the opaque object with depth testing on,
+    //  turn depth write off, then draw the transparent objects in a back to front order."
+    var frontMaterial = new THREE.MeshStandardMaterial({
+      color: color,
+      metalness: this.metalness,
+      roughness: this.roughness,
+      // envMap: texture,
+      polygonOffset: true,
+      polygonOffsetFactor: 1.0,
+      polygonOffsetUnits: 1.0,
+      transparent: true,
+      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
+      // turn depth write off for transparent objects
+      depthWrite: !this.transparent,
+      // but keep depth test
+      depthTest: true,
+      clipIntersection: false,
+      side: THREE.FrontSide,
+      visible: states[0] == 1,
+      name: "frontMaterial",
+    });
+
+    var backColor =
+      group.subtype === "solid" && !exploded
+        ? color
+        : new THREE.Color(this.edgeColor).lerp(new THREE.Color(1, 1, 1), 0.15);
+
+    var backMaterial = new THREE.MeshBasicMaterial({
+      color: backColor,
+      side: THREE.BackSide,
+      polygonOffset: true,
+      polygonOffsetFactor: 1.0,
+      polygonOffsetUnits: 1.0,
+      transparent: true,
+      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
+      // turn depth write off for transparent objects
+      depthWrite: !this.transparent,
+      // but keep depth test
+      depthTest: true,
+      clipIntersection: false,
+      visible: states[0] == 1 && (renderback || this.backVisible),
+      name: "backMaterial",
+    });
+    timer.split("create materials");
+
+    const back = new THREE.InstancedMesh(
+      polyGeometry,
+      backMaterial,
+      offsets.length / 2,
+    );
+
+    const front = new THREE.InstancedMesh(
+      polyGeometry,
+      frontMaterial,
+      offsets.length / 2,
+    );
+    timer.split("create instanced mesh");
+
+    // Edges
+
+    var edges = new THREE.EdgesGeometry(polyGeometry);
+    var edgeGeom = new THREE.InstancedBufferGeometry().copy(edges);
+    var edgeOffset = [];
+
+    var instMat = new THREE.LineBasicMaterial({
+      color: this.edgeColor,
+      onBeforeCompile: (shader) => {
+        shader.vertexShader = `
+    	attribute vec3 offset;
+      ${shader.vertexShader}
+    `.replace(
+          `#include <begin_vertex>`,
+          `
+      #include <begin_vertex>
+      transformed += offset;
+      `,
+        );
+      },
+    });
+    timer.split("create edges geometry");
+
+    // create instances
+    const dummy = new THREE.Object3D();
+    for (let i = 0; i < offsets.length / 2; i++) {
+      dummy.position.set(offsets[2 * i], offsets[2 * i + 1], 0);
+      dummy.updateMatrix();
+      front.setMatrixAt(i, dummy.matrix);
+      back.setMatrixAt(i, dummy.matrix);
+      edgeOffset.push(offsets[2 * i], offsets[2 * i + 1], 0);
+    }
+    front.instanceMatrix.needsUpdate = true;
+    back.instanceMatrix.needsUpdate = true;
+    // needs to be done manually for InstancedMesh
+    timer.split("create instances");
+
+    front.computeBoundingBox();
+    back.computeBoundingBox();
+    timer.split("compute bounding box");
+
+    edgeGeom.setAttribute(
+      "offset",
+      new THREE.InstancedBufferAttribute(new Float32Array(edgeOffset), 3),
+    );
+    edgeGeom.instanceCount = Infinity;
+    var polyEdges = new THREE.LineSegments(edgeGeom, instMat);
+
+    group.addType(front, "front");
+    group.addType(back, "back");
+    group.addType(polyEdges, "edges");
+
+    timer.stop();
+
+    return group;
+  }
+
   renderPolygon(
     shape,
     color,
@@ -527,7 +692,7 @@ class NestedGroup {
   }
 
   renderLoop(shapes) {
-    const _render = (shape, texture, width, height) => {
+    const _render = (shape, texture, width, height, version = null) => {
       var mesh;
       switch (shape.type) {
         case "edges":
@@ -553,18 +718,33 @@ class NestedGroup {
           );
           break;
         case "polygon":
-          mesh = this.renderPolygon(
-            shape.shape,
-            shape.color,
-            1.0,
-            shape.renderback == null ? false : shape.renderback,
-            false, //exploded
-            shape.id,
-            shape.name,
-            shape.state,
-            { topo: "face", geomtype: shape.geomtype },
-            shape.subtype,
-          );
+          if (version == 1) {
+            mesh = this.renderPolygon(
+              shape.shape,
+              shape.color,
+              1.0,
+              shape.renderback == null ? false : shape.renderback,
+              false, //exploded
+              shape.id,
+              shape.name,
+              shape.state,
+              { topo: "face", geomtype: shape.geomtype },
+              shape.subtype,
+            );
+          } else if (version == 2) {
+            mesh = this.renderInstancedPolygon(
+              shape.shape,
+              shape.color,
+              1.0,
+              shape.renderback == null ? false : shape.renderback,
+              false, //exploded
+              shape.id,
+              shape.name,
+              shape.state,
+              { topo: "face", geomtype: shape.geomtype },
+              shape.subtype,
+            );
+          }
           break;
         default:
           mesh = this.renderShape(
@@ -612,7 +792,13 @@ class NestedGroup {
         var texture = has_texture ? shape.texture.image : null;
         var width = has_texture ? shape.texture.width : null;
         var height = has_texture ? shape.texture.height : null;
-        const objectGroup = _render(shape, texture, width, height);
+        const objectGroup = _render(
+          shape,
+          texture,
+          width,
+          height,
+          shapes.version,
+        );
         this.groups[shape.id] = objectGroup;
         group.add(objectGroup);
       }
@@ -621,6 +807,9 @@ class NestedGroup {
   }
 
   render() {
+    if (this.shapes.format == "GDS" && this.shapes.version == 2) {
+      this.instances = this.shapes.instances;
+    }
     this.rootGroup = this.renderLoop(this.shapes);
     return this.rootGroup;
   }

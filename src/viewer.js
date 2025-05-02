@@ -1724,23 +1724,34 @@ class Viewer {
    * @param {boolean} - meta key pressed
    * @param {boolean} shift - whether to send notification or not.
    */
-  handlePick = (path, name, meta, shift, alt, point, nodeType = "leaf") => {
+  handlePick = (
+    path,
+    name,
+    boundingBox,
+    meta,
+    shift,
+    alt,
+    point,
+    nodeType = "leaf",
+  ) => {
     const id = `${path}/${name}`;
     const object = this.nestedGroup.groups[id];
     if (object == null) {
       return;
     }
-    var boundingBox;
-    if (object.parent != null) {
-      boundingBox = new BoundingBox().setFromObject(object, true);
-    } else {
-      // ignore PlaneMesh group
-      boundingBox = new BoundingBox();
-      for (var i = 0; i < object.children.length - 1; i++) {
-        boundingBox = boundingBox.expandByObject(object.children[i]);
+
+    // var boundingBox;
+    if (boundingBox == null) {
+      if (object.parent != null) {
+        boundingBox = new BoundingBox().setFromObject(object, true);
+      } else {
+        // ignore PlaneMesh group
+        boundingBox = new BoundingBox();
+        for (var i = 0; i < object.children.length - 1; i++) {
+          boundingBox = boundingBox.expandByObject(object.children[i]);
+        }
       }
     }
-
     if (this.lastBbox != null && this.lastBbox.id === id && !meta && !shift) {
       this.removeLastBbox();
       this.treeview.toggleLabelColor(null, id);
@@ -1750,7 +1761,8 @@ class Viewer {
           path: path,
           name: name,
           boundingBox: boundingBox,
-          boundingSphere: boundingBox.boundingSphere(),
+          // TODO: needed?
+          // boundingSphere: boundingBox.boundingSphere(),
         },
       });
 
@@ -1818,29 +1830,39 @@ class Viewer {
       return;
     }
     var nearestObj = null;
+    var name = null;
+    var boundingBox = null;
+    var boundingSphere = null;
     if (this.shapes.format == "GDS") {
       // The first Mesh is the nearest since they are sorted by dist.
       for (var i = 0; i < validObjs.length; i++) {
         if (validObjs[i].object instanceof THREE.Mesh) {
           nearestObj = validObjs[i];
+          name = nearestObj.object.parent.name.split("|").pop();
+          boundingBox = nearestObj.object.boundingBox;
+          boundingSphere = null;
           break;
         }
       }
     } else {
       // The first is the nearest since they are sorted by dist.
       var nearestObj = validObjs[0];
+      name = nearestObj.object.name;
+      boundingBox = nearestObj.object.geometry.boundingBox;
+      boundingSphere = nearestObj.object.geometry.boundingSphere;
     }
     const nearest = {
       path: nearestObj.object.parent.parent.name.replaceAll("|", "/"),
-      name: nearestObj.object.name,
-      boundingBox: nearestObj.object.geometry.boundingBox,
-      boundingSphere: nearestObj.object.geometry.boundingSphere,
+      name: name,
+      boundingBox: boundingBox,
+      boundingSphere: boundingSphere,
       objectGroup: nearestObj.object.parent,
     };
     if (nearest != null) {
       this.handlePick(
         nearest.path,
         nearest.name,
+        nearest.boundingBox,
         KeyMapper.get(e, "meta"),
         KeyMapper.get(e, "shift"),
         KeyMapper.get(e, "alt"),

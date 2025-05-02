@@ -7,7 +7,12 @@ class BoundingBox extends THREE.Box3 {
     // don't use instanceof => circular dependencies with bbox.js
     if (object.constructor.name == "ObjectGroup") {
       // for ObjectGroups calculate bounding box of first Mesh only
-      this.expandByObject(object.children[0], precise);
+      if (object.children[0] instanceof THREE.InstancedMesh) {
+        // calculated earlier in NestedGroup
+        this.union(object.children[0].boundingBox);
+      } else {
+        this.expandByObject(object.children[0], precise);
+      }
       return this;
     }
     const geometry = object.geometry;

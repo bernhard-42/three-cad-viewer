@@ -283,6 +283,7 @@ class TreeView {
     this.pickHandler(
       this.getNodePath(this.getParent(node)),
       node.name,
+      null,
       KeyMapper.get(e, "meta"),
       KeyMapper.get(e, "shift"),
       this.isLeaf(node) ? "leaf" : "node",
