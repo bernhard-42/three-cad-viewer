@@ -29,6 +29,21 @@ class States {
   }
 }
 
+// class AGroup extends THREE.Group {
+//   constructor() {
+//     super();
+//   }
+
+//   boundingBox() {
+//     var bbox = THREE.Box3();
+//     for (var child in this.children) {
+//       if (child.name == "PlaneMeshes") {
+//         bbox.union(child.boundingBox());
+//       }
+//     }
+//   }
+// }
+
 class NestedGroup {
   constructor(
     shapes,
@@ -355,6 +370,10 @@ class NestedGroup {
     group.addType(back, "back");
     group.addType(front, "front");
 
+    if (front.geometry.boundingBox == null) {
+      front.geometry.computeBoundingBox();
+    }
+
     if (this.normalLen > 0) {
       const normalsHelper = new VertexNormalsHelper(
         front,
@@ -417,12 +436,6 @@ class NestedGroup {
     };
     const polyGeometry = new THREE.ExtrudeGeometry(polygon, extrudeSettings);
 
-    // const polyMaterial = new THREE.MeshBasicMaterial({
-    //   color: color,
-    //   polygonOffset: true,
-    //   polygonOffsetFactor: 1.0,
-    //   polygonOffsetUnits: 1.0,
-    // });
     // see https://stackoverflow.com/a/37651610
     // "A common draw configuration you see is to draw all the opaque object with depth testing on,
     //  turn depth write off, then draw the transparent objects in a back to front order."
@@ -503,6 +516,10 @@ class NestedGroup {
         );
       },
     });
+    instMat.depthWrite = !this.transparent;
+    instMat.depthTest = !this.transparent;
+    instMat.clipIntersection = false;
+
     timer.split("create edges geometry");
 
     // create instances
@@ -519,8 +536,8 @@ class NestedGroup {
     // needs to be done manually for InstancedMesh
     timer.split("create instances");
 
+    // only back will be used to calculate bounding box
     front.computeBoundingBox();
-    back.computeBoundingBox();
     timer.split("compute bounding box");
 
     edgeGeom.setAttribute(
@@ -539,157 +556,157 @@ class NestedGroup {
     return group;
   }
 
-  renderPolygon(
-    shape,
-    color,
-    alpha,
-    renderback,
-    exploded,
-    path,
-    name,
-    states,
-    geomtype = null,
-    subtype = null,
-  ) {
-    function createEdges(points, h) {
-      const n = points.length;
-      const len = n * 2 * 3;
-      const edges = new Float32Array(3 * len);
+  // renderPolygon(
+  //   shape,
+  //   color,
+  //   alpha,
+  //   renderback,
+  //   exploded,
+  //   path,
+  //   name,
+  //   states,
+  //   geomtype = null,
+  //   subtype = null,
+  // ) {
+  //   function createEdges(points, h) {
+  //     const n = points.length;
+  //     const len = n * 2 * 3;
+  //     const edges = new Float32Array(3 * len);
 
-      let idx = 0;
-      for (let i = 0; i < n; i++) {
-        const a = points[i];
-        const b = points[(i + 1) % n];
+  //     let idx = 0;
+  //     for (let i = 0; i < n; i++) {
+  //       const a = points[i];
+  //       const b = points[(i + 1) % n];
 
-        edges[idx++] = a.x;
-        edges[idx++] = a.y;
-        edges[idx++] = 0;
-        edges[idx++] = b.x;
-        edges[idx++] = b.y;
-        edges[idx++] = 0;
-      }
-      for (let i = 0; i < n; i++) {
-        const a = points[i];
-        const b = points[(i + 1) % n];
+  //       edges[idx++] = a.x;
+  //       edges[idx++] = a.y;
+  //       edges[idx++] = 0;
+  //       edges[idx++] = b.x;
+  //       edges[idx++] = b.y;
+  //       edges[idx++] = 0;
+  //     }
+  //     for (let i = 0; i < n; i++) {
+  //       const a = points[i];
+  //       const b = points[(i + 1) % n];
 
-        edges[len + idx++] = a.x;
-        edges[len + idx++] = a.y;
-        edges[len + idx++] = h;
-        edges[len + idx++] = b.x;
-        edges[len + idx++] = b.y;
-        edges[len + idx++] = h;
-      }
-      for (let i = 0; i < n; i++) {
-        const a = points[i];
+  //       edges[len + idx++] = a.x;
+  //       edges[len + idx++] = a.y;
+  //       edges[len + idx++] = h;
+  //       edges[len + idx++] = b.x;
+  //       edges[len + idx++] = b.y;
+  //       edges[len + idx++] = h;
+  //     }
+  //     for (let i = 0; i < n; i++) {
+  //       const a = points[i];
 
-        edges[2 * len + idx++] = a.x;
-        edges[2 * len + idx++] = a.y;
-        edges[2 * len + idx++] = 0;
-        edges[2 * len + idx++] = a.x;
-        edges[2 * len + idx++] = a.y;
-        edges[2 * len + idx++] = h;
-      }
-      return edges;
-    }
-    var timer = new Timer(`renderPolygon ${name}`, this.timeit);
+  //       edges[2 * len + idx++] = a.x;
+  //       edges[2 * len + idx++] = a.y;
+  //       edges[2 * len + idx++] = 0;
+  //       edges[2 * len + idx++] = a.x;
+  //       edges[2 * len + idx++] = a.y;
+  //       edges[2 * len + idx++] = h;
+  //     }
+  //     return edges;
+  //   }
+  //   var timer = new Timer(`renderPolygon ${name}`, this.timeit);
 
-    var group = new ObjectGroup(
-      this.defaultOpacity,
-      1.0,
-      this.edgeColor,
-      geomtype,
-      subtype,
-      renderback,
-    );
-    // see https://stackoverflow.com/a/37651610
-    // "A common draw configuration you see is to draw all the opaque object with depth testing on,
-    //  turn depth write off, then draw the transparent objects in a back to front order."
-    var frontMaterial = new THREE.MeshStandardMaterial({
-      color: color,
-      metalness: this.metalness,
-      roughness: this.roughness,
-      // envMap: texture,
-      polygonOffset: true,
-      polygonOffsetFactor: 1.0,
-      polygonOffsetUnits: 1.0,
-      transparent: true,
-      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
-      // turn depth write off for transparent objects
-      depthWrite: !this.transparent,
-      // but keep depth test
-      depthTest: true,
-      clipIntersection: false,
-      side: THREE.FrontSide,
-      visible: states[0] == 1,
-      name: "frontMaterial",
-    });
+  //   var group = new ObjectGroup(
+  //     this.defaultOpacity,
+  //     1.0,
+  //     this.edgeColor,
+  //     geomtype,
+  //     subtype,
+  //     renderback,
+  //   );
+  //   // see https://stackoverflow.com/a/37651610
+  //   // "A common draw configuration you see is to draw all the opaque object with depth testing on,
+  //   //  turn depth write off, then draw the transparent objects in a back to front order."
+  //   var frontMaterial = new THREE.MeshStandardMaterial({
+  //     color: color,
+  //     metalness: this.metalness,
+  //     roughness: this.roughness,
+  //     // envMap: texture,
+  //     polygonOffset: true,
+  //     polygonOffsetFactor: 1.0,
+  //     polygonOffsetUnits: 1.0,
+  //     transparent: true,
+  //     opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
+  //     // turn depth write off for transparent objects
+  //     depthWrite: !this.transparent,
+  //     // but keep depth test
+  //     depthTest: true,
+  //     clipIntersection: false,
+  //     side: THREE.FrontSide,
+  //     visible: states[0] == 1,
+  //     name: "frontMaterial",
+  //   });
 
-    var backColor =
-      group.subtype === "solid" && !exploded
-        ? color
-        : new THREE.Color(this.edgeColor).lerp(new THREE.Color(1, 1, 1), 0.15);
+  //   var backColor =
+  //     group.subtype === "solid" && !exploded
+  //       ? color
+  //       : new THREE.Color(this.edgeColor).lerp(new THREE.Color(1, 1, 1), 0.15);
 
-    var backMaterial = new THREE.MeshBasicMaterial({
-      color: backColor,
-      side: THREE.BackSide,
-      polygonOffset: true,
-      polygonOffsetFactor: 1.0,
-      polygonOffsetUnits: 1.0,
-      transparent: true,
-      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
-      // turn depth write off for transparent objects
-      depthWrite: !this.transparent,
-      // but keep depth test
-      depthTest: true,
-      clipIntersection: false,
-      visible: states[0] == 1 && (renderback || this.backVisible),
-      name: "backMaterial",
-    });
-    timer.split("create materials");
+  //   var backMaterial = new THREE.MeshBasicMaterial({
+  //     color: backColor,
+  //     side: THREE.BackSide,
+  //     polygonOffset: true,
+  //     polygonOffsetFactor: 1.0,
+  //     polygonOffsetUnits: 1.0,
+  //     transparent: true,
+  //     opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
+  //     // turn depth write off for transparent objects
+  //     depthWrite: !this.transparent,
+  //     // but keep depth test
+  //     depthTest: true,
+  //     clipIntersection: false,
+  //     visible: states[0] == 1 && (renderback || this.backVisible),
+  //     name: "backMaterial",
+  //   });
+  //   timer.split("create materials");
 
-    var shapes = [];
-    var edgeList = [];
-    var height = shape.height;
-    var points = 0;
-    var polygonShape = null;
-    for (var index in shape.polygons) {
-      var polygon = shape.polygons[index];
-      edgeList.push(createEdges(polygon, height));
-      points += polygon.length;
-      polygonShape = new THREE.Shape(polygon);
-      polygonShape.closePath();
-      shapes.push(polygonShape);
-    }
-    timer.split("create shapes");
+  //   var shapes = [];
+  //   var edgeList = [];
+  //   var height = shape.height;
+  //   var points = 0;
+  //   var polygonShape = null;
+  //   for (var index in shape.polygons) {
+  //     var polygon = shape.polygons[index];
+  //     edgeList.push(createEdges(polygon, height));
+  //     points += polygon.length;
+  //     polygonShape = new THREE.Shape(polygon);
+  //     polygonShape.closePath();
+  //     shapes.push(polygonShape);
+  //   }
+  //   timer.split("create shapes");
 
-    const extrudeSettings = {
-      depth: height,
-      bevelEnabled: false,
-    };
-    const shapeGeometry = new THREE.ExtrudeGeometry(shapes, extrudeSettings);
-    timer.split(`extrude geometry (${shape.polygons.length}, ${points})`);
+  //   const extrudeSettings = {
+  //     depth: height,
+  //     bevelEnabled: false,
+  //   };
+  //   const shapeGeometry = new THREE.ExtrudeGeometry(shapes, extrudeSettings);
+  //   timer.split(`extrude geometry (${shape.polygons.length}, ${points})`);
 
-    const back = new THREE.Mesh(shapeGeometry, backMaterial);
-    back.name = name;
+  //   const back = new THREE.Mesh(shapeGeometry, backMaterial);
+  //   back.name = name;
 
-    const front = new THREE.Mesh(shapeGeometry, frontMaterial);
-    front.name = name;
+  //   const front = new THREE.Mesh(shapeGeometry, frontMaterial);
+  //   front.name = name;
 
-    group.addType(back, "back");
-    group.addType(front, "front");
-    timer.split("create meshes");
+  //   group.addType(back, "back");
+  //   group.addType(front, "front");
+  //   timer.split("create meshes");
 
-    edgeList = flatten32(edgeList);
-    if (edgeList.length > 0) {
-      var edges = this._renderEdges(edgeList, 0.5, null, states[1]);
-      edges.name = name;
-      group.addType(edges, "edges");
-    }
-    timer.split("create edges");
+  //   edgeList = flatten32(edgeList);
+  //   if (edgeList.length > 0) {
+  //     var edges = this._renderEdges(edgeList, 0.5, null, states[1]);
+  //     edges.name = name;
+  //     group.addType(edges, "edges");
+  //   }
+  //   timer.split("create edges");
 
-    timer.stop();
-    return group;
-  }
+  //   timer.stop();
+  //   return group;
+  // }
 
   renderLoop(shapes) {
     const _render = (shape, texture, width, height, version = null) => {
@@ -817,7 +834,7 @@ class NestedGroup {
   boundingBox() {
     if (this.bbox == null) {
       this.bbox = new BoundingBox();
-      this.bbox.setFromObject(this.rootGroup, true);
+      this.bbox.setFromObject(this.rootGroup, false); // false uses precomputed bounding box
     }
     return this.bbox;
   }

@@ -1742,15 +1742,8 @@ class Viewer {
 
     // var boundingBox;
     if (boundingBox == null) {
-      if (object.parent != null) {
-        boundingBox = new BoundingBox().setFromObject(object, true);
-      } else {
-        // ignore PlaneMesh group
-        boundingBox = new BoundingBox();
-        for (var i = 0; i < object.children.length - 1; i++) {
-          boundingBox = boundingBox.expandByObject(object.children[i]);
-        }
-      }
+      // precise=false uses precompute bounding box
+      boundingBox = new BoundingBox().setFromObject(object, false);
     }
     if (this.lastBbox != null && this.lastBbox.id === id && !meta && !shift) {
       this.removeLastBbox();

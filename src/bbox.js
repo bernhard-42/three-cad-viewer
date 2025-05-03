@@ -2,65 +2,67 @@ import * as THREE from "three";
 import { disposeGeometry } from "./utils";
 class BoundingBox extends THREE.Box3 {
   expandByObject(object, precise = false) {
+    // Computes the world-axis-aligned bounding box of an object (including its children),
+    // accounting for both the object's, and children's, world transforms
+
     object.updateWorldMatrix(false, false);
 
-    // don't use instanceof => circular dependencies with bbox.js
-    if (object.constructor.name == "ObjectGroup") {
-      // for ObjectGroups calculate bounding box of first Mesh only
-      if (object.children[0] instanceof THREE.InstancedMesh) {
-        // calculated earlier in NestedGroup
-        this.union(object.children[0].boundingBox);
-      } else {
-        this.expandByObject(object.children[0], precise);
-      }
-      return this;
-    }
     const geometry = object.geometry;
     if (geometry !== undefined) {
-      if (
-        precise &&
-        geometry.attributes != undefined &&
-        geometry.attributes.position !== undefined
-      ) {
-        if (object.type.startsWith("LineSegment")) {
-          var g = geometry.clone();
-          g.applyMatrix4(object.matrixWorld);
-          g.boundingBox = null;
-          g.computeBoundingBox();
-          _bbox.copy(g.boundingBox);
+      const positionAttribute = geometry.getAttribute("position");
 
-          this.union(_bbox);
-        } else {
-          const position = geometry.attributes.position;
-          for (let i = 0, l = position.count; i < l; i++) {
-            _vector3
-              .fromBufferAttribute(position, i)
-              .applyMatrix4(object.matrixWorld);
-            this.expandByPoint(_vector3);
+      // precise AABB computation based on vertex data requires at least a position attribute.
+      // instancing isn't supported so far and uses the normal (conservative) code path.
+
+      if (
+        precise === true &&
+        positionAttribute !== undefined &&
+        object.isInstancedMesh !== true
+      ) {
+        for (let i = 0, l = positionAttribute.count; i < l; i++) {
+          if (object.isMesh === true) {
+            object.getVertexPosition(i, _vector3);
+          } else {
+            _vector3.fromBufferAttribute(positionAttribute, i);
           }
+
+          _vector3.applyMatrix4(object.matrixWorld);
+          this.expandByPoint(_vector3);
         }
       } else {
-        if (geometry.boundingBox === null) {
-          geometry.computeBoundingBox();
+        if (object.boundingBox !== undefined) {
+          // object-level bounding box
+
+          if (object.boundingBox === null) {
+            object.computeBoundingBox();
+          }
+
+          _bbox.copy(object.boundingBox);
+        } else {
+          // geometry-level bounding box
+
+          if (geometry.boundingBox === null) {
+            geometry.computeBoundingBox();
+          }
+
+          _bbox.copy(geometry.boundingBox);
         }
-        _bbox.copy(geometry.boundingBox);
+
         _bbox.applyMatrix4(object.matrixWorld);
 
         this.union(_bbox);
       }
     }
+
     const children = object.children;
 
     for (let i = 0, l = children.length; i < l; i++) {
-      if (
-        !(
-          children[i].name == "PlaneMeshes" &&
-          children[i].children &&
-          children[i].children.length > 0 &&
-          children[i].children[0].type.startsWith("StencilPlane")
-        )
-      ) {
+      if (children[i].name !== "PlaneMeshes") {
         this.expandByObject(children[i], precise);
+        if (children[i].isMesh) {
+          // Only use the first Mesh which is front
+          break;
+        }
       }
     }
 
