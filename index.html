@@ -13,6 +13,7 @@
     <script src="./examples/sky130.js"></script>
     <script src="./examples/sram_2_16.js"></script>
     <script src="./examples/sram_32_1024.js"></script>
+    <script src="./examples/transformation_dummy.js"></script>
     <script src="./examples/hexapod.js"></script>
   
     <script src="./examples/assembly.js"></script>
@@ -53,6 +54,7 @@
       sky130,
       sram_2_16,
       sram_32_1024,
+      transformation_dummy,
       hexapod,
       // transpalet,
       assembly,
@@ -72,7 +74,7 @@
       single_edges,
       single_vertices,
     ];
-
+    
     function fromB64(s) {
         let bytes = atob(s);
         let uint = new Uint8Array(bytes.length);
@@ -278,7 +280,7 @@
       // quaternion: [0.1279694269733356, 0.17808830219432778, 0.792315727012021, 0.5693366061576142],
       // target: [133.7552476361796, -193.79076438378323, -47.35882179018034],
       // zoom: 1,
-      glass: false,
+      glass: true,
       collapse: 3,
       measureTools: false,
     };
@@ -414,6 +416,7 @@
         <option value="sky130">sky130</option>
         <option value="sram_2_16">sram_2_16</option>
         <option value="sram_32_1024">sram_32_1024</option>
+        <option value="transformation_dummy">transformation_dummy</option>
         <option value="hexapod">hexapod</option>
         <!-- <option value="transpalet">transpalet</option>         -->
         
