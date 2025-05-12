@@ -841,21 +841,7 @@ class Viewer {
    */
   dispose() {
     this.clear();
-    disposeShapes(this.shapes);
-    this.shapes = null;
 
-    if (this.expandedNestedGroup != null) {
-      this.expandedNestedGroup.dispose();
-      this.expandedNestedGroup = null;
-    }
-    if (this.compactNestedGroup != null) {
-      this.compactNestedGroup.dispose();
-      this.compactNestedGroup = null;
-    }
-    if (this.nestedGroup != null) {
-      this.nestedGroup.dispose();
-      this.nestedGroup = null;
-    }
     if (this.gridHelper) {
       for (var i in this.gridHelper.gridHelper) {
         this.gridHelper.gridHelper[i].dispose();
@@ -977,6 +963,24 @@ class Viewer {
       // dispose scene
       this.scene = null;
       this.ready = false;
+    }
+
+    if (this.shapes != null) {
+      disposeShapes(this.shapes);
+      this.shapes = null;
+    }
+
+    if (this.expandedNestedGroup != null) {
+      this.expandedNestedGroup.dispose();
+      this.expandedNestedGroup = null;
+    }
+    if (this.compactNestedGroup != null) {
+      this.compactNestedGroup.dispose();
+      this.compactNestedGroup = null;
+    }
+    if (this.nestedGroup != null) {
+      this.nestedGroup.dispose();
+      this.nestedGroup = null;
     }
   }
 
