@@ -1040,6 +1040,27 @@ class Viewer {
   };
 
   /**
+   * Get the color of a node from its path
+   * @param path - path of the CAD object
+   */
+  getNodeColor = (path) => {
+    var group = this.nestedGroup.groups["/" + path];
+    if (group instanceof ObjectGroup) {
+      let color = "";
+      if (
+        group.children[0].type !== "Mesh" ||
+        group.children[0].material.name == "frontMaterial"
+      ) {
+        color = group.children[0].material.color;
+      } else {
+        color = group.children[1].material.color;
+      }
+      return "#" + color.getHexString();
+    }
+    return null;
+  };
+
+  /**
    * Toggle the two version of the NestedGroup
    * @param expanded - whether to render the exploded or compact version
    */
@@ -1101,6 +1122,7 @@ class Viewer {
       this.handlePick,
       this.update,
       this.notifyStates,
+      this.getNodeColor,
       this.theme,
       this.newTreeBehavior,
       false,

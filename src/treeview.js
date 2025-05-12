@@ -31,6 +31,7 @@ class TreeView {
     pickHandler,
     updateHandler,
     notificationHandler,
+    colorGetter,
     theme,
     linkIcons,
     debug = false,
@@ -64,6 +65,7 @@ class TreeView {
     this.pickHandler = pickHandler;
     this.updateHandler = updateHandler;
     this.notificationHandler = notificationHandler;
+    this.colorGetter = colorGetter;
     this.theme = theme;
     this.linkIcons = linkIcons;
     this.debug = debug;
@@ -439,8 +441,11 @@ class TreeView {
 
     const label = document.createElement("span");
     label.className = "tv-node-label";
-    label.textContent = node.name;
-
+    label.innerHTML = node.name;
+    const color = this.colorGetter(node.path);
+    if (color != null) {
+      label.innerHTML += `<span style="color:${color}"> ⚈</span>`;
+    }
     label.onmousedown = (e) => {
       e.preventDefault();
     };
