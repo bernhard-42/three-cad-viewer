@@ -1,5 +1,40 @@
 # Change log
 
+## v3.3.5
+
+**Fixes** 
+
+- Move disposing of shapes and groups to clear()
+- Fix wrong order of parameters in the Viewer.render function
+- Add a color indicator to the objects in the navigation tree
+
+
+## v3.3.4
+
+**Fixes** 
+
+- Move packages "cross-spawn" and "html-minifier" to dev dependencies
+
+## v3.3.3
+
+**Fixes** 
+
+- Fix center_grid parameter name
+
+## v3.3.2
+
+**Fixes** 
+
+- Ensure theme is only set for container and not for document
+- Replace scrollIntoView for the navigation tree with own logic to avoid page jumps in Jupyter
+- Fix clip setting via API
+
+## v3.3.1
+
+**Fixes** 
+
+- Fix top level bounding box
+
 ## v3.3.0
 
 **Features**
