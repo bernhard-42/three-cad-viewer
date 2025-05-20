@@ -671,7 +671,7 @@ class NestedGroup {
               { topo: "face", geomtype: shape.geomtype },
               shape.subtype,
             );
-          } else if (version == 2) {
+          } else if (version >= 2) {
             mesh = this.renderInstancedPolygon(
               shape.shape,
               shape.color,
@@ -747,7 +747,7 @@ class NestedGroup {
   }
 
   render() {
-    if (this.shapes.format == "GDS" && this.shapes.version == 2) {
+    if (this.shapes.format == "GDS" && this.shapes.version >= 2) {
       this.instances = this.shapes.instances;
     }
     this.rootGroup = this.renderLoop(this.shapes);
