@@ -405,21 +405,24 @@ class NestedGroup {
     group.name = path.replaceAll("/", this.delim);
     this.groups[path] = group;
 
-    var ref = shape.ref;
-    var offsets = shape.offsets;
-    var vertices = this.instances[ref];
-    const n = vertices.length / 2;
-    const points = new Array(n);
-    for (let i = 0; i < n; i++) {
-      points[i] = new THREE.Vector2(vertices[2 * i], vertices[2 * i + 1]);
+    var polygons = [];
+    var matrices = shape.matrices;
+    for (var ref of shape.refs) {
+      var vertices = this.instances[ref];
+      const n = vertices.length / 2;
+      const points = new Array(n);
+      for (let i = 0; i < n; i++) {
+        points[i] = new THREE.Vector2(vertices[2 * i], vertices[2 * i + 1]);
+      }
+      const polygon = new THREE.Shape(points);
+      polygons.push(polygon);
     }
-    const polygon = new THREE.Shape(points);
 
     const extrudeSettings = {
       depth: shape.height,
       bevelEnabled: false,
     };
-    const polyGeometry = new THREE.ExtrudeGeometry(polygon, extrudeSettings);
+    const polyGeometry = new THREE.ExtrudeGeometry(polygons, extrudeSettings);
 
     // see https://stackoverflow.com/a/37651610
     // "A common draw configuration you see is to draw all the opaque object with depth testing on,
@@ -466,7 +469,7 @@ class NestedGroup {
       name: "backMaterial",
     });
     // timer.split("create materials");
-    const instanceCount = offsets.length / 3;
+    const instanceCount = matrices.length / 6;
     const back = new THREE.InstancedMesh(
       polyGeometry,
       backMaterial,
@@ -485,19 +488,10 @@ class NestedGroup {
     var edges = new THREE.EdgesGeometry(polyGeometry);
     var edgeGeom = new THREE.InstancedBufferGeometry().copy(edges);
 
-    const edgeOffsets = new Float32Array(instanceCount * 3); // XYZ position offsets
-    const edgeScales = new Float32Array(instanceCount * 3); // XYZ scales
-
-    // Add attributes to geometry
+    const matrixArray = new Float32Array(instanceCount * 16);
     edgeGeom.setAttribute(
-      "offset",
-      new THREE.InstancedBufferAttribute(edgeOffsets, 3),
-    );
-
-    const rotations = new Float32Array(instanceCount);
-    edgeGeom.setAttribute(
-      "rotationIndex",
-      new THREE.InstancedBufferAttribute(rotations, 1),
+      "instanceMatrix",
+      new THREE.InstancedBufferAttribute(matrixArray, 16, false),
     );
 
     var instMat = new THREE.LineBasicMaterial({
@@ -507,40 +501,13 @@ class NestedGroup {
       clipIntersection: false,
       onBeforeCompile: (shader) => {
         shader.vertexShader = `
-      attribute vec3 offset;
-      attribute vec3 scale;
-      attribute float rotationIndex; // 0=0°, 1=90°, 2=180°, 3=270°
-                                     // 4=mirror 0°, 5=mirror 90°, 6=mirror 180°, 7=mirror 270°
-      
-      // Optimized rotation for 90° steps (no quaternion math)
-      vec3 applyDiscreteRotation(vec3 pos) {
-        float r = rotationIndex;
-        
-        // Branching is faster than quat math for small cases
-        if (r == 7.0) {
-          return vec3(-pos.y, -pos.x, pos.z);
-        } else if (r == 6.0) {
-          return vec3(-pos.x, pos.y, pos.z);
-        } else if (r == 5.0) {
-          return vec3(pos.y, pos.x, pos.z);
-        } else if (r == 4.0) {
-          return vec3(pos.x, -pos.y, pos.z);
-        } else if (r == 3.0) {
-          return vec3(-pos.y, pos.x, pos.z);
-        } else if (r == 2.0) {
-          return vec3(-pos.x, -pos.y, pos.z);
-        } else if (r == 1.0) {
-          return vec3(pos.y, -pos.x, pos.z);
-        }
-        return pos; 
-      }
+      attribute mat4 instanceMatrix;
       ${shader.vertexShader}
     `.replace(
           `#include <begin_vertex>`,
           `
       #include <begin_vertex>
-      transformed = applyDiscreteRotation(transformed);
-      transformed += offset;
+      transformed = (instanceMatrix * vec4(position, 1.0)).xyz;
       `,
         );
       },
@@ -550,55 +517,48 @@ class NestedGroup {
 
     // create instances
     const dummy = new THREE.Object3D();
-    const scale = new THREE.Vector3();
-    const trans_map = [0, 1, 2, 3, 0, 3, 2, 1];
+    for (let i = 0; i < matrices.length / 6; i++) {
+      const matrix = new THREE.Matrix4();
 
-    for (let i = 0; i < offsets.length / 3; i++) {
-      const trans = offsets[3 * i + 2];
-      const s2 = Math.sqrt(2) / 2;
       dummy.quaternion.set(0, 0, 0, 1); // identity
       dummy.scale.set(1, 1, 1);
-      var h = 0;
-      if (trans === 1) {
-        dummy.quaternion.set(0, 0, s2, -s2); // 270°
-      } else if (trans === 2) {
-        dummy.quaternion.set(0, 0, 1, 0); // 180°
-      } else if (trans === 3) {
-        dummy.quaternion.set(0, 0, s2, s2); // 90°
-      } else if (trans === 4) {
-        dummy.quaternion.set(1, 0, 0, 0); // 180°
-        h = shape.height;
-      } else if (trans === 5) {
-        dummy.quaternion.set(-s2, -s2, 0, 0); // 180°
-        h = shape.height;
-      } else if (trans === 6) {
-        dummy.quaternion.set(0, 1, 0, 0); // 180°
-        h = shape.height;
-      } else if (trans === 7) {
-        dummy.quaternion.set(-s2, s2, 0, 0); // 180°
-        h = shape.height;
-      }
-      dummy.position.set(offsets[3 * i], offsets[3 * i + 1], h);
-      dummy.updateMatrix();
+
+      matrix.set(
+        matrices[6 * i],
+        matrices[6 * i + 1],
+        0,
+        matrices[6 * i + 2],
+        matrices[6 * i + 3],
+        matrices[6 * i + 4],
+        0,
+        matrices[6 * i + 5],
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+      );
+
+      dummy.matrixAutoUpdate = false; // Disable automatic updates
+      dummy.matrix.copy(matrix);
+
+      // dummy.updateMatrixWorld(true);
+
+      // set the solids matrix to the dummy object matrix
       front.setMatrixAt(i, dummy.matrix);
       back.setMatrixAt(i, dummy.matrix);
-
-      edgeOffsets[3 * i] = offsets[3 * i];
-      edgeOffsets[3 * i + 1] = offsets[3 * i + 1];
-      edgeOffsets[3 * i + 2] = 0;
-
-      scale.copy(dummy.scale);
-
-      rotations[i] = offsets[3 * i + 2];
-      for (var j = 0; j < 3; j++) {
-        edgeScales[3 * i + j] = scale.toArray()[j];
-      }
+      // set the edges matrix to the dummy object matrix
+      dummy.matrix.toArray(matrixArray, i * 16);
     }
     front.instanceMatrix.needsUpdate = true;
     back.instanceMatrix.needsUpdate = true;
+    edgeGeom.attributes.instanceMatrix.needsUpdate = true;
     timer.split("create instances");
 
-    // only back will be used to calculate bounding box
+    // only front will be used to calculate bounding box
     front.computeBoundingBox();
     // timer.split("compute bounding box");
 
