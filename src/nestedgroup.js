@@ -29,21 +29,6 @@ class States {
   }
 }
 
-// class AGroup extends THREE.Group {
-//   constructor() {
-//     super();
-//   }
-
-//   boundingBox() {
-//     var bbox = THREE.Box3();
-//     for (var child in this.children) {
-//       if (child.name == "PlaneMeshes") {
-//         bbox.union(child.boundingBox());
-//       }
-//     }
-//   }
-// }
-
 class NestedGroup {
   constructor(
     shapes,
