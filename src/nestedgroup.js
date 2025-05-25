@@ -410,9 +410,15 @@ class NestedGroup {
     for (var ref of shape.refs) {
       var vertices = this.instances[ref];
       const n = vertices.length / 2;
-      const points = new Array(n);
+      var points = new Array(n);
       for (let i = 0; i < n; i++) {
         points[i] = new THREE.Vector2(vertices[2 * i], vertices[2 * i + 1]);
+      }
+      if (shape.mirrored) {
+        // reverse the points if the shape is mirrored
+        // this is needed to ensure the correct winding order
+        // for the extruded shape
+        points.reverse();
       }
       const polygon = new THREE.Shape(points);
       polygons.push(polygon);
@@ -427,7 +433,7 @@ class NestedGroup {
     // see https://stackoverflow.com/a/37651610
     // "A common draw configuration you see is to draw all the opaque object with depth testing on,
     //  turn depth write off, then draw the transparent objects in a back to front order."
-    var frontMaterial = new THREE.MeshStandardMaterial({
+    const materialProps = {
       color: color,
       metalness: this.metalness,
       roughness: this.roughness,
@@ -435,52 +441,56 @@ class NestedGroup {
       polygonOffset: true,
       polygonOffsetFactor: 1.0,
       polygonOffsetUnits: 1.0,
-      transparent: true,
+      transparent: this.transparent,
       opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
       // turn depth write off for transparent objects
-      depthWrite: !this.transparent,
+      depthWrite: true,
       // but keep depth test
       depthTest: true,
       clipIntersection: false,
-      side: THREE.FrontSide,
-      visible: states[0] == 1,
+      // blending: THREE.AdditiveBlending,
+    };
+    if (shape.mirrored) {
+      // if the shape is mirrored, we need to flip the normals
+      // so that the back side is rendered correctly
+      materialProps["onBeforeCompile"] = (shader) => {
+        shader.vertexShader = shader.vertexShader.replace(
+          "#include <defaultnormal_vertex>",
+          `
+            #include <defaultnormal_vertex>
+            transformedNormal *= -1.0;
+          `,
+        );
+      };
+    }
+    var frontMaterial = new THREE.MeshStandardMaterial({
+      side: THREE.DoubleSide,
       name: "frontMaterial",
+      visible: states[0] == 1,
+      ...materialProps,
     });
 
-    var backColor =
-      group.subtype === "solid" && !exploded
-        ? color
-        : new THREE.Color(this.edgeColor).lerp(new THREE.Color(1, 1, 1), 0.15);
+    // var backMaterial = new THREE.MeshBasicMaterial({
+    //   side: shape.mirrored ? THREE.FrontSide : THREE.BackSide,
+    //   visible: states[0] == 1 && (renderback || this.backVisible),
+    //   name: "backMaterial",
+    //   ...materialProps,
+    // });
 
-    var backMaterial = new THREE.MeshBasicMaterial({
-      color: backColor,
-      side: THREE.BackSide,
-      polygonOffset: true,
-      polygonOffsetFactor: 1.0,
-      polygonOffsetUnits: 1.0,
-      transparent: true,
-      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
-      // turn depth write off for transparent objects
-      depthWrite: !this.transparent,
-      // but keep depth test
-      depthTest: true,
-      clipIntersection: false,
-      visible: states[0] == 1 && (renderback || this.backVisible),
-      name: "backMaterial",
-    });
     // timer.split("create materials");
     const instanceCount = matrices.length / 6;
-    const back = new THREE.InstancedMesh(
-      polyGeometry,
-      backMaterial,
-      instanceCount,
-    );
+    // const back = new THREE.InstancedMesh(
+    //   polyGeometry,
+    //   backMaterial,
+    //   instanceCount,
+    // );
 
     const front = new THREE.InstancedMesh(
       polyGeometry,
       frontMaterial,
       instanceCount,
     );
+    front.renderOrder = shape.render_order;
     // timer.split("create instanced mesh");
 
     // Edges
@@ -545,16 +555,15 @@ class NestedGroup {
       dummy.matrixAutoUpdate = false; // Disable automatic updates
       dummy.matrix.copy(matrix);
 
-      // dummy.updateMatrixWorld(true);
-
       // set the solids matrix to the dummy object matrix
       front.setMatrixAt(i, dummy.matrix);
-      back.setMatrixAt(i, dummy.matrix);
+      // back.setMatrixAt(i, dummy.matrix);
       // set the edges matrix to the dummy object matrix
       dummy.matrix.toArray(matrixArray, i * 16);
     }
     front.instanceMatrix.needsUpdate = true;
-    back.instanceMatrix.needsUpdate = true;
+
+    // back.instanceMatrix.needsUpdate = true;
     edgeGeom.attributes.instanceMatrix.needsUpdate = true;
     timer.split("create instances");
 
@@ -568,7 +577,7 @@ class NestedGroup {
     polyEdges.frustumCulled = false;
 
     group.addType(front, "front");
-    group.addType(back, "back");
+    // group.addType(back, "back");
     group.addType(polyEdges, "edges");
 
     timer.stop();

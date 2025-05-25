@@ -13,6 +13,8 @@
     <script src="./examples/sky130.js"></script>
     <script src="./examples/sram_2_16.js"></script>
     <script src="./examples/sram_32_1024.js"></script>
+    <script src="./examples/ref.js"></script>
+    <script src="./examples/l.js"></script>
     <script src="./examples/transformation_dummy.js"></script>
     <script src="./examples/hexapod.js"></script>
   
@@ -54,6 +56,8 @@
       sky130,
       sram_2_16,
       sram_32_1024,
+      ref,
+      l,
       transformation_dummy,
       hexapod,
       // transpalet,
@@ -100,28 +104,42 @@
 
     function render(name, shapes) { 
       const timer = new Timer("renderer", timeit);
-
+      function walk(parts) {
+        for (var index in parts) {
+          const part = parts[index];
+          if (part.shape) {
+            if (part.shape.matrices) {
+              part.shape.matrices = convert(part.shape.matrices);
+            }
+          }
+          if (part.parts) {
+            walk(part.parts);
+          }
+        }
+      }
+      
       if(shapes.format == "GDS") {
         for (var index in shapes.instances) {
           shapes.instances[index] = convert(shapes.instances[index]);
         }
-        for (var index in shapes.parts) {
-          const layer = shapes.parts[index];
-          if(shapes.version == 1) {
-            var conv = []
-            for (var index2 in layer.shape.refs) {
-              conv.push(convert(layer.shape.polygons[index2]));
-            }
-            layer.shape.polygons = conv;
-          } else {
-          // var conv = []
+        walk(shapes.parts);
+        // for (var index in shapes.parts) {
+        //   const layer = shapes.parts[index];
+        //   if(shapes.version == 1) {
+        //     var conv = []
+        //     for (var index2 in layer.shape.refs) {
+        //       conv.push(convert(layer.shape.polygons[index2]));
+        //     }
+        //     layer.shape.polygons = conv;
+        //   } else {
+        //   // var conv = []
           
-            for (var index2 in layer.parts){
-              const part = layer.parts[index2];
-              part.shape.offsets = convert(part.shape.offsets);
-            }
-          }
-        }
+        //     for (var index2 in layer.parts){
+        //       const part = layer.parts[index2];
+        //       part.shape.offsets = convert(part.shape.offsets);
+        //     }
+        //   }
+        // }
         timer.split("convert polygons");                
       }
 
@@ -230,10 +248,10 @@
     const timer = new Timer("main", timeit);
 
     const displayOptions = {
-      cadWidth: 1450,
-      height: 900,
-      treeWidth: 240,
-      theme: "dark",
+      cadWidth: 1720,
+      height: 940,
+      treeWidth: 340,
+      theme: "light",
       pinning: true,
       keymap: {
         "shift": "shiftKey",
@@ -416,6 +434,8 @@
         <option value="sky130">sky130</option>
         <option value="sram_2_16">sram_2_16</option>
         <option value="sram_32_1024">sram_32_1024</option>
+        <option value="ref">ref</option>
+        <option value="l test">l</option>
         <option value="transformation_dummy">transformation_dummy</option>
         <option value="hexapod">hexapod</option>
         <!-- <option value="transpalet">transpalet</option>         -->
