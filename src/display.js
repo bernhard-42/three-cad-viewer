@@ -232,6 +232,7 @@ class Display {
       this.setView,
     );
     this.cadTool.addButton(this.toolbarButtons["right"]);
+
     this.cadTool.addSeparator();
 
     this.toolbarButtons["explode"] = new ClickButton(
@@ -241,6 +242,9 @@ class Display {
       this.setExplode,
     );
     this.cadTool.addButton(this.toolbarButtons["explode"]);
+
+    this.cadTool.addSeparator();
+
     this.toolbarButtons["distance"] = new ClickButton(
       theme,
       "distance",
@@ -263,11 +267,20 @@ class Display {
     );
     this.cadTool.addButton(this.toolbarButtons["angle"]);
 
+    this.toolbarButtons["select"] = new ClickButton(
+      theme,
+      "select",
+      "select objects",
+      this.setTool,
+    );
+    this.cadTool.addButton(this.toolbarButtons["select"]);
+
     this.cadTool.defineGroup([
       this.toolbarButtons["explode"],
       this.toolbarButtons["distance"],
       this.toolbarButtons["properties"],
       this.toolbarButtons["angle"],
+      this.toolbarButtons["select"],
     ]);
 
     this.toolbarButtons["help"] = new Button(
@@ -711,8 +724,10 @@ class Display {
         this.viewer.backupAnimation();
       }
       if (
-        ["distance", "properties", "angle"].includes(name) &&
-        !["distance", "properties", "angle"].includes(this.currentButton)
+        ["distance", "properties", "angle", "select"].includes(name) &&
+        !["distance", "properties", "angle", "select"].includes(
+          this.currentButton,
+        )
       ) {
         this.viewer.toggleGroup(true);
         this.viewer.toggleTab(true);
@@ -729,6 +744,9 @@ class Display {
       } else if (name == "angle") {
         this.viewer.cadTools.enable(ToolTypes.ANGLE);
         this.viewer.checkChanges({ activeTool: ToolTypes.ANGLE });
+      } else if (name == "select") {
+        this.viewer.cadTools.enable(ToolTypes.SELECT);
+        this.viewer.checkChanges({ activeTool: ToolTypes.SELECT });
       }
       this.currentButton = name;
     } else {
@@ -804,6 +822,14 @@ class Display {
     this.toolbarButtons["distance"].show(flag);
     this.toolbarButtons["properties"].show(flag);
     this.toolbarButtons["angle"].show(flag);
+  };
+
+  /**
+   * Show or hides measurement tools, measurement tools needs a backend to be used.
+   * @param {boolean} flag
+   */
+  showSelectTool = (flag) => {
+    this.toolbarButtons["select"].show(flag);
   };
 
   /**

@@ -201,6 +201,7 @@ class Viewer {
     this.edgeColor = 0x707070;
     this.normalLen = 0;
     this.measureTools = false;
+    this.selectTool = false;
 
     for (var option in options) {
       if (this[option] === undefined) {
@@ -248,6 +249,7 @@ class Viewer {
     this.quaternion = null;
     this.target = null;
     this.measureTools = true;
+    this.selectTool = true;
 
     this.zoom = 1;
 
@@ -1461,6 +1463,7 @@ class Viewer {
     this.toggleAnimationLoop(this.hasAnimationLoop);
 
     this.display.showMeasureTools(viewerOptions.measureTools);
+    this.display.showSelectTool(viewerOptions.selectTool);
 
     this.ready = true;
     this.info.readyMsg(this.gridHelper.ticks, this.control);
@@ -1871,15 +1874,11 @@ class Viewer {
     this.cadTools.handleResetSelection();
   };
 
-  _releaseLastSelected = (clear) => {
+  _releaseLastSelected = () => {
     if (this.lastObject != null) {
       let objs = this.lastObject.objs();
       for (let obj of objs) {
         obj.unhighlight(true);
-      }
-
-      if (clear) {
-        this.lastObject = null;
       }
     }
   };
@@ -1895,12 +1894,9 @@ class Viewer {
         );
       }
       this.lastSelection = null;
-
-      this.cadTools.handleRemoveLastSelection();
       this.lastObject = null;
-    } else {
-      this.cadTools.handleRemoveLastSelection(true);
     }
+    this.cadTools.handleRemoveLastSelection(true);
   };
 
   /**
@@ -1932,35 +1928,41 @@ class Viewer {
   handleRaycast = () => {
     const objects = this.raycaster.getValidIntersectedObjs();
     if (objects.length > 0) {
+      // highlight hovered object(s)
       for (var object of objects) {
         {
           const objectGroup = object.object.parent;
           var name = objectGroup ? objectGroup.name : null;
           var last_name = this.lastObject ? this.lastObject.obj.name : null;
           if (name != null && name !== last_name) {
-            this._releaseLastSelected(false);
+            this._releaseLastSelected();
             const fromSolid = this.raycaster.filters.topoFilter.includes(
               TopoFilter.solid,
             );
 
+            // one object for a selected vertex, edge and face and multiple faces for a solid
             const pickedObj = new PickedObject(objectGroup, fromSolid);
             for (let obj of pickedObj.objs()) {
               obj.highlight(true);
             }
+            // this object will be handled in handleRaycastEvent after a mouse event
             this.lastObject = pickedObj;
           }
           break;
         }
       }
     } else {
+      // unhighlight hovered object(s)
       if (this.lastObject != null) {
-        this._releaseLastSelected(true);
+        this._releaseLastSelected();
+        this.lastObject = null;
       }
     }
   };
 
   handleRaycastEvent = (event) => {
     if (event.key) {
+      console.log(this.lastObject, this.lastSelection);
       switch (event.key) {
         case "Escape":
           this.clearSelection();
@@ -1976,13 +1978,14 @@ class Viewer {
         case "left":
           if (this.lastObject != null) {
             const objs = this.lastObject.objs();
+            // one object for a selected vertex, edge and face and multiple faces for a solid
             for (let obj of objs) {
               obj.toggleSelection();
             }
-            if (this.lastSelection?.obj.name != this.lastObject.obj.name) {
-              this.cadTools.handleRemoveLastSelected();
-            }
-            this.cadTools.handleSelectedObj(this.lastObject);
+            this.cadTools.handleSelectedObj(
+              this.lastObject,
+              this.lastSelection?.obj.name != this.lastObject.obj.name,
+            );
             if (event.shift) {
               this.treeview.openPath(
                 this.lastObject.obj.name.replaceAll(
