@@ -518,7 +518,7 @@ class Viewer {
           [0, 0, 0, 1],
         ],
         name: `vertices${j}`,
-        id: `${part.id}/vertices/vertices${j}`,
+        id: `${part.id}/vertices/vertices_${j}`,
         type: "vertices",
         color:
           part.type == "shapes" || part.type == "edges"
