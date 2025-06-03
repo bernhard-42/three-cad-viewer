@@ -270,7 +270,7 @@ class Display {
     this.toolbarButtons["select"] = new ClickButton(
       theme,
       "select",
-      "select objects",
+      "Copy shape IDs to clipboard",
       this.setTool,
     );
     this.cadTool.addButton(this.toolbarButtons["select"]);
