@@ -1,5 +1,16 @@
 # Change log
 
+## v3.4.0
+
+**Features**
+
+- Add select shapes mode for OCP CAD Viewer
+
+**Fixes**
+
+- Add _ in vertex enumeration for the expanded mode
+
+
 ## v3.3.5
 
 **Fixes** 
