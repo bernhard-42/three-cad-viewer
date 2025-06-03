@@ -58678,7 +58678,7 @@ class Display {
     this.toolbarButtons["select"] = new ClickButton(
       theme,
       "select",
-      "select objects",
+      "Copy shape IDs to clipboard",
       this.setTool,
     );
     this.cadTool.addButton(this.toolbarButtons["select"]);
@@ -65689,7 +65689,7 @@ class Viewer {
           [0, 0, 0],
           [0, 0, 0, 1],
         ],
-        name: `vertices${j}`,
+        name: `vertices_${j}`,
         id: `${part.id}/vertices/vertices_${j}`,
         type: "vertices",
         color:
