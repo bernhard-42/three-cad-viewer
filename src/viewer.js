@@ -196,7 +196,7 @@ class Viewer {
     this.ambientIntensity = 0.5;
     this.directIntensity = 0.6;
     this.metalness = 0.7;
-    this.roughness = 0.7;
+    this.roughness = 0.6;
     this.defaultOpacity = 0.5;
     this.edgeColor = 0x707070;
     this.normalLen = 0;
@@ -2838,7 +2838,7 @@ class Viewer {
     this.update(true);
     let result = new Promise((resolve, reject) => {
       const canvas = this.display.getCanvas();
-      this.renderer.setViewport(0, 0, this.cadWidth, this.height);
+      this.renderer.setViewport(0, 0, this.renderer.domElement.width, this.renderer.domElement.height);
       this.renderer.render(this.scene, this.camera.getCamera());
       canvas.toBlob((blob) => {
         let reader = new FileReader();
