@@ -887,7 +887,6 @@ class Viewer {
     this.animation = null;
     this.clipNormals = null;
     this.lastNotification = null;
-    this.orthographicCamera = null;
     this.clipNormal0 = null;
     this.clipNormal1 = null;
     this.clipNormal2 = null;
@@ -1230,24 +1229,6 @@ class Viewer {
       this.ortho,
       viewerOptions.up,
     );
-
-    // this.orthographicCamera = new THREE.OrthographicCamera(
-    //   -this.bb_radius,
-    //   this.bb_radius,
-    //   -this.bb_radius,
-    //   this.bb_radius,
-    //   0, 100);
-    // this.orthographicCamera.position.z = 50;
-    this.orthographicCamera = new THREE.OrthographicCamera(
-      -10,
-      10,
-      -10,
-      10,
-      0,
-      100,
-    );
-    this.orthographicCamera.position.z = 50;
-    this.orthographicCamera.up = this.camera.up;
 
     //
     // build mouse/touch controls
