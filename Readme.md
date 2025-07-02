@@ -53,7 +53,7 @@ For the `States` object, see [Class States](https://bernhard-42.github.io/three-
 ```html
 <html>
   <head>
-    <link rel="stylesheet" href="./dist/three-cad-viewer.esm.css" />
+    <link rel="stylesheet" href="./dist/three-cad-viewer.css" />
     <script type="module">
       import { Viewer, Display, Timer } from "./dist/three-cad-viewer.esm.js";
 
@@ -61,40 +61,114 @@ For the `States` object, see [Class States](https://bernhard-42.github.io/three-
         console.log("NOTIFY:", JSON.stringify(change, null, 2));
       }
 
-      const options = {
-        theme: "light",
-        ortho: true,
-        control: "trackball", // "orbit",
-        normalLen: 0,
-        cadWidth: 800,
-        height: 600,
+      const displayOptions = {
+        cadWidth: 850,
+        height: 525,
         treeWidth: 240,
-        ticks: 10,
-        normalLen: 0,
-        ambientIntensity: 0.9,
-        directIntensity: 0.12,
-        transparent: false,
-        blackEdges: false,
-        axes: true,
-        grid: [false, false, false],
-        timeit: false,
-        rotateSpeed: 1,
+        theme: "browser",
+        pinning: true,
+        keymap: {
+          "shift": "shiftKey",
+          "ctrl": "ctrlKey",
+          "meta": "metaKey"
+        }
       };
 
-      const shapes = {}; // a Shapes object, see example or API docs
-      const states = {}; // a States object, see example or API docs
+      const renderOptions = {
+        ambientIntensity: 1.0,
+        directIntensity: 1.1,
+        metalness: 0.30,
+        roughness: 0.65,
+        edgeColor: 0x707070,
+        defaultOpacity: 0.5,
+        normalLen: 0,
+      };
+      const viewerOptions = {
+        "target":[0,0,0], 
+        "up": "Z"
+      };
+
+      const shapes = {
+        version: 3,
+        parts: [
+          {
+            id: "/Group/Workplane(Solid)",
+            type: "shapes",
+            subtype: "solid",
+            name: "Workplane(Solid)",
+            shape: {
+              vertices: [
+                -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5,
+                0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5,
+                -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5,
+                0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5,
+                -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5,
+                0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5,
+              ],
+              triangles: [
+                1, 2, 0, 1, 3, 2, 5, 4, 6, 5, 6, 7, 11, 8, 9, 11, 10, 8, 15, 13, 12,
+                15, 12, 14, 19, 16, 17, 19, 18, 16, 23, 21, 20, 23, 20, 22,
+              ],
+              normals: [
+                -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, 0.0,
+                1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 0.0,
+                -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, -0.0,
+                1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, -0.0,
+                -1.0, -0.0, -0.0, -1.0, -0.0, -0.0, -1.0, -0.0, -0.0, -1.0, 0.0, 0.0,
+                1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+              ],
+              edges: [
+                -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5,
+                -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5,
+                0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+                0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5,
+                -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5,
+                -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+              ],
+              obj_vertices: [
+                -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5,
+                0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5,
+              ],
+              face_types: [0, 0, 0, 0, 0, 0],
+              edge_types: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              triangles_per_face: [2, 2, 2, 2, 2, 2],
+              segments_per_edge: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            },
+            state: [1, 1],
+            color: "#e8b024",
+            alpha: 1.0,
+            texture: null,
+            loc: [
+              [-0.0, -0.0, 0.0],
+              [0.0, 0.0, 0.0, 1.0],
+            ],
+            renderback: false,
+            accuracy: null,
+            bb: null,
+          },
+        ],
+        loc: [
+          [0.0, 0.0, 0.0],
+          [0.0, 0.0, 0.0, 1.0],
+        ],
+        name: "Group",
+        id: "/Group",
+        normal_len: 0,
+        bb: { xmin: -0.5, xmax: 0.5, ymin: -0.5, ymax: 0.5, zmin: -0.5, zmax: 0.5 },
+      };
 
       // 1) get the container
       const container = document.getElementById("cad_view");
 
       // 2) Create the CAD display in this container
-      const display = new Display(container, options);
+      const display = new Display(container, displayOptions);
 
       // 3) Create the CAD viewer
-      const viewer = new Viewer(display, true, options, nc);
-
+      const viewer = new Viewer(display, viewerOptions, nc);
+      // or viewer.clear() if the viewer exists
+      
       // 4) Render the shapes and provide states for the navigation tree in this viewer
-      viewer.render(shapes, states);
+      viewer.render(shapes, renderOptions, viewerOptions);
     </script>
   </head>
 
@@ -118,10 +192,10 @@ Back to [Github repo](https://github.com/bernhard-42/three-cad-viewer)
 
 ## Development
 
-Run a web server in watch mode
+Run a web server in watch and debug mode
 
 ```bash
-yarn run start
+yarn run debug
 ```
 
 For the deployment, see [Release.md](./Release.md)
