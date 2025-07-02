@@ -78,8 +78,6 @@ class Viewer {
     this.bb_max = 0;
     this.scene = null;
     this.camera = null;
-    this.orthographicCamera = null;
-    // this.orthographicScene = null;
     this.gridHelper = null;
     this.axesHelper = null;
     this.controls = null;
@@ -1732,7 +1730,16 @@ class Viewer {
    * @param {boolean} - meta key pressed
    * @param {boolean} shift - whether to send notification or not.
    */
-  handlePick = (path, name, meta, shift, alt, point, nodeType = "leaf") => {
+  handlePick = (
+    path,
+    name,
+    meta,
+    shift,
+    alt,
+    point,
+    nodeType = "leaf",
+    tree,
+  ) => {
     const id = `${path}/${name}`;
     const object = this.nestedGroup.groups[id];
     if (object == null) {
@@ -1768,15 +1775,21 @@ class Viewer {
 
       if (shift && meta) {
         this.removeLastBbox();
-        this.treeview.openPath(id);
-        this.setCameraTarget(point);
-        this.info.centerInfo(center);
+        if (tree) {
+          this.treeview.hideAll();
+          this.setState(id, [1, 1], nodeType);
+        } else {
+          // this.treeview.openPath(id);
+          // this.presetCamera("iso");
+          this.setCameraTarget(point);
+          this.info.centerInfo(center);
+        }
       } else if (shift) {
         this.removeLastBbox();
         this.treeview.hideAll();
         this.setState(id, [1, 1], nodeType);
         const center = boundingBox.center();
-        this.treeview.openPath(id);
+        // this.treeview.openPath(id);
         this.setCameraTarget(new THREE.Vector3(...center));
         this.info.centerInfo(center);
       } else if (meta) {
@@ -2352,11 +2365,20 @@ class Viewer {
   /**
    * Set camera target.
    * @param {number[]} target - camera target as 3 dim quaternion array [x,y,z].
+   * @param {boolean} reposition - whether to also adapt the position to the new target
    * @param {boolean} [notify=true] - whether to send notification or not.
    **/
-  setCameraTarget(target, notify = true) {
-    this.camera.getCamera().lookAt(new THREE.Vector3(...target));
-    this.controls.setTarget(new THREE.Vector3(...target));
+  setCameraTarget(target, reposition = true, notify = true) {
+    if (reposition) {
+      const offset = target.clone().sub(this.camera.target);
+
+      const position = this.camera.getPosition();
+      position.add(offset);
+    }
+
+    this.controls.setTarget(target);
+    this.camera.target.copy(target);
+
     this.controls.update();
     this.update(true, notify);
   }
