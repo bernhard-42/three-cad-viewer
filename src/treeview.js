@@ -287,6 +287,8 @@ class TreeView {
       node.name,
       KeyMapper.get(e, "meta"),
       KeyMapper.get(e, "shift"),
+      KeyMapper.get(e, "alt"),
+      null,
       this.isLeaf(node) ? "leaf" : "node",
       true,
     );
