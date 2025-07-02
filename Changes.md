@@ -1,5 +1,15 @@
 # Change log
 
+## v3.4.1
+**Features**
+
+- Clicking on a tree label with shift+meta hides all others without change of location
+
+**Fixes**
+
+- Fix isolate mode when there are only 1-dim objects in the viewer
+- Fix parameters whan calling handlepick
+
 ## v3.4.0
 
 **Features**
