@@ -219,6 +219,22 @@
 
 /**
  * A tessellated 3D shape.
+ * @typedef {Object} Texture
+ *  @property {number} height - image height.
+ *  @property {number} width - image width.
+ *  @property {Object} image - {data: base64 encoded image, format: "png"}
+ * @example
+ * texture: {
+ *   height: 1989,
+ *   width: 1873,
+ *   image:  {
+ *     data: 'iVBORw0KGgoAAAANSUhEUgAAB1 … FZQAAAABJRU5ErkJggg==',
+ *     format: 'png'
+ * }
+ */
+
+/**
+ * A tessellated 3D shape.
  * @typedef {Object} Shape
  * @property {Vector3[]} vertices - flattened list of 3-dim vertices defining the triangles.
  * @property {Vector3[]} normals - flattened list of 3-dim vertex normals.
@@ -229,43 +245,43 @@
  * @property {number[]} face_types - OCP types of the faces.
  * @example
  * shape: {
- *   vertices: [
- *     -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5,
- *     0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5,
- *     -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5,
- *     0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5,
- *     -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5,
- *     0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5,
- *   ],
- *   triangles: [
- *     1, 2, 0, 1, 3, 2, 5, 4, 6, 5, 6, 7, 11, 8, 9, 11, 10, 8, 15, 13, 12,
- *     15, 12, 14, 19, 16, 17, 19, 18, 16, 23, 21, 20, 23, 20, 22,
- *   ],
- *   normals: [
- *     -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, 0.0,
- *     1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 0.0,
- *     -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, -0.0,
- *     1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, -0.0,
- *     -1.0, -0.0, -0.0, -1.0, -0.0, -0.0, -1.0, -0.0, -0.0, -1.0, 0.0, 0.0,
- *     1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
- *   ],
- *   edges: [
- *     -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5,
- *     -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5,
- *     0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
- *     0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5,
- *     -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5,
- *     -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
- *   ],
- *   obj_vertices: [
- *     -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5,
- *     0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5,
- *   ],
- *   face_types: [0, 0, 0, 0, 0, 0],
- *   edge_types: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
- *   triangles_per_face: [2, 2, 2, 2, 2, 2],
- *   segments_per_edge: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
- * }
+ *    vertices: [
+ *      -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5,
+ *      0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5,
+ *      -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5,
+ *      0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5,
+ *      -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5,
+ *      0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5,
+ *    ],
+ *    triangles: [
+ *      1, 2, 0, 1, 3, 2, 5, 4, 6, 5, 6, 7, 11, 8, 9, 11, 10, 8, 15, 13, 12,
+ *      15, 12, 14, 19, 16, 17, 19, 18, 16, 23, 21, 20, 23, 20, 22,
+ *    ],
+ *    normals: [
+ *      -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, 0.0,
+ *      1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 0.0,
+ *      -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, 0.0, -1.0, -0.0, -0.0,
+ *      1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, 1.0, 0.0, -0.0, -0.0,
+ *      -1.0, -0.0, -0.0, -1.0, -0.0, -0.0, -1.0, -0.0, -0.0, -1.0, 0.0, 0.0,
+ *      1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+ *    ],
+ *    edges: [
+ *      -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5,
+ *      -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5,
+ *      0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+ *      0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5,
+ *      -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5,
+ *      -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+ *    ],
+ *    obj_vertices: [
+ *      -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5,
+ *      0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5,
+ *    ],
+ *    face_types: [0, 0, 0, 0, 0, 0],
+ *    edge_types: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ *    triangles_per_face: [2, 2, 2, 2, 2, 2],
+ *    segments_per_edge: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+ *  }
  */
 
 /**
@@ -277,35 +293,44 @@
  * @property {Array} [loc] - a tuple of a 3-dim position [x,y,z] and a 4-dim quaternion [x,y,z,w] describing the group's location.
  * @property {Shapes[]} [parts] - children of the group as list of shapes.
  * @property {Shape} [shape] - Shape object or null, if parts != null.
+ * @property {State} [state] - Shape visibility 1=shown, 0=hidden, 3=n/a for faces and edges.
  * @property {string} [type] - object type: "shapes", edges", "vertices", if "shape" != null.
  * @property {string} [subtype] - object subtype: only for type=="shapes": "solid" or "faces", if "shape" != null.
  * @property {string} [color] - rbg object color in CSS format, if "shape" != null.
  * @property {number} [alpha] - object alpha transparency between 0 and 1, if "shape" != null.
  * @property {boolean} [renderback] - whether to render the back of the face or not, if "shape" != null.
+ * @property {Texture} [texture] - The encoded png file (only works for faces)
  * @property {map} [bb] - bounding box as map with xmin, xmax, ymin, ymax, zmin, zmax, if "shape" != null.
  * @example
  * shapes = {
- *    "version": 2,
- *    "parts": [
- *        {
- *            "name": "Solid",
- *            "id": "/Group/Solid",
- *            "loc": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]],
- *            "shape": see Shape
- *            "type": "shapes",
- *            "subtype": "solid",
- *            "color": "#e8b024",
- *            "alpha": 1.0,
- *            "renderback": false,
- *            "accuracy": 0.002,
- *            "states": [1,1],
- *            "bb": {
- *                "xmin": -0.5, "xmax": 0.5, "ymin": -1.0, "ymax": 1.0, "zmin": -1.5, "zmax": 1.5
- *            }
- *        }
- *    ],
- *    "loc": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]],
- *    "name": "Group",
- *    "id": "/Group"
- * }
- * */
+ *   version: 3,
+ *   parts: [
+ *     {
+ *       id: "/Group/Workplane(Solid)",
+ *       type: "shapes",
+ *       subtype: "solid",
+ *       name: "Workplane(Solid)",
+ *       shape: <see Shape>,
+ *       state: [1, 1],
+ *       color: "#e8b024",
+ *       alpha: 1.0,
+ *       texture: null,
+ *       loc: [
+ *         [-0.0, -0.0, 0.0],
+ *         [0.0, 0.0, 0.0, 1.0],
+ *       ],
+ *       renderback: false,
+ *       accuracy: null,
+ *       bb: null,
+ *     },
+ *   ],
+ *   loc: [
+ *     [0.0, 0.0, 0.0],
+ *     [0.0, 0.0, 0.0, 1.0],
+ *   ],
+ *   name: "Group",
+ *   id: "/Group",
+ *   normal_len: 0,
+ *   bb: { xmin: -0.5, xmax: 0.5, ymin: -0.5, ymax: 0.5, zmin: -0.5, zmax: 0.5 },
+ * };
+ */
