@@ -686,7 +686,8 @@ class TreeView {
    */
   hideAll() {
     this.toggleIcon(this.root, 0, false);
-    if (!this.linkIcons) {
+    // need to also consider case when all objects a re edges and state[0] is 3 for all
+    if (!this.linkIcons || this.root.state[0] === 3) {
       this.toggleIcon(this.root, 1, false);
     }
   }
