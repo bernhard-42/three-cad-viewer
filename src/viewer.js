@@ -1854,6 +1854,8 @@ class Viewer {
         KeyMapper.get(e, "shift"),
         KeyMapper.get(e, "alt"),
         nearestObj.point,
+        null,
+        false,
       );
     }
     raycaster.dispose();
