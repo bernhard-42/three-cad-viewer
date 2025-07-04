@@ -53,6 +53,14 @@ class Slider {
   }
 
   sliderChange = (e) => {
+
+    // // Another option
+    // if (window.getSelection) {
+    //   window.getSelection().removeAllRanges();
+    // } else if (document.selection) {
+    //   document.selection.empty();
+    // }
+
     const value = e.target.value;
     this.input.value = Math.round(1000 * value) / 1000;
     this._handle(this.type, this.index, this.input.value);
