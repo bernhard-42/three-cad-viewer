@@ -173,25 +173,35 @@ class Measurement {
       this.panelDragData.y = e.clientY;
       e.stopPropagation();
     });
-    document.addEventListener("mouseup", this._mouseup);
-    document.addEventListener("mousemove", this._dragPanel);
   }
 
   enableContext() {
     this.contextEnabled = true;
     this.panelCenter = new Vector3(1, 0, 0);
+
+    document.addEventListener("mouseup", this._mouseup);
+    document.addEventListener("mousemove", this._dragPanel);
   }
 
   disableContext() {
-    this.contextEnabled = false;
-    this.selectedShapes = [];
     this._hideMeasurement();
+    this.contextEnabled = false;
+    this.responseData = null;
+
+    for (var group of this.selectedShapes) {
+      group.obj.clearHighlights();
+    }
+    this.selectedShapes = [];
+
+    document.removeEventListener("mouseup", this._mouseup);
+    document.removeEventListener("mousemove", this._dragPanel);
+
     this.viewer.checkChanges({ selectedShapeIDs: [] });
   }
 
   _hideMeasurement() {
-    this.responseData = null;
     this.panel.show(false);
+    this.disposeArrows();
     this.scene.clear();
   }
 
@@ -289,7 +299,6 @@ class Measurement {
    * @param {object} selectedObj The selected obj.
    */
   handleSelection = (selectedObj) => {
-    this._hideMeasurement();
     if (
       this.selectedShapes.find((o) => o.obj.name === selectedObj.obj.name) !==
       undefined
@@ -429,15 +438,19 @@ class Measurement {
     this.viewer.renderer.render(this.scene, camera);
   }
 
-  dispose() {
-    document.removeEventListener("mouseup", this._mouseup);
-    document.removeEventListener("mousemove", this._dragPanel);
-
+  disposeArrows() {
     for (var i in this.scene.children) {
       this.scene.children[i].dispose();
-      this.scene.children[i] = null;
     }
-    this.panel.dispose();
+    this.scene.children = [];
+  }
+
+  dispose() {
+    if (this.panel) {
+      this.panel.show(false);
+      this.panel.dispose();
+    }
+    this.disposeArrows();
     this.panel = null;
     this.viewer = null;
     this.scene = null;
