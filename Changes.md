@@ -1,5 +1,11 @@
 # Change log
 
+## v3.4.3
+
+**Fixes**
+
+- Make measure debug mode asynchronous and fix delay-by-one-step regression
+
 ## v3.4.2
 
 **Fixes**
