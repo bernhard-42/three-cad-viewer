@@ -266,30 +266,90 @@ class Measurement {
       }
     };
     const ids = this.selectedShapes.map(getId);
-    this.viewer.checkChanges({ selectedShapeIDs: [...ids] });
+
+    this.responseData = null;
+    if (DEBUG) {
+      const delay = 50 + Math.floor(Math.random() * 200);
+      setTimeout(() => {
+        let responseData;
+        if (this instanceof DistanceMeasurement) {
+          if (this.selectedShapes.length < 2) return;
+          var obj1 = this.selectedShapes[0].obj;
+          var obj2 = this.selectedShapes[1].obj;
+          this.point1 = obj1.children[0].geometry.boundingSphere.center.clone();
+          this.point1 = obj1.localToWorld(this.point1);
+          this.point2 = obj2.children[0].geometry.boundingSphere.center.clone();
+          this.point2 = obj2.localToWorld(this.point2);
+          responseData = {
+            type: "backend_response",
+            center_info:
+              "/Group/Solid/edges/edges_9 : Reference point has been taken as the center of the geometry\n/Group/Solid/edges/edges_11 : Reference point has been taken as the center of the geometry",
+            subtype: "tool_response",
+            tool_type: "DistanceMeasurement",
+            point1: this.point1,
+            point2: this.point2,
+            distance: this.point2.clone().sub(this.point1).length(),
+          };
+        } else if (this instanceof PropertiesMeasurement) {
+          const obj = this.selectedShapes[0].obj;
+          const center = obj.children[0].geometry.boundingSphere.center.clone();
+          this.point1 = obj.localToWorld(center);
+          responseData = {
+            type: "backend_response",
+            center_info:
+              "/Group/Solid/faces/faces_5 : Reference point has been taken as the center of the geometry",
+            subtype: "tool_response",
+            tool_type: "PropertiesMeasurement",
+            center: this.point1,
+            vertex_coords: this.point1,
+            length: Math.random() * 10,
+            width: Math.random() * 10,
+            area: Math.random() * 10,
+            volume: null,
+            radius: null,
+            radius2: null,
+            geom_type: "PLANE",
+          };
+        } else if (this instanceof AngleMeasurement) {
+          if (this.selectedShapes.length < 2) return;
+          var obj1 = this.selectedShapes[0].obj;
+          var obj2 = this.selectedShapes[1].obj;
+          this.point1 = obj1.children[0].geometry.boundingSphere.center.clone();
+          this.point1 = obj1.localToWorld(this.point1);
+          this.point2 = obj2.children[0].geometry.boundingSphere.center.clone();
+          this.point2 = obj2.localToWorld(this.point2);
+          responseData = {
+            type: "backend_response",
+            center_info:
+              "/Group/Solid/edges/edges_9 : Reference point has been taken as the center of the geometry\n/Group/Solid/edges/edges_5 : Reference point has been taken as the center of the geometry",
+            subtype: "tool_response",
+            tool_type: "AngleMeasurement",
+            angle: Math.random() * 180,
+            point1: this.point1,
+            point2: this.point2,
+          };
+        }
+        this.handleResponse(responseData);
+      }, delay);
+    } else {
+      this.viewer.checkChanges({ selectedShapeIDs: [...ids] });
+    }
 
     if (this.selectedShapes.length != this._getMaxObjSelected()) {
       this._hideMeasurement();
       return;
     }
 
-    if (DEBUG) {
+    const p = new Promise((resolve, reject) => {
+      this._waitResponse(resolve, reject);
+    });
+    // eslint-disable-next-line no-unused-vars
+    p.then((data) => {
       this._setMeasurementVals();
       this._makeLines();
       this.panel.show(true);
       this._movePanel();
-    } else {
-      const p = new Promise((resolve, reject) => {
-        this._waitResponse(resolve, reject);
-      });
-      // eslint-disable-next-line no-unused-vars
-      p.then((data) => {
-        this._setMeasurementVals();
-        this._makeLines();
-        this.panel.show(true);
-        this._movePanel();
-      });
-    }
+    });
   }
 
   /**
@@ -467,7 +527,7 @@ class DistanceMeasurement extends Measurement {
 
   _setMeasurementVals() {
     this._getPoints();
-    const total = DEBUG ? 50 : this.responseData.distance;
+    const total = this.responseData.distance;
     const distVec = this.point2.clone().sub(this.point1);
     const xdist = Math.abs(distVec.x);
     const ydist = Math.abs(distVec.y);
@@ -483,17 +543,8 @@ class DistanceMeasurement extends Measurement {
   }
 
   _getPoints() {
-    if (DEBUG) {
-      var obj1 = this.selectedShapes[0].obj;
-      var obj2 = this.selectedShapes[1].obj;
-      this.point1 = obj1.children[0].geometry.boundingSphere.center.clone();
-      this.point1 = obj1.localToWorld(this.point1);
-      this.point2 = obj2.children[0].geometry.boundingSphere.center.clone();
-      this.point2 = obj2.localToWorld(this.point2);
-    } else {
-      this.point1 = new Vector3(...this.responseData.point1);
-      this.point2 = new Vector3(...this.responseData.point2);
-    }
+    this.point1 = new Vector3(...this.responseData.point1);
+    this.point2 = new Vector3(...this.responseData.point2);
   }
 
   _makeLines() {
@@ -569,24 +620,7 @@ class PropertiesMeasurement extends Measurement {
             ? "Face"
             : "Unknown";
     this.panel.subheader = subheader;
-    const debugProps = {
-      volume: 0.445,
-      area: -1.012,
-      length: 2.012,
-      width: 0.012,
-      radius: 1.012,
-      radius2: 2.023,
-      geom_type: "Circle",
-      vertex_coords: [1.3456, -4.3456, 2.3567],
-      // volume: 44444.44,
-      // area: 48.01,
-      // length: 94.01,
-      // width: 24.01,
-      // radius: 10.01,
-      // geom_type: "Circle",
-      // vertex_coords: [10000.34, -41000.34, 82.35]
-    };
-    const props = DEBUG ? debugProps : this.responseData;
+    const props = this.responseData;
     this.panel.setProperties(props);
   }
 
@@ -597,13 +631,7 @@ class PropertiesMeasurement extends Measurement {
   _makeLines() {
     if (this.scene.children.length === 0) {
       const lineWidth = 1.5;
-      var worldCenter;
-      if (DEBUG) {
-        const obj = this.selectedShapes[0].obj;
-        const center = obj.children[0].geometry.boundingSphere.center.clone();
-        worldCenter = obj.localToWorld(center);
-      }
-      this.middlePoint = DEBUG ? worldCenter : this.responseData.center;
+      this.middlePoint = new THREE.Vector3(...this.responseData.center);
       const connectingLine = new DistanceLineArrow(
         this.coneLength,
         this.panelCenter,
@@ -644,8 +672,7 @@ class AngleMeasurement extends Measurement {
 
   _setMeasurementVals() {
     let angle;
-    if (DEBUG) angle = "134.5678°";
-    else angle = this.responseData.angle.toFixed(2) + " °";
+    angle = this.responseData.angle.toFixed(3) + " °";
     this.panel.angle = angle;
   }
 
@@ -671,17 +698,8 @@ class AngleMeasurement extends Measurement {
   }
 
   _getPoints() {
-    if (DEBUG) {
-      var obj1 = this.selectedShapes[0].obj;
-      var obj2 = this.selectedShapes[1].obj;
-      this.point1 = obj1.children[0].geometry.boundingSphere.center.clone();
-      this.point1 = obj1.localToWorld(this.point1);
-      this.point2 = obj2.children[0].geometry.boundingSphere.center.clone();
-      this.point2 = obj2.localToWorld(this.point2);
-    } else {
-      this.point1 = new Vector3(...this.responseData.point1);
-      this.point2 = new Vector3(...this.responseData.point2);
-    }
+    this.point1 = new Vector3(...this.responseData.point1);
+    this.point2 = new Vector3(...this.responseData.point2);
   }
 
   _makeLines() {
