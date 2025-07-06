@@ -17,6 +17,9 @@ class SelectObject {
       this.viewer.raycaster.filters.geomFilter = [GeomFilter.none];
     }
     this.contextEnabled = false;
+    for (var group of this.selectedShapes) {
+      group.obj.clearHighlights();
+    }
     this.selectedShapes = [];
   }
 
@@ -86,7 +89,6 @@ class SelectObject {
 
   dispose() {
     this.disableContext();
-    this.selectedShapes = [];
   }
 }
 
