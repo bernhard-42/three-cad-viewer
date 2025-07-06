@@ -495,19 +495,27 @@ class DistanceMeasurement extends Measurement {
       );
       this.scene.add(distanceLine);
 
-    this.middlePoint = new THREE.Vector3()
-      .addVectors(this.point1, this.point2)
-      .multiplyScalar(0.5);
-    const connectingLine = new DistanceLineArrow(
-      this.coneLength,
-      this.panelCenter,
-      this.middlePoint,
-      lineWidth,
-      this.connectingLineColor,
-      false,
-      false,
-    );
-    this.scene.add(connectingLine);
+      this.middlePoint = new THREE.Vector3()
+        .addVectors(this.point1, this.point2)
+        .multiplyScalar(0.5);
+      const connectingLine = new DistanceLineArrow(
+        this.coneLength,
+        this.panelCenter,
+        this.middlePoint,
+        lineWidth,
+        this.connectingLineColor,
+        false,
+        false,
+      );
+      this.scene.add(connectingLine);
+    }
+  }
+
+  _updateConnectionLine() {
+    this.scene.children[1].children[0].geometry.setPositions([
+      ...this.middlePoint,
+      ...this.panelCenter,
+    ]);
   }
 
   /**
