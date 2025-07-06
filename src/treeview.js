@@ -228,19 +228,11 @@ class TreeView {
    * Handles the scroll event.
    */
   handleScroll = () => {
-    if (!this.ticking) {
-      window.requestAnimationFrame(() => {
-        const scrollTop = this.scrollContainer.scrollTop;
-        this.lastScrollTop = scrollTop;
-        if (this.debug) {
-          console.log("update => scroll");
-        }
-        this.update();
-
-        this.ticking = false;
-      });
-      this.ticking = true;
+    this.lastScrollTop = this.scrollContainer.scrollTop;
+    if (this.debug) {
+      console.log("update => scroll");
     }
+    this.update();
   };
 
   /**
