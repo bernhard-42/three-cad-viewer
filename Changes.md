@@ -1,5 +1,13 @@
 # Change log
 
+## v3.4.2
+
+**Fixes**
+
+- Ensure that lines and arrows for measurement are initialized once only to remove memory leaks [#29](https://github.com/bernhard-42/three-cad-viewer/issues/29)
+- Clean up disableTools, disableContext and dispose
+- Ensure tools get properly disabled
+
 ## v3.4.1
 **Features**
 
