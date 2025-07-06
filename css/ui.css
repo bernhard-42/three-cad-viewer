@@ -2,6 +2,11 @@ canvas {
   outline: none !important;
 }
 
+/* Disables text selection of UI elements */
+body {
+  user-select: none;
+}
+
 .tcv_cad_viewer {
   margin: 0;
   display: flex;
