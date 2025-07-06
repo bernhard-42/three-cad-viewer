@@ -40,7 +40,9 @@ export class Tools {
    */
   enable(toolType) {
     // Disable the currently enabled tool (if any)
-    this.disable();
+    if (this.enabledTool) {
+      this.disable();
+    }
 
     switch (toolType) {
       case ToolTypes.DISTANCE:
