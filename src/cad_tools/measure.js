@@ -211,6 +211,10 @@ class Measurement {
     throw new Error("Subclass needs to override this method");
   }
 
+  _updateConnectionLine() {
+    throw new Error("Subclass needs to override this method");
+  }
+
   /**
    * Get the maximum number of selected obj this measurement can handle
    * @returns {int} The numbers of obj handled by the measurement
@@ -345,8 +349,9 @@ class Measurement {
     camera.updateMatrixWorld();
     this.panelCenter = panelCenter.unproject(camera);
 
-    this.scene.clear();
-    this._makeLines();
+    if (this.scene.children.length > 0) {
+      this._updateConnectionLine();
+    }
   };
 
   /**
@@ -381,7 +386,6 @@ class Measurement {
       this.panelY += dy;
     }
 
-    this.scene.clear();
     this._updateMeasurement();
 
     // Update the drag start position
@@ -421,8 +425,8 @@ class Measurement {
       (Math.max(this.viewer.cadWidth, this.viewer.height) / 60);
     this._adjustArrowsScaleFactor(zoom);
     this.viewer.renderer.clearDepth();
-    this.viewer.renderer.render(this.scene, camera);
     this._movePanel();
+    this.viewer.renderer.render(this.scene, camera);
   }
 
   dispose() {
@@ -480,15 +484,16 @@ class DistanceMeasurement extends Measurement {
   }
 
   _makeLines() {
-    const lineWidth = 1.5;
-    const distanceLine = new DistanceLineArrow(
-      this.coneLength,
-      this.point1,
-      this.point2,
-      2 * lineWidth,
-      this.measurementLineColor,
-    );
-    this.scene.add(distanceLine);
+    if (this.scene.children.length === 0) {
+      const lineWidth = 1.5;
+      const distanceLine = new DistanceLineArrow(
+        this.coneLength,
+        this.point1,
+        this.point2,
+        2 * lineWidth,
+        this.measurementLineColor,
+      );
+      this.scene.add(distanceLine);
 
     this.middlePoint = new THREE.Vector3()
       .addVectors(this.point1, this.point2)
@@ -569,24 +574,33 @@ class PropertiesMeasurement extends Measurement {
   }
 
   _makeLines() {
-    const lineWidth = 1.5;
-    var worldCenter;
-    if (DEBUG) {
-      const obj = this.selectedShapes[0].obj;
-      const center = obj.children[0].geometry.boundingSphere.center.clone();
-      worldCenter = obj.localToWorld(center);
+    if (this.scene.children.length === 0) {
+      const lineWidth = 1.5;
+      var worldCenter;
+      if (DEBUG) {
+        const obj = this.selectedShapes[0].obj;
+        const center = obj.children[0].geometry.boundingSphere.center.clone();
+        worldCenter = obj.localToWorld(center);
+      }
+      this.middlePoint = DEBUG ? worldCenter : this.responseData.center;
+      const connectingLine = new DistanceLineArrow(
+        this.coneLength,
+        this.panelCenter,
+        this.middlePoint,
+        lineWidth,
+        this.connectingLineColor,
+        false,
+        false,
+      );
+      this.scene.add(connectingLine);
     }
-    this.middlePoint = DEBUG ? worldCenter : this.responseData.center;
-    const connectingLine = new DistanceLineArrow(
-      this.coneLength,
-      this.panelCenter,
-      this.middlePoint,
-      lineWidth,
-      this.connectingLineColor,
-      false,
-      false,
-    );
-    this.scene.add(connectingLine);
+  }
+
+  _updateConnectionLine() {
+    this.scene.children[0].children[0].geometry.setPositions([
+      ...this.middlePoint,
+      ...this.panelCenter,
+    ]);
   }
 
   /**
@@ -650,31 +664,43 @@ class AngleMeasurement extends Measurement {
   }
 
   _makeLines() {
-    const lineWidth = 1.5;
-    this._getPoints();
-    const item1Line = new DistanceLineArrow(
-      this.coneLength,
-      this.point1,
-      this.panelCenter,
-      lineWidth,
-      this.connectingLineColor,
-      false,
-      false,
-    );
-    const item2Line = new DistanceLineArrow(
-      this.coneLength,
-      this.point2,
-      this.panelCenter,
-      lineWidth,
-      this.connectingLineColor,
-      false,
-      false,
-    );
-    this.scene.add(item1Line);
-    this.scene.add(item2Line);
-    this.middlePoint = new THREE.Vector3()
-      .addVectors(this.point1, this.point2)
-      .multiplyScalar(0.5);
+    if (this.scene.children.length === 0) {
+      const lineWidth = 1.5;
+      this._getPoints();
+      const item1Line = new DistanceLineArrow(
+        this.coneLength,
+        this.point1,
+        this.panelCenter,
+        lineWidth,
+        this.connectingLineColor,
+        false,
+        false,
+      );
+      const item2Line = new DistanceLineArrow(
+        this.coneLength,
+        this.point2,
+        this.panelCenter,
+        lineWidth,
+        this.connectingLineColor,
+        false,
+        false,
+      );
+      this.scene.add(item1Line);
+      this.scene.add(item2Line);
+      this.middlePoint = new THREE.Vector3()
+        .addVectors(this.point1, this.point2)
+        .multiplyScalar(0.5);
+    }
+  }
+
+  _updateConnectionLine() {
+    for (var i = 0; i < 2; i++) {
+      const p = i == 0 ? this.point1 : this.point2;
+      this.scene.children[i].children[0].geometry.setPositions([
+        ...p,
+        ...this.panelCenter,
+      ]);
+    }
   }
 
   handleResponse(response) {
