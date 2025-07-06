@@ -57660,25 +57660,35 @@ class Measurement {
       this.panelDragData.y = e.clientY;
       e.stopPropagation();
     });
-    document.addEventListener("mouseup", this._mouseup);
-    document.addEventListener("mousemove", this._dragPanel);
   }
 
   enableContext() {
     this.contextEnabled = true;
     this.panelCenter = new Vector3(1, 0, 0);
+
+    document.addEventListener("mouseup", this._mouseup);
+    document.addEventListener("mousemove", this._dragPanel);
   }
 
   disableContext() {
-    this.contextEnabled = false;
-    this.selectedShapes = [];
     this._hideMeasurement();
+    this.contextEnabled = false;
+    this.responseData = null;
+
+    for (var group of this.selectedShapes) {
+      group.obj.clearHighlights();
+    }
+    this.selectedShapes = [];
+
+    document.removeEventListener("mouseup", this._mouseup);
+    document.removeEventListener("mousemove", this._dragPanel);
+
     this.viewer.checkChanges({ selectedShapeIDs: [] });
   }
 
   _hideMeasurement() {
-    this.responseData = null;
     this.panel.show(false);
+    this.disposeArrows();
     this.scene.clear();
   }
 
@@ -57695,6 +57705,10 @@ class Measurement {
   }
 
   _makeLines() {
+    throw new Error("Subclass needs to override this method");
+  }
+
+  _updateConnectionLine() {
     throw new Error("Subclass needs to override this method");
   }
 
@@ -57747,16 +57761,10 @@ class Measurement {
     }
 
     {
-      const p = new Promise((resolve, reject) => {
-        this._waitResponse(resolve, reject);
-      });
-      // eslint-disable-next-line no-unused-vars
-      p.then((data) => {
-        this._setMeasurementVals();
-        this._makeLines();
-        this.panel.show(true);
-        this._movePanel();
-      });
+      this._setMeasurementVals();
+      this._makeLines();
+      this.panel.show(true);
+      this._movePanel();
     }
   }
 
@@ -57767,7 +57775,6 @@ class Measurement {
    * @param {object} selectedObj The selected obj.
    */
   handleSelection = (selectedObj) => {
-    this._hideMeasurement();
     if (
       this.selectedShapes.find((o) => o.obj.name === selectedObj.obj.name) !==
       undefined
@@ -57827,8 +57834,9 @@ class Measurement {
     camera.updateMatrixWorld();
     this.panelCenter = panelCenter.unproject(camera);
 
-    this.scene.clear();
-    this._makeLines();
+    if (this.scene.children.length > 0) {
+      this._updateConnectionLine();
+    }
   };
 
   /**
@@ -57863,7 +57871,6 @@ class Measurement {
       this.panelY += dy;
     }
 
-    this.scene.clear();
     this._updateMeasurement();
 
     // Update the drag start position
@@ -57903,19 +57910,23 @@ class Measurement {
       (Math.max(this.viewer.cadWidth, this.viewer.height) / 60);
     this._adjustArrowsScaleFactor(zoom);
     this.viewer.renderer.clearDepth();
-    this.viewer.renderer.render(this.scene, camera);
     this._movePanel();
+    this.viewer.renderer.render(this.scene, camera);
+  }
+
+  disposeArrows() {
+    for (var i in this.scene.children) {
+      this.scene.children[i].dispose();
+    }
+    this.scene.children = [];
   }
 
   dispose() {
-    document.removeEventListener("mouseup", this._mouseup);
-    document.removeEventListener("mousemove", this._dragPanel);
-
-    for (var i in this.scene.children) {
-      this.scene.children[i].dispose();
-      this.scene.children[i] = null;
+    if (this.panel) {
+      this.panel.show(false);
+      this.panel.dispose();
     }
-    this.panel.dispose();
+    this.disposeArrows();
     this.panel = null;
     this.viewer = null;
     this.scene = null;
@@ -57932,7 +57943,7 @@ class DistanceMeasurement extends Measurement {
 
   _setMeasurementVals() {
     this._getPoints();
-    const total = this.responseData.distance;
+    const total = 50 ;
     const distVec = this.point2.clone().sub(this.point1);
     const xdist = Math.abs(distVec.x);
     const ydist = Math.abs(distVec.y);
@@ -57949,35 +57960,48 @@ class DistanceMeasurement extends Measurement {
 
   _getPoints() {
     {
-      this.point1 = new Vector3(...this.responseData.point1);
-      this.point2 = new Vector3(...this.responseData.point2);
+      var obj1 = this.selectedShapes[0].obj;
+      var obj2 = this.selectedShapes[1].obj;
+      this.point1 = obj1.children[0].geometry.boundingSphere.center.clone();
+      this.point1 = obj1.localToWorld(this.point1);
+      this.point2 = obj2.children[0].geometry.boundingSphere.center.clone();
+      this.point2 = obj2.localToWorld(this.point2);
     }
   }
 
   _makeLines() {
-    const lineWidth = 1.5;
-    const distanceLine = new DistanceLineArrow(
-      this.coneLength,
-      this.point1,
-      this.point2,
-      2 * lineWidth,
-      this.measurementLineColor,
-    );
-    this.scene.add(distanceLine);
+    if (this.scene.children.length === 0) {
+      const lineWidth = 1.5;
+      const distanceLine = new DistanceLineArrow(
+        this.coneLength,
+        this.point1,
+        this.point2,
+        2 * lineWidth,
+        this.measurementLineColor,
+      );
+      this.scene.add(distanceLine);
 
-    this.middlePoint = new Vector3()
-      .addVectors(this.point1, this.point2)
-      .multiplyScalar(0.5);
-    const connectingLine = new DistanceLineArrow(
-      this.coneLength,
-      this.panelCenter,
-      this.middlePoint,
-      lineWidth,
-      this.connectingLineColor,
-      false,
-      false,
-    );
-    this.scene.add(connectingLine);
+      this.middlePoint = new Vector3()
+        .addVectors(this.point1, this.point2)
+        .multiplyScalar(0.5);
+      const connectingLine = new DistanceLineArrow(
+        this.coneLength,
+        this.panelCenter,
+        this.middlePoint,
+        lineWidth,
+        this.connectingLineColor,
+        false,
+        false,
+      );
+      this.scene.add(connectingLine);
+    }
+  }
+
+  _updateConnectionLine() {
+    this.scene.children[1].children[0].geometry.setPositions([
+      ...this.middlePoint,
+      ...this.panelCenter,
+    ]);
   }
 
   /**
@@ -58018,7 +58042,24 @@ class PropertiesMeasurement extends Measurement {
             ? "Face"
             : "Unknown";
     this.panel.subheader = subheader;
-    const props = this.responseData;
+    const debugProps = {
+      volume: 0.445,
+      area: -1.012,
+      length: 2.012,
+      width: 0.012,
+      radius: 1.012,
+      radius2: 2.023,
+      geom_type: "Circle",
+      vertex_coords: [1.3456, -4.3456, 2.3567],
+      // volume: 44444.44,
+      // area: 48.01,
+      // length: 94.01,
+      // width: 24.01,
+      // radius: 10.01,
+      // geom_type: "Circle",
+      // vertex_coords: [10000.34, -41000.34, 82.35]
+    };
+    const props = debugProps ;
     this.panel.setProperties(props);
   }
 
@@ -58027,18 +58068,33 @@ class PropertiesMeasurement extends Measurement {
   }
 
   _makeLines() {
-    const lineWidth = 1.5;
-    this.middlePoint = this.responseData.center;
-    const connectingLine = new DistanceLineArrow(
-      this.coneLength,
-      this.panelCenter,
-      this.middlePoint,
-      lineWidth,
-      this.connectingLineColor,
-      false,
-      false,
-    );
-    this.scene.add(connectingLine);
+    if (this.scene.children.length === 0) {
+      const lineWidth = 1.5;
+      var worldCenter;
+      {
+        const obj = this.selectedShapes[0].obj;
+        const center = obj.children[0].geometry.boundingSphere.center.clone();
+        worldCenter = obj.localToWorld(center);
+      }
+      this.middlePoint = worldCenter ;
+      const connectingLine = new DistanceLineArrow(
+        this.coneLength,
+        this.panelCenter,
+        this.middlePoint,
+        lineWidth,
+        this.connectingLineColor,
+        false,
+        false,
+      );
+      this.scene.add(connectingLine);
+    }
+  }
+
+  _updateConnectionLine() {
+    this.scene.children[0].children[0].geometry.setPositions([
+      ...this.middlePoint,
+      ...this.panelCenter,
+    ]);
   }
 
   /**
@@ -58061,7 +58117,7 @@ class AngleMeasurement extends Measurement {
 
   _setMeasurementVals() {
     let angle;
-    angle = this.responseData.angle.toFixed(2) + " °";
+    angle = "134.5678°";
     this.panel.angle = angle;
   }
 
@@ -58088,37 +58144,53 @@ class AngleMeasurement extends Measurement {
 
   _getPoints() {
     {
-      this.point1 = new Vector3(...this.responseData.point1);
-      this.point2 = new Vector3(...this.responseData.point2);
+      var obj1 = this.selectedShapes[0].obj;
+      var obj2 = this.selectedShapes[1].obj;
+      this.point1 = obj1.children[0].geometry.boundingSphere.center.clone();
+      this.point1 = obj1.localToWorld(this.point1);
+      this.point2 = obj2.children[0].geometry.boundingSphere.center.clone();
+      this.point2 = obj2.localToWorld(this.point2);
     }
   }
 
   _makeLines() {
-    const lineWidth = 1.5;
-    this._getPoints();
-    const item1Line = new DistanceLineArrow(
-      this.coneLength,
-      this.point1,
-      this.panelCenter,
-      lineWidth,
-      this.connectingLineColor,
-      false,
-      false,
-    );
-    const item2Line = new DistanceLineArrow(
-      this.coneLength,
-      this.point2,
-      this.panelCenter,
-      lineWidth,
-      this.connectingLineColor,
-      false,
-      false,
-    );
-    this.scene.add(item1Line);
-    this.scene.add(item2Line);
-    this.middlePoint = new Vector3()
-      .addVectors(this.point1, this.point2)
-      .multiplyScalar(0.5);
+    if (this.scene.children.length === 0) {
+      const lineWidth = 1.5;
+      this._getPoints();
+      const item1Line = new DistanceLineArrow(
+        this.coneLength,
+        this.point1,
+        this.panelCenter,
+        lineWidth,
+        this.connectingLineColor,
+        false,
+        false,
+      );
+      const item2Line = new DistanceLineArrow(
+        this.coneLength,
+        this.point2,
+        this.panelCenter,
+        lineWidth,
+        this.connectingLineColor,
+        false,
+        false,
+      );
+      this.scene.add(item1Line);
+      this.scene.add(item2Line);
+      this.middlePoint = new Vector3()
+        .addVectors(this.point1, this.point2)
+        .multiplyScalar(0.5);
+    }
+  }
+
+  _updateConnectionLine() {
+    for (var i = 0; i < 2; i++) {
+      const p = i == 0 ? this.point1 : this.point2;
+      this.scene.children[i].children[0].geometry.setPositions([
+        ...p,
+        ...this.panelCenter,
+      ]);
+    }
   }
 
   handleResponse(response) {
@@ -58257,7 +58329,9 @@ class Tools {
    */
   enable(toolType) {
     // Disable the currently enabled tool (if any)
-    this.disable();
+    if (this.enabledTool) {
+      this.disable();
+    }
 
     switch (toolType) {
       case ToolTypes.DISTANCE:
@@ -59162,6 +59236,15 @@ class Display {
         this.viewer.toggleGroup(false);
         this.viewer.toggleTab(false);
         this.currentButton = null;
+      }
+      if (name == "distance") {
+        this.viewer.cadTools.disable(ToolTypes.DISTANCE);
+      } else if (name == "properties") {
+        this.viewer.cadTools.disable(ToolTypes.PROPERTIES);
+      } else if (name == "angle") {
+        this.viewer.cadTools.disable(ToolTypes.ANGLE);
+      } else if (name == "select") {
+        this.viewer.cadTools.disable(ToolTypes.SELECT);
       }
       this.viewer.checkChanges({ activeTool: ToolTypes.NONE });
       this.viewer.clearSelection();
@@ -61850,19 +61933,11 @@ class TreeView {
    * Handles the scroll event.
    */
   handleScroll = () => {
-    if (!this.ticking) {
-      window.requestAnimationFrame(() => {
-        const scrollTop = this.scrollContainer.scrollTop;
-        this.lastScrollTop = scrollTop;
-        if (this.debug) {
-          console.log("update => scroll");
-        }
-        this.update();
-
-        this.ticking = false;
-      });
-      this.ticking = true;
+    this.lastScrollTop = this.scrollContainer.scrollTop;
+    if (this.debug) {
+      console.log("update => scroll");
     }
+    this.update();
   };
 
   /**
@@ -65197,7 +65272,7 @@ class Camera {
   }
 }
 
-const version = "3.4.1";
+const version = "3.4.2";
 
 Mesh.prototype.dispose = function () {
   if (this.geometry) {
