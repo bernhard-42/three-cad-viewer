@@ -47,6 +47,11 @@ canvas {
   outline: none !important;
 }
 
+/* Disables text selection of UI elements */
+body {
+  user-select: none;
+}
+
 .tcv_cad_viewer {
   margin: 0;
   display: flex;
@@ -114,6 +119,7 @@ canvas {
   border-style: solid;
   border-width: 1px;
   overflow: hidden;
+  user-select:text;
 }
 
 .tcv_cad_info_wrapper {
