@@ -727,6 +727,15 @@ class Display {
         this.viewer.toggleTab(false);
         this.currentButton = null;
       }
+      if (name == "distance") {
+        this.viewer.cadTools.disable(ToolTypes.DISTANCE);
+      } else if (name == "properties") {
+        this.viewer.cadTools.disable(ToolTypes.PROPERTIES);
+      } else if (name == "angle") {
+        this.viewer.cadTools.disable(ToolTypes.ANGLE);
+      } else if (name == "select") {
+        this.viewer.cadTools.disable(ToolTypes.SELECT);
+      }
       this.viewer.checkChanges({ activeTool: ToolTypes.NONE });
       this.viewer.clearSelection();
       if (this.viewer.hasAnimation()) {
