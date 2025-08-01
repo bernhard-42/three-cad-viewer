@@ -174,8 +174,15 @@ th {
 }
 
 .tcv_cad_toolbar {
+  display: flex;
   background: var(--tcv-bg-overlay-color);
-  overflow: hidden;
+  position: relative;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+.tcv_cad_toolbar > *:last-child {
+  margin-left: auto;
 }
 
 .tcv_cad_inset {
@@ -319,12 +326,16 @@ th {
 }
 
 .tcv_separator {
-  width: 14px;
   border-left: 1px solid lightgray;
-  margin-left: 5px;
+  margin-left: 6px;
   padding-right: 5px;
-  padding-bottom: 6px;
+  padding-bottom: 5px;
   padding-top: 3px;
+}
+
+.tcv_ellipsis {
+  padding-left: 4px;
+  padding-top: 2px;
 }
 
 .tcv_small_btn {

@@ -41,6 +41,7 @@ class Display {
     this.cadTool = new Toolbar(
       this._getElement("tcv_cad_toolbar"),
       container.id,
+      this,
     );
     this.cadView = this._getElement("tcv_cad_view");
     this.distanceMeasurementPanel = this._getElement(
@@ -243,15 +244,13 @@ class Display {
     );
     this.cadTool.addButton(this.toolbarButtons["explode"], -1);
 
-    this.cadTool.addSeparator();
-
     this.toolbarButtons["distance"] = new ClickButton(
       theme,
       "distance",
       "Measure distance between shapes",
       this.setTool,
     );
-    this.cadTool.addButton(this.toolbarButtons["distance"], -1);
+    this.cadTool.addButton(this.toolbarButtons["distance"], 3);
     this.cadTool.addEllipsis(new Ellipsis(3, this.cadTool.maximize));
     this.toolbarButtons["properties"] = new ClickButton(
       theme,
@@ -284,21 +283,14 @@ class Display {
       this.toolbarButtons["select"],
     ]);
 
-    this.toolbarButtons["help"] = new Button(
-      theme,
-      "help",
-      "Help",
-      this.toggleHelp,
-    );
-    this.toolbarButtons["help"].alignRight();
-    this.cadTool.addButton(this.toolbarButtons["help"], -1);
-
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.help_shown) {
         e.preventDefault();
         this.showHelp(false);
       }
     });
+
+    this.cadTool.addSeparator();
 
     this.toolbarButtons["pin"] = new Button(
       theme,
@@ -311,7 +303,14 @@ class Display {
     this.shapeFilterDropDownMenu = new FilterByDropDownMenu(this);
 
     this.showPinning(options.pinning);
-    // this.showMeasureTools(options.measureTools);
+
+    this.toolbarButtons["help"] = new Button(
+      theme,
+      "help",
+      "Help",
+      this.toggleHelp,
+    );
+    this.cadTool.addButton(this.toolbarButtons["help"], -1);
 
     this.infoIcons = {
       right: getIconSvg(theme, "nav_closed"),
@@ -771,8 +770,16 @@ class Display {
     }
     var tb = this._getElement("tcv_cad_toolbar");
     var cn = this._getElement("tcv_cad_navigation");
-    for (var el of [cn, tb]) {
-      el.style.display = flag ? undefined : "none";
+    if (flag) {å
+      tb.style.height = "38px";
+      tb.style.display = "flex";
+      cn.style.height = "38px";
+      cn.style.display = "block";
+    } else {
+      tb.style.height = "0px";
+      tb.style.display = "none";
+      cn.style.height = "0px";
+      cn.style.display = "none";
     }
   };
 
