@@ -1401,6 +1401,9 @@ class Viewer {
     );
     this.orientationMarker.create();
 
+    this.display.showMeasureTools(viewerOptions.measureTools);
+    this.display.showSelectTool(viewerOptions.selectTool);
+
     //
     // update UI elements
     //
