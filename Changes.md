@@ -1,5 +1,12 @@
 # Change log
 
+## v3.5.0
+
+**Features**
+
+- The view now supports widths of 450-814px with shrunken toolbar (using ellipsis). From 815px the toolbar is fully visible
+
+
 ## v3.4.3
 
 **Fixes**
