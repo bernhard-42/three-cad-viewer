@@ -175,6 +175,7 @@ th {
 
 .tcv_cad_toolbar {
   background: var(--tcv-bg-overlay-color);
+  overflow: hidden;
 }
 
 .tcv_cad_inset {
