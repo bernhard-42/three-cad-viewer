@@ -1418,6 +1418,9 @@ class Viewer {
     );
     this.orientationMarker.create();
 
+    this.display.showMeasureTools(viewerOptions.measureTools);
+    this.display.showSelectTool(viewerOptions.selectTool);
+
     //
     // update UI elements
     //
@@ -1441,9 +1444,6 @@ class Viewer {
 
     this.toggleAnimationLoop(this.hasAnimationLoop);
 
-    this.display.showMeasureTools(viewerOptions.measureTools);
-    this.display.showSelectTool(viewerOptions.selectTool);
-
     this.ready = true;
     this.info.readyMsg(this.gridHelper.ticks, this.control);
 
@@ -1465,6 +1465,7 @@ class Viewer {
 
     this.update(true, false);
     this.treeview.update();
+
     timer.split("update done");
     timer.stop();
   }

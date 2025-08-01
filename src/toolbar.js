@@ -1,11 +1,17 @@
 import { getIconBackground } from "./icons.js";
 
 class Toolbar {
-  constructor(container, id) {
+  constructor(container, id, display) {
     this.id = id;
     this.container = container;
+    this.display = display;
     this.container.addEventListener("mouseleave", (e) => {
-      this.minimize();
+      const width = this.display.glass
+        ? this.display.cadWidth
+        : this.display.cadWidth + this.display.treeWidth;
+      if (width < this.display.widthThreshold) {
+        this.minimize();
+      }
     });
     this.buttons = {};
     this.ellipses = [];
