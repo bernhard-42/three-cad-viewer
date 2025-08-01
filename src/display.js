@@ -34,9 +34,6 @@ class Display {
   constructor(container, options) {
     this.container = container;
     this.container.innerHTML = TEMPLATE(this.container.id);
-    // const fullWidth =
-    //   options.cadWidth + (options.glass ? 0 : options.treeWidth);
-    // this.handleMoreButton(fullWidth);
 
     this.cadBody = this._getElement("tcv_cad_body");
 
@@ -356,25 +353,6 @@ class Display {
     this.cadView.removeChild(this.cadView.children[2]);
     // delete view
     this.container.innerHTML = "";
-  }
-
-  /**
-   * Use More fropdown if overall width < 970px else just check boxes
-   * @param {number} fullWidth - overall width of tree and cad view (taking glass mode into account)
-   */
-  // eslint-disable-next-line no-unused-vars
-  handleMoreButton(fullWidth) {
-    // const moreButton = this._getElement("tcv_more-btn");
-    // const moreContent = this._getElement("tcv_more-wrapper");
-    // if (fullWidth < 980) {
-    //   moreButton.classList.remove("tcv_none");
-    //   moreContent.classList.add("tcv_dropdown-content");
-    //   moreContent.classList.add("tcv_more-content");
-    // } else {
-    //   moreButton.classList.add("tcv_none");
-    //   moreContent.classList.remove("tcv_dropdown-content");
-    //   moreContent.classList.remove("tcv_more-content");
-    // }
   }
 
   /**
@@ -1348,9 +1326,6 @@ class Display {
       treeWidth: flag ? 0 : this.treeWidth,
     };
     this.setSizes(options);
-
-    // const fullWidth = this.cadWidth + (this.glass ? 0 : this.treeWidth);
-    // this.handleMoreButton(fullWidth);
   }
 
   updateHelp(before, after) {
