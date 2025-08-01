@@ -2959,7 +2959,9 @@ class Viewer {
     this.display.glassMode(glass);
 
     const fullWidth = cadWidth + (glass ? 0 : treeWidth);
-    this.display.handleMoreButton(fullWidth);
+    if (fullWidth >= this.display.widthThreshold) {
+      this.display.cadTool.maximize();
+    }
 
     // Adapt camers to new dimensions
     this.camera.changeDimensions(this.bb_radius, cadWidth, height);

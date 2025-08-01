@@ -4,12 +4,20 @@ class Toolbar {
   constructor(container, id) {
     this.id = id;
     this.container = container;
+    this.container.addEventListener("mouseleave", (e) => {
+      this.minimize();
+    });
     this.buttons = {};
+    this.ellipses = [];
+    this.toggles = { 0: [], 1: [], 2: [], 3: [] };
   }
 
-  addButton(button) {
+  addButton(button, tag) {
     button.setId(this.id);
     this.buttons[button.name] = button;
+    if (tag != -1) {
+      this.toggles[tag].push(button);
+    }
     this.container.appendChild(button.html);
   }
 
@@ -17,6 +25,11 @@ class Toolbar {
     var html = document.createElement("span");
     html.className = "tcv_separator";
     this.container.appendChild(html);
+  }
+
+  addEllipsis(ellipsis) {
+    this.container.appendChild(ellipsis.html);
+    this.ellipses.push(ellipsis.html);
   }
 
   defineGroup(buttons) {
@@ -28,8 +41,54 @@ class Toolbar {
       }
     }
   }
+
+  _toggle(flag, id = null) {
+    var toggles, ellipses;
+    if (id == null) {
+      toggles = this.toggles;
+      ellipses = this.ellipses;
+    } else {
+      toggles = {};
+      toggles[id] = this.toggles[id];
+      ellipses = [this.ellipses[id]];
+    }
+    for (var ellipsis of ellipses) {
+      if (flag) {
+        ellipsis.classList.remove("tcv_unvisible");
+      } else {
+        ellipsis.classList.add("tcv_unvisible");
+      }
+    }
+    for (var tag in toggles) {
+      for (var button of toggles[tag]) {
+        button.show(!flag);
+      }
+    }
+  }
+
+  minimize = (id = null) => {
+    this._toggle(true, id);
+  };
+
+  maximize = (id = null) => {
+    this._toggle(true);
+    this._toggle(false, id);
+  };
 }
 
+class Ellipsis {
+  constructor(id, action) {
+    this.id = id;
+    this.action = action;
+    var html = document.createElement("span");
+    html.innerHTML = "...";
+    html.className = "tcv_ellipsis tcv_unvisible";
+    this.html = html;
+    this.html.addEventListener("mouseenter", (e) => {
+      this.action(this.id);
+    });
+  }
+}
 class BaseButton {
   constructor(theme, icon, tooltip) {
     this.svg = getIconBackground(theme, icon);
@@ -180,4 +239,4 @@ class ClickButton extends BaseButton {
   }
 }
 
-export { Toolbar, Button, ClickButton };
+export { Toolbar, Button, ClickButton, Ellipsis };

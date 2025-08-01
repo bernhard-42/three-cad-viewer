@@ -1,7 +1,7 @@
 import { getIconBackground, getIconSvg } from "./icons.js";
 import { KeyMapper } from "./utils.js";
 import { Slider } from "./slider.js";
-import { Toolbar, Button, ClickButton } from "./toolbar.js";
+import { Toolbar, Button, ClickButton, Ellipsis } from "./toolbar.js";
 import { ToolTypes } from "./cad_tools/tools.js";
 import { FilterByDropDownMenu } from "./cad_tools/ui.js";
 
@@ -85,6 +85,7 @@ class Display {
     this.cadMaterial.style.display = "none";
     this.clipSliders = null;
     this.explodeFlag = false;
+    this.widthThreshold = 815;
 
     this.currentButton = null;
 
@@ -122,14 +123,15 @@ class Display {
       "Show axes",
       this.setAxes,
     );
-    this.cadTool.addButton(this.toolbarButtons["axes"]);
+    this.cadTool.addButton(this.toolbarButtons["axes"], -1);
+    this.cadTool.addEllipsis(new Ellipsis(0, this.cadTool.maximize));
     this.toolbarButtons["axes0"] = new ClickButton(
       theme,
       "axes0",
       "Show axes at origin (0,0,0)",
       this.setAxes0,
     );
-    this.cadTool.addButton(this.toolbarButtons["axes0"]);
+    this.cadTool.addButton(this.toolbarButtons["axes0"], 0);
     this.toolbarButtons["grid"] = new ClickButton(
       theme,
       "grid",
@@ -138,7 +140,7 @@ class Display {
       null,
       ["xy", "xz", "yz"],
     );
-    this.cadTool.addButton(this.toolbarButtons["grid"]);
+    this.cadTool.addButton(this.toolbarButtons["grid"], 0);
     this.cadTool.addSeparator();
     this.toolbarButtons["perspective"] = new ClickButton(
       theme,
@@ -146,21 +148,22 @@ class Display {
       "Use perspective camera",
       this.setOrtho,
     );
-    this.cadTool.addButton(this.toolbarButtons["perspective"]);
+    this.cadTool.addButton(this.toolbarButtons["perspective"], -1);
+    this.cadTool.addEllipsis(new Ellipsis(1, this.cadTool.maximize));
     this.toolbarButtons["transparent"] = new ClickButton(
       theme,
       "transparent",
       "Show transparent faces",
       this.setTransparent,
     );
-    this.cadTool.addButton(this.toolbarButtons["transparent"]);
+    this.cadTool.addButton(this.toolbarButtons["transparent"], 1);
     this.toolbarButtons["blackedges"] = new ClickButton(
       theme,
       "blackedges",
       "Show black edges",
       this.setBlackEdges,
     );
-    this.cadTool.addButton(this.toolbarButtons["blackedges"]);
+    this.cadTool.addButton(this.toolbarButtons["blackedges"], 1);
     this.cadTool.addSeparator();
 
     this.toolbarButtons["reset"] = new Button(
@@ -169,15 +172,16 @@ class Display {
       "Reset view",
       this.reset,
     );
-    this.cadTool.addButton(this.toolbarButtons["reset"]);
+    this.cadTool.addButton(this.toolbarButtons["reset"], -1);
+    this.cadTool.addEllipsis(new Ellipsis(2, this.cadTool.maximize));
     this.toolbarButtons["resize"] = new Button(
       theme,
       "resize",
       "Resize object",
       this.resize,
     );
-    this.cadTool.addButton(this.toolbarButtons["resize"]);
-    this.cadTool.addSeparator();
+    this.cadTool.addButton(this.toolbarButtons["resize"], 2);
+    // this.cadTool.addSeparator();
 
     this.toolbarButtons["iso"] = new Button(
       theme,
@@ -185,49 +189,49 @@ class Display {
       "Switch to iso view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["iso"]);
+    this.cadTool.addButton(this.toolbarButtons["iso"], 2);
     this.toolbarButtons["front"] = new Button(
       theme,
       "front",
       "Switch to front view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["front"]);
+    this.cadTool.addButton(this.toolbarButtons["front"], 2);
     this.toolbarButtons["rear"] = new Button(
       theme,
       "rear",
       "Switch to back view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["rear"]);
+    this.cadTool.addButton(this.toolbarButtons["rear"], 2);
     this.toolbarButtons["top"] = new Button(
       theme,
       "top",
       "Switch to top view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["top"]);
+    this.cadTool.addButton(this.toolbarButtons["top"], 2);
     this.toolbarButtons["bottom"] = new Button(
       theme,
       "bottom",
       "Switch to bottom view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["bottom"]);
+    this.cadTool.addButton(this.toolbarButtons["bottom"], 2);
     this.toolbarButtons["left"] = new Button(
       theme,
       "left",
       "Switch to left view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["left"]);
+    this.cadTool.addButton(this.toolbarButtons["left"], 2);
     this.toolbarButtons["right"] = new Button(
       theme,
       "right",
       "Switch to right view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["right"]);
+    this.cadTool.addButton(this.toolbarButtons["right"], 2);
 
     this.cadTool.addSeparator();
 
@@ -237,7 +241,7 @@ class Display {
       "Explode tool",
       this.setExplode,
     );
-    this.cadTool.addButton(this.toolbarButtons["explode"]);
+    this.cadTool.addButton(this.toolbarButtons["explode"], -1);
 
     this.cadTool.addSeparator();
 
@@ -247,21 +251,22 @@ class Display {
       "Measure distance between shapes",
       this.setTool,
     );
-    this.cadTool.addButton(this.toolbarButtons["distance"]);
+    this.cadTool.addButton(this.toolbarButtons["distance"], -1);
+    this.cadTool.addEllipsis(new Ellipsis(3, this.cadTool.maximize));
     this.toolbarButtons["properties"] = new ClickButton(
       theme,
       "properties",
       "Show shape properties",
       this.setTool,
     );
-    this.cadTool.addButton(this.toolbarButtons["properties"]);
+    this.cadTool.addButton(this.toolbarButtons["properties"], 3);
     this.toolbarButtons["angle"] = new ClickButton(
       theme,
       "angle",
       "Measure angle between shapes",
       this.setTool,
     );
-    this.cadTool.addButton(this.toolbarButtons["angle"]);
+    this.cadTool.addButton(this.toolbarButtons["angle"], 3);
 
     this.toolbarButtons["select"] = new ClickButton(
       theme,
@@ -269,7 +274,7 @@ class Display {
       "Copy shape IDs to clipboard",
       this.setTool,
     );
-    this.cadTool.addButton(this.toolbarButtons["select"]);
+    this.cadTool.addButton(this.toolbarButtons["select"], 3);
 
     this.cadTool.defineGroup([
       this.toolbarButtons["explode"],
@@ -286,7 +291,7 @@ class Display {
       this.toggleHelp,
     );
     this.toolbarButtons["help"].alignRight();
-    this.cadTool.addButton(this.toolbarButtons["help"]);
+    this.cadTool.addButton(this.toolbarButtons["help"], -1);
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.help_shown) {
@@ -302,7 +307,7 @@ class Display {
       this.pinAsPng,
     );
     this.toolbarButtons["pin"].alignRight();
-    this.cadTool.addButton(this.toolbarButtons["pin"]);
+    this.cadTool.addButton(this.toolbarButtons["pin"], -1);
     this.shapeFilterDropDownMenu = new FilterByDropDownMenu(this);
 
     this.showPinning(options.pinning);
@@ -459,6 +464,10 @@ class Display {
 
     this.showTools(tools);
     this.glassMode(glass);
+    const width = this.glass ? this.cadWidth : this.cadWidth + this.treeWidth;
+    if (width < this.widthThreshold) {
+      this.cadTool.minimize();
+    }
   }
   // setup functions
 
