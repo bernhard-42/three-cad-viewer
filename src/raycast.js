@@ -8,12 +8,6 @@ export const TopoFilter = {
   face: "face",
   solid: "solid",
 };
-export const GeomFilter = {
-  none: null,
-  plane: "plane",
-  line: "line",
-  circle: "circle",
-};
 
 const GeomTypes = {
   face: [
@@ -98,7 +92,6 @@ class Raycaster {
     this.mouseMoved = false;
     this.filters = {
       topoFilter: [TopoFilter.none],
-      geomFilter: [GeomFilter.none],
     };
   }
 
@@ -169,14 +162,6 @@ class Raycaster {
             isSubShapeOfSolid ||
             this.filters.topoFilter.includes(TopoFilter.none) ||
             this.filters.topoFilter.includes(topo);
-
-          if (!valid) continue;
-
-          // Check if geom is acceptable given the geom filters
-          valid =
-            this.filters.geomFilter.includes(GeomFilter.none) ||
-            (this.filters.geomFilter.includes(geom) &&
-              !this.filters.topoFilter.includes(TopoFilter.solid));
 
           if (valid) {
             validObjs.push(object);
