@@ -1,12 +1,11 @@
 import { TopoFilter } from "./../raycast.js";
 
-const xyzColors = [
-  "tcv_x_measure_val",
-  "tcv_y_measure_val",
-  "tcv_z_measure_val",
-];
-
 function createVectorRow(key, value) {
+  const xyzColors = [
+    "tcv_x_measure_val",
+    "tcv_y_measure_val",
+    "tcv_z_measure_val",
+  ];
   const tr = document.createElement("tr");
   const th = document.createElement("th");
 
@@ -117,20 +116,6 @@ class Panel {
     throw new Error("Not implemented");
   }
 
-  // Helper function to get cell value by the CSS class name
-  _getCellValue(cellClass) {
-    const cellElement = this.display._getElement(cellClass);
-    return cellElement ? cellElement.textContent : null;
-  }
-
-  // Helper function to set cell value by the CSS class name
-  _setCellValue(cellClass, value) {
-    const cellElement = this.display._getElement(cellClass);
-    if (cellElement) {
-      cellElement.textContent = value;
-    }
-  }
-
   /**
    * Show or hide the panel
    * @param {boolean} flag
@@ -187,7 +172,7 @@ class DistancePanel extends Panel {
 
     this._removeTable();
 
-    this.subheader = `${properties["shape type"]}/${properties["geom type"]}`;
+    this.subheader = `${properties["shape type"]} / ${properties["geom type"]}`;
     const table = document.createElement("table");
     table.classList.add("tcv_properties_table");
     const tbody = document.createElement("tbody");
@@ -204,6 +189,8 @@ class DistancePanel extends Panel {
           "info",
           "info1",
           "info2",
+          "refpoint1",
+          "refpoint2",
         ].includes(key)
       )
         continue;
@@ -229,9 +216,9 @@ class DistancePanel extends Panel {
         if (key == "angle") {
           tr.classList.add("tcv_measure_cell_top_border");
 
-          tr = createStringRow("ref 1", properties["info1"]);
+          tr = createStringRow("reference 1", properties["info1"]);
           tbody.appendChild(tr);
-          tr = createStringRow("ref 2", properties["info2"]);
+          tr = createStringRow("reference 2", properties["info2"]);
           tbody.appendChild(tr);
         }
       }
@@ -241,28 +228,15 @@ class DistancePanel extends Panel {
     this.html.append(table);
     this.finished = true;
   }
-  // get total() {
-  //   return this._getCellValue("tcv_total");
-  // }
 }
 
 class PropertiesPanel extends Panel {
   constructor(display) {
     super(display);
-
-    // this._removeTable();
   }
 
   _getHtml() {
     return this.display._getElement("tcv_properties_measurement_panel");
-  }
-
-  set subheader(subheader) {
-    this._setCellValue("tcv_measure_subheader", subheader);
-  }
-
-  get subheader() {
-    return this._getCellValue("tcv_measure_subheader");
   }
 
   createTable(properties) {
@@ -270,16 +244,21 @@ class PropertiesPanel extends Panel {
 
     this._removeTable();
 
-    this.subheader = `${properties["shape type"]}/${properties["geom type"]}`;
+    this.subheader = `${properties["shape type"]} / ${properties["geom type"]}`;
     const table = document.createElement("table");
     table.classList.add("tcv_properties_table");
     const tbody = document.createElement("tbody");
     for (const key in properties) {
       if (!properties.hasOwnProperty(key)) continue;
       if (
-        ["shape type", "geom type", "type", "tool_type", "subtype"].includes(
-          key,
-        )
+        [
+          "shape type",
+          "geom type",
+          "type",
+          "tool_type",
+          "subtype",
+          "refpoint",
+        ].includes(key)
       )
         continue;
 
