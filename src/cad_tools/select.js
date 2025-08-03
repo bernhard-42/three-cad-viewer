@@ -1,5 +1,3 @@
-import { GeomFilter } from "../raycast.js";
-
 class SelectObject {
   constructor(viewer) {
     this.viewer = viewer;
@@ -8,14 +6,10 @@ class SelectObject {
   }
 
   enableContext() {
-    this.viewer.raycaster.filters.geomFilter = [GeomFilter.none];
     this.contextEnabled = true;
   }
 
   disableContext() {
-    if (this.viewer.raycaster) {
-      this.viewer.raycaster.filters.geomFilter = [GeomFilter.none];
-    }
     this.contextEnabled = false;
     for (var group of this.selectedShapes) {
       group.obj.clearHighlights();
