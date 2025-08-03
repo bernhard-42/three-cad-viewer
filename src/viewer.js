@@ -1959,7 +1959,6 @@ class Viewer {
 
   handleRaycastEvent = (event) => {
     if (event.key) {
-      console.log(this.lastObject, this.lastSelection);
       switch (event.key) {
         case "Escape":
           this.clearSelection();
@@ -1984,14 +1983,6 @@ class Viewer {
               this.lastSelection?.obj.name != this.lastObject.obj.name,
               event.shift,
             );
-            // if (event.shift) {
-            //   this.treeview.openPath(
-            //     this.lastObject.obj.name.replaceAll(
-            //       this.nestedGroup.delim,
-            //       "/",
-            //     ),
-            //   );
-            // }
             this.lastSelection = this.lastObject;
           }
           break;

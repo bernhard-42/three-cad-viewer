@@ -209,9 +209,7 @@ class Measurement {
    * Response handler for the measure context
    * @param {object} response
    */
-  handleResponse(response) {
-    // this.viewer.info.addHtml(response.center_info);
-  }
+  handleResponse(response) {}
 
   _createPanel() {
     throw new Error("Subclass needs to override this method");
@@ -286,8 +284,8 @@ class Measurement {
             type: "backend_response",
             distance: 2.345,
             info: "center",
-            point1: this.point1.toArray(),
-            point2: this.point2.toArray(),
+            refpoint1: this.point1.toArray(),
+            refpoint2: this.point2.toArray(),
             angle: 43.21,
             info1: "Plane (Face)",
             info2: "Plane (Face)",
@@ -305,6 +303,7 @@ class Measurement {
             length: 0.6868592404716374,
             start: [2.4, -1.0, 0.0],
             center: this.point1.toArray(),
+            refpoint: this.point1.toArray(),
             end: [1.8, -0.8267949192431111, 0.0],
             bb: {
               min: [1.8, -1.0, 0.0],
@@ -525,8 +524,8 @@ class DistanceMeasurement extends Measurement {
   }
 
   _getPoints() {
-    this.point1 = new Vector3(...this.responseData.point1);
-    this.point2 = new Vector3(...this.responseData.point2);
+    this.point1 = new Vector3(...this.responseData.refpoint1);
+    this.point2 = new Vector3(...this.responseData.refpoint2);
   }
 
   _makeLines() {
@@ -569,9 +568,9 @@ class DistanceMeasurement extends Measurement {
    * @param {object} response
    */
   handleResponse(response) {
-    super.handleResponse(response);
-    let data = { ...response };
-    this.responseData = data;
+    // super.handleResponse(response);
+    this.responseData = { ...response };
+    this._getPoints();
   }
 }
 
@@ -588,11 +587,14 @@ class PropertiesMeasurement extends Measurement {
   _getMaxObjSelected() {
     return 1;
   }
+  _getPoint() {
+    this.point1 = new Vector3(...this.responseData.refpoint);
+  }
 
   _makeLines() {
     if (this.scene.children.length === 0) {
+      this.middlePoint = this.point1;
       const lineWidth = 1.5;
-      this.middlePoint = new THREE.Vector3(...this.responseData.center);
       const connectingLine = new DistanceLineArrow(
         this.coneLength,
         this.panelCenter,
@@ -618,9 +620,9 @@ class PropertiesMeasurement extends Measurement {
    * @param {object} response
    */
   handleResponse(response) {
-    super.handleResponse(response);
-    let data = { ...response };
-    this.responseData = data;
+    // super.handleResponse(response);
+    this.responseData = { ...response };
+    this._getPoint();
   }
 }
 
