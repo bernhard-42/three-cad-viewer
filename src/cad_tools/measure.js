@@ -3,8 +3,7 @@ import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Vector3 } from "three";
-import { DistancePanel, PropertiesPanel, AnglePanel } from "./ui.js";
-import { GeomFilter } from "../raycast.js";
+import { DistancePanel, PropertiesPanel } from "./ui.js";
 
 const DEBUG = false;
 
@@ -146,7 +145,7 @@ class Measurement {
   /**
    *
    * @param {import ("../viewer.js").Viewer} viewer The viewer instance
-   * @param {DistancePanel | PropertiesPanel | AnglePanel} panel The panel to display the measurement
+   * @param {DistancePanel | PropertiesPanel } panel The panel to display the measurement
    */
   constructor(viewer, panel) {
     this.selectedShapes = []; // array of dict ObjectGroup, bool
@@ -173,6 +172,7 @@ class Measurement {
       this.panelDragData.y = e.clientY;
       e.stopPropagation();
     });
+    this.shift = false;
   }
 
   enableContext() {
@@ -210,10 +210,10 @@ class Measurement {
    * @param {object} response
    */
   handleResponse(response) {
-    this.viewer.info.addHtml(response.center_info);
+    // this.viewer.info.addHtml(response.center_info);
   }
 
-  _setMeasurementVals() {
+  _createPanel() {
     throw new Error("Subclass needs to override this method");
   }
 
@@ -271,6 +271,8 @@ class Measurement {
     if (DEBUG) {
       const delay = 50 + Math.floor(Math.random() * 200);
       setTimeout(() => {
+        if (this.selectedShapes.length == 0) return;
+
         let responseData;
         if (this instanceof DistanceMeasurement) {
           if (this.selectedShapes.length < 2) return;
@@ -282,13 +284,13 @@ class Measurement {
           this.point2 = obj2.localToWorld(this.point2);
           responseData = {
             type: "backend_response",
-            center_info:
-              "/Group/Solid/edges/edges_9 : Reference point has been taken as the center of the geometry\n/Group/Solid/edges/edges_11 : Reference point has been taken as the center of the geometry",
-            subtype: "tool_response",
-            tool_type: "DistanceMeasurement",
-            point1: this.point1,
-            point2: this.point2,
-            distance: this.point2.clone().sub(this.point1).length(),
+            distance: 2.345,
+            info: "center",
+            point1: this.point1.toArray(),
+            point2: this.point2.toArray(),
+            angle: 43.21,
+            info1: "Plane (Face)",
+            info2: "Plane (Face)",
           };
         } else if (this instanceof PropertiesMeasurement) {
           const obj = this.selectedShapes[0].obj;
@@ -296,43 +298,28 @@ class Measurement {
           this.point1 = obj.localToWorld(center);
           responseData = {
             type: "backend_response",
-            center_info:
-              "/Group/Solid/faces/faces_5 : Reference point has been taken as the center of the geometry",
-            subtype: "tool_response",
-            tool_type: "PropertiesMeasurement",
-            center: this.point1,
-            vertex_coords: this.point1,
-            length: Math.random() * 10,
-            width: Math.random() * 10,
-            area: Math.random() * 10,
-            volume: null,
-            radius: null,
-            radius2: null,
-            geom_type: "PLANE",
-          };
-        } else if (this instanceof AngleMeasurement) {
-          if (this.selectedShapes.length < 2) return;
-          var obj1 = this.selectedShapes[0].obj;
-          var obj2 = this.selectedShapes[1].obj;
-          this.point1 = obj1.children[0].geometry.boundingSphere.center.clone();
-          this.point1 = obj1.localToWorld(this.point1);
-          this.point2 = obj2.children[0].geometry.boundingSphere.center.clone();
-          this.point2 = obj2.localToWorld(this.point2);
-          responseData = {
-            type: "backend_response",
-            center_info:
-              "/Group/Solid/edges/edges_9 : Reference point has been taken as the center of the geometry\n/Group/Solid/edges/edges_5 : Reference point has been taken as the center of the geometry",
-            subtype: "tool_response",
-            tool_type: "AngleMeasurement",
-            angle: Math.random() * 180,
-            point1: this.point1,
-            point2: this.point2,
+            "shape type": "Edge",
+            "geom type": "EllipseArc",
+            "major radius": 0.4,
+            "minor radius": 0.2,
+            length: 0.6868592404716374,
+            start: [2.4, -1.0, 0.0],
+            center: this.point1.toArray(),
+            end: [1.8, -0.8267949192431111, 0.0],
+            bb: {
+              min: [1.8, -1.0, 0.0],
+              center: [2.1, -0.9, 0.0],
+              max: [2.4, -0.8, 0.0],
+              size: [0.56, 0.2, 0.0],
+            },
           };
         }
         this.handleResponse(responseData);
       }, delay);
     } else {
-      this.viewer.checkChanges({ selectedShapeIDs: [...ids] });
+      this.viewer.checkChanges({
+        selectedShapeIDs: [...ids, this.shift],
+      });
     }
 
     if (this.selectedShapes.length != this._getMaxObjSelected()) {
@@ -345,7 +332,7 @@ class Measurement {
     });
     // eslint-disable-next-line no-unused-vars
     p.then((data) => {
-      this._setMeasurementVals();
+      this._createPanel();
       this._makeLines();
       this.panel.show(true);
       this._movePanel();
@@ -358,13 +345,17 @@ class Measurement {
    * fromSolid: boolean
    * @param {object} selectedObj The selected obj.
    */
-  handleSelection = (selectedObj) => {
+  handleSelection = (selectedObj, shift = false) => {
+    this.shift = shift;
+
     if (
       this.selectedShapes.find((o) => o.obj.name === selectedObj.obj.name) !==
       undefined
     )
       this.selectedShapes.splice(this.selectedShapes.indexOf(selectedObj), 1);
     else this.selectedShapes.push(selectedObj);
+
+    this.panel.finished = false;
 
     this._updateMeasurement();
   };
@@ -525,17 +516,8 @@ class DistanceMeasurement extends Measurement {
     this.middlePoint = null;
   }
 
-  _setMeasurementVals() {
-    this._getPoints();
-    const total = this.responseData.distance;
-    const distVec = this.point2.clone().sub(this.point1);
-    const xdist = Math.abs(distVec.x);
-    const ydist = Math.abs(distVec.y);
-    const zdist = Math.abs(distVec.z);
-    this.panel.total = total.toFixed(3);
-    this.panel.x_distance = xdist.toFixed(3);
-    this.panel.y_distance = ydist.toFixed(3);
-    this.panel.z_distance = zdist.toFixed(3);
+  _createPanel() {
+    this.panel.createTable(this.responseData);
   }
 
   _getMaxObjSelected() {
@@ -588,11 +570,7 @@ class DistanceMeasurement extends Measurement {
    */
   handleResponse(response) {
     super.handleResponse(response);
-    const data = {
-      distance: response.distance,
-      point1: new Vector3(...response.point1),
-      point2: new Vector3(...response.point2),
-    };
+    let data = { ...response };
     this.responseData = data;
   }
 }
@@ -603,25 +581,8 @@ class PropertiesMeasurement extends Measurement {
     this.middlePoint = null;
   }
 
-  _setMeasurementVals() {
-    const obj = this.selectedShapes[0].obj;
-    const isVertex = obj.name.match(/.*\|.*vertices/);
-    const isLine = obj.name.match(/.*\|.*edges/);
-    const isFace = obj.name.match(/.*\|.*faces/);
-    const isSolid = this.selectedShapes[0].fromSolid;
-
-    const subheader = isSolid
-      ? "Solid"
-      : isVertex
-        ? "Vertex"
-        : isLine
-          ? "Edge"
-          : isFace
-            ? "Face"
-            : "Unknown";
-    this.panel.subheader = subheader;
-    const props = this.responseData;
-    this.panel.setProperties(props);
+  _createPanel() {
+    this.panel.createTable(this.responseData);
   }
 
   _getMaxObjSelected() {
@@ -659,98 +620,8 @@ class PropertiesMeasurement extends Measurement {
   handleResponse(response) {
     super.handleResponse(response);
     let data = { ...response };
-    data.center = new Vector3(...response.center);
     this.responseData = data;
   }
 }
 
-class AngleMeasurement extends Measurement {
-  constructor(viewer) {
-    super(viewer, new AnglePanel(viewer.display));
-    this.middlePoint = null;
-  }
-
-  _setMeasurementVals() {
-    let angle;
-    angle = this.responseData.angle.toFixed(3) + " °";
-    this.panel.angle = angle;
-  }
-
-  enableContext() {
-    super.enableContext();
-    this.viewer.raycaster.filters.geomFilter = [
-      GeomFilter.line,
-      GeomFilter.plane,
-      GeomFilter.circle,
-    ];
-    this.viewer.info.addHtml(
-      "When in angle measurement<br>context you cannot pick :<br>- Non planar faces<br>- Curved edges<br>- Solids",
-    );
-  }
-
-  disableContext() {
-    super.disableContext();
-    this.viewer.raycaster.filters.geomFilter = [GeomFilter.none];
-  }
-
-  _getMaxObjSelected() {
-    return 2;
-  }
-
-  _getPoints() {
-    this.point1 = new Vector3(...this.responseData.point1);
-    this.point2 = new Vector3(...this.responseData.point2);
-  }
-
-  _makeLines() {
-    if (this.scene.children.length === 0) {
-      const lineWidth = 1.5;
-      this._getPoints();
-      const item1Line = new DistanceLineArrow(
-        this.coneLength,
-        this.point1,
-        this.panelCenter,
-        lineWidth,
-        this.connectingLineColor,
-        false,
-        false,
-      );
-      const item2Line = new DistanceLineArrow(
-        this.coneLength,
-        this.point2,
-        this.panelCenter,
-        lineWidth,
-        this.connectingLineColor,
-        false,
-        false,
-      );
-      this.scene.add(item1Line);
-      this.scene.add(item2Line);
-      this.middlePoint = new THREE.Vector3()
-        .addVectors(this.point1, this.point2)
-        .multiplyScalar(0.5);
-    }
-  }
-
-  _updateConnectionLine() {
-    for (var i = 0; i < 2; i++) {
-      const p = i == 0 ? this.point1 : this.point2;
-      this.scene.children[i].children[0].geometry.setPositions([
-        ...p,
-        ...this.panelCenter,
-      ]);
-    }
-  }
-
-  handleResponse(response) {
-    super.handleResponse(response);
-    const data = {
-      angle: response.angle,
-      point1: new Vector3(...response.point1),
-      point2: new Vector3(...response.point2),
-    };
-    this.responseData = data;
-  }
-}
-
-export { DistanceMeasurement, PropertiesMeasurement, AngleMeasurement };
+export { DistanceMeasurement, PropertiesMeasurement };

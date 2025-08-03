@@ -1,5 +1,96 @@
 import { TopoFilter } from "./../raycast.js";
 
+const xyzColors = [
+  "tcv_x_measure_val",
+  "tcv_y_measure_val",
+  "tcv_z_measure_val",
+];
+
+function createVectorRow(key, value) {
+  const tr = document.createElement("tr");
+  const th = document.createElement("th");
+
+  th.textContent = key;
+  th.classList.add("tcv_measure_key");
+  th.classList.add("tcv_measure_cell");
+  tr.appendChild(th);
+
+  const br1 = document.createElement("td");
+  br1.textContent = "(";
+  br1.classList.add("tcv_measure_cell_bracket");
+  tr.appendChild(br1);
+
+  for (let i = 0; i < 3; ++i) {
+    const td = document.createElement("td");
+    td.textContent = value[i].toFixed(3);
+    td.classList.add("tcv_measure_val");
+    td.classList.add("tcv_measure_cell");
+    td.classList.add(xyzColors[i]);
+    tr.appendChild(td);
+  }
+
+  const br2 = document.createElement("td");
+  br2.textContent = ")";
+  br2.classList.add("tcv_measure_cell_bracket");
+  tr.appendChild(br2);
+
+  return tr;
+}
+
+function createStringRow(key, value) {
+  const tr = document.createElement("tr");
+  const th = document.createElement("th");
+  const td = document.createElement("td");
+  th.textContent = key;
+  th.classList.add("tcv_measure_key");
+  th.classList.add("tcv_measure_cell");
+  tr.appendChild(th);
+
+  td.textContent = value;
+  td.classList.add("tcv_measure_val_center");
+  td.classList.add("tcv_measure_cell");
+  td.colSpan = 5;
+  tr.appendChild(td);
+
+  return tr;
+}
+
+function createValueRow(key, value, qualifier = null) {
+  const tr = document.createElement("tr");
+  const th = document.createElement("th");
+  const td = document.createElement("td");
+
+  th.textContent = key;
+  th.classList.add("tcv_measure_key");
+  th.classList.add("tcv_measure_cell");
+  tr.appendChild(th);
+
+  for (var i = 0; i < 2; i++) {
+    const empty = document.createElement("td");
+    tr.appendChild(empty);
+  }
+
+  td.textContent = value.toFixed(3);
+  td.classList.add("tcv_measure_val");
+  td.classList.add("tcv_measure_cell");
+  tr.appendChild(td);
+
+  if (qualifier == null) {
+    for (var i = 0; i < 2; i++) {
+      const empty = document.createElement("td");
+      tr.appendChild(empty);
+    }
+  } else {
+    const qualText = document.createElement("td");
+    qualText.textContent = `(${qualifier})`;
+    qualText.classList.add("tcv_measure_cell");
+    tr.appendChild(qualText);
+    const empty = document.createElement("td");
+    tr.appendChild(empty);
+  }
+  return tr;
+}
+
 class Panel {
   /**
    * @param {import ("../display.js").Display} display
@@ -7,10 +98,19 @@ class Panel {
   constructor(display) {
     this.display = display;
     this.html = this._getHtml();
+    this.finished = false;
     this.callbacks = [];
     this.html.addEventListener("contextmenu", (ev) => {
       ev.preventDefault();
     });
+  }
+
+  _removeTable() {
+    const table = this.html.getElementsByTagName("table");
+    if (table.length > 0) {
+      table[0].remove();
+    }
+    this.finished = false;
   }
 
   _getHtml() {
@@ -82,134 +182,132 @@ class DistancePanel extends Panel {
     return this.display._getElement("tcv_distance_measurement_panel");
   }
 
-  get total() {
-    return this._getCellValue("tcv_total");
-  }
-  set total(value) {
-    this._setCellValue("tcv_total", value);
-  }
+  createTable(properties) {
+    if (this.finished) return;
 
-  get x_distance() {
-    return this._getCellValue("tcv_x");
+    this._removeTable();
+
+    this.subheader = `${properties["shape type"]}/${properties["geom type"]}`;
+    const table = document.createElement("table");
+    table.classList.add("tcv_properties_table");
+    const tbody = document.createElement("tbody");
+    for (const key in properties) {
+      if (!properties.hasOwnProperty(key)) continue;
+      if (
+        [
+          "shape type",
+          "geom type",
+          "type",
+          "type",
+          "tool_type",
+          "subtype",
+          "info",
+          "info1",
+          "info2",
+        ].includes(key)
+      )
+        continue;
+
+      const value = properties[key];
+
+      var tr;
+      if (Array.isArray(value) && value.length === 3) {
+        var key2 = key;
+        if (key2 == "point1") key2 = "point 1";
+        if (key2 == "point2") key2 = "point 2";
+
+        tr = createVectorRow(key2, value);
+        tbody.appendChild(tr);
+      } else {
+        if (key === "distance") {
+          tr = createValueRow(key, value, properties["info"]);
+        } else {
+          tr = createValueRow(key, value);
+        }
+        tbody.appendChild(tr);
+
+        if (key == "angle") {
+          tr.classList.add("tcv_measure_cell_top_border");
+
+          tr = createStringRow("ref 1", properties["info1"]);
+          tbody.appendChild(tr);
+          tr = createStringRow("ref 2", properties["info2"]);
+          tbody.appendChild(tr);
+        }
+      }
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    this.html.append(table);
+    this.finished = true;
   }
-  set x_distance(value) {
-    this._setCellValue("tcv_x", value);
-  }
-  get y_distance() {
-    return this._getCellValue("tcv_y");
-  }
-  set y_distance(value) {
-    this._setCellValue("tcv_y", value);
-  }
-  get z_distance() {
-    return this._getCellValue("tcv_z");
-  }
-  set z_distance(value) {
-    this._setCellValue("tcv_z", value);
-  }
+  // get total() {
+  //   return this._getCellValue("tcv_total");
+  // }
 }
 
 class PropertiesPanel extends Panel {
   constructor(display) {
     super(display);
 
-    this._hideAllRows();
+    // this._removeTable();
   }
 
   _getHtml() {
     return this.display._getElement("tcv_properties_measurement_panel");
   }
 
-  _hideAllRows() {
-    const rows = this.html.getElementsByTagName("tr");
-    for (var i = 0; i < rows.length; i++) {
-      rows[i].style.display = "none";
-      if (rows[i].classList.contains("tcv_vertex_coords_title_row")) continue;
-      const cells = rows[i].getElementsByTagName("td");
-      for (var j = 0; j < cells.length; j++) {
-        cells[j].textContent = "";
-      }
-    }
-  }
-
   set subheader(subheader) {
     this._setCellValue("tcv_measure_subheader", subheader);
   }
+
   get subheader() {
     return this._getCellValue("tcv_measure_subheader");
   }
 
-  /**
-   * Set the properties of the panel valid props are :
-   * - vertex_coords : [x, y, z] array of numbers
-   * - volume : number
-   * - area : number
-   * - length : number
-   * - width : number
-   * - radius : number
-   * - geom_type : string
-   * @param {object} properties
-   */
-  setProperties(properties) {
-    this._hideAllRows();
+  createTable(properties) {
+    if (this.finished) return;
 
-    // Define the field names corresponding to table rows
-    const fieldToCell = {
-      vertex_coords: ["x_value", "y_value", "z_value"],
-      volume: "volume",
-      area: "area",
-      length: "length",
-      width: "width",
-      radius: "radius",
-      radius2: "radius2",
-      geom_type: "geom_type",
-    };
+    this._removeTable();
 
-    // Iterate through the fields and set their values
-    for (const field in fieldToCell) {
-      const cellId = fieldToCell[field];
-      const value = properties[field];
+    this.subheader = `${properties["shape type"]}/${properties["geom type"]}`;
+    const table = document.createElement("table");
+    table.classList.add("tcv_properties_table");
+    const tbody = document.createElement("tbody");
+    for (const key in properties) {
+      if (!properties.hasOwnProperty(key)) continue;
+      if (
+        ["shape type", "geom type", "type", "tool_type", "subtype"].includes(
+          key,
+        )
+      )
+        continue;
 
-      if (value !== null && value !== undefined) {
-        if (Array.isArray(cellId)) {
-          // Only the vertex coordinates are an array
-          const vertex_title_row = this.display._getElement(
-            "tcv_vertex_coords_title_row",
-          );
-          vertex_title_row.style.display = "table-row";
-          for (let i = 0; i < cellId.length; i++) {
-            const row = this.display
-              ._getElement("tcv_" + cellId[i])
-              .closest("tr");
-            row.style.display = "table-row";
-            this._setCellValue("tcv_" + cellId[i], value[i]);
+      const value = properties[key];
+
+      var tr;
+      if (key === "bb") {
+        for (var bbKey in value) {
+          const tr = createVectorRow(`BB ${bbKey}`, value[bbKey]);
+          if (bbKey === "min") {
+            tr.classList.add("tcv_measure_cell_top_border");
           }
-        } else {
-          const row = this.display._getElement("tcv_" + cellId).closest("tr");
-          row.style.display = "table-row";
+          tbody.appendChild(tr);
         }
-
-        this._setCellValue("tcv_" + cellId, value);
+      } else if (Array.isArray(value) && value.length === 3) {
+        tr = createVectorRow(key, value);
+        tbody.appendChild(tr);
+      } else {
+        tr = createValueRow(key, value);
+        tbody.appendChild(tr);
+      }
+      if (["length", "area", "volume", "start"].includes(key)) {
+        tr.classList.add("tcv_measure_cell_top_border");
       }
     }
-  }
-}
-
-class AnglePanel extends Panel {
-  constructor(display) {
-    super(display);
-  }
-
-  _getHtml() {
-    return this.display._getElement("tcv_angle_measurement_panel");
-  }
-
-  get angle() {
-    return this._getCellValue("tcv_angle");
-  }
-
-  set angle(value) {
-    this._setCellValue("tcv_angle", value);
+    table.appendChild(tbody);
+    this.html.append(table);
+    this.finished = true;
   }
 }
 
@@ -324,4 +422,4 @@ class FilterByDropDownMenu {
   }
 }
 
-export { FilterByDropDownMenu, DistancePanel, PropertiesPanel, AnglePanel };
+export { FilterByDropDownMenu, DistancePanel, PropertiesPanel };

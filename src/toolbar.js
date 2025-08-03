@@ -9,7 +9,7 @@ class Toolbar {
       const width = this.display.glass
         ? this.display.cadWidth
         : this.display.cadWidth + this.display.treeWidth;
-      if (width < this.display.widthThreshold) {
+      if (width < this.display.widthThreshold()) {
         this.minimize();
       }
     });
