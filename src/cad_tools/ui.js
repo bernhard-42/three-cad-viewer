@@ -172,16 +172,15 @@ class DistancePanel extends Panel {
 
     this._removeTable();
 
-    this.subheader = `${properties["shape type"]} / ${properties["geom type"]}`;
     const table = document.createElement("table");
     table.classList.add("tcv_properties_table");
     const tbody = document.createElement("tbody");
-    for (const key in properties) {
+    for (var key in properties) {
       if (!properties.hasOwnProperty(key)) continue;
       if (
         [
-          "shape type",
-          "geom type",
+          "shape_type",
+          "geom_type",
           "type",
           "type",
           "tool_type",
@@ -191,7 +190,7 @@ class DistancePanel extends Panel {
           "info2",
           "refpoint1",
           "refpoint2",
-        ].includes(key)
+        ].includes(key.toLowerCase())
       )
         continue;
 
@@ -199,26 +198,22 @@ class DistancePanel extends Panel {
 
       var tr;
       if (Array.isArray(value) && value.length === 3) {
-        var key2 = key;
-        if (key2 == "point1") key2 = "point 1";
-        if (key2 == "point2") key2 = "point 2";
-
-        tr = createVectorRow(key2, value);
+        tr = createVectorRow(key, value);
         tbody.appendChild(tr);
       } else {
-        if (key === "distance") {
+        if (key.toLowerCase() === "distance") {
           tr = createValueRow(key, value, properties["info"]);
         } else {
           tr = createValueRow(key, value);
         }
         tbody.appendChild(tr);
 
-        if (key == "angle") {
+        if (key.toLowerCase() == "angle") {
           tr.classList.add("tcv_measure_cell_top_border");
 
-          tr = createStringRow("reference 1", properties["info1"]);
+          tr = createStringRow("Reference 1", properties["info1"]);
           tbody.appendChild(tr);
-          tr = createStringRow("reference 2", properties["info2"]);
+          tr = createStringRow("Reference 2", properties["info2"]);
           tbody.appendChild(tr);
         }
       }
@@ -239,33 +234,40 @@ class PropertiesPanel extends Panel {
     return this.display._getElement("tcv_properties_measurement_panel");
   }
 
+  _setSubHeader(text) {
+    this.html.getElementsByClassName("tcv_measure_subheader")[0].textContent =
+      text;
+  }
+
   createTable(properties) {
     if (this.finished) return;
 
     this._removeTable();
 
-    this.subheader = `${properties["shape type"]} / ${properties["geom type"]}`;
+    this._setSubHeader(
+      `${properties["shape_type"]} / ${properties["geom_type"]}`,
+    );
     const table = document.createElement("table");
     table.classList.add("tcv_properties_table");
     const tbody = document.createElement("tbody");
-    for (const key in properties) {
+    for (var key in properties) {
       if (!properties.hasOwnProperty(key)) continue;
       if (
         [
-          "shape type",
-          "geom type",
+          "shape_type",
+          "geom_type",
           "type",
           "tool_type",
           "subtype",
           "refpoint",
-        ].includes(key)
+        ].includes(key.toLowerCase())
       )
         continue;
 
       const value = properties[key];
 
       var tr;
-      if (key === "bb") {
+      if (key.toLowerCase() === "bb") {
         for (var bbKey in value) {
           const tr = createVectorRow(`BB ${bbKey}`, value[bbKey]);
           if (bbKey === "min") {
@@ -280,7 +282,7 @@ class PropertiesPanel extends Panel {
         tr = createValueRow(key, value);
         tbody.appendChild(tr);
       }
-      if (["length", "area", "volume", "start"].includes(key)) {
+      if (["length", "area", "volume", "start"].includes(key.toLowerCase())) {
         tr.classList.add("tcv_measure_cell_top_border");
       }
     }

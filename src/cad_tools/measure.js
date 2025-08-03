@@ -264,7 +264,7 @@ class Measurement {
     const ids = this.selectedShapes.map(getId);
 
     this.responseData = null;
-    if (DEBUG) {
+    if (this.debug) {
       const delay = 50 + Math.floor(Math.random() * 200);
       setTimeout(() => {
         if (this.selectedShapes.length == 0) return;
@@ -280,11 +280,11 @@ class Measurement {
           this.point2 = obj2.localToWorld(this.point2);
           responseData = {
             type: "backend_response",
-            distance: 2.345,
+            Distance: 2.345,
             info: "center",
             refpoint1: this.point1.toArray(),
             refpoint2: this.point2.toArray(),
-            angle: 43.21,
+            Angle: 43.21,
             info1: "Plane (Face)",
             info2: "Plane (Face)",
           };
@@ -294,15 +294,15 @@ class Measurement {
           this.point1 = obj.localToWorld(center);
           responseData = {
             type: "backend_response",
-            "shape type": "Edge",
-            "geom type": "EllipseArc",
-            "major radius": 0.4,
-            "minor radius": 0.2,
-            length: 0.6868592404716374,
-            start: [2.4, -1.0, 0.0],
-            center: this.point1.toArray(),
+            shape_type: "Edge",
+            geom_type: "EllipseArc",
+            "Major radius": 0.4,
+            "Minor radius": 0.2,
+            Length: 0.6868592404716374,
+            Start: [2.4, -1.0, 0.0],
+            Center: this.point1.toArray(),
             refpoint: this.point1.toArray(),
-            end: [1.8, -0.8267949192431111, 0.0],
+            End: [1.8, -0.8267949192431111, 0.0],
             bb: {
               min: [1.8, -1.0, 0.0],
               center: [2.1, -0.9, 0.0],
