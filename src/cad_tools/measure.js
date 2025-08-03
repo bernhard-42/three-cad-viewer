@@ -5,8 +5,6 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Vector3 } from "three";
 import { DistancePanel, PropertiesPanel } from "./ui.js";
 
-const DEBUG = false;
-
 class DistanceLineArrow extends THREE.Group {
   /**
    *
@@ -508,11 +506,12 @@ class Measurement {
 }
 
 class DistanceMeasurement extends Measurement {
-  constructor(viewer) {
+  constructor(viewer, debug) {
     super(viewer, new DistancePanel(viewer.display));
     this.point1 = null;
     this.point2 = null;
     this.middlePoint = null;
+    this.debug = debug;
   }
 
   _createPanel() {
@@ -575,9 +574,10 @@ class DistanceMeasurement extends Measurement {
 }
 
 class PropertiesMeasurement extends Measurement {
-  constructor(viewer) {
+  constructor(viewer, debug) {
     super(viewer, new PropertiesPanel(viewer.display));
     this.middlePoint = null;
+    this.debug = debug;
   }
 
   _createPanel() {
