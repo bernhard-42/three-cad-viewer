@@ -20,10 +20,10 @@ export class Tools {
    *
    * @param {import ("../viewer.js").Viewer} viewer The viewer instance
    */
-  constructor(viewer) {
+  constructor(viewer, debug) {
     this.viewer = viewer;
-    this.distanceMeasurement = new DistanceMeasurement(viewer);
-    this.propertiesMeasurement = new PropertiesMeasurement(viewer);
+    this.distanceMeasurement = new DistanceMeasurement(viewer, debug);
+    this.propertiesMeasurement = new PropertiesMeasurement(viewer, debug);
     this.selectObject = new SelectObject(viewer);
     this.enabledTool = null; // There can only be one enabled tool at a time
   }

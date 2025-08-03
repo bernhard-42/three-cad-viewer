@@ -83,7 +83,7 @@ class Viewer {
     this.controls = null;
     this.orientationMarker = null;
     this.treeview = null;
-    this.cadTools = new Tools(this);
+    this.cadTools = new Tools(this, options.measurementDebug);
     this.newTreeBehavior = options.newTreeBehavior;
 
     this.ready = false;
