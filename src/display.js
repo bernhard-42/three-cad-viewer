@@ -50,9 +50,6 @@ class Display {
     this.propertiesMeasurementPanel = this._getElement(
       "tcv_properties_measurement_panel",
     );
-    this.angleMeasurementPanel = this._getElement(
-      "tcv_angle_measurement_panel",
-    );
     this.cadTree = this._getElement("tcv_cad_tree_container");
     this.cadTreeScrollContainer = this._getElement("tcv_box_content");
     this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
@@ -87,7 +84,6 @@ class Display {
     this.cadMaterial.style.display = "none";
     this.clipSliders = null;
     this.explodeFlag = false;
-    this.widthThreshold = 815;
 
     this.currentButton = null;
 
@@ -260,13 +256,6 @@ class Display {
       this.setTool,
     );
     this.cadTool.addButton(this.toolbarButtons["properties"], 3);
-    this.toolbarButtons["angle"] = new ClickButton(
-      theme,
-      "angle",
-      "Measure angle between shapes",
-      this.setTool,
-    );
-    this.cadTool.addButton(this.toolbarButtons["angle"], 3);
 
     this.toolbarButtons["select"] = new ClickButton(
       theme,
@@ -280,7 +269,6 @@ class Display {
       this.toolbarButtons["explode"],
       this.toolbarButtons["distance"],
       this.toolbarButtons["properties"],
-      this.toolbarButtons["angle"],
       this.toolbarButtons["select"],
     ]);
 
@@ -317,6 +305,13 @@ class Display {
       right: getIconSvg(theme, "nav_closed"),
       down: getIconSvg(theme, "nav_open"),
     };
+  }
+
+  widthThreshold() {
+    var threshold = 770;
+    if (!this.viewer.pinning) threshold -= 30;
+    if (!this.viewer.selectTool) threshold -= 30;
+    return threshold;
   }
 
   _setupCheckEvent(name, fn, flag) {
@@ -469,7 +464,6 @@ class Display {
     this.showHelp(false);
     this.showDistancePanel(false);
     this.showPropertiesPanel(false);
-    this.showAnglePanel(false);
   }
 
   /**
@@ -492,7 +486,7 @@ class Display {
     this.showTools(tools);
     this.glassMode(glass);
     const width = this.glass ? this.cadWidth : this.cadWidth + this.treeWidth;
-    if (width < this.widthThreshold) {
+    if (width < this.widthThreshold()) {
       this.cadTool.minimize();
     }
   }
@@ -727,9 +721,6 @@ class Display {
       } else if (name == "properties") {
         this.viewer.cadTools.enable(ToolTypes.PROPERTIES);
         this.viewer.checkChanges({ activeTool: ToolTypes.PROPERTIES });
-      } else if (name == "angle") {
-        this.viewer.cadTools.enable(ToolTypes.ANGLE);
-        this.viewer.checkChanges({ activeTool: ToolTypes.ANGLE });
       } else if (name == "select") {
         this.viewer.cadTools.enable(ToolTypes.SELECT);
         this.viewer.checkChanges({ activeTool: ToolTypes.SELECT });
@@ -745,8 +736,6 @@ class Display {
         this.viewer.cadTools.disable(ToolTypes.DISTANCE);
       } else if (name == "properties") {
         this.viewer.cadTools.disable(ToolTypes.PROPERTIES);
-      } else if (name == "angle") {
-        this.viewer.cadTools.disable(ToolTypes.ANGLE);
       } else if (name == "select") {
         this.viewer.cadTools.disable(ToolTypes.SELECT);
       }
@@ -818,7 +807,6 @@ class Display {
   showMeasureTools = (flag) => {
     this.toolbarButtons["distance"].show(flag);
     this.toolbarButtons["properties"].show(flag);
-    this.toolbarButtons["angle"].show(flag);
   };
 
   /**
@@ -1237,14 +1225,6 @@ class Display {
    */
   showPropertiesPanel = (flag) => {
     this.propertiesMeasurementPanel.style.display = flag ? "block" : "none";
-  };
-
-  /**
-   * Show or hide the angle measurement panel
-   * @param {boolean} flag
-   */
-  showAnglePanel = (flag) => {
-    this.angleMeasurementPanel.style.display = flag ? "block" : "none";
   };
 
   /**

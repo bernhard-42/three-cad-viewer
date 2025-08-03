@@ -1,8 +1,4 @@
-import {
-  AngleMeasurement,
-  DistanceMeasurement,
-  PropertiesMeasurement,
-} from "./measure";
+import { DistanceMeasurement, PropertiesMeasurement } from "./measure";
 import { SelectObject } from "./select";
 
 /**
@@ -16,7 +12,6 @@ export const ToolTypes = {
   NONE: "None",
   DISTANCE: "DistanceMeasurement",
   PROPERTIES: "PropertiesMeasurement",
-  ANGLE: "AngleMeasurement",
   SELECT: "SelectObjects",
 };
 
@@ -29,7 +24,6 @@ export class Tools {
     this.viewer = viewer;
     this.distanceMeasurement = new DistanceMeasurement(viewer);
     this.propertiesMeasurement = new PropertiesMeasurement(viewer);
-    this.angleMeasurement = new AngleMeasurement(viewer);
     this.selectObject = new SelectObject(viewer);
     this.enabledTool = null; // There can only be one enabled tool at a time
   }
@@ -50,9 +44,6 @@ export class Tools {
         break;
       case ToolTypes.PROPERTIES:
         this.propertiesMeasurement.enableContext();
-        break;
-      case ToolTypes.ANGLE:
-        this.angleMeasurement.enableContext();
         break;
       case ToolTypes.SELECT:
         this.selectObject.enableContext();
@@ -87,9 +78,6 @@ export class Tools {
       case ToolTypes.PROPERTIES:
         this.propertiesMeasurement.disableContext();
         break;
-      case ToolTypes.ANGLE:
-        this.angleMeasurement.disableContext();
-        break;
       case ToolTypes.SELECT:
         this.selectObject.disableContext();
         break;
@@ -106,8 +94,6 @@ export class Tools {
       this.distanceMeasurement.removeLastSelectedObj(force);
     } else if (this.propertiesMeasurement.contextEnabled) {
       this.propertiesMeasurement.removeLastSelectedObj(force);
-    } else if (this.angleMeasurement.contextEnabled) {
-      this.angleMeasurement.removeLastSelectedObj(force);
     } else if (this.selectObject.contextEnabled) {
       this.selectObject.removeLastSelectedObj(false);
     }
@@ -117,22 +103,17 @@ export class Tools {
    * obj: ObjectGroup
    * @param {object} selectedObj The selected obj.
    */
-  handleSelectedObj(selectedObj, isNewObject) {
+  handleSelectedObj(selectedObj, isNewObject, shift) {
     if (this.distanceMeasurement.contextEnabled) {
       if (isNewObject) {
         this.distanceMeasurement.removeLastSelectedObj();
       }
-      this.distanceMeasurement.handleSelection(selectedObj);
+      this.distanceMeasurement.handleSelection(selectedObj, shift);
     } else if (this.propertiesMeasurement.contextEnabled) {
       if (isNewObject) {
         this.propertiesMeasurement.removeLastSelectedObj();
       }
       this.propertiesMeasurement.handleSelection(selectedObj);
-    } else if (this.angleMeasurement.contextEnabled) {
-      if (isNewObject) {
-        this.angleMeasurement.removeLastSelectedObj();
-      }
-      this.angleMeasurement.handleSelection(selectedObj);
     } else if (this.selectObject.contextEnabled) {
       this.selectObject.handleSelection(selectedObj);
     }
@@ -142,11 +123,8 @@ export class Tools {
     if (this.distanceMeasurement.contextEnabled) {
       this.distanceMeasurement.removeLastSelectedObj(true);
       this.distanceMeasurement.removeLastSelectedObj(true);
-    } else if (this.propertiesMeasurement.contextEnabled)
+    } else if (this.propertiesMeasurement.contextEnabled) {
       this.propertiesMeasurement.removeLastSelectedObj(true);
-    else if (this.angleMeasurement.contextEnabled) {
-      this.angleMeasurement.removeLastSelectedObj(true);
-      this.angleMeasurement.removeLastSelectedObj(true);
     } else if (this.selectObject.contextEnabled) {
       this.selectObject.removeLastSelectedObj(true);
     }
@@ -166,9 +144,6 @@ export class Tools {
       case ToolTypes.PROPERTIES:
         this.propertiesMeasurement.handleResponse(response);
         break;
-      case ToolTypes.ANGLE:
-        this.angleMeasurement.handleResponse(response);
-        break;
       case ToolTypes.SELECT:
         this.selectObject.handleResponse(response);
         break;
@@ -183,8 +158,6 @@ export class Tools {
       this.distanceMeasurement.update();
     } else if (this.propertiesMeasurement.contextEnabled) {
       this.propertiesMeasurement.update();
-    } else if (this.angleMeasurement.contextEnabled) {
-      this.angleMeasurement.update();
     } else if (this.selectObject.contextEnabled) {
       this.selectObject.update();
     }
@@ -192,7 +165,6 @@ export class Tools {
 
   dispose() {
     this.distanceMeasurement.dispose();
-    this.angleMeasurement.dispose();
     this.propertiesMeasurement.dispose();
     this.selectObject.dispose();
   }

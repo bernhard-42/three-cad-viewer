@@ -199,7 +199,7 @@ class Viewer {
     this.edgeColor = 0x707070;
     this.normalLen = 0;
     this.measureTools = false;
-    this.selectTool = false;
+    // this.selectTool = false;
 
     for (var option in options) {
       if (this[option] === undefined) {
@@ -1982,15 +1982,16 @@ class Viewer {
             this.cadTools.handleSelectedObj(
               this.lastObject,
               this.lastSelection?.obj.name != this.lastObject.obj.name,
+              event.shift,
             );
-            if (event.shift) {
-              this.treeview.openPath(
-                this.lastObject.obj.name.replaceAll(
-                  this.nestedGroup.delim,
-                  "/",
-                ),
-              );
-            }
+            // if (event.shift) {
+            //   this.treeview.openPath(
+            //     this.lastObject.obj.name.replaceAll(
+            //       this.nestedGroup.delim,
+            //       "/",
+            //     ),
+            //   );
+            // }
             this.lastSelection = this.lastObject;
           }
           break;
@@ -2960,8 +2961,11 @@ class Viewer {
     this.display.glassMode(glass);
 
     const fullWidth = cadWidth + (glass ? 0 : treeWidth);
-    if (fullWidth >= this.display.widthThreshold) {
+
+    if (fullWidth >= this.display.widthThreshold()) {
       this.display.cadTool.maximize();
+    } else {
+      this.display.cadTool.minimize();
     }
 
     // Adapt camers to new dimensions
