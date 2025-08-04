@@ -1570,6 +1570,13 @@ class Viewer {
     this.update(true, notify);
   }
 
+  /**
+   * Centers the camera view on all visible objects in the scene.
+   * Calculates a bounding box that encompasses all visible ObjectGroup instances
+   * and sets the camera target to the center of that bounding box.
+   *
+   * @param {boolean} [notify=true] - Whether to notify listeners of the camera update
+   */
   centerVisibleObjects(notify = true) {
     const groups = this.nestedGroup.groups;
 
