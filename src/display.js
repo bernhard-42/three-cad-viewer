@@ -873,8 +873,11 @@ class Display {
    * @function
    * @param {Event} e - a DOM click event
    */
-  setView = (button) => {
+  setView = (button, focus = false) => {
     this.viewer.presetCamera(button);
+    if (focus) {
+      this.viewer.centerVisibleObjects();
+    }
     this.highlightButton(button);
     this.viewer.update(true, false); // ensure update is called again
   };

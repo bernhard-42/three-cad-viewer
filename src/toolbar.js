@@ -1,4 +1,5 @@
 import { getIconBackground } from "./icons.js";
+import { KeyMapper } from "./utils.js";
 
 class Toolbar {
   constructor(container, id, display) {
@@ -151,7 +152,7 @@ class Button extends BaseButton {
 
   // eslint-disable-next-line no-unused-vars
   handler = (e) => {
-    this.action(this.name);
+    this.action(this.name, KeyMapper.get(e, "shift"));
   };
 
   highlight = (flag) => {

@@ -1570,6 +1570,24 @@ class Viewer {
     this.update(true, notify);
   }
 
+  centerVisibleObjects(notify = true) {
+    const groups = this.nestedGroup.groups;
+
+    var bbox = new BoundingBox();
+    for (var path in groups) {
+      var obj = groups[path];
+      if (obj instanceof ObjectGroup) {
+        if (obj.getVisibility()) {
+          console.log(path);
+          bbox.expandByObject(obj);
+        }
+      }
+    }
+    const target = new THREE.Vector3(...bbox.center());
+    this.setCameraTarget(target);
+    this.update(true, notify);
+  }
+
   /**
    * Reset zoom to 1.0
    * @function
