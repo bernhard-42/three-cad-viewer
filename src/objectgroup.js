@@ -266,6 +266,13 @@ class ObjectGroup extends THREE.Group {
     }
   }
 
+  getVisibility() {
+    if (this.types.front) return this.types.front.material.visible;
+    else if (this.types.edges) return this.types.edges.material.visible;
+    else if (this.types.vertices) return this.types.vertices.material.visible;
+    return false;
+  }
+
   setClipIntersection(flag) {
     for (var child of this.children) {
       if (!child.name.startsWith("clipping")) {
