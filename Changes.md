@@ -4,7 +4,14 @@
 
 **Features**
 
-- The view now supports widths of 450-814px with shrunken toolbar (using ellipsis). From 815px the toolbar is fully visible
+- The viewer now supports widths of < 815px with shrunken toolbar (using ellipsis). From 815px width the toolbar is fully visible
+- The view preset buttons in the toolbar now respect shift and will center the to all visible objects only
+
+For the following features you need a measure backend, e.g. as in [VS Code OCP Viewer](https://github.com/bernhard-42/vscode-ocp-cad-viewer)
+- Removed angle measure button, it is integrated in distance measure
+- Simplified filter management in measure mode since angle tool vanished
+- Changed shift modifier in distance measure mode to distinguish between min and center distance
+- Changed the hard coded DEBUG flag in measure mode to a display options parameter measurementDebug 
 
 
 ## v3.4.3
