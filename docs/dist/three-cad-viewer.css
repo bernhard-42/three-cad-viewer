@@ -219,7 +219,15 @@ th {
 }
 
 .tcv_cad_toolbar {
+  display: flex;
   background: var(--tcv-bg-overlay-color);
+  position: relative;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+.tcv_cad_toolbar > *:last-child {
+  margin-left: auto;
 }
 
 .tcv_cad_inset {
@@ -363,12 +371,16 @@ th {
 }
 
 .tcv_separator {
-  width: 14px;
   border-left: 1px solid lightgray;
-  margin-left: 5px;
+  margin-left: 6px;
   padding-right: 5px;
-  padding-bottom: 6px;
+  padding-bottom: 5px;
   padding-top: 3px;
+}
+
+.tcv_ellipsis {
+  padding-left: 4px;
+  padding-top: 2px;
 }
 
 .tcv_small_btn {
@@ -670,7 +682,6 @@ input[type="button"] {
   border-radius: 2px;
   margin-top: 2.5em;
   padding: 2px;
-  margin-left: 24px;
   z-index: 200;
 }
 
@@ -852,10 +863,6 @@ input[type="button"] {
     border-bottom: 1px solid lightgray;
 }
 
-.tcv_measure_cell {
-    padding: 3px 5px 31px 5px;
-}
-
 .tcv_vertex_cell {
     text-align: center;
     border-right: 1px solid lightgray;
@@ -868,7 +875,7 @@ input[type="button"] {
 
 .tcv_props_cell {
     vertical-align: middle;
-    font-size: 14px;
+    font-size: 13px;
     font-family: sans-serif;
     border-bottom: 1px solid lightgray;
 }
@@ -881,37 +888,53 @@ input[type="button"] {
 
 .tcv_measure_cell {
     text-align: left;
-    padding: 3px 5px 3px 5px;
-    font-size: 14px;
+    padding: 2px 5px 2px 5px;
+    font-size: 13px;
+}
+
+.tcv_measure_cell_bracket {
+    font-size: 13px;
+}
+
+.tcv_measure_key {
+    white-space: nowrap;
 }
 
 .tcv_measure_val {
     text-align: right;
-    padding: 3px 5px 3px 5px;
-    font-size: 14px;
+    font-size: 13px;
+}
+
+.tcv_measure_val_center {
+    text-align: center;
+    font-size: 13px;
 }
 
 .tcv_vertex_cell {
     text-align: center;
     border-right: 1px solid lightgray;
     padding: 3px 5px 3px 5px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
-.tcv_xtitle {
+.tcv_measure_cell_top_border {
+    border-top: lightgray solid 1px;
+}
+
+.tcv_x_measure_val {
     color: var(--tcv-x-color);
 }
 
-.tcv_ytitle {
+.tcv_y_measure_val {
     color: var(--tcv-y-color);
 }
 
-.tcv_ztitle {
+.tcv_z_measure_val {
     color: var(--tcv-z-color);
 }
 
 .tcv_angle {
-    font-size: 14px;
+    font-size: 13px;
     font-family: sans-serif;
 }
 

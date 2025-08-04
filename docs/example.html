@@ -166,7 +166,7 @@
     }
 
     function nc(change) {
-      // console.debug("index.html:", JSON.stringify(change, null, 2));
+      console.debug("index.html:", JSON.stringify(change, null, 2));
     }
 
     const timeit = false;
@@ -177,13 +177,14 @@
       height: 525,
       treeWidth: 240,
       theme: "browser",
-      pinning: true,
+      pinning: false,
       keymap: {
         "shift": "shiftKey",
         "ctrl": "ctrlKey",
         "meta": "metaKey"
       },
       newTreeBehavior: true,
+      measurementDebug: true,
     };
 
     const renderOptions = {
@@ -254,9 +255,6 @@
         window.display = new Display(container, displayOptions)
       }
       window.viewerMode = mode;
-
-      window.display.glassMode(displayOptions.glass);
-      window.display.showTools(displayOptions.tools);
 
       // console.log(control);
       // console.log(window.controlMode);
