@@ -29,7 +29,7 @@
             <pre class="prettyprint source linenums"><code>import { getIconBackground, getIconSvg } from "./icons.js";
 import { KeyMapper } from "./utils.js";
 import { Slider } from "./slider.js";
-import { Toolbar, Button, ClickButton } from "./toolbar.js";
+import { Toolbar, Button, ClickButton, Ellipsis } from "./toolbar.js";
 import { ToolTypes } from "./cad_tools/tools.js";
 import { FilterByDropDownMenu } from "./cad_tools/ui.js";
 
@@ -62,9 +62,6 @@ class Display {
   constructor(container, options) {
     this.container = container;
     this.container.innerHTML = TEMPLATE(this.container.id);
-    // const fullWidth =
-    //   options.cadWidth + (options.glass ? 0 : options.treeWidth);
-    // this.handleMoreButton(fullWidth);
 
     this.cadBody = this._getElement("tcv_cad_body");
 
@@ -72,6 +69,7 @@ class Display {
     this.cadTool = new Toolbar(
       this._getElement("tcv_cad_toolbar"),
       container.id,
+      this,
     );
     this.cadView = this._getElement("tcv_cad_view");
     this.distanceMeasurementPanel = this._getElement(
@@ -79,9 +77,6 @@ class Display {
     );
     this.propertiesMeasurementPanel = this._getElement(
       "tcv_properties_measurement_panel",
-    );
-    this.angleMeasurementPanel = this._getElement(
-      "tcv_angle_measurement_panel",
     );
     this.cadTree = this._getElement("tcv_cad_tree_container");
     this.cadTreeScrollContainer = this._getElement("tcv_box_content");
@@ -154,14 +149,15 @@ class Display {
       "Show axes",
       this.setAxes,
     );
-    this.cadTool.addButton(this.toolbarButtons["axes"]);
+    this.cadTool.addButton(this.toolbarButtons["axes"], -1);
+    this.cadTool.addEllipsis(new Ellipsis(0, this.cadTool.maximize));
     this.toolbarButtons["axes0"] = new ClickButton(
       theme,
       "axes0",
       "Show axes at origin (0,0,0)",
       this.setAxes0,
     );
-    this.cadTool.addButton(this.toolbarButtons["axes0"]);
+    this.cadTool.addButton(this.toolbarButtons["axes0"], 0);
     this.toolbarButtons["grid"] = new ClickButton(
       theme,
       "grid",
@@ -170,7 +166,7 @@ class Display {
       null,
       ["xy", "xz", "yz"],
     );
-    this.cadTool.addButton(this.toolbarButtons["grid"]);
+    this.cadTool.addButton(this.toolbarButtons["grid"], 0);
     this.cadTool.addSeparator();
     this.toolbarButtons["perspective"] = new ClickButton(
       theme,
@@ -178,21 +174,22 @@ class Display {
       "Use perspective camera",
       this.setOrtho,
     );
-    this.cadTool.addButton(this.toolbarButtons["perspective"]);
+    this.cadTool.addButton(this.toolbarButtons["perspective"], -1);
+    this.cadTool.addEllipsis(new Ellipsis(1, this.cadTool.maximize));
     this.toolbarButtons["transparent"] = new ClickButton(
       theme,
       "transparent",
       "Show transparent faces",
       this.setTransparent,
     );
-    this.cadTool.addButton(this.toolbarButtons["transparent"]);
+    this.cadTool.addButton(this.toolbarButtons["transparent"], 1);
     this.toolbarButtons["blackedges"] = new ClickButton(
       theme,
       "blackedges",
       "Show black edges",
       this.setBlackEdges,
     );
-    this.cadTool.addButton(this.toolbarButtons["blackedges"]);
+    this.cadTool.addButton(this.toolbarButtons["blackedges"], 1);
     this.cadTool.addSeparator();
 
     this.toolbarButtons["reset"] = new Button(
@@ -201,15 +198,16 @@ class Display {
       "Reset view",
       this.reset,
     );
-    this.cadTool.addButton(this.toolbarButtons["reset"]);
+    this.cadTool.addButton(this.toolbarButtons["reset"], -1);
+    this.cadTool.addEllipsis(new Ellipsis(2, this.cadTool.maximize));
     this.toolbarButtons["resize"] = new Button(
       theme,
       "resize",
       "Resize object",
       this.resize,
     );
-    this.cadTool.addButton(this.toolbarButtons["resize"]);
-    this.cadTool.addSeparator();
+    this.cadTool.addButton(this.toolbarButtons["resize"], 2);
+    // this.cadTool.addSeparator();
 
     this.toolbarButtons["iso"] = new Button(
       theme,
@@ -217,49 +215,49 @@ class Display {
       "Switch to iso view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["iso"]);
+    this.cadTool.addButton(this.toolbarButtons["iso"], 2);
     this.toolbarButtons["front"] = new Button(
       theme,
       "front",
       "Switch to front view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["front"]);
+    this.cadTool.addButton(this.toolbarButtons["front"], 2);
     this.toolbarButtons["rear"] = new Button(
       theme,
       "rear",
       "Switch to back view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["rear"]);
+    this.cadTool.addButton(this.toolbarButtons["rear"], 2);
     this.toolbarButtons["top"] = new Button(
       theme,
       "top",
       "Switch to top view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["top"]);
+    this.cadTool.addButton(this.toolbarButtons["top"], 2);
     this.toolbarButtons["bottom"] = new Button(
       theme,
       "bottom",
       "Switch to bottom view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["bottom"]);
+    this.cadTool.addButton(this.toolbarButtons["bottom"], 2);
     this.toolbarButtons["left"] = new Button(
       theme,
       "left",
       "Switch to left view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["left"]);
+    this.cadTool.addButton(this.toolbarButtons["left"], 2);
     this.toolbarButtons["right"] = new Button(
       theme,
       "right",
       "Switch to right view",
       this.setView,
     );
-    this.cadTool.addButton(this.toolbarButtons["right"]);
+    this.cadTool.addButton(this.toolbarButtons["right"], 2);
 
     this.cadTool.addSeparator();
 
@@ -269,9 +267,7 @@ class Display {
       "Explode tool",
       this.setExplode,
     );
-    this.cadTool.addButton(this.toolbarButtons["explode"]);
-
-    this.cadTool.addSeparator();
+    this.cadTool.addButton(this.toolbarButtons["explode"], -1);
 
     this.toolbarButtons["distance"] = new ClickButton(
       theme,
@@ -279,21 +275,15 @@ class Display {
       "Measure distance between shapes",
       this.setTool,
     );
-    this.cadTool.addButton(this.toolbarButtons["distance"]);
+    this.cadTool.addButton(this.toolbarButtons["distance"], 3);
+    this.cadTool.addEllipsis(new Ellipsis(3, this.cadTool.maximize));
     this.toolbarButtons["properties"] = new ClickButton(
       theme,
       "properties",
       "Show shape properties",
       this.setTool,
     );
-    this.cadTool.addButton(this.toolbarButtons["properties"]);
-    this.toolbarButtons["angle"] = new ClickButton(
-      theme,
-      "angle",
-      "Measure angle between shapes",
-      this.setTool,
-    );
-    this.cadTool.addButton(this.toolbarButtons["angle"]);
+    this.cadTool.addButton(this.toolbarButtons["properties"], 3);
 
     this.toolbarButtons["select"] = new ClickButton(
       theme,
@@ -301,24 +291,14 @@ class Display {
       "Copy shape IDs to clipboard",
       this.setTool,
     );
-    this.cadTool.addButton(this.toolbarButtons["select"]);
+    this.cadTool.addButton(this.toolbarButtons["select"], 3);
 
     this.cadTool.defineGroup([
       this.toolbarButtons["explode"],
       this.toolbarButtons["distance"],
       this.toolbarButtons["properties"],
-      this.toolbarButtons["angle"],
       this.toolbarButtons["select"],
     ]);
-
-    this.toolbarButtons["help"] = new Button(
-      theme,
-      "help",
-      "Help",
-      this.toggleHelp,
-    );
-    this.toolbarButtons["help"].alignRight();
-    this.cadTool.addButton(this.toolbarButtons["help"]);
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" &amp;&amp; this.help_shown) {
@@ -327,6 +307,8 @@ class Display {
       }
     });
 
+    this.cadTool.addSeparator();
+
     this.toolbarButtons["pin"] = new Button(
       theme,
       "pin",
@@ -334,16 +316,30 @@ class Display {
       this.pinAsPng,
     );
     this.toolbarButtons["pin"].alignRight();
-    this.cadTool.addButton(this.toolbarButtons["pin"]);
+    this.cadTool.addButton(this.toolbarButtons["pin"], -1);
     this.shapeFilterDropDownMenu = new FilterByDropDownMenu(this);
 
     this.showPinning(options.pinning);
-    // this.showMeasureTools(options.measureTools);
+
+    this.toolbarButtons["help"] = new Button(
+      theme,
+      "help",
+      "Help",
+      this.toggleHelp,
+    );
+    this.cadTool.addButton(this.toolbarButtons["help"], -1);
 
     this.infoIcons = {
       right: getIconSvg(theme, "nav_closed"),
       down: getIconSvg(theme, "nav_open"),
     };
+  }
+
+  widthThreshold() {
+    var threshold = 770;
+    if (!this.viewer.pinning) threshold -= 30;
+    if (!this.viewer.selectTool) threshold -= 30;
+    return threshold;
   }
 
   _setupCheckEvent(name, fn, flag) {
@@ -384,25 +380,6 @@ class Display {
     this.cadView.removeChild(this.cadView.children[2]);
     // delete view
     this.container.innerHTML = "";
-  }
-
-  /**
-   * Use More fropdown if overall width &lt; 970px else just check boxes
-   * @param {number} fullWidth - overall width of tree and cad view (taking glass mode into account)
-   */
-  // eslint-disable-next-line no-unused-vars
-  handleMoreButton(fullWidth) {
-    // const moreButton = this._getElement("tcv_more-btn");
-    // const moreContent = this._getElement("tcv_more-wrapper");
-    // if (fullWidth &lt; 980) {
-    //   moreButton.classList.remove("tcv_none");
-    //   moreContent.classList.add("tcv_dropdown-content");
-    //   moreContent.classList.add("tcv_more-content");
-    // } else {
-    //   moreButton.classList.add("tcv_none");
-    //   moreContent.classList.remove("tcv_dropdown-content");
-    //   moreContent.classList.remove("tcv_more-content");
-    // }
   }
 
   /**
@@ -515,7 +492,6 @@ class Display {
     this.showHelp(false);
     this.showDistancePanel(false);
     this.showPropertiesPanel(false);
-    this.showAnglePanel(false);
   }
 
   /**
@@ -537,6 +513,10 @@ class Display {
 
     this.showTools(tools);
     this.glassMode(glass);
+    const width = this.glass ? this.cadWidth : this.cadWidth + this.treeWidth;
+    if (width &lt; this.widthThreshold()) {
+      this.cadTool.minimize();
+    }
   }
   // setup functions
 
@@ -769,9 +749,6 @@ class Display {
       } else if (name == "properties") {
         this.viewer.cadTools.enable(ToolTypes.PROPERTIES);
         this.viewer.checkChanges({ activeTool: ToolTypes.PROPERTIES });
-      } else if (name == "angle") {
-        this.viewer.cadTools.enable(ToolTypes.ANGLE);
-        this.viewer.checkChanges({ activeTool: ToolTypes.ANGLE });
       } else if (name == "select") {
         this.viewer.cadTools.enable(ToolTypes.SELECT);
         this.viewer.checkChanges({ activeTool: ToolTypes.SELECT });
@@ -787,8 +764,6 @@ class Display {
         this.viewer.cadTools.disable(ToolTypes.DISTANCE);
       } else if (name == "properties") {
         this.viewer.cadTools.disable(ToolTypes.PROPERTIES);
-      } else if (name == "angle") {
-        this.viewer.cadTools.disable(ToolTypes.ANGLE);
       } else if (name == "select") {
         this.viewer.cadTools.disable(ToolTypes.SELECT);
       }
@@ -840,14 +815,16 @@ class Display {
     }
     var tb = this._getElement("tcv_cad_toolbar");
     var cn = this._getElement("tcv_cad_navigation");
-    for (var el of [cn, tb]) {
-      if (flag) {
-        el.style.height = "38px";
-        el.style.display = "block";
-      } else {
-        el.style.height = "0px";
-        el.style.display = "none";
-      }
+    if (flag) {
+      tb.style.height = "38px";
+      tb.style.display = "flex";
+      cn.style.height = "38px";
+      cn.style.display = "block";
+    } else {
+      tb.style.height = "0px";
+      tb.style.display = "none";
+      cn.style.height = "0px";
+      cn.style.display = "none";
     }
   };
 
@@ -858,7 +835,6 @@ class Display {
   showMeasureTools = (flag) => {
     this.toolbarButtons["distance"].show(flag);
     this.toolbarButtons["properties"].show(flag);
-    this.toolbarButtons["angle"].show(flag);
   };
 
   /**
@@ -953,8 +929,11 @@ class Display {
    * @function
    * @param {Event} e - a DOM click event
    */
-  setView = (button) => {
+  setView = (button, focus = false) => {
     this.viewer.presetCamera(button);
+    if (focus) {
+      this.viewer.centerVisibleObjects();
+    }
     this.highlightButton(button);
     this.viewer.update(true, false); // ensure update is called again
   };
@@ -1280,14 +1259,6 @@ class Display {
   };
 
   /**
-   * Show or hide the angle measurement panel
-   * @param {boolean} flag
-   */
-  showAnglePanel = (flag) => {
-    this.angleMeasurementPanel.style.display = flag ? "block" : "none";
-  };
-
-  /**
    * Show help dialog
    * @function
    */
@@ -1376,9 +1347,6 @@ class Display {
       treeWidth: flag ? 0 : this.treeWidth,
     };
     this.setSizes(options);
-
-    // const fullWidth = this.cadWidth + (this.glass ? 0 : this.treeWidth);
-    // this.handleMoreButton(fullWidth);
   }
 
   updateHelp(before, after) {
@@ -1413,7 +1381,7 @@ export { Display };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Jul 06 2025 20:50:22 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Aug 04 2025 18:23:08 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>
