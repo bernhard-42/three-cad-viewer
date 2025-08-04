@@ -267,9 +267,19 @@ class ObjectGroup extends THREE.Group {
   }
 
   getVisibility() {
-    if (this.types.front) return this.types.front.material.visible;
-    else if (this.types.edges) return this.types.edges.material.visible;
-    else if (this.types.vertices) return this.types.vertices.material.visible;
+    if (this.types.front) {
+      if (this.types.edges) {
+        return (
+          this.types.front.material.visible || this.types.edges.material.visible
+        );
+      } else {
+        return this.types.front.material.visible;
+      }
+    } else if (this.types.edges) {
+      return this.types.edges.material.visible;
+    } else if (this.types.vertices) {
+      return this.types.vertices.material.visible;
+    }
     return false;
   }
 
