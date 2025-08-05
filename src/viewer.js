@@ -167,6 +167,9 @@ class Viewer {
     this.tools = true;
     this.keymap = { shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey" };
     this.newTreeBehavior = true;
+    this.measureTools = true;
+    this.selectTool = true;
+    this.measurementDebug = true;
 
     for (var option in options) {
       if (this[option] == null) {
@@ -198,8 +201,6 @@ class Viewer {
     this.defaultOpacity = 0.5;
     this.edgeColor = 0x707070;
     this.normalLen = 0;
-    this.measureTools = false;
-    // this.selectTool = false;
 
     for (var option in options) {
       if (this[option] === undefined) {
@@ -246,8 +247,6 @@ class Viewer {
     this.position = null;
     this.quaternion = null;
     this.target = null;
-    this.measureTools = true;
-    this.selectTool = true;
 
     this.zoom = 1;
 
@@ -1417,9 +1416,6 @@ class Viewer {
       theme,
     );
     this.orientationMarker.create();
-
-    this.display.showMeasureTools(viewerOptions.measureTools);
-    this.display.showSelectTool(viewerOptions.selectTool);
 
     //
     // update UI elements
