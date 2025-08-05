@@ -135,7 +135,6 @@ export class Tools {
    * @param {Object} response
    */
   handleResponse(response) {
-    console.log(response);
     const toolType = response.tool_type;
     switch (toolType) {
       case ToolTypes.DISTANCE:
