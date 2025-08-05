@@ -37,6 +37,10 @@ class Display {
 
     this.cadBody = this._getElement("tcv_cad_body");
 
+    this.measureTools = options.measureTools;
+    this.measurementDebug = options.measurementDebug;
+    this.selectTool = options.selectTool;
+
     // this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadTool = new Toolbar(
       this._getElement("tcv_cad_toolbar"),
@@ -436,6 +440,9 @@ class Display {
     this.showHelp(false);
     this.showDistancePanel(false);
     this.showPropertiesPanel(false);
+
+    this.showMeasureTools(this.measureTools);
+    this.showSelectTool(this.selectTool);
   }
 
   /**
