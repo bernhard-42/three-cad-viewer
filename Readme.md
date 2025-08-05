@@ -1,10 +1,18 @@
 # A threejs based CAD viewer
 
-## Overview
-
-The CAD viewer can visualize low level `threejs` objects (tessellated objects)
+A CAD viewer component based on three.js. The CAD viewer can visualize low level `threejs` objects (tessellated objects)
 
 [Live Examples](https://bernhard-42.github.io/three-cad-viewer/example.html)
+
+![three-js-cad-viewer](images/three-js-cad-viewer.png)
+
+## Getting started
+
+1. [Install yarn](https://classic.yarnpkg.com/en/docs/install) on your system (ie. `npm i -g yarn`) if not already done;
+2. Clone the repository: `git clone https://github.com/bernhard-42/three-cad-viewer.git && cd three-cad-viewer`;
+3. Run `yarn install` to install dependencies
+4. Start web server: `yarn run start` and go to the page displayed in the logs (ie. `127.0.0.1:8080`)
+5. Build project: `yarn run clean; yarn run build; yarn run docs`;
 
 ### Shape and Shapes
 
@@ -39,14 +47,6 @@ For each leaf of the tree a 2 dim tuple needs to be provided to define whether s
 The value 2 is reserved for nodes and shows a mixed state, i.d. some of the children are show, some not.
 
 For the `States` object, see [Class States](https://bernhard-42.github.io/three-cad-viewer/global.html#States)
-
-### Getting started
-
-1. [Install yarn](https://classic.yarnpkg.com/en/docs/install) on your system (ie. `npm i -g yarn`) if not already done;
-2. Clone the repository: `git clone https://github.com/bernhard-42/three-cad-viewer.git && cd three-cad-viewer`;
-3. Run `yarn install` to install dependencies
-4. Start web server: `yarn run start` and go to the page displayed in the logs (ie. `127.0.0.1:8080`)
-5. Build project: `yarn run clean; yarn run build; yarn run docs`;
 
 ## Skeleton:
 
