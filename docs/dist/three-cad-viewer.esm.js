@@ -80927,7 +80927,6 @@ class Tools {
    * @param {Object} response
    */
   handleResponse(response) {
-    console.log(response);
     const toolType = response.tool_type;
     switch (toolType) {
       case ToolTypes.DISTANCE:
@@ -80993,6 +80992,10 @@ class Display {
     this.container.innerHTML = TEMPLATE(this.container.id);
 
     this.cadBody = this._getElement("tcv_cad_body");
+
+    this.measureTools = options.measureTools;
+    this.measurementDebug = options.measurementDebug;
+    this.selectTool = options.selectTool;
 
     // this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadTool = new Toolbar(
@@ -81421,6 +81424,9 @@ class Display {
     this.showHelp(false);
     this.showDistancePanel(false);
     this.showPropertiesPanel(false);
+
+    this.showMeasureTools(this.measureTools);
+    this.showSelectTool(this.selectTool);
   }
 
   /**
@@ -87789,7 +87795,7 @@ class Camera {
   }
 }
 
-const version = "3.5.0";
+const version = "3.5.1";
 
 Mesh.prototype.dispose = function () {
   if (this.geometry) {
@@ -87932,6 +87938,9 @@ class Viewer {
     this.tools = true;
     this.keymap = { shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey" };
     this.newTreeBehavior = true;
+    this.measureTools = true;
+    this.selectTool = true;
+    this.measurementDebug = true;
 
     for (var option in options) {
       if (this[option] == null) {
@@ -87963,8 +87972,6 @@ class Viewer {
     this.defaultOpacity = 0.5;
     this.edgeColor = 0x707070;
     this.normalLen = 0;
-    this.measureTools = false;
-    // this.selectTool = false;
 
     for (var option in options) {
       if (this[option] === undefined) {
@@ -88011,8 +88018,6 @@ class Viewer {
     this.position = null;
     this.quaternion = null;
     this.target = null;
-    this.measureTools = true;
-    this.selectTool = true;
 
     this.zoom = 1;
 
@@ -89180,9 +89185,6 @@ class Viewer {
       theme,
     );
     this.orientationMarker.create();
-
-    this.display.showMeasureTools(viewerOptions.measureTools);
-    this.display.showSelectTool(viewerOptions.selectTool);
 
     //
     // update UI elements
