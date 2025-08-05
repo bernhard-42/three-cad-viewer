@@ -13,6 +13,9 @@ For the following features you need a measure backend, e.g. as in [VS Code OCP V
 - Changed shift modifier in distance measure mode to distinguish between min and center distance
 - Changed the hard coded DEBUG flag in measure mode to a display options parameter measurementDebug 
 
+**Fixes**
+
+- Move measurement toggle to display options
 
 ## v3.4.3
 
