@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { Font } from "./fontloader/FontLoader.js";
 import { helvetiker } from "./font.js";
 import { Group } from "./group.js";
+import { newDisposableMesh } from "./utils.js";
 
 class Grid {
   constructor(display, bbox, ticks, centerGrid, axes0, grid, flipY, theme) {
@@ -64,7 +65,7 @@ class Grid {
           geom.rotateX(Math.PI / 2);
           geom.rotateY(-Math.PI / 2);
         }
-        const label = new THREE.Mesh(geom, mat);
+        const label = newDisposableMesh(geom, mat);
         dir = i == 1 ? -1 : 1;
         label.position.set(dir * x, 0, 0);
         group.add(label);
@@ -80,7 +81,7 @@ class Grid {
         } else {
           geom.rotateX(Math.PI / 2);
         }
-        const label2 = new THREE.Mesh(geom, mat);
+        const label2 = newDisposableMesh(geom, mat);
         dir = i == 0 ? -1 : 1;
         label2.position.set(0, 0, dir * x);
         group.add(label2);

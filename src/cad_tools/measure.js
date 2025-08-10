@@ -2,14 +2,14 @@ import * as THREE from "three";
 import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
-import { Vector3 } from "three";
 import { DistancePanel, PropertiesPanel } from "./ui.js";
+import { newDisposableMesh } from "../utils.js";
 
 class DistanceLineArrow extends THREE.Group {
   /**
    *
-   * @param {Vector3} point1 The start point of the line
-   * @param {Vector3} point2 The end point of the line
+   * @param {THREE.Vector3} point1 The start point of the line
+   * @param {THREE.Vector3} point2 The end point of the line
    * @param {number} linewidth The thickness of the line
    * @param {THREE.Color} color The color of the line
    * @param {boolean} arrowStart If true, a cone is added at the start of the line
@@ -66,8 +66,8 @@ class DistanceLineArrow extends THREE.Group {
 
     const coneGeom = new THREE.ConeGeometry(coneLength / 4, coneLength, 10);
     const coneMaterial = new THREE.MeshBasicMaterial({ color: this.color });
-    const startCone = new THREE.Mesh(coneGeom, coneMaterial);
-    const endCone = new THREE.Mesh(coneGeom, coneMaterial);
+    const startCone = newDisposableMesh(coneGeom, coneMaterial);
+    const endCone = newDisposableMesh(coneGeom, coneMaterial);
     startCone.name = "startCone";
     endCone.name = "endCone";
     const matrix = new THREE.Matrix4();
@@ -175,7 +175,7 @@ class Measurement {
 
   enableContext() {
     this.contextEnabled = true;
-    this.panelCenter = new Vector3(1, 0, 0);
+    this.panelCenter = new THREE.Vector3(1, 0, 0);
 
     document.addEventListener("mouseup", this._mouseup);
     document.addEventListener("mousemove", this._dragPanel);
@@ -523,8 +523,8 @@ class DistanceMeasurement extends Measurement {
   }
 
   _getPoints() {
-    this.point1 = new Vector3(...this.responseData.refpoint1);
-    this.point2 = new Vector3(...this.responseData.refpoint2);
+    this.point1 = new THREE.Vector3(...this.responseData.refpoint1);
+    this.point2 = new THREE.Vector3(...this.responseData.refpoint2);
   }
 
   _makeLines() {
@@ -588,7 +588,7 @@ class PropertiesMeasurement extends Measurement {
     return 1;
   }
   _getPoint() {
-    this.point1 = new Vector3(...this.responseData.refpoint);
+    this.point1 = new THREE.Vector3(...this.responseData.refpoint);
   }
 
   _makeLines() {

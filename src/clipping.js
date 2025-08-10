@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { ObjectGroup } from "./objectgroup.js";
 import { Group } from "./group.js";
+import { newDisposableMesh } from "./utils.js";
 
 const normals = [
   new THREE.Vector3(-1, 0, 0),
@@ -123,7 +124,7 @@ class PlaneMesh extends THREE.Mesh {
 
 function createStencil(name, material, geometry, plane) {
   material.clippingPlanes = [plane];
-  var mesh = new THREE.Mesh(geometry, material);
+  var mesh = newDisposableMesh(geometry, material);
   mesh.name = name;
   return mesh;
 }
