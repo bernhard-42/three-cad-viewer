@@ -764,7 +764,7 @@ class Display {
       // not available at first call
       this.viewer.tools = flag;
     }
-    for (const el in ["tcv_cad_toolbar", "tcv_cad_navigation"]) {
+    for (const el of ["tcv_cad_toolbar", "tcv_cad_navigation"]) {
       this._getElement(el).style.display = flag ? "flex" : "none";
     }
   };
