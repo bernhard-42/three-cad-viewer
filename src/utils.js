@@ -83,6 +83,27 @@ function disposeGeometry(geometry) {
   }
 }
 
+function newDisposableMesh(...args) {
+  const mesh = new THREE.Mesh(...args);
+
+  mesh.dispose = function () {
+    if (this.geometry) {
+      this.geometry.dispose();
+      disposeGeometry(this.geometry);
+    }
+
+    if (this.material) {
+      if (Array.isArray(this.material)) {
+        this.material.forEach((material) => material.dispose());
+      } else {
+        this.material.dispose();
+      }
+    }
+  };
+
+  return mesh;
+}
+
 function disposeShapes(shapes) {
   if (shapes.shape) {
     var key = "";
@@ -180,6 +201,7 @@ export {
   prettyPrintVector,
   KeyMapper,
   scaleLight,
+  newDisposableMesh,
   disposeGeometry,
   disposeShapes,
 };

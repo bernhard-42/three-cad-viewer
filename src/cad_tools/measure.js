@@ -1,9 +1,10 @@
 import * as THREE from "three";
+import { Vector3 } from "three";
 import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
-import { Vector3 } from "three";
 import { DistancePanel, PropertiesPanel } from "./ui.js";
+import { newDisposableMesh } from "./utils.js";
 
 class DistanceLineArrow extends THREE.Group {
   /**
@@ -66,8 +67,8 @@ class DistanceLineArrow extends THREE.Group {
 
     const coneGeom = new THREE.ConeGeometry(coneLength / 4, coneLength, 10);
     const coneMaterial = new THREE.MeshBasicMaterial({ color: this.color });
-    const startCone = new THREE.Mesh(coneGeom, coneMaterial);
-    const endCone = new THREE.Mesh(coneGeom, coneMaterial);
+    const startCone = newDisposableMesh(coneGeom, coneMaterial);
+    const endCone = newDisposableMesh(coneGeom, coneMaterial);
     startCone.name = "startCone";
     endCone.name = "endCone";
     const matrix = new THREE.Matrix4();
@@ -399,7 +400,7 @@ class Measurement {
     const ndcX = panelCenterX / (canvasRect.width / 2) - 1;
     const ndcY = 1 - panelCenterY / (canvasRect.height / 2);
     const ndcZ = this.viewer.ortho ? -0.9 : 1; // seems like a nice default ...
-    var panelCenter = new THREE.Vector3(ndcX, ndcY, ndcZ);
+    var panelCenter = new Vector3(ndcX, ndcY, ndcZ);
 
     const camera = this.viewer.camera.getCamera();
     camera.updateProjectionMatrix();
@@ -539,7 +540,7 @@ class DistanceMeasurement extends Measurement {
       );
       this.scene.add(distanceLine);
 
-      this.middlePoint = new THREE.Vector3()
+      this.middlePoint = new Vector3()
         .addVectors(this.point1, this.point2)
         .multiplyScalar(0.5);
       const connectingLine = new DistanceLineArrow(

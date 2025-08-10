@@ -16,7 +16,6 @@ import {
   KeyMapper,
   scaleLight,
   flatten,
-  disposeGeometry,
   disposeShapes,
 } from "./utils.js";
 import { Controls } from "./controls.js";
@@ -25,21 +24,6 @@ import { BoundingBox, BoxHelper } from "./bbox.js";
 import { Tools } from "./cad_tools/tools.js";
 import { version } from "./_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "./raycast.js";
-
-THREE.Mesh.prototype.dispose = function () {
-  if (this.geometry) {
-    this.geometry.dispose();
-    disposeGeometry(this.geometry);
-  }
-
-  if (this.material) {
-    if (Array.isArray(this.material)) {
-      this.material.forEach((material) => material.dispose());
-    } else {
-      this.material.dispose();
-    }
-  }
-};
 
 class Viewer {
   /**
@@ -1334,7 +1318,7 @@ class Viewer {
     //   transparent: true,
     //   depthWrite: false,
     // });
-    // const sphere = new THREE.Mesh(geometry, material);
+    // const sphere = newDisposableMesh(geometry, material);
     // const sgroup = new THREE.Group();
     // sgroup.add(sphere);
     // sgroup.position.set(...this.bbox.center());
@@ -2857,7 +2841,12 @@ class Viewer {
     this.update(true);
     let result = new Promise((resolve, reject) => {
       const canvas = this.display.getCanvas();
-      this.renderer.setViewport(0, 0, this.renderer.domElement.width, this.renderer.domElement.height);
+      this.renderer.setViewport(
+        0,
+        0,
+        this.renderer.domElement.width,
+        this.renderer.domElement.height,
+      );
       this.renderer.render(this.scene, this.camera.getCamera());
       canvas.toBlob((blob) => {
         let reader = new FileReader();

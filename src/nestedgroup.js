@@ -6,7 +6,7 @@ import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHel
 import { BoundingBox } from "./bbox.js";
 import { ObjectGroup } from "./objectgroup.js";
 import { Group } from "./group.js";
-import { flatten, disposeShapes } from "./utils.js";
+import { flatten, newDisposableMesh, disposeShapes } from "./utils.js";
 
 class States {
   constructor(states) {
@@ -336,10 +336,10 @@ class NestedGroup {
       name: "backMaterial",
     });
 
-    const back = new THREE.Mesh(shapeGeometry, backMaterial);
+    const back = newDisposableMesh(shapeGeometry, backMaterial);
     back.name = name;
 
-    const front = new THREE.Mesh(shapeGeometry, frontMaterial);
+    const front = newDisposableMesh(shapeGeometry, frontMaterial);
     front.name = name;
 
     // ensure, transparent objects will be rendered at the end
