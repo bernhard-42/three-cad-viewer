@@ -739,7 +739,12 @@ class Viewer {
         this.handleRaycast();
       }
 
-      this.renderer.setViewport(0, 0, this.cadWidth, this.height);
+      this.renderer.setViewport(
+        0,
+        0,
+        this.renderer.domElement.width,
+        this.renderer.domElement.height,
+      );
       this.renderer.render(this.scene, this.camera.getCamera());
       this.cadTools.update();
 

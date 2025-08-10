@@ -764,18 +764,8 @@ class Display {
       // not available at first call
       this.viewer.tools = flag;
     }
-    var tb = this._getElement("tcv_cad_toolbar");
-    var cn = this._getElement("tcv_cad_navigation");
-    if (flag) {å
-      tb.style.height = "38px";
-      tb.style.display = "flex";
-      cn.style.height = "38px";
-      cn.style.display = "block";
-    } else {
-      tb.style.height = "0px";
-      tb.style.display = "none";
-      cn.style.height = "0px";
-      cn.style.display = "none";
+    for (const el in ["tcv_cad_toolbar", "tcv_cad_navigation"]) {
+      this._getElement(el).style.display = flag ? "flex" : "none";
     }
   };
 
