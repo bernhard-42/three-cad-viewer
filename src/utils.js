@@ -83,22 +83,26 @@ function disposeGeometry(geometry) {
   }
 }
 
+function disposeMesh(mesh) {
+  if (mesh.geometry) {
+    mesh.geometry.dispose();
+    disposeGeometry(mesh.geometry);
+  }
+
+  if (mesh.material) {
+    if (Array.isArray(mesh.material)) {
+      mesh.material.forEach((material) => material.dispose());
+    } else {
+      mesh.material.dispose();
+    }
+  }
+}
+
 function newDisposableMesh(...args) {
   const mesh = new THREE.Mesh(...args);
 
   mesh.dispose = function () {
-    if (this.geometry) {
-      this.geometry.dispose();
-      disposeGeometry(this.geometry);
-    }
-
-    if (this.material) {
-      if (Array.isArray(this.material)) {
-        this.material.forEach((material) => material.dispose());
-      } else {
-        this.material.dispose();
-      }
-    }
+    disposeMesh(mesh);
   };
 
   return mesh;
@@ -203,5 +207,6 @@ export {
   scaleLight,
   newDisposableMesh,
   disposeGeometry,
+  disposeMesh,
   disposeShapes,
 };

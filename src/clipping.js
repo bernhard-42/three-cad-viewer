@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { ObjectGroup } from "./objectgroup.js";
 import { Group } from "./group.js";
-import { newDisposableMesh } from "./utils.js";
+import { disposeMesh, newDisposableMesh } from "./utils.js";
 
 const normals = [
   new THREE.Vector3(-1, 0, 0),
@@ -101,6 +101,10 @@ class PlaneMesh extends THREE.Mesh {
     this.plane = plane;
     this.size = size;
     this.center = center;
+  }
+
+  dispose() {
+    disposeMesh(this);
   }
 
   onAfterRender = (renderer) => {
