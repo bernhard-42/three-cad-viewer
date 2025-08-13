@@ -28,14 +28,11 @@ class ObjectGroup extends THREE.Group {
   }
 
   dispose() {
-    deepDispose(Object.values(this.types));
     if (this.shapeGeometry) {
       disposeGeometry(this.shapeGeometry);
       this.shapeGeometry = null;
     }
-    for (var i in [0, 1, 2]) {
-      deepDispose(this.types[`clipping-${i}`]);
-    }
+    deepDispose(Object.values(this.types));
     if (this.children) {
       deepDispose(this.children);
       this.clear();
