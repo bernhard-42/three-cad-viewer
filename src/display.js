@@ -5,7 +5,7 @@ import { Toolbar, Button, ClickButton, Ellipsis } from "./toolbar.js";
 import { ToolTypes } from "./cad_tools/tools.js";
 import { FilterByDropDownMenu } from "./cad_tools/ui.js";
 
-import template from "./index.html?raw";
+import template from "./index.html";
 
 function TEMPLATE(id) {
   const shift = KeyMapper.getshortcuts("shift");
@@ -83,6 +83,7 @@ class Display {
     this.setSizes(options);
 
     this.activeTab = "tree";
+    this.cadTree.style.display = "block";
     this.cadClip.style.display = "none";
     this.cadMaterial.style.display = "none";
     this.clipSliders = null;
@@ -364,13 +365,40 @@ class Display {
   setSizes(options, ratio = 2 / 3) {
     if (options.cadWidth) {
       this.cadWidth = options.cadWidth;
+      this.cadView.style.width = px(options.cadWidth);
     }
     if (options.height) {
       this.height = options.height;
+      this.cadView.style.height = px(options.height);
     }
     if (options.treeWidth) {
       this.treeWidth = options.treeWidth;
+      this.cadTree.parentElement.parentElement.style.width = px(
+        options.treeWidth,
+      );
+      this.cadInfo.parentElement.parentElement.style.width = px(
+        options.treeWidth,
+      );
     }
+    if (!options.glass) {
+      const treeHeight = Math.round(options.height * ratio);
+      this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
+      this.cadInfo.parentElement.parentElement.style.height = px(
+        options.height - treeHeight - 4,
+      );
+    }
+
+    if (options.tools && !options.glass) {
+      this.cadTool.container.style.width = px(
+        options.treeWidth + options.cadWidth + 4,
+      );
+      this.cadBody.style.width = px(options.treeWidth + options.cadWidth + 4);
+    } else {
+      this.cadTool.container.style.width = px(options.cadWidth + 2);
+      this.cadBody.style.width = px(options.cadWidth + 2);
+    }
+
+    this.cadBody.style.height = px(options.height + 4);
   }
 
   /**
@@ -764,8 +792,18 @@ class Display {
       // not available at first call
       this.viewer.tools = flag;
     }
-    for (const el of ["tcv_cad_toolbar", "tcv_cad_navigation"]) {
-      this._getElement(el).style.display = flag ? "flex" : "none";
+    var tb = this._getElement("tcv_cad_toolbar");
+    var cn = this._getElement("tcv_cad_navigation");
+    if (flag) {
+      tb.style.height = "38px";
+      tb.style.display = "flex";
+      cn.style.height = "38px";
+      cn.style.display = "block";
+    } else {
+      tb.style.height = "0px";
+      tb.style.display = "none";
+      cn.style.height = "0px";
+      cn.style.display = "none";
     }
   };
 
@@ -1249,6 +1287,10 @@ class Display {
   glassMode(flag) {
     if (flag) {
       this._getElement("tcv_cad_tree").classList.add("tcv_cad_tree_glass");
+      this._getElement("tcv_cad_tree").style["height"] = null;
+      this._getElement("tcv_cad_tree").style["max-height"] = px(
+        Math.round((this.height * 2) / 3) - 18,
+      );
 
       this._getElement("tcv_cad_info").classList.add("tcv_cad_info_glass");
       this._getElement("tcv_cad_view").classList.add("tcv_cad_view_glass");
@@ -1260,6 +1302,10 @@ class Display {
       this.autoCollapse();
     } else {
       this._getElement("tcv_cad_tree").classList.remove("tcv_cad_tree_glass");
+      this._getElement("tcv_cad_tree").style["max-height"] = null;
+      this._getElement("tcv_cad_tree").style.height = px(
+        Math.round((this.height * 2) / 3),
+      );
       this._getElement("tcv_cad_info").classList.remove("tcv_cad_info_glass");
       this._getElement("tcv_cad_view").classList.remove("tcv_cad_view_glass");
 
