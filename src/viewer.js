@@ -181,7 +181,7 @@ class Viewer {
     this.ambientIntensity = 0.5;
     this.directIntensity = 0.6;
     this.metalness = 0.7;
-    this.roughness = 0.6;
+    this.roughness = 0.7;
     this.defaultOpacity = 0.5;
     this.edgeColor = 0x707070;
     this.normalLen = 0;
@@ -671,6 +671,7 @@ class Viewer {
   clearAnimation() {
     if (this.animation) {
       deepDispose(this.animation);
+      this.animation = null;
     }
     this.display.showAnimationControl(false);
     this.toggleAnimationLoop(false);
@@ -739,12 +740,7 @@ class Viewer {
         this.handleRaycast();
       }
 
-      this.renderer.setViewport(
-        0,
-        0,
-        this.renderer.domElement.clientWidth,
-        this.renderer.domElement.clientHeight,
-      );
+      this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
       this.cadTools.update();
 
@@ -904,6 +900,7 @@ class Viewer {
 
       if (this.animation != null) {
         deepDispose(this.animation);
+        this.animation = null;
       }
 
       this.display.setExplodeCheck(false);
@@ -2837,12 +2834,7 @@ class Viewer {
     this.update(true);
     let result = new Promise((resolve, _) => {
       const canvas = this.display.getCanvas();
-      this.renderer.setViewport(
-        0,
-        0,
-        this.renderer.domElement.clientWidth,
-        this.renderer.domElement.clientHeight,
-      );
+      this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
       canvas.toBlob((blob) => {
         let reader = new FileReader();
