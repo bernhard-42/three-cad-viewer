@@ -671,7 +671,6 @@ class Viewer {
   clearAnimation() {
     if (this.animation) {
       deepDispose(this.animation);
-      this.animation = null;
     }
     this.display.showAnimationControl(false);
     this.toggleAnimationLoop(false);
@@ -900,7 +899,6 @@ class Viewer {
 
       if (this.animation != null) {
         deepDispose(this.animation);
-        this.animation = null;
       }
 
       this.display.setExplodeCheck(false);
