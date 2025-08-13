@@ -16,7 +16,7 @@ import {
   KeyMapper,
   scaleLight,
   flatten,
-  disposeDeep,
+  deepDispose,
 } from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
@@ -670,7 +670,7 @@ class Viewer {
    */
   clearAnimation() {
     if (this.animation) {
-      disposeDeep(this.animation);
+      deepDispose(this.animation);
     }
     this.display.showAnimationControl(false);
     this.toggleAnimationLoop(false);
@@ -830,7 +830,7 @@ class Viewer {
   dispose() {
     this.clear();
 
-    disposeDeep(this.gridHelper);
+    deepDispose(this.gridHelper);
     this.gridHelper = null;
 
     // dispose the orientation marker
@@ -861,7 +861,7 @@ class Viewer {
     this.controls = null;
     this.orientationMarker = null;
     this.compactTree = null;
-    disposeDeep(this.cadTools);
+    deepDispose(this.cadTools);
     this.cadTools = null;
     this.clipAction = null;
     this.treeview.dispose();
@@ -903,7 +903,7 @@ class Viewer {
       this.display.showAnimationControl(false);
 
       if (this.animation != null) {
-        disposeDeep(this.animation);
+        deepDispose(this.animation);
       }
 
       this.display.setExplodeCheck(false);
@@ -922,20 +922,20 @@ class Viewer {
       }
 
       // dispose scene
-      disposeDeep(this.scene);
+      deepDispose(this.scene);
 
-      disposeDeep(this.clipping);
+      deepDispose(this.clipping);
       this.clipping = null;
 
       // clear tree view
       this.display.clearCadTree();
 
       // clear info
-      disposeDeep(this.info);
+      deepDispose(this.info);
 
       // dispose camera and controls
-      disposeDeep(this.camera);
-      disposeDeep(this.controls);
+      deepDispose(this.camera);
+      deepDispose(this.controls);
 
       // dispose scene
       this.scene = null;
@@ -943,20 +943,20 @@ class Viewer {
     }
 
     if (this.shapes != null) {
-      disposeDeep(this.shapes);
+      deepDispose(this.shapes);
       this.shapes = null;
     }
 
     if (this.expandedNestedGroup != null) {
-      disposeDeep(this.expandedNestedGroup);
+      deepDispose(this.expandedNestedGroup);
       this.expandedNestedGroup = null;
     }
     if (this.compactNestedGroup != null) {
-      disposeDeep(this.compactNestedGroup);
+      deepDispose(this.compactNestedGroup);
       this.compactNestedGroup = null;
     }
     if (this.nestedGroup != null) {
-      disposeDeep(this.nestedGroup);
+      deepDispose(this.nestedGroup);
       this.nestedGroup = null;
     }
   }

@@ -5,7 +5,7 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js";
 import { BoundingBox } from "./bbox.js";
 import { ObjectGroup } from "./objectgroup.js";
-import { disposeDeep, flatten } from "./utils.js";
+import { deepDispose, flatten } from "./utils.js";
 
 class States {
   constructor(states) {
@@ -63,15 +63,15 @@ class NestedGroup {
 
   dispose() {
     if (this.groups) {
-      disposeDeep(Object.values(this.groups));
+      deepDispose(Object.values(this.groups));
       this.groups = null;
     }
     if (this.rootGroup) {
-      disposeDeep(this.rootGroup);
+      deepDispose(this.rootGroup);
       this.rootGroup = null;
     }
     if (this.shapes) {
-      disposeDeep(this.shapes);
+      deepDispose(this.shapes);
       this.shapes = null;
     }
   }

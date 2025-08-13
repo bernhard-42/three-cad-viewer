@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { disposeDeep, disposeGeometry } from "./utils.js";
+import { deepDispose, disposeGeometry } from "./utils.js";
 
 class ObjectGroup extends THREE.Group {
   /**
@@ -28,16 +28,16 @@ class ObjectGroup extends THREE.Group {
   }
 
   dispose() {
-    disposeDeep(Object.values(this.types));
+    deepDispose(Object.values(this.types));
     if (this.shapeGeometry) {
       disposeGeometry(this.shapeGeometry);
       this.shapeGeometry = null;
     }
     for (var i in [0, 1, 2]) {
-      disposeDeep(this.types[`clipping-${i}`]);
+      deepDispose(this.types[`clipping-${i}`]);
     }
     if (this.children) {
-      disposeDeep(this.children);
+      deepDispose(this.children);
       this.clear();
     }
   }

@@ -78,12 +78,12 @@ function disposeMesh(mesh) {
   }
 }
 
-function disposeDeep(tree) {
+function deepDispose(tree) {
   if (!tree) {
     return;
   }
   if (Array.isArray(tree.children)) {
-    tree.children.forEach(disposeDeep);
+    tree.children.forEach(deepDispose);
   }
   if (tree.dispose) {
     tree.dispose();
@@ -91,7 +91,7 @@ function disposeDeep(tree) {
     // LineSegments extends Line
     disposeMesh(tree);
   } else if (Array.isArray(tree)) {
-    tree.forEach(disposeDeep);
+    tree.forEach(deepDispose);
   }
 }
 
@@ -164,6 +164,6 @@ export {
   prettyPrintVector,
   KeyMapper,
   scaleLight,
-  disposeDeep,
+  deepDispose,
   disposeGeometry,
 };

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { ObjectGroup } from "./objectgroup.js";
-import { disposeDeep } from "./utils.js";
+import { deepDispose } from "./utils.js";
 
 const normals = [
   new THREE.Vector3(-1, 0, 0),
@@ -300,8 +300,8 @@ class Clipping extends THREE.Group {
   };
 
   dispose() {
-    disposeDeep(this.clipPlanes);
-    disposeDeep(this.reverseClipPlanes);
+    deepDispose(this.clipPlanes);
+    deepDispose(this.reverseClipPlanes);
   }
 }
 
