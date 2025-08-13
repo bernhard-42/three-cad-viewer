@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { Vector3 } from "three";
 import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
@@ -394,7 +393,7 @@ class Measurement {
     const ndcX = panelCenterX / (canvasRect.width / 2) - 1;
     const ndcY = 1 - panelCenterY / (canvasRect.height / 2);
     const ndcZ = this.viewer.ortho ? -0.9 : 1; // seems like a nice default ...
-    var panelCenter = new Vector3(ndcX, ndcY, ndcZ);
+    var panelCenter = new THREE.Vector3(ndcX, ndcY, ndcZ);
 
     const camera = this.viewer.camera.getCamera();
     camera.updateProjectionMatrix();
