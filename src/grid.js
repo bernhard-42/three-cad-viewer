@@ -216,7 +216,9 @@ class Grid extends THREE.Group {
   }
 
   setVisible() {
-    this.children.forEach((ch, i) => (ch.visible = this.grid[i]));
+    this.children.forEach((ch, i) => {
+      ch.visible = this.grid[i];
+    });
   }
 }
 
