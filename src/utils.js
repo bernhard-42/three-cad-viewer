@@ -88,6 +88,7 @@ function disposeDeep(tree) {
   if (tree.dispose) {
     tree.dispose();
   } else if (tree instanceof Mesh || tree instanceof Line) {
+    // LineSegments extends Line
     disposeMesh(tree);
   } else if (Array.isArray(tree)) {
     tree.forEach(disposeDeep);
