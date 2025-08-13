@@ -755,7 +755,12 @@ class Viewer {
         this.handleRaycast();
       }
 
-      this.renderer.setViewport(0, 0, this.cadWidth, this.height);
+      this.renderer.setViewport(
+        0,
+        0,
+        this.renderer.domElement.clientWidth,
+        this.renderer.domElement.clientHeight,
+      );
       this.renderer.render(this.scene, this.camera.getCamera());
       this.cadTools.update();
 
@@ -2857,7 +2862,12 @@ class Viewer {
     this.update(true);
     let result = new Promise((resolve, reject) => {
       const canvas = this.display.getCanvas();
-      this.renderer.setViewport(0, 0, this.cadWidth, this.height);
+      this.renderer.setViewport(
+        0,
+        0,
+        this.renderer.domElement.clientWidth,
+        this.renderer.domElement.clientHeight,
+      );
       this.renderer.render(this.scene, this.camera.getCamera());
       canvas.toBlob((blob) => {
         let reader = new FileReader();
