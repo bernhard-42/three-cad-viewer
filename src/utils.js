@@ -1,3 +1,4 @@
+import { Line, Mesh } from "three";
 import { sizeof } from "./sizeof.js";
 
 function clone(obj) {
@@ -56,36 +57,15 @@ function sceneTraverse(obj, fn) {
 
 function disposeGeometry(geometry) {
   if (geometry) {
-    if (geometry.attributes) {
-      if (geometry.attributes.normal) {
-        geometry.attributes.normal.array = null; // new Float32Array([]);
-      }
-      if (geometry.attributes.position) {
-        geometry.attributes.position.array = null; // new Float32Array([]);
-      }
-      if (geometry.attributes.uv) {
-        geometry.attributes.uv.array = null; // new Float32Array([]);
-      }
-      if (geometry.attributes.color) {
-        geometry.attributes.color.array = null; // new Float32Array([]);
-      }
-      if (geometry.index) {
-        geometry.index.array = null; // new Float32Array([]);
-      }
-      if (geometry.attributes.instanceStart) {
-        geometry.attributes.instanceStart.data.array = null; // new Float32Array([]);
-      }
-      if (geometry.attributes.instanceEnd) {
-        geometry.attributes.instanceEnd.data.array = null; // new Float32Array([]);
-      }
-      geometry.attributes = null;
+    geometry.dispose();
+    for (const attr of Object.values(geometry.attributes)) {
+      attr?.dispose?.();
     }
   }
 }
 
 function disposeMesh(mesh) {
   if (mesh.geometry) {
-    mesh.geometry.dispose();
     disposeGeometry(mesh.geometry);
   }
 
@@ -98,41 +78,19 @@ function disposeMesh(mesh) {
   }
 }
 
-function newDisposableMesh(...args) {
-  const mesh = new THREE.Mesh(...args);
-
-  mesh.dispose = function () {
-    disposeMesh(mesh);
-  };
-
-  return mesh;
-}
-
-function disposeShapes(shapes) {
-  if (shapes.shape) {
-    var key = "";
-    for (key of [
-      "edge_types",
-      "face_types",
-      "segments_per_edge",
-      "triangles",
-      "triangles_per_face",
-    ]) {
-      if (shapes.shape[key]) {
-        shapes.shape[key] = null; // new Uint32Array(0);
-      }
-    }
-    for (key of ["edges", "normals", "obj_vertices", "vertices"]) {
-      if (shapes.shape[key]) {
-        shapes.shape[key] = null; // new Float32Array(0);
-      }
-    }
-  } else if (shapes.parts) {
-    for (var i in shapes.parts) {
-      disposeShapes(shapes.parts[i]);
-      // shapes.parts[i] = null;
-    }
-    shapes.parts = null;
+function disposeDeep(tree) {
+  if (!tree) {
+    return;
+  }
+  if (Array.isArray(tree.children)) {
+    tree.children.forEach(disposeDeep);
+  }
+  if (tree.dispose) {
+    tree.dispose();
+  } else if (tree instanceof Mesh || tree instanceof Line) {
+    disposeMesh(tree);
+  } else if (Array.isArray(tree)) {
+    tree.forEach(disposeDeep);
   }
 }
 
@@ -205,8 +163,6 @@ export {
   prettyPrintVector,
   KeyMapper,
   scaleLight,
-  newDisposableMesh,
+  disposeDeep,
   disposeGeometry,
-  disposeMesh,
-  disposeShapes,
 };

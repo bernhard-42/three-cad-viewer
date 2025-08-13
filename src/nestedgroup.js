@@ -5,8 +5,7 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js";
 import { BoundingBox } from "./bbox.js";
 import { ObjectGroup } from "./objectgroup.js";
-import { Group } from "./group.js";
-import { flatten, newDisposableMesh, disposeShapes } from "./utils.js";
+import { disposeDeep, flatten } from "./utils.js";
 
 class States {
   constructor(states) {
@@ -64,17 +63,15 @@ class NestedGroup {
 
   dispose() {
     if (this.groups) {
-      for (var k in this.groups) {
-        this.groups[k].dispose();
-      }
+      disposeDeep(Object.values(this.groups));
       this.groups = null;
     }
     if (this.rootGroup) {
-      this.rootGroup.dispose();
+      disposeDeep(this.rootGroup);
       this.rootGroup = null;
     }
     if (this.shapes) {
-      disposeShapes(this.shapes);
+      disposeDeep(this.shapes);
       this.shapes = null;
     }
   }
@@ -336,10 +333,10 @@ class NestedGroup {
       name: "backMaterial",
     });
 
-    const back = newDisposableMesh(shapeGeometry, backMaterial);
+    const back = new THREE.Mesh(shapeGeometry, backMaterial);
     back.name = name;
 
-    const front = newDisposableMesh(shapeGeometry, frontMaterial);
+    const front = new THREE.Mesh(shapeGeometry, frontMaterial);
     front.name = name;
 
     // ensure, transparent objects will be rendered at the end
@@ -423,7 +420,7 @@ class NestedGroup {
       return mesh;
     };
 
-    var group = new Group();
+    var group = new THREE.Group();
     if (shapes.loc == null) {
       shapes.loc = [
         [0.0, 0.0, 0.0],

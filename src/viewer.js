@@ -16,7 +16,7 @@ import {
   KeyMapper,
   scaleLight,
   flatten,
-  disposeShapes,
+  disposeDeep,
 } from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
@@ -670,7 +670,7 @@ class Viewer {
    */
   clearAnimation() {
     if (this.animation) {
-      this.animation.dispose();
+      disposeDeep(this.animation);
     }
     this.display.showAnimationControl(false);
     this.toggleAnimationLoop(false);
@@ -742,8 +742,8 @@ class Viewer {
       this.renderer.setViewport(
         0,
         0,
-        this.renderer.domElement.width,
-        this.renderer.domElement.height,
+        this.renderer.domElement.clientWidth,
+        this.renderer.domElement.clientHeight,
       );
       this.renderer.render(this.scene, this.camera.getCamera());
       this.cadTools.update();
@@ -754,7 +754,7 @@ class Viewer {
         this.lastBbox != null &&
         (this.lastBbox.needsUpdate || this.bboxNeedsUpdate)
       ) {
-        console.log("updated bbox");
+        console.debug("updated bbox");
         this.lastBbox.bbox.update();
         this.lastBbox.needsUpdate = false;
       }
@@ -830,12 +830,8 @@ class Viewer {
   dispose() {
     this.clear();
 
-    if (this.gridHelper) {
-      for (var i in this.gridHelper.gridHelper) {
-        this.gridHelper.gridHelper[i].dispose();
-        this.gridHelper.gridHelper[i] = null;
-      }
-    }
+    disposeDeep(this.gridHelper);
+    this.gridHelper = null;
 
     // dispose the orientation marker
     if (this.orientationMarker != null) {
@@ -865,7 +861,7 @@ class Viewer {
     this.controls = null;
     this.orientationMarker = null;
     this.compactTree = null;
-    this.cadTools.dispose();
+    disposeDeep(this.cadTools);
     this.cadTools = null;
     this.clipAction = null;
     this.treeview.dispose();
@@ -907,7 +903,7 @@ class Viewer {
       this.display.showAnimationControl(false);
 
       if (this.animation != null) {
-        this.animation.dispose();
+        disposeDeep(this.animation);
       }
 
       this.display.setExplodeCheck(false);
@@ -926,26 +922,20 @@ class Viewer {
       }
 
       // dispose scene
+      disposeDeep(this.scene);
 
-      for (var i in this.scene.children) {
-        if (this.scene.children[i] != null) {
-          this.scene.children[i].dispose();
-          this.scene.children[i] = null;
-        }
-      }
-
-      this.clipping.dispose();
+      disposeDeep(this.clipping);
       this.clipping = null;
 
       // clear tree view
       this.display.clearCadTree();
 
       // clear info
-      this.info.dispose();
+      disposeDeep(this.info);
 
       // dispose camera and controls
-      this.camera.dispose();
-      this.controls.dispose();
+      disposeDeep(this.camera);
+      disposeDeep(this.controls);
 
       // dispose scene
       this.scene = null;
@@ -953,20 +943,20 @@ class Viewer {
     }
 
     if (this.shapes != null) {
-      disposeShapes(this.shapes);
+      disposeDeep(this.shapes);
       this.shapes = null;
     }
 
     if (this.expandedNestedGroup != null) {
-      this.expandedNestedGroup.dispose();
+      disposeDeep(this.expandedNestedGroup);
       this.expandedNestedGroup = null;
     }
     if (this.compactNestedGroup != null) {
-      this.compactNestedGroup.dispose();
+      disposeDeep(this.compactNestedGroup);
       this.compactNestedGroup = null;
     }
     if (this.nestedGroup != null) {
-      this.nestedGroup.dispose();
+      disposeDeep(this.nestedGroup);
       this.nestedGroup = null;
     }
   }
@@ -1294,9 +1284,7 @@ class Viewer {
     );
     this.gridHelper.computeGrid();
 
-    for (var i = 0; i < 3; i++) {
-      this.scene.add(this.gridHelper.gridHelper[i]);
-    }
+    this.scene.add(this.gridHelper);
 
     this.gridSize = this.gridHelper.size;
 
@@ -1323,7 +1311,7 @@ class Viewer {
     //   transparent: true,
     //   depthWrite: false,
     // });
-    // const sphere = newDisposableMesh(geometry, material);
+    // const sphere = new THREE.Mesh(geometry, material);
     // const sgroup = new THREE.Group();
     // sgroup.add(sphere);
     // sgroup.position.set(...this.bbox.center());
@@ -1373,7 +1361,7 @@ class Viewer {
     this.setClipObjectColorCaps(viewerOptions.clipObjectColors, true);
     this.setClipPlaneHelpersCheck(viewerOptions.clipPlaneHelpers, true);
 
-    this.scene.add(this.clipping.planeHelpers);
+    this.scene.add(this.clipping);
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
 
     this.setLocalClipping(false); // only allow clipping when Clipping tab is selected
@@ -2847,13 +2835,13 @@ class Viewer {
     }
     this.orientationMarker.setVisible(false);
     this.update(true);
-    let result = new Promise((resolve, reject) => {
+    let result = new Promise((resolve, _) => {
       const canvas = this.display.getCanvas();
       this.renderer.setViewport(
         0,
         0,
-        this.renderer.domElement.width,
-        this.renderer.domElement.height,
+        this.renderer.domElement.clientWidth,
+        this.renderer.domElement.clientHeight,
       );
       this.renderer.render(this.scene, this.camera.getCamera());
       canvas.toBlob((blob) => {

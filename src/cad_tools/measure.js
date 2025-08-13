@@ -4,7 +4,7 @@ import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { DistancePanel, PropertiesPanel } from "./ui.js";
-import { newDisposableMesh } from "../utils.js";
+import { disposeDeep } from "../utils.js";
 
 class DistanceLineArrow extends THREE.Group {
   /**
@@ -67,8 +67,8 @@ class DistanceLineArrow extends THREE.Group {
 
     const coneGeom = new THREE.ConeGeometry(coneLength / 4, coneLength, 10);
     const coneMaterial = new THREE.MeshBasicMaterial({ color: this.color });
-    const startCone = newDisposableMesh(coneGeom, coneMaterial);
-    const endCone = newDisposableMesh(coneGeom, coneMaterial);
+    const startCone = new THREE.Mesh(coneGeom, coneMaterial);
+    const endCone = new THREE.Mesh(coneGeom, coneMaterial);
     startCone.name = "startCone";
     endCone.name = "endCone";
     const matrix = new THREE.Matrix4();
@@ -92,12 +92,6 @@ class DistanceLineArrow extends THREE.Group {
     this.add(line);
   }
 
-  dispose() {
-    this.children.forEach((child) => {
-      if (child.geometry) child.geometry.dispose();
-      if (child.material) child.material.dispose();
-    });
-  }
   /**
    * Update the arrow so it keeps the same size on the screen.
    * @param {number} scaleFactor
@@ -470,9 +464,7 @@ class Measurement {
    */
   _adjustArrowsScaleFactor(zoom) {
     const scaleFactor = 1 / zoom;
-    for (let child of this.scene.children) {
-      child.update(scaleFactor);
-    }
+    this.scene.children.forEach((ch) => ch.update(scaleFactor));
   }
 
   update() {
@@ -488,16 +480,14 @@ class Measurement {
   }
 
   disposeArrows() {
-    for (var i in this.scene.children) {
-      this.scene.children[i].dispose();
-    }
-    this.scene.children = [];
+    disposeDeep(this.scene);
+    this.scene.clear();
   }
 
   dispose() {
     if (this.panel) {
       this.panel.show(false);
-      this.panel.dispose();
+      disposeDeep(this.panel);
     }
     this.disposeArrows();
     this.panel = null;
