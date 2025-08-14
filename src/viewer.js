@@ -919,6 +919,8 @@ class Viewer {
       // dispose scene
       deepDispose(this.scene);
 
+      deepDispose(this.gridHelper);
+
       deepDispose(this.clipping);
       this.clipping = null;
 
@@ -1091,6 +1093,7 @@ class Viewer {
     this.scene.children[0] = this.nestedGroup.rootGroup;
     timer.split("added shapes to scene");
 
+    deepDispose(this.treeview);
     this.treeview = new TreeView(
       this.tree,
       this.display.cadTreeScrollContainer,

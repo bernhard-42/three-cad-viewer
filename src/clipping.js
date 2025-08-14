@@ -302,6 +302,13 @@ class Clipping extends THREE.Group {
   dispose() {
     deepDispose(this.clipPlanes);
     deepDispose(this.reverseClipPlanes);
+
+    this.nestedGroup = null;
+    this.clipPlanes = null;
+    this.reverseClipPlanes = null;
+    this.objectColors = null;
+    this.display = null;
+    this.center = null;
   }
 }
 

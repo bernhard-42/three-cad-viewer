@@ -1,6 +1,5 @@
 import { getIconSvg } from "./icons.js";
-import { KeyMapper } from "./utils.js";
-import { Timer } from "./timer.js";
+import { KeyMapper, removeAllListeners } from "./utils.js";
 
 const States = {
   unselected: 0,
@@ -9,7 +8,6 @@ const States = {
   disabled: 3,
 };
 
-const StateClasses = ["unselected", "selected", "mixed", "disabled"];
 var Counter = 0;
 
 /**
@@ -36,8 +34,6 @@ class TreeView {
     linkIcons,
     debug = false,
   ) {
-    const svgPrefix =
-      '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">';
     this.viewIcons = [
       [
         getIconSvg(theme, "shape_no"),
@@ -78,6 +74,8 @@ class TreeView {
     this.container = document.createElement("ul");
     this.container.classList.add("tcv_toplevel");
 
+    // Unsubscribe other listeners, just in case
+    removeAllListeners(this.scrollContainer);
     this.scrollContainer.addEventListener("scroll", this.handleScroll);
 
     this.lastLabel = null;
@@ -228,6 +226,10 @@ class TreeView {
    * Handles the scroll event.
    */
   handleScroll = () => {
+    if (!this.scrollContainer) {
+      return;
+    }
+
     this.lastScrollTop = this.scrollContainer.scrollTop;
     if (this.debug) {
       console.log("update => scroll");
@@ -349,6 +351,7 @@ class TreeView {
    * and updating the tree.
    */
   render() {
+    removeAllListeners(this.container);
     this.container.innerHTML = "";
     this.renderPlaceholder(this.root, this.container);
     if (this.debug) {
@@ -395,6 +398,7 @@ class TreeView {
     if (this.debug) {
       console.log("renderNode", node.path, node.level);
     }
+    removeAllListeners(parentElement);
     const nodeContent = document.createElement("div");
     nodeContent.className = "tv-node-content";
     parentElement.removeChild(parentElement.firstChild);
@@ -967,6 +971,7 @@ class TreeView {
     this.tree = null;
     this.navIcons = null;
     this.scrollContainer.removeEventListener("scroll", this.handleScroll);
+    console.log("unsub", this.IDD);
   }
 }
 

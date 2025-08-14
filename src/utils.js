@@ -156,6 +156,37 @@ function memSize(obj, tag = "obj") {
 
 const KeyMapper = new _KeyMapper();
 
+export function removeAllListeners(node) {
+  // If the node is not valid or doesn't have an event listener, we can exit.
+  if (!node || typeof node.getEventListeners !== "function") {
+    return;
+  }
+
+  // Get all registered event listeners for the current node.
+  const listeners = node.getEventListeners();
+
+  // Iterate over each event type (e.g., 'click', 'mouseover').
+  for (const eventType in listeners) {
+    if (listeners.hasOwnProperty(eventType)) {
+      // Iterate over each listener function for the specific event type.
+      listeners[eventType].forEach((listenerInfo) => {
+        // Remove the listener using the same function, type, and options/useCapture.
+        console.log("remove", eventType, "from", node.className);
+        node.removeEventListener(
+          eventType,
+          listenerInfo.listener,
+          listenerInfo.useCapture,
+        );
+      });
+    }
+  }
+
+  // Recursively call the function for all child nodes.
+  for (const child of node.children) {
+    removeAllListeners(child);
+  }
+}
+
 export {
   clone,
   flatten,
