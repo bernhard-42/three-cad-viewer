@@ -441,6 +441,9 @@ class TreeView {
     if (color != null) {
       label.innerHTML += `<span style="color:${color}"> ⚈</span>`;
     }
+    label.onmousedown = (e) => {
+      e.preventDefault();
+    };
 
     label.onclick = (e) => {
       e.stopPropagation();
