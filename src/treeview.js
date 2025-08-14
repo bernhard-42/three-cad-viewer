@@ -1,5 +1,5 @@
 import { getIconSvg } from "./icons.js";
-import { KeyMapper, removeAllListeners } from "./utils.js";
+import { KeyMapper } from "./utils.js";
 
 const States = {
   unselected: 0,
@@ -75,7 +75,6 @@ class TreeView {
     this.container.classList.add("tcv_toplevel");
 
     // Unsubscribe other listeners, just in case
-    removeAllListeners(this.scrollContainer);
     this.scrollContainer.addEventListener("scroll", this.handleScroll);
 
     this.lastLabel = null;
@@ -351,7 +350,6 @@ class TreeView {
    * and updating the tree.
    */
   render() {
-    removeAllListeners(this.container);
     this.container.innerHTML = "";
     this.renderPlaceholder(this.root, this.container);
     if (this.debug) {
@@ -398,7 +396,6 @@ class TreeView {
     if (this.debug) {
       console.log("renderNode", node.path, node.level);
     }
-    removeAllListeners(parentElement);
     const nodeContent = document.createElement("div");
     nodeContent.className = "tv-node-content";
     parentElement.removeChild(parentElement.firstChild);
@@ -444,9 +441,6 @@ class TreeView {
     if (color != null) {
       label.innerHTML += `<span style="color:${color}"> ⚈</span>`;
     }
-    label.onmousedown = (e) => {
-      e.preventDefault();
-    };
 
     label.onclick = (e) => {
       e.stopPropagation();

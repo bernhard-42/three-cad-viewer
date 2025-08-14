@@ -1,5 +1,5 @@
 import { getIconBackground, getIconSvg } from "./icons.js";
-import { KeyMapper, removeAllListeners } from "./utils.js";
+import { KeyMapper } from "./utils.js";
 import { Slider } from "./slider.js";
 import { Toolbar, Button, ClickButton, Ellipsis } from "./toolbar.js";
 import { ToolTypes } from "./cad_tools/tools.js";
@@ -346,14 +346,11 @@ class Display {
   dispose() {
     this.viewer = undefined;
 
-    removeAllListeners(this.cadTree);
     this.cadTree.innerHTML = "";
     this.cadTree = undefined;
 
-    removeAllListeners(this.cadView.children[2]);
     this.cadView.removeChild(this.cadView.children[2]);
 
-    removeAllListeners(this.container);
     this.container.innerHTML = "";
     this.container = null;
 
