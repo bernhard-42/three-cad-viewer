@@ -971,7 +971,6 @@ class TreeView {
     this.tree = null;
     this.navIcons = null;
     this.scrollContainer.removeEventListener("scroll", this.handleScroll);
-    console.log("unsub", this.IDD);
   }
 }
 
