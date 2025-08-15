@@ -45,11 +45,6 @@ class AxesHelper extends LineSegments2 {
     this.setCenter(axes0);
   }
 
-  dispose() {
-    this.geometry.dispose();
-    this.material.dispose();
-  }
-
   setCenter(axes0) {
     if (axes0) {
       this.position.set(0, 0, 0);

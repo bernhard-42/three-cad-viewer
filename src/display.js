@@ -344,18 +344,17 @@ class Display {
   }
 
   dispose() {
-    var type, el_name, fn;
-    for (var ui_event of this._events) {
-      [type, el_name, fn] = ui_event;
-      const el = this._getElement(el_name);
-      el.removeEventListener(type, fn);
-    }
-    // remove cadTree
+    this.viewer = undefined;
+
     this.cadTree.innerHTML = "";
-    // remove canvas
+    this.cadTree = undefined;
+
     this.cadView.removeChild(this.cadView.children[2]);
-    // delete view
+
     this.container.innerHTML = "";
+    this.container = null;
+
+    this.cadTreeScrollContainer = null;
   }
 
   /**

@@ -1,6 +1,5 @@
 import { getIconSvg } from "./icons.js";
 import { KeyMapper } from "./utils.js";
-import { Timer } from "./timer.js";
 
 const States = {
   unselected: 0,
@@ -9,7 +8,6 @@ const States = {
   disabled: 3,
 };
 
-const StateClasses = ["unselected", "selected", "mixed", "disabled"];
 var Counter = 0;
 
 /**
@@ -36,8 +34,6 @@ class TreeView {
     linkIcons,
     debug = false,
   ) {
-    const svgPrefix =
-      '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">';
     this.viewIcons = [
       [
         getIconSvg(theme, "shape_no"),
@@ -228,6 +224,10 @@ class TreeView {
    * Handles the scroll event.
    */
   handleScroll = () => {
+    if (!this.scrollContainer) {
+      return;
+    }
+
     this.lastScrollTop = this.scrollContainer.scrollTop;
     if (this.debug) {
       console.log("update => scroll");

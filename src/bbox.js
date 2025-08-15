@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { disposeGeometry } from "./utils";
+
 class BoundingBox extends THREE.Box3 {
   expandByObject(object, precise = false) {
     object.updateWorldMatrix(false, false);
@@ -153,11 +153,6 @@ class BoxHelper extends THREE.LineSegments {
     this.update();
 
     return this;
-  }
-
-  dispose() {
-    disposeGeometry(this.geometry);
-    this.geometry = null;
   }
 }
 
