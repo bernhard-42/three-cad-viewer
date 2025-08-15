@@ -74,7 +74,6 @@ class TreeView {
     this.container = document.createElement("ul");
     this.container.classList.add("tcv_toplevel");
 
-    // Unsubscribe other listeners, just in case
     this.scrollContainer.addEventListener("scroll", this.handleScroll);
 
     this.lastLabel = null;
