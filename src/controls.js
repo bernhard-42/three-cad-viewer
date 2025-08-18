@@ -56,8 +56,10 @@ class Controls {
    * Remove assets and event handlers.
    */
   dispose() {
-    this.controls.dispose();
-    this.controls = null;
+    if (this.controls) {
+      this.controls.dispose();
+      this.controls = null;
+    }
   }
 
   /**

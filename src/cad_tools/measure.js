@@ -2,14 +2,14 @@ import * as THREE from "three";
 import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
-import { Vector3 } from "three";
 import { DistancePanel, PropertiesPanel } from "./ui.js";
+import { deepDispose } from "../utils.js";
 
 class DistanceLineArrow extends THREE.Group {
   /**
    *
-   * @param {Vector3} point1 The start point of the line
-   * @param {Vector3} point2 The end point of the line
+   * @param {THREE.Vector3} point1 The start point of the line
+   * @param {THREE.Vector3} point2 The end point of the line
    * @param {number} linewidth The thickness of the line
    * @param {THREE.Color} color The color of the line
    * @param {boolean} arrowStart If true, a cone is added at the start of the line
@@ -91,12 +91,6 @@ class DistanceLineArrow extends THREE.Group {
     this.add(line);
   }
 
-  dispose() {
-    this.children.forEach((child) => {
-      if (child.geometry) child.geometry.dispose();
-      if (child.material) child.material.dispose();
-    });
-  }
   /**
    * Update the arrow so it keeps the same size on the screen.
    * @param {number} scaleFactor
@@ -175,7 +169,7 @@ class Measurement {
 
   enableContext() {
     this.contextEnabled = true;
-    this.panelCenter = new Vector3(1, 0, 0);
+    this.panelCenter = new THREE.Vector3(1, 0, 0);
 
     document.addEventListener("mouseup", this._mouseup);
     document.addEventListener("mousemove", this._dragPanel);
@@ -469,9 +463,7 @@ class Measurement {
    */
   _adjustArrowsScaleFactor(zoom) {
     const scaleFactor = 1 / zoom;
-    for (let child of this.scene.children) {
-      child.update(scaleFactor);
-    }
+    this.scene.children.forEach((ch) => ch.update(scaleFactor));
   }
 
   update() {
@@ -487,16 +479,14 @@ class Measurement {
   }
 
   disposeArrows() {
-    for (var i in this.scene.children) {
-      this.scene.children[i].dispose();
-    }
-    this.scene.children = [];
+    deepDispose(this.scene);
+    this.scene.clear();
   }
 
   dispose() {
     if (this.panel) {
       this.panel.show(false);
-      this.panel.dispose();
+      deepDispose(this.panel);
     }
     this.disposeArrows();
     this.panel = null;
@@ -523,8 +513,8 @@ class DistanceMeasurement extends Measurement {
   }
 
   _getPoints() {
-    this.point1 = new Vector3(...this.responseData.refpoint1);
-    this.point2 = new Vector3(...this.responseData.refpoint2);
+    this.point1 = new THREE.Vector3(...this.responseData.refpoint1);
+    this.point2 = new THREE.Vector3(...this.responseData.refpoint2);
   }
 
   _makeLines() {
@@ -588,7 +578,7 @@ class PropertiesMeasurement extends Measurement {
     return 1;
   }
   _getPoint() {
-    this.point1 = new Vector3(...this.responseData.refpoint);
+    this.point1 = new THREE.Vector3(...this.responseData.refpoint);
   }
 
   _makeLines() {

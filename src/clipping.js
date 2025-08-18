@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { ObjectGroup } from "./objectgroup.js";
-import { Group } from "./group.js";
+import { deepDispose } from "./utils.js";
 
 const normals = [
   new THREE.Vector3(-1, 0, 0),
@@ -123,25 +123,29 @@ class PlaneMesh extends THREE.Mesh {
 
 function createStencil(name, material, geometry, plane) {
   material.clippingPlanes = [plane];
-  var mesh = new THREE.Mesh(geometry, material);
+  const mesh = new THREE.Mesh(geometry, material);
   mesh.name = name;
   return mesh;
 }
 
-class Clipping {
+class Clipping extends THREE.Group {
   constructor(center, size, nestedGroup, display, theme) {
+    super();
     this.center = center;
     this.distance = size / 2;
     this.display = display;
     this.theme = theme;
     this.nestedGroup = nestedGroup;
 
+    this.planeHelpers = new THREE.Group();
+    this.planeHelpers.name = "PlaneHelpers";
+
     this.clipPlanes = [];
     this.reverseClipPlanes = [];
 
-    this.planeHelpers = new Group();
-    this.planeHelpers.name = "PlaneHelpers";
-    this.planeHelperMaterials = [];
+    this.add(this.planeHelpers);
+
+    this.name = "PlaneHelpers";
     this.objectColors = [];
     this.objectColorCaps = false;
 
@@ -162,7 +166,6 @@ class Clipping {
       const material = planeHelperMaterial.clone();
       material.opacity = theme === "dark" ? 0.2 : 0.1;
 
-      this.planeHelperMaterials.push(material);
       this.planeHelpers.add(
         new PlaneMesh(
           i,
@@ -186,7 +189,7 @@ class Clipping {
     /*
     Stencils
     */
-    var planeMeshGroup = new Group();
+    var planeMeshGroup = new THREE.Group();
     planeMeshGroup.name = "PlaneMeshes";
 
     for (i = 0; i < 3; i++) {
@@ -194,7 +197,7 @@ class Clipping {
       const otherPlanes = this.clipPlanes.filter((_, j) => j !== i);
       var j = 0;
       for (var path in nestedGroup.groups) {
-        var clippingGroup = new Group();
+        var clippingGroup = new THREE.Group();
         clippingGroup.name = `clipping-${i}`;
 
         var group = nestedGroup.groups[path];
@@ -297,14 +300,9 @@ class Clipping {
   };
 
   dispose() {
-    this.planeHelpers.dispose();
-    this.planeHelpers = null;
+    deepDispose(this.clipPlanes);
+    deepDispose(this.reverseClipPlanes);
 
-    for (var i in this.planeHelperMaterials) {
-      this.planeHelperMaterials[i].dispose();
-      this.planeHelperMaterials[i] = null;
-    }
-    this.planeHelperMaterials = null;
     this.nestedGroup = null;
     this.clipPlanes = null;
     this.reverseClipPlanes = null;
