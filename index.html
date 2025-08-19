@@ -32,7 +32,6 @@
     <script src="./examples/linkage.js"></script>
     <script src="./examples/linkage-tracks.js"></script>
     <script src="./examples/sky130.js"></script>
-    <script src="./examples/ref.js"></script>
 
   <script type="module">
     // ESM import
@@ -66,7 +65,6 @@
       single_edges,
       single_vertices,
       sky130,
-      ref,
     ];
 
     function render(name, shapes) { 
@@ -378,8 +376,7 @@
         <option value="single_faces">single faces</option>
         <option value="single_edges">single edges</option>
         <option value="single_vertices">single vertices</option>
-        <option value="GDS:sky130">sky130</option>
-        <option value="GDS:ref">ref</option>
+        <option value="sky130">GDS:sky130</option>
       </select>
     </span>
   </div>
