@@ -346,6 +346,10 @@ class NestedGroup {
       front.renderOrder = 999;
     }
 
+    if (front.geometry.boundingBox == null) {
+      front.geometry.computeBoundingBox();
+    }
+
     group.addType(back, "back");
     group.addType(front, "front");
 
@@ -661,7 +665,7 @@ class NestedGroup {
   boundingBox() {
     if (this.bbox == null) {
       this.bbox = new BoundingBox();
-      this.bbox.setFromObject(this.rootGroup, true);
+      this.bbox.setFromObject(this.rootGroup, false); // false uses precomputed bounding box
     }
     return this.bbox;
   }
