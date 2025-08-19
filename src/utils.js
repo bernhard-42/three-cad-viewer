@@ -88,12 +88,7 @@ function deepDispose(tree) {
     tree.dispose();
   } else if (Array.isArray(tree)) {
     tree.forEach(deepDispose);
-  } else if (
-    tree.isMesh ||
-    tree.isLine ||
-    tree.isLineSegments ||
-    tree.isLineSegments2
-  ) {
+  } else if (tree.isMesh || tree.isLine) {
     disposeMesh(tree);
   }
 }
