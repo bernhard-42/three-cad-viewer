@@ -69,6 +69,7 @@ class Viewer {
     this.treeview = null;
     this.cadTools = new Tools(this, options.measurementDebug);
     this.newTreeBehavior = options.newTreeBehavior;
+    this.promptBox = null;
 
     this.ready = false;
     this.mixer = null;
@@ -1115,6 +1116,18 @@ class Viewer {
     this.treeview.render();
     timer.split("rendered tree");
     timer.stop();
+  }
+
+  /**
+   * Initialize the Claude prompt box for generating CADQuery code
+   * @param {string} apiKey - Anthropic API key
+   * @param {function} onCodeGenerated - Callback function that receives generated code
+   */
+  initializePromptBox(apiKey, onCodeGenerated) {
+    if (!this.promptBox) {
+      this.promptBox = new PromptBox(this.display.container, onCodeGenerated);
+    }
+    this.promptBox.initialize(apiKey);
   }
 
   /**
