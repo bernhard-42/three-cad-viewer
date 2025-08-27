@@ -1,5 +1,17 @@
 # Change log
 
+## v3.6.1
+
+**Features**
+
+- Add polygon renderer for GDS files (will be part of gdsfactoryplus)
+
+**Fixes**
+
+- Change memory management to a new paradigm using a global function deepDispose which works recursively
+- Fix setCameraTarget
+- Fix keymapping regression where keymaps were not used any more
+
 ## v3.5.0
 
 **Features**
