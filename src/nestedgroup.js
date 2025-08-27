@@ -447,7 +447,7 @@ class NestedGroup {
 
     var polygons = [];
     var matrices;
-    if (shape.matrices) {
+    if (shape.matrices && shape.matrices.length > 0) {
       matrices = shape.matrices;
     } else {
       matrices = [1, 0, 0, 0, 1, 0];
