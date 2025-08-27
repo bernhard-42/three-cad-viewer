@@ -48,10 +48,11 @@ class Viewer {
 
     this.setDisplayDefaults(options);
 
-    if (options.keymap) {
-      KeyMapper.set(options.keymap);
-    }
     this.display = display;
+
+    if (options.keymap) {
+      this.setKeyMap(options.keymap);
+    }
 
     window.THREE = THREE;
 

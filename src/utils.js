@@ -111,10 +111,10 @@ function prettyPrintVector(v, a, b) {
 class _KeyMapper {
   constructor() {
     this.keyMapping = {
-      shift: "shiftKey",
-      ctrl: "ctrlKey",
-      meta: "metaKey",
-      alt: "altKey",
+      shift: "ctrlKey",
+      ctrl: "shiftKey",
+      meta: "altKey",
+      alt: "metaKey",
     };
   }
   getshortcuts = (key) => {

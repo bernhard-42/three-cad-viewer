@@ -443,7 +443,11 @@ class TreeView {
     label.onmousedown = (e) => {
       e.preventDefault();
     };
-
+    label.oncontextmenu = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.handleLabelClick(node, e);
+    };
     label.onclick = (e) => {
       e.stopPropagation();
       this.handleLabelClick(node, e);

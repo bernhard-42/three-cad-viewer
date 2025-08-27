@@ -11,11 +11,13 @@ function TEMPLATE(id) {
   const shift = KeyMapper.getshortcuts("shift");
   const ctrl = KeyMapper.getshortcuts("ctrl");
   const meta = KeyMapper.getshortcuts("meta");
+  const alt = KeyMapper.getshortcuts("alt");
   var html = template
     .replaceAll("{{id}}", id)
     .replaceAll("{{shift}}", shift)
     .replaceAll("{{ctrl}}", ctrl)
-    .replaceAll("{{meta}}", meta);
+    .replaceAll("{{meta}}", meta)
+    .replaceAll("{{alt}}", alt);
   return html;
 }
 
