@@ -1,4 +1,3 @@
-import { Line, Mesh } from "three";
 import { sizeof } from "./sizeof.js";
 
 function clone(obj) {
@@ -87,11 +86,10 @@ function deepDispose(tree) {
   }
   if (tree.dispose) {
     tree.dispose();
-  } else if (tree instanceof Mesh || tree instanceof Line) {
-    // LineSegments extends Line
-    disposeMesh(tree);
   } else if (Array.isArray(tree)) {
     tree.forEach(deepDispose);
+  } else if (tree.isMesh || tree.isLine) {
+    disposeMesh(tree);
   }
 }
 
