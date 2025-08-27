@@ -1779,6 +1779,7 @@ class Viewer {
         } else {
           // this.treeview.openPath(id);
           // this.presetCamera("iso");
+          const center = boundingBox.center();
           this.setCameraTarget(point);
           this.info.centerInfo(center);
         }
