@@ -2357,20 +2357,27 @@ class Viewer {
   /**
    * Set camera target.
    * @param {number[]} target - camera target as 3 dim quaternion array [x,y,z].
-   * @param {boolean} reposition - whether to also adapt the position to the new target
    * @param {boolean} [notify=true] - whether to send notification or not.
    **/
-  setCameraTarget(target, reposition = true, notify = true) {
-    if (reposition) {
-      const offset = target.clone().sub(this.camera.target);
+  setCameraTarget(target, notify = true) {
+    // Store current state
+    const camera = this.camera.getCamera();
+    const zoom = camera.zoom; // For orthographic cameras
 
-      const position = this.camera.getPosition();
-      position.add(offset);
+    const offset = camera.position.clone().sub(this.controls.getTarget());
+
+    // Update position and target
+    camera.position.copy(target.clone().add(offset));
+    camera.updateWorldMatrix(true, false);
+    this.controls.getTarget().copy(target);
+
+    // Preserve zoom for orthographic cameras
+    if (camera.type === "OrthographicCamera") {
+      camera.zoom = zoom;
+      camera.updateProjectionMatrix();
     }
 
-    this.controls.setTarget(target);
-    this.camera.target.copy(target);
-
+    // Update controls
     this.controls.update();
     this.update(true, notify);
   }
