@@ -1837,12 +1837,34 @@ class Viewer {
     if (validObjs.length == 0) {
       return;
     }
-    var nearestObj = validObjs[0]; // The first is the nearest since they are sorted by dist.
+
+    let nearestObj = null;
+    for (var ind in validObjs) {
+      const obj = validObjs[ind];
+      if (obj.object instanceof THREE.Mesh) {
+        nearestObj = validObjs[ind];
+        break;
+      }
+    }
+    if (nearestObj == null) {
+      return;
+    }
+    // }
+    const point = nearestObj.point;
     const nearest = {
       path: nearestObj.object.parent.parent.name.replaceAll("|", "/"),
       name: nearestObj.object.name,
-      boundingBox: nearestObj.object.geometry.boundingBox,
-      boundingSphere: nearestObj.object.geometry.boundingSphere,
+      boundingBox:
+        this.shapes.format == "GDS"
+          ? new THREE.Box3(
+              point.clone().subScalar(10),
+              point.clone().addScalar(10),
+            )
+          : nearestObj.object.geometry.boundingBox,
+      boundingSphere:
+        this.shapes.format == "GDS"
+          ? new THREE.Sphere(point, 1)
+          : nearestObj.object.geometry.boundingSphere,
       objectGroup: nearestObj.object.parent,
     };
     if (nearest != null) {
