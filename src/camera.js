@@ -70,12 +70,7 @@ class Camera {
     this.camera_distance = dfactor * distance;
     var fov = ((2 * Math.atan(1 / dfactor)) / Math.PI) * 180;
 
-    this.pCamera = new THREE.PerspectiveCamera(
-      fov,
-      aspect,
-      0.1,
-      100 * distance,
-    );
+    this.pCamera = new THREE.PerspectiveCamera(fov, aspect, 0.1, 10 * distance);
     this.pCamera.up.set(...cameraUp[this.up]);
     this.pCamera.lookAt(this.target);
 
@@ -88,7 +83,7 @@ class Camera {
       pSize[1],
       -pSize[1],
       0.1,
-      100 * distance,
+      10 * distance,
     );
     this.oCamera.up.set(...cameraUp[this.up]);
     this.oCamera.lookAt(this.target);
