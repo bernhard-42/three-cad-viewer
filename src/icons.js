@@ -51,6 +51,7 @@ import dark_axes0 from "../icons/dark/axes0.svg";
 import dark_grid from "../icons/dark/grid.svg";
 import dark_perspective from "../icons/dark/perspective.svg";
 import dark_explode from "../icons/dark/explode.svg";
+import dark_zscale from "../icons/dark/zscale.svg";
 import dark_distance from "../icons/dark/distance.svg";
 import dark_properties from "../icons/dark/properties.svg";
 import dark_angle from "../icons/dark/angle.svg";
@@ -63,6 +64,7 @@ import light_axes0 from "../icons/light/axes0.svg";
 import light_grid from "../icons/light/grid.svg";
 import light_perspective from "../icons/light/perspective.svg";
 import light_explode from "../icons/light/explode.svg";
+import light_zscale from "../icons/light/zscale.svg";
 import light_distance from "../icons/light/distance.svg";
 import light_properties from "../icons/light/properties.svg";
 import light_angle from "../icons/light/angle.svg";
@@ -105,6 +107,7 @@ const icons = {
   grid: { light: light_grid, dark: dark_grid },
   perspective: { light: light_perspective, dark: dark_perspective },
   explode: { light: light_explode, dark: dark_explode },
+  zscale: { light: light_zscale, dark: dark_zscale },
   distance: { light: light_distance, dark: dark_distance },
   properties: { light: light_properties, dark: dark_properties },
   angle: { light: light_angle, dark: dark_angle },

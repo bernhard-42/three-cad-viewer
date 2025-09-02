@@ -293,6 +293,25 @@ class ObjectGroup extends THREE.Group {
     }
   }
 
+  setZScale(value) {
+    function walk(obj, minZ, height, scalePos = true) {
+      for (var child of obj.children) {
+        if (child.isMesh || child.isLine) {
+          child.scale.z = value;
+          if (scalePos) {
+            child.parent.position.z = minZ * value;
+          }
+        } else if (child.isGroup) {
+          // don't scale position of clipping planes
+          walk(child, minZ, height, !child.name.startsWith("clipping"));
+        }
+      }
+    }
+    if (this.types.front || this.types.back || this.types.edges) {
+      walk(this, this.minZ, this.height);
+    }
+  }
+
   updateMaterials(flag) {
     if (this.types.back) {
       this.types.back.material.needsUpdate = flag;

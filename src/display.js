@@ -42,6 +42,9 @@ class Display {
     this.measureTools = options.measureTools;
     this.measurementDebug = options.measurementDebug;
     this.selectTool = options.selectTool;
+    this.explodeTool = options.explodeTool;
+    this.zscaleTool = options.zscaleTool;
+    this.zScale = 1.0;
 
     // this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadTool = new Toolbar(
@@ -245,7 +248,25 @@ class Display {
       "Explode tool",
       this.setExplode,
     );
-    this.cadTool.addButton(this.toolbarButtons["explode"], -1);
+    if (this.explodeTool && !this.zscaleTool) {
+      this.cadTool.addButton(this.toolbarButtons["explode"], -1);
+    }
+
+    this.toolbarButtons["zscale"] = new ClickButton(
+      theme,
+      "zscale",
+      "Scale along the Z-axis",
+      this.setZScale,
+    );
+    if (this.zscaleTool && !this.explodeTool) {
+      this.cadTool.addButton(this.toolbarButtons["zscale"], -1);
+      this.showZScale(false);
+      const el = this._getElement("tcv_zscale_slider");
+      el.addEventListener("change", (e) => {
+        this.zScale = parseInt(e.target.value);
+        this.viewer.setZscaleValue(e.target.value);
+      });
+    }
 
     this.toolbarButtons["distance"] = new ClickButton(
       theme,
@@ -254,7 +275,15 @@ class Display {
       this.setTool,
     );
     this.cadTool.addButton(this.toolbarButtons["distance"], 3);
-    this.cadTool.addEllipsis(new Ellipsis(3, this.cadTool.maximize));
+    const count =
+      (this.measureTools ? 2 : 0) +
+      (this.explodeTool ? 1 : 0) +
+      (this.selectTool ? 1 : 0) +
+      (this.zscaleTool ? 1 : 0);
+    if (count > 1) {
+      this.cadTool.addEllipsis(new Ellipsis(3, this.cadTool.maximize));
+    }
+
     this.toolbarButtons["properties"] = new ClickButton(
       theme,
       "properties",
@@ -317,6 +346,7 @@ class Display {
     var threshold = 770;
     if (!this.viewer.pinning) threshold -= 30;
     if (!this.viewer.selectTool) threshold -= 30;
+    if (!this.viewer.explodeTool && !this.zscaleTool) threshold -= 30;
     return threshold;
   }
 
@@ -472,6 +502,8 @@ class Display {
 
     this.showMeasureTools(this.measureTools);
     this.showSelectTool(this.selectTool);
+    this.showExplodeTool(this.explodeTool);
+    this.showZScaleTool(this.zscaleTool);
   }
 
   /**
@@ -699,6 +731,37 @@ class Display {
   };
 
   /**
+   * Checkbox Handler for setting the zscale mode
+   * @function
+   * @param {boolean} flag - to set or not
+   */
+  setZScale = (name, flag) => {
+    this.showZScale(flag);
+    this.viewer.nestedGroup.setZScale(1);
+    this.viewer.update(true);
+    this._getElement("tcv_zscale_slider").value = 1;
+  };
+
+  /**
+   * Show or hide the ZScale slider
+   * @function
+   * @param {boolean} flag - whether to show the ZScale slider
+   */
+  showZScale = (flag) => {
+    const el = this._getElement("tcv_cad_zscale");
+    el.style.display = flag ? "inline-block" : "none";
+  };
+
+  /**
+   * Check or uncheck the ZScale checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the ZScale checkbox
+   */
+  setZScaleCheck = (flag) => {
+    this.toolbarButtons["zscale"].set(flag);
+  };
+
+  /**
    * Checkbox Handler for setting the tools mode
    * @function
    * @param {boolean} flag - whether to start or stop measure context
@@ -823,6 +886,25 @@ class Display {
    */
   showSelectTool = (flag) => {
     this.toolbarButtons["select"].show(flag);
+  };
+
+  /**
+   * Show or hides explode tool
+   * @param {boolean} flag
+   */
+  showExplodeTool = (flag) => {
+    this.toolbarButtons["explode"].show(flag);
+  };
+
+  /**
+   * Show or hides ZScale tool
+   * @param {boolean} flag
+   */
+  showZScaleTool = (flag) => {
+    this.toolbarButtons["zscale"].show(flag);
+    if (!flag) {
+      this.showZScale(false);
+    }
   };
 
   /**

@@ -68,6 +68,15 @@ class Toolbar {
     }
     for (var tag in toggles) {
       for (var button of toggles[tag]) {
+        if (
+          !flag &&
+          ((button.name === "distance" && !this.display.measureTools) ||
+            (button.name === "properties" && !this.display.measureTools) ||
+            (button.name === "select" && !this.display.selectTools) ||
+            (button.name === "explode" && !this.display.explodeTools))
+        ) {
+          continue;
+        }
         button.show(!flag);
       }
     }

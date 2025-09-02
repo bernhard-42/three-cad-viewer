@@ -154,6 +154,8 @@ class Viewer {
     this.newTreeBehavior = true;
     this.measureTools = true;
     this.selectTool = true;
+    this.explodeTool = true;
+    this.zscaleTool = false;
     this.measurementDebug = true;
 
     for (var option in options) {
@@ -905,6 +907,10 @@ class Viewer {
       this.display.setExplodeCheck(false);
       this.display.setExplode("", false);
 
+      if (this.shapes.format == "GDS") {
+        this.display.setZScaleCheck(false);
+        this.display.setZScale("", false);
+      }
       // clear render canvas
       this.renderer.clear();
 
@@ -2311,6 +2317,15 @@ class Viewer {
     this.switchCamera(flag, notify);
   }
 
+  /**
+   * Set zscaling value.
+   * @param {number} scale factor.
+   **/
+  setZscaleValue(value) {
+    this.nestedGroup.setZScale(value);
+    this.zScale = value;
+    this.update(true);
+  }
   /**
    * Get zoom value.
    * @returns {number} zoom value.

@@ -376,6 +376,7 @@ class NestedGroup {
 
   renderPolygons(
     shape,
+    minZ,
     color,
     alpha,
     renderback,
@@ -443,6 +444,9 @@ class NestedGroup {
       renderback,
     );
     group.name = path.replaceAll("/", this.delim);
+    group.minZ = minZ;
+    group.height = shape.height;
+
     this.groups[path] = group;
 
     var polygons = [];
@@ -551,6 +555,7 @@ class NestedGroup {
     var polyEdges = new THREE.LineSegments(edgeGeom, lineMat);
     // timer.split("- created line segments");
 
+    group.shapeGeometry = polyGeometry;
     group.addType(front, "front");
     group.addType(back, "back");
     group.addType(polyEdges, "edges");
@@ -589,6 +594,7 @@ class NestedGroup {
         case "polygon":
           mesh = this.renderPolygons(
             shape.shape,
+            shape.loc[0][2],
             shape.color,
             1.0,
             shape.renderback == null ? false : shape.renderback,
@@ -745,6 +751,14 @@ class NestedGroup {
 
   setPolygonOffset(offset) {
     this._traverse("setPolygonOffset", offset);
+  }
+
+  setZScale(value) {
+    this._traverse("setZScale", value);
+  }
+
+  setMinZ() {
+    this._traverse("setMinZ");
   }
 
   updateMaterials() {
