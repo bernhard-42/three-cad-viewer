@@ -2639,7 +2639,7 @@ class Viewer {
 
     for (child of this.scene.children) {
       if (child.name == "PlaneHelpers") {
-        for (var helper of child.children) {
+        for (var helper of child.children[0].children) {
           if (flag) {
             helper.material.clippingPlanes =
               this.clipping.reverseClipPlanes.filter(
