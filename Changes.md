@@ -5,12 +5,15 @@
 **Features**
 
 - Add polygon renderer for GDS files (will be part of gdsfactoryplus)
+- Add a z-scale tool for GDS files
+- Add GDS chip design examples (photonic and classic)
 
 **Fixes**
 
 - Change memory management to a new paradigm using a global function deepDispose which works recursively
 - Fix setCameraTarget
 - Fix keymapping regression where keymaps were not used any more
+- Reduce far plane distance to improve transparent rendering
 
 ## v3.5.0
 
