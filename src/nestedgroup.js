@@ -428,13 +428,7 @@ class NestedGroup {
     };
 
     // var timer = new Timer(`renderPolygons ${path}`, this.timeit);
-    // if (
-    //   path.endsWith(
-    //     "bend_euler_R50_A90_P0p5_8c84d384/bend_euler_R50_A90_P0p5_8c84d384",
-    //   )
-    // ) {
-    //   console.log("x");
-    // }
+
     var group = new ObjectGroup(
       this.defaultOpacity,
       1.0,
@@ -456,15 +450,6 @@ class NestedGroup {
     } else {
       matrices = [1, 0, 0, 0, 1, 0];
     }
-    // console.log(
-    //   "COUNT:",
-    //   group.name,
-    //   (shape.refs.length * (shape.matrices ? shape.matrices.length : 6)) / 6,
-    //   "(",
-    //   shape.refs.length,
-    //   (shape.matrices ? shape.matrices.length : 6) / 6,
-    //   ")",
-    // );
     for (var ref of shape.refs) {
       var vertices = this.instances[ref];
       const n = vertices.length / 2;
@@ -541,8 +526,6 @@ class NestedGroup {
 
     // Edges
     const edgeGeom = createEdgesFromPolygons(polygons, shape.height);
-    // var edges = new THREE.EdgesGeometry(polyGeometry);
-    // var edgeGeom = new THREE.BufferGeometry().copy(edges);
     // timer.split("- created edge geometry");
 
     var lineMat = new THREE.LineBasicMaterial({
