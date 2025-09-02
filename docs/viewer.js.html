@@ -44,8 +44,7 @@ import {
   KeyMapper,
   scaleLight,
   flatten,
-  disposeGeometry,
-  disposeShapes,
+  deepDispose,
 } from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera } from "./camera.js";
@@ -53,21 +52,6 @@ import { BoundingBox, BoxHelper } from "./bbox.js";
 import { Tools } from "./cad_tools/tools.js";
 import { version } from "./_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "./raycast.js";
-
-THREE.Mesh.prototype.dispose = function () {
-  if (this.geometry) {
-    this.geometry.dispose();
-    disposeGeometry(this.geometry);
-  }
-
-  if (this.material) {
-    if (Array.isArray(this.material)) {
-      this.material.forEach((material) => material.dispose());
-    } else {
-      this.material.dispose();
-    }
-  }
-};
 
 class Viewer {
   /**
@@ -92,10 +76,11 @@ class Viewer {
 
     this.setDisplayDefaults(options);
 
-    if (options.keymap) {
-      KeyMapper.set(options.keymap);
-    }
     this.display = display;
+
+    if (options.keymap) {
+      this.setKeyMap(options.keymap);
+    }
 
     window.THREE = THREE;
 
@@ -197,6 +182,8 @@ class Viewer {
     this.newTreeBehavior = true;
     this.measureTools = true;
     this.selectTool = true;
+    this.explodeTool = true;
+    this.zscaleTool = false;
     this.measurementDebug = true;
 
     for (var option in options) {
@@ -714,7 +701,7 @@ class Viewer {
    */
   clearAnimation() {
     if (this.animation) {
-      this.animation.dispose();
+      deepDispose(this.animation);
     }
     this.display.showAnimationControl(false);
     this.toggleAnimationLoop(false);
@@ -793,7 +780,7 @@ class Viewer {
         this.lastBbox != null &amp;&amp;
         (this.lastBbox.needsUpdate || this.bboxNeedsUpdate)
       ) {
-        console.log("updated bbox");
+        console.debug("updated bbox");
         this.lastBbox.bbox.update();
         this.lastBbox.needsUpdate = false;
       }
@@ -869,12 +856,8 @@ class Viewer {
   dispose() {
     this.clear();
 
-    if (this.gridHelper) {
-      for (var i in this.gridHelper.gridHelper) {
-        this.gridHelper.gridHelper[i].dispose();
-        this.gridHelper.gridHelper[i] = null;
-      }
-    }
+    deepDispose(this.gridHelper);
+    this.gridHelper = null;
 
     // dispose the orientation marker
     if (this.orientationMarker != null) {
@@ -904,7 +887,7 @@ class Viewer {
     this.controls = null;
     this.orientationMarker = null;
     this.compactTree = null;
-    this.cadTools.dispose();
+    deepDispose(this.cadTools);
     this.cadTools = null;
     this.clipAction = null;
     this.treeview.dispose();
@@ -946,12 +929,16 @@ class Viewer {
       this.display.showAnimationControl(false);
 
       if (this.animation != null) {
-        this.animation.dispose();
+        deepDispose(this.animation);
       }
 
       this.display.setExplodeCheck(false);
       this.display.setExplode("", false);
 
+      if (this.shapes.format == "GDS") {
+        this.display.setZScaleCheck(false);
+        this.display.setZScale("", false);
+      }
       // clear render canvas
       this.renderer.clear();
 
@@ -965,26 +952,22 @@ class Viewer {
       }
 
       // dispose scene
+      deepDispose(this.scene);
 
-      for (var i in this.scene.children) {
-        if (this.scene.children[i] != null) {
-          this.scene.children[i].dispose();
-          this.scene.children[i] = null;
-        }
-      }
+      deepDispose(this.gridHelper);
 
-      this.clipping.dispose();
+      deepDispose(this.clipping);
       this.clipping = null;
 
       // clear tree view
       this.display.clearCadTree();
 
       // clear info
-      this.info.dispose();
+      deepDispose(this.info);
 
       // dispose camera and controls
-      this.camera.dispose();
-      this.controls.dispose();
+      deepDispose(this.camera);
+      deepDispose(this.controls);
 
       // dispose scene
       this.scene = null;
@@ -992,20 +975,20 @@ class Viewer {
     }
 
     if (this.shapes != null) {
-      disposeShapes(this.shapes);
+      deepDispose(this.shapes);
       this.shapes = null;
     }
 
     if (this.expandedNestedGroup != null) {
-      this.expandedNestedGroup.dispose();
+      deepDispose(this.expandedNestedGroup);
       this.expandedNestedGroup = null;
     }
     if (this.compactNestedGroup != null) {
-      this.compactNestedGroup.dispose();
+      deepDispose(this.compactNestedGroup);
       this.compactNestedGroup = null;
     }
     if (this.nestedGroup != null) {
-      this.nestedGroup.dispose();
+      deepDispose(this.nestedGroup);
       this.nestedGroup = null;
     }
   }
@@ -1145,6 +1128,7 @@ class Viewer {
     this.scene.children[0] = this.nestedGroup.rootGroup;
     timer.split("added shapes to scene");
 
+    deepDispose(this.treeview);
     this.treeview = new TreeView(
       this.tree,
       this.display.cadTreeScrollContainer,
@@ -1333,9 +1317,7 @@ class Viewer {
     );
     this.gridHelper.computeGrid();
 
-    for (var i = 0; i &lt; 3; i++) {
-      this.scene.add(this.gridHelper.gridHelper[i]);
-    }
+    this.scene.add(this.gridHelper);
 
     this.gridSize = this.gridHelper.size;
 
@@ -1412,7 +1394,7 @@ class Viewer {
     this.setClipObjectColorCaps(viewerOptions.clipObjectColors, true);
     this.setClipPlaneHelpersCheck(viewerOptions.clipPlaneHelpers, true);
 
-    this.scene.add(this.clipping.planeHelpers);
+    this.scene.add(this.clipping);
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
 
     this.setLocalClipping(false); // only allow clipping when Clipping tab is selected
@@ -1831,6 +1813,7 @@ class Viewer {
         } else {
           // this.treeview.openPath(id);
           // this.presetCamera("iso");
+          const center = boundingBox.center();
           this.setCameraTarget(point);
           this.info.centerInfo(center);
         }
@@ -1888,12 +1871,34 @@ class Viewer {
     if (validObjs.length == 0) {
       return;
     }
-    var nearestObj = validObjs[0]; // The first is the nearest since they are sorted by dist.
+
+    let nearestObj = null;
+    for (var ind in validObjs) {
+      const obj = validObjs[ind];
+      if (obj.object instanceof THREE.Mesh) {
+        nearestObj = validObjs[ind];
+        break;
+      }
+    }
+    if (nearestObj == null) {
+      return;
+    }
+    // }
+    const point = nearestObj.point;
     const nearest = {
       path: nearestObj.object.parent.parent.name.replaceAll("|", "/"),
       name: nearestObj.object.name,
-      boundingBox: nearestObj.object.geometry.boundingBox,
-      boundingSphere: nearestObj.object.geometry.boundingSphere,
+      boundingBox:
+        this.shapes.format == "GDS"
+          ? new THREE.Box3(
+              point.clone().subScalar(10),
+              point.clone().addScalar(10),
+            )
+          : nearestObj.object.geometry.boundingBox,
+      boundingSphere:
+        this.shapes.format == "GDS"
+          ? new THREE.Sphere(point, 1)
+          : nearestObj.object.geometry.boundingSphere,
       objectGroup: nearestObj.object.parent,
     };
     if (nearest != null) {
@@ -2341,6 +2346,15 @@ class Viewer {
   }
 
   /**
+   * Set zscaling value.
+   * @param {number} scale factor.
+   **/
+  setZscaleValue(value) {
+    this.nestedGroup.setZScale(value);
+    this.zScale = value;
+    this.update(true);
+  }
+  /**
    * Get zoom value.
    * @returns {number} zoom value.
    **/
@@ -2409,20 +2423,27 @@ class Viewer {
   /**
    * Set camera target.
    * @param {number[]} target - camera target as 3 dim quaternion array [x,y,z].
-   * @param {boolean} reposition - whether to also adapt the position to the new target
    * @param {boolean} [notify=true] - whether to send notification or not.
    **/
-  setCameraTarget(target, reposition = true, notify = true) {
-    if (reposition) {
-      const offset = target.clone().sub(this.camera.target);
+  setCameraTarget(target, notify = true) {
+    // Store current state
+    const camera = this.camera.getCamera();
+    const zoom = camera.zoom; // For orthographic cameras
 
-      const position = this.camera.getPosition();
-      position.add(offset);
+    const offset = camera.position.clone().sub(this.controls.getTarget());
+
+    // Update position and target
+    camera.position.copy(target.clone().add(offset));
+    camera.updateWorldMatrix(true, false);
+    this.controls.getTarget().copy(target);
+
+    // Preserve zoom for orthographic cameras
+    if (camera.type === "OrthographicCamera") {
+      camera.zoom = zoom;
+      camera.updateProjectionMatrix();
     }
 
-    this.controls.setTarget(target);
-    this.camera.target.copy(target);
-
+    // Update controls
     this.controls.update();
     this.update(true, notify);
   }
@@ -2646,7 +2667,7 @@ class Viewer {
 
     for (child of this.scene.children) {
       if (child.name == "PlaneHelpers") {
-        for (var helper of child.children) {
+        for (var helper of child.children[0].children) {
           if (flag) {
             helper.material.clippingPlanes =
               this.clipping.reverseClipPlanes.filter(
@@ -2883,7 +2904,7 @@ class Viewer {
     }
     this.orientationMarker.setVisible(false);
     this.update(true);
-    let result = new Promise((resolve, reject) => {
+    let result = new Promise((resolve, _) => {
       const canvas = this.display.getCanvas();
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
@@ -3047,7 +3068,7 @@ export { Viewer };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Aug 05 2025 10:15:51 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Sep 02 2025 12:42:49 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

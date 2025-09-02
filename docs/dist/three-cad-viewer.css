@@ -257,6 +257,10 @@ th {
   width: 120px !important;
 }
 
+.tcv_zscale_slider {
+  width: 120px !important;
+}
+
 .tcv_cad_animation {
   height: 36px;
   background-color: var(--tcv-bg-overlay-color);
@@ -267,6 +271,19 @@ th {
   right: 0px;
   bottom: 0px;
   z-index: 100;
+}
+
+.tcv_cad_zscale {
+  height: 36px;
+  background-color: var(--tcv-bg-overlay-color);
+  border: none;
+  margin: 0;
+  padding: 0px;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  z-index: 100;
+  align-content: center;
 }
 
 .tcv_cad_tools {

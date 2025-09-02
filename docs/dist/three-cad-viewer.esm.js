@@ -22367,7 +22367,7 @@ class WebGLCubeRenderTarget extends WebGLRenderTarget {
  *
  * @augments Object3D
  */
-let Group$1 = class Group extends Object3D {
+class Group extends Object3D {
 
 	constructor() {
 
@@ -22386,7 +22386,7 @@ let Group$1 = class Group extends Object3D {
 
 	}
 
-};
+}
 
 const _moveEvent = { type: 'move' };
 
@@ -22444,7 +22444,7 @@ class WebXRController {
 
 		if ( this._hand === null ) {
 
-			this._hand = new Group$1();
+			this._hand = new Group();
 			this._hand.matrixAutoUpdate = false;
 			this._hand.visible = false;
 
@@ -22466,7 +22466,7 @@ class WebXRController {
 
 		if ( this._targetRay === null ) {
 
-			this._targetRay = new Group$1();
+			this._targetRay = new Group();
 			this._targetRay.matrixAutoUpdate = false;
 			this._targetRay.visible = false;
 			this._targetRay.hasLinearVelocity = false;
@@ -22489,7 +22489,7 @@ class WebXRController {
 
 		if ( this._grip === null ) {
 
-			this._grip = new Group$1();
+			this._grip = new Group();
 			this._grip.matrixAutoUpdate = false;
 			this._grip.visible = false;
 			this._grip.hasLinearVelocity = false;
@@ -22796,7 +22796,7 @@ class WebXRController {
 
 		if ( hand.joints[ inputjoint.jointName ] === undefined ) {
 
-			const joint = new Group$1();
+			const joint = new Group();
 			joint.matrixAutoUpdate = false;
 			joint.visible = false;
 			hand.joints[ inputjoint.jointName ] = joint;
@@ -48533,7 +48533,7 @@ class ObjectLoader extends Loader {
 
 			case 'Group':
 
-				object = new Group$1();
+				object = new Group();
 
 				break;
 
@@ -77096,7 +77096,7 @@ var THREE = /*#__PURE__*/Object.freeze({
 	GreaterEqualStencilFunc: GreaterEqualStencilFunc,
 	GreaterStencilFunc: GreaterStencilFunc,
 	GridHelper: GridHelper,
-	Group: Group$1,
+	Group: Group,
 	HalfFloatType: HalfFloatType,
 	HemisphereLight: HemisphereLight,
 	HemisphereLightHelper: HemisphereLightHelper,
@@ -77384,129 +77384,133 @@ var THREE = /*#__PURE__*/Object.freeze({
 	createCanvasElement: createCanvasElement
 });
 
-var img$17 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$19 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$16 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$18 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$15 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(83%2c160%2c227)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
+var img$17 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(83%2c160%2c227)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
 
-var img$14 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$16 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$13 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$15 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$12 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$14 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$11 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$13 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$10 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$12 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$$ = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$11 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$_ = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$10 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$Z = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$$ = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$Y = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$_ = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$X = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$Z = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$W = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$Y = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$V = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$X = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$U = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$W = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$T = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$V = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$S = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(83%2c160%2c227)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23444' stroke='%23444' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$U = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(83%2c160%2c227)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23444' stroke='%23444' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$R = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23ddd' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$T = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23ddd' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$Q = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23444' stroke-width='1.25' fill='%23444' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$S = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23444' stroke-width='1.25' fill='%23444' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$P = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$R = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$O = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$Q = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$N = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$P = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$M = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$O = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$L = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$N = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$K = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(48%2c 142%2c 225)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
+var img$M = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(48%2c 142%2c 225)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
 
-var img$J = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$L = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$I = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$K = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$H = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$J = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$G = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$I = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$F = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$H = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$E = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$G = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$D = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$F = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$C = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$E = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$B = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$D = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$A = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$C = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$z = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$B = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$y = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$A = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$x = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$z = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$w = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$y = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$v = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(48%2c 142%2c 225)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$x = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(48%2c 142%2c 225)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$u = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23666' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$w = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23666' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$t = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23ddd' stroke-width='1.25' fill='%23ddd' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$v = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23ddd' stroke-width='1.25' fill='%23ddd' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$s = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$u = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$r = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$t = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$q = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$s = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$p = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='rgb(255%2c 69%2c 0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(50%2c 205%2c 50)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='rgb(59%2c 158%2c 255)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$r = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='rgb(255%2c 69%2c 0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(50%2c 205%2c 50)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='rgb(59%2c 158%2c 255)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$o = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='rgb(255%2c 69%2c 0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(50%2c 205%2c 50)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='rgb(59%2c 158%2c 255)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.6' cy='-10.0' rx='3.0' ry='3.8' fill='none' stroke='%23444' stroke-width='2.4' /%3e%3cellipse cx='6.6' cy='-10.0' rx='2.0' ry='3.0' fill='%23444' stroke='%23ddd' stroke-width='1.4' /%3e%3c/svg%3e";
+var img$q = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='rgb(255%2c 69%2c 0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(50%2c 205%2c 50)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='rgb(59%2c 158%2c 255)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.6' cy='-10.0' rx='3.0' ry='3.8' fill='none' stroke='%23444' stroke-width='2.4' /%3e%3cellipse cx='6.6' cy='-10.0' rx='2.0' ry='3.0' fill='%23444' stroke='%23ddd' stroke-width='1.4' /%3e%3c/svg%3e";
 
-var img$n = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.0 L23.6%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-9.333333333333332 L23.6%2c-9.333333333333332 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-16.666666666666664 L23.6%2c-16.666666666666664 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-24.0 L23.6%2c-24.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.4 L2.0%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.333333333333332%2c-2.4 L9.333333333333332%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.666666666666664%2c-2.4 L16.666666666666664%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-2.4 L24.0%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$p = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.0 L23.6%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-9.333333333333332 L23.6%2c-9.333333333333332 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-16.666666666666664 L23.6%2c-16.666666666666664 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-24.0 L23.6%2c-24.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.4 L2.0%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.333333333333332%2c-2.4 L9.333333333333332%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.666666666666664%2c-2.4 L16.666666666666664%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-2.4 L24.0%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$m = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='14.0' y='-24.0' width='10.0' height='10.0' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L14.0%2c-14.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-18.0 L24.0%2c-24.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L24.0%2c-14.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L14.0%2c-24.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.875' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$o = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='14.0' y='-24.0' width='10.0' height='10.0' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L14.0%2c-14.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-18.0 L24.0%2c-24.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L24.0%2c-14.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L14.0%2c-24.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.875' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$l = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cellipse cx='22.5' cy='-13.0' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L20.5%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446562001' cy='-22.03503690480396' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812106%2c-20.132923872213652 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.3143385534380005' cy='-18.583959896778495' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187895%2c-17.40838939219355 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.314338553437999' cy='-7.416040103221507' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187894%2c-8.591610607806452 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446561998' cy='-3.9649630951960404' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812105%2c-5.867076127786348 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='13.0' cy='-13.0' rx='2.0' ry='2.0' fill='%23ddd' stroke='%23ddd' stroke-width='1.75' /%3e%3c/svg%3e";
+var img$n = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cellipse cx='22.5' cy='-13.0' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L20.5%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446562001' cy='-22.03503690480396' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812106%2c-20.132923872213652 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.3143385534380005' cy='-18.583959896778495' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187895%2c-17.40838939219355 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.314338553437999' cy='-7.416040103221507' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187894%2c-8.591610607806452 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446561998' cy='-3.9649630951960404' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812105%2c-5.867076127786348 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='13.0' cy='-13.0' rx='2.0' ry='2.0' fill='%23ddd' stroke='%23ddd' stroke-width='1.75' /%3e%3c/svg%3e";
 
-var img$k = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L2.0%2c-21.0 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-5.0 L24.0%2c-21.0 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L22.0%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-16.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-10.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-16.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-10.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$m = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.4 L7.866666666666667%2c-7.866666666666667 L23.6%2c-7.866666666666667 L18.133333333333333%2c-2.4 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.5' /%3e%3cpath d='M13.0%2c-10.6 L13.0%2c-21.2 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-18.8 L13.0%2c-21.2 L15.4%2c-18.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-13.0 L13.0%2c-10.6 L15.4%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$j = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M4.0%2c-21.6 L22.0%2c-21.6 Z' fill='none' stroke='%23ddd' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.2%2c-16.8 L20.8%2c-16.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-16.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-12.8 L20.8%2c-12.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-12.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-8.8 L20.8%2c-8.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-8.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-4.8 L20.8%2c-4.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-4.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3c/svg%3e";
+var img$l = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L2.0%2c-21.0 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-5.0 L24.0%2c-21.0 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L22.0%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-16.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-10.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-16.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-10.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$i = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L14.0%2c-22.88 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.80793811328415%2c-6.280377654627602 A15.6%2c15.6%2c0%2c0%2c0%2c12.217398100377466%2c-15.963476998728744' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.0' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
+var img$k = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M4.0%2c-21.6 L22.0%2c-21.6 Z' fill='none' stroke='%23ddd' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.2%2c-16.8 L20.8%2c-16.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-16.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-12.8 L20.8%2c-12.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-12.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-8.8 L20.8%2c-8.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-8.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-4.8 L20.8%2c-4.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-4.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3c/svg%3e";
 
-var img$h = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L7.8%2c-23.4 L23.4%2c-23.4' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.48%2c-19.2 L10.2%2c-10.8 L15.0%2c-15.6 Z' fill='none' stroke='%23ddd' stroke-width='1.8' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M12.84%2c-12.84 L17.6%2c-8.24 Z' fill='none' stroke='%23ddd' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$j = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L14.0%2c-22.88 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.80793811328415%2c-6.280377654627602 A15.6%2c15.6%2c0%2c0%2c0%2c12.217398100377466%2c-15.963476998728744' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.0' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
 
-var img$g = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' fill-opacity='0.75' /%3e%3c/svg%3e";
+var img$i = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L7.8%2c-23.4 L23.4%2c-23.4' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.48%2c-19.2 L10.2%2c-10.8 L15.0%2c-15.6 Z' fill='none' stroke='%23ddd' stroke-width='1.8' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M12.84%2c-12.84 L17.6%2c-8.24 Z' fill='none' stroke='%23ddd' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$f = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='7.833333333333333' y='-23.5' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L7.833333333333333%2c-7.833333333333333 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L7.833333333333333%2c-7.833333333333333 L23.5%2c-7.833333333333333 L18.166666666666664%2c-2.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L23.5%2c-23.5 L18.166666666666664%2c-18.166666666666664 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.166666666666664%2c-2.5 L18.166666666666664%2c-18.166666666666664 L23.5%2c-23.5 L23.5%2c-7.833333333333333 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.5' y='-18.166666666666664' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$h = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' fill-opacity='0.75' /%3e%3c/svg%3e";
 
-var img$e = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='red' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(0%2c128%2c0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='blue' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$g = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='7.833333333333333' y='-23.5' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L7.833333333333333%2c-7.833333333333333 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L7.833333333333333%2c-7.833333333333333 L23.5%2c-7.833333333333333 L18.166666666666664%2c-2.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L23.5%2c-23.5 L18.166666666666664%2c-18.166666666666664 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.166666666666664%2c-2.5 L18.166666666666664%2c-18.166666666666664 L23.5%2c-23.5 L23.5%2c-7.833333333333333 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.5' y='-18.166666666666664' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$d = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='red' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(0%2c128%2c0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='blue' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.6' cy='-10.0' rx='3.0' ry='3.8' fill='none' stroke='white' stroke-width='2.4' /%3e%3cellipse cx='6.6' cy='-10.0' rx='2.0' ry='3.0' fill='white' stroke='%23444' stroke-width='1.4' /%3e%3c/svg%3e";
+var img$f = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='red' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(0%2c128%2c0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='blue' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$c = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.0 L23.6%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-9.333333333333332 L23.6%2c-9.333333333333332 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-16.666666666666664 L23.6%2c-16.666666666666664 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-24.0 L23.6%2c-24.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.4 L2.0%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.333333333333332%2c-2.4 L9.333333333333332%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.666666666666664%2c-2.4 L16.666666666666664%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-2.4 L24.0%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$e = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='red' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(0%2c128%2c0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='blue' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.6' cy='-10.0' rx='3.0' ry='3.8' fill='none' stroke='white' stroke-width='2.4' /%3e%3cellipse cx='6.6' cy='-10.0' rx='2.0' ry='3.0' fill='white' stroke='%23444' stroke-width='1.4' /%3e%3c/svg%3e";
 
-var img$b = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='14.0' y='-24.0' width='10.0' height='10.0' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L14.0%2c-14.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-18.0 L24.0%2c-24.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L24.0%2c-14.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L14.0%2c-24.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.875' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+var img$d = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.0 L23.6%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-9.333333333333332 L23.6%2c-9.333333333333332 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-16.666666666666664 L23.6%2c-16.666666666666664 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-24.0 L23.6%2c-24.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.4 L2.0%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.333333333333332%2c-2.4 L9.333333333333332%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.666666666666664%2c-2.4 L16.666666666666664%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-2.4 L24.0%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
-var img$a = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cellipse cx='22.5' cy='-13.0' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L20.5%2c-13.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446562001' cy='-22.03503690480396' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812106%2c-20.132923872213652 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.3143385534380005' cy='-18.583959896778495' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187895%2c-17.40838939219355 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.314338553437999' cy='-7.416040103221507' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187894%2c-8.591610607806452 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446561998' cy='-3.9649630951960404' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812105%2c-5.867076127786348 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='13.0' cy='-13.0' rx='2.0' ry='2.0' fill='%23444' stroke='%23444' stroke-width='1.75' /%3e%3c/svg%3e";
+var img$c = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='14.0' y='-24.0' width='10.0' height='10.0' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L14.0%2c-14.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-18.0 L24.0%2c-24.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L24.0%2c-14.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L14.0%2c-24.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.875' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
+
+var img$b = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cellipse cx='22.5' cy='-13.0' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L20.5%2c-13.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446562001' cy='-22.03503690480396' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812106%2c-20.132923872213652 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.3143385534380005' cy='-18.583959896778495' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187895%2c-17.40838939219355 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.314338553437999' cy='-7.416040103221507' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187894%2c-8.591610607806452 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446561998' cy='-3.9649630951960404' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812105%2c-5.867076127786348 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='13.0' cy='-13.0' rx='2.0' ry='2.0' fill='%23444' stroke='%23444' stroke-width='1.75' /%3e%3c/svg%3e";
+
+var img$a = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.4 L7.866666666666667%2c-7.866666666666667 L23.6%2c-7.866666666666667 L18.133333333333333%2c-2.4 Z' fill='%23444' stroke='%23444' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.5' /%3e%3cpath d='M13.0%2c-10.6 L13.0%2c-21.2 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-18.8 L13.0%2c-21.2 L15.4%2c-18.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-13.0 L13.0%2c-10.6 L15.4%2c-13.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
 var img$9 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L2.0%2c-21.0 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-5.0 L24.0%2c-21.0 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L22.0%2c-13.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-16.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-10.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-16.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-10.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
 
@@ -77529,40 +77533,41 @@ var img$1 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width=
 var img = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e %3cpath d='M6 12.796V3.204L11.481 8 6 12.796z' fill='%23ddd'/%3e%3c/svg%3e";
 
 const icons = {
-  bottom: { light: img$17, dark: img$M },
-  front: { light: img$16, dark: img$L },
-  help: { light: img$15, dark: img$K },
-  iso: { light: img$14, dark: img$J },
-  left: { light: img$13, dark: img$I },
-  mesh: { light: img$12, dark: img$H },
-  mesh_empty: { light: img$11, dark: img$G },
-  mesh_mix: { light: img$10, dark: img$F },
-  mesh_no: { light: img$$, dark: img$E },
-  pause: { light: img$_, dark: img$D },
-  pin: { light: img$Z, dark: img$C },
-  plane: { light: img$Y, dark: img$B },
-  play: { light: img$X, dark: img$A },
-  rear: { light: img$W, dark: img$z },
-  reset: { light: img$V, dark: img$y },
-  resize: { light: img$U, dark: img$x },
-  right: { light: img$T, dark: img$w },
-  shape: { light: img$S, dark: img$v },
-  shape_empty: { light: img$R, dark: img$u },
-  shape_mix: { light: img$Q, dark: img$t },
-  shape_no: { light: img$P, dark: img$s },
-  stop: { light: img$O, dark: img$r },
-  top: { light: img$N, dark: img$q },
-  axes: { light: img$e, dark: img$p },
-  axes0: { light: img$d, dark: img$o },
-  grid: { light: img$c, dark: img$n },
-  perspective: { light: img$b, dark: img$m },
-  explode: { light: img$a, dark: img$l },
-  distance: { light: img$9, dark: img$k },
-  properties: { light: img$8, dark: img$j },
-  angle: { light: img$7, dark: img$i },
-  select: { light: img$6, dark: img$h },
-  transparent: { light: img$5, dark: img$g },
-  blackedges: { light: img$4, dark: img$f },
+  bottom: { light: img$19, dark: img$O },
+  front: { light: img$18, dark: img$N },
+  help: { light: img$17, dark: img$M },
+  iso: { light: img$16, dark: img$L },
+  left: { light: img$15, dark: img$K },
+  mesh: { light: img$14, dark: img$J },
+  mesh_empty: { light: img$13, dark: img$I },
+  mesh_mix: { light: img$12, dark: img$H },
+  mesh_no: { light: img$11, dark: img$G },
+  pause: { light: img$10, dark: img$F },
+  pin: { light: img$$, dark: img$E },
+  plane: { light: img$_, dark: img$D },
+  play: { light: img$Z, dark: img$C },
+  rear: { light: img$Y, dark: img$B },
+  reset: { light: img$X, dark: img$A },
+  resize: { light: img$W, dark: img$z },
+  right: { light: img$V, dark: img$y },
+  shape: { light: img$U, dark: img$x },
+  shape_empty: { light: img$T, dark: img$w },
+  shape_mix: { light: img$S, dark: img$v },
+  shape_no: { light: img$R, dark: img$u },
+  stop: { light: img$Q, dark: img$t },
+  top: { light: img$P, dark: img$s },
+  axes: { light: img$f, dark: img$r },
+  axes0: { light: img$e, dark: img$q },
+  grid: { light: img$d, dark: img$p },
+  perspective: { light: img$c, dark: img$o },
+  explode: { light: img$b, dark: img$n },
+  zscale: { light: img$a, dark: img$m },
+  distance: { light: img$9, dark: img$l },
+  properties: { light: img$8, dark: img$k },
+  angle: { light: img$7, dark: img$j },
+  select: { light: img$6, dark: img$i },
+  transparent: { light: img$5, dark: img$h },
+  blackedges: { light: img$4, dark: img$g },
   nav_open: { light: img$3, dark: img$2 },
   nav_closed: { light: img$1, dark: img },
 };
@@ -77630,68 +77635,50 @@ function sceneTraverse(obj, fn) {
 
 function disposeGeometry(geometry) {
   if (geometry) {
-    if (geometry.attributes) {
-      if (geometry.attributes.normal) {
-        geometry.attributes.normal.array = null; // new Float32Array([]);
-      }
-      if (geometry.attributes.position) {
-        geometry.attributes.position.array = null; // new Float32Array([]);
-      }
-      if (geometry.attributes.uv) {
-        geometry.attributes.uv.array = null; // new Float32Array([]);
-      }
-      if (geometry.attributes.color) {
-        geometry.attributes.color.array = null; // new Float32Array([]);
-      }
-      if (geometry.index) {
-        geometry.index.array = null; // new Float32Array([]);
-      }
-      if (geometry.attributes.instanceStart) {
-        geometry.attributes.instanceStart.data.array = null; // new Float32Array([]);
-      }
-      if (geometry.attributes.instanceEnd) {
-        geometry.attributes.instanceEnd.data.array = null; // new Float32Array([]);
-      }
-      geometry.attributes = null;
+    geometry.dispose();
+    for (const attr of Object.values(geometry.attributes)) {
+      attr?.dispose?.();
     }
   }
 }
 
-function disposeShapes(shapes) {
-  if (shapes.shape) {
-    var key = "";
-    for (key of [
-      "edge_types",
-      "face_types",
-      "segments_per_edge",
-      "triangles",
-      "triangles_per_face",
-    ]) {
-      if (shapes.shape[key]) {
-        shapes.shape[key] = null; // new Uint32Array(0);
-      }
+function disposeMesh(mesh) {
+  if (mesh.geometry) {
+    disposeGeometry(mesh.geometry);
+  }
+
+  if (mesh.material) {
+    if (Array.isArray(mesh.material)) {
+      mesh.material.forEach((material) => material.dispose());
+    } else {
+      mesh.material.dispose();
     }
-    for (key of ["edges", "normals", "obj_vertices", "vertices"]) {
-      if (shapes.shape[key]) {
-        shapes.shape[key] = null; // new Float32Array(0);
-      }
-    }
-  } else if (shapes.parts) {
-    for (var i in shapes.parts) {
-      disposeShapes(shapes.parts[i]);
-      // shapes.parts[i] = null;
-    }
-    shapes.parts = null;
+  }
+}
+
+function deepDispose(tree) {
+  if (!tree) {
+    return;
+  }
+  if (Array.isArray(tree.children)) {
+    tree.children.forEach(deepDispose);
+  }
+  if (tree.dispose) {
+    tree.dispose();
+  } else if (Array.isArray(tree)) {
+    tree.forEach(deepDispose);
+  } else if (tree.isMesh || tree.isLine) {
+    disposeMesh(tree);
   }
 }
 
 class _KeyMapper {
   constructor() {
     this.keyMapping = {
-      shift: "shiftKey",
-      ctrl: "ctrlKey",
-      meta: "metaKey",
-      alt: "altKey",
+      shift: "ctrlKey",
+      ctrl: "shiftKey",
+      meta: "altKey",
+      alt: "metaKey",
     };
   }
   getshortcuts = (key) => {
@@ -77887,6 +77874,15 @@ class Toolbar {
     }
     for (var tag in toggles) {
       for (var button of toggles[tag]) {
+        if (
+          !flag &&
+          ((button.name === "distance" && !this.display.measureTools) ||
+            (button.name === "properties" && !this.display.measureTools) ||
+            (button.name === "select" && !this.display.selectTools) ||
+            (button.name === "explode" && !this.display.explodeTools))
+        ) {
+          continue;
+        }
         button.show(!flag);
       }
     }
@@ -80084,11 +80080,11 @@ class FilterByDropDownMenu {
   }
 }
 
-class DistanceLineArrow extends Group$1 {
+class DistanceLineArrow extends Group {
   /**
    *
-   * @param {Vector3} point1 The start point of the line
-   * @param {Vector3} point2 The end point of the line
+   * @param {THREE.Vector3} point1 The start point of the line
+   * @param {THREE.Vector3} point2 The end point of the line
    * @param {number} linewidth The thickness of the line
    * @param {THREE.Color} color The color of the line
    * @param {boolean} arrowStart If true, a cone is added at the start of the line
@@ -80170,12 +80166,6 @@ class DistanceLineArrow extends Group$1 {
     this.add(line);
   }
 
-  dispose() {
-    this.children.forEach((child) => {
-      if (child.geometry) child.geometry.dispose();
-      if (child.material) child.material.dispose();
-    });
-  }
   /**
    * Update the arrow so it keeps the same size on the screen.
    * @param {number} scaleFactor
@@ -80548,9 +80538,7 @@ class Measurement {
    */
   _adjustArrowsScaleFactor(zoom) {
     const scaleFactor = 1 / zoom;
-    for (let child of this.scene.children) {
-      child.update(scaleFactor);
-    }
+    this.scene.children.forEach((ch) => ch.update(scaleFactor));
   }
 
   update() {
@@ -80566,16 +80554,14 @@ class Measurement {
   }
 
   disposeArrows() {
-    for (var i in this.scene.children) {
-      this.scene.children[i].dispose();
-    }
-    this.scene.children = [];
+    deepDispose(this.scene);
+    this.scene.clear();
   }
 
   dispose() {
     if (this.panel) {
       this.panel.show(false);
-      this.panel.dispose();
+      deepDispose(this.panel);
     }
     this.disposeArrows();
     this.panel = null;
@@ -80961,17 +80947,19 @@ class Tools {
   }
 }
 
-var template = "<div class=\"tcv_cad_viewer\">\n    <div class=\"tcv_cad_toolbar tcv_round\"></div>\n\n    <div class=\"tcv_cad_body\">\n        <div class=\"tcv_cad_navigation\">\n            <div class=\"tcv_cad_tree tcv_round\">\n                <div class=\"tcv_tabnav\">\n                    <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value=\"Tree\" type=\"button\" />\n                    <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Clipping\"\n                        type=\"button\" />\n                    <input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Material\"\n                        type=\"button\" />\n                </div>\n                <div class=\"tcv_cad_tree_toggles\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase nodes with a single leaf\">\n                        <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value=\"1\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand root node only\">\n                        <input class='tcv_expand_root tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase tree\">\n                        <input class='tcv_collapse_all tcv_btn tcv_small_btn' value=\"C\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand tree\">\n                        <input class='tcv_expand tcv_btn tcv_small_btn' value=\"E\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                    <div class=\"tcv_cad_tree_container\"></div>\n                    <div class=\"tcv_cad_clip_container\">\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Set red clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane1 tcv_label\">N1 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane1 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane1 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set green clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane2 tcv_label\">N2 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane2 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane2 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set blue clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane3 tcv_label\">N3 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane3 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane3 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_clip_checks\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Use intersection clipping\">\n                                    <input class='tcv_clip_intersection tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Intersection</span>\n                                </span>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Show clipping planes\">\n                                    <input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Planes</span>\n                                </span>\n                            </div>\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Use object color caps instead of RGB\">\n                                <input class='tcv_clip_caps tcv_axes0 tcv_check' type=\"checkbox\" />\n                                <span class=\"tcv_label\">Use object color caps</span>\n                            </span>\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_material_container\">\n                        <div class=\"tcv_cad_tree_toggles\">\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Reset to original values\">\n                                <input class='tcv_material_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                            </span>\n                        </div>\n                        <div class=\"tcv_material_ambientlight tcv_label\">\n                            Ambient light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"20\" value=\"1\"\n                                    class=\"tcv_sld_value_ambientlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_ambientlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_pointlight tcv_label\">\n                            Directional light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"40\" value=\"1\"\n                                    class=\"tcv_sld_value_pointlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_pointlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_metalness tcv_label\">\n                            Metalness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_metalness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_metalness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_roughness tcv_label\">\n                            Roughness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_roughness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_roughness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_info\">\n                            This is not a full material renderer (e.g. the environment is black), so\n                            not every combination creates expected or good results.\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div class=\"tcv_cad_info_wrapper\">\n                <div class=\"tcv_toggle_info_wrapper\">\n                    <!-- <span class=\"tooltip\" data-tooltip=\"Open/close info box\"> -->\n                        <!-- <input class='tcv_toggle_info tcv_btn tcv_small_info_btn' value=\"<\" type=\"button\" /> -->\n                        <span class='tcv_toggle_info'></span><span class=\"tcv_info_label\">Info</span>\n                    <!-- </span> -->\n                </div>\n                <div class=\"tcv_cad_info tcv_round\">\n                    <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                        <div class=\"tcv_cad_info_container\"></div>\n                    </div>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_cad_view\">\n            <div class=\"tcv_distance_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Distance</div>\n            </div>\n\n            <div class=\"tcv_properties_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Properties</div>\n                <div class=\"tcv_measure_subheader\">Shape</div>\n            </div>\n\n            <div class=\"tcv_cad_animation tcv_round\">\n                <span class=\"tcv_animation_label\">E</span>\n                <span><input type=\"range\" min=\"0\" max=\"1000\" value=\"0\"\n                        class=\"tcv_animation_slider tcv_clip_slider\"></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Play animation\"><input class='tcv_play tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Pause animation\"><input class='tcv_pause tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Stop and reset animation\"><input class='tcv_stop tcv_btn'\n                        type=\"button\" /></span>\n            </div>\n\n            <div class=\"tcv_cad_help tcv_round\">\n                <table class=\"tcv_cad_help_layout\">\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Navigation</b></td>\n                    </tr>\n                    <tr>\n                        <td>Rotate</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate up / down</td>\n                        <td>&lt;{{ctrl}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate left / right</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Pan</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Zoom</td>\n                        <td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td>\n                    </tr>\n\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Selection</b></td>\n                    </tr>\n                    <tr>\n                        <td>Pick element</td>\n                        <td>&lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>Click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>(Shows axis-aligned bounding box, AABB)</td>\n                    </tr>\n                    <tr>\n                        <td>Isolate element</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{shift}}&gt; + click on navigation tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide element</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; double click object</td>\n                    </tr>\n                    <tr>    \n                        <td></td>                \n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide other elements</td>\n                        <td>&lt;{{shift}}&gt; + &lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)f</td>\n                    </tr>\n                    <tr>\n                        <td>Set camera target</td>\n                        <td>&lt;{{shift}}&gt + &lt;{{meta}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>                    \n                    <tr>\n                        <td></td>\n                        <td><b>CAD Object Tree</b></td>\n                    </tr>\n                    <tr>\n                        <td>Collapse single leafs</td>\n                        <td>Button '1' (all nodes with one leaf only)</td>\n                    </tr>\n                    <tr>\n                        <td>Expand root only</td>\n                        <td>Button 'R'</td>\n                    </tr>\n                    <tr>\n                        <td>Collapse all nodes</td>\n                        <td>Button 'C'</td>\n                    </tr>\n                    <tr>\n                        <td>Expand all nodes</td>\n                        <td>Button 'E'</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td><b>Measure Mode</b></td>\n                    </tr>\n                    <tr>\n                        <td>Select 1. (and 2.) object</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Use center instead of min distance</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; for the second selection</td>\n                    </tr>\n                    <tr>\n                        <td>Filter object types</td>\n                        <td>Type menu or &lt;n&gt;one, &lt;s&gt;olid, &lt;f&gt;ace, &lt;e&gt;dge , &lt;v&gt;ertices</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect last object</td>\n                        <td>&lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect all objects</td>\n                        <td>&lt;ESC&gt;</td>\n                    </tr>\n                </table>\n            </div>\n            <div class=\"tcv_filter_menu\">\n                <div class=\"tcv_drop_down tcv_shape_filter\">\n                    <span class=\"tcv_round tcv_filter_content\"><span class=\"tcv_filter_value\">None</span>\n                        <span class=\"tcv_filter_icon\">⏶\n                        </span></span>\n                    <div class=\"tcv_filter_dropdown tcv_round\">\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_none\">None</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_vertex\">Vertex</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_edge\">Edge</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_face\">Face</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_solid\">Solid</div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>";
+var template = "<div class=\"tcv_cad_viewer\">\n    <div class=\"tcv_cad_toolbar tcv_round\"></div>\n\n    <div class=\"tcv_cad_body\">\n        <div class=\"tcv_cad_navigation\">\n            <div class=\"tcv_cad_tree tcv_round\">\n                <div class=\"tcv_tabnav\">\n                    <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value=\"Tree\" type=\"button\" />\n                    <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Clipping\"\n                        type=\"button\" />\n                    <input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Material\"\n                        type=\"button\" />\n                </div>\n                <div class=\"tcv_cad_tree_toggles\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase nodes with a single leaf\">\n                        <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value=\"1\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand root node only\">\n                        <input class='tcv_expand_root tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase tree\">\n                        <input class='tcv_collapse_all tcv_btn tcv_small_btn' value=\"C\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand tree\">\n                        <input class='tcv_expand tcv_btn tcv_small_btn' value=\"E\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                    <div class=\"tcv_cad_tree_container\"></div>\n                    <div class=\"tcv_cad_clip_container\">\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Set red clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane1 tcv_label\">N1 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane1 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane1 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set green clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane2 tcv_label\">N2 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane2 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane2 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set blue clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane3 tcv_label\">N3 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane3 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane3 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_clip_checks\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Use intersection clipping\">\n                                    <input class='tcv_clip_intersection tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Intersection</span>\n                                </span>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Show clipping planes\">\n                                    <input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Planes</span>\n                                </span>\n                            </div>\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Use object color caps instead of RGB\">\n                                <input class='tcv_clip_caps tcv_axes0 tcv_check' type=\"checkbox\" />\n                                <span class=\"tcv_label\">Use object color caps</span>\n                            </span>\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_material_container\">\n                        <div class=\"tcv_cad_tree_toggles\">\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Reset to original values\">\n                                <input class='tcv_material_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                            </span>\n                        </div>\n                        <div class=\"tcv_material_ambientlight tcv_label\">\n                            Ambient light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"20\" value=\"1\"\n                                    class=\"tcv_sld_value_ambientlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_ambientlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_pointlight tcv_label\">\n                            Directional light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"40\" value=\"1\"\n                                    class=\"tcv_sld_value_pointlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_pointlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_metalness tcv_label\">\n                            Metalness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_metalness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_metalness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_roughness tcv_label\">\n                            Roughness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_roughness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_roughness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_info\">\n                            This is not a full material renderer (e.g. the environment is black), so\n                            not every combination creates expected or good results.\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div class=\"tcv_cad_info_wrapper\">\n                <div class=\"tcv_toggle_info_wrapper\">\n                    <!-- <span class=\"tooltip\" data-tooltip=\"Open/close info box\"> -->\n                        <!-- <input class='tcv_toggle_info tcv_btn tcv_small_info_btn' value=\"<\" type=\"button\" /> -->\n                        <span class='tcv_toggle_info'></span><span class=\"tcv_info_label\">Info</span>\n                    <!-- </span> -->\n                </div>\n                <div class=\"tcv_cad_info tcv_round\">\n                    <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                        <div class=\"tcv_cad_info_container\"></div>\n                    </div>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_cad_view\">\n            <div class=\"tcv_distance_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Distance</div>\n            </div>\n\n            <div class=\"tcv_properties_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Properties</div>\n                <div class=\"tcv_measure_subheader\">Shape</div>\n            </div>\n\n            <div class=\"tcv_cad_animation tcv_round\">\n                <span class=\"tcv_animation_label\">E</span>\n                <span><input type=\"range\" min=\"0\" max=\"1000\" value=\"0\"\n                        class=\"tcv_animation_slider tcv_clip_slider\"></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Play animation\"><input class='tcv_play tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Pause animation\"><input class='tcv_pause tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Stop and reset animation\"><input class='tcv_stop tcv_btn'\n                        type=\"button\" /></span>\n            </div>\n            \n            <div class=\"tcv_cad_zscale tcv_round\">\n                <span class=\"tcv_animation_label\">Z</span>\n                <span><input type=\"range\" min=\"1\" max=\"32\" value=\"0\"\n                        class=\"tcv_zscale_slider tcv_clip_slider\"></span>\n            </div>\n\n            <div class=\"tcv_cad_help tcv_round\">\n                <table class=\"tcv_cad_help_layout\">\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Navigation</b></td>\n                    </tr>\n                    <tr>\n                        <td>Rotate</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate up / down</td>\n                        <td>&lt;{{ctrl}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate left / right</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Pan</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Zoom</td>\n                        <td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td>\n                    </tr>\n\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Selection</b></td>\n                    </tr>\n                    <tr>\n                        <td>Pick element</td>\n                        <td>&lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>Click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>(Shows axis-aligned bounding box, AABB)</td>\n                    </tr>\n                    <tr>\n                        <td>Isolate element</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{shift}}&gt; + click on navigation tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide element</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; double click object</td>\n                    </tr>\n                    <tr>    \n                        <td></td>                \n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide other elements</td>\n                        <td>&lt;{{shift}}&gt; + &lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Set camera target</td>\n                        <td>&lt;{{shift}}&gt + &lt;{{meta}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>                    \n                    <tr>\n                        <td></td>\n                        <td><b>CAD Object Tree</b></td>\n                    </tr>\n                    <tr>\n                        <td>Collapse single leafs</td>\n                        <td>Button '1' (all nodes with one leaf only)</td>\n                    </tr>\n                    <tr>\n                        <td>Expand root only</td>\n                        <td>Button 'R'</td>\n                    </tr>\n                    <tr>\n                        <td>Collapse all nodes</td>\n                        <td>Button 'C'</td>\n                    </tr>\n                    <tr>\n                        <td>Expand all nodes</td>\n                        <td>Button 'E'</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td><b>Measure Mode</b></td>\n                    </tr>\n                    <tr>\n                        <td>Select 1. (and 2.) object</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Use center instead of min distance</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; for the second selection</td>\n                    </tr>\n                    <tr>\n                        <td>Filter object types</td>\n                        <td>Type menu or &lt;n&gt;one, &lt;s&gt;olid, &lt;f&gt;ace, &lt;e&gt;dge , &lt;v&gt;ertices</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect last object</td>\n                        <td>&lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect all objects</td>\n                        <td>&lt;ESC&gt;</td>\n                    </tr>\n                </table>\n            </div>\n            <div class=\"tcv_filter_menu\">\n                <div class=\"tcv_drop_down tcv_shape_filter\">\n                    <span class=\"tcv_round tcv_filter_content\"><span class=\"tcv_filter_value\">None</span>\n                        <span class=\"tcv_filter_icon\">⏶\n                        </span></span>\n                    <div class=\"tcv_filter_dropdown tcv_round\">\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_none\">None</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_vertex\">Vertex</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_edge\">Edge</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_face\">Face</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_solid\">Solid</div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>";
 
 function TEMPLATE(id) {
   const shift = KeyMapper.getshortcuts("shift");
   const ctrl = KeyMapper.getshortcuts("ctrl");
   const meta = KeyMapper.getshortcuts("meta");
+  const alt = KeyMapper.getshortcuts("alt");
   var html = template
     .replaceAll("{{id}}", id)
     .replaceAll("{{shift}}", shift)
     .replaceAll("{{ctrl}}", ctrl)
-    .replaceAll("{{meta}}", meta);
+    .replaceAll("{{meta}}", meta)
+    .replaceAll("{{alt}}", alt);
   return html;
 }
 
@@ -80996,6 +80984,9 @@ class Display {
     this.measureTools = options.measureTools;
     this.measurementDebug = options.measurementDebug;
     this.selectTool = options.selectTool;
+    this.explodeTool = options.explodeTool;
+    this.zscaleTool = options.zscaleTool;
+    this.zScale = 1.0;
 
     // this.cadTool = this._getElement("tcv_cad_toolbar");
     this.cadTool = new Toolbar(
@@ -81199,7 +81190,25 @@ class Display {
       "Explode tool",
       this.setExplode,
     );
-    this.cadTool.addButton(this.toolbarButtons["explode"], -1);
+    if (this.explodeTool && !this.zscaleTool) {
+      this.cadTool.addButton(this.toolbarButtons["explode"], -1);
+    }
+
+    this.toolbarButtons["zscale"] = new ClickButton(
+      theme,
+      "zscale",
+      "Scale along the Z-axis",
+      this.setZScale,
+    );
+    if (this.zscaleTool && !this.explodeTool) {
+      this.cadTool.addButton(this.toolbarButtons["zscale"], -1);
+      this.showZScale(false);
+      const el = this._getElement("tcv_zscale_slider");
+      el.addEventListener("change", (e) => {
+        this.zScale = parseInt(e.target.value);
+        this.viewer.setZscaleValue(e.target.value);
+      });
+    }
 
     this.toolbarButtons["distance"] = new ClickButton(
       theme,
@@ -81208,7 +81217,15 @@ class Display {
       this.setTool,
     );
     this.cadTool.addButton(this.toolbarButtons["distance"], 3);
-    this.cadTool.addEllipsis(new Ellipsis(3, this.cadTool.maximize));
+    const count =
+      (this.measureTools ? 2 : 0) +
+      (this.explodeTool ? 1 : 0) +
+      (this.selectTool ? 1 : 0) +
+      (this.zscaleTool ? 1 : 0);
+    if (count > 1) {
+      this.cadTool.addEllipsis(new Ellipsis(3, this.cadTool.maximize));
+    }
+
     this.toolbarButtons["properties"] = new ClickButton(
       theme,
       "properties",
@@ -81271,6 +81288,7 @@ class Display {
     var threshold = 770;
     if (!this.viewer.pinning) threshold -= 30;
     if (!this.viewer.selectTool) threshold -= 30;
+    if (!this.viewer.explodeTool && !this.zscaleTool) threshold -= 30;
     return threshold;
   }
 
@@ -81300,18 +81318,17 @@ class Display {
   }
 
   dispose() {
-    var type, el_name, fn;
-    for (var ui_event of this._events) {
-      [type, el_name, fn] = ui_event;
-      const el = this._getElement(el_name);
-      el.removeEventListener(type, fn);
-    }
-    // remove cadTree
+    this.viewer = undefined;
+
     this.cadTree.innerHTML = "";
-    // remove canvas
+    this.cadTree = undefined;
+
     this.cadView.removeChild(this.cadView.children[2]);
-    // delete view
+
     this.container.innerHTML = "";
+    this.container = null;
+
+    this.cadTreeScrollContainer = null;
   }
 
   /**
@@ -81427,6 +81444,8 @@ class Display {
 
     this.showMeasureTools(this.measureTools);
     this.showSelectTool(this.selectTool);
+    this.showExplodeTool(this.explodeTool);
+    this.showZScaleTool(this.zscaleTool);
   }
 
   /**
@@ -81654,6 +81673,37 @@ class Display {
   };
 
   /**
+   * Checkbox Handler for setting the zscale mode
+   * @function
+   * @param {boolean} flag - to set or not
+   */
+  setZScale = (name, flag) => {
+    this.showZScale(flag);
+    this.viewer.nestedGroup.setZScale(1);
+    this.viewer.update(true);
+    this._getElement("tcv_zscale_slider").value = 1;
+  };
+
+  /**
+   * Show or hide the ZScale slider
+   * @function
+   * @param {boolean} flag - whether to show the ZScale slider
+   */
+  showZScale = (flag) => {
+    const el = this._getElement("tcv_cad_zscale");
+    el.style.display = flag ? "inline-block" : "none";
+  };
+
+  /**
+   * Check or uncheck the ZScale checkbox
+   * @function
+   * @param {boolean} flag - whether to check or uncheck the ZScale checkbox
+   */
+  setZScaleCheck = (flag) => {
+    this.toolbarButtons["zscale"].set(flag);
+  };
+
+  /**
    * Checkbox Handler for setting the tools mode
    * @function
    * @param {boolean} flag - whether to start or stop measure context
@@ -81778,6 +81828,25 @@ class Display {
    */
   showSelectTool = (flag) => {
     this.toolbarButtons["select"].show(flag);
+  };
+
+  /**
+   * Show or hides explode tool
+   * @param {boolean} flag
+   */
+  showExplodeTool = (flag) => {
+    this.toolbarButtons["explode"].show(flag);
+  };
+
+  /**
+   * Show or hides ZScale tool
+   * @param {boolean} flag
+   */
+  showZScaleTool = (flag) => {
+    this.toolbarButtons["zscale"].show(flag);
+    if (!flag) {
+      this.showZScale(false);
+    }
   };
 
   /**
@@ -82627,11 +82696,6 @@ class BoxHelper extends LineSegments {
 
     return this;
   }
-
-  dispose() {
-    disposeGeometry(this.geometry);
-    this.geometry = null;
-  }
 }
 
 const _vector3 = new Vector3();
@@ -82639,7 +82703,7 @@ const _bbox = new BoundingBox();
 const _hbox = new BoundingBox();
 const _sphere = new Sphere();
 
-class ObjectGroup extends Group$1 {
+class ObjectGroup extends Group {
   /**
    *
    * @param {*} opacity
@@ -82666,37 +82730,15 @@ class ObjectGroup extends Group$1 {
   }
 
   dispose() {
-    if (this.types.front) {
-      this.types.front.dispose();
-    } else if (this.types.back) {
-      this.types.front.dispose();
-    } else if (this.types.edges) {
-      this.types.edges.dispose();
-    } else if (this.type.vertices) {
-      this.types.vertices.dispose();
-    }
     if (this.shapeGeometry) {
       disposeGeometry(this.shapeGeometry);
       this.shapeGeometry = null;
     }
-    for (var i in [0, 1, 2]) {
-      var clipping = this.types[`clipping-${i}`];
-      if (clipping) {
-        for (var mesh in clipping.children) {
-          clipping.children[mesh].dispose();
-        }
-      }
-    }
+    deepDispose(Object.values(this.types));
     if (this.children) {
-      for (var i in this.children) {
-        if (this.children[i] instanceof Points) {
-          disposeGeometry(this.children[i]);
-        } else {
-          this.children[i].dispose();
-        }
-      }
+      deepDispose(this.children);
+      this.clear();
     }
-    this.parent = null;
   }
 
   addType(mesh, type) {
@@ -82953,6 +82995,25 @@ class ObjectGroup extends Group$1 {
     }
   }
 
+  setZScale(value) {
+    function walk(obj, minZ, height, scalePos = true) {
+      for (var child of obj.children) {
+        if (child.isMesh || child.isLine) {
+          child.scale.z = value;
+          if (scalePos) {
+            child.parent.position.z = minZ * value;
+          }
+        } else if (child.isGroup) {
+          // don't scale position of clipping planes
+          walk(child, minZ, height, !child.name.startsWith("clipping"));
+        }
+      }
+    }
+    if (this.types.front || this.types.back || this.types.edges) {
+      walk(this, this.minZ, this.height);
+    }
+  }
+
   updateMaterials(flag) {
     if (this.types.back) {
       this.types.back.material.needsUpdate = flag;
@@ -82966,26 +83027,6 @@ class ObjectGroup extends Group$1 {
     if (this.types.vertices) {
       this.types.vertices.material.needsUpdate = flag;
     }
-  }
-}
-
-class Group extends Group$1 {
-  constructor() {
-    super();
-  }
-
-  dispose() {
-    for (var i in this.children) {
-      if (this.children[i]) {
-        this.children[i].dispose();
-      }
-      if (this.children[i] instanceof GridHelper) {
-        disposeGeometry(this.children[i].geometry);
-        this.children[i].dispose();
-        this.children[i] = null;
-      }
-    }
-    this.parent = null;
   }
 }
 
@@ -83016,6 +83057,7 @@ class NestedGroup {
     this.bb_max = bb_max;
     this.delim = "|";
     this.rootGroup = null;
+    this.instances = null;
     this.bbox = null;
     this.bsphere = null;
     this.groups = {};
@@ -83025,17 +83067,15 @@ class NestedGroup {
 
   dispose() {
     if (this.groups) {
-      for (var k in this.groups) {
-        this.groups[k].dispose();
-      }
+      deepDispose(Object.values(this.groups));
       this.groups = null;
     }
     if (this.rootGroup) {
-      this.rootGroup.dispose();
+      deepDispose(this.rootGroup);
       this.rootGroup = null;
     }
     if (this.shapes) {
-      disposeShapes(this.shapes);
+      deepDispose(this.shapes);
       this.shapes = null;
     }
   }
@@ -83309,6 +83349,10 @@ class NestedGroup {
       front.renderOrder = 999;
     }
 
+    if (front.geometry.boundingBox == null) {
+      front.geometry.computeBoundingBox();
+    }
+
     group.addType(back, "back");
     group.addType(front, "front");
 
@@ -83329,6 +83373,180 @@ class NestedGroup {
       edges.name = name;
       group.addType(edges, "edges");
     }
+
+    return group;
+  }
+
+  renderPolygons(
+    shape,
+    minZ,
+    color,
+    alpha,
+    renderback,
+    exploded,
+    path,
+    name,
+    states,
+    geomtype = null,
+    subtype = null,
+  ) {
+    const createEdgesFromPolygons = (polygons, depth) => {
+      const vertices = [];
+      const indices = [];
+      let vertexOffset = 0;
+
+      for (let j = 0; j < polygons.length; j++) {
+        const polygon = polygons[j];
+        const points = polygon.getPoints(); // Get 2D polygon points
+        const bottomPoints = points.map((p) => new Vector3(p.x, p.y, 0));
+        const topPoints = points.map((p) => new Vector3(p.x, p.y, depth));
+
+        // Add bottom and top perimeter edges
+        const addPerimeter = (points) => {
+          for (let i = 0; i < points.length; i++) {
+            const nextIndex = (i + 1) % points.length;
+            indices.push(vertexOffset + i, vertexOffset + nextIndex);
+          }
+          vertices.push(...points);
+          vertexOffset += points.length;
+        };
+
+        addPerimeter(bottomPoints);
+        addPerimeter(topPoints);
+
+        // Add vertical edges between corresponding points
+        for (let i = 0; i < points.length; i++) {
+          indices.push(
+            vertexOffset - 2 * points.length + i, // Bottom point index
+            vertexOffset - points.length + i, // Top point index
+          );
+        }
+      }
+
+      const geometry = new BufferGeometry();
+      geometry.setFromPoints(vertices);
+      geometry.setIndex(indices);
+
+      return geometry;
+    };
+
+    // var timer = new Timer(`renderPolygons ${path}`, this.timeit);
+
+    var group = new ObjectGroup(
+      this.defaultOpacity,
+      1.0,
+      this.edgeColor,
+      geomtype,
+      subtype,
+      renderback,
+    );
+    group.name = path.replaceAll("/", this.delim);
+    group.minZ = minZ;
+    group.height = shape.height;
+
+    this.groups[path] = group;
+
+    var polygons = [];
+    var matrices;
+    if (shape.matrices && shape.matrices.length > 0) {
+      matrices = shape.matrices;
+    } else {
+      matrices = [1, 0, 0, 0, 1, 0];
+    }
+    for (var ref of shape.refs) {
+      var vertices = this.instances[ref];
+      const n = vertices.length / 2;
+      var points = new Array(n);
+      for (var i = 0; i < matrices.length / 6; i++) {
+        const a = matrices[6 * i];
+        const b = matrices[6 * i + 1];
+        const x = matrices[6 * i + 2];
+        const d = matrices[6 * i + 3];
+        const e = matrices[6 * i + 4];
+        const y = matrices[6 * i + 5];
+        for (let j = 0; j < n; j++) {
+          points[j] = new Vector2(
+            a * vertices[2 * j] + b * vertices[2 * j + 1] + x,
+            d * vertices[2 * j] + e * vertices[2 * j + 1] + y,
+          );
+        }
+
+        const polygon = new Shape(points);
+        polygons.push(polygon);
+      }
+    }
+    // timer.split(
+    //   `- created polygons ${shape.refs.length * (matrices.length / 6)}`,
+    // );
+    const extrudeSettings = {
+      depth: shape.height,
+      bevelEnabled: false,
+    };
+    let polyGeometry;
+    polyGeometry = new ExtrudeGeometry(polygons, extrudeSettings);
+    // timer.split("- created geometry");
+
+    // see https://stackoverflow.com/a/37651610
+    // "A common draw configuration you see is to draw all the opaque object with depth testing on,
+    //  turn depth write off, then draw the transparent objects in a back to front order."
+    const materialProps = {
+      color: color,
+      metalness: this.metalness,
+      roughness: this.roughness,
+      // envMap: texture,
+      polygonOffset: true,
+      polygonOffsetFactor: 1.0,
+      polygonOffsetUnits: 1.0,
+      transparent: true,
+      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
+      // turn depth write off for transparent objects
+      depthWrite: !this.transparent,
+      // but keep depth test
+      depthTest: true,
+      clipIntersection: false,
+    };
+
+    var frontMaterial = new MeshStandardMaterial({
+      side: FrontSide,
+      name: "frontMaterial",
+      visible: states[0] == 1,
+      ...materialProps,
+    });
+
+    var backMaterial = new MeshStandardMaterial({
+      side: BackSide,
+      visible: states[0] == 1 && (renderback || this.backVisible),
+      name: "backMaterial",
+      ...materialProps,
+    });
+
+    const back = new Mesh(polyGeometry, backMaterial);
+    back.name = name;
+    const front = new Mesh(polyGeometry, frontMaterial);
+    front.name = name;
+
+    // timer.split("- prepared solid material");
+
+    // Edges
+    const edgeGeom = createEdgesFromPolygons(polygons, shape.height);
+    // timer.split("- created edge geometry");
+
+    var lineMat = new LineBasicMaterial({
+      color: this.edgeColor,
+      depthWrite: !this.transparent,
+      depthTest: !this.transparent,
+      clipIntersection: false,
+    });
+
+    var polyEdges = new LineSegments(edgeGeom, lineMat);
+    // timer.split("- created line segments");
+
+    group.shapeGeometry = polyGeometry;
+    group.addType(front, "front");
+    group.addType(back, "back");
+    group.addType(polyEdges, "edges");
+
+    // timer.stop();
 
     return group;
   }
@@ -83357,6 +83575,21 @@ class NestedGroup {
             shape.name,
             shape.state[1],
             { topo: "vertex", geomtype: null },
+          );
+          break;
+        case "polygon":
+          mesh = this.renderPolygons(
+            shape.shape,
+            shape.loc[0][2],
+            shape.color,
+            1.0,
+            shape.renderback == null ? false : shape.renderback,
+            false, //exploded
+            shape.id,
+            shape.name,
+            shape.state,
+            { topo: "face", geomtype: shape.geomtype },
+            shape.subtype,
           );
           break;
         default:
@@ -83414,6 +83647,9 @@ class NestedGroup {
   }
 
   render() {
+    if (this.shapes.format == "GDS") {
+      this.instances = this.shapes.instances;
+    }
     this.rootGroup = this.renderLoop(this.shapes);
     return this.rootGroup;
   }
@@ -83421,7 +83657,7 @@ class NestedGroup {
   boundingBox() {
     if (this.bbox == null) {
       this.bbox = new BoundingBox();
-      this.bbox.setFromObject(this.rootGroup, true);
+      this.bbox.setFromObject(this.rootGroup, false); // false uses precomputed bounding box
     }
     return this.bbox;
   }
@@ -83501,6 +83737,14 @@ class NestedGroup {
 
   setPolygonOffset(offset) {
     this._traverse("setPolygonOffset", offset);
+  }
+
+  setZScale(value) {
+    this._traverse("setZScale", value);
+  }
+
+  setMinZ() {
+    this._traverse("setMinZ");
   }
 
   updateMaterials() {
@@ -83733,8 +83977,10 @@ const helvetiker = {
   underlineThickness: 50,
 };
 
-class Grid {
+class Grid extends Group {
   constructor(display, bbox, ticks, centerGrid, axes0, grid, flipY, theme) {
+    super();
+
     if (ticks === undefined) {
       ticks = 10;
     }
@@ -83748,7 +83994,6 @@ class Grid {
     const s2 = Math.max(s.x, s.y, s.z);
     // const s2 = bbox.boundingSphere().radius;
 
-    this.gridHelper = [];
     // in case the bbox has the same siez as the nice grid there should be
     // a margin bewteen grid and object. Hence factor 1.1
     var [axisStart, axisEnd, niceTick] = this.niceBounds(
@@ -83815,12 +84060,12 @@ class Grid {
         label2.position.set(0, 0, dir * x);
         group.add(label2);
       }
-      this.gridHelper.push(group);
+      this.add(group);
     }
 
-    this.gridHelper[0].rotateX(Math.PI / 2);
-    this.gridHelper[1].rotateY(Math.PI / 2);
-    this.gridHelper[2].rotateZ(Math.PI / 2);
+    this.children[0].rotateX(Math.PI / 2);
+    this.children[1].rotateY(Math.PI / 2);
+    this.children[2].rotateZ(Math.PI / 2);
 
     this.setCenter(axes0, flipY);
 
@@ -83934,42 +84179,21 @@ class Grid {
   }
 
   setCenter(axes0, flipY) {
-    if (axes0) {
-      for (var i = 0; i < 3; i++) {
-        this.gridHelper[i].position.set(0, 0, 0);
-      }
-      this.gridHelper[0].position.z = this.centerGrid ? 0 : -this.size / 2;
-      this.gridHelper[1].position.y = this.centerGrid
-        ? 0
-        : ((flipY ? 1 : -1) * this.size) / 2;
-      this.gridHelper[2].position.x = this.centerGrid ? 0 : -this.size / 2;
-    } else {
-      const c = this.bbox.center();
-      for (i = 0; i < 3; i++) {
-        this.gridHelper[i].position.set(...c);
-      }
-      this.gridHelper[0].position.z = this.centerGrid
-        ? c[2]
-        : -this.size / 2 + c[2];
-      this.gridHelper[1].position.y = this.centerGrid
-        ? c[1]
-        : ((flipY ? 1 : -1) * this.size) / 2 + c[1];
-      this.gridHelper[2].position.x = this.centerGrid
-        ? c[0]
-        : -this.size / 2 + c[0];
+    const c = axes0 ? [0, 0, 0] : this.bbox.center();
+
+    this.children.forEach((ch) => ch.position.set(...c));
+
+    if (!this.centerGrid) {
+      this.children[0].position.z -= this.size / 2;
+      this.children[1].position.y -= ((flipY ? -1 : 1) * this.size) / 2;
+      this.children[2].position.x -= this.size / 2;
     }
   }
 
   setVisible() {
-    for (var i = 0; i < 3; i++) {
-      this.gridHelper[i].visible = this.grid[i];
-    }
-  }
-  dispose() {
-    for (var i = 0; i < 3; i++) {
-      this.gridHelper[i].dispose();
-      this.gridHelper[i] = null;
-    }
+    this.children.forEach((ch, i) => {
+      ch.visible = this.grid[i];
+    });
   }
 }
 
@@ -84014,11 +84238,6 @@ class AxesHelper extends LineSegments2 {
     this.name = "AxesHelper";
     this.visible = visible;
     this.setCenter(axes0);
-  }
-
-  dispose() {
-    this.geometry.dispose();
-    this.material.dispose();
   }
 
   setCenter(axes0) {
@@ -84199,47 +84418,13 @@ class OrientationMarker {
   }
 }
 
-class Timer {
-  constructor(prefix, timeit) {
-    this.prefix = prefix;
-    this.timeit = timeit;
-    this.start = performance.now();
-    this.last = this.start;
-    if (timeit) {
-      console.info(`three-cad-viewer: ${prefix}:timer start`);
-    }
-  }
-
-  split(msg) {
-    if (this.timeit) {
-      const t = performance.now();
-      console.info(
-        `three-cad-viewer: ${this.prefix}:${msg}:timer split ${(
-          t - this.last
-        ).toFixed(1)} ms`,
-      );
-      this.last = t;
-    }
-  }
-
-  stop() {
-    if (this.timeit) {
-      const t = performance.now();
-      console.info(
-        `three-cad-viewer: ${this.prefix}:timer stop ${(t - this.start).toFixed(
-          1,
-        )} ms:`,
-      );
-    }
-  }
-}
-
 const States = {
   unselected: 0,
   selected: 1,
   mixed: 2,
   disabled: 3,
 };
+
 var Counter = 0;
 
 /**
@@ -84456,6 +84641,10 @@ class TreeView {
    * Handles the scroll event.
    */
   handleScroll = () => {
+    if (!this.scrollContainer) {
+      return;
+    }
+
     this.lastScrollTop = this.scrollContainer.scrollTop;
     if (this.debug) {
       console.log("update => scroll");
@@ -84671,7 +84860,11 @@ class TreeView {
     label.onmousedown = (e) => {
       e.preventDefault();
     };
-
+    label.oncontextmenu = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.handleLabelClick(node, e);
+    };
     label.onclick = (e) => {
       e.stopPropagation();
       this.handleLabelClick(node, e);
@@ -85198,6 +85391,41 @@ class TreeView {
   }
 }
 
+class Timer {
+  constructor(prefix, timeit) {
+    this.prefix = prefix;
+    this.timeit = timeit;
+    this.start = performance.now();
+    this.last = this.start;
+    if (timeit) {
+      console.info(`three-cad-viewer: ${prefix}:timer start`);
+    }
+  }
+
+  split(msg) {
+    if (this.timeit) {
+      const t = performance.now();
+      console.info(
+        `three-cad-viewer: ${this.prefix}:${msg}:timer split ${(
+          t - this.last
+        ).toFixed(1)} ms`,
+      );
+      this.last = t;
+    }
+  }
+
+  stop() {
+    if (this.timeit) {
+      const t = performance.now();
+      console.info(
+        `three-cad-viewer: ${this.prefix}:timer stop ${(t - this.start).toFixed(
+          1,
+        )} ms:`,
+      );
+    }
+  }
+}
+
 const normals = [
   new Vector3(-1, 0, 0),
   new Vector3(0, -1, 0),
@@ -85319,25 +85547,29 @@ class PlaneMesh extends Mesh {
 
 function createStencil(name, material, geometry, plane) {
   material.clippingPlanes = [plane];
-  var mesh = new Mesh(geometry, material);
+  const mesh = new Mesh(geometry, material);
   mesh.name = name;
   return mesh;
 }
 
-class Clipping {
+class Clipping extends Group {
   constructor(center, size, nestedGroup, display, theme) {
+    super();
     this.center = center;
     this.distance = size / 2;
     this.display = display;
     this.theme = theme;
     this.nestedGroup = nestedGroup;
 
+    this.planeHelpers = new Group();
+    this.planeHelpers.name = "PlaneHelpers";
+
     this.clipPlanes = [];
     this.reverseClipPlanes = [];
 
-    this.planeHelpers = new Group();
-    this.planeHelpers.name = "PlaneHelpers";
-    this.planeHelperMaterials = [];
+    this.add(this.planeHelpers);
+
+    this.name = "PlaneHelpers";
     this.objectColors = [];
     this.objectColorCaps = false;
 
@@ -85358,7 +85590,6 @@ class Clipping {
       const material = planeHelperMaterial.clone();
       material.opacity = theme === "dark" ? 0.2 : 0.1;
 
-      this.planeHelperMaterials.push(material);
       this.planeHelpers.add(
         new PlaneMesh(
           i,
@@ -85493,14 +85724,9 @@ class Clipping {
   };
 
   dispose() {
-    this.planeHelpers.dispose();
-    this.planeHelpers = null;
+    deepDispose(this.clipPlanes);
+    deepDispose(this.reverseClipPlanes);
 
-    for (var i in this.planeHelperMaterials) {
-      this.planeHelperMaterials[i].dispose();
-      this.planeHelperMaterials[i] = null;
-    }
-    this.planeHelperMaterials = null;
     this.nestedGroup = null;
     this.clipPlanes = null;
     this.reverseClipPlanes = null;
@@ -87263,8 +87489,10 @@ class Controls {
    * Remove assets and event handlers.
    */
   dispose() {
-    this.controls.dispose();
-    this.controls = null;
+    if (this.controls) {
+      this.controls.dispose();
+      this.controls = null;
+    }
   }
 
   /**
@@ -87538,12 +87766,7 @@ class Camera {
     this.camera_distance = dfactor * distance;
     var fov = ((2 * Math.atan(1 / dfactor)) / Math.PI) * 180;
 
-    this.pCamera = new PerspectiveCamera(
-      fov,
-      aspect,
-      0.1,
-      100 * distance,
-    );
+    this.pCamera = new PerspectiveCamera(fov, aspect, 0.1, 10 * distance);
     this.pCamera.up.set(...cameraUp[this.up]);
     this.pCamera.lookAt(this.target);
 
@@ -87556,7 +87779,7 @@ class Camera {
       pSize[1],
       -pSize[1],
       0.1,
-      100 * distance,
+      10 * distance,
     );
     this.oCamera.up.set(...cameraUp[this.up]);
     this.oCamera.lookAt(this.target);
@@ -87795,22 +88018,7 @@ class Camera {
   }
 }
 
-const version = "3.5.1";
-
-Mesh.prototype.dispose = function () {
-  if (this.geometry) {
-    this.geometry.dispose();
-    disposeGeometry(this.geometry);
-  }
-
-  if (this.material) {
-    if (Array.isArray(this.material)) {
-      this.material.forEach((material) => material.dispose());
-    } else {
-      this.material.dispose();
-    }
-  }
-};
+const version = "3.6.1";
 
 class Viewer {
   /**
@@ -87835,10 +88043,11 @@ class Viewer {
 
     this.setDisplayDefaults(options);
 
-    if (options.keymap) {
-      KeyMapper.set(options.keymap);
-    }
     this.display = display;
+
+    if (options.keymap) {
+      this.setKeyMap(options.keymap);
+    }
 
     window.THREE = THREE;
 
@@ -87940,6 +88149,8 @@ class Viewer {
     this.newTreeBehavior = true;
     this.measureTools = true;
     this.selectTool = true;
+    this.explodeTool = true;
+    this.zscaleTool = false;
     this.measurementDebug = true;
 
     for (var option in options) {
@@ -88457,7 +88668,7 @@ class Viewer {
    */
   clearAnimation() {
     if (this.animation) {
-      this.animation.dispose();
+      deepDispose(this.animation);
     }
     this.display.showAnimationControl(false);
     this.toggleAnimationLoop(false);
@@ -88536,7 +88747,7 @@ class Viewer {
         this.lastBbox != null &&
         (this.lastBbox.needsUpdate || this.bboxNeedsUpdate)
       ) {
-        console.log("updated bbox");
+        console.debug("updated bbox");
         this.lastBbox.bbox.update();
         this.lastBbox.needsUpdate = false;
       }
@@ -88612,12 +88823,8 @@ class Viewer {
   dispose() {
     this.clear();
 
-    if (this.gridHelper) {
-      for (var i in this.gridHelper.gridHelper) {
-        this.gridHelper.gridHelper[i].dispose();
-        this.gridHelper.gridHelper[i] = null;
-      }
-    }
+    deepDispose(this.gridHelper);
+    this.gridHelper = null;
 
     // dispose the orientation marker
     if (this.orientationMarker != null) {
@@ -88647,7 +88854,7 @@ class Viewer {
     this.controls = null;
     this.orientationMarker = null;
     this.compactTree = null;
-    this.cadTools.dispose();
+    deepDispose(this.cadTools);
     this.cadTools = null;
     this.clipAction = null;
     this.treeview.dispose();
@@ -88689,12 +88896,16 @@ class Viewer {
       this.display.showAnimationControl(false);
 
       if (this.animation != null) {
-        this.animation.dispose();
+        deepDispose(this.animation);
       }
 
       this.display.setExplodeCheck(false);
       this.display.setExplode("", false);
 
+      if (this.shapes.format == "GDS") {
+        this.display.setZScaleCheck(false);
+        this.display.setZScale("", false);
+      }
       // clear render canvas
       this.renderer.clear();
 
@@ -88708,26 +88919,22 @@ class Viewer {
       }
 
       // dispose scene
+      deepDispose(this.scene);
 
-      for (var i in this.scene.children) {
-        if (this.scene.children[i] != null) {
-          this.scene.children[i].dispose();
-          this.scene.children[i] = null;
-        }
-      }
+      deepDispose(this.gridHelper);
 
-      this.clipping.dispose();
+      deepDispose(this.clipping);
       this.clipping = null;
 
       // clear tree view
       this.display.clearCadTree();
 
       // clear info
-      this.info.dispose();
+      deepDispose(this.info);
 
       // dispose camera and controls
-      this.camera.dispose();
-      this.controls.dispose();
+      deepDispose(this.camera);
+      deepDispose(this.controls);
 
       // dispose scene
       this.scene = null;
@@ -88735,20 +88942,20 @@ class Viewer {
     }
 
     if (this.shapes != null) {
-      disposeShapes(this.shapes);
+      deepDispose(this.shapes);
       this.shapes = null;
     }
 
     if (this.expandedNestedGroup != null) {
-      this.expandedNestedGroup.dispose();
+      deepDispose(this.expandedNestedGroup);
       this.expandedNestedGroup = null;
     }
     if (this.compactNestedGroup != null) {
-      this.compactNestedGroup.dispose();
+      deepDispose(this.compactNestedGroup);
       this.compactNestedGroup = null;
     }
     if (this.nestedGroup != null) {
-      this.nestedGroup.dispose();
+      deepDispose(this.nestedGroup);
       this.nestedGroup = null;
     }
   }
@@ -88888,6 +89095,7 @@ class Viewer {
     this.scene.children[0] = this.nestedGroup.rootGroup;
     timer.split("added shapes to scene");
 
+    deepDispose(this.treeview);
     this.treeview = new TreeView(
       this.tree,
       this.display.cadTreeScrollContainer,
@@ -89074,9 +89282,7 @@ class Viewer {
     );
     this.gridHelper.computeGrid();
 
-    for (var i = 0; i < 3; i++) {
-      this.scene.add(this.gridHelper.gridHelper[i]);
-    }
+    this.scene.add(this.gridHelper);
 
     this.gridSize = this.gridHelper.size;
 
@@ -89153,7 +89359,7 @@ class Viewer {
     this.setClipObjectColorCaps(viewerOptions.clipObjectColors, true);
     this.setClipPlaneHelpersCheck(viewerOptions.clipPlaneHelpers, true);
 
-    this.scene.add(this.clipping.planeHelpers);
+    this.scene.add(this.clipping);
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
 
     this.setLocalClipping(false); // only allow clipping when Clipping tab is selected
@@ -89571,6 +89777,7 @@ class Viewer {
         } else {
           // this.treeview.openPath(id);
           // this.presetCamera("iso");
+          const center = boundingBox.center();
           this.setCameraTarget(point);
           this.info.centerInfo(center);
         }
@@ -89628,12 +89835,34 @@ class Viewer {
     if (validObjs.length == 0) {
       return;
     }
-    var nearestObj = validObjs[0]; // The first is the nearest since they are sorted by dist.
+
+    let nearestObj = null;
+    for (var ind in validObjs) {
+      const obj = validObjs[ind];
+      if (obj.object instanceof Mesh) {
+        nearestObj = validObjs[ind];
+        break;
+      }
+    }
+    if (nearestObj == null) {
+      return;
+    }
+    // }
+    const point = nearestObj.point;
     const nearest = {
       path: nearestObj.object.parent.parent.name.replaceAll("|", "/"),
       name: nearestObj.object.name,
-      boundingBox: nearestObj.object.geometry.boundingBox,
-      boundingSphere: nearestObj.object.geometry.boundingSphere,
+      boundingBox:
+        this.shapes.format == "GDS"
+          ? new Box3(
+              point.clone().subScalar(10),
+              point.clone().addScalar(10),
+            )
+          : nearestObj.object.geometry.boundingBox,
+      boundingSphere:
+        this.shapes.format == "GDS"
+          ? new Sphere(point, 1)
+          : nearestObj.object.geometry.boundingSphere,
       objectGroup: nearestObj.object.parent,
     };
     if (nearest != null) {
@@ -90077,6 +90306,15 @@ class Viewer {
   }
 
   /**
+   * Set zscaling value.
+   * @param {number} scale factor.
+   **/
+  setZscaleValue(value) {
+    this.nestedGroup.setZScale(value);
+    this.zScale = value;
+    this.update(true);
+  }
+  /**
    * Get zoom value.
    * @returns {number} zoom value.
    **/
@@ -90145,20 +90383,27 @@ class Viewer {
   /**
    * Set camera target.
    * @param {number[]} target - camera target as 3 dim quaternion array [x,y,z].
-   * @param {boolean} reposition - whether to also adapt the position to the new target
    * @param {boolean} [notify=true] - whether to send notification or not.
    **/
-  setCameraTarget(target, reposition = true, notify = true) {
-    if (reposition) {
-      const offset = target.clone().sub(this.camera.target);
+  setCameraTarget(target, notify = true) {
+    // Store current state
+    const camera = this.camera.getCamera();
+    const zoom = camera.zoom; // For orthographic cameras
 
-      const position = this.camera.getPosition();
-      position.add(offset);
+    const offset = camera.position.clone().sub(this.controls.getTarget());
+
+    // Update position and target
+    camera.position.copy(target.clone().add(offset));
+    camera.updateWorldMatrix(true, false);
+    this.controls.getTarget().copy(target);
+
+    // Preserve zoom for orthographic cameras
+    if (camera.type === "OrthographicCamera") {
+      camera.zoom = zoom;
+      camera.updateProjectionMatrix();
     }
 
-    this.controls.setTarget(target);
-    this.camera.target.copy(target);
-
+    // Update controls
     this.controls.update();
     this.update(true, notify);
   }
@@ -90382,7 +90627,7 @@ class Viewer {
 
     for (child of this.scene.children) {
       if (child.name == "PlaneHelpers") {
-        for (var helper of child.children) {
+        for (var helper of child.children[0].children) {
           if (flag) {
             helper.material.clippingPlanes =
               this.clipping.reverseClipPlanes.filter(
@@ -90619,7 +90864,7 @@ class Viewer {
     }
     this.orientationMarker.setVisible(false);
     this.update(true);
-    let result = new Promise((resolve, reject) => {
+    let result = new Promise((resolve, _) => {
       const canvas = this.display.getCanvas();
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
