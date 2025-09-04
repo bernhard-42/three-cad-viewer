@@ -1414,10 +1414,12 @@ class Display {
   updateHelp(before, after) {
     const help = this._getElement("tcv_cad_help_layout");
     for (var k in before) {
-      help.innerHTML = help.innerHTML.replaceAll(
-        "&lt;" + before[k].slice(0, -3) + "&gt;",
-        "&lt;_" + after[k].slice(0, -3) + "&gt;",
-      );
+      if (before[k] && after[k]) {
+        help.innerHTML = help.innerHTML.replaceAll(
+          "&lt;" + before[k].slice(0, -3) + "&gt;",
+          "&lt;_" + after[k].slice(0, -3) + "&gt;",
+        );
+      }
     }
     help.innerHTML = help.innerHTML.replaceAll("_shift", "shift");
     help.innerHTML = help.innerHTML.replaceAll("_ctrl", "ctrl");
