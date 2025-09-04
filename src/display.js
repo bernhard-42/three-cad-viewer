@@ -101,15 +101,17 @@ class Display {
     this.lastPlaneState = false;
 
     // Theme
+    if (options.theme === "browser") {
+      this.mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      listeners.add(this.mediaQuery, "change", (event) => {
+        if (event.matches) {
+          this.setTheme("dark");
+        } else {
+          this.setTheme("light");
+        }
+      });
+    }
     var theme = this.setTheme(options.theme);
-    this.mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    listeners.add(this.mediaQuery, "change", (event) => {
-      if (event.matches) {
-        this.setTheme("dark");
-      } else {
-        this.setTheme("light");
-      }
-    });
 
     for (var btn of buttons) {
       var elements = this.container.getElementsByClassName(`tcv_${btn}`);
