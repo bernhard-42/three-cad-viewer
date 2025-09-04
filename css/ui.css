@@ -5,6 +5,7 @@ canvas {
 /* Disables text selection of UI elements */
 body {
   user-select: none;
+  overflow: hidden;
 }
 
 .tcv_cad_viewer {
