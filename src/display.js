@@ -1,5 +1,5 @@
 import { getIconBackground, getIconSvg } from "./icons.js";
-import { KeyMapper } from "./utils.js";
+import { KeyMapper, EventListenerManager } from "./utils.js";
 import { Slider } from "./slider.js";
 import { Toolbar, Button, ClickButton, Ellipsis } from "./toolbar.js";
 import { ToolTypes } from "./cad_tools/tools.js";
@@ -26,6 +26,8 @@ function px(val) {
 }
 
 const buttons = ["plane", "play", "pause", "stop"];
+
+const listeners = new EventListenerManager();
 
 class Display {
   /**
@@ -264,7 +266,7 @@ class Display {
       this.cadTool.addButton(this.toolbarButtons["zscale"], -1);
       this.showZScale(false);
       const el = this._getElement("tcv_zscale_slider");
-      el.addEventListener("change", (e) => {
+      listeners.add(el, "change", (e) => {
         this.zScale = parseInt(e.target.value);
         this.viewer.setZscaleValue(e.target.value);
       });
@@ -309,7 +311,7 @@ class Display {
       this.toolbarButtons["select"],
     ]);
 
-    document.addEventListener("keydown", (e) => {
+    listeners.add(document, "keydown", (e) => {
       if (e.key === "Escape" && this.help_shown) {
         e.preventDefault();
         this.showHelp(false);
@@ -354,7 +356,7 @@ class Display {
 
   _setupCheckEvent(name, fn, flag) {
     const el = this._getElement(name);
-    el.addEventListener("change", fn);
+    listeners.add(el, "change", fn);
     if (flag != undefined) {
       el.checked = flag;
     }
@@ -364,7 +366,7 @@ class Display {
   // eslint-disable-next-line no-unused-vars
   _setupClickEvent(name, fn, flag) {
     const el = this._getElement(name);
-    el.addEventListener("click", fn);
+    listeners.add(el, "click", fn);
     this._events.push(["click", name, fn]);
   }
 
@@ -378,6 +380,8 @@ class Display {
   }
 
   dispose() {
+    listeners.dispose();
+
     this.viewer = undefined;
 
     this.cadTree.innerHTML = "";
@@ -495,7 +499,7 @@ class Display {
       "tcv_animation_slider",
     )[0];
     this.animationSlider.value = 0;
-    this.animationSlider.addEventListener("input", this.animationChange);
+    listeners.add(this.animationSlider, "input", this.animationChange);
     this.showAnimationControl(false);
 
     this.showHelp(false);

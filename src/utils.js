@@ -154,6 +154,29 @@ function memSize(obj, tag = "obj") {
 
 const KeyMapper = new _KeyMapper();
 
+class EventListenerManager {
+  constructor() {
+    this.listeners = [];
+  }
+
+  add = (target, event, handler, options = false) => {
+    target.addEventListener(event, handler, options);
+    this.listeners.push({
+      target: target,
+      event: event,
+      handler: handler,
+      options: options,
+    });
+  };
+
+  dispose() {
+    this.listeners.forEach(({ target, event, handler, options }) => {
+      target.removeEventListener(event, handler, options);
+    });
+    this.listeners = [];
+  }
+}
+
 export {
   clone,
   flatten,
@@ -164,4 +187,5 @@ export {
   scaleLight,
   deepDispose,
   disposeGeometry,
+  EventListenerManager,
 };
