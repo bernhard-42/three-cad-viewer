@@ -105,9 +105,11 @@ class Display {
         window.matchMedia("(prefers-color-scheme: dark)").matches)
     ) {
       this.container.setAttribute("data-theme", "dark");
+      document.body.setAttribute("data-theme", "dark");
       theme = "dark";
     } else {
       this.container.setAttribute("data-theme", "light");
+      document.body.setAttribute("data-theme", "light");
       theme = "light";
     }
 
