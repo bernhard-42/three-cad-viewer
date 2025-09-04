@@ -100,20 +100,16 @@ class Display {
 
     this.lastPlaneState = false;
 
-    var theme;
-    if (
-      options.theme === "dark" ||
-      (options.theme == "browser" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      this.container.setAttribute("data-theme", "dark");
-      document.body.setAttribute("data-theme", "dark");
-      theme = "dark";
-    } else {
-      this.container.setAttribute("data-theme", "light");
-      document.body.setAttribute("data-theme", "light");
-      theme = "light";
-    }
+    // Theme
+    var theme = this.setTheme(options.theme);
+    this.mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    listeners.add(this.mediaQuery, "change", (event) => {
+      if (event.matches) {
+        this.setTheme("dark");
+      } else {
+        this.setTheme("light");
+      }
+    });
 
     for (var btn of buttons) {
       var elements = this.container.getElementsByClassName(`tcv_${btn}`);
@@ -1431,6 +1427,22 @@ class Display {
     help.innerHTML = help.innerHTML.replaceAll("_ctrl", "ctrl");
     help.innerHTML = help.innerHTML.replaceAll("_alt", "alt");
     help.innerHTML = help.innerHTML.replaceAll("_meta", "meta");
+  }
+
+  setTheme(theme) {
+    if (
+      theme === "dark" ||
+      (theme == "browser" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      this.container.setAttribute("data-theme", "dark");
+      document.body.setAttribute("data-theme", "dark");
+      return "dark";
+    } else {
+      this.container.setAttribute("data-theme", "light");
+      document.body.setAttribute("data-theme", "light");
+      return "light";
+    }
   }
 }
 
