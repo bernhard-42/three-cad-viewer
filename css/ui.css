@@ -6,6 +6,7 @@ canvas {
 body {
   user-select: none;
   overflow: hidden;
+  background-color: var(--tcv-bg-color);
 }
 
 .tcv_cad_viewer {
