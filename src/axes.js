@@ -11,21 +11,9 @@ class AxesHelper extends LineSegments2 {
             0, 0, 0, 0, 0, size
         ]);
     // prettier-ignore
-    const colors = (theme === "dark") ?
-            [
-                1,          0x45 / 255, 0,          1,          0x45 / 255, 0,           // x
-                0x32 / 255, 0xcd / 255, 0x32 / 255, 0x32 / 255, 0xcd / 255, 0x32 / 255,  // y
-                0x3b / 255, 0x9e / 255, 1,          0x3b / 255, 0x9e / 255, 1            // z
-            ] :
-            [
-                1, 0,   0, 1, 0,   0,  // x
-                0, 0.7, 0, 0, 0.7, 0,  // y
-                0, 0,   1, 0, 0,   1   // z
-            ];
 
     const geometry = new LineSegmentsGeometry();
     geometry.setPositions(vertices);
-    geometry.setColors(new Float32Array(colors));
 
     const material = new LineMaterial({
       vertexColors: true,
@@ -36,6 +24,20 @@ class AxesHelper extends LineSegments2 {
     material.resolution.set(width, height);
 
     super(geometry, material);
+    // prettier-ignore
+    this.colors = {
+        dark:[
+            1,         69 / 255, 0,         1,        69 / 255, 0,         // x
+            50 / 255, 205 / 255, 50 / 255, 50 / 255, 205 / 255, 50 / 255,  // y
+            59 / 255, 158 / 255, 1,        59 / 255, 158 / 255, 1          // z
+        ],
+        light:[
+            1, 0,   0, 1, 0,   0,  // x
+            0, 0.7, 0, 0, 0.7, 0,  // y
+            0, 0,   1, 0, 0,   1   // z
+        ]};
+    geometry.setColors(new Float32Array(this.colors[theme]));
+    this.geometry = geometry;
 
     this.center = center;
 
@@ -55,6 +57,10 @@ class AxesHelper extends LineSegments2 {
 
   setVisible(visible) {
     this.visible = visible;
+  }
+
+  changeTheme(theme) {
+    this.geometry.setColors(new Float32Array(this.colors[theme]));
   }
 }
 

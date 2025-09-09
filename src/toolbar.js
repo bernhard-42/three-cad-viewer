@@ -1,4 +1,3 @@
-import { getIconBackground } from "./icons.js";
 import { KeyMapper } from "./utils.js";
 
 class Toolbar {
@@ -107,22 +106,19 @@ class Ellipsis {
 }
 class BaseButton {
   constructor(theme, icon, tooltip) {
-    this.svg = getIconBackground(theme, icon);
     this.name = icon;
 
     var html = document.createElement("span");
     html.className = "tcv_tooltip";
     html.setAttribute("data-tooltip", tooltip);
 
-    // html.appendChild(document.createElement("span"));
-    // html.children[0].className = "tcv_click_btn_marker";
     var frame = html.appendChild(document.createElement("span"));
     frame.className = "tcv_button_frame";
     frame.appendChild(document.createElement("input"));
     frame.children[0].className = "tcv_reset tcv_btn";
 
     frame.children[0].type = "button";
-    frame.children[0].style.backgroundImage = this.svg;
+    frame.children[0].classList.add(`tcv_button_${icon}`);
     this.html = html;
 
     this.html.addEventListener("click", (e) => {

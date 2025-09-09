@@ -17,6 +17,44 @@
   --tcv-scrollbar-active: rgba(0, 0, 0, 0.5);
   --tcv-scrollbar-thumb: rgba(0, 0, 0, 0.1);
   --tcv-dropdown-bg: #eee;
+
+  --tcv-icon-bottom: url("../icons/light/bottom.svg");
+  --tcv-icon-front: url("../icons/light/front.svg");
+  --tcv-icon-help: url("../icons/light/help.svg");
+  --tcv-icon-iso: url("../icons/light/iso.svg");
+  --tcv-icon-left: url("../icons/light/left.svg");
+  --tcv-icon-mesh: url("../icons/light/mesh.svg");
+  --tcv-icon-mesh_empty: url("../icons/light/mesh_empty.svg");
+  --tcv-icon-mesh_mix: url("../icons/light/mesh_mix.svg");
+  --tcv-icon-mesh_no: url("../icons/light/mesh_no.svg");
+  --tcv-icon-pause: url("../icons/light/pause.svg");
+  --tcv-icon-pin: url("../icons/light/pin.svg");
+  --tcv-icon-plane: url("../icons/light/plane.svg");
+  --tcv-icon-play: url("../icons/light/play.svg");
+  --tcv-icon-rear: url("../icons/light/rear.svg");
+  --tcv-icon-reset: url("../icons/light/reset.svg");
+  --tcv-icon-resize: url("../icons/light/resize.svg");
+  --tcv-icon-right: url("../icons/light/right.svg");
+  --tcv-icon-shape: url("../icons/light/shape.svg");
+  --tcv-icon-shape_empty: url("../icons/light/shape_empty.svg");
+  --tcv-icon-shape_mix: url("../icons/light/shape_mix.svg");
+  --tcv-icon-shape_no: url("../icons/light/shape_no.svg");
+  --tcv-icon-stop: url("../icons/light/stop.svg");
+  --tcv-icon-top: url("../icons/light/top.svg");
+  --tcv-icon-axes: url("../icons/light/axes.svg");
+  --tcv-icon-axes0: url("../icons/light/axes0.svg");
+  --tcv-icon-grid: url("../icons/light/grid.svg");
+  --tcv-icon-perspective: url("../icons/light/perspective.svg");
+  --tcv-icon-explode: url("../icons/light/explode.svg");
+  --tcv-icon-zscale: url("../icons/light/zscale.svg");
+  --tcv-icon-distance: url("../icons/light/distance.svg");
+  --tcv-icon-properties: url("../icons/light/properties.svg");
+  --tcv-icon-angle: url("../icons/light/angle.svg");
+  --tcv-icon-select: url("../icons/light/select.svg");
+  --tcv-icon-transparent: url("../icons/light/transparent.svg");
+  --tcv-icon-blackedges: url("../icons/light/black_edges.svg");
+  --tcv-icon-nav_open: url("../icons/light/nav_open.svg");
+  --tcv-icon-nav_closed  : url("../icons/light/nav_closed.svg");
 }
 
 [data-theme="dark"] {
@@ -38,6 +76,44 @@
   --tcv-scrollbar-active: rgba(255, 255, 255, 0.6);
   --tcv-scrollbar-thumb: rgba(255, 255, 255, 0.2);
   --tcv-dropdown-bg: #333;
+
+  --tcv-icon-bottom: url("../icons/dark/bottom.svg");
+  --tcv-icon-front: url("../icons/dark/front.svg");
+  --tcv-icon-help: url("../icons/dark/help.svg");
+  --tcv-icon-iso: url("../icons/dark/iso.svg");
+  --tcv-icon-left: url("../icons/dark/left.svg");
+  --tcv-icon-mesh: url("../icons/dark/mesh.svg");
+  --tcv-icon-mesh_empty: url("../icons/dark/mesh_empty.svg");
+  --tcv-icon-mesh_mix: url("../icons/dark/mesh_mix.svg");
+  --tcv-icon-mesh_no: url("../icons/dark/mesh_no.svg");
+  --tcv-icon-pause: url("../icons/dark/pause.svg");
+  --tcv-icon-pin: url("../icons/dark/pin.svg");
+  --tcv-icon-plane: url("../icons/dark/plane.svg");
+  --tcv-icon-play: url("../icons/dark/play.svg");
+  --tcv-icon-rear: url("../icons/dark/rear.svg");
+  --tcv-icon-reset: url("../icons/dark/reset.svg");
+  --tcv-icon-resize: url("../icons/dark/resize.svg");
+  --tcv-icon-right: url("../icons/dark/right.svg");
+  --tcv-icon-shape: url("../icons/dark/shape.svg");
+  --tcv-icon-shape_empty: url("../icons/dark/shape_empty.svg");
+  --tcv-icon-shape_mix: url("../icons/dark/shape_mix.svg");
+  --tcv-icon-shape_no: url("../icons/dark/shape_no.svg");
+  --tcv-icon-stop: url("../icons/dark/stop.svg");
+  --tcv-icon-top: url("../icons/dark/top.svg");
+  --tcv-icon-axes: url("../icons/dark/axes.svg");
+  --tcv-icon-axes0: url("../icons/dark/axes0.svg");
+  --tcv-icon-grid: url("../icons/dark/grid.svg");
+  --tcv-icon-perspective: url("../icons/dark/perspective.svg");
+  --tcv-icon-explode: url("../icons/dark/explode.svg");
+  --tcv-icon-zscale: url("../icons/dark/zscale.svg");
+  --tcv-icon-distance: url("../icons/dark/distance.svg");
+  --tcv-icon-properties: url("../icons/dark/properties.svg");
+  --tcv-icon-angle: url("../icons/dark/angle.svg");
+  --tcv-icon-select: url("../icons/dark/select.svg");
+  --tcv-icon-transparent: url("../icons/dark/transparent.svg");
+  --tcv-icon-blackedges: url("../icons/dark/black_edges.svg");
+  --tcv-icon-nav_open: url("../icons/dark/nav_open.svg");
+  --tcv-icon-nav_closed  : url("../icons/light/nav_closed.svg"); 
 }
 
 .tcv_none {

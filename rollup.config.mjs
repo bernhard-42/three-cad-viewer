@@ -1,5 +1,4 @@
 import process from "process";
-import os from "os";
 import resolve from "@rollup/plugin-node-resolve";
 import css from "rollup-plugin-import-css";
 import terser from "@rollup/plugin-terser";
@@ -7,6 +6,8 @@ import serve from "rollup-plugin-serve";
 import livereload from "rollup-plugin-livereload";
 import image from "@rollup/plugin-image";
 import { string } from "rollup-plugin-string";
+import postcss from "rollup-plugin-postcss";
+import url from "postcss-url";
 
 const pkg = {
   main: "dist/three-cad-viewer.js",
@@ -20,10 +21,20 @@ function addMin(name) {
 const umdName = "CadViewer";
 
 const default_plugins = [
+  postcss({
+    plugins: [
+      url({
+        url: "inline", // inline all files as data URI
+        maxSize: 10, // KB limit for inlining files (optional, defaults to 14kb)
+        fallback: "copy", // if file too large, falls back to copy
+      }),
+    ],
+    extract: "three-cad-viewer.css", // or your desired filename
+  }),
   resolve(),
   css({ output: "three-cad-viewer.css" }),
   image(),
-  string({ include: "src/index.html" })
+  string({ include: "src/index.html" }),
 ];
 
 var config;

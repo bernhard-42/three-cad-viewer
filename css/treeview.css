@@ -66,3 +66,39 @@
 .tv-children {
   margin-left: 20px;
 }
+
+.tcv_tree_button {
+  background-repeat: no-repeat;
+  background-position: center center;   
+}
+
+.tcv_button_mesh {
+  background-image: var(--tcv-icon-mesh);
+}
+.tcv_button_mesh_empty {
+  background-image: var(--tcv-icon-mesh_empty);
+}
+
+.tcv_button_mesh_mix {
+  background-image: var(--tcv-icon-mesh_mix);
+}
+
+.tcv_button_mesh_no {
+  background-image: var(--tcv-icon-mesh_no);
+}
+
+.tcv_button_shape {
+  background-image: var(--tcv-icon-shape);
+}
+
+.tcv_button_shape_empty {
+  background-image: var(--tcv-icon-shape_empty);
+}
+
+.tcv_button_shape_mix {
+  background-image: var(--tcv-icon-shape_mix);
+}
+
+.tcv_button_shape_no {
+  background-image: var(--tcv-icon-shape_no);
+}

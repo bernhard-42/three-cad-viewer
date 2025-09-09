@@ -1,4 +1,3 @@
-import { getIconSvg } from "./icons.js";
 import { KeyMapper } from "./utils.js";
 
 const States = {
@@ -35,23 +34,13 @@ class TreeView {
     debug = false,
   ) {
     this.viewIcons = [
-      [
-        getIconSvg(theme, "shape_no"),
-        getIconSvg(theme, "shape"),
-        getIconSvg(theme, "shape_mix"),
-        getIconSvg(theme, "shape_empty"),
-      ],
-      [
-        getIconSvg(theme, "mesh_no"),
-        getIconSvg(theme, "mesh"),
-        getIconSvg(theme, "mesh_mix"),
-        getIconSvg(theme, "mesh_empty"),
-      ],
+      ["shape_no", "shape", "shape_mix", "shape_empty"],
+      ["mesh_no", "mesh", "mesh_mix", "mesh_empty"],
     ];
 
     this.navIcons = {
-      right: getIconSvg(theme, "nav_closed"),
-      down: getIconSvg(theme, "nav_open"),
+      right: "\u25BE",
+      down: "\u25B8",
     };
 
     this.tree = tree;
@@ -404,8 +393,8 @@ class TreeView {
     navMarker.className = "tv-nav-marker";
     navMarker.innerHTML = node.children
       ? node.expanded
-        ? this.navIcons.down
-        : this.navIcons.right
+        ? "\u25BE"
+        : "\u25B8"
       : "";
 
     navMarker.onclick = this.handleNavigationClick(node);
@@ -423,7 +412,8 @@ class TreeView {
         className += " tv-pointer";
       }
       icon.className = className;
-      icon.innerHTML = this.viewIcons[s][state];
+      icon.classList.add("tcv_tree_button");
+      icon.classList.add(`tcv_button_${this.viewIcons[s][state]}`);
       if (state !== States.disabled) {
         icon.onmousedown = (e) => {
           e.preventDefault();
@@ -525,7 +515,12 @@ class TreeView {
     if (nodeElement) {
       const icon = nodeElement.querySelector(`.tv-icon${iconNumber}`);
       if (icon) {
-        icon.innerHTML = this.viewIcons[iconNumber][node.state[iconNumber]];
+        for (var b of this.viewIcons[iconNumber]) {
+          icon.classList.remove(`tcv_button_${b}`);
+        }
+        icon.classList.add(
+          `tcv_button_${this.viewIcons[iconNumber][node.state[iconNumber]]}`,
+        );
       }
       nodeElement.dataset[`state${iconNumber}`] = node.state[iconNumber];
     }
@@ -966,10 +961,10 @@ class TreeView {
   }
 
   dispose() {
-    this.viewIcons = null;
+    // this.viewIcons = null;
     this.root = null;
     this.tree = null;
-    this.navIcons = null;
+    // this.navIcons = null;
     this.scrollContainer.removeEventListener("scroll", this.handleScroll);
   }
 }

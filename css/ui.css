@@ -9,6 +9,123 @@ body {
   background-color: var(--tcv-bg-color);
 }
 
+.tcv_button_bottom {
+  background-image: var(--tcv-icon-bottom);
+}
+
+.tcv_button_front {
+  background-image: var(--tcv-icon-front);
+}
+
+.tcv_button_help {
+  background-image: var(--tcv-icon-help);
+}
+
+.tcv_button_iso {
+  background-image: var(--tcv-icon-iso);
+}
+
+.tcv_button_left {
+  background-image: var(--tcv-icon-left);
+}
+
+tcv_button_pause {
+  background-image: var(--tcv-icon-pause);
+}
+
+.tcv_button_pin {
+  background-image: var(--tcv-icon-pin);
+}
+
+.tcv_button_plane {
+  background-image: var(--tcv-icon-plane);
+}
+
+.tcv_button_play {
+  background-image: var(--tcv-icon-play);
+}
+
+.tcv_button_rear {
+  background-image: var(--tcv-icon-rear);
+}
+
+.tcv_button_reset {
+  background-image: var(--tcv-icon-reset);
+}
+
+.tcv_button_resize {
+  background-image: var(--tcv-icon-resize);
+}
+
+.tcv_button_right {
+  background-image: var(--tcv-icon-right);
+}
+
+.tcv_button_stop {
+  background-image: var(--tcv-icon-stop);
+}
+
+.tcv_button_top {
+  background-image: var(--tcv-icon-top);
+}
+
+.tcv_button_axes {
+  background-image: var(--tcv-icon-axes);
+}
+
+.tcv_button_axes0 {
+  background-image: var(--tcv-icon-axes0);
+}
+
+.tcv_button_grid {
+  background-image: var(--tcv-icon-grid);
+}
+
+.tcv_button_perspective {
+  background-image: var(--tcv-icon-perspective);
+}
+
+.tcv_button_explode {
+  background-image: var(--tcv-icon-explode);
+}
+
+.tcv_button_zscale {
+  background-image: var(--tcv-icon-zscale);
+}
+
+.tcv_button_distance {
+  background-image: var(--tcv-icon-distance);
+}
+
+.tcv_button_properties {
+  background-image: var(--tcv-icon-properties);
+}
+
+.tcv_button_angle {
+  background-image: var(--tcv-icon-angle);
+}
+
+.tcv_button_select {
+  background-image: var(--tcv-icon-select);
+}
+
+.tcv_button_transparent {
+  background-image: var(--tcv-icon-transparent);
+}
+
+.tcv_button_blackedges {
+  background-image: var(--tcv-icon-blackedges);
+}
+
+/* .tcv_button_nav_open {
+  background-image: var(--tcv-icon-nav_open);
+}
+
+.tcv_button_nav_closed {
+  background-image: var(--tcv-icon-nav_closed);
+} */
+
+
 .tcv_cad_viewer {
   margin: 0;
   display: flex;
@@ -88,6 +205,12 @@ body {
   vertical-align: middle;
 }
 
+.tcv_toggle_info {
+  vertical-align: middle;
+  display: inline-block;
+  width: 0.8rem;
+}
+
 .tcv_toggle_info_wrapper {
   display: none;
   margin-left: 4px;
@@ -99,7 +222,7 @@ body {
   font-weight: bold;
   margin-left: 4px;
   padding-bottom: 4px;
-  vertical-align: top;
+  vertical-align: middle;
   user-select: none;
 }
 
@@ -300,7 +423,7 @@ th {
 .tcv_box_content {
   overflow: scroll;
   height: 100%;
-  margin: 0px 0px 0px 4px;
+  /* margin: 0px 0px 0px 4px; */
   padding-top: 2px;
 }
 

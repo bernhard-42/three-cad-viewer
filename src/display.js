@@ -1,4 +1,3 @@
-import { getIconBackground, getIconSvg } from "./icons.js";
 import { KeyMapper, EventListenerManager } from "./utils.js";
 import { Slider } from "./slider.js";
 import { Toolbar, Button, ClickButton, Ellipsis } from "./toolbar.js";
@@ -100,29 +99,10 @@ class Display {
 
     this.lastPlaneState = false;
 
-    // Theme
-    if (options.theme === "browser") {
-      this.mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      listeners.add(this.mediaQuery, "change", (event) => {
-        if (event.matches) {
-          this.setTheme("dark");
-        } else {
-          this.setTheme("light");
-        }
-      });
-    }
-    var theme = this.setTheme(options.theme);
+    const theme = options.theme;
+    this.theme = theme;
 
-    for (var btn of buttons) {
-      var elements = this.container.getElementsByClassName(`tcv_${btn}`);
-      for (i = 0; i < elements.length; i++) {
-        var el = elements[i];
-        el.setAttribute(
-          "style",
-          `background-image: ${getIconBackground(theme, btn)}`,
-        );
-      }
-    }
+    this.setButtonBackground(theme);
 
     this.toolbarButtons = {};
 
@@ -337,11 +317,16 @@ class Display {
       this.toggleHelp,
     );
     this.cadTool.addButton(this.toolbarButtons["help"], -1);
+  }
 
-    this.infoIcons = {
-      right: getIconSvg(theme, "nav_closed"),
-      down: getIconSvg(theme, "nav_open"),
-    };
+  setButtonBackground(theme) {
+    for (var btn of buttons) {
+      var elements = this.container.getElementsByClassName(`tcv_${btn}`);
+      for (var i = 0; i < elements.length; i++) {
+        var el = elements[i];
+        el.classList.add(`tcv_button_${btn}`);
+      }
+    }
   }
 
   widthThreshold() {
@@ -442,6 +427,19 @@ class Display {
    */
   setupUI(viewer) {
     this.viewer = viewer;
+
+    // Theme
+    if (this.theme === "browser") {
+      this.mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      listeners.add(this.mediaQuery, "change", (event) => {
+        if (event.matches) {
+          this.setTheme("dark");
+        } else {
+          this.setTheme("light");
+        }
+      });
+    }
+    this.setTheme(this.theme);
 
     this._setupClickEvent("tcv_expand_root", this.handleCollapseNodes);
     this._setupClickEvent("tcv_collapse_singles", this.handleCollapseNodes);
@@ -1339,10 +1337,7 @@ class Display {
    */
   showInfo = (flag) => {
     this.cadInfo.parentNode.parentNode.style.display = flag ? "block" : "none";
-    // this._getElement("tcv_toggle_info").value = flag ? "\u25B2 i" : "\u25BC i";
-    this._getElement("tcv_toggle_info").innerHTML = flag
-      ? `${this.infoIcons["down"]}`
-      : `${this.infoIcons["right"]}`;
+    this._getElement("tcv_toggle_info").innerHTML = flag ? "\u25BE" : "\u25B8";
     this.info_shown = flag;
   };
 
@@ -1439,10 +1434,18 @@ class Display {
     ) {
       this.container.setAttribute("data-theme", "dark");
       document.body.setAttribute("data-theme", "dark");
+      if (this.viewer.orientationMarker) {
+        this.viewer.orientationMarker.changeTheme("dark");
+        this.viewer.update(true);
+      }
       return "dark";
     } else {
       this.container.setAttribute("data-theme", "light");
       document.body.setAttribute("data-theme", "light");
+      if (this.viewer.orientationMarker) {
+        this.viewer.orientationMarker.changeTheme("light");
+        this.viewer.update(true);
+      }
       return "light";
     }
   }

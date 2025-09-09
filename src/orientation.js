@@ -38,7 +38,7 @@ class OrientationMarker {
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     // axes
-    const axes = new AxesHelper(
+    this.axes = new AxesHelper(
       [0, 0, 0],
       length,
       size,
@@ -48,20 +48,21 @@ class OrientationMarker {
       true,
       this.theme,
     );
-    this.scene.add(axes);
+    this.scene.add(this.axes);
 
-    const colors =
-      this.theme === "dark"
-        ? [
-            [1, 69 / 255, 0],
-            [50 / 255, 205 / 255, 50 / 255],
-            [59 / 255, 158 / 255, 1],
-          ]
-        : [
-            [1, 0, 0],
-            [0, 0.5, 0],
-            [0, 0, 1],
-          ];
+    this.colors = {
+      dark: [
+        [1, 69 / 255, 0],
+        [50 / 255, 205 / 255, 50 / 255],
+        [59 / 255, 158 / 255, 1],
+      ],
+      light: [
+        [1, 0, 0],
+        [0, 0.5, 0],
+        [0, 0, 1],
+      ],
+    };
+
     this.cones = [];
     for (var i = 0; i < 3; i++) {
       var coneGeometry = new THREE.CylinderGeometry(
@@ -72,7 +73,7 @@ class OrientationMarker {
         1,
       );
       const coneMaterial = new THREE.MeshBasicMaterial({
-        color: new THREE.Color(...colors[i]),
+        color: new THREE.Color(...this.colors[this.theme][i]),
         toneMapped: false,
       });
       const cone = new THREE.Mesh(coneGeometry, coneMaterial);
@@ -91,7 +92,7 @@ class OrientationMarker {
 
     for (i = 0; i < 3; i++) {
       const mat = new THREE.LineBasicMaterial({
-        // color: new THREE.Color(...colors[i]),
+        // color: new THREE.Color(...this.colors[this.theme][i]),
         color:
           this.theme === "dark"
             ? new THREE.Color(0.9, 0.9, 0.9)
@@ -165,6 +166,21 @@ class OrientationMarker {
         );
         this.labels[i].quaternion.copy(quaternion);
       }
+    }
+  }
+
+  changeTheme(theme) {
+    for (const i in this.cones) {
+      const cone = this.cones[i];
+      cone.material.color = new THREE.Color(...this.colors[theme][i]);
+    }
+    this.axes.changeTheme(theme);
+    for (const i in this.labels) {
+      const label = this.labels[i];
+      label.material.color =
+        theme === "dark"
+          ? new THREE.Color(0.9, 0.9, 0.9)
+          : new THREE.Color(0, 0, 0);
     }
   }
 }
