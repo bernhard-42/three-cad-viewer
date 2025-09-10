@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { Font } from "./fontloader/FontLoader.js";
 import { helvetiker } from "./font.js";
+import { deepDispose } from "./utils.js";
 
 class Grid extends THREE.Group {
   constructor(display, bbox, ticks, centerGrid, axes0, grid, flipY, theme) {
@@ -9,28 +10,88 @@ class Grid extends THREE.Group {
     if (ticks === undefined) {
       ticks = 10;
     }
+    this.ticks = ticks / 2;
     this.display = display;
     this.bbox = bbox;
     this.centerGrid = centerGrid;
+    this.axes0 = axes0;
     this.grid = grid;
     this.allGrid = grid[0] | grid[1] | grid[2];
-    const s = new THREE.Vector3();
-    bbox.getSize(s);
-    const s2 = Math.max(s.x, s.y, s.z);
-    // const s2 = bbox.boundingSphere().radius;
+    this.theme = theme;
+    this.flipY = flipY;
+    this.lastZoomIndex = 0;
+    this.lastFontIndex = 20;
 
-    // in case the bbox has the same siez as the nice grid there should be
-    // a margin bewteen grid and object. Hence factor 1.1
-    var [axisStart, axisEnd, niceTick] = this.niceBounds(
-      -s2 * 1.05,
-      s2 * 1.05,
-      2 * ticks,
+    const size = bbox.max_dist_from_center();
+    this.minFontIndex = size < 2 ? 10 : size < 20 ? 9 : size < 50 ? 8 : 7;
+
+    this.geomCache = {};
+
+    this.create();
+    this.ticks0 = this.ticks;
+  }
+
+  update(zoom) {
+    var force = false;
+
+    var zoomIndex = Math.round(Math.log2(zoom));
+    if (Math.abs(zoomIndex) < 1e-6) zoomIndex = 0;
+
+    if (zoomIndex != this.lastZoomIndex && zoomIndex < 6 && zoomIndex > -2) {
+      // console.log("zoomIndex", zoomIndex, zoom);
+      deepDispose(this.children);
+      this.children = [];
+
+      this.ticks = this.ticks0 * 2 ** -zoomIndex;
+      this.create(false);
+
+      this.lastZoomIndex = zoomIndex;
+      force = true; // when grid is created newly, ensure font sizing is executed, too
+    }
+
+    const fontIndex = Math.round(zoom * 20);
+    if (force || fontIndex != this.lastFontIndex) {
+      // console.log("fontIndex", fontIndex, zoom);
+      for (var axis in this.children) {
+        var group = this.children[axis];
+        for (var i = 1; i < group.children.length; i++) {
+          const label = group.children[i];
+          if (fontIndex < this.minFontIndex) {
+            label.visible = false;
+          } else {
+            label.visible = true;
+            const f = 1.2 / zoom;
+            label.scale.set(f, f, f);
+          }
+        }
+      }
+      this.lastFontIndex = fontIndex;
+    }
+  }
+
+  create(nice = true) {
+    const s2 = Math.max(
+      Math.abs(this.bbox.max.x),
+      Math.abs(this.bbox.max.y),
+      Math.abs(this.bbox.max.z),
+      Math.abs(this.bbox.min.x),
+      Math.abs(this.bbox.min.y),
+      Math.abs(this.bbox.min.z),
     );
-    this.size = axisEnd - axisStart;
+
+    // in case the bbox has the same size as the nice grid there should be
+    // a margin bewteen grid and object. Hence factor 1.05
+    if (nice) {
+      var [axisStart, axisEnd, niceTick] = this.niceBounds(
+        -s2 * 1.05,
+        s2 * 1.05,
+        2 * this.ticks,
+      );
+      this.size = axisEnd - axisStart;
+      this.ticks = niceTick;
+    }
 
     const font = new Font(helvetiker);
-
-    this.ticks = niceTick;
 
     for (var i = 0; i < 3; i++) {
       var group = new THREE.Group();
@@ -39,21 +100,22 @@ class Grid extends THREE.Group {
         new THREE.GridHelper(
           this.size,
           this.size / this.ticks,
-          theme === "dark" ? 0xcccccc : 0x777777,
-          theme == "dark" ? 0x999999 : 0xbbbbbb,
+          this.theme === "dark" ? 0xcccccc : 0x999999,
+          this.theme == "dark" ? 0x999999 : 0xbbbbbb,
         ),
       );
       const mat = new THREE.LineBasicMaterial({
         color:
-          theme === "dark"
+          this.theme === "dark"
             ? new THREE.Color(0.5, 0.5, 0.5)
-            : new THREE.Color(0.4, 0.4, 0.4),
+            : new THREE.Color(0.1, 0.1, 0.1),
         side: THREE.DoubleSide,
       });
       var dir;
       var geom;
       for (var x = -this.size / 2; x <= this.size / 2; x += this.ticks) {
         geom = this.createNumber(x, font);
+        const geom2 = geom.clone();
         if (i == 0) {
           geom.rotateX(-Math.PI / 2);
           geom.rotateY(Math.PI / 2);
@@ -71,44 +133,63 @@ class Grid extends THREE.Group {
 
         if (Math.abs(x) < 1e-6) continue;
 
-        geom = this.createNumber(x, font);
         if (i == 0) {
-          geom.rotateX(-Math.PI / 2);
+          geom2.rotateX(-Math.PI / 2);
         } else if (i == 1) {
-          geom.rotateX(-Math.PI / 2);
-          geom.rotateZ(Math.PI);
+          geom2.rotateX(-Math.PI / 2);
+          geom2.rotateZ(Math.PI);
         } else {
-          geom.rotateX(Math.PI / 2);
+          geom2.rotateX(Math.PI / 2);
         }
-        const label2 = new THREE.Mesh(geom, mat);
+        const label2 = new THREE.Mesh(geom2, mat);
         dir = i == 0 ? -1 : 1;
         label2.position.set(0, 0, dir * x);
         group.add(label2);
       }
       this.add(group);
     }
-
     this.children[0].rotateX(Math.PI / 2);
     this.children[1].rotateY(Math.PI / 2);
     this.children[2].rotateZ(Math.PI / 2);
 
-    this.setCenter(axes0, flipY);
+    this.setCenter(this.axes0, this.flipY);
 
     this.setVisible();
   }
 
   createNumber(x, font) {
-    // experimentally detected: p1=(size=640, font_size=7.1) p2=(size=2.2, font_size=0.035)
-    const m = (0.035 - 7.1) / (2.2 - 640);
-    const fontSize = m * (this.size - 640) + 7.1;
+    function linear(px1, py1, px2, py2, x) {
+      const m = (py2 - py1) / (px2 - px1);
+      return m * (x - px2) + py2;
+    }
+    // Scale font for the bounding box size
+    // experimentally detected:
+    // p1 = (size = 400, font_size = 4.8) p2 = (size = 2.2, font_size = 0.038)
+    var fontSize = linear(2.4, 0.038, 400, 4.8, this.size);
 
-    const shape = font.generateShapes(x.toFixed(1), fontSize);
+    // scale for the canvas height
+    // experimentally detected:
+    // p1 = (height = 300, s = 750) p2 = (height = 2000, s = 1600)
+    const s =
+      linear(300, 750, 2000, 1600, this.display.height) / this.display.height;
+
+    fontSize = fontSize * 0.8 * s;
+
+    const fixed =
+      this.ticks < 10 ? (this.ticks < 5 ? (this.ticks < 0.1 ? 4 : 3) : 2) : 1;
+    const label = x.toFixed(fixed);
+    if (this.geomCache[label]) {
+      return this.geomCache[label].clone();
+    }
+
+    const shape = font.generateShapes(label, fontSize);
     var geom = new THREE.ShapeGeometry(shape);
 
     geom.computeBoundingBox();
     var xMid = -0.5 * (geom.boundingBox.max.x - geom.boundingBox.min.x);
     var yMid = -0.5 * (geom.boundingBox.max.y - geom.boundingBox.min.y);
     geom.translate(xMid, yMid, 0);
+    this.geomCache[label] = geom.clone();
     return geom;
   }
 
@@ -219,6 +300,16 @@ class Grid extends THREE.Group {
     this.children.forEach((ch, i) => {
       ch.visible = this.grid[i];
     });
+  }
+
+  dispose() {
+    if (Object.keys(this.geomCache).length > 0) {
+      for (var key of Object.keys(this.geomCache)) {
+        const geom = this.geomCache[key];
+        geom.dispose();
+      }
+      this.geomCache = [];
+    }
   }
 }
 

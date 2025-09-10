@@ -742,6 +742,8 @@ class Viewer {
         this.handleRaycast();
       }
 
+      this.gridHelper.update(this.camera.getZoom());
+
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
       this.cadTools.update();
