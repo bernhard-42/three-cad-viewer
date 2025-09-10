@@ -65,12 +65,18 @@ class Camera {
 
     const aspect = width / height;
 
-    // calculate FOV
+    // 22 is a good compromise
+    var fov = 22;
+
     const dfactor = 5;
     this.camera_distance = dfactor * distance;
-    var fov = ((2 * Math.atan(1 / dfactor)) / Math.PI) * 180;
 
-    this.pCamera = new THREE.PerspectiveCamera(fov, aspect, 0.1, 10 * distance);
+    this.pCamera = new THREE.PerspectiveCamera(
+      fov,
+      aspect,
+      0.1,
+      100 * distance,
+    );
     this.pCamera.up.set(...cameraUp[this.up]);
     this.pCamera.lookAt(this.target);
 
@@ -83,7 +89,7 @@ class Camera {
       pSize[1],
       -pSize[1],
       0.1,
-      10 * distance,
+      100 * distance,
     );
     this.oCamera.up.set(...cameraUp[this.up]);
     this.oCamera.lookAt(this.target);
@@ -301,6 +307,22 @@ class Camera {
     return this.camera.rotation;
   }
 
+  getVisibleArea() {
+    if (this.ortho) {
+      const cam = this.getCamera();
+      const height = (cam.top - cam.bottom) / cam.zoom;
+      const width = (cam.right - cam.left) / cam.zoom;
+      return { width: width, height: height };
+    } else {
+      // perspective camera
+      const cam = this.getCamera();
+      const distance = cam.position.distanceTo(this.target);
+      const vFOV = (cam.fov * Math.PI) / 180;
+      const height = 2 * Math.tan(vFOV / 2) * distance;
+      const width = height * cam.aspect;
+      return { width: width, height: height };
+    }
+  }
   changeDimensions(distance, width, height) {
     const aspect = width / height;
     const pSize = this.projectSize(distance, aspect);
