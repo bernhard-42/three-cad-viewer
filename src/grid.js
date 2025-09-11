@@ -31,13 +31,14 @@ class Grid extends THREE.Group {
     this.ticks0 = this.ticks;
   }
 
-  update(zoom) {
-    var force = false;
-
+  update(zoom, force = false) {
     var zoomIndex = Math.round(Math.log2(zoom));
     if (Math.abs(zoomIndex) < 1e-6) zoomIndex = 0;
 
-    if (zoomIndex != this.lastZoomIndex && zoomIndex < 6 && zoomIndex > -2) {
+    if (
+      force ||
+      (zoomIndex != this.lastZoomIndex && zoomIndex < 6 && zoomIndex > -2)
+    ) {
       // console.log("zoomIndex", zoomIndex, zoom);
       deepDispose(this.children);
       this.children = [];
@@ -302,7 +303,7 @@ class Grid extends THREE.Group {
     });
   }
 
-  dispose() {
+  clearCache() {
     if (Object.keys(this.geomCache).length > 0) {
       for (var key of Object.keys(this.geomCache)) {
         const geom = this.geomCache[key];
@@ -310,6 +311,10 @@ class Grid extends THREE.Group {
       }
       this.geomCache = [];
     }
+  }
+
+  dispose() {
+    this.clearCache();
   }
 }
 
