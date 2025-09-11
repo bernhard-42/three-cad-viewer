@@ -35,11 +35,16 @@ class Grid extends THREE.Group {
     var zoomIndex = Math.round(Math.log2(zoom));
     if (Math.abs(zoomIndex) < 1e-6) zoomIndex = 0;
 
+    const threshold =
+      this.display.viewer.ortho || this.display.viewer.centerGrid ? 5 : 3;
+
     if (
       force ||
-      (zoomIndex != this.lastZoomIndex && zoomIndex < 6 && zoomIndex > -2)
+      (zoomIndex != this.lastZoomIndex &&
+        zoomIndex < threshold &&
+        zoomIndex > -2)
     ) {
-      // console.log("zoomIndex", zoomIndex, zoom);
+      console.log("zoomIndex", zoomIndex, zoom);
       deepDispose(this.children);
       this.children = [];
 
@@ -61,7 +66,12 @@ class Grid extends THREE.Group {
             label.visible = false;
           } else {
             label.visible = true;
-            const f = 1.2 / zoom;
+            var f;
+            if (this.display.viewer.ortho || this.display.viewer.centerGrid) {
+              f = 1.2 / zoom;
+            } else {
+              f = 1.2 / Math.log2(1 + zoom);
+            }
             label.scale.set(f, f, f);
           }
         }
