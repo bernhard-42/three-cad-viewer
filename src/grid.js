@@ -3,6 +3,103 @@ import { Font } from "./fontloader/FontLoader.js";
 import { helvetiker } from "./font.js";
 import { deepDispose } from "./utils.js";
 
+class GridHelper extends THREE.Object3D {
+  constructor(
+    size = 10,
+    divisions = 10,
+    colorX = 0xff0000,
+    colorY = 0x00ff00,
+    colorGrid = 0x888888,
+  ) {
+    super();
+
+    const step = size / divisions;
+    const halfSize = size / 2;
+    const vertices = [];
+    const gridColors = [];
+    const solidVerticesX = [];
+    const solidVerticesY = [];
+
+    // Create grid lines (dashed)
+    for (let i = 0; i <= divisions; i++) {
+      const k = -halfSize + i * step;
+      // Vertical (Y) lines
+      if (Math.abs(k) > 1e-10) {
+        vertices.push(-halfSize, 0, k, halfSize, 0, k);
+        gridColors.push(colorGrid, colorGrid);
+      } else {
+        // Centerline Y
+        solidVerticesY.push(-halfSize, 0, k, halfSize, 0, k);
+      }
+
+      // Horizontal (X) lines
+      if (Math.abs(k) > 1e-10) {
+        vertices.push(k, 0, -halfSize, k, 0, halfSize);
+        gridColors.push(colorGrid, colorGrid);
+      } else {
+        // Centerline X
+        solidVerticesX.push(k, 0, -halfSize, k, 0, halfSize);
+      }
+    }
+
+    // Dashed grid lines
+    const dashedGeometry = new THREE.BufferGeometry();
+    dashedGeometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(vertices, 3),
+    );
+    // Compute line distances for dashed lines
+    const position = dashedGeometry.getAttribute("position");
+    const lineDistances = new Float32Array(position.count);
+    for (let i = 0; i < position.count; i += 2) {
+      const x1 = position.getX(i),
+        y1 = position.getY(i),
+        z1 = position.getZ(i);
+      const x2 = position.getX(i + 1),
+        y2 = position.getY(i + 1),
+        z2 = position.getZ(i + 1);
+      lineDistances[i] = 0;
+      lineDistances[i + 1] = Math.sqrt(
+        (x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2,
+      );
+    }
+    dashedGeometry.setAttribute(
+      "lineDistance",
+      new THREE.BufferAttribute(lineDistances, 1),
+    );
+
+    const dashedMaterial = new THREE.LineDashedMaterial({
+      color: colorGrid,
+      dashSize: step / 20,
+      gapSize: step / 20,
+      opacity: 1,
+      transparent: false,
+      vertexColors: false,
+    });
+
+    const dashedLines = new THREE.LineSegments(dashedGeometry, dashedMaterial);
+    this.add(dashedLines);
+
+    // Centerline X (solid)
+    const xGeometry = new THREE.BufferGeometry();
+    xGeometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(solidVerticesX, 3),
+    );
+    const xMaterial = new THREE.LineBasicMaterial({ color: colorX });
+    this.add(new THREE.LineSegments(xGeometry, xMaterial));
+
+    // Centerline Y (solid)
+    const yGeometry = new THREE.BufferGeometry();
+    yGeometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(solidVerticesY, 3),
+    );
+    const yMaterial = new THREE.LineBasicMaterial({ color: colorY });
+    this.add(new THREE.LineSegments(yGeometry, yMaterial));
+  }
+}
+
 class Grid extends THREE.Group {
   constructor(display, bbox, ticks, centerGrid, axes0, grid, flipY, theme) {
     super();
@@ -27,6 +124,18 @@ class Grid extends THREE.Group {
 
     this.geomCache = {};
 
+    this.colors = {
+      dark: [
+        "#ff4500", // x
+        "#32cd32", // y
+        "#3b9eff", // z
+      ],
+      light: [
+        "#ff0000", // x
+        "#00b300", // y
+        "#0000ff", // z
+      ],
+    };
     this.create();
     this.ticks0 = this.ticks;
   }
@@ -108,18 +217,19 @@ class Grid extends THREE.Group {
       var group = new THREE.Group();
       group.name = `GridHelper-${i}`;
       group.add(
-        new THREE.GridHelper(
+        new GridHelper(
           this.size,
           this.size / this.ticks,
-          this.theme === "dark" ? 0xcccccc : 0x999999,
-          this.theme == "dark" ? 0x999999 : 0xbbbbbb,
+          this.colors[this.theme][i === 0 ? 1 : i === 1 ? 0 : 2],
+          this.colors[this.theme][i === 0 ? 0 : i === 1 ? 2 : 1],
+          this.theme == "dark" ? 0x7777777 : 0xbbbbbb,
         ),
       );
       const mat = new THREE.LineBasicMaterial({
         color:
           this.theme === "dark"
             ? new THREE.Color(0.5, 0.5, 0.5)
-            : new THREE.Color(0.1, 0.1, 0.1),
+            : new THREE.Color(0.4, 0.4, 0.4),
         side: THREE.DoubleSide,
       });
       var dir;
