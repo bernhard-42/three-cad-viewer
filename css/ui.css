@@ -29,7 +29,7 @@ body {
   background-image: var(--tcv-icon-left);
 }
 
-tcv_button_pause {
+.tcv_button_pause {
   background-image: var(--tcv-icon-pause);
 }
 
