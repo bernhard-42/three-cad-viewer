@@ -154,6 +154,7 @@ class Grid extends THREE.Group {
     // to avoid that the labels are larger than the object.
     const size = bbox.max_dist_from_center();
     this.minFontIndex = Math.round(capped_linear(2, 14, 2000, 5, size));
+    this.minZoomIndex = size < 10 ? -4 : -3; // zoomIndex from which on the labels are shown
 
     this.geomCache = {};
 
@@ -225,7 +226,7 @@ class Grid extends THREE.Group {
       force ||
       (zoomIndex != this.lastZoomIndex &&
         zoomIndex < threshold &&
-        zoomIndex > -3)
+        zoomIndex > this.minZoomIndex)
     ) {
       console.log("zoomIndex", zoomIndex, zoom);
       deepDispose(this.children);
