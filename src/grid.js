@@ -3,6 +3,10 @@ import { Font } from "./fontloader/FontLoader.js";
 import { helvetiker } from "./font.js";
 import { deepDispose } from "./utils.js";
 
+function capped_linear(px1, py1, px2, py2, x) {
+  const m = (py2 - py1) / (px2 - px1);
+  return x < px1 ? py1 : x > px2 ? py2 : m * (x - px1) + py1;
+}
 class GridHelper extends THREE.Object3D {
   constructor(
     size = 10,
@@ -101,14 +105,25 @@ class GridHelper extends THREE.Object3D {
 }
 
 class Grid extends THREE.Group {
-  constructor(display, bbox, ticks, centerGrid, axes0, grid, flipY, theme) {
+  constructor(
+    viewer,
+    bbox,
+    ticks,
+    tickFontSize,
+    centerGrid,
+    axes0,
+    grid,
+    flipY,
+    theme,
+  ) {
     super();
 
     if (ticks === undefined) {
       ticks = 10;
     }
-    this.ticks = ticks / 2;
-    this.display = display;
+    this.ticks = ticks;
+    this.tickFontSize = tickFontSize;
+    this.viewer = viewer;
     this.bbox = bbox;
     this.centerGrid = centerGrid;
     this.axes0 = axes0;
@@ -117,10 +132,13 @@ class Grid extends THREE.Group {
     this.theme = theme;
     this.flipY = flipY;
     this.lastZoomIndex = 0;
-    this.lastFontIndex = 20;
+    this.lastFontIndex = 50;
 
+    // The bounding box size is used to caclulate the font index from which
+    // on the labels are shown. For small objects the font size is reduced
+    // to avoid that the labels are larger than the object.
     const size = bbox.max_dist_from_center();
-    this.minFontIndex = size < 2 ? 10 : size < 20 ? 9 : size < 50 ? 8 : 7;
+    this.minFontIndex = Math.round(capped_linear(2, 14, 2000, 5, size));
 
     this.geomCache = {};
 
@@ -131,27 +149,66 @@ class Grid extends THREE.Group {
         "#3b9eff", // z
       ],
       light: [
-        "#ff0000", // x
-        "#00b300", // y
-        "#0000ff", // z
+        "#ff4500", // x
+        "#32cd32", // y
+        "#3b9eff", // z
       ],
     };
     this.create();
     this.ticks0 = this.ticks;
   }
 
+  calculateTextScale(pixel) {
+    const camera = this.viewer.camera.getCamera();
+    if (this.viewer.ortho) {
+      const height = this.viewer.height;
+
+      // Decrease fontsize for small canvases
+      // 300px and below 70%
+      // 800px and above 100%
+      // linear in between
+      const fontsize = capped_linear(300, 0.7, 800, 1.0, height) * pixel;
+
+      const visibleWorldHeight = (camera.top - camera.bottom) / camera.zoom;
+      const pixelsPerWorldUnit = height / visibleWorldHeight;
+      return fontsize / pixelsPerWorldUnit;
+    } else {
+      return pixel; // TODO: implement perspective camera case
+    }
+  }
+
+  scaleLabels() {
+    for (var axis in this.children) {
+      var group = this.children[axis];
+      for (var i = 1; i < group.children.length; i++) {
+        const label = group.children[i];
+        var s = this.calculateTextScale(this.tickFontSize);
+        label.scale.setScalar(s);
+      }
+    }
+  }
+
+  showLabels(flag) {
+    for (var axis in this.children) {
+      var group = this.children[axis];
+      for (var i = 1; i < group.children.length; i++) {
+        const label = group.children[i];
+        label.visible = flag;
+      }
+    }
+  }
+
   update(zoom, force = false) {
     var zoomIndex = Math.round(Math.log2(zoom));
     if (Math.abs(zoomIndex) < 1e-6) zoomIndex = 0;
 
-    const threshold =
-      this.display.viewer.ortho || this.display.viewer.centerGrid ? 5 : 3;
+    const threshold = this.viewer.ortho || this.viewer.centerGrid ? 5 : 3;
 
     if (
       force ||
       (zoomIndex != this.lastZoomIndex &&
         zoomIndex < threshold &&
-        zoomIndex > -2)
+        zoomIndex > -3)
     ) {
       console.log("zoomIndex", zoomIndex, zoom);
       deepDispose(this.children);
@@ -164,26 +221,14 @@ class Grid extends THREE.Group {
       force = true; // when grid is created newly, ensure font sizing is executed, too
     }
 
-    const fontIndex = Math.round(zoom * 20);
+    const fontIndex = Math.round(zoom * 50);
     if (force || fontIndex != this.lastFontIndex) {
       // console.log("fontIndex", fontIndex, zoom);
-      for (var axis in this.children) {
-        var group = this.children[axis];
-        for (var i = 1; i < group.children.length; i++) {
-          const label = group.children[i];
-          if (fontIndex < this.minFontIndex) {
-            label.visible = false;
-          } else {
-            label.visible = true;
-            var f;
-            if (this.display.viewer.ortho || this.display.viewer.centerGrid) {
-              f = 1.2 / zoom;
-            } else {
-              f = 1.2 / Math.log2(1 + zoom);
-            }
-            label.scale.set(f, f, f);
-          }
-        }
+      if (fontIndex < this.minFontIndex) {
+        this.showLabels(false);
+      } else {
+        this.scaleLabels();
+        this.showLabels(true);
       }
       this.lastFontIndex = fontIndex;
     }
@@ -229,7 +274,7 @@ class Grid extends THREE.Group {
         color:
           this.theme === "dark"
             ? new THREE.Color(0.5, 0.5, 0.5)
-            : new THREE.Color(0.4, 0.4, 0.4),
+            : new THREE.Color(0.3, 0.3, 0.3),
         side: THREE.DoubleSide,
       });
       var dir;
@@ -274,36 +319,21 @@ class Grid extends THREE.Group {
     this.children[2].rotateZ(Math.PI / 2);
 
     this.setCenter(this.axes0, this.flipY);
-
+    this.scaleLabels();
+    this.setCenter(this.viewer.axes0, this.flipY);
     this.setVisible();
   }
 
   createNumber(x, font) {
-    function linear(px1, py1, px2, py2, x) {
-      const m = (py2 - py1) / (px2 - px1);
-      return m * (x - px2) + py2;
-    }
-    // Scale font for the bounding box size
-    // experimentally detected:
-    // p1 = (size = 400, font_size = 4.8) p2 = (size = 2.2, font_size = 0.038)
-    var fontSize = linear(2.4, 0.038, 400, 4.8, this.size);
-
-    // scale for the canvas height
-    // experimentally detected:
-    // p1 = (height = 300, s = 750) p2 = (height = 2000, s = 1600)
-    const s =
-      linear(300, 750, 2000, 1600, this.display.height) / this.display.height;
-
-    fontSize = fontSize * 0.8 * s;
-
     const fixed =
       this.ticks < 10 ? (this.ticks < 5 ? (this.ticks < 0.1 ? 4 : 3) : 2) : 1;
+
     const label = x.toFixed(fixed);
     if (this.geomCache[label]) {
       return this.geomCache[label].clone();
     }
 
-    const shape = font.generateShapes(label, fontSize);
+    const shape = font.generateShapes(label, 1);
     var geom = new THREE.ShapeGeometry(shape);
 
     geom.computeBoundingBox();
@@ -369,10 +399,10 @@ class Grid extends THREE.Group {
   computeGrid() {
     this.allGrid = this.grid[0] | this.grid[1] | this.grid[2];
 
-    this.display.toolbarButtons["grid"].set(this.allGrid);
-    this.display.checkElement("tcv_grid-xy", this.grid[0]);
-    this.display.checkElement("tcv_grid-xz", this.grid[1]);
-    this.display.checkElement("tcv_grid-yz", this.grid[2]);
+    this.viewer.display.toolbarButtons["grid"].set(this.allGrid);
+    this.viewer.display.checkElement("tcv_grid-xy", this.grid[0]);
+    this.viewer.display.checkElement("tcv_grid-xz", this.grid[1]);
+    this.viewer.display.checkElement("tcv_grid-yz", this.grid[2]);
 
     this.setVisible();
   }
