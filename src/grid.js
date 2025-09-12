@@ -7,14 +7,18 @@ function capped_linear(px1, py1, px2, py2, x) {
   const m = (py2 - py1) / (px2 - px1);
   return x < px1 ? py1 : x > px2 ? py2 : m * (x - px1) + py1;
 }
+
+function trimTrailingZeros(str) {
+  var result = str
+    .replace(/(\.\d*[1-9])0+$/, "$1") // Remove zeros after nonzero decimals
+    .replace(/\.0+$/, ""); // Remove .000... case
+  if (result === "-0") result = "0"; // Handle negative zero case
+  if (result.indexOf(".") < 0) result = `${result}.0`; // Ensure at least one decimal place
+  return result;
+}
+
 class GridHelper extends THREE.Object3D {
-  constructor(
-    size = 10,
-    divisions = 10,
-    colorX = 0xff0000,
-    colorY = 0x00ff00,
-    colorGrid = 0x888888,
-  ) {
+  constructor(size, divisions, colorX, colorY, colorGrid) {
     super();
 
     const step = size / divisions;
@@ -25,6 +29,7 @@ class GridHelper extends THREE.Object3D {
     const solidVerticesY = [];
 
     // Create grid lines (dashed)
+    var centerline = false;
     for (let i = 0; i <= divisions; i++) {
       const k = -halfSize + i * step;
       // Vertical (Y) lines
@@ -34,8 +39,14 @@ class GridHelper extends THREE.Object3D {
       } else {
         // Centerline Y
         solidVerticesY.push(-halfSize, 0, k, halfSize, 0, k);
+        centerline = true;
       }
 
+      if (!centerline) {
+        // Ensure centerline Y is drawn only once
+        solidVerticesY.push(-halfSize, 0, 0, halfSize, 0, 0);
+      }
+      centerline = false;
       // Horizontal (X) lines
       if (Math.abs(k) > 1e-10) {
         vertices.push(k, 0, -halfSize, k, 0, halfSize);
@@ -43,6 +54,10 @@ class GridHelper extends THREE.Object3D {
       } else {
         // Centerline X
         solidVerticesX.push(k, 0, -halfSize, k, 0, halfSize);
+      }
+      if (!centerline) {
+        // Ensure centerline X is drawn only once
+        solidVerticesX.push(0, 0, -halfSize, 0, 0, halfSize);
       }
     }
 
@@ -121,7 +136,7 @@ class Grid extends THREE.Group {
     if (ticks === undefined) {
       ticks = 10;
     }
-    this.ticks = ticks;
+    this.ticks = ticks / 2;
     this.tickFontSize = tickFontSize;
     this.viewer = viewer;
     this.bbox = bbox;
@@ -154,8 +169,8 @@ class Grid extends THREE.Group {
         "#3b9eff", // z
       ],
     };
+
     this.create();
-    this.ticks0 = this.ticks;
   }
 
   calculateTextScale(pixel) {
@@ -199,6 +214,8 @@ class Grid extends THREE.Group {
   }
 
   update(zoom, force = false) {
+    if (!this.getVisible()) return;
+
     var zoomIndex = Math.round(Math.log2(zoom));
     if (Math.abs(zoomIndex) < 1e-6) zoomIndex = 0;
 
@@ -214,7 +231,9 @@ class Grid extends THREE.Group {
       deepDispose(this.children);
       this.children = [];
 
-      this.ticks = this.ticks0 * 2 ** -zoomIndex;
+      const halfTicks = (this.ticks0 / 2) * 2 ** zoomIndex;
+      this.ticks = 2 * halfTicks;
+
       this.create(false);
 
       this.lastZoomIndex = zoomIndex;
@@ -235,25 +254,28 @@ class Grid extends THREE.Group {
   }
 
   create(nice = true) {
-    const s2 = Math.max(
-      Math.abs(this.bbox.max.x),
-      Math.abs(this.bbox.max.y),
-      Math.abs(this.bbox.max.z),
-      Math.abs(this.bbox.min.x),
-      Math.abs(this.bbox.min.y),
-      Math.abs(this.bbox.min.z),
-    );
-
     // in case the bbox has the same size as the nice grid there should be
     // a margin bewteen grid and object. Hence factor 1.05
     if (nice) {
+      const s2 = Math.max(
+        Math.abs(this.bbox.max.x),
+        Math.abs(this.bbox.max.y),
+        Math.abs(this.bbox.max.z),
+        Math.abs(this.bbox.min.x),
+        Math.abs(this.bbox.min.y),
+        Math.abs(this.bbox.min.z),
+      );
       var [axisStart, axisEnd, niceTick] = this.niceBounds(
         -s2 * 1.05,
         s2 * 1.05,
         2 * this.ticks,
       );
       this.size = axisEnd - axisStart;
-      this.ticks = niceTick;
+      this.ticks = this.size / niceTick;
+      this.ticks0 = this.ticks;
+      this.delta = niceTick;
+    } else {
+      this.delta = this.size / this.ticks;
     }
 
     const font = new Font(helvetiker);
@@ -264,7 +286,7 @@ class Grid extends THREE.Group {
       group.add(
         new GridHelper(
           this.size,
-          this.size / this.ticks,
+          2 * this.ticks,
           this.colors[this.theme][i === 0 ? 1 : i === 1 ? 0 : 2],
           this.colors[this.theme][i === 0 ? 0 : i === 1 ? 2 : 1],
           this.theme == "dark" ? 0x7777777 : 0xbbbbbb,
@@ -279,7 +301,7 @@ class Grid extends THREE.Group {
       });
       var dir;
       var geom;
-      for (var x = -this.size / 2; x <= this.size / 2; x += this.ticks) {
+      for (var x = -this.size / 2; x <= this.size / 2; x += this.delta / 2) {
         geom = this.createNumber(x, font);
         const geom2 = geom.clone();
         if (i == 0) {
@@ -325,10 +347,8 @@ class Grid extends THREE.Group {
   }
 
   createNumber(x, font) {
-    const fixed =
-      this.ticks < 10 ? (this.ticks < 5 ? (this.ticks < 0.1 ? 4 : 3) : 2) : 1;
+    const label = trimTrailingZeros(x.toFixed(4));
 
-    const label = x.toFixed(fixed);
     if (this.geomCache[label]) {
       return this.geomCache[label].clone();
     }
@@ -453,6 +473,10 @@ class Grid extends THREE.Group {
     });
   }
 
+  getVisible() {
+    return this.allGrid;
+  }
+
   clearCache() {
     if (Object.keys(this.geomCache).length > 0) {
       for (var key of Object.keys(this.geomCache)) {
@@ -464,6 +488,7 @@ class Grid extends THREE.Group {
   }
 
   dispose() {
+    console.log("dispose grid");
     this.clearCache();
   }
 }

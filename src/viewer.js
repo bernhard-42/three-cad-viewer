@@ -230,6 +230,7 @@ class Viewer {
     this.control = "orbit";
     this.up = "Z";
     this.ticks = 10;
+    this.tickFontSize = 10;
     this.centerGrid = false;
     this.position = null;
     this.quaternion = null;
@@ -1280,9 +1281,10 @@ class Viewer {
     //
 
     this.gridHelper = new Grid(
-      this.display,
+      this,
       this.bbox,
       this.ticks,
+      this.tickFontSize,
       this.centerGrid,
       this.axes0,
       this.grid,
