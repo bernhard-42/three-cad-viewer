@@ -486,8 +486,8 @@ class TreeView {
         if (isExpanded !== node.expanded) {
           childrenContainer.style.display = node.expanded ? "block" : "none";
           nodeElement.querySelector(`.tv-nav-marker`).innerHTML = node.expanded
-            ? this.navIcons.down
-            : this.navIcons.right;
+            ? this.navIcons.right
+            : this.navIcons.down;
           if (!node.expanded) {
             if (this.debug) {
               console.log("update => showChildContainer");
