@@ -510,7 +510,6 @@ class Grid extends THREE.Group {
   }
 
   dispose() {
-    console.log("dispose grid");
     this.clearCache();
   }
 }
