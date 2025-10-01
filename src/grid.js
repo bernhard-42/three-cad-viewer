@@ -176,9 +176,8 @@ class Grid extends THREE.Group {
 
   calculateTextScale(pixel) {
     const camera = this.viewer.camera.getCamera();
+    const height = this.viewer.height;
     if (this.viewer.ortho) {
-      const height = this.viewer.height;
-
       // Decrease fontsize for small canvases
       // 300px and below 70%
       // 800px and above 100%
@@ -189,7 +188,29 @@ class Grid extends THREE.Group {
       const pixelsPerWorldUnit = height / visibleWorldHeight;
       return fontsize / pixelsPerWorldUnit;
     } else {
-      return pixel; // TODO: implement perspective camera case
+      const fontSize = pixel;
+      const camera = this.viewer.camera.getCamera();
+
+      // Calculate distance from camera to mesh
+      const pos = this.viewer.axes0
+        ? new THREE.Vector3()
+        : new THREE.Vector3(...this.bbox.center());
+
+      const camPos = camera.getWorldPosition(new THREE.Vector3());
+      var d = camPos.distanceTo(pos);
+      if (!this.viewer.centerGrid) {
+        d += 2 * this.bbox.max_dist_from_center();
+      }
+
+      // Compute visible world height at that distance
+      const fovRad = (camera.fov * Math.PI) / 180; // convert to radians
+      const visibleWorldHeight = 2 * d * Math.tan(fovRad / 2);
+
+      // Pixels per world unit
+      const pixelsPerUnit = height / visibleWorldHeight;
+
+      // Return the scale needed for desired screen height
+      return fontSize / pixelsPerUnit;
     }
   }
 
