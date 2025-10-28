@@ -179,11 +179,10 @@
 
       const timeit = false;
       const timer = new Timer("main", timeit);
-      const w = 512;
-      const h = (w * 3) / 4;
+      const width = 1400;
       const displayOptions = {
-        cadWidth: w,
-        height: h,
+        cadWidth: width,
+        height: (width / 4) * 3,
         treeWidth: 240,
         theme: "browser",
         pinning: false,
@@ -225,7 +224,7 @@
         // transparent: true,
         // blackEdges: true,
         // axes: true,
-        axes0: true,
+        // axes0: true,
         grid: [true, false, false],
         timeit: true,
         // clipIntersection: false,
