@@ -132,9 +132,9 @@ class Grid extends THREE.Group {
     super();
 
     if (ticks === undefined) {
-      ticks = 10;
+      ticks = 8;
     }
-    this.ticks = ticks / 2;
+    this.ticks = ticks;
     this.gridFontSize = gridFontSize;
     this.viewer = viewer;
     this.bbox = bbox;
@@ -286,7 +286,7 @@ class Grid extends THREE.Group {
       var [axisStart, axisEnd, niceTick] = this.niceBounds(
         -s2 * 1.05,
         s2 * 1.05,
-        2 * this.ticks,
+        this.ticks,
       );
       this.size = axisEnd - axisStart;
       this.ticks = this.size / niceTick;
@@ -491,56 +491,55 @@ class Grid extends THREE.Group {
     return sprite;
   }
 
-  // https://stackoverflow.com/questions/4947682/intelligently-calculating-chart-tick-positions
-  niceNumber(value, round) {
-    var exponent = Math.floor(Math.log10(value));
-    var fraction = value / 10 ** exponent;
-
-    var niceFraction;
-
-    if (round) {
-      if (fraction < 1.5) {
-        niceFraction = 1.0;
-      } else if (fraction < 3.0) {
-        niceFraction = 2.0;
-      } else if (fraction < 7.0) {
-        niceFraction = 5.0;
-      } else {
-        niceFraction = 10.0;
-      }
-    } else {
-      if (fraction <= 1) {
-        niceFraction = 1.0;
-      } else if (fraction <= 2) {
-        niceFraction = 2.0;
-      } else if (fraction <= 5) {
-        niceFraction = 5.0;
-      } else {
-        niceFraction = 10.0;
-      }
-    }
-    return niceFraction * 10 ** exponent;
-  }
-
+  // Calculate nice symmetric grid bounds centered at zero
+  // numTicks: desired number of ticks in one direction (from 0 to max)
   niceBounds(axisStart, axisEnd, numTicks) {
-    var niceTick;
-    var niceRange;
-
     if (!numTicks) {
-      numTicks = 10;
+      numTicks = 8;
     }
 
-    var axisWidth = axisEnd - axisStart;
+    // Calculate max absolute value (for symmetric grid)
+    const maxAbsValue = Math.max(Math.abs(axisStart), Math.abs(axisEnd));
 
-    if (axisWidth == 0) {
-      niceTick = 0;
+    if (maxAbsValue === 0) {
+      return [0, 0, 0];
+    }
+
+    // Calculate rough delta
+    const roughDelta = maxAbsValue / numTicks;
+
+    // Find the order of magnitude
+    const exponent = Math.floor(Math.log10(roughDelta));
+    const magnitude = Math.pow(10, exponent);
+
+    // Normalize to range [1, 10)
+    const normalized = roughDelta / magnitude;
+
+    // Round to nice number: 1, 2, 2.5, 5, or 10
+    let niceFactor;
+    if (normalized <= 1.0) {
+      niceFactor = 1.0;
+    } else if (normalized <= 2.0) {
+      niceFactor = 2.0;
+    } else if (normalized <= 2.5) {
+      niceFactor = 2.5;
+    } else if (normalized <= 5.0) {
+      niceFactor = 5.0;
     } else {
-      niceRange = this.niceNumber(axisWidth);
-      niceTick = this.niceNumber(niceRange / (numTicks - 1), true);
-      axisStart = Math.floor(axisStart / niceTick) * niceTick;
-      axisEnd = Math.ceil(axisEnd / niceTick) * niceTick;
+      niceFactor = 10.0;
     }
-    return [axisStart, axisEnd, niceTick];
+
+    const niceDelta = niceFactor * magnitude;
+
+    // Calculate how many ticks fit within the original bounds
+    // Use Math.ceil to ensure we cover the full range
+    const actualTicks = Math.ceil(maxAbsValue / niceDelta);
+
+    // Calculate symmetric bounds based on actual ticks that fit
+    const niceMax = niceDelta * actualTicks;
+    const niceMin = -niceMax;
+
+    return [niceMin, niceMax, niceDelta];
   }
 
   computeGrid() {
