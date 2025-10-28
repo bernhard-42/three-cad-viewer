@@ -124,7 +124,7 @@ class Grid extends THREE.Group {
     viewer,
     bbox,
     ticks,
-    tickFontSize,
+    gridFontSize,
     centerGrid,
     axes0,
     grid,
@@ -137,7 +137,7 @@ class Grid extends THREE.Group {
       ticks = 10;
     }
     this.ticks = ticks / 2;
-    this.tickFontSize = tickFontSize;
+    this.gridFontSize = gridFontSize;
     this.viewer = viewer;
     this.bbox = bbox;
     this.centerGrid = centerGrid;
@@ -221,7 +221,7 @@ class Grid extends THREE.Group {
       var group = this.children[axis];
       for (var i = 1; i < group.children.length; i++) {
         const label = group.children[i];
-        var s = this.calculateTextScale(this.tickFontSize);
+        var s = this.calculateTextScale(this.gridFontSize);
         label.scale.setScalar(s);
       }
     }

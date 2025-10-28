@@ -230,7 +230,7 @@ class Viewer {
     this.control = "orbit";
     this.up = "Z";
     this.ticks = 10;
-    this.tickFontSize = 10;
+    this.gridFontSize = 10;
     this.centerGrid = false;
     this.position = null;
     this.quaternion = null;
@@ -1284,7 +1284,7 @@ class Viewer {
       this,
       this.bbox,
       this.ticks,
-      this.tickFontSize,
+      this.gridFontSize,
       this.centerGrid,
       this.axes0,
       this.grid,
