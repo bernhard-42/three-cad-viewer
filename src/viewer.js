@@ -1427,7 +1427,7 @@ class Viewer {
     this.toggleAnimationLoop(this.hasAnimationLoop);
 
     this.ready = true;
-    this.info.readyMsg(this.gridHelper.ticks, this.control);
+    this.info.readyMsg(version, this.control);
 
     //
     // notify calculated results
