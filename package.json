@@ -24,7 +24,8 @@
   "author": "Bernhard Walter",
   "license": "MIT",
   "dependencies": {
-    "three": "0.180.0"
+    "three": "0.180.0",
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
