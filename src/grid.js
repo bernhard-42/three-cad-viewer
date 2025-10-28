@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { Font } from "./fontloader/FontLoader.js";
 import { helvetiker } from "./font.js";
 import { deepDispose } from "./utils.js";
+import { abs } from "three/tsl";
 
 function capped_linear(px1, py1, px2, py2, x) {
   const m = (py2 - py1) / (px2 - px1);
@@ -159,6 +160,7 @@ class Grid extends THREE.Group {
     this.minZoomIndex = size < 10 ? -4 : -3; // zoomIndex from which on the labels are shown
 
     this.geomCache = {};
+    this.labelCache = {};
 
     this.colors = {
       dark: [
@@ -322,40 +324,20 @@ class Grid extends THREE.Group {
             : new THREE.Color(0.3, 0.3, 0.3),
         side: THREE.DoubleSide,
       });
-      var dir;
+
       var geom;
+      var label;
       for (var x = -this.size / 2; x <= this.size / 2; x += this.delta / 2) {
-        geom = this.createNumber(x, font);
-        const geom2 = geom.clone();
-        if (i == 0) {
-          geom.rotateX(-Math.PI / 2);
-          geom.rotateY(Math.PI / 2);
-        } else if (i == 1) {
-          geom.rotateX(Math.PI / 2);
-          geom.rotateY(-Math.PI / 2);
-        } else {
-          geom.rotateX(Math.PI / 2);
-          geom.rotateY(-Math.PI / 2);
-        }
-        const label = new THREE.Mesh(geom, mat);
-        dir = i == 1 ? -1 : 1;
-        label.position.set(dir * x, 0, 0);
+        if (Math.abs(x) < 1e-6) {
+          continue;
+        } // skip center label
+        var x_fixed = trimTrailingZeros(x.toFixed(4));
+        geom = this.createNumber(x_fixed, font); //cached
+        label = this.createLabel(x_fixed, geom.clone(), mat, x, i, true); //cached
         group.add(label);
 
-        if (Math.abs(x) < 1e-6) continue;
-
-        if (i == 0) {
-          geom2.rotateX(-Math.PI / 2);
-        } else if (i == 1) {
-          geom2.rotateX(-Math.PI / 2);
-          geom2.rotateZ(Math.PI);
-        } else {
-          geom2.rotateX(Math.PI / 2);
-        }
-        const label2 = new THREE.Mesh(geom2, mat);
-        dir = i == 0 ? -1 : 1;
-        label2.position.set(0, 0, dir * x);
-        group.add(label2);
+        label = this.createLabel(x_fixed, geom.clone(), mat, x, i, false); //cached
+        group.add(label);
       }
       this.add(group);
     }
@@ -369,22 +351,59 @@ class Grid extends THREE.Group {
     this.setVisible();
   }
 
-  createNumber(x, font) {
-    const label = trimTrailingZeros(x.toFixed(4));
-
-    if (this.geomCache[label]) {
-      return this.geomCache[label].clone();
+  createNumber(tick, font) {
+    if (this.geomCache[tick]) {
+      return this.geomCache[tick].clone();
     }
+    console.log("geom cache miss", tick);
 
-    const shape = font.generateShapes(label, 1);
+    const shape = font.generateShapes(tick, 1);
     var geom = new THREE.ShapeGeometry(shape);
 
     geom.computeBoundingBox();
     var xMid = -0.5 * (geom.boundingBox.max.x - geom.boundingBox.min.x);
     var yMid = -0.5 * (geom.boundingBox.max.y - geom.boundingBox.min.y);
     geom.translate(xMid, yMid, 0);
-    this.geomCache[label] = geom.clone();
+    this.geomCache[tick] = geom.clone();
     return geom;
+  }
+
+  createLabel(tick, geom, mat, x, i, horizontal) {
+    const key = `${tick}_${i}_${horizontal}`;
+    if (this.labelCache[key]) {
+      return this.labelCache[key].clone();
+    }
+    console.log("label cache miss", tick, i, horizontal);
+
+    const label = new THREE.Mesh(geom, mat);
+    const dir = i == 1 ? -1 : 1;
+
+    if (horizontal) {
+      if (i == 0) {
+        geom.rotateX(-Math.PI / 2);
+        geom.rotateY(Math.PI / 2);
+      } else if (i == 1) {
+        geom.rotateX(Math.PI / 2);
+        geom.rotateY(-Math.PI / 2);
+      } else {
+        geom.rotateX(Math.PI / 2);
+        geom.rotateY(-Math.PI / 2);
+      }
+      label.position.set(dir * x, 0, 0);
+    } else {
+      if (i == 0) {
+        geom.rotateX(-Math.PI / 2);
+      } else if (i == 1) {
+        geom.rotateX(-Math.PI / 2);
+        geom.rotateZ(Math.PI);
+      } else {
+        geom.rotateX(Math.PI / 2);
+      }
+      label.position.set(0, 0, dir * x);
+    }
+
+    this.labelCache[key] = label;
+    return label;
   }
 
   // https://stackoverflow.com/questions/4947682/intelligently-calculating-chart-tick-positions
