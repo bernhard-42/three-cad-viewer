@@ -25,6 +25,8 @@
     <script src="./examples/single-vertices.js"></script>
     <script src="./examples/box1.js"></script>
     <script src="./examples/boxes.js"></script>
+    <script src="./examples/box_uncentered_mm.js"></script>
+    <script src="./examples/box_uncentered_feet.js"></script>
     <script src="./examples/faces.js"></script>
     <script src="./examples/edges.js"></script>
     <script src="./examples/vertices.js"></script>
@@ -58,6 +60,8 @@
         profile4040,
         box1,
         boxes,
+        box_uncentered_mm,
+        box_uncentered_feet,
         faces,
         edges,
         vertices,
@@ -175,10 +179,11 @@
 
       const timeit = false;
       const timer = new Timer("main", timeit);
-
+      const w = 512;
+      const h = (w * 3) / 4;
       const displayOptions = {
-        cadWidth: 1200,
-        height: 900,
+        cadWidth: w,
+        height: h,
         treeWidth: 240,
         theme: "browser",
         pinning: false,
@@ -216,11 +221,12 @@
         ortho: true,
         ticks: 10,
         centerGrid: false,
+        gridFontSize: 12,
         // transparent: true,
         // blackEdges: true,
         // axes: true,
-        // axes0: true,
-        // grid: [true, false, true],
+        axes0: true,
+        grid: [true, false, false],
         timeit: true,
         // clipIntersection: false,
         // clipPlaneHelpers: false,
@@ -288,7 +294,7 @@
           window.selectedExample,
           structuredClone(examples[window.selectedIndex]),
         );
-
+        viewer.presetCamera("top");
         timer.stop();
 
         // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])
@@ -387,6 +393,8 @@
           <option value="profile4040">profile4040</option>
           <option value="box1">box1</option>
           <option value="boxes">boxes</option>
+          <option value="box_uncentered_mm">box_uncentered_mm</option>
+          <option value="box_uncentered_feet">box_uncentered_feet</option>
           <option value="faces">faces</option>
           <option value="edges">edges</option>
           <option value="vertices">vertices</option>

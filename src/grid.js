@@ -1,8 +1,5 @@
 import * as THREE from "three";
-import { Font } from "./fontloader/FontLoader.js";
-import { helvetiker } from "./font.js";
 import { deepDispose } from "./utils.js";
-import { abs } from "three/tsl";
 
 function capped_linear(px1, py1, px2, py2, x) {
   const m = (py2 - py1) / (px2 - px1);
@@ -159,8 +156,12 @@ class Grid extends THREE.Group {
     this.minFontIndex = Math.round(capped_linear(2, 14, 2000, 5, size));
     this.minZoomIndex = size < 10 ? -4 : -3; // zoomIndex from which on the labels are shown
 
+    this.canvasHeight = 128; // Fixed height for all label textures
+
     this.geomCache = {};
+    this.textureAspectRatios = {}; // Store aspect ratio per texture
     this.labelCache = {};
+    this.materialCache = {};
 
     this.colors = {
       dark: [
@@ -183,14 +184,15 @@ class Grid extends THREE.Group {
     const height = this.viewer.height;
     if (this.viewer.ortho) {
       // Decrease fontsize for small canvases
-      // 300px and below 70%
+      // 300px and below 80%
       // 800px and above 100%
       // linear in between
-      const fontsize = capped_linear(300, 0.7, 800, 1.0, height) * pixel;
+      const fontSize = capped_linear(300, 0.8, 800, 1.0, height) * pixel;
 
       const visibleWorldHeight = (camera.top - camera.bottom) / camera.zoom;
       const pixelsPerWorldUnit = height / visibleWorldHeight;
-      return fontsize / pixelsPerWorldUnit;
+
+      return fontSize / pixelsPerWorldUnit;
     } else {
       const fontSize = pixel;
       const camera = this.viewer.camera.getCamera();
@@ -224,7 +226,9 @@ class Grid extends THREE.Group {
       for (var i = 1; i < group.children.length; i++) {
         const label = group.children[i];
         var s = this.calculateTextScale(this.gridFontSize);
-        label.scale.setScalar(s);
+        // Sprites need to maintain their individual aspect ratios
+        const aspectRatio = label.userData.aspectRatio || 4; // fallback default
+        label.scale.set(s * aspectRatio, s, 1);
       }
     }
   }
@@ -245,7 +249,7 @@ class Grid extends THREE.Group {
     var zoomIndex = Math.round(Math.log2(zoom));
     if (Math.abs(zoomIndex) < 1e-6) zoomIndex = 0;
 
-    const threshold = this.viewer.ortho || this.viewer.centerGrid ? 5 : 3;
+    const threshold = this.viewer.ortho ? 5 : 3;
 
     if (
       force ||
@@ -303,7 +307,6 @@ class Grid extends THREE.Group {
       this.delta = this.size / this.ticks;
     }
     this.setTickInfo(this.delta / 2);
-    const font = new Font(helvetiker);
 
     for (var i = 0; i < 3; i++) {
       var group = new THREE.Group();
@@ -317,26 +320,23 @@ class Grid extends THREE.Group {
           this.theme == "dark" ? 0x7777777 : 0xbbbbbb,
         ),
       );
-      const mat = new THREE.LineBasicMaterial({
-        color:
-          this.theme === "dark"
-            ? new THREE.Color(0.5, 0.5, 0.5)
-            : new THREE.Color(0.3, 0.3, 0.3),
-        side: THREE.DoubleSide,
-      });
 
-      var geom;
       var label;
       for (var x = -this.size / 2; x <= this.size / 2; x += this.delta / 2) {
         if (Math.abs(x) < 1e-6) {
           continue;
         } // skip center label
+
         var x_fixed = trimTrailingZeros(x.toFixed(4));
-        geom = this.createNumber(x_fixed, font); //cached
-        label = this.createLabel(x_fixed, geom.clone(), mat, x, i, true); //cached
+        // Add '+' prefix for positive numbers
+        if (x > 0) {
+          x_fixed = "+" + x_fixed;
+        }
+
+        label = this.createLabel(x_fixed, x, i, true); //cached
         group.add(label);
 
-        label = this.createLabel(x_fixed, geom.clone(), mat, x, i, false); //cached
+        label = this.createLabel(x_fixed, x, i, false); //cached
         group.add(label);
       }
       this.add(group);
@@ -351,59 +351,147 @@ class Grid extends THREE.Group {
     this.setVisible();
   }
 
-  createNumber(tick, font) {
-    if (this.geomCache[tick]) {
-      return this.geomCache[tick].clone();
+  createTextTexture(text) {
+    if (this.geomCache[text]) {
+      return this.geomCache[text];
     }
-    console.log("geom cache miss", tick);
+    // console.log("texture cache miss", text);
 
-    const shape = font.generateShapes(tick, 1);
-    var geom = new THREE.ShapeGeometry(shape);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
 
-    geom.computeBoundingBox();
-    var xMid = -0.5 * (geom.boundingBox.max.x - geom.boundingBox.min.x);
-    var yMid = -0.5 * (geom.boundingBox.max.y - geom.boundingBox.min.y);
-    geom.translate(xMid, yMid, 0);
-    this.geomCache[tick] = geom.clone();
-    return geom;
+    const fontSize = this.gridFontSize * 12;
+    ctx.font = `500 ${fontSize}px Arial, sans-serif`;
+
+    // Measure text width to create appropriately sized canvas
+    const metrics = ctx.measureText(text);
+    const textWidth = metrics.width;
+    const padding = fontSize * 0.4; // Add padding around text
+
+    // Create canvas sized to fit the text (fixed height, dynamic width)
+    const canvasWidth = Math.round(textWidth + padding * 2);
+
+    canvas.width = canvasWidth;
+    canvas.height = this.canvasHeight;
+
+    // Need to reset font after canvas resize
+    ctx.font = `500 ${fontSize}px Arial, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    // Clear with fully transparent background
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    // Draw outline/stroke - thicker for small canvases
+    const strokeWidth = 6;
+    ctx.lineWidth = strokeWidth;
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = this.theme === "dark" ? "#000000" : "#ffffff";
+    ctx.strokeText(text, centerX, centerY);
+
+    // Draw main text on top
+    ctx.fillStyle = this.theme === "dark" ? "#cccccc" : "#333333";
+    ctx.fillText(text, centerX, centerY);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+
+    // Use nearest filtering for crisp text
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+    texture.anisotropy = this.viewer.renderer.capabilities.getMaxAnisotropy();
+    texture.premultiplyAlpha = false;
+
+    // Clamp to edge to prevent sampling artifacts at borders
+    texture.wrapS = THREE.ClampToEdgeWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+
+    // Store texture and its aspect ratio
+    this.geomCache[text] = texture;
+    this.textureAspectRatios[text] = canvasWidth / this.canvasHeight;
+
+    return texture;
   }
 
-  createLabel(tick, geom, mat, x, i, horizontal) {
+  createLabel(tick, x, i, horizontal) {
     const key = `${tick}_${i}_${horizontal}`;
     if (this.labelCache[key]) {
-      return this.labelCache[key].clone();
+      const cached = this.labelCache[key];
+      // Clone sprite - materials are shared per texture+plane+orientation
+      const sprite = new THREE.Sprite(cached.material);
+      sprite.position.copy(cached.position);
+      sprite.scale.copy(cached.scale);
+      sprite.userData.aspectRatio = cached.userData.aspectRatio;
+      return sprite;
     }
-    console.log("label cache miss", tick, i, horizontal);
+    // console.log("label cache miss", tick, i, horizontal);
 
-    const label = new THREE.Mesh(geom, mat);
-    const dir = i == 1 ? -1 : 1;
+    const texture = this.createTextTexture(tick);
+
+    // Determine rotation based on plane and axis
+    // All labels should be perpendicular to their axis to prevent overlap
+    // Ensure consistent rotation for each physical axis across all planes
+    let rotation = 0;
+    if (i === 0) {
+      // XY plane: X-axis (horizontal) = 90°, Y-axis (vertical) = 0° for perpendicular
+      rotation = horizontal ? Math.PI / 2 : 0;
+    } else if (i === 1) {
+      // XZ plane: Z-axis (horizontal) = 0°, X-axis (vertical) = 90° for perpendicular
+      rotation = horizontal ? 0 : Math.PI / 2;
+    } else {
+      // YZ plane: Y-axis (horizontal) = 0°, Z-axis (vertical) = 0° (match above)
+      rotation = 0;
+    }
+
+    // Create or reuse material based on texture and orientation
+    const materialKey = `${tick}_${i}_${horizontal}`;
+    let material = this.materialCache[materialKey];
+    if (!material) {
+      material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        depthTest: true,
+        depthWrite: false,
+        blending: THREE.NormalBlending,
+        rotation: rotation,
+      });
+      this.materialCache[materialKey] = material;
+    }
+
+    const sprite = new THREE.Sprite(material);
+
+    // Adjust direction based on plane and axis to fix flipped labels
+    let dir;
+    if (i === 0) {
+      // XY plane: vertical axis needs flip
+      dir = horizontal ? 1 : -1;
+    } else if (i === 1) {
+      // XZ plane: horizontal axis needs flip (opposite of XY)
+      dir = horizontal ? -1 : 1;
+    } else {
+      // YZ plane: no flip needed
+      dir = 1;
+    }
 
     if (horizontal) {
-      if (i == 0) {
-        geom.rotateX(-Math.PI / 2);
-        geom.rotateY(Math.PI / 2);
-      } else if (i == 1) {
-        geom.rotateX(Math.PI / 2);
-        geom.rotateY(-Math.PI / 2);
-      } else {
-        geom.rotateX(Math.PI / 2);
-        geom.rotateY(-Math.PI / 2);
-      }
-      label.position.set(dir * x, 0, 0);
+      sprite.position.set(dir * x, 0, 0);
     } else {
-      if (i == 0) {
-        geom.rotateX(-Math.PI / 2);
-      } else if (i == 1) {
-        geom.rotateX(-Math.PI / 2);
-        geom.rotateZ(Math.PI);
-      } else {
-        geom.rotateX(Math.PI / 2);
-      }
-      label.position.set(0, 0, dir * x);
+      sprite.position.set(0, 0, dir * x);
     }
 
-    this.labelCache[key] = label;
-    return label;
+    // Set initial scale using actual texture aspect ratio
+    const aspectRatio = this.textureAspectRatios[tick] || 4; // fallback default
+    sprite.scale.set(aspectRatio, 1, 1);
+
+    // Store aspect ratio on sprite for scaleLabels to use
+    sprite.userData.aspectRatio = aspectRatio;
+
+    this.labelCache[key] = sprite;
+    return sprite;
   }
 
   // https://stackoverflow.com/questions/4947682/intelligently-calculating-chart-tick-positions
@@ -529,12 +617,30 @@ class Grid extends THREE.Group {
   }
 
   clearCache() {
+    // Dispose textures from geomCache
     if (Object.keys(this.geomCache).length > 0) {
       for (var key of Object.keys(this.geomCache)) {
-        const geom = this.geomCache[key];
-        geom.dispose();
+        const texture = this.geomCache[key];
+        texture.dispose();
       }
-      this.geomCache = [];
+      this.geomCache = {};
+    }
+
+    // Clear texture aspect ratios
+    this.textureAspectRatios = {};
+
+    // Dispose materials from materialCache
+    if (this.materialCache && Object.keys(this.materialCache).length > 0) {
+      for (var key of Object.keys(this.materialCache)) {
+        const material = this.materialCache[key];
+        material.dispose();
+      }
+      this.materialCache = {};
+    }
+
+    // Clear labelCache (sprites reference shared materials, so no disposal needed here)
+    if (Object.keys(this.labelCache).length > 0) {
+      this.labelCache = {};
     }
   }
 

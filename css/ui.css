@@ -845,3 +845,18 @@ input[type="button"] {
 .tcv_filter_content {
   background-color: var(--tcv-bg-overlay-color);
 }
+
+.tcv_tick_size{
+  background-color: var(--tcv-bg-overlay-color);
+  border-radius: 4px;
+  padding:2px;
+  width:fit-content;
+  font-size: 12px;
+  margin-left:100px;
+  margin-top: -24px;
+  z-index: 1000;
+}
+
+.tcv_tick_size_value{
+  padding:3px;
+}
