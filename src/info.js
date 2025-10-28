@@ -50,10 +50,10 @@ class Info {
     );
   }
 
-  readyMsg(gridSize, control) {
+  readyMsg(version, control) {
     var html = `<div class="tcv_info_header">Ready</div>
             <table class="small_table">
-              <tr class="tcv_small_table_row" ><td>Tick size</td>  <td>${gridSize} mm</td> </tr>
+              <tr class="tcv_small_table_row" ><td>Version</td><td>${version}</td> </tr>
               <tr class="tcv_small_table_row" ><td>Control</td><td>${control}</td></tr>
               <tr class="tcv_small_table_row" ><td>Axes</td>
                 <td>
