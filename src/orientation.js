@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { AxesHelper } from "./axes.js";
 import { sceneTraverse } from "./utils.js";
-import { Font } from "./fontloader/FontLoader.js";
+import { Font } from "three/examples/jsm/loaders/FontLoader.js";
 import { helvetiker } from "./font.js";
 
 const length = 54;
