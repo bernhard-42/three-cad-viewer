@@ -438,8 +438,11 @@ class Display {
           this.setTheme("light");
         }
       });
+      const theme = this.mediaQuery.matches ? "dark" : "light";
+      this.setTheme(theme);
+    } else {
+      this.setTheme(this.theme);
     }
-    this.setTheme(this.theme);
 
     this._setupClickEvent("tcv_expand_root", this.handleCollapseNodes);
     this._setupClickEvent("tcv_collapse_singles", this.handleCollapseNodes);
