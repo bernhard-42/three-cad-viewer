@@ -148,6 +148,8 @@ class Grid extends THREE.Group {
     this.flipY = flipY;
     this.lastZoomIndex = 0;
     this.lastFontIndex = 50;
+    this.tickValue = this.viewer.display._getElement("tcv_tick_size_value");
+    this.info = this.viewer.display._getElement("tcv_tick_size");
 
     // The bounding box size is used to caclulate the font index from which
     // on the labels are shown. For small objects the font size is reduced
@@ -249,7 +251,6 @@ class Grid extends THREE.Group {
         zoomIndex < threshold &&
         zoomIndex > this.minZoomIndex)
     ) {
-      console.log("zoomIndex", zoomIndex, zoom);
       deepDispose(this.children);
       this.children = [];
 
@@ -275,7 +276,7 @@ class Grid extends THREE.Group {
     }
   }
 
-  create(nice = true) {
+  async create(nice = true) {
     // in case the bbox has the same size as the nice grid there should be
     // a margin bewteen grid and object. Hence factor 1.05
     if (nice) {
@@ -299,7 +300,7 @@ class Grid extends THREE.Group {
     } else {
       this.delta = this.size / this.ticks;
     }
-
+    this.setTickInfo(this.delta / 2);
     const font = new Font(helvetiker);
 
     for (var i = 0; i < 3; i++) {
@@ -493,6 +494,15 @@ class Grid extends THREE.Group {
     this.children.forEach((ch, i) => {
       ch.visible = this.grid[i];
     });
+    if (this.allGrid) {
+      this.info.style.display = "block";
+    } else {
+      this.info.style.display = "none";
+    }
+  }
+
+  setTickInfo() {
+    this.tickValue.innerText = trimTrailingZeros((this.delta / 2).toFixed(4));
   }
 
   getVisible() {
