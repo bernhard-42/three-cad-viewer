@@ -1438,6 +1438,14 @@ class Display {
         this.viewer.orientationMarker.changeTheme("dark");
         this.viewer.update(true);
       }
+      if (this.viewer.gridHelper) {
+        this.viewer.gridHelper.clearCache();
+        this.viewer.gridHelper.update(
+          this.viewer.getCameraZoom(),
+          true,
+          "dark",
+        );
+      }
       return "dark";
     } else {
       this.container.setAttribute("data-theme", "light");
@@ -1445,6 +1453,14 @@ class Display {
       if (this.viewer.orientationMarker) {
         this.viewer.orientationMarker.changeTheme("light");
         this.viewer.update(true);
+      }
+      if (this.viewer.gridHelper) {
+        this.viewer.gridHelper.clearCache();
+        this.viewer.gridHelper.update(
+          this.viewer.getCameraZoom(),
+          true,
+          "light",
+        );
       }
       return "light";
     }

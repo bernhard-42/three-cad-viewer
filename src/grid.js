@@ -155,8 +155,9 @@ class Grid extends THREE.Group {
     const size = bbox.max_dist_from_center();
     this.minFontIndex = Math.round(capped_linear(2, 14, 2000, 5, size));
     this.minZoomIndex = size < 10 ? -4 : -3; // zoomIndex from which on the labels are shown
+    this.zoomMaxIndex = size < 10 ? 4 : 5;
 
-    this.canvasHeight = 128; // Fixed height for all label textures
+    this.canvasHeight = 128; // Fixed height for all label textures (higher = crisper)
 
     this.geomCache = {};
     this.textureAspectRatios = {}; // Store aspect ratio per texture
@@ -182,41 +183,26 @@ class Grid extends THREE.Group {
   calculateTextScale(pixel) {
     const camera = this.viewer.camera.getCamera();
     const height = this.viewer.height;
-    if (this.viewer.ortho) {
-      // Decrease fontsize for small canvases
-      // 300px and below 80%
-      // 800px and above 100%
-      // linear in between
-      const fontSize = capped_linear(300, 0.8, 800, 1.0, height) * pixel;
 
+    // Decrease fontsize for small canvases
+    // 300px and below 80%
+    // 800px and above 100%
+    // linear in between
+    const fontSize = capped_linear(300, 0.8, 800, 1.0, height) * pixel;
+
+    if (this.viewer.ortho) {
+      // Ortho: convert pixel size to world units based on zoom
       const visibleWorldHeight = (camera.top - camera.bottom) / camera.zoom;
       const pixelsPerWorldUnit = height / visibleWorldHeight;
 
-      return fontSize / pixelsPerWorldUnit;
+      const scaleFactor = 1.7; // Adjust this to change ortho label size (1.0 = default, 2.0 = double)
+      return (fontSize / pixelsPerWorldUnit) * scaleFactor;
     } else {
-      const fontSize = pixel;
-      const camera = this.viewer.camera.getCamera();
-
-      // Calculate distance from camera to mesh
-      const pos = this.viewer.axes0
-        ? new THREE.Vector3()
-        : new THREE.Vector3(...this.bbox.center());
-
-      const camPos = camera.getWorldPosition(new THREE.Vector3());
-      var d = camPos.distanceTo(pos);
-      if (!this.viewer.centerGrid) {
-        d += 2 * this.bbox.max_dist_from_center();
-      }
-
-      // Compute visible world height at that distance
-      const fovRad = (camera.fov * Math.PI) / 180; // convert to radians
-      const visibleWorldHeight = 2 * d * Math.tan(fovRad / 2);
-
-      // Pixels per world unit
-      const pixelsPerUnit = height / visibleWorldHeight;
-
-      // Return the scale needed for desired screen height
-      return fontSize / pixelsPerUnit;
+      // Perspective with sizeAttenuation: false
+      // Scale is in normalized device coordinates (screen space)
+      // Scale of 1.0 = full viewport height
+      const scaleFactor = 0.65; // Adjust this to change label size (0.1 = smaller, 2.0 = larger)
+      return (fontSize / height) * scaleFactor;
     }
   }
 
@@ -243,27 +229,27 @@ class Grid extends THREE.Group {
     }
   }
 
-  update(zoom, force = false) {
+  async update(zoom, force = false, theme = null) {
     if (!this.getVisible()) return;
 
-    var zoomIndex = Math.round(Math.log2(zoom));
+    // We got called from the change theme handler
+    if (theme) this.theme = theme;
+
+    var zoomIndex = Math.round(Math.log2(0.5 * zoom));
     if (Math.abs(zoomIndex) < 1e-6) zoomIndex = 0;
-
-    const threshold = this.viewer.ortho ? 5 : 3;
-
     if (
       force ||
       (zoomIndex != this.lastZoomIndex &&
-        zoomIndex < threshold &&
+        zoomIndex < this.zoomMaxIndex &&
         zoomIndex > this.minZoomIndex)
     ) {
       deepDispose(this.children);
       this.children = [];
 
       const halfTicks = (this.ticks0 / 2) * 2 ** zoomIndex;
-      this.ticks = 2 * halfTicks;
+      this.ticks = Math.round(2 * halfTicks);
 
-      this.create(false);
+      await this.create(false);
 
       this.lastZoomIndex = zoomIndex;
       force = true; // when grid is created newly, ensure font sizing is executed, too
@@ -271,11 +257,14 @@ class Grid extends THREE.Group {
 
     const fontIndex = Math.round(zoom * 50);
     if (force || fontIndex != this.lastFontIndex) {
-      // console.log("fontIndex", fontIndex, zoom);
       if (fontIndex < this.minFontIndex) {
         this.showLabels(false);
       } else {
-        this.scaleLabels();
+        // Only update scale in ortho mode
+        // In perspective, sizeAttenuation handles scaling automatically
+        if (this.viewer.ortho) {
+          this.scaleLabels();
+        }
         this.showLabels(true);
       }
       this.lastFontIndex = fontIndex;
@@ -346,6 +335,7 @@ class Grid extends THREE.Group {
     this.children[2].rotateZ(Math.PI / 2);
 
     this.setCenter(this.axes0, this.flipY);
+    // Set initial scale (required for both modes)
     this.scaleLabels();
     this.setCenter(this.viewer.axes0, this.flipY);
     this.setVisible();
@@ -360,19 +350,23 @@ class Grid extends THREE.Group {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
-    const fontSize = this.gridFontSize * 12;
+    // Use consistent high-quality settings regardless of text length
+    const fontSize = 80;
+    const strokeWidth = this.theme === "dark" ? 6 : 10;
+
     ctx.font = `500 ${fontSize}px Arial, sans-serif`;
 
     // Measure text width to create appropriately sized canvas
     const metrics = ctx.measureText(text);
     const textWidth = metrics.width;
-    const padding = fontSize * 0.4; // Add padding around text
+    const padding = 20;
 
-    // Create canvas sized to fit the text (fixed height, dynamic width)
+    // Dynamic width for long text, consistent height for quality
     const canvasWidth = Math.round(textWidth + padding * 2);
+    const canvasHeight = this.canvasHeight;
 
     canvas.width = canvasWidth;
-    canvas.height = this.canvasHeight;
+    canvas.height = canvasHeight;
 
     // Need to reset font after canvas resize
     ctx.font = `500 ${fontSize}px Arial, sans-serif`;
@@ -385,15 +379,17 @@ class Grid extends THREE.Group {
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
 
-    // Draw outline/stroke - thicker for small canvases
-    const strokeWidth = 6;
+    // Draw outline/stroke using actual canvas background color
     ctx.lineWidth = strokeWidth;
     ctx.lineJoin = "round";
-    ctx.strokeStyle = this.theme === "dark" ? "#000000" : "#ffffff";
+    ctx.miterLimit = 2;
+
+    ctx.strokeStyle = this.theme === "dark" ? "#444444" : "#cccccc";
+
     ctx.strokeText(text, centerX, centerY);
 
     // Draw main text on top
-    ctx.fillStyle = this.theme === "dark" ? "#cccccc" : "#333333";
+    ctx.fillStyle = this.theme === "dark" ? "#aaaaaa" : "#333333";
     ctx.fillText(text, centerX, centerY);
 
     const texture = new THREE.CanvasTexture(canvas);
@@ -412,7 +408,7 @@ class Grid extends THREE.Group {
 
     // Store texture and its aspect ratio
     this.geomCache[text] = texture;
-    this.textureAspectRatios[text] = canvasWidth / this.canvasHeight;
+    this.textureAspectRatios[text] = canvasWidth / canvasHeight;
 
     return texture;
   }
@@ -458,6 +454,7 @@ class Grid extends THREE.Group {
         depthWrite: false,
         blending: THREE.NormalBlending,
         rotation: rotation,
+        sizeAttenuation: false, // Disable distance scaling - maintain constant screen size
       });
       this.materialCache[materialKey] = material;
     }
