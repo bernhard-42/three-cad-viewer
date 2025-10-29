@@ -195,13 +195,13 @@ class Grid extends THREE.Group {
       const visibleWorldHeight = (camera.top - camera.bottom) / camera.zoom;
       const pixelsPerWorldUnit = height / visibleWorldHeight;
 
-      const scaleFactor = 1.7; // Adjust this to change ortho label size (1.0 = default, 2.0 = double)
+      const scaleFactor = 1.6; // Adjust this to change ortho label size (1.0 = default, 2.0 = double)
       return (fontSize / pixelsPerWorldUnit) * scaleFactor;
     } else {
       // Perspective with sizeAttenuation: false
       // Scale is in normalized device coordinates (screen space)
       // Scale of 1.0 = full viewport height
-      const scaleFactor = 0.65; // Adjust this to change label size (0.1 = smaller, 2.0 = larger)
+      const scaleFactor = 0.6; // Adjust this to change label size (0.1 = smaller, 2.0 = larger)
       return (fontSize / height) * scaleFactor;
     }
   }
@@ -358,11 +358,9 @@ class Grid extends THREE.Group {
     const fontSize = 80;
     const strokeWidth = 12;
 
-    // Enable high-quality rendering
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-
-    ctx.font = `560 ${fontSize}px Arial, sans-serif`;
+    const weight = this.theme === "dark" ? "500" : "520";
+    const font = `${weight} ${fontSize}px Verdana, Arial, sans-serif`;
+    ctx.font = font;
 
     // Measure text width to create appropriately sized canvas
     const metrics = ctx.measureText(text);
@@ -377,9 +375,11 @@ class Grid extends THREE.Group {
     canvas.height = canvasHeight;
 
     // Need to reset context properties after canvas resize
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.font = `560 ${fontSize}px Arial, sans-serif`;
+    // ctx.imageSmoothingEnabled = true;
+    // ctx.imageSmoothingQuality = "high";
+    ctx.textRendering = "optimizeLegibility";
+
+    ctx.font = font;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
@@ -402,6 +402,10 @@ class Grid extends THREE.Group {
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
+
+    // Use LinearSRGBColorSpace for light theme, SRGBColorSpace for dark theme
+    texture.colorSpace =
+      this.theme === "dark" ? THREE.SRGBColorSpace : THREE.LinearSRGBColorSpace;
 
     // Use nearest filtering for crisp text
     texture.minFilter = THREE.LinearFilter;
