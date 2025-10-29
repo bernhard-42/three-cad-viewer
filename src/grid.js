@@ -358,7 +358,7 @@ class Grid extends THREE.Group {
     const fontSize = 80;
     const strokeWidth = 12;
 
-    const weight = this.theme === "dark" ? "500" : "520";
+    const weight = this.theme === "dark" ? "500" : "560";
     const font = `${weight} ${fontSize}px Verdana, Arial, sans-serif`;
     ctx.font = font;
 
