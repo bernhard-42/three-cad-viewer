@@ -348,13 +348,21 @@ class Grid extends THREE.Group {
     // console.log("texture cache miss", text);
 
     const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", {
+      alpha: true,
+      desynchronized: false,
+      willReadFrequently: false,
+    });
 
     // Use consistent high-quality settings regardless of text length
     const fontSize = 80;
-    const strokeWidth = this.theme === "dark" ? 6 : 10;
+    const strokeWidth = 12;
 
-    ctx.font = `500 ${fontSize}px Arial, sans-serif`;
+    // Enable high-quality rendering
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
+    ctx.font = `560 ${fontSize}px Arial, sans-serif`;
 
     // Measure text width to create appropriately sized canvas
     const metrics = ctx.measureText(text);
@@ -368,8 +376,10 @@ class Grid extends THREE.Group {
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
-    // Need to reset font after canvas resize
-    ctx.font = `500 ${fontSize}px Arial, sans-serif`;
+    // Need to reset context properties after canvas resize
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.font = `560 ${fontSize}px Arial, sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
@@ -383,9 +393,7 @@ class Grid extends THREE.Group {
     ctx.lineWidth = strokeWidth;
     ctx.lineJoin = "round";
     ctx.miterLimit = 2;
-
-    ctx.strokeStyle = this.theme === "dark" ? "#444444" : "#cccccc";
-
+    ctx.strokeStyle = this.theme === "dark" ? "#444444" : "#ffffff";
     ctx.strokeText(text, centerX, centerY);
 
     // Draw main text on top
