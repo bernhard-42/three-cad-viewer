@@ -218,14 +218,14 @@
 
       const viewerOptions = {
         ortho: true,
-        ticks: 10,
+        ticks: 8,
         centerGrid: false,
         gridFontSize: 12,
         // transparent: true,
         // blackEdges: true,
         // axes: true,
         // axes0: true,
-        grid: [true, false, false],
+        // grid: [true, true, true],
         timeit: true,
         // clipIntersection: false,
         // clipPlaneHelpers: false,
@@ -235,7 +235,6 @@
         // clipSlider0: 20,
         // clipSlider1: 10,
         // clipSlider2: 30,
-        ticks: 10,
         rotateSpeed: 1.0,
         zoomSpeed: 0.5,
         panSpeed: 0.5,
@@ -293,7 +292,7 @@
           window.selectedExample,
           structuredClone(examples[window.selectedIndex]),
         );
-        viewer.presetCamera("top");
+        //viewer.presetCamera("top");
         timer.stop();
 
         // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])
