@@ -1517,9 +1517,11 @@ class Viewer {
     this.display.setOrthoCheck(flag);
 
     this.checkChanges({ ortho: flag }, notify);
-    this.update(true, notify);
+
     this.gridHelper.scaleLabels();
     this.gridHelper.update(this.camera.getZoom(), true);
+
+    this.update(true, notify);
   }
 
   /**
