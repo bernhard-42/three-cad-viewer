@@ -73,7 +73,11 @@ class Display {
     this.cadTools = this._getElement("tcv_cad_tools");
 
     this.cadHelp = this._getElement("tcv_cad_help");
-
+    listeners.add(this.cadHelp, "contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    });
     this.planeLabels = [];
     for (var i = 1; i < 4; i++) {
       this.planeLabels.push(this._getElement(`tcv_lbl_norm_plane${i}`));
