@@ -132,7 +132,7 @@ class Grid extends THREE.Group {
     super();
 
     if (ticks === undefined) {
-      ticks = 8;
+      ticks = 5;
     }
     this.ticks = ticks;
     this.gridFontSize = gridFontSize;
@@ -149,13 +149,15 @@ class Grid extends THREE.Group {
     this.tickValue = this.viewer.display._getElement("tcv_tick_size_value");
     this.info = this.viewer.display._getElement("tcv_tick_size");
 
-    // The bounding box size is used to caclulate the font index from which
-    // on the labels are shown. For small objects the font size is reduced
-    // to avoid that the labels are larger than the object.
+    // Heuristics, experimentally determined
     const size = bbox.max_dist_from_center();
-    this.minFontIndex = Math.round(capped_linear(2, 14, 2000, 5, size));
-    this.minZoomIndex = size < 10 ? -4 : -3; // zoomIndex from which on the labels are shown
-    this.zoomMaxIndex = size < 10 ? 4 : 5;
+    const canvasSize = Math.min(this.viewer.cadWidth, this.viewer.height);
+    const scale = Math.max(1.0, 6 - Math.log2(canvasSize / 100));
+    this.minFontIndex = Math.round(
+      (size < 2 ? 6 : size < 1000 ? 5 : 3) * scale,
+    );
+    this.minZoomIndex = -4;
+    this.zoomMaxIndex = 5;
 
     this.canvasHeight = 128; // Fixed height for all label textures (higher = crisper)
 
@@ -235,7 +237,8 @@ class Grid extends THREE.Group {
     // We got called from the change theme handler
     if (theme) this.theme = theme;
 
-    var zoomIndex = Math.round(Math.log2(0.5 * zoom));
+    var zoomIndex = Math.round(Math.log2(0.4 * zoom));
+
     if (Math.abs(zoomIndex) < 1e-6) zoomIndex = 0;
     if (
       force ||
@@ -256,6 +259,7 @@ class Grid extends THREE.Group {
     }
 
     const fontIndex = Math.round(zoom * 50);
+    // console.log(fontIndex, zoomIndex);
     if (force || fontIndex != this.lastFontIndex) {
       if (fontIndex < this.minFontIndex) {
         this.showLabels(false);
