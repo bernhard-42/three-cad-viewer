@@ -442,10 +442,6 @@ class Display {
           this.setTheme("light");
         }
       });
-      const theme = this.mediaQuery.matches ? "dark" : "light";
-      this.setTheme(theme);
-    } else {
-      this.setTheme(this.theme);
     }
 
     this._setupClickEvent("tcv_expand_root", this.handleCollapseNodes);
