@@ -1447,6 +1447,7 @@ class Viewer {
 
     this.update(true, false);
     this.treeview.update();
+    this.display.setTheme(this.theme);
 
     timer.split("update done");
     timer.stop();
