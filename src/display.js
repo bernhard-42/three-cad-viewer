@@ -556,7 +556,13 @@ class Display {
       this.cadView.replaceChild(cadView, canvas);
     } else {
       this.cadView.appendChild(cadView);
+      canvas = this.cadView.querySelector("canvas");
     }
+    listeners.add(canvas, "click", (e) => {
+      if (this.help_shown) {
+        this.showHelp(false);
+      }
+    });
   }
 
   /**
