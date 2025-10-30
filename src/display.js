@@ -1445,7 +1445,6 @@ class Display {
       document.body.setAttribute("data-theme", "dark");
       if (this.viewer.orientationMarker) {
         this.viewer.orientationMarker.changeTheme("dark");
-        this.viewer.update(true);
       }
       if (this.viewer.gridHelper) {
         this.viewer.gridHelper.clearCache();
@@ -1455,13 +1454,13 @@ class Display {
           "dark",
         );
       }
+      this.viewer.update(true);
       return "dark";
     } else {
       this.container.setAttribute("data-theme", "light");
       document.body.setAttribute("data-theme", "light");
       if (this.viewer.orientationMarker) {
         this.viewer.orientationMarker.changeTheme("light");
-        this.viewer.update(true);
       }
       if (this.viewer.gridHelper) {
         this.viewer.gridHelper.clearCache();
@@ -1471,6 +1470,7 @@ class Display {
           "light",
         );
       }
+      this.viewer.update(true);
       return "light";
     }
   }
