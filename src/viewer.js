@@ -88,7 +88,7 @@ class Viewer {
 
     // setup renderer
     this.renderer = new THREE.WebGLRenderer({
-      alpha: !this.dark,
+      alpha: true,
       antialias: true,
       stencil: true,
     });
