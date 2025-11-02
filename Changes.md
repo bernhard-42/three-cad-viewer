@@ -1,5 +1,32 @@
 # Change log
 
+## v3.6.2
+
+**Features**
+
+- Dynamic theme support
+    - Grid now scales dynamically based on zoom level
+    - Beautified grid with dashes and different colors for better visual clarity
+    - Enhanced grid font rendering with improved axis label readability
+    - New paramter "gridFontSize" with default 12
+- Viewer now automatically reacts to theme changes from the browser or OS
+- Add viewer version to ready message for better debugging
+- Introduced EventListenerManager for better event disposal
+- Allow clicking on canvas to close help dialog
+- Settle on FOV 22 and improve perspective camera settings
+
+**Fixes**
+
+- Theme handling
+    - Remove wrong theme setting and 'dark' property
+    - Set initial theme properly on viewer initialization
+    - Ensure body background is theme sensitive
+- Remove context menu from help dialog 
+- Make keymap routine more robust
+- Improve heuristics for various viewer operations
+- Add overflow hidden to body tag to prevent scrolling issues
+- Bump version of three.js to 0.180.0
+  
 ## v3.6.1
 
 **Features**
