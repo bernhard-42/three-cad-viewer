@@ -449,14 +449,14 @@ class Grid extends THREE.Group {
     // Ensure consistent rotation for each physical axis across all planes
     let rotation = 0;
     if (i === 0) {
-      // XY plane: X-axis (horizontal) = 90°, Y-axis (vertical) = 0° for perpendicular
-      rotation = horizontal ? Math.PI / 2 : 0;
-    } else if (i === 1) {
-      // XZ plane: Z-axis (horizontal) = 0°, X-axis (vertical) = 90° for perpendicular
-      rotation = horizontal ? 0 : Math.PI / 2;
-    } else {
-      // YZ plane: Y-axis (horizontal) = 0°, Z-axis (vertical) = 0° (match above)
+      // XY plane: X-axis (horizontal) = 0°, Y-axis (vertical) = 0° for perpendicular
       rotation = 0;
+    } else if (i === 1) {
+      // XZ plane: Z-axis (horizontal) = 90°, X-axis (vertical) = 0° for perpendicular
+      rotation = horizontal ? Math.PI / 2 : 0;
+    } else {
+      // YZ plane: Y-axis (horizontal) = 0°, Z-axis (vertical) = 90° (match above)
+      rotation = horizontal ? 0 : Math.PI / 2;
     }
 
     // Create or reuse material based on texture and orientation
