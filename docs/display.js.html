@@ -26,8 +26,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import { getIconBackground, getIconSvg } from "./icons.js";
-import { KeyMapper } from "./utils.js";
+            <pre class="prettyprint source linenums"><code>import { KeyMapper, EventListenerManager } from "./utils.js";
 import { Slider } from "./slider.js";
 import { Toolbar, Button, ClickButton, Ellipsis } from "./toolbar.js";
 import { ToolTypes } from "./cad_tools/tools.js";
@@ -54,6 +53,8 @@ function px(val) {
 }
 
 const buttons = ["plane", "play", "pause", "stop"];
+
+const listeners = new EventListenerManager();
 
 class Display {
   /**
@@ -100,7 +101,11 @@ class Display {
     this.cadTools = this._getElement("tcv_cad_tools");
 
     this.cadHelp = this._getElement("tcv_cad_help");
-
+    listeners.add(this.cadHelp, "contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    });
     this.planeLabels = [];
     for (var i = 1; i &lt; 4; i++) {
       this.planeLabels.push(this._getElement(`tcv_lbl_norm_plane${i}`));
@@ -126,29 +131,10 @@ class Display {
 
     this.lastPlaneState = false;
 
-    var theme;
-    if (
-      options.theme === "dark" ||
-      (options.theme == "browser" &amp;&amp;
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      this.container.setAttribute("data-theme", "dark");
-      theme = "dark";
-    } else {
-      this.container.setAttribute("data-theme", "light");
-      theme = "light";
-    }
+    const theme = options.theme;
+    this.theme = theme;
 
-    for (var btn of buttons) {
-      var elements = this.container.getElementsByClassName(`tcv_${btn}`);
-      for (i = 0; i &lt; elements.length; i++) {
-        var el = elements[i];
-        el.setAttribute(
-          "style",
-          `background-image: ${getIconBackground(theme, btn)}`,
-        );
-      }
-    }
+    this.setButtonBackground(theme);
 
     this.toolbarButtons = {};
 
@@ -290,7 +276,7 @@ class Display {
       this.cadTool.addButton(this.toolbarButtons["zscale"], -1);
       this.showZScale(false);
       const el = this._getElement("tcv_zscale_slider");
-      el.addEventListener("change", (e) => {
+      listeners.add(el, "change", (e) => {
         this.zScale = parseInt(e.target.value);
         this.viewer.setZscaleValue(e.target.value);
       });
@@ -335,7 +321,7 @@ class Display {
       this.toolbarButtons["select"],
     ]);
 
-    document.addEventListener("keydown", (e) => {
+    listeners.add(document, "keydown", (e) => {
       if (e.key === "Escape" &amp;&amp; this.help_shown) {
         e.preventDefault();
         this.showHelp(false);
@@ -363,11 +349,16 @@ class Display {
       this.toggleHelp,
     );
     this.cadTool.addButton(this.toolbarButtons["help"], -1);
+  }
 
-    this.infoIcons = {
-      right: getIconSvg(theme, "nav_closed"),
-      down: getIconSvg(theme, "nav_open"),
-    };
+  setButtonBackground(theme) {
+    for (var btn of buttons) {
+      var elements = this.container.getElementsByClassName(`tcv_${btn}`);
+      for (var i = 0; i &lt; elements.length; i++) {
+        var el = elements[i];
+        el.classList.add(`tcv_button_${btn}`);
+      }
+    }
   }
 
   widthThreshold() {
@@ -380,7 +371,7 @@ class Display {
 
   _setupCheckEvent(name, fn, flag) {
     const el = this._getElement(name);
-    el.addEventListener("change", fn);
+    listeners.add(el, "change", fn);
     if (flag != undefined) {
       el.checked = flag;
     }
@@ -390,7 +381,7 @@ class Display {
   // eslint-disable-next-line no-unused-vars
   _setupClickEvent(name, fn, flag) {
     const el = this._getElement(name);
-    el.addEventListener("click", fn);
+    listeners.add(el, "click", fn);
     this._events.push(["click", name, fn]);
   }
 
@@ -404,6 +395,8 @@ class Display {
   }
 
   dispose() {
+    listeners.dispose();
+
     this.viewer = undefined;
 
     this.cadTree.innerHTML = "";
@@ -467,6 +460,18 @@ class Display {
   setupUI(viewer) {
     this.viewer = viewer;
 
+    // Theme
+    if (this.theme === "browser") {
+      this.mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      listeners.add(this.mediaQuery, "change", (event) => {
+        if (event.matches) {
+          this.setTheme("dark");
+        } else {
+          this.setTheme("light");
+        }
+      });
+    }
+
     this._setupClickEvent("tcv_expand_root", this.handleCollapseNodes);
     this._setupClickEvent("tcv_collapse_singles", this.handleCollapseNodes);
     this._setupClickEvent("tcv_collapse_all", this.handleCollapseNodes);
@@ -521,7 +526,7 @@ class Display {
       "tcv_animation_slider",
     )[0];
     this.animationSlider.value = 0;
-    this.animationSlider.addEventListener("input", this.animationChange);
+    listeners.add(this.animationSlider, "input", this.animationChange);
     this.showAnimationControl(false);
 
     this.showHelp(false);
@@ -579,7 +584,13 @@ class Display {
       this.cadView.replaceChild(cadView, canvas);
     } else {
       this.cadView.appendChild(cadView);
+      canvas = this.cadView.querySelector("canvas");
     }
+    listeners.add(canvas, "click", (e) => {
+      if (this.help_shown) {
+        this.showHelp(false);
+      }
+    });
   }
 
   /**
@@ -1363,10 +1374,7 @@ class Display {
    */
   showInfo = (flag) => {
     this.cadInfo.parentNode.parentNode.style.display = flag ? "block" : "none";
-    // this._getElement("tcv_toggle_info").value = flag ? "\u25B2 i" : "\u25BC i";
-    this._getElement("tcv_toggle_info").innerHTML = flag
-      ? `${this.infoIcons["down"]}`
-      : `${this.infoIcons["right"]}`;
+    this._getElement("tcv_toggle_info").innerHTML = flag ? "\u25BE" : "\u25B8";
     this.info_shown = flag;
   };
 
@@ -1442,15 +1450,57 @@ class Display {
   updateHelp(before, after) {
     const help = this._getElement("tcv_cad_help_layout");
     for (var k in before) {
-      help.innerHTML = help.innerHTML.replaceAll(
-        "&amp;lt;" + before[k].slice(0, -3) + "&amp;gt;",
-        "&amp;lt;_" + after[k].slice(0, -3) + "&amp;gt;",
-      );
+      if (before[k] &amp;&amp; after[k]) {
+        help.innerHTML = help.innerHTML.replaceAll(
+          "&amp;lt;" + before[k].slice(0, -3) + "&amp;gt;",
+          "&amp;lt;_" + after[k].slice(0, -3) + "&amp;gt;",
+        );
+      }
     }
     help.innerHTML = help.innerHTML.replaceAll("_shift", "shift");
     help.innerHTML = help.innerHTML.replaceAll("_ctrl", "ctrl");
     help.innerHTML = help.innerHTML.replaceAll("_alt", "alt");
     help.innerHTML = help.innerHTML.replaceAll("_meta", "meta");
+  }
+
+  setTheme(theme) {
+    if (
+      theme === "dark" ||
+      (theme == "browser" &amp;&amp;
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      this.container.setAttribute("data-theme", "dark");
+      document.body.setAttribute("data-theme", "dark");
+      if (this.viewer.orientationMarker) {
+        this.viewer.orientationMarker.changeTheme("dark");
+      }
+      if (this.viewer.gridHelper) {
+        this.viewer.gridHelper.clearCache();
+        this.viewer.gridHelper.update(
+          this.viewer.getCameraZoom(),
+          true,
+          "dark",
+        );
+      }
+      this.viewer.update(true);
+      return "dark";
+    } else {
+      this.container.setAttribute("data-theme", "light");
+      document.body.setAttribute("data-theme", "light");
+      if (this.viewer.orientationMarker) {
+        this.viewer.orientationMarker.changeTheme("light");
+      }
+      if (this.viewer.gridHelper) {
+        this.viewer.gridHelper.clearCache();
+        this.viewer.gridHelper.update(
+          this.viewer.getCameraZoom(),
+          true,
+          "light",
+        );
+      }
+      this.viewer.update(true);
+      return "light";
+    }
   }
 }
 
@@ -1471,7 +1521,7 @@ export { Display };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Sep 02 2025 12:42:49 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Nov 04 2025 17:14:01 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -3,7 +3,7 @@
  * Copyright 2010-2025 Three.js Authors
  * SPDX-License-Identifier: MIT
  */
-const REVISION = '179';
+const REVISION = '180';
 
 /**
  * Represents mouse buttons and interaction types in context of controls.
@@ -725,6 +725,14 @@ const UnsignedInt248Type = 1020;
  * @constant
  */
 const UnsignedInt5999Type = 35902;
+
+/**
+ * An unsigned int 10_11_11 (packed) data type for textures.
+ *
+ * @type {number}
+ * @constant
+ */
+const UnsignedInt101111Type = 35899;
 
 /**
  * Discards the red, green and blue components and reads just the alpha component.
@@ -1667,8 +1675,8 @@ const InterpolationSamplingMode = {
  * @property {string} NORMAL - Normal sampling mode.
  * @property {string} CENTROID - Centroid sampling mode.
  * @property {string} SAMPLE - Sample-specific sampling mode.
- * @property {string} FLAT_FIRST - Flat interpolation using the first vertex.
- * @property {string} FLAT_EITHER - Flat interpolation using either vertex.
+ * @property {string} FIRST - Flat interpolation using the first vertex.
+ * @property {string} EITHER - Flat interpolation using either vertex.
  */
 
 /**
@@ -6312,7 +6320,7 @@ function createColorManagement() {
 		 *	- luminanceCoefficients: RGB luminance coefficients
 		 *
 		 * Optional:
-		 *  - outputColorSpaceConfig: { drawingBufferColorSpace: ColorSpace }
+		 *  - outputColorSpaceConfig: { drawingBufferColorSpace: ColorSpace, toneMappingMode: 'extended' | 'standard' }
 		 *  - workingColorSpaceConfig: { unpackColorSpace: ColorSpace }
 		 *
 		 * Reference:
@@ -6378,6 +6386,12 @@ function createColorManagement() {
 			if ( colorSpace === NoColorSpace ) return LinearTransfer;
 
 			return this.spaces[ colorSpace ].transfer;
+
+		},
+
+		getToneMappingMode: function ( colorSpace ) {
+
+			return this.spaces[ colorSpace ].outputColorSpaceConfig.toneMappingMode || 'standard';
 
 		},
 
@@ -6701,7 +6715,7 @@ class Source {
 
 		const data = this.data;
 
-		if ( data instanceof HTMLVideoElement ) {
+		if ( ( typeof HTMLVideoElement !== 'undefined' ) && ( data instanceof HTMLVideoElement ) ) {
 
 			target.set( data.videoWidth, data.videoHeight, 0 );
 
@@ -16912,6 +16926,18 @@ class Material extends EventDispatcher {
 
 		}
 
+		if ( this.sheenColorMap && this.sheenColorMap.isTexture ) {
+
+			data.sheenColorMap = this.sheenColorMap.toJSON( meta ).uuid;
+
+		}
+
+		if ( this.sheenRoughnessMap && this.sheenRoughnessMap.isTexture ) {
+
+			data.sheenRoughnessMap = this.sheenRoughnessMap.toJSON( meta ).uuid;
+
+		}
+
 		if ( this.dispersion !== undefined ) data.dispersion = this.dispersion;
 
 		if ( this.iridescence !== undefined ) data.iridescence = this.iridescence;
@@ -18869,7 +18895,7 @@ class BufferGeometry extends EventDispatcher {
 		/**
 		 * Bounding box for the geometry which can be calculated with `computeBoundingBox()`.
 		 *
-		 * @type {Box3}
+		 * @type {?Box3}
 		 * @default null
 		 */
 		this.boundingBox = null;
@@ -18877,7 +18903,7 @@ class BufferGeometry extends EventDispatcher {
 		/**
 		 * Bounding sphere for the geometry which can be calculated with `computeBoundingSphere()`.
 		 *
-		 * @type {Sphere}
+		 * @type {?Sphere}
 		 * @default null
 		 */
 		this.boundingSphere = null;
@@ -24151,7 +24177,7 @@ class Sprite extends Object3D {
 	/**
 	 * Constructs a new sprite.
 	 *
-	 * @param {SpriteMaterial} [material] - The sprite material.
+	 * @param {(SpriteMaterial|SpriteNodeMaterial)} [material] - The sprite material.
 	 */
 	constructor( material = new SpriteMaterial() ) {
 
@@ -24197,7 +24223,7 @@ class Sprite extends Object3D {
 		/**
 		 * The sprite material.
 		 *
-		 * @type {SpriteMaterial}
+		 * @type {(SpriteMaterial|SpriteNodeMaterial)}
 		 */
 		this.material = material;
 
@@ -24526,7 +24552,7 @@ class LOD extends Object3D {
 	 * the given distance.
 	 *
 	 * @param {number} distance - The LOD distance.
-	 * @return {Object3D|null} The found 3D object. `null` if no 3D object has been found.
+	 * @return {?Object3D} The found 3D object. `null` if no 3D object has been found.
 	 */
 	getObjectForDistance( distance ) {
 
@@ -27805,7 +27831,7 @@ class BatchedMesh extends Mesh {
 	 *
 	 * @param {number} geometryId - The ID of the geometry to return the bounding box for.
 	 * @param {Box3} target - The target object that is used to store the method's result.
-	 * @return {Box3|null} The geometry's bounding box. Returns `null` if no geometry has been found for the given ID.
+	 * @return {?Box3} The geometry's bounding box. Returns `null` if no geometry has been found for the given ID.
 	 */
 	getBoundingBoxAt( geometryId, target ) {
 
@@ -27850,7 +27876,7 @@ class BatchedMesh extends Mesh {
 	 *
 	 * @param {number} geometryId - The ID of the geometry to return the bounding sphere for.
 	 * @param {Sphere} target - The target object that is used to store the method's result.
-	 * @return {Sphere|null} The geometry's bounding sphere. Returns `null` if no geometry has been found for the given ID.
+	 * @return {?Sphere} The geometry's bounding sphere. Returns `null` if no geometry has been found for the given ID.
 	 */
 	getBoundingSphereAt( geometryId, target ) {
 
@@ -29484,9 +29510,6 @@ class VideoTexture extends Texture {
 
 	}
 
-	/**
-	 * @override
-	 */
 	dispose() {
 
 		if ( this._requestVideoFrameCallbackId !== 0 ) {
@@ -29999,6 +30022,59 @@ class DepthTexture extends Texture {
 		if ( this.compareFunction !== null ) data.compareFunction = this.compareFunction;
 
 		return data;
+
+	}
+
+}
+
+/**
+ * Represents a texture created externally with the same renderer context.
+ *
+ * This may be a texture from a protected media stream, device camera feed,
+ * or other data feeds like a depth sensor.
+ *
+ * Note that this class is only supported in {@link WebGLRenderer}, and in
+ * the {@link WebGPURenderer} WebGPU backend.
+ *
+ * @augments Texture
+ */
+class ExternalTexture extends Texture {
+
+	/**
+	 * Creates a new raw texture.
+	 *
+	 * @param {?(WebGLTexture|GPUTexture)} [sourceTexture=null] - The external texture.
+	 */
+	constructor( sourceTexture = null ) {
+
+		super();
+
+		/**
+		 * The external source texture.
+		 *
+		 * @type {?(WebGLTexture|GPUTexture)}
+		 * @default null
+		 */
+		this.sourceTexture = sourceTexture;
+
+		/**
+		 * This flag can be used for type testing.
+		 *
+		 * @type {boolean}
+		 * @readonly
+		 * @default true
+		 */
+		this.isExternalTexture = true;
+
+	}
+
+	copy( source ) {
+
+		super.copy( source );
+
+		this.sourceTexture = source.sourceTexture;
+
+		return this;
 
 	}
 
@@ -34741,7 +34817,7 @@ function pointInTriangleExceptFirst(ax, ay, bx, by, cx, cy, px, py) {
 
 // check if a diagonal between two polygon nodes is valid (lies in polygon interior)
 function isValidDiagonal(a, b) {
-    return a.next.i !== b.i && a.prev.i !== b.i && !intersectsPolygon(a, b) && // dones't intersect other edges
+    return a.next.i !== b.i && a.prev.i !== b.i && !intersectsPolygon(a, b) && // doesn't intersect other edges
            (locallyInside(a, b) && locallyInside(b, a) && middleInside(a, b) && // locally visible
             (area(a.prev, a, b.prev) || area(a, b.prev, b)) || // does not create opposite-facing sectors
             equals(a, b) && area(a.prev, a, a.next) > 0 && area(b.prev, b, b.next) > 0); // special zero-length case
@@ -40286,7 +40362,7 @@ class MeshDepthMaterial extends Material {
  * Can also be used to customize the shadow casting of an object by assigning
  * an instance of `MeshDistanceMaterial` to {@link Object3D#customDistanceMaterial}.
  * The following examples demonstrates this approach in order to ensure
- * transparent parts of objects do no cast shadows.
+ * transparent parts of objects do not cast shadows.
  *
  * @augments Material
  */
@@ -42667,6 +42743,14 @@ class AnimationClip {
 		 */
 		this.uuid = generateUUID();
 
+		/**
+		 * An object that can be used to store custom data about the animation clip.
+		 * It should not hold references to functions as these will not be cloned.
+		 *
+		 * @type {Object}
+		 */
+		this.userData = {};
+
 		// this means it should figure out its duration by scanning the tracks
 		if ( this.duration < 0 ) {
 
@@ -42698,6 +42782,8 @@ class AnimationClip {
 		const clip = new this( json.name, json.duration, tracks, json.blendMode );
 		clip.uuid = json.uuid;
 
+		clip.userData = JSON.parse( json.userData || '{}' );
+
 		return clip;
 
 	}
@@ -42720,7 +42806,8 @@ class AnimationClip {
 			'duration': clip.duration,
 			'tracks': tracks,
 			'uuid': clip.uuid,
-			'blendMode': clip.blendMode
+			'blendMode': clip.blendMode,
+			'userData': JSON.stringify( clip.userData ),
 
 		};
 
@@ -43115,7 +43202,11 @@ class AnimationClip {
 
 		}
 
-		return new this.constructor( this.name, this.duration, tracks, this.blendMode );
+		const clip = new this.constructor( this.name, this.duration, tracks, this.blendMode );
+
+		clip.userData = JSON.parse( JSON.stringify( this.userData ) );
+
+		return clip;
 
 	}
 
@@ -56691,7 +56782,7 @@ class HemisphereLightHelper extends Object3D {
  *
  * @augments LineSegments
  */
-class GridHelper extends LineSegments {
+let GridHelper$1 = class GridHelper extends LineSegments {
 
 	/**
 	 * Constructs a new grid helper.
@@ -56749,7 +56840,7 @@ class GridHelper extends LineSegments {
 
 	}
 
-}
+};
 
 /**
  * This helper is an object to define polar grids. Grids are
@@ -58582,6 +58673,7 @@ function getTextureTypeByteLength( type ) {
 		case FloatType:
 			return { byteLength: 4, components: 1 };
 		case UnsignedInt5999Type:
+		case UnsignedInt101111Type:
 			return { byteLength: 4, components: 3 };
 
 	}
@@ -59083,13 +59175,13 @@ var lights_fragment_maps = "#if defined( RE_IndirectDiffuse )\n\t#ifdef USE_LIGH
 
 var lights_fragment_end = "#if defined( RE_IndirectDiffuse )\n\tRE_IndirectDiffuse( irradiance, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight );\n#endif\n#if defined( RE_IndirectSpecular )\n\tRE_IndirectSpecular( radiance, iblIrradiance, clearcoatRadiance, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight );\n#endif";
 
-var logdepthbuf_fragment = "#if defined( USE_LOGDEPTHBUF )\n\tgl_FragDepth = vIsPerspective == 0.0 ? gl_FragCoord.z : log2( vFragDepth ) * logDepthBufFC * 0.5;\n#endif";
+var logdepthbuf_fragment = "#if defined( USE_LOGARITHMIC_DEPTH_BUFFER )\n\tgl_FragDepth = vIsPerspective == 0.0 ? gl_FragCoord.z : log2( vFragDepth ) * logDepthBufFC * 0.5;\n#endif";
 
-var logdepthbuf_pars_fragment = "#if defined( USE_LOGDEPTHBUF )\n\tuniform float logDepthBufFC;\n\tvarying float vFragDepth;\n\tvarying float vIsPerspective;\n#endif";
+var logdepthbuf_pars_fragment = "#if defined( USE_LOGARITHMIC_DEPTH_BUFFER )\n\tuniform float logDepthBufFC;\n\tvarying float vFragDepth;\n\tvarying float vIsPerspective;\n#endif";
 
-var logdepthbuf_pars_vertex = "#ifdef USE_LOGDEPTHBUF\n\tvarying float vFragDepth;\n\tvarying float vIsPerspective;\n#endif";
+var logdepthbuf_pars_vertex = "#ifdef USE_LOGARITHMIC_DEPTH_BUFFER\n\tvarying float vFragDepth;\n\tvarying float vIsPerspective;\n#endif";
 
-var logdepthbuf_vertex = "#ifdef USE_LOGDEPTHBUF\n\tvFragDepth = 1.0 + gl_Position.w;\n\tvIsPerspective = float( isPerspectiveMatrix( projectionMatrix ) );\n#endif";
+var logdepthbuf_vertex = "#ifdef USE_LOGARITHMIC_DEPTH_BUFFER\n\tvFragDepth = 1.0 + gl_Position.w;\n\tvIsPerspective = float( isPerspectiveMatrix( projectionMatrix ) );\n#endif";
 
 var map_fragment = "#ifdef USE_MAP\n\tvec4 sampledDiffuseColor = texture2D( map, vMapUv );\n\t#ifdef DECODE_VIDEO_TEXTURE\n\t\tsampledDiffuseColor = sRGBTransferEOTF( sampledDiffuseColor );\n\t#endif\n\tdiffuseColor *= sampledDiffuseColor;\n#endif";
 
@@ -59149,7 +59241,7 @@ var roughnessmap_fragment = "float roughnessFactor = roughness;\n#ifdef USE_ROUG
 
 var roughnessmap_pars_fragment = "#ifdef USE_ROUGHNESSMAP\n\tuniform sampler2D roughnessMap;\n#endif";
 
-var shadowmap_pars_fragment = "#if NUM_SPOT_LIGHT_COORDS > 0\n\tvarying vec4 vSpotLightCoord[ NUM_SPOT_LIGHT_COORDS ];\n#endif\n#if NUM_SPOT_LIGHT_MAPS > 0\n\tuniform sampler2D spotLightMap[ NUM_SPOT_LIGHT_MAPS ];\n#endif\n#ifdef USE_SHADOWMAP\n\t#if NUM_DIR_LIGHT_SHADOWS > 0\n\t\tuniform sampler2D directionalShadowMap[ NUM_DIR_LIGHT_SHADOWS ];\n\t\tvarying vec4 vDirectionalShadowCoord[ NUM_DIR_LIGHT_SHADOWS ];\n\t\tstruct DirectionalLightShadow {\n\t\t\tfloat shadowIntensity;\n\t\t\tfloat shadowBias;\n\t\t\tfloat shadowNormalBias;\n\t\t\tfloat shadowRadius;\n\t\t\tvec2 shadowMapSize;\n\t\t};\n\t\tuniform DirectionalLightShadow directionalLightShadows[ NUM_DIR_LIGHT_SHADOWS ];\n\t#endif\n\t#if NUM_SPOT_LIGHT_SHADOWS > 0\n\t\tuniform sampler2D spotShadowMap[ NUM_SPOT_LIGHT_SHADOWS ];\n\t\tstruct SpotLightShadow {\n\t\t\tfloat shadowIntensity;\n\t\t\tfloat shadowBias;\n\t\t\tfloat shadowNormalBias;\n\t\t\tfloat shadowRadius;\n\t\t\tvec2 shadowMapSize;\n\t\t};\n\t\tuniform SpotLightShadow spotLightShadows[ NUM_SPOT_LIGHT_SHADOWS ];\n\t#endif\n\t#if NUM_POINT_LIGHT_SHADOWS > 0\n\t\tuniform sampler2D pointShadowMap[ NUM_POINT_LIGHT_SHADOWS ];\n\t\tvarying vec4 vPointShadowCoord[ NUM_POINT_LIGHT_SHADOWS ];\n\t\tstruct PointLightShadow {\n\t\t\tfloat shadowIntensity;\n\t\t\tfloat shadowBias;\n\t\t\tfloat shadowNormalBias;\n\t\t\tfloat shadowRadius;\n\t\t\tvec2 shadowMapSize;\n\t\t\tfloat shadowCameraNear;\n\t\t\tfloat shadowCameraFar;\n\t\t};\n\t\tuniform PointLightShadow pointLightShadows[ NUM_POINT_LIGHT_SHADOWS ];\n\t#endif\n\tfloat texture2DCompare( sampler2D depths, vec2 uv, float compare ) {\n\t\tfloat depth = unpackRGBAToDepth( texture2D( depths, uv ) );\n\t\t#ifdef USE_REVERSEDEPTHBUF\n\t\t\treturn step( depth, compare );\n\t\t#else\n\t\t\treturn step( compare, depth );\n\t\t#endif\n\t}\n\tvec2 texture2DDistribution( sampler2D shadow, vec2 uv ) {\n\t\treturn unpackRGBATo2Half( texture2D( shadow, uv ) );\n\t}\n\tfloat VSMShadow (sampler2D shadow, vec2 uv, float compare ){\n\t\tfloat occlusion = 1.0;\n\t\tvec2 distribution = texture2DDistribution( shadow, uv );\n\t\t#ifdef USE_REVERSEDEPTHBUF\n\t\t\tfloat hard_shadow = step( distribution.x, compare );\n\t\t#else\n\t\t\tfloat hard_shadow = step( compare , distribution.x );\n\t\t#endif\n\t\tif (hard_shadow != 1.0 ) {\n\t\t\tfloat distance = compare - distribution.x ;\n\t\t\tfloat variance = max( 0.00000, distribution.y * distribution.y );\n\t\t\tfloat softness_probability = variance / (variance + distance * distance );\t\t\tsoftness_probability = clamp( ( softness_probability - 0.3 ) / ( 0.95 - 0.3 ), 0.0, 1.0 );\t\t\tocclusion = clamp( max( hard_shadow, softness_probability ), 0.0, 1.0 );\n\t\t}\n\t\treturn occlusion;\n\t}\n\tfloat getShadow( sampler2D shadowMap, vec2 shadowMapSize, float shadowIntensity, float shadowBias, float shadowRadius, vec4 shadowCoord ) {\n\t\tfloat shadow = 1.0;\n\t\tshadowCoord.xyz /= shadowCoord.w;\n\t\tshadowCoord.z += shadowBias;\n\t\tbool inFrustum = shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0;\n\t\tbool frustumTest = inFrustum && shadowCoord.z <= 1.0;\n\t\tif ( frustumTest ) {\n\t\t#if defined( SHADOWMAP_TYPE_PCF )\n\t\t\tvec2 texelSize = vec2( 1.0 ) / shadowMapSize;\n\t\t\tfloat dx0 = - texelSize.x * shadowRadius;\n\t\t\tfloat dy0 = - texelSize.y * shadowRadius;\n\t\t\tfloat dx1 = + texelSize.x * shadowRadius;\n\t\t\tfloat dy1 = + texelSize.y * shadowRadius;\n\t\t\tfloat dx2 = dx0 / 2.0;\n\t\t\tfloat dy2 = dy0 / 2.0;\n\t\t\tfloat dx3 = dx1 / 2.0;\n\t\t\tfloat dy3 = dy1 / 2.0;\n\t\t\tshadow = (\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx0, dy0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx1, dy0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx2, dy2 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy2 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx3, dy2 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx0, 0.0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx2, 0.0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy, shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx3, 0.0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx1, 0.0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx2, dy3 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy3 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx3, dy3 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx0, dy1 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy1 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx1, dy1 ), shadowCoord.z )\n\t\t\t) * ( 1.0 / 17.0 );\n\t\t#elif defined( SHADOWMAP_TYPE_PCF_SOFT )\n\t\t\tvec2 texelSize = vec2( 1.0 ) / shadowMapSize;\n\t\t\tfloat dx = texelSize.x;\n\t\t\tfloat dy = texelSize.y;\n\t\t\tvec2 uv = shadowCoord.xy;\n\t\t\tvec2 f = fract( uv * shadowMapSize + 0.5 );\n\t\t\tuv -= f * texelSize;\n\t\t\tshadow = (\n\t\t\t\ttexture2DCompare( shadowMap, uv, shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, uv + vec2( dx, 0.0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, uv + vec2( 0.0, dy ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, uv + texelSize, shadowCoord.z ) +\n\t\t\t\tmix( texture2DCompare( shadowMap, uv + vec2( -dx, 0.0 ), shadowCoord.z ),\n\t\t\t\t\t texture2DCompare( shadowMap, uv + vec2( 2.0 * dx, 0.0 ), shadowCoord.z ),\n\t\t\t\t\t f.x ) +\n\t\t\t\tmix( texture2DCompare( shadowMap, uv + vec2( -dx, dy ), shadowCoord.z ),\n\t\t\t\t\t texture2DCompare( shadowMap, uv + vec2( 2.0 * dx, dy ), shadowCoord.z ),\n\t\t\t\t\t f.x ) +\n\t\t\t\tmix( texture2DCompare( shadowMap, uv + vec2( 0.0, -dy ), shadowCoord.z ),\n\t\t\t\t\t texture2DCompare( shadowMap, uv + vec2( 0.0, 2.0 * dy ), shadowCoord.z ),\n\t\t\t\t\t f.y ) +\n\t\t\t\tmix( texture2DCompare( shadowMap, uv + vec2( dx, -dy ), shadowCoord.z ),\n\t\t\t\t\t texture2DCompare( shadowMap, uv + vec2( dx, 2.0 * dy ), shadowCoord.z ),\n\t\t\t\t\t f.y ) +\n\t\t\t\tmix( mix( texture2DCompare( shadowMap, uv + vec2( -dx, -dy ), shadowCoord.z ),\n\t\t\t\t\t\t  texture2DCompare( shadowMap, uv + vec2( 2.0 * dx, -dy ), shadowCoord.z ),\n\t\t\t\t\t\t  f.x ),\n\t\t\t\t\t mix( texture2DCompare( shadowMap, uv + vec2( -dx, 2.0 * dy ), shadowCoord.z ),\n\t\t\t\t\t\t  texture2DCompare( shadowMap, uv + vec2( 2.0 * dx, 2.0 * dy ), shadowCoord.z ),\n\t\t\t\t\t\t  f.x ),\n\t\t\t\t\t f.y )\n\t\t\t) * ( 1.0 / 9.0 );\n\t\t#elif defined( SHADOWMAP_TYPE_VSM )\n\t\t\tshadow = VSMShadow( shadowMap, shadowCoord.xy, shadowCoord.z );\n\t\t#else\n\t\t\tshadow = texture2DCompare( shadowMap, shadowCoord.xy, shadowCoord.z );\n\t\t#endif\n\t\t}\n\t\treturn mix( 1.0, shadow, shadowIntensity );\n\t}\n\tvec2 cubeToUV( vec3 v, float texelSizeY ) {\n\t\tvec3 absV = abs( v );\n\t\tfloat scaleToCube = 1.0 / max( absV.x, max( absV.y, absV.z ) );\n\t\tabsV *= scaleToCube;\n\t\tv *= scaleToCube * ( 1.0 - 2.0 * texelSizeY );\n\t\tvec2 planar = v.xy;\n\t\tfloat almostATexel = 1.5 * texelSizeY;\n\t\tfloat almostOne = 1.0 - almostATexel;\n\t\tif ( absV.z >= almostOne ) {\n\t\t\tif ( v.z > 0.0 )\n\t\t\t\tplanar.x = 4.0 - v.x;\n\t\t} else if ( absV.x >= almostOne ) {\n\t\t\tfloat signX = sign( v.x );\n\t\t\tplanar.x = v.z * signX + 2.0 * signX;\n\t\t} else if ( absV.y >= almostOne ) {\n\t\t\tfloat signY = sign( v.y );\n\t\t\tplanar.x = v.x + 2.0 * signY + 2.0;\n\t\t\tplanar.y = v.z * signY - 2.0;\n\t\t}\n\t\treturn vec2( 0.125, 0.25 ) * planar + vec2( 0.375, 0.75 );\n\t}\n\tfloat getPointShadow( sampler2D shadowMap, vec2 shadowMapSize, float shadowIntensity, float shadowBias, float shadowRadius, vec4 shadowCoord, float shadowCameraNear, float shadowCameraFar ) {\n\t\tfloat shadow = 1.0;\n\t\tvec3 lightToPosition = shadowCoord.xyz;\n\t\t\n\t\tfloat lightToPositionLength = length( lightToPosition );\n\t\tif ( lightToPositionLength - shadowCameraFar <= 0.0 && lightToPositionLength - shadowCameraNear >= 0.0 ) {\n\t\t\tfloat dp = ( lightToPositionLength - shadowCameraNear ) / ( shadowCameraFar - shadowCameraNear );\t\t\tdp += shadowBias;\n\t\t\tvec3 bd3D = normalize( lightToPosition );\n\t\t\tvec2 texelSize = vec2( 1.0 ) / ( shadowMapSize * vec2( 4.0, 2.0 ) );\n\t\t\t#if defined( SHADOWMAP_TYPE_PCF ) || defined( SHADOWMAP_TYPE_PCF_SOFT ) || defined( SHADOWMAP_TYPE_VSM )\n\t\t\t\tvec2 offset = vec2( - 1, 1 ) * shadowRadius * texelSize.y;\n\t\t\t\tshadow = (\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.xyy, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.yyy, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.xyx, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.yyx, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.xxy, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.yxy, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.xxx, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.yxx, texelSize.y ), dp )\n\t\t\t\t) * ( 1.0 / 9.0 );\n\t\t\t#else\n\t\t\t\tshadow = texture2DCompare( shadowMap, cubeToUV( bd3D, texelSize.y ), dp );\n\t\t\t#endif\n\t\t}\n\t\treturn mix( 1.0, shadow, shadowIntensity );\n\t}\n#endif";
+var shadowmap_pars_fragment = "#if NUM_SPOT_LIGHT_COORDS > 0\n\tvarying vec4 vSpotLightCoord[ NUM_SPOT_LIGHT_COORDS ];\n#endif\n#if NUM_SPOT_LIGHT_MAPS > 0\n\tuniform sampler2D spotLightMap[ NUM_SPOT_LIGHT_MAPS ];\n#endif\n#ifdef USE_SHADOWMAP\n\t#if NUM_DIR_LIGHT_SHADOWS > 0\n\t\tuniform sampler2D directionalShadowMap[ NUM_DIR_LIGHT_SHADOWS ];\n\t\tvarying vec4 vDirectionalShadowCoord[ NUM_DIR_LIGHT_SHADOWS ];\n\t\tstruct DirectionalLightShadow {\n\t\t\tfloat shadowIntensity;\n\t\t\tfloat shadowBias;\n\t\t\tfloat shadowNormalBias;\n\t\t\tfloat shadowRadius;\n\t\t\tvec2 shadowMapSize;\n\t\t};\n\t\tuniform DirectionalLightShadow directionalLightShadows[ NUM_DIR_LIGHT_SHADOWS ];\n\t#endif\n\t#if NUM_SPOT_LIGHT_SHADOWS > 0\n\t\tuniform sampler2D spotShadowMap[ NUM_SPOT_LIGHT_SHADOWS ];\n\t\tstruct SpotLightShadow {\n\t\t\tfloat shadowIntensity;\n\t\t\tfloat shadowBias;\n\t\t\tfloat shadowNormalBias;\n\t\t\tfloat shadowRadius;\n\t\t\tvec2 shadowMapSize;\n\t\t};\n\t\tuniform SpotLightShadow spotLightShadows[ NUM_SPOT_LIGHT_SHADOWS ];\n\t#endif\n\t#if NUM_POINT_LIGHT_SHADOWS > 0\n\t\tuniform sampler2D pointShadowMap[ NUM_POINT_LIGHT_SHADOWS ];\n\t\tvarying vec4 vPointShadowCoord[ NUM_POINT_LIGHT_SHADOWS ];\n\t\tstruct PointLightShadow {\n\t\t\tfloat shadowIntensity;\n\t\t\tfloat shadowBias;\n\t\t\tfloat shadowNormalBias;\n\t\t\tfloat shadowRadius;\n\t\t\tvec2 shadowMapSize;\n\t\t\tfloat shadowCameraNear;\n\t\t\tfloat shadowCameraFar;\n\t\t};\n\t\tuniform PointLightShadow pointLightShadows[ NUM_POINT_LIGHT_SHADOWS ];\n\t#endif\n\tfloat texture2DCompare( sampler2D depths, vec2 uv, float compare ) {\n\t\tfloat depth = unpackRGBAToDepth( texture2D( depths, uv ) );\n\t\t#ifdef USE_REVERSED_DEPTH_BUFFER\n\t\t\treturn step( depth, compare );\n\t\t#else\n\t\t\treturn step( compare, depth );\n\t\t#endif\n\t}\n\tvec2 texture2DDistribution( sampler2D shadow, vec2 uv ) {\n\t\treturn unpackRGBATo2Half( texture2D( shadow, uv ) );\n\t}\n\tfloat VSMShadow( sampler2D shadow, vec2 uv, float compare ) {\n\t\tfloat occlusion = 1.0;\n\t\tvec2 distribution = texture2DDistribution( shadow, uv );\n\t\t#ifdef USE_REVERSED_DEPTH_BUFFER\n\t\t\tfloat hard_shadow = step( distribution.x, compare );\n\t\t#else\n\t\t\tfloat hard_shadow = step( compare, distribution.x );\n\t\t#endif\n\t\tif ( hard_shadow != 1.0 ) {\n\t\t\tfloat distance = compare - distribution.x;\n\t\t\tfloat variance = max( 0.00000, distribution.y * distribution.y );\n\t\t\tfloat softness_probability = variance / (variance + distance * distance );\t\t\tsoftness_probability = clamp( ( softness_probability - 0.3 ) / ( 0.95 - 0.3 ), 0.0, 1.0 );\t\t\tocclusion = clamp( max( hard_shadow, softness_probability ), 0.0, 1.0 );\n\t\t}\n\t\treturn occlusion;\n\t}\n\tfloat getShadow( sampler2D shadowMap, vec2 shadowMapSize, float shadowIntensity, float shadowBias, float shadowRadius, vec4 shadowCoord ) {\n\t\tfloat shadow = 1.0;\n\t\tshadowCoord.xyz /= shadowCoord.w;\n\t\tshadowCoord.z += shadowBias;\n\t\tbool inFrustum = shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0;\n\t\tbool frustumTest = inFrustum && shadowCoord.z <= 1.0;\n\t\tif ( frustumTest ) {\n\t\t#if defined( SHADOWMAP_TYPE_PCF )\n\t\t\tvec2 texelSize = vec2( 1.0 ) / shadowMapSize;\n\t\t\tfloat dx0 = - texelSize.x * shadowRadius;\n\t\t\tfloat dy0 = - texelSize.y * shadowRadius;\n\t\t\tfloat dx1 = + texelSize.x * shadowRadius;\n\t\t\tfloat dy1 = + texelSize.y * shadowRadius;\n\t\t\tfloat dx2 = dx0 / 2.0;\n\t\t\tfloat dy2 = dy0 / 2.0;\n\t\t\tfloat dx3 = dx1 / 2.0;\n\t\t\tfloat dy3 = dy1 / 2.0;\n\t\t\tshadow = (\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx0, dy0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx1, dy0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx2, dy2 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy2 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx3, dy2 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx0, 0.0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx2, 0.0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy, shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx3, 0.0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx1, 0.0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx2, dy3 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy3 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx3, dy3 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx0, dy1 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy1 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, shadowCoord.xy + vec2( dx1, dy1 ), shadowCoord.z )\n\t\t\t) * ( 1.0 / 17.0 );\n\t\t#elif defined( SHADOWMAP_TYPE_PCF_SOFT )\n\t\t\tvec2 texelSize = vec2( 1.0 ) / shadowMapSize;\n\t\t\tfloat dx = texelSize.x;\n\t\t\tfloat dy = texelSize.y;\n\t\t\tvec2 uv = shadowCoord.xy;\n\t\t\tvec2 f = fract( uv * shadowMapSize + 0.5 );\n\t\t\tuv -= f * texelSize;\n\t\t\tshadow = (\n\t\t\t\ttexture2DCompare( shadowMap, uv, shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, uv + vec2( dx, 0.0 ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, uv + vec2( 0.0, dy ), shadowCoord.z ) +\n\t\t\t\ttexture2DCompare( shadowMap, uv + texelSize, shadowCoord.z ) +\n\t\t\t\tmix( texture2DCompare( shadowMap, uv + vec2( -dx, 0.0 ), shadowCoord.z ),\n\t\t\t\t\t texture2DCompare( shadowMap, uv + vec2( 2.0 * dx, 0.0 ), shadowCoord.z ),\n\t\t\t\t\t f.x ) +\n\t\t\t\tmix( texture2DCompare( shadowMap, uv + vec2( -dx, dy ), shadowCoord.z ),\n\t\t\t\t\t texture2DCompare( shadowMap, uv + vec2( 2.0 * dx, dy ), shadowCoord.z ),\n\t\t\t\t\t f.x ) +\n\t\t\t\tmix( texture2DCompare( shadowMap, uv + vec2( 0.0, -dy ), shadowCoord.z ),\n\t\t\t\t\t texture2DCompare( shadowMap, uv + vec2( 0.0, 2.0 * dy ), shadowCoord.z ),\n\t\t\t\t\t f.y ) +\n\t\t\t\tmix( texture2DCompare( shadowMap, uv + vec2( dx, -dy ), shadowCoord.z ),\n\t\t\t\t\t texture2DCompare( shadowMap, uv + vec2( dx, 2.0 * dy ), shadowCoord.z ),\n\t\t\t\t\t f.y ) +\n\t\t\t\tmix( mix( texture2DCompare( shadowMap, uv + vec2( -dx, -dy ), shadowCoord.z ),\n\t\t\t\t\t\t  texture2DCompare( shadowMap, uv + vec2( 2.0 * dx, -dy ), shadowCoord.z ),\n\t\t\t\t\t\t  f.x ),\n\t\t\t\t\t mix( texture2DCompare( shadowMap, uv + vec2( -dx, 2.0 * dy ), shadowCoord.z ),\n\t\t\t\t\t\t  texture2DCompare( shadowMap, uv + vec2( 2.0 * dx, 2.0 * dy ), shadowCoord.z ),\n\t\t\t\t\t\t  f.x ),\n\t\t\t\t\t f.y )\n\t\t\t) * ( 1.0 / 9.0 );\n\t\t#elif defined( SHADOWMAP_TYPE_VSM )\n\t\t\tshadow = VSMShadow( shadowMap, shadowCoord.xy, shadowCoord.z );\n\t\t#else\n\t\t\tshadow = texture2DCompare( shadowMap, shadowCoord.xy, shadowCoord.z );\n\t\t#endif\n\t\t}\n\t\treturn mix( 1.0, shadow, shadowIntensity );\n\t}\n\tvec2 cubeToUV( vec3 v, float texelSizeY ) {\n\t\tvec3 absV = abs( v );\n\t\tfloat scaleToCube = 1.0 / max( absV.x, max( absV.y, absV.z ) );\n\t\tabsV *= scaleToCube;\n\t\tv *= scaleToCube * ( 1.0 - 2.0 * texelSizeY );\n\t\tvec2 planar = v.xy;\n\t\tfloat almostATexel = 1.5 * texelSizeY;\n\t\tfloat almostOne = 1.0 - almostATexel;\n\t\tif ( absV.z >= almostOne ) {\n\t\t\tif ( v.z > 0.0 )\n\t\t\t\tplanar.x = 4.0 - v.x;\n\t\t} else if ( absV.x >= almostOne ) {\n\t\t\tfloat signX = sign( v.x );\n\t\t\tplanar.x = v.z * signX + 2.0 * signX;\n\t\t} else if ( absV.y >= almostOne ) {\n\t\t\tfloat signY = sign( v.y );\n\t\t\tplanar.x = v.x + 2.0 * signY + 2.0;\n\t\t\tplanar.y = v.z * signY - 2.0;\n\t\t}\n\t\treturn vec2( 0.125, 0.25 ) * planar + vec2( 0.375, 0.75 );\n\t}\n\tfloat getPointShadow( sampler2D shadowMap, vec2 shadowMapSize, float shadowIntensity, float shadowBias, float shadowRadius, vec4 shadowCoord, float shadowCameraNear, float shadowCameraFar ) {\n\t\tfloat shadow = 1.0;\n\t\tvec3 lightToPosition = shadowCoord.xyz;\n\t\t\n\t\tfloat lightToPositionLength = length( lightToPosition );\n\t\tif ( lightToPositionLength - shadowCameraFar <= 0.0 && lightToPositionLength - shadowCameraNear >= 0.0 ) {\n\t\t\tfloat dp = ( lightToPositionLength - shadowCameraNear ) / ( shadowCameraFar - shadowCameraNear );\t\t\tdp += shadowBias;\n\t\t\tvec3 bd3D = normalize( lightToPosition );\n\t\t\tvec2 texelSize = vec2( 1.0 ) / ( shadowMapSize * vec2( 4.0, 2.0 ) );\n\t\t\t#if defined( SHADOWMAP_TYPE_PCF ) || defined( SHADOWMAP_TYPE_PCF_SOFT ) || defined( SHADOWMAP_TYPE_VSM )\n\t\t\t\tvec2 offset = vec2( - 1, 1 ) * shadowRadius * texelSize.y;\n\t\t\t\tshadow = (\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.xyy, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.yyy, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.xyx, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.yyx, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.xxy, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.yxy, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.xxx, texelSize.y ), dp ) +\n\t\t\t\t\ttexture2DCompare( shadowMap, cubeToUV( bd3D + offset.yxx, texelSize.y ), dp )\n\t\t\t\t) * ( 1.0 / 9.0 );\n\t\t\t#else\n\t\t\t\tshadow = texture2DCompare( shadowMap, cubeToUV( bd3D, texelSize.y ), dp );\n\t\t\t#endif\n\t\t}\n\t\treturn mix( 1.0, shadow, shadowIntensity );\n\t}\n#endif";
 
 var shadowmap_pars_vertex = "#if NUM_SPOT_LIGHT_COORDS > 0\n\tuniform mat4 spotLightMatrix[ NUM_SPOT_LIGHT_COORDS ];\n\tvarying vec4 vSpotLightCoord[ NUM_SPOT_LIGHT_COORDS ];\n#endif\n#ifdef USE_SHADOWMAP\n\t#if NUM_DIR_LIGHT_SHADOWS > 0\n\t\tuniform mat4 directionalShadowMatrix[ NUM_DIR_LIGHT_SHADOWS ];\n\t\tvarying vec4 vDirectionalShadowCoord[ NUM_DIR_LIGHT_SHADOWS ];\n\t\tstruct DirectionalLightShadow {\n\t\t\tfloat shadowIntensity;\n\t\t\tfloat shadowBias;\n\t\t\tfloat shadowNormalBias;\n\t\t\tfloat shadowRadius;\n\t\t\tvec2 shadowMapSize;\n\t\t};\n\t\tuniform DirectionalLightShadow directionalLightShadows[ NUM_DIR_LIGHT_SHADOWS ];\n\t#endif\n\t#if NUM_SPOT_LIGHT_SHADOWS > 0\n\t\tstruct SpotLightShadow {\n\t\t\tfloat shadowIntensity;\n\t\t\tfloat shadowBias;\n\t\t\tfloat shadowNormalBias;\n\t\t\tfloat shadowRadius;\n\t\t\tvec2 shadowMapSize;\n\t\t};\n\t\tuniform SpotLightShadow spotLightShadows[ NUM_SPOT_LIGHT_SHADOWS ];\n\t#endif\n\t#if NUM_POINT_LIGHT_SHADOWS > 0\n\t\tuniform mat4 pointShadowMatrix[ NUM_POINT_LIGHT_SHADOWS ];\n\t\tvarying vec4 vPointShadowCoord[ NUM_POINT_LIGHT_SHADOWS ];\n\t\tstruct PointLightShadow {\n\t\t\tfloat shadowIntensity;\n\t\t\tfloat shadowBias;\n\t\t\tfloat shadowNormalBias;\n\t\t\tfloat shadowRadius;\n\t\t\tvec2 shadowMapSize;\n\t\t\tfloat shadowCameraNear;\n\t\t\tfloat shadowCameraFar;\n\t\t};\n\t\tuniform PointLightShadow pointLightShadows[ NUM_POINT_LIGHT_SHADOWS ];\n\t#endif\n#endif";
 
@@ -59199,7 +59291,7 @@ const fragment$f = "uniform samplerCube tCube;\nuniform float tFlip;\nuniform fl
 
 const vertex$e = "#include <common>\n#include <batching_pars_vertex>\n#include <uv_pars_vertex>\n#include <displacementmap_pars_vertex>\n#include <morphtarget_pars_vertex>\n#include <skinning_pars_vertex>\n#include <logdepthbuf_pars_vertex>\n#include <clipping_planes_pars_vertex>\nvarying vec2 vHighPrecisionZW;\nvoid main() {\n\t#include <uv_vertex>\n\t#include <batching_vertex>\n\t#include <skinbase_vertex>\n\t#include <morphinstance_vertex>\n\t#ifdef USE_DISPLACEMENTMAP\n\t\t#include <beginnormal_vertex>\n\t\t#include <morphnormal_vertex>\n\t\t#include <skinnormal_vertex>\n\t#endif\n\t#include <begin_vertex>\n\t#include <morphtarget_vertex>\n\t#include <skinning_vertex>\n\t#include <displacementmap_vertex>\n\t#include <project_vertex>\n\t#include <logdepthbuf_vertex>\n\t#include <clipping_planes_vertex>\n\tvHighPrecisionZW = gl_Position.zw;\n}";
 
-const fragment$e = "#if DEPTH_PACKING == 3200\n\tuniform float opacity;\n#endif\n#include <common>\n#include <packing>\n#include <uv_pars_fragment>\n#include <map_pars_fragment>\n#include <alphamap_pars_fragment>\n#include <alphatest_pars_fragment>\n#include <alphahash_pars_fragment>\n#include <logdepthbuf_pars_fragment>\n#include <clipping_planes_pars_fragment>\nvarying vec2 vHighPrecisionZW;\nvoid main() {\n\tvec4 diffuseColor = vec4( 1.0 );\n\t#include <clipping_planes_fragment>\n\t#if DEPTH_PACKING == 3200\n\t\tdiffuseColor.a = opacity;\n\t#endif\n\t#include <map_fragment>\n\t#include <alphamap_fragment>\n\t#include <alphatest_fragment>\n\t#include <alphahash_fragment>\n\t#include <logdepthbuf_fragment>\n\t#ifdef USE_REVERSEDEPTHBUF\n\t\tfloat fragCoordZ = vHighPrecisionZW[ 0 ] / vHighPrecisionZW[ 1 ];\n\t#else\n\t\tfloat fragCoordZ = 0.5 * vHighPrecisionZW[ 0 ] / vHighPrecisionZW[ 1 ] + 0.5;\n\t#endif\n\t#if DEPTH_PACKING == 3200\n\t\tgl_FragColor = vec4( vec3( 1.0 - fragCoordZ ), opacity );\n\t#elif DEPTH_PACKING == 3201\n\t\tgl_FragColor = packDepthToRGBA( fragCoordZ );\n\t#elif DEPTH_PACKING == 3202\n\t\tgl_FragColor = vec4( packDepthToRGB( fragCoordZ ), 1.0 );\n\t#elif DEPTH_PACKING == 3203\n\t\tgl_FragColor = vec4( packDepthToRG( fragCoordZ ), 0.0, 1.0 );\n\t#endif\n}";
+const fragment$e = "#if DEPTH_PACKING == 3200\n\tuniform float opacity;\n#endif\n#include <common>\n#include <packing>\n#include <uv_pars_fragment>\n#include <map_pars_fragment>\n#include <alphamap_pars_fragment>\n#include <alphatest_pars_fragment>\n#include <alphahash_pars_fragment>\n#include <logdepthbuf_pars_fragment>\n#include <clipping_planes_pars_fragment>\nvarying vec2 vHighPrecisionZW;\nvoid main() {\n\tvec4 diffuseColor = vec4( 1.0 );\n\t#include <clipping_planes_fragment>\n\t#if DEPTH_PACKING == 3200\n\t\tdiffuseColor.a = opacity;\n\t#endif\n\t#include <map_fragment>\n\t#include <alphamap_fragment>\n\t#include <alphatest_fragment>\n\t#include <alphahash_fragment>\n\t#include <logdepthbuf_fragment>\n\t#ifdef USE_REVERSED_DEPTH_BUFFER\n\t\tfloat fragCoordZ = vHighPrecisionZW[ 0 ] / vHighPrecisionZW[ 1 ];\n\t#else\n\t\tfloat fragCoordZ = 0.5 * vHighPrecisionZW[ 0 ] / vHighPrecisionZW[ 1 ] + 0.5;\n\t#endif\n\t#if DEPTH_PACKING == 3200\n\t\tgl_FragColor = vec4( vec3( 1.0 - fragCoordZ ), opacity );\n\t#elif DEPTH_PACKING == 3201\n\t\tgl_FragColor = packDepthToRGBA( fragCoordZ );\n\t#elif DEPTH_PACKING == 3202\n\t\tgl_FragColor = vec4( packDepthToRGB( fragCoordZ ), 1.0 );\n\t#elif DEPTH_PACKING == 3203\n\t\tgl_FragColor = vec4( packDepthToRG( fragCoordZ ), 0.0, 1.0 );\n\t#endif\n}";
 
 const vertex$d = "#define DISTANCE\nvarying vec3 vWorldPosition;\n#include <common>\n#include <batching_pars_vertex>\n#include <uv_pars_vertex>\n#include <displacementmap_pars_vertex>\n#include <morphtarget_pars_vertex>\n#include <skinning_pars_vertex>\n#include <clipping_planes_pars_vertex>\nvoid main() {\n\t#include <uv_vertex>\n\t#include <batching_vertex>\n\t#include <skinbase_vertex>\n\t#include <morphinstance_vertex>\n\t#ifdef USE_DISPLACEMENTMAP\n\t\t#include <beginnormal_vertex>\n\t\t#include <morphnormal_vertex>\n\t\t#include <skinnormal_vertex>\n\t#endif\n\t#include <begin_vertex>\n\t#include <morphtarget_vertex>\n\t#include <skinning_vertex>\n\t#include <displacementmap_vertex>\n\t#include <project_vertex>\n\t#include <worldpos_vertex>\n\t#include <clipping_planes_vertex>\n\tvWorldPosition = worldPosition.xyz;\n}";
 
@@ -64904,8 +64996,8 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 
 			parameters.numLightProbes > 0 ? '#define USE_LIGHT_PROBES' : '',
 
-			parameters.logarithmicDepthBuffer ? '#define USE_LOGDEPTHBUF' : '',
-			parameters.reversedDepthBuffer ? '#define USE_REVERSEDEPTHBUF' : '',
+			parameters.logarithmicDepthBuffer ? '#define USE_LOGARITHMIC_DEPTH_BUFFER' : '',
+			parameters.reversedDepthBuffer ? '#define USE_REVERSED_DEPTH_BUFFER' : '',
 
 			'uniform mat4 modelMatrix;',
 			'uniform mat4 modelViewMatrix;',
@@ -65071,8 +65163,8 @@ function WebGLProgram( renderer, cacheKey, parameters, bindingStates ) {
 			parameters.decodeVideoTexture ? '#define DECODE_VIDEO_TEXTURE' : '',
 			parameters.decodeVideoTextureEmissive ? '#define DECODE_VIDEO_TEXTURE_EMISSIVE' : '',
 
-			parameters.logarithmicDepthBuffer ? '#define USE_LOGDEPTHBUF' : '',
-			parameters.reversedDepthBuffer ? '#define USE_REVERSEDEPTHBUF' : '',
+			parameters.logarithmicDepthBuffer ? '#define USE_LOGARITHMIC_DEPTH_BUFFER' : '',
+			parameters.reversedDepthBuffer ? '#define USE_REVERSED_DEPTH_BUFFER' : '',
 
 			'uniform mat4 viewMatrix;',
 			'uniform vec3 cameraPosition;',
@@ -67152,7 +67244,7 @@ function WebGLShadowMap( renderer, objects, capabilities ) {
 		// Set GL state for depth map.
 		_state.setBlending( NoBlending );
 
-		if ( _state.buffers.depth.getReversed() ) {
+		if ( _state.buffers.depth.getReversed() === true ) {
 
 			_state.buffers.color.setClear( 0, 0, 0, 0 );
 
@@ -69021,6 +69113,7 @@ function WebGLTextures( _gl, extensions, state, properties, capabilities, utils,
 		if ( glFormat === _gl.RGB ) {
 
 			if ( glType === _gl.UNSIGNED_INT_5_9_9_9_REV ) internalFormat = _gl.RGB9_E5;
+			if ( glType === _gl.UNSIGNED_INT_10F_11F_11F_REV ) internalFormat = _gl.R11F_G11F_B10F;
 
 		}
 
@@ -71166,6 +71259,7 @@ function WebGLUtils( gl, extensions ) {
 		if ( p === UnsignedShort4444Type ) return gl.UNSIGNED_SHORT_4_4_4_4;
 		if ( p === UnsignedShort5551Type ) return gl.UNSIGNED_SHORT_5_5_5_1;
 		if ( p === UnsignedInt5999Type ) return gl.UNSIGNED_INT_5_9_9_9_REV;
+		if ( p === UnsignedInt101111Type ) return gl.UNSIGNED_INT_10F_11F_11F_REV;
 
 		if ( p === ByteType ) return gl.BYTE;
 		if ( p === ShortType ) return gl.SHORT;
@@ -71334,7 +71428,7 @@ function WebGLUtils( gl, extensions ) {
 
 			if ( extension !== null ) {
 
-				if ( p === RGBA_BPTC_Format ) return extension.COMPRESSED_RED_RGTC1_EXT;
+				if ( p === RED_RGTC1_Format ) return extension.COMPRESSED_RED_RGTC1_EXT;
 				if ( p === SIGNED_RED_RGTC1_Format ) return extension.COMPRESSED_SIGNED_RED_RGTC1_EXT;
 				if ( p === RED_GREEN_RGTC2_Format ) return extension.COMPRESSED_RED_GREEN_RGTC2_EXT;
 				if ( p === SIGNED_RED_GREEN_RGTC2_Format ) return extension.COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT;
@@ -71358,48 +71452,6 @@ function WebGLUtils( gl, extensions ) {
 	}
 
 	return { convert: convert };
-
-}
-
-/**
- * Represents a texture created externally from the renderer context.
- *
- * This may be a texture from a protected media stream, device camera feed,
- * or other data feeds like a depth sensor.
- *
- * Note that this class is only supported in {@link WebGLRenderer} right now.
- *
- * @augments Texture
- */
-class ExternalTexture extends Texture {
-
-	/**
-	 * Creates a new raw texture.
-	 *
-	 * @param {?WebGLTexture} [sourceTexture=null] - The external texture.
-	 */
-	constructor( sourceTexture = null ) {
-
-		super();
-
-		/**
-		 * The external source texture.
-		 *
-		 * @type {?WebGLTexture}
-		 * @default null
-		 */
-		this.sourceTexture = sourceTexture;
-
-		/**
-		 * This flag can be used for type testing.
-		 *
-		 * @type {boolean}
-		 * @readonly
-		 * @default true
-		 */
-		this.isExternalTexture = true;
-
-	}
 
 }
 
@@ -71590,6 +71642,8 @@ class WebXRManager extends EventDispatcher {
 		let glProjLayer = null;
 		let glBaseLayer = null;
 		let xrFrame = null;
+
+		const supportsGlBinding = typeof XRWebGLBinding !== 'undefined';
 
 		const depthSensing = new WebXRDepthSensing();
 		const cameraAccessTextures = {};
@@ -71868,6 +71922,9 @@ class WebXRManager extends EventDispatcher {
 		/**
 		 * Returns the current base layer.
 		 *
+		 * This is an `XRProjectionLayer` when the targeted XR device supports the
+		 * WebXR Layers API, or an `XRWebGLLayer` otherwise.
+		 *
 		 * @return {?(XRWebGLLayer|XRProjectionLayer)} The XR base layer.
 		 */
 		this.getBaseLayer = function () {
@@ -71879,9 +71936,18 @@ class WebXRManager extends EventDispatcher {
 		/**
 		 * Returns the current XR binding.
 		 *
-		 * @return {?XRWebGLBinding} The XR binding.
+		 * Creates a new binding if needed and the browser is
+		 * capable of doing so.
+		 *
+		 * @return {?XRWebGLBinding} The XR binding. Returns `null` if one cannot be created.
 		 */
 		this.getBinding = function () {
+
+			if ( glBinding === null && supportsGlBinding ) {
+
+				glBinding = new XRWebGLBinding( session, gl );
+
+			}
 
 			return glBinding;
 
@@ -71944,17 +72010,12 @@ class WebXRManager extends EventDispatcher {
 				currentPixelRatio = renderer.getPixelRatio();
 				renderer.getSize( currentSize );
 
-				if ( typeof XRWebGLBinding !== 'undefined' ) {
-
-					glBinding = new XRWebGLBinding( session, gl );
-
-				}
 
 				// Check that the browser implements the necessary APIs to use an
 				// XRProjectionLayer rather than an XRWebGLLayer
-				const useLayers = glBinding !== null && 'createProjectionLayer' in XRWebGLBinding.prototype;
+				const supportsLayers = supportsGlBinding && 'createProjectionLayer' in XRWebGLBinding.prototype;
 
-				if ( ! useLayers ) {
+				if ( ! supportsLayers ) {
 
 					const layerInit = {
 						antialias: attributes.antialias,
@@ -72004,6 +72065,8 @@ class WebXRManager extends EventDispatcher {
 						depthFormat: glDepthFormat,
 						scaleFactor: framebufferScaleFactor
 					};
+
+					glBinding = this.getBinding();
 
 					glProjLayer = glBinding.createProjectionLayer( projectionlayerInit );
 
@@ -72063,6 +72126,8 @@ class WebXRManager extends EventDispatcher {
 
 		/**
 		 * Returns the current depth texture computed via depth sensing.
+		 *
+		 * See {@link WebXRDepthSensing#getDepthTexture}.
 		 *
 		 * @return {?Texture} The depth texture.
 		 */
@@ -72234,7 +72299,7 @@ class WebXRManager extends EventDispatcher {
 
 		/**
 		 * Updates the state of the XR camera. Use this method on app level if you
-		 * set cameraAutoUpdate` to `false`. The method requires the non-XR
+		 * set `cameraAutoUpdate` to `false`. The method requires the non-XR
 		 * camera of the scene as a parameter. The passed in camera's transformation
 		 * is automatically adjusted to the position of the XR camera when calling
 		 * this method.
@@ -72411,6 +72476,8 @@ class WebXRManager extends EventDispatcher {
 		/**
 		 * Returns the depth sensing mesh.
 		 *
+		 * See {@link WebXRDepthSensing#getMesh}.
+		 *
 		 * @return {Mesh} The depth sensing mesh.
 		 */
 		this.getDepthSensingMesh = function () {
@@ -72531,7 +72598,9 @@ class WebXRManager extends EventDispatcher {
 					enabledFeatures.includes( 'depth-sensing' ) &&
 					session.depthUsage == 'gpu-optimized';
 
-				if ( gpuDepthSensingEnabled && glBinding ) {
+				if ( gpuDepthSensingEnabled && supportsGlBinding ) {
+
+					glBinding = scope.getBinding();
 
 					const depthData = glBinding.getDepthInformation( views[ 0 ] );
 
@@ -72546,31 +72615,29 @@ class WebXRManager extends EventDispatcher {
 				const cameraAccessEnabled = enabledFeatures &&
 				    enabledFeatures.includes( 'camera-access' );
 
-				if ( cameraAccessEnabled ) {
+				if ( cameraAccessEnabled && supportsGlBinding ) {
 
 					renderer.state.unbindTexture();
 
-					if ( glBinding ) {
+					glBinding = scope.getBinding();
 
-						for ( let i = 0; i < views.length; i ++ ) {
+					for ( let i = 0; i < views.length; i ++ ) {
 
-							const camera = views[ i ].camera;
+						const camera = views[ i ].camera;
 
-							if ( camera ) {
+						if ( camera ) {
 
-								let cameraTex = cameraAccessTextures[ camera ];
+							let cameraTex = cameraAccessTextures[ camera ];
 
-								if ( ! cameraTex ) {
+							if ( ! cameraTex ) {
 
-									cameraTex = new ExternalTexture();
-									cameraAccessTextures[ camera ] = cameraTex;
-
-								}
-
-								const glTexture = glBinding.getCameraImage( camera );
-								cameraTex.sourceTexture = glTexture;
+								cameraTex = new ExternalTexture();
+								cameraAccessTextures[ camera ] = cameraTex;
 
 							}
+
+							const glTexture = glBinding.getCameraImage( camera );
+							cameraTex.sourceTexture = glTexture;
 
 						}
 
@@ -76841,15 +76908,6 @@ class WebGLRenderer {
 
 		};
 
-		this.copyTextureToTexture3D = function ( srcTexture, dstTexture, srcRegion = null, dstPosition = null, level = 0 ) {
-
-			// @deprecated, r170
-			warnOnce( 'WebGLRenderer: copyTextureToTexture3D function has been deprecated. Use "copyTextureToTexture" instead.' );
-
-			return this.copyTextureToTexture( srcTexture, dstTexture, srcRegion, dstPosition, level );
-
-		};
-
 		/**
 		 * Initializes the given WebGLRenderTarget memory. Useful for initializing a render target so data
 		 * can be copied into it using {@link WebGLRenderer#copyTextureToTexture} before it has been
@@ -77075,6 +77133,7 @@ var THREE = /*#__PURE__*/Object.freeze({
 	EquirectangularRefractionMapping: EquirectangularRefractionMapping,
 	Euler: Euler,
 	EventDispatcher: EventDispatcher,
+	ExternalTexture: ExternalTexture,
 	ExtrudeGeometry: ExtrudeGeometry,
 	FileLoader: FileLoader,
 	Float16BufferAttribute: Float16BufferAttribute,
@@ -77095,7 +77154,7 @@ var THREE = /*#__PURE__*/Object.freeze({
 	GreaterEqualDepth: GreaterEqualDepth,
 	GreaterEqualStencilFunc: GreaterEqualStencilFunc,
 	GreaterStencilFunc: GreaterStencilFunc,
-	GridHelper: GridHelper,
+	GridHelper: GridHelper$1,
 	Group: Group,
 	HalfFloatType: HalfFloatType,
 	HemisphereLight: HemisphereLight,
@@ -77353,6 +77412,7 @@ var THREE = /*#__PURE__*/Object.freeze({
 	UniformsLib: UniformsLib,
 	UniformsUtils: UniformsUtils,
 	UnsignedByteType: UnsignedByteType,
+	UnsignedInt101111Type: UnsignedInt101111Type,
 	UnsignedInt248Type: UnsignedInt248Type,
 	UnsignedInt5999Type: UnsignedInt5999Type,
 	UnsignedIntType: UnsignedIntType,
@@ -77383,201 +77443,6 @@ var THREE = /*#__PURE__*/Object.freeze({
 	ZeroStencilOp: ZeroStencilOp,
 	createCanvasElement: createCanvasElement
 });
-
-var img$19 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$18 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$17 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(83%2c160%2c227)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
-
-var img$16 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$15 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$14 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$13 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$12 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$11 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$10 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$$ = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23444' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23444' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$_ = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$Z = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$Y = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$X = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23444' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$W = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$V = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$U = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(83%2c160%2c227)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23444' stroke='%23444' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
-
-var img$T = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23ddd' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
-
-var img$S = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(83%2c160%2c227)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23444' stroke-width='1.25' fill='%23444' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
-
-var img$R = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23444' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
-
-var img$Q = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$P = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$O = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$N = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$M = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M23.0%2c-13.0 A10.0%2c10.0%2c0%2c1%2c0%2c22.998476951563912%2c-12.825475935627155' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3ctext x='7.0' y='-6.0' font-size='20.0' fill='rgb(48%2c 142%2c 225)' font-family='sans-serif' font-weight='bold' dy='0em'%3e%3f%3c/text%3e%3c/svg%3e";
-
-var img$L = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M22.0%2c-7.5 L22.0%2c-18.5 L13.0%2c-13.0 L13.0%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-13.0 L13.0%2c-2.0 L4.0%2c-7.5 L4.0%2c-18.5 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-18.5 L13.0%2c-24.0 L4.0%2c-18.5 L13.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$K = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$J = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$I = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='%23666' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L10.6%2c-10.133333333333333 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 Z' fill='none' stroke='%23666' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$H = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-14.2 L12.6%2c-14.2 L8.6%2c-10.133333333333333 L8.6%2c-6.066666666666666 L12.6%2c-2.0 L6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='square' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 L16.6%2c-2.0 L12.6%2c-6.066666666666666 L12.6%2c-10.133333333333333 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-10.133333333333333 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L10.6%2c-6.066666666666666' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-14.2 L6.0%2c-14.2 L2.0%2c-10.133333333333333 L2.0%2c-6.066666666666666 L6.0%2c-2.0 L14.6%2c-2.0' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$G = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M6.0%2c-2.0 L2.0%2c-6.066666666666666 L2.0%2c-10.133333333333333 L6.0%2c-14.2 L14.6%2c-14.2 L10.6%2c-10.133333333333333 L10.6%2c-6.066666666666666 L14.6%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3cpath d='M14.6%2c-2.0 L10.6%2c-6.066666666666666 L10.6%2c-10.133333333333333 L14.6%2c-14.2 L23.2%2c-14.2 L19.2%2c-10.133333333333333 L19.2%2c-6.066666666666666 L23.2%2c-2.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='square' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$F = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='5.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3crect x='15.2' y='-22.0' width='5.6' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$E = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='10.0' y='-23.0' width='6.0' height='11.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-3.0 L13.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.330127018922195%2c-21.5 A5.0%2c5.0%2c0%2c0%2c0%2c8.669872981077805%2c-21.5' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M21.66025403784439%2c-10.2 A10.0%2c10.0%2c0%2c0%2c0%2c4.339745962155613%2c-10.2' stroke='%23ddd' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M4.5%2c-10.2 L21.5%2c-10.2 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M8.8%2c-21.4 L17.2%2c-21.4 Z' fill='none' stroke='%23ddd' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$D = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L4.4%2c-13.0 L24.0%2c-13.0 L21.0%2c-5.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M13.0%2c-9.5 L13.0%2c-19.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M11.0%2c-17.5 L13.0%2c-19.5 L15.0%2c-17.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$C = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M5.0%2c-4.0 L5.0%2c-22.0 L21.0%2c-13.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$B = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$A = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M18.0%2c-21.660254037844386 A10.0%2c10.0%2c0%2c1%2c0%2c23.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M16.0%2c-18.196152422706632 A6.0%2c6.0%2c0%2c1%2c0%2c19.0%2c-12.999999999999998' stroke='%23ddd' stroke-width='1.5' fill='none' stroke-linecap='round' /%3e%3cpath d='M17.0%2c-13.0 L21.0%2c-17.0 L25.0%2c-13.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$z = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='2.0' y='-24.0' width='22.0' height='22.0' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L6.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-6.0 L10.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L20.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-20.0 L16.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L6.0%2c-16.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.0%2c-20.0 L10.0%2c-20.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L20.0%2c-10.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M20.0%2c-6.0 L16.0%2c-6.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$y = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$x = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='rgb(48%2c 142%2c 225)' stroke='none' stroke-width='1.25' /%3e%3cellipse cx='12.6' cy='-8.1' rx='2.1' ry='2.1' fill='%23ddd' stroke='%23ddd' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
-
-var img$w = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cellipse cx='12.6' cy='-8.1' rx='5.04' ry='5.04' fill='%23666' stroke='none' stroke-width='1.25' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23666' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
-
-var img$v = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M12.6%2c-13.14 A5.04%2c5.04%2c0%2c0%2c0%2c12.599999999999998%2c-3.0599999999999996' stroke='none' stroke-width='1.25' fill='rgb(48%2c 142%2c 225)' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-10.2 A2.1%2c2.1%2c0%2c0%2c0%2c12.6%2c-6.0' stroke='%23ddd' stroke-width='1.25' fill='%23ddd' stroke-linecap='round' /%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c15.69914007006101%2c-13.236830413208175' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M15.69914007006101%2c-2.9631695867918246 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M12.6%2c-13.7 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c12.6%2c-2.5' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
-
-var img$u = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='25.2' height='16.2' viewBox='0 -16.2 25.2 16.2'%3e%3cpath d='M21.77986928011505%2c-8.399999999999999 A10.6%2c10.6%2c0%2c0%2c0%2c3.42013071988495%2c-8.399999999999999' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3cpath d='M3.42013071988495%2c-7.800000000000001 A10.6%2c10.6%2c0%2c0%2c0%2c21.77986928011505%2c-7.800000000000001' stroke='%23ddd' stroke-width='1.25' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
-
-var img$t = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='4.0' y='-22.0' width='18.0' height='18.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$s = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.2' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$r = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='rgb(255%2c 69%2c 0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(50%2c 205%2c 50)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='rgb(59%2c 158%2c 255)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$q = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='rgb(255%2c 69%2c 0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(50%2c 205%2c 50)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='rgb(59%2c 158%2c 255)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.6' cy='-10.0' rx='3.0' ry='3.8' fill='none' stroke='%23444' stroke-width='2.4' /%3e%3cellipse cx='6.6' cy='-10.0' rx='2.0' ry='3.0' fill='%23444' stroke='%23ddd' stroke-width='1.4' /%3e%3c/svg%3e";
-
-var img$p = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.0 L23.6%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-9.333333333333332 L23.6%2c-9.333333333333332 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-16.666666666666664 L23.6%2c-16.666666666666664 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-24.0 L23.6%2c-24.0 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.4 L2.0%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.333333333333332%2c-2.4 L9.333333333333332%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.666666666666664%2c-2.4 L16.666666666666664%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-2.4 L24.0%2c-23.6 Z' fill='none' stroke='%23ddd' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$o = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='14.0' y='-24.0' width='10.0' height='10.0' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L14.0%2c-14.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-18.0 L24.0%2c-24.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L24.0%2c-14.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L14.0%2c-24.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.875' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$n = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cellipse cx='22.5' cy='-13.0' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L20.5%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446562001' cy='-22.03503690480396' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812106%2c-20.132923872213652 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.3143385534380005' cy='-18.583959896778495' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187895%2c-17.40838939219355 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.314338553437999' cy='-7.416040103221507' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187894%2c-8.591610607806452 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446561998' cy='-3.9649630951960404' rx='2.5' ry='2.5' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812105%2c-5.867076127786348 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='13.0' cy='-13.0' rx='2.0' ry='2.0' fill='%23ddd' stroke='%23ddd' stroke-width='1.75' /%3e%3c/svg%3e";
-
-var img$m = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.4 L7.866666666666667%2c-7.866666666666667 L23.6%2c-7.866666666666667 L18.133333333333333%2c-2.4 Z' fill='%23ddd' stroke='%23ddd' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.5' /%3e%3cpath d='M13.0%2c-10.6 L13.0%2c-21.2 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-18.8 L13.0%2c-21.2 L15.4%2c-18.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-13.0 L13.0%2c-10.6 L15.4%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$l = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L2.0%2c-21.0 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-5.0 L24.0%2c-21.0 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L22.0%2c-13.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-16.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-10.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-16.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-10.0 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$k = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M4.0%2c-21.6 L22.0%2c-21.6 Z' fill='none' stroke='%23ddd' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.2%2c-16.8 L20.8%2c-16.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-16.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-12.8 L20.8%2c-12.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-12.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-8.8 L20.8%2c-8.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-8.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-4.8 L20.8%2c-4.8 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-4.8' rx='0.8' ry='0.8' fill='rgb(48%2c 142%2c 225)' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.0' /%3e%3c/svg%3e";
-
-var img$j = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L14.0%2c-22.88 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.80793811328415%2c-6.280377654627602 A15.6%2c15.6%2c0%2c0%2c0%2c12.217398100377466%2c-15.963476998728744' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.0' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
-
-var img$i = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23ddd' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L7.8%2c-23.4 L23.4%2c-23.4' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='2.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.48%2c-19.2 L10.2%2c-10.8 L15.0%2c-15.6 Z' fill='none' stroke='%23ddd' stroke-width='1.8' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M12.84%2c-12.84 L17.6%2c-8.24 Z' fill='none' stroke='%23ddd' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$h = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(48%2c 142%2c 225)' stroke='%23ddd' stroke-width='1.0' stroke-linejoin='round' fill-opacity='0.75' /%3e%3c/svg%3e";
-
-var img$g = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='7.833333333333333' y='-23.5' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L7.833333333333333%2c-7.833333333333333 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L7.833333333333333%2c-7.833333333333333 L23.5%2c-7.833333333333333 L18.166666666666664%2c-2.5 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L23.5%2c-23.5 L18.166666666666664%2c-18.166666666666664 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.166666666666664%2c-2.5 L18.166666666666664%2c-18.166666666666664 L23.5%2c-23.5 L23.5%2c-7.833333333333333 Z' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.5' y='-18.166666666666664' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(48%2c 142%2c 225)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$f = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='red' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(0%2c128%2c0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='blue' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$e = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-3.0 Z' fill='none' stroke='red' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L19.4%2c-17.0 Z' fill='none' stroke='rgb(0%2c128%2c0)' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.6%2c-10.0 L6.6%2c-24.0 Z' fill='none' stroke='blue' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.6' cy='-10.0' rx='3.0' ry='3.8' fill='none' stroke='white' stroke-width='2.4' /%3e%3cellipse cx='6.6' cy='-10.0' rx='2.0' ry='3.0' fill='white' stroke='%23444' stroke-width='1.4' /%3e%3c/svg%3e";
-
-var img$d = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.0 L23.6%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-9.333333333333332 L23.6%2c-9.333333333333332 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-16.666666666666664 L23.6%2c-16.666666666666664 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-24.0 L23.6%2c-24.0 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.4 L2.0%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.333333333333332%2c-2.4 L9.333333333333332%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M16.666666666666664%2c-2.4 L16.666666666666664%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-2.4 L24.0%2c-23.6 Z' fill='none' stroke='%23444' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$c = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='14.0' y='-24.0' width='10.0' height='10.0' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L14.0%2c-14.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-18.0 L24.0%2c-24.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.0%2c-2.0 L24.0%2c-14.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L14.0%2c-24.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='0.75' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.875' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$b = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cellipse cx='22.5' cy='-13.0' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L20.5%2c-13.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446562001' cy='-22.03503690480396' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812106%2c-20.132923872213652 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.3143385534380005' cy='-18.583959896778495' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187895%2c-17.40838939219355 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='5.314338553437999' cy='-7.416040103221507' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L6.932372542187894%2c-8.591610607806452 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='15.935661446561998' cy='-3.9649630951960404' rx='2.5' ry='2.5' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M13.0%2c-13.0 L15.317627457812105%2c-5.867076127786348 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.25' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='13.0' cy='-13.0' rx='2.0' ry='2.0' fill='%23444' stroke='%23444' stroke-width='1.75' /%3e%3c/svg%3e";
-
-var img$a = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-2.4 L7.866666666666667%2c-7.866666666666667 L23.6%2c-7.866666666666667 L18.133333333333333%2c-2.4 Z' fill='%23444' stroke='%23444' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.5' /%3e%3cpath d='M13.0%2c-10.6 L13.0%2c-21.2 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-18.8 L13.0%2c-21.2 L15.4%2c-18.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M10.6%2c-13.0 L13.0%2c-10.6 L15.4%2c-13.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$9 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.0%2c-5.0 L2.0%2c-21.0 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M24.0%2c-5.0 L24.0%2c-21.0 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L22.0%2c-13.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-16.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M4.0%2c-13.0 L6.8%2c-10.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-16.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M22.0%2c-13.0 L19.2%2c-10.0 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$8 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M4.0%2c-21.6 L22.0%2c-21.6 Z' fill='none' stroke='%23444' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M9.2%2c-16.8 L20.8%2c-16.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-16.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-12.8 L20.8%2c-12.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-12.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-8.8 L20.8%2c-8.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-8.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3cpath d='M9.2%2c-4.8 L20.8%2c-4.8 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cellipse cx='6.0' cy='-4.8' rx='0.8' ry='0.8' fill='rgb(83%2c160%2c227)' stroke='rgb(83%2c160%2c227)' stroke-width='1.0' /%3e%3c/svg%3e";
-
-var img$7 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L14.0%2c-22.88 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M17.80793811328415%2c-6.280377654627602 A15.6%2c15.6%2c0%2c0%2c0%2c12.217398100377466%2c-15.963476998728744' stroke='rgb(83%2c160%2c227)' stroke-width='2.0' fill='none' stroke-linecap='round' /%3e%3c/svg%3e";
-
-var img$6 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3cpath d='M2.4%2c-3.84 L23.6%2c-3.84 Z' fill='none' stroke='%23444' stroke-width='1.45' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.4%2c-3.84 L7.8%2c-23.4 L23.4%2c-23.4' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='2.4' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M6.48%2c-19.2 L10.2%2c-10.8 L15.0%2c-15.6 Z' fill='none' stroke='%23444' stroke-width='1.8' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M12.84%2c-12.84 L17.6%2c-8.24 Z' fill='none' stroke='%23444' stroke-width='2.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$5 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='8.0' y='-24.0' width='16.0' height='16.0' fill='none' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L2.0%2c-18.0 L8.0%2c-24.0 L8.0%2c-8.0 Z' fill='none' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-2.0 L8.0%2c-8.0 L24.0%2c-8.0 L18.0%2c-2.0 Z' fill='none' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.0%2c-18.0 L8.0%2c-24.0 L24.0%2c-24.0 L18.0%2c-18.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3cpath d='M18.0%2c-2.0 L18.0%2c-18.0 L24.0%2c-24.0 L24.0%2c-8.0 Z' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' stroke-linecap='round' fill-opacity='0.75' /%3e%3crect x='2.0' y='-18.0' width='16.0' height='16.0' fill='rgb(83%2c160%2c227)' stroke='%23444' stroke-width='1.0' stroke-linejoin='round' fill-opacity='0.75' /%3e%3c/svg%3e";
-
-var img$4 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='26.0' height='26.0' viewBox='0 -26.0 26.0 26.0'%3e%3crect x='7.833333333333333' y='-23.5' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L7.833333333333333%2c-7.833333333333333 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-2.5 L7.833333333333333%2c-7.833333333333333 L23.5%2c-7.833333333333333 L18.166666666666664%2c-2.5 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M2.5%2c-18.166666666666664 L7.833333333333333%2c-23.5 L23.5%2c-23.5 L18.166666666666664%2c-18.166666666666664 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3cpath d='M18.166666666666664%2c-2.5 L18.166666666666664%2c-18.166666666666664 L23.5%2c-23.5 L23.5%2c-7.833333333333333 Z' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' stroke-linecap='round' fill-opacity='1.0' /%3e%3crect x='2.5' y='-18.166666666666664' width='15.666666666666666' height='15.666666666666666' fill='none' stroke='rgb(83%2c160%2c227)' stroke-width='1.5625' stroke-linejoin='round' fill-opacity='1.0' /%3e%3c/svg%3e";
-
-var img$3 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e %3cpath d='M3.204 6h9.592L8 11.481 3.204 6z' fill='%23333'/%3e%3c/svg%3e";
-
-var img$2 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e %3cpath d='M3.204 6h9.592L8 11.481 3.204 6z' fill='%23ddd'/%3e%3c/svg%3e";
-
-var img$1 = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e %3cpath d='M6 12.796V3.204L11.481 8 6 12.796z' fill='%23333'/%3e%3c/svg%3e";
-
-var img = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e %3cpath d='M6 12.796V3.204L11.481 8 6 12.796z' fill='%23ddd'/%3e%3c/svg%3e";
-
-const icons = {
-  bottom: { light: img$19, dark: img$O },
-  front: { light: img$18, dark: img$N },
-  help: { light: img$17, dark: img$M },
-  iso: { light: img$16, dark: img$L },
-  left: { light: img$15, dark: img$K },
-  mesh: { light: img$14, dark: img$J },
-  mesh_empty: { light: img$13, dark: img$I },
-  mesh_mix: { light: img$12, dark: img$H },
-  mesh_no: { light: img$11, dark: img$G },
-  pause: { light: img$10, dark: img$F },
-  pin: { light: img$$, dark: img$E },
-  plane: { light: img$_, dark: img$D },
-  play: { light: img$Z, dark: img$C },
-  rear: { light: img$Y, dark: img$B },
-  reset: { light: img$X, dark: img$A },
-  resize: { light: img$W, dark: img$z },
-  right: { light: img$V, dark: img$y },
-  shape: { light: img$U, dark: img$x },
-  shape_empty: { light: img$T, dark: img$w },
-  shape_mix: { light: img$S, dark: img$v },
-  shape_no: { light: img$R, dark: img$u },
-  stop: { light: img$Q, dark: img$t },
-  top: { light: img$P, dark: img$s },
-  axes: { light: img$f, dark: img$r },
-  axes0: { light: img$e, dark: img$q },
-  grid: { light: img$d, dark: img$p },
-  perspective: { light: img$c, dark: img$o },
-  explode: { light: img$b, dark: img$n },
-  zscale: { light: img$a, dark: img$m },
-  distance: { light: img$9, dark: img$l },
-  properties: { light: img$8, dark: img$k },
-  angle: { light: img$7, dark: img$j },
-  select: { light: img$6, dark: img$i },
-  transparent: { light: img$5, dark: img$h },
-  blackedges: { light: img$4, dark: img$g },
-  nav_open: { light: img$3, dark: img$2 },
-  nav_closed: { light: img$1, dark: img },
-};
-
-function getIconBackground(theme, name) {
-  return `url("${icons[name][theme]}")`;
-}
-function getIconSvg(theme, name) {
-  return decodeURIComponent(icons[name][theme]).substring(19);
-}
 
 function clone(obj) {
   if (Array.isArray(obj)) {
@@ -77706,6 +77571,29 @@ function scaleLight(intensity) {
 }
 
 const KeyMapper = new _KeyMapper();
+
+class EventListenerManager {
+  constructor() {
+    this.listeners = [];
+  }
+
+  add = (target, event, handler, options = false) => {
+    target.addEventListener(event, handler, options);
+    this.listeners.push({
+      target: target,
+      event: event,
+      handler: handler,
+      options: options,
+    });
+  };
+
+  dispose() {
+    this.listeners.forEach(({ target, event, handler, options }) => {
+      target.removeEventListener(event, handler, options);
+    });
+    this.listeners = [];
+  }
+}
 
 class Slider {
   constructor(index, min, max, display) {
@@ -77913,22 +77801,19 @@ class Ellipsis {
 }
 class BaseButton {
   constructor(theme, icon, tooltip) {
-    this.svg = getIconBackground(theme, icon);
     this.name = icon;
 
     var html = document.createElement("span");
     html.className = "tcv_tooltip";
     html.setAttribute("data-tooltip", tooltip);
 
-    // html.appendChild(document.createElement("span"));
-    // html.children[0].className = "tcv_click_btn_marker";
     var frame = html.appendChild(document.createElement("span"));
     frame.className = "tcv_button_frame";
     frame.appendChild(document.createElement("input"));
     frame.children[0].className = "tcv_reset tcv_btn";
 
     frame.children[0].type = "button";
-    frame.children[0].style.backgroundImage = this.svg;
+    frame.children[0].classList.add(`tcv_button_${icon}`);
     this.html = html;
 
     this.html.addEventListener("click", (e) => {
@@ -80947,7 +80832,7 @@ class Tools {
   }
 }
 
-var template = "<div class=\"tcv_cad_viewer\">\n    <div class=\"tcv_cad_toolbar tcv_round\"></div>\n\n    <div class=\"tcv_cad_body\">\n        <div class=\"tcv_cad_navigation\">\n            <div class=\"tcv_cad_tree tcv_round\">\n                <div class=\"tcv_tabnav\">\n                    <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value=\"Tree\" type=\"button\" />\n                    <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Clipping\"\n                        type=\"button\" />\n                    <input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Material\"\n                        type=\"button\" />\n                </div>\n                <div class=\"tcv_cad_tree_toggles\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase nodes with a single leaf\">\n                        <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value=\"1\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand root node only\">\n                        <input class='tcv_expand_root tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase tree\">\n                        <input class='tcv_collapse_all tcv_btn tcv_small_btn' value=\"C\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand tree\">\n                        <input class='tcv_expand tcv_btn tcv_small_btn' value=\"E\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                    <div class=\"tcv_cad_tree_container\"></div>\n                    <div class=\"tcv_cad_clip_container\">\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Set red clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane1 tcv_label\">N1 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane1 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane1 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set green clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane2 tcv_label\">N2 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane2 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane2 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set blue clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane3 tcv_label\">N3 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane3 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane3 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_clip_checks\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Use intersection clipping\">\n                                    <input class='tcv_clip_intersection tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Intersection</span>\n                                </span>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Show clipping planes\">\n                                    <input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Planes</span>\n                                </span>\n                            </div>\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Use object color caps instead of RGB\">\n                                <input class='tcv_clip_caps tcv_axes0 tcv_check' type=\"checkbox\" />\n                                <span class=\"tcv_label\">Use object color caps</span>\n                            </span>\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_material_container\">\n                        <div class=\"tcv_cad_tree_toggles\">\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Reset to original values\">\n                                <input class='tcv_material_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                            </span>\n                        </div>\n                        <div class=\"tcv_material_ambientlight tcv_label\">\n                            Ambient light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"20\" value=\"1\"\n                                    class=\"tcv_sld_value_ambientlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_ambientlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_pointlight tcv_label\">\n                            Directional light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"40\" value=\"1\"\n                                    class=\"tcv_sld_value_pointlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_pointlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_metalness tcv_label\">\n                            Metalness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_metalness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_metalness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_roughness tcv_label\">\n                            Roughness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_roughness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_roughness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_info\">\n                            This is not a full material renderer (e.g. the environment is black), so\n                            not every combination creates expected or good results.\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div class=\"tcv_cad_info_wrapper\">\n                <div class=\"tcv_toggle_info_wrapper\">\n                    <!-- <span class=\"tooltip\" data-tooltip=\"Open/close info box\"> -->\n                        <!-- <input class='tcv_toggle_info tcv_btn tcv_small_info_btn' value=\"<\" type=\"button\" /> -->\n                        <span class='tcv_toggle_info'></span><span class=\"tcv_info_label\">Info</span>\n                    <!-- </span> -->\n                </div>\n                <div class=\"tcv_cad_info tcv_round\">\n                    <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                        <div class=\"tcv_cad_info_container\"></div>\n                    </div>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_cad_view\">\n            <div class=\"tcv_distance_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Distance</div>\n            </div>\n\n            <div class=\"tcv_properties_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Properties</div>\n                <div class=\"tcv_measure_subheader\">Shape</div>\n            </div>\n\n            <div class=\"tcv_cad_animation tcv_round\">\n                <span class=\"tcv_animation_label\">E</span>\n                <span><input type=\"range\" min=\"0\" max=\"1000\" value=\"0\"\n                        class=\"tcv_animation_slider tcv_clip_slider\"></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Play animation\"><input class='tcv_play tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Pause animation\"><input class='tcv_pause tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Stop and reset animation\"><input class='tcv_stop tcv_btn'\n                        type=\"button\" /></span>\n            </div>\n            \n            <div class=\"tcv_cad_zscale tcv_round\">\n                <span class=\"tcv_animation_label\">Z</span>\n                <span><input type=\"range\" min=\"1\" max=\"32\" value=\"0\"\n                        class=\"tcv_zscale_slider tcv_clip_slider\"></span>\n            </div>\n\n            <div class=\"tcv_cad_help tcv_round\">\n                <table class=\"tcv_cad_help_layout\">\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Navigation</b></td>\n                    </tr>\n                    <tr>\n                        <td>Rotate</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate up / down</td>\n                        <td>&lt;{{ctrl}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate left / right</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Pan</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Zoom</td>\n                        <td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td>\n                    </tr>\n\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Selection</b></td>\n                    </tr>\n                    <tr>\n                        <td>Pick element</td>\n                        <td>&lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>Click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>(Shows axis-aligned bounding box, AABB)</td>\n                    </tr>\n                    <tr>\n                        <td>Isolate element</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{shift}}&gt; + click on navigation tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide element</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; double click object</td>\n                    </tr>\n                    <tr>    \n                        <td></td>                \n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide other elements</td>\n                        <td>&lt;{{shift}}&gt; + &lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Set camera target</td>\n                        <td>&lt;{{shift}}&gt + &lt;{{meta}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>                    \n                    <tr>\n                        <td></td>\n                        <td><b>CAD Object Tree</b></td>\n                    </tr>\n                    <tr>\n                        <td>Collapse single leafs</td>\n                        <td>Button '1' (all nodes with one leaf only)</td>\n                    </tr>\n                    <tr>\n                        <td>Expand root only</td>\n                        <td>Button 'R'</td>\n                    </tr>\n                    <tr>\n                        <td>Collapse all nodes</td>\n                        <td>Button 'C'</td>\n                    </tr>\n                    <tr>\n                        <td>Expand all nodes</td>\n                        <td>Button 'E'</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td><b>Measure Mode</b></td>\n                    </tr>\n                    <tr>\n                        <td>Select 1. (and 2.) object</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Use center instead of min distance</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; for the second selection</td>\n                    </tr>\n                    <tr>\n                        <td>Filter object types</td>\n                        <td>Type menu or &lt;n&gt;one, &lt;s&gt;olid, &lt;f&gt;ace, &lt;e&gt;dge , &lt;v&gt;ertices</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect last object</td>\n                        <td>&lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect all objects</td>\n                        <td>&lt;ESC&gt;</td>\n                    </tr>\n                </table>\n            </div>\n            <div class=\"tcv_filter_menu\">\n                <div class=\"tcv_drop_down tcv_shape_filter\">\n                    <span class=\"tcv_round tcv_filter_content\"><span class=\"tcv_filter_value\">None</span>\n                        <span class=\"tcv_filter_icon\">⏶\n                        </span></span>\n                    <div class=\"tcv_filter_dropdown tcv_round\">\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_none\">None</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_vertex\">Vertex</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_edge\">Edge</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_face\">Face</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_solid\">Solid</div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>";
+var template = "<div class=\"tcv_cad_viewer\">\n    <div class=\"tcv_cad_toolbar tcv_round\"></div>\n\n    <div class=\"tcv_cad_body\">\n        <div class=\"tcv_cad_navigation\">\n            <div class=\"tcv_cad_tree tcv_round\">\n                <div class=\"tcv_tabnav\">\n                    <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value=\"Tree\" type=\"button\" />\n                    <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Clipping\"\n                        type=\"button\" />\n                    <input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Material\"\n                        type=\"button\" />\n                </div>\n                <div class=\"tcv_cad_tree_toggles\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase nodes with a single leaf\">\n                        <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value=\"1\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand root node only\">\n                        <input class='tcv_expand_root tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase tree\">\n                        <input class='tcv_collapse_all tcv_btn tcv_small_btn' value=\"C\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand tree\">\n                        <input class='tcv_expand tcv_btn tcv_small_btn' value=\"E\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                    <div class=\"tcv_cad_tree_container\"></div>\n                    <div class=\"tcv_cad_clip_container\">\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Set red clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane1 tcv_label\">N1 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane1 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane1 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set green clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane2 tcv_label\">N2 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane2 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane2 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set blue clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane3 tcv_label\">N3 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane3 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane3 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_clip_checks\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Use intersection clipping\">\n                                    <input class='tcv_clip_intersection tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Intersection</span>\n                                </span>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Show clipping planes\">\n                                    <input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Planes</span>\n                                </span>\n                            </div>\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Use object color caps instead of RGB\">\n                                <input class='tcv_clip_caps tcv_axes0 tcv_check' type=\"checkbox\" />\n                                <span class=\"tcv_label\">Use object color caps</span>\n                            </span>\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_material_container\">\n                        <div class=\"tcv_cad_tree_toggles\">\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Reset to original values\">\n                                <input class='tcv_material_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                            </span>\n                        </div>\n                        <div class=\"tcv_material_ambientlight tcv_label\">\n                            Ambient light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"20\" value=\"1\"\n                                    class=\"tcv_sld_value_ambientlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_ambientlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_pointlight tcv_label\">\n                            Directional light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"40\" value=\"1\"\n                                    class=\"tcv_sld_value_pointlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_pointlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_metalness tcv_label\">\n                            Metalness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_metalness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_metalness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_roughness tcv_label\">\n                            Roughness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_roughness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_roughness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_info\">\n                            This is not a full material renderer (e.g. the environment is black), so\n                            not every combination creates expected or good results.\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div class=\"tcv_cad_info_wrapper\">\n                <div class=\"tcv_toggle_info_wrapper\">\n                    <!-- <span class=\"tooltip\" data-tooltip=\"Open/close info box\"> -->\n                        <!-- <input class='tcv_toggle_info tcv_btn tcv_small_info_btn' value=\"<\" type=\"button\" /> -->\n                        <span class='tcv_toggle_info'></span><span class=\"tcv_info_label\">Info</span>\n                    <!-- </span> -->\n                </div>\n                <div class=\"tcv_cad_info tcv_round\">\n                    <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                        <div class=\"tcv_cad_info_container\"></div>\n                    </div>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_cad_view\">\n            <div class=\"tcv_distance_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Distance</div>\n            </div>\n\n            <div class=\"tcv_properties_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Properties</div>\n                <div class=\"tcv_measure_subheader\">Shape</div>\n            </div>\n\n            <div class=\"tcv_cad_animation tcv_round\">\n                <span class=\"tcv_animation_label\">E</span>\n                <span><input type=\"range\" min=\"0\" max=\"1000\" value=\"0\"\n                        class=\"tcv_animation_slider tcv_clip_slider\"></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Play animation\"><input class='tcv_play tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Pause animation\"><input class='tcv_pause tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Stop and reset animation\"><input class='tcv_stop tcv_btn'\n                        type=\"button\" /></span>\n            </div>\n            \n            <div class=\"tcv_cad_zscale tcv_round\">\n                <span class=\"tcv_animation_label\">Z</span>\n                <span><input type=\"range\" min=\"1\" max=\"32\" value=\"0\"\n                        class=\"tcv_zscale_slider tcv_clip_slider\"></span>\n            </div>\n\n            <div class=\"tcv_cad_help tcv_round\">\n                <table class=\"tcv_cad_help_layout\">\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Navigation</b></td>\n                    </tr>\n                    <tr>\n                        <td>Rotate</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate up / down</td>\n                        <td>&lt;{{ctrl}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate left / right</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Pan</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Zoom</td>\n                        <td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td>\n                    </tr>\n\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Selection</b></td>\n                    </tr>\n                    <tr>\n                        <td>Pick element</td>\n                        <td>&lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>Click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>(Shows axis-aligned bounding box, AABB)</td>\n                    </tr>\n                    <tr>\n                        <td>Isolate element</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{shift}}&gt; + click on navigation tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide element</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; double click object</td>\n                    </tr>\n                    <tr>    \n                        <td></td>                \n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide other elements</td>\n                        <td>&lt;{{shift}}&gt; + &lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Set camera target</td>\n                        <td>&lt;{{shift}}&gt + &lt;{{meta}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>                    \n                    <tr>\n                        <td></td>\n                        <td><b>CAD Object Tree</b></td>\n                    </tr>\n                    <tr>\n                        <td>Collapse single leafs</td>\n                        <td>Button '1' (all nodes with one leaf only)</td>\n                    </tr>\n                    <tr>\n                        <td>Expand root only</td>\n                        <td>Button 'R'</td>\n                    </tr>\n                    <tr>\n                        <td>Collapse all nodes</td>\n                        <td>Button 'C'</td>\n                    </tr>\n                    <tr>\n                        <td>Expand all nodes</td>\n                        <td>Button 'E'</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td><b>Measure Mode</b></td>\n                    </tr>\n                    <tr>\n                        <td>Select 1. (and 2.) object</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Use center instead of min distance</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; for the second selection</td>\n                    </tr>\n                    <tr>\n                        <td>Filter object types</td>\n                        <td>Type menu or &lt;n&gt;one, &lt;s&gt;olid, &lt;f&gt;ace, &lt;e&gt;dge , &lt;v&gt;ertices</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect last object</td>\n                        <td>&lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect all objects</td>\n                        <td>&lt;ESC&gt;</td>\n                    </tr>\n                </table>\n            </div>\n            <div class=\"tcv_filter_menu\">\n                <div class=\"tcv_drop_down tcv_shape_filter\">\n                    <span class=\"tcv_round tcv_filter_content\"><span class=\"tcv_filter_value\">None</span>\n                        <span class=\"tcv_filter_icon\">⏶\n                        </span></span>\n                    <div class=\"tcv_filter_dropdown tcv_round\">\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_none\">None</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_vertex\">Vertex</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_edge\">Edge</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_face\">Face</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_solid\">Solid</div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n    <div class=\"tcv_tick_size\">\n        ⊢⊣<span class=\"tcv_tick_size_value\">0</span>\n    </div>\n</div>";
 
 function TEMPLATE(id) {
   const shift = KeyMapper.getshortcuts("shift");
@@ -80968,6 +80853,8 @@ function px(val) {
 }
 
 const buttons = ["plane", "play", "pause", "stop"];
+
+const listeners = new EventListenerManager();
 
 class Display {
   /**
@@ -81014,7 +80901,11 @@ class Display {
     this.cadTools = this._getElement("tcv_cad_tools");
 
     this.cadHelp = this._getElement("tcv_cad_help");
-
+    listeners.add(this.cadHelp, "contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    });
     this.planeLabels = [];
     for (var i = 1; i < 4; i++) {
       this.planeLabels.push(this._getElement(`tcv_lbl_norm_plane${i}`));
@@ -81040,29 +80931,10 @@ class Display {
 
     this.lastPlaneState = false;
 
-    var theme;
-    if (
-      options.theme === "dark" ||
-      (options.theme == "browser" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      this.container.setAttribute("data-theme", "dark");
-      theme = "dark";
-    } else {
-      this.container.setAttribute("data-theme", "light");
-      theme = "light";
-    }
+    const theme = options.theme;
+    this.theme = theme;
 
-    for (var btn of buttons) {
-      var elements = this.container.getElementsByClassName(`tcv_${btn}`);
-      for (i = 0; i < elements.length; i++) {
-        var el = elements[i];
-        el.setAttribute(
-          "style",
-          `background-image: ${getIconBackground(theme, btn)}`,
-        );
-      }
-    }
+    this.setButtonBackground(theme);
 
     this.toolbarButtons = {};
 
@@ -81204,7 +81076,7 @@ class Display {
       this.cadTool.addButton(this.toolbarButtons["zscale"], -1);
       this.showZScale(false);
       const el = this._getElement("tcv_zscale_slider");
-      el.addEventListener("change", (e) => {
+      listeners.add(el, "change", (e) => {
         this.zScale = parseInt(e.target.value);
         this.viewer.setZscaleValue(e.target.value);
       });
@@ -81249,7 +81121,7 @@ class Display {
       this.toolbarButtons["select"],
     ]);
 
-    document.addEventListener("keydown", (e) => {
+    listeners.add(document, "keydown", (e) => {
       if (e.key === "Escape" && this.help_shown) {
         e.preventDefault();
         this.showHelp(false);
@@ -81277,11 +81149,16 @@ class Display {
       this.toggleHelp,
     );
     this.cadTool.addButton(this.toolbarButtons["help"], -1);
+  }
 
-    this.infoIcons = {
-      right: getIconSvg(theme, "nav_closed"),
-      down: getIconSvg(theme, "nav_open"),
-    };
+  setButtonBackground(theme) {
+    for (var btn of buttons) {
+      var elements = this.container.getElementsByClassName(`tcv_${btn}`);
+      for (var i = 0; i < elements.length; i++) {
+        var el = elements[i];
+        el.classList.add(`tcv_button_${btn}`);
+      }
+    }
   }
 
   widthThreshold() {
@@ -81294,7 +81171,7 @@ class Display {
 
   _setupCheckEvent(name, fn, flag) {
     const el = this._getElement(name);
-    el.addEventListener("change", fn);
+    listeners.add(el, "change", fn);
     if (flag != undefined) {
       el.checked = flag;
     }
@@ -81304,7 +81181,7 @@ class Display {
   // eslint-disable-next-line no-unused-vars
   _setupClickEvent(name, fn, flag) {
     const el = this._getElement(name);
-    el.addEventListener("click", fn);
+    listeners.add(el, "click", fn);
     this._events.push(["click", name, fn]);
   }
 
@@ -81318,6 +81195,8 @@ class Display {
   }
 
   dispose() {
+    listeners.dispose();
+
     this.viewer = undefined;
 
     this.cadTree.innerHTML = "";
@@ -81381,6 +81260,18 @@ class Display {
   setupUI(viewer) {
     this.viewer = viewer;
 
+    // Theme
+    if (this.theme === "browser") {
+      this.mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      listeners.add(this.mediaQuery, "change", (event) => {
+        if (event.matches) {
+          this.setTheme("dark");
+        } else {
+          this.setTheme("light");
+        }
+      });
+    }
+
     this._setupClickEvent("tcv_expand_root", this.handleCollapseNodes);
     this._setupClickEvent("tcv_collapse_singles", this.handleCollapseNodes);
     this._setupClickEvent("tcv_collapse_all", this.handleCollapseNodes);
@@ -81435,7 +81326,7 @@ class Display {
       "tcv_animation_slider",
     )[0];
     this.animationSlider.value = 0;
-    this.animationSlider.addEventListener("input", this.animationChange);
+    listeners.add(this.animationSlider, "input", this.animationChange);
     this.showAnimationControl(false);
 
     this.showHelp(false);
@@ -81493,7 +81384,13 @@ class Display {
       this.cadView.replaceChild(cadView, canvas);
     } else {
       this.cadView.appendChild(cadView);
+      canvas = this.cadView.querySelector("canvas");
     }
+    listeners.add(canvas, "click", (e) => {
+      if (this.help_shown) {
+        this.showHelp(false);
+      }
+    });
   }
 
   /**
@@ -82277,10 +82174,7 @@ class Display {
    */
   showInfo = (flag) => {
     this.cadInfo.parentNode.parentNode.style.display = flag ? "block" : "none";
-    // this._getElement("tcv_toggle_info").value = flag ? "\u25B2 i" : "\u25BC i";
-    this._getElement("tcv_toggle_info").innerHTML = flag
-      ? `${this.infoIcons["down"]}`
-      : `${this.infoIcons["right"]}`;
+    this._getElement("tcv_toggle_info").innerHTML = flag ? "\u25BE" : "\u25B8";
     this.info_shown = flag;
   };
 
@@ -82356,15 +82250,57 @@ class Display {
   updateHelp(before, after) {
     const help = this._getElement("tcv_cad_help_layout");
     for (var k in before) {
-      help.innerHTML = help.innerHTML.replaceAll(
-        "&lt;" + before[k].slice(0, -3) + "&gt;",
-        "&lt;_" + after[k].slice(0, -3) + "&gt;",
-      );
+      if (before[k] && after[k]) {
+        help.innerHTML = help.innerHTML.replaceAll(
+          "&lt;" + before[k].slice(0, -3) + "&gt;",
+          "&lt;_" + after[k].slice(0, -3) + "&gt;",
+        );
+      }
     }
     help.innerHTML = help.innerHTML.replaceAll("_shift", "shift");
     help.innerHTML = help.innerHTML.replaceAll("_ctrl", "ctrl");
     help.innerHTML = help.innerHTML.replaceAll("_alt", "alt");
     help.innerHTML = help.innerHTML.replaceAll("_meta", "meta");
+  }
+
+  setTheme(theme) {
+    if (
+      theme === "dark" ||
+      (theme == "browser" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      this.container.setAttribute("data-theme", "dark");
+      document.body.setAttribute("data-theme", "dark");
+      if (this.viewer.orientationMarker) {
+        this.viewer.orientationMarker.changeTheme("dark");
+      }
+      if (this.viewer.gridHelper) {
+        this.viewer.gridHelper.clearCache();
+        this.viewer.gridHelper.update(
+          this.viewer.getCameraZoom(),
+          true,
+          "dark",
+        );
+      }
+      this.viewer.update(true);
+      return "dark";
+    } else {
+      this.container.setAttribute("data-theme", "light");
+      document.body.setAttribute("data-theme", "light");
+      if (this.viewer.orientationMarker) {
+        this.viewer.orientationMarker.changeTheme("light");
+      }
+      if (this.viewer.gridHelper) {
+        this.viewer.gridHelper.clearCache();
+        this.viewer.gridHelper.update(
+          this.viewer.getCameraZoom(),
+          true,
+          "light",
+        );
+      }
+      this.viewer.update(true);
+      return "light";
+    }
   }
 }
 
@@ -83752,122 +83688,891 @@ class NestedGroup {
   }
 }
 
-//
-
-class Font {
-  constructor(data) {
-    this.isFont = true;
-
-    this.type = "Font";
-
-    this.data = data;
-  }
-
-  generateShapes(text, size = 100) {
-    const shapes = [];
-    const paths = createPaths(text, size, this.data);
-
-    for (let p = 0, pl = paths.length; p < pl; p++) {
-      shapes.push(...paths[p].toShapes());
-    }
-
-    return shapes;
-  }
+function capped_linear(px1, py1, px2, py2, x) {
+  const m = (py2 - py1) / (px2 - px1);
+  return x < px1 ? py1 : x > px2 ? py2 : m * (x - px1) + py1;
 }
 
-function createPaths(text, size, data) {
-  const chars = Array.from(text);
-  const scale = size / data.resolution;
-  const line_height =
-    (data.boundingBox.yMax - data.boundingBox.yMin + data.underlineThickness) *
-    scale;
-
-  const paths = [];
-
-  let offsetX = 0,
-    offsetY = 0;
-
-  for (let i = 0; i < chars.length; i++) {
-    const char = chars[i];
-
-    if (char === "\n") {
-      offsetX = 0;
-      offsetY -= line_height;
-    } else {
-      const ret = createPath(char, scale, offsetX, offsetY, data);
-      offsetX += ret.offsetX;
-      paths.push(ret.path);
-    }
-  }
-
-  return paths;
+function trimTrailingZeros(str) {
+  var result = str
+    .replace(/(\.\d*[1-9])0+$/, "$1") // Remove zeros after nonzero decimals
+    .replace(/\.0+$/, ""); // Remove .000... case
+  if (result === "-0") result = "0"; // Handle negative zero case
+  if (result.indexOf(".") < 0) result = `${result}.0`; // Ensure at least one decimal place
+  return result;
 }
 
-function createPath(char, scale, offsetX, offsetY, data) {
-  const glyph = data.glyphs[char] || data.glyphs["?"];
+class GridHelper extends Object3D {
+  constructor(size, divisions, colorX, colorY, colorGrid) {
+    super();
 
-  if (!glyph) {
-    console.error(
-      `THREE.Font: character "${char}" does not exists in font family ${data.familyName}`,
+    const step = size / divisions;
+    const halfSize = size / 2;
+    const vertices = [];
+    const solidVerticesX = [];
+    const solidVerticesY = [];
+
+    // Create grid lines (dashed)
+    var centerline = false;
+    for (let i = 0; i <= divisions; i++) {
+      const k = -halfSize + i * step;
+      // Vertical (Y) lines
+      if (Math.abs(k) > 1e-10) {
+        vertices.push(-halfSize, 0, k, halfSize, 0, k);
+      } else {
+        // Centerline Y
+        solidVerticesY.push(-halfSize, 0, k, halfSize, 0, k);
+        centerline = true;
+      }
+
+      if (!centerline) {
+        // Ensure centerline Y is drawn only once
+        solidVerticesY.push(-halfSize, 0, 0, halfSize, 0, 0);
+      }
+      centerline = false;
+      // Horizontal (X) lines
+      if (Math.abs(k) > 1e-10) {
+        vertices.push(k, 0, -halfSize, k, 0, halfSize);
+      } else {
+        // Centerline X
+        solidVerticesX.push(k, 0, -halfSize, k, 0, halfSize);
+      }
+      if (!centerline) {
+        // Ensure centerline X is drawn only once
+        solidVerticesX.push(0, 0, -halfSize, 0, 0, halfSize);
+      }
+    }
+
+    // Dashed grid lines
+    const dashedGeometry = new BufferGeometry();
+    dashedGeometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(vertices, 3),
+    );
+    // Compute line distances for dashed lines
+    const position = dashedGeometry.getAttribute("position");
+    const lineDistances = new Float32Array(position.count);
+    for (let i = 0; i < position.count; i += 2) {
+      const x1 = position.getX(i),
+        y1 = position.getY(i),
+        z1 = position.getZ(i);
+      const x2 = position.getX(i + 1),
+        y2 = position.getY(i + 1),
+        z2 = position.getZ(i + 1);
+      lineDistances[i] = 0;
+      lineDistances[i + 1] = Math.sqrt(
+        (x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2,
+      );
+    }
+    dashedGeometry.setAttribute(
+      "lineDistance",
+      new BufferAttribute(lineDistances, 1),
     );
 
-    return;
+    const dashedMaterial = new LineDashedMaterial({
+      color: colorGrid,
+      dashSize: step / 20,
+      gapSize: step / 20,
+      opacity: 1,
+      transparent: false,
+      vertexColors: false,
+    });
+
+    const dashedLines = new LineSegments(dashedGeometry, dashedMaterial);
+    this.add(dashedLines);
+
+    // Centerline X (solid)
+    const xGeometry = new BufferGeometry();
+    xGeometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(solidVerticesX, 3),
+    );
+    const xMaterial = new LineBasicMaterial({ color: colorX });
+    this.add(new LineSegments(xGeometry, xMaterial));
+
+    // Centerline Y (solid)
+    const yGeometry = new BufferGeometry();
+    yGeometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(solidVerticesY, 3),
+    );
+    const yMaterial = new LineBasicMaterial({ color: colorY });
+    this.add(new LineSegments(yGeometry, yMaterial));
+  }
+}
+
+class Grid extends Group {
+  constructor(
+    viewer,
+    bbox,
+    ticks,
+    gridFontSize,
+    centerGrid,
+    axes0,
+    grid,
+    flipY,
+    theme,
+  ) {
+    super();
+
+    if (ticks === undefined) {
+      ticks = 5;
+    }
+    this.ticks = ticks;
+    this.gridFontSize = gridFontSize;
+    this.viewer = viewer;
+    this.bbox = bbox;
+    this.centerGrid = centerGrid;
+    this.axes0 = axes0;
+    this.grid = grid;
+    this.allGrid = grid[0] | grid[1] | grid[2];
+    this.theme = theme;
+    this.flipY = flipY;
+    this.lastZoomIndex = 0;
+    this.lastFontIndex = 50;
+    this.tickValue = this.viewer.display._getElement("tcv_tick_size_value");
+    this.info = this.viewer.display._getElement("tcv_tick_size");
+
+    // Heuristics, experimentally determined
+    const size = bbox.max_dist_from_center();
+    const canvasSize = Math.min(this.viewer.cadWidth, this.viewer.height);
+    const scale = Math.max(1.0, 6 - Math.log2(canvasSize / 100));
+    this.minFontIndex = Math.round(
+      (size < 2 ? 6 : size < 1000 ? 5 : 3) * scale,
+    );
+    this.minZoomIndex = -4;
+    this.zoomMaxIndex = 5;
+
+    this.canvasHeight = 128; // Fixed height for all label textures (higher = crisper)
+
+    this.geomCache = {};
+    this.textureAspectRatios = {}; // Store aspect ratio per texture
+    this.labelCache = {};
+    this.materialCache = {};
+
+    this.colors = {
+      dark: [
+        "#ff4500", // x
+        "#32cd32", // y
+        "#3b9eff", // z
+      ],
+      light: [
+        "#ff4500", // x
+        "#32cd32", // y
+        "#3b9eff", // z
+      ],
+    };
+
+    this.create();
   }
 
-  const path = new ShapePath();
+  calculateTextScale(pixel) {
+    const camera = this.viewer.camera.getCamera();
+    const height = this.viewer.height;
 
-  let x, y, cpx, cpy, cpx1, cpy1, cpx2, cpy2;
+    // Decrease fontsize for small canvases
+    // 300px and below 80%
+    // 800px and above 100%
+    // linear in between
+    const fontSize = capped_linear(300, 0.8, 800, 1.0, height) * pixel;
 
-  if (glyph.o) {
-    const outline =
-      glyph._cachedOutline || (glyph._cachedOutline = glyph.o.split(" "));
+    if (this.viewer.ortho) {
+      // Ortho: convert pixel size to world units based on zoom
+      const visibleWorldHeight = (camera.top - camera.bottom) / camera.zoom;
+      const pixelsPerWorldUnit = height / visibleWorldHeight;
 
-    for (let i = 0, l = outline.length; i < l; ) {
-      const action = outline[i++];
+      const scaleFactor = 1.6; // Adjust this to change ortho label size (1.0 = default, 2.0 = double)
+      return (fontSize / pixelsPerWorldUnit) * scaleFactor;
+    } else {
+      // Perspective with sizeAttenuation: false
+      // Scale is in normalized device coordinates (screen space)
+      // Scale of 1.0 = full viewport height
+      const scaleFactor = 0.6; // Adjust this to change label size (0.1 = smaller, 2.0 = larger)
+      return (fontSize / height) * scaleFactor;
+    }
+  }
 
-      switch (action) {
-        case "m": // moveTo
-          x = outline[i++] * scale + offsetX;
-          y = outline[i++] * scale + offsetY;
-
-          path.moveTo(x, y);
-
-          break;
-
-        case "l": // lineTo
-          x = outline[i++] * scale + offsetX;
-          y = outline[i++] * scale + offsetY;
-
-          path.lineTo(x, y);
-
-          break;
-
-        case "q": // quadraticCurveTo
-          cpx = outline[i++] * scale + offsetX;
-          cpy = outline[i++] * scale + offsetY;
-          cpx1 = outline[i++] * scale + offsetX;
-          cpy1 = outline[i++] * scale + offsetY;
-
-          path.quadraticCurveTo(cpx1, cpy1, cpx, cpy);
-
-          break;
-
-        case "b": // bezierCurveTo
-          cpx = outline[i++] * scale + offsetX;
-          cpy = outline[i++] * scale + offsetY;
-          cpx1 = outline[i++] * scale + offsetX;
-          cpy1 = outline[i++] * scale + offsetY;
-          cpx2 = outline[i++] * scale + offsetX;
-          cpy2 = outline[i++] * scale + offsetY;
-
-          path.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, cpx, cpy);
-
-          break;
+  scaleLabels() {
+    for (var axis in this.children) {
+      var group = this.children[axis];
+      for (var i = 1; i < group.children.length; i++) {
+        const label = group.children[i];
+        var s = this.calculateTextScale(this.gridFontSize);
+        // Sprites need to maintain their individual aspect ratios
+        const aspectRatio = label.userData.aspectRatio || 4; // fallback default
+        label.scale.set(s * aspectRatio, s, 1);
       }
     }
   }
 
-  return { offsetX: glyph.ha * scale, path: path };
+  showLabels(flag) {
+    for (var axis in this.children) {
+      var group = this.children[axis];
+      for (var i = 1; i < group.children.length; i++) {
+        const label = group.children[i];
+        label.visible = flag;
+      }
+    }
+  }
+
+  async update(zoom, force = false, theme = null) {
+    if (!this.getVisible()) return;
+
+    // We got called from the change theme handler
+    if (theme) this.theme = theme;
+
+    var zoomIndex = Math.round(Math.log2(0.4 * zoom));
+
+    if (Math.abs(zoomIndex) < 1e-6) zoomIndex = 0;
+    if (
+      force ||
+      (zoomIndex != this.lastZoomIndex &&
+        zoomIndex < this.zoomMaxIndex &&
+        zoomIndex > this.minZoomIndex)
+    ) {
+      deepDispose(this.children);
+      this.children = [];
+
+      const halfTicks = (this.ticks0 / 2) * 2 ** zoomIndex;
+      this.ticks = Math.round(2 * halfTicks);
+
+      await this.create(false);
+
+      this.lastZoomIndex = zoomIndex;
+      force = true; // when grid is created newly, ensure font sizing is executed, too
+    }
+
+    const fontIndex = Math.round(zoom * 50);
+    // console.log(fontIndex, zoomIndex);
+    if (force || fontIndex != this.lastFontIndex) {
+      if (fontIndex < this.minFontIndex) {
+        this.showLabels(false);
+      } else {
+        // Only update scale in ortho mode
+        // In perspective, sizeAttenuation handles scaling automatically
+        if (this.viewer.ortho) {
+          this.scaleLabels();
+        }
+        this.showLabels(true);
+      }
+      this.lastFontIndex = fontIndex;
+    }
+  }
+
+  async create(nice = true) {
+    // in case the bbox has the same size as the nice grid there should be
+    // a margin bewteen grid and object. Hence factor 1.05
+    if (nice) {
+      const s2 = Math.max(
+        Math.abs(this.bbox.max.x),
+        Math.abs(this.bbox.max.y),
+        Math.abs(this.bbox.max.z),
+        Math.abs(this.bbox.min.x),
+        Math.abs(this.bbox.min.y),
+        Math.abs(this.bbox.min.z),
+      );
+      var [axisStart, axisEnd, niceTick] = this.niceBounds(
+        -s2 * 1.05,
+        s2 * 1.05,
+        this.ticks,
+      );
+      this.size = axisEnd - axisStart;
+      this.ticks = this.size / niceTick;
+      this.ticks0 = this.ticks;
+      this.delta = niceTick;
+    } else {
+      this.delta = this.size / this.ticks;
+    }
+    this.setTickInfo(this.delta / 2);
+
+    for (var i = 0; i < 3; i++) {
+      var group = new Group();
+      group.name = `GridHelper-${i}`;
+      group.add(
+        new GridHelper(
+          this.size,
+          2 * this.ticks,
+          this.colors[this.theme][i === 0 ? 1 : i === 1 ? 0 : 2],
+          this.colors[this.theme][i === 0 ? 0 : i === 1 ? 2 : 1],
+          this.theme == "dark" ? 0x7777777 : 0xbbbbbb,
+        ),
+      );
+
+      var label;
+      for (var x = -this.size / 2; x <= this.size / 2; x += this.delta / 2) {
+        if (Math.abs(x) < 1e-6) {
+          continue;
+        } // skip center label
+
+        var x_fixed = trimTrailingZeros(x.toFixed(4));
+        // Add '+' prefix for positive numbers
+        if (x > 0) {
+          x_fixed = "+" + x_fixed;
+        }
+
+        label = this.createLabel(x_fixed, x, i, true); //cached
+        group.add(label);
+
+        label = this.createLabel(x_fixed, x, i, false); //cached
+        group.add(label);
+      }
+      this.add(group);
+    }
+    this.children[0].rotateX(Math.PI / 2);
+    this.children[1].rotateY(Math.PI / 2);
+    this.children[2].rotateZ(Math.PI / 2);
+
+    this.setCenter(this.axes0, this.flipY);
+    // Set initial scale (required for both modes)
+    this.scaleLabels();
+    this.setCenter(this.viewer.axes0, this.flipY);
+    this.setVisible();
+  }
+
+  createTextTexture(text) {
+    if (this.geomCache[text]) {
+      return this.geomCache[text];
+    }
+    // console.log("texture cache miss", text);
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d", {
+      alpha: true,
+      desynchronized: false,
+      willReadFrequently: false,
+    });
+
+    // Use consistent high-quality settings regardless of text length
+    const fontSize = 80;
+    const strokeWidth = 12;
+
+    const weight = this.theme === "dark" ? "500" : "560";
+    const font = `${weight} ${fontSize}px Verdana, Arial, sans-serif`;
+    ctx.font = font;
+
+    // Measure text width to create appropriately sized canvas
+    const metrics = ctx.measureText(text);
+    const textWidth = metrics.width;
+    const padding = 20;
+
+    // Dynamic width for long text, consistent height for quality
+    const canvasWidth = Math.round(textWidth + padding * 2);
+    const canvasHeight = this.canvasHeight;
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    // Need to reset context properties after canvas resize
+    // ctx.imageSmoothingEnabled = true;
+    // ctx.imageSmoothingQuality = "high";
+    ctx.textRendering = "optimizeLegibility";
+
+    ctx.font = font;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    // Clear with fully transparent background
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    // Draw outline/stroke using actual canvas background color
+    ctx.lineWidth = strokeWidth;
+    ctx.lineJoin = "round";
+    ctx.miterLimit = 2;
+    ctx.strokeStyle = this.theme === "dark" ? "#444444" : "#ffffff";
+    ctx.strokeText(text, centerX, centerY);
+
+    // Draw main text on top
+    ctx.fillStyle = this.theme === "dark" ? "#aaaaaa" : "#333333";
+    ctx.fillText(text, centerX, centerY);
+
+    const texture = new CanvasTexture(canvas);
+    texture.needsUpdate = true;
+
+    // Use LinearSRGBColorSpace for light theme, SRGBColorSpace for dark theme
+    texture.colorSpace =
+      this.theme === "dark" ? SRGBColorSpace : LinearSRGBColorSpace;
+
+    // Use nearest filtering for crisp text
+    texture.minFilter = LinearFilter;
+    texture.magFilter = LinearFilter;
+    texture.generateMipmaps = false;
+    texture.anisotropy = this.viewer.renderer.capabilities.getMaxAnisotropy();
+    texture.premultiplyAlpha = false;
+
+    // Clamp to edge to prevent sampling artifacts at borders
+    texture.wrapS = ClampToEdgeWrapping;
+    texture.wrapT = ClampToEdgeWrapping;
+
+    // Store texture and its aspect ratio
+    this.geomCache[text] = texture;
+    this.textureAspectRatios[text] = canvasWidth / canvasHeight;
+
+    return texture;
+  }
+
+  createLabel(tick, x, i, horizontal) {
+    const key = `${tick}_${i}_${horizontal}`;
+    if (this.labelCache[key]) {
+      const cached = this.labelCache[key];
+      // Clone sprite - materials are shared per texture+plane+orientation
+      const sprite = new Sprite(cached.material);
+      sprite.position.copy(cached.position);
+      sprite.scale.copy(cached.scale);
+      sprite.userData.aspectRatio = cached.userData.aspectRatio;
+      return sprite;
+    }
+    // console.log("label cache miss", tick, i, horizontal);
+
+    const texture = this.createTextTexture(tick);
+
+    // Determine rotation based on plane and axis
+    // All labels should be perpendicular to their axis to prevent overlap
+    // Ensure consistent rotation for each physical axis across all planes
+    let rotation = 0;
+    if (i === 0) {
+      // XY plane: X-axis (horizontal) = 0°, Y-axis (vertical) = 0° for perpendicular
+      rotation = 0;
+    } else if (i === 1) {
+      // XZ plane: Z-axis (horizontal) = 90°, X-axis (vertical) = 0° for perpendicular
+      rotation = horizontal ? Math.PI / 2 : 0;
+    } else {
+      // YZ plane: Y-axis (horizontal) = 0°, Z-axis (vertical) = 90° (match above)
+      rotation = horizontal ? 0 : Math.PI / 2;
+    }
+
+    // Create or reuse material based on texture and orientation
+    const materialKey = `${tick}_${i}_${horizontal}`;
+    let material = this.materialCache[materialKey];
+    if (!material) {
+      material = new SpriteMaterial({
+        map: texture,
+        transparent: true,
+        depthTest: true,
+        depthWrite: false,
+        blending: NormalBlending,
+        rotation: rotation,
+        sizeAttenuation: false, // Disable distance scaling - maintain constant screen size
+      });
+      this.materialCache[materialKey] = material;
+    }
+
+    const sprite = new Sprite(material);
+
+    // Adjust direction based on plane and axis to fix flipped labels
+    let dir;
+    if (i === 0) {
+      // XY plane: vertical axis needs flip
+      dir = horizontal ? 1 : -1;
+    } else if (i === 1) {
+      // XZ plane: horizontal axis needs flip (opposite of XY)
+      dir = horizontal ? -1 : 1;
+    } else {
+      // YZ plane: no flip needed
+      dir = 1;
+    }
+
+    if (horizontal) {
+      sprite.position.set(dir * x, 0, 0);
+    } else {
+      sprite.position.set(0, 0, dir * x);
+    }
+
+    // Set initial scale using actual texture aspect ratio
+    const aspectRatio = this.textureAspectRatios[tick] || 4; // fallback default
+    sprite.scale.set(aspectRatio, 1, 1);
+
+    // Store aspect ratio on sprite for scaleLabels to use
+    sprite.userData.aspectRatio = aspectRatio;
+
+    this.labelCache[key] = sprite;
+    return sprite;
+  }
+
+  // Calculate nice symmetric grid bounds centered at zero
+  // numTicks: desired number of ticks in one direction (from 0 to max)
+  niceBounds(axisStart, axisEnd, numTicks) {
+    if (!numTicks) {
+      numTicks = 8;
+    }
+
+    // Calculate max absolute value (for symmetric grid)
+    const maxAbsValue = Math.max(Math.abs(axisStart), Math.abs(axisEnd));
+
+    if (maxAbsValue === 0) {
+      return [0, 0, 0];
+    }
+
+    // Calculate rough delta
+    const roughDelta = maxAbsValue / numTicks;
+
+    // Find the order of magnitude
+    const exponent = Math.floor(Math.log10(roughDelta));
+    const magnitude = Math.pow(10, exponent);
+
+    // Normalize to range [1, 10)
+    const normalized = roughDelta / magnitude;
+
+    // Round to nice number: 1, 2, 2.5, 5, or 10
+    let niceFactor;
+    if (normalized <= 1.0) {
+      niceFactor = 1.0;
+    } else if (normalized <= 2.0) {
+      niceFactor = 2.0;
+    } else if (normalized <= 2.5) {
+      niceFactor = 2.5;
+    } else if (normalized <= 5.0) {
+      niceFactor = 5.0;
+    } else {
+      niceFactor = 10.0;
+    }
+
+    const niceDelta = niceFactor * magnitude;
+
+    // Calculate how many ticks fit within the original bounds
+    // Use Math.ceil to ensure we cover the full range
+    const actualTicks = Math.ceil(maxAbsValue / niceDelta);
+
+    // Calculate symmetric bounds based on actual ticks that fit
+    const niceMax = niceDelta * actualTicks;
+    const niceMin = -niceMax;
+
+    return [niceMin, niceMax, niceDelta];
+  }
+
+  computeGrid() {
+    this.allGrid = this.grid[0] | this.grid[1] | this.grid[2];
+
+    this.viewer.display.toolbarButtons["grid"].set(this.allGrid);
+    this.viewer.display.checkElement("tcv_grid-xy", this.grid[0]);
+    this.viewer.display.checkElement("tcv_grid-xz", this.grid[1]);
+    this.viewer.display.checkElement("tcv_grid-yz", this.grid[2]);
+
+    this.setVisible();
+  }
+
+  setGrid(action, flag = null) {
+    switch (action) {
+      case "grid":
+        this.allGrid = flag == null ? !this.allGrid : flag;
+        this.grid[0] = this.allGrid;
+        this.grid[1] = this.allGrid;
+        this.grid[2] = this.allGrid;
+        break;
+      case "grid-xy":
+        this.grid[0] = !this.grid[0];
+        break;
+      case "grid-xz":
+        this.grid[1] = !this.grid[1];
+        break;
+      case "grid-yz":
+        this.grid[2] = !this.grid[2];
+        break;
+    }
+    this.computeGrid();
+  }
+
+  setGrids(xy, xz, yz) {
+    this.grid[0] = xy;
+    this.grid[1] = xz;
+    this.grid[2] = yz;
+    this.computeGrid();
+  }
+
+  setCenter(axes0, flipY) {
+    const c = axes0 ? [0, 0, 0] : this.bbox.center();
+
+    this.children.forEach((ch) => ch.position.set(...c));
+
+    if (!this.centerGrid) {
+      this.children[0].position.z -= this.size / 2;
+      this.children[1].position.y -= ((flipY ? -1 : 1) * this.size) / 2;
+      this.children[2].position.x -= this.size / 2;
+    }
+  }
+
+  setVisible() {
+    this.children.forEach((ch, i) => {
+      ch.visible = this.grid[i];
+    });
+    if (this.allGrid) {
+      this.info.style.display = "block";
+    } else {
+      this.info.style.display = "none";
+    }
+  }
+
+  setTickInfo() {
+    this.tickValue.innerText = trimTrailingZeros((this.delta / 2).toFixed(4));
+  }
+
+  getVisible() {
+    return this.allGrid;
+  }
+
+  clearCache() {
+    // Dispose textures from geomCache
+    if (Object.keys(this.geomCache).length > 0) {
+      for (var key of Object.keys(this.geomCache)) {
+        const texture = this.geomCache[key];
+        texture.dispose();
+      }
+      this.geomCache = {};
+    }
+
+    // Clear texture aspect ratios
+    this.textureAspectRatios = {};
+
+    // Dispose materials from materialCache
+    if (this.materialCache && Object.keys(this.materialCache).length > 0) {
+      for (var key of Object.keys(this.materialCache)) {
+        const material = this.materialCache[key];
+        material.dispose();
+      }
+      this.materialCache = {};
+    }
+
+    // Clear labelCache (sprites reference shared materials, so no disposal needed here)
+    if (Object.keys(this.labelCache).length > 0) {
+      this.labelCache = {};
+    }
+  }
+
+  dispose() {
+    this.clearCache();
+  }
+}
+
+class AxesHelper extends LineSegments2 {
+  constructor(center, size, lineWidth, width, height, axes0, visible, theme) {
+    // prettier-ignore
+    const vertices = new Float32Array([
+            0, 0, 0, size, 0, 0,
+            0, 0, 0, 0, size, 0,
+            0, 0, 0, 0, 0, size
+        ]);
+    // prettier-ignore
+
+    const geometry = new LineSegmentsGeometry();
+    geometry.setPositions(vertices);
+
+    const material = new LineMaterial({
+      vertexColors: true,
+      toneMapped: false,
+      linewidth: lineWidth,
+      transparent: true,
+    });
+    material.resolution.set(width, height);
+
+    super(geometry, material);
+    // prettier-ignore
+    this.colors = {
+        dark:[
+            1,         69 / 255, 0,         1,        69 / 255, 0,         // x
+            50 / 255, 205 / 255, 50 / 255, 50 / 255, 205 / 255, 50 / 255,  // y
+            59 / 255, 158 / 255, 1,        59 / 255, 158 / 255, 1          // z
+        ],
+        light:[
+            1, 0,   0, 1, 0,   0,  // x
+            0, 0.7, 0, 0, 0.7, 0,  // y
+            0, 0,   1, 0, 0,   1   // z
+        ]};
+    geometry.setColors(new Float32Array(this.colors[theme]));
+    this.geometry = geometry;
+
+    this.center = center;
+
+    this.type = "AxesHelper";
+    this.name = "AxesHelper";
+    this.visible = visible;
+    this.setCenter(axes0);
+  }
+
+  setCenter(axes0) {
+    if (axes0) {
+      this.position.set(0, 0, 0);
+    } else {
+      this.position.set(...this.center);
+    }
+  }
+
+  setVisible(visible) {
+    this.visible = visible;
+  }
+
+  changeTheme(theme) {
+    this.geometry.setColors(new Float32Array(this.colors[theme]));
+  }
+}
+
+/**
+ * Class representing a font.
+ */
+class Font {
+
+	/**
+	 * Constructs a new font.
+	 *
+	 * @param {Object} data - The font data as JSON.
+	 */
+	constructor( data ) {
+
+		/**
+		 * This flag can be used for type testing.
+		 *
+		 * @type {boolean}
+		 * @readonly
+		 * @default true
+		 */
+		this.isFont = true;
+
+		this.type = 'Font';
+
+		/**
+		 * The font data as JSON.
+		 *
+		 * @type {Object}
+		 */
+		this.data = data;
+
+	}
+
+	/**
+	 * Generates geometry shapes from the given text and size. The result of this method
+	 * should be used with {@link ShapeGeometry} to generate the actual geometry data.
+	 *
+	 * @param {string} text - The text.
+	 * @param {number} [size=100] - The text size.
+	 * @return {Array<Shape>} An array of shapes representing the text.
+	 */
+	generateShapes( text, size = 100 ) {
+
+		const shapes = [];
+		const paths = createPaths( text, size, this.data );
+
+		for ( let p = 0, pl = paths.length; p < pl; p ++ ) {
+
+			shapes.push( ...paths[ p ].toShapes() );
+
+		}
+
+		return shapes;
+
+	}
+
+}
+
+function createPaths( text, size, data ) {
+
+	const chars = Array.from( text );
+	const scale = size / data.resolution;
+	const line_height = ( data.boundingBox.yMax - data.boundingBox.yMin + data.underlineThickness ) * scale;
+
+	const paths = [];
+
+	let offsetX = 0, offsetY = 0;
+
+	for ( let i = 0; i < chars.length; i ++ ) {
+
+		const char = chars[ i ];
+
+		if ( char === '\n' ) {
+
+			offsetX = 0;
+			offsetY -= line_height;
+
+		} else {
+
+			const ret = createPath( char, scale, offsetX, offsetY, data );
+			offsetX += ret.offsetX;
+			paths.push( ret.path );
+
+		}
+
+	}
+
+	return paths;
+
+}
+
+function createPath( char, scale, offsetX, offsetY, data ) {
+
+	const glyph = data.glyphs[ char ] || data.glyphs[ '?' ];
+
+	if ( ! glyph ) {
+
+		console.error( 'THREE.Font: character "' + char + '" does not exists in font family ' + data.familyName + '.' );
+
+		return;
+
+	}
+
+	const path = new ShapePath();
+
+	let x, y, cpx, cpy, cpx1, cpy1, cpx2, cpy2;
+
+	if ( glyph.o ) {
+
+		const outline = glyph._cachedOutline || ( glyph._cachedOutline = glyph.o.split( ' ' ) );
+
+		for ( let i = 0, l = outline.length; i < l; ) {
+
+			const action = outline[ i ++ ];
+
+			switch ( action ) {
+
+				case 'm': // moveTo
+
+					x = outline[ i ++ ] * scale + offsetX;
+					y = outline[ i ++ ] * scale + offsetY;
+
+					path.moveTo( x, y );
+
+					break;
+
+				case 'l': // lineTo
+
+					x = outline[ i ++ ] * scale + offsetX;
+					y = outline[ i ++ ] * scale + offsetY;
+
+					path.lineTo( x, y );
+
+					break;
+
+				case 'q': // quadraticCurveTo
+
+					cpx = outline[ i ++ ] * scale + offsetX;
+					cpy = outline[ i ++ ] * scale + offsetY;
+					cpx1 = outline[ i ++ ] * scale + offsetX;
+					cpy1 = outline[ i ++ ] * scale + offsetY;
+
+					path.quadraticCurveTo( cpx1, cpy1, cpx, cpy );
+
+					break;
+
+				case 'b': // bezierCurveTo
+
+					cpx = outline[ i ++ ] * scale + offsetX;
+					cpy = outline[ i ++ ] * scale + offsetY;
+					cpx1 = outline[ i ++ ] * scale + offsetX;
+					cpy1 = outline[ i ++ ] * scale + offsetY;
+					cpx2 = outline[ i ++ ] * scale + offsetX;
+					cpy2 = outline[ i ++ ] * scale + offsetY;
+
+					path.bezierCurveTo( cpx1, cpy1, cpx2, cpy2, cpx, cpy );
+
+					break;
+
+			}
+
+		}
+
+	}
+
+	return { offsetX: glyph.ha * scale, path: path };
+
 }
 
 const helvetiker = {
@@ -83889,6 +84594,12 @@ const helvetiker = {
       x_max: 779,
       ha: 849,
       o: "m 779 0 l 0 0 l 0 113 l 621 896 l 40 896 l 40 1013 l 779 1013 l 778 887 l 171 124 l 779 124 l 779 0 ",
+    },
+    e: {
+      x_min: 0,
+      x_max: 714,
+      ha: 813,
+      o: "m 714 326 l 140 326 q 200 157 140 227 q 359 87 260 87 q 488 130 431 87 q 561 245 545 174 l 697 245 q 577 48 670 123 q 358 -26 484 -26 q 97 85 195 -26 q 0 363 0 197 q 94 642 0 529 q 358 765 195 765 q 626 627 529 765 q 714 326 714 503 m 576 429 q 507 583 564 522 q 355 650 445 650 q 206 583 266 650 q 140 429 152 522 l 576 429 ",
     },
     0: {
       x_min: 73,
@@ -83950,6 +84661,12 @@ const helvetiker = {
       ha: 792,
       o: "m 739 524 q 619 94 739 241 q 362 -32 516 -32 q 150 47 242 -32 q 59 244 59 126 l 191 244 q 246 129 191 176 q 373 82 301 82 q 526 161 466 82 q 597 440 597 255 q 363 334 501 334 q 130 432 216 334 q 53 650 53 521 q 134 880 53 786 q 383 986 226 986 q 659 841 566 986 q 739 524 739 719 m 388 449 q 535 514 480 449 q 585 658 585 573 q 535 805 585 744 q 388 873 480 873 q 242 809 294 873 q 191 658 191 745 q 239 514 191 572 q 388 449 292 449 ",
     },
+    "+": {
+      x_min: 23,
+      x_max: 768,
+      ha: 792,
+      o: "m 768 372 l 444 372 l 444 0 l 347 0 l 347 372 l 23 372 l 23 468 l 347 468 l 347 840 l 444 840 l 444 468 l 768 468 l 768 372 ",
+    },
     "-": {
       x_min: 8.71875,
       x_max: 350.390625,
@@ -83976,282 +84693,6 @@ const helvetiker = {
   lineHeight: 1522,
   underlineThickness: 50,
 };
-
-class Grid extends Group {
-  constructor(display, bbox, ticks, centerGrid, axes0, grid, flipY, theme) {
-    super();
-
-    if (ticks === undefined) {
-      ticks = 10;
-    }
-    this.display = display;
-    this.bbox = bbox;
-    this.centerGrid = centerGrid;
-    this.grid = grid;
-    this.allGrid = grid[0] | grid[1] | grid[2];
-    const s = new Vector3();
-    bbox.getSize(s);
-    const s2 = Math.max(s.x, s.y, s.z);
-    // const s2 = bbox.boundingSphere().radius;
-
-    // in case the bbox has the same siez as the nice grid there should be
-    // a margin bewteen grid and object. Hence factor 1.1
-    var [axisStart, axisEnd, niceTick] = this.niceBounds(
-      -s2 * 1.05,
-      s2 * 1.05,
-      2 * ticks,
-    );
-    this.size = axisEnd - axisStart;
-
-    const font = new Font(helvetiker);
-
-    this.ticks = niceTick;
-
-    for (var i = 0; i < 3; i++) {
-      var group = new Group();
-      group.name = `GridHelper-${i}`;
-      group.add(
-        new GridHelper(
-          this.size,
-          this.size / this.ticks,
-          theme === "dark" ? 0xcccccc : 0x777777,
-          theme == "dark" ? 0x999999 : 0xbbbbbb,
-        ),
-      );
-      const mat = new LineBasicMaterial({
-        color:
-          theme === "dark"
-            ? new Color(0.5, 0.5, 0.5)
-            : new Color(0.4, 0.4, 0.4),
-        side: DoubleSide,
-      });
-      var dir;
-      var geom;
-      for (var x = -this.size / 2; x <= this.size / 2; x += this.ticks) {
-        geom = this.createNumber(x, font);
-        if (i == 0) {
-          geom.rotateX(-Math.PI / 2);
-          geom.rotateY(Math.PI / 2);
-        } else if (i == 1) {
-          geom.rotateX(Math.PI / 2);
-          geom.rotateY(-Math.PI / 2);
-        } else {
-          geom.rotateX(Math.PI / 2);
-          geom.rotateY(-Math.PI / 2);
-        }
-        const label = new Mesh(geom, mat);
-        dir = i == 1 ? -1 : 1;
-        label.position.set(dir * x, 0, 0);
-        group.add(label);
-
-        if (Math.abs(x) < 1e-6) continue;
-
-        geom = this.createNumber(x, font);
-        if (i == 0) {
-          geom.rotateX(-Math.PI / 2);
-        } else if (i == 1) {
-          geom.rotateX(-Math.PI / 2);
-          geom.rotateZ(Math.PI);
-        } else {
-          geom.rotateX(Math.PI / 2);
-        }
-        const label2 = new Mesh(geom, mat);
-        dir = i == 0 ? -1 : 1;
-        label2.position.set(0, 0, dir * x);
-        group.add(label2);
-      }
-      this.add(group);
-    }
-
-    this.children[0].rotateX(Math.PI / 2);
-    this.children[1].rotateY(Math.PI / 2);
-    this.children[2].rotateZ(Math.PI / 2);
-
-    this.setCenter(axes0, flipY);
-
-    this.setVisible();
-  }
-
-  createNumber(x, font) {
-    // experimentally detected: p1=(size=640, font_size=7.1) p2=(size=2.2, font_size=0.035)
-    const m = (0.035 - 7.1) / (2.2 - 640);
-    const fontSize = m * (this.size - 640) + 7.1;
-
-    const shape = font.generateShapes(x.toFixed(1), fontSize);
-    var geom = new ShapeGeometry(shape);
-
-    geom.computeBoundingBox();
-    var xMid = -0.5 * (geom.boundingBox.max.x - geom.boundingBox.min.x);
-    var yMid = -0.5 * (geom.boundingBox.max.y - geom.boundingBox.min.y);
-    geom.translate(xMid, yMid, 0);
-    return geom;
-  }
-
-  // https://stackoverflow.com/questions/4947682/intelligently-calculating-chart-tick-positions
-  niceNumber(value, round) {
-    var exponent = Math.floor(Math.log10(value));
-    var fraction = value / 10 ** exponent;
-
-    var niceFraction;
-
-    if (round) {
-      if (fraction < 1.5) {
-        niceFraction = 1.0;
-      } else if (fraction < 3.0) {
-        niceFraction = 2.0;
-      } else if (fraction < 7.0) {
-        niceFraction = 5.0;
-      } else {
-        niceFraction = 10.0;
-      }
-    } else {
-      if (fraction <= 1) {
-        niceFraction = 1.0;
-      } else if (fraction <= 2) {
-        niceFraction = 2.0;
-      } else if (fraction <= 5) {
-        niceFraction = 5.0;
-      } else {
-        niceFraction = 10.0;
-      }
-    }
-    return niceFraction * 10 ** exponent;
-  }
-
-  niceBounds(axisStart, axisEnd, numTicks) {
-    var niceTick;
-    var niceRange;
-
-    if (!numTicks) {
-      numTicks = 10;
-    }
-
-    var axisWidth = axisEnd - axisStart;
-
-    if (axisWidth == 0) {
-      niceTick = 0;
-    } else {
-      niceRange = this.niceNumber(axisWidth);
-      niceTick = this.niceNumber(niceRange / (numTicks - 1), true);
-      axisStart = Math.floor(axisStart / niceTick) * niceTick;
-      axisEnd = Math.ceil(axisEnd / niceTick) * niceTick;
-    }
-    return [axisStart, axisEnd, niceTick];
-  }
-
-  computeGrid() {
-    this.allGrid = this.grid[0] | this.grid[1] | this.grid[2];
-
-    this.display.toolbarButtons["grid"].set(this.allGrid);
-    this.display.checkElement("tcv_grid-xy", this.grid[0]);
-    this.display.checkElement("tcv_grid-xz", this.grid[1]);
-    this.display.checkElement("tcv_grid-yz", this.grid[2]);
-
-    this.setVisible();
-  }
-
-  setGrid(action, flag = null) {
-    switch (action) {
-      case "grid":
-        this.allGrid = flag == null ? !this.allGrid : flag;
-        this.grid[0] = this.allGrid;
-        this.grid[1] = this.allGrid;
-        this.grid[2] = this.allGrid;
-        break;
-      case "grid-xy":
-        this.grid[0] = !this.grid[0];
-        break;
-      case "grid-xz":
-        this.grid[1] = !this.grid[1];
-        break;
-      case "grid-yz":
-        this.grid[2] = !this.grid[2];
-        break;
-    }
-    this.computeGrid();
-  }
-
-  setGrids(xy, xz, yz) {
-    this.grid[0] = xy;
-    this.grid[1] = xz;
-    this.grid[2] = yz;
-    this.computeGrid();
-  }
-
-  setCenter(axes0, flipY) {
-    const c = axes0 ? [0, 0, 0] : this.bbox.center();
-
-    this.children.forEach((ch) => ch.position.set(...c));
-
-    if (!this.centerGrid) {
-      this.children[0].position.z -= this.size / 2;
-      this.children[1].position.y -= ((flipY ? -1 : 1) * this.size) / 2;
-      this.children[2].position.x -= this.size / 2;
-    }
-  }
-
-  setVisible() {
-    this.children.forEach((ch, i) => {
-      ch.visible = this.grid[i];
-    });
-  }
-}
-
-class AxesHelper extends LineSegments2 {
-  constructor(center, size, lineWidth, width, height, axes0, visible, theme) {
-    // prettier-ignore
-    const vertices = new Float32Array([
-            0, 0, 0, size, 0, 0,
-            0, 0, 0, 0, size, 0,
-            0, 0, 0, 0, 0, size
-        ]);
-    // prettier-ignore
-    const colors = (theme === "dark") ?
-            [
-                1,          0x45 / 255, 0,          1,          0x45 / 255, 0,           // x
-                0x32 / 255, 0xcd / 255, 0x32 / 255, 0x32 / 255, 0xcd / 255, 0x32 / 255,  // y
-                0x3b / 255, 0x9e / 255, 1,          0x3b / 255, 0x9e / 255, 1            // z
-            ] :
-            [
-                1, 0,   0, 1, 0,   0,  // x
-                0, 0.7, 0, 0, 0.7, 0,  // y
-                0, 0,   1, 0, 0,   1   // z
-            ];
-
-    const geometry = new LineSegmentsGeometry();
-    geometry.setPositions(vertices);
-    geometry.setColors(new Float32Array(colors));
-
-    const material = new LineMaterial({
-      vertexColors: true,
-      toneMapped: false,
-      linewidth: lineWidth,
-      transparent: true,
-    });
-    material.resolution.set(width, height);
-
-    super(geometry, material);
-
-    this.center = center;
-
-    this.type = "AxesHelper";
-    this.name = "AxesHelper";
-    this.visible = visible;
-    this.setCenter(axes0);
-  }
-
-  setCenter(axes0) {
-    if (axes0) {
-      this.position.set(0, 0, 0);
-    } else {
-      this.position.set(...this.center);
-    }
-  }
-
-  setVisible(visible) {
-    this.visible = visible;
-  }
-}
 
 const length = 54;
 const distance = length + 18;
@@ -84287,7 +84728,7 @@ class OrientationMarker {
     this.camera.lookAt(new Vector3(0, 0, 0));
 
     // axes
-    const axes = new AxesHelper(
+    this.axes = new AxesHelper(
       [0, 0, 0],
       length,
       size,
@@ -84297,20 +84738,21 @@ class OrientationMarker {
       true,
       this.theme,
     );
-    this.scene.add(axes);
+    this.scene.add(this.axes);
 
-    const colors =
-      this.theme === "dark"
-        ? [
-            [1, 69 / 255, 0],
-            [50 / 255, 205 / 255, 50 / 255],
-            [59 / 255, 158 / 255, 1],
-          ]
-        : [
-            [1, 0, 0],
-            [0, 0.5, 0],
-            [0, 0, 1],
-          ];
+    this.colors = {
+      dark: [
+        [1, 69 / 255, 0],
+        [50 / 255, 205 / 255, 50 / 255],
+        [59 / 255, 158 / 255, 1],
+      ],
+      light: [
+        [1, 0, 0],
+        [0, 0.5, 0],
+        [0, 0, 1],
+      ],
+    };
+
     this.cones = [];
     for (var i = 0; i < 3; i++) {
       var coneGeometry = new CylinderGeometry(
@@ -84321,7 +84763,7 @@ class OrientationMarker {
         1,
       );
       const coneMaterial = new MeshBasicMaterial({
-        color: new Color(...colors[i]),
+        color: new Color(...this.colors[this.theme][i]),
         toneMapped: false,
       });
       const cone = new Mesh(coneGeometry, coneMaterial);
@@ -84340,7 +84782,7 @@ class OrientationMarker {
 
     for (i = 0; i < 3; i++) {
       const mat = new LineBasicMaterial({
-        // color: new THREE.Color(...colors[i]),
+        // color: new THREE.Color(...this.colors[this.theme][i]),
         color:
           this.theme === "dark"
             ? new Color(0.9, 0.9, 0.9)
@@ -84416,6 +84858,21 @@ class OrientationMarker {
       }
     }
   }
+
+  changeTheme(theme) {
+    for (const i in this.cones) {
+      const cone = this.cones[i];
+      cone.material.color = new Color(...this.colors[theme][i]);
+    }
+    this.axes.changeTheme(theme);
+    for (const i in this.labels) {
+      const label = this.labels[i];
+      label.material.color =
+        theme === "dark"
+          ? new Color(0.9, 0.9, 0.9)
+          : new Color(0, 0, 0);
+    }
+  }
 }
 
 const States = {
@@ -84452,23 +84909,13 @@ class TreeView {
     debug = false,
   ) {
     this.viewIcons = [
-      [
-        getIconSvg(theme, "shape_no"),
-        getIconSvg(theme, "shape"),
-        getIconSvg(theme, "shape_mix"),
-        getIconSvg(theme, "shape_empty"),
-      ],
-      [
-        getIconSvg(theme, "mesh_no"),
-        getIconSvg(theme, "mesh"),
-        getIconSvg(theme, "mesh_mix"),
-        getIconSvg(theme, "mesh_empty"),
-      ],
+      ["shape_no", "shape", "shape_mix", "shape_empty"],
+      ["mesh_no", "mesh", "mesh_mix", "mesh_empty"],
     ];
 
     this.navIcons = {
-      right: getIconSvg(theme, "nav_closed"),
-      down: getIconSvg(theme, "nav_open"),
+      right: "\u25BE",
+      down: "\u25B8",
     };
 
     this.tree = tree;
@@ -84821,8 +85268,8 @@ class TreeView {
     navMarker.className = "tv-nav-marker";
     navMarker.innerHTML = node.children
       ? node.expanded
-        ? this.navIcons.down
-        : this.navIcons.right
+        ? "\u25BE"
+        : "\u25B8"
       : "";
 
     navMarker.onclick = this.handleNavigationClick(node);
@@ -84840,7 +85287,8 @@ class TreeView {
         className += " tv-pointer";
       }
       icon.className = className;
-      icon.innerHTML = this.viewIcons[s][state];
+      icon.classList.add("tcv_tree_button");
+      icon.classList.add(`tcv_button_${this.viewIcons[s][state]}`);
       if (state !== States.disabled) {
         icon.onmousedown = (e) => {
           e.preventDefault();
@@ -84913,8 +85361,8 @@ class TreeView {
         if (isExpanded !== node.expanded) {
           childrenContainer.style.display = node.expanded ? "block" : "none";
           nodeElement.querySelector(`.tv-nav-marker`).innerHTML = node.expanded
-            ? this.navIcons.down
-            : this.navIcons.right;
+            ? this.navIcons.right
+            : this.navIcons.down;
           if (!node.expanded) {
             if (this.debug) {
               console.log("update => showChildContainer");
@@ -84942,7 +85390,12 @@ class TreeView {
     if (nodeElement) {
       const icon = nodeElement.querySelector(`.tv-icon${iconNumber}`);
       if (icon) {
-        icon.innerHTML = this.viewIcons[iconNumber][node.state[iconNumber]];
+        for (var b of this.viewIcons[iconNumber]) {
+          icon.classList.remove(`tcv_button_${b}`);
+        }
+        icon.classList.add(
+          `tcv_button_${this.viewIcons[iconNumber][node.state[iconNumber]]}`,
+        );
       }
       nodeElement.dataset[`state${iconNumber}`] = node.state[iconNumber];
     }
@@ -85383,10 +85836,10 @@ class TreeView {
   }
 
   dispose() {
-    this.viewIcons = null;
+    // this.viewIcons = null;
     this.root = null;
     this.tree = null;
-    this.navIcons = null;
+    // this.navIcons = null;
     this.scrollContainer.removeEventListener("scroll", this.handleScroll);
   }
 }
@@ -85976,10 +86429,10 @@ class Info {
     );
   }
 
-  readyMsg(gridSize, control) {
+  readyMsg(version, control) {
     var html = `<div class="tcv_info_header">Ready</div>
             <table class="small_table">
-              <tr class="tcv_small_table_row" ><td>Tick size</td>  <td>${gridSize} mm</td> </tr>
+              <tr class="tcv_small_table_row" ><td>Version</td><td>${version}</td> </tr>
               <tr class="tcv_small_table_row" ><td>Control</td><td>${control}</td></tr>
               <tr class="tcv_small_table_row" ><td>Axes</td>
                 <td>
@@ -87761,12 +88214,18 @@ class Camera {
 
     const aspect = width / height;
 
-    // calculate FOV
+    // 22 is a good compromise
+    var fov = 22;
+
     const dfactor = 5;
     this.camera_distance = dfactor * distance;
-    var fov = ((2 * Math.atan(1 / dfactor)) / Math.PI) * 180;
 
-    this.pCamera = new PerspectiveCamera(fov, aspect, 0.1, 10 * distance);
+    this.pCamera = new PerspectiveCamera(
+      fov,
+      aspect,
+      0.1,
+      100 * distance,
+    );
     this.pCamera.up.set(...cameraUp[this.up]);
     this.pCamera.lookAt(this.target);
 
@@ -87779,7 +88238,7 @@ class Camera {
       pSize[1],
       -pSize[1],
       0.1,
-      10 * distance,
+      100 * distance,
     );
     this.oCamera.up.set(...cameraUp[this.up]);
     this.oCamera.lookAt(this.target);
@@ -87997,6 +88456,22 @@ class Camera {
     return this.camera.rotation;
   }
 
+  getVisibleArea() {
+    if (this.ortho) {
+      const cam = this.getCamera();
+      const height = (cam.top - cam.bottom) / cam.zoom;
+      const width = (cam.right - cam.left) / cam.zoom;
+      return { width: width, height: height };
+    } else {
+      // perspective camera
+      const cam = this.getCamera();
+      const distance = cam.position.distanceTo(this.target);
+      const vFOV = (cam.fov * Math.PI) / 180;
+      const height = 2 * Math.tan(vFOV / 2) * distance;
+      const width = height * cam.aspect;
+      return { width: width, height: height };
+    }
+  }
   changeDimensions(distance, width, height) {
     const aspect = width / height;
     const pSize = this.projectSize(distance, aspect);
@@ -88018,7 +88493,7 @@ class Camera {
   }
 }
 
-const version = "3.6.1";
+const version = "3.6.2";
 
 class Viewer {
   /**
@@ -88083,7 +88558,7 @@ class Viewer {
 
     // setup renderer
     this.renderer = new WebGLRenderer({
-      alpha: !this.dark,
+      alpha: true,
       antialias: true,
       stencil: true,
     });
@@ -88225,6 +88700,7 @@ class Viewer {
     this.control = "orbit";
     this.up = "Z";
     this.ticks = 10;
+    this.gridFontSize = 10;
     this.centerGrid = false;
     this.position = null;
     this.quaternion = null;
@@ -88736,6 +89212,8 @@ class Viewer {
       if (this.raycaster && this.raycaster.raycastMode) {
         this.handleRaycast();
       }
+
+      this.gridHelper.update(this.camera.getZoom());
 
       this.renderer.setViewport(0, 0, this.cadWidth, this.height);
       this.renderer.render(this.scene, this.camera.getCamera());
@@ -89271,9 +89749,10 @@ class Viewer {
     //
 
     this.gridHelper = new Grid(
-      this.display,
+      this,
       this.bbox,
       this.ticks,
+      this.gridFontSize,
       this.centerGrid,
       this.axes0,
       this.grid,
@@ -89416,7 +89895,7 @@ class Viewer {
     this.toggleAnimationLoop(this.hasAnimationLoop);
 
     this.ready = true;
-    this.info.readyMsg(this.gridHelper.ticks, this.control);
+    this.info.readyMsg(version, this.control);
 
     //
     // notify calculated results
@@ -89436,6 +89915,7 @@ class Viewer {
 
     this.update(true, false);
     this.treeview.update();
+    this.display.setTheme(this.theme);
 
     timer.split("update done");
     timer.stop();
@@ -89505,6 +89985,10 @@ class Viewer {
     this.display.setOrthoCheck(flag);
 
     this.checkChanges({ ortho: flag }, notify);
+
+    this.gridHelper.scaleLabels();
+    this.gridHelper.update(this.camera.getZoom(), true);
+
     this.update(true, notify);
   }
 
