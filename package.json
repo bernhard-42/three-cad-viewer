@@ -24,8 +24,7 @@
   "author": "Bernhard Walter",
   "license": "MIT",
   "dependencies": {
-    "three": "0.180.0",
-    "yarn": "^1.22.22"
+    "three": "0.180.0"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
@@ -45,7 +44,9 @@
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-serve": "^3.0.0",
-    "rollup-plugin-string": "^3.0.0"
+    "rollup-plugin-string": "^3.0.0",
+    "jsdoc": "^4.0.5",
+    "yarn": "^1.22.22"
   },
   "babel": {},
   "packageManager": "yarn@1.22.22"
