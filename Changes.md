@@ -1,5 +1,11 @@
 # Change log
 
+## v3.6.3
+
+**Fixes**
+
+- Fix typos in the properties selectTool and explodeTool in toolbar.js preventing the tools being visible
+
 ## v3.6.2
 
 **Features**
