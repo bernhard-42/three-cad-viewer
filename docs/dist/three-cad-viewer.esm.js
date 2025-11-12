@@ -77766,8 +77766,8 @@ class Toolbar {
           !flag &&
           ((button.name === "distance" && !this.display.measureTools) ||
             (button.name === "properties" && !this.display.measureTools) ||
-            (button.name === "select" && !this.display.selectTools) ||
-            (button.name === "explode" && !this.display.explodeTools))
+            (button.name === "select" && !this.display.selectTool) ||
+            (button.name === "explode" && !this.display.explodeTool))
         ) {
           continue;
         }
@@ -88493,7 +88493,7 @@ class Camera {
   }
 }
 
-const version = "3.6.2";
+const version = "3.6.3";
 
 class Viewer {
   /**
