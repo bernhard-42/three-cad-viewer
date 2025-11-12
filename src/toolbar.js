@@ -71,8 +71,8 @@ class Toolbar {
           !flag &&
           ((button.name === "distance" && !this.display.measureTools) ||
             (button.name === "properties" && !this.display.measureTools) ||
-            (button.name === "select" && !this.display.selectTools) ||
-            (button.name === "explode" && !this.display.explodeTools))
+            (button.name === "select" && !this.display.selectTool) ||
+            (button.name === "explode" && !this.display.explodeTool))
         ) {
           continue;
         }
