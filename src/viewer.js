@@ -2262,6 +2262,75 @@ class Viewer {
     this.setDirectLight(this.materialSettings.directIntensity, true, true);
   };
 
+  enableZebraTool = (flag) => {
+    this.nestedGroup.setZebra(flag);
+    this.update(true, true);
+  };
+
+  /**
+   * Sets the stripe count value for the viewer and updates related components.
+   *
+   * @param {number} value - The stripe count value to set.
+   * @param {boolean} [ui=false] - Whether to update the UI directly.
+   * @param {boolean} [notify=true] - Whether to notify about the changes.
+   * @returns {void}
+   */
+  setZebraCount = (value, ui = false, notify = true) => {
+    this.nestedGroup.setZebraCount(value);
+    this.update(this.updateMarker);
+    if (ui) {
+      this.display.setZebraCount(value);
+    }
+  };
+
+  /**
+   * Sets the stripe opacity value for the viewer and updates related components.
+   *
+   * @param {number} value - The stripe opacity value to set.
+   * @param {boolean} [ui=false] - Whether to update the UI directly.
+   * @param {boolean} [notify=true] - Whether to notify about the changes.
+   * @returns {void}
+   */
+  setZebraOpacity = (value, ui = false, notify = true) => {
+    this.nestedGroup.setZebraOpacity(value);
+    this.update(this.updateMarker);
+    if (ui) {
+      this.display.setZebraOpacity(value);
+    }
+  };
+
+  /**
+   * Sets the stripe direction value for the viewer and updates related components.
+   *
+   * @param {number} value - The stripe direction value to set.
+   * @param {boolean} [ui=false] - Whether to update the UI directly.
+   * @param {boolean} [notify=true] - Whether to notify about the changes.
+   * @returns {void}
+   */
+  setZebraDirection = (value, ui = false, notify = true) => {
+    this.nestedGroup.setZebraDirection(value);
+    this.update(this.updateMarker);
+    if (ui) {
+      this.display.setZebraDirection(value);
+    }
+  };
+
+  /**
+   * Sets the stripe colorful value for the viewer and updates related components.
+   *
+   * @param {number} value - The stripe colorful value to set.
+   * @param {boolean} [ui=false] - Whether to update the UI directly.
+   * @param {boolean} [notify=true] - Whether to notify about the changes.
+   * @returns {void}
+   */
+  setZebraColorScheme = (value, ui = false, notify = true) => {
+    this.nestedGroup.setZebraColorScheme(value);
+    this.update(this.updateMarker);
+    if (ui) {
+      this.display.setZebraColorScheme(value);
+    }
+  };
+
   /**
    * Get transparency state of CAD objects.
    * @returns {boolean} transparent value.

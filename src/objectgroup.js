@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { deepDispose, disposeGeometry } from "./utils.js";
+import { ZebraTool } from "./cad_tools/zebra.js";
 
 class ObjectGroup extends THREE.Group {
   /**
@@ -25,6 +26,8 @@ class ObjectGroup extends THREE.Group {
     this.originalWidth = null;
     this.vertexFocusSize = 8; // Size of the points when highlighted
     this.edgeFocusWidth = 5; // Size of the edges when highlighted
+
+    this.zebra = new ZebraTool();
   }
 
   dispose() {
@@ -36,6 +39,9 @@ class ObjectGroup extends THREE.Group {
     if (this.children) {
       deepDispose(this.children);
       this.clear();
+    }
+    if (this.zebra) {
+      this.zebra.dispose();
     }
   }
 
@@ -325,6 +331,32 @@ class ObjectGroup extends THREE.Group {
     if (this.types.vertices) {
       this.types.vertices.material.needsUpdate = flag;
     }
+  }
+
+  setZebra(flag) {
+    if (this.types.front) {
+      if (flag) {
+        this.zebra.applyToMesh(this.types.front);
+      } else {
+        this.zebra.restoreMesh(this.types.front);
+      }
+    }
+  }
+
+  setZebraCount(value) {
+    this.zebra.setStripeCount(value);
+  }
+
+  setZebraOpacity(value) {
+    this.zebra.setStripeOpacity(value);
+  }
+
+  setZebraDirection(value) {
+    this.zebra.setStripeDirection(value);
+  }
+
+  setZebraColorScheme(value) {
+    this.zebra.setColorScheme(value);
   }
 }
 

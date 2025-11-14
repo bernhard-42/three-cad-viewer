@@ -65,9 +65,11 @@ class Display {
     this.cadTreeToggles = this._getElement("tcv_cad_tree_toggles");
     this.cadClip = this._getElement("tcv_cad_clip_container");
     this.cadMaterial = this._getElement("tcv_cad_material_container");
+    this.cadZebra = this._getElement("tcv_cad_zebra_container");
     this.tabTree = this._getElement("tcv_tab_tree");
     this.tabClip = this._getElement("tcv_tab_clip");
     this.tabMaterial = this._getElement("tcv_tab_material");
+    this.tabZebra = this._getElement("tcv_tab_zebra");
     this.cadInfo = this._getElement("tcv_cad_info_container");
     this.cadAnim = this._getElement("tcv_cad_animation");
     this.cadTools = this._getElement("tcv_cad_tools");
@@ -96,6 +98,7 @@ class Display {
     this.cadTree.style.display = "block";
     this.cadClip.style.display = "none";
     this.cadMaterial.style.display = "none";
+    this.cadZebra.style.display = "none";
     this.clipSliders = null;
     this.explodeFlag = false;
 
@@ -356,6 +359,13 @@ class Display {
     listeners.add(el, "click", fn);
     this._events.push(["click", name, fn]);
   }
+  // eslint-disable-next-line no-unused-vars
+
+  _setupRadioEvent(name, fn) {
+    const el = this._getElement(name);
+    listeners.add(el, "change", fn);
+    this._events.push(["change", name, fn]);
+  }
 
   /**
    *
@@ -456,20 +466,77 @@ class Display {
     this.help_shown = true;
     this.info_shown = !this.glass;
 
-    const tabs = ["tcv_tab_tree", "tcv_tab_clip", "tcv_tab_material"];
+    const tabs = [
+      "tcv_tab_tree",
+      "tcv_tab_clip",
+      "tcv_tab_material",
+      "tcv_tab_zebra",
+    ];
     tabs.forEach((name) => {
       this._setupClickEvent(name, this.selectTab);
     });
 
     this.clipSliders = [];
     for (var i = 1; i < 4; i++) {
-      this.clipSliders.push(new Slider(`plane${i}`, 0, 100, this));
+      this.clipSliders.push(
+        new Slider(`plane${i}`, 0, 100, this, this.refreshPlane),
+      );
     }
 
-    this.ambientlightSlider = new Slider("ambientlight", 0, 400, this);
-    this.directionallightSlider = new Slider("pointlight", 0, 400, this);
-    this.metalnessSlider = new Slider("metalness", 0, 100, this);
-    this.roughnessSlider = new Slider("roughness", 0, 100, this);
+    this.ambientlightSlider = new Slider(
+      "ambientlight",
+      0,
+      400,
+      this,
+      this.viewer.setAmbientLight,
+      true,
+    );
+    this.directionallightSlider = new Slider(
+      "pointlight",
+      0,
+      400,
+      this,
+      this.viewer.setDirectLight,
+      true,
+    );
+    this.metalnessSlider = new Slider(
+      "metalness",
+      0,
+      100,
+      this,
+      this.viewer.setMetalness,
+      true,
+    );
+    this.roughnessSlider = new Slider(
+      "roughness",
+      0,
+      100,
+      this,
+      this.viewer.setRoughness,
+      true,
+    );
+
+    this.zebraCountSlider = new Slider(
+      "zebra_count",
+      2,
+      50,
+      this,
+      this.viewer.setZebraCount,
+    );
+    this.zebraOpacitySlider = new Slider(
+      "zebra_opacity",
+      0.0,
+      1.0,
+      this,
+      this.viewer.setZebraOpacity,
+    );
+    this.zebraDirectionSlider = new Slider(
+      "zebra_direction",
+      0,
+      90,
+      this,
+      this.viewer.setZebraDirection,
+    );
 
     this._setupCheckEvent(
       "tcv_clip_plane_helpers",
@@ -490,6 +557,10 @@ class Display {
         false,
       );
     }
+
+    [1, 2, 3].forEach((id) => {
+      this._setupRadioEvent(`tcv_zebra_color${id}`, this.setZebraColorScheme);
+    });
 
     this._setupClickEvent("tcv_play", this.controlAnimation, false);
     this._setupClickEvent("tcv_pause", this.controlAnimation, false);
@@ -1109,71 +1180,115 @@ class Display {
   };
 
   /**
+   * Set zebra stripe count in the UI
+   * @function
+   * @param {number} val - an int between 2 and 50
+   */
+  setZebraCount = (val) => {
+    this.zebraCountSlider.setValue(val);
+  };
+
+  /**
+   * Set zebra stripe opacity in the UI
+   * @function
+   * @param {number} val - an int between 0.1 and 5
+   */
+  setZebraOpacity = (val) => {
+    this.zebraOpacitySlider.setValue(val);
+  };
+
+  /**
+   * Set zebra stripe direction in the UI
+   * @function
+   * @param {number} val - an int between 0 and 360
+   */
+  setZebraDirection = (val) => {
+    this.zebraDirectionSlider.setValue(val);
+  };
+
+  /**
+   * Checkbox Handler for setting the colorful stripes parameter
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setZebraColorScheme = (e) => {
+    const value = e.target.value;
+    // this.checkElement("tcv_clip_plane_helpers", value);
+    this.viewer.setZebraColorScheme(value);
+  };
+
+  /**
    * Activate the UI tab given the name of the tab
    * @param {string} tab - name of the tab "tree" or "clip"
    */
   selectTabByName(tab) {
-    if (!["clip", "tree", "material"].includes(tab)) {
+    if (!["clip", "tree", "material", "zebra"].includes(tab)) {
       return;
     }
 
+    const _switchTab = (showTree, showClip, showMaterial, showZebra) => {
+      this.cadTree.style.display = showTree ? "block" : "none";
+      this.cadTreeToggles.style.display = showTree ? "block" : "none";
+      this.cadClip.style.display = showClip ? "block" : "none";
+      this.cadMaterial.style.display = showMaterial ? "block" : "none";
+      this.cadZebra.style.display = showZebra ? "block" : "none";
+
+      this.viewer.clipping.setVisible(showClip);
+      this.viewer.setLocalClipping(showClip);
+      if (!showClip) {
+        // copy state since setClipHelpers(false) will set to false
+        var lastPlaneState = this.viewer.getClipPlaneHelpers();
+        this.viewer.setClipPlaneHelpers(false);
+        this.lastPlaneState = lastPlaneState;
+      }
+      if (tab != "zebra" && this.activeTab === "zebra") {
+        this.viewer.enableZebraTool(false);
+      }
+    };
+
     if (tab === "tree" && this.activeTab !== "tree") {
-      this.cadTree.style.display = "block";
-      this.cadTreeToggles.style.display = "block";
-      this.cadClip.style.display = "none";
-      this.cadMaterial.style.display = "none";
+      _switchTab(true, false, false, false);
       this.viewer.nestedGroup.setBackVisible(false);
-      this.viewer.setLocalClipping(false);
-      this.viewer.clipping.setVisible(false);
-      // copy state since setClipHelpers(false) will set to false
-      var lastPlaneState = this.viewer.getClipPlaneHelpers();
-      this.viewer.setClipPlaneHelpers(false);
-      this.lastPlaneState = lastPlaneState;
     } else if (tab === "clip" && this.activeTab !== "clip") {
-      this.cadTree.style.display = "none";
-      this.cadTreeToggles.style.display = "none";
-      this.cadClip.style.display = "block";
-      this.cadMaterial.style.display = "none";
+      _switchTab(false, true, false, false);
       this.viewer.nestedGroup.setBackVisible(true);
-      this.viewer.setLocalClipping(true);
       this.viewer.setClipIntersection(this.viewer.clipIntersection);
       this.viewer.setClipPlaneHelpers(this.lastPlaneState);
-      this.viewer.clipping.setVisible(true);
       this.viewer.update(true, false);
     } else if (tab === "material" && this.activeTab !== "material") {
-      this.cadTree.style.display = "none";
-      this.cadTreeToggles.style.display = "none";
-      this.cadClip.style.display = "none";
-      this.cadMaterial.style.display = "block";
+      _switchTab(false, false, true, false);
       this.viewer.nestedGroup.setBackVisible(false);
-      this.viewer.setLocalClipping(false);
-      this.viewer.setClipPlaneHelpers(false);
-      this.viewer.clipping.setVisible(false);
+    } else if (tab === "zebra" && this.activeTab !== "zebra") {
+      _switchTab(false, false, false, true);
+      this.viewer.enableZebraTool(true);
+
+      this.zebraDirectionSlider.setValue(0);
+      this.zebraCountSlider.setValue(15);
+      this.zebraOpacitySlider.setValue(1.0);
+      this._getElement("tcv_zebra_color1").checked = true;
     }
     this.activeTab = tab;
+
+    [this.tabTree, this.tabClip, this.tabMaterial, this.tabZebra].forEach(
+      (tab) => {
+        tab.classList.add("tcv_tab-unselected");
+        tab.classList.remove("tcv_tab-selected");
+      },
+    );
 
     this.viewer.checkChanges({ tab: tab });
     if (tab == "tree") {
       this.tabTree.classList.add("tcv_tab-selected");
       this.tabTree.classList.remove("tcv_tab-unselected");
-      this.tabClip.classList.remove("tcv_tab-selected");
-      this.tabClip.classList.add("tcv_tab-unselected");
-      this.tabMaterial.classList.remove("tcv_tab-selected");
-      this.tabMaterial.classList.add("tcv_tab-unselected");
     } else if (tab == "clip") {
-      this.tabTree.classList.remove("tcv_tab-selected");
-      this.tabTree.classList.add("tcv_tab-unselected");
       this.tabClip.classList.add("tcv_tab-selected");
       this.tabClip.classList.remove("tcv_tab-unselected");
-      this.tabMaterial.classList.remove("tcv_tab-selected");
-      this.tabMaterial.classList.add("tcv_tab-unselected");
-    } else {
-      this.tabTree.classList.add("tcv_tab-unselected");
-      this.tabTree.classList.remove("tcv_tab-selected");
-      this.tabClip.classList.add("tcv_tab-unselected");
-      this.tabClip.classList.remove("tcv_tab-selected");
+    } else if (tab == "material") {
       this.tabMaterial.classList.add("tcv_tab-selected");
       this.tabMaterial.classList.remove("tcv_tab-unselected");
+    } else if (tab == "zebra") {
+      this.tabZebra.classList.remove("tcv_tab-unselected");
+      this.tabZebra.classList.add("tcv_tab-selected");
     }
   }
 
@@ -1232,9 +1347,9 @@ class Display {
    * @param {number} index - index of the plane: 0,1,2
    * @param {number} value - distance on the clipping normal from the center
    */
-  refreshPlane(index, value) {
+  refreshPlane = (index, value) => {
     this.viewer.refreshPlane(index - 1, parseFloat(value));
-  }
+  };
 
   /**
    * Show or hide the Animation control widget

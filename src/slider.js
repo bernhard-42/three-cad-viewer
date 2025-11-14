@@ -1,5 +1,5 @@
 class Slider {
-  constructor(index, min, max, display) {
+  constructor(index, min, max, display, handler, percentage = false) {
     if (index.startsWith("plane")) {
       this.index = parseInt(index.substring(5));
       this.type = "plane";
@@ -8,6 +8,8 @@ class Slider {
       this.type = index;
     }
     this.display = display;
+    this.handler = handler;
+    this.percentage = percentage;
 
     this.slider = display.container.getElementsByClassName(
       `tcv_sld_value_${index}`,
@@ -32,22 +34,13 @@ class Slider {
 
   _handle(type, index, value) {
     if (type == "plane") {
-      this.display.refreshPlane(index, value);
-    } else if (type === "ambientlight") {
+      this.handler(index, value);
+    } else {
       if (this.display.viewer.ready) {
-        this.display.viewer.setAmbientLight(value / 100);
-      }
-    } else if (type === "pointlight") {
-      if (this.display.viewer.ready) {
-        this.display.viewer.setDirectLight(value / 100);
-      }
-    } else if (type === "metalness") {
-      if (this.display.viewer.ready) {
-        this.display.viewer.setMetalness(value / 100);
-      }
-    } else if (type === "roughness") {
-      if (this.display.viewer.ready) {
-        this.display.viewer.setRoughness(value / 100);
+        if (this.percentage) {
+          value = value / 100;
+        }
+        this.handler(value);
       }
     }
   }

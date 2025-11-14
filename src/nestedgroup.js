@@ -747,6 +747,26 @@ class NestedGroup {
   updateMaterials() {
     this._traverse("updateMaterials", true);
   }
+
+  setZebra(flag) {
+    this._traverse("setZebra", flag);
+  }
+
+  setZebraCount(value) {
+    this._traverse("setZebraCount", value);
+  }
+
+  setZebraOpacity(value) {
+    this._traverse("setZebraOpacity", value);
+  }
+
+  setZebraDirection(value) {
+    this._traverse("setZebraDirection", value);
+  }
+
+  setZebraColorScheme(flag) {
+    this._traverse("setZebraColorScheme", flag);
+  }
 }
 
 export { NestedGroup, ObjectGroup, States };

@@ -6,9 +6,11 @@
             <div class="tcv_cad_tree tcv_round">
                 <div class="tcv_tabnav">
                     <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button" />
-                    <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clipping"
+                    <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clip"
                         type="button" />
                     <input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value="Material"
+                        type="button" />
+                    <input class='tcv_tab_zebra tcv_tab tcv_tab-right tcv_tab-unselected' value="Zebra"
                         type="button" />
                 </div>
                 <div class="tcv_cad_tree_toggles">
@@ -134,6 +136,50 @@
                             This is not a full material renderer (e.g. the environment is black), so
                             not every combination creates expected or good results.
                         </div>
+                    </div>
+                    <div class="tcv_cad_zebra_container">
+                        <div class="tcv_zebra_stripe_count tcv_label">
+                            Stripe Count
+                        </div>
+                        <div class="tcv_slider_group">
+                            <div>
+                                <input type="range" min="2" max="50" value="10"
+                                    class="tcv_sld_value_zebra_count tcv_clip_slider">
+                                <input value=10 class="tcv_inp_value_zebra_count tcv_clip_input"></input>
+                            </div>
+                        </div>                        
+                        <div class="tcv_zebra_stripe_opacity tcv_label">
+                            Stripe Opacity
+                        </div>
+                        <div class="tcv_slider_group">
+                            <div>
+                                <input type="range" min="0.0" max="1.0" step="0.01" value="1.0"
+                                    class="tcv_sld_value_zebra_opacity tcv_clip_slider">
+                                <input value=1.0 class="tcv_inp_value_zebra_opacity tcv_clip_input"></input>
+                            </div>
+                        </div>                        
+                        <div class="tcv_zebra_stripe_direction tcv_label">
+                            Stripe Direction
+                        </div>
+                        <div class="tcv_slider_group">
+                            <div>
+                                <input type="range" min="0" max="90" step="0.5" value="0"
+                                    class="tcv_sld_value_zebra_direction tcv_clip_slider">
+                                <input value=0 class="tcv_inp_value_zebra_direction tcv_clip_input"></input>
+                            </div>
+                        </div>   
+                        <div class="tcv_zebra_radio">
+                            <div>
+                               <span class="tcv_tooltip" data-tooltip="Select stripe color scheme">
+                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color1' type="radio" id="option1", name="zebra_color_group" value="blackwhite" checked/>
+                                    <label for="option1" class="tcv_radio_label">B/W</label>
+                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color2' type="radio" id="option2", name="zebra_color_group" value="grayscale"/>
+                                    <label for="option2" class="tcv_radio_label">Gray</label>
+                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color3' type="radio" id="option3", name="zebra_color_group" value="colorful"/>
+                                    <label for="option3" class="tcv_radio_label">Colors</label>
+                                </span>
+                            </div>
+                        </div>                                             
                     </div>
                 </div>
             </div>
