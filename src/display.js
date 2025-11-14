@@ -73,7 +73,9 @@ class Display {
     this.cadInfo = this._getElement("tcv_cad_info_container");
     this.cadAnim = this._getElement("tcv_cad_animation");
     this.cadTools = this._getElement("tcv_cad_tools");
-
+    if (!options.zebraTool) {
+      this.tabZebra.style.display = "none";
+    }
     this.cadHelp = this._getElement("tcv_cad_help");
     listeners.add(this.cadHelp, "contextmenu", (e) => {
       e.preventDefault();
