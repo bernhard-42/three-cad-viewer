@@ -1449,6 +1449,12 @@ class Viewer {
     this.treeview.update();
     this.display.setTheme(this.theme);
 
+    this.setZebraCount(9, true);
+    this.setZebraDirection(0, true);
+    this.setZebraOpacity(1.0, true);
+    this.setZebraColorScheme("blackwhite", true);
+    this.setZebraMappingMode("reflection", true);
+
     timer.split("update done");
     timer.stop();
   }
