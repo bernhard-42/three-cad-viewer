@@ -2265,6 +2265,7 @@ class Viewer {
   enableZebraTool = (flag) => {
     this.nestedGroup.setZebra(flag);
     this.update(true, true);
+    this.treeview.update();
   };
 
   /**

@@ -153,7 +153,7 @@ export class ZebraTool {
   /**
    * Apply zebra material to a mesh
    */
-  applyToMesh(mesh) {
+  applyToMesh(mesh, visible) {
     if (!mesh.isMesh) return;
 
     // Skip objects marked to be excluded
@@ -186,17 +186,19 @@ export class ZebraTool {
     }
 
     mesh.material = this.zebraMaterials.get(mesh.uuid);
+    mesh.material.visible = visible;
   }
 
   /**
    * Restore original material to a mesh
    */
-  restoreMesh(mesh) {
+  restoreMesh(mesh, visible) {
     if (!mesh.isMesh) return;
 
     const originalMaterial = this.originalMaterials.get(mesh.uuid);
     if (originalMaterial) {
       mesh.material = originalMaterial;
+      mesh.material.visible = visible;
     }
   }
 

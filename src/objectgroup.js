@@ -335,10 +335,11 @@ class ObjectGroup extends THREE.Group {
 
   setZebra(flag) {
     if (this.types.front) {
+      var visible = this.types.front.material.visible;
       if (flag) {
-        this.zebra.applyToMesh(this.types.front);
+        this.zebra.applyToMesh(this.types.front, visible);
       } else {
-        this.zebra.restoreMesh(this.types.front);
+        this.zebra.restoreMesh(this.types.front, visible);
       }
     }
   }
