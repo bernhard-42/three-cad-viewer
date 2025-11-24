@@ -540,6 +540,9 @@ class Display {
       this.viewer.setZebraDirection,
     );
 
+    this._getElement("tcv_zebra_color1").checked = true;
+    this._getElement("tcv_zebra_mapping1").checked = true;
+
     this._setupCheckEvent(
       "tcv_clip_plane_helpers",
       this.setClipPlaneHelpers,
@@ -562,6 +565,10 @@ class Display {
 
     [1, 2, 3].forEach((id) => {
       this._setupRadioEvent(`tcv_zebra_color${id}`, this.setZebraColorScheme);
+    });
+
+    [1, 2].forEach((id) => {
+      this._setupRadioEvent(`tcv_zebra_mapping${id}`, this.setZebraMappingMode);
     });
 
     this._setupClickEvent("tcv_play", this.controlAnimation, false);
@@ -1215,8 +1222,41 @@ class Display {
    */
   setZebraColorScheme = (e) => {
     const value = e.target.value;
-    // this.checkElement("tcv_clip_plane_helpers", value);
     this.viewer.setZebraColorScheme(value);
+    this.setZebraColorSchemeSelect(value);
+  };
+
+  /**
+   * Checkbox Handler for setting the colorful stripes parameter
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setZebraColorSchemeSelect = (value) => {
+    this.container.querySelector(
+      `input[name="zebra_color_group"][value="${value}"]`,
+    ).checked = true;
+  };
+
+  /**
+   * Checkbox Handler for setting the zebra mapping mode parameter
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setZebraMappingMode = (e) => {
+    const value = e.target.value;
+    this.viewer.setZebraMappingMode(value);
+    this.setZebraMappingModeSelect(value);
+  };
+
+  /**
+   * Set zebra mapping mode direction in the UI
+   * @function
+   * @param {string} value - "reflection" or "normal"
+   */
+  setZebraMappingModeSelect = (value) => {
+    this.container.querySelector(
+      `input[name="zebra_mapping_group"][value="${value}"]`,
+    ).checked = true;
   };
 
   /**
@@ -1263,11 +1303,6 @@ class Display {
     } else if (tab === "zebra" && this.activeTab !== "zebra") {
       _switchTab(false, false, false, true);
       this.viewer.enableZebraTool(true);
-
-      this.zebraDirectionSlider.setValue(0);
-      this.zebraCountSlider.setValue(15);
-      this.zebraOpacitySlider.setValue(1.0);
-      this._getElement("tcv_zebra_color1").checked = true;
     }
     this.activeTab = tab;
 

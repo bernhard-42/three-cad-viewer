@@ -14,6 +14,7 @@ export class ZebraTool {
       stripeDirection: 0, // angle in degrees
       colorScheme: "blackwhite", // 'blackwhite', 'colorful', 'grayscale'
       opacity: 1.0, // 0.0 = fully transparent (see original), 1.0 = fully opaque (only zebra)
+      mappingMode: "normal", // 'reflection' (Onshape-like) or 'normal' (Fusion360/Shapr3D-like)
     };
 
     this.zebraTexture = null;
@@ -97,20 +98,27 @@ export class ZebraTool {
         direction: { value: direction },
         opacity: { value: this.settings.opacity },
         baseColor: { value: new THREE.Color(0.7, 0.7, 0.7) }, // Will be overridden per mesh
+        mappingMode: {
+          value: this.settings.mappingMode === "reflection" ? 0 : 1,
+        }, // 0 = reflection, 1 = normal
       },
       vertexShader: `
                 varying vec3 vViewNormal;
                 varying vec3 vViewPosition;
-                
+                varying vec4 vScreenPosition;
+
                 void main() {
                     // Transform normal to view space
                     vViewNormal = normalize(normalMatrix * normal);
-                    
+
                     // Transform position to view space
                     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
                     vViewPosition = mvPosition.xyz;
-                    
+
                     gl_Position = projectionMatrix * mvPosition;
+
+                    // Store screen position for normal mode
+                    vScreenPosition = gl_Position;
                 }
             `,
       fragmentShader: `
@@ -118,31 +126,57 @@ export class ZebraTool {
                 uniform vec3 direction;
                 uniform float opacity;
                 uniform vec3 baseColor;
-                
+                uniform int mappingMode; // 0 = reflection, 1 = normal
+
                 varying vec3 vViewNormal;
                 varying vec3 vViewPosition;
-                
+                varying vec4 vScreenPosition;
+
                 void main() {
                     // Normalize view-space normal
                     vec3 normal = normalize(vViewNormal);
-                    
-                    // View direction in view space (points toward camera)
-                    vec3 viewDir = normalize(-vViewPosition);
-                    
-                    // Calculate reflection in view space
-                    vec3 reflected = reflect(-viewDir, normal);
-                    
-                    // Use the full 3D reflection but with screen-space direction
-                    // direction is (cos(angle), sin(angle), 0) in screen space
-                    // Fixed stripe width of 3.0 for better visualization
-                    float v = dot(reflected, direction) * 3.0 * 0.5 + 0.5;
-                    
+
+                    float v;
+
+                    if (mappingMode == 0) {
+                        // Reflection mode (Onshape-like): circular/elliptical stripes
+                        // View direction in view space (points toward camera)
+                        vec3 viewDir = normalize(-vViewPosition);
+
+                        // Calculate reflection in view space
+                        vec3 mappingVector = reflect(-viewDir, normal);
+
+                        // Use the reflection vector with screen-space direction
+                        v = dot(mappingVector, direction) * 3.0 * 0.5 + 0.5;
+                    } else {
+                        // Normal mode (Fusion360/Shapr3D-like): zoom-independent view-based stripes
+                        // Use view direction normalized by distance (zoom-independent)
+
+                        // Normalize view position by distance to make it zoom-independent
+                        float dist = length(vViewPosition);
+                        vec2 viewDir2D = vViewPosition.xy / dist;
+
+                        // Rotate by stripe direction
+                        float cosA = direction.x / length(direction.xy);
+                        float sinA = direction.y / length(direction.xy);
+                        float rotatedPos = viewDir2D.x * cosA + viewDir2D.y * sinA;
+
+                        // Scale for stripe frequency (zoom-independent)
+                        float positionValue = rotatedPos * 2.0;
+
+                        // Add normal influence to follow curvature
+                        float normalValue = dot(normal, direction) * 0.5;
+
+                        // Combine: position creates base stripes, normal makes them follow curvature
+                        v = (positionValue + normalValue) * 3.0 * 0.5 + 0.5;
+                    }
+
                     // Sample the zebra texture (texture varies in V/Y direction)
                     vec4 zebraColor = texture2D(zebraTexture, vec2(0.5, v));
-                    
+
                     // Blend zebra stripes with original material color based on opacity
                     vec3 finalColor = mix(baseColor, zebraColor.rgb, opacity);
-                    
+
                     gl_FragColor = vec4(finalColor, 1.0);
                 }
             `,
@@ -246,6 +280,21 @@ export class ZebraTool {
     this.zebraMaterials.forEach((material) => {
       material.uniforms.opacity.value = this.settings.opacity;
     });
+  }
+
+  /**
+   * Update mapping mode ('reflection' = Onshape-like, 'normal' = Fusion360/Shapr3D-like)
+   */
+  setMappingMode(mode) {
+    if (["reflection", "normal"].includes(mode)) {
+      this.settings.mappingMode = mode;
+      const modeValue = mode === "reflection" ? 0 : 1;
+      this.zebraMaterials.forEach((material) => {
+        material.uniforms.mappingMode.value = modeValue;
+        material.uniformsNeedUpdate = true;
+        material.needsUpdate = true;
+      });
+    }
   }
 
   /**

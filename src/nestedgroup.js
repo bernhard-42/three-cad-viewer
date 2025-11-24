@@ -767,6 +767,10 @@ class NestedGroup {
   setZebraColorScheme(flag) {
     this._traverse("setZebraColorScheme", flag);
   }
+
+  setZebraMappingMode(flag) {
+    this._traverse("setZebraMappingMode", flag);
+  }
 }
 
 export { NestedGroup, ObjectGroup, States };

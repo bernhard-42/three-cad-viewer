@@ -680,8 +680,14 @@ input[type="button"] {
 }
 
 .tcv_zebra_radio {
+  margin-top: 8px;
   margin-bottom: 4px;
   margin-left: -3px;
+}
+
+.tcv_zebra_mapping {
+  margin-top: 8px;
+  margin-bottom: 4px;
 }
 
 .tcv_clip_checks {

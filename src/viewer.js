@@ -2328,7 +2328,23 @@ class Viewer {
     this.nestedGroup.setZebraColorScheme(value);
     this.update(this.updateMarker);
     if (ui) {
-      this.display.setZebraColorScheme(value);
+      this.display.setZebraColorSchemeSelect(value);
+    }
+  };
+
+  /**
+   * Sets the stripe mapping mode value for the viewer and updates related components.
+   *
+   * @param {string} value - The stripe colorful value to set ("reflection", "normal").
+   * @param {boolean} [ui=false] - Whether to update the UI directly.
+   * @param {boolean} [notify=true] - Whether to notify about the changes.
+   * @returns {void}
+   */
+  setZebraMappingMode = (value, ui = false, notify = true) => {
+    this.nestedGroup.setZebraMappingMode(value);
+    this.update(this.updateMarker);
+    if (ui) {
+      this.display.setZebraMappingModeSelect(value);
     }
   };
 

@@ -359,6 +359,10 @@ class ObjectGroup extends THREE.Group {
   setZebraColorScheme(value) {
     this.zebra.setColorScheme(value);
   }
+
+  setZebraMappingMode(value) {
+    this.zebra.setMappingMode(value);
+  }
 }
 
 export { ObjectGroup };
