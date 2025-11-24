@@ -30,7 +30,15 @@ export class ZebraTool {
     canvas.height = 4096; // Increased from 1024 for higher resolution
     const ctx = canvas.getContext("2d");
 
-    const stripeHeight = canvas.height / this.settings.stripeCount;
+    // For odd stripe counts: first and last stripes are half-width for seamless tiling
+    // For even counts: all stripes are full-width (already tiles correctly)
+    const isOddCount = this.settings.stripeCount % 2 === 1;
+    const totalStripeUnits = isOddCount
+      ? this.settings.stripeCount - 1
+      : this.settings.stripeCount;
+    const stripeHeight = canvas.height / totalStripeUnits;
+
+    let currentY = 0;
 
     for (let i = 0; i < this.settings.stripeCount; i++) {
       let color1, color2;
@@ -55,8 +63,15 @@ export class ZebraTool {
           break;
       }
 
+      // Only make first/last stripes half-width for odd stripe counts
+      const height =
+        isOddCount && (i === 0 || i === this.settings.stripeCount - 1)
+          ? stripeHeight * 0.5
+          : stripeHeight;
+
       ctx.fillStyle = i % 2 === 0 ? color1 : color2;
-      ctx.fillRect(0, i * stripeHeight, canvas.width, stripeHeight);
+      ctx.fillRect(0, currentY, canvas.width, height);
+      currentY += height;
     }
 
     if (this.zebraTexture) {
