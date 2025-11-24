@@ -2325,7 +2325,7 @@ class Viewer {
   /**
    * Sets the stripe colorful value for the viewer and updates related components.
    *
-   * @param {number} value - The stripe colorful value to set.
+   * @param {string} value - The stripe colorful value to set ("blackwhite", "colorful", "grayscale").
    * @param {boolean} [ui=false] - Whether to update the UI directly.
    * @param {boolean} [notify=true] - Whether to notify about the changes.
    * @returns {void}
