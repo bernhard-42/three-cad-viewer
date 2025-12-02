@@ -156,6 +156,7 @@ class Viewer {
     this.selectTool = true;
     this.explodeTool = true;
     this.zscaleTool = false;
+    this.zebraTool = true;
     this.measurementDebug = true;
 
     for (var option in options) {
