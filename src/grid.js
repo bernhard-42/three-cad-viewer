@@ -1,11 +1,25 @@
 import * as THREE from "three";
 import { deepDispose } from "./utils.js";
 
-function capped_linear(px1, py1, px2, py2, x) {
+/**
+ * Linear interpolation with capping at boundaries
+ * @param {number} px1 - X coordinate of first point
+ * @param {number} py1 - Y coordinate of first point (output when x <= px1)
+ * @param {number} px2 - X coordinate of second point
+ * @param {number} py2 - Y coordinate of second point (output when x >= px2)
+ * @param {number} x - Input value to interpolate
+ * @returns {number} Interpolated value, capped at py1 or py2 if outside range
+ */
+function cappedLinear(px1, py1, px2, py2, x) {
   const m = (py2 - py1) / (px2 - px1);
   return x < px1 ? py1 : x > px2 ? py2 : m * (x - px1) + py1;
 }
 
+/**
+ * Format a number string by removing trailing zeros while keeping at least one decimal
+ * @param {string} str - Number string to format
+ * @returns {string} Formatted string (e.g., "1.500" -> "1.5", "2.000" -> "2.0", "-0" -> "0")
+ */
 function trimTrailingZeros(str) {
   var result = str
     .replace(/(\.\d*[1-9])0+$/, "$1") // Remove zeros after nonzero decimals
@@ -15,7 +29,20 @@ function trimTrailingZeros(str) {
   return result;
 }
 
+/**
+ * Creates a grid plane with dashed grid lines and solid colored centerlines.
+ * Used internally by Grid to create XY, XZ, and YZ plane grids.
+ * @extends THREE.Object3D
+ */
 class GridHelper extends THREE.Object3D {
+  /**
+   * Create a GridHelper
+   * @param {number} size - Total size of the grid (width and height)
+   * @param {number} divisions - Number of divisions (grid lines)
+   * @param {number|string} colorX - Color for the X-axis centerline
+   * @param {number|string} colorY - Color for the Y-axis centerline
+   * @param {number|string} colorGrid - Color for the dashed grid lines
+   */
   constructor(size, divisions, colorX, colorY, colorGrid) {
     super();
 
@@ -124,26 +151,79 @@ class GridHelper extends THREE.Object3D {
   }
 }
 
+/**
+ * Grid component for displaying coordinate grids in 3D space.
+ * Supports XY, XZ, and YZ plane grids with labeled tick marks.
+ * Decoupled from Display/Viewer - uses callbacks for all external interactions.
+ * @extends THREE.Group
+ */
 class Grid extends THREE.Group {
-  constructor(
-    viewer,
-    bbox,
-    ticks,
-    gridFontSize,
-    centerGrid,
-    axes0,
-    grid,
-    flipY,
-    theme,
-  ) {
+  /**
+   * Create a Grid instance
+   * @param {Object} options - Configuration options
+   * @param {BoundingBox} options.bbox - Bounding box for grid sizing (required)
+   * @param {number} [options.ticks=5] - Number of grid divisions
+   * @param {number} options.gridFontSize - Font size for grid labels (required)
+   * @param {boolean} options.centerGrid - Whether to center grid on origin
+   * @param {boolean} options.axes0 - Initial axes position setting
+   * @param {boolean[]} options.grid - Initial grid visibility [xy, xz, yz] (required)
+   * @param {boolean} options.flipY - Whether to flip Y axis
+   * @param {string} options.theme - Color theme ("light" or "dark") (required)
+   * @param {number} options.cadWidth - Canvas width in pixels (required)
+   * @param {number} options.height - Canvas height in pixels (required)
+   * @param {number} options.maxAnisotropy - Maximum anisotropy for textures (required)
+   * @param {HTMLElement} [options.tickValueElement] - DOM element for tick value display
+   * @param {HTMLElement} [options.tickInfoElement] - DOM element for tick info display
+   * @param {Function} options.getCamera - Function returning the current camera (required)
+   * @param {Function} options.isOrtho - Function returning whether camera is orthographic (required)
+   * @param {Function} options.getAxes0 - Function returning current axes0 setting (required)
+   * @param {Function} [options.onGridChange] - Callback when grid visibility changes (allGrid, grids)
+   * @throws {Error} If required options are missing
+   */
+  constructor(options) {
     super();
 
-    if (ticks === undefined) {
-      ticks = 5;
+    // Validate required options
+    const required = [
+      "bbox",
+      "gridFontSize",
+      "grid",
+      "theme",
+      "cadWidth",
+      "height",
+      "maxAnisotropy",
+      "getCamera",
+      "isOrtho",
+      "getAxes0",
+    ];
+    for (const key of required) {
+      if (options[key] === undefined) {
+        throw new Error(`Grid: required option "${key}" is missing`);
+      }
     }
+
+    const {
+      bbox,
+      ticks = 5,
+      gridFontSize,
+      centerGrid,
+      axes0,
+      grid,
+      flipY,
+      theme,
+      cadWidth,
+      height,
+      maxAnisotropy,
+      tickValueElement,
+      tickInfoElement,
+      getCamera,
+      isOrtho,
+      getAxes0,
+      onGridChange,
+    } = options;
+
     this.ticks = ticks;
     this.gridFontSize = gridFontSize;
-    this.viewer = viewer;
     this.bbox = bbox;
     this.centerGrid = centerGrid;
     this.axes0 = axes0;
@@ -153,12 +233,25 @@ class Grid extends THREE.Group {
     this.flipY = flipY;
     this.lastZoomIndex = 0;
     this.lastFontIndex = 50;
-    this.tickValue = this.viewer.display._getElement("tcv_tick_size_value");
-    this.info = this.viewer.display._getElement("tcv_tick_size");
+
+    // Store dimensions and renderer capability
+    this.cadWidth = cadWidth;
+    this.height = height;
+    this.maxAnisotropy = maxAnisotropy;
+
+    // Store DOM elements (optional)
+    this.tickValue = tickValueElement || null;
+    this.info = tickInfoElement || null;
+
+    // Store callbacks for dynamic values
+    this.getCamera = getCamera;
+    this.isOrtho = isOrtho;
+    this.getAxes0 = getAxes0;
+    this.onGridChange = onGridChange || null;
 
     // Heuristics, experimentally determined
     const size = bbox.max_dist_from_center();
-    const canvasSize = Math.min(this.viewer.cadWidth, this.viewer.height);
+    const canvasSize = Math.min(cadWidth, height);
     const scale = Math.max(1.0, 6 - Math.log2(canvasSize / 100));
     this.minFontIndex = Math.round(
       (size < 2 ? 6 : size < 1000 ? 5 : 3) * scale,
@@ -189,17 +282,23 @@ class Grid extends THREE.Group {
     this.create();
   }
 
+  /**
+   * Calculate text scale based on camera mode and canvas size
+   * @private
+   * @param {number} pixel - Base pixel size
+   * @returns {number} Calculated scale factor
+   */
   calculateTextScale(pixel) {
-    const camera = this.viewer.camera.getCamera();
-    const height = this.viewer.height;
+    const camera = this.getCamera();
+    const height = this.height;
 
     // Decrease fontsize for small canvases
     // 300px and below 80%
     // 800px and above 100%
     // linear in between
-    const fontSize = capped_linear(300, 0.8, 800, 1.0, height) * pixel;
+    const fontSize = cappedLinear(300, 0.8, 800, 1.0, height) * pixel;
 
-    if (this.viewer.ortho) {
+    if (this.isOrtho()) {
       // Ortho: convert pixel size to world units based on zoom
       const visibleWorldHeight = (camera.top - camera.bottom) / camera.zoom;
       const pixelsPerWorldUnit = height / visibleWorldHeight;
@@ -215,6 +314,10 @@ class Grid extends THREE.Group {
     }
   }
 
+  /**
+   * Update scale of all grid labels
+   * @private
+   */
   scaleLabels() {
     for (var axis in this.children) {
       var group = this.children[axis];
@@ -228,6 +331,11 @@ class Grid extends THREE.Group {
     }
   }
 
+  /**
+   * Show or hide all grid labels
+   * @private
+   * @param {boolean} flag - Whether to show labels
+   */
   showLabels(flag) {
     for (var axis in this.children) {
       var group = this.children[axis];
@@ -238,6 +346,12 @@ class Grid extends THREE.Group {
     }
   }
 
+  /**
+   * Update grid based on zoom level
+   * @param {number} zoom - Current zoom level
+   * @param {boolean} [force=false] - Force update regardless of zoom change
+   * @param {string} [theme=null] - Optional new theme to apply
+   */
   async update(zoom, force = false, theme = null) {
     if (!this.getVisible()) return;
 
@@ -266,14 +380,13 @@ class Grid extends THREE.Group {
     }
 
     const fontIndex = Math.round(zoom * 50);
-    // console.log(fontIndex, zoomIndex);
     if (force || fontIndex != this.lastFontIndex) {
       if (fontIndex < this.minFontIndex) {
         this.showLabels(false);
       } else {
         // Only update scale in ortho mode
         // In perspective, sizeAttenuation handles scaling automatically
-        if (this.viewer.ortho) {
+        if (this.isOrtho()) {
           this.scaleLabels();
         }
         this.showLabels(true);
@@ -282,6 +395,10 @@ class Grid extends THREE.Group {
     }
   }
 
+  /**
+   * Create the grid geometry and labels
+   * @param {boolean} [nice=true] - Whether to use nice bounds calculation
+   */
   async create(nice = true) {
     // in case the bbox has the same size as the nice grid there should be
     // a margin bewteen grid and object. Hence factor 1.05
@@ -348,15 +465,20 @@ class Grid extends THREE.Group {
     this.setCenter(this.axes0, this.flipY);
     // Set initial scale (required for both modes)
     this.scaleLabels();
-    this.setCenter(this.viewer.axes0, this.flipY);
+    this.setCenter(this.getAxes0(), this.flipY);
     this.setVisible();
   }
 
+  /**
+   * Create a text texture for grid labels
+   * @private
+   * @param {string} text - Label text
+   * @returns {THREE.CanvasTexture} The created texture
+   */
   createTextTexture(text) {
     if (this.geomCache[text]) {
       return this.geomCache[text];
     }
-    // console.log("texture cache miss", text);
 
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d", {
@@ -386,8 +508,6 @@ class Grid extends THREE.Group {
     canvas.height = canvasHeight;
 
     // Need to reset context properties after canvas resize
-    // ctx.imageSmoothingEnabled = true;
-    // ctx.imageSmoothingQuality = "high";
     ctx.textRendering = "optimizeLegibility";
 
     ctx.font = font;
@@ -422,7 +542,7 @@ class Grid extends THREE.Group {
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
     texture.generateMipmaps = false;
-    texture.anisotropy = this.viewer.renderer.capabilities.getMaxAnisotropy();
+    texture.anisotropy = this.maxAnisotropy;
     texture.premultiplyAlpha = false;
 
     // Clamp to edge to prevent sampling artifacts at borders
@@ -436,6 +556,15 @@ class Grid extends THREE.Group {
     return texture;
   }
 
+  /**
+   * Create a label sprite for grid axis
+   * @private
+   * @param {string} tick - Tick value text
+   * @param {number} x - Position on axis
+   * @param {number} i - Axis index (0=XY, 1=XZ, 2=YZ)
+   * @param {boolean} horizontal - Whether label is on horizontal axis
+   * @returns {THREE.Sprite} The created sprite
+   */
   createLabel(tick, x, i, horizontal) {
     const key = `${tick}_${i}_${horizontal}`;
     if (this.labelCache[key]) {
@@ -447,7 +576,6 @@ class Grid extends THREE.Group {
       sprite.userData.aspectRatio = cached.userData.aspectRatio;
       return sprite;
     }
-    // console.log("label cache miss", tick, i, horizontal);
 
     const texture = this.createTextTexture(tick);
 
@@ -514,8 +642,14 @@ class Grid extends THREE.Group {
     return sprite;
   }
 
-  // Calculate nice symmetric grid bounds centered at zero
-  // numTicks: desired number of ticks in one direction (from 0 to max)
+  /**
+   * Calculate nice symmetric grid bounds centered at zero
+   * @private
+   * @param {number} axisStart - Start of axis range
+   * @param {number} axisEnd - End of axis range
+   * @param {number} numTicks - Desired number of ticks
+   * @returns {number[]} [niceMin, niceMax, niceDelta]
+   */
   niceBounds(axisStart, axisEnd, numTicks) {
     if (!numTicks) {
       numTicks = 8;
@@ -565,17 +699,25 @@ class Grid extends THREE.Group {
     return [niceMin, niceMax, niceDelta];
   }
 
+  /**
+   * Compute grid visibility and notify UI
+   * @private
+   */
   computeGrid() {
     this.allGrid = this.grid[0] | this.grid[1] | this.grid[2];
 
-    this.viewer.display.toolbarButtons["grid"].set(this.allGrid);
-    this.viewer.display.checkElement("tcv_grid-xy", this.grid[0]);
-    this.viewer.display.checkElement("tcv_grid-xz", this.grid[1]);
-    this.viewer.display.checkElement("tcv_grid-yz", this.grid[2]);
+    if (this.onGridChange) {
+      this.onGridChange(this.allGrid, this.grid);
+    }
 
     this.setVisible();
   }
 
+  /**
+   * Toggle grid visibility by action
+   * @param {string} action - Action type ("grid", "grid-xy", "grid-xz", "grid-yz")
+   * @param {boolean} [flag=null] - Optional explicit flag for "grid" action
+   */
   setGrid(action, flag = null) {
     switch (action) {
       case "grid":
@@ -597,6 +739,12 @@ class Grid extends THREE.Group {
     this.computeGrid();
   }
 
+  /**
+   * Set grid visibility for all planes
+   * @param {boolean} xy - XY plane visibility
+   * @param {boolean} xz - XZ plane visibility
+   * @param {boolean} yz - YZ plane visibility
+   */
   setGrids(xy, xz, yz) {
     this.grid[0] = xy;
     this.grid[1] = xz;
@@ -604,6 +752,11 @@ class Grid extends THREE.Group {
     this.computeGrid();
   }
 
+  /**
+   * Set grid center position
+   * @param {boolean} axes0 - Whether to center at origin
+   * @param {boolean} flipY - Whether Y axis is flipped
+   */
   setCenter(axes0, flipY) {
     const c = axes0 ? [0, 0, 0] : this.bbox.center();
 
@@ -616,25 +769,40 @@ class Grid extends THREE.Group {
     }
   }
 
+  /**
+   * Update visibility of grid planes and tick info
+   * @private
+   */
   setVisible() {
     this.children.forEach((ch, i) => {
       ch.visible = this.grid[i];
     });
-    if (this.allGrid) {
-      this.info.style.display = "block";
-    } else {
-      this.info.style.display = "none";
+    if (this.info) {
+      this.info.style.display = this.allGrid ? "block" : "none";
     }
   }
 
+  /**
+   * Update tick info display
+   * @private
+   */
   setTickInfo() {
-    this.tickValue.innerText = trimTrailingZeros((this.delta / 2).toFixed(4));
+    if (this.tickValue) {
+      this.tickValue.innerText = trimTrailingZeros((this.delta / 2).toFixed(4));
+    }
   }
 
+  /**
+   * Get overall grid visibility
+   * @returns {boolean} Whether any grid plane is visible
+   */
   getVisible() {
     return this.allGrid;
   }
 
+  /**
+   * Clear all caches (textures, materials, labels)
+   */
   clearCache() {
     // Dispose textures from geomCache
     if (Object.keys(this.geomCache).length > 0) {
@@ -663,6 +831,9 @@ class Grid extends THREE.Group {
     }
   }
 
+  /**
+   * Dispose all resources
+   */
   dispose() {
     this.clearCache();
   }

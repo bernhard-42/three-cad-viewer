@@ -1281,17 +1281,30 @@ class Viewer {
     // add grid helpers
     //
 
-    this.gridHelper = new Grid(
-      this,
-      this.bbox,
-      this.ticks,
-      this.gridFontSize,
-      this.centerGrid,
-      this.axes0,
-      this.grid,
-      viewerOptions.up == "Z",
-      this.theme,
-    );
+    this.gridHelper = new Grid({
+      bbox: this.bbox,
+      ticks: this.ticks,
+      gridFontSize: this.gridFontSize,
+      centerGrid: this.centerGrid,
+      axes0: this.axes0,
+      grid: this.grid,
+      flipY: viewerOptions.up == "Z",
+      theme: this.theme,
+      cadWidth: this.cadWidth,
+      height: this.height,
+      maxAnisotropy: this.renderer.capabilities.getMaxAnisotropy(),
+      tickValueElement: this.display._getElement("tcv_tick_size_value"),
+      tickInfoElement: this.display._getElement("tcv_tick_size"),
+      getCamera: () => this.camera.getCamera(),
+      isOrtho: () => this.ortho,
+      getAxes0: () => this.axes0,
+      onGridChange: (allGrid, grids) => {
+        this.display.toolbarButtons["grid"].set(allGrid);
+        this.display.checkElement("tcv_grid-xy", grids[0]);
+        this.display.checkElement("tcv_grid-xz", grids[1]);
+        this.display.checkElement("tcv_grid-yz", grids[2]);
+      },
+    });
     this.gridHelper.computeGrid();
 
     this.scene.add(this.gridHelper);
