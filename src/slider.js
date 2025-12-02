@@ -31,9 +31,16 @@ class Slider {
     this.onSetSlider = options.onSetSlider || null;
 
     this.slider = container.getElementsByClassName(`tcv_sld_value_${index}`)[0];
+    this.input = container.getElementsByClassName(`tcv_inp_value_${index}`)[0];
+
+    if (!this.slider || !this.input) {
+      throw new Error(
+        `Slider elements not found for index "${index}" in container`,
+      );
+    }
+
     this.slider.min = min;
     this.slider.max = max;
-    this.input = container.getElementsByClassName(`tcv_inp_value_${index}`)[0];
     this.input.value = max;
     this.slider.oninput = this.sliderChange;
     this.input.addEventListener("change", this.inputChange);
@@ -93,13 +100,14 @@ class Slider {
    * @param {Event} e - The change event from the input element
    */
   inputChange = (e) => {
-    const value = Math.max(
+    const clampedValue = Math.max(
       Math.min(e.target.value, this.slider.max),
       this.slider.min,
     );
-    this.slider.value = value;
+    this.input.value = Math.round(1000 * clampedValue) / 1000;
+    this.slider.value = clampedValue;
     this._handle(this.type, this.index, this.input.value);
-    this._notify(value);
+    this._notify(clampedValue);
   };
 
   /**
@@ -133,14 +141,14 @@ class Slider {
    * @param {boolean} [notify=true] - Whether to trigger change notifications
    */
   setValue(value, notify = true) {
-    const trimmed_value = Math.max(
+    const clampedValue = Math.max(
       Math.min(value, this.slider.max),
       this.slider.min,
     );
-    this.input.value = Math.round(1000 * trimmed_value) / 1000;
-    this.slider.value = value;
+    this.input.value = Math.round(1000 * clampedValue) / 1000;
+    this.slider.value = clampedValue;
     this._handle(this.type, this.index, this.input.value);
-    this._notify(value, notify);
+    this._notify(clampedValue, notify);
   }
 }
 
