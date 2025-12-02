@@ -26,37 +26,44 @@ class GridHelper extends THREE.Object3D {
     const solidVerticesX = [];
     const solidVerticesY = [];
 
-    // Create grid lines (dashed)
-    var centerline = false;
+    // Track whether centerlines have been added (should only happen once)
+    let centerlineXAdded = false;
+    let centerlineYAdded = false;
+
+    // Create grid lines
     for (let i = 0; i <= divisions; i++) {
       const k = -halfSize + i * step;
-      // Vertical (Y) lines
-      if (Math.abs(k) > 1e-10) {
+      const isCenter = Math.abs(k) < 1e-10;
+
+      // Vertical lines (parallel to Y axis)
+      if (!isCenter) {
+        // Dashed grid line
         vertices.push(-halfSize, 0, k, halfSize, 0, k);
         gridColors.push(colorGrid, colorGrid);
-      } else {
-        // Centerline Y
-        solidVerticesY.push(-halfSize, 0, k, halfSize, 0, k);
-        centerline = true;
+      } else if (!centerlineYAdded) {
+        // Solid centerline Y (only add once)
+        solidVerticesY.push(-halfSize, 0, 0, halfSize, 0, 0);
+        centerlineYAdded = true;
       }
 
-      if (!centerline) {
-        // Ensure centerline Y is drawn only once
-        solidVerticesY.push(-halfSize, 0, 0, halfSize, 0, 0);
-      }
-      centerline = false;
-      // Horizontal (X) lines
-      if (Math.abs(k) > 1e-10) {
+      // Horizontal lines (parallel to X axis)
+      if (!isCenter) {
+        // Dashed grid line
         vertices.push(k, 0, -halfSize, k, 0, halfSize);
         gridColors.push(colorGrid, colorGrid);
-      } else {
-        // Centerline X
-        solidVerticesX.push(k, 0, -halfSize, k, 0, halfSize);
-      }
-      if (!centerline) {
-        // Ensure centerline X is drawn only once
+      } else if (!centerlineXAdded) {
+        // Solid centerline X (only add once)
         solidVerticesX.push(0, 0, -halfSize, 0, 0, halfSize);
+        centerlineXAdded = true;
       }
+    }
+
+    // Ensure centerlines exist even if grid doesn't pass through zero
+    if (!centerlineYAdded) {
+      solidVerticesY.push(-halfSize, 0, 0, halfSize, 0, 0);
+    }
+    if (!centerlineXAdded) {
+      solidVerticesX.push(0, 0, -halfSize, 0, 0, halfSize);
     }
 
     // Dashed grid lines
