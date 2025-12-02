@@ -271,8 +271,6 @@ class ObjectGroup extends THREE.Group {
     for (var child of this.children) {
       if (!child.name.startsWith("clipping")) {
         child.material.clipIntersection = flag;
-        child.material.clipIntersection = flag;
-        child.material.clipIntersection = flag;
       }
     }
   }

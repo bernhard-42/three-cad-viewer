@@ -7,25 +7,6 @@ import { BoundingBox } from "./bbox.js";
 import { ObjectGroup } from "./objectgroup.js";
 import { deepDispose, flatten } from "./utils.js";
 
-class States {
-  constructor(states) {
-    this.states = states;
-  }
-  convert(states) {
-    const parts = id.split("/");
-    var node = states;
-    for (var i = 1; i++; i < parts.length) {
-      node = node[parts[i]];
-    }
-    return node;
-  }
-  getState(path, index) {
-    return this.convert(this.states[path])[index];
-  }
-  getStates(path) {
-    return this.convert(this.states[path]);
-  }
-}
 
 class NestedGroup {
   constructor(
@@ -773,4 +754,4 @@ class NestedGroup {
   }
 }
 
-export { NestedGroup, ObjectGroup, States };
+export { NestedGroup, ObjectGroup };
