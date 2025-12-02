@@ -481,63 +481,73 @@ class Display {
     this.clipSliders = [];
     for (var i = 1; i < 4; i++) {
       this.clipSliders.push(
-        new Slider(`plane${i}`, 0, 100, this, this.refreshPlane),
+        new Slider(`plane${i}`, 0, 100, this.container, {
+          handler: this.refreshPlane,
+          notifyCallback: (change, notify) =>
+            this.viewer.checkChanges(change, notify),
+          onSetSlider: this.refreshPlane,
+        }),
       );
     }
+
+    const viewerReadyCheck = () => this.viewer.ready;
 
     this.ambientlightSlider = new Slider(
       "ambientlight",
       0,
       400,
-      this,
-      this.viewer.setAmbientLight,
-      true,
+      this.container,
+      {
+        handler: this.viewer.setAmbientLight,
+        percentage: true,
+        isReadyCheck: viewerReadyCheck,
+      },
     );
     this.directionallightSlider = new Slider(
       "pointlight",
       0,
       400,
-      this,
-      this.viewer.setDirectLight,
-      true,
+      this.container,
+      {
+        handler: this.viewer.setDirectLight,
+        percentage: true,
+        isReadyCheck: viewerReadyCheck,
+      },
     );
-    this.metalnessSlider = new Slider(
-      "metalness",
-      0,
-      100,
-      this,
-      this.viewer.setMetalness,
-      true,
-    );
-    this.roughnessSlider = new Slider(
-      "roughness",
-      0,
-      100,
-      this,
-      this.viewer.setRoughness,
-      true,
-    );
+    this.metalnessSlider = new Slider("metalness", 0, 100, this.container, {
+      handler: this.viewer.setMetalness,
+      percentage: true,
+      isReadyCheck: viewerReadyCheck,
+    });
+    this.roughnessSlider = new Slider("roughness", 0, 100, this.container, {
+      handler: this.viewer.setRoughness,
+      percentage: true,
+      isReadyCheck: viewerReadyCheck,
+    });
 
-    this.zebraCountSlider = new Slider(
-      "zebra_count",
-      2,
-      50,
-      this,
-      this.viewer.setZebraCount,
-    );
+    this.zebraCountSlider = new Slider("zebra_count", 2, 50, this.container, {
+      handler: this.viewer.setZebraCount,
+      isReadyCheck: viewerReadyCheck,
+    });
     this.zebraOpacitySlider = new Slider(
       "zebra_opacity",
       0.0,
       1.0,
-      this,
-      this.viewer.setZebraOpacity,
+      this.container,
+      {
+        handler: this.viewer.setZebraOpacity,
+        isReadyCheck: viewerReadyCheck,
+      },
     );
     this.zebraDirectionSlider = new Slider(
       "zebra_direction",
       0,
       90,
-      this,
-      this.viewer.setZebraDirection,
+      this.container,
+      {
+        handler: this.viewer.setZebraDirection,
+        isReadyCheck: viewerReadyCheck,
+      },
     );
 
     this._getElement("tcv_zebra_color1").checked = true;
