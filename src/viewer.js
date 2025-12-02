@@ -2083,6 +2083,7 @@ class Viewer {
    */
   setGrid = (action, flag, notify = true) => {
     this.gridHelper.setGrid(action, flag);
+    this.grid = this.gridHelper.grid;
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 
