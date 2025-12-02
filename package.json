@@ -19,7 +19,12 @@
     "start": "rollup -w -c",
     "debug": "rollup -w -c --environment BUILD:development --sourcemap",
     "docs": "./build_docs.sh",
-    "release": "./release.sh"
+    "release": "./release.sh",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:run-all": "RUN_SLOW_TESTS=true vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "author": "Bernhard Walter",
   "license": "MIT",
@@ -32,9 +37,12 @@
     "@rollup/plugin-image": "^3.0.3",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
+    "@vitest/ui": "3.2.4",
     "cross-spawn": "^7.0.6",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.8",
+    "happy-dom": "18.0.1",
+    "jsdoc": "^4.0.5",
     "postcss": "^8.0.0",
     "postcss-url": "^10.1.3",
     "prettier": "^3.6.2",
@@ -45,9 +53,12 @@
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-serve": "^3.0.0",
     "rollup-plugin-string": "^3.0.0",
-    "jsdoc": "^4.0.5",
+    "vitest": "3.2.4",
     "yarn": "^1.22.22"
   },
   "babel": {},
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@1.22.22",
+  "resolutions": {
+    "esbuild": "0.25.9"
+  }
 }
