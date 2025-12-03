@@ -44,8 +44,8 @@ export function captureSceneState(viewer) {
       cadWidth: viewer.display?.cadWidth,
       height: viewer.display?.height,
       treeWidth: viewer.display?.treeWidth,
-      axes: viewer.axes,
-      grid: viewer.grid ? [...viewer.grid] : null,
+      axes: viewer.getAxes(),
+      grid: viewer.getGrids() ? [...viewer.getGrids()] : null,
     },
   };
 

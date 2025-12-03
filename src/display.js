@@ -340,9 +340,9 @@ class Display {
 
   widthThreshold() {
     var threshold = 770;
-    if (!this.viewer.pinning) threshold -= 30;
-    if (!this.viewer.selectTool) threshold -= 30;
-    if (!this.viewer.explodeTool && !this.zscaleTool) threshold -= 30;
+    if (!this.state.get("pinning")) threshold -= 30;
+    if (!this.state.get("selectTool")) threshold -= 30;
+    if (!this.state.get("explodeTool") && !this.state.get("zscaleTool")) threshold -= 30;
     return threshold;
   }
 
@@ -398,7 +398,7 @@ class Display {
    * Set the width and height of the different UI elements (tree, canvas and info box)
    * @param {DisplayOptions} options
    */
-  setSizes(options, ratio = 2 / 3) {
+  setSizes(options) {
     if (options.cadWidth) {
       this.cadWidth = options.cadWidth;
       this.cadView.style.width = px(options.cadWidth);
@@ -416,11 +416,10 @@ class Display {
         options.treeWidth,
       );
     }
-    if (!options.glass) {
-      const treeHeight = Math.round(options.height * ratio);
-      this.cadTree.parentElement.parentElement.style.height = px(treeHeight);
+    if (!options.glass && options.treeHeight) {
+      this.cadTree.parentElement.parentElement.style.height = px(options.treeHeight);
       this.cadInfo.parentElement.parentElement.style.height = px(
-        options.height - treeHeight - 4,
+        options.height - options.treeHeight - 4,
       );
     }
 
@@ -443,6 +442,7 @@ class Display {
    */
   setupUI(viewer) {
     this.viewer = viewer;
+    this.state = viewer.state;
 
     // Theme
     if (this.theme === "browser") {
@@ -599,27 +599,137 @@ class Display {
     this.showSelectTool(this.selectTool);
     this.showExplodeTool(this.explodeTool);
     this.showZScaleTool(this.zscaleTool);
+
+    // Subscribe to state changes
+    this._subscribeToStateChanges();
   }
 
   /**
-   * Check or uncheck a checkbox
-   * @property {boolean} [axes = false] - show X-, Y-, Z-axes.
-   * @property {boolean} [axes0 = false] - show axes at [0,0,0] ot at object center (target).
-   * @property {boolean} [ortho = true] - use an orthographic (true) or perspective camera (false)
-   * @property {boolean} [transparent = false] - show CAD object transparent.
-   * @property {boolean} [blackEdges = false] - show edges in black and not in edgeColor.
-   * @property {boolean} [tools = true] - show CAD tools.
-   * @property {boolean} [glass = false] - use glass mode, i.e. CAD navigation as overlay.
+   * Subscribe to ViewerState changes to keep UI in sync
+   * @private
    */
-  updateUI(axes, axes0, ortho, transparent, blackEdges, tools, glass) {
-    this.toolbarButtons["axes"].set(axes);
-    this.toolbarButtons["axes0"].set(axes0);
-    this.toolbarButtons["perspective"].set(!ortho);
-    this.toolbarButtons["transparent"].set(transparent);
-    this.toolbarButtons["blackedges"].set(blackEdges);
+  _subscribeToStateChanges() {
+    const state = this.viewer.state;
 
-    this.showTools(tools);
-    this.glassMode(glass);
+    // Subscribe to individual state keys that affect UI
+    state.subscribe("axes", (change) => {
+      this.toolbarButtons["axes"]?.set(change.new);
+    });
+
+    state.subscribe("axes0", (change) => {
+      this.toolbarButtons["axes0"]?.set(change.new);
+    });
+
+    state.subscribe("ortho", (change) => {
+      this.toolbarButtons["perspective"]?.set(!change.new);
+    });
+
+    state.subscribe("transparent", (change) => {
+      this.toolbarButtons["transparent"]?.set(change.new);
+    });
+
+    state.subscribe("blackEdges", (change) => {
+      this.toolbarButtons["blackedges"]?.set(change.new);
+    });
+
+    state.subscribe("grid", (change) => {
+      const gridButton = this.toolbarButtons["grid"];
+      if (gridButton) {
+        const grid = change.new; // [xy, xz, yz]
+        // Update main button state (true if any grid is visible)
+        gridButton.set(grid.some((g) => g));
+        // Update individual checkboxes
+        if (gridButton.checkElems) {
+          gridButton.checkElems["xy"].checked = grid[0];
+          gridButton.checkElems["xz"].checked = grid[1];
+          gridButton.checkElems["yz"].checked = grid[2];
+        }
+      }
+    });
+
+    state.subscribe("tools", (change) => {
+      this.showTools(change.new);
+    });
+
+    state.subscribe("glass", (change) => {
+      this.glassMode(change.new);
+    });
+
+    state.subscribe("theme", (change) => {
+      this.setTheme(change.new);
+    });
+
+    state.subscribe("clipIntersection", (change) => {
+      this.setClipIntersectionCheck(change.new);
+    });
+
+    state.subscribe("clipPlaneHelpers", (change) => {
+      this.setClipPlaneHelpersCheck(change.new);
+    });
+
+    state.subscribe("clipObjectColors", (change) => {
+      this.setClipObjectColorsCheck(change.new);
+    });
+
+    // Clip slider subscriptions
+    state.subscribe("clipSlider0", (change) => {
+      this.clipSliders[0]?.setValueFromState(change.new);
+    });
+    state.subscribe("clipSlider1", (change) => {
+      this.clipSliders[1]?.setValueFromState(change.new);
+    });
+    state.subscribe("clipSlider2", (change) => {
+      this.clipSliders[2]?.setValueFromState(change.new);
+    });
+
+    // Material slider subscriptions (state stores 0-1, sliders display 0-100 or 0-400)
+    state.subscribe("ambientIntensity", (change) => {
+      this.ambientlightSlider?.setValueFromState(change.new * 100);
+    });
+    state.subscribe("directIntensity", (change) => {
+      this.directionallightSlider?.setValueFromState(change.new * 100);
+    });
+    state.subscribe("metalness", (change) => {
+      this.metalnessSlider?.setValueFromState(change.new * 100);
+    });
+    state.subscribe("roughness", (change) => {
+      this.roughnessSlider?.setValueFromState(change.new * 100);
+    });
+
+    // Zebra slider subscriptions
+    state.subscribe("zebraCount", (change) => {
+      this.zebraCountSlider?.setValueFromState(change.new);
+    });
+    state.subscribe("zebraOpacity", (change) => {
+      this.zebraOpacitySlider?.setValueFromState(change.new);
+    });
+    state.subscribe("zebraDirection", (change) => {
+      this.zebraDirectionSlider?.setValueFromState(change.new);
+    });
+
+    // Zebra radio button subscriptions
+    state.subscribe("zebraColorScheme", (change) => {
+      this.setZebraColorSchemeSelect(change.new);
+    });
+    state.subscribe("zebraMappingMode", (change) => {
+      this.setZebraMappingModeSelect(change.new);
+    });
+  }
+
+  /**
+   * Initialize UI elements from current state.
+   * Called once during initialization. Subsequent updates happen via state subscriptions.
+   */
+  updateUI() {
+    const state = this.viewer.state;
+    this.toolbarButtons["axes"].set(state.get("axes"));
+    this.toolbarButtons["axes0"].set(state.get("axes0"));
+    this.toolbarButtons["perspective"].set(!state.get("ortho"));
+    this.toolbarButtons["transparent"].set(state.get("transparent"));
+    this.toolbarButtons["blackedges"].set(state.get("blackEdges"));
+
+    this.showTools(state.get("tools"));
+    this.glassMode(state.get("glass"));
     const width = this.glass ? this.cadWidth : this.cadWidth + this.treeWidth;
     if (width < this.widthThreshold()) {
       this.cadTool.minimize();
@@ -947,16 +1057,15 @@ class Display {
   };
 
   /**
-   * Show or hide the CAD tools
+   * Show or hide the CAD tools (UI update only).
+   * This method only updates the visual state - it does not modify ViewerState.
+   * To change the tools setting, call viewer.setTools() which will update state
+   * and trigger this method via subscription.
    * @function
    * @param {boolean} flag - whether to show or hide the CAD tools
    */
   showTools = (flag) => {
     this.tools = flag;
-    if (this.viewer) {
-      // not available at first call
-      this.viewer.tools = flag;
-    }
     var tb = this._getElement("tcv_cad_toolbar");
     var cn = this._getElement("tcv_cad_navigation");
     if (flag) {
@@ -1242,9 +1351,10 @@ class Display {
    * @param {Event} e - a DOM click event
    */
   setZebraColorSchemeSelect = (value) => {
-    this.container.querySelector(
+    const el = this.container.querySelector(
       `input[name="zebra_color_group"][value="${value}"]`,
-    ).checked = true;
+    );
+    if (el) el.checked = true;
   };
 
   /**
@@ -1264,9 +1374,10 @@ class Display {
    * @param {string} value - "reflection" or "normal"
    */
   setZebraMappingModeSelect = (value) => {
-    this.container.querySelector(
+    const el = this.container.querySelector(
       `input[name="zebra_mapping_group"][value="${value}"]`,
-    ).checked = true;
+    );
+    if (el) el.checked = true;
   };
 
   /**
@@ -1304,7 +1415,7 @@ class Display {
     } else if (tab === "clip" && this.activeTab !== "clip") {
       _switchTab(false, true, false, false);
       this.viewer.nestedGroup.setBackVisible(true);
-      this.viewer.setClipIntersection(this.viewer.clipIntersection);
+      this.viewer.setClipIntersection(this.viewer.state.get("clipIntersection"));
       this.viewer.setClipPlaneHelpers(this.lastPlaneState);
       this.viewer.update(true, false);
     } else if (tab === "material" && this.activeTab !== "material") {
@@ -1533,17 +1644,19 @@ class Display {
   }
 
   /**
-   * Enable/disable glass mode
+   * Enable/disable glass mode (UI update only).
+   * This method only updates the visual state - it does not modify ViewerState.
+   * To change the glass setting, call viewer.setGlass() which will update state
+   * and trigger this method via subscription.
    * @function
    * @param {boolean} flag - whether to enable/disable glass mode
    */
   glassMode(flag) {
+    const treeHeight = this.state?.get("treeHeight") ?? Math.round((this.height * 2) / 3);
     if (flag) {
       this._getElement("tcv_cad_tree").classList.add("tcv_cad_tree_glass");
       this._getElement("tcv_cad_tree").style["height"] = null;
-      this._getElement("tcv_cad_tree").style["max-height"] = px(
-        Math.round((this.height * 2) / 3) - 18,
-      );
+      this._getElement("tcv_cad_tree").style["max-height"] = px(treeHeight - 18);
 
       this._getElement("tcv_cad_info").classList.add("tcv_cad_info_glass");
       this._getElement("tcv_cad_view").classList.add("tcv_cad_view_glass");
@@ -1556,9 +1669,7 @@ class Display {
     } else {
       this._getElement("tcv_cad_tree").classList.remove("tcv_cad_tree_glass");
       this._getElement("tcv_cad_tree").style["max-height"] = null;
-      this._getElement("tcv_cad_tree").style.height = px(
-        Math.round((this.height * 2) / 3),
-      );
+      this._getElement("tcv_cad_tree").style.height = px(treeHeight);
       this._getElement("tcv_cad_info").classList.remove("tcv_cad_info_glass");
       this._getElement("tcv_cad_view").classList.remove("tcv_cad_view_glass");
 
@@ -1567,14 +1678,11 @@ class Display {
       this.showInfo(true);
       this.glass = false;
     }
-    if (this.viewer) {
-      // not available at first call
-      this.viewer.glass = false;
-    }
     const options = {
       cadWidth: this.cadWidth,
       glass: this.glass,
       height: this.height,
+      treeHeight: treeHeight,
       tools: this.tools,
       treeWidth: flag ? 0 : this.treeWidth,
     };

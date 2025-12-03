@@ -150,6 +150,20 @@ class Slider {
     this._handle(this.type, this.index, this.input.value);
     this._notify(clampedValue, notify);
   }
+
+  /**
+   * Update slider visual without triggering handler (for state subscription updates).
+   * Use this when the state has already been updated and you just need to sync the UI.
+   * @param {number} value - The value to set (will be clamped to min/max range)
+   */
+  setValueFromState(value) {
+    const clampedValue = Math.max(
+      Math.min(value, this.slider.max),
+      this.slider.min,
+    );
+    this.input.value = Math.round(1000 * clampedValue) / 1000;
+    this.slider.value = clampedValue;
+  }
 }
 
 export { Slider };

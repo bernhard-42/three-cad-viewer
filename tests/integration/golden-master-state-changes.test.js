@@ -245,7 +245,7 @@ describe('Golden Master - State Changes', () => {
       const initialState = captureSceneState(viewer);
 
       // Toggle ortho
-      viewer.setOrtho(!viewer.ortho, false);
+      viewer.setOrtho(!viewer.state.get("ortho"), false);
 
       const finalState = captureSceneState(viewer);
 
@@ -552,6 +552,88 @@ describe('Golden Master - State Changes', () => {
 
       expect(state.scene.sampleMaterial.metalness).toBe(1.0);
       expect(state.scene.sampleMaterial.roughness).toBe(0.0);
+    });
+  });
+
+  describe('Material value clamping', () => {
+    test('setRoughness clamps values to 0-1 range', async () => {
+      testContext = setupViewer();
+      const { viewer, renderOptions, viewerOptions } = testContext;
+
+      const box1Data = await loadExample('box1');
+      viewer.render(box1Data, renderOptions, viewerOptions);
+
+      // Test clamping above max
+      viewer.setRoughness(2);
+      expect(viewer.getRoughness()).toBe(1);
+
+      // Test clamping below min
+      viewer.setRoughness(-0.5);
+      expect(viewer.getRoughness()).toBe(0);
+
+      // Test value within range
+      viewer.setRoughness(0.5);
+      expect(viewer.getRoughness()).toBe(0.5);
+    });
+
+    test('setMetalness clamps values to 0-1 range', async () => {
+      testContext = setupViewer();
+      const { viewer, renderOptions, viewerOptions } = testContext;
+
+      const box1Data = await loadExample('box1');
+      viewer.render(box1Data, renderOptions, viewerOptions);
+
+      // Test clamping above max
+      viewer.setMetalness(1.5);
+      expect(viewer.getMetalness()).toBe(1);
+
+      // Test clamping below min
+      viewer.setMetalness(-1);
+      expect(viewer.getMetalness()).toBe(0);
+
+      // Test value within range
+      viewer.setMetalness(0.3);
+      expect(viewer.getMetalness()).toBe(0.3);
+    });
+
+    test('setAmbientLight clamps values to 0-4 range', async () => {
+      testContext = setupViewer();
+      const { viewer, renderOptions, viewerOptions } = testContext;
+
+      const box1Data = await loadExample('box1');
+      viewer.render(box1Data, renderOptions, viewerOptions);
+
+      // Test clamping above max
+      viewer.setAmbientLight(5);
+      expect(viewer.getAmbientLight()).toBe(4);
+
+      // Test clamping below min
+      viewer.setAmbientLight(-1);
+      expect(viewer.getAmbientLight()).toBe(0);
+
+      // Test value within range
+      viewer.setAmbientLight(2.5);
+      expect(viewer.getAmbientLight()).toBe(2.5);
+    });
+
+    test('setDirectLight clamps values to 0-4 range', async () => {
+      testContext = setupViewer();
+      const { viewer, renderOptions, viewerOptions } = testContext;
+
+      const box1Data = await loadExample('box1');
+      viewer.render(box1Data, renderOptions, viewerOptions);
+
+      // Test clamping above max
+      viewer.setDirectLight(10);
+      expect(viewer.getDirectLight()).toBe(4);
+
+      // Test clamping below min
+      viewer.setDirectLight(-2);
+      expect(viewer.getDirectLight()).toBe(0);
+
+      // Test value within range
+      viewer.setDirectLight(1.5);
+      expect(viewer.getDirectLight()).toBe(1.5);
     });
   });
 });

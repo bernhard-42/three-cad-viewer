@@ -24,6 +24,7 @@ import { BoundingBox, BoxHelper } from "./bbox.js";
 import { Tools } from "./cad_tools/tools.js";
 import { version } from "./_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "./raycast.js";
+import { ViewerState } from "./viewer-state.js";
 
 class Viewer {
   /**
@@ -40,13 +41,14 @@ class Viewer {
     pinAsPngCallback = null,
     updateMarker = true,
   ) {
+    // Create centralized state from options (single source of truth)
+    this.state = new ViewerState(options);
+
     this.notifyCallback = notifyCallback;
     this.pinAsPngCallback = pinAsPngCallback;
     this.updateMarker = updateMarker;
 
     this.hasAnimationLoop = false;
-
-    this.setDisplayDefaults(options);
 
     this.display = display;
 
@@ -69,7 +71,6 @@ class Viewer {
     this.orientationMarker = null;
     this.treeview = null;
     this.cadTools = new Tools(this, options.measurementDebug);
-    this.newTreeBehavior = options.newTreeBehavior;
 
     this.ready = false;
     this.mixer = null;
@@ -93,7 +94,7 @@ class Viewer {
       stencil: true,
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(this.cadWidth, this.height);
+    this.renderer.setSize(this.state.get("cadWidth"), this.state.get("height"));
     this.renderer.setClearColor(0xffffff, 0);
     this.renderer.autoClear = false;
 
@@ -139,164 +140,51 @@ class Viewer {
   }
 
   /**
-   * Enhance the given options for viewer creation by default values.
-   * @param {DisplayOptions} options - The provided options object for the viewer.
-   */
-  setDisplayDefaults(options) {
-    this.theme = "light";
-    this.cadWidth = 800;
-    this.treeWidth = 250;
-    this.height = 600;
-    this.pinning = false;
-    this.glass = false;
-    this.tools = true;
-    this.keymap = { shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey" };
-    this.newTreeBehavior = true;
-    this.measureTools = true;
-    this.selectTool = true;
-    this.explodeTool = true;
-    this.zscaleTool = false;
-    this.zebraTool = true;
-    this.measurementDebug = true;
-
-    for (var option in options) {
-      if (this[option] == null) {
-        console.warn(`Unknown option "${option}" to create a viewer - ignored`);
-      } else {
-        this[option] = options[option];
-      }
-    }
-    if (
-      options.theme === "dark" ||
-      (options.theme == "browser" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      this.theme = "dark";
-    } else {
-      this.theme = "light";
-    }
-  }
-
-  /**
-   * Enhance the given options for rendering by default values.
-   * @param {RenderOptions} options - The provided options object for the viewer.
+   * Apply render options and build materialSettings object.
+   * Called by render() after state is populated with render options.
+   * @param {RenderOptions} options - The provided options object for rendering.
    */
   setRenderDefaults(options) {
-    this.ambientIntensity = 0.5;
-    this.directIntensity = 0.6;
-    this.metalness = 0.7;
-    this.roughness = 0.7;
-    this.defaultOpacity = 0.5;
-    this.edgeColor = 0x707070;
-    this.normalLen = 0;
-
-    for (var option in options) {
-      if (this[option] === undefined) {
-        console.warn(`Unknown option "${option}" to create a viewer - ignored`);
-      } else {
-        this[option] = options[option];
+    // Update state with any render-specific options
+    for (const option of Object.keys(options)) {
+      if (this.state.get(option) !== undefined) {
+        this.state.set(option, options[option], false);
       }
     }
 
+    // Build materialSettings from current state
     this.materialSettings = {
-      ambientIntensity: this.ambientIntensity,
-      directIntensity: this.directIntensity,
-      metalness: this.metalness,
-      roughness: this.roughness,
+      ambientIntensity: this.state.get("ambientIntensity"),
+      directIntensity: this.state.get("directIntensity"),
+      metalness: this.state.get("metalness"),
+      roughness: this.state.get("roughness"),
     };
   }
 
   /**
-   * Enhance the given options for the view by default values.
-   * @param {ViewOptions} options - The provided options object for the viewer.
+   * Apply view options to state.
+   * Called by render() after state is populated.
+   * @param {ViewOptions} options - The provided options object for the view.
    */
   setViewerDefaults(options) {
-    this.axes = false;
-    this.axes0 = false;
-    this.grid = [false, false, false];
-    this.ortho = true;
-    this.transparent = false;
-    this.blackEdges = false;
-    this.collapse = 0;
-
-    this.clipIntersection = false;
-    this.clipPlaneHelpers = false;
-    this.clipObjectColors = false;
-    this.clipNormal0 = [-1, 0, 0];
-    this.clipNormal1 = [0, -1, 0];
-    this.clipNormal2 = [0, 0, -1];
-    this.clipSlider0 = -1;
-    this.clipSlider1 = -1;
-    this.clipSlider2 = -1;
-    this.control = "orbit";
-    this.up = "Z";
-    this.ticks = 10;
-    this.gridFontSize = 10;
-    this.centerGrid = false;
-    this.position = null;
-    this.quaternion = null;
-    this.target = null;
-
-    this.zoom = 1;
-
-    this.panSpeed = 0.5;
-    this.rotateSpeed = 1.0;
-    this.zoomSpeed = 0.5;
-    this.timeit = false;
-
-    for (var option in options) {
-      if (this[option] === undefined) {
-        console.warn(`Unknown option ${option} to add shapes - ignored`);
-      } else {
-        this[option] = options[option];
+    // Update state with any view-specific options
+    for (const option of Object.keys(options)) {
+      if (this.state.get(option) !== undefined) {
+        this.state.set(option, options[option], false);
       }
     }
   }
 
+  /**
+   * @deprecated Use state properties directly. Kept for backwards compatibility.
+   */
+  setDisplayDefaults(options) {
+    // No-op: ViewerState now handles all defaults in its constructor
+    // This method is kept only for API compatibility
+  }
+
   dumpOptions() {
-    console.log("Display:");
-    console.log("- cadWidth", this.cadWidth);
-    console.log("- control", this.control);
-    console.log("- height", this.height);
-    console.log("- pinning", this.pinning);
-    console.log("- theme", this.theme);
-    console.log("- treeHeight", this.treeHeight);
-    console.log("- treeWidth", this.treeWidth);
-
-    console.log("Render:");
-    console.log("- ambientIntensity", this.ambientIntensity);
-    console.log("- defaultOpacity", this.defaultOpacity);
-    console.log("- directIntensity", this.directIntensity);
-    console.log("- edgeColor", this.edgeColor);
-    console.log("- normalLen", this.normalLen);
-
-    console.log("View:");
-    console.log("- axes", this.axes);
-    console.log("- axes0", this.axes0);
-    console.log("- blackEdges", this.blackEdges);
-    console.log("- clipIntersection", this.clipIntersection);
-    console.log("- clipPlaneHelpers", this.clipPlaneHelpers);
-    console.log("- clipObjectColors", this.clipObjectColors);
-    console.log("- clipNormal0", this.clipNormal0);
-    console.log("- clipNormal1", this.clipNormal1);
-    console.log("- clipNormal2", this.clipNormal2);
-    console.log("- clipSlider0", this.clipSlider0);
-    console.log("- clipSlider1", this.clipSlider1);
-    console.log("- clipSlider2", this.clipSlider2);
-    console.log("- grid", this.grid);
-    console.log("- ortho", this.ortho);
-    console.log("- panSpeed", this.panSpeed);
-    console.log("- position", this.position);
-    console.log("- quaternion", this.quaternion);
-    console.log("- rotateSpeed", this.rotateSpeed);
-    console.log("- ticks", this.ticks);
-    console.log("- timeit", this.timeit);
-    console.log("- tools", this.tools);
-    console.log("- glass", this.glass);
-    console.log("- transparent", this.transparent);
-    console.log("- zoom", this.zoom);
-    console.log("- zoom0", this.controls.getZoom0());
-    console.log("- zoomSpeed", this.zoomSpeed);
+    this.state.dump();
   }
   // - - - - - - - - - - - - - - - - - - - - - - - -
   // Load Tesselated Shapes
@@ -310,14 +198,14 @@ class Viewer {
   _renderTessellatedShapes(shapes) {
     const nestedGroup = new NestedGroup(
       shapes,
-      this.cadWidth,
-      this.height,
-      this.edgeColor,
-      this.transparent,
-      this.defaultOpacity,
-      this.metalness,
-      this.roughness,
-      this.normalLen,
+      this.state.get("cadWidth"),
+      this.state.get("height"),
+      this.state.get("edgeColor"),
+      this.state.get("transparent"),
+      this.state.get("defaultOpacity"),
+      this.state.get("metalness"),
+      this.state.get("roughness"),
+      this.state.get("normalLen"),
     );
     if (shapes.bb) {
       this.bbox = new BoundingBox(
@@ -474,7 +362,7 @@ class Viewer {
           name: `edges_${j}`,
           id: `${part.id}/edges/edges_${j}`,
           type: "edges",
-          color: part.type == "shapes" ? this.edgeColor : color,
+          color: part.type == "shapes" ? this.state.get("edgeColor") : color,
           state: [3, 1],
           width: part.type == "shapes" ? 1 : part.width,
           bb: {},
@@ -746,7 +634,7 @@ class Viewer {
 
       this.gridHelper.update(this.camera.getZoom());
 
-      this.renderer.setViewport(0, 0, this.cadWidth, this.height);
+      this.renderer.setViewport(0, 0, this.state.get("cadWidth"), this.state.get("height"));
       this.renderer.render(this.scene, this.camera.getCamera());
       this.cadTools.update();
 
@@ -1054,12 +942,12 @@ class Viewer {
    * @param expanded - whether to render the exploded or compact version
    */
   toggleGroup(expanded) {
-    var timer = new Timer("toggleGroup", this.timeit);
+    var timer = new Timer("toggleGroup", this.state.get("timeit"));
     var _config = () => {
-      this.nestedGroup.setTransparent(this.transparent);
-      this.nestedGroup.setBlackEdges(this.blackEdges);
-      this.nestedGroup.setMetalness(this.metalness);
-      this.nestedGroup.setRoughness(this.roughness);
+      this.nestedGroup.setTransparent(this.state.get("transparent"));
+      this.nestedGroup.setBlackEdges(this.state.get("blackEdges"));
+      this.nestedGroup.setMetalness(this.state.get("metalness"));
+      this.nestedGroup.setRoughness(this.state.get("roughness"));
       this.nestedGroup.setPolygonOffset(2);
     };
 
@@ -1113,8 +1001,8 @@ class Viewer {
       this.update,
       this.notifyStates,
       this.getNodeColor,
-      this.theme,
-      this.newTreeBehavior,
+      this.state.get("theme"),
+      this.state.get("newTreeBehavior"),
       false,
     );
 
@@ -1134,10 +1022,10 @@ class Viewer {
    * @param boolean disable - true to disable clipping tab
    */
   toggleTab(disable) {
-    var timer = new Timer("toggleTab", this.timeit);
+    var timer = new Timer("toggleTab", this.state.get("timeit"));
     this.display.selectTabByName("tree");
     timer.split("collapse tree");
-    switch (this.collapse) {
+    switch (this.state.get("collapse")) {
       case 0:
         this.treeview.expandAll();
         break;
@@ -1173,7 +1061,7 @@ class Viewer {
 
     this.animation.cleanBackup();
 
-    const timer = new Timer("viewer", this.timeit);
+    const timer = new Timer("viewer", this.state.get("timeit"));
 
     this.scene = new THREE.Scene();
     // this.orthographicScene = new THREE.Scene();
@@ -1201,17 +1089,17 @@ class Viewer {
     // add Info box
     //
 
-    this.info = new Info(this.display.cadInfo, this.theme);
+    this.info = new Info(this.display.cadInfo, this.state.get("theme"));
 
     //
     // create cameras
     //
     this.camera = new Camera(
-      this.cadWidth,
-      this.height,
+      this.state.get("cadWidth"),
+      this.state.get("height"),
       this.bb_radius,
       viewerOptions.target == null ? this.bbox.center() : viewerOptions.target,
-      this.ortho,
+      this.state.get("ortho"),
       viewerOptions.up,
     );
 
@@ -1219,13 +1107,13 @@ class Viewer {
     // build mouse/touch controls
     //
     this.controls = new Controls(
-      this.control,
+      this.state.get("control"),
       this.camera.getCamera(),
       viewerOptions.target == null ? this.bbox.center() : viewerOptions.target,
       this.renderer.domElement,
-      this.rotateSpeed,
-      this.zoomSpeed,
-      this.panSpeed,
+      this.state.get("rotateSpeed"),
+      this.state.get("zoomSpeed"),
+      this.state.get("panSpeed"),
     );
     this.controls.enableKeys = false;
 
@@ -1234,14 +1122,14 @@ class Viewer {
 
     // this needs to happen after the controls have been established
     if (viewerOptions.position == null && viewerOptions.quaternion == null) {
-      this.presetCamera("iso", this.zoom);
+      this.presetCamera("iso", this.state.get("zoom"));
       this.display.highlightButton("iso");
     } else if (viewerOptions.position != null) {
       this.setCamera(
         false,
         viewerOptions.position,
         viewerOptions.quaternion,
-        this.zoom,
+        this.state.get("zoom"),
       );
       if (viewerOptions.quaternion == null) {
         this.camera.lookAtTarget();
@@ -1250,7 +1138,7 @@ class Viewer {
       this.info.addHtml(
         "<b>quaternion needs position to be provided, falling back to ISO view</b>",
       );
-      this.presetCamera("iso", this.zoom);
+      this.presetCamera("iso", this.state.get("zoom"));
     }
     this.controls.update();
 
@@ -1263,19 +1151,19 @@ class Viewer {
 
     this.ambientLight = new THREE.AmbientLight(
       0xffffff,
-      scaleLight(this.ambientIntensity),
+      scaleLight(this.state.get("ambientIntensity")),
     );
     this.scene.add(this.ambientLight);
 
-    // this.directLight = new THREE.PointLight(0xffffff, this.directIntensity);
+    // this.directLight = new THREE.PointLight(0xffffff, this.state.get("directIntensity"));
     this.directLight = new THREE.DirectionalLight(
       0xffffff,
-      scaleLight(this.directIntensity),
+      scaleLight(this.state.get("directIntensity")),
     );
     this.scene.add(this.directLight);
 
-    this.setAmbientLight(this.ambientIntensity);
-    this.setDirectLight(this.directIntensity);
+    this.setAmbientLight(this.state.get("ambientIntensity"));
+    this.setDirectLight(this.state.get("directIntensity"));
 
     //
     // add grid helpers
@@ -1283,21 +1171,21 @@ class Viewer {
 
     this.gridHelper = new Grid({
       bbox: this.bbox,
-      ticks: this.ticks,
-      gridFontSize: this.gridFontSize,
-      centerGrid: this.centerGrid,
-      axes0: this.axes0,
-      grid: this.grid,
+      ticks: this.state.get("ticks"),
+      gridFontSize: this.state.get("gridFontSize"),
+      centerGrid: this.state.get("centerGrid"),
+      axes0: this.state.get("axes0"),
+      grid: this.state.get("grid"),
       flipY: viewerOptions.up == "Z",
-      theme: this.theme,
-      cadWidth: this.cadWidth,
-      height: this.height,
+      theme: this.state.get("theme"),
+      cadWidth: this.state.get("cadWidth"),
+      height: this.state.get("height"),
       maxAnisotropy: this.renderer.capabilities.getMaxAnisotropy(),
       tickValueElement: this.display._getElement("tcv_tick_size_value"),
       tickInfoElement: this.display._getElement("tcv_tick_size"),
       getCamera: () => this.camera.getCamera(),
-      isOrtho: () => this.ortho,
-      getAxes0: () => this.axes0,
+      isOrtho: () => this.state.get("ortho"),
+      getAxes0: () => this.state.get("axes0"),
       onGridChange: (allGrid, grids) => {
         this.display.toolbarButtons["grid"].set(allGrid);
         this.display.checkElement("tcv_grid-xy", grids[0]);
@@ -1319,11 +1207,11 @@ class Viewer {
       this.bbox.center(),
       this.gridSize / 2,
       2,
-      this.cadWidth,
-      this.height,
-      this.axes0,
-      this.axes,
-      this.theme,
+      this.state.get("cadWidth"),
+      this.state.get("height"),
+      this.state.get("axes0"),
+      this.state.get("axes"),
+      this.state.get("theme"),
     );
     this.scene.add(this.axesHelper);
 
@@ -1354,7 +1242,7 @@ class Viewer {
       2 * cSize,
       this.nestedGroup,
       this.display,
-      this.theme,
+      this.state.get("theme"),
     );
 
     this.display.setSliderLimits(this.gridSize / 2, this.bbox.center());
@@ -1363,22 +1251,22 @@ class Viewer {
     this.setClipNormal(1, viewerOptions.clipNormal1, null, true);
     this.setClipNormal(2, viewerOptions.clipNormal2, null, true);
 
-    this.clipSlider0 =
+    const clipSlider0 =
       viewerOptions.clipSlider0 != null
         ? viewerOptions.clipSlider0
         : this.gridSize / 2;
-    this.clipSlider1 =
+    const clipSlider1 =
       viewerOptions.clipSlider1 != null
         ? viewerOptions.clipSlider1
         : this.gridSize / 2;
-    this.clipSlider2 =
+    const clipSlider2 =
       viewerOptions.clipSlider2 != null
         ? viewerOptions.clipSlider2
         : this.gridSize / 2;
 
-    this.setClipSlider(0, this.clipSlider0, true);
-    this.setClipSlider(1, this.clipSlider1, true);
-    this.setClipSlider(2, this.clipSlider2, true);
+    this.setClipSlider(0, clipSlider0, true);
+    this.setClipSlider(1, clipSlider1, true);
+    this.setClipSlider(2, clipSlider2, true);
 
     this.setClipIntersection(viewerOptions.clipIntersection, true);
     this.setClipObjectColorCaps(viewerOptions.clipObjectColors, true);
@@ -1393,14 +1281,14 @@ class Viewer {
 
     this.toggleTab(false);
 
-    this.display.metalnessSlider.setValue(this.metalness * 100);
-    this.display.roughnessSlider.setValue(this.roughness * 100);
-    this.display.ambientlightSlider.setValue(this.ambientIntensity * 100);
-    this.display.directionallightSlider.setValue(this.directIntensity * 100);
+    this.display.metalnessSlider.setValue(this.state.get("metalness") * 100);
+    this.display.roughnessSlider.setValue(this.state.get("roughness") * 100);
+    this.display.ambientlightSlider.setValue(this.state.get("ambientIntensity") * 100);
+    this.display.directionallightSlider.setValue(this.state.get("directIntensity") * 100);
 
     const theme =
-      this.theme === "dark" ||
-      (this.theme === "browser" &&
+      this.state.get("theme") === "dark" ||
+      (this.state.get("theme") === "browser" &&
         window.matchMedia("(prefers-color-scheme: dark)").matches)
         ? "dark"
         : "light";
@@ -1421,15 +1309,7 @@ class Viewer {
     // update UI elements
     //
 
-    this.display.updateUI(
-      this.axes,
-      this.axes0,
-      this.ortho,
-      this.transparent,
-      this.blackEdges,
-      this.tools,
-      this.glass,
-    );
+    this.display.updateUI();
     timer.split("ui updated");
     this.display.autoCollapse();
 
@@ -1441,7 +1321,7 @@ class Viewer {
     this.toggleAnimationLoop(this.hasAnimationLoop);
 
     this.ready = true;
-    this.info.readyMsg(version, this.control);
+    this.info.readyMsg(version, this.state.get("control"));
 
     //
     // notify calculated results
@@ -1461,13 +1341,13 @@ class Viewer {
 
     this.update(true, false);
     this.treeview.update();
-    this.display.setTheme(this.theme);
+    this.display.setTheme(this.state.get("theme"));
 
-    this.setZebraCount(9, true);
-    this.setZebraDirection(0, true);
-    this.setZebraOpacity(1.0, true);
-    this.setZebraColorScheme("blackwhite", true);
-    this.setZebraMappingMode("reflection", true);
+    this.setZebraCount(this.state.get("zebraCount"));
+    this.setZebraDirection(this.state.get("zebraDirection"));
+    this.setZebraOpacity(this.state.get("zebraOpacity"));
+    this.setZebraColorScheme(this.state.get("zebraColorScheme"));
+    this.setZebraMappingMode(this.state.get("zebraMappingMode"));
 
     timer.split("update done");
     timer.stop();
@@ -1531,7 +1411,7 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   switchCamera(flag, notify = true) {
-    this.ortho = flag;
+    this.state.set("ortho", flag);
     this.camera.switchCamera(flag, notify);
     this.controls.setCamera(this.camera.getCamera());
     this.display.setOrthoCheck(flag);
@@ -1691,6 +1571,7 @@ class Viewer {
    * @param {number} value - distance on the clipping normal from the center
    */
   refreshPlane = (index, value) => {
+    this.state.set(`clipSlider${index}`, value);
     this.clipping.setConstant(index, value);
     this.update(this.updateMarker);
   };
@@ -1858,8 +1739,8 @@ class Viewer {
     const raycaster = new Raycaster(
       this.camera,
       this.renderer.domElement,
-      this.cadWidth,
-      this.height,
+      this.state.get("cadWidth"),
+      this.state.get("height"),
       this.bb_max / 30,
       this.scene.children.slice(0, 1),
       // eslint-disable-next-line no-unused-vars
@@ -1962,8 +1843,8 @@ class Viewer {
       this.raycaster = new Raycaster(
         this.camera,
         this.renderer.domElement,
-        this.cadWidth,
-        this.height,
+        this.state.get("cadWidth"),
+        this.state.get("height"),
         this.bb_max / 30,
         this.scene.children.slice(0, 1),
         this.handleRaycastEvent,
@@ -2070,7 +1951,7 @@ class Viewer {
    * @returns {boolean} axes value.
    **/
   getAxes() {
-    return this.axes;
+    return this.state.get("axes");
   }
 
   /**
@@ -2080,7 +1961,7 @@ class Viewer {
    * @param {boolean} notify - whether to send notification or not.
    */
   setAxes = (flag, notify = true) => {
-    this.axes = flag;
+    this.state.set("axes", flag);
     this.axesHelper.setVisible(flag);
     this.display.setAxesCheck(flag);
 
@@ -2097,7 +1978,7 @@ class Viewer {
    */
   setGrid = (action, flag, notify = true) => {
     this.gridHelper.setGrid(action, flag);
-    this.grid = this.gridHelper.grid;
+    this.state.set("grid", this.gridHelper.grid);
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 
@@ -2109,7 +1990,7 @@ class Viewer {
    * @returns {number[]} grids value.
    **/
   getGrids() {
-    return this.grid;
+    return this.state.get("grid");
   }
 
   /**
@@ -2120,7 +2001,7 @@ class Viewer {
    */
   setGrids = (grids, notify = true) => {
     this.gridHelper.setGrids(...grids);
-    this.grid = this.gridHelper.grid;
+    this.state.set("grid", this.gridHelper.grid);
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 
@@ -2135,7 +2016,7 @@ class Viewer {
    */
   setGridCenter = (center, notify = true) => {
     this.gridHelper.centerGrid = center;
-    this.gridHelper.setCenter(this.axes0, this.up == "Z");
+    this.gridHelper.setCenter(this.state.get("axes0"), this.state.get("up") == "Z");
 
     this.checkChanges({ center_grid: this.gridHelper.centerGrid }, notify);
 
@@ -2147,7 +2028,7 @@ class Viewer {
    * @returns {boolean} axes0 value, true means at origin (0,0,0)
    **/
   getAxes0() {
-    return this.axes0;
+    return this.state.get("axes0");
   }
 
   /**
@@ -2157,8 +2038,8 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setAxes0 = (flag, notify = true) => {
-    this.axes0 = flag;
-    this.gridHelper.setCenter(flag, this.up == "Z");
+    this.state.set("axes0", flag);
+    this.gridHelper.setCenter(flag, this.state.get("up") == "Z");
     this.display.setAxes0Check(flag);
     this.axesHelper.setCenter(flag);
 
@@ -2172,7 +2053,7 @@ class Viewer {
    * @returns {number} ambientLight value.
    **/
   getAmbientLight() {
-    return this.ambientIntensity;
+    return this.state.get("ambientIntensity");
   }
 
   /**
@@ -2183,7 +2064,8 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setAmbientLight = (val, ui = false, notify = true) => {
-    this.ambientIntensity = val;
+    val = Math.max(0, Math.min(4, val));
+    this.state.set("ambientIntensity", val);
     this.ambientLight.intensity = scaleLight(val);
     this.checkChanges({ ambient_intensity: val }, notify);
     this.update(this.updateMarker, notify);
@@ -2197,7 +2079,7 @@ class Viewer {
    * @returns {number} directLight value.
    **/
   getDirectLight() {
-    return this.directIntensity;
+    return this.state.get("directIntensity");
   }
   /**
    * Set the intensity of directional light
@@ -2207,7 +2089,8 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setDirectLight = (val, ui = false, notify = true) => {
-    this.directIntensity = val;
+    val = Math.max(0, Math.min(4, val));
+    this.state.set("directIntensity", val);
     this.directLight.intensity = scaleLight(val);
     this.checkChanges({ direct_intensity: val }, notify);
     this.update(this.updateMarker, notify);
@@ -2222,7 +2105,7 @@ class Viewer {
    * @returns {number} The current metalness value.
    */
   getMetalness = () => {
-    return this.metalness;
+    return this.state.get("metalness");
   };
 
   /**
@@ -2233,7 +2116,8 @@ class Viewer {
    * @param {boolean} [notify=true] - Whether to notify about the changes.
    */
   setMetalness = (value, ui = false, notify = true) => {
-    this.metalness = value;
+    value = Math.max(0, Math.min(1, value));
+    this.state.set("metalness", value);
     this.nestedGroup.setMetalness(value);
     this.checkChanges({ metalness: value }, notify);
     this.update(this.updateMarker);
@@ -2248,7 +2132,7 @@ class Viewer {
    * @returns {number} The current roughness value.
    */
   getRoughness = () => {
-    return this.roughness;
+    return this.state.get("roughness");
   };
 
   /**
@@ -2260,7 +2144,8 @@ class Viewer {
    * @returns {void}
    */
   setRoughness = (value, ui = false, notify = true) => {
-    this.roughness = value;
+    value = Math.max(0, Math.min(1, value));
+    this.state.set("roughness", value);
     this.nestedGroup.setRoughness(value);
     this.checkChanges({ roughness: value }, notify);
     this.update(this.updateMarker);
@@ -2298,11 +2183,10 @@ class Viewer {
    * @returns {void}
    */
   setZebraCount = (value, ui = false, notify = true) => {
+    value = Math.max(2, Math.min(50, value));
+    this.state.set("zebraCount", value);
     this.nestedGroup.setZebraCount(value);
     this.update(this.updateMarker);
-    if (ui) {
-      this.display.setZebraCount(value);
-    }
   };
 
   /**
@@ -2314,11 +2198,10 @@ class Viewer {
    * @returns {void}
    */
   setZebraOpacity = (value, ui = false, notify = true) => {
+    value = Math.max(0, Math.min(1, value));
+    this.state.set("zebraOpacity", value);
     this.nestedGroup.setZebraOpacity(value);
     this.update(this.updateMarker);
-    if (ui) {
-      this.display.setZebraOpacity(value);
-    }
   };
 
   /**
@@ -2330,11 +2213,10 @@ class Viewer {
    * @returns {void}
    */
   setZebraDirection = (value, ui = false, notify = true) => {
+    value = Math.max(0, Math.min(90, value));
+    this.state.set("zebraDirection", value);
     this.nestedGroup.setZebraDirection(value);
     this.update(this.updateMarker);
-    if (ui) {
-      this.display.setZebraDirection(value);
-    }
   };
 
   /**
@@ -2346,11 +2228,9 @@ class Viewer {
    * @returns {void}
    */
   setZebraColorScheme = (value, ui = false, notify = true) => {
+    this.state.set("zebraColorScheme", value);
     this.nestedGroup.setZebraColorScheme(value);
     this.update(this.updateMarker);
-    if (ui) {
-      this.display.setZebraColorSchemeSelect(value);
-    }
   };
 
   /**
@@ -2362,11 +2242,9 @@ class Viewer {
    * @returns {void}
    */
   setZebraMappingMode = (value, ui = false, notify = true) => {
+    this.state.set("zebraMappingMode", value);
     this.nestedGroup.setZebraMappingMode(value);
     this.update(this.updateMarker);
-    if (ui) {
-      this.display.setZebraMappingModeSelect(value);
-    }
   };
 
   /**
@@ -2374,7 +2252,7 @@ class Viewer {
    * @returns {boolean} transparent value.
    **/
   getTransparent() {
-    return this.transparent;
+    return this.state.get("transparent");
   }
 
   /**
@@ -2384,7 +2262,7 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setTransparent = (flag, notify = true) => {
-    this.transparent = flag;
+    this.state.set("transparent", flag);
     this.nestedGroup.setTransparent(flag);
     this.display.setTransparentCheck(flag);
 
@@ -2398,7 +2276,7 @@ class Viewer {
    * @returns {boolean} blackEdges value.
    **/
   getBlackEdges() {
-    return this.blackEdges;
+    return this.state.get("blackEdges");
   }
 
   /**
@@ -2408,13 +2286,37 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setBlackEdges = (flag, notify = true) => {
-    this.blackEdges = flag;
+    this.state.set("blackEdges", flag);
     this.nestedGroup.setBlackEdges(flag);
     this.display.setBlackEdgesCheck(flag);
 
     this.checkChanges({ black_edges: flag }, notify);
 
     this.update(this.updateMarker);
+  };
+
+  /**
+   * Show or hide the CAD tools panel
+   * @function
+   * @param {boolean} flag - whether to show tools
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setTools = (flag, notify = true) => {
+    this.state.set("tools", flag);
+    this.display.showTools(flag);
+    this.checkChanges({ tools: flag }, notify);
+  };
+
+  /**
+   * Enable or disable glass mode (overlay navigation)
+   * @function
+   * @param {boolean} flag - whether to enable glass mode
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setGlass = (flag, notify = true) => {
+    this.state.set("glass", flag);
+    this.display.glassMode(flag);
+    this.checkChanges({ glass: flag }, notify);
   };
 
   /**
@@ -2555,7 +2457,7 @@ class Viewer {
     if (position != null) {
       this.camera.setPosition(position, false);
     }
-    if (quaternion != null && this.control === "trackball") {
+    if (quaternion != null && this.state.get("control") === "trackball") {
       this.camera.setQuaternion(quaternion);
     }
     if (target != null) {
@@ -2573,7 +2475,7 @@ class Viewer {
    * @returns {number} edgeColor value.
    **/
   getEdgeColor() {
-    return this.edgeColor;
+    return this.state.get("edgeColor");
   }
 
   /**
@@ -2583,7 +2485,7 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setEdgeColor = (color, notify = true) => {
-    this.edgeColor = color;
+    this.state.set("edgeColor", color);
     this.nestedGroup.setEdgeColor(color);
     this.update(this.updateMarker, notify);
   };
@@ -2593,7 +2495,7 @@ class Viewer {
    * @returns {number} opacity value.
    **/
   getOpacity() {
-    return this.defaultOpacity;
+    return this.state.get("defaultOpacity");
   }
 
   /**
@@ -2603,7 +2505,7 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setOpacity = (opacity, notify = true) => {
-    this.defaultOpacity = opacity;
+    this.state.set("defaultOpacity", opacity);
     this.nestedGroup.setOpacity(opacity);
     this.update(this.updateMarker, notify);
   };
@@ -2613,7 +2515,7 @@ class Viewer {
    * @returns {boolean} tools value.
    **/
   getTools() {
-    return this.tools;
+    return this.state.get("tools");
   }
 
   /**
@@ -2623,7 +2525,7 @@ class Viewer {
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   showTools = (flag, notify = true) => {
-    this.tools = flag;
+    this.state.set("tools", flag);
     this.display.showTools(flag);
     this.update(this.updateMarker, notify);
   };
@@ -2660,7 +2562,7 @@ class Viewer {
    * @returns {number} zoomSpeed value.
    **/
   getZoomSpeed() {
-    return this.zoomSpeed;
+    return this.state.get("zoomSpeed");
   }
 
   /**
@@ -2670,7 +2572,7 @@ class Viewer {
    * @param {boolean} notify - whether to send notification or not.
    */
   setZoomSpeed = (val, notify = true) => {
-    this.zoomSpeed = val;
+    this.state.set("zoomSpeed", val);
     this.controls.setZoomSpeed(val);
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
   };
@@ -2680,7 +2582,7 @@ class Viewer {
    * @returns {number} pan speed value.
    **/
   getPanSpeed() {
-    return this.panSpeed;
+    return this.state.get("panSpeed");
   }
 
   /**
@@ -2690,7 +2592,7 @@ class Viewer {
    * @param {boolean} notify - whether to send notification or not.
    */
   setPanSpeed = (val, notify = true) => {
-    this.panSpeed = val;
+    this.state.set("panSpeed", val);
     this.controls.setPanSpeed(val);
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
   };
@@ -2700,7 +2602,7 @@ class Viewer {
    * @returns {number} rotation speed value.
    **/
   getRotateSpeed() {
-    return this.rotateSpeed;
+    return this.state.get("rotateSpeed");
   }
 
   /**
@@ -2710,7 +2612,7 @@ class Viewer {
    * @param {boolean} notify - whether to send notification or not.
    */
   setRotateSpeed = (val, notify = true) => {
-    this.rotateSpeed = val;
+    this.state.set("rotateSpeed", val);
     this.controls.setRotateSpeed(val);
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
   };
@@ -2720,7 +2622,7 @@ class Viewer {
    * @returns {boolean} clip intersection value.
    **/
   getClipIntersection() {
-    return this.clipIntersection;
+    return this.state.get("clipIntersection");
   }
 
   /**
@@ -2732,7 +2634,7 @@ class Viewer {
   setClipIntersection = (flag, notify = true) => {
     if (flag == null) return;
 
-    this.clipIntersection = flag;
+    this.state.set("clipIntersection", flag);
     this.nestedGroup.setClipIntersection(flag);
     this.display.setClipIntersectionCheck(flag);
 
@@ -2791,8 +2693,8 @@ class Viewer {
    */
   setClipObjectColorCaps = (flag, notify = true) => {
     if (flag == null) return;
+    this.state.set("clipObjectColors", flag);
     this.clipping.setObjectColorCaps(flag);
-    this.display.setClipObjectColorsCheck(flag);
     this.checkChanges({ clip_object_colors: flag }, notify);
     this.update(this.updateMarker);
   };
@@ -2802,7 +2704,7 @@ class Viewer {
    * @returns {boolean} clip plane visibility value.
    **/
   getClipPlaneHelpers() {
-    return this.clipPlaneHelpers;
+    return this.state.get("clipPlaneHelpers");
   }
 
   /**
@@ -2825,9 +2727,8 @@ class Viewer {
   setClipPlaneHelpers = (flag, notify = true) => {
     if (flag == null) return;
 
-    this.clipPlaneHelpers = flag;
+    this.state.set("clipPlaneHelpers", flag);
     this.clipping.planeHelpers.visible = flag;
-    this.display.setClipPlaneHelpersCheck(flag);
 
     this.checkChanges({ clip_planes: flag }, notify);
 
@@ -2965,8 +2866,8 @@ class Viewer {
     const screenshot = this.getImage("screenshot");
     screenshot.then((data) => {
       var image = document.createElement("img");
-      image.width = this.cadWidth;
-      image.height = this.height;
+      image.width = this.state.get("cadWidth");
+      image.height = this.state.get("height");
       image.src = data.dataUrl;
       if (this.pinAsPngCallback == null) {
         // default, replace the elements of the container with the image
@@ -2994,7 +2895,7 @@ class Viewer {
     this.update(true);
     let result = new Promise((resolve, _) => {
       const canvas = this.display.getCanvas();
-      this.renderer.setViewport(0, 0, this.cadWidth, this.height);
+      this.renderer.setViewport(0, 0, this.state.get("cadWidth"), this.state.get("height"));
       this.renderer.render(this.scene, this.camera.getCamera());
       canvas.toBlob((blob) => {
         let reader = new FileReader();
@@ -3095,8 +2996,8 @@ class Viewer {
    * @param {boolean} [glass=false] - Whether to use glass mode or not
    */
   resizeCadView(cadWidth, treeWidth, height, glass = false) {
-    this.cadWidth = cadWidth;
-    this.height = height;
+    this.state.set("cadWidth", cadWidth);
+    this.state.set("height", height);
 
     // Adapt renderer dimensions
     this.renderer.setSize(cadWidth, height);
@@ -3104,6 +3005,7 @@ class Viewer {
     // Adapt display dimensions
     this.display.setSizes({
       treeWidth: treeWidth,
+      treeHeight: this.state.get("treeHeight"),
       cadWidth: cadWidth,
       height: height,
     });
