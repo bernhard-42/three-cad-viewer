@@ -2,82 +2,146 @@ import * as THREE from "three";
 import { ObjectGroup } from "./objectgroup.js";
 import { deepDispose } from "./utils.js";
 
-const normals = [
+// ============================================================================
+// Constants
+// ============================================================================
+
+/** Default normals for the three clipping planes (X, Y, Z) */
+const DEFAULT_NORMALS = [
   new THREE.Vector3(-1, 0, 0),
   new THREE.Vector3(0, -1, 0),
   new THREE.Vector3(0, 0, -1),
 ];
 
-const planeColors = {
+/** Plane colors by theme */
+const PLANE_COLORS = {
   light: [0xff0000, 0x00ff00, 0x0000ff],
   dark: [0xff4500, 0x32cd32, 0x3b9eff],
 };
 
-const planeHelperMaterial = new THREE.MeshBasicMaterial({
-  opacity: 0.1,
-  transparent: true,
-  depthWrite: false,
-  toneMapped: false,
-  side: THREE.DoubleSide,
-});
+/** Plane helper opacity by theme */
+const PLANE_HELPER_OPACITY = {
+  light: 0.1,
+  dark: 0.2,
+};
 
-// everywhere that the back faces are visible (clipped region) the stencil
-// buffer is incremented by 1.
-const backStencilMaterial = new THREE.MeshBasicMaterial({
-  depthWrite: false,
-  depthTest: false,
-  colorWrite: false,
-  side: THREE.BackSide,
+// ============================================================================
+// ClippingMaterials - Factory for clipping-related materials
+// ============================================================================
 
-  stencilWrite: true,
-  stencilFunc: THREE.AlwaysStencilFunc,
-  stencilFail: THREE.IncrementWrapStencilOp,
-  stencilZFail: THREE.IncrementWrapStencilOp,
-  stencilZPass: THREE.IncrementWrapStencilOp,
-});
+/**
+ * Factory for creating clipping-related materials.
+ * Centralizes material creation and avoids global state.
+ */
+class ClippingMaterials {
+  /**
+   * Create a plane helper material.
+   * @param {string} theme - The UI theme ('light' or 'dark').
+   * @returns {THREE.MeshBasicMaterial} The plane helper material.
+   */
+  static createPlaneHelperMaterial(theme) {
+    return new THREE.MeshBasicMaterial({
+      opacity: PLANE_HELPER_OPACITY[theme] || 0.1,
+      transparent: true,
+      depthWrite: false,
+      toneMapped: false,
+      side: THREE.DoubleSide,
+    });
+  }
 
-// everywhere that the front faces are visible the stencil
-// buffer is decremented back to 0.
-const frontStencilMaterial = new THREE.MeshBasicMaterial({
-  depthWrite: false,
-  depthTest: false,
-  colorWrite: false,
-  side: THREE.FrontSide,
+  /**
+   * Create a back stencil material.
+   * Increments stencil buffer where back faces are visible (clipped region).
+   * @returns {THREE.MeshBasicMaterial} The back stencil material.
+   */
+  static createBackStencilMaterial() {
+    return new THREE.MeshBasicMaterial({
+      depthWrite: false,
+      depthTest: false,
+      colorWrite: false,
+      side: THREE.BackSide,
+      stencilWrite: true,
+      stencilFunc: THREE.AlwaysStencilFunc,
+      stencilFail: THREE.IncrementWrapStencilOp,
+      stencilZFail: THREE.IncrementWrapStencilOp,
+      stencilZPass: THREE.IncrementWrapStencilOp,
+    });
+  }
 
-  stencilWrite: true,
-  stencilFunc: THREE.AlwaysStencilFunc,
-  stencilFail: THREE.DecrementWrapStencilOp,
-  stencilZFail: THREE.DecrementWrapStencilOp,
-  stencilZPass: THREE.DecrementWrapStencilOp,
-});
+  /**
+   * Create a front stencil material.
+   * Decrements stencil buffer where front faces are visible.
+   * @returns {THREE.MeshBasicMaterial} The front stencil material.
+   */
+  static createFrontStencilMaterial() {
+    return new THREE.MeshBasicMaterial({
+      depthWrite: false,
+      depthTest: false,
+      colorWrite: false,
+      side: THREE.FrontSide,
+      stencilWrite: true,
+      stencilFunc: THREE.AlwaysStencilFunc,
+      stencilFail: THREE.DecrementWrapStencilOp,
+      stencilZFail: THREE.DecrementWrapStencilOp,
+      stencilZPass: THREE.DecrementWrapStencilOp,
+    });
+  }
 
-// draw the plane everywhere that the stencil buffer != 0, which will
-// only be in the clipped region where back faces are visible.
-const stencilPlaneMaterial = new THREE.MeshStandardMaterial({
-  metalness: 0.3,
-  roughness: 0.65,
-  opacity: 1.0,
-  transparent: false,
-  side: THREE.DoubleSide,
-  polygonOffset: true,
-  polygonOffsetFactor: 1.0,
-  polygonOffsetUnits: 1.0,
+  /**
+   * Create a stencil plane material.
+   * Draws plane where stencil buffer != 0 (clipped region).
+   * @param {number} color - The plane color as hex.
+   * @param {THREE.Plane[]} clippingPlanes - Other clipping planes to apply.
+   * @returns {THREE.MeshStandardMaterial} The stencil plane material.
+   */
+  static createStencilPlaneMaterial(color, clippingPlanes) {
+    const material = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(color),
+      metalness: 0.3,
+      roughness: 0.65,
+      opacity: 1.0,
+      transparent: false,
+      side: THREE.DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: 1.0,
+      polygonOffsetUnits: 1.0,
+      stencilWrite: true,
+      stencilRef: 0,
+      stencilFunc: THREE.NotEqualStencilFunc,
+      stencilFail: THREE.ReplaceStencilOp,
+      stencilZFail: THREE.ReplaceStencilOp,
+      stencilZPass: THREE.ReplaceStencilOp,
+      clippingPlanes: clippingPlanes,
+    });
+    return material;
+  }
+}
 
-  stencilWrite: true,
-  stencilRef: 0,
-  stencilFunc: THREE.NotEqualStencilFunc,
-  stencilFail: THREE.ReplaceStencilOp,
-  stencilZFail: THREE.ReplaceStencilOp,
-  stencilZPass: THREE.ReplaceStencilOp,
-});
+// ============================================================================
+// CenteredPlane - Plane with center-relative constant
+// ============================================================================
 
+/**
+ * A THREE.Plane that maintains a constant relative to a center point.
+ * @extends THREE.Plane
+ */
 class CenteredPlane extends THREE.Plane {
+  /**
+   * Create a CenteredPlane.
+   * @param {THREE.Vector3} normal - The plane normal vector.
+   * @param {number} constant - The centered constant value.
+   * @param {number[]} center - The center point [x, y, z].
+   */
   constructor(normal, constant, center) {
     super(normal, constant);
     this.center = center;
     this.setConstant(constant);
   }
 
+  /**
+   * Set the constant relative to the center point.
+   * @param {number} value - The centered constant value.
+   */
   setConstant(value) {
     this.centeredConstant = value;
     const c = this.distanceToPoint(new THREE.Vector3(...this.center));
@@ -86,9 +150,28 @@ class CenteredPlane extends THREE.Plane {
   }
 }
 
+// ============================================================================
+// PlaneMesh - Visual representation of a clipping plane
+// ============================================================================
+
+/**
+ * A mesh that visually represents a clipping plane.
+ * @extends THREE.Mesh
+ */
 class PlaneMesh extends THREE.Mesh {
+  /** Shared matrix for lookAt calculations */
   static matrix = new THREE.Matrix4();
 
+  /**
+   * Create a PlaneMesh.
+   * @param {number} index - The plane index (0, 1, or 2).
+   * @param {CenteredPlane} plane - The clipping plane.
+   * @param {number[]} center - The center point [x, y, z].
+   * @param {number} size - The size of the plane mesh.
+   * @param {THREE.Material} material - The material for the mesh.
+   * @param {number} color - The color as hex value.
+   * @param {string} type - The mesh type identifier.
+   */
   constructor(index, plane, center, size, material, color, type) {
     const meshGeometry = new THREE.PlaneGeometry(2, 2);
     meshGeometry.computeBoundingSphere();
@@ -102,13 +185,20 @@ class PlaneMesh extends THREE.Mesh {
     this.center = center;
   }
 
+  /**
+   * Clear stencil buffer after rendering stencil planes.
+   * @param {THREE.WebGLRenderer} renderer - The renderer.
+   */
   onAfterRender = (renderer) => {
     if (this.type.startsWith("StencilPlane")) {
       renderer.clearStencil();
     }
   };
 
-  // https://discourse.threejs.org/t/center-threejs-planehelper-on-geometry/48516/4
+  /**
+   * Update the mesh's world matrix to align with the clipping plane.
+   * @param {boolean} force - Force update even if not needed.
+   */
   updateMatrixWorld(force) {
     this.position.set(0, 0, 0);
     this.scale.set(0.5 * this.size, 0.5 * this.size, 1);
@@ -121,6 +211,15 @@ class PlaneMesh extends THREE.Mesh {
   }
 }
 
+/**
+ * Create a stencil mesh for clipping visualization.
+ * @param {string} name - The mesh name.
+ * @param {THREE.Material} material - The stencil material.
+ * @param {THREE.BufferGeometry} geometry - The shape geometry.
+ * @param {THREE.Plane} plane - The clipping plane.
+ * @returns {THREE.Mesh} The stencil mesh.
+ * @private
+ */
 function createStencil(name, material, geometry, plane) {
   material.clippingPlanes = [plane];
   const mesh = new THREE.Mesh(geometry, material);
@@ -128,7 +227,23 @@ function createStencil(name, material, geometry, plane) {
   return mesh;
 }
 
+// ============================================================================
+// Clipping - Main clipping management class
+// ============================================================================
+
+/**
+ * Manages clipping planes, stencil rendering, and plane visualization.
+ * @extends THREE.Group
+ */
 class Clipping extends THREE.Group {
+  /**
+   * Create a Clipping instance.
+   * @param {number[]} center - The center point [x, y, z].
+   * @param {number} size - The size of the clipping region.
+   * @param {Object} nestedGroup - The nested group containing objects to clip.
+   * @param {Object} display - The display instance for UI updates.
+   * @param {string} theme - The UI theme ('light' or 'dark').
+   */
   constructor(center, size, nestedGroup, display, theme) {
     super();
     this.center = center;
@@ -136,78 +251,119 @@ class Clipping extends THREE.Group {
     this.display = display;
     this.theme = theme;
     this.nestedGroup = nestedGroup;
-
-    this.planeHelpers = new THREE.Group();
-    this.planeHelpers.name = "PlaneHelpers";
+    this.size = size;
 
     this.clipPlanes = [];
     this.reverseClipPlanes = [];
-
-    this.add(this.planeHelpers);
-
-    this.name = "PlaneHelpers";
     this.objectColors = [];
     this.objectColorCaps = false;
 
-    var i;
-    for (i = 0; i < 3; i++) {
-      const plane = new CenteredPlane(normals[i], this.distance, center);
+    // Cached reference to avoid O(n) lookups
+    this._planeMeshGroup = null;
 
+    this.name = "PlaneHelpers";
+
+    this._createClipPlanes(center);
+    this._createPlaneHelpers(center, size, theme);
+    this._createStencils(center, size, theme);
+  }
+
+  /**
+   * Create the three clipping planes and their reverse counterparts.
+   * @param {number[]} center - The center point.
+   * @private
+   */
+  _createClipPlanes(center) {
+    for (let i = 0; i < 3; i++) {
+      const plane = new CenteredPlane(DEFAULT_NORMALS[i], this.distance, center);
       this.clipPlanes.push(plane);
+
       const reversePlane = new CenteredPlane(
-        normals[i].clone().negate(),
+        DEFAULT_NORMALS[i].clone().negate(),
         -this.distance,
         center,
       );
       this.reverseClipPlanes.push(reversePlane);
 
-      this.display.setNormalLabel(i, normals[i].toArray());
+      this.display.setNormalLabel(i, DEFAULT_NORMALS[i].toArray());
+    }
+  }
 
-      const material = planeHelperMaterial.clone();
-      material.opacity = theme === "dark" ? 0.2 : 0.1;
+  /**
+   * Create the visual plane helpers.
+   * @param {number[]} center - The center point.
+   * @param {number} size - The size of the plane helpers.
+   * @param {string} theme - The UI theme.
+   * @private
+   */
+  _createPlaneHelpers(center, size, theme) {
+    this.planeHelpers = new THREE.Group();
+    this.planeHelpers.name = "PlaneHelpers";
+
+    for (let i = 0; i < 3; i++) {
+      const material = ClippingMaterials.createPlaneHelperMaterial(theme);
 
       this.planeHelpers.add(
         new PlaneMesh(
           i,
-          plane,
+          this.clipPlanes[i],
           center,
           size,
           material,
-          planeColors[theme][i],
+          PLANE_COLORS[theme][i],
           "PlaneHelper",
         ),
       );
     }
-    this.planeHelpers.visible = false;
 
-    // Add clipping planes to the help planes
-    for (i = 0; i < 3; i++) {
+    // Each plane helper is clipped by the other two planes
+    for (let i = 0; i < 3; i++) {
       const otherPlanes = this.clipPlanes.filter((_, j) => j !== i);
       this.planeHelpers.children[i].material.clippingPlanes = otherPlanes;
     }
 
-    /*
-    Stencils
-    */
-    var planeMeshGroup = new THREE.Group();
-    planeMeshGroup.name = "PlaneMeshes";
+    this.planeHelpers.visible = false;
+    this.add(this.planeHelpers);
+  }
 
-    for (i = 0; i < 3; i++) {
+  /**
+   * Create stencil meshes for solid objects.
+   * Creates front/back stencil meshes and colored plane meshes for each
+   * solid object on each of the 3 clipping planes.
+   *
+   * Note: objectColors and _planeMeshGroup.children are parallel arrays.
+   * Each solid's color is stored once per plane (3x total) to match
+   * the mesh ordering: [solid0-plane0, solid1-plane0, ..., solid0-plane1, ...].
+   *
+   * @param {number[]} center - The center point.
+   * @param {number} size - The size of the stencil planes.
+   * @param {string} theme - The UI theme.
+   * @private
+   */
+  _createStencils(center, size, theme) {
+    this._planeMeshGroup = new THREE.Group();
+    this._planeMeshGroup.name = "PlaneMeshes";
+
+    for (let i = 0; i < 3; i++) {
       const plane = this.clipPlanes[i];
       const otherPlanes = this.clipPlanes.filter((_, j) => j !== i);
-      var j = 0;
-      for (var path in nestedGroup.groups) {
-        var clippingGroup = new THREE.Group();
-        clippingGroup.name = `clipping-${i}`;
+      let j = 0;
 
-        var group = nestedGroup.groups[path];
+      for (const path in this.nestedGroup.groups) {
+        const group = this.nestedGroup.groups[path];
+
         if (group instanceof ObjectGroup && group.subtype === "solid") {
+          // Store color for each plane-solid combination (mirrors _planeMeshGroup order)
           this.objectColors.push(group.children[0].material.color.getHex());
+
+          // Create clipping group with front and back stencils
+          const clippingGroup = new THREE.Group();
+          clippingGroup.name = `clipping-${i}`;
 
           clippingGroup.add(
             createStencil(
               `frontStencil-${i}-${j}`,
-              frontStencilMaterial.clone(),
+              ClippingMaterials.createFrontStencilMaterial(),
               group.shapeGeometry,
               plane,
             ),
@@ -216,7 +372,7 @@ class Clipping extends THREE.Group {
           clippingGroup.add(
             createStencil(
               `backStencil-${i}-${j}`,
-              backStencilMaterial.clone(),
+              ClippingMaterials.createBackStencilMaterial(),
               group.shapeGeometry,
               plane,
             ),
@@ -224,18 +380,20 @@ class Clipping extends THREE.Group {
 
           group.addType(clippingGroup, `clipping-${i}`);
 
-          var planeMaterial = stencilPlaneMaterial.clone();
-          planeMaterial.color.set(new THREE.Color(planeColors[theme][i]));
-          planeMaterial.clippingPlanes = otherPlanes;
+          // Create stencil plane mesh
+          const planeMaterial = ClippingMaterials.createStencilPlaneMaterial(
+            PLANE_COLORS[theme][i],
+            otherPlanes,
+          );
 
-          planeMeshGroup.add(
+          this._planeMeshGroup.add(
             new PlaneMesh(
               i,
               plane,
               center,
               size,
               planeMaterial,
-              planeColors[theme][i],
+              PLANE_COLORS[theme][i],
               `StencilPlane-${i}-${j}`,
             ),
           );
@@ -243,62 +401,87 @@ class Clipping extends THREE.Group {
         }
       }
     }
-    nestedGroup.rootGroup.add(planeMeshGroup);
+
+    this.nestedGroup.rootGroup.add(this._planeMeshGroup);
   }
 
+  /**
+   * Set the constant (distance from center) for a clipping plane.
+   * @param {number} index - The plane index (0, 1, or 2).
+   * @param {number} value - The constant value relative to center.
+   */
   setConstant(index, value) {
     this.clipPlanes[index].setConstant(value);
     this.reverseClipPlanes[index].setConstant(-value);
   }
 
+  /**
+   * Set the normal vector for a clipping plane.
+   * @param {number} index - The plane index (0, 1, or 2).
+   * @param {THREE.Vector3} normal - The new normal vector.
+   */
   setNormal = (index, normal) => {
-    var n = normal.clone();
+    const n = normal.clone();
     this.clipPlanes[index].normal = n;
     this.reverseClipPlanes[index].normal = n.clone().negate();
     this.setConstant(index, this.distance);
     this.display.setNormalLabel(index, n.toArray());
   };
 
+  /**
+   * Get whether object color caps mode is enabled.
+   * @returns {boolean} True if object color caps mode is enabled.
+   */
   getObjectColorCaps = () => {
     return this.objectColorCaps;
   };
 
+  /**
+   * Toggle object color caps mode.
+   * When enabled, stencil planes use the original object colors.
+   * When disabled, stencil planes use theme-based plane colors.
+   * @param {boolean} flag - True to enable object color caps.
+   */
   setObjectColorCaps = (flag) => {
-    var pmGroup;
-    for (pmGroup of this.nestedGroup.rootGroup.children) {
-      if (pmGroup.name === "PlaneMeshes") {
-        break;
-      }
-    }
-    var i = 0,
-      j = -1;
-    const len = Object.keys(pmGroup.children).length / 3;
-    for (var group of pmGroup.children) {
+    const pmGroup = this._planeMeshGroup;
+    if (!pmGroup) return;
+
+    let i = 0;
+    let j = -1;
+    const len = pmGroup.children.length / 3;
+    for (const mesh of pmGroup.children) {
       if (i % len === 0) {
         j++;
       }
       if (flag) {
-        group.material.color.set(new THREE.Color(this.objectColors[i]));
+        mesh.material.color.set(new THREE.Color(this.objectColors[i]));
       } else {
-        group.material.color.set(new THREE.Color(planeColors[this.theme][j]));
+        mesh.material.color.set(new THREE.Color(PLANE_COLORS[this.theme][j]));
       }
       i++;
     }
     this.objectColorCaps = flag;
   };
 
+  /**
+   * Set visibility of stencil plane meshes.
+   * @param {boolean} flag - True to show, false to hide.
+   */
   setVisible = (flag) => {
-    var pmGroup;
-    for (pmGroup of this.nestedGroup.rootGroup.children) {
-      if (pmGroup.name === "PlaneMeshes") {
-        break;
-      }
-    }
-    for (var group of pmGroup.children) {
-      group.material.visible = flag;
+    const pmGroup = this._planeMeshGroup;
+    if (!pmGroup) return;
+
+    for (const mesh of pmGroup.children) {
+      mesh.material.visible = flag;
     }
   };
 
+  /**
+   * Clean up resources and null out references.
+   * Call this when the Clipping instance is no longer needed.
+   * Note: Three.js objects (planeHelpers, _planeMeshGroup) are disposed
+   * by scene disposal; we only null references here for GC.
+   */
   dispose() {
     deepDispose(this.clipPlanes);
     deepDispose(this.reverseClipPlanes);
@@ -309,6 +492,8 @@ class Clipping extends THREE.Group {
     this.objectColors = null;
     this.display = null;
     this.center = null;
+    this.planeHelpers = null;
+    this._planeMeshGroup = null;
   }
 }
 
