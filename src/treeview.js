@@ -1,25 +1,38 @@
 import { KeyMapper } from "./utils.js";
+import { TreeModel, States } from "./tree-model.js";
 
-const States = {
-  unselected: 0,
-  selected: 1,
-  mixed: 2,
-  disabled: 3,
+/** Navigation icons for expand/collapse */
+const NAV_ICONS = {
+  expanded: "\u25BE",
+  collapsed: "\u25B8",
 };
 
-var Counter = 0;
+/** Icon class names for each state [unselected, selected, mixed, disabled] */
+const VIEW_ICONS = [
+  ["shape_no", "shape", "shape_mix", "shape_empty"],
+  ["mesh_no", "mesh", "mesh_mix", "mesh_empty"],
+];
+
+/** Offset for visibility calculations */
+const SCROLL_OFFSET = 12;
 
 /**
  * A tree viewer component with lazy loading of large trees.
+ * Uses TreeModel for data management and handles DOM rendering/events.
  */
-
 class TreeView {
   /**
    * Constructs a TreeView object.
-   *
-   * @param {HTMLElement} container - The container element for the tree view.
    * @param {Object} tree - The tree structure data.
-   * @param {boolean} [debug=false] - Indicates whether to enable debug mode.
+   * @param {HTMLElement} scrollContainer - The scrollable container element.
+   * @param {function} objectHandler - Callback for object visibility changes.
+   * @param {function} pickHandler - Callback for node selection/picking.
+   * @param {function} updateHandler - Callback for tree updates.
+   * @param {function} notificationHandler - Callback for notifications.
+   * @param {function} colorGetter - Function to get color for a path.
+   * @param {string} theme - The UI theme ('light' or 'dark').
+   * @param {boolean} linkIcons - Whether icon 0 and 1 are linked.
+   * @param {boolean} [debug=false] - Enable debug logging.
    */
   constructor(
     tree,
@@ -33,18 +46,7 @@ class TreeView {
     linkIcons,
     debug = false,
   ) {
-    this.viewIcons = [
-      ["shape_no", "shape", "shape_mix", "shape_empty"],
-      ["mesh_no", "mesh", "mesh_mix", "mesh_empty"],
-    ];
-
-    this.navIcons = {
-      right: "\u25BE",
-      down: "\u25B8",
-    };
-
     this.tree = tree;
-    this.offset = 12;
     this.scrollContainer = scrollContainer;
     this.objectHandler = objectHandler;
     this.pickHandler = pickHandler;
@@ -54,115 +56,62 @@ class TreeView {
     this.theme = theme;
     this.linkIcons = linkIcons;
     this.debug = debug;
+
+    this.model = null;
+    this.container = null;
+    this.lastLabel = null;
   }
 
+  /**
+   * Initialize the tree view - creates the model and DOM container.
+   * @returns {HTMLElement} The container element.
+   */
   create() {
-    this.maxLevel = 0;
-    this.root = this.buildTreeStructure(this.tree);
+    // Create the data model
+    this.model = new TreeModel(this.tree, {
+      linkIcons: this.linkIcons,
+      onStateChange: (node, iconNumber) => this._handleStateChange(node, iconNumber),
+    });
 
+    // Create DOM container
     this.container = document.createElement("ul");
     this.container.classList.add("tcv_toplevel");
 
     this.scrollContainer.addEventListener("scroll", this.handleScroll);
 
-    this.lastLabel = null;
-
     return this.container;
   }
 
-  /************************************************************************************
-   *  Tree creation and synching
-   ************************************************************************************/
-
   /**
-   * Builds a tree structure based on the provided data.
-   *
-   * @param {Object} data - The data used to build the tree structure.
-   * @returns {Object} - The root node of the tree structure.
+   * Handle state changes from the model.
+   * @param {Object} node - The node whose state changed.
+   * @param {number} iconNumber - Which icon changed.
+   * @private
    */
-  buildTreeStructure(data) {
-    const build = (data, path, level) => {
-      var result = [-1, -1];
-      const calcState = (states) => {
-        for (let s of [0, 1]) {
-          if (
-            states[States.mixed][s] ||
-            (states[States.selected][s] && states[States.unselected][s])
-          ) {
-            result[s] = States.mixed;
-          } else if (states[States.selected][s]) {
-            result[s] = States.selected;
-          } else if (states[States.unselected][s]) {
-            result[s] = States.unselected;
-          } else if (states[States.disabled][s]) {
-            result[s] = States.disabled;
-          }
-        }
-        return result;
-      };
-
-      const tree = {};
-
-      if (this.maxLevel < level) {
-        this.maxLevel = level;
-      }
-
-      var trackStates = [
-        [false, false],
-        [false, false],
-        [false, false],
-        [false, false],
-      ];
-
-      for (const key in data) {
-        var currentPath = "";
-
-        if (path == null) {
-          currentPath = key;
-        } else {
-          currentPath = `${path}/${key}`;
-        }
-        let childStates;
-        const value = data[key];
-        if (Array.isArray(value)) {
-          childStates = value;
-          trackStates[value[0]][0] = true;
-          trackStates[value[1]][1] = true;
-          tree[key] = {
-            name: key,
-            state: childStates,
-            path: currentPath,
-            rendered: false,
-            level: level,
-          };
-        } else {
-          let children;
-          [children, childStates] = build(value, currentPath, level + 1);
-          trackStates[childStates[0]][0] = true;
-          trackStates[childStates[1]][1] = true;
-          tree[key] = {
-            name: key,
-            state: childStates,
-            path: currentPath,
-            rendered: false,
-            level: level,
-            children,
-            expanded: false,
-          };
-        }
-      }
-
-      const newState = calcState(trackStates);
-
-      return [tree, newState];
-    };
-    const root = build(data, null, 0)[0];
-    return root[Object.keys(root)[0]];
+  _handleStateChange(node, iconNumber) {
+    const icons = iconNumber === 0 && this.linkIcons ? [0, 1] : [iconNumber];
+    for (const i of icons) {
+      this.objectHandler(this.getNodePath(node), node.state[i], i, true, false);
+    }
   }
 
-  /************************************************************************************
-   * Visble elements handling
-   ************************************************************************************/
+  // ============================================================================
+  // Delegated Properties (for backward compatibility)
+  // ============================================================================
+
+  /** @returns {Object} The root node of the tree. */
+  get root() {
+    return this.model ? this.model.root : null;
+  }
+
+  /** @returns {number} The maximum depth level of the tree. */
+  get maxLevel() {
+    return this.model ? this.model.maxLevel : 0;
+  }
+
+  // ============================================================================
+  // Visible Elements Handling
+  // ============================================================================
 
   /**
    * Retrieves the visible elements within the container.
@@ -171,11 +120,11 @@ class TreeView {
   getVisibleElements() {
     const isElementVisible = (el, containerRect) => {
       const rect = el.getBoundingClientRect();
-      const result =
+      return (
         rect.height > 0 &&
-        rect.top >= -this.offset &&
-        rect.top <= containerRect.bottom + this.offset;
-      return result;
+        rect.top >= -SCROLL_OFFSET &&
+        rect.top <= containerRect.bottom + SCROLL_OFFSET
+      );
     };
 
     const elements = this.container.querySelectorAll(".tv-tree-node");
@@ -183,14 +132,24 @@ class TreeView {
     const visibleElements = Array.from(elements).filter((el) =>
       isElementVisible(el, containerRect),
     );
+
     if (this.debug) {
-      Counter++;
-      console.log(
-        `\n${Counter}> visible elements (${visibleElements.length}):`,
-      );
-      for (let i in visibleElements) {
-        const el = visibleElements[i];
-        const node = this.findNodeByPath(el.dataset.path);
+      this._logVisibleElements(visibleElements);
+    }
+
+    return visibleElements;
+  }
+
+  /**
+   * Debug logging for visible elements.
+   * @param {Element[]} elements - The visible elements.
+   * @private
+   */
+  _logVisibleElements(elements) {
+    console.log(`\nVisible elements (${elements.length}):`);
+    for (const el of elements) {
+      const node = this.findNodeByPath(el.dataset.path);
+      if (node) {
         console.log(
           node.path,
           node.state[0],
@@ -201,8 +160,6 @@ class TreeView {
         );
       }
     }
-
-    return visibleElements;
   }
 
   /************************************************************************************
@@ -393,8 +350,8 @@ class TreeView {
     navMarker.className = "tv-nav-marker";
     navMarker.innerHTML = node.children
       ? node.expanded
-        ? "\u25BE"
-        : "\u25B8"
+        ? NAV_ICONS.expanded
+        : NAV_ICONS.collapsed
       : "";
 
     navMarker.onclick = this.handleNavigationClick(node);
@@ -413,7 +370,7 @@ class TreeView {
       }
       icon.className = className;
       icon.classList.add("tcv_tree_button");
-      icon.classList.add(`tcv_button_${this.viewIcons[s][state]}`);
+      icon.classList.add(`tcv_button_${VIEW_ICONS[s][state]}`);
       if (state !== States.disabled) {
         icon.onmousedown = (e) => {
           e.preventDefault();
@@ -486,8 +443,8 @@ class TreeView {
         if (isExpanded !== node.expanded) {
           childrenContainer.style.display = node.expanded ? "block" : "none";
           nodeElement.querySelector(`.tv-nav-marker`).innerHTML = node.expanded
-            ? this.navIcons.right
-            : this.navIcons.down;
+            ? NAV_ICONS.expanded
+            : NAV_ICONS.collapsed;
           if (!node.expanded) {
             if (this.debug) {
               console.log("update => showChildContainer");
@@ -515,11 +472,11 @@ class TreeView {
     if (nodeElement) {
       const icon = nodeElement.querySelector(`.tv-icon${iconNumber}`);
       if (icon) {
-        for (var b of this.viewIcons[iconNumber]) {
+        for (const b of VIEW_ICONS[iconNumber]) {
           icon.classList.remove(`tcv_button_${b}`);
         }
         icon.classList.add(
-          `tcv_button_${this.viewIcons[iconNumber][node.state[iconNumber]]}`,
+          `tcv_button_${VIEW_ICONS[iconNumber][node.state[iconNumber]]}`,
         );
       }
       nodeElement.dataset[`state${iconNumber}`] = node.state[iconNumber];
@@ -552,280 +509,154 @@ class TreeView {
     }
   }
 
-  /************************************************************************************
-   *  Tree handling functions
-   ************************************************************************************/
+  // ============================================================================
+  // Tree Handling - Delegated to TreeModel
+  // ============================================================================
 
   /**
-   * Traverses a tree-like structure and applies a callback function to each node.
-   * @param {Object} node - The root node of the tree.
-   * @param {Function} callback - The callback function to be applied to each node.
+   * Traverse the tree and call a callback for each node.
+   * @param {Object} node - Starting node.
+   * @param {function} callback - Function to call for each node.
    */
   traverse(node, callback) {
-    callback(node);
-    if (node.children) {
-      for (let key of Object.keys(node.children)) {
-        this.traverse(node.children[key], callback);
-      }
-    }
+    this.model.traverse(node, callback);
   }
 
   /**
-   * Checks if a given node is a leaf node.
-   *
+   * Check if a node is a leaf (has no children).
    * @param {Object} node - The node to check.
-   * @returns {boolean} - Returns true if the node is a leaf node, false otherwise.
+   * @returns {boolean} True if the node is a leaf.
    */
   isLeaf(node) {
-    return node.children == null;
+    return this.model.isLeaf(node);
   }
 
   /**
-   * Returns the path of a given node.
-   *
-   * @param {Node} node - The node object.
-   * @returns {string} The path of the node.
+   * Get the full path of a node.
+   * @param {Object} node - The node.
+   * @returns {string} The full path.
    */
   getNodePath(node) {
-    if (node == null) {
-      return "";
-    }
-    return "/" + node.path;
+    return this.model.getNodePath(node);
   }
 
   /**
-   * Finds a node in the tree by its path.
-   *
-   * @param {string|string[]} path - The path of the node to find. Can be either a string or an array of strings.
-   * @returns {object|null} - The found node or null if the node is not found.
+   * Find a node by its path.
+   * @param {string} path - The path to find.
+   * @returns {Object|null} The found node or null.
    */
   findNodeByPath(path) {
-    var parts = Array.isArray(path) ? path : path.split("/").filter(Boolean);
-
-    let current = this.root;
-    for (let i = 1; i < parts.length; i++) {
-      const part = parts[i];
-      if (current.children[part]) {
-        current = current.children[part];
-      } else {
-        return null;
-      }
-    }
-    return current;
+    return this.model.findNodeByPath(path);
   }
 
   /**
-   * Retrieves the parent node of the given node.
-   *
-   * @param {Object} node - The node for which to find the parent.
-   * @returns {Object|null} - The parent node if found, or null if the given node is the root node.
+   * Get the parent node of a given node.
+   * @param {Object} node - The child node.
+   * @returns {Object|null} The parent node or null.
    */
   getParent(node) {
-    const parentPath = node.path.substring(0, node.path.lastIndexOf("/"));
-    if (parentPath.length === 0) {
-      return null;
+    return this.model.getParent(node);
+  }
+
+  // ============================================================================
+  // State Management - Uses TreeModel, handles UI updates
+  // ============================================================================
+
+  /**
+   * Toggle the state of a node's icon.
+   * @param {Object} node - The node to toggle.
+   * @param {number} iconNumber - Which icon (0 or 1).
+   * @param {boolean|null} [force=null] - Force state (true=selected, false=unselected, null=toggle).
+   */
+  toggleIcon(node, iconNumber, force = null) {
+    const changed = this.model.toggleNodeState(node, iconNumber, force);
+    if (changed) {
+      this.update();
+      this.updateHandler(true);
+      this.notificationHandler();
     }
-    return this.findNodeByPath(parentPath);
   }
 
   /**
-   * Updates the object based on the provided node.
-   * @param {Object} node - The node to update the object with.
+   * Hide all nodes in the tree.
    */
-  updateObject = (node, iconNumber) => {
-    var icons = iconNumber == 0 && this.linkIcons ? [0, 1] : [iconNumber];
-    for (var i of icons) {
-      this.objectHandler(this.getNodePath(node), node.state[i], i, true, false);
-    }
-  };
-
-  /**
-   * Toggles the state of an icon for a given node.
-   *
-   * @param {Node} node - The node for which to toggle the icon state.
-   * @param {number} iconNumber - The index of the icon to toggle.
-   * @returns {void}
-   */
-  toggleIcon(node, iconNumber, force = null) {
-    const currentState = node.state[iconNumber];
-    if (currentState === States.disabled) {
-      return;
-    }
-    var icons = iconNumber == 0 ? (this.linkIcons ? [0, 1] : [0]) : [1];
-    for (var i of icons) {
-      if (node.state[i] != 3) {
-        if (force != null) {
-          node.state[i] = force ? 1 : 0;
-        } else {
-          node.state[i] =
-            currentState === States.selected
-              ? States.unselected
-              : States.selected;
-        }
-      }
-      this.updateObject(node, iconNumber);
-      this.updateParentStates(node, i);
-      this.updateChildrenStates(node, i);
-      this.update(null, i);
-    }
+  hideAll() {
+    this.model.hideAll();
+    this.update();
     this.updateHandler(true);
     this.notificationHandler();
   }
 
   /**
-   * Hides all nodes in the tree.
-   */
-  hideAll() {
-    this.toggleIcon(this.root, 0, false);
-    // need to also consider case when all objects a re edges and state[0] is 3 for all
-    if (!this.linkIcons || this.root.state[0] === 3) {
-      this.toggleIcon(this.root, 1, false);
-    }
-  }
-
-  /**
-   * Shows all nodes in the tree.
+   * Show all nodes in the tree.
    */
   showAll() {
-    this.toggleIcon(this.root, 0, true);
-    if (!this.linkIcons) {
-      this.toggleIcon(this.root, 1, true);
-    }
+    this.model.showAll();
+    this.update();
+    this.updateHandler(true);
+    this.notificationHandler();
   }
 
   /**
-   * Shows the node specified by the given path.
-   *
-   * @param {string} path - The path of the node to be shown.
+   * Show a specific node by path.
+   * @param {string} path - The node path.
    */
   show(path) {
-    const node = this.findNodeByPath(path);
-    if (node) {
-      this.toggleIcon(node, 0, true);
-    }
-  }
-
-  /**
-   * Retrieves the states of a node specified by the given path.
-   *
-   * @param {string} path - The path of the node.
-   * @returns {object|null} - The states of the node, or null if the node is not found.
-   */
-  getState(path) {
-    const node = this.findNodeByPath(path);
-    return node ? node.state : null;
-  }
-
-  /**
-   * Retrieves the states of all leaf nodes in the tree.
-   * @returns {Object} An object containing the states of all leaf nodes.
-   */
-  getStates() {
-    const states = {};
-    const getStates = (node) => {
-      if (this.isLeaf(node)) {
-        states[this.getNodePath(node)] = node.state;
-      }
-    };
-    this.traverse(this.root, getStates);
-    return states;
-  }
-
-  /**
-   * Sets the state of a node identified by the given path.
-   *
-   * @param {string} path - The path of the node.
-   * @param {Array} state - The new state of the node.
-   */
-  setState(path, state) {
-    const node = this.findNodeByPath(path);
-    if (node) {
-      this.toggleIcon(node, 0, state[0]);
-      this.toggleIcon(node, 1, state[1]);
-    }
-  }
-
-  /**
-   * Sets the states of the nodes based on the provided states object.
-   *
-   * @param {Object} states - The states object containing the node paths and their corresponding states.
-   */
-  setStates(states) {
-    for (var path in states) {
-      this.setState(path, states[path]);
-    }
+    this.model.show(path);
     this.update();
+    this.updateHandler(true);
+    this.notificationHandler();
   }
 
   /**
-   * Hides the node specified by the given path.
-   *
-   * @param {string} path - The path of the node to hide.
+   * Hide a specific node by path.
+   * @param {string} path - The node path.
    */
   hide(path) {
-    const node = this.findNodeByPath(path);
-    if (node) {
-      this.toggleIcon(node, 0, false);
-    }
+    this.model.hide(path);
+    this.update();
+    this.updateHandler(true);
+    this.notificationHandler();
   }
 
   /**
-   * Updates the state of parent nodes based on the state of their children.
-   *
-   * @param {Node} node - The node whose parent states need to be updated.
-   * @param {number} iconNumber - The icon number representing the state.
+   * Get the state of a node by path.
+   * @param {string} path - The node path.
+   * @returns {number[]|null} The state array or null.
    */
-  updateParentStates(node, iconNumber) {
-    let current = this.getParent(node);
-    while (current) {
-      const children = Object.values(current.children);
-      const allSelected = children.every(
-        (child) =>
-          child.state[iconNumber] === States.selected ||
-          child.state[iconNumber] === States.disabled,
-      );
-      const allUnselected = children.every(
-        (child) =>
-          child.state[iconNumber] === States.unselected ||
-          child.state[iconNumber] === States.disabled,
-      );
-      const newState = allSelected
-        ? States.selected
-        : allUnselected
-          ? States.unselected
-          : States.mixed;
-      if (current.state[iconNumber] !== newState) {
-        if (current.state[iconNumber] !== States.disabled) {
-          current.state[iconNumber] = newState;
-          this.updateObject(current, iconNumber);
-        }
-      }
-      current = this.getParent(current);
-    }
+  getState(path) {
+    return this.model.getState(path);
   }
 
   /**
-   * Updates the states of the children nodes based on the given icon number.
-   *
-   * @param {Object} node - The node whose children states need to be updated.
-   * @param {number} iconNumber - The icon number to determine the new state of the children nodes.
+   * Get all leaf node states.
+   * @returns {Object} Map of path -> state array.
    */
-  updateChildrenStates(node, iconNumber) {
-    const newState = node.state[iconNumber];
-    const updateChildren = (current) => {
-      if (current.state[iconNumber] !== newState) {
-        if (current.state[iconNumber] !== States.disabled) {
-          current.state[iconNumber] = newState;
-          this.updateObject(current, iconNumber);
-        }
-      }
-      if (current.children) {
-        for (var child in current.children) {
-          updateChildren(current.children[child]);
-        }
-      }
-    };
-    updateChildren(node);
+  getStates() {
+    return this.model.getStates();
+  }
+
+  /**
+   * Set the state of a node by path.
+   * @param {string} path - The node path.
+   * @param {number[]} state - The new state.
+   */
+  setState(path, state) {
+    this.model.setState(path, state);
+    this.update();
+    this.updateHandler(true);
+    this.notificationHandler();
+  }
+
+  /**
+   * Set multiple node states at once.
+   * @param {Object} states - Map of path -> state array.
+   */
+  setStates(states) {
+    this.model.setStates(states);
+    this.update();
+    this.updateHandler(true);
+    this.notificationHandler();
   }
 
   /************************************************************************************
@@ -860,31 +691,115 @@ class TreeView {
   }
 
   /**
+   * Ensures a node and its children are rendered in the DOM.
+   * This bypasses the visibility check for lazy rendering.
+   * @param {Object} node - The node to render.
+   * @private
+   */
+  _ensureNodeRendered(node) {
+    const path = this.getNodePath(node);
+    let el = this.getDomNode(path);
+
+    // If element doesn't exist, we need to ensure parent renders it
+    if (!el) {
+      const parent = this.getParent(node);
+      if (parent) {
+        this._ensureNodeRendered(parent);
+        // After parent is rendered, check if our element exists now
+        el = this.getDomNode(path);
+      }
+    }
+
+    if (!el) {
+      // Element still doesn't exist - create placeholder in parent's children container
+      const parent = this.getParent(node);
+      if (parent) {
+        const parentEl = this.getDomNode(this.getNodePath(parent));
+        if (parentEl) {
+          let childrenContainer = parentEl.querySelector(".tv-children");
+          if (!childrenContainer && parent.children) {
+            // Need to render the parent node first to create children container
+            if (!parent.rendered) {
+              this.renderNode(parent, parentEl);
+              parent.rendered = true;
+            }
+            childrenContainer = parentEl.querySelector(".tv-children");
+          }
+          if (childrenContainer) {
+            this.renderPlaceholder(node, childrenContainer);
+            el = this.getDomNode(path);
+          }
+        }
+      }
+    }
+
+    // Now render the actual node content if it's just a placeholder
+    if (el && !node.rendered) {
+      this.renderNode(node, el);
+      node.rendered = true;
+    }
+
+    // If node is expanded, ensure children containers are created
+    if (el && node.expanded && node.children) {
+      let childrenContainer = el.querySelector(".tv-children");
+      if (childrenContainer && childrenContainer.children.length === 0) {
+        for (const key in node.children) {
+          this.renderPlaceholder(node.children[key], childrenContainer);
+        }
+      }
+      if (childrenContainer) {
+        childrenContainer.style.display = "block";
+      }
+    }
+
+    return el;
+  }
+
+  /**
    * Opens the specified path in the tree view.
    *
    * @param {string} path - The path to open in the tree view.
    */
   openPath(path) {
     const parts = path.split("/").filter(Boolean);
-    var current = "";
-    var node;
+    let current = "";
+    let node;
     let el;
-    for (var part of parts) {
+
+    for (const part of parts) {
       current += "/" + part;
       node = this.findNodeByPath(current);
-      el = this.getDomNode(current);
+
       if (node) {
-        node.expanded = true;
-        this.showChildContainer(node);
-        if (this.debug) {
-          console.log("update => openPath");
+        // Mark as expanded
+        if (node.children) {
+          node.expanded = true;
         }
-        this.update();
+
+        // Ensure this node is rendered (bypassing lazy loading)
+        el = this._ensureNodeRendered(node);
+
+        // Update nav marker if element exists
+        if (el) {
+          const navMarker = el.querySelector(".tv-nav-marker");
+          if (navMarker && node.children) {
+            navMarker.innerHTML = NAV_ICONS.expanded;
+          }
+        }
+
+        if (this.debug) {
+          console.log("update => openPath", current);
+        }
       } else {
         console.error(`Path not found: ${current}`);
         break;
       }
     }
+
+    // Final update to sync any remaining state
+    this.update();
+
+    // Scroll to and highlight the target
     this.scrollCentered(el);
     this.toggleLabelColor(node);
   }
@@ -914,59 +829,54 @@ class TreeView {
   }
 
   /**
-   * Opens the specified level in the tree view.
-   * @param {number} level - The level to open.
+   * Open all nodes to a specified level.
+   * @param {number} level - The level to open (-1 for smart expand).
    */
   openLevel(level) {
-    const setLevel = (node) => {
-      if (this.isLeaf(node)) return;
+    this.model.setExpandedLevel(level);
 
-      if (level == -1) {
-        node.expanded =
-          node.children != null &&
-          !(
-            Object.keys(node.children).length == 1 &&
-            this.isLeaf(Object.values(node.children)[0])
-          );
-      } else {
-        node.expanded = node.level < level;
-      }
-    };
-    this.traverse(this.root, setLevel);
     const el = this.getDomNode(this.getNodePath(this.root));
     if (el != null) {
-      const parent = this.scrollContainer;
-      parent.scrollTop = el.offsetTop - parent.offsetTop;
+      this.scrollContainer.scrollTop = el.offsetTop - this.scrollContainer.offsetTop;
     }
-    for (var i = 0; i <= (level == -1 ? this.maxLevel : level); i++) {
+
+    // Multiple updates to ensure all levels are rendered
+    const maxIterations = level === -1 ? this.maxLevel : level;
+    for (let i = 0; i <= maxIterations; i++) {
       if (this.debug) {
-        console.log("update => openLevel");
+        console.log("update => openLevel", i);
       }
       this.update();
     }
   }
 
   /**
-   * Collapses all nodes in the tree view.
+   * Collapse all nodes in the tree view.
    */
   collapseAll() {
     this.openLevel(0);
   }
 
   /**
-   * Expands all nodes in the treeview.
+   * Expand all nodes in the tree view.
    */
   expandAll() {
     this.openLevel(this.maxLevel);
   }
 
+  /**
+   * Dispose of resources and clean up.
+   */
   dispose() {
-    // this.viewIcons = null;
-    this.root = null;
+    if (this.model) {
+      this.model.dispose();
+      this.model = null;
+    }
     this.tree = null;
-    // this.navIcons = null;
+    this.container = null;
+    this.lastLabel = null;
     this.scrollContainer.removeEventListener("scroll", this.handleScroll);
   }
 }
 
-export { TreeView };
+export { TreeView, States };
