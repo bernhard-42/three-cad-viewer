@@ -26,7 +26,7 @@ Three-cad-viewer is a WebGL-based CAD viewer built on Three.js. The architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                              Display                                 │
+│                              Display                                │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────────────┐ │
 │  │ Toolbar  │  │ TreeView │  │ Sliders  │  │ Tabs (clip/material) │ │
 │  └────┬─────┘  └────┬─────┘  └────┬─────┘  └──────────┬───────────┘ │
@@ -35,15 +35,15 @@ Three-cad-viewer is a WebGL-based CAD viewer built on Three.js. The architecture
         │  User actions call Viewer methods             │
         ▼             ▼            ▼                    ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                              Viewer                                  │
+│                              Viewer                                 │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────────────────┐  │
 │  │  Camera  │  │ Controls │  │ Clipping │  │ Scene (NestedGroup) │  │
 │  └──────────┘  └──────────┘  └──────────┘  └─────────────────────┘  │
-│                       │                                              │
-│                       ▼                                              │
-│              ┌─────────────────┐                                     │
-│              │   ViewerState   │ ◄──── Single source of truth        │
-│              └────────┬────────┘                                     │
+│                       │                                             │
+│                       ▼                                             │
+│              ┌─────────────────┐                                    │
+│              │   ViewerState   │ ◄──── Single source of truth       │
+│              └────────┬────────┘                                    │
 └───────────────────────┼─────────────────────────────────────────────┘
                         │
          Subscriptions notify Display of state changes
