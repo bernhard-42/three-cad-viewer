@@ -1,11 +1,30 @@
 import * as THREE from "three";
 
+/**
+ * Symbol used to identify ObjectGroup instances without instanceof checks.
+ * Avoids circular dependency issues with objectgroup.js.
+ * @type {symbol}
+ */
+const OBJECT_GROUP_MARKER = Symbol.for("tcv.ObjectGroup");
+
+/**
+ * Extended THREE.Box3 for CAD-specific bounding box calculations.
+ * Handles ObjectGroup instances and excludes clipping plane meshes.
+ */
 class BoundingBox extends THREE.Box3 {
+  /**
+   * Expand the bounding box to include an object.
+   * For ObjectGroup instances, only the first mesh (faces) is considered.
+   * Clipping plane meshes (PlaneMeshes/StencilPlane) are excluded.
+   * @param {THREE.Object3D} object - The object to include in the bounding box.
+   * @param {boolean} [precise=false] - Whether to use precise vertex-level calculation.
+   * @returns {BoundingBox} This bounding box for chaining.
+   */
   expandByObject(object, precise = false) {
     object.updateWorldMatrix(false, false);
 
-    // don't use instanceof => circular dependencies with bbox.js
-    if (object.constructor.name == "ObjectGroup") {
+    // Use symbol marker for ObjectGroup detection (avoids circular dependencies)
+    if (object[OBJECT_GROUP_MARKER]) {
       // for ObjectGroups calculate bounding box of first Mesh only
       this.expandByObject(object.children[0], precise);
       return this;
@@ -62,6 +81,10 @@ class BoundingBox extends THREE.Box3 {
     return this;
   }
 
+  /**
+   * Calculate the maximum distance from the origin to any corner of the box.
+   * @returns {number} The maximum absolute coordinate value.
+   */
   max_dist_from_center() {
     return Math.max(
       ...this.min
@@ -71,18 +94,35 @@ class BoundingBox extends THREE.Box3 {
     );
   }
 
+  /**
+   * Get the bounding sphere of this box.
+   * @returns {THREE.Sphere} The bounding sphere.
+   */
   boundingSphere() {
     this.getBoundingSphere(_sphere);
     return _sphere;
   }
 
+  /**
+   * Get the center point of this box as an array.
+   * @returns {number[]} The center coordinates [x, y, z].
+   */
   center() {
     this.getCenter(_vector3);
     return _vector3.toArray();
   }
 }
 
+/**
+ * Visual helper for displaying a bounding box as wireframe lines.
+ * Extends THREE.LineSegments to render the 12 edges of a box.
+ */
 class BoxHelper extends THREE.LineSegments {
+  /**
+   * Create a BoxHelper for visualizing an object's bounding box.
+   * @param {THREE.Object3D} object - The object to visualize bounds for.
+   * @param {number} [color=0xffff00] - Line color as hex value.
+   */
   constructor(object, color = 0xffff00) {
     const indices = new Uint16Array([
       0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7,
@@ -106,6 +146,10 @@ class BoxHelper extends THREE.LineSegments {
     this.update();
   }
 
+  /**
+   * Update the helper geometry to match the current bounding box.
+   * Should be called when the target object changes.
+   */
   update() {
     if (this.object !== undefined) {
       _hbox.setFromObject(this.object, true);
@@ -148,6 +192,11 @@ class BoxHelper extends THREE.LineSegments {
     this.geometry.computeBoundingSphere();
   }
 
+  /**
+   * Set the target object and update the helper.
+   * @param {THREE.Object3D} object - The new object to track.
+   * @returns {BoxHelper} This helper for chaining.
+   */
   setFromObject(object) {
     this.object = object;
     this.update();

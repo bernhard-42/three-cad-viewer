@@ -2,7 +2,22 @@ import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "./patches.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 
+/**
+ * Renders XYZ axes as colored line segments.
+ * Extends LineSegments2 for thick line rendering.
+ */
 class AxesHelper extends LineSegments2 {
+  /**
+   * Create an AxesHelper.
+   * @param {number[]} center - Origin point [x, y, z] for the axes.
+   * @param {number} size - Length of each axis in world units.
+   * @param {number} lineWidth - Line width in pixels.
+   * @param {number} width - Viewport width for material resolution.
+   * @param {number} height - Viewport height for material resolution.
+   * @param {boolean} axes0 - If true, position at origin; if false, at center.
+   * @param {boolean} visible - Initial visibility state.
+   * @param {string} theme - Color theme ("dark" or "light").
+   */
   constructor(center, size, lineWidth, width, height, axes0, visible, theme) {
     // prettier-ignore
     const vertices = new Float32Array([
@@ -47,6 +62,10 @@ class AxesHelper extends LineSegments2 {
     this.setCenter(axes0);
   }
 
+  /**
+   * Set the axes position based on the axes0 flag.
+   * @param {boolean} axes0 - If true, position at origin; if false, at center.
+   */
   setCenter(axes0) {
     if (axes0) {
       this.position.set(0, 0, 0);
@@ -55,10 +74,18 @@ class AxesHelper extends LineSegments2 {
     }
   }
 
+  /**
+   * Set the visibility of the axes helper.
+   * @param {boolean} visible - Whether the axes should be visible.
+   */
   setVisible(visible) {
     this.visible = visible;
   }
 
+  /**
+   * Change the color theme of the axes.
+   * @param {string} theme - The theme name ("dark" or "light").
+   */
   changeTheme(theme) {
     this.geometry.setColors(new Float32Array(this.colors[theme]));
   }

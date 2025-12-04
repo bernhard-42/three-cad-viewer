@@ -4,9 +4,23 @@ import { sceneTraverse } from "./utils.js";
 import { Font } from "three/examples/jsm/loaders/FontLoader.js";
 import { helvetiker } from "./font.js";
 
+/** Length of orientation marker axes in pixels */
 const length = 54;
+/** Distance from origin to axis labels */
 const distance = length + 18;
+
+/**
+ * Displays an orientation gizmo in the corner showing XYZ axes.
+ * Syncs rotation with the main camera.
+ */
 class OrientationMarker {
+  /**
+   * Create an OrientationMarker.
+   * @param {number} width - Viewport width for the marker.
+   * @param {number} height - Viewport height for the marker.
+   * @param {Camera} camera - The main CAD camera to sync orientation with.
+   * @param {string} theme - Color theme ("dark" or "light").
+   */
   constructor(width, height, camera, theme) {
     this.width = width;
     this.height = height;
@@ -18,6 +32,9 @@ class OrientationMarker {
     this.labels = [];
     this.ready = false;
   }
+  /**
+   * Create the orientation marker scene with axes, cones, and labels.
+   */
   create() {
     const font = new Font(helvetiker);
     const size = 2.5;
@@ -120,12 +137,19 @@ class OrientationMarker {
     this.ready = true;
   }
 
+  /**
+   * Set visibility of all orientation marker elements.
+   * @param {boolean} flag - Whether the marker should be visible.
+   */
   setVisible(flag) {
     for (var child of this.scene.children) {
       child.visible = flag;
     }
   }
 
+  /**
+   * Dispose of all resources and clean up memory.
+   */
   dispose() {
     sceneTraverse(this.scene, (o) => {
       o.geometry?.dispose();
@@ -138,6 +162,10 @@ class OrientationMarker {
     this.labels = null;
   }
 
+  /**
+   * Render the orientation marker to the given renderer.
+   * @param {THREE.WebGLRenderer} renderer - The renderer to draw to.
+   */
   render(renderer) {
     if (this.ready) {
       renderer.setViewport(0, 0, this.width, this.height);
@@ -146,8 +174,11 @@ class OrientationMarker {
     }
   }
 
-  // handler (bound to OrientationMarker instance)
-
+  /**
+   * Update the marker to match the main camera's orientation.
+   * @param {THREE.Vector3} position - Camera position (will be normalized).
+   * @param {THREE.Quaternion} quaternion - Camera rotation quaternion.
+   */
   update(position, quaternion) {
     if (this.ready) {
       let q = new THREE.Quaternion().setFromUnitVectors(
@@ -169,6 +200,10 @@ class OrientationMarker {
     }
   }
 
+  /**
+   * Change the color theme of the orientation marker.
+   * @param {string} theme - The theme name ("dark" or "light").
+   */
   changeTheme(theme) {
     for (const i in this.cones) {
       const cone = this.cones[i];

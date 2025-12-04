@@ -41,7 +41,7 @@ const cameraUp = {
 
 class Camera {
   /**
-   * Create a combined camera (orthographic and persepctive).
+   * Create a combined camera (orthographic and perspective).
    * @param {number} width - canvas width.
    * @param {number} height - canvas height.
    * @param {number} distance - distance from the lookAt point.
@@ -130,7 +130,7 @@ class Camera {
 
   /**
    * Switch between orthographic and perspective camera.
-   * @param {boolean} ortho_flag - true for orthographic camera, else persepctive camera.
+   * @param {boolean} ortho_flag - true for orthographic camera, else perspective camera.
    **/
   switchCamera(ortho_flag) {
     var p0 = this.getPosition().clone();
@@ -153,9 +153,10 @@ class Camera {
   }
 
   /**
-   * Calculate projected size for orthographic ca,era
-   * @param {number} frustum - view frustum.
-   * @param {number} aspect - viewer aspect (width / height).
+   * Calculate projected size for orthographic camera.
+   * @param {number} frustum - View frustum size.
+   * @param {number} aspect - Viewer aspect ratio (width / height).
+   * @returns {number[]} Width and height [w, h] for the orthographic camera.
    **/
   projectSize(frustum, aspect) {
     var w, h;
@@ -307,6 +308,10 @@ class Camera {
     return this.camera.rotation;
   }
 
+  /**
+   * Get the visible area dimensions at the target plane.
+   * @returns {{width: number, height: number}} The visible width and height.
+   **/
   getVisibleArea() {
     if (this.ortho) {
       const cam = this.getCamera();
@@ -323,6 +328,12 @@ class Camera {
       return { width: width, height: height };
     }
   }
+  /**
+   * Update camera dimensions when viewport size changes.
+   * @param {number} distance - Distance used for orthographic frustum calculation.
+   * @param {number} width - New viewport width in pixels.
+   * @param {number} height - New viewport height in pixels.
+   **/
   changeDimensions(distance, width, height) {
     const aspect = width / height;
     const pSize = this.projectSize(distance, aspect);

@@ -1,6 +1,10 @@
 import * as THREE from "three";
 import { KeyMapper } from "./utils";
 
+/**
+ * Filter types for topology-based raycasting.
+ * @enum {string|null}
+ */
 export const TopoFilter = {
   none: null,
   vertex: "vertex",
@@ -9,6 +13,10 @@ export const TopoFilter = {
   solid: "solid",
 };
 
+/**
+ * Geometry type mappings by topology.
+ * @private
+ */
 const GeomTypes = {
   face: [
     "plane",
@@ -36,7 +44,16 @@ const GeomTypes = {
   ],
 };
 
+/**
+ * Represents a picked object from raycasting.
+ * Can represent either a single shape or all faces of a solid.
+ */
 export class PickedObject {
+  /**
+   * Create a PickedObject.
+   * @param {ObjectGroup} objectGroup - The picked ObjectGroup.
+   * @param {boolean} fromSolid - Whether this pick is from a solid selection.
+   */
   constructor(objectGroup, fromSolid) {
     this.obj = objectGroup;
     this.fromSolid = fromSolid;
@@ -73,7 +90,21 @@ export class PickedObject {
   }
 }
 
+/**
+ * Handles mouse-based raycasting for object selection in the 3D scene.
+ * Supports topology filtering and provides click/keyboard callbacks.
+ */
 class Raycaster {
+  /**
+   * Create a Raycaster for object picking.
+   * @param {Camera} camera - The camera used for ray projection.
+   * @param {HTMLElement} domElement - The DOM element to listen for events.
+   * @param {number} width - Viewport width in pixels.
+   * @param {number} height - Viewport height in pixels.
+   * @param {number} threshold - Point picking threshold in world units.
+   * @param {THREE.Object3D} group - The scene group to raycast against.
+   * @param {Function} callback - Callback for pick events ({mouse, shift, key}).
+   */
   constructor(camera, domElement, width, height, threshold, group, callback) {
     this.camera = camera;
     this.group = group;
@@ -95,17 +126,23 @@ class Raycaster {
     };
   }
 
+  /**
+   * Dispose of event listeners and clean up resources.
+   */
   dispose() {
     this.domElement.removeEventListener("mousemove", this.onPointerMove);
-    this.domElement.removeEventListener("mouseup", this.mouseKetUp);
+    this.domElement.removeEventListener("mouseup", this.onMouseKeyUp);
     this.domElement.removeEventListener("mousedown", this.onMouseKeyDown);
     this.domElement.removeEventListener("keydown", this.onKeyDown);
     this.raycastMode = false;
-    this.groups = null;
+    this.group = null;
     this.domElement = null;
     this.camera = null;
   }
 
+  /**
+   * Initialize event listeners and enable raycast mode.
+   */
   init() {
     this.domElement.addEventListener("mousemove", this.onPointerMove);
     this.domElement.addEventListener("mouseup", this.onMouseKeyUp, false);

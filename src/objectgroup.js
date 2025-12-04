@@ -2,6 +2,13 @@ import * as THREE from "three";
 import { deepDispose, disposeGeometry } from "./utils.js";
 import { ZebraTool } from "./cad_tools/zebra.js";
 
+/**
+ * Symbol marker for identifying ObjectGroup instances.
+ * Used by BoundingBox to avoid circular dependency with instanceof.
+ * @type {symbol}
+ */
+const OBJECT_GROUP_MARKER = Symbol.for("tcv.ObjectGroup");
+
 /** Highlight color when object is selected */
 const HIGHLIGHT_COLOR_SELECTED = 0x53a0e3;
 /** Highlight color when object is hovered but not selected */
@@ -23,6 +30,8 @@ class ObjectGroup extends THREE.Group {
    */
   constructor(opacity, alpha, edge_color, shapeInfo, subtype, renderback) {
     super();
+    // Set marker for BoundingBox detection (avoids circular dependency)
+    this[OBJECT_GROUP_MARKER] = true;
     this.opacity = opacity;
     this.alpha = alpha == null ? 1.0 : alpha;
     this.edge_color = edge_color;

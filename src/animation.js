@@ -1,7 +1,22 @@
 import * as THREE from "three";
 
+/**
+ * Valid transform action types for animation tracks.
+ * - t: full translation vector
+ * - tx, ty, tz: single-axis translation
+ * - q: quaternion rotation
+ * - rx, ry, rz: rotation around single axis
+ * @type {string[]}
+ */
 const valid_transforms = ["t", "tx", "ty", "tz", "q", "rx", "ry", "rz"];
 
+/**
+ * Create a quaternion from an axis letter and angle in degrees.
+ * @param {string} axis - Axis letter ("x", "y", or "z").
+ * @param {number} angle - Rotation angle in degrees.
+ * @returns {THREE.Quaternion} The resulting quaternion.
+ * @private
+ */
 function fromAxisAngle(axis, angle) {
   switch (axis) {
     case "x":
@@ -19,7 +34,15 @@ function fromAxisAngle(axis, angle) {
   return q;
 }
 
+/**
+ * Manages keyframe animations for CAD objects.
+ * Supports translation (t, tx, ty, tz) and rotation (q, rx, ry, rz) transforms.
+ */
 class Animation {
+  /**
+   * Create an Animation manager.
+   * @param {string} delim - Path delimiter used in object selectors.
+   */
   constructor(delim) {
     this.delim = delim;
     this.tracks = [];
@@ -35,6 +58,14 @@ class Animation {
     this.repeat = null;
   }
 
+  /**
+   * Add an animation track for an object.
+   * @param {string} selector - Object path selector (using "/" delimiter).
+   * @param {THREE.Object3D} group - The object to animate.
+   * @param {string} action - Transform type ("t", "tx", "ty", "tz", "q", "rx", "ry", "rz").
+   * @param {number[]} times - Array of keyframe times.
+   * @param {number[]|number[][]} values - Array of values corresponding to each time.
+   */
   addTrack(selector, group, action, times, values) {
     selector = selector.replaceAll("/", this.delim);
 
@@ -44,7 +75,7 @@ class Animation {
     }
 
     if (times.length != values.length) {
-      console.error("times and values arrays need have the same lenght");
+      console.error("times and values arrays need to have the same length");
       return;
     }
 
@@ -62,17 +93,17 @@ class Animation {
           break;
         case "tx":
           newValues = values.map((v) =>
-            position.add(new THREE.Vector3(v, 0, 0)).toArray(),
+            position.clone().add(new THREE.Vector3(v, 0, 0)).toArray(),
           );
           break;
         case "ty":
           newValues = values.map((v) =>
-            position.add(new THREE.Vector3(0, v, 0)).toArray(),
+            position.clone().add(new THREE.Vector3(0, v, 0)).toArray(),
           );
           break;
         case "tz":
           newValues = values.map((v) =>
-            position.add(new THREE.Vector3(0, 0, v)).toArray(),
+            position.clone().add(new THREE.Vector3(0, 0, v)).toArray(),
           );
           break;
         default:
@@ -114,6 +145,9 @@ class Animation {
     }
   }
 
+  /**
+   * Store current animation state for later restoration.
+   */
   backup() {
     this._backup = {
       tracks: this.tracks,
@@ -124,6 +158,10 @@ class Animation {
     };
   }
 
+  /**
+   * Restore previously backed up animation state.
+   * @returns {{duration: number, speed: number, repeat: boolean}} The restored settings.
+   */
   restore() {
     this.tracks = this._backup.tracks;
     return {
@@ -133,18 +171,37 @@ class Animation {
     };
   }
 
+  /**
+   * Clear the backup state.
+   */
   cleanBackup() {
     this._backup = [];
   }
 
+  /**
+   * Check if any animation tracks have been added.
+   * @returns {boolean} True if tracks exist.
+   */
   hasTracks() {
     return this.tracks != null && this.tracks.length > 0;
   }
 
+  /**
+   * Check if a backup exists.
+   * @returns {boolean} True if backup state is stored.
+   */
   hasBackup() {
     return this._backup != null && Object.keys(this._backup).length > 0;
   }
 
+  /**
+   * Create and start the animation.
+   * @param {THREE.Object3D} root - Root object containing animated children.
+   * @param {number} duration - Animation duration in seconds.
+   * @param {number} speed - Playback speed multiplier.
+   * @param {boolean} [repeat=true] - Whether to loop (true) or ping-pong (false).
+   * @returns {THREE.AnimationAction} The created animation action.
+   */
   animate(root, duration, speed, repeat = true) {
     this.root = root;
     this.duration = duration;
@@ -163,6 +220,11 @@ class Animation {
     return this.clipAction;
   }
 
+  /**
+   * Set the animation to a specific relative time (0-1).
+   * Pauses the animation at that point.
+   * @param {number} fraction - Time fraction (0 = start, 1 = end).
+   */
   setRelativeTime(fraction) {
     this.clipAction.play();
     this.clipAction.paused = true;
@@ -170,10 +232,17 @@ class Animation {
     this.clipAction.time = currentTime;
   }
 
+  /**
+   * Get the current relative time (0-1).
+   * @returns {number} Current time fraction.
+   */
   getRelativeTime() {
     return this.clipAction.time / this.duration;
   }
 
+  /**
+   * Dispose of animation resources.
+   */
   dispose() {
     this.mixer = null;
     this.clipAction = null;
@@ -182,6 +251,9 @@ class Animation {
     this.root = null;
   }
 
+  /**
+   * Update the animation mixer (call each frame when animating).
+   */
   update() {
     if (this.mixer) {
       this.mixer.update(this.clock.getDelta());
