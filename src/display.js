@@ -1,3 +1,7 @@
+// =============================================================================
+// IMPORTS & HELPERS
+// =============================================================================
+
 import { KeyMapper, EventListenerManager } from "./utils.js";
 import { Slider } from "./slider.js";
 import { Toolbar, Button, ClickButton, Ellipsis } from "./toolbar.js";
@@ -28,7 +32,15 @@ const buttons = ["plane", "play", "pause", "stop"];
 
 const listeners = new EventListenerManager();
 
+// =============================================================================
+// DISPLAY CLASS
+// =============================================================================
+
 class Display {
+  // ---------------------------------------------------------------------------
+  // Constructor & Toolbar Setup
+  // ---------------------------------------------------------------------------
+
   /**
    * Create Display
    * @param {DOMElement} container - the DOM element, e.g. div, that should contain the Display
@@ -329,6 +341,10 @@ class Display {
     this.cadTool.addButton(this.toolbarButtons["help"], -1);
   }
 
+  // ---------------------------------------------------------------------------
+  // Private Helpers
+  // ---------------------------------------------------------------------------
+
   setButtonBackground(theme) {
     for (var btn of buttons) {
       var elements = this.container.getElementsByClassName(`tcv_${btn}`);
@@ -378,6 +394,10 @@ class Display {
   _getElement(name) {
     return this.container.getElementsByClassName(name)[0];
   }
+
+  // ---------------------------------------------------------------------------
+  // Disposal & UI Layout
+  // ---------------------------------------------------------------------------
 
   dispose() {
     listeners.dispose();
@@ -436,6 +456,10 @@ class Display {
 
     this.cadBody.style.height = px(options.height + 4);
   }
+
+  // ---------------------------------------------------------------------------
+  // UI Setup & State Subscriptions
+  // ---------------------------------------------------------------------------
 
   /**
    * Set up the UI
@@ -813,7 +837,10 @@ class Display {
     // Initialize lastPlaneState from options (used for tab switching)
     this.lastPlaneState = state.get("clipPlaneHelpers");
   }
-  // setup functions
+
+  // ---------------------------------------------------------------------------
+  // DOM Management
+  // ---------------------------------------------------------------------------
 
   /**
    * Check or uncheck a checkbox
@@ -865,11 +892,14 @@ class Display {
     this.cadTree.appendChild(cadTree);
   }
 
-  // handler (bound to Display instance)
+  // ---------------------------------------------------------------------------
+  // Toolbar Button Handlers: View Settings
+  // ---------------------------------------------------------------------------
 
   /**
-   *
+   * Checkbox Handler for setting the axes parameter
    * @function
+   * @param {string} name - button name
    * @param {boolean} flag - to set or not
    */
   setAxes = (name, flag) => {
@@ -879,6 +909,7 @@ class Display {
   /**
    * Checkbox Handler for setting the grid parameter
    * @function
+   * @param {string} name - grid plane name (xy, xz, yz)
    * @param {boolean} flag - to set or not
    */
   setGrid = (name, flag) => {
@@ -888,6 +919,7 @@ class Display {
   /**
    * Checkbox Handler for setting the axes0 parameter
    * @function
+   * @param {string} name - button name
    * @param {boolean} flag - to set or not
    */
   setAxes0 = (name, flag) => {
@@ -897,6 +929,7 @@ class Display {
   /**
    * Checkbox Handler for setting the ortho parameter
    * @function
+   * @param {string} name - button name
    * @param {boolean} flag - to set or not
    */
   setOrtho = (name, flag) => {
@@ -906,6 +939,7 @@ class Display {
   /**
    * Checkbox Handler for setting the transparent parameter
    * @function
+   * @param {string} name - button name
    * @param {boolean} flag - to set or not
    */
   setTransparent = (name, flag) => {
@@ -915,11 +949,16 @@ class Display {
   /**
    * Checkbox Handler for setting the black edges parameter
    * @function
+   * @param {string} name - button name
    * @param {boolean} flag - to set or not
    */
   setBlackEdges = (name, flag) => {
     this.viewer.setBlackEdges(flag);
   };
+
+  // ---------------------------------------------------------------------------
+  // Toolbar Button Handlers: Tools
+  // ---------------------------------------------------------------------------
 
   /**
    * Handler for the explode button
@@ -944,6 +983,7 @@ class Display {
   /**
    * Checkbox Handler for setting the zscale mode
    * @function
+   * @param {string} name - button name
    * @param {boolean} flag - to set or not
    */
   setZScale = (name, flag) => {
@@ -966,6 +1006,7 @@ class Display {
   /**
    * Checkbox Handler for setting the tools mode
    * @function
+   * @param {string} name - tool name
    * @param {boolean} flag - whether to start or stop measure context
    */
   setTool = (name, flag) => {
@@ -1026,17 +1067,6 @@ class Display {
   };
 
   /**
-   * Checkbox Handler for setting the clip planes parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setClipPlaneHelpers = (e) => {
-    const flag = !!e.target.checked;
-    this.lastPlaneState = flag;  // Remember user's explicit choice
-    this.viewer.setClipPlaneHelpers(flag);
-  };
-
-  /**
    * Show or hide the CAD tools (UI update only).
    * This method only updates the visual state - it does not modify ViewerState.
    * To change the tools setting, call viewer.setTools() which will update state
@@ -1071,7 +1101,7 @@ class Display {
   };
 
   /**
-   * Show or hides measurement tools, measurement tools needs a backend to be used.
+   * Show or hides select tool
    * @param {boolean} flag
    */
   showSelectTool = (flag) => {
@@ -1097,10 +1127,25 @@ class Display {
     }
   };
 
+  // ---------------------------------------------------------------------------
+  // Clipping Handlers
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Checkbox Handler for setting the clip planes parameter
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setClipPlaneHelpers = (e) => {
+    const flag = !!e.target.checked;
+    this.lastPlaneState = flag;  // Remember user's explicit choice
+    this.viewer.setClipPlaneHelpers(flag);
+  };
+
   /**
    * Checkbox Handler for setting the clip intersection parameter
    * @function
-   * @param {*} e
+   * @param {Event} e - a DOM change event
    */
   setClipIntersection = (e) => {
     const flag = !!e.target.checked;
@@ -1110,12 +1155,38 @@ class Display {
   /**
    * Checkbox Handler for toggling the clip caps
    * @function
-   * @param {*} e
+   * @param {Event} e - a DOM change event
    */
   setObjectColorCaps = (e) => {
     const flag = !!e.target.checked;
     this.viewer.setClipObjectColorCaps(flag);
   };
+
+  /**
+   * Set the normal at index to the current viewing direction
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  setClipNormalFromPosition = (e) => {
+    const index = parseInt(e.target.classList[0].slice(-1));
+    this.viewer.setClipNormalFromPosition(index - 1);
+  };
+
+  /**
+   * Handler to set the label of a clipping normal widget
+   * @function
+   * @param {number} index - index of the normal widget
+   * @param {Vector3} normal - the normal
+   */
+  setNormalLabel = (index, normal) => {
+    this.planeLabels[index].innerHTML = `N=(${normal[0].toFixed(
+      2,
+    )}, ${normal[1].toFixed(2)}, ${normal[2].toFixed(2)})`;
+  };
+
+  // ---------------------------------------------------------------------------
+  // View Control Handlers
+  // ---------------------------------------------------------------------------
 
   /**
    * Handler to reset position, zoom and up of the camera
@@ -1137,7 +1208,8 @@ class Display {
   /**
    * Handler to set camera to a predefined position
    * @function
-   * @param {Event} e - a DOM click event
+   * @param {string} button - view name (front, rear, top, bottom, left, right, iso)
+   * @param {boolean} focus - whether to focus on visible objects
    */
   setView = (button, focus = false) => {
     this.viewer.presetCamera(button);
@@ -1168,30 +1240,12 @@ class Display {
     this.viewer.pinAsPng();
   };
 
-  /**
-   * Handler to set the label of a clipping normal widget
-   * @function
-   * @param {number} index - index of the normal widget
-   * @param {Vector3} normal - the normal
-   */
-  setNormalLabel = (index, normal) => {
-    this.planeLabels[index].innerHTML = `N=(${normal[0].toFixed(
-      2,
-    )}, ${normal[1].toFixed(2)}, ${normal[2].toFixed(2)})`;
-  };
+  // ---------------------------------------------------------------------------
+  // Tab Navigation & Tree Control
+  // ---------------------------------------------------------------------------
 
   /**
-   * Set the normal at index to the current viewing direction
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setClipNormalFromPosition = (e) => {
-    const index = parseInt(e.target.classList[0].slice(-1));
-    this.viewer.setClipNormalFromPosition(index - 1);
-  };
-
-  /**
-   * Handler to activate a UI tab (tree / clipping)
+   * Handler to activate a UI tab (tree / clipping / material / zebra)
    * @function
    * @param {Event} e - a DOM click event
    */
@@ -1200,93 +1254,9 @@ class Display {
     this.selectTabByName(tab.slice(8));
   };
 
-
-  /**
-   * Reset material values to original values
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  // eslint-disable-next-line no-unused-vars
-  handleMaterialReset = (e) => {
-    this.viewer.resetMaterial();
-  };
-
-  /**
-   * Set zebra stripe count in the UI
-   * @function
-   * @param {number} val - an int between 2 and 50
-   */
-  setZebraCount = (val) => {
-    this.zebraCountSlider.setValue(val);
-  };
-
-  /**
-   * Set zebra stripe opacity in the UI
-   * @function
-   * @param {number} val - an int between 0.1 and 5
-   */
-  setZebraOpacity = (val) => {
-    this.zebraOpacitySlider.setValue(val);
-  };
-
-  /**
-   * Set zebra stripe direction in the UI
-   * @function
-   * @param {number} val - an int between 0 and 360
-   */
-  setZebraDirection = (val) => {
-    this.zebraDirectionSlider.setValue(val);
-  };
-
-  /**
-   * Checkbox Handler for setting the colorful stripes parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setZebraColorScheme = (e) => {
-    const value = e.target.value;
-    this.viewer.setZebraColorScheme(value);
-    this.setZebraColorSchemeSelect(value);
-  };
-
-  /**
-   * Checkbox Handler for setting the colorful stripes parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setZebraColorSchemeSelect = (value) => {
-    const el = this.container.querySelector(
-      `input[name="zebra_color_group"][value="${value}"]`,
-    );
-    if (el) el.checked = true;
-  };
-
-  /**
-   * Checkbox Handler for setting the zebra mapping mode parameter
-   * @function
-   * @param {Event} e - a DOM click event
-   */
-  setZebraMappingMode = (e) => {
-    const value = e.target.value;
-    this.viewer.setZebraMappingMode(value);
-    this.setZebraMappingModeSelect(value);
-  };
-
-  /**
-   * Set zebra mapping mode direction in the UI
-   * @function
-   * @param {string} value - "reflection" or "normal"
-   */
-  setZebraMappingModeSelect = (value) => {
-    const el = this.container.querySelector(
-      `input[name="zebra_mapping_group"][value="${value}"]`,
-    );
-    if (el) el.checked = true;
-  };
-
   /**
    * Activate the UI tab given the name of the tab
-   * @param {string} tab - name of the tab "tree" or "clip"
+   * @param {string} tab - name of the tab "tree", "clip", "material", or "zebra"
    */
   selectTabByName(tab) {
     if (!["clip", "tree", "material", "zebra"].includes(tab)) {
@@ -1356,6 +1326,7 @@ class Display {
   /**
    * Toggle visibility of the clipping tab
    * @function
+   * @param {boolean} flag - whether to enable or disable the clipping tab
    */
   toggleClippingTab = (flag) => {
     if (flag) {
@@ -1367,7 +1338,7 @@ class Display {
   };
 
   /**
-   * Collapse nodes handler
+   * Collapse nodes handler (event handler)
    * @function
    * @param {Event} e - a DOM click event
    */
@@ -1376,8 +1347,8 @@ class Display {
   };
 
   /**
-   * Collapse nodes handler
-   * @param {string} value - 1: collapse all leaf nodes, "R": expand root level only, "C": collapse all nodes, "E": expand all nodes
+   * Collapse or expand tree nodes
+   * @param {string} value - "1": collapse leaf nodes, "R": expand root only, "C": collapse all, "E": expand all
    */
   collapseNodes(value) {
     if (value === "1") {
@@ -1391,9 +1362,103 @@ class Display {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Material Handlers
+  // ---------------------------------------------------------------------------
+
   /**
-   * Set minimum and maximum of the sliders
-   * @param {number} index - index of the plane: 0,1,2
+   * Reset material values to original values
+   * @function
+   * @param {Event} e - a DOM click event
+   */
+  // eslint-disable-next-line no-unused-vars
+  handleMaterialReset = (e) => {
+    this.viewer.resetMaterial();
+  };
+
+  // ---------------------------------------------------------------------------
+  // Zebra Tool Handlers
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Set zebra stripe count in the UI
+   * @function
+   * @param {number} val - an int between 2 and 50
+   */
+  setZebraCount = (val) => {
+    this.zebraCountSlider.setValue(val);
+  };
+
+  /**
+   * Set zebra stripe opacity in the UI
+   * @function
+   * @param {number} val - a float between 0 and 1
+   */
+  setZebraOpacity = (val) => {
+    this.zebraOpacitySlider.setValue(val);
+  };
+
+  /**
+   * Set zebra stripe direction in the UI
+   * @function
+   * @param {number} val - an int between 0 and 90
+   */
+  setZebraDirection = (val) => {
+    this.zebraDirectionSlider.setValue(val);
+  };
+
+  /**
+   * Handler for setting the zebra color scheme
+   * @function
+   * @param {Event} e - a DOM change event
+   */
+  setZebraColorScheme = (e) => {
+    const value = e.target.value;
+    this.viewer.setZebraColorScheme(value);
+    this.setZebraColorSchemeSelect(value);
+  };
+
+  /**
+   * Set zebra color scheme radio button in the UI
+   * @function
+   * @param {string} value - "blackwhite", "colorful", or "grayscale"
+   */
+  setZebraColorSchemeSelect = (value) => {
+    const el = this.container.querySelector(
+      `input[name="zebra_color_group"][value="${value}"]`,
+    );
+    if (el) el.checked = true;
+  };
+
+  /**
+   * Handler for setting the zebra mapping mode
+   * @function
+   * @param {Event} e - a DOM change event
+   */
+  setZebraMappingMode = (e) => {
+    const value = e.target.value;
+    this.viewer.setZebraMappingMode(value);
+    this.setZebraMappingModeSelect(value);
+  };
+
+  /**
+   * Set zebra mapping mode radio button in the UI
+   * @function
+   * @param {string} value - "reflection" or "normal"
+   */
+  setZebraMappingModeSelect = (value) => {
+    const el = this.container.querySelector(
+      `input[name="zebra_mapping_group"][value="${value}"]`,
+    );
+    if (el) el.checked = true;
+  };
+
+  // ---------------------------------------------------------------------------
+  // Slider & Animation Control
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Set minimum and maximum of the clipping sliders
    * @param {number} limit - the value for both minimum and maximum value of the slider
    */
   setSliderLimits(limit) {
@@ -1403,9 +1468,9 @@ class Display {
   }
 
   /**
-   * Refresh clipping plane
+   * Refresh clipping plane position
    * @function
-   * @param {number} index - index of the plane: 0,1,2
+   * @param {number} index - index of the plane: 1, 2, or 3
    * @param {number} value - distance on the clipping normal from the center
    */
   refreshPlane = (index, value) => {
@@ -1413,9 +1478,9 @@ class Display {
   };
 
   /**
-   * Handle animation control
+   * Handle animation control by button name
    * @function
-   * @param {string} btn - animation control button name
+   * @param {string} btn - animation control button name ("play", "pause", "stop")
    */
   controlAnimationByName(btn) {
     this.viewer.controlAnimation(btn);
@@ -1435,7 +1500,7 @@ class Display {
   }
 
   /**
-   * Handler for the animation control
+   * Handler for the animation control buttons
    * @function
    * @param {Event} e - a DOM click event
    */
@@ -1447,7 +1512,7 @@ class Display {
   /**
    * Handler for the animation slider
    * @function
-   * @param {Event} e - a DOM click event
+   * @param {Event} e - a DOM input event
    */
   animationChange = (e) => {
     this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
@@ -1455,6 +1520,10 @@ class Display {
       this.viewer.lastBbox.needsUpdate = true;
     }
   };
+
+  // ---------------------------------------------------------------------------
+  // Help & Info Panels
+  // ---------------------------------------------------------------------------
 
   /**
    * Show or hide help dialog
@@ -1464,6 +1533,14 @@ class Display {
   showHelp = (flag) => {
     this.cadHelp.style.display = flag ? "block" : "none";
     this.help_shown = flag;
+  };
+
+  /**
+   * Toggle help dialog visibility
+   * @function
+   */
+  toggleHelp = () => {
+    this.showHelp(!this.help_shown);
   };
 
   /**
@@ -1494,14 +1571,6 @@ class Display {
   };
 
   /**
-   * Show help dialog
-   * @function
-   */
-  toggleHelp = () => {
-    this.showHelp(!this.help_shown);
-  };
-
-  /**
    * Show or hide info dialog
    * @function
    * @param {boolean} flag - whether to show or hide info dialog
@@ -1513,17 +1582,20 @@ class Display {
   };
 
   /**
-   * Show info dialog
+   * Toggle info dialog visibility
    * @function
    */
   toggleInfo = () => {
     this.showInfo(!this.info_shown);
   };
 
+  // ---------------------------------------------------------------------------
+  // Theme & Glass Mode
+  // ---------------------------------------------------------------------------
+
   /**
-   * Auto collapse tree nodes, when cad width < 600
+   * Auto collapse tree nodes when cad width < 600
    * @function
-   * @param {boolean} flag - whether to enable/disable glass mode
    */
   autoCollapse() {
     if (this.cadWidth < 600 && this.glass) {
@@ -1578,6 +1650,11 @@ class Display {
     this.setSizes(options);
   }
 
+  /**
+   * Update help dialog with new key mappings
+   * @param {Object} before - previous key mapping
+   * @param {Object} after - new key mapping
+   */
   updateHelp(before, after) {
     const help = this._getElement("tcv_cad_help_layout");
     for (var k in before) {
@@ -1594,6 +1671,11 @@ class Display {
     help.innerHTML = help.innerHTML.replaceAll("_meta", "meta");
   }
 
+  /**
+   * Set the UI theme
+   * @param {string} theme - "dark", "light", or "browser"
+   * @returns {string} - the resolved theme ("dark" or "light")
+   */
   setTheme(theme) {
     if (
       theme === "dark" ||

@@ -1,3 +1,7 @@
+// =============================================================================
+// IMPORTS
+// =============================================================================
+
 import * as THREE from "three";
 
 import { Display } from "./display.js";
@@ -26,7 +30,15 @@ import { version } from "./_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "./raycast.js";
 import { ViewerState } from "./viewer-state.js";
 
+// =============================================================================
+// VIEWER CLASS
+// =============================================================================
+
 class Viewer {
+  // ---------------------------------------------------------------------------
+  // Constructor & Initialization
+  // ---------------------------------------------------------------------------
+
   /**
    * Create Viewer.
    * @param {Display} display - The Display object.
@@ -186,9 +198,10 @@ class Viewer {
   dumpOptions() {
     this.state.dump();
   }
-  // - - - - - - - - - - - - - - - - - - - - - - - -
-  // Load Tesselated Shapes
-  // - - - - - - - - - - - - - - - - - - - - - - - -
+
+  // ---------------------------------------------------------------------------
+  // Shape Tessellation & Decomposition
+  // ---------------------------------------------------------------------------
 
   /**
    * Render tessellated shapes of a CAD object.
@@ -504,9 +517,9 @@ class Viewer {
     };
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - -
-  // Animation
-  // - - - - - - - - - - - - - - - - - - - - - - - -
+  // ---------------------------------------------------------------------------
+  // Animation Control
+  // ---------------------------------------------------------------------------
 
   /**
    * Add an animation track for a THREE.Group
@@ -569,9 +582,9 @@ class Viewer {
     this.toggleAnimationLoop(false);
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - -
-  // Update handling of the renderer
-  // - - - - - - - - - - - - - - - - - - - - - - - -
+  // ---------------------------------------------------------------------------
+  // Render Loop & Scene Updates
+  // ---------------------------------------------------------------------------
 
   /**
    * Creates ChangeNotification object if new value != old value and sends change notifications via viewer.notifyCallback.
@@ -634,7 +647,12 @@ class Viewer {
 
       this.gridHelper.update(this.camera.getZoom());
 
-      this.renderer.setViewport(0, 0, this.state.get("cadWidth"), this.state.get("height"));
+      this.renderer.setViewport(
+        0,
+        0,
+        this.state.get("cadWidth"),
+        this.state.get("height"),
+      );
       this.renderer.render(this.scene, this.camera.getCamera());
       this.cadTools.update();
 
@@ -710,9 +728,10 @@ class Viewer {
       setTimeout(() => this.update(true, true), 50);
     }
   }
-  // - - - - - - - - - - - - - - - - - - - - - - - -
-  // Clean up
-  // - - - - - - - - - - - - - - - - - - - - - - - -
+
+  // ---------------------------------------------------------------------------
+  // Cleanup & Disposal
+  // ---------------------------------------------------------------------------
 
   /**
    * Remove assets and event handlers.
@@ -855,9 +874,9 @@ class Viewer {
     }
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - -
-  // Rendering
-  // - - - - - - - - - - - - - - - - - - - - - - - -
+  // ---------------------------------------------------------------------------
+  // Scene Rendering & Tree Management
+  // ---------------------------------------------------------------------------
 
   /**
    * Synchronizes the states of two tree structures recursively.
@@ -1343,9 +1362,9 @@ class Viewer {
     timer.stop();
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - -
-  // Event handlers
-  // - - - - - - - - - - - - - - - - - - - - - - - -
+  // ---------------------------------------------------------------------------
+  // Camera Controls
+  // ---------------------------------------------------------------------------
 
   /**
    * Move the camera to a given locations
@@ -1386,6 +1405,52 @@ class Viewer {
     this.controls.setTarget(this.camera.target);
     this.update(true, notify);
   };
+
+  /**
+   * Get reset location value.
+   * @function
+   * @returns {object} - target, position, quaternion, zoom as object.
+   */
+  getResetLocation = () => {
+    const location = this.controls.getResetLocation();
+    return {
+      target0: location.target0.toArray(),
+      position0: location.position0.toArray(),
+      quaternion0: location.quaternion0.toArray(),
+      zoom0: location.zoom0,
+    };
+  };
+
+  /**
+   * Set reset location value.
+   * @function
+   * @param {number[]} target - camera target as 3 dim Array [x,y,z].
+   * @param {number[]} position - camera position as 3 dim Array [x,y,z].
+   * @param {number[]} quaternion - camera rotation as 4 dim quaternion array [x,y,z,w].
+   * @param {number} zoom - camera zoom value.
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setResetLocation = (target, position, quaternion, zoom, notify = true) => {
+    var location = this.getResetLocation();
+    this.controls.setResetLocation(
+      new THREE.Vector3(...target),
+      new THREE.Vector3(...position),
+      new THREE.Vector4(...quaternion),
+      zoom,
+    );
+    if (notify && this.notifyCallback) {
+      this.notifyCallback({
+        target0: { old: location.target0, new: target },
+        position0: { old: location.position0, new: position },
+        quaternion0: { old: location.quaternion0, new: quaternion },
+        zoom0: { old: location.zoom0, new: zoom },
+      });
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // Camera Type & Projection
+  // ---------------------------------------------------------------------------
 
   /**
    * Get camera type.
@@ -1498,6 +1563,10 @@ class Viewer {
     this.renderer.localClippingEnabled = flag;
     this.update(this.updateMarker);
   }
+
+  // ---------------------------------------------------------------------------
+  // Object Visibility & Bounding Box
+  // ---------------------------------------------------------------------------
 
   /**
    * Sets the visibility state of an object in the viewer.
@@ -1707,6 +1776,10 @@ class Viewer {
     this.update(true);
   };
 
+  // ---------------------------------------------------------------------------
+  // Object Picking & Selection
+  // ---------------------------------------------------------------------------
+
   setPickHandler(flag) {
     if (flag) {
       this.renderer.domElement.addEventListener("dblclick", this.pick, false);
@@ -1787,9 +1860,9 @@ class Viewer {
     raycaster.dispose();
   };
 
-  //
-  // Handle CAD Tools
-  //
+  // ---------------------------------------------------------------------------
+  // CAD Tools & Raycasting
+  // ---------------------------------------------------------------------------
 
   clearSelection = () => {
     this.nestedGroup.clearSelection();
@@ -1931,9 +2004,9 @@ class Viewer {
     }
   };
 
-  //
-  // Getters and Setters
-  //
+  // ---------------------------------------------------------------------------
+  // Appearance (Axes, Grid, Visual Settings)
+  // ---------------------------------------------------------------------------
 
   /**
    * Get whether axes helpers are shon/hidden.
@@ -2006,7 +2079,10 @@ class Viewer {
    */
   setGridCenter = (center, notify = true) => {
     this.gridHelper.centerGrid = center;
-    this.gridHelper.setCenter(this.state.get("axes0"), this.state.get("up") == "Z");
+    this.gridHelper.setCenter(
+      this.state.get("axes0"),
+      this.state.get("up") == "Z",
+    );
 
     this.checkChanges({ center_grid: this.gridHelper.centerGrid }, notify);
 
@@ -2036,6 +2112,136 @@ class Viewer {
 
     this.update(this.updateMarker);
   };
+  /**
+   * Get transparency state of CAD objects.
+   * @returns {boolean} transparent value.
+   **/
+  getTransparent() {
+    return this.state.get("transparent");
+  }
+
+  /**
+   * Set CAD objects transparency
+   * @function
+   * @param {boolean} flag - whether to show the CAD object in transparent mode
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setTransparent = (flag, notify = true) => {
+    this.state.set("transparent", flag);
+    this.nestedGroup.setTransparent(flag);
+
+    this.checkChanges({ transparent: flag }, notify);
+
+    this.update(this.updateMarker);
+  };
+
+  /**
+   * Get blackEdges value.
+   * @returns {boolean} blackEdges value.
+   **/
+  getBlackEdges() {
+    return this.state.get("blackEdges");
+  }
+
+  /**
+   * Show edges in black or the default edge color
+   * @function
+   * @param {boolean} flag - whether to show edges in black
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setBlackEdges = (flag, notify = true) => {
+    this.state.set("blackEdges", flag);
+    this.nestedGroup.setBlackEdges(flag);
+
+    this.checkChanges({ black_edges: flag }, notify);
+
+    this.update(this.updateMarker);
+  };
+
+  /**
+   * Show or hide the CAD tools panel
+   * @function
+   * @param {boolean} flag - whether to show tools
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setTools = (flag, notify = true) => {
+    this.state.set("tools", flag);
+    this.checkChanges({ tools: flag }, notify);
+  };
+
+  /**
+   * Enable or disable glass mode (overlay navigation)
+   * @function
+   * @param {boolean} flag - whether to enable glass mode
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setGlass = (flag, notify = true) => {
+    this.state.set("glass", flag);
+    this.checkChanges({ glass: flag }, notify);
+  };
+
+  /**
+   * Get default color of the edges.
+   * @returns {number} edgeColor value.
+   **/
+  getEdgeColor() {
+    return this.state.get("edgeColor");
+  }
+
+  /**
+   * Set the default edge color
+   * @function
+   * @param {number} edge color (0xrrggbb)
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setEdgeColor = (color, notify = true) => {
+    this.state.set("edgeColor", color);
+    this.nestedGroup.setEdgeColor(color);
+    this.update(this.updateMarker, notify);
+  };
+
+  /**
+   * Get default opacity.
+   * @returns {number} opacity value.
+   **/
+  getOpacity() {
+    return this.state.get("defaultOpacity");
+  }
+
+  /**
+   * Set the default opacity
+   * @function
+   * @param {number} opacity (between 0.0 and 1.0)
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setOpacity = (opacity, notify = true) => {
+    this.state.set("defaultOpacity", opacity);
+    this.nestedGroup.setOpacity(opacity);
+    this.update(this.updateMarker, notify);
+  };
+
+  /**
+   * Get whether tools are shown/hidden.
+   * @returns {boolean} tools value.
+   **/
+  getTools() {
+    return this.state.get("tools");
+  }
+
+  /**
+   * Show/hide the CAD tools
+   * @function
+   * @param {boolean} flag
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  showTools = (flag, notify = true) => {
+    this.state.set("tools", flag);
+    this.update(this.updateMarker, notify);
+  };
+
+  // ---------------------------------------------------------------------------
+  // Getters & Setters: Lighting & Materials
+  // ---------------------------------------------------------------------------
 
   /**
    * Get intensity of ambient light.
@@ -2140,6 +2346,10 @@ class Viewer {
     this.setDirectLight(this.materialSettings.directIntensity, true);
   };
 
+  // ---------------------------------------------------------------------------
+  // Getters & Setters: Zebra Tool
+  // ---------------------------------------------------------------------------
+
   enableZebraTool = (flag) => {
     this.nestedGroup.setZebra(flag);
     this.update(true, true);
@@ -2219,73 +2429,9 @@ class Viewer {
     this.update(this.updateMarker);
   };
 
-  /**
-   * Get transparency state of CAD objects.
-   * @returns {boolean} transparent value.
-   **/
-  getTransparent() {
-    return this.state.get("transparent");
-  }
-
-  /**
-   * Set CAD objects transparency
-   * @function
-   * @param {boolean} flag - whether to show the CAD object in transparent mode
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setTransparent = (flag, notify = true) => {
-    this.state.set("transparent", flag);
-    this.nestedGroup.setTransparent(flag);
-
-    this.checkChanges({ transparent: flag }, notify);
-
-    this.update(this.updateMarker);
-  };
-
-  /**
-   * Get blackEdges value.
-   * @returns {boolean} blackEdges value.
-   **/
-  getBlackEdges() {
-    return this.state.get("blackEdges");
-  }
-
-  /**
-   * Show edges in black or the default edge color
-   * @function
-   * @param {boolean} flag - whether to show edges in black
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setBlackEdges = (flag, notify = true) => {
-    this.state.set("blackEdges", flag);
-    this.nestedGroup.setBlackEdges(flag);
-
-    this.checkChanges({ black_edges: flag }, notify);
-
-    this.update(this.updateMarker);
-  };
-
-  /**
-   * Show or hide the CAD tools panel
-   * @function
-   * @param {boolean} flag - whether to show tools
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setTools = (flag, notify = true) => {
-    this.state.set("tools", flag);
-    this.checkChanges({ tools: flag }, notify);
-  };
-
-  /**
-   * Enable or disable glass mode (overlay navigation)
-   * @function
-   * @param {boolean} flag - whether to enable glass mode
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setGlass = (flag, notify = true) => {
-    this.state.set("glass", flag);
-    this.checkChanges({ glass: flag }, notify);
-  };
+  // ---------------------------------------------------------------------------
+  // Camera State Getters & Setters
+  // ---------------------------------------------------------------------------
 
   /**
    * Get ortho value.
@@ -2438,64 +2584,9 @@ class Viewer {
     this.update(true, notify);
   }
 
-  /**
-   * Get default color of the edges.
-   * @returns {number} edgeColor value.
-   **/
-  getEdgeColor() {
-    return this.state.get("edgeColor");
-  }
-
-  /**
-   * Set the default edge color
-   * @function
-   * @param {number} edge color (0xrrggbb)
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setEdgeColor = (color, notify = true) => {
-    this.state.set("edgeColor", color);
-    this.nestedGroup.setEdgeColor(color);
-    this.update(this.updateMarker, notify);
-  };
-
-  /**
-   * Get default opacity.
-   * @returns {number} opacity value.
-   **/
-  getOpacity() {
-    return this.state.get("defaultOpacity");
-  }
-
-  /**
-   * Set the default opacity
-   * @function
-   * @param {number} opacity (between 0.0 and 1.0)
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setOpacity = (opacity, notify = true) => {
-    this.state.set("defaultOpacity", opacity);
-    this.nestedGroup.setOpacity(opacity);
-    this.update(this.updateMarker, notify);
-  };
-
-  /**
-   * Get whether tools are shown/hidden.
-   * @returns {boolean} tools value.
-   **/
-  getTools() {
-    return this.state.get("tools");
-  }
-
-  /**
-   * Show/hide the CAD tools
-   * @function
-   * @param {boolean} flag
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  showTools = (flag, notify = true) => {
-    this.state.set("tools", flag);
-    this.update(this.updateMarker, notify);
-  };
+  // ---------------------------------------------------------------------------
+  // Tree State Management
+  // ---------------------------------------------------------------------------
 
   /**
    * Get states of a treeview leafs.
@@ -2523,6 +2614,10 @@ class Viewer {
   setStates = (states) => {
     this.treeview.setStates(states);
   };
+
+  // ---------------------------------------------------------------------------
+  // UI sensitivity
+  // ---------------------------------------------------------------------------
 
   /**
    * Get zoom speed.
@@ -2583,6 +2678,10 @@ class Viewer {
     this.controls.setRotateSpeed(val);
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
   };
+
+  // ---------------------------------------------------------------------------
+  // Clipping Planes
+  // ---------------------------------------------------------------------------
 
   /**
    * Get intersection mode.
@@ -2770,47 +2869,9 @@ class Viewer {
     this.state.set(`clipSlider${index}`, value, notify);
   };
 
-  /**
-   * Get reset location value.
-   * @function
-   * @returns {object} - target, position, quaternion, zoom as object.
-   */
-  getResetLocation = () => {
-    const location = this.controls.getResetLocation();
-    return {
-      target0: location.target0.toArray(),
-      position0: location.position0.toArray(),
-      quaternion0: location.quaternion0.toArray(),
-      zoom0: location.zoom0,
-    };
-  };
-
-  /**
-   * Set reset location value.
-   * @function
-   * @param {number[]} target - camera target as 3 dim Array [x,y,z].
-   * @param {number[]} position - camera position as 3 dim Array [x,y,z].
-   * @param {number[]} quaternion - camera rotation as 4 dim quaternion array [x,y,z,w].
-   * @param {number} zoom - camera zoom value.
-   * @param {boolean} [notify=true] - whether to send notification or not.
-   */
-  setResetLocation = (target, position, quaternion, zoom, notify = true) => {
-    var location = this.getResetLocation();
-    this.controls.setResetLocation(
-      new THREE.Vector3(...target),
-      new THREE.Vector3(...position),
-      new THREE.Vector4(...quaternion),
-      zoom,
-    );
-    if (notify && this.notifyCallback) {
-      this.notifyCallback({
-        target0: { old: location.target0, new: target },
-        position0: { old: location.position0, new: position },
-        quaternion0: { old: location.quaternion0, new: quaternion },
-        zoom0: { old: location.zoom0, new: zoom },
-      });
-    }
-  };
+  // ---------------------------------------------------------------------------
+  // Image Export
+  // ---------------------------------------------------------------------------
 
   /**
    * Replace CadView with an inline png image of the canvas.
@@ -2847,7 +2908,12 @@ class Viewer {
     this.update(true);
     let result = new Promise((resolve, _) => {
       const canvas = this.display.getCanvas();
-      this.renderer.setViewport(0, 0, this.state.get("cadWidth"), this.state.get("height"));
+      this.renderer.setViewport(
+        0,
+        0,
+        this.state.get("cadWidth"),
+        this.state.get("height"),
+      );
       this.renderer.render(this.scene, this.camera.getCamera());
       canvas.toBlob((blob) => {
         let reader = new FileReader();
@@ -2870,6 +2936,10 @@ class Viewer {
 
     return result;
   };
+
+  // ---------------------------------------------------------------------------
+  // Explode Animation
+  // ---------------------------------------------------------------------------
 
   /**
    * Calculate explode trajectories and initiate the animation
@@ -2952,6 +3022,10 @@ class Viewer {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Keyboard Configuration
+  // ---------------------------------------------------------------------------
+
   /**
    * Set modifiers for keymap
    *
@@ -2962,6 +3036,10 @@ class Viewer {
     KeyMapper.set(config);
     this.display.updateHelp(before, config);
   }
+
+  // ---------------------------------------------------------------------------
+  // View Layout
+  // ---------------------------------------------------------------------------
 
   /**
    * Resize UI and renderer
@@ -3008,6 +3086,10 @@ class Viewer {
       this.raycaster.height = height;
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // THREE.js Helper Factories
+  // ---------------------------------------------------------------------------
 
   vector3(x = 0, y = 0, z = 0) {
     return new THREE.Vector3(x, y, z);
