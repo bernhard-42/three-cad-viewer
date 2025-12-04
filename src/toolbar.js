@@ -23,15 +23,17 @@ class Toolbar {
     this.getWidthThreshold = options.getWidthThreshold;
     this.features = options.features;
 
-    this.container.addEventListener("mouseleave", (e) => {
-      if (this.getVisibleWidth() < this.getWidthThreshold()) {
-        this.minimize();
-      }
-    });
+    this.container.addEventListener("mouseleave", this._onMouseLeave);
     this.buttons = {};
     this.ellipses = [];
     this.toggles = { 0: [], 1: [], 2: [], 3: [] };
   }
+
+  _onMouseLeave = () => {
+    if (this.getVisibleWidth() < this.getWidthThreshold()) {
+      this.minimize();
+    }
+  };
 
   addButton(button, tag) {
     button.setId(this.id);
@@ -50,7 +52,7 @@ class Toolbar {
 
   addEllipsis(ellipsis) {
     this.container.appendChild(ellipsis.html);
-    this.ellipses.push(ellipsis.html);
+    this.ellipses.push(ellipsis);
   }
 
   defineGroup(buttons) {
@@ -75,9 +77,9 @@ class Toolbar {
     }
     for (var ellipsis of ellipses) {
       if (flag) {
-        ellipsis.classList.remove("tcv_unvisible");
+        ellipsis.html.classList.remove("tcv_unvisible");
       } else {
-        ellipsis.classList.add("tcv_unvisible");
+        ellipsis.html.classList.add("tcv_unvisible");
       }
     }
     for (var tag in toggles) {
@@ -104,6 +106,16 @@ class Toolbar {
     this._toggle(true);
     this._toggle(false, id);
   };
+
+  dispose() {
+    this.container.removeEventListener("mouseleave", this._onMouseLeave);
+    for (const button of Object.values(this.buttons)) {
+      button.dispose();
+    }
+    for (const ellipsis of this.ellipses) {
+      ellipsis.dispose();
+    }
+  }
 }
 
 class Ellipsis {
@@ -114,9 +126,15 @@ class Ellipsis {
     html.innerHTML = "...";
     html.className = "tcv_ellipsis tcv_unvisible";
     this.html = html;
-    this.html.addEventListener("mouseenter", (e) => {
-      this.action(this.id);
-    });
+    this.html.addEventListener("mouseenter", this._onMouseEnter);
+  }
+
+  _onMouseEnter = () => {
+    this.action(this.id);
+  };
+
+  dispose() {
+    this.html.removeEventListener("mouseenter", this._onMouseEnter);
   }
 }
 class BaseButton {
@@ -136,14 +154,15 @@ class BaseButton {
     frame.children[0].classList.add(`tcv_button_${icon}`);
     this.html = html;
 
-    this.html.addEventListener("click", (e) => {
-      this.handler(e);
-    });
+    this.html.addEventListener("click", this._onClick);
   }
 
+  _onClick = (e) => {
+    this.handler(e);
+  };
+
   dispose() {
-    this.html = "";
-    this.container.removeEventListener("click", this.handler);
+    this.html.removeEventListener("click", this._onClick);
   }
 
   setId(id) {

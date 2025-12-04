@@ -431,6 +431,23 @@ class Display {
   dispose() {
     listeners.dispose();
 
+    // Dispose toolbar and all its buttons/ellipses
+    this.cadTool.dispose();
+
+    // Dispose sliders
+    if (this.clipSliders) {
+      for (const slider of this.clipSliders) {
+        slider.dispose();
+      }
+    }
+    this.ambientlightSlider?.dispose();
+    this.directionallightSlider?.dispose();
+    this.metalnessSlider?.dispose();
+    this.roughnessSlider?.dispose();
+    this.zebraCountSlider?.dispose();
+    this.zebraOpacitySlider?.dispose();
+    this.zebraDirectionSlider?.dispose();
+
     this.viewer = undefined;
 
     this.cadTree.innerHTML = "";

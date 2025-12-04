@@ -164,6 +164,14 @@ class Slider {
     this.input.value = Math.round(1000 * clampedValue) / 1000;
     this.slider.value = clampedValue;
   }
+
+  /**
+   * Clean up event listeners.
+   */
+  dispose() {
+    this.slider.oninput = null;
+    this.input.removeEventListener("change", this.inputChange);
+  }
 }
 
 export { Slider };
