@@ -1253,7 +1253,10 @@ class Viewer {
       this.bbox.center(),
       2 * cSize,
       this.nestedGroup,
-      this.display,
+      {
+        onNormalChange: (index, normal) =>
+          this.display.setNormalLabel(index, normal),
+      },
       this.state.get("theme"),
     );
 

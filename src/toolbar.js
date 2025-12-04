@@ -1,15 +1,30 @@
 import { KeyMapper } from "./utils.js";
 
+/**
+ * Manages a collapsible toolbar with buttons and ellipsis indicators.
+ */
 class Toolbar {
-  constructor(container, id, display) {
+  /**
+   * Create a Toolbar instance.
+   * @param {HTMLElement} container - The container element for the toolbar.
+   * @param {string} id - Unique identifier for the toolbar.
+   * @param {Object} options - Configuration options.
+   * @param {Function} options.getVisibleWidth - Returns current visible width for collapse detection.
+   * @param {Function} options.getWidthThreshold - Returns threshold below which toolbar collapses.
+   * @param {Object} options.features - Feature flags for tool buttons.
+   * @param {boolean} options.features.measureTools - Whether measure tools are enabled.
+   * @param {boolean} options.features.selectTool - Whether select tool is enabled.
+   * @param {boolean} options.features.explodeTool - Whether explode tool is enabled.
+   */
+  constructor(container, id, options) {
     this.id = id;
     this.container = container;
-    this.display = display;
+    this.getVisibleWidth = options.getVisibleWidth;
+    this.getWidthThreshold = options.getWidthThreshold;
+    this.features = options.features;
+
     this.container.addEventListener("mouseleave", (e) => {
-      const width = this.display.glass
-        ? this.display.cadWidth
-        : this.display.cadWidth + this.display.treeWidth;
-      if (width < this.display.widthThreshold()) {
+      if (this.getVisibleWidth() < this.getWidthThreshold()) {
         this.minimize();
       }
     });
@@ -69,10 +84,10 @@ class Toolbar {
       for (var button of toggles[tag]) {
         if (
           !flag &&
-          ((button.name === "distance" && !this.display.measureTools) ||
-            (button.name === "properties" && !this.display.measureTools) ||
-            (button.name === "select" && !this.display.selectTool) ||
-            (button.name === "explode" && !this.display.explodeTool))
+          ((button.name === "distance" && !this.features.measureTools) ||
+            (button.name === "properties" && !this.features.measureTools) ||
+            (button.name === "select" && !this.features.selectTool) ||
+            (button.name === "explode" && !this.features.explodeTool))
         ) {
           continue;
         }

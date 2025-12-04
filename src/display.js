@@ -63,7 +63,16 @@ class Display {
     this.cadTool = new Toolbar(
       this._getElement("tcv_cad_toolbar"),
       container.id,
-      this,
+      {
+        getVisibleWidth: () =>
+          this.glass ? this.cadWidth : this.cadWidth + this.treeWidth,
+        getWidthThreshold: () => this.widthThreshold(),
+        features: {
+          measureTools: this.measureTools,
+          selectTool: this.selectTool,
+          explodeTool: this.explodeTool,
+        },
+      },
     );
     this.cadView = this._getElement("tcv_cad_view");
     this.distanceMeasurementPanel = this._getElement(

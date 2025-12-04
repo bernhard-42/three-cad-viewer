@@ -102,7 +102,9 @@ export function setupClipping(options = {}) {
     center.toArray(),
     size,
     nestedGroup,
-    display,
+    {
+      onNormalChange: (index, normal) => display.setNormalLabel(index, normal),
+    },
     theme,
   );
 

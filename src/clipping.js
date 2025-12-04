@@ -241,14 +241,15 @@ class Clipping extends THREE.Group {
    * @param {number[]} center - The center point [x, y, z].
    * @param {number} size - The size of the clipping region.
    * @param {Object} nestedGroup - The nested group containing objects to clip.
-   * @param {Object} display - The display instance for UI updates.
+   * @param {Object} options - Configuration options.
+   * @param {Function} [options.onNormalChange] - Callback when a plane normal changes: (index, normalArray) => void.
    * @param {string} theme - The UI theme ('light' or 'dark').
    */
-  constructor(center, size, nestedGroup, display, theme) {
+  constructor(center, size, nestedGroup, options, theme) {
     super();
     this.center = center;
     this.distance = size / 2;
-    this.display = display;
+    this.onNormalChange = options.onNormalChange || null;
     this.theme = theme;
     this.nestedGroup = nestedGroup;
     this.size = size;
@@ -285,7 +286,9 @@ class Clipping extends THREE.Group {
       );
       this.reverseClipPlanes.push(reversePlane);
 
-      this.display.setNormalLabel(i, DEFAULT_NORMALS[i].toArray());
+      if (this.onNormalChange) {
+        this.onNormalChange(i, DEFAULT_NORMALS[i].toArray());
+      }
     }
   }
 
@@ -425,7 +428,9 @@ class Clipping extends THREE.Group {
     this.clipPlanes[index].normal = n;
     this.reverseClipPlanes[index].normal = n.clone().negate();
     this.setConstant(index, this.distance);
-    this.display.setNormalLabel(index, n.toArray());
+    if (this.onNormalChange) {
+      this.onNormalChange(index, n.toArray());
+    }
   };
 
   /**
@@ -490,7 +495,7 @@ class Clipping extends THREE.Group {
     this.clipPlanes = null;
     this.reverseClipPlanes = null;
     this.objectColors = null;
-    this.display = null;
+    this.onNormalChange = null;
     this.center = null;
     this.planeHelpers = null;
     this._planeMeshGroup = null;

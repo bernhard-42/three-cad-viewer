@@ -429,7 +429,7 @@ describe('Clipping - Dispose', () => {
     expect(clipping.clipPlanes).toBeNull();
     expect(clipping.reverseClipPlanes).toBeNull();
     expect(clipping.objectColors).toBeNull();
-    expect(clipping.display).toBeNull();
+    expect(clipping.onNormalChange).toBeNull();
     expect(clipping.center).toBeNull();
     expect(clipping.planeHelpers).toBeNull();
     expect(clipping._planeMeshGroup).toBeNull();
