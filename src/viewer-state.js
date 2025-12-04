@@ -140,6 +140,8 @@ class ViewerState {
     zscaleActive: false,
     // Camera button highlight
     highlightedButton: null,
+    // Active sidebar tab: "tree" | "clip" | "material" | "zebra"
+    activeTab: "tree",
   };
 
   /**

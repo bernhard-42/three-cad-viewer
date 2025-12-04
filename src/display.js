@@ -7,6 +7,7 @@ import { Slider } from "./slider.js";
 import { Toolbar, Button, ClickButton, Ellipsis } from "./toolbar.js";
 import { ToolTypes } from "./cad_tools/tools.js";
 import { FilterByDropDownMenu } from "./cad_tools/ui.js";
+import { Info } from "./info.js";
 
 import template from "./index.html";
 
@@ -66,7 +67,7 @@ class Display {
       {
         getVisibleWidth: () =>
           this.glass ? this.cadWidth : this.cadWidth + this.treeWidth,
-        getWidthThreshold: () => this.widthThreshold(),
+        getWidthThreshold: () => this._widthThreshold(),
         features: {
           measureTools: this.measureTools,
           selectTool: this.selectTool,
@@ -92,6 +93,7 @@ class Display {
     this.tabMaterial = this._getElement("tcv_tab_material");
     this.tabZebra = this._getElement("tcv_tab_zebra");
     this.cadInfo = this._getElement("tcv_cad_info_container");
+    this._info = new Info(this.cadInfo);
     this.tickValueElement = this._getElement("tcv_tick_size_value");
     this.tickInfoElement = this._getElement("tcv_tick_size");
     this.cadAnim = this._getElement("tcv_cad_animation");
@@ -119,14 +121,14 @@ class Display {
 
     this.setSizes(options);
 
-    this.activeTab = "tree";
+    // Note: activeTab is managed by ViewerState, not stored locally
     this.cadTree.style.display = "block";
     this.cadClip.style.display = "none";
     this.cadMaterial.style.display = "none";
     this.cadZebra.style.display = "none";
     this.clipSliders = null;
 
-    this.currentButton = null;
+    // Note: activeTool is managed by ViewerState, not stored locally
 
     this.lastPlaneState = false;
 
@@ -364,12 +366,30 @@ class Display {
     }
   }
 
-  widthThreshold() {
+  /**
+   * Calculate the width threshold for toolbar collapse.
+   * @returns {number} The threshold width in pixels.
+   * @private
+   */
+  _widthThreshold() {
     var threshold = 770;
     if (!this.state.get("pinning")) threshold -= 30;
     if (!this.state.get("selectTool")) threshold -= 30;
     if (!this.state.get("explodeTool") && !this.state.get("zscaleTool")) threshold -= 30;
     return threshold;
+  }
+
+  /**
+   * Update toolbar collapse state based on available width.
+   * Maximizes toolbar if width is sufficient, minimizes otherwise.
+   * @param {number} availableWidth - The available width in pixels.
+   */
+  updateToolbarCollapse(availableWidth) {
+    if (availableWidth >= this._widthThreshold()) {
+      this.cadTool.maximize();
+    } else {
+      this.cadTool.minimize();
+    }
   }
 
   _setupCheckEvent(name, fn, flag) {
@@ -424,6 +444,82 @@ class Display {
     this.cadTreeScrollContainer = null;
   }
 
+  // ---------------------------------------------------------------------------
+  // Info Panel Methods
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Add HTML content to the info panel.
+   * @param {string} html - The HTML string to add.
+   */
+  addInfoHtml(html) {
+    this._info.addHtml(html);
+  }
+
+  /**
+   * Display the ready message with viewer version and control mode.
+   * @param {string} version - Viewer version string.
+   * @param {string} control - Control mode name (e.g., "orbit", "trackball").
+   */
+  showReadyMessage(version, control) {
+    this._info.readyMsg(version, control);
+  }
+
+  /**
+   * Display camera target center information.
+   * @param {number[]} center - The center coordinates [x, y, z].
+   */
+  showCenterInfo(center) {
+    this._info.centerInfo(center);
+  }
+
+  /**
+   * Display bounding box information for a selected object.
+   * @param {string} path - The object's path in the tree.
+   * @param {string} name - The object's name.
+   * @param {THREE.Box3} bb - The bounding box to display.
+   */
+  showBoundingBoxInfo(path, name, bb) {
+    this._info.bbInfo(path, name, bb);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Canvas Capture
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Capture the canvas as a data URL.
+   * @param {Object} options - Capture options.
+   * @param {string} options.taskId - Identifier for the capture task.
+   * @param {Function} options.render - Callback to render the scene before capture.
+   * @param {Function} [options.onComplete] - Callback after capture completes.
+   * @returns {Promise<{task: string, dataUrl: string}>} Promise resolving to task ID and data URL.
+   */
+  captureCanvas(options) {
+    const { taskId, render, onComplete } = options;
+    const canvas = this.getCanvas();
+
+    // Render the scene
+    render();
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        const reader = new FileReader();
+        reader.addEventListener(
+          "load",
+          () => {
+            resolve({ task: taskId, dataUrl: reader.result });
+            if (onComplete) {
+              onComplete();
+            }
+          },
+          { once: true },
+        );
+        reader.readAsDataURL(blob);
+      });
+    });
+  }
+
   /**
    * Set the width and height of the different UI elements (tree, canvas and info box)
    * @param {DisplayOptions} options
@@ -471,12 +567,16 @@ class Display {
   // ---------------------------------------------------------------------------
 
   /**
-   * Set up the UI
-   * @param {Viewer} viewer - the viewer for this UI
+   * Set up the UI and attach the canvas element.
+   * @param {Viewer} viewer - The viewer instance for this UI.
+   * @param {HTMLCanvasElement} canvasElement - The Three.js renderer canvas to attach.
    */
-  setupUI(viewer) {
+  setupUI(viewer, canvasElement) {
     this.viewer = viewer;
     this.state = viewer.state;
+
+    // Attach the canvas element to the CAD view
+    this._attachCanvas(canvasElement);
 
     // Theme
     if (this.theme === "browser") {
@@ -822,6 +922,11 @@ class Display {
         this.toolbarButtons[change.new]?.set(true);
       }
     });
+
+    // Active tab subscription
+    state.subscribe("activeTab", (change) => {
+      this._switchToTab(change.new, change.old);
+    });
   }
 
   /**
@@ -839,9 +944,7 @@ class Display {
     this.showTools(state.get("tools"));
     this.glassMode(state.get("glass"));
     const width = this.glass ? this.cadWidth : this.cadWidth + this.treeWidth;
-    if (width < this.widthThreshold()) {
-      this.cadTool.minimize();
-    }
+    this.updateToolbarCollapse(width);
 
     // Initialize lastPlaneState from options (used for tab switching)
     this.lastPlaneState = state.get("clipPlaneHelpers");
@@ -861,18 +964,18 @@ class Display {
   }
 
   /**
-   * Add the Cad View (the canvas for threejs)
-   * @param {DOMElement} cadView - the DOM element that contains the cadView
+   * Attach the canvas element to the CAD view container.
+   * @param {HTMLCanvasElement} canvasElement - The canvas to attach.
+   * @private
    */
-  addCadView(cadView) {
-    var canvas = this.cadView.querySelector("canvas");
-    if (canvas) {
-      this.cadView.replaceChild(cadView, canvas);
+  _attachCanvas(canvasElement) {
+    var existingCanvas = this.cadView.querySelector("canvas");
+    if (existingCanvas) {
+      this.cadView.replaceChild(canvasElement, existingCanvas);
     } else {
-      this.cadView.appendChild(cadView);
-      canvas = this.cadView.querySelector("canvas");
+      this.cadView.appendChild(canvasElement);
     }
-    listeners.add(canvas, "click", (e) => {
+    listeners.add(canvasElement, "click", (e) => {
       if (this.help_shown) {
         this.showHelp(false);
       }
@@ -1013,13 +1116,15 @@ class Display {
   };
 
   /**
-   * Checkbox Handler for setting the tools mode
+   * Checkbox Handler for setting the tools mode.
+   * Uses state.activeTool to track the current tool.
    * @function
    * @param {string} name - tool name
    * @param {boolean} flag - whether to start or stop measure context
    */
   setTool = (name, flag) => {
     this.viewer.toggleAnimationLoop(flag);
+    const currentTool = this.state.get("activeTool");
 
     if (flag) {
       this.viewer.state.set("animationMode", "none");
@@ -1028,9 +1133,7 @@ class Display {
       }
       if (
         ["distance", "properties", "angle", "select"].includes(name) &&
-        !["distance", "properties", "angle", "select"].includes(
-          this.currentButton,
-        )
+        !["distance", "properties", "angle", "select"].includes(currentTool)
       ) {
         this.viewer.toggleGroup(true);
         this.viewer.toggleTab(true);
@@ -1038,28 +1141,28 @@ class Display {
       this.viewer.setRaycastMode(flag);
       this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster);
 
-      if (name == "distance") {
+      if (name === "distance") {
         this.viewer.cadTools.enable(ToolTypes.DISTANCE);
         this.viewer.checkChanges({ activeTool: ToolTypes.DISTANCE });
-      } else if (name == "properties") {
+      } else if (name === "properties") {
         this.viewer.cadTools.enable(ToolTypes.PROPERTIES);
         this.viewer.checkChanges({ activeTool: ToolTypes.PROPERTIES });
-      } else if (name == "select") {
+      } else if (name === "select") {
         this.viewer.cadTools.enable(ToolTypes.SELECT);
         this.viewer.checkChanges({ activeTool: ToolTypes.SELECT });
       }
-      this.currentButton = name;
+      this.state.set("activeTool", name);
     } else {
-      if (this.currentButton == name || name == "explode") {
+      if (currentTool === name || name === "explode") {
         this.viewer.toggleGroup(false);
         this.viewer.toggleTab(false);
-        this.currentButton = null;
+        this.state.set("activeTool", null);
       }
-      if (name == "distance") {
+      if (name === "distance") {
         this.viewer.cadTools.disable(ToolTypes.DISTANCE);
-      } else if (name == "properties") {
+      } else if (name === "properties") {
         this.viewer.cadTools.disable(ToolTypes.PROPERTIES);
-      } else if (name == "select") {
+      } else if (name === "select") {
         this.viewer.cadTools.disable(ToolTypes.SELECT);
       }
       this.viewer.checkChanges({ activeTool: ToolTypes.NONE });
@@ -1260,19 +1363,24 @@ class Display {
    */
   selectTab = (e) => {
     const tab = e.target.className.split(" ")[0];
-    this.selectTabByName(tab.slice(8));
+    const tabName = tab.slice(8); // Remove "tcv_tab-" prefix
+    if (["clip", "tree", "material", "zebra"].includes(tabName)) {
+      this.state.set("activeTab", tabName);
+    }
   };
 
   /**
-   * Activate the UI tab given the name of the tab
-   * @param {string} tab - name of the tab "tree", "clip", "material", or "zebra"
+   * Switch to a tab (internal, called by activeTab subscription).
+   * @param {string} newTab - The tab to switch to.
+   * @param {string} oldTab - The previous tab.
+   * @private
    */
-  selectTabByName(tab) {
-    if (!["clip", "tree", "material", "zebra"].includes(tab)) {
+  _switchToTab(newTab, oldTab) {
+    if (!["clip", "tree", "material", "zebra"].includes(newTab)) {
       return;
     }
 
-    const _switchTab = (showTree, showClip, showMaterial, showZebra) => {
+    const _updateVisibility = (showTree, showClip, showMaterial, showZebra) => {
       this.cadTree.style.display = showTree ? "block" : "none";
       this.cadTreeToggles.style.display = showTree ? "block" : "none";
       this.cadClip.style.display = showClip ? "block" : "none";
@@ -1286,47 +1394,47 @@ class Display {
         // (set by user's checkbox clicks) so it can be restored when returning
         this.viewer.setClipPlaneHelpers(false);
       }
-      if (tab != "zebra" && this.activeTab === "zebra") {
+      if (newTab !== "zebra" && oldTab === "zebra") {
         this.viewer.enableZebraTool(false);
       }
     };
 
-    if (tab === "tree" && this.activeTab !== "tree") {
-      _switchTab(true, false, false, false);
+    if (newTab === "tree") {
+      _updateVisibility(true, false, false, false);
       this.viewer.nestedGroup.setBackVisible(false);
-    } else if (tab === "clip" && this.activeTab !== "clip") {
-      _switchTab(false, true, false, false);
+    } else if (newTab === "clip") {
+      _updateVisibility(false, true, false, false);
       this.viewer.nestedGroup.setBackVisible(true);
       this.viewer.setClipIntersection(this.viewer.state.get("clipIntersection"));
       this.viewer.setClipPlaneHelpers(this.lastPlaneState);
       this.viewer.update(true, false);
-    } else if (tab === "material" && this.activeTab !== "material") {
-      _switchTab(false, false, true, false);
+    } else if (newTab === "material") {
+      _updateVisibility(false, false, true, false);
       this.viewer.nestedGroup.setBackVisible(false);
-    } else if (tab === "zebra" && this.activeTab !== "zebra") {
-      _switchTab(false, false, false, true);
+    } else if (newTab === "zebra") {
+      _updateVisibility(false, false, false, true);
       this.viewer.enableZebraTool(true);
     }
-    this.activeTab = tab;
 
+    // Update tab styling
     [this.tabTree, this.tabClip, this.tabMaterial, this.tabZebra].forEach(
-      (tab) => {
-        tab.classList.add("tcv_tab-unselected");
-        tab.classList.remove("tcv_tab-selected");
+      (tabEl) => {
+        tabEl.classList.add("tcv_tab-unselected");
+        tabEl.classList.remove("tcv_tab-selected");
       },
     );
 
-    this.viewer.checkChanges({ tab: tab });
-    if (tab == "tree") {
+    this.viewer.checkChanges({ tab: newTab });
+    if (newTab === "tree") {
       this.tabTree.classList.add("tcv_tab-selected");
       this.tabTree.classList.remove("tcv_tab-unselected");
-    } else if (tab == "clip") {
+    } else if (newTab === "clip") {
       this.tabClip.classList.add("tcv_tab-selected");
       this.tabClip.classList.remove("tcv_tab-unselected");
-    } else if (tab == "material") {
+    } else if (newTab === "material") {
       this.tabMaterial.classList.add("tcv_tab-selected");
       this.tabMaterial.classList.remove("tcv_tab-unselected");
-    } else if (tab == "zebra") {
+    } else if (newTab === "zebra") {
       this.tabZebra.classList.remove("tcv_tab-unselected");
       this.tabZebra.classList.add("tcv_tab-selected");
     }

@@ -13,7 +13,6 @@ import { TreeView } from "./treeview.js";
 import { Timer } from "./timer.js";
 import { Clipping } from "./clipping.js";
 import { Animation } from "./animation.js";
-import { Info } from "./info.js";
 import {
   clone,
   isEqual,
@@ -135,9 +134,7 @@ class Viewer {
       e.stopPropagation(),
     );
 
-    this.display.setupUI(this);
-
-    this.display.addCadView(this.renderer.domElement);
+    this.display.setupUI(this, this.renderer.domElement);
 
     console.debug("three-cad-viewer: WebGL Renderer created");
     window.viewer = this;
@@ -785,7 +782,7 @@ class Viewer {
     this.renderOptions = null;
     this.mouse = null;
     this.tree = null;
-    this.info = null;
+    // Info is owned by Display
     this.bbox = null;
     this.keymap = null;
     if (this.raycaster) {
@@ -1040,7 +1037,7 @@ class Viewer {
    */
   toggleTab(disable) {
     var timer = new Timer("toggleTab", this.state.get("timeit"));
-    this.display.selectTabByName("tree");
+    this.state.set("activeTab", "tree");
     timer.split("collapse tree");
     switch (this.state.get("collapse")) {
       case 0:
@@ -1106,7 +1103,7 @@ class Viewer {
     // add Info box
     //
 
-    this.info = new Info(this.display.cadInfo, this.state.get("theme"));
+    // Info is owned by Display
 
     //
     // create cameras
@@ -1152,7 +1149,7 @@ class Viewer {
         this.camera.lookAtTarget();
       }
     } else {
-      this.info.addHtml(
+      this.display.addInfoHtml(
         "<b>quaternion needs position to be provided, falling back to ISO view</b>",
       );
       this.presetCamera("iso", this.state.get("zoom"));
@@ -1333,7 +1330,7 @@ class Viewer {
     this.toggleAnimationLoop(this.hasAnimationLoop);
 
     this.ready = true;
-    this.info.readyMsg(version, this.state.get("control"));
+    this.display.showReadyMessage(version, this.state.get("control"));
 
     //
     // notify calculated results
@@ -1341,7 +1338,7 @@ class Viewer {
     timer.split("show done");
     if (this.notifyCallback) {
       this.notifyCallback({
-        tab: { old: null, new: this.display.activeTab },
+        tab: { old: null, new: this.state.get("activeTab") },
         target: { old: null, new: this.controls.target },
         target0: { old: null, new: this.controls.target0 },
         clip_normal_0: { old: null, new: this.clipNormal0 },
@@ -1758,7 +1755,7 @@ class Viewer {
           // this.presetCamera("iso");
           const center = boundingBox.center();
           this.setCameraTarget(point);
-          this.info.centerInfo(center);
+          this.display.showCenterInfo(center);
         }
       } else if (shift) {
         this.removeLastBbox();
@@ -1767,11 +1764,11 @@ class Viewer {
         const center = boundingBox.center();
         // this.treeview.openPath(id);
         this.setCameraTarget(new THREE.Vector3(...center));
-        this.info.centerInfo(center);
+        this.display.showCenterInfo(center);
       } else if (meta) {
         this.setState(id, [0, 0], nodeType);
       } else {
-        this.info.bbInfo(path, name, boundingBox);
+        this.display.showBoundingBoxInfo(path, name, boundingBox);
         this.setBoundingBox(id);
         this.treeview.openPath(id);
       }
@@ -2902,42 +2899,34 @@ class Viewer {
    * Note: Only the canvas will be shown, no tools and orientation marker
    */
   getImage = (taskId) => {
-    // canvas.toBlob can be very slow when anmation loop is off!
+    // canvas.toBlob can be very slow when animation loop is off!
     const animationLoop = this.hasAnimationLoop;
     if (!animationLoop) {
       this.toggleAnimationLoop(true);
     }
     this.orientationMarker.setVisible(false);
     this.update(true);
-    let result = new Promise((resolve, _) => {
-      const canvas = this.display.getCanvas();
-      this.renderer.setViewport(
-        0,
-        0,
-        this.state.get("cadWidth"),
-        this.state.get("height"),
-      );
-      this.renderer.render(this.scene, this.camera.getCamera());
-      canvas.toBlob((blob) => {
-        let reader = new FileReader();
-        reader.addEventListener(
-          "load",
-          () => {
-            resolve({ task: taskId, dataUrl: reader.result });
-            // set animation loop back to the stored value
-            if (!animationLoop) {
-              this.toggleAnimationLoop(false);
-            }
-            this.orientationMarker.setVisible(true);
-            this.update(true);
-          },
-          { once: true },
-        );
-        reader.readAsDataURL(blob);
-      });
-    });
 
-    return result;
+    return this.display.captureCanvas({
+      taskId,
+      render: () => {
+        this.renderer.setViewport(
+          0,
+          0,
+          this.state.get("cadWidth"),
+          this.state.get("height"),
+        );
+        this.renderer.render(this.scene, this.camera.getCamera());
+      },
+      onComplete: () => {
+        // Restore animation loop to original state
+        if (!animationLoop) {
+          this.toggleAnimationLoop(false);
+        }
+        this.orientationMarker.setVisible(true);
+        this.update(true);
+      },
+    });
   };
 
   // ---------------------------------------------------------------------------
@@ -3070,12 +3059,7 @@ class Viewer {
     this.state.set("glass", glass);
 
     const fullWidth = cadWidth + (glass ? 0 : treeWidth);
-
-    if (fullWidth >= this.display.widthThreshold()) {
-      this.display.cadTool.maximize();
-    } else {
-      this.display.cadTool.minimize();
-    }
+    this.display.updateToolbarCollapse(fullWidth);
 
     // Adapt camers to new dimensions
     this.camera.changeDimensions(this.bb_radius, cadWidth, height);
