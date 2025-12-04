@@ -5,10 +5,28 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js";
 import { BoundingBox } from "./bbox.js";
 import { ObjectGroup } from "./objectgroup.js";
+import { MaterialFactory } from "./material-factory.js";
 import { deepDispose, flatten } from "./utils.js";
 
 
+/**
+ * Manages hierarchical 3D geometry rendering from tessellated CAD data.
+ * Creates and organizes ObjectGroup instances for shapes, edges, and vertices.
+ */
 class NestedGroup {
+  /**
+   * Create a NestedGroup for rendering CAD geometry.
+   * @param {Object} shapes - The tessellated shape data to render.
+   * @param {number} width - Canvas/viewport width for line material resolution.
+   * @param {number} height - Canvas/viewport height for line material resolution.
+   * @param {number} edgeColor - Default edge color as hex value (e.g., 0x000000).
+   * @param {boolean} transparent - Whether to render shapes with transparency.
+   * @param {number} opacity - Default opacity value (0.0 to 1.0).
+   * @param {number} metalness - Material metalness value (0.0 to 1.0).
+   * @param {number} roughness - Material roughness value (0.0 to 1.0).
+   * @param {number} normalLen - Length for vertex normal helpers (0 to disable).
+   * @param {number} bb_max - Maximum bounding box dimension.
+   */
   constructor(
     shapes,
     width,
@@ -41,8 +59,20 @@ class NestedGroup {
     this.groups = {};
 
     this.clipPlanes = null;
+
+    this.materialFactory = new MaterialFactory({
+      defaultOpacity: opacity,
+      metalness: metalness,
+      roughness: roughness,
+      edgeColor: edgeColor,
+      transparent: transparent,
+    });
   }
 
+  /**
+   * Dispose of all resources and clean up memory.
+   * Releases groups, root group, and shape data.
+   */
   dispose() {
     if (this.groups) {
       deepDispose(Object.values(this.groups));
@@ -58,35 +88,48 @@ class NestedGroup {
     }
   }
 
-  _dump(ind) {
-    if (ind == undefined) {
-      ind = "";
-    }
-    if (this.parts) {
-      for (var part of this.parts) {
-        this._dump(part, ind + "  ");
-      }
-    }
+  /**
+   * Convert array data to Float32Array, handling protocol version differences.
+   * @param {Float32Array|Array} data - Array data or Float32Array.
+   * @param {number} [flattenDepth=1] - Depth to flatten nested arrays.
+   * @returns {Float32Array} The data as a Float32Array.
+   */
+  _toFloat32Array(data, flattenDepth = 1) {
+    return data instanceof Float32Array
+      ? data
+      : new Float32Array(flatten(data, flattenDepth));
   }
 
+  /**
+   * Convert array data to Uint32Array, handling protocol version differences.
+   * @param {Uint32Array|Array} data - Array data or Uint32Array.
+   * @param {number} [flattenDepth=1] - Depth to flatten nested arrays.
+   * @returns {Uint32Array} The data as a Uint32Array.
+   */
+  _toUint32Array(data, flattenDepth = 1) {
+    return data instanceof Uint32Array
+      ? data
+      : new Uint32Array(flatten(data, flattenDepth));
+  }
+
+  /**
+   * Internal method to render edge geometry as fat lines.
+   * @param {Float32Array|Array} edgeList - Edge vertex positions.
+   * @param {number} lineWidth - Width of the rendered lines.
+   * @param {number|number[]} color - Edge color or array of colors per segment.
+   * @param {number} state - Visibility state (1 = visible).
+   * @returns {LineSegments2} The rendered line segments.
+   * @private
+   */
   _renderEdges(edgeList, lineWidth, color, state) {
-    var positions =
-      edgeList instanceof Float32Array
-        ? edgeList
-        : new Float32Array(flatten(edgeList, 3));
+    const positions = this._toFloat32Array(edgeList, 3);
 
     const lineGeometry = new LineSegmentsGeometry();
     lineGeometry.setPositions(positions);
 
-    const lineMaterial = new LineMaterial({
-      linewidth: lineWidth,
-      transparent: true,
-      depthWrite: !this.transparent,
-      depthTest: !this.transparent,
-      clipIntersection: false,
-    });
+    const hasVertexColors = Array.isArray(color);
 
-    if (Array.isArray(color)) {
+    if (hasVertexColors) {
       var colors = color
         .map((c) => [
           new THREE.Color(c).toArray(),
@@ -94,14 +137,15 @@ class NestedGroup {
         ])
         .flat(2);
       lineGeometry.setColors(colors);
-      lineMaterial.vertexColors = "VertexColors";
-    } else {
-      lineMaterial.color = new THREE.Color(
-        color == null ? this.edgeColor : color,
-      );
     }
-    lineMaterial.visible = state == 1;
-    lineMaterial.resolution.set(this.width, this.height);
+
+    const lineMaterial = this.materialFactory.createEdgeMaterial({
+      lineWidth: lineWidth,
+      color: hasVertexColors ? null : color,
+      vertexColors: hasVertexColors,
+      visible: state == 1,
+      resolution: { width: this.width, height: this.height },
+    });
 
     var edges = new LineSegments2(lineGeometry, lineMaterial);
     edges.renderOrder = 999;
@@ -109,6 +153,17 @@ class NestedGroup {
     return edges;
   }
 
+  /**
+   * Render standalone edge geometry (not associated with a face).
+   * @param {Object|Array} edgeList - Edge data (v2: {edges: [...]} or v1: direct array).
+   * @param {number} lineWidth - Width of the rendered lines.
+   * @param {number} color - Edge color as hex value.
+   * @param {string} path - Unique path identifier for this edge group.
+   * @param {string} name - Display name for the edges.
+   * @param {number} state - Visibility state (1 = visible).
+   * @param {Object} [geomtype=null] - Geometry type metadata.
+   * @returns {ObjectGroup} The created ObjectGroup containing the edges.
+   */
   renderEdges(edgeList, lineWidth, color, path, name, state, geomtype = null) {
     var group = new ObjectGroup(
       this.defaultOpacity,
@@ -118,14 +173,9 @@ class NestedGroup {
       "edges",
     );
 
-    var edges = this._renderEdges(
-      edgeList.edges
-        ? edgeList.edges // protocol version 2
-        : flatten(edgeList), // protocol version 1
-      lineWidth,
-      color,
-      state,
-    );
+    // Handle protocol version differences: v2 has edges property, v1 is direct array
+    const edgeData = edgeList.edges ?? edgeList;
+    var edges = this._renderEdges(edgeData, lineWidth, color, state);
     if (name) {
       edges.name = name;
     }
@@ -137,6 +187,17 @@ class NestedGroup {
     return group;
   }
 
+  /**
+   * Render vertex points as a point cloud.
+   * @param {Object|Array} vertexList - Vertex data (v2: {obj_vertices: [...]} or v1: direct array).
+   * @param {number} size - Point size in pixels.
+   * @param {number} color - Vertex color as hex value.
+   * @param {string} path - Unique path identifier for this vertex group.
+   * @param {string} name - Display name for the vertices.
+   * @param {number} state - Visibility state (1 = visible).
+   * @param {Object} [geomtype=null] - Geometry type metadata.
+   * @returns {ObjectGroup} The created ObjectGroup containing the vertices.
+   */
   renderVertices(vertexList, size, color, path, name, state, geomtype = null) {
     var group = new ObjectGroup(
       this.defaultOpacity,
@@ -146,34 +207,19 @@ class NestedGroup {
       "vertices",
     );
 
-    const vertex_color = color == null ? this.edgeColor : color;
+    // Handle protocol version differences: v2 has obj_vertices property, v1 is direct array
+    const vertexData = vertexList.obj_vertices ?? vertexList;
+    const positions = this._toFloat32Array(vertexData);
 
-    let positions;
-    if (vertexList.obj_vertices) {
-      // protocol version 2
-      positions =
-        vertexList.obj_vertices instanceof Float32Array
-          ? vertexList.obj_vertices
-          : new Float32Array(vertexList.obj_vertices);
-    } else {
-      // protocol version 1
-      positions =
-        vertexList instanceof Float32Array
-          ? vertexList
-          : new Float32Array(flatten(vertexList));
-    }
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
       "position",
       new THREE.Float32BufferAttribute(positions, 3),
     );
 
-    const material = new THREE.PointsMaterial({
-      color: vertex_color,
-      sizeAttenuation: false,
+    const material = this.materialFactory.createVertexMaterial({
       size: size,
-      transparent: true,
-      clipIntersection: false,
+      color: color,
       visible: state == 1,
     });
 
@@ -189,6 +235,23 @@ class NestedGroup {
     return group;
   }
 
+  /**
+   * Render a tessellated 3D shape with front/back faces and optional edges.
+   * @param {Object} shape - Shape data with vertices, normals, triangles, and edges.
+   * @param {number|number[]} color - Face color or array of colors.
+   * @param {number} alpha - Transparency value (0.0 to 1.0).
+   * @param {boolean} renderback - Whether to render back faces.
+   * @param {boolean} exploded - Whether shape is in exploded view mode.
+   * @param {string} path - Unique path identifier for this shape.
+   * @param {string} name - Display name for the shape.
+   * @param {number[]} states - Visibility states [shapeState, edgeState].
+   * @param {Object} [geomtype=null] - Geometry type metadata.
+   * @param {string} [subtype=null] - Shape subtype (e.g., "solid").
+   * @param {Object} [texture_data=null] - Base64 texture data with format field.
+   * @param {number} [texture_width=null] - Texture width in pixels.
+   * @param {number} [texture_height=null] - Texture height in pixels.
+   * @returns {ObjectGroup} The created ObjectGroup containing the shape geometry.
+   */
   renderShape(
     shape,
     color,
@@ -204,18 +267,9 @@ class NestedGroup {
     texture_width = null,
     texture_height = null,
   ) {
-    const positions =
-      shape.vertices instanceof Float32Array
-        ? shape.vertices
-        : new Float32Array(flatten(shape.vertices));
-    const normals =
-      shape.normals instanceof Float32Array
-        ? shape.normals
-        : new Float32Array(flatten(shape.normals));
-    const triangles =
-      shape.triangles instanceof Uint32Array
-        ? shape.triangles
-        : new Uint32Array(flatten(shape.triangles));
+    const positions = this._toFloat32Array(shape.vertices);
+    const normals = this._toFloat32Array(shape.normals);
+    const triangles = this._toUint32Array(shape.triangles);
 
     var group = new ObjectGroup(
       this.defaultOpacity,
@@ -249,11 +303,7 @@ class NestedGroup {
       texture.needsUpdate = true;
       texture.colorSpace = THREE.SRGBColorSpace;
 
-      frontMaterial = new THREE.MeshBasicMaterial({
-        color: "#ffffff",
-        map: texture,
-        side: THREE.DoubleSide,
-      });
+      frontMaterial = this.materialFactory.createTextureMaterial({ texture });
       renderback = false;
     } else {
       shapeGeometry = new THREE.BufferGeometry();
@@ -268,29 +318,12 @@ class NestedGroup {
       shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
       group.shapeGeometry = shapeGeometry;
 
-      // see https://stackoverflow.com/a/37651610
-      // "A common draw configuration you see is to draw all the opaque object with depth testing on,
-      //  turn depth write off, then draw the transparent objects in a back to front order."
-      frontMaterial = new THREE.MeshStandardMaterial({
+      frontMaterial = this.materialFactory.createFrontFaceMaterial({
         color: color,
-        metalness: this.metalness,
-        roughness: this.roughness,
-        // envMap: texture,
-        polygonOffset: true,
-        polygonOffsetFactor: 1.0,
-        polygonOffsetUnits: 1.0,
-        transparent: true,
-        opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
-        // turn depth write off for transparent objects
-        depthWrite: !this.transparent,
-        // but keep depth test
-        depthTest: true,
-        clipIntersection: false,
-        side: THREE.FrontSide,
+        alpha: alpha,
         visible: states[0] == 1,
-        map: texture,
-        name: "frontMaterial",
       });
+      frontMaterial.name = "frontMaterial";
     }
 
     const backColor =
@@ -298,22 +331,12 @@ class NestedGroup {
         ? color
         : new THREE.Color(this.edgeColor).lerp(new THREE.Color(1, 1, 1), 0.15);
 
-    const backMaterial = new THREE.MeshBasicMaterial({
+    const backMaterial = this.materialFactory.createBackFaceBasicMaterial({
       color: backColor,
-      side: THREE.BackSide,
-      polygonOffset: true,
-      polygonOffsetFactor: 1.0,
-      polygonOffsetUnits: 1.0,
-      transparent: true,
-      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
-      // turn depth write off for transparent objects
-      depthWrite: !this.transparent,
-      // but keep depth test
-      depthTest: true,
-      clipIntersection: false,
+      alpha: alpha,
       visible: states[0] == 1 && (renderback || this.backVisible),
-      name: "backMaterial",
     });
+    backMaterial.name = "backMaterial";
 
     const back = new THREE.Mesh(shapeGeometry, backMaterial);
     back.name = name;
@@ -343,11 +366,9 @@ class NestedGroup {
       group.add(normalsHelper);
     }
 
-    // group.add(new THREE.BoxHelper(front, 0x888888))
-
     const edgeList = shape.edges;
-    if (edgeList.length > 0) {
-      var edges = this._renderEdges(edgeList, 1, null, states[1]);
+    if (edgeList && edgeList.length > 0) {
+      const edges = this._renderEdges(edgeList, 1, null, states[1]);
       edges.name = name;
       group.addType(edges, "edges");
     }
@@ -355,6 +376,69 @@ class NestedGroup {
     return group;
   }
 
+  /**
+   * Create edge geometry from extruded polygons.
+   * Generates wireframe edges for bottom, top, and vertical connections.
+   * @param {THREE.Shape[]} polygons - Array of polygon shapes.
+   * @param {number} depth - Extrusion depth.
+   * @returns {THREE.BufferGeometry} Edge geometry for line rendering.
+   * @private
+   */
+  _createEdgesFromPolygons(polygons, depth) {
+    const vertices = [];
+    const indices = [];
+    let vertexOffset = 0;
+
+    for (let j = 0; j < polygons.length; j++) {
+      const polygon = polygons[j];
+      const points = polygon.getPoints(); // Get 2D polygon points
+      const bottomPoints = points.map((p) => new THREE.Vector3(p.x, p.y, 0));
+      const topPoints = points.map((p) => new THREE.Vector3(p.x, p.y, depth));
+
+      // Add bottom and top perimeter edges
+      const addPerimeter = (perimeterPoints) => {
+        for (let i = 0; i < perimeterPoints.length; i++) {
+          const nextIndex = (i + 1) % perimeterPoints.length;
+          indices.push(vertexOffset + i, vertexOffset + nextIndex);
+        }
+        vertices.push(...perimeterPoints);
+        vertexOffset += perimeterPoints.length;
+      };
+
+      addPerimeter(bottomPoints);
+      addPerimeter(topPoints);
+
+      // Add vertical edges between corresponding points
+      for (let i = 0; i < points.length; i++) {
+        indices.push(
+          vertexOffset - 2 * points.length + i, // Bottom point index
+          vertexOffset - points.length + i, // Top point index
+        );
+      }
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setFromPoints(vertices);
+    geometry.setIndex(indices);
+
+    return geometry;
+  }
+
+  /**
+   * Render extruded 2D polygons (GDS format) as 3D geometry.
+   * @param {Object} shape - Shape data with refs (polygon references), matrices, and height.
+   * @param {number} minZ - Minimum Z coordinate for positioning.
+   * @param {number} color - Face color as hex value.
+   * @param {number} alpha - Transparency value (0.0 to 1.0).
+   * @param {boolean} renderback - Whether to render back faces.
+   * @param {boolean} exploded - Whether shape is in exploded view mode.
+   * @param {string} path - Unique path identifier for this shape.
+   * @param {string} name - Display name for the shape.
+   * @param {number[]} states - Visibility states [shapeState, edgeState].
+   * @param {Object} [geomtype=null] - Geometry type metadata.
+   * @param {string} [subtype=null] - Shape subtype.
+   * @returns {ObjectGroup} The created ObjectGroup containing the extruded geometry.
+   */
   renderPolygons(
     shape,
     minZ,
@@ -368,49 +452,7 @@ class NestedGroup {
     geomtype = null,
     subtype = null,
   ) {
-    const createEdgesFromPolygons = (polygons, depth) => {
-      const vertices = [];
-      const indices = [];
-      let vertexOffset = 0;
-
-      for (let j = 0; j < polygons.length; j++) {
-        const polygon = polygons[j];
-        const points = polygon.getPoints(); // Get 2D polygon points
-        const bottomPoints = points.map((p) => new THREE.Vector3(p.x, p.y, 0));
-        const topPoints = points.map((p) => new THREE.Vector3(p.x, p.y, depth));
-
-        // Add bottom and top perimeter edges
-        const addPerimeter = (points) => {
-          for (let i = 0; i < points.length; i++) {
-            const nextIndex = (i + 1) % points.length;
-            indices.push(vertexOffset + i, vertexOffset + nextIndex);
-          }
-          vertices.push(...points);
-          vertexOffset += points.length;
-        };
-
-        addPerimeter(bottomPoints);
-        addPerimeter(topPoints);
-
-        // Add vertical edges between corresponding points
-        for (let i = 0; i < points.length; i++) {
-          indices.push(
-            vertexOffset - 2 * points.length + i, // Bottom point index
-            vertexOffset - points.length + i, // Top point index
-          );
-        }
-      }
-
-      const geometry = new THREE.BufferGeometry();
-      geometry.setFromPoints(vertices);
-      geometry.setIndex(indices);
-
-      return geometry;
-    };
-
-    // var timer = new Timer(`renderPolygons ${path}`, this.timeit);
-
-    var group = new ObjectGroup(
+    const group = new ObjectGroup(
       this.defaultOpacity,
       1.0,
       this.edgeColor,
@@ -423,6 +465,8 @@ class NestedGroup {
     group.height = shape.height;
 
     this.groups[path] = group;
+
+    // var timer = new Timer(`renderPolygons ${path}`, this.timeit);
 
     var polygons = [];
     var matrices;
@@ -456,6 +500,7 @@ class NestedGroup {
     // timer.split(
     //   `- created polygons ${shape.refs.length * (matrices.length / 6)}`,
     // );
+
     const extrudeSettings = {
       depth: shape.height,
       bevelEnabled: false,
@@ -464,57 +509,31 @@ class NestedGroup {
     polyGeometry = new THREE.ExtrudeGeometry(polygons, extrudeSettings);
     // timer.split("- created geometry");
 
-    // see https://stackoverflow.com/a/37651610
-    // "A common draw configuration you see is to draw all the opaque object with depth testing on,
-    //  turn depth write off, then draw the transparent objects in a back to front order."
-    const materialProps = {
+    var frontMaterial = this.materialFactory.createFrontFaceMaterial({
       color: color,
-      metalness: this.metalness,
-      roughness: this.roughness,
-      // envMap: texture,
-      polygonOffset: true,
-      polygonOffsetFactor: 1.0,
-      polygonOffsetUnits: 1.0,
-      transparent: true,
-      opacity: this.transparent ? this.defaultOpacity * alpha : alpha,
-      // turn depth write off for transparent objects
-      depthWrite: !this.transparent,
-      // but keep depth test
-      depthTest: true,
-      clipIntersection: false,
-    };
-
-    var frontMaterial = new THREE.MeshStandardMaterial({
-      side: THREE.FrontSide,
-      name: "frontMaterial",
+      alpha: alpha,
       visible: states[0] == 1,
-      ...materialProps,
     });
+    frontMaterial.name = "frontMaterial";
 
-    var backMaterial = new THREE.MeshStandardMaterial({
-      side: THREE.BackSide,
+    var backMaterial = this.materialFactory.createBackFaceStandardMaterial({
+      color: color,
+      alpha: alpha,
       visible: states[0] == 1 && (renderback || this.backVisible),
-      name: "backMaterial",
-      ...materialProps,
     });
+    backMaterial.name = "backMaterial";
 
     const back = new THREE.Mesh(polyGeometry, backMaterial);
     back.name = name;
     const front = new THREE.Mesh(polyGeometry, frontMaterial);
     front.name = name;
-
     // timer.split("- prepared solid material");
 
     // Edges
-    const edgeGeom = createEdgesFromPolygons(polygons, shape.height);
+    const edgeGeom = this._createEdgesFromPolygons(polygons, shape.height);
     // timer.split("- created edge geometry");
 
-    var lineMat = new THREE.LineBasicMaterial({
-      color: this.edgeColor,
-      depthWrite: !this.transparent,
-      depthTest: !this.transparent,
-      clipIntersection: false,
-    });
+    var lineMat = this.materialFactory.createSimpleEdgeMaterial({});
 
     var polyEdges = new THREE.LineSegments(edgeGeom, lineMat);
     // timer.split("- created line segments");
@@ -529,6 +548,12 @@ class NestedGroup {
     return group;
   }
 
+  /**
+   * Recursively render all shapes in the shape tree.
+   * Dispatches to appropriate render method based on shape type.
+   * @param {Object[]} shapes - Array of shape objects to render.
+   * @returns {THREE.Group} The root group containing all rendered geometry.
+   */
   renderLoop(shapes) {
     const _render = (shape, texture, width, height) => {
       var mesh;
@@ -624,6 +649,11 @@ class NestedGroup {
     return group;
   }
 
+  /**
+   * Main entry point to render all shapes.
+   * Initializes GDS instances if applicable and starts the render loop.
+   * @returns {THREE.Group} The root group containing all rendered geometry.
+   */
   render() {
     if (this.shapes.format == "GDS") {
       this.instances = this.shapes.instances;
@@ -632,6 +662,11 @@ class NestedGroup {
     return this.rootGroup;
   }
 
+  /**
+   * Get the bounding box of all rendered geometry.
+   * Computes and caches the bounding box on first call.
+   * @returns {BoundingBox} The bounding box of the root group.
+   */
   boundingBox() {
     if (this.bbox == null) {
       this.bbox = new BoundingBox();
@@ -640,6 +675,12 @@ class NestedGroup {
     return this.bbox;
   }
 
+  /**
+   * Traverse all ObjectGroup instances and call a method on each.
+   * @param {string} func - Name of the method to call on each ObjectGroup.
+   * @param {*} flag - Argument to pass to the method.
+   * @private
+   */
   _traverse(func, flag) {
     for (var path in this.groups) {
       var obj = this.groups[path];
@@ -649,6 +690,10 @@ class NestedGroup {
     }
   }
 
+  /**
+   * Get all currently selected ObjectGroup instances.
+   * @returns {ObjectGroup[]} Array of selected ObjectGroups.
+   */
   selection() {
     var result = [];
     for (var path in this.groups) {
@@ -663,92 +708,172 @@ class NestedGroup {
     return result;
   }
 
+  /**
+   * Clear selection and highlights from all selected objects.
+   */
   clearSelection() {
     for (var object of this.selection()) {
       object.clearHighlights();
     }
   }
 
+  /**
+   * Set metalness value for all materials.
+   * @param {number} value - Metalness value (0.0 to 1.0).
+   */
   setMetalness(value) {
     this.metalness = value;
+    this.materialFactory.update({ metalness: value });
     this._traverse("setMetalness", value);
   }
 
+  /**
+   * Set roughness value for all materials.
+   * @param {number} value - Roughness value (0.0 to 1.0).
+   */
   setRoughness(value) {
     this.roughness = value;
+    this.materialFactory.update({ roughness: value });
     this._traverse("setRoughness", value);
   }
 
+  /**
+   * Enable or disable transparency for all shapes.
+   * @param {boolean} flag - Whether to enable transparency.
+   */
   setTransparent(flag) {
     this.transparent = flag;
+    this.materialFactory.update({ transparent: flag });
     this._traverse("setTransparent", flag);
   }
 
+  /**
+   * Set whether edges should be rendered in black.
+   * @param {boolean} flag - Whether to use black edges.
+   */
   setBlackEdges(flag) {
     this.blackEdges = flag;
     this._traverse("setBlackEdges", flag);
   }
 
+  /**
+   * Set visibility of back faces.
+   * @param {boolean} flag - Whether back faces should be visible.
+   */
   setBackVisible(flag) {
     this.backVisible = flag;
     this._traverse("setBackVisible", flag);
   }
 
+  /**
+   * Set the edge color for all shapes.
+   * @param {number} color - Edge color as hex value.
+   */
   setEdgeColor(color) {
     this.edge_color = color;
     this._traverse("setEdgeColor", color);
   }
 
+  /**
+   * Set the opacity for all shapes.
+   * @param {number} opacity - Opacity value (0.0 to 1.0).
+   */
   setOpacity(opacity) {
     this.opacity = opacity;
     this._traverse("setOpacity", opacity);
   }
 
+  /**
+   * Set clip intersection mode for all materials.
+   * @param {boolean} flag - Whether to use intersection clipping.
+   */
   setClipIntersection(flag) {
     this._traverse("setClipIntersection", flag);
   }
 
+  /**
+   * Set clipping planes for all materials.
+   * @param {THREE.Plane[]} planes - Array of clipping planes.
+   */
   setClipPlanes(planes) {
     this.clipPlanes = planes;
     this._traverse("setClipPlanes", planes);
   }
 
+  /**
+   * Set polygon offset for depth sorting.
+   * @param {number} offset - Polygon offset units value.
+   */
   setPolygonOffset(offset) {
     this._traverse("setPolygonOffset", offset);
   }
 
+  /**
+   * Set Z-axis scale for all shapes (used for GDS extrusion visualization).
+   * @param {number} value - Z scale factor.
+   */
   setZScale(value) {
     this._traverse("setZScale", value);
   }
 
+  /**
+   * Reset minimum Z position for all shapes.
+   */
   setMinZ() {
     this._traverse("setMinZ");
   }
 
+  /**
+   * Mark all materials as needing update.
+   */
   updateMaterials() {
     this._traverse("updateMaterials", true);
   }
 
+  /**
+   * Enable or disable zebra stripe visualization.
+   * @param {boolean} flag - Whether to enable zebra stripes.
+   */
   setZebra(flag) {
     this._traverse("setZebra", flag);
   }
 
+  /**
+   * Set the number of zebra stripes.
+   * @param {number} value - Number of stripes (2-50).
+   */
   setZebraCount(value) {
     this._traverse("setZebraCount", value);
   }
 
+  /**
+   * Set the opacity of zebra stripes.
+   * @param {number} value - Stripe opacity (0.0 to 1.0).
+   */
   setZebraOpacity(value) {
     this._traverse("setZebraOpacity", value);
   }
 
+  /**
+   * Set the direction/angle of zebra stripes.
+   * @param {number} value - Stripe direction in degrees (0-90).
+   */
   setZebraDirection(value) {
     this._traverse("setZebraDirection", value);
   }
 
+  /**
+   * Set the color scheme for zebra stripes.
+   * @param {string} flag - Color scheme ("blackwhite", "colorful", "grayscale").
+   */
   setZebraColorScheme(flag) {
     this._traverse("setZebraColorScheme", flag);
   }
 
+  /**
+   * Set the mapping mode for zebra stripes.
+   * @param {string} flag - Mapping mode ("reflection", "normal").
+   */
   setZebraMappingMode(flag) {
     this._traverse("setZebraMappingMode", flag);
   }
