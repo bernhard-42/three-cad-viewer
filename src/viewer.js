@@ -4,7 +4,6 @@
 
 import * as THREE from "three";
 
-import { Display } from "./display.js";
 import { NestedGroup, ObjectGroup } from "./nestedgroup.js";
 import { Grid } from "./grid.js";
 import { AxesHelper } from "./axes.js";
@@ -187,7 +186,7 @@ class Viewer {
   /**
    * @deprecated Use state properties directly. Kept for backwards compatibility.
    */
-  setDisplayDefaults(options) {
+  setDisplayDefaults() {
     // No-op: ViewerState now handles all defaults in its constructor
     // This method is kept only for API compatibility
   }
@@ -883,11 +882,11 @@ class Viewer {
   syncTreeStates = (compactTree, expandedTree, exploded, path) => {
     if (Array.isArray(compactTree)) {
       if (exploded) {
-        for (var t in expandedTree) {
-          for (var l in expandedTree[t]) {
+        for (let t in expandedTree) {
+          for (let l in expandedTree[t]) {
             const id = `${path}/${t}/${l}`;
             const objectGroup = this.expandedNestedGroup.groups[id];
-            for (var i of [0, 1]) {
+            for (let i of [0, 1]) {
               if (i == 0) {
                 objectGroup.setShapeVisible(compactTree[0] == 1);
               } else {
@@ -901,10 +900,10 @@ class Viewer {
         }
       } else {
         const objectGroup = this.compactNestedGroup.groups[path];
-        for (var i of [0, 1]) {
-          var visible = false;
-          for (var t in expandedTree) {
-            for (var l in expandedTree[t]) {
+        for (let i of [0, 1]) {
+          let visible = false;
+          for (let t in expandedTree) {
+            for (let l in expandedTree[t]) {
               if (expandedTree[t][l][i] == 1) {
                 visible = true;
               }
@@ -1680,9 +1679,10 @@ class Viewer {
    * @function
    * @param {string} id - object id
    * @param {number[]} state - 2 dim array [mesh, edges] = [0/1, 0/1]
-   * @p^aram {boolean} [notify=true] - whether to send notification or not.
+   * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setState = (id, state, nodeType = "leaf", notify = true) => {
+  // eslint-disable-next-line no-unused-vars
+  setState = (id, state, _nodeType = "leaf", notify = true) => {
     this.treeview.setState(id, state);
     this.update(this.updateMarker, notify);
   };
@@ -2360,13 +2360,9 @@ class Viewer {
 
   /**
    * Sets the stripe count value for the viewer and updates related components.
-   *
    * @param {number} value - The stripe count value to set.
-   * @param {boolean} [ui=false] - Whether to update the UI directly.
-   * @param {boolean} [notify=true] - Whether to notify about the changes.
-   * @returns {void}
    */
-  setZebraCount = (value, ui = false, notify = true) => {
+  setZebraCount = (value) => {
     value = Math.max(2, Math.min(50, value));
     this.state.set("zebraCount", value);
     this.nestedGroup.setZebraCount(value);
@@ -2375,13 +2371,9 @@ class Viewer {
 
   /**
    * Sets the stripe opacity value for the viewer and updates related components.
-   *
    * @param {number} value - The stripe opacity value to set.
-   * @param {boolean} [ui=false] - Whether to update the UI directly.
-   * @param {boolean} [notify=true] - Whether to notify about the changes.
-   * @returns {void}
    */
-  setZebraOpacity = (value, ui = false, notify = true) => {
+  setZebraOpacity = (value) => {
     value = Math.max(0, Math.min(1, value));
     this.state.set("zebraOpacity", value);
     this.nestedGroup.setZebraOpacity(value);
@@ -2390,13 +2382,9 @@ class Viewer {
 
   /**
    * Sets the stripe direction value for the viewer and updates related components.
-   *
    * @param {number} value - The stripe direction value to set.
-   * @param {boolean} [ui=false] - Whether to update the UI directly.
-   * @param {boolean} [notify=true] - Whether to notify about the changes.
-   * @returns {void}
    */
-  setZebraDirection = (value, ui = false, notify = true) => {
+  setZebraDirection = (value) => {
     value = Math.max(0, Math.min(90, value));
     this.state.set("zebraDirection", value);
     this.nestedGroup.setZebraDirection(value);
@@ -2404,28 +2392,20 @@ class Viewer {
   };
 
   /**
-   * Sets the stripe colorful value for the viewer and updates related components.
-   *
-   * @param {string} value - The stripe colorful value to set ("blackwhite", "colorful", "grayscale").
-   * @param {boolean} [ui=false] - Whether to update the UI directly.
-   * @param {boolean} [notify=true] - Whether to notify about the changes.
-   * @returns {void}
+   * Sets the stripe color scheme for the viewer and updates related components.
+   * @param {string} value - The color scheme ("blackwhite", "colorful", "grayscale").
    */
-  setZebraColorScheme = (value, ui = false, notify = true) => {
+  setZebraColorScheme = (value) => {
     this.state.set("zebraColorScheme", value);
     this.nestedGroup.setZebraColorScheme(value);
     this.update(this.updateMarker);
   };
 
   /**
-   * Sets the stripe mapping mode value for the viewer and updates related components.
-   *
-   * @param {string} value - The stripe colorful value to set ("reflection", "normal").
-   * @param {boolean} [ui=false] - Whether to update the UI directly.
-   * @param {boolean} [notify=true] - Whether to notify about the changes.
-   * @returns {void}
+   * Sets the stripe mapping mode for the viewer and updates related components.
+   * @param {string} value - The mapping mode ("reflection", "normal").
    */
-  setZebraMappingMode = (value, ui = false, notify = true) => {
+  setZebraMappingMode = (value) => {
     this.state.set("zebraMappingMode", value);
     this.nestedGroup.setZebraMappingMode(value);
     this.update(this.updateMarker);

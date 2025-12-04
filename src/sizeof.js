@@ -92,7 +92,7 @@ function estimateArrayOverhead(arr) {
   return 24 + arr.length * 8; // Array header + pointer overhead
 }
 
-function estimateTypedArrayOverhead(typedArray) {
+function estimateTypedArrayOverhead() {
   return 24; // Typical overhead for TypedArrays
 }
 
@@ -100,7 +100,7 @@ function estimateMapOverhead(map) {
   return 40 + map.size * 16; // Map header + entry overhead
 }
 
-function estimateObjectOverhead(obj) {
+function estimateObjectOverhead() {
   return 32; // Basic object overhead
 }
 

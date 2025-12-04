@@ -64,7 +64,7 @@ function createValueRow(key, value, qualifier = null) {
   th.classList.add("tcv_measure_cell");
   tr.appendChild(th);
 
-  for (var i = 0; i < 2; i++) {
+  for (let i = 0; i < 2; i++) {
     const empty = document.createElement("td");
     tr.appendChild(empty);
   }
@@ -75,7 +75,7 @@ function createValueRow(key, value, qualifier = null) {
   tr.appendChild(td);
 
   if (qualifier == null) {
-    for (var i = 0; i < 2; i++) {
+    for (let i = 0; i < 2; i++) {
       const empty = document.createElement("td");
       tr.appendChild(empty);
     }
@@ -176,7 +176,7 @@ class DistancePanel extends Panel {
     table.classList.add("tcv_properties_table");
     const tbody = document.createElement("tbody");
     for (var key in properties) {
-      if (!properties.hasOwnProperty(key)) continue;
+      if (!Object.hasOwn(properties, key)) continue;
       if (
         [
           "shape_type",
@@ -251,7 +251,7 @@ class PropertiesPanel extends Panel {
     table.classList.add("tcv_properties_table");
     const tbody = document.createElement("tbody");
     for (var key in properties) {
-      if (!properties.hasOwnProperty(key)) continue;
+      if (!Object.hasOwn(properties, key)) continue;
       if (
         [
           "shape_type",

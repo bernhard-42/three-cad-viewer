@@ -20,6 +20,7 @@
     "debug": "rollup -w -c --environment BUILD:development --sourcemap",
     "docs": "./build_docs.sh",
     "release": "./release.sh",
+    "lint": "eslint src/",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",

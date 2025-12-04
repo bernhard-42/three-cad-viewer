@@ -224,9 +224,8 @@ class Measurement {
 
   /**
    * Response handler for the measure context
-   * @param {object} response
    */
-  handleResponse(response) {}
+  handleResponse() {}
 
   _createPanel() {
     throw new Error("Subclass needs to override this method");

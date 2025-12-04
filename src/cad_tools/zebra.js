@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 /**
  * Zebra Analysis Tool for Three.js CAD Viewer
  * Visualizes surface continuity using alternating stripes
@@ -48,12 +50,13 @@ export class ZebraTool {
           color1 = "#000000";
           color2 = "#ffffff";
           break;
-        case "colorful":
+        case "colorful": {
           // Rainbow colors
           const hue = (i / this.settings.stripeCount) * 360;
           color1 = `hsl(${hue}, 100%, 50%)`;
           color2 = `hsl(${(hue + 180) % 360}, 100%, 50%)`;
           break;
+        }
         case "grayscale":
           // Simple alternating grayscale with wide contrast range
           // Light gray: 210 (0xD2, ~82%)
@@ -313,11 +316,12 @@ export class ZebraTool {
   }
 
   /**
-   * Update camera position for shaders (call in render loop)
+   * Update camera position for shaders (call in render loop).
+   * No longer needed - view space calculations handle this automatically.
+   * This method is kept for API compatibility.
    */
-  update(camera) {
-    // No longer needed - view space calculations handle this automatically
-    // This method is kept for API compatibility
+  update() {
+    // No-op
   }
 
   /**

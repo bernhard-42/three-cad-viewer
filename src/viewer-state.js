@@ -170,6 +170,7 @@ class ViewerState {
       this._state.theme = "light";
     }
     // Remove theme from options so it doesn't override the processed value
+    // eslint-disable-next-line no-unused-vars
     const { theme, ...restOptions } = options;
 
     // Apply user options (with validation)
@@ -348,7 +349,8 @@ class ViewerState {
     } else if (options.theme === "light") {
       this._state.theme = "light";
     }
-    const { theme, ...restOptions } = options;
+    // eslint-disable-next-line no-unused-vars
+    const { theme: _theme, ...restOptions } = options;
 
     // Apply options
     for (const [key, value] of Object.entries(restOptions)) {

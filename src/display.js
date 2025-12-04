@@ -356,7 +356,7 @@ class Display {
   // Private Helpers
   // ---------------------------------------------------------------------------
 
-  setButtonBackground(theme) {
+  setButtonBackground() {
     for (var btn of buttons) {
       var elements = this.container.getElementsByClassName(`tcv_${btn}`);
       for (var i = 0; i < elements.length; i++) {
@@ -401,13 +401,11 @@ class Display {
     this._events.push(["change", name, fn]);
   }
 
-  // eslint-disable-next-line no-unused-vars
-  _setupClickEvent(name, fn, flag) {
+  _setupClickEvent(name, fn) {
     const el = this._getElement(name);
     listeners.add(el, "click", fn);
     this._events.push(["click", name, fn]);
   }
-  // eslint-disable-next-line no-unused-vars
 
   _setupRadioEvent(name, fn) {
     const el = this._getElement(name);
@@ -732,9 +730,9 @@ class Display {
       this._setupRadioEvent(`tcv_zebra_mapping${id}`, this.setZebraMappingMode);
     });
 
-    this._setupClickEvent("tcv_play", this.controlAnimation, false);
-    this._setupClickEvent("tcv_pause", this.controlAnimation, false);
-    this._setupClickEvent("tcv_stop", this.controlAnimation, false);
+    this._setupClickEvent("tcv_play", this.controlAnimation);
+    this._setupClickEvent("tcv_pause", this.controlAnimation);
+    this._setupClickEvent("tcv_stop", this.controlAnimation);
     this.animationSlider = this.container.getElementsByClassName(
       "tcv_animation_slider",
     )[0];
@@ -992,7 +990,7 @@ class Display {
     } else {
       this.cadView.appendChild(canvasElement);
     }
-    listeners.add(canvasElement, "click", (e) => {
+    listeners.add(canvasElement, "click", () => {
       if (this.help_shown) {
         this.showHelp(false);
       }

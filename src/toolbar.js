@@ -189,7 +189,6 @@ class Button extends BaseButton {
     this.action = action;
   }
 
-  // eslint-disable-next-line no-unused-vars
   handler = (e) => {
     this.action(this.name, KeyMapper.get(e, "shift"));
   };

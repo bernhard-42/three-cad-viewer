@@ -806,7 +806,7 @@ class Grid extends THREE.Group {
   clearCache() {
     // Dispose textures from geomCache
     if (Object.keys(this.geomCache).length > 0) {
-      for (var key of Object.keys(this.geomCache)) {
+      for (const key of Object.keys(this.geomCache)) {
         const texture = this.geomCache[key];
         texture.dispose();
       }
@@ -818,7 +818,7 @@ class Grid extends THREE.Group {
 
     // Dispose materials from materialCache
     if (this.materialCache && Object.keys(this.materialCache).length > 0) {
-      for (var key of Object.keys(this.materialCache)) {
+      for (const key of Object.keys(this.materialCache)) {
         const material = this.materialCache[key];
         material.dispose();
       }

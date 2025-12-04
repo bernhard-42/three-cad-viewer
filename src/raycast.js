@@ -14,37 +14,6 @@ export const TopoFilter = {
 };
 
 /**
- * Geometry type mappings by topology.
- * @private
- */
-const GeomTypes = {
-  face: [
-    "plane",
-    "cylinder",
-    "cone",
-    "sphere",
-    "torus",
-    "bezier",
-    "bspline",
-    "revolution",
-    "extrusion",
-    "offset",
-    "other",
-  ],
-  edge: [
-    "line",
-    "circle",
-    "ellipse",
-    "hyperbola",
-    "parabola",
-    "bezier",
-    "bspline",
-    "offset",
-    "other",
-  ],
-};
-
-/**
  * Represents a picked object from raycasting.
  * Can represent either a single shape or all faces of a solid.
  */
@@ -186,9 +155,6 @@ class Raycaster {
           if (!objectGroup.shapeInfo) continue; // clipping plane
 
           const topo = objectGroup.shapeInfo.topo;
-          let geom;
-          if (topo !== "vertex")
-            geom = GeomTypes[topo][objectGroup.shapeInfo.geomtype];
 
           // Check if topology is acceptable given the topology filters
           const isSolid = objectGroup.subtype === "solid";

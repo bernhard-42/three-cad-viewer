@@ -442,7 +442,7 @@ class TreeView {
         const isExpanded = childrenContainer.style.display !== "none";
         if (isExpanded !== node.expanded) {
           childrenContainer.style.display = node.expanded ? "block" : "none";
-          nodeElement.querySelector(`.tv-nav-marker`).innerHTML = node.expanded
+          nodeElement.querySelector(".tv-nav-marker").innerHTML = node.expanded
             ? NAV_ICONS.expanded
             : NAV_ICONS.collapsed;
           if (!node.expanded) {
@@ -497,7 +497,7 @@ class TreeView {
       this.lastLabel.classList.remove("tv-node-label-highlight");
     }
     if (nodeElement) {
-      const label = nodeElement.querySelector(`.tv-node-label`);
+      const label = nodeElement.querySelector(".tv-node-label");
       if (label) {
         if (this.lastLabel === label) {
           this.lastLabel = null;

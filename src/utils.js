@@ -1,5 +1,3 @@
-import { sizeof } from "./sizeof.js";
-
 function clone(obj) {
   if (Array.isArray(obj)) {
     return obj.map((el) => clone(el));
@@ -164,19 +162,6 @@ class _KeyMapper {
 // see https://discourse.threejs.org/t/updates-to-lighting-in-three-js-r155/53733
 function scaleLight(intensity) {
   return Math.round(Math.PI * intensity);
-}
-
-function memSize(obj, tag = "obj") {
-  for (var attr in obj) {
-    if (attr != "parent") {
-      try {
-        console.log("-", attr, sizeof(obj[attr]));
-      } catch (error) {
-        console.log("ERROR", attr, obj[attr]);
-      }
-    }
-  }
-  console.log(tag, "(TOTAL)", sizeof(obj));
 }
 
 const KeyMapper = new _KeyMapper();
