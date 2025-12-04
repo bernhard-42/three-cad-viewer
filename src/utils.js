@@ -63,6 +63,33 @@ function disposeGeometry(geometry) {
   }
 }
 
+/**
+ * Dispose a material and its associated textures.
+ * @param {THREE.Material} material - The material to dispose.
+ */
+function disposeMaterial(material) {
+  if (!material) return;
+
+  // Dispose all texture properties
+  const textureProps = [
+    "map",
+    "normalMap",
+    "roughnessMap",
+    "metalnessMap",
+    "aoMap",
+    "emissiveMap",
+    "alphaMap",
+    "bumpMap",
+  ];
+  for (const prop of textureProps) {
+    if (material[prop]) {
+      material[prop].dispose();
+    }
+  }
+
+  material.dispose();
+}
+
 function disposeMesh(mesh) {
   if (mesh.geometry) {
     disposeGeometry(mesh.geometry);
@@ -70,9 +97,9 @@ function disposeMesh(mesh) {
 
   if (mesh.material) {
     if (Array.isArray(mesh.material)) {
-      mesh.material.forEach((material) => material.dispose());
+      mesh.material.forEach(disposeMaterial);
     } else {
-      mesh.material.dispose();
+      disposeMaterial(mesh.material);
     }
   }
 }
@@ -88,7 +115,7 @@ function deepDispose(tree) {
     tree.dispose();
   } else if (Array.isArray(tree)) {
     tree.forEach(deepDispose);
-  } else if (tree.isMesh || tree.isLine) {
+  } else if (tree.isMesh || tree.isLine || tree.isPoints) {
     disposeMesh(tree);
   }
 }

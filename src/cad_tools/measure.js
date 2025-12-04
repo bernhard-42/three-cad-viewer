@@ -131,6 +131,31 @@ class DistanceLineArrow extends THREE.Group {
       endCone.scale.set(scaleFactor, scaleFactor, scaleFactor);
     }
   }
+
+  /**
+   * Dispose of all geometries and materials.
+   * Handles shared geometry/material between cones.
+   */
+  dispose() {
+    // Dispose line geometry and material
+    const line = this.children.find((child) => child.type === "LineSegments2");
+    if (line) {
+      line.geometry.dispose();
+      line.material.dispose();
+    }
+
+    // Dispose cone geometry and material (shared between start and end cones)
+    const startCone = this.children.find(
+      (child) => child.type === "Mesh" && child.name === "startCone",
+    );
+    if (startCone) {
+      startCone.geometry.dispose();
+      startCone.material.dispose();
+    }
+    // endCone shares geometry and material with startCone, no need to dispose again
+
+    this.clear();
+  }
 }
 
 class Measurement {

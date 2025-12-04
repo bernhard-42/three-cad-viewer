@@ -244,6 +244,15 @@ class Animation {
    * Dispose of animation resources.
    */
   dispose() {
+    if (this.mixer) {
+      this.mixer.stopAllAction();
+      if (this.clip) {
+        this.mixer.uncacheClip(this.clip);
+      }
+      if (this.root) {
+        this.mixer.uncacheRoot(this.root);
+      }
+    }
     this.mixer = null;
     this.clipAction = null;
     this.clip = null;

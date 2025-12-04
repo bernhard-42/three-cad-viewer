@@ -736,9 +736,6 @@ class Viewer {
   dispose() {
     this.clear();
 
-    deepDispose(this.gridHelper);
-    this.gridHelper = null;
-
     // dispose the orientation marker
     if (this.orientationMarker != null) {
       this.orientationMarker.dispose();
@@ -833,6 +830,7 @@ class Viewer {
       deepDispose(this.scene);
 
       deepDispose(this.gridHelper);
+      this.gridHelper = null;
 
       deepDispose(this.clipping);
       this.clipping = null;
@@ -1603,6 +1601,8 @@ class Viewer {
     if (group != null) {
       if (this.lastBbox != null) {
         this.scene.remove(this.lastBbox.bbox);
+        this.lastBbox.bbox.geometry.dispose();
+        this.lastBbox.bbox.material.dispose();
       }
       if (
         this.lastBbox == null ||
@@ -1690,6 +1690,8 @@ class Viewer {
   removeLastBbox() {
     if (this.lastBbox != null) {
       this.scene.remove(this.lastBbox.bbox);
+      this.lastBbox.bbox.geometry.dispose();
+      this.lastBbox.bbox.material.dispose();
       this.lastBbox = null;
     }
   }

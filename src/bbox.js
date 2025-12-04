@@ -41,9 +41,8 @@ class BoundingBox extends THREE.Box3 {
           g.applyMatrix4(object.matrixWorld);
           g.boundingBox = null;
           g.computeBoundingBox();
-          _bbox.copy(g.boundingBox);
-
-          this.union(_bbox);
+          this.union(g.boundingBox);
+          g.dispose(); // Dispose cloned geometry to prevent memory leak
         } else {
           const position = geometry.attributes.position;
           for (let i = 0, l = position.count; i < l; i++) {
