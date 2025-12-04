@@ -132,8 +132,14 @@ class ViewerState {
    * @static
    */
   static RUNTIME_DEFAULTS = {
-    animationPlaying: false,
     activeTool: null,
+    // Animation/Explode slider control: "none" | "animation" | "explode"
+    animationMode: "none",
+    animationSliderValue: 0,
+    // ZScale toolbar state
+    zscaleActive: false,
+    // Camera button highlight
+    highlightedButton: null,
   };
 
   /**
@@ -250,13 +256,21 @@ class ViewerState {
    * Subscribe to changes for a specific state key
    * @param {string} key - State key to watch
    * @param {Function} listener - Callback function(change) where change = {old, new}
+   * @param {Object} [options={}] - Subscription options
+   * @param {boolean} [options.immediate=false] - If true, immediately invoke listener with current value
    * @returns {Function} Unsubscribe function
    */
-  subscribe(key, listener) {
+  subscribe(key, listener, options = {}) {
     if (!this._listeners.has(key)) {
       this._listeners.set(key, []);
     }
     this._listeners.get(key).push(listener);
+
+    // Immediately invoke with current value if requested
+    if (options.immediate) {
+      const currentValue = this._state[key];
+      listener({ old: undefined, new: currentValue });
+    }
 
     // Return unsubscribe function
     return () => {

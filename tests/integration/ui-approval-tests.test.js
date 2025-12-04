@@ -296,16 +296,14 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       const initialState = captureSceneState(viewer);
       const initialMetalness = initialState.scene.sampleMaterial.metalness;
 
-      // Simulate slider adjustment via display method
-      if (display.setMetalness) {
-        display.setMetalness(0.9);
-        const adjustedState = captureSceneState(viewer);
+      // Adjust metalness via viewer method
+      viewer.setMetalness(0.9);
+      const adjustedState = captureSceneState(viewer);
 
-        expect(adjustedState.scene.sampleMaterial.metalness).toBe(0.9);
-        expect(adjustedState.scene.sampleMaterial.metalness).not.toBe(initialMetalness);
+      expect(adjustedState.scene.sampleMaterial.metalness).toBe(0.9);
+      expect(adjustedState.scene.sampleMaterial.metalness).not.toBe(initialMetalness);
 
-        expect({ initialState, adjustedState }).toMatchSnapshot('ui-metalness-slider');
-      }
+      expect({ initialState, adjustedState }).toMatchSnapshot('ui-metalness-slider');
     });
 
     test('UI: adjust roughness slider', async () => {
@@ -318,16 +316,14 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       const initialState = captureSceneState(viewer);
       const initialRoughness = initialState.scene.sampleMaterial.roughness;
 
-      // Simulate slider adjustment via display method
-      if (display.setRoughness) {
-        display.setRoughness(0.2);
-        const adjustedState = captureSceneState(viewer);
+      // Adjust roughness via viewer method
+      viewer.setRoughness(0.2);
+      const adjustedState = captureSceneState(viewer);
 
-        expect(adjustedState.scene.sampleMaterial.roughness).toBe(0.2);
-        expect(adjustedState.scene.sampleMaterial.roughness).not.toBe(initialRoughness);
+      expect(adjustedState.scene.sampleMaterial.roughness).toBe(0.2);
+      expect(adjustedState.scene.sampleMaterial.roughness).not.toBe(initialRoughness);
 
-        expect({ initialState, adjustedState }).toMatchSnapshot('ui-roughness-slider');
-      }
+      expect({ initialState, adjustedState }).toMatchSnapshot('ui-roughness-slider');
     });
 
     test('UI: adjust ambient light slider', async () => {
@@ -339,16 +335,14 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
 
       const initialState = captureSceneState(viewer);
 
-      // Simulate slider adjustment via display method
-      if (display.setAmbientLight) {
-        display.setAmbientLight(2.0);
-        const brightState = captureSceneState(viewer);
+      // Adjust ambient light via viewer method
+      viewer.setAmbientLight(2.0);
+      const brightState = captureSceneState(viewer);
 
-        // Verify light intensity changed
-        expect(brightState.scene.lights).toBeDefined();
+      // Verify light intensity changed
+      expect(brightState.scene.lights).toBeDefined();
 
-        expect({ initialState, brightState }).toMatchSnapshot('ui-ambient-light-slider');
-      }
+      expect({ initialState, brightState }).toMatchSnapshot('ui-ambient-light-slider');
     });
 
     test('UI: adjust direct light slider', async () => {
@@ -360,16 +354,14 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
 
       const initialState = captureSceneState(viewer);
 
-      // Simulate slider adjustment via display method
-      if (display.setDirectLight) {
-        display.setDirectLight(2.5);
-        const brightState = captureSceneState(viewer);
+      // Adjust direct light via viewer method
+      viewer.setDirectLight(2.5);
+      const brightState = captureSceneState(viewer);
 
-        // Verify light intensity changed
-        expect(brightState.scene.lights).toBeDefined();
+      // Verify light intensity changed
+      expect(brightState.scene.lights).toBeDefined();
 
-        expect({ initialState, brightState }).toMatchSnapshot('ui-direct-light-slider');
-      }
+      expect({ initialState, brightState }).toMatchSnapshot('ui-direct-light-slider');
     });
   });
 
@@ -391,9 +383,9 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       display.toolbarButtons['iso'].action('iso', false);
       const step2 = captureSceneState(viewer);
 
-      // Step 3: Adjust materials via UI sliders
-      if (display.setMetalness) display.setMetalness(0.8);
-      if (display.setRoughness) display.setRoughness(0.3);
+      // Step 3: Adjust materials via viewer methods
+      viewer.setMetalness(0.8);
+      viewer.setRoughness(0.3);
       const step3 = captureSceneState(viewer);
 
       // Step 4: Toggle display elements via UI buttons
@@ -427,9 +419,9 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       const box1Data = await loadExample('box1');
       viewer.render(box1Data, renderOptions, viewerOptions);
 
-      // Adjust all material properties
-      if (display.setMetalness) display.setMetalness(1.0);
-      if (display.setRoughness) display.setRoughness(0.1);
+      // Adjust all material properties via viewer methods
+      viewer.setMetalness(1.0);
+      viewer.setRoughness(0.1);
       const blackEdgesBtn = display.toolbarButtons['blackedges'];
       blackEdgesBtn.set(!blackEdgesBtn.state);
       blackEdgesBtn.action(blackEdgesBtn.name, blackEdgesBtn.state);
@@ -532,10 +524,10 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
 
       const before = captureSceneState(viewer);
 
-      // Call display methods that should trigger viewer methods
-      if (display.setMetalness) display.setMetalness(0.7);
-      if (display.setRoughness) display.setRoughness(0.4);
-      if (display.setAmbientLight) display.setAmbientLight(1.5);
+      // Call viewer methods directly to adjust materials
+      viewer.setMetalness(0.7);
+      viewer.setRoughness(0.4);
+      viewer.setAmbientLight(1.5);
 
       const after = captureSceneState(viewer);
 

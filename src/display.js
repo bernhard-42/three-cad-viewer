@@ -71,6 +71,8 @@ class Display {
     this.tabMaterial = this._getElement("tcv_tab_material");
     this.tabZebra = this._getElement("tcv_tab_zebra");
     this.cadInfo = this._getElement("tcv_cad_info_container");
+    this.tickValueElement = this._getElement("tcv_tick_size_value");
+    this.tickInfoElement = this._getElement("tcv_tick_size");
     this.cadAnim = this._getElement("tcv_cad_animation");
     this.cadTools = this._getElement("tcv_cad_tools");
     if (!options.zebraTool) {
@@ -102,7 +104,6 @@ class Display {
     this.cadMaterial.style.display = "none";
     this.cadZebra.style.display = "none";
     this.clipSliders = null;
-    this.explodeFlag = false;
 
     this.currentButton = null;
 
@@ -587,9 +588,9 @@ class Display {
     this.animationSlider = this.container.getElementsByClassName(
       "tcv_animation_slider",
     )[0];
-    this.animationSlider.value = 0;
+    // Initial value synced via subscription with immediate:true
     listeners.add(this.animationSlider, "input", this.animationChange);
-    this.showAnimationControl(false);
+    // Animation control starts hidden (state default is false)
 
     this.showHelp(false);
     this.showDistancePanel(false);
@@ -632,20 +633,24 @@ class Display {
       this.toolbarButtons["blackedges"]?.set(change.new);
     });
 
-    state.subscribe("grid", (change) => {
-      const gridButton = this.toolbarButtons["grid"];
-      if (gridButton) {
-        const grid = change.new; // [xy, xz, yz]
-        // Update main button state (true if any grid is visible)
-        gridButton.set(grid.some((g) => g));
-        // Update individual checkboxes
-        if (gridButton.checkElems) {
-          gridButton.checkElems["xy"].checked = grid[0];
-          gridButton.checkElems["xz"].checked = grid[1];
-          gridButton.checkElems["yz"].checked = grid[2];
+    state.subscribe(
+      "grid",
+      (change) => {
+        const gridButton = this.toolbarButtons["grid"];
+        if (gridButton) {
+          const grid = change.new; // [xy, xz, yz]
+          // Update main button state (true if any grid is visible)
+          gridButton.set(grid.some((g) => g));
+          // Update individual checkboxes
+          if (gridButton.checkElems) {
+            gridButton.checkElems["xy"].checked = grid[0];
+            gridButton.checkElems["xz"].checked = grid[1];
+            gridButton.checkElems["yz"].checked = grid[2];
+          }
         }
-      }
-    });
+      },
+      { immediate: true },
+    );
 
     state.subscribe("tools", (change) => {
       this.showTools(change.new);
@@ -660,15 +665,19 @@ class Display {
     });
 
     state.subscribe("clipIntersection", (change) => {
-      this.setClipIntersectionCheck(change.new);
+      this._getElement("tcv_clip_intersection").checked = change.new;
     });
 
-    state.subscribe("clipPlaneHelpers", (change) => {
-      this.setClipPlaneHelpersCheck(change.new);
-    });
+    state.subscribe(
+      "clipPlaneHelpers",
+      (change) => {
+        this.checkElement("tcv_clip_plane_helpers", change.new);
+      },
+      { immediate: true },
+    );
 
     state.subscribe("clipObjectColors", (change) => {
-      this.setClipObjectColorsCheck(change.new);
+      this._getElement("tcv_clip_caps").checked = change.new;
     });
 
     // Clip slider subscriptions
@@ -683,18 +692,35 @@ class Display {
     });
 
     // Material slider subscriptions (state stores 0-1, sliders display 0-100 or 0-400)
-    state.subscribe("ambientIntensity", (change) => {
-      this.ambientlightSlider?.setValueFromState(change.new * 100);
-    });
-    state.subscribe("directIntensity", (change) => {
-      this.directionallightSlider?.setValueFromState(change.new * 100);
-    });
-    state.subscribe("metalness", (change) => {
-      this.metalnessSlider?.setValueFromState(change.new * 100);
-    });
-    state.subscribe("roughness", (change) => {
-      this.roughnessSlider?.setValueFromState(change.new * 100);
-    });
+    // Use immediate:true to sync sliders with initial state values
+    state.subscribe(
+      "ambientIntensity",
+      (change) => {
+        this.ambientlightSlider?.setValueFromState(change.new * 100);
+      },
+      { immediate: true },
+    );
+    state.subscribe(
+      "directIntensity",
+      (change) => {
+        this.directionallightSlider?.setValueFromState(change.new * 100);
+      },
+      { immediate: true },
+    );
+    state.subscribe(
+      "metalness",
+      (change) => {
+        this.metalnessSlider?.setValueFromState(change.new * 100);
+      },
+      { immediate: true },
+    );
+    state.subscribe(
+      "roughness",
+      (change) => {
+        this.roughnessSlider?.setValueFromState(change.new * 100);
+      },
+      { immediate: true },
+    );
 
     // Zebra slider subscriptions
     state.subscribe("zebraCount", (change) => {
@@ -713,6 +739,55 @@ class Display {
     });
     state.subscribe("zebraMappingMode", (change) => {
       this.setZebraMappingModeSelect(change.new);
+    });
+
+    // Animation/Explode mode subscription - controls slider visibility, label, and explode button
+    state.subscribe("animationMode", (change) => {
+      const mode = change.new;
+      // Show/hide slider control
+      this.cadAnim.style.display = mode !== "none" ? "block" : "none";
+      // Set label: "A" for animation, "E" for explode
+      this._getElement("tcv_animation_label").innerHTML =
+        mode === "explode" ? "E" : "A";
+      // Update explode button state
+      this.toolbarButtons["explode"]?.set(mode === "explode");
+    });
+    state.subscribe(
+      "animationSliderValue",
+      (change) => {
+        this.animationSlider.value = change.new;
+      },
+      { immediate: true },
+    );
+
+    // ZScale toolbar button subscription
+    state.subscribe("zscaleActive", (change) => {
+      this.toolbarButtons["zscale"]?.set(change.new);
+    });
+
+    // Camera button highlight subscription
+    state.subscribe("highlightedButton", (change) => {
+      // Clear all highlights first
+      const buttons = ["front", "rear", "top", "bottom", "left", "right", "iso"];
+      buttons.forEach((btn) => {
+        this.toolbarButtons[btn]?.highlight(false);
+      });
+      // Highlight the new button if set
+      if (change.new) {
+        this.toolbarButtons[change.new]?.highlight(true);
+      }
+    });
+
+    // Active tool subscription
+    state.subscribe("activeTool", (change) => {
+      // Deactivate old tool button
+      if (change.old) {
+        this.toolbarButtons[change.old]?.set(false);
+      }
+      // Activate new tool button
+      if (change.new) {
+        this.toolbarButtons[change.new]?.set(true);
+      }
     });
   }
 
@@ -734,6 +809,9 @@ class Display {
     if (width < this.widthThreshold()) {
       this.cadTool.minimize();
     }
+
+    // Initialize lastPlaneState from options (used for tab switching)
+    this.lastPlaneState = state.get("clipPlaneHelpers");
   }
   // setup functions
 
@@ -799,30 +877,12 @@ class Display {
   };
 
   /**
-   * Check/uncheck the axes checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the axes checkbox
-   */
-  setAxesCheck = (flag) => {
-    this.toolbarButtons["axes"].set(flag);
-  };
-
-  /**
    * Checkbox Handler for setting the grid parameter
    * @function
    * @param {boolean} flag - to set or not
    */
   setGrid = (name, flag) => {
     this.viewer.setGrid(name, flag);
-  };
-
-  /**
-   * Check/uncheck the main grid UI element
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the main grid checkbox
-   */
-  setGridCheck = (flag) => {
-    this.checkElement("tcv_grid", flag);
   };
 
   /**
@@ -835,30 +895,12 @@ class Display {
   };
 
   /**
-   * Check/uncheck the Axes0 checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Axes0 checkbox
-   */
-  setAxes0Check = (flag) => {
-    this.toolbarButtons["axes0"].set(flag);
-  };
-
-  /**
    * Checkbox Handler for setting the ortho parameter
    * @function
    * @param {boolean} flag - to set or not
    */
   setOrtho = (name, flag) => {
     this.viewer.switchCamera(!flag);
-  };
-
-  /**
-   * Check or uncheck the Ortho checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the ortho checkbox
-   */
-  setOrthoCheck = (flag) => {
-    this.toolbarButtons["perspective"].set(!flag);
   };
 
   /**
@@ -871,15 +913,6 @@ class Display {
   };
 
   /**
-   * Check or uncheck the Transparent checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Transparent checkbox
-   */
-  setTransparentCheck = (flag) => {
-    this.toolbarButtons["transparent"].set(flag);
-  };
-
-  /**
    * Checkbox Handler for setting the black edges parameter
    * @function
    * @param {boolean} flag - to set or not
@@ -889,46 +922,13 @@ class Display {
   };
 
   /**
-   * Check or uncheck the Black Edges checkbox
+   * Handler for the explode button
    * @function
-   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
-   */
-  setBlackEdgesCheck = (flag) => {
-    this.toolbarButtons["blackedges"].set(flag);
-  };
-
-  /**
-   * Checkbox Handler for setting the explode mode
-   * @function
-   * @param {boolean} flag - to set or not
+   * @param {string} name - button name (unused)
+   * @param {boolean} flag - whether to enable or disable explode mode
    */
   setExplode = (name, flag) => {
-    if (flag && this.explodeFlag) return;
-    if (!flag && !this.explodeFlag) return;
-
-    if (flag) {
-      if (this.viewer.hasAnimation()) {
-        this.viewer.backupAnimation();
-      }
-      this.viewer.explode();
-      this.explodeFlag = true;
-    } else {
-      if (this.viewer.hasAnimation()) {
-        this.controlAnimationByName("stop");
-        this.viewer.clearAnimation();
-        this.viewer.restoreAnimation();
-      }
-      this.explodeFlag = false;
-    }
-  };
-
-  /**
-   * Check or uncheck the Explode checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Black Edges checkbox
-   */
-  setExplodeCheck = (flag) => {
-    this.toolbarButtons["explode"].set(flag);
+    this.viewer.setExplode(flag);
   };
 
   /**
@@ -964,15 +964,6 @@ class Display {
   };
 
   /**
-   * Check or uncheck the ZScale checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the ZScale checkbox
-   */
-  setZScaleCheck = (flag) => {
-    this.toolbarButtons["zscale"].set(flag);
-  };
-
-  /**
    * Checkbox Handler for setting the tools mode
    * @function
    * @param {boolean} flag - whether to start or stop measure context
@@ -981,7 +972,7 @@ class Display {
     this.viewer.toggleAnimationLoop(flag);
 
     if (flag) {
-      this.showAnimationControl(false);
+      this.viewer.state.set("animationMode", "none");
       if (this.viewer.hasAnimation()) {
         this.viewer.backupAnimation();
       }
@@ -1026,8 +1017,7 @@ class Display {
       if (this.viewer.hasAnimation()) {
         this.controlAnimationByName("stop");
         this.viewer.clearAnimation();
-        this.viewer.restoreAnimation();
-        this.showAnimationControl(true);
+        this.viewer.restoreAnimation(); // This sets animationMode via initAnimation
       }
       this.viewer.setRaycastMode(flag);
     }
@@ -1042,18 +1032,8 @@ class Display {
    */
   setClipPlaneHelpers = (e) => {
     const flag = !!e.target.checked;
-    this.setClipPlaneHelpersCheck(flag);
+    this.lastPlaneState = flag;  // Remember user's explicit choice
     this.viewer.setClipPlaneHelpers(flag);
-  };
-
-  /**
-   * Check or uncheck the Plane Helpers checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Plane Helpers checkbox
-   */
-  setClipPlaneHelpersCheck = (flag) => {
-    this.checkElement("tcv_clip_plane_helpers", flag);
-    this.lastPlaneState = flag;
   };
 
   /**
@@ -1128,16 +1108,6 @@ class Display {
   };
 
   /**
-   * Check or uncheck the Intersection checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the Intersection checkbox
-   */
-  setClipIntersectionCheck = (flag) => {
-    const el = this._getElement("tcv_clip_intersection");
-    el.checked = flag;
-  };
-
-  /**
    * Checkbox Handler for toggling the clip caps
    * @function
    * @param {*} e
@@ -1148,22 +1118,12 @@ class Display {
   };
 
   /**
-   * Check or uncheck the Intersection checkbox
-   * @function
-   * @param {boolean} flag - whether to check or uncheck the object colors checkbox
-   */
-  setClipObjectColorsCheck = (flag) => {
-    const el = this._getElement("tcv_clip_caps");
-    el.checked = flag;
-  };
-
-  /**
    * Handler to reset position, zoom and up of the camera
    * @function
    */
   reset = () => {
     this.viewer.reset();
-    this.clearHighlights();
+    this.viewer.state.set("highlightedButton", null);
   };
 
   /**
@@ -1175,28 +1135,6 @@ class Display {
   };
 
   /**
-   * Clear all highlights of navigation tree entries
-   */
-  clearHighlights() {
-    const buttons = ["front", "rear", "top", "bottom", "left", "right", "iso"];
-    buttons.forEach((btn) => {
-      var el = this.toolbarButtons[btn];
-      el.highlight(false);
-    });
-  }
-
-  /**
-   * Highlight the selected button
-   * @param {string} name - A CAD object id (path)
-   */
-  highlightButton(name) {
-    this.clearHighlights();
-    var el = this.toolbarButtons[name];
-    el.highlight(true);
-    this.viewer.keepHighlight = true;
-  }
-
-  /**
    * Handler to set camera to a predefined position
    * @function
    * @param {Event} e - a DOM click event
@@ -1206,7 +1144,8 @@ class Display {
     if (focus) {
       this.viewer.centerVisibleObjects();
     }
-    this.highlightButton(button);
+    this.viewer.state.set("highlightedButton", button);
+    this.viewer.keepHighlight = true;
     this.viewer.update(true, false); // ensure update is called again
   };
 
@@ -1261,41 +1200,6 @@ class Display {
     this.selectTabByName(tab.slice(8));
   };
 
-  /**
-   * Set the ambient light intensity in the UI
-   * @function
-   * @param {number} val - a float between 0 and 4
-   */
-  setAmbientLight = (val) => {
-    this.ambientlightSlider.setValue(val * 100);
-  };
-
-  /**
-   * Set the direct light intensity in the UI
-   * @function
-   * @param {number} val - a float between 0 and 4
-   */
-  setDirectLight = (val) => {
-    this.directionallightSlider.setValue(val * 100);
-  };
-
-  /**
-   * Set material metalness in the UI
-   * @function
-   * @param {number} val - a float between 0 and 1
-   */
-  setMetalness = (val) => {
-    this.metalnessSlider.setValue(val * 100);
-  };
-
-  /**
-   * Set material roughness in the UI
-   * @function
-   * @param {number} val - a float between 0 and 1
-   */
-  setRoughness = (val) => {
-    this.roughnessSlider.setValue(val * 100);
-  };
 
   /**
    * Reset material values to original values
@@ -1399,10 +1303,9 @@ class Display {
       this.viewer.clipping.setVisible(showClip);
       this.viewer.setLocalClipping(showClip);
       if (!showClip) {
-        // copy state since setClipHelpers(false) will set to false
-        var lastPlaneState = this.viewer.getClipPlaneHelpers();
+        // Hide plane helpers when leaving clip tab, but preserve lastPlaneState
+        // (set by user's checkbox clicks) so it can be restored when returning
         this.viewer.setClipPlaneHelpers(false);
-        this.lastPlaneState = lastPlaneState;
       }
       if (tab != "zebra" && this.activeTab === "zebra") {
         this.viewer.enableZebraTool(false);
@@ -1510,15 +1413,6 @@ class Display {
   };
 
   /**
-   * Show or hide the Animation control widget
-   * @function
-   * @param {boolean} flag - whether to show or hide the Animation control widget
-   */
-  showAnimationControl = (flag) => {
-    this.cadAnim.style.display = flag ? "block" : "none";
-  };
-
-  /**
    * Handle animation control
    * @function
    * @param {string} btn - animation control button name
@@ -1527,7 +1421,7 @@ class Display {
     this.viewer.controlAnimation(btn);
 
     var currentTime = this.viewer.animation.getRelativeTime();
-    this.animationSlider.value = 1000 * currentTime;
+    this.viewer.state.set("animationSliderValue", 1000 * currentTime);
     if (btn == "play") {
       this.viewer.bboxNeedsUpdate = true;
     } else if (btn == "stop") {
@@ -1563,22 +1457,6 @@ class Display {
   };
 
   /**
-   * Set label text of animation control
-   * @param {string} label - "A" for animation and "E" for Explode control
-   */
-  setAnimationLabel(label) {
-    var el = this._getElement("tcv_animation_label");
-    el.innerHTML = label;
-  }
-
-  /**
-   * Reset animation slider to 0
-   */
-  resetAnimationSlider() {
-    this.animationSlider.value = 0;
-  }
-
-  /**
    * Show or hide help dialog
    * @function
    * @param {boolean} flag - whether to show or hide help dialog
@@ -1587,6 +1465,17 @@ class Display {
     this.cadHelp.style.display = flag ? "block" : "none";
     this.help_shown = flag;
   };
+
+  /**
+   * Replace container content with a static image
+   * @param {HTMLImageElement} image - The image element to display
+   */
+  replaceWithImage(image) {
+    while (this.container.firstChild) {
+      this.container.removeChild(this.container.firstChild);
+    }
+    this.container.appendChild(image);
+  }
 
   /**
    * Show or hide the distance measurement panel

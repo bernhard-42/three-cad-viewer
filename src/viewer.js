@@ -167,10 +167,10 @@ class Viewer {
    * @param {ViewOptions} options - The provided options object for the view.
    */
   setViewerDefaults(options) {
-    // Update state with any view-specific options
+    // Update state with view-specific options (notify to sync UI)
     for (const option of Object.keys(options)) {
       if (this.state.get(option) !== undefined) {
-        this.state.set(option, options[option], false);
+        this.state.set(option, options[option]);
       }
     }
   }
@@ -540,15 +540,15 @@ class Viewer {
       this.toggleAnimationLoop(true);
     }
 
-    this.display.showAnimationControl(true);
+    this.state.set("animationMode", label === "E" ? "explode" : "animation");
     this.clipAction = this.animation.animate(
       this.nestedGroup.rootGroup,
       duration,
       speed,
       repeat,
     );
-    this.display.setAnimationLabel(label);
-    this.display.resetAnimationSlider();
+    // Reset animation slider to start
+    this.state.set("animationSliderValue", 0);
   }
 
   /**
@@ -565,7 +565,7 @@ class Viewer {
     if (this.animation) {
       deepDispose(this.animation);
     }
-    this.display.showAnimationControl(false);
+    this.state.set("animationMode", "none");
     this.toggleAnimationLoop(false);
   }
 
@@ -600,7 +600,7 @@ class Viewer {
       if (this.keepHighlight) {
         this.keepHighlight = false;
       } else {
-        this.display.clearHighlights();
+        this.state.set("highlightedButton", null);
       }
     }
 
@@ -790,18 +790,15 @@ class Viewer {
         console.debug("three-cad-viewer: Change listener removed");
       }
       this.hasAnimationLoop = false;
-      this.display.showAnimationControl(false);
+      this.state.set("animationMode", "none");
 
       if (this.animation != null) {
         deepDispose(this.animation);
       }
 
-      this.display.setExplodeCheck(false);
-      this.display.setExplode("", false);
-
+      // Reset zscale state
       if (this.shapes.format == "GDS") {
-        this.display.setZScaleCheck(false);
-        this.display.setZScale("", false);
+        this.state.set("zscaleActive", false);
       }
       // clear render canvas
       this.renderer.clear();
@@ -809,9 +806,10 @@ class Viewer {
       // deselect measurement tools
       if (this.cadTools) {
         this.cadTools.disable();
-        if (this.display.currentButton != null) {
-          this.display.toolbarButtons[this.display.currentButton].set(false);
-          this.display.setTool(this.display.currentButton, false);
+        const currentTool = this.state.get("activeTool");
+        if (currentTool != null) {
+          this.state.set("activeTool", null);
+          this.display.setTool(currentTool, false);
         }
       }
 
@@ -1123,7 +1121,7 @@ class Viewer {
     // this needs to happen after the controls have been established
     if (viewerOptions.position == null && viewerOptions.quaternion == null) {
       this.presetCamera("iso", this.state.get("zoom"));
-      this.display.highlightButton("iso");
+      this.state.set("highlightedButton", "iso");
     } else if (viewerOptions.position != null) {
       this.setCamera(
         false,
@@ -1175,23 +1173,18 @@ class Viewer {
       gridFontSize: this.state.get("gridFontSize"),
       centerGrid: this.state.get("centerGrid"),
       axes0: this.state.get("axes0"),
-      grid: this.state.get("grid"),
+      grid: [...this.state.get("grid")], // Copy to avoid shared reference with state
       flipY: viewerOptions.up == "Z",
       theme: this.state.get("theme"),
       cadWidth: this.state.get("cadWidth"),
       height: this.state.get("height"),
       maxAnisotropy: this.renderer.capabilities.getMaxAnisotropy(),
-      tickValueElement: this.display._getElement("tcv_tick_size_value"),
-      tickInfoElement: this.display._getElement("tcv_tick_size"),
+      tickValueElement: this.display.tickValueElement,
+      tickInfoElement: this.display.tickInfoElement,
       getCamera: () => this.camera.getCamera(),
       isOrtho: () => this.state.get("ortho"),
       getAxes0: () => this.state.get("axes0"),
-      onGridChange: (allGrid, grids) => {
-        this.display.toolbarButtons["grid"].set(allGrid);
-        this.display.checkElement("tcv_grid-xy", grids[0]);
-        this.display.checkElement("tcv_grid-xz", grids[1]);
-        this.display.checkElement("tcv_grid-yz", grids[2]);
-      },
+      // Grid state is set by setGrid/setGrids methods after gridHelper updates
     });
     this.gridHelper.computeGrid();
 
@@ -1270,7 +1263,7 @@ class Viewer {
 
     this.setClipIntersection(viewerOptions.clipIntersection, true);
     this.setClipObjectColorCaps(viewerOptions.clipObjectColors, true);
-    this.setClipPlaneHelpersCheck(viewerOptions.clipPlaneHelpers, true);
+    // Clip plane helpers checkbox is synced via subscription with immediate:true
 
     this.scene.add(this.clipping);
     this.nestedGroup.setClipPlanes(this.clipping.clipPlanes);
@@ -1281,10 +1274,7 @@ class Viewer {
 
     this.toggleTab(false);
 
-    this.display.metalnessSlider.setValue(this.state.get("metalness") * 100);
-    this.display.roughnessSlider.setValue(this.state.get("roughness") * 100);
-    this.display.ambientlightSlider.setValue(this.state.get("ambientIntensity") * 100);
-    this.display.directionallightSlider.setValue(this.state.get("directIntensity") * 100);
+    // Material sliders are synced via subscriptions with immediate:true
 
     const theme =
       this.state.get("theme") === "dark" ||
@@ -1414,7 +1404,6 @@ class Viewer {
     this.state.set("ortho", flag);
     this.camera.switchCamera(flag, notify);
     this.controls.setCamera(this.camera.getCamera());
-    this.display.setOrthoCheck(flag);
 
     this.checkChanges({ ortho: flag }, notify);
 
@@ -1963,7 +1952,6 @@ class Viewer {
   setAxes = (flag, notify = true) => {
     this.state.set("axes", flag);
     this.axesHelper.setVisible(flag);
-    this.display.setAxesCheck(flag);
 
     this.checkChanges({ axes: flag }, notify);
 
@@ -1978,7 +1966,8 @@ class Viewer {
    */
   setGrid = (action, flag, notify = true) => {
     this.gridHelper.setGrid(action, flag);
-    this.state.set("grid", this.gridHelper.grid);
+    // Copy array to avoid reference comparison issues in state.set
+    this.state.set("grid", [...this.gridHelper.grid]);
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 
@@ -2001,7 +1990,8 @@ class Viewer {
    */
   setGrids = (grids, notify = true) => {
     this.gridHelper.setGrids(...grids);
-    this.state.set("grid", this.gridHelper.grid);
+    // Copy array to avoid reference comparison issues in state.set
+    this.state.set("grid", [...this.gridHelper.grid]);
 
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
 
@@ -2040,7 +2030,6 @@ class Viewer {
   setAxes0 = (flag, notify = true) => {
     this.state.set("axes0", flag);
     this.gridHelper.setCenter(flag, this.state.get("up") == "Z");
-    this.display.setAxes0Check(flag);
     this.axesHelper.setCenter(flag);
 
     this.checkChanges({ axes0: flag }, notify);
@@ -2060,18 +2049,14 @@ class Viewer {
    * Set the intensity of ambient light
    * @function
    * @param {number} val - the new ambient light intensity
-   * @param {boolean} [ui=false] - if true, set the UI slider value
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setAmbientLight = (val, ui = false, notify = true) => {
+  setAmbientLight = (val, notify = true) => {
     val = Math.max(0, Math.min(4, val));
     this.state.set("ambientIntensity", val);
     this.ambientLight.intensity = scaleLight(val);
     this.checkChanges({ ambient_intensity: val }, notify);
     this.update(this.updateMarker, notify);
-    if (ui) {
-      this.display.setAmbientLight(val);
-    }
   };
 
   /**
@@ -2085,18 +2070,14 @@ class Viewer {
    * Set the intensity of directional light
    * @function
    * @param {number} val - the new direct light intensity
-   * @param {boolean} [ui=false] - if true, set the UI slider value
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
-  setDirectLight = (val, ui = false, notify = true) => {
+  setDirectLight = (val, notify = true) => {
     val = Math.max(0, Math.min(4, val));
     this.state.set("directIntensity", val);
     this.directLight.intensity = scaleLight(val);
     this.checkChanges({ direct_intensity: val }, notify);
     this.update(this.updateMarker, notify);
-    if (ui) {
-      this.display.setDirectLight(val);
-    }
   };
 
   /**
@@ -2112,18 +2093,14 @@ class Viewer {
    * Sets the metalness value for the viewer and updates related properties.
    *
    * @param {number} value - The metalness value to set.
-   * @param {boolean} [ui=false] - Whether to update the UI with the new metalness value.
    * @param {boolean} [notify=true] - Whether to notify about the changes.
    */
-  setMetalness = (value, ui = false, notify = true) => {
+  setMetalness = (value, notify = true) => {
     value = Math.max(0, Math.min(1, value));
     this.state.set("metalness", value);
     this.nestedGroup.setMetalness(value);
     this.checkChanges({ metalness: value }, notify);
     this.update(this.updateMarker);
-    if (ui) {
-      this.display.setMetalness(value);
-    }
   };
 
   /**
@@ -2139,19 +2116,14 @@ class Viewer {
    * Sets the roughness value for the viewer and updates related components.
    *
    * @param {number} value - The roughness value to set.
-   * @param {boolean} [ui=false] - Whether to update the UI directly.
    * @param {boolean} [notify=true] - Whether to notify about the changes.
-   * @returns {void}
    */
-  setRoughness = (value, ui = false, notify = true) => {
+  setRoughness = (value, notify = true) => {
     value = Math.max(0, Math.min(1, value));
     this.state.set("roughness", value);
     this.nestedGroup.setRoughness(value);
     this.checkChanges({ roughness: value }, notify);
     this.update(this.updateMarker);
-    if (ui) {
-      this.display.setRoughness(value);
-    }
   };
 
   /**
@@ -2162,10 +2134,10 @@ class Viewer {
    * @returns {void}
    */
   resetMaterial = () => {
-    this.setMetalness(this.materialSettings.metalness, true, true);
-    this.setRoughness(this.materialSettings.roughness, true, true);
-    this.setAmbientLight(this.materialSettings.ambientIntensity, true, true);
-    this.setDirectLight(this.materialSettings.directIntensity, true, true);
+    this.setMetalness(this.materialSettings.metalness, true);
+    this.setRoughness(this.materialSettings.roughness, true);
+    this.setAmbientLight(this.materialSettings.ambientIntensity, true);
+    this.setDirectLight(this.materialSettings.directIntensity, true);
   };
 
   enableZebraTool = (flag) => {
@@ -2264,7 +2236,6 @@ class Viewer {
   setTransparent = (flag, notify = true) => {
     this.state.set("transparent", flag);
     this.nestedGroup.setTransparent(flag);
-    this.display.setTransparentCheck(flag);
 
     this.checkChanges({ transparent: flag }, notify);
 
@@ -2288,7 +2259,6 @@ class Viewer {
   setBlackEdges = (flag, notify = true) => {
     this.state.set("blackEdges", flag);
     this.nestedGroup.setBlackEdges(flag);
-    this.display.setBlackEdgesCheck(flag);
 
     this.checkChanges({ black_edges: flag }, notify);
 
@@ -2303,7 +2273,6 @@ class Viewer {
    */
   setTools = (flag, notify = true) => {
     this.state.set("tools", flag);
-    this.display.showTools(flag);
     this.checkChanges({ tools: flag }, notify);
   };
 
@@ -2315,7 +2284,6 @@ class Viewer {
    */
   setGlass = (flag, notify = true) => {
     this.state.set("glass", flag);
-    this.display.glassMode(flag);
     this.checkChanges({ glass: flag }, notify);
   };
 
@@ -2526,7 +2494,6 @@ class Viewer {
    */
   showTools = (flag, notify = true) => {
     this.state.set("tools", flag);
-    this.display.showTools(flag);
     this.update(this.updateMarker, notify);
   };
 
@@ -2636,7 +2603,6 @@ class Viewer {
 
     this.state.set("clipIntersection", flag);
     this.nestedGroup.setClipIntersection(flag);
-    this.display.setClipIntersectionCheck(flag);
 
     for (var child of this.nestedGroup.rootGroup.children) {
       if (child.name == "PlaneMeshes") {
@@ -2705,17 +2671,6 @@ class Viewer {
    **/
   getClipPlaneHelpers() {
     return this.state.get("clipPlaneHelpers");
-  }
-
-  /**
-   * Set clip plane helpers check box
-   * @function
-   * @param {boolean} flag - whether to show clip plane helpers
-   */
-  setClipPlaneHelpersCheck(flag) {
-    if (flag == null) return;
-
-    this.display.setClipPlaneHelpersCheck(flag);
   }
 
   /**
@@ -2796,23 +2751,23 @@ class Viewer {
    * Get clipping slider value.
    * @function
    * @param {number} index - index of the normal: 0, 1 ,2
-   * @returns {boolean} clip plane visibility value.
+   * @returns {number} clip slider value.
    **/
   getClipSlider = (index) => {
-    return this.display.clipSliders[index].getValue();
+    return this.state.get(`clipSlider${index}`);
   };
 
   /**
    * Set clipping slider value.
    * @function
    * @param {number} index - index of the normal: 0, 1 ,2
-   * @param {number} value - value for the clipping slide. will be trimmed to slide min/max limits
+   * @param {number} value - value for the clipping slider
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   setClipSlider = (index, value, notify = true) => {
     if (value == -1 || value == null) return;
 
-    this.display.clipSliders[index].setValue(value, notify);
+    this.state.set(`clipSlider${index}`, value, notify);
   };
 
   /**
@@ -2870,11 +2825,8 @@ class Viewer {
       image.height = this.state.get("height");
       image.src = data.dataUrl;
       if (this.pinAsPngCallback == null) {
-        // default, replace the elements of the container with the image
-        for (var c of this.display.container.children) {
-          this.display.container.removeChild(c);
-        }
-        this.display.container.appendChild(image);
+        // default, replace the viewer with the image
+        this.display.replaceWithImage(image);
       }
     });
   };
@@ -2977,6 +2929,30 @@ class Viewer {
   }
 
   /**
+   * Toggle explode mode on/off
+   * @param {boolean} flag - whether to enable or disable explode mode
+   */
+  setExplode(flag) {
+    const isExplodeActive = this.state.get("animationMode") === "explode";
+    if (flag === isExplodeActive) return;
+
+    if (flag) {
+      if (this.hasAnimation()) {
+        this.backupAnimation();
+      }
+      this.explode(); // This sets animationMode to "explode" via initAnimation
+    } else {
+      if (this.hasAnimation()) {
+        this.controlAnimation("stop");
+        this.clearAnimation(); // This sets animationMode to "none"
+        this.restoreAnimation();
+      } else {
+        this.state.set("animationMode", "none");
+      }
+    }
+  }
+
+  /**
    * Set modifiers for keymap
    *
    * @param {config} keymap - e.g. {"shift": "shiftKey", "ctrl": "ctrlKey", "meta": "altKey"}
@@ -3009,7 +2985,8 @@ class Viewer {
       cadWidth: cadWidth,
       height: height,
     });
-    this.display.glassMode(glass);
+    // Set glass state - subscription will update UI
+    this.state.set("glass", glass);
 
     const fullWidth = cadWidth + (glass ? 0 : treeWidth);
 
