@@ -20,7 +20,6 @@ export default defineConfig({
         'src/sizeof.js',      // Debug utility, not used in production
         'src/types.js',       // TypeScript type definitions (JSDoc only)
         'src/index.js',       // Re-export entry point
-        'src/fontloader/**',  // Third-party code
         'src/patches.js',     // Three.js workaround, not application logic
       ],
     },
