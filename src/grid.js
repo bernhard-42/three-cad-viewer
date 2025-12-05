@@ -290,6 +290,10 @@ class Grid extends THREE.Group {
    */
   calculateTextScale(pixel) {
     const camera = this.getCamera();
+    // Guard against disposed viewer (camera may be null during cleanup)
+    if (!camera) {
+      return pixel;
+    }
     const height = this.height;
 
     // Decrease fontsize for small canvases

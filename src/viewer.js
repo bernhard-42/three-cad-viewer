@@ -1194,9 +1194,9 @@ class Viewer {
       maxAnisotropy: this.renderer.capabilities.getMaxAnisotropy(),
       tickValueElement: this.display.tickValueElement,
       tickInfoElement: this.display.tickInfoElement,
-      getCamera: () => this.camera.getCamera(),
-      isOrtho: () => this.state.get("ortho"),
-      getAxes0: () => this.state.get("axes0"),
+      getCamera: () => this.camera?.getCamera() ?? null,
+      isOrtho: () => this.state?.get("ortho") ?? true,
+      getAxes0: () => this.state?.get("axes0") ?? false,
       // Grid state is set by setGrid/setGrids methods after gridHelper updates
     });
     this.gridHelper.computeGrid();

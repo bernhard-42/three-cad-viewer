@@ -38,6 +38,7 @@
     "@rollup/plugin-image": "^3.0.3",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
+    "@vitest/coverage-v8": "3.2.4",
     "@vitest/ui": "3.2.4",
     "cross-spawn": "^7.0.6",
     "eslint": "^9.32.0",
@@ -60,6 +61,11 @@
   "babel": {},
   "packageManager": "yarn@1.22.22",
   "resolutions": {
-    "esbuild": "0.25.9"
+    "esbuild": "0.25.9",
+    "semver": "7.7.2",
+    "glob": "10.4.5",
+    "@babel/parser": "7.27.7",
+    "@babel/types": "7.27.7",
+    "@babel/helper-validator-identifier": "7.27.1"
   }
 }

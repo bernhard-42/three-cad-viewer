@@ -130,9 +130,42 @@ export function setupViewer(displayOptions = {}, renderOptions = {}, viewerOptio
  * Cleanup both Viewer and Display
  */
 export function cleanup({ viewer, display, container }) {
-  // Dispose viewer resources if needed
-  if (viewer && viewer.renderer) {
-    viewer.renderer.dispose();
+  if (viewer) {
+    // Stop any animation loops first
+    viewer.hasAnimationLoop = false;
+
+    // Stop grid updates by overriding the camera reference closure BEFORE nulling camera
+    // The grid has getCamera closure that references viewer.camera
+    // We provide a mock camera that has the properties Grid expects
+    if (viewer.gridHelper) {
+      const mockCamera = { top: 1, bottom: -1, zoom: 1 };
+      viewer.gridHelper.getCamera = () => mockCamera;
+      viewer.gridHelper.isOrtho = () => true;
+    }
+
+    // Mock renderer methods that may not exist in test environment
+    if (viewer.renderer) {
+      if (!viewer.renderer.renderLists) {
+        viewer.renderer.renderLists = { dispose: () => {} };
+      }
+      if (!viewer.renderer.getContext) {
+        viewer.renderer.getContext = () => ({
+          getExtension: () => ({ loseContext: () => {} })
+        });
+      }
+    }
+
+    // Mock treeview dispose if needed
+    if (viewer.treeview && !viewer.treeview.dispose) {
+      viewer.treeview.dispose = () => {};
+    }
+
+    // Use viewer's own dispose method for proper cleanup
+    try {
+      viewer.dispose();
+    } catch (e) {
+      // Ignore errors during dispose in tests
+    }
   }
 
   cleanupContainer(container);

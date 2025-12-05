@@ -11,11 +11,18 @@ export default defineConfig({
     // Test file patterns
     include: ['tests/**/*.test.js'],
 
-    // Coverage configuration (optional for now)
+    // Coverage configuration
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
       include: ['src/**/*.js'],
+      exclude: [
+        'src/sizeof.js',      // Debug utility, not used in production
+        'src/types.js',       // TypeScript type definitions (JSDoc only)
+        'src/index.js',       // Re-export entry point
+        'src/fontloader/**',  // Third-party code
+        'src/patches.js',     // Three.js workaround, not application logic
+      ],
     },
 
     // Globals (optional - allows using expect, test, describe without importing)
