@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
-import { CameraControls } from "./controls/CameraControls.js";
+import { CADOrbitControls } from "./controls/CADOrbitControls.js";
+import { CADTrackballControls } from "./controls/CADTrackballControls.js";
 
 class Controls {
   /**
@@ -74,8 +75,7 @@ class Controls {
    * @param {boolean} [holroyd=true] - enable holroyd (non tumbling) mode.
    **/
   initTrackballControls(holroyd = true) {
-    this.controls = new CameraControls(this.camera, this.domElement);
-    this.controls.trackball = true;
+    this.controls = new CADTrackballControls(this.camera, this.domElement);
     this.setHolroydTrackball(holroyd);
   }
 
@@ -83,7 +83,7 @@ class Controls {
    * Initialize Orbit Controls.
    **/
   initOrbitControls() {
-    this.controls = new CameraControls(this.camera, this.domElement);
+    this.controls = new CADOrbitControls(this.camera, this.domElement);
   }
 
   /**
