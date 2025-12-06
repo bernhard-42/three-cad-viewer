@@ -1125,6 +1125,7 @@ class Viewer {
       this.state.get("rotateSpeed"),
       this.state.get("zoomSpeed"),
       this.state.get("panSpeed"),
+      this.state.get("holroyd"),
     );
     this.controls.enableKeys = false;
 
@@ -2658,6 +2659,27 @@ class Viewer {
   setRotateSpeed = (val, notify = true) => {
     this.state.set("rotateSpeed", val);
     this.controls.setRotateSpeed(val);
+    this.checkChanges({ grid: this.gridHelper.grid }, notify);
+  };
+
+  /**
+   * Get holroyd (non-tumbling) trackball mode.
+   * @returns {boolean} holroyd flag.
+   **/
+  getHolroyd() {
+    return this.state.get("holroyd");
+  }
+
+  /**
+   * Set holroyd (non-tumbling) trackball mode.
+   * When false, uses standard Three.js TrackballControls behavior.
+   * @function
+   * @param {boolean} flag - whether to enable holroyd mode.
+   * @param {boolean} [notify=true] - whether to send notification or not.
+   */
+  setHolroyd = (flag, notify = true) => {
+    this.state.set("holroyd", flag);
+    this.controls.setHolroydTrackball(flag);
     this.checkChanges({ grid: this.gridHelper.grid }, notify);
   };
 

@@ -101,8 +101,39 @@ Three-cad-viewer is a WebGL-based CAD viewer built on Three.js. The architecture
 | Class | File | Purpose |
 |-------|------|---------|
 | **Camera** | `camera.js` | Manages orthographic and perspective cameras. |
-| **Controls** | `controls.js` | Wraps OrbitControls and TrackballControls for camera manipulation. |
-| **CameraControls** | `controls/CameraControls.js` | Low-level control implementation. |
+| **Controls** | `controls.js` | Wraps CADOrbitControls and CADTrackballControls for camera manipulation. |
+| **CADTrackballControls** | `controls/CADTrackballControls.js` | Trackball with Holroyd non-tumbling rotation (default). |
+| **CADOrbitControls** | `controls/CADOrbitControls.js` | Orbit controls for constrained rotation. |
+
+#### Control Modes
+
+The viewer supports two control modes:
+
+1. **Trackball with Holroyd** (default): Non-tumbling trackball rotation where dragging in a circle returns to the original orientation. Provides intuitive "grab and rotate" behavior where the rotation axis depends on where you grab. Set `holroyd: false` to use standard Three.js TrackballControls behavior (useful for debugging).
+
+2. **Orbit**: Constrained rotation around vertical/horizontal axes. Camera always stays upright.
+
+#### Features (from Three.js base classes)
+
+Both control modes benefit from Three.js's modern control implementations:
+
+- **Unified pointer events**: Works with mouse, touch, pen, and trackpad
+- **Multi-touch support**: Pinch-to-zoom, two-finger pan
+- **Pointer capture**: Smooth dragging even when cursor leaves the element
+- **Zoom constraints**: `minDistance`, `maxDistance`, `minZoom`, `maxZoom`
+- **Configurable speeds**: `rotateSpeed`, `panSpeed`, `zoomSpeed` (normalized to 1.0 = default)
+
+#### Modifier Key Rotation Restrictions
+
+Both modes support modifier keys to restrict rotation to a single axis (uses KeyMapper for customization):
+
+| Modifier | Effect |
+|----------|--------|
+| **Ctrl + drag** | Vertical rotation only (up/down) |
+| **Meta + drag** | Horizontal rotation only (left/right) |
+| **Shift + drag** | Pan (both modes) |
+
+These work with all pointer types including touchscreens (e.g., laptop with touchscreen + keyboard).
 
 ### UI Components
 
@@ -607,7 +638,7 @@ ambientIntensity, directIntensity, metalness, roughness, defaultOpacity, edgeCol
 axes, axes0, grid, ortho, transparent, blackEdges, collapse,
 clipIntersection, clipPlaneHelpers, clipObjectColors,
 clipNormal0/1/2, clipSlider0/1/2,
-control, up, ticks, gridFontSize, centerGrid,
+control, holroyd, up, ticks, gridFontSize, centerGrid,
 position, quaternion, target, zoom, panSpeed, rotateSpeed, zoomSpeed
 ```
 
@@ -691,7 +722,8 @@ src/
 ├── camera.js                # Camera management
 ├── controls.js              # Camera controls wrapper
 ├── controls/
-│   └── CameraControls.js    # Control implementation
+│   ├── CADTrackballControls.js  # Trackball with Holroyd rotation
+│   └── CADOrbitControls.js      # Orbit controls
 │
 ├── treeview.js              # Tree DOM/events
 ├── tree-model.js            # Tree data/state

@@ -3,6 +3,21 @@ import * as THREE from "three";
 import { CADOrbitControls } from "./controls/CADOrbitControls.js";
 import { CADTrackballControls } from "./controls/CADTrackballControls.js";
 
+// Internal normalization factors for user-facing speed settings (1.0 = default experience)
+// TrackballControls and OrbitControls have different internal scaling, so we normalize separately
+const SPEED_FACTORS = {
+  trackball: {
+    pan: 0.25,
+    rotate: 1.0,
+    zoom: 0.5,
+  },
+  orbit: {
+    pan: 1.0,
+    rotate: 1.0,
+    zoom: 1.0,
+  },
+};
+
 class Controls {
   /**
    * Create Camera Controls.
@@ -13,6 +28,7 @@ class Controls {
    * @param {number} [rotateSpeed=1.0] - Speed for rotating.
    * @param {number} [zoomSpeed=1.0] - Speed for zooming.
    * @param {number} [panSpeed=1.0] - Speed for panning.
+   * @param {boolean} [holroyd=true] - Enable holroyd (non-tumbling) mode for trackball.
    */
   constructor(
     type,
@@ -22,6 +38,7 @@ class Controls {
     rotateSpeed = 1.0,
     zoomSpeed = 1.0,
     panSpeed = 1.0,
+    holroyd = true,
   ) {
     this.type = type;
     this.camera = camera;
@@ -31,26 +48,44 @@ class Controls {
     this.rotateSpeed = rotateSpeed;
     this.zoomSpeed = zoomSpeed;
     this.panSpeed = panSpeed;
+    this.holroyd = holroyd;
 
     switch (type) {
       case "orbit":
         this.initOrbitControls();
         break;
       case "trackball":
-        this.initTrackballControls();
+        this.initTrackballControls(holroyd);
         break;
     }
 
     this.controls.target = new THREE.Vector3(...this.target);
-    this.controls.rotateSpeed = this.rotateSpeed;
-    this.controls.zoomSpeed = this.zoomSpeed;
-    this.controls.panSpeed = this.panSpeed;
+    this._applySpeedFactors();
 
     this.currentUpdateCallback = null;
 
     // save default view for reset
     this.saveState();
     this.update();
+  }
+
+  /**
+   * Get the speed factors for the current control type.
+   * @private
+   */
+  _getSpeedFactors() {
+    return SPEED_FACTORS[this.type];
+  }
+
+  /**
+   * Apply speed factors to controls.
+   * @private
+   */
+  _applySpeedFactors() {
+    const factors = this._getSpeedFactors();
+    this.controls.rotateSpeed = this.rotateSpeed * factors.rotate;
+    this.controls.zoomSpeed = this.zoomSpeed * factors.zoom;
+    this.controls.panSpeed = this.panSpeed * factors.pan;
   }
 
   /**
@@ -162,26 +197,29 @@ class Controls {
 
   /**
    * Set the zoom speed.
-   * @param {number} val - the speed value.
+   * @param {number} val - the speed value (1.0 = default).
    **/
   setZoomSpeed(val) {
-    this.controls.zoomSpeed = val;
+    this.zoomSpeed = val;
+    this.controls.zoomSpeed = val * this._getSpeedFactors().zoom;
   }
 
   /**
    * Set the pan speed.
-   * @param {number} val - the speed value.
+   * @param {number} val - the speed value (1.0 = default).
    **/
   setPanSpeed(val) {
-    this.controls.panSpeed = val;
+    this.panSpeed = val;
+    this.controls.panSpeed = val * this._getSpeedFactors().pan;
   }
 
   /**
    * Set the rotate speed.
-   * @param {number} val - the speed value.
+   * @param {number} val - the speed value (1.0 = default).
    **/
   setRotateSpeed(val) {
-    this.controls.rotateSpeed = val;
+    this.rotateSpeed = val;
+    this.controls.rotateSpeed = val * this._getSpeedFactors().rotate;
   }
 
   /**

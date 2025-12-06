@@ -101,6 +101,7 @@ class ViewerState {
     clipSlider1: -1,
     clipSlider2: -1,
     control: "orbit",
+    holroyd: true,
     up: "Z",
     ticks: 10,
     gridFontSize: 10,
@@ -109,9 +110,9 @@ class ViewerState {
     quaternion: null,
     target: null,
     zoom: 1,
-    panSpeed: 0.5,
+    panSpeed: 1.0,
     rotateSpeed: 1.0,
-    zoomSpeed: 0.5,
+    zoomSpeed: 1.0,
     timeit: false,
   };
 

@@ -8,8 +8,16 @@
  */
 
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js";
-import { Quaternion, Vector2, Vector3 } from "three";
+import { MOUSE, Quaternion, Vector2, Vector3 } from "three";
 import { KeyMapper } from "../utils.js";
+
+// State constants matching TrackballControls internal state
+const STATE = {
+  NONE: -1,
+  ROTATE: 0,
+  ZOOM: 1,
+  PAN: 2,
+};
 
 // Used for change detection in holroyd mode
 const _lastQuaternion = new Quaternion();
@@ -19,6 +27,11 @@ const _quaternion = new Quaternion();
 const _axis = new Vector3();
 const _rotateStart3 = new Vector3();
 const _rotateEnd3 = new Vector3();
+
+// Reusable objects for pan calculations
+const _panDirection = new Vector3();
+const _cameraUp = new Vector3();
+const _cameraRight = new Vector3();
 
 const _AXES = {
   x: new Vector3(1, 0, 0),
@@ -79,34 +92,112 @@ class CADTrackballControls extends TrackballControls {
       domElement.addEventListener("pointerup", this._holroydPointerUp);
       domElement.addEventListener("pointercancel", this._holroydPointerUp);
     }
+
+    // Save parent's _onMouseDown before overriding (for holroyd=false fallback)
+    this._parentOnMouseDown = this._onMouseDown;
+    this._onMouseDown = this._handleMouseDown.bind(this);
+  }
+
+  /**
+   * Custom mouse down handler to support shift+drag for pan.
+   * When holroyd=false, delegates to parent for pure Three.js behavior.
+   * @private
+   */
+  _handleMouseDown(event) {
+    // When holroyd is disabled, use pure Three.js TrackballControls behavior
+    if (!this.holroyd) {
+      this._parentOnMouseDown(event);
+      return;
+    }
+
+    let mouseAction;
+
+    switch (event.button) {
+      case 0:
+        mouseAction = this.mouseButtons.LEFT;
+        break;
+      case 1:
+        mouseAction = this.mouseButtons.MIDDLE;
+        break;
+      case 2:
+        mouseAction = this.mouseButtons.RIGHT;
+        break;
+      default:
+        mouseAction = -1;
+    }
+
+    // Shift + left click = pan (via KeyMapper)
+    if (mouseAction === MOUSE.ROTATE && KeyMapper.get(event, "shift")) {
+      mouseAction = MOUSE.PAN;
+    }
+
+    switch (mouseAction) {
+      case MOUSE.DOLLY:
+        this.state = STATE.ZOOM;
+        break;
+      case MOUSE.ROTATE:
+        this.state = STATE.ROTATE;
+        break;
+      case MOUSE.PAN:
+        this.state = STATE.PAN;
+        break;
+      default:
+        this.state = STATE.NONE;
+    }
+
+    const state = this.keyState !== STATE.NONE ? this.keyState : this.state;
+
+    if (state === STATE.ROTATE && !this.noRotate) {
+      this._moveCurr.copy(this._getMouseOnCircle(event.pageX, event.pageY));
+      this._movePrev.copy(this._moveCurr);
+    } else if (state === STATE.ZOOM && !this.noZoom) {
+      this._zoomStart.copy(this._getMouseOnScreen(event.pageX, event.pageY));
+      this._zoomEnd.copy(this._zoomStart);
+    } else if (state === STATE.PAN && !this.noPan) {
+      this._panStart.copy(this._getMouseOnScreen(event.pageX, event.pageY));
+      this._panEnd.copy(this._panStart);
+    }
+
+    this.dispatchEvent({ type: "start" });
   }
 
   /**
    * Capture raw pointer coordinates on pointer down for holroyd.
+   * Works for all pointer types (mouse, touch, pen, trackpad).
    * Also checks modifier keys for rotation axis restriction.
    * @private
    */
   _onHolroydPointerDown(event) {
-    if (this.holroyd && event.pointerType !== "touch") {
-      this._holroydStart.set(event.pageX, event.pageY);
-      this._holroydEnd.set(event.pageX, event.pageY);
-      this._holroydActive = true;
+    if (!this.holroyd) return;
 
-      // Check modifier keys for rotation restriction
-      // ctrl: restrict to vertical rotation only (horizontalRotate = false)
-      // meta: restrict to horizontal rotation only (verticalRotate = false)
-      this._horizontalRotate = !KeyMapper.get(event, "ctrl");
-      this._verticalRotate = !KeyMapper.get(event, "meta");
-    }
+    // Only activate holroyd for rotation (left mouse button or touch)
+    // Right mouse (button 2) is for pan, middle (button 1) for zoom
+    // For touch, button is 0
+    if (event.button !== 0) return;
+
+    // Shift key triggers pan instead of rotation (via KeyMapper)
+    if (KeyMapper.get(event, "shift")) return;
+
+    this._holroydStart.set(event.pageX, event.pageY);
+    this._holroydEnd.set(event.pageX, event.pageY);
+    this._holroydActive = true;
+
+    // Check modifier keys for rotation restriction
+    // Works for all pointer types (e.g., touchscreen + keyboard on laptops)
+    // ctrl: restrict to vertical rotation only (horizontalRotate = false)
+    // meta: restrict to horizontal rotation only (verticalRotate = false)
+    this._horizontalRotate = !KeyMapper.get(event, "ctrl");
+    this._verticalRotate = !KeyMapper.get(event, "meta");
   }
 
   /**
    * Capture raw pointer coordinates on pointer move for holroyd.
    * Only captures when actively dragging.
+   * Works for all pointer types (mouse, touch, pen, trackpad).
    * @private
    */
   _onHolroydPointerMove(event) {
-    if (this.holroyd && this._holroydActive && event.pointerType !== "touch") {
+    if (this.holroyd && this._holroydActive) {
       this._holroydEnd.set(event.pageX, event.pageY);
     }
   }
@@ -220,8 +311,16 @@ class CADTrackballControls extends TrackballControls {
    * Standard TrackballControls calls lookAt() which recomputes the quaternion
    * from position and up. In holroyd mode, we set the quaternion directly,
    * so lookAt() would destroy the tilted rotation axis effect.
+   *
+   * When holroyd=false, delegates to parent for pure Three.js behavior.
    */
   update() {
+    // When holroyd is disabled, use pure Three.js TrackballControls behavior
+    if (!this.holroyd) {
+      super.update();
+      return;
+    }
+
     this._eye.subVectors(this.object.position, this.target);
 
     if (!this.noRotate) {
@@ -238,27 +337,15 @@ class CADTrackballControls extends TrackballControls {
 
     this.object.position.addVectors(this.target, this._eye);
 
-    if (this.holroyd) {
-      // In holroyd mode, we set quaternion directly - skip lookAt
-      // Just check for changes and dispatch event
-      if (
-        this._lastPosition.distanceToSquared(this.object.position) > 0.000001 ||
-        _lastQuaternion.dot(this.object.quaternion) < 0.999999
-      ) {
-        this.dispatchEvent({ type: "change" });
-        this._lastPosition.copy(this.object.position);
-        _lastQuaternion.copy(this.object.quaternion);
-      }
-    } else {
-      // Standard mode - use lookAt like parent
-      this.object.lookAt(this.target);
-
-      if (
-        this._lastPosition.distanceToSquared(this.object.position) > 0.000001
-      ) {
-        this.dispatchEvent({ type: "change" });
-        this._lastPosition.copy(this.object.position);
-      }
+    // In holroyd mode, we set quaternion directly - skip lookAt
+    // Just check for changes and dispatch event
+    if (
+      this._lastPosition.distanceToSquared(this.object.position) > 0.000001 ||
+      _lastQuaternion.dot(this.object.quaternion) < 0.999999
+    ) {
+      this.dispatchEvent({ type: "change" });
+      this._lastPosition.copy(this.object.position);
+      _lastQuaternion.copy(this.object.quaternion);
     }
   }
 
@@ -325,6 +412,51 @@ class CADTrackballControls extends TrackballControls {
 
     // Keep parent state consistent
     this._movePrev.copy(this._moveCurr);
+  }
+
+  /**
+   * Override pan to use quaternion-based camera orientation in holroyd mode.
+   *
+   * The parent TrackballControls uses this.object.up for pan direction,
+   * but in holroyd mode we rotate via quaternion without updating up.
+   * This calculates pan direction from the camera's actual orientation.
+   *
+   * @private
+   */
+  _panCamera() {
+    if (!this.holroyd) {
+      super._panCamera();
+      return;
+    }
+
+    const mouseChange = _panDirection.set(
+      this._panEnd.x - this._panStart.x,
+      this._panEnd.y - this._panStart.y,
+      0,
+    );
+
+    if (mouseChange.lengthSq() === 0) {
+      return;
+    }
+
+    // Scale factor tuned to align pan speed with mouse movement
+    mouseChange.multiplyScalar(this._eye.length() * this.panSpeed * 2.0);
+
+    // Get camera's actual right and up vectors from quaternion
+    // Camera looks down -Z in its local space, so:
+    // - local +X is right
+    // - local +Y is up
+    _cameraRight.set(1, 0, 0).applyQuaternion(this.object.quaternion);
+    _cameraUp.set(0, 1, 0).applyQuaternion(this.object.quaternion);
+
+    // Pan = right * mouseX + up * mouseY (negate X for correct direction)
+    _cameraRight.multiplyScalar(-mouseChange.x);
+    _cameraUp.multiplyScalar(mouseChange.y);
+
+    this.object.position.add(_cameraRight).add(_cameraUp);
+    this.target.add(_cameraRight).add(_cameraUp);
+
+    this._panStart.copy(this._panEnd);
   }
 
   /**
