@@ -427,6 +427,14 @@ class Display {
   // ---------------------------------------------------------------------------
 
   dispose() {
+    // Unsubscribe from all state subscriptions first (prevents callbacks to disposed UI)
+    if (this._unsubscribers) {
+      for (const unsubscribe of this._unsubscribers) {
+        unsubscribe();
+      }
+      this._unsubscribers = [];
+    }
+
     listeners.dispose();
 
     // Dispose toolbar and all its buttons/ellipses
@@ -754,34 +762,41 @@ class Display {
   }
 
   /**
-   * Subscribe to ViewerState changes to keep UI in sync
+   * Subscribe to ViewerState changes to keep UI in sync.
+   * Stores unsubscribe functions for cleanup in dispose().
    * @private
    */
   _subscribeToStateChanges() {
     const state = this.viewer.state;
+    this._unsubscribers = [];
+
+    // Helper to subscribe and track unsubscribe function
+    const sub = (key, callback, options) => {
+      this._unsubscribers.push(state.subscribe(key, callback, options));
+    };
 
     // Subscribe to individual state keys that affect UI
-    state.subscribe("axes", (change) => {
+    sub("axes", (change) => {
       this.toolbarButtons["axes"]?.set(change.new);
     });
 
-    state.subscribe("axes0", (change) => {
+    sub("axes0", (change) => {
       this.toolbarButtons["axes0"]?.set(change.new);
     });
 
-    state.subscribe("ortho", (change) => {
+    sub("ortho", (change) => {
       this.toolbarButtons["perspective"]?.set(!change.new);
     });
 
-    state.subscribe("transparent", (change) => {
+    sub("transparent", (change) => {
       this.toolbarButtons["transparent"]?.set(change.new);
     });
 
-    state.subscribe("blackEdges", (change) => {
+    sub("blackEdges", (change) => {
       this.toolbarButtons["blackedges"]?.set(change.new);
     });
 
-    state.subscribe(
+    sub(
       "grid",
       (change) => {
         const gridButton = this.toolbarButtons["grid"];
@@ -800,23 +815,23 @@ class Display {
       { immediate: true },
     );
 
-    state.subscribe("tools", (change) => {
+    sub("tools", (change) => {
       this.showTools(change.new);
     });
 
-    state.subscribe("glass", (change) => {
+    sub("glass", (change) => {
       this.glassMode(change.new);
     });
 
-    state.subscribe("theme", (change) => {
+    sub("theme", (change) => {
       this.setTheme(change.new);
     });
 
-    state.subscribe("clipIntersection", (change) => {
+    sub("clipIntersection", (change) => {
       this._getElement("tcv_clip_intersection").checked = change.new;
     });
 
-    state.subscribe(
+    sub(
       "clipPlaneHelpers",
       (change) => {
         this.checkElement("tcv_clip_plane_helpers", change.new);
@@ -824,45 +839,45 @@ class Display {
       { immediate: true },
     );
 
-    state.subscribe("clipObjectColors", (change) => {
+    sub("clipObjectColors", (change) => {
       this._getElement("tcv_clip_caps").checked = change.new;
     });
 
     // Clip slider subscriptions
-    state.subscribe("clipSlider0", (change) => {
+    sub("clipSlider0", (change) => {
       this.clipSliders[0]?.setValueFromState(change.new);
     });
-    state.subscribe("clipSlider1", (change) => {
+    sub("clipSlider1", (change) => {
       this.clipSliders[1]?.setValueFromState(change.new);
     });
-    state.subscribe("clipSlider2", (change) => {
+    sub("clipSlider2", (change) => {
       this.clipSliders[2]?.setValueFromState(change.new);
     });
 
     // Material slider subscriptions (state stores 0-1, sliders display 0-100 or 0-400)
     // Use immediate:true to sync sliders with initial state values
-    state.subscribe(
+    sub(
       "ambientIntensity",
       (change) => {
         this.ambientlightSlider?.setValueFromState(change.new * 100);
       },
       { immediate: true },
     );
-    state.subscribe(
+    sub(
       "directIntensity",
       (change) => {
         this.directionallightSlider?.setValueFromState(change.new * 100);
       },
       { immediate: true },
     );
-    state.subscribe(
+    sub(
       "metalness",
       (change) => {
         this.metalnessSlider?.setValueFromState(change.new * 100);
       },
       { immediate: true },
     );
-    state.subscribe(
+    sub(
       "roughness",
       (change) => {
         this.roughnessSlider?.setValueFromState(change.new * 100);
@@ -871,26 +886,26 @@ class Display {
     );
 
     // Zebra slider subscriptions
-    state.subscribe("zebraCount", (change) => {
+    sub("zebraCount", (change) => {
       this.zebraCountSlider?.setValueFromState(change.new);
     });
-    state.subscribe("zebraOpacity", (change) => {
+    sub("zebraOpacity", (change) => {
       this.zebraOpacitySlider?.setValueFromState(change.new);
     });
-    state.subscribe("zebraDirection", (change) => {
+    sub("zebraDirection", (change) => {
       this.zebraDirectionSlider?.setValueFromState(change.new);
     });
 
     // Zebra radio button subscriptions
-    state.subscribe("zebraColorScheme", (change) => {
+    sub("zebraColorScheme", (change) => {
       this.setZebraColorSchemeSelect(change.new);
     });
-    state.subscribe("zebraMappingMode", (change) => {
+    sub("zebraMappingMode", (change) => {
       this.setZebraMappingModeSelect(change.new);
     });
 
     // Animation/Explode mode subscription - controls slider visibility, label, and explode button
-    state.subscribe("animationMode", (change) => {
+    sub("animationMode", (change) => {
       const mode = change.new;
       // Show/hide slider control
       this.cadAnim.style.display = mode !== "none" ? "block" : "none";
@@ -900,7 +915,7 @@ class Display {
       // Update explode button state
       this.toolbarButtons["explode"]?.set(mode === "explode");
     });
-    state.subscribe(
+    sub(
       "animationSliderValue",
       (change) => {
         this.animationSlider.value = change.new;
@@ -909,12 +924,12 @@ class Display {
     );
 
     // ZScale toolbar button subscription
-    state.subscribe("zscaleActive", (change) => {
+    sub("zscaleActive", (change) => {
       this.toolbarButtons["zscale"]?.set(change.new);
     });
 
     // Camera button highlight subscription
-    state.subscribe("highlightedButton", (change) => {
+    sub("highlightedButton", (change) => {
       // Clear all highlights first
       const buttons = ["front", "rear", "top", "bottom", "left", "right", "iso"];
       buttons.forEach((btn) => {
@@ -927,7 +942,7 @@ class Display {
     });
 
     // Active tool subscription
-    state.subscribe("activeTool", (change) => {
+    sub("activeTool", (change) => {
       // Deactivate old tool button
       if (change.old) {
         this.toolbarButtons[change.old]?.set(false);
@@ -939,7 +954,7 @@ class Display {
     });
 
     // Active tab subscription
-    state.subscribe("activeTab", (change) => {
+    sub("activeTab", (change) => {
       this._switchToTab(change.new, change.old);
     });
   }
@@ -1132,7 +1147,7 @@ class Display {
 
   /**
    * Checkbox Handler for setting the tools mode.
-   * Uses state.activeTool to track the current tool.
+   * Delegates state mutations to Viewer.activateTool() to maintain unidirectional data flow.
    * @function
    * @param {string} name - tool name
    * @param {boolean} flag - whether to start or stop measure context
@@ -1142,10 +1157,9 @@ class Display {
     const currentTool = this.state.get("activeTool");
 
     if (flag) {
-      this.viewer.state.set("animationMode", "none");
-      if (this.viewer.hasAnimation()) {
-        this.viewer.backupAnimation();
-      }
+      // Delegate state mutations to Viewer
+      this.viewer.activateTool(name, true);
+
       if (
         ["distance", "properties", "angle", "select"].includes(name) &&
         !["distance", "properties", "angle", "select"].includes(currentTool)
@@ -1166,12 +1180,10 @@ class Display {
         this.viewer.cadTools.enable(ToolTypes.SELECT);
         this.viewer.checkChanges({ activeTool: ToolTypes.SELECT });
       }
-      this.state.set("activeTool", name);
     } else {
       if (currentTool === name || name === "explode") {
         this.viewer.toggleGroup(false);
         this.viewer.toggleTab(false);
-        this.state.set("activeTool", null);
       }
       if (name === "distance") {
         this.viewer.cadTools.disable(ToolTypes.DISTANCE);
@@ -1182,11 +1194,10 @@ class Display {
       }
       this.viewer.checkChanges({ activeTool: ToolTypes.NONE });
       this.viewer.clearSelection();
-      if (this.viewer.hasAnimation()) {
-        this.controlAnimationByName("stop");
-        this.viewer.clearAnimation();
-        this.viewer.restoreAnimation(); // This sets animationMode via initAnimation
-      }
+
+      // Delegate state mutations to Viewer
+      this.viewer.activateTool(name, false);
+
       this.viewer.setRaycastMode(flag);
     }
     this.viewer.setPickHandler(!flag);
@@ -1373,6 +1384,7 @@ class Display {
 
   /**
    * Handler to activate a UI tab (tree / clipping / material / zebra)
+   * Delegates to Viewer.setActiveTab() to maintain unidirectional data flow.
    * @function
    * @param {Event} e - a DOM click event
    */
@@ -1380,7 +1392,7 @@ class Display {
     const tab = e.target.className.split(" ")[0];
     const tabName = tab.slice(8); // Remove "tcv_tab-" prefix
     if (["clip", "tree", "material", "zebra"].includes(tabName)) {
-      this.state.set("activeTab", tabName);
+      this.viewer.setActiveTab(tabName);
     }
   };
 

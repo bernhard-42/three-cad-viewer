@@ -136,7 +136,6 @@ class Viewer {
     this.display.setupUI(this, this.renderer.domElement);
 
     console.debug("three-cad-viewer: WebGL Renderer created");
-    window.viewer = this;
   }
 
   /**
@@ -1032,9 +1031,19 @@ class Viewer {
    * Needs to be called in sync with toggleGroup!
    * @param boolean disable - true to disable clipping tab
    */
+  /**
+   * Set the active sidebar tab.
+   * @param {string} tabName - Tab name: "tree", "clip", "material", or "zebra"
+   */
+  setActiveTab(tabName) {
+    if (["tree", "clip", "material", "zebra"].includes(tabName)) {
+      this.state.set("activeTab", tabName);
+    }
+  }
+
   toggleTab(disable) {
     var timer = new Timer("toggleTab", this.state.get("timeit"));
-    this.state.set("activeTab", "tree");
+    this.setActiveTab("tree");
     timer.split("collapse tree");
     switch (this.state.get("collapse")) {
       case 0:
@@ -1477,35 +1486,12 @@ class Viewer {
   }
 
   /**
-   * TODO: Doesn't work as expected. Needs to be fixed.
-   *
-   * Set camera mode to OrthographicCamera or PersepctiveCamera (see also setOrtho)
-   * @param {number} distance - if provided, new camera distance
+   * Recenter camera on the bounding box center of all objects.
    * @param {boolean} [notify=true] - whether to send notification or not.
    */
   recenterCamera(notify = true) {
-    const camera = this.camera.getCamera();
-
-    const center = new THREE.Vector3();
-    const c = this.bbox.center();
-    center.fromArray(c);
-
-    const target = new THREE.Vector3();
-    const t = this.controls.target;
-    target.fromArray(t);
-
-    this.camera.camera_distance = 5 * this.bb_radius;
-    camera.position.sub(target).add(center);
-    this.controls.controls.target = center;
-
-    let cameraDir = new THREE.Vector3();
-    camera.getWorldDirection(cameraDir);
-
-    let p = center
-      .clone()
-      .add(cameraDir.normalize().multiplyScalar(-this.camera.camera_distance));
-    camera.position.set(p.x, p.y, p.z);
-
+    const target = new THREE.Vector3(...this.bbox.center());
+    this.setCameraTarget(target);
     this.update(true, notify);
   }
 
@@ -3014,6 +3000,36 @@ class Viewer {
         this.restoreAnimation();
       } else {
         this.state.set("animationMode", "none");
+      }
+    }
+  }
+
+  /**
+   * Activate or deactivate a measurement/selection tool.
+   * This is the single entry point for tool state changes - Display should call this
+   * rather than mutating state directly.
+   * @param {string} name - Tool name ("distance", "properties", "select")
+   * @param {boolean} flag - Whether to activate (true) or deactivate (false) the tool
+   */
+  activateTool(name, flag) {
+    const currentTool = this.state.get("activeTool");
+
+    if (flag) {
+      // Activating a tool
+      this.state.set("animationMode", "none");
+      if (this.hasAnimation()) {
+        this.backupAnimation();
+      }
+      this.state.set("activeTool", name);
+    } else {
+      // Deactivating a tool
+      if (currentTool === name || name === "explode") {
+        this.state.set("activeTool", null);
+      }
+      if (this.hasAnimation()) {
+        this.controlAnimation("stop");
+        this.clearAnimation();
+        this.restoreAnimation();
       }
     }
   }
