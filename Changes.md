@@ -1,5 +1,30 @@
 # Change log
 
+## v4.0.0
+
+**Architecture**
+
+- Major refactoring to decouple components and modernize the codebase
+- Introduced centralized `ViewerState` class for state management with subscription support
+- Decoupled `Viewer` from `Display` - Display now receives Viewer instance via dependency injection
+- Controls architecture rewritten with separate `CADOrbitControls` and `CADTrackballControls` classes
+- New `Controls` wrapper class providing unified API with normalized speed factors
+- Added `MaterialFactory` for centralized material creation and management
+- Improved memory management with consistent `dispose()` methods across all components
+
+**Features**
+
+- Added `holroyd` parameter to control non-tumbling trackball rotation mode
+- Exposed `getHolroyd()` and `setHolroyd()` methods on Viewer
+- Normalized control speed settings (pan, rotate, zoom) - 1.0 now means consistent default experience across control types
+- Added comprehensive unit and integration test suite (1100+ tests, 94% coverage)
+
+**Fixes**
+
+- Fixed trackball panning speed to be more responsive
+- Fixed holroyd (non-tumbling) trackball rotation
+- Ensured proper disposal of all Three.js objects to prevent memory leaks
+
 ## v3.6.3
 
 **Fixes**
@@ -11,10 +36,10 @@
 **Features**
 
 - Dynamic theme support
-    - Grid now scales dynamically based on zoom level
-    - Beautified grid with dashes and different colors for better visual clarity
-    - Enhanced grid font rendering with improved axis label readability
-    - New paramter "gridFontSize" with default 12
+  - Grid now scales dynamically based on zoom level
+  - Beautified grid with dashes and different colors for better visual clarity
+  - Enhanced grid font rendering with improved axis label readability
+  - New paramter "gridFontSize" with default 12
 - Viewer now automatically reacts to theme changes from the browser or OS
 - Add viewer version to ready message for better debugging
 - Introduced EventListenerManager for better event disposal
@@ -24,15 +49,15 @@
 **Fixes**
 
 - Theme handling
-    - Remove wrong theme setting and 'dark' property
-    - Set initial theme properly on viewer initialization
-    - Ensure body background is theme sensitive
-- Remove context menu from help dialog 
+  - Remove wrong theme setting and 'dark' property
+  - Set initial theme properly on viewer initialization
+  - Ensure body background is theme sensitive
+- Remove context menu from help dialog
 - Make keymap routine more robust
 - Improve heuristics for various viewer operations
 - Add overflow hidden to body tag to prevent scrolling issues
 - Bump version of three.js to 0.180.0
-  
+
 ## v3.6.1
 
 **Features**
@@ -56,10 +81,11 @@
 - The view preset buttons in the toolbar now respect shift and will center the to all visible objects only
 
 For the following features you need a measure backend, e.g. as in [VS Code OCP Viewer](https://github.com/bernhard-42/vscode-ocp-cad-viewer)
+
 - Removed angle measure button, it is integrated in distance measure
 - Simplified filter management in measure mode since angle tool vanished
 - Changed shift modifier in distance measure mode to distinguish between min and center distance
-- Changed the hard coded DEBUG flag in measure mode to a display options parameter measurementDebug 
+- Changed the hard coded DEBUG flag in measure mode to a display options parameter measurementDebug
 
 **Fixes**
 
@@ -80,6 +106,7 @@ For the following features you need a measure backend, e.g. as in [VS Code OCP V
 - Ensure tools get properly disabled
 
 ## v3.4.1
+
 **Features**
 
 - Clicking on a tree label with shift+meta hides all others without change of location
@@ -97,33 +124,31 @@ For the following features you need a measure backend, e.g. as in [VS Code OCP V
 
 **Fixes**
 
-- Add _ in vertex enumeration for the expanded mode
-
+- Add \_ in vertex enumeration for the expanded mode
 
 ## v3.3.5
 
-**Fixes** 
+**Fixes**
 
 - Move disposing of shapes and groups to clear()
 - Fix wrong order of parameters in the Viewer.render function
 - Add a color indicator to the objects in the navigation tree
 
-
 ## v3.3.4
 
-**Fixes** 
+**Fixes**
 
 - Move packages "cross-spawn" and "html-minifier" to dev dependencies
 
 ## v3.3.3
 
-**Fixes** 
+**Fixes**
 
 - Fix center_grid parameter name
 
 ## v3.3.2
 
-**Fixes** 
+**Fixes**
 
 - Ensure theme is only set for container and not for document
 - Replace scrollIntoView for the navigation tree with own logic to avoid page jumps in Jupyter
@@ -131,7 +156,7 @@ For the following features you need a measure backend, e.g. as in [VS Code OCP V
 
 ## v3.3.1
 
-**Fixes** 
+**Fixes**
 
 - Fix top level bounding box
 

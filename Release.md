@@ -8,25 +8,31 @@ To release a new version, call:
 
 2. Build package
 
-   Edit version in package.json and index.html
+   Edit version in `package.json` (the build script automatically updates `src/_version.js`)
 
    ```shell
    yarn run build
    ```
 
-3. Create docs
+3. Run tests
+
+   ```shell
+   yarn test:run
+   ```
+
+4. Create docs
 
    ```shell
    yarn run docs
    ```
 
-4. Publish package
+5. Publish package
 
    ```shell
    npm publish
    ```
 
-5. Push release, e.g. 1.2.5
+6. Push release, e.g. 4.0.0
 
    Ensure GITHUB_TOKEN is set!
 
