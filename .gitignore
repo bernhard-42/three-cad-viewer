@@ -8,3 +8,4 @@ scratch
 *.tgz
 .claude
 ANALYSIS
+coverage/

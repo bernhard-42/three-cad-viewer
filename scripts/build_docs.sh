@@ -1,4 +1,5 @@
 #!/bin/bash
+cd "$(dirname "$0")/.."
 
 rm -fr docs
 mkdir -p docs/dist

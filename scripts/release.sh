@@ -1,4 +1,6 @@
 #!/bin/bash
+cd "$(dirname "$0")/.."
+
 CURRENT_VERSION=$(cat package.json | jq -r .version)
 
 if [[ "$GITHUB_TOKEN" == "" ]]; then
