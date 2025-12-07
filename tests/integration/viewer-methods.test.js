@@ -1799,7 +1799,7 @@ describe('Viewer - Backend Response', () => {
     // Mock cadTools.handleResponse
     viewer.cadTools.handleResponse = vi.fn();
 
-    viewer.handleBackendResponse({ subtype: 'tool_response', data: {} });
+    viewer.handleBackendResponse({ subtype: 'tool_response', tool_type: 'DistanceMeasurement', data: {} });
 
     expect(viewer.cadTools.handleResponse).toHaveBeenCalled();
   });

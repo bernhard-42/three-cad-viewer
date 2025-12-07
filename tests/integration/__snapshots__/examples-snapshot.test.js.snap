@@ -47,7 +47,7 @@ exports[`Examples - Snapshot Tests > box1 scene state snapshot 1`] = `
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -113,7 +113,7 @@ exports[`Examples - Snapshot Tests > box1 scene state snapshot 1`] = `
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -517,7 +517,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
       {
         "materialVisible": undefined,
         "name": "|c1",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -583,7 +583,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
       {
         "materialVisible": undefined,
         "name": "|c1|c2",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -709,7 +709,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
       {
         "materialVisible": undefined,
         "name": "|c1|c3",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -835,7 +835,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -1335,7 +1335,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_feet 
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -1401,7 +1401,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_feet 
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -1677,7 +1677,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_mm > 
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -1743,7 +1743,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_mm > 
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -2083,13 +2083,13 @@ exports[`Examples - Snapshot Tests > important snapshot for boxes > boxes-scene 
       {
         "materialVisible": undefined,
         "name": "|ensemble",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
         "materialVisible": undefined,
         "name": "|ensemble|red box",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -2155,7 +2155,7 @@ exports[`Examples - Snapshot Tests > important snapshot for boxes > boxes-scene 
       {
         "materialVisible": undefined,
         "name": "|ensemble|green box",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -2221,7 +2221,7 @@ exports[`Examples - Snapshot Tests > important snapshot for boxes > boxes-scene 
       {
         "materialVisible": undefined,
         "name": "|ensemble|blue box",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -2287,7 +2287,7 @@ exports[`Examples - Snapshot Tests > important snapshot for boxes > boxes-scene 
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -3155,7 +3155,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "|hexapod",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -3401,7 +3401,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "|hexapod|left_front_leg",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -3467,7 +3467,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "|hexapod|left_front_leg|lower_leg",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -3533,7 +3533,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "|hexapod|left_middle_leg",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -3599,7 +3599,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "|hexapod|left_middle_leg|lower_leg",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -3665,7 +3665,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "|hexapod|left_back_leg",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -3731,7 +3731,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "|hexapod|left_back_leg|lower_leg",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -3797,7 +3797,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "|hexapod|right_front_leg",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -3863,7 +3863,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "|hexapod|right_front_leg|lower_leg",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -3929,7 +3929,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "|hexapod|right_middle_leg",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -3995,7 +3995,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "|hexapod|right_middle_leg|lower_leg",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -4061,7 +4061,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "|hexapod|right_back_leg",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -4127,7 +4127,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "|hexapod|right_back_leg|lower_leg",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -4193,7 +4193,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -5501,13 +5501,13 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       {
         "materialVisible": undefined,
         "name": "|jansen",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
         "materialVisible": undefined,
         "name": "|jansen|link(0, 3, 4)",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -5573,7 +5573,7 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       {
         "materialVisible": undefined,
         "name": "|jansen|link(5, 6, 7)",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -5639,7 +5639,7 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       {
         "materialVisible": undefined,
         "name": "|jansen|link(1, 2)",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -5705,7 +5705,7 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       {
         "materialVisible": undefined,
         "name": "|jansen|link(2, 3)",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -5771,7 +5771,7 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       {
         "materialVisible": undefined,
         "name": "|jansen|link(2, 5)",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -5837,7 +5837,7 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       {
         "materialVisible": undefined,
         "name": "|jansen|link(4, 6)",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -5903,7 +5903,7 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       {
         "materialVisible": undefined,
         "name": "|jansen|link(0, 5)",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -5969,7 +5969,7 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -6581,7 +6581,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box > box-scene 1`] = `
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -6647,7 +6647,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box > box-scene 1`] = `
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -6923,7 +6923,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box1 > box1-scene 1`] = 
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -6989,7 +6989,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box1 > box1-scene 1`] = 
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -7273,7 +7273,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for edges > edges-scene 1`] 
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -7351,7 +7351,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for edges > edges-scene 1`] 
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -7665,7 +7665,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -7755,7 +7755,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -8048,7 +8048,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for objs1d > objs1d-scene 1`
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -8090,7 +8090,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for objs1d > objs1d-scene 1`
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -8301,7 +8301,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-edges > single-ed
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -8319,7 +8319,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-edges > single-ed
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -8543,7 +8543,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-faces > single-fa
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -8573,7 +8573,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-faces > single-fa
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -8785,7 +8785,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-vertices > single
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -8803,7 +8803,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-vertices > single
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -9022,7 +9022,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for vertices > vertices-scen
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -9100,7 +9100,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for vertices > vertices-scen
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],

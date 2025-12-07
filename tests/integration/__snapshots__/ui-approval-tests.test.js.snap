@@ -48,7 +48,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -114,7 +114,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -387,7 +387,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -453,7 +453,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -726,7 +726,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -792,7 +792,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -1065,7 +1065,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -1131,7 +1131,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -1404,7 +1404,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -1470,7 +1470,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -1743,7 +1743,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -1809,7 +1809,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -2082,7 +2082,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -2148,7 +2148,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -2426,7 +2426,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -2492,7 +2492,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -2765,7 +2765,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -2831,7 +2831,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -3104,7 +3104,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -3170,7 +3170,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -3448,7 +3448,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -3514,7 +3514,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -3787,7 +3787,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -3853,7 +3853,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -4126,7 +4126,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -4192,7 +4192,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -4598,7 +4598,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -4664,7 +4664,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -4790,7 +4790,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -4916,7 +4916,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -5541,7 +5541,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -5607,7 +5607,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -5733,7 +5733,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -5859,7 +5859,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -6484,7 +6484,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -6550,7 +6550,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -6676,7 +6676,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -6802,7 +6802,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -7427,7 +7427,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -7493,7 +7493,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -7619,7 +7619,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -7745,7 +7745,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -8370,7 +8370,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -8436,7 +8436,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -8562,7 +8562,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -8688,7 +8688,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -9189,7 +9189,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -9255,7 +9255,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -9532,7 +9532,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -9598,7 +9598,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -9871,7 +9871,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -9937,7 +9937,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -10210,7 +10210,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -10276,7 +10276,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -10554,7 +10554,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -10620,7 +10620,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -10893,7 +10893,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -10959,7 +10959,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -11237,7 +11237,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -11303,7 +11303,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -11576,7 +11576,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -11642,7 +11642,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -11915,7 +11915,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -11981,7 +11981,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -12259,7 +12259,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -12325,7 +12325,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -12598,7 +12598,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -12664,7 +12664,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -12943,7 +12943,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           {
             "materialVisible": undefined,
             "name": "|Group",
-            "type": "Group",
+            "type": "CompoundGroup",
             "visible": true,
           },
           {
@@ -13009,7 +13009,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           {
             "materialVisible": undefined,
             "name": "PlaneMeshes",
-            "type": "Group",
+            "type": "CompoundGroup",
             "visible": true,
           },
         ],
@@ -13286,7 +13286,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           {
             "materialVisible": undefined,
             "name": "|Group",
-            "type": "Group",
+            "type": "CompoundGroup",
             "visible": true,
           },
           {
@@ -13352,7 +13352,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           {
             "materialVisible": undefined,
             "name": "PlaneMeshes",
-            "type": "Group",
+            "type": "CompoundGroup",
             "visible": true,
           },
         ],
@@ -13629,7 +13629,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           {
             "materialVisible": undefined,
             "name": "|Group",
-            "type": "Group",
+            "type": "CompoundGroup",
             "visible": true,
           },
           {
@@ -13695,7 +13695,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           {
             "materialVisible": undefined,
             "name": "PlaneMeshes",
-            "type": "Group",
+            "type": "CompoundGroup",
             "visible": true,
           },
         ],
@@ -13972,7 +13972,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           {
             "materialVisible": undefined,
             "name": "|Group",
-            "type": "Group",
+            "type": "CompoundGroup",
             "visible": true,
           },
           {
@@ -14038,7 +14038,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           {
             "materialVisible": undefined,
             "name": "PlaneMeshes",
-            "type": "Group",
+            "type": "CompoundGroup",
             "visible": true,
           },
         ],
@@ -14319,7 +14319,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -14385,7 +14385,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -14658,7 +14658,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -14724,7 +14724,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -14997,7 +14997,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -15063,7 +15063,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -15341,7 +15341,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -15407,7 +15407,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -15680,7 +15680,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -15746,7 +15746,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -16019,7 +16019,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -16085,7 +16085,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -16363,7 +16363,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -16429,7 +16429,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -16702,7 +16702,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -16768,7 +16768,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -17046,7 +17046,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -17112,7 +17112,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -17385,7 +17385,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -17451,7 +17451,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -17729,7 +17729,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -17795,7 +17795,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -18068,7 +18068,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -18134,7 +18134,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -18412,7 +18412,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -18478,7 +18478,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -18751,7 +18751,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -18817,7 +18817,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -19223,7 +19223,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -19289,7 +19289,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -19415,7 +19415,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -19541,7 +19541,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -20166,7 +20166,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -20232,7 +20232,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -20358,7 +20358,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -20484,7 +20484,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],

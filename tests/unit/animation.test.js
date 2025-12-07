@@ -17,7 +17,7 @@ describe('Animation - Constructor', () => {
     expect(anim.clip).toBeNull();
     expect(anim.clipAction).toBeNull();
     expect(anim.clock).toBeDefined();
-    expect(anim._backup).toEqual([]);
+    expect(anim._backup).toBeNull();
     expect(anim.root).toBeNull();
   });
 
@@ -188,7 +188,7 @@ describe('Animation - Backup & Restore', () => {
     expect(Object.keys(anim._backup).length).toBeGreaterThan(0);
 
     anim.cleanBackup();
-    expect(anim._backup).toEqual([]);
+    expect(anim._backup).toBeNull();
   });
 });
 

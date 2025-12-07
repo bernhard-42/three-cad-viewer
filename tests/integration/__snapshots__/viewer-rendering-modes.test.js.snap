@@ -47,7 +47,7 @@ exports[`Viewer - Rendering Modes > compact mode (exploded=false) - renders soli
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -113,7 +113,7 @@ exports[`Viewer - Rendering Modes > compact mode (exploded=false) - renders soli
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],

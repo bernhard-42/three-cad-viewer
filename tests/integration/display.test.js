@@ -217,11 +217,11 @@ describe('Display - Helper Methods', () => {
     container = null;
   });
 
-  test('_getElement returns DOM element by class name', () => {
+  test('cadView property returns correct DOM element', () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
-    const element = display._getElement('tcv_cad_view');
+    const element = display.container.getElementsByClassName('tcv_cad_view')[0];
     expect(element).toBeDefined();
     expect(element).toBe(display.cadView);
   });
@@ -231,7 +231,7 @@ describe('Display - Helper Methods', () => {
     display = new Display(container, getDisplayOptions());
 
     display.checkElement('tcv_clip_plane_helpers', true);
-    const el = display._getElement('tcv_clip_plane_helpers');
+    const el = display.container.getElementsByClassName('tcv_clip_plane_helpers')[0];
     expect(el.checked).toBe(true);
 
     display.checkElement('tcv_clip_plane_helpers', false);
@@ -314,7 +314,7 @@ describe('Display - Show/Hide Methods', () => {
     display = new Display(container, getDisplayOptions());
 
     display.showTools(false);
-    const toolbar = display._getElement('tcv_cad_toolbar');
+    const toolbar = display.container.getElementsByClassName('tcv_cad_toolbar')[0];
     expect(toolbar.style.display).toBe('none');
 
     display.showTools(true);
@@ -381,7 +381,7 @@ describe('Display - Show/Hide Methods', () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
-    const el = display._getElement('tcv_explode_widget');
+    const el = display.container.getElementsByClassName('tcv_explode_widget')[0];
     // Element may not exist in minimal test DOM
     if (el) {
       display.showExplode(true);
@@ -401,7 +401,7 @@ describe('Display - Show/Hide Methods', () => {
     display = new Display(container, getDisplayOptions());
 
     display.showZScale(true);
-    const el = display._getElement('tcv_cad_zscale');
+    const el = display.container.getElementsByClassName('tcv_cad_zscale')[0];
     expect(el.style.display).toBe('inline-block');
 
     display.showZScale(false);
@@ -674,11 +674,11 @@ describe('Display - State Subscriptions', () => {
 
     viewer.state.set('animationMode', 'explode');
     expect(display.cadAnim.style.display).toBe('block');
-    expect(display._getElement('tcv_animation_label').innerHTML).toBe('E');
+    expect(display.container.getElementsByClassName('tcv_animation_label')[0].innerHTML).toBe('E');
 
     viewer.state.set('animationMode', 'animation');
     expect(display.cadAnim.style.display).toBe('block');
-    expect(display._getElement('tcv_animation_label').innerHTML).toBe('A');
+    expect(display.container.getElementsByClassName('tcv_animation_label')[0].innerHTML).toBe('A');
 
     viewer.state.set('animationMode', 'none');
     expect(display.cadAnim.style.display).toBe('none');
@@ -689,10 +689,10 @@ describe('Display - State Subscriptions', () => {
     const { viewer, display } = testContext;
 
     viewer.state.set('clipPlaneHelpers', true);
-    expect(display._getElement('tcv_clip_plane_helpers').checked).toBe(true);
+    expect(display.container.getElementsByClassName('tcv_clip_plane_helpers')[0].checked).toBe(true);
 
     viewer.state.set('clipPlaneHelpers', false);
-    expect(display._getElement('tcv_clip_plane_helpers').checked).toBe(false);
+    expect(display.container.getElementsByClassName('tcv_clip_plane_helpers')[0].checked).toBe(false);
   });
 
   test('subscribes to clipIntersection state changes', () => {
@@ -700,10 +700,10 @@ describe('Display - State Subscriptions', () => {
     const { viewer, display } = testContext;
 
     viewer.state.set('clipIntersection', true);
-    expect(display._getElement('tcv_clip_intersection').checked).toBe(true);
+    expect(display.container.getElementsByClassName('tcv_clip_intersection')[0].checked).toBe(true);
 
     viewer.state.set('clipIntersection', false);
-    expect(display._getElement('tcv_clip_intersection').checked).toBe(false);
+    expect(display.container.getElementsByClassName('tcv_clip_intersection')[0].checked).toBe(false);
   });
 
   test('subscribes to clipObjectColors state changes', () => {
@@ -711,10 +711,10 @@ describe('Display - State Subscriptions', () => {
     const { viewer, display } = testContext;
 
     viewer.state.set('clipObjectColors', true);
-    expect(display._getElement('tcv_clip_caps').checked).toBe(true);
+    expect(display.container.getElementsByClassName('tcv_clip_caps')[0].checked).toBe(true);
 
     viewer.state.set('clipObjectColors', false);
-    expect(display._getElement('tcv_clip_caps').checked).toBe(false);
+    expect(display.container.getElementsByClassName('tcv_clip_caps')[0].checked).toBe(false);
   });
 
   test('subscribes to highlightedButton state changes', () => {
@@ -786,7 +786,7 @@ describe('Display - Tab Navigation', () => {
     expect(viewer.state.get('activeTab')).toBe('clip');
   });
 
-  test('_switchToTab shows correct containers for tree tab', () => {
+  test('switching to tree tab shows correct containers', () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -797,7 +797,7 @@ describe('Display - Tab Navigation', () => {
     viewer.nestedGroup = { setBackVisible: vi.fn() };
     viewer.checkChanges = vi.fn();
 
-    display._switchToTab('tree', 'clip');
+    viewer.setActiveTab('tree');
 
     expect(display.cadTree.style.display).toBe('block');
     expect(display.cadClip.style.display).toBe('none');
@@ -805,7 +805,7 @@ describe('Display - Tab Navigation', () => {
     expect(display.cadZebra.style.display).toBe('none');
   });
 
-  test('_switchToTab shows correct containers for clip tab', () => {
+  test('switching to clip tab shows correct containers', () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -818,7 +818,7 @@ describe('Display - Tab Navigation', () => {
     viewer.checkChanges = vi.fn();
     viewer.update = vi.fn();
 
-    display._switchToTab('clip', 'tree');
+    viewer.setActiveTab('clip');
 
     expect(display.cadTree.style.display).toBe('none');
     expect(display.cadClip.style.display).toBe('block');
@@ -826,7 +826,7 @@ describe('Display - Tab Navigation', () => {
     expect(display.cadZebra.style.display).toBe('none');
   });
 
-  test('_switchToTab shows correct containers for material tab', () => {
+  test('switching to material tab shows correct containers', () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -837,7 +837,7 @@ describe('Display - Tab Navigation', () => {
     viewer.nestedGroup = { setBackVisible: vi.fn() };
     viewer.checkChanges = vi.fn();
 
-    display._switchToTab('material', 'tree');
+    viewer.setActiveTab('material');
 
     expect(display.cadTree.style.display).toBe('none');
     expect(display.cadClip.style.display).toBe('none');
@@ -845,7 +845,7 @@ describe('Display - Tab Navigation', () => {
     expect(display.cadZebra.style.display).toBe('none');
   });
 
-  test('_switchToTab shows correct containers for zebra tab', () => {
+  test('switching to zebra tab shows correct containers', () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -857,7 +857,7 @@ describe('Display - Tab Navigation', () => {
     viewer.enableZebraTool = vi.fn();
     viewer.checkChanges = vi.fn();
 
-    display._switchToTab('zebra', 'tree');
+    viewer.setActiveTab('zebra');
 
     expect(display.cadTree.style.display).toBe('none');
     expect(display.cadClip.style.display).toBe('none');
@@ -865,7 +865,7 @@ describe('Display - Tab Navigation', () => {
     expect(display.cadZebra.style.display).toBe('block');
   });
 
-  test('_switchToTab updates tab styling', () => {
+  test('switching tabs updates tab styling', () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -878,18 +878,18 @@ describe('Display - Tab Navigation', () => {
     viewer.checkChanges = vi.fn();
     viewer.update = vi.fn();
 
-    display._switchToTab('clip', 'tree');
+    viewer.setActiveTab('clip');
 
     expect(display.tabClip.classList.contains('tcv_tab-selected')).toBe(true);
     expect(display.tabTree.classList.contains('tcv_tab-unselected')).toBe(true);
   });
 
-  test('_switchToTab ignores invalid tab names', () => {
+  test('setting invalid tab name does not crash', () => {
     testContext = setupViewer();
-    const { display } = testContext;
+    const { viewer } = testContext;
 
-    // Should not throw
-    display._switchToTab('invalid', 'tree');
+    // Should not throw - state will just not change
+    expect(() => viewer.state.set('activeTab', 'invalid')).not.toThrow();
   });
 
   test('toggleClippingTab enables/disables clip tab', () => {
@@ -1477,8 +1477,8 @@ describe('Display - Theme & Glass Mode', () => {
     display.glassMode(true);
 
     expect(display.glass).toBe(true);
-    expect(display._getElement('tcv_cad_tree').classList.contains('tcv_cad_tree_glass')).toBe(true);
-    expect(display._getElement('tcv_cad_info').classList.contains('tcv_cad_info_glass')).toBe(true);
+    expect(display.container.getElementsByClassName('tcv_cad_tree')[0].classList.contains('tcv_cad_tree_glass')).toBe(true);
+    expect(display.container.getElementsByClassName('tcv_cad_info')[0].classList.contains('tcv_cad_info_glass')).toBe(true);
   });
 
   test('glassMode disables glass mode', () => {
@@ -1489,7 +1489,7 @@ describe('Display - Theme & Glass Mode', () => {
     display.glassMode(false);
 
     expect(display.glass).toBe(false);
-    expect(display._getElement('tcv_cad_tree').classList.contains('tcv_cad_tree_glass')).toBe(false);
+    expect(display.container.getElementsByClassName('tcv_cad_tree')[0].classList.contains('tcv_cad_tree_glass')).toBe(false);
   });
 
   test('autoCollapse collapses tree in small glass mode', () => {

@@ -65,11 +65,29 @@ function createMockDisplay() {
 
   return {
     container,
-    _getElement: (id) => document.getElementById(id),
     shapeFilterDropDownMenu: {
       reset: vi.fn(),
       show: vi.fn(),
       setRaycaster: vi.fn(),
+    },
+    // New interface properties
+    measurementPanels: {
+      distancePanel: distancePanel,
+      propertiesPanel: propertiesPanel,
+    },
+    filterDropdown: {
+      container: filterSelect,
+      dropdown: filterDropdown,
+      icon: filterIcon,
+      value: filterValue,
+      content: filterContent,
+      options: {
+        none: document.getElementById('tvc_filter_none'),
+        vertex: document.getElementById('tvc_filter_vertex'),
+        edge: document.getElementById('tvc_filter_edge'),
+        face: document.getElementById('tvc_filter_face'),
+        solid: document.getElementById('tvc_filter_solid'),
+      },
     },
     cleanup: () => {
       if (container.parentNode) {
@@ -1137,14 +1155,18 @@ describe('Panel', () => {
       expect(tablesAfter).toBe(tablesBefore);
     });
 
-    test('_removeTable removes existing table', () => {
+    test('creating new table removes existing table', () => {
       panel.createTable({ Distance: 1 });
       expect(panel.html.querySelector('table')).not.toBeNull();
 
-      panel._removeTable();
+      // Reset finished flag to allow another createTable
+      panel.finished = false;
 
-      expect(panel.html.querySelector('table')).toBeNull();
-      expect(panel.finished).toBe(false);
+      // Creating another table should remove the previous one
+      panel.createTable({ Distance: 2 });
+
+      // Should only have one table
+      expect(panel.html.querySelectorAll('table').length).toBe(1);
     });
   });
 
@@ -1177,11 +1199,17 @@ describe('Panel', () => {
       expect(panel.finished).toBe(true);
     });
 
-    test('_setSubHeader sets subheader text', () => {
-      panel._setSubHeader('Test Header');
+    test('createTable sets subheader text from properties', () => {
+      const properties = {
+        shape_type: 'Edge',
+        geom_type: 'Line',
+        Length: 10.5,
+      };
+
+      panel.createTable(properties);
 
       const subheader = panel.html.querySelector('.tcv_measure_subheader');
-      expect(subheader.textContent).toBe('Test Header');
+      expect(subheader.textContent).toBe('Edge / Line');
     });
   });
 });
@@ -1200,150 +1228,150 @@ describe('FilterByDropDownMenu', () => {
   });
 
   describe('constructor', () => {
-    test('initializes with default state', () => {
-      expect(filter.display).toBe(display);
-      expect(filter.raycaster).toBeNull();
-      expect(filter.options).toEqual(['none', 'vertex', 'edge', 'face', 'solid']);
+    test('initializes with filter hidden', () => {
+      // Filter container should be hidden by default
+      expect(display.filterDropdown.container.style.display).toBe('none');
     });
   });
 
   describe('setRaycaster', () => {
-    test('sets raycaster reference', () => {
+    test('allows setting raycaster reference', () => {
       const mockRaycaster = { filters: { topoFilter: [] } };
-
-      filter.setRaycaster(mockRaycaster);
-
-      expect(filter.raycaster).toBe(mockRaycaster);
-    });
-  });
-
-  describe('_setValue', () => {
-    test('sets value when raycaster is set', () => {
-      const mockRaycaster = { filters: { topoFilter: [] } };
-      filter.setRaycaster(mockRaycaster);
-
-      filter._setValue('vertex');
-
-      expect(document.getElementById('tcv_filter_value').innerText).toBe('vertex');
-    });
-
-    test('does nothing when raycaster is null', () => {
-      expect(() => filter._setValue('vertex')).not.toThrow();
-    });
-
-    test('handles none value', () => {
-      const mockRaycaster = { filters: { topoFilter: [] } };
-      filter.setRaycaster(mockRaycaster);
-
-      filter._setValue('none');
-
-      expect(document.getElementById('tcv_filter_value').innerText).toBe('none');
-    });
-  });
-
-  describe('_toggleDropdown', () => {
-    test('toggles dropdown visibility', () => {
-      filter._toggleDropdown(null);
-
-      expect(filter.dropdownElement.classList.contains('tcv_filter_dropdown_active')).toBe(true);
-
-      filter._toggleDropdown(null);
-
-      expect(filter.dropdownElement.classList.contains('tcv_filter_dropdown_active')).toBe(false);
-    });
-
-    test('stops propagation when event provided', () => {
-      const mockEvent = { stopPropagation: vi.fn() };
-
-      filter._toggleDropdown(mockEvent);
-
-      expect(mockEvent.stopPropagation).toHaveBeenCalled();
-    });
-  });
-
-  describe('_closeDropdown', () => {
-    test('closes dropdown if open', () => {
-      filter.dropdownElement.classList.add('tcv_filter_dropdown_active');
-
-      filter._closeDropdown(null);
-
-      expect(filter.dropdownElement.classList.contains('tcv_filter_dropdown_active')).toBe(false);
-    });
-  });
-
-  describe('handleSelection', () => {
-    test('sets value and toggles dropdown', () => {
-      const mockRaycaster = { filters: { topoFilter: [] } };
-      filter.setRaycaster(mockRaycaster);
-
-      const mockEvent = {
-        target: { innerText: 'Edge' },
-        stopPropagation: vi.fn(),
-      };
-
-      filter.handleSelection(mockEvent);
-
-      expect(document.getElementById('tcv_filter_value').innerText).toBe('Edge');
+      // Should not throw
+      expect(() => filter.setRaycaster(mockRaycaster)).not.toThrow();
     });
   });
 
   describe('reset', () => {
-    test('resets to None', () => {
+    test('resets filter value to None', () => {
       const mockRaycaster = { filters: { topoFilter: [] } };
       filter.setRaycaster(mockRaycaster);
-      filter._setValue('vertex');
 
       filter.reset();
 
-      expect(document.getElementById('tcv_filter_value').innerText).toBe('None');
-    });
-  });
-
-  describe('_keybindSelect', () => {
-    test('handles keyboard shortcuts', () => {
-      const mockRaycaster = { filters: { topoFilter: [] } };
-      filter.setRaycaster(mockRaycaster);
-
-      filter._keybindSelect({ key: 'v' });
-      expect(document.getElementById('tcv_filter_value').innerText).toBe('Vertex');
-
-      filter._keybindSelect({ key: 'e' });
-      expect(document.getElementById('tcv_filter_value').innerText).toBe('Edge');
-
-      filter._keybindSelect({ key: 'f' });
-      expect(document.getElementById('tcv_filter_value').innerText).toBe('Face');
-
-      filter._keybindSelect({ key: 's' });
-      expect(document.getElementById('tcv_filter_value').innerText).toBe('Solid');
-
-      filter._keybindSelect({ key: 'n' });
-      expect(document.getElementById('tcv_filter_value').innerText).toBe('None');
-    });
-
-    test('ignores invalid keys', () => {
-      const mockRaycaster = { filters: { topoFilter: [] } };
-      filter.setRaycaster(mockRaycaster);
-      filter._setValue('vertex');
-
-      filter._keybindSelect({ key: 'x' });
-
-      // Should still be vertex
-      expect(document.getElementById('tcv_filter_value').innerText).toBe('vertex');
+      expect(display.filterDropdown.value.innerText).toBe('None');
     });
   });
 
   describe('show', () => {
-    test('shows filter and adds event listeners', () => {
+    test('shows filter container', () => {
       filter.show(true);
 
-      expect(filter.selectElement.style.display).toBe('block');
+      expect(display.filterDropdown.container.style.display).toBe('block');
     });
 
-    test('hides filter and removes event listeners', () => {
+    test('hides filter container', () => {
       filter.show(true);
       filter.show(false);
 
-      expect(filter.selectElement.style.display).toBe('none');
+      expect(display.filterDropdown.container.style.display).toBe('none');
+    });
+
+    test('adds keyboard event listener when shown', () => {
+      const mockRaycaster = { filters: { topoFilter: [] } };
+      filter.setRaycaster(mockRaycaster);
+      filter.show(true);
+
+      // Simulate keyboard event
+      const event = new KeyboardEvent('keydown', { key: 'v' });
+      display.container.dispatchEvent(event);
+
+      expect(display.filterDropdown.value.innerText).toBe('Vertex');
+    });
+
+    test('removes keyboard event listener when hidden', () => {
+      const mockRaycaster = { filters: { topoFilter: [] } };
+      filter.setRaycaster(mockRaycaster);
+      filter.show(true);
+      filter.show(false);
+
+      // Reset value
+      filter.reset();
+
+      // Simulate keyboard event - should not change value since listener removed
+      const event = new KeyboardEvent('keydown', { key: 'e' });
+      display.container.dispatchEvent(event);
+
+      expect(display.filterDropdown.value.innerText).toBe('None');
+    });
+  });
+
+  describe('keyboard shortcuts', () => {
+    beforeEach(() => {
+      const mockRaycaster = { filters: { topoFilter: [] } };
+      filter.setRaycaster(mockRaycaster);
+      filter.show(true);
+    });
+
+    test('v key sets Vertex', () => {
+      const event = new KeyboardEvent('keydown', { key: 'v' });
+      display.container.dispatchEvent(event);
+      expect(display.filterDropdown.value.innerText).toBe('Vertex');
+    });
+
+    test('e key sets Edge', () => {
+      const event = new KeyboardEvent('keydown', { key: 'e' });
+      display.container.dispatchEvent(event);
+      expect(display.filterDropdown.value.innerText).toBe('Edge');
+    });
+
+    test('f key sets Face', () => {
+      const event = new KeyboardEvent('keydown', { key: 'f' });
+      display.container.dispatchEvent(event);
+      expect(display.filterDropdown.value.innerText).toBe('Face');
+    });
+
+    test('s key sets Solid', () => {
+      const event = new KeyboardEvent('keydown', { key: 's' });
+      display.container.dispatchEvent(event);
+      expect(display.filterDropdown.value.innerText).toBe('Solid');
+    });
+
+    test('n key sets None', () => {
+      // First set to something else
+      const event1 = new KeyboardEvent('keydown', { key: 'v' });
+      display.container.dispatchEvent(event1);
+
+      const event2 = new KeyboardEvent('keydown', { key: 'n' });
+      display.container.dispatchEvent(event2);
+      expect(display.filterDropdown.value.innerText).toBe('None');
+    });
+
+    test('invalid key does not change value', () => {
+      const event1 = new KeyboardEvent('keydown', { key: 'v' });
+      display.container.dispatchEvent(event1);
+
+      const event2 = new KeyboardEvent('keydown', { key: 'x' });
+      display.container.dispatchEvent(event2);
+
+      expect(display.filterDropdown.value.innerText).toBe('Vertex');
+    });
+  });
+
+  describe('dropdown toggle', () => {
+    beforeEach(() => {
+      filter.show(true);
+    });
+
+    test('clicking content toggles dropdown active class', () => {
+      display.filterDropdown.content.click();
+      expect(display.filterDropdown.dropdown.classList.contains('tcv_filter_dropdown_active')).toBe(true);
+
+      display.filterDropdown.content.click();
+      expect(display.filterDropdown.dropdown.classList.contains('tcv_filter_dropdown_active')).toBe(false);
+    });
+  });
+
+  describe('option selection', () => {
+    beforeEach(() => {
+      const mockRaycaster = { filters: { topoFilter: [] } };
+      filter.setRaycaster(mockRaycaster);
+      filter.show(true);
+    });
+
+    test('clicking option sets value', () => {
+      display.filterDropdown.options.edge.click();
+      expect(display.filterDropdown.value.innerText).toBe('Edge');
     });
   });
 });

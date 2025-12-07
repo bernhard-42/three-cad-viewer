@@ -748,7 +748,7 @@ describe('NestedGroup - setEdgeColor', () => {
 
     ng.setEdgeColor(0x000000);
 
-    expect(ng.edge_color).toBe(0x000000);
+    expect(ng.edgeColor).toBe(0x000000);
   });
 });
 
@@ -760,7 +760,7 @@ describe('NestedGroup - setOpacity', () => {
 
     ng.setOpacity(0.7);
 
-    expect(ng.opacity).toBe(0.7);
+    expect(ng.defaultOpacity).toBe(0.7);
   });
 });
 

@@ -1,5 +1,6 @@
 import process from "process";
 import resolve from "@rollup/plugin-node-resolve";
+import typescript from "@rollup/plugin-typescript";
 import css from "rollup-plugin-import-css";
 import terser from "@rollup/plugin-terser";
 import serve from "rollup-plugin-serve";
@@ -21,6 +22,12 @@ function addMin(name) {
 const umdName = "CadViewer";
 
 const default_plugins = [
+  typescript({
+    tsconfig: "./tsconfig.json",
+    sourceMap: true,
+    declaration: false,
+    declarationDir: undefined,
+  }),
   postcss({
     plugins: [
       url({

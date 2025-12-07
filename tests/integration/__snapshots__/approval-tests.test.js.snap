@@ -48,7 +48,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -114,7 +114,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -387,7 +387,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -453,7 +453,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -726,7 +726,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -792,7 +792,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -1065,7 +1065,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -1131,7 +1131,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -1409,7 +1409,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -1475,7 +1475,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -1748,7 +1748,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -1814,7 +1814,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -2087,7 +2087,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -2153,7 +2153,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -2426,7 +2426,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -2492,7 +2492,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -2770,7 +2770,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -2836,7 +2836,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -3109,7 +3109,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -3175,7 +3175,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -3448,7 +3448,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -3514,7 +3514,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -3920,7 +3920,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -3986,7 +3986,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -4112,7 +4112,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -4238,7 +4238,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -4863,7 +4863,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -4929,7 +4929,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -5055,7 +5055,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -5181,7 +5181,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -5806,7 +5806,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -5872,7 +5872,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -5998,7 +5998,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -6124,7 +6124,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -6749,7 +6749,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -6815,7 +6815,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -6941,7 +6941,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -7067,7 +7067,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -7692,7 +7692,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -7758,7 +7758,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -7884,7 +7884,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -8010,7 +8010,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -8512,7 +8512,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -8578,7 +8578,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -8851,7 +8851,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -8917,7 +8917,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -9195,7 +9195,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -9261,7 +9261,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -9534,7 +9534,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -9600,7 +9600,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -9873,7 +9873,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -9939,7 +9939,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -10217,7 +10217,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -10283,7 +10283,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -10556,7 +10556,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -10622,7 +10622,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -10895,7 +10895,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -10961,7 +10961,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -11234,7 +11234,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -11300,7 +11300,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -11573,7 +11573,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -11639,7 +11639,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -11916,7 +11916,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -11982,7 +11982,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -12259,7 +12259,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -12325,7 +12325,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -12598,7 +12598,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -12664,7 +12664,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -12937,7 +12937,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -13003,7 +13003,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -13281,7 +13281,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -13347,7 +13347,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -13620,7 +13620,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -13686,7 +13686,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -13959,7 +13959,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -14025,7 +14025,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -14302,7 +14302,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -14368,7 +14368,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -14772,7 +14772,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "|c1",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -14838,7 +14838,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "|c1|c2",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -14964,7 +14964,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "|c1|c3",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -15090,7 +15090,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -15718,7 +15718,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "|c1",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -15784,7 +15784,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "|c1|c2",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -15910,7 +15910,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "|c1|c3",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -16036,7 +16036,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -16544,7 +16544,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -16622,7 +16622,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -16904,7 +16904,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -16982,7 +16982,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -17259,7 +17259,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "|Group",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
       {
@@ -17337,7 +17337,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
-        "type": "Group",
+        "type": "CompoundGroup",
         "visible": true,
       },
     ],
@@ -17615,7 +17615,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -17681,7 +17681,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -17954,7 +17954,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -18020,7 +18020,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -18293,7 +18293,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -18359,7 +18359,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -18632,7 +18632,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -18698,7 +18698,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -18971,7 +18971,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -19037,7 +19037,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -19315,7 +19315,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -19381,7 +19381,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -19654,7 +19654,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -19720,7 +19720,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -19993,7 +19993,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -20059,7 +20059,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -20332,7 +20332,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -20398,7 +20398,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -20671,7 +20671,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -20737,7 +20737,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -21015,7 +21015,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -21081,7 +21081,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -21354,7 +21354,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -21420,7 +21420,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -21698,7 +21698,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -21764,7 +21764,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -22037,7 +22037,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -22103,7 +22103,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -22376,7 +22376,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -22442,7 +22442,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -22848,7 +22848,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -22914,7 +22914,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -23040,7 +23040,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -23166,7 +23166,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -23791,7 +23791,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -23857,7 +23857,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -23983,7 +23983,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -24109,7 +24109,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -24739,7 +24739,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -24805,7 +24805,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -24931,7 +24931,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -25057,7 +25057,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -25682,7 +25682,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -25748,7 +25748,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -25874,7 +25874,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -26000,7 +26000,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -26625,7 +26625,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "|c1",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -26691,7 +26691,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c2",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -26817,7 +26817,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "|c1|c3",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -26943,7 +26943,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -27445,7 +27445,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -27511,7 +27511,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -27784,7 +27784,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -27850,7 +27850,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
@@ -28123,7 +28123,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "|Group",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
         {
@@ -28189,7 +28189,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         {
           "materialVisible": undefined,
           "name": "PlaneMeshes",
-          "type": "Group",
+          "type": "CompoundGroup",
           "visible": true,
         },
       ],
