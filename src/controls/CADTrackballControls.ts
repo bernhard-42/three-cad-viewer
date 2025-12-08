@@ -9,7 +9,8 @@
 
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js";
 import { MOUSE, Quaternion, Vector2, Vector3, Camera, PerspectiveCamera, OrthographicCamera } from "three";
-import { KeyMapper } from "../utils.js";
+import { KeyMapper, AXIS_VECTORS, isOrthographicCamera, isPerspectiveCamera } from "../utils.js";
+import type { Axis } from "../types.js";
 
 // State constants matching TrackballControls internal state
 const STATE = {
@@ -34,6 +35,7 @@ const _proto = TrackballControls.prototype as unknown as TrackballControlsIntern
 
 // Used for change detection in holroyd mode
 const _lastQuaternion = new Quaternion();
+let _lastZoom = 1;
 
 // Reusable objects for rotation calculations
 const _quaternion = new Quaternion();
@@ -46,11 +48,6 @@ const _panDirection = new Vector3();
 const _cameraUp = new Vector3();
 const _cameraRight = new Vector3();
 
-const _AXES: Record<string, Vector3> = {
-  x: new Vector3(1, 0, 0),
-  y: new Vector3(0, 1, 0),
-  z: new Vector3(0, 0, 1),
-};
 
 class CADTrackballControls extends TrackballControls {
   holroyd: boolean;
@@ -64,6 +61,7 @@ class CADTrackballControls extends TrackballControls {
   private _holroydPointerDown: (event: PointerEvent) => void;
   private _holroydPointerMove: (event: PointerEvent) => void;
   private _holroydPointerUp: () => void;
+  private _holroydWheel: (event: WheelEvent) => void;
   private _parentOnMouseDown: (event: MouseEvent) => void;
 
   // Expose internal properties for type safety
@@ -84,6 +82,7 @@ class CADTrackballControls extends TrackballControls {
   declare noRotate: boolean;
   declare noZoom: boolean;
   declare noPan: boolean;
+  declare _onMouseDown: (event: MouseEvent) => void;
 
   /**
    * Constructs CAD-enhanced trackball controls.
@@ -127,15 +126,17 @@ class CADTrackballControls extends TrackballControls {
       this._holroydPointerDown = this._onHolroydPointerDown.bind(this);
       this._holroydPointerMove = this._onHolroydPointerMove.bind(this);
       this._holroydPointerUp = this._onHolroydPointerUp.bind(this);
+      this._holroydWheel = this._onHolroydWheel.bind(this);
       domElement.addEventListener("pointerdown", this._holroydPointerDown);
       domElement.addEventListener("pointermove", this._holroydPointerMove);
       domElement.addEventListener("pointerup", this._holroydPointerUp);
       domElement.addEventListener("pointercancel", this._holroydPointerUp);
+      domElement.addEventListener("wheel", this._holroydWheel, { passive: false });
     }
 
     // Save parent's _onMouseDown before overriding (for holroyd=false fallback)
     this._parentOnMouseDown = _proto._onMouseDown;
-    _proto._onMouseDown = this._handleMouseDown.bind(this);
+    this._onMouseDown = this._handleMouseDown.bind(this);
   }
 
   /**
@@ -240,6 +241,12 @@ class CADTrackballControls extends TrackballControls {
     if (this.holroyd && this._holroydActive) {
       this._holroydEnd.set(event.pageX, event.pageY);
     }
+    // Call update to process the pointer movement and dispatch "change" event
+    // This enables change-listener mode (non-animation loop) to work
+    // Note: this runs for all pointer moves while dragging (rotate, pan, zoom)
+    if (this.state !== -1) { // STATE.NONE = -1
+      this.update();
+    }
   }
 
   /**
@@ -249,6 +256,15 @@ class CADTrackballControls extends TrackballControls {
     this._holroydActive = false;
     this._horizontalRotate = true;
     this._verticalRotate = true;
+  }
+
+  /**
+   * Handle wheel events for zoom - call update after parent processes wheel.
+   * This enables change-listener mode (non-animation loop) to work for zoom.
+   */
+  private _onHolroydWheel(): void {
+    // Parent's wheel handler already processed the event, just call update
+    this.update();
   }
 
   /**
@@ -269,6 +285,7 @@ class CADTrackballControls extends TrackballControls {
         "pointercancel",
         this._holroydPointerUp
       );
+      this.domElement.removeEventListener("wheel", this._holroydWheel);
     }
     super.dispose();
   }
@@ -280,7 +297,9 @@ class CADTrackballControls extends TrackballControls {
     this._target0.copy(this.target);
     this._position0.copy(this.object.position);
     this._up0.copy(this.object.up);
-    this._zoom0 = (this.object as PerspectiveCamera | OrthographicCamera).zoom;
+    if (isPerspectiveCamera(this.object) || isOrthographicCamera(this.object)) {
+      this._zoom0 = this.object.zoom;
+    }
     this.quaternion0.copy(this.object.quaternion);
   }
 
@@ -375,13 +394,19 @@ class CADTrackballControls extends TrackballControls {
 
     // In holroyd mode, we set quaternion directly - skip lookAt
     // Just check for changes and dispatch event
+    const currentZoom = (isPerspectiveCamera(this.object) || isOrthographicCamera(this.object))
+      ? this.object.zoom
+      : 1;
+    const zoomChanged = Math.abs(currentZoom - _lastZoom) > 0.000001;
     if (
       this._lastPosition.distanceToSquared(this.object.position) > 0.000001 ||
-      _lastQuaternion.dot(this.object.quaternion) < 0.999999
+      _lastQuaternion.dot(this.object.quaternion) < 0.999999 ||
+      zoomChanged
     ) {
       this.dispatchEvent({ type: "change" });
       this._lastPosition.copy(this.object.position);
       _lastQuaternion.copy(this.object.quaternion);
+      _lastZoom = currentZoom;
     }
   }
 
@@ -515,8 +540,8 @@ class CADTrackballControls extends TrackballControls {
   /**
    * Internal method to rotate around a world axis.
    */
-  private _rotateAroundAxis(axisName: string, angle: number): void {
-    const axis = _AXES[axisName];
+  private _rotateAroundAxis(axisName: Axis, angle: number): void {
+    const axis = AXIS_VECTORS[axisName];
     _quaternion.setFromAxisAngle(axis, angle);
 
     this.object.quaternion.premultiply(_quaternion);

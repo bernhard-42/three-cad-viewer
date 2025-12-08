@@ -1,11 +1,12 @@
 import * as THREE from "three";
-import type { Vector3 as Vector3Tuple, Quaternion as QuaternionTuple, UpDirection } from "./types";
+import type { Vector3Tuple, QuaternionTuple } from "three";
+import type { UpDirection } from "./types";
 
 type CameraDirection = "iso" | "front" | "rear" | "left" | "right" | "top" | "bottom";
 
 interface DirectionConfig {
   pos: THREE.Vector3;
-  quat: number[] | null;
+  quat: THREE.Quaternion | null;
 }
 
 type DirectionMap = Record<CameraDirection, DirectionConfig>;
@@ -30,8 +31,8 @@ const defaultDirections: Record<UpMode, DirectionMap> = {
     rear: { pos: new THREE.Vector3(0, 1, 0), quat: null },
     left: { pos: new THREE.Vector3(-1, 0, 0), quat: null },
     right: { pos: new THREE.Vector3(1, 0, 0), quat: null },
-    top: { pos: new THREE.Vector3(0, 0, 1), quat: [0, 0, 0, 1] },
-    bottom: { pos: new THREE.Vector3(0, 0, -1), quat: [1, 0, 0, 0] },
+    top: { pos: new THREE.Vector3(0, 0, 1), quat: new THREE.Quaternion(0, 0, 0, 1) },
+    bottom: { pos: new THREE.Vector3(0, 0, -1), quat: new THREE.Quaternion(1, 0, 0, 0) },
   },
   legacy: {
     // legacy Z up
@@ -58,8 +59,8 @@ class Camera {
   yaxis: THREE.Vector3;
   zaxis: THREE.Vector3;
   camera_distance: number;
-  pCamera: THREE.PerspectiveCamera;
-  oCamera: THREE.OrthographicCamera;
+  pCamera: THREE.PerspectiveCamera | null;
+  oCamera: THREE.OrthographicCamera | null;
   camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
 
   /**
@@ -123,7 +124,7 @@ class Camera {
     this.oCamera.up.set(...cameraUp[this.up]);
     this.oCamera.lookAt(this.target);
 
-    this.camera = ortho ? this.oCamera : this.pCamera;
+    this.camera = ortho ? this.oCamera! : this.pCamera!;
     this.camera.up.set(...cameraUp[this.up]);
   }
 
@@ -131,8 +132,8 @@ class Camera {
    * Remove assets.
    */
   dispose(): void {
-    (this as { oCamera: THREE.OrthographicCamera | null }).oCamera = null;
-    (this as { pCamera: THREE.PerspectiveCamera | null }).pCamera = null;
+    this.oCamera = null;
+    this.pCamera = null;
   }
 
   /**
@@ -247,9 +248,9 @@ class Camera {
     this.setupCamera(true, defaultDirections[this.up][dir].pos, null, zoom);
     this.lookAtTarget();
 
-    if (defaultDirections[this.up][dir].quat != null) {
-      const quaternion = defaultDirections[this.up][dir].quat! as QuaternionTuple;
-      this.setQuaternion(quaternion);
+    const quat = defaultDirections[this.up][dir].quat;
+    if (quat != null) {
+      this.setQuaternion(quat);
     }
   }
 
@@ -343,20 +344,18 @@ class Camera {
    * @returns The visible width and height.
    */
   getVisibleArea(): { width: number; height: number } {
-    if (this.ortho) {
-      const cam = this.getCamera() as THREE.OrthographicCamera;
-      const height = (cam.top - cam.bottom) / cam.zoom;
-      const width = (cam.right - cam.left) / cam.zoom;
-      return { width: width, height: height };
-    } else {
-      // perspective camera
-      const cam = this.getCamera() as THREE.PerspectiveCamera;
-      const distance = cam.position.distanceTo(this.target);
-      const vFOV = (cam.fov * Math.PI) / 180;
+    if (this.ortho && this.oCamera) {
+      const height = (this.oCamera.top - this.oCamera.bottom) / this.oCamera.zoom;
+      const width = (this.oCamera.right - this.oCamera.left) / this.oCamera.zoom;
+      return { width, height };
+    } else if (this.pCamera) {
+      const distance = this.pCamera.position.distanceTo(this.target);
+      const vFOV = (this.pCamera.fov * Math.PI) / 180;
       const height = 2 * Math.tan(vFOV / 2) * distance;
-      const width = height * cam.aspect;
-      return { width: width, height: height };
+      const width = height * this.pCamera.aspect;
+      return { width, height };
     }
+    return { width: 0, height: 0 };
   }
 
   /**

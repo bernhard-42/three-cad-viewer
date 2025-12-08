@@ -7,7 +7,6 @@ import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   KeyMapper,
   EventListenerManager,
-  clone,
   isEqual,
   flatten,
   scaleLight,
@@ -252,45 +251,6 @@ describe('EventListenerManager', () => {
 
       expect(manager.listeners).toEqual([]);
     });
-  });
-});
-
-// =============================================================================
-// clone Tests
-// =============================================================================
-
-describe('clone', () => {
-  test('clones simple object', () => {
-    const original = { a: 1, b: 2 };
-    const cloned = clone(original);
-
-    expect(cloned).toEqual(original);
-    expect(cloned).not.toBe(original);
-  });
-
-  test('clones nested object', () => {
-    const original = { a: { b: { c: 1 } } };
-    const cloned = clone(original);
-
-    expect(cloned).toEqual(original);
-    expect(cloned.a).not.toBe(original.a);
-    expect(cloned.a.b).not.toBe(original.a.b);
-  });
-
-  test('clones array', () => {
-    const original = [1, 2, 3];
-    const cloned = clone(original);
-
-    expect(cloned).toEqual(original);
-    expect(cloned).not.toBe(original);
-  });
-
-  test('clones object with array', () => {
-    const original = { arr: [1, 2, 3] };
-    const cloned = clone(original);
-
-    expect(cloned.arr).toEqual(original.arr);
-    expect(cloned.arr).not.toBe(original.arr);
   });
 });
 

@@ -1,34 +1,13 @@
 import * as THREE from "three";
+import { AXIS_VECTORS } from "./utils.js";
+import type { Axis } from "./types.js";
 
 /**
- * Valid transform action types for animation tracks.
- * - t: full translation vector
- * - tx, ty, tz: single-axis translation
- * - q: quaternion rotation
- * - rx, ry, rz: rotation around single axis
+ * Create a quaternion from an axis and angle in degrees.
  */
-const valid_transforms = ["t", "tx", "ty", "tz", "q", "rx", "ry", "rz"];
-
-/**
- * Create a quaternion from an axis letter and angle in degrees.
- */
-function fromAxisAngle(axisLetter: string, angle: number): THREE.Quaternion {
-  let axis: THREE.Vector3;
-  switch (axisLetter) {
-    case "x":
-      axis = new THREE.Vector3(1, 0, 0);
-      break;
-    case "y":
-      axis = new THREE.Vector3(0, 1, 0);
-      break;
-    case "z":
-      axis = new THREE.Vector3(0, 0, 1);
-      break;
-    default:
-      axis = new THREE.Vector3(0, 0, 1);
-  }
+function fromAxisAngle(axis: Axis, angle: number): THREE.Quaternion {
   const q = new THREE.Quaternion();
-  q.setFromAxisAngle(axis, (angle / 180) * Math.PI);
+  q.setFromAxisAngle(AXIS_VECTORS[axis], (angle / 180) * Math.PI);
   return q;
 }
 
@@ -76,98 +55,153 @@ class Animation {
   }
 
   /**
-   * Add an animation track for an object.
+   * Prepare selector by replacing path delimiter.
+   */
+  private _prepareSelector(selector: string): string {
+    return selector.replaceAll("/", this.delim);
+  }
+
+  /**
+   * Validate that times and values arrays have the same length.
+   */
+  private _validateArrayLengths(times: number[], values: unknown[]): boolean {
+    if (times.length !== values.length) {
+      console.error("times and values arrays need to have the same length");
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Add a position track (full 3D translation).
    * @param selector - Object path selector (using "/" delimiter).
    * @param group - The object to animate.
-   * @param action - Transform type ("t", "tx", "ty", "tz", "q", "rx", "ry", "rz").
    * @param times - Array of keyframe times.
-   * @param values - Array of values corresponding to each time.
+   * @param positions - Array of [x, y, z] position offsets.
    */
-  addTrack(
+  addPositionTrack(
     selector: string,
     group: THREE.Object3D,
-    action: string,
     times: number[],
-    values: number[] | number[][]
+    positions: number[][],
   ): void {
-    selector = selector.replaceAll("/", this.delim);
+    if (!this._validateArrayLengths(times, positions)) return;
 
-    if (valid_transforms.indexOf(action) === -1) {
-      console.error(`Unknown action: "${action}" not in ${valid_transforms}`);
-      return;
-    }
+    const basePosition = group.position;
+    const newValues = positions.map((v) =>
+      basePosition
+        .clone()
+        .add(new THREE.Vector3(...v))
+        .toArray(),
+    );
 
-    if (times.length != values.length) {
-      console.error("times and values arrays need to have the same length");
-      return;
-    }
+    this.tracks.push(
+      new THREE.VectorKeyframeTrack(
+        this._prepareSelector(selector) + ".position",
+        times,
+        newValues.flat(),
+      ),
+    );
+  }
 
-    let newValues: number[][];
-    if (action.startsWith("t")) {
-      const position = group.position;
-      switch (action) {
-        case "t":
-          newValues = (values as number[][]).map((v) =>
-            position
-              .clone()
-              .add(new THREE.Vector3(...v))
-              .toArray(),
-          );
-          break;
-        case "tx":
-          newValues = (values as number[]).map((v) =>
-            position.clone().add(new THREE.Vector3(v, 0, 0)).toArray(),
-          );
-          break;
-        case "ty":
-          newValues = (values as number[]).map((v) =>
-            position.clone().add(new THREE.Vector3(0, v, 0)).toArray(),
-          );
-          break;
-        case "tz":
-          newValues = (values as number[]).map((v) =>
-            position.clone().add(new THREE.Vector3(0, 0, v)).toArray(),
-          );
-          break;
-        default:
-          console.error(`action ${action} is not supported`);
-          return;
-      }
+  /**
+   * Add a single-axis translation track.
+   * @param selector - Object path selector (using "/" delimiter).
+   * @param group - The object to animate.
+   * @param axis - Which axis to translate along ("x", "y", or "z").
+   * @param times - Array of keyframe times.
+   * @param values - Array of translation values along the axis.
+   */
+  addTranslationTrack(
+    selector: string,
+    group: THREE.Object3D,
+    axis: Axis,
+    times: number[],
+    values: number[],
+  ): void {
+    if (!this._validateArrayLengths(times, values)) return;
 
-      this.tracks.push(
-        new THREE.VectorKeyframeTrack(
-          selector + ".position",
-          times,
-          newValues.flat(),
-        ),
-      );
-    } else {
-      const quaternion = group.quaternion;
+    const basePosition = group.position;
+    const offsets: Record<Axis, (v: number) => THREE.Vector3> = {
+      x: (v) => new THREE.Vector3(v, 0, 0),
+      y: (v) => new THREE.Vector3(0, v, 0),
+      z: (v) => new THREE.Vector3(0, 0, v),
+    };
 
-      if (action.startsWith("r")) {
-        const quatValues = (values as number[]).map((angle) =>
-          fromAxisAngle(action.slice(1), angle),
-        );
-        newValues = quatValues.map((rot) =>
-          quaternion.clone().multiply(rot).toArray(),
-        );
-      } else if (action == "q") {
-        newValues = (values as number[][]).map((q) =>
-          quaternion.clone().multiply(new THREE.Quaternion(...q)).toArray(),
-        );
-      } else {
-        console.error(`action ${action} is not supported`);
-        return;
-      }
+    const newValues = values.map((v) =>
+      basePosition.clone().add(offsets[axis](v)).toArray(),
+    );
 
-      this.tracks.push(
-        new THREE.QuaternionKeyframeTrack(
-          selector + ".quaternion",
-          times,
-          newValues.flat(),
-        ),
-      );
-    }
+    this.tracks.push(
+      new THREE.VectorKeyframeTrack(
+        this._prepareSelector(selector) + ".position",
+        times,
+        newValues.flat(),
+      ),
+    );
+  }
+
+  /**
+   * Add a quaternion rotation track.
+   * @param selector - Object path selector (using "/" delimiter).
+   * @param group - The object to animate.
+   * @param times - Array of keyframe times.
+   * @param quaternions - Array of [x, y, z, w] quaternion values.
+   */
+  addQuaternionTrack(
+    selector: string,
+    group: THREE.Object3D,
+    times: number[],
+    quaternions: number[][],
+  ): void {
+    if (!this._validateArrayLengths(times, quaternions)) return;
+
+    const baseQuaternion = group.quaternion;
+    const newValues = quaternions.map((q) =>
+      baseQuaternion
+        .clone()
+        .multiply(new THREE.Quaternion(...q))
+        .toArray(),
+    );
+
+    this.tracks.push(
+      new THREE.QuaternionKeyframeTrack(
+        this._prepareSelector(selector) + ".quaternion",
+        times,
+        newValues.flat(),
+      ),
+    );
+  }
+
+  /**
+   * Add a single-axis rotation track.
+   * @param selector - Object path selector (using "/" delimiter).
+   * @param group - The object to animate.
+   * @param axis - Which axis to rotate around ("x", "y", or "z").
+   * @param times - Array of keyframe times.
+   * @param angles - Array of rotation angles in degrees.
+   */
+  addRotationTrack(
+    selector: string,
+    group: THREE.Object3D,
+    axis: Axis,
+    times: number[],
+    angles: number[],
+  ): void {
+    if (!this._validateArrayLengths(times, angles)) return;
+
+    const baseQuaternion = group.quaternion;
+    const newValues = angles.map((angle) =>
+      baseQuaternion.clone().multiply(fromAxisAngle(axis, angle)).toArray(),
+    );
+
+    this.tracks.push(
+      new THREE.QuaternionKeyframeTrack(
+        this._prepareSelector(selector) + ".quaternion",
+        times,
+        newValues.flat(),
+      ),
+    );
   }
 
   /**
@@ -186,7 +220,11 @@ class Animation {
   /**
    * Restore previously backed up animation state.
    */
-  restore(): { duration: number | null; speed: number | null; repeat: boolean | null } {
+  restore(): {
+    duration: number | null;
+    speed: number | null;
+    repeat: boolean | null;
+  } {
     if (this._backup === null) {
       return { duration: null, speed: null, repeat: null };
     }
@@ -231,7 +269,7 @@ class Animation {
     root: THREE.Object3D,
     duration: number,
     speed: number,
-    repeat: boolean = true
+    repeat: boolean = true,
   ): THREE.AnimationAction {
     this.root = root;
     this.duration = duration;
@@ -243,7 +281,10 @@ class Animation {
     this.mixer.timeScale = speed;
 
     this.clipAction = this.mixer.clipAction(this.clip);
-    this.clipAction.setLoop(repeat ? THREE.LoopRepeat : THREE.LoopPingPong, Infinity);
+    this.clipAction.setLoop(
+      repeat ? THREE.LoopRepeat : THREE.LoopPingPong,
+      Infinity,
+    );
     return this.clipAction;
   }
 

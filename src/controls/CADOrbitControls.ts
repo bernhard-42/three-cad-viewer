@@ -9,7 +9,7 @@
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { MOUSE, Quaternion, Vector3, Camera, PerspectiveCamera, OrthographicCamera } from "three";
-import { KeyMapper } from "../utils.js";
+import { KeyMapper, isOrthographicCamera, isPerspectiveCamera } from "../utils.js";
 
 // State constants matching OrbitControls internal state
 const STATE = {
@@ -43,6 +43,7 @@ class CADOrbitControls extends OrbitControls {
   declare zoom0: number;
   declare target0: Vector3;
   declare position0: Vector3;
+  declare _onMouseDown: (event: MouseEvent) => void;
 
   /**
    * Constructs CAD-enhanced orbit controls.
@@ -72,7 +73,7 @@ class CADOrbitControls extends OrbitControls {
     }
 
     // Override the parent's _onMouseDown which was bound in parent constructor
-    _proto._onMouseDown = this._handleMouseDown.bind(this);
+    this._onMouseDown = this._handleMouseDown.bind(this);
   }
 
   /**
@@ -210,9 +211,11 @@ class CADOrbitControls extends OrbitControls {
     this.target.copy(this.target0);
     this.object.position.copy(this.position0);
     this.object.quaternion.copy(this.quaternion0);
-    (this.object as PerspectiveCamera | OrthographicCamera).zoom = this.zoom0;
 
-    (this.object as PerspectiveCamera | OrthographicCamera).updateProjectionMatrix();
+    if (isPerspectiveCamera(this.object) || isOrthographicCamera(this.object)) {
+      this.object.zoom = this.zoom0;
+      this.object.updateProjectionMatrix();
+    }
     this.dispatchEvent({ type: "change" });
 
     this.update();

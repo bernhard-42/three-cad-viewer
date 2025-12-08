@@ -639,21 +639,21 @@ describe('Controls', () => {
 
   describe('constructor', () => {
     test('creates trackball controls', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
 
       expect(controls.type).toBe('trackball');
       expect(controls.controls).toBeInstanceOf(CADTrackballControls);
     });
 
     test('creates orbit controls', () => {
-      controls = new Controls('orbit', camera, [0, 0, 0], domElement);
+      controls = new Controls('orbit', camera, new THREE.Vector3(), domElement);
 
       expect(controls.type).toBe('orbit');
       expect(controls.controls).toBeInstanceOf(CADOrbitControls);
     });
 
     test('applies speed parameters', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement, 2.0, 3.0, 4.0);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement, 2.0, 3.0, 4.0);
 
       expect(controls.rotateSpeed).toBe(2.0);
       expect(controls.zoomSpeed).toBe(3.0);
@@ -661,14 +661,14 @@ describe('Controls', () => {
     });
 
     test('passes holroyd parameter to trackball', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement, 1, 1, 1, false);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement, 1, 1, 1, false);
 
       expect(controls.holroyd).toBe(false);
       expect(controls.controls.holroyd).toBe(false);
     });
 
     test('sets target from array', () => {
-      controls = new Controls('trackball', camera, [1, 2, 3], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(1, 2, 3), domElement);
 
       expect(controls.controls.target.x).toBe(1);
       expect(controls.controls.target.y).toBe(2);
@@ -676,17 +676,17 @@ describe('Controls', () => {
     });
 
     test('stores target0 copy', () => {
-      const target = [1, 2, 3];
+      const target = new THREE.Vector3(1, 2, 3);
       controls = new Controls('trackball', camera, target, domElement);
 
-      expect(controls.target0).toEqual([1, 2, 3]);
+      expect(controls.target0).toEqual(new THREE.Vector3(1, 2, 3));
       expect(controls.target0).not.toBe(target); // Should be a copy
     });
   });
 
   describe('speed normalization', () => {
     test('trackball applies speed factors', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement, 1.0, 1.0, 1.0);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement, 1.0, 1.0, 1.0);
 
       // Trackball factors: pan: 0.25, rotate: 1.0, zoom: 0.5
       expect(controls.controls.rotateSpeed).toBe(1.0);
@@ -695,7 +695,7 @@ describe('Controls', () => {
     });
 
     test('orbit applies speed factors', () => {
-      controls = new Controls('orbit', camera, [0, 0, 0], domElement, 1.0, 1.0, 1.0);
+      controls = new Controls('orbit', camera, new THREE.Vector3(), domElement, 1.0, 1.0, 1.0);
 
       // Orbit factors: pan: 1.0, rotate: 1.0, zoom: 1.0
       expect(controls.controls.rotateSpeed).toBe(1.0);
@@ -706,7 +706,7 @@ describe('Controls', () => {
 
   describe('setZoomSpeed', () => {
     test('updates zoom speed with factor', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
 
       controls.setZoomSpeed(2.0);
 
@@ -717,7 +717,7 @@ describe('Controls', () => {
 
   describe('setPanSpeed', () => {
     test('updates pan speed with factor', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
 
       controls.setPanSpeed(2.0);
 
@@ -728,7 +728,7 @@ describe('Controls', () => {
 
   describe('setRotateSpeed', () => {
     test('updates rotate speed with factor', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
 
       controls.setRotateSpeed(2.0);
 
@@ -739,7 +739,7 @@ describe('Controls', () => {
 
   describe('setHolroydTrackball', () => {
     test('updates holroyd flag on trackball controls', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
 
       controls.setHolroydTrackball(false);
 
@@ -749,7 +749,7 @@ describe('Controls', () => {
 
   describe('getTarget and setTarget', () => {
     test('getTarget returns current target', () => {
-      controls = new Controls('trackball', camera, [1, 2, 3], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(1, 2, 3), domElement);
 
       const target = controls.getTarget();
 
@@ -759,7 +759,7 @@ describe('Controls', () => {
     });
 
     test('setTarget updates target', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       const newTarget = new THREE.Vector3(5, 6, 7);
 
       controls.setTarget(newTarget);
@@ -772,7 +772,7 @@ describe('Controls', () => {
 
   describe('getZoom0', () => {
     test('returns initial zoom value', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       camera.zoom = 2.0;
       controls.saveState();
 
@@ -782,7 +782,7 @@ describe('Controls', () => {
 
   describe('getResetLocation and setResetLocation', () => {
     test('getResetLocation returns saved state', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       controls.controls.target.set(1, 2, 3);
       camera.position.set(4, 5, 6);
       camera.zoom = 2.0;
@@ -798,7 +798,7 @@ describe('Controls', () => {
 
     test('setResetLocation updates saved state (orbit)', () => {
       // Use orbit controls as they support zoom0 setter
-      controls = new Controls('orbit', camera, [0, 0, 0], domElement);
+      controls = new Controls('orbit', camera, new THREE.Vector3(), domElement);
 
       const target = new THREE.Vector3(10, 20, 30);
       const position = new THREE.Vector3(40, 50, 60);
@@ -816,7 +816,7 @@ describe('Controls', () => {
 
   describe('addChangeListener and removeChangeListener', () => {
     test('addChangeListener registers callback', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       const callback = vi.fn();
 
       controls.addChangeListener(callback);
@@ -825,7 +825,7 @@ describe('Controls', () => {
     });
 
     test('addChangeListener ignores second callback', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       const callback1 = vi.fn();
       const callback2 = vi.fn();
 
@@ -836,7 +836,7 @@ describe('Controls', () => {
     });
 
     test('removeChangeListener clears callback', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       const callback = vi.fn();
 
       controls.addChangeListener(callback);
@@ -848,7 +848,7 @@ describe('Controls', () => {
 
   describe('rotateUp and rotateLeft (orbit)', () => {
     test('rotateUp converts degrees to radians', () => {
-      controls = new Controls('orbit', camera, [0, 0, 0], domElement);
+      controls = new Controls('orbit', camera, new THREE.Vector3(), domElement);
       const rotateSpy = vi.spyOn(controls.controls, 'rotateUp');
 
       controls.rotateUp(90);
@@ -857,7 +857,7 @@ describe('Controls', () => {
     });
 
     test('rotateLeft converts degrees to radians', () => {
-      controls = new Controls('orbit', camera, [0, 0, 0], domElement);
+      controls = new Controls('orbit', camera, new THREE.Vector3(), domElement);
       const rotateSpy = vi.spyOn(controls.controls, 'rotateLeft');
 
       controls.rotateLeft(90);
@@ -868,7 +868,7 @@ describe('Controls', () => {
 
   describe('rotateX/Y/Z (trackball)', () => {
     test('rotateX converts degrees to radians', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       const rotateSpy = vi.spyOn(controls.controls, 'rotateX');
 
       controls.rotateX(90);
@@ -877,7 +877,7 @@ describe('Controls', () => {
     });
 
     test('rotateY converts degrees to radians', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       const rotateSpy = vi.spyOn(controls.controls, 'rotateY');
 
       controls.rotateY(90);
@@ -886,7 +886,7 @@ describe('Controls', () => {
     });
 
     test('rotateZ converts degrees to radians', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       const rotateSpy = vi.spyOn(controls.controls, 'rotateZ');
 
       controls.rotateZ(90);
@@ -897,7 +897,7 @@ describe('Controls', () => {
 
   describe('update and reset', () => {
     test('update calls controls.update', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       const updateSpy = vi.spyOn(controls.controls, 'update');
 
       controls.update();
@@ -906,7 +906,7 @@ describe('Controls', () => {
     });
 
     test('reset calls controls.reset', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       const resetSpy = vi.spyOn(controls.controls, 'reset');
 
       controls.reset();
@@ -917,7 +917,7 @@ describe('Controls', () => {
 
   describe('dispose', () => {
     test('disposes controls and sets to null', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       const disposeSpy = vi.spyOn(controls.controls, 'dispose');
 
       controls.dispose();
@@ -927,7 +927,7 @@ describe('Controls', () => {
     });
 
     test('handles already disposed controls', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       controls.dispose();
 
       // Should not throw
@@ -937,7 +937,7 @@ describe('Controls', () => {
 
   describe('setCamera', () => {
     test('updates controls object', () => {
-      controls = new Controls('trackball', camera, [0, 0, 0], domElement);
+      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       const newCamera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
 
       controls.setCamera(newCamera);

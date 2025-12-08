@@ -3,7 +3,7 @@ import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { DistancePanel, PropertiesPanel, DistanceResponseData, PropertiesResponseData } from "./ui.js";
-import { deepDispose } from "../utils.js";
+import { deepDispose, isMesh, isLineSegments2, isPerspectiveCamera, isOrthographicCamera } from "../utils.js";
 import type { PickedObject } from "../raycast.js";
 import type { DisplayLike } from "./tools.js";
 
@@ -133,25 +133,31 @@ class DistanceLineArrow extends THREE.Group {
           .clone()
           .multiplyScalar((-scaleFactor * this.coneLength) / 2),
       );
-    const line = this.children.find((child) => child.type == "LineSegments2") as LineSegments2;
-    line.geometry.setPositions([
-      ...(this.arrowStart ? newStart.toArray() : this.point1.toArray()),
-      ...(this.arrowEnd ? newEnd.toArray() : this.point2.toArray()),
-    ]);
+    const line = this.children.find((child) => isLineSegments2(child));
+    if (line && isLineSegments2(line)) {
+      line.geometry.setPositions([
+        ...(this.arrowStart ? newStart.toArray() : this.point1.toArray()),
+        ...(this.arrowEnd ? newEnd.toArray() : this.point2.toArray()),
+      ]);
+    }
 
     if (this.arrowStart) {
       const startCone = this.children.find(
-        (child) => child.type == "Mesh" && child.name == "startCone",
-      ) as THREE.Mesh;
-      startCone.position.copy(newStart);
-      startCone.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        (child) => isMesh(child) && child.name === "startCone",
+      );
+      if (startCone && isMesh(startCone)) {
+        startCone.position.copy(newStart);
+        startCone.scale.set(scaleFactor, scaleFactor, scaleFactor);
+      }
     }
     if (this.arrowEnd) {
       const endCone = this.children.find(
-        (child) => child.type == "Mesh" && child.name == "endCone",
-      ) as THREE.Mesh;
-      endCone.position.copy(newEnd);
-      endCone.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        (child) => isMesh(child) && child.name === "endCone",
+      );
+      if (endCone && isMesh(endCone)) {
+        endCone.position.copy(newEnd);
+        endCone.scale.set(scaleFactor, scaleFactor, scaleFactor);
+      }
     }
   }
 
@@ -161,19 +167,24 @@ class DistanceLineArrow extends THREE.Group {
    */
   dispose(): void {
     // Dispose line geometry and material
-    const line = this.children.find((child) => child.type === "LineSegments2") as LineSegments2 | undefined;
-    if (line) {
+    const line = this.children.find((child) => isLineSegments2(child));
+    if (line && isLineSegments2(line)) {
       line.geometry.dispose();
       line.material.dispose();
     }
 
     // Dispose cone geometry and material (shared between start and end cones)
     const startCone = this.children.find(
-      (child) => child.type === "Mesh" && child.name === "startCone",
-    ) as THREE.Mesh | undefined;
-    if (startCone) {
-      (startCone.geometry as THREE.BufferGeometry).dispose();
-      (startCone.material as THREE.Material).dispose();
+      (child) => isMesh(child) && child.name === "startCone",
+    );
+    if (startCone && isMesh(startCone)) {
+      startCone.geometry.dispose();
+      const material = startCone.material;
+      if (Array.isArray(material)) {
+        material.forEach((m) => m.dispose());
+      } else {
+        material.dispose();
+      }
     }
     // endCone shares geometry and material with startCone, no need to dispose again
 
@@ -187,9 +198,9 @@ class Measurement {
   point2: THREE.Vector3 | null;
   middlePoint: THREE.Vector3 | null;
   contextEnabled: boolean;
-  viewer: ViewerLike;
-  scene: THREE.Scene;
-  panel: DistancePanel | PropertiesPanel;
+  viewer: ViewerLike | null;
+  scene: THREE.Scene | null;
+  panel: DistancePanel | PropertiesPanel | null;
   panelCenter: THREE.Vector3 | null;
   panelX: number | null;
   panelY: number | null;
@@ -252,13 +263,13 @@ class Measurement {
     document.removeEventListener("mouseup", this._mouseup);
     document.removeEventListener("mousemove", this._dragPanel);
 
-    this.viewer.checkChanges({ selectedShapeIDs: [] });
+    this.viewer?.checkChanges({ selectedShapeIDs: [] });
   }
 
   _hideMeasurement(): void {
-    this.panel.show(false);
+    this.panel?.show(false);
     this.disposeArrows();
-    this.scene.clear();
+    this.scene?.clear();
   }
 
   /**
@@ -322,15 +333,26 @@ class Measurement {
       setTimeout(() => {
         if (this.selectedShapes.length == 0) return;
 
+        // Helper to get bounding sphere center from first mesh child
+        const getBoundingSphereCenter = (obj: THREE.Object3D): THREE.Vector3 | null => {
+          const firstChild = obj.children[0];
+          if (firstChild && isMesh(firstChild)) {
+            firstChild.geometry.computeBoundingSphere();
+            return firstChild.geometry.boundingSphere?.center.clone() ?? null;
+          }
+          return null;
+        };
+
         let responseData: DistanceResponseData | PropertiesResponseData;
         if (this instanceof DistanceMeasurement) {
           if (this.selectedShapes.length < 2) return;
           const obj1 = this.selectedShapes[0].obj;
           const obj2 = this.selectedShapes[1].obj;
-          this.point1 = (obj1.children[0] as THREE.Mesh).geometry.boundingSphere!.center.clone();
-          this.point1 = obj1.localToWorld(this.point1);
-          this.point2 = (obj2.children[0] as THREE.Mesh).geometry.boundingSphere!.center.clone();
-          this.point2 = obj2.localToWorld(this.point2);
+          const center1 = getBoundingSphereCenter(obj1);
+          const center2 = getBoundingSphereCenter(obj2);
+          if (!center1 || !center2) return;
+          this.point1 = obj1.localToWorld(center1);
+          this.point2 = obj2.localToWorld(center2);
           responseData = {
             type: "backend_response",
             Distance: 2.345,
@@ -343,7 +365,8 @@ class Measurement {
           };
         } else if (this instanceof PropertiesMeasurement) {
           const obj = this.selectedShapes[0].obj;
-          const center = (obj.children[0] as THREE.Mesh).geometry.boundingSphere!.center.clone();
+          const center = getBoundingSphereCenter(obj);
+          if (!center) return;
           this.point1 = obj.localToWorld(center);
           responseData = {
             type: "backend_response",
@@ -369,7 +392,7 @@ class Measurement {
         this.handleResponse(responseData);
       }, delay);
     } else {
-      this.viewer.checkChanges({
+      this.viewer?.checkChanges({
         selectedShapeIDs: [...ids, this.shift],
       });
     }
@@ -385,7 +408,7 @@ class Measurement {
     p.then((_data) => {
       this._createPanel();
       this._makeLines();
-      this.panel.show(true);
+      this.panel?.show(true);
       this._movePanel();
     });
   }
@@ -403,7 +426,9 @@ class Measurement {
       this.selectedShapes.splice(this.selectedShapes.indexOf(selectedObj), 1);
     else this.selectedShapes.push(selectedObj);
 
-    this.panel.finished = false;
+    if (this.panel) {
+      this.panel.finished = false;
+    }
 
     this._updateMeasurement();
   };
@@ -414,7 +439,7 @@ class Measurement {
   };
 
   _movePanel = (): void => {
-    if (!this.panel.isVisible()) return;
+    if (!this.panel || !this.viewer || !this.panel.isVisible()) return;
 
     const canvasRect = this.viewer.renderer.domElement.getBoundingClientRect();
     const panelRect = this.panel.html.getBoundingClientRect();
@@ -452,12 +477,14 @@ class Measurement {
     const ndcZ = this.viewer.ortho ? -0.9 : 1;
     const panelCenter = new THREE.Vector3(ndcX, ndcY, ndcZ);
 
-    const camera = this.viewer.camera.getCamera() as THREE.PerspectiveCamera | THREE.OrthographicCamera;
-    camera.updateProjectionMatrix();
-    camera.updateMatrixWorld();
-    this.panelCenter = panelCenter.unproject(camera);
+    const camera = this.viewer.camera.getCamera();
+    if (isPerspectiveCamera(camera) || isOrthographicCamera(camera)) {
+      camera.updateProjectionMatrix();
+      camera.updateMatrixWorld();
+      this.panelCenter = panelCenter.unproject(camera);
+    }
 
-    if (this.scene.children.length > 0) {
+    if (this.scene && this.scene.children.length > 0) {
       this._updateConnectionLine();
     }
   };
@@ -466,7 +493,7 @@ class Measurement {
    * This handler is responsible to update the panel center vector when the user drag the panel on the screen.
    */
   _dragPanel = (e: MouseEvent): void => {
-    if (!this.panelDragData.clicked) return;
+    if (!this.panelDragData.clicked || !this.panel || !this.viewer) return;
     const panelRect = this.panel.html.getBoundingClientRect();
     const canvasRect = this.viewer.renderer.domElement.getBoundingClientRect();
     const dx = e.clientX - this.panelDragData.x!;
@@ -479,7 +506,9 @@ class Measurement {
           e.movementX >= 0)
       )
     ) {
-      this.panelX! += dx;
+      if (this.panelX !== null) {
+        this.panelX += dx;
+      }
     }
     if (
       !(
@@ -489,7 +518,9 @@ class Measurement {
           e.movementY >= 0)
       )
     ) {
-      this.panelY! += dy;
+      if (this.panelY !== null) {
+        this.panelY += dy;
+      }
     }
 
     this._updateMeasurement();
@@ -516,17 +547,25 @@ class Measurement {
    * Adjust the arrow cones scale factor to ensure they keep the same size on the screen.
    */
   _adjustArrowsScaleFactor(zoom: number): void {
+    if (!this.scene) return;
     const scaleFactor = 1 / zoom;
-    this.scene.children.forEach((ch) => (ch as DistanceLineArrow).update(scaleFactor));
+    this.scene.children.forEach((ch) => {
+      if (ch instanceof DistanceLineArrow) {
+        ch.update(scaleFactor);
+      }
+    });
   }
 
   update(): void {
+    if (!this.viewer || !this.scene) return;
     const camera = this.viewer.camera.getCamera();
     const zoom = this.viewer.camera.getZoom();
-    const cadWidth = this.viewer.state.get("cadWidth") as number;
-    const height = this.viewer.state.get("height") as number;
-    this.coneLength =
-      this.viewer.bb_radius / (Math.max(cadWidth, height) / 60);
+    const cadWidth = this.viewer.state.get("cadWidth");
+    const height = this.viewer.state.get("height");
+    if (typeof cadWidth === "number" && typeof height === "number") {
+      this.coneLength =
+        this.viewer.bb_radius / (Math.max(cadWidth, height) / 60);
+    }
     this._adjustArrowsScaleFactor(zoom);
     this.viewer.renderer.clearDepth();
     this._movePanel();
@@ -534,8 +573,10 @@ class Measurement {
   }
 
   disposeArrows(): void {
-    deepDispose(this.scene);
-    this.scene.clear();
+    if (this.scene) {
+      deepDispose(this.scene);
+      this.scene.clear();
+    }
   }
 
   dispose(): void {
@@ -544,10 +585,30 @@ class Measurement {
       deepDispose(this.panel);
     }
     this.disposeArrows();
-    (this as { panel: DistancePanel | PropertiesPanel | null }).panel = null;
-    (this as { viewer: ViewerLike | null }).viewer = null;
-    (this as { scene: THREE.Scene | null }).scene = null;
+    this.panel = null;
+    this.viewer = null;
+    this.scene = null;
   }
+}
+
+/** Type guard for DistancePanel */
+function isDistancePanel(panel: DistancePanel | PropertiesPanel | null): panel is DistancePanel {
+  return panel instanceof DistancePanel;
+}
+
+/** Type guard for PropertiesPanel */
+function isPropertiesPanel(panel: DistancePanel | PropertiesPanel | null): panel is PropertiesPanel {
+  return panel instanceof PropertiesPanel;
+}
+
+/** Type guard for DistanceResponseData */
+function isDistanceResponseData(data: DistanceResponseData | PropertiesResponseData | null): data is DistanceResponseData {
+  return data !== null && "refpoint1" in data && "refpoint2" in data;
+}
+
+/** Type guard for PropertiesResponseData */
+function isPropertiesResponseData(data: DistanceResponseData | PropertiesResponseData | null): data is PropertiesResponseData {
+  return data !== null && "refpoint" in data;
 }
 
 class DistanceMeasurement extends Measurement {
@@ -562,7 +623,9 @@ class DistanceMeasurement extends Measurement {
   }
 
   override _createPanel(): void {
-    (this.panel as DistancePanel).createTable(this.responseData as DistanceResponseData);
+    if (isDistancePanel(this.panel) && isDistanceResponseData(this.responseData)) {
+      this.panel.createTable(this.responseData);
+    }
   }
 
   override _getMaxObjSelected(): number {
@@ -570,45 +633,56 @@ class DistanceMeasurement extends Measurement {
   }
 
   _getPoints(): void {
-    this.point1 = new THREE.Vector3(...(this.responseData as DistanceResponseData).refpoint1!);
-    this.point2 = new THREE.Vector3(...(this.responseData as DistanceResponseData).refpoint2!);
-  }
-
-  override _makeLines(): void {
-    if (this.scene.children.length === 0) {
-      const lineWidth = 1.5;
-      const distanceLine = new DistanceLineArrow(
-        this.coneLength!,
-        this.point1!,
-        this.point2!,
-        2 * lineWidth,
-        this.measurementLineColor,
-      );
-      this.scene.add(distanceLine);
-
-      this.middlePoint = new THREE.Vector3()
-        .addVectors(this.point1!, this.point2!)
-        .multiplyScalar(0.5);
-      const connectingLine = new DistanceLineArrow(
-        this.coneLength!,
-        this.panelCenter!,
-        this.middlePoint,
-        lineWidth,
-        this.connectingLineColor,
-        false,
-        false,
-      );
-      this.scene.add(connectingLine);
+    if (isDistanceResponseData(this.responseData)) {
+      if (this.responseData.refpoint1) {
+        this.point1 = new THREE.Vector3(...this.responseData.refpoint1);
+      }
+      if (this.responseData.refpoint2) {
+        this.point2 = new THREE.Vector3(...this.responseData.refpoint2);
+      }
     }
   }
 
+  override _makeLines(): void {
+    if (!this.scene || this.scene.children.length !== 0) return;
+    if (!this.coneLength || !this.point1 || !this.point2 || !this.panelCenter) return;
+
+    const lineWidth = 1.5;
+    const distanceLine = new DistanceLineArrow(
+      this.coneLength,
+      this.point1,
+      this.point2,
+      2 * lineWidth,
+      this.measurementLineColor,
+    );
+    this.scene.add(distanceLine);
+
+    this.middlePoint = new THREE.Vector3()
+      .addVectors(this.point1, this.point2)
+      .multiplyScalar(0.5);
+    const connectingLine = new DistanceLineArrow(
+      this.coneLength,
+      this.panelCenter,
+      this.middlePoint,
+      lineWidth,
+      this.connectingLineColor,
+      false,
+      false,
+    );
+    this.scene.add(connectingLine);
+  }
+
   override _updateConnectionLine(): void {
-    const lineArrow = this.scene.children[1] as DistanceLineArrow;
-    const line = lineArrow.children[0] as LineSegments2;
-    line.geometry.setPositions([
-      ...this.middlePoint!.toArray(),
-      ...this.panelCenter!.toArray(),
-    ]);
+    if (!this.scene || !this.middlePoint || !this.panelCenter) return;
+    const lineArrow = this.scene.children[1];
+    if (!(lineArrow instanceof DistanceLineArrow)) return;
+    const line = lineArrow.children.find((ch) => isLineSegments2(ch));
+    if (line && isLineSegments2(line)) {
+      line.geometry.setPositions([
+        ...this.middlePoint.toArray(),
+        ...this.panelCenter.toArray(),
+      ]);
+    }
   }
 
   /**
@@ -630,7 +704,9 @@ class PropertiesMeasurement extends Measurement {
   }
 
   override _createPanel(): void {
-    (this.panel as PropertiesPanel).createTable(this.responseData as PropertiesResponseData);
+    if (isPropertiesPanel(this.panel) && isPropertiesResponseData(this.responseData)) {
+      this.panel.createTable(this.responseData);
+    }
   }
 
   override _getMaxObjSelected(): number {
@@ -638,33 +714,40 @@ class PropertiesMeasurement extends Measurement {
   }
 
   _getPoint(): void {
-    this.point1 = new THREE.Vector3(...(this.responseData as PropertiesResponseData).refpoint!);
-  }
-
-  override _makeLines(): void {
-    if (this.scene.children.length === 0) {
-      this.middlePoint = this.point1;
-      const lineWidth = 1.5;
-      const connectingLine = new DistanceLineArrow(
-        this.coneLength!,
-        this.panelCenter!,
-        this.middlePoint!,
-        lineWidth,
-        this.connectingLineColor,
-        false,
-        false,
-      );
-      this.scene.add(connectingLine);
+    if (isPropertiesResponseData(this.responseData) && this.responseData.refpoint) {
+      this.point1 = new THREE.Vector3(...this.responseData.refpoint);
     }
   }
 
+  override _makeLines(): void {
+    if (!this.scene || this.scene.children.length !== 0) return;
+    if (!this.coneLength || !this.panelCenter || !this.point1) return;
+
+    this.middlePoint = this.point1;
+    const lineWidth = 1.5;
+    const connectingLine = new DistanceLineArrow(
+      this.coneLength,
+      this.panelCenter,
+      this.middlePoint,
+      lineWidth,
+      this.connectingLineColor,
+      false,
+      false,
+    );
+    this.scene.add(connectingLine);
+  }
+
   override _updateConnectionLine(): void {
-    const lineArrow = this.scene.children[0] as DistanceLineArrow;
-    const line = lineArrow.children[0] as LineSegments2;
-    line.geometry.setPositions([
-      ...this.middlePoint!.toArray(),
-      ...this.panelCenter!.toArray(),
-    ]);
+    if (!this.scene || !this.middlePoint || !this.panelCenter) return;
+    const lineArrow = this.scene.children[0];
+    if (!(lineArrow instanceof DistanceLineArrow)) return;
+    const line = lineArrow.children.find((ch) => isLineSegments2(ch));
+    if (line && isLineSegments2(line)) {
+      line.geometry.setPositions([
+        ...this.middlePoint.toArray(),
+        ...this.panelCenter.toArray(),
+      ]);
+    }
   }
 
   /**

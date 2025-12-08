@@ -8,7 +8,7 @@ import { loadExample, captureSceneState } from '../helpers/snapshot.js';
  * These tests lock in USER EXPERIENCE by testing through UI event handlers.
  * Critical for refactoring Display <-> Viewer cooperation while preserving UX.
  *
- * Tests start from display.toolbarButtons and verify end-to-end behavior:
+ * Tests start from display.clickButtons and verify end-to-end behavior:
  * UI Button Click → Display Handler → Viewer Method → State Change
  *
  * This ensures the user experience remains stable during architectural refactoring.
@@ -39,9 +39,9 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       const states = {};
 
       for (const view of views) {
-        if (display.toolbarButtons[view]) {
+        if (display.buttons[view]) {
           // Simulate button click - Button.action expects (buttonName, shiftPressed)
-          display.toolbarButtons[view].action(view, false);
+          display.buttons[view].action(view, false);
           states[view] = captureSceneState(viewer);
         }
       }
@@ -65,7 +65,7 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       expect(orthoState.camera.ortho).toBe(true);
 
       // Click perspective button - ClickButton toggles state then calls action(name, newState)
-      const btn = display.toolbarButtons['perspective'];
+      const btn = display.clickButtons['perspective'];
       btn.set(!btn.state);
       btn.action(btn.name, btn.state);
       const perspectiveState = captureSceneState(viewer);
@@ -98,7 +98,7 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       expect(axesOnState.display.axes).toBe(true);
 
       // Click axes button to turn OFF - ClickButton toggles state then calls action
-      const axesBtn = display.toolbarButtons['axes'];
+      const axesBtn = display.clickButtons['axes'];
       axesBtn.set(!axesBtn.state);
       axesBtn.action(axesBtn.name, axesBtn.state);
       const axesOffState = captureSceneState(viewer);
@@ -123,7 +123,7 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       const initialState = captureSceneState(viewer);
 
       // Click axes0 button - ClickButton toggles state then calls action
-      const axes0Btn = display.toolbarButtons['axes0'];
+      const axes0Btn = display.clickButtons['axes0'];
       axes0Btn.set(!axes0Btn.state);
       axes0Btn.action(axes0Btn.name, axes0Btn.state);
       const toggledState = captureSceneState(viewer);
@@ -145,7 +145,7 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       expect(gridOnState.display.grid).toEqual([true, true, true]);
 
       // Click grid button to turn OFF - ClickButton toggles state then calls action
-      const gridBtn = display.toolbarButtons['grid'];
+      const gridBtn = display.clickButtons['grid'];
       gridBtn.set(!gridBtn.state);
       gridBtn.action(gridBtn.name, gridBtn.state);
       const gridOffState = captureSceneState(viewer);
@@ -177,7 +177,7 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       const opaqueState = captureSceneState(viewer);
 
       // Click transparent button - ClickButton toggles state then calls action
-      const transparentBtn = display.toolbarButtons['transparent'];
+      const transparentBtn = display.clickButtons['transparent'];
       transparentBtn.set(!transparentBtn.state);
       transparentBtn.action(transparentBtn.name, transparentBtn.state);
       const transparentState = captureSceneState(viewer);
@@ -203,7 +203,7 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       const initialState = captureSceneState(viewer);
 
       // Click black edges button - ClickButton toggles state then calls action
-      const blackEdgesBtn = display.toolbarButtons['blackedges'];
+      const blackEdgesBtn = display.clickButtons['blackedges'];
       blackEdgesBtn.set(!blackEdgesBtn.state);
       blackEdgesBtn.action(blackEdgesBtn.name, blackEdgesBtn.state);
       const blackEdgesOnState = captureSceneState(viewer);
@@ -237,8 +237,8 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
 
       // Click explode button to expand - ClickButton toggles state then calls action
       // Note: explode functionality requires viewer.explode() method which may not be implemented
-      if (display.toolbarButtons['explode'] && typeof viewer.explode === 'function') {
-        const explodeBtn = display.toolbarButtons['explode'];
+      if (display.clickButtons['explode'] && typeof viewer.explode === 'function') {
+        const explodeBtn = display.clickButtons['explode'];
         explodeBtn.set(!explodeBtn.state);
         explodeBtn.action(explodeBtn.name, explodeBtn.state);
         const explodedState = captureSceneState(viewer);
@@ -269,8 +269,8 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       const initialState = captureSceneState(viewer);
 
       // Click clipping button
-      if (display.toolbarButtons['clip']) {
-        display.toolbarButtons['clip'].action();
+      if (display.clickButtons['clip']) {
+        display.clickButtons['clip'].action();
         const clippingOnState = captureSceneState(viewer);
 
         // State should change when clipping is enabled
@@ -380,7 +380,7 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       const step1 = captureSceneState(viewer);
 
       // Step 2: Change camera view via UI button
-      display.toolbarButtons['iso'].action('iso', false);
+      display.buttons['iso'].action('iso', false);
       const step2 = captureSceneState(viewer);
 
       // Step 3: Adjust materials via viewer methods
@@ -389,16 +389,16 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       const step3 = captureSceneState(viewer);
 
       // Step 4: Toggle display elements via UI buttons
-      const axesBtn = display.toolbarButtons['axes'];
+      const axesBtn = display.clickButtons['axes'];
       axesBtn.set(!axesBtn.state);
       axesBtn.action(axesBtn.name, axesBtn.state); // Turn OFF
-      const gridBtn = display.toolbarButtons['grid'];
+      const gridBtn = display.clickButtons['grid'];
       gridBtn.set(!gridBtn.state);
       gridBtn.action(gridBtn.name, gridBtn.state); // Turn OFF
       const step4 = captureSceneState(viewer);
 
       // Step 5: Enable transparency via UI button
-      const transparentBtn = display.toolbarButtons['transparent'];
+      const transparentBtn = display.clickButtons['transparent'];
       transparentBtn.set(!transparentBtn.state);
       transparentBtn.action(transparentBtn.name, transparentBtn.state);
       const step5 = captureSceneState(viewer);
@@ -422,16 +422,16 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       // Adjust all material properties via viewer methods
       viewer.setMetalness(1.0);
       viewer.setRoughness(0.1);
-      const blackEdgesBtn = display.toolbarButtons['blackedges'];
+      const blackEdgesBtn = display.clickButtons['blackedges'];
       blackEdgesBtn.set(!blackEdgesBtn.state);
       blackEdgesBtn.action(blackEdgesBtn.name, blackEdgesBtn.state);
       const materialsAdjusted = captureSceneState(viewer);
 
       // Cycle through views
-      display.toolbarButtons['front'].action('front', false);
+      display.buttons['front'].action('front', false);
       const frontView = captureSceneState(viewer);
 
-      display.toolbarButtons['top'].action('top', false);
+      display.buttons['top'].action('top', false);
       const topView = captureSceneState(viewer);
 
       // Material properties should persist across view changes
@@ -449,18 +449,18 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       // Rapid UI interactions
-      const transparentBtn = display.toolbarButtons['transparent'];
-      const blackEdgesBtn = display.toolbarButtons['blackedges'];
-      const perspectiveBtn = display.toolbarButtons['perspective'];
-      const axesBtn = display.toolbarButtons['axes'];
-      const gridBtn = display.toolbarButtons['grid'];
+      const transparentBtn = display.clickButtons['transparent'];
+      const blackEdgesBtn = display.clickButtons['blackedges'];
+      const perspectiveBtn = display.clickButtons['perspective'];
+      const axesBtn = display.clickButtons['axes'];
+      const gridBtn = display.clickButtons['grid'];
 
       transparentBtn.set(!transparentBtn.state); transparentBtn.action(transparentBtn.name, transparentBtn.state); // ON
       blackEdgesBtn.set(!blackEdgesBtn.state); blackEdgesBtn.action(blackEdgesBtn.name, blackEdgesBtn.state); // ON
       perspectiveBtn.set(!perspectiveBtn.state); perspectiveBtn.action(perspectiveBtn.name, perspectiveBtn.state); // Switch
       axesBtn.set(!axesBtn.state); axesBtn.action(axesBtn.name, axesBtn.state); // OFF
       gridBtn.set(!gridBtn.state); gridBtn.action(gridBtn.name, gridBtn.state); // OFF
-      display.toolbarButtons['top'].action('top', false); // Change view
+      display.buttons['top'].action('top', false); // Change view
       axesBtn.set(!axesBtn.state); axesBtn.action(axesBtn.name, axesBtn.state); // ON
       transparentBtn.set(!transparentBtn.state); transparentBtn.action(transparentBtn.name, transparentBtn.state); // OFF
 
@@ -498,7 +498,7 @@ describe('UI-Level Approval Tests - Display/Viewer Integration', () => {
       const results = {};
 
       for (const { button, check } of tests) {
-        const btn = display.toolbarButtons[button];
+        const btn = display.clickButtons[button];
         // All these are ClickButtons - toggle state then call action
         btn.set(!btn.state);
         btn.action(btn.name, btn.state);

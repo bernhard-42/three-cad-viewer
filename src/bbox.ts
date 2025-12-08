@@ -1,18 +1,17 @@
 import * as THREE from "three";
-import { disposeGeometry } from "./utils.js";
+import type { Vector3Tuple } from "three";
+import { disposeGeometry, toVector3Tuple } from "./utils.js";
+import { isObjectGroup } from "./objectgroup.js";
 
 /**
- * Symbol used to identify ObjectGroup instances without instanceof checks.
- * Avoids circular dependency issues with objectgroup.js.
+ * Get the geometry from an Object3D if it has one (Mesh, Line, Points).
+ * @returns The BufferGeometry if present, null otherwise.
  */
-const OBJECT_GROUP_MARKER = Symbol.for("tcv.ObjectGroup");
-
-/**
- * Type predicate for objects marked as ObjectGroup.
- * Returns true only for ObjectGroup (marker === true), not CompoundGroup (marker === false).
- */
-function hasObjectGroupMarker(obj: THREE.Object3D): boolean {
-  return (obj as { [OBJECT_GROUP_MARKER]?: boolean })[OBJECT_GROUP_MARKER] === true;
+function getGeometry(object: THREE.Object3D): THREE.BufferGeometry | null {
+  if ("geometry" in object && object.geometry instanceof THREE.BufferGeometry) {
+    return object.geometry;
+  }
+  return null;
 }
 
 /**
@@ -28,15 +27,14 @@ class BoundingBox extends THREE.Box3 {
   expandByObject(object: THREE.Object3D, precise: boolean = false): this {
     object.updateWorldMatrix(false, false);
 
-    // Use symbol marker for ObjectGroup detection (avoids circular dependencies)
-    if (hasObjectGroupMarker(object)) {
+    if (isObjectGroup(object)) {
       // for ObjectGroups calculate bounding box of first Mesh only
       this.expandByObject(object.children[0], precise);
       return this;
     }
 
-    const geometry = (object as THREE.Mesh).geometry;
-    if (geometry !== undefined) {
+    const geometry = getGeometry(object);
+    if (geometry !== null) {
       if (
         precise &&
         geometry.attributes !== undefined &&
@@ -50,7 +48,7 @@ class BoundingBox extends THREE.Box3 {
           this.union(g.boundingBox!);
           g.dispose(); // Dispose cloned geometry to prevent memory leak
         } else {
-          const position = geometry.attributes.position as THREE.BufferAttribute;
+          const position = geometry.attributes.position;
           for (let i = 0, l = position.count; i < l; i++) {
             _vector3
               .fromBufferAttribute(position, i)
@@ -111,9 +109,9 @@ class BoundingBox extends THREE.Box3 {
   /**
    * Get the center point of this box as an array.
    */
-  center(): number[] {
+  center(): Vector3Tuple {
     this.getCenter(_vector3);
-    return _vector3.toArray();
+    return toVector3Tuple(_vector3.toArray());
   }
 }
 
@@ -122,6 +120,10 @@ class BoundingBox extends THREE.Box3 {
  * Extends THREE.LineSegments to render the 12 edges of a box.
  */
 class BoxHelper extends THREE.LineSegments {
+  declare type: "BoxHelper";
+  declare geometry: THREE.BufferGeometry & {
+    attributes: { position: THREE.BufferAttribute };
+  };
   object: THREE.Object3D | undefined;
 
   /**
@@ -143,9 +145,7 @@ class BoxHelper extends THREE.LineSegments {
     );
 
     this.object = object;
-    // Note: 'type' is readonly in THREE.js types but we need to set it
-    (this as { type: string }).type = "BoxHelper";
-
+    this.type = "BoxHelper";
     this.matrixAutoUpdate = false;
 
     this.update();
@@ -165,8 +165,8 @@ class BoxHelper extends THREE.LineSegments {
     const min = _hbox.min;
     const max = _hbox.max;
 
-    const position = this.geometry.attributes.position as THREE.BufferAttribute;
-    const array = position.array as Float32Array;
+    const position = this.geometry.attributes.position;
+    const array = position.array;
 
     array[0] = max.x;
     array[1] = max.y;
@@ -211,7 +211,7 @@ class BoxHelper extends THREE.LineSegments {
    * Dispose of geometry and material resources.
    */
   dispose(): void {
-    disposeGeometry(this);
+    disposeGeometry(this.geometry);
   }
 }
 
@@ -220,4 +220,4 @@ const _bbox = new BoundingBox();
 const _hbox = new BoundingBox();
 const _sphere = new THREE.Sphere();
 
-export { BoundingBox, BoxHelper, OBJECT_GROUP_MARKER };
+export { BoundingBox, BoxHelper };

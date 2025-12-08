@@ -30,6 +30,22 @@ function cleanupContainer(container) {
   }
 }
 
+/**
+ * Create a mock event with the slider element as target
+ */
+function createSliderEvent(slider, value) {
+  slider.slider.value = String(value);
+  return { target: slider.slider };
+}
+
+/**
+ * Create a mock event with the input element as target
+ */
+function createInputEvent(slider, value) {
+  slider.input.value = String(value);
+  return { target: slider.input };
+}
+
 describe('Slider - Constructor', () => {
   let container;
 
@@ -163,8 +179,7 @@ describe('Slider - sliderChange', () => {
     });
 
     // Simulate slider change
-    slider.slider.value = 50;
-    slider.sliderChange({ target: { value: 50 } });
+    slider.sliderChange(createSliderEvent(slider, 50));
 
     expect(slider.input.value).toBe('50');
     expect(handler).toHaveBeenCalledWith(1, '50');
@@ -179,11 +194,10 @@ describe('Slider - sliderChange', () => {
 
     const slider = new Slider('ambientlight', 0, 100, container, { handler });
 
-    slider.slider.value = 75;
-    slider.sliderChange({ target: { value: 75 } });
+    slider.sliderChange(createSliderEvent(slider, 75));
 
     expect(slider.input.value).toBe('75');
-    expect(handler).toHaveBeenCalledWith('75');
+    expect(handler).toHaveBeenCalledWith(75);
 
     slider.dispose();
   });
@@ -197,7 +211,7 @@ describe('Slider - sliderChange', () => {
       percentage: true,
     });
 
-    slider.sliderChange({ target: { value: 50 } });
+    slider.sliderChange(createSliderEvent(slider, 50));
 
     expect(handler).toHaveBeenCalledWith(0.5);
 
@@ -214,7 +228,7 @@ describe('Slider - sliderChange', () => {
       isReadyCheck,
     });
 
-    slider.sliderChange({ target: { value: 50 } });
+    slider.sliderChange(createSliderEvent(slider, 50));
 
     expect(isReadyCheck).toHaveBeenCalled();
     expect(handler).not.toHaveBeenCalled();
@@ -232,9 +246,9 @@ describe('Slider - sliderChange', () => {
       isReadyCheck,
     });
 
-    slider.sliderChange({ target: { value: 50 } });
+    slider.sliderChange(createSliderEvent(slider, 50));
 
-    expect(handler).toHaveBeenCalledWith('50');
+    expect(handler).toHaveBeenCalledWith(50);
 
     slider.dispose();
   });
@@ -245,7 +259,7 @@ describe('Slider - sliderChange', () => {
 
     const slider = new Slider('test', 0, 100, container, { handler });
 
-    slider.sliderChange({ target: { value: 33.33333 } });
+    slider.sliderChange(createSliderEvent(slider, 33.33333));
 
     expect(slider.input.value).toBe('33.333');
 
@@ -266,11 +280,11 @@ describe('Slider - inputChange', () => {
 
     const slider = new Slider('test', 0, 100, container, { handler });
 
-    slider.inputChange({ target: { value: 75 } });
+    slider.inputChange(createInputEvent(slider, 75));
 
     expect(slider.slider.value).toBe('75');
     expect(slider.input.value).toBe('75');
-    expect(handler).toHaveBeenCalledWith('75');
+    expect(handler).toHaveBeenCalledWith(75);
 
     slider.dispose();
   });
@@ -281,7 +295,7 @@ describe('Slider - inputChange', () => {
 
     const slider = new Slider('test', 0, 100, container, { handler });
 
-    slider.inputChange({ target: { value: 150 } });
+    slider.inputChange(createInputEvent(slider, 150));
 
     expect(slider.slider.value).toBe('100');
     expect(slider.input.value).toBe('100');
@@ -295,7 +309,7 @@ describe('Slider - inputChange', () => {
 
     const slider = new Slider('test', 0, 100, container, { handler });
 
-    slider.inputChange({ target: { value: -50 } });
+    slider.inputChange(createInputEvent(slider, -50));
 
     expect(slider.slider.value).toBe('0');
     expect(slider.input.value).toBe('0');
@@ -313,7 +327,7 @@ describe('Slider - inputChange', () => {
       notifyCallback,
     });
 
-    slider.inputChange({ target: { value: 60 } });
+    slider.inputChange(createInputEvent(slider, 60));
 
     expect(notifyCallback).toHaveBeenCalledWith({ clip_slider_1: 60 }, true);
 
@@ -425,7 +439,7 @@ describe('Slider - setValue', () => {
 
     expect(slider.slider.value).toBe('60');
     expect(slider.input.value).toBe('60');
-    expect(handler).toHaveBeenCalledWith('60');
+    expect(handler).toHaveBeenCalledWith(60);
 
     slider.dispose();
   });

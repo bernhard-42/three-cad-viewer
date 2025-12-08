@@ -1,6 +1,23 @@
 import { TopoFilter, Raycaster } from "./../raycast.js";
 import type { DisplayLike } from "./tools.js";
 
+/**
+ * Type guard to check if a value is a number array of specific length.
+ */
+function isNumberArray(value: unknown, length: number): value is number[] {
+  return Array.isArray(value) && value.length === length && value.every((v) => typeof v === "number");
+}
+
+/**
+ * Type guard to check if a value is a Record<string, number[]> (bounding box data).
+ */
+function isBoundingBoxData(value: unknown): value is Record<string, number[]> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return false;
+  }
+  return Object.values(value).every((v) => isNumberArray(v, 3));
+}
+
 interface CallbackEntry {
   callback: EventListener;
   type: string;
@@ -213,27 +230,30 @@ class DistancePanel extends Panel {
       const value = properties[key];
 
       let tr: HTMLTableRowElement;
-      if (Array.isArray(value) && value.length === 3) {
-        tr = createVectorRow(key, value as number[]);
+      if (isNumberArray(value, 3)) {
+        tr = createVectorRow(key, value);
         tbody.appendChild(tr);
-      } else {
+      } else if (typeof value === "number") {
         if (key.toLowerCase() === "distance") {
-          tr = createValueRow(key, value as number, properties["info"] as string);
+          const info = typeof properties["info"] === "string" ? properties["info"] : undefined;
+          tr = createValueRow(key, value, info ?? null);
         } else {
-          tr = createValueRow(key, value as number);
+          tr = createValueRow(key, value);
         }
         tbody.appendChild(tr);
 
         if (key.toLowerCase() == "angle") {
           tr.classList.add("tcv_measure_cell_top_border");
 
-          tr = createStringRow("Reference 1", properties["info1"] as string);
+          const info1 = typeof properties["info1"] === "string" ? properties["info1"] : "";
+          const info2 = typeof properties["info2"] === "string" ? properties["info2"] : "";
+          tr = createStringRow("Reference 1", info1);
           tbody.appendChild(tr);
-          tr = createStringRow("Reference 2", properties["info2"] as string);
+          tr = createStringRow("Reference 2", info2);
           tbody.appendChild(tr);
         }
+        tbody.appendChild(tr);
       }
-      tbody.appendChild(tr);
     }
     table.appendChild(tbody);
     this.html.append(table);
@@ -269,7 +289,7 @@ class PropertiesPanel extends Panel {
     this.resetTable();
 
     this.setSubHeader(
-      `${properties["shape_type"]} / ${properties["geom_type"]}`,
+      `${properties["shape_type"] ?? ""} / ${properties["geom_type"] ?? ""}`,
     );
     const table = document.createElement("table");
     table.classList.add("tcv_properties_table");
@@ -290,25 +310,24 @@ class PropertiesPanel extends Panel {
 
       const value = properties[key];
 
-      let tr: HTMLTableRowElement;
-      if (key.toLowerCase() === "bb") {
-        const bbValue = value as Record<string, number[]>;
-        for (const bbKey in bbValue) {
-          const tr = createVectorRow(`BB ${bbKey}`, bbValue[bbKey]);
+      let tr: HTMLTableRowElement | undefined;
+      if (key.toLowerCase() === "bb" && isBoundingBoxData(value)) {
+        for (const bbKey in value) {
+          const bbTr = createVectorRow(`BB ${bbKey}`, value[bbKey]);
           if (bbKey === "min") {
-            tr.classList.add("tcv_measure_cell_top_border");
+            bbTr.classList.add("tcv_measure_cell_top_border");
           }
-          tbody.appendChild(tr);
+          tbody.appendChild(bbTr);
         }
-      } else if (Array.isArray(value) && value.length === 3) {
-        tr = createVectorRow(key, value as number[]);
+      } else if (isNumberArray(value, 3)) {
+        tr = createVectorRow(key, value);
         tbody.appendChild(tr);
-      } else {
-        tr = createValueRow(key, value as number);
+      } else if (typeof value === "number") {
+        tr = createValueRow(key, value);
         tbody.appendChild(tr);
       }
-      if (["length", "area", "volume", "start"].includes(key.toLowerCase())) {
-        tr!.classList.add("tcv_measure_cell_top_border");
+      if (tr && ["length", "area", "volume", "start"].includes(key.toLowerCase())) {
+        tr.classList.add("tcv_measure_cell_top_border");
       }
     }
     table.appendChild(tbody);
@@ -342,11 +361,12 @@ class FilterByDropDownMenu {
   private setValue = (topoType: string): void => {
     if (this.raycaster != null) {
       this.elements.value.innerText = topoType;
-      if (topoType == "none") {
+      const key = topoType.toLowerCase();
+      if (key === "none") {
         this.raycaster.filters.topoFilter = [TopoFilter.none];
-      } else {
+      } else if (key in TopoFilter) {
         this.raycaster.filters.topoFilter = [
-          TopoFilter[topoType.toLowerCase() as keyof typeof TopoFilter],
+          TopoFilter[key as keyof typeof TopoFilter],
         ];
       }
     }
@@ -372,9 +392,11 @@ class FilterByDropDownMenu {
   };
 
   private handleSelection = (ev: Event): void => {
-    const topoType = (ev.target as HTMLElement).innerText;
-    this.setValue(topoType);
-    this.toggleDropdown(ev);
+    const target = ev.target;
+    if (target instanceof HTMLElement) {
+      this.setValue(target.innerText);
+      this.toggleDropdown(ev);
+    }
   };
 
   reset = (): void => {

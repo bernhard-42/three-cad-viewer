@@ -2,18 +2,15 @@
  * TypeScript type definitions for three-cad-viewer
  */
 
+import * as THREE from "three";
+import type { Vector3Tuple, QuaternionTuple } from "three";
+
+// Re-export tuple types for external API use
+export type { Vector3Tuple, QuaternionTuple } from "three";
+
 // =============================================================================
 // Basic Types
 // =============================================================================
-
-/** Vector3, a 3-dim array of floats [x, y, z] */
-export type Vector3 = [number, number, number];
-
-/** Quaternion, a 4-dim array of floats [x, y, z, w] */
-export type Quaternion = [number, number, number, number];
-
-/** Edge, a tuple of two Vector3s, start and end of a simple edge */
-export type Edge = [Vector3, Vector3];
 
 /** Theme input option (browser resolves to light or dark) */
 export type ThemeInput = "light" | "dark" | "browser";
@@ -44,6 +41,32 @@ export type ShapeType = "shapes" | "edges" | "vertices";
 
 /** Shape subtype */
 export type ShapeSubtype = "solid" | "faces";
+
+/** Axis identifier */
+export type Axis = "x" | "y" | "z";
+
+/** Clip plane index (0, 1, or 2) */
+export type ClipIndex = 0 | 1 | 2;
+
+/** Valid clip indices as array for iteration */
+export const CLIP_INDICES: readonly ClipIndex[] = [0, 1, 2];
+
+/** Type guard to check if a number is a valid ClipIndex */
+export function isClipIndex(n: number): n is ClipIndex {
+  return n === 0 || n === 1 || n === 2;
+}
+
+/** Color value that THREE.Color accepts - hex number or CSS string */
+export type ColorValue = number | string;
+
+/** RGB color as tuple [r, g, b] with values 0-1 */
+export type RGBColor = [number, number, number];
+
+/** Axis colors per theme - array of RGB colors for X, Y, Z axes */
+export type AxisColors = Record<Theme, RGBColor[]>;
+
+/** Flat axis colors per theme - all RGB values concatenated for line geometry */
+export type AxisColorsFlatArray = Record<Theme, number[]>;
 
 // =============================================================================
 // State Change Types
@@ -101,7 +124,7 @@ export interface PickInfo {
 
 /** Camera position/zoom, UI and pick changes */
 export interface ChangeInfos {
-  camera_position?: Vector3;
+  camera_position?: Vector3Tuple;
   camera_zoom?: number;
   axes?: boolean;
   axes0?: boolean;
@@ -113,16 +136,16 @@ export interface ChangeInfos {
 /** Camera position/zoom, UI and pick change notification with old/new values */
 export interface ChangeNotification {
   // Camera state
-  camera_position?: StateChange<Vector3>;
+  camera_position?: StateChange<Vector3Tuple>;
   camera_zoom?: StateChange<number>;
-  position?: StateChange<Vector3>;
-  quaternion?: StateChange<Quaternion>;
-  target?: StateChange<Vector3>;
+  position?: StateChange<Vector3Tuple>;
+  quaternion?: StateChange<QuaternionTuple>;
+  target?: StateChange<Vector3Tuple>;
   zoom?: StateChange<number>;
   // Reset location
-  position0?: StateChange<Vector3>;
-  quaternion0?: StateChange<Quaternion>;
-  target0?: StateChange<Vector3>;
+  position0?: StateChange<Vector3Tuple>;
+  quaternion0?: StateChange<QuaternionTuple>;
+  target0?: StateChange<Vector3Tuple>;
   zoom0?: StateChange<number>;
   // UI state
   axes?: StateChange<boolean>;
@@ -131,9 +154,9 @@ export interface ChangeNotification {
   grid?: StateChange<[boolean, boolean, boolean]>;
   tab?: StateChange<ActiveTab | null>;
   // Clipping
-  clip_normal_0?: StateChange<Vector3>;
-  clip_normal_1?: StateChange<Vector3>;
-  clip_normal_2?: StateChange<Vector3>;
+  clip_normal_0?: StateChange<Vector3Tuple>;
+  clip_normal_1?: StateChange<Vector3Tuple>;
+  clip_normal_2?: StateChange<Vector3Tuple>;
   // Pick info
   lastPick?: StateChange<PickInfo | null>;
   // Allow other state properties dynamically
@@ -230,11 +253,11 @@ export interface ViewerOptions {
   /** Use object colors for clipping (default: false) */
   clipObjectColors?: boolean;
   /** Normal direction for clipping plane 0 (default: [-1, 0, 0]) */
-  clipNormal0?: Vector3;
+  clipNormal0?: Vector3Tuple;
   /** Normal direction for clipping plane 1 (default: [0, -1, 0]) */
-  clipNormal1?: Vector3;
+  clipNormal1?: Vector3Tuple;
   /** Normal direction for clipping plane 2 (default: [0, 0, -1]) */
-  clipNormal2?: Vector3;
+  clipNormal2?: Vector3Tuple;
   /** Clip slider 0 value (default: -1) */
   clipSlider0?: number;
   /** Clip slider 1 value (default: -1) */
@@ -252,11 +275,11 @@ export interface ViewerOptions {
   /** Center grid on object (default: false) */
   centerGrid?: boolean;
   /** Camera position as 3-dim array */
-  position?: Vector3 | null;
+  position?: Vector3Tuple | null;
   /** Camera rotation as 4-dim quaternion [x,y,z,w] */
-  quaternion?: Quaternion | null;
+  quaternion?: QuaternionTuple | null;
   /** Camera target */
-  target?: Vector3 | null;
+  target?: Vector3Tuple | null;
   /** Camera zoom value (default: 1) */
   zoom?: number;
   /** Pan speed (default: 1.0) */
@@ -330,9 +353,9 @@ export interface ViewerStateShape {
   clipIntersection: boolean;
   clipPlaneHelpers: boolean;
   clipObjectColors: boolean;
-  clipNormal0: Vector3;
-  clipNormal1: Vector3;
-  clipNormal2: Vector3;
+  clipNormal0: THREE.Vector3;
+  clipNormal1: THREE.Vector3;
+  clipNormal2: THREE.Vector3;
   clipSlider0: number;
   clipSlider1: number;
   clipSlider2: number;
@@ -342,9 +365,9 @@ export interface ViewerStateShape {
   ticks: number;
   gridFontSize: number;
   centerGrid: boolean;
-  position: Vector3 | null;
-  quaternion: Quaternion | null;
-  target: Vector3 | null;
+  position: THREE.Vector3 | null;
+  quaternion: THREE.Quaternion | null;
+  target: THREE.Vector3 | null;
   zoom: number;
   panSpeed: number;
   rotateSpeed: number;
@@ -394,8 +417,8 @@ export interface Texture {
 export interface Shape {
   /** Flattened list of 3-dim vertices defining the triangles */
   vertices: number[] | Float32Array;
-  /** Flattened list of 3-dim vertex normals */
-  normals: number[] | Float32Array;
+  /** Vertex normals - flat array, nested number[][], or Float32Array */
+  normals: number[] | number[][] | Float32Array;
   /** Triangle indices - flat Uint32Array with triangles_per_face, or nested number[][] */
   triangles: number[] | number[][] | Uint32Array;
   /** Edge segments - flat Float32Array with segments_per_edge, or nested number[][] */
@@ -403,7 +426,7 @@ export interface Shape {
   /** Flattened list of 3-dim vertices of the CAD object */
   obj_vertices: number[] | Float32Array;
   /** OCP types of the edges */
-  edge_types: number[] | Uint8Array;
+  edge_types: number[] | Uint8Array | Uint32Array;
   /** OCP types of the faces */
   face_types: number[] | Uint32Array;
   /** Number of triangles per face (when triangles is flat) */
@@ -464,16 +487,19 @@ export function hasTrianglesPerFace(shape: Shape): shape is Shape & {
 export function hasSegmentsPerEdge(shape: Shape): shape is Shape & {
   segments_per_edge: Uint32Array | number[];
   edges: Float32Array | number[];
-  edge_types: Uint8Array | number[];
+  edge_types: Uint8Array | Uint32Array | number[];
 } {
   return shape.segments_per_edge !== undefined;
 }
 
 /** Location tuple: position and quaternion */
-export type Location = [Vector3, Quaternion];
+export type Location = [Vector3Tuple, QuaternionTuple];
+
+/** Visibility state value: 0=unselected, 1=selected, 2=mixed, 3=disabled */
+export type VisibilityValue = 0 | 1 | 2 | 3;
 
 /** Visibility state: [faces, edges] where 1=shown, 0=hidden, 3=n/a */
-export type VisibilityState = [number, number];
+export type VisibilityState = [VisibilityValue, VisibilityValue];
 
 /** Hierarchical/grouped objects of type Shape */
 export interface Shapes {
@@ -529,6 +555,18 @@ export interface Shapes {
 
 /** Callback for DOM events */
 export type DomEventCallback = (event: Event) => void;
+
+// =============================================================================
+// THREE.js Material Types
+// =============================================================================
+
+/**
+ * Material with color property - used for highlighting and theme changes.
+ * Matches MeshBasicMaterial, MeshStandardMaterial, LineBasicMaterial, etc.
+ */
+export interface ColoredMaterial extends THREE.Material {
+  color: THREE.Color;
+}
 
 // =============================================================================
 // Subscription Options

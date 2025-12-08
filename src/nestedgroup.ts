@@ -3,10 +3,10 @@ import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "./patches.js";
 import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js";
 import { BoundingBox } from "./bbox.js";
-import { ObjectGroup, OBJECT_GROUP_MARKER, isObjectGroup } from "./objectgroup.js";
+import { ObjectGroup, isObjectGroup } from "./objectgroup.js";
 import { MaterialFactory } from "./material-factory.js";
 import { deepDispose, flatten } from "./utils.js";
-import type { ZebraColorScheme, ZebraMappingMode, Shapes } from "./types";
+import type { ZebraColorScheme, ZebraMappingMode, Shapes, ColorValue, ColoredMaterial } from "./types";
 
 interface ShapeData {
   vertices: Float32Array | number[][];
@@ -16,11 +16,11 @@ interface ShapeData {
 }
 
 interface EdgeData {
-  edges?: Float32Array | number[][];
+  edges: Float32Array | number[][];
 }
 
 interface VertexData {
-  obj_vertices?: Float32Array | number[];
+  obj_vertices: Float32Array | number[];
 }
 
 interface PolygonShape {
@@ -39,7 +39,7 @@ interface ShapeEntry {
   shape: ShapeData | EdgeData | VertexData | PolygonShape;
   id: string;
   name: string;
-  color: number | number[];
+  color?: string | string[];
   alpha?: number;
   width?: number;
   size?: number;
@@ -47,7 +47,7 @@ interface ShapeEntry {
   loc?: [[number, number, number], [number, number, number, number]];
   renderback?: boolean;
   exploded?: boolean;
-  geomtype?: string | null;
+  geomtype?: number | null;
   subtype?: string | null;
   texture?: { image: TextureData; width: number; height: number };
 }
@@ -62,18 +62,20 @@ interface ShapeTree {
 
 type GroupsMap = Record<string, ObjectGroup | CompoundGroup>;
 
+/** Type guard to check if a shape entry has nested parts (is a ShapeTree) */
+function isShapeTree(shape: ShapeEntry | ShapeTree | Shapes): shape is ShapeTree {
+  return "parts" in shape;
+}
+
 /**
- * A THREE.Group that is explicitly marked as NOT an ObjectGroup.
- * Used for compound groups that contain ObjectGroups or other geometry.
- * This allows hasObjectGroupMarker checks to work without 'in' operator.
+ * A THREE.Group for compound geometry that contains ObjectGroups.
+ * Follows Three.js convention with type identifier and type guard property.
  */
 class CompoundGroup extends THREE.Group {
-  [OBJECT_GROUP_MARKER]: boolean;
-
-  constructor() {
-    super();
-    this[OBJECT_GROUP_MARKER] = false;
-  }
+  /** Type identifier following Three.js convention */
+  override readonly type = "CompoundGroup";
+  /** Type guard property following Three.js convention */
+  readonly isCompoundGroup = true;
 }
 
 /**
@@ -81,7 +83,7 @@ class CompoundGroup extends THREE.Group {
  * Creates and organizes ObjectGroup instances for shapes, edges, and vertices.
  */
 class NestedGroup {
-  shapes: Shapes;
+  shapes: Shapes | null;
   width: number;
   height: number;
   edgeColor: number;
@@ -98,7 +100,7 @@ class NestedGroup {
   instances: Record<string, number[]> | null;
   bbox: BoundingBox | null;
   bsphere: THREE.Sphere | null;
-  groups: GroupsMap;
+  groups: GroupsMap | null;
   clipPlanes: THREE.Plane[] | null;
   materialFactory: MaterialFactory;
 
@@ -163,32 +165,47 @@ class NestedGroup {
   dispose(): void {
     if (this.groups) {
       deepDispose(Object.values(this.groups));
-      (this as { groups: GroupsMap | null }).groups = null;
+      this.groups = null;
     }
     if (this.rootGroup) {
       deepDispose(this.rootGroup);
       this.rootGroup = null;
     }
     // Clear shapes reference (it's just data, doesn't need disposal)
-    (this as { shapes: ShapeTree | null }).shapes = null;
+    this.shapes = null;
   }
 
   /**
-   * Convert array data to Float32Array, handling protocol version differences.
+   * Check if array is nested (number[][]).
    */
-  private _toFloat32Array(data: Float32Array | number[] | number[][], flattenDepth: number = 1): Float32Array {
-    return data instanceof Float32Array
-      ? data
-      : new Float32Array(flatten(data, flattenDepth) as number[]);
+  private _isNestedArray(data: number[] | number[][]): data is number[][] {
+    return data.length > 0 && Array.isArray(data[0]);
   }
 
   /**
-   * Convert array data to Uint32Array, handling protocol version differences.
+   * Convert array data to Float32Array, detecting nested arrays at runtime.
    */
-  private _toUint32Array(data: Uint32Array | number[] | number[][], flattenDepth: number = 1): Uint32Array {
-    return data instanceof Uint32Array
-      ? data
-      : new Uint32Array(flatten(data, flattenDepth) as number[]);
+  private _toFloat32Array(data: Float32Array | number[] | number[][], depth: number = 1): Float32Array {
+    if (data instanceof Float32Array) {
+      return data;
+    }
+    if (this._isNestedArray(data)) {
+      return new Float32Array(flatten(data, depth));
+    }
+    return new Float32Array(data);
+  }
+
+  /**
+   * Convert array data to Uint32Array, detecting nested arrays at runtime.
+   */
+  private _toUint32Array(data: Uint32Array | number[] | number[][], depth: number = 1): Uint32Array {
+    if (data instanceof Uint32Array) {
+      return data;
+    }
+    if (this._isNestedArray(data)) {
+      return new Uint32Array(flatten(data, depth));
+    }
+    return new Uint32Array(data);
   }
 
   /**
@@ -197,7 +214,7 @@ class NestedGroup {
   private _renderEdges(
     edgeList: Float32Array | number[] | number[][],
     lineWidth: number,
-    color: number | number[] | null,
+    color: ColorValue | ColorValue[] | null,
     state: number
   ): LineSegments2 {
     const positions = this._toFloat32Array(edgeList, 3);
@@ -205,10 +222,8 @@ class NestedGroup {
     const lineGeometry = new LineSegmentsGeometry();
     lineGeometry.setPositions(positions);
 
-    const hasVertexColors = Array.isArray(color);
-
-    if (hasVertexColors) {
-      const colors = (color as number[])
+    if (Array.isArray(color)) {
+      const colors = color
         .map((c) => [
           new THREE.Color(c).toArray(),
           new THREE.Color(c).toArray(),
@@ -219,8 +234,8 @@ class NestedGroup {
 
     const lineMaterial = this.materialFactory.createEdgeMaterial({
       lineWidth: lineWidth,
-      color: hasVertexColors ? null : (color as number | null),
-      vertexColors: hasVertexColors,
+      color: Array.isArray(color) ? null : color,
+      vertexColors: Array.isArray(color),
       visible: state == 1,
       resolution: { width: this.width, height: this.height },
     });
@@ -235,29 +250,29 @@ class NestedGroup {
    * Render standalone edge geometry (not associated with a face).
    */
   renderEdges(
-    edgeList: EdgeData | Float32Array | number[][],
+    edgeData: EdgeData,
     lineWidth: number,
-    color: number | number[] | null,
+    color: ColorValue | ColorValue[] | null,
     path: string,
     name: string,
     state: number,
-    geomtype: { topo: string; geomtype: string | null } | null = null
+    geomtype: { topo: string; geomtype: number | string | null } | null = null
   ): ObjectGroup {
+    // For vertex colors (array), use default edge color for the group
+    const groupColor = Array.isArray(color) ? this.edgeColor : (color ?? this.edgeColor);
     const group = new ObjectGroup(
       this.defaultOpacity,
       1.0,
-      color == null ? this.edgeColor : (color as number),
+      groupColor,
       geomtype,
       "edges",
     );
 
-    // Handle protocol version differences: v2 has edges property, v1 is direct array
-    const edgeData = (edgeList as EdgeData).edges ?? edgeList;
-    const edges = this._renderEdges(edgeData as Float32Array | number[][], lineWidth, color, state);
+    const edges = this._renderEdges(edgeData.edges, lineWidth, color, state);
     if (name) {
       edges.name = name;
     }
-    group.addType(edges, "edges");
+    group.setEdges(edges);
 
     this.groups[path] = group;
     group.name = path.replaceAll("/", this.delim);
@@ -269,25 +284,23 @@ class NestedGroup {
    * Render vertex points as a point cloud.
    */
   renderVertices(
-    vertexList: VertexData | Float32Array | number[],
+    vertexData: VertexData,
     size: number,
-    color: number | null,
+    color: ColorValue | null,
     path: string,
     name: string,
     state: number,
-    geomtype: { topo: string; geomtype: string | null } | null = null
+    geomtype: { topo: string; geomtype: number | string | null } | null = null
   ): ObjectGroup {
     const group = new ObjectGroup(
       this.defaultOpacity,
       1.0,
-      color == null ? this.edgeColor : color,
+      color ?? this.edgeColor,
       geomtype,
       "vertices",
     );
 
-    // Handle protocol version differences: v2 has obj_vertices property, v1 is direct array
-    const vertexData = (vertexList as VertexData).obj_vertices ?? vertexList;
-    const positions = this._toFloat32Array(vertexData as Float32Array | number[]);
+    const positions = this._toFloat32Array(vertexData.obj_vertices);
 
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
@@ -305,7 +318,7 @@ class NestedGroup {
     if (name) {
       points.name = name;
     }
-    group.addType(points, "vertices");
+    group.setVertices(points);
 
     this.groups[path] = group;
     group.name = path.replaceAll("/", this.delim);
@@ -318,14 +331,14 @@ class NestedGroup {
    */
   renderShape(
     shape: ShapeData,
-    color: number | number[],
+    color: ColorValue,
     alpha: number | null,
     renderback: boolean,
     exploded: boolean,
     path: string,
     name: string,
     states: number[],
-    geomtype: { topo: string; geomtype: string | null } | null = null,
+    geomtype: { topo: string; geomtype: number | string | null } | null = null,
     subtype: string | null = null,
     texture_data: TextureData | null = null,
     texture_width: number | null = null,
@@ -355,7 +368,7 @@ class NestedGroup {
 
     let shapeGeometry: THREE.BufferGeometry | THREE.PlaneGeometry;
     let texture: THREE.Texture | null = null;
-    let frontMaterial: THREE.Material;
+    let frontMaterial: ColoredMaterial;
 
     if (texture_data != null) {
       const url = `data:image/${texture_data.format};base64,${texture_data.data}`;
@@ -383,7 +396,7 @@ class NestedGroup {
       group.shapeGeometry = shapeGeometry;
 
       frontMaterial = this.materialFactory.createFrontFaceMaterial({
-        color: color as number,
+        color: color,
         alpha: alpha,
         visible: states[0] == 1,
       });
@@ -393,10 +406,10 @@ class NestedGroup {
     const backColor =
       group.subtype === "solid" && !exploded
         ? color
-        : new THREE.Color(this.edgeColor).lerp(new THREE.Color(1, 1, 1), 0.15);
+        : new THREE.Color(this.edgeColor).lerp(new THREE.Color(1, 1, 1), 0.15).getHex();
 
     const backMaterial = this.materialFactory.createBackFaceBasicMaterial({
-      color: backColor as number,
+      color: backColor,
       alpha: alpha,
       visible: states[0] == 1 && (renderback || this.backVisible),
     });
@@ -418,8 +431,8 @@ class NestedGroup {
       front.geometry.computeBoundingBox();
     }
 
-    group.addType(back, "back");
-    group.addType(front, "front");
+    group.setBack(back);
+    group.setFront(front);
 
     if (this.normalLen > 0) {
       const normalsHelper = new VertexNormalsHelper(
@@ -434,7 +447,7 @@ class NestedGroup {
     if (edgeList && edgeList.length > 0) {
       const edges = this._renderEdges(edgeList, 1, null, states[1]);
       edges.name = name;
-      group.addType(edges, "edges");
+      group.setEdges(edges);
     }
 
     return group;
@@ -489,14 +502,14 @@ class NestedGroup {
   renderPolygons(
     shape: PolygonShape,
     minZ: number,
-    color: number,
+    color: ColorValue,
     alpha: number,
     renderback: boolean,
     exploded: boolean,
     path: string,
     name: string,
     states: number[],
-    geomtype: { topo: string; geomtype: string | null } | null = null,
+    geomtype: { topo: string; geomtype: number | string | null } | null = null,
     subtype: string | null = null,
   ): ObjectGroup {
     const group = new ObjectGroup(
@@ -576,9 +589,9 @@ class NestedGroup {
     const polyEdges = new THREE.LineSegments(edgeGeom, lineMat);
 
     group.shapeGeometry = polyGeometry;
-    group.addType(front, "front");
-    group.addType(back, "back");
-    group.addType(polyEdges, "edges");
+    group.setFront(front);
+    group.setBack(back);
+    group.setEdges(polyEdges);
 
     return group;
   }
@@ -601,7 +614,7 @@ class NestedGroup {
           mesh = this.renderEdges(
             shape.shape as EdgeData,
             shape.width!,
-            shape.color as number | number[],
+            shape.color as ColorValue | ColorValue[] | null,
             shape.id,
             shape.name,
             shape.state[1],
@@ -612,7 +625,7 @@ class NestedGroup {
           mesh = this.renderVertices(
             shape.shape as VertexData,
             shape.size!,
-            shape.color as number,
+            (shape.color as ColorValue) ?? null,
             shape.id,
             shape.name,
             shape.state[1],
@@ -623,7 +636,7 @@ class NestedGroup {
           mesh = this.renderPolygons(
             shape.shape as PolygonShape,
             shape.loc![0][2],
-            shape.color as number,
+            (shape.color as ColorValue) ?? this.edgeColor,
             1.0,
             shape.renderback == null ? false : shape.renderback,
             false, //exploded
@@ -634,10 +647,12 @@ class NestedGroup {
             shape.subtype || null,
           );
           break;
-        default:
+        default: {
+          // Shape color must be a single value, not an array
+          const shapeColor = Array.isArray(shape.color) ? shape.color[0] : shape.color;
           mesh = this.renderShape(
             shape.shape as ShapeData,
-            shape.color,
+            shapeColor ?? this.edgeColor,
             shape.alpha ?? null,
             shape.renderback == null ? false : shape.renderback,
             shape.exploded ?? false,
@@ -650,6 +665,7 @@ class NestedGroup {
             width,
             height,
           );
+        }
       }
       // support object locations
       if (shape.loc != null) {
@@ -672,17 +688,18 @@ class NestedGroup {
     this.groups[shapes.id] = group;
     group.name = shapes.id.replaceAll("/", "|");
 
+    // shapes.parts contains ShapeEntry | ShapeTree after viewer._decompose()
     for (const shape of shapes.parts!) {
-      if ((shape as Shapes).parts) {
-        group.add(this.renderLoop(shape as Shapes));
+      if (isShapeTree(shape)) {
+        group.add(this.renderLoop(shape));
       } else {
-        const shapeEntry = shape as ShapeEntry;
-        const has_texture = shapeEntry.texture != null;
-        const texture = has_texture ? shapeEntry.texture!.image : null;
-        const width = has_texture ? shapeEntry.texture!.width : null;
-        const height = has_texture ? shapeEntry.texture!.height : null;
-        const objectGroup = _render(shapeEntry, texture, width, height);
-        this.groups[shapeEntry.id] = objectGroup;
+        const entry = shape as ShapeEntry;
+        const has_texture = entry.texture != null;
+        const texture = has_texture ? entry.texture!.image : null;
+        const width = has_texture ? entry.texture!.width : null;
+        const height = has_texture ? entry.texture!.height : null;
+        const objectGroup = _render(entry, texture, width, height);
+        this.groups[entry.id] = objectGroup;
         group.add(objectGroup);
       }
     }
@@ -720,7 +737,7 @@ class NestedGroup {
     for (const path in this.groups) {
       const obj = this.groups[path];
       if (obj instanceof ObjectGroup) {
-        const method = (obj as Record<string, unknown>)[func];
+        const method = obj[func];
         if (typeof method === 'function') {
           method.call(obj, flag);
         }
@@ -899,5 +916,13 @@ class NestedGroup {
   }
 }
 
-export { NestedGroup, ObjectGroup, CompoundGroup, isObjectGroup };
+/**
+ * Type guard to check if an object is a CompoundGroup instance.
+ * Uses the isCompoundGroup property following Three.js convention.
+ */
+function isCompoundGroup(obj: THREE.Object3D | null): obj is CompoundGroup {
+  return obj != null && "isCompoundGroup" in obj && obj.isCompoundGroup === true;
+}
+
+export { NestedGroup, ObjectGroup, CompoundGroup, isObjectGroup, isCompoundGroup };
 export type { ShapeEntry };

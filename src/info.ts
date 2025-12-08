@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import type { Vector3Tuple } from "three";
 
 /**
  * Manages information display panel for the CAD viewer.
@@ -24,7 +25,7 @@ class Info {
    * Clear all displayed information.
    */
   clear(): void {
-    (this.html as HTMLInputElement).value = "";
+    this.html.innerHTML = "";
     this.number = 0;
     this.chunks = [];
   }
@@ -160,7 +161,7 @@ class Info {
    * Display camera target center information.
    * @param center - The center coordinates [x, y, z].
    */
-  centerInfo(center: [number, number, number]): void {
+  centerInfo(center: Vector3Tuple): void {
     const html =
       "<div>Camera target set to AABB center:</div>" +
       "<div class='tcv_info_line'>{ " +

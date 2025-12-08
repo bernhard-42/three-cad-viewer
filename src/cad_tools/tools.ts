@@ -67,7 +67,7 @@ interface ViewerLike {
   };
   ortho: boolean;
   bb_radius: number;
-  checkChanges(changes: Record<string, unknown>): void;
+  checkChanges(changes: Record<string, unknown>, notify?: boolean): void;
 }
 
 export interface ToolResponse {
@@ -86,7 +86,7 @@ export class Tools {
     this.viewer = viewer;
     this.distanceMeasurement = new DistanceMeasurement(viewer, debug);
     this.propertiesMeasurement = new PropertiesMeasurement(viewer, debug);
-    this.selectObject = new SelectObject(viewer as { checkChanges(changes: Record<string, unknown>, notify?: boolean): void });
+    this.selectObject = new SelectObject(viewer);
     this.enabledTool = null;
   }
 

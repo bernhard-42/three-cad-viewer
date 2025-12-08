@@ -60,6 +60,7 @@ function createMockObjectGroup(name, topo = 'face', subtype = null) {
   group.name = name;
   group.shapeInfo = { topo };
   group.subtype = subtype;
+  group.isObjectGroup = true;  // Mark as ObjectGroup for type guard
   group.add(mesh);
 
   return group;

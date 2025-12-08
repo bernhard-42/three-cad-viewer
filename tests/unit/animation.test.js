@@ -27,7 +27,7 @@ describe('Animation - Constructor', () => {
   });
 });
 
-describe('Animation - addTrack', () => {
+describe('Animation - addPositionTrack', () => {
   let anim;
   let mockGroup;
 
@@ -35,103 +35,162 @@ describe('Animation - addTrack', () => {
     anim = new Animation('|');
     mockGroup = new THREE.Object3D();
     mockGroup.position.set(0, 0, 0);
-    mockGroup.quaternion.set(0, 0, 0, 1);
   });
 
-  test('adds translation track (t)', () => {
-    anim.addTrack('object/part', mockGroup, 't', [0, 1], [[0, 0, 0], [1, 2, 3]]);
+  test('adds position track with full 3D translation', () => {
+    anim.addPositionTrack('object/part', mockGroup, [0, 1], [[0, 0, 0], [1, 2, 3]]);
 
     expect(anim.tracks.length).toBe(1);
     expect(anim.tracks[0].name).toBe('object|part.position');
   });
 
-  test('adds translation track (tx)', () => {
-    anim.addTrack('object', mockGroup, 'tx', [0, 1], [0, 5]);
+  test('replaces / with delimiter in selector', () => {
+    anim.addPositionTrack('root/child/part', mockGroup, [0, 1], [[0, 0, 0], [1, 1, 1]]);
+
+    expect(anim.tracks[0].name).toBe('root|child|part.position');
+  });
+
+  test('logs error for mismatched times/positions length', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    anim.addPositionTrack('object', mockGroup, [0, 1, 2], [[0, 0, 0], [1, 1, 1]]);
+
+    expect(consoleSpy).toHaveBeenCalled();
+    expect(anim.tracks.length).toBe(0);
+
+    consoleSpy.mockRestore();
+  });
+});
+
+describe('Animation - addTranslationTrack', () => {
+  let anim;
+  let mockGroup;
+
+  beforeEach(() => {
+    anim = new Animation('|');
+    mockGroup = new THREE.Object3D();
+    mockGroup.position.set(0, 0, 0);
+  });
+
+  test('adds translation track for x axis', () => {
+    anim.addTranslationTrack('object', mockGroup, 'x', [0, 1], [0, 5]);
 
     expect(anim.tracks.length).toBe(1);
     expect(anim.tracks[0].name).toBe('object.position');
   });
 
-  test('adds translation track (ty)', () => {
-    anim.addTrack('object', mockGroup, 'ty', [0, 1], [0, 5]);
+  test('adds translation track for y axis', () => {
+    anim.addTranslationTrack('object', mockGroup, 'y', [0, 1], [0, 5]);
 
     expect(anim.tracks.length).toBe(1);
     expect(anim.tracks[0].name).toBe('object.position');
   });
 
-  test('adds translation track (tz)', () => {
-    anim.addTrack('object', mockGroup, 'tz', [0, 1], [0, 5]);
+  test('adds translation track for z axis', () => {
+    anim.addTranslationTrack('object', mockGroup, 'z', [0, 1], [0, 5]);
 
     expect(anim.tracks.length).toBe(1);
     expect(anim.tracks[0].name).toBe('object.position');
   });
 
-  test('adds rotation track (rx)', () => {
-    anim.addTrack('object', mockGroup, 'rx', [0, 1], [0, 90]);
+  test('logs error for mismatched times/values length', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    anim.addTranslationTrack('object', mockGroup, 'x', [0, 1, 2], [0, 5]);
+
+    expect(consoleSpy).toHaveBeenCalled();
+    expect(anim.tracks.length).toBe(0);
+
+    consoleSpy.mockRestore();
+  });
+});
+
+describe('Animation - addRotationTrack', () => {
+  let anim;
+  let mockGroup;
+
+  beforeEach(() => {
+    anim = new Animation('|');
+    mockGroup = new THREE.Object3D();
+    mockGroup.quaternion.set(0, 0, 0, 1);
+  });
+
+  test('adds rotation track for x axis', () => {
+    anim.addRotationTrack('object', mockGroup, 'x', [0, 1], [0, 90]);
 
     expect(anim.tracks.length).toBe(1);
     expect(anim.tracks[0].name).toBe('object.quaternion');
   });
 
-  test('adds rotation track (ry)', () => {
-    anim.addTrack('object', mockGroup, 'ry', [0, 1], [0, 90]);
+  test('adds rotation track for y axis', () => {
+    anim.addRotationTrack('object', mockGroup, 'y', [0, 1], [0, 90]);
 
     expect(anim.tracks.length).toBe(1);
     expect(anim.tracks[0].name).toBe('object.quaternion');
   });
 
-  test('adds rotation track (rz)', () => {
-    anim.addTrack('object', mockGroup, 'rz', [0, 1], [0, 90]);
+  test('adds rotation track for z axis', () => {
+    anim.addRotationTrack('object', mockGroup, 'z', [0, 1], [0, 90]);
 
     expect(anim.tracks.length).toBe(1);
     expect(anim.tracks[0].name).toBe('object.quaternion');
   });
 
-  test('adds quaternion track (q)', () => {
+  test('logs error for mismatched times/angles length', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    anim.addRotationTrack('object', mockGroup, 'z', [0, 1, 2], [0, 90]);
+
+    expect(consoleSpy).toHaveBeenCalled();
+    expect(anim.tracks.length).toBe(0);
+
+    consoleSpy.mockRestore();
+  });
+});
+
+describe('Animation - addQuaternionTrack', () => {
+  let anim;
+  let mockGroup;
+
+  beforeEach(() => {
+    anim = new Animation('|');
+    mockGroup = new THREE.Object3D();
+    mockGroup.quaternion.set(0, 0, 0, 1);
+  });
+
+  test('adds quaternion track', () => {
     const q = new THREE.Quaternion();
     q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 4);
 
-    anim.addTrack('object', mockGroup, 'q', [0, 1], [
-      new THREE.Quaternion(),
-      q
+    anim.addQuaternionTrack('object', mockGroup, [0, 1], [
+      [0, 0, 0, 1],
+      [q.x, q.y, q.z, q.w]
     ]);
 
     expect(anim.tracks.length).toBe(1);
     expect(anim.tracks[0].name).toBe('object.quaternion');
   });
 
-  test('logs error for invalid action', () => {
+  test('logs error for mismatched times/quaternions length', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    anim.addTrack('object', mockGroup, 'invalid', [0, 1], [0, 5]);
+    anim.addQuaternionTrack('object', mockGroup, [0, 1, 2], [[0, 0, 0, 1]]);
 
     expect(consoleSpy).toHaveBeenCalled();
     expect(anim.tracks.length).toBe(0);
 
     consoleSpy.mockRestore();
   });
+});
 
-  test('logs error for mismatched times/values length', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+describe('Animation - Multiple Tracks', () => {
+  test('adds multiple tracks of different types', () => {
+    const anim = new Animation('|');
+    const mockGroup = new THREE.Object3D();
 
-    anim.addTrack('object', mockGroup, 't', [0, 1, 2], [[0, 0, 0], [1, 1, 1]]);
-
-    expect(consoleSpy).toHaveBeenCalled();
-    expect(anim.tracks.length).toBe(0);
-
-    consoleSpy.mockRestore();
-  });
-
-  test('replaces / with delimiter in selector', () => {
-    anim.addTrack('root/child/part', mockGroup, 'tx', [0, 1], [0, 5]);
-
-    expect(anim.tracks[0].name).toBe('root|child|part.position');
-  });
-
-  test('adds multiple tracks', () => {
-    anim.addTrack('obj1', mockGroup, 'tx', [0, 1], [0, 5]);
-    anim.addTrack('obj2', mockGroup, 'ty', [0, 1], [0, 3]);
-    anim.addTrack('obj3', mockGroup, 'rz', [0, 1], [0, 90]);
+    anim.addTranslationTrack('obj1', mockGroup, 'x', [0, 1], [0, 5]);
+    anim.addTranslationTrack('obj2', mockGroup, 'y', [0, 1], [0, 3]);
+    anim.addRotationTrack('obj3', mockGroup, 'z', [0, 1], [0, 90]);
 
     expect(anim.tracks.length).toBe(3);
   });
@@ -148,7 +207,7 @@ describe('Animation - Backup & Restore', () => {
   });
 
   test('backup stores current state', () => {
-    anim.addTrack('obj', mockGroup, 'tx', [0, 1], [0, 5]);
+    anim.addTranslationTrack('obj', mockGroup, 'x', [0, 1], [0, 5]);
     anim.root = mockGroup;
     anim.duration = 2;
     anim.speed = 1.5;
@@ -164,7 +223,7 @@ describe('Animation - Backup & Restore', () => {
   });
 
   test('restore returns stored settings', () => {
-    anim.addTrack('obj', mockGroup, 'tx', [0, 1], [0, 5]);
+    anim.addTranslationTrack('obj', mockGroup, 'x', [0, 1], [0, 5]);
     anim.root = mockGroup;
     anim.duration = 2;
     anim.speed = 1.5;
@@ -202,7 +261,7 @@ describe('Animation - hasTracks & hasBackup', () => {
     const anim = new Animation('|');
     const mockGroup = new THREE.Object3D();
 
-    anim.addTrack('obj', mockGroup, 'tx', [0, 1], [0, 5]);
+    anim.addTranslationTrack('obj', mockGroup, 'x', [0, 1], [0, 5]);
 
     expect(anim.hasTracks()).toBe(true);
   });
@@ -241,7 +300,7 @@ describe('Animation - animate', () => {
     root = new THREE.Object3D();
     root.add(mockGroup);
 
-    anim.addTrack('animated', mockGroup, 'tx', [0, 1, 2], [0, 5, 0]);
+    anim.addTranslationTrack('animated', mockGroup, 'x', [0, 1, 2], [0, 5, 0]);
   });
 
   test('creates animation clip and mixer', () => {
@@ -298,7 +357,7 @@ describe('Animation - setRelativeTime & getRelativeTime', () => {
     root = new THREE.Object3D();
     root.add(mockGroup);
 
-    anim.addTrack('animated', mockGroup, 'tx', [0, 1], [0, 10]);
+    anim.addTranslationTrack('animated', mockGroup, 'x', [0, 1], [0, 10]);
     anim.animate(root, 2, 1);
   });
 
@@ -343,7 +402,7 @@ describe('Animation - dispose', () => {
     root = new THREE.Object3D();
     root.add(mockGroup);
 
-    anim.addTrack('animated', mockGroup, 'tx', [0, 1], [0, 10]);
+    anim.addTranslationTrack('animated', mockGroup, 'x', [0, 1], [0, 10]);
     anim.animate(root, 2, 1);
   });
 
@@ -378,7 +437,7 @@ describe('Animation - update', () => {
     root = new THREE.Object3D();
     root.add(mockGroup);
 
-    anim.addTrack('animated', mockGroup, 'tx', [0, 1], [0, 10]);
+    anim.addTranslationTrack('animated', mockGroup, 'x', [0, 1], [0, 10]);
     anim.animate(root, 2, 1);
   });
 
@@ -412,8 +471,8 @@ describe('Animation - Integration', () => {
     root.add(obj2);
 
     // Add multiple tracks
-    anim.addTrack('part1', obj1, 'tx', [0, 0.5, 1], [0, 5, 0]);
-    anim.addTrack('part2', obj2, 'rz', [0, 1], [0, 180]);
+    anim.addTranslationTrack('part1', obj1, 'x', [0, 0.5, 1], [0, 5, 0]);
+    anim.addRotationTrack('part2', obj2, 'z', [0, 1], [0, 180]);
 
     expect(anim.hasTracks()).toBe(true);
 

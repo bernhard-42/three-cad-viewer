@@ -540,8 +540,11 @@ describe('ClickButton', () => {
     const action = vi.fn();
     const button = new ClickButton('light', 'toggle', 'Toggle', action, false);
 
-    // Mock event with type="button"
-    const event = { target: { type: 'button', id: '' } };
+    // Create real input element for event target
+    const input = document.createElement('input');
+    input.type = 'button';
+    input.id = '';
+    const event = { target: input };
     button.handler(event);
 
     expect(button.state).toBe(true);
@@ -563,7 +566,10 @@ describe('ClickButton', () => {
 
     button1.addGroupMember(button2);
 
-    const event = { target: { type: 'button', id: '' } };
+    const input = document.createElement('input');
+    input.type = 'button';
+    input.id = '';
+    const event = { target: input };
     button1.handler(event);
 
     expect(button2.state).toBe(false);
@@ -629,14 +635,12 @@ describe('ClickButton - Dropdown', () => {
       ['xy', 'xz', 'yz']
     );
 
-    // Simulate checkbox click
-    const event = {
-      target: {
-        id: 'tcv_grid-xy_container',
-        checked: true,
-        type: 'checkbox',
-      },
-    };
+    // Create real checkbox element for event target
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = 'tcv_grid-xy_container';
+    checkbox.checked = true;
+    const event = { target: checkbox };
     button.handler(event);
 
     expect(action).toHaveBeenCalledWith('grid-xy', true);

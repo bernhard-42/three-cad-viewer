@@ -1,6 +1,9 @@
 import * as THREE from "three";
-import { ObjectGroup, CompoundGroup } from "./nestedgroup.js";
-import type { Theme } from "./types";
+import type { Vector3Tuple } from "three";
+import { ObjectGroup } from "./nestedgroup.js";
+import { CLIP_INDICES } from "./types";
+import type { Theme, ClipIndex } from "./types";
+import { toVector3Tuple } from "./utils.js";
 
 // ============================================================================
 // Constants
@@ -158,9 +161,19 @@ class CenteredPlane extends THREE.Plane {
 // ============================================================================
 
 /**
+ * A THREE.Group that only contains PlaneMesh children.
+ */
+class PlaneMeshGroup extends THREE.Group {
+  declare children: PlaneMesh[];
+}
+
+/**
  * A mesh that visually represents a clipping plane.
  */
 class PlaneMesh extends THREE.Mesh {
+  declare type: string;
+  declare material: THREE.MeshBasicMaterial | THREE.MeshStandardMaterial;
+
   /** Shared matrix for lookAt calculations */
   static matrix = new THREE.Matrix4();
 
@@ -193,7 +206,7 @@ class PlaneMesh extends THREE.Mesh {
     material.color.set(new THREE.Color(color));
     super(meshGeometry, material);
 
-    (this as { type: string }).type = type;
+    this.type = type;
     this.index = index;
     this.plane = plane;
     this.size = size;
@@ -256,7 +269,7 @@ interface NestedGroupLike {
 }
 
 interface ClippingOptions {
-  onNormalChange?: (index: number, normalArray: number[]) => void;
+  onNormalChange?: (index: ClipIndex, normalArray: Vector3Tuple) => void;
 }
 
 /**
@@ -265,7 +278,7 @@ interface ClippingOptions {
 class Clipping extends THREE.Group {
   center: number[] | null;
   distance: number;
-  onNormalChange: ((index: number, normalArray: number[]) => void) | null;
+  onNormalChange: ((index: ClipIndex, normalArray: Vector3Tuple) => void) | null;
   theme: Theme;
   nestedGroup: NestedGroupLike | null;
   size: number;
@@ -273,8 +286,8 @@ class Clipping extends THREE.Group {
   reverseClipPlanes: CenteredPlane[] | null;
   objectColors: number[] | null;
   objectColorCaps: boolean;
-  planeHelpers: THREE.Group | null;
-  private _planeMeshGroup: THREE.Group | null;
+  planeHelpers: PlaneMeshGroup | null;
+  private _planeMeshGroup: PlaneMeshGroup | null;
 
   /**
    * Create a Clipping instance.
@@ -319,7 +332,7 @@ class Clipping extends THREE.Group {
    * @param center - The center point.
    */
   private _createClipPlanes(center: number[]): void {
-    for (let i = 0; i < 3; i++) {
+    for (const i of CLIP_INDICES) {
       const plane = new CenteredPlane(DEFAULT_NORMALS[i], this.distance, center);
       this.clipPlanes!.push(plane);
 
@@ -331,7 +344,7 @@ class Clipping extends THREE.Group {
       this.reverseClipPlanes!.push(reversePlane);
 
       if (this.onNormalChange) {
-        this.onNormalChange(i, DEFAULT_NORMALS[i].toArray());
+        this.onNormalChange(i, toVector3Tuple(DEFAULT_NORMALS[i].toArray()));
       }
     }
   }
@@ -343,7 +356,7 @@ class Clipping extends THREE.Group {
    * @param theme - The UI theme.
    */
   private _createPlaneHelpers(center: number[], size: number, theme: Theme): void {
-    this.planeHelpers = new CompoundGroup();
+    this.planeHelpers = new PlaneMeshGroup();
     this.planeHelpers.name = "PlaneHelpers";
 
     for (let i = 0; i < 3; i++) {
@@ -365,7 +378,7 @@ class Clipping extends THREE.Group {
     // Each plane helper is clipped by the other two planes
     for (let i = 0; i < 3; i++) {
       const otherPlanes = this.clipPlanes!.filter((_, j) => j !== i);
-      ((this.planeHelpers.children[i] as PlaneMesh).material as THREE.MeshBasicMaterial).clippingPlanes = otherPlanes;
+      this.planeHelpers.children[i].material.clippingPlanes = otherPlanes;
     }
 
     this.planeHelpers.visible = false;
@@ -379,7 +392,7 @@ class Clipping extends THREE.Group {
    * @param theme - The UI theme.
    */
   private _createStencils(center: number[], size: number, theme: Theme): void {
-    this._planeMeshGroup = new CompoundGroup();
+    this._planeMeshGroup = new PlaneMeshGroup();
     this._planeMeshGroup.name = "PlaneMeshes";
 
     for (let i = 0; i < 3; i++) {
@@ -390,14 +403,14 @@ class Clipping extends THREE.Group {
       for (const path in this.nestedGroup!.groups) {
         const group = this.nestedGroup!.groups[path];
 
-        if (group instanceof ObjectGroup && group.subtype === "solid") {
+        if (group instanceof ObjectGroup && group.subtype === "solid" && group.front) {
           // Store color for each plane-solid combination (mirrors _planeMeshGroup order)
-          this.objectColors!.push((group.children[0] as THREE.Mesh).material instanceof THREE.MeshStandardMaterial
-            ? ((group.children[0] as THREE.Mesh).material as THREE.MeshStandardMaterial).color.getHex()
-            : 0xffffff);
+          const frontMesh = group.front;
+          const material = frontMesh.material;
+          this.objectColors!.push(material.color.getHex());
 
           // Create clipping group with front and back stencils
-          const clippingGroup = new CompoundGroup();
+          const clippingGroup = new THREE.Group();
           clippingGroup.name = `clipping-${i}`;
 
           clippingGroup.add(
@@ -418,7 +431,7 @@ class Clipping extends THREE.Group {
             ),
           );
 
-          group.addType(clippingGroup, `clipping-${i}`);
+          group.addClipping(clippingGroup, i);
 
           // Create stencil plane mesh
           const planeMaterial = ClippingMaterials.createStencilPlaneMaterial(
@@ -450,7 +463,7 @@ class Clipping extends THREE.Group {
    * @param index - The plane index (0, 1, or 2).
    * @param value - The constant value relative to center.
    */
-  setConstant(index: number, value: number): void {
+  setConstant(index: ClipIndex, value: number): void {
     this.clipPlanes![index].setConstant(value);
     this.reverseClipPlanes![index].setConstant(-value);
   }
@@ -460,13 +473,13 @@ class Clipping extends THREE.Group {
    * @param index - The plane index (0, 1, or 2).
    * @param normal - The new normal vector.
    */
-  setNormal = (index: number, normal: THREE.Vector3): void => {
+  setNormal = (index: ClipIndex, normal: THREE.Vector3): void => {
     const n = normal.clone();
     this.clipPlanes![index].normal = n;
     this.reverseClipPlanes![index].normal = n.clone().negate();
     this.setConstant(index, this.distance);
     if (this.onNormalChange) {
-      this.onNormalChange(index, n.toArray());
+      this.onNormalChange(index, toVector3Tuple(n.toArray()));
     }
   };
 
@@ -485,21 +498,17 @@ class Clipping extends THREE.Group {
    * @param flag - True to enable object color caps.
    */
   setObjectColorCaps = (flag: boolean): void => {
-    const pmGroup = this._planeMeshGroup;
-    if (!pmGroup) return;
+    if (!this._planeMeshGroup) return;
 
     let i = 0;
     let j = -1;
-    const len = pmGroup.children.length / 3;
-    for (const mesh of pmGroup.children) {
+    const len = this._planeMeshGroup.children.length / 3;
+    for (const mesh of this._planeMeshGroup.children) {
       if (i % len === 0) {
         j++;
       }
-      if (flag) {
-        ((mesh as PlaneMesh).material as THREE.MeshStandardMaterial).color.set(new THREE.Color(this.objectColors![i]));
-      } else {
-        ((mesh as PlaneMesh).material as THREE.MeshStandardMaterial).color.set(new THREE.Color(PLANE_COLORS[this.theme][j]));
-      }
+      const color = flag ? this.objectColors![i] : PLANE_COLORS[this.theme][j];
+      mesh.material.color.set(new THREE.Color(color));
       i++;
     }
     this.objectColorCaps = flag;
@@ -510,11 +519,10 @@ class Clipping extends THREE.Group {
    * @param flag - True to show, false to hide.
    */
   setVisible = (flag: boolean): void => {
-    const pmGroup = this._planeMeshGroup;
-    if (!pmGroup) return;
+    if (!this._planeMeshGroup) return;
 
-    for (const mesh of pmGroup.children) {
-      ((mesh as PlaneMesh).material as THREE.Material).visible = flag;
+    for (const mesh of this._planeMeshGroup.children) {
+      mesh.material.visible = flag;
     }
   };
 

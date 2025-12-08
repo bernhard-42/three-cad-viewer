@@ -1,45 +1,70 @@
 import * as THREE from "three";
-import { deepDispose, disposeGeometry } from "./utils.js";
+import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
+import { deepDispose, disposeGeometry, isMesh } from "./utils.js";
 import { ZebraTool } from "./cad_tools/zebra.js";
-import type { ZebraColorScheme, ZebraMappingMode } from "./types";
+import type { ZebraColorScheme, ZebraMappingMode, ColorValue, ColoredMaterial } from "./types";
 
-/**
- * Symbol marker for identifying ObjectGroup instances.
- * Used by BoundingBox to avoid circular dependency with instanceof.
- */
-const OBJECT_GROUP_MARKER = Symbol.for("tcv.ObjectGroup");
 
 /** Highlight color when object is selected */
 const HIGHLIGHT_COLOR_SELECTED = 0x53a0e3;
+
 /** Highlight color when object is hovered but not selected */
 const HIGHLIGHT_COLOR_HOVER = 0x89b9e3;
 
 interface ShapeInfo {
   topo: string;
-  geomtype: string | null;
+  geomtype: number | string | null;
 }
 
-interface TypesMap {
-  front: THREE.Mesh | null;
-  back: THREE.Mesh | null;
-  edges: THREE.Line | THREE.LineSegments | THREE.Object3D | null;
-  vertices: THREE.Points | null;
-  [key: string]: THREE.Object3D | null;
+// Typed mesh/line/points
+// FaceMesh accepts MeshStandardMaterial, MeshBasicMaterial, or any material with color
+type FaceMesh = THREE.Mesh<THREE.BufferGeometry, ColoredMaterial>;
+type VertexPoints = THREE.Points<THREE.BufferGeometry, THREE.PointsMaterial>;
+
+// Edge material interface - properties common to LineMaterial and LineBasicMaterial
+interface EdgeMaterial extends THREE.Material {
+  color: THREE.Color;
+  linewidth: number;
 }
+
+/**
+ * Type guard to check if a material has color and linewidth properties.
+ * Parameter is THREE.Material or LineMaterial (which has incompatible vertexColors type).
+ */
+function isEdgeMaterial(mat: THREE.Material | import("three/examples/jsm/lines/LineMaterial.js").LineMaterial): mat is EdgeMaterial {
+  return "color" in mat && "linewidth" in mat;
+}
+
+// Edges: LineSegments2 (fat lines) or THREE.LineSegments (polygon edges)
+// We store the material separately for type safety since Three.js types LineSegments.material as Material | Material[]
+type Edges = LineSegments2 | THREE.LineSegments;
 
 /**
  * Encapsulates material, visibility, and interaction state for a renderable CAD object.
  * Extends THREE.Group to manage front/back faces, edges, and vertices as a unit.
  */
 class ObjectGroup extends THREE.Group {
-  [OBJECT_GROUP_MARKER]: boolean;
+  [key: string]: unknown; // Allow dynamic method access
+
+  /** Type identifier following Three.js convention */
+  override readonly type = "ObjectGroup";
+  /** Type guard property following Three.js convention */
+  readonly isObjectGroup = true;
   opacity: number;
   alpha: number;
-  edge_color: number;
+  edge_color: ColorValue;
   shapeInfo: ShapeInfo | null;
   subtype: string | null;
   renderback: boolean;
-  types: TypesMap;
+
+  // Typed geometry references
+  front: FaceMesh | null;
+  back: FaceMesh | null;
+  edges: Edges | null;
+  edgeMaterial: EdgeMaterial | null;  // Stored separately for type safety
+  vertices: VertexPoints | null;
+  clipping: Map<number, THREE.Group>;
+
   isSelected: boolean;
   originalColor: THREE.Color | null;
   originalBackColor: THREE.Color | null;
@@ -63,21 +88,27 @@ class ObjectGroup extends THREE.Group {
   constructor(
     opacity: number,
     alpha: number,
-    edge_color: number,
+    edge_color: ColorValue,
     shapeInfo: ShapeInfo | null,
     subtype: string | null,
-    renderback: boolean = false
+    renderback: boolean = false,
   ) {
     super();
-    // Set marker for BoundingBox detection (avoids circular dependency)
-    this[OBJECT_GROUP_MARKER] = true;
     this.opacity = opacity;
     this.alpha = alpha == null ? 1.0 : alpha;
     this.edge_color = edge_color;
     this.shapeInfo = shapeInfo;
     this.subtype = subtype;
     this.renderback = renderback;
-    this.types = { front: null, back: null, edges: null, vertices: null };
+
+    // Initialize typed geometry references
+    this.front = null;
+    this.back = null;
+    this.edges = null;
+    this.edgeMaterial = null;
+    this.vertices = null;
+    this.clipping = new Map();
+
     this.isSelected = false;
     this.originalColor = null;
     this.originalBackColor = null;
@@ -107,7 +138,7 @@ class ObjectGroup extends THREE.Group {
       disposeGeometry(this.shapeGeometry);
       this.shapeGeometry = null;
     }
-    deepDispose(Object.values(this.types));
+    // Dispose all children (includes front, back, edges, vertices, clipping groups)
     if (this.children) {
       deepDispose(this.children);
       this.clear();
@@ -119,25 +150,63 @@ class ObjectGroup extends THREE.Group {
   }
 
   /**
-   * Register a mesh by type and cache its original color/width for highlighting.
-   * @param mesh - The mesh to add.
-   * @param type - Type identifier ("front", "back", "edges", "vertices").
+   * Set the front face mesh.
    */
-  addType(mesh: THREE.Mesh | THREE.Line | THREE.Points | THREE.Object3D, type: string): void {
+  setFront(mesh: FaceMesh): void {
     this.add(mesh);
-    this.types[type] = mesh;
-    if (this.types.vertices) {
-      this.originalColor = ((this.types.vertices as THREE.Points).material as THREE.PointsMaterial).color.clone();
-      this.originalWidth = ((this.types.vertices as THREE.Points).material as THREE.PointsMaterial).size;
-    } else if (this.types.edges && !this.types.front) {
-      // ignore edges of faces
-      this.originalColor = ((this.types.edges as THREE.Line).material as THREE.LineBasicMaterial).color.clone();
-      this.originalWidth = ((this.types.edges as THREE.Line).material as THREE.LineBasicMaterial).linewidth;
-    } else if (this.types.front) {
-      this.originalColor = ((this.types.front as THREE.Mesh).material as THREE.MeshStandardMaterial).color.clone();
-    } else if (this.types.back) {
-      this.originalBackColor = ((this.types.back as THREE.Mesh).material as THREE.MeshBasicMaterial).color.clone();
+    this.front = mesh;
+    this.originalColor = mesh.material.color.clone();
+  }
+
+  /**
+   * Set the back face mesh.
+   */
+  setBack(mesh: FaceMesh): void {
+    this.add(mesh);
+    this.back = mesh;
+    if (!this.front) {
+      this.originalBackColor = mesh.material.color.clone();
     }
+  }
+
+  /**
+   * Set the edges geometry.
+   * Extracts and stores the material separately for type-safe access.
+   */
+  setEdges(edges: Edges): void {
+    this.add(edges);
+    this.edges = edges;
+    // Extract material - both LineMaterial and LineBasicMaterial have color and linewidth
+    const mat = edges.material;
+    if (Array.isArray(mat)) {
+      throw new Error("Multi-material edges are not supported");
+    } else if (!isEdgeMaterial(mat)) {
+      throw new Error("Edge material must have color and linewidth properties");
+    }
+    this.edgeMaterial = mat;
+    // Only cache edge color/width if this is an edge-only object (no faces)
+    if (!this.front) {
+      this.originalColor = this.edgeMaterial.color.clone();
+      this.originalWidth = this.edgeMaterial.linewidth;
+    }
+  }
+
+  /**
+   * Set the vertices points.
+   */
+  setVertices(points: VertexPoints): void {
+    this.add(points);
+    this.vertices = points;
+    this.originalColor = points.material.color.clone();
+    this.originalWidth = points.material.size;
+  }
+
+  /**
+   * Add a clipping group for a plane index.
+   */
+  addClipping(group: THREE.Group, index: number): void {
+    this.add(group);
+    this.clipping.set(index, group);
   }
 
   /**
@@ -145,14 +214,14 @@ class ObjectGroup extends THREE.Group {
    * @param flag - Whether to widen (true) or restore original size (false).
    */
   widen(flag: boolean): void {
-    if (this.types.vertices) {
-      ((this.types.vertices as THREE.Points).material as THREE.PointsMaterial).size = flag
+    if (this.vertices) {
+      this.vertices.material.size = flag
         ? this.vertexFocusSize
         : this.isSelected
           ? this.vertexFocusSize - 2
           : this.originalWidth!;
-    } else if (this.types.edges) {
-      ((this.types.edges as THREE.Line).material as THREE.LineBasicMaterial).linewidth = flag
+    } else if (this.edgeMaterial) {
+      this.edgeMaterial.linewidth = flag
         ? this.edgeFocusWidth
         : this.isSelected
           ? this.edgeFocusWidth - 2
@@ -195,9 +264,12 @@ class ObjectGroup extends THREE.Group {
   /**
    * Apply color to a mesh and mark material for update.
    */
-  private _applyColor(mesh: THREE.Mesh | THREE.Line | THREE.Points, color: THREE.Color): void {
-    ((mesh as THREE.Mesh).material as THREE.MeshStandardMaterial).color = color;
-    ((mesh as THREE.Mesh).material as THREE.Material).needsUpdate = true;
+  private _applyColorToMaterial(
+    material: { color: THREE.Color; needsUpdate: boolean },
+    color: THREE.Color,
+  ): void {
+    material.color = color;
+    material.needsUpdate = true;
   }
 
   /**
@@ -205,9 +277,26 @@ class ObjectGroup extends THREE.Group {
    */
   private _forEachMaterial(callback: (material: THREE.Material) => void): void {
     for (const child of this.children) {
-      if (!child.name.startsWith("clipping")) {
-        callback((child as THREE.Mesh).material as THREE.Material);
+      if (!child.name.startsWith("clipping") && isMesh(child)) {
+        if (Array.isArray(child.material)) {
+          throw new Error("Multi-material meshes are not supported");
+        }
+        callback(child.material);
       }
+    }
+  }
+
+  /**
+   * Iterate over face materials that are MeshStandardMaterial (have PBR properties).
+   * Skips MeshBasicMaterial and other non-PBR materials.
+   */
+  private _forEachStandardMaterial(callback: (material: THREE.MeshStandardMaterial) => void): void {
+    if (this.front && this.front.material instanceof THREE.MeshStandardMaterial) {
+      callback(this.front.material);
+    }
+    // back can also be MeshStandardMaterial (e.g., for polygon rendering)
+    if (this.back && this.back.material instanceof THREE.MeshStandardMaterial) {
+      callback(this.back.material);
     }
   }
 
@@ -218,19 +307,21 @@ class ObjectGroup extends THREE.Group {
   highlight(flag: boolean): void {
     const hColor = this._getHighlightColor();
 
-    // Find primary object (front face, vertices, or edges)
-    const primaryObject =
-      this.types.front || this.types.vertices || this.types.edges;
+    // Find primary material (front face, vertices, or edges)
+    const primaryMaterial =
+      this.front?.material ||
+      this.vertices?.material ||
+      this.edgeMaterial;
 
-    if (primaryObject) {
+    if (primaryMaterial) {
       this.widen(flag);
-      this._applyColor(primaryObject as THREE.Mesh, flag ? hColor : this.originalColor!);
+      this._applyColorToMaterial(primaryMaterial, flag ? hColor : this.originalColor!);
     }
 
     // Handle back face separately (uses originalBackColor)
-    if (this.types.back) {
-      this._applyColor(
-        this.types.back,
+    if (this.back) {
+      this._applyColorToMaterial(
+        this.back.material,
         flag ? hColor : this.originalBackColor!,
       );
     }
@@ -249,32 +340,32 @@ class ObjectGroup extends THREE.Group {
    * Get metrics about this object's topology type.
    */
   metrics(): { name: string; value: number } | null {
-    if (this.types.front) {
+    if (this.front) {
       return { name: "face", value: 0 };
-    } else if (this.types.vertices) {
+    } else if (this.vertices) {
       return { name: "vertex", value: 0 };
-    } else if (this.types.edges) {
+    } else if (this.edges) {
       return { name: "edge", value: 0 };
     }
     return null;
   }
 
   /**
-   * Set metalness value for all materials (excluding clipping planes).
+   * Set metalness value for front face materials.
    */
   setMetalness(value: number): void {
-    this._forEachMaterial((material) => {
-      (material as THREE.MeshStandardMaterial).metalness = value;
+    this._forEachStandardMaterial((material) => {
+      material.metalness = value;
       material.needsUpdate = true;
     });
   }
 
   /**
-   * Set roughness value for all materials (excluding clipping planes).
+   * Set roughness value for front face materials.
    */
   setRoughness(value: number): void {
-    this._forEachMaterial((material) => {
-      (material as THREE.MeshStandardMaterial).roughness = value;
+    this._forEachStandardMaterial((material) => {
+      material.roughness = value;
       material.needsUpdate = true;
     });
   }
@@ -285,11 +376,11 @@ class ObjectGroup extends THREE.Group {
    */
   setTransparent(flag: boolean): void {
     const newOpacity = flag ? this.opacity * this.alpha : this.alpha;
-    if (this.types.back) {
-      ((this.types.back as THREE.Mesh).material as THREE.Material).opacity = newOpacity;
+    if (this.back) {
+      this.back.material.opacity = newOpacity;
     }
-    if (this.types.front) {
-      ((this.types.front as THREE.Mesh).material as THREE.Material).opacity = newOpacity;
+    if (this.front) {
+      this.front.material.opacity = newOpacity;
     }
     this._forEachMaterial((material) => {
       // turn depth write off for transparent objects
@@ -304,11 +395,11 @@ class ObjectGroup extends THREE.Group {
    * Set whether edges should be rendered in black or original color.
    */
   setBlackEdges(flag: boolean): void {
-    if (this.types.edges) {
+    if (this.edgeMaterial) {
       const color = flag ? 0x000000 : this.edge_color;
       this.originalColor = new THREE.Color(color);
-      ((this.types.edges as THREE.Line).material as THREE.LineBasicMaterial).color = new THREE.Color(color);
-      ((this.types.edges as THREE.Line).material as THREE.Material).needsUpdate = true;
+      this.edgeMaterial.color = new THREE.Color(color);
+      this.edgeMaterial.needsUpdate = true;
     }
   }
 
@@ -316,10 +407,10 @@ class ObjectGroup extends THREE.Group {
    * Set the edge color.
    */
   setEdgeColor(color: number): void {
-    if (this.types.edges) {
+    if (this.edgeMaterial) {
       this.edge_color = color;
-      ((this.types.edges as THREE.Line).material as THREE.LineBasicMaterial).color = new THREE.Color(color);
-      ((this.types.edges as THREE.Line).material as THREE.Material).needsUpdate = true;
+      this.edgeMaterial.color = new THREE.Color(color);
+      this.edgeMaterial.needsUpdate = true;
     }
   }
 
@@ -328,13 +419,13 @@ class ObjectGroup extends THREE.Group {
    */
   setOpacity(opacity: number): void {
     this.opacity = opacity;
-    if (this.types.front) {
-      ((this.types.front as THREE.Mesh).material as THREE.Material).opacity = this.opacity;
-      ((this.types.front as THREE.Mesh).material as THREE.Material).needsUpdate = true;
+    if (this.front) {
+      this.front.material.opacity = this.opacity;
+      this.front.material.needsUpdate = true;
     }
-    if (this.types.back) {
-      ((this.types.back as THREE.Mesh).material as THREE.Material).opacity = this.opacity;
-      ((this.types.back as THREE.Mesh).material as THREE.Material).needsUpdate = true;
+    if (this.back) {
+      this.back.material.opacity = this.opacity;
+      this.back.material.needsUpdate = true;
     }
   }
 
@@ -342,17 +433,27 @@ class ObjectGroup extends THREE.Group {
    * Set visibility of the shape (front face and clipping caps).
    */
   setShapeVisible(flag: boolean): void {
-    if (this.types.front) {
-      ((this.types.front as THREE.Mesh).material as THREE.Material).visible = flag;
+    if (this.front) {
+      this.front.material.visible = flag;
     }
-    for (const t of ["clipping-0", "clipping-1", "clipping-2"]) {
-      if (this.types[t]) {
-        ((this.types[t]!.children[0] as THREE.Mesh).material as THREE.Material).visible = flag;
-        ((this.types[t]!.children[1] as THREE.Mesh).material as THREE.Material).visible = flag;
+    for (const clippingGroup of this.clipping.values()) {
+      const child0 = clippingGroup.children[0];
+      const child1 = clippingGroup.children[1];
+      if (isMesh(child0)) {
+        if (Array.isArray(child0.material)) {
+          throw new Error("Multi-material meshes are not supported");
+        }
+        child0.material.visible = flag;
+      }
+      if (isMesh(child1)) {
+        if (Array.isArray(child1.material)) {
+          throw new Error("Multi-material meshes are not supported");
+        }
+        child1.material.visible = flag;
       }
     }
-    if (this.types.back && this.renderback) {
-      ((this.types.back as THREE.Mesh).material as THREE.Material).visible = flag;
+    if (this.back && this.renderback) {
+      this.back.material.visible = flag;
     }
   }
 
@@ -360,11 +461,11 @@ class ObjectGroup extends THREE.Group {
    * Set visibility of edges and vertices.
    */
   setEdgesVisible(flag: boolean): void {
-    if (this.types.edges) {
-      ((this.types.edges as THREE.Line).material as THREE.Material).visible = flag;
+    if (this.edgeMaterial) {
+      this.edgeMaterial.visible = flag;
     }
-    if (this.types.vertices) {
-      ((this.types.vertices as THREE.Points).material as THREE.Material).visible = flag;
+    if (this.vertices) {
+      this.vertices.material.visible = flag;
     }
   }
 
@@ -372,8 +473,12 @@ class ObjectGroup extends THREE.Group {
    * Set visibility of back faces.
    */
   setBackVisible(flag: boolean): void {
-    if (this.types.back && this.types.front && ((this.types.front as THREE.Mesh).material as THREE.Material).visible) {
-      ((this.types.back as THREE.Mesh).material as THREE.Material).visible = this.renderback || flag;
+    if (
+      this.back &&
+      this.front &&
+      this.front.material.visible
+    ) {
+      this.back.material.visible = this.renderback || flag;
     }
   }
 
@@ -381,19 +486,16 @@ class ObjectGroup extends THREE.Group {
    * Get the current visibility state.
    */
   getVisibility(): boolean {
-    if (this.types.front) {
-      if (this.types.edges) {
-        return (
-          ((this.types.front as THREE.Mesh).material as THREE.Material).visible ||
-          ((this.types.edges as THREE.Line).material as THREE.Material).visible
-        );
+    if (this.front) {
+      if (this.edgeMaterial) {
+        return this.front.material.visible || this.edgeMaterial.visible;
       } else {
-        return ((this.types.front as THREE.Mesh).material as THREE.Material).visible;
+        return this.front.material.visible;
       }
-    } else if (this.types.edges) {
-      return ((this.types.edges as THREE.Line).material as THREE.Material).visible;
-    } else if (this.types.vertices) {
-      return ((this.types.vertices as THREE.Points).material as THREE.Material).visible;
+    } else if (this.edgeMaterial) {
+      return this.edgeMaterial.visible;
+    } else if (this.vertices) {
+      return this.vertices.material.visible;
     }
     return false;
   }
@@ -411,17 +513,17 @@ class ObjectGroup extends THREE.Group {
    * Set clipping planes for all materials.
    */
   setClipPlanes(planes: THREE.Plane[]): void {
-    if (this.types.back) {
-      ((this.types.back as THREE.Mesh).material as THREE.Material).clippingPlanes = planes;
+    if (this.back) {
+      this.back.material.clippingPlanes = planes;
     }
-    if (this.types.front) {
-      ((this.types.front as THREE.Mesh).material as THREE.Material).clippingPlanes = planes;
+    if (this.front) {
+      this.front.material.clippingPlanes = planes;
     }
-    if (this.types.edges) {
-      ((this.types.edges as THREE.Line).material as THREE.Material).clippingPlanes = planes;
+    if (this.edgeMaterial) {
+      this.edgeMaterial.clippingPlanes = planes;
     }
-    if (this.types.vertices) {
-      ((this.types.vertices as THREE.Points).material as THREE.Material).clippingPlanes = planes;
+    if (this.vertices) {
+      this.vertices.material.clippingPlanes = planes;
     }
     this.updateMaterials(true);
   }
@@ -430,8 +532,8 @@ class ObjectGroup extends THREE.Group {
    * Set polygon offset for depth sorting of back faces.
    */
   setPolygonOffset(offset: number): void {
-    if (this.types.back) {
-      ((this.types.back as THREE.Mesh).material as THREE.MeshBasicMaterial).polygonOffsetUnits = offset;
+    if (this.back) {
+      this.back.material.polygonOffsetUnits = offset;
     }
   }
 
@@ -440,20 +542,25 @@ class ObjectGroup extends THREE.Group {
    * Recursively scales all meshes and adjusts positions.
    */
   setZScale(value: number): void {
-    const walk = (obj: THREE.Object3D, minZ: number, height: number, scalePos: boolean = true) => {
+    const walk = (
+      obj: THREE.Object3D,
+      minZ: number,
+      height: number,
+      scalePos: boolean = true,
+    ) => {
       for (const child of obj.children) {
-        if ((child as THREE.Mesh).isMesh || (child as THREE.Line).isLine) {
+        if ("isMesh" in child || "isLine" in child) {
           child.scale.z = value;
           if (scalePos && child.parent) {
             child.parent.position.z = minZ * value;
           }
-        } else if ((child as THREE.Group).isGroup) {
+        } else if ("isGroup" in child) {
           // don't scale position of clipping planes
           walk(child, minZ, height, !child.name.startsWith("clipping"));
         }
       }
     };
-    if (this.types.front || this.types.back || this.types.edges) {
+    if (this.front || this.back || this.edges) {
       walk(this, this.minZ!, this.height!);
     }
   }
@@ -462,17 +569,17 @@ class ObjectGroup extends THREE.Group {
    * Mark all materials as needing update.
    */
   updateMaterials(flag: boolean): void {
-    if (this.types.back) {
-      ((this.types.back as THREE.Mesh).material as THREE.Material).needsUpdate = flag;
+    if (this.back) {
+      this.back.material.needsUpdate = flag;
     }
-    if (this.types.front) {
-      ((this.types.front as THREE.Mesh).material as THREE.Material).needsUpdate = flag;
+    if (this.front) {
+      this.front.material.needsUpdate = flag;
     }
-    if (this.types.edges) {
-      ((this.types.edges as THREE.Line).material as THREE.Material).needsUpdate = flag;
+    if (this.edgeMaterial) {
+      this.edgeMaterial.needsUpdate = flag;
     }
-    if (this.types.vertices) {
-      ((this.types.vertices as THREE.Points).material as THREE.Material).needsUpdate = flag;
+    if (this.vertices) {
+      this.vertices.material.needsUpdate = flag;
     }
   }
 
@@ -480,12 +587,12 @@ class ObjectGroup extends THREE.Group {
    * Enable or disable zebra stripe visualization on front faces.
    */
   setZebra(flag: boolean): void {
-    if (this.types.front) {
-      const visible = ((this.types.front as THREE.Mesh).material as THREE.Material).visible;
+    if (this.front) {
+      const visible = this.front.material.visible;
       if (flag) {
-        this.zebra.applyToMesh(this.types.front as THREE.Mesh, visible);
+        this.zebra.applyToMesh(this.front, visible);
       } else {
-        this.zebra.restoreMesh(this.types.front as THREE.Mesh, visible);
+        this.zebra.restoreMesh(this.front, visible);
       }
     }
   }
@@ -528,11 +635,11 @@ class ObjectGroup extends THREE.Group {
 
 /**
  * Type guard to check if an object is an ObjectGroup instance.
- * Uses the OBJECT_GROUP_MARKER symbol to avoid circular dependency with instanceof.
+ * Uses the isObjectGroup property following Three.js convention.
  */
 function isObjectGroup(obj: THREE.Object3D | null): obj is ObjectGroup {
-  return obj != null && (obj as ObjectGroup)[OBJECT_GROUP_MARKER] === true;
+  return obj != null && "isObjectGroup" in obj && obj.isObjectGroup === true;
 }
 
-export { ObjectGroup, OBJECT_GROUP_MARKER, isObjectGroup };
-export type { ShapeInfo };
+export { ObjectGroup, isObjectGroup };
+export type { ShapeInfo, FaceMesh, Edges, EdgeMaterial, VertexPoints };

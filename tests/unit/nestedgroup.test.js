@@ -387,7 +387,7 @@ describe('NestedGroup - renderShape', () => {
 
     expect(group).toBeDefined();
     // Should have edges type
-    expect(group.types.edges).toBeDefined();
+    expect(group.edges).toBeDefined();
   });
 
   test('renders shape with normalLen > 0 adds normal helpers', () => {
@@ -462,28 +462,30 @@ describe('NestedGroup - _renderEdges', () => {
 });
 
 describe('NestedGroup - renderEdges', () => {
-  test('renders edges with v2 format (edges property)', () => {
+  test('renders edges with EdgeData format', () => {
     const shapes = createMinimalShapeData();
     const ng = new NestedGroup(shapes, 800, 600, 0x707070, false, 0.5, 0.3, 0.65, 0, 100);
 
-    const edgeList = {
+    const edgeData = {
       edges: [0, 0, 0, 1, 0, 0]
     };
 
-    const group = ng.renderEdges(edgeList, 1, 0xff0000, 'edge/path', 'TestEdge', 1, { topo: 'edge' });
+    const group = ng.renderEdges(edgeData, 1, 0xff0000, 'edge/path', 'TestEdge', 1, { topo: 'edge' });
 
     expect(group).toBeDefined();
     expect(ng.groups['edge/path']).toBe(group);
     expect(group.name).toBe('edge|path');
   });
 
-  test('renders edges with v1 format (direct array)', () => {
+  test('renders edges with null color uses default', () => {
     const shapes = createMinimalShapeData();
     const ng = new NestedGroup(shapes, 800, 600, 0x707070, false, 0.5, 0.3, 0.65, 0, 100);
 
-    const edgeList = [0, 0, 0, 1, 0, 0];
+    const edgeData = {
+      edges: [0, 0, 0, 1, 0, 0]
+    };
 
-    const group = ng.renderEdges(edgeList, 1, null, 'edge/path', 'TestEdge', 1, { topo: 'edge' });
+    const group = ng.renderEdges(edgeData, 1, null, 'edge/path', 'TestEdge', 1, { topo: 'edge' });
 
     expect(group).toBeDefined();
     // null color should use default edgeColor - ObjectGroup stores it as edge_color
@@ -492,28 +494,30 @@ describe('NestedGroup - renderEdges', () => {
 });
 
 describe('NestedGroup - renderVertices', () => {
-  test('renders vertices with v2 format (obj_vertices property)', () => {
+  test('renders vertices with VertexData format', () => {
     const shapes = createMinimalShapeData();
     const ng = new NestedGroup(shapes, 800, 600, 0x707070, false, 0.5, 0.3, 0.65, 0, 100);
 
-    const vertexList = {
+    const vertexData = {
       obj_vertices: [0, 0, 0, 1, 1, 1]
     };
 
-    const group = ng.renderVertices(vertexList, 5, 0x0000ff, 'vertex/path', 'TestVertex', 1, { topo: 'vertex' });
+    const group = ng.renderVertices(vertexData, 5, 0x0000ff, 'vertex/path', 'TestVertex', 1, { topo: 'vertex' });
 
     expect(group).toBeDefined();
     expect(ng.groups['vertex/path']).toBe(group);
     expect(group.name).toBe('vertex|path');
   });
 
-  test('renders vertices with v1 format (direct array)', () => {
+  test('renders vertices with null color uses default', () => {
     const shapes = createMinimalShapeData();
     const ng = new NestedGroup(shapes, 800, 600, 0x707070, false, 0.5, 0.3, 0.65, 0, 100);
 
-    const vertexList = [0, 0, 0, 1, 1, 1];
+    const vertexData = {
+      obj_vertices: [0, 0, 0, 1, 1, 1]
+    };
 
-    const group = ng.renderVertices(vertexList, 5, null, 'vertex/path', 'TestVertex', 1, { topo: 'vertex' });
+    const group = ng.renderVertices(vertexData, 5, null, 'vertex/path', 'TestVertex', 1, { topo: 'vertex' });
 
     expect(group).toBeDefined();
     // null color should use default edgeColor - ObjectGroup stores it as edge_color
@@ -524,13 +528,15 @@ describe('NestedGroup - renderVertices', () => {
     const shapes = createMinimalShapeData();
     const ng = new NestedGroup(shapes, 800, 600, 0x707070, false, 0.5, 0.3, 0.65, 0, 100);
 
-    const vertexList = [0, 0, 0, 1, 1, 1];
+    const vertexData = {
+      obj_vertices: [0, 0, 0, 1, 1, 1]
+    };
 
-    const group = ng.renderVertices(vertexList, 5, 0x0000ff, 'vertex/path', null, 0, null);
+    const group = ng.renderVertices(vertexData, 5, 0x0000ff, 'vertex/path', null, 0, null);
 
     expect(group).toBeDefined();
     // vertices should be invisible
-    const vertices = group.types.vertices;
+    const vertices = group.vertices;
     expect(vertices.material.visible).toBe(false);
   });
 });

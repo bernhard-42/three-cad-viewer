@@ -21,13 +21,17 @@ import { Timer } from "./timer.js";
 import { Clipping } from "./clipping.js";
 import { Animation } from "./animation.js";
 import {
-  clone,
   isEqual,
   KeyMapper,
   scaleLight,
-  flatten,
   deepDispose,
+  isOrthographicCamera,
+  toVector3Tuple,
+  toQuaternionTuple,
 } from "./utils.js";
+import { ShapeRenderer } from "./render-shape.js";
+import type { TreeData, RenderResult } from "./render-shape.js";
+import type { KeyMappingConfig } from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera, type CameraDirection } from "./camera.js";
 import { BoundingBox, BoxHelper } from "./bbox.js";
@@ -36,9 +40,8 @@ import { version } from "./_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "./raycast.js";
 import { ViewerState } from "./viewer-state.js";
 import type { Display } from "./display.js";
+import type { Vector3Tuple, QuaternionTuple } from "three";
 import type {
-  Vector3,
-  Quaternion,
   Theme,
   ThemeInput,
   ControlType,
@@ -50,12 +53,12 @@ import type {
   RenderOptions,
   ViewerOptions,
   Shapes,
-  Shape,
   VisibilityState,
   StateChange,
   ActiveTab,
+  Axis,
+  ClipIndex,
 } from "./types.js";
-import { hasTrianglesPerFace, hasSegmentsPerEdge } from "./types.js";
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -94,35 +97,64 @@ interface CameraLocationSettings {
  * Reset location settings from controls.
  */
 interface ResetLocation {
-  target0: number[];
-  position0: number[];
-  quaternion0: number[];
+  target0: THREE.Vector3;
+  position0: THREE.Vector3;
+  quaternion0: THREE.Quaternion;
   zoom0: number;
 }
 
 /**
- * Tree data structure for navigation.
+ * Type guard to check if a tree node is a leaf (VisibilityState)
  */
-interface TreeData {
-  [key: string]: TreeData | VisibilityState;
+function isVisibilityState(
+  node: TreeData | VisibilityState,
+): node is VisibilityState {
+  return Array.isArray(node);
 }
 
 /**
- * Result from rendering tessellated shapes.
+ * Type guard to check if a tree node is a branch (TreeData)
  */
-interface RenderResult {
-  group: NestedGroup;
-  tree: TreeData;
+function isTreeData(node: TreeData | VisibilityState): node is TreeData {
+  return !Array.isArray(node);
 }
 
 /**
- * Keymap configuration.
+ * Keymap configuration - re-export from utils for API compatibility.
  */
-interface KeymapConfig {
-  shift?: string;
-  ctrl?: string;
-  meta?: string;
-  alt?: string;
+type KeymapConfig = Partial<KeyMappingConfig>;
+
+/**
+ * Mesh with an index property (used for clipping plane meshes).
+ */
+interface IndexedMesh extends THREE.Mesh {
+  index: ClipIndex;
+}
+
+/**
+ * Type guard to check if an Object3D is an IndexedMesh.
+ */
+function isIndexedMesh(obj: THREE.Object3D): obj is IndexedMesh {
+  return (
+    "isMesh" in obj &&
+    obj.isMesh === true &&
+    "index" in obj &&
+    typeof (obj as IndexedMesh).index === "number"
+  );
+}
+
+/**
+ * Material with clippingPlanes property.
+ */
+interface ClippableMaterial extends THREE.Material {
+  clippingPlanes: THREE.Plane[];
+}
+
+/**
+ * Type guard to check if a material has clippingPlanes.
+ */
+function isClippableMaterial(mat: THREE.Material | THREE.Material[]): mat is ClippableMaterial {
+  return !Array.isArray(mat) && "clippingPlanes" in mat;
 }
 
 /**
@@ -153,7 +185,9 @@ interface BackendResponse {
 /**
  * Type guard to check if a BackendResponse is a ToolResponse.
  */
-function isToolResponse(response: BackendResponse): response is BackendResponse & ToolResponse {
+function isToolResponse(
+  response: BackendResponse,
+): response is BackendResponse & ToolResponse {
   return response.subtype === "tool_response" && "tool_type" in response;
 }
 
@@ -190,13 +224,13 @@ class Viewer {
   ready: boolean;
 
   // Display reference
-  display: Display;
+  display: Display | null;
 
   // THREE.js core objects
   renderer: THREE.WebGLRenderer | null;
   scene: THREE.Scene | null;
-  ambientLight!: THREE.AmbientLight;
-  directLight!: THREE.DirectionalLight;
+  ambientLight: THREE.AmbientLight | null;
+  directLight: THREE.DirectionalLight | null;
   mouse: THREE.Vector2 | null;
 
   // CAD objects
@@ -217,27 +251,30 @@ class Viewer {
   treeview: TreeView | null;
 
   // Tools
-  cadTools: Tools;
+  cadTools: Tools | null;
 
   // Clipping
   clipping: Clipping | null;
-  clipNormals: [Vector3, Vector3, Vector3];
+  clipNormals: [THREE.Vector3, THREE.Vector3, THREE.Vector3] | null;
   gridSize!: number;
 
   // Animation
   hasAnimationLoop: boolean;
   mixer: THREE.AnimationMixer | null;
-  animation: Animation;
+  animation: Animation | null;
   continueAnimation: boolean;
-  clipAction!: THREE.AnimationAction;
+  clipAction: THREE.AnimationAction | null;
   backupTracks: unknown;
+
+  // Shape rendering
+  shapeRenderer: ShapeRenderer | null;
 
   // Camera
   camera_distance: number;
 
   // Material settings
-  materialSettings!: MaterialSettings;
-  renderOptions!: RenderOptions;
+  materialSettings: MaterialSettings | null;
+  renderOptions: RenderOptions | null;
 
   // Selection tracking
   lastNotification: Record<string, unknown>;
@@ -261,9 +298,9 @@ class Viewer {
   zScale!: number;
 
   // Deprecated properties (kept for compatibility)
-  clipNormal0: Vector3 | null;
-  clipNormal1: Vector3 | null;
-  clipNormal2: Vector3 | null;
+  clipNormal0: Vector3Tuple | null;
+  clipNormal1: Vector3Tuple | null;
+  clipNormal2: Vector3Tuple | null;
   keymap: KeymapConfig | null;
   info: unknown;
 
@@ -287,7 +324,7 @@ class Viewer {
     updateMarker: boolean = true,
   ) {
     // Create centralized state from options (single source of truth)
-    this.state = new ViewerState(options as Record<string, unknown>);
+    this.state = new ViewerState(options);
 
     this.notifyCallback = notifyCallback;
     this.pinAsPngCallback = pinAsPngCallback;
@@ -321,11 +358,12 @@ class Viewer {
     this.mixer = null;
     this.animation = new Animation("|");
     this.continueAnimation = true;
+    this.shapeRenderer = null;
 
     this.clipNormals = [
-      [-1, 0, 0],
-      [0, -1, 0],
-      [0, 0, -1],
+      new THREE.Vector3(-1, 0, 0),
+      new THREE.Vector3(0, -1, 0),
+      new THREE.Vector3(0, 0, -1),
     ];
 
     this.camera_distance = 0;
@@ -339,10 +377,7 @@ class Viewer {
       stencil: true,
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(
-      this.state.get("cadWidth"),
-      this.state.get("height"),
-    );
+    this.renderer.setSize(this.state.get("cadWidth"), this.state.get("height"));
     this.renderer.setClearColor(0xffffff, 0);
     this.renderer.autoClear = false;
 
@@ -402,11 +437,7 @@ class Viewer {
    */
   setRenderDefaults(options: RenderOptions): void {
     // Update state with any render-specific options
-    for (const option of Object.keys(options)) {
-      if ((this.state.get as (key: string) => unknown)(option) !== undefined) {
-        (this.state.set as (key: string, value: unknown, notify?: boolean) => void)(option, (options as Record<string, unknown>)[option], false);
-      }
-    }
+    this.state.updateRenderState(options, false);
 
     // Build materialSettings from current state
     this.materialSettings = {
@@ -423,12 +454,9 @@ class Viewer {
    * @param options - The provided options object for the view.
    */
   setViewerDefaults(options: ViewerOptions): void {
-    // Update state with view-specific options (notify to sync UI)
-    for (const option of Object.keys(options)) {
-      if ((this.state.get as (key: string) => unknown)(option) !== undefined) {
-        (this.state.set as (key: string, value: unknown) => void)(option, (options as Record<string, unknown>)[option]);
-      }
-    }
+    // Update state with view-specific options
+    // updateViewerState handles conversion from Vector3Tuple to THREE.Vector3
+    this.state.updateViewerState(options);
   }
 
   /**
@@ -448,343 +476,45 @@ class Viewer {
   // ---------------------------------------------------------------------------
 
   /**
-   * Render tessellated shapes of a CAD object.
-   * @param shapes - The Shapes object representing the tessellated CAD object.
-   * @returns A nested THREE.Group object.
+   * Get or create the ShapeRenderer instance with current configuration.
    */
-  private _renderTessellatedShapes(shapes: Shapes): NestedGroup {
-    const nestedGroup = new NestedGroup(
-      shapes,
-      this.state.get("cadWidth"),
-      this.state.get("height"),
-      this.state.get("edgeColor"),
-      this.state.get("transparent"),
-      this.state.get("defaultOpacity"),
-      this.state.get("metalness"),
-      this.state.get("roughness"),
-      this.state.get("normalLen"),
-    );
-    if (shapes.bb) {
-      this.bbox = new BoundingBox(
-        new THREE.Vector3(shapes.bb.xmin, shapes.bb.ymin, shapes.bb.zmin),
-        new THREE.Vector3(shapes.bb.xmax, shapes.bb.ymax, shapes.bb.zmax),
-      );
-    }
-    nestedGroup.render();
-    return nestedGroup;
-  }
-
-  /**
-   * Retrieve the navigation tree from a Shapes object.
-   * @param shapes - The Shapes object.
-   * @returns The navigation tree object.
-   */
-  private _getTree(shapes: Shapes): TreeData {
-    const _getTree = (parts: Shapes[]): TreeData => {
-      const result: TreeData = {};
-      for (const part of parts) {
-        if (part.parts != null) {
-          result[part.name] = _getTree(part.parts);
-        } else {
-          result[part.name] = part.state as VisibilityState;
-        }
-      }
-      return result;
+  private getShapeRenderer(): ShapeRenderer {
+    const config = {
+      cadWidth: this.state.get("cadWidth"),
+      height: this.state.get("height"),
+      edgeColor: this.state.get("edgeColor"),
+      transparent: this.state.get("transparent"),
+      defaultOpacity: this.state.get("defaultOpacity"),
+      metalness: this.state.get("metalness"),
+      roughness: this.state.get("roughness"),
+      normalLen: this.state.get("normalLen"),
     };
-    const tree: TreeData = {};
-    tree[shapes.name] = _getTree(shapes.parts ?? []);
-    return tree;
-  }
 
-  /**
-   * Decompose a CAD object into faces, edges and vertices.
-   * @param part - The part to decompose.
-   * @returns A decomposed part object.
-   */
-  private _decompose(part: Shapes): Shapes {
-    const shape = part.shape!;
-    let j: number;
-
-    part.parts = [];
-
-    if (part.type === "shapes") {
-      // decompose faces
-      let new_part: Shapes = {
-        version: 2,
-        name: "faces",
-        id: `${part.id}/faces`,
-        parts: [],
-        loc: [
-          [0, 0, 0],
-          [0, 0, 0, 1],
-        ],
-      };
-      let triangles: Uint32Array | number[];
-      const vertices = shape.vertices as Float32Array;
-      const normals = shape.normals as Float32Array;
-      const isBinaryFormat = hasTrianglesPerFace(shape);
-      const num = isBinaryFormat
-        ? shape.triangles_per_face.length
-        : (shape.triangles as number[][]).length;
-      let current = 0;
-      for (j = 0; j < num; j++) {
-        if (isBinaryFormat) {
-          const trianglesArray = shape.triangles as Uint32Array;
-          const perFace = shape.triangles_per_face;
-          triangles = trianglesArray.subarray(
-            current,
-            current + 3 * perFace[j],
-          );
-          current += 3 * perFace[j];
-        } else {
-          triangles = (shape.triangles as number[][])[j];
-        }
-
-        const vecs = new Float32Array(triangles.length * 3);
-        const norms = new Float32Array(triangles.length * 3);
-        for (let i = 0; i < triangles.length; i++) {
-          const s = triangles[i];
-          vecs[3 * i] = vertices[3 * s];
-          vecs[3 * i + 1] = vertices[3 * s + 1];
-          vecs[3 * i + 2] = vertices[3 * s + 2];
-          norms[3 * i] = normals[3 * s];
-          norms[3 * i + 1] = normals[3 * s + 1];
-          norms[3 * i + 2] = normals[3 * s + 2];
-        }
-        const new_shape: Shapes = {
-          version: 2,
-          loc: [
-            [0, 0, 0],
-            [0, 0, 0, 1],
-          ],
-          name: `faces_${j}`,
-          id: `${part.id}/faces/faces_${j}`,
-          type: "shapes",
-          color: part.color,
-          alpha: part.alpha,
-          renderback: true,
-          state: [1, 3],
-          accuracy: part.accuracy,
-          bb: null,
-          shape: {
-            triangles: [...Array(triangles.length).keys()],
-            vertices: Array.from(vecs),
-            normals: Array.from(norms),
-            edges: [],
-            obj_vertices: [],
-            edge_types: [],
-            face_types: [shape.face_types[j]],
-          },
-        };
-        if (part.texture) {
-          new_shape.texture = part.texture;
-        }
-        new_shape.geomtype = shape.face_types[j];
-        new_shape.subtype = part.subtype;
-        new_shape.exploded = true;
-        new_part.parts!.push(new_shape);
-      }
-
-      part.parts.push(new_part);
+    if (!this.shapeRenderer) {
+      this.shapeRenderer = new ShapeRenderer(config);
+    } else {
+      this.shapeRenderer.updateConfig(config);
     }
 
-    if (part.type === "shapes" || part.type === "edges") {
-      // decompose edges
-      const new_part: Shapes = {
-        version: 2,
-        parts: [],
-        loc: [
-          [0, 0, 0],
-          [0, 0, 0, 1],
-        ],
-        name: "edges",
-        id: `${part.id}/edges`,
-      };
-      const isBinaryEdges = hasSegmentsPerEdge(shape);
-      const multiColor =
-        Array.isArray(part.color) && part.color.length === shape.edges.length;
-      let color: string | string[] | undefined;
-
-      const num = isBinaryEdges
-        ? shape.segments_per_edge.length
-        : (shape.edges as number[][]).length;
-      let current = 0;
-      let edge: Float32Array | number[];
-      for (j = 0; j < num; j++) {
-        if (isBinaryEdges) {
-          const edgesArray = shape.edges as Float32Array;
-          const perEdge = shape.segments_per_edge;
-          edge = edgesArray.subarray(
-            current,
-            current + 6 * perEdge[j],
-          );
-          current += 6 * perEdge[j];
-        } else {
-          edge = (shape.edges as number[][])[j];
-        }
-        color = multiColor ? (part.color as string[])[j] : part.color;
-        const new_shape: Shapes = {
-          version: 2,
-          loc: [
-            [0, 0, 0],
-            [0, 0, 0, 1],
-          ],
-          name: `edges_${j}`,
-          id: `${part.id}/edges/edges_${j}`,
-          type: "edges",
-          color: part.type === "shapes" ? String(this.state.get("edgeColor")) : color,
-          state: [3, 1],
-          bb: null,
-          shape: {
-            edges: Array.isArray(edge) ? edge : Array.from(edge),
-            vertices: [],
-            normals: [],
-            triangles: [],
-            obj_vertices: [],
-            edge_types: [shape.edge_types[j]],
-            face_types: [],
-          },
-        };
-        new_shape.width = part.type === "shapes" ? 1 : part.width;
-        new_shape.geomtype = shape.edge_types[j];
-        new_part.parts!.push(new_shape);
-      }
-      if (new_part.parts!.length > 0) {
-        part.parts.push(new_part);
-      }
-    }
-
-    // decompose vertices
-    const new_part: Shapes = {
-      version: 2,
-      parts: [],
-      loc: [
-        [0, 0, 0],
-        [0, 0, 0, 1],
-      ],
-      name: "vertices",
-      id: `${part.id}/vertices`,
-    };
-    const vertices = shape.obj_vertices;
-    for (j = 0; j < vertices.length / 3; j++) {
-      const new_shape: Shapes = {
-        version: 2,
-        loc: [
-          [0, 0, 0],
-          [0, 0, 0, 1],
-        ],
-        name: `vertices_${j}`,
-        id: `${part.id}/vertices/vertices_${j}`,
-        type: "vertices",
-        color:
-          part.type === "shapes" || part.type === "edges"
-            ? String(this.state.get("edgeColor"))
-            : part.color,
-        state: [3, 1],
-        bb: null,
-        shape: {
-          obj_vertices: [
-            vertices[3 * j],
-            vertices[3 * j + 1],
-            vertices[3 * j + 2],
-          ],
-          vertices: [],
-          normals: [],
-          triangles: [],
-          edges: [],
-          edge_types: [],
-          face_types: [],
-        },
-      };
-      new_shape.size =
-        part.type === "shapes" || part.type === "edges" ? 4 : part.size;
-      new_part.parts!.push(new_shape);
-    }
-    if (new_part.parts!.length > 0) {
-      part.parts.push(new_part);
-    }
-    delete part.shape;
-    delete part.color;
-    delete part.alpha;
-    delete part.accuracy;
-    delete part.renderback;
-
-    return part;
+    return this.shapeRenderer;
   }
 
   /**
    * Render the shapes of the CAD object.
    * @param exploded - Whether to render the compact or exploded version
    * @param shapes - The Shapes object.
-   * @returns A nested THREE.Group object.
+   * @returns A nested THREE.Group object and navigation tree.
    */
   renderTessellatedShapes(exploded: boolean, shapes: Shapes): RenderResult {
-    // Convert Shape arrays to TypedArrays for efficient rendering
-    // Note: This mutates the shape in place, casting to allow TypedArray assignment
-    const _convertArrays = (shape: Shape): void => {
-      const s = shape as {
-        triangles: number[] | Uint32Array;
-        edges: number[] | number[][] | Float32Array;
-        vertices: number[] | Float32Array;
-        normals: number[] | Float32Array;
-        obj_vertices: number[] | Float32Array;
-        face_types: number[] | Uint32Array;
-        edge_types: number[] | Uint8Array;
-        triangles_per_face?: number[] | Uint32Array;
-        segments_per_edge?: number[] | Uint32Array;
-      };
-      if (s.triangles != null && !(s.triangles instanceof Uint32Array))
-        s.triangles = new Uint32Array(s.triangles);
-      if (s.edges != null && !(s.edges instanceof Float32Array))
-        s.edges = new Float32Array(flatten(s.edges as number[][], 3) as number[]);
-      if (s.vertices != null && !(s.vertices instanceof Float32Array))
-        s.vertices = new Float32Array(s.vertices);
-      if (s.normals != null && !(s.normals instanceof Float32Array))
-        s.normals = new Float32Array(flatten(s.normals as number[][], 2) as number[]);
-      if (s.obj_vertices != null && !(s.obj_vertices instanceof Float32Array))
-        s.obj_vertices = new Float32Array(s.obj_vertices);
-      if (s.face_types != null && !(s.face_types instanceof Uint32Array))
-        s.face_types = new Uint32Array(s.face_types);
-      if (s.edge_types != null && !(s.edge_types instanceof Uint32Array))
-        s.edge_types = new Uint32Array(s.edge_types as number[]);
-      if (s.triangles_per_face != null && !(s.triangles_per_face instanceof Uint32Array))
-        s.triangles_per_face = new Uint32Array(s.triangles_per_face);
-      if (s.segments_per_edge != null && !(s.segments_per_edge instanceof Uint32Array))
-        s.segments_per_edge = new Uint32Array(s.segments_per_edge);
-    };
-    const _render = (shapes: Shapes): Shapes => {
-      if (shapes.version === 2 || shapes.version === 3) {
-        const parts: Shapes[] = [];
-        for (let i = 0; i < (shapes.parts?.length ?? 0); i++) {
-          const part = shapes.parts![i];
-          if (part.shape != null) {
-            _convertArrays(part.shape);
-          }
-          if (part.parts != null) {
-            const tmp = _render(part);
-            parts.push(tmp);
-          } else {
-            parts.push(this._decompose(part));
-          }
-        }
-        shapes.parts = parts;
-      }
-      return shapes;
-    };
+    const renderer = this.getShapeRenderer();
+    const result = renderer.render(exploded, shapes);
 
-    let exploded_shapes: Shapes;
-    if (exploded) {
-      exploded_shapes = _render(structuredClone(shapes));
-    } else {
-      exploded_shapes = structuredClone(shapes);
+    // Update bbox if the renderer computed one
+    if (renderer.bbox) {
+      this.bbox = renderer.bbox;
     }
-    const nested_group = this._renderTessellatedShapes(exploded_shapes);
-    const rendered_tree = this._getTree(exploded_shapes);
 
-    return {
-      group: nested_group,
-      tree: rendered_tree,
-    };
+    return result;
   }
 
   // ---------------------------------------------------------------------------
@@ -792,24 +522,84 @@ class Viewer {
   // ---------------------------------------------------------------------------
 
   /**
-   * Add an animation track for a THREE.Group
+   * Add a position animation track (full 3D translation).
    * @param selector - path/id of group to be animated.
-   * @param action - one of "rx", "ry", "rz" for rotations around axes, "q" for quaternions or "t", "tx", "ty", "tz" for translations.
-   * @param time - array of times.
-   * @param values - array of values, the type depends on the action.
+   * @param times - array of keyframe times.
+   * @param positions - array of [x, y, z] position offsets.
    */
-  addAnimationTrack(
+  addPositionTrack(
     selector: string,
-    action: string,
-    time: number[],
-    values: number[] | number[][],
+    times: number[],
+    positions: number[][],
   ): void {
-    this.animation.addTrack(
+    this.animation.addPositionTrack(
       selector,
       this.nestedGroup!.groups[selector],
-      action,
-      time,
+      times,
+      positions,
+    );
+  }
+
+  /**
+   * Add a single-axis translation animation track.
+   * @param selector - path/id of group to be animated.
+   * @param axis - which axis to translate along ("x", "y", or "z").
+   * @param times - array of keyframe times.
+   * @param values - array of translation values along the axis.
+   */
+  addTranslationTrack(
+    selector: string,
+    axis: Axis,
+    times: number[],
+    values: number[],
+  ): void {
+    this.animation.addTranslationTrack(
+      selector,
+      this.nestedGroup!.groups[selector],
+      axis,
+      times,
       values,
+    );
+  }
+
+  /**
+   * Add a quaternion rotation animation track.
+   * @param selector - path/id of group to be animated.
+   * @param times - array of keyframe times.
+   * @param quaternions - array of [x, y, z, w] quaternion values.
+   */
+  addQuaternionTrack(
+    selector: string,
+    times: number[],
+    quaternions: number[][],
+  ): void {
+    this.animation.addQuaternionTrack(
+      selector,
+      this.nestedGroup!.groups[selector],
+      times,
+      quaternions,
+    );
+  }
+
+  /**
+   * Add a single-axis rotation animation track.
+   * @param selector - path/id of group to be animated.
+   * @param axis - which axis to rotate around ("x", "y", or "z").
+   * @param times - array of keyframe times.
+   * @param angles - array of rotation angles in degrees.
+   */
+  addRotationTrack(
+    selector: string,
+    axis: Axis,
+    times: number[],
+    angles: number[],
+  ): void {
+    this.animation.addRotationTrack(
+      selector,
+      this.nestedGroup!.groups[selector],
+      axis,
+      times,
+      angles,
     );
   }
 
@@ -873,18 +663,21 @@ class Viewer {
    * @param changes - change information.
    * @param notify - whether to send notification or not.
    */
-  checkChanges = (changes: Record<string, unknown>, notify: boolean = true): void => {
+  checkChanges = (
+    changes: Record<string, unknown>,
+    notify: boolean = true,
+  ): void => {
     const changed: Record<string, StateChange<unknown>> = {};
     Object.keys(changes).forEach((key) => {
       if (!isEqual(this.lastNotification[key], changes[key])) {
-        const change = clone(changes[key]);
+        const change = structuredClone(changes[key]);
         changed[key] = {
           new: change,
           // map undefined in lastNotification to null to enable JSON exchange
           old:
             this.lastNotification[key] == null
               ? null
-              : clone(this.lastNotification[key]),
+              : structuredClone(this.lastNotification[key]),
         };
         this.lastNotification[key] = change;
       }
@@ -1025,19 +818,24 @@ class Viewer {
     // dispose renderer
     if (this.renderer != null) {
       this.renderer.renderLists.dispose();
-      (this.renderer
-        .getContext() as WebGL2RenderingContext)
-        .getExtension("WEBGL_lose_context")
-        ?.loseContext();
+      this.renderer.dispose();
+      // forceContextLoss may not exist in test mocks
+      if (typeof this.renderer.forceContextLoss === "function") {
+        this.renderer.forceContextLoss();
+      }
       console.debug("three-cad-viewer: WebGL context disposed");
       this.renderer = null;
     }
 
-    this.ambientLight.dispose();
-    (this as { ambientLight: THREE.AmbientLight | null }).ambientLight = null;
-    this.directLight.dispose();
-    (this as { directLight: THREE.DirectionalLight | null }).directLight = null;
-    (this as { materialSettings: MaterialSettings | null }).materialSettings = null;
+    if (this.ambientLight) {
+      this.ambientLight.dispose();
+      this.ambientLight = null;
+    }
+    if (this.directLight) {
+      this.directLight.dispose();
+      this.directLight = null;
+    }
+    this.materialSettings = null;
     this.clipping = null;
     this.camera = null;
     this.gridHelper = null;
@@ -1046,18 +844,20 @@ class Viewer {
     this.orientationMarker = null;
     this.compactTree = null;
     deepDispose(this.cadTools);
-    (this as { cadTools: Tools | null }).cadTools = null;
-    (this as { clipAction: THREE.AnimationAction | null }).clipAction = null;
-    this.treeview!.dispose();
-    this.treeview = null;
-    (this as { animation: Animation | null }).animation = null;
-    (this as { clipNormals: [Vector3, Vector3, Vector3] | null }).clipNormals = null;
+    this.cadTools = null;
+    this.clipAction = null;
+    if (this.treeview) {
+      this.treeview.dispose();
+      this.treeview = null;
+    }
+    this.animation = null;
+    this.clipNormals = null;
     this.lastNotification = {};
     this.clipNormal0 = null;
     this.clipNormal1 = null;
     this.clipNormal2 = null;
-    (this as { display: Display | null }).display = null;
-    (this as { renderOptions: RenderOptions | null }).renderOptions = null;
+    this.display = null;
+    this.renderOptions = null;
     this.mouse = null;
     this.tree = null;
     // Info is owned by Display
@@ -1168,54 +968,69 @@ class Viewer {
     exploded: boolean,
     path: string,
   ): void => {
-    if (Array.isArray(compactTree)) {
+    // Leaf case: compactTree is a VisibilityState, expandedTree has type/label structure
+    if (isVisibilityState(compactTree)) {
+      // expandedTree must be TreeData at this point (type level: shapes/edges/vertices)
+      if (!isTreeData(expandedTree)) return;
+      const expandedData = expandedTree;
+
       if (exploded) {
-        for (const t in expandedTree as TreeData) {
-          for (const l in (expandedTree as TreeData)[t] as TreeData) {
-            const id = `${path}/${t}/${l}`;
-            const objectGroup = this.expandedNestedGroup!.groups[id] as ObjectGroup;
-            for (const i of [0, 1] as const) {
-              if (i === 0) {
-                objectGroup.setShapeVisible(compactTree[0] === 1);
-              } else {
-                objectGroup.setEdgesVisible(compactTree[1] === 1);
-              }
-              if (((expandedTree as TreeData)[t] as TreeData)[l][i] !== 3) {
-                (((expandedTree as TreeData)[t] as TreeData)[l] as VisibilityState)[i] = compactTree[i];
-              }
-            }
+        // Apply compact state to all expanded children
+        for (const typeKey in expandedData) {
+          const typeNode = expandedData[typeKey];
+          if (!isTreeData(typeNode)) continue;
+
+          for (const labelKey in typeNode) {
+            const leafState = typeNode[labelKey];
+            if (!isVisibilityState(leafState)) continue;
+
+            const id = `${path}/${typeKey}/${labelKey}`;
+            const objectGroup = this.expandedNestedGroup!.groups[id];
+            if (!isObjectGroup(objectGroup)) continue;
+
+            objectGroup.setShapeVisible(compactTree[0] === 1);
+            objectGroup.setEdgesVisible(compactTree[1] === 1);
+
+            // Sync state (unless disabled = 3)
+            if (leafState[0] !== 3) leafState[0] = compactTree[0];
+            if (leafState[1] !== 3) leafState[1] = compactTree[1];
           }
         }
       } else {
-        const objectGroup = this.compactNestedGroup!.groups[path] as ObjectGroup;
-        for (const i of [0, 1] as const) {
-          let visible = false;
-          for (const t in expandedTree as TreeData) {
-            for (const l in (expandedTree as TreeData)[t] as TreeData) {
-              if ((((expandedTree as TreeData)[t] as TreeData)[l] as VisibilityState)[i] === 1) {
-                visible = true;
-              }
-            }
-          }
-          if (i === 0) {
-            objectGroup.setShapeVisible(visible);
-          } else {
-            objectGroup.setEdgesVisible(visible);
-          }
-          if (compactTree[i] !== 3) {
-            compactTree[i] = visible ? 1 : 0;
+        // Compute visibility from expanded children
+        const objectGroup = this.compactNestedGroup!.groups[path];
+        if (!isObjectGroup(objectGroup)) return;
+
+        let shapeVisible = false;
+        let edgeVisible = false;
+
+        for (const typeKey in expandedData) {
+          const typeNode = expandedData[typeKey];
+          if (!isTreeData(typeNode)) continue;
+
+          for (const labelKey in typeNode) {
+            const leafState = typeNode[labelKey];
+            if (!isVisibilityState(leafState)) continue;
+
+            if (leafState[0] === 1) shapeVisible = true;
+            if (leafState[1] === 1) edgeVisible = true;
           }
         }
+
+        objectGroup.setShapeVisible(shapeVisible);
+        objectGroup.setEdgesVisible(edgeVisible);
+
+        // Sync compact state (unless disabled = 3)
+        if (compactTree[0] !== 3) compactTree[0] = shapeVisible ? 1 : 0;
+        if (compactTree[1] !== 3) compactTree[1] = edgeVisible ? 1 : 0;
       }
     } else {
+      // Branch case: recurse into children
+      if (!isTreeData(expandedTree)) return;
+      const expandedData = expandedTree;
       for (const key in compactTree) {
         const id = `${path}/${key}`;
-        this.syncTreeStates(
-          compactTree[key] as TreeData | VisibilityState,
-          (expandedTree as TreeData)[key] as TreeData | VisibilityState,
-          exploded,
-          id,
-        );
+        this.syncTreeStates(compactTree[key], expandedData[key], exploded, id);
       }
     }
   };
@@ -1227,16 +1042,9 @@ class Viewer {
   getNodeColor = (path: string): string | null => {
     const group = this.nestedGroup!.groups["/" + path];
     if (group instanceof ObjectGroup) {
-      let color: THREE.Color;
-      if (
-        (group.children[0] as THREE.Mesh).type !== "Mesh" ||
-        ((group.children[0] as THREE.Mesh).material as THREE.Material).name === "frontMaterial"
-      ) {
-        color = ((group.children[0] as THREE.Mesh).material as THREE.MeshStandardMaterial).color;
-      } else {
-        color = ((group.children[1] as THREE.Mesh).material as THREE.MeshStandardMaterial).color;
+      if (group.front) {
+        return "#" + group.front.material.color.getHexString();
       }
-      return "#" + color.getHexString();
     }
     return null;
   };
@@ -1297,8 +1105,11 @@ class Viewer {
     timer.split("added shapes to scene");
 
     deepDispose(this.treeview);
+    if (!this.tree) {
+      throw new Error("Tree not initialized");
+    }
     this.treeview = new TreeView(
-      this.tree as TreeViewData,
+      this.tree,
       this.display.cadTreeScrollContainer,
       this.setObject,
       this.handlePick,
@@ -1324,10 +1135,8 @@ class Viewer {
    * Set the active sidebar tab.
    * @param tabName - Tab name: "tree", "clip", "material", or "zebra"
    */
-  setActiveTab(tabName: string): void {
-    if (["tree", "clip", "material", "zebra"].includes(tabName)) {
-      this.state.set("activeTab", tabName as ActiveTab);
-    }
+  setActiveTab(tabName: ActiveTab): void {
+    this.state.set("activeTab", tabName);
   }
 
   toggleTab(disable: boolean): void {
@@ -1363,7 +1172,11 @@ class Viewer {
    * @param renderOptions - the render options
    * @param viewerOptions - the viewer options
    */
-  render(shapes: Shapes, renderOptions: RenderOptions, viewerOptions: ViewerOptions): void {
+  render(
+    shapes: Shapes,
+    renderOptions: RenderOptions,
+    viewerOptions: ViewerOptions,
+  ): void {
     this.shapes = shapes;
     this.renderOptions = renderOptions;
     this.setViewerDefaults(viewerOptions);
@@ -1400,9 +1213,9 @@ class Viewer {
       this.state.get("cadWidth"),
       this.state.get("height"),
       this.bb_radius,
-      (viewerOptions.target == null ? this.bbox.center() : viewerOptions.target) as Vector3,
+      viewerOptions.target ?? this.bbox.center(),
       this.state.get("ortho"),
-      viewerOptions.up as UpDirection,
+      viewerOptions.up ?? this.state.get("up"),
     );
 
     //
@@ -1411,7 +1224,7 @@ class Viewer {
     this.controls = new Controls(
       this.state.get("control"),
       this.camera.getCamera(),
-      (viewerOptions.target == null ? this.bbox.center() : viewerOptions.target) as Vector3,
+      new THREE.Vector3(...(viewerOptions.target ?? this.bbox.center())),
       this.renderer!.domElement,
       this.state.get("rotateSpeed"),
       this.state.get("zoomSpeed"),
@@ -1433,8 +1246,10 @@ class Viewer {
     } else if (viewerOptions.position != null) {
       this.setCamera(
         false,
-        viewerOptions.position,
-        viewerOptions.quaternion ?? null,
+        new THREE.Vector3(...viewerOptions.position),
+        viewerOptions.quaternion
+          ? new THREE.Quaternion(...viewerOptions.quaternion)
+          : null,
         this.state.get("zoom"),
       );
       if (viewerOptions.quaternion == null) {
@@ -1480,7 +1295,7 @@ class Viewer {
       gridFontSize: this.state.get("gridFontSize"),
       centerGrid: this.state.get("centerGrid"),
       axes0: this.state.get("axes0"),
-      grid: [...(this.state.get("grid"))],
+      grid: [...this.state.get("grid")],
       flipY: viewerOptions.up === "Z",
       theme: this.state.get("theme"),
       cadWidth: this.state.get("cadWidth"),
@@ -1489,8 +1304,7 @@ class Viewer {
       tickValueElement: this.display.tickValueElement,
       tickInfoElement: this.display.tickInfoElement,
       getCamera: () => this.camera?.getCamera() ?? null,
-      isOrtho: () => (this.state?.get("ortho") as boolean) ?? true,
-      getAxes0: () => (this.state?.get("axes0") as boolean) ?? false,
+      getAxes0: () => this.state?.get("axes0") ?? false,
     });
     this.gridHelper.computeGrid();
 
@@ -1528,8 +1342,8 @@ class Viewer {
       2 * cSize,
       this.nestedGroup!,
       {
-        onNormalChange: (index: number, normalArray: number[]) =>
-          this.display.setNormalLabel(index, normalArray as [number, number, number]),
+        onNormalChange: (index, normalArray) =>
+          this.display.setNormalLabel(index, normalArray),
       },
       this.state.get("theme"),
     );
@@ -1580,7 +1394,7 @@ class Viewer {
       80,
       80,
       this.camera.getCamera(),
-      theme as Theme,
+      theme,
     );
     this.orientationMarker.create();
 
@@ -1609,8 +1423,14 @@ class Viewer {
     if (this.notifyCallback) {
       this.notifyCallback({
         tab: { old: null, new: this.state.get("activeTab") },
-        target: { old: null, new: this.controls.target },
-        target0: { old: null, new: this.controls.target0 },
+        target: {
+          old: null,
+          new: toVector3Tuple(this.controls.target.toArray()),
+        },
+        target0: {
+          old: null,
+          new: toVector3Tuple(this.controls.target0.toArray()),
+        },
         clip_normal_0: { old: null, new: this.clipNormal0 },
         clip_normal_1: { old: null, new: this.clipNormal1 },
         clip_normal_2: { old: null, new: this.clipNormal2 },
@@ -1646,17 +1466,12 @@ class Viewer {
    */
   setCamera = (
     relative: boolean,
-    position: Vector3,
-    quaternion: Quaternion | null = null,
+    position: THREE.Vector3,
+    quaternion: THREE.Quaternion | null = null,
     zoom: number | null = null,
     notify: boolean = true,
   ): void => {
-    this.camera!.setupCamera(
-      relative,
-      new THREE.Vector3(...position),
-      quaternion != null ? new THREE.Quaternion(...quaternion) : null,
-      zoom,
-    );
+    this.camera!.setupCamera(relative, position, quaternion, zoom);
     this.update(true, notify);
   };
 
@@ -1666,9 +1481,13 @@ class Viewer {
    * @param zoom - zoom value
    * @param notify - whether to send notification or not.
    */
-  presetCamera = (dir: string, zoom: number | null = null, notify: boolean = true): void => {
+  presetCamera = (
+    dir: CameraDirection,
+    zoom: number | null = null,
+    notify: boolean = true,
+  ): void => {
     this.camera!.target = new THREE.Vector3(...this.bbox!.center());
-    this.camera!.presetCamera(dir as CameraDirection, zoom);
+    this.camera!.presetCamera(dir, zoom);
     this.controls!.setTarget(this.camera!.target);
     this.update(true, notify);
   };
@@ -1678,13 +1497,7 @@ class Viewer {
    * @returns target, position, quaternion, zoom as object.
    */
   getResetLocation = (): ResetLocation => {
-    const location = this.controls!.getResetLocation();
-    return {
-      target0: location.target0.toArray(),
-      position0: location.position0.toArray(),
-      quaternion0: location.quaternion0.toArray(),
-      zoom0: location.zoom0,
-    };
+    return this.controls!.getResetLocation();
   };
 
   /**
@@ -1696,9 +1509,9 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setResetLocation = (
-    target: Vector3,
-    position: Vector3,
-    quaternion: Quaternion,
+    target: Vector3Tuple,
+    position: Vector3Tuple,
+    quaternion: QuaternionTuple,
     zoom: number,
     notify: boolean = true,
   ): void => {
@@ -1711,9 +1524,18 @@ class Viewer {
     );
     if (notify && this.notifyCallback) {
       this.notifyCallback({
-        target0: { old: location.target0, new: target },
-        position0: { old: location.position0, new: position },
-        quaternion0: { old: location.quaternion0, new: quaternion },
+        target0: {
+          old: toVector3Tuple(location.target0.toArray()),
+          new: target,
+        },
+        position0: {
+          old: toVector3Tuple(location.position0.toArray()),
+          new: position,
+        },
+        quaternion0: {
+          old: toQuaternionTuple(location.quaternion0.toArray()),
+          new: quaternion,
+        },
         zoom0: { old: location.zoom0, new: zoom },
       });
     }
@@ -1857,7 +1679,12 @@ class Viewer {
       if (this.lastBbox != null) {
         this.scene!.remove(this.lastBbox.bbox);
         this.lastBbox.bbox.geometry.dispose();
-        this.lastBbox.bbox.material.dispose();
+        const mat = this.lastBbox.bbox.material;
+        if (Array.isArray(mat)) {
+          mat.forEach((m) => m.dispose());
+        } else {
+          mat.dispose();
+        }
       }
       if (
         this.lastBbox == null ||
@@ -1882,8 +1709,9 @@ class Viewer {
    * @param index - index of the plane: 0,1,2
    * @param value - distance on the clipping normal from the center
    */
-  refreshPlane = (index: number, value: number): void => {
-    (this.state.set as (key: string, value: number) => void)(`clipSlider${index}`, value);
+  refreshPlane = (index: ClipIndex, value: number): void => {
+    const sliderKeys = ["clipSlider0", "clipSlider1", "clipSlider2"] as const;
+    this.state.set(sliderKeys[index], value);
     this.clipping!.setConstant(index, value);
     this.update(this.updateMarker);
   };
@@ -1941,7 +1769,7 @@ class Viewer {
     _nodeType: string = "leaf",
     notify: boolean = true,
   ): void => {
-    this.treeview!.setState(id, state as [StateValue, StateValue]);
+    this.treeview!.setState(id, state);
     this.update(this.updateMarker, notify);
   };
 
@@ -2015,7 +1843,7 @@ class Viewer {
         } else {
           const center = boundingBox.center();
           this.setCameraTarget(point);
-          this.display.showCenterInfo(center as [number, number, number]);
+          this.display.showCenterInfo(center);
         }
       } else if (shift) {
         this.removeLastBbox();
@@ -2023,7 +1851,7 @@ class Viewer {
         this.setState(id, [1, 1], nodeType ?? "leaf");
         const center = boundingBox.center();
         this.setCameraTarget(new THREE.Vector3(...center));
-        this.display.showCenterInfo(center as [number, number, number]);
+        this.display.showCenterInfo(center);
       } else if (meta) {
         this.setState(id, [0, 0], nodeType ?? "leaf");
       } else {
@@ -2053,9 +1881,9 @@ class Viewer {
 
   /**
    * Find the shape that was double clicked and send notification
-   * @param e - a DOM MouseEvent
+   * @param e - a DOM PointerEvent or MouseEvent
    */
-  pick = (e: Event): void => {
+  pick = (e: PointerEvent | MouseEvent): void => {
     const raycaster = new Raycaster(
       this.camera!,
       this.renderer!.domElement,
@@ -2066,54 +1894,56 @@ class Viewer {
       () => {},
     );
     raycaster.init();
-    raycaster.onPointerMove(e as PointerEvent);
+    raycaster.onPointerMove(e);
 
     const validObjs = raycaster.getIntersectedObjs();
     if (validObjs.length === 0) {
       return;
     }
 
-    let nearestObj: THREE.Intersection | null = null;
-    for (const ind in validObjs) {
-      const obj = validObjs[ind];
+    // Find first mesh intersection
+    let nearestMesh: THREE.Mesh | null = null;
+    let nearestIntersection: THREE.Intersection | null = null;
+    for (const obj of validObjs) {
       if (obj.object instanceof THREE.Mesh) {
-        nearestObj = validObjs[ind];
+        nearestMesh = obj.object;
+        nearestIntersection = obj;
         break;
       }
     }
-    if (nearestObj == null) {
+    if (nearestMesh == null || nearestIntersection == null) {
       return;
     }
-    const point = nearestObj.point;
+
+    const point = nearestIntersection.point;
     const shapesFormat = this.shapes?.format;
+    const grandparent = nearestMesh.parent?.parent;
     const nearest = {
-      path: (nearestObj.object.parent!.parent as THREE.Object3D).name.replaceAll("|", "/"),
-      name: nearestObj.object.name,
+      path: grandparent ? grandparent.name.replaceAll("|", "/") : "",
+      name: nearestMesh.name,
       boundingBox:
         shapesFormat === "GDS"
           ? new THREE.Box3(
               point.clone().subScalar(10),
               point.clone().addScalar(10),
             )
-          : (nearestObj.object as THREE.Mesh).geometry.boundingBox,
+          : nearestMesh.geometry.boundingBox,
       boundingSphere:
         shapesFormat === "GDS"
           ? new THREE.Sphere(point, 1)
-          : (nearestObj.object as THREE.Mesh).geometry.boundingSphere,
-      objectGroup: nearestObj.object.parent,
+          : nearestMesh.geometry.boundingSphere,
+      objectGroup: nearestMesh.parent,
     };
-    if (nearest != null) {
-      this.handlePick(
-        nearest.path,
-        nearest.name,
-        KeyMapper.get(e as MouseEvent, "meta"),
-        KeyMapper.get(e as MouseEvent, "shift"),
-        KeyMapper.get(e as MouseEvent, "alt"),
-        nearestObj.point,
-        null,
-        false,
-      );
-    }
+    this.handlePick(
+      nearest.path,
+      nearest.name,
+      KeyMapper.get(e, "meta"),
+      KeyMapper.get(e, "shift"),
+      KeyMapper.get(e, "alt"),
+      nearestIntersection.point,
+      null,
+      false,
+    );
     raycaster.dispose();
   };
 
@@ -2296,7 +2126,8 @@ class Viewer {
   setGrid = (action: string, flag: boolean, notify: boolean = true): void => {
     this.gridHelper!.setGrid(action, flag);
     // Copy array to avoid reference comparison issues in state.set
-    this.state.set("grid", [...this.gridHelper!.grid] as [boolean, boolean, boolean]);
+    const [a, b, c] = this.gridHelper!.grid;
+    this.state.set("grid", [a, b, c]);
 
     this.checkChanges({ grid: this.gridHelper!.grid }, notify);
 
@@ -2316,10 +2147,14 @@ class Viewer {
    * @param grids - 3 dim grid visibility (xy, xz, yz)
    * @param notify - whether to send notification or not.
    */
-  setGrids = (grids: [boolean, boolean, boolean], notify: boolean = true): void => {
+  setGrids = (
+    grids: [boolean, boolean, boolean],
+    notify: boolean = true,
+  ): void => {
     this.gridHelper!.setGrids(...grids);
     // Copy array to avoid reference comparison issues in state.set
-    this.state.set("grid", [...this.gridHelper!.grid] as [boolean, boolean, boolean]);
+    const [a, b, c] = this.gridHelper!.grid;
+    this.state.set("grid", [a, b, c]);
 
     this.checkChanges({ grid: this.gridHelper!.grid }, notify);
 
@@ -2725,7 +2560,7 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setCameraPosition(
-    position: Vector3,
+    position: Vector3Tuple,
     relative: boolean = false,
     notify: boolean = true,
   ): void {
@@ -2738,8 +2573,8 @@ class Viewer {
    * Get the current camera rotation as quaternion.
    * @returns camera rotation as 4 dim quaternion array [x,y,z,w].
    */
-  getCameraQuaternion(): number[] {
-    return this.camera!.getQuaternion().toArray();
+  getCameraQuaternion(): QuaternionTuple {
+    return toQuaternionTuple(this.camera!.getQuaternion().toArray());
   }
 
   /**
@@ -2747,7 +2582,10 @@ class Viewer {
    * @param quaternion - camera rotation as 4 dim quaternion array [x,y,z,w].
    * @param notify - whether to send notification or not.
    */
-  setCameraQuaternion(quaternion: Quaternion, notify: boolean = true): void {
+  setCameraQuaternion(
+    quaternion: QuaternionTuple,
+    notify: boolean = true,
+  ): void {
     this.camera!.setQuaternion(quaternion);
     this.controls!.update();
     this.update(true, notify);
@@ -2757,8 +2595,8 @@ class Viewer {
    * Get the current camera target.
    * @returns camera target as 3 dim array array [x,y,z].
    */
-  getCameraTarget(): number[] {
-    return this.controls!.getTarget().toArray();
+  getCameraTarget(): Vector3Tuple {
+    return toVector3Tuple(this.controls!.getTarget().toArray());
   }
 
   /**
@@ -2779,9 +2617,9 @@ class Viewer {
     this.controls!.getTarget().copy(target);
 
     // Preserve zoom for orthographic cameras
-    if (camera.type === "OrthographicCamera") {
+    if (isOrthographicCamera(camera)) {
       camera.zoom = zoom;
-      (camera as THREE.OrthographicCamera).updateProjectionMatrix();
+      camera.updateProjectionMatrix();
     }
 
     // Update controls
@@ -2799,9 +2637,9 @@ class Viewer {
   }
 
   setCameraLocationSettings(
-    position: Vector3 | null = null,
-    quaternion: Quaternion | null = null,
-    target: Vector3 | null = null,
+    position: Vector3Tuple | null = null,
+    quaternion: QuaternionTuple | null = null,
+    target: Vector3Tuple | null = null,
     zoom: number | null = null,
     notify: boolean = true,
   ): void {
@@ -2848,7 +2686,7 @@ class Viewer {
    * @param states - states object
    */
   setStates = (states: Record<string, VisibilityState>): void => {
-    this.treeview!.setStates(states as Record<string, [StateValue, StateValue]>);
+    this.treeview!.setStates(states);
   };
 
   // ---------------------------------------------------------------------------
@@ -2955,21 +2793,18 @@ class Viewer {
     this.state.set("clipIntersection", flag);
     this.nestedGroup!.setClipIntersection(flag);
 
+    const clipPlanes = flag
+      ? this.clipping!.reverseClipPlanes
+      : this.clipping!.clipPlanes;
+
     for (const child of this.nestedGroup!.rootGroup.children) {
       if (child.name === "PlaneMeshes") {
         for (const capPlane of child.children) {
-          const capPlaneMesh = capPlane as THREE.Mesh & { index: number };
-          if (flag) {
-            (capPlaneMesh.material as THREE.Material & { clippingPlanes: THREE.Plane[] }).clippingPlanes =
-              this.clipping!.reverseClipPlanes.filter(
-                (_, j) => j !== capPlaneMesh.index,
-              );
-          } else {
-            (capPlaneMesh.material as THREE.Material & { clippingPlanes: THREE.Plane[] }).clippingPlanes =
-              this.clipping!.clipPlanes.filter(
-                (_, j) => j !== capPlaneMesh.index,
-              );
-          }
+          if (!isIndexedMesh(capPlane)) continue;
+          if (!isClippableMaterial(capPlane.material)) continue;
+          capPlane.material.clippingPlanes = clipPlanes.filter(
+            (_, j) => j !== capPlane.index,
+          );
         }
       }
     }
@@ -2977,18 +2812,11 @@ class Viewer {
     for (const child of this.scene!.children) {
       if (child.name === "PlaneHelpers") {
         for (const helper of child.children[0].children) {
-          const helperMesh = helper as THREE.Mesh & { index: number };
-          if (flag) {
-            (helperMesh.material as THREE.Material & { clippingPlanes: THREE.Plane[] }).clippingPlanes =
-              this.clipping!.reverseClipPlanes.filter(
-                (_, j) => j !== helperMesh.index,
-              );
-          } else {
-            (helperMesh.material as THREE.Material & { clippingPlanes: THREE.Plane[] }).clippingPlanes =
-              this.clipping!.clipPlanes.filter(
-                (_, j) => j !== helperMesh.index,
-              );
-          }
+          if (!isIndexedMesh(helper)) continue;
+          if (!isClippableMaterial(helper.material)) continue;
+          helper.material.clippingPlanes = clipPlanes.filter(
+            (_, j) => j !== helper.index,
+          );
         }
       }
     }
@@ -3048,8 +2876,8 @@ class Viewer {
    * @param index - index of the normal: 0, 1 ,2
    * @returns clip plane visibility value.
    */
-  getClipNormal(index: number): Vector3 {
-    return this.clipNormals[index as 0 | 1 | 2];
+  getClipNormal(index: ClipIndex): Vector3Tuple {
+    return toVector3Tuple(this.clipNormals[index].toArray());
   }
 
   /**
@@ -3060,22 +2888,22 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setClipNormal(
-    index: number,
-    normal: Vector3 | null,
+    index: ClipIndex,
+    normal: Vector3Tuple | null,
     value: number | null = null,
     notify: boolean = true,
   ): void {
     if (normal == null) return;
-    const normal1 = new THREE.Vector3(...normal).normalize().toArray() as Vector3;
-    this.clipNormals[index as 0 | 1 | 2] = normal1;
+    const normal1 = new THREE.Vector3(...normal).normalize();
+    this.clipNormals[index] = normal1;
 
-    this.clipping!.setNormal(index, new THREE.Vector3(...normal1));
+    this.clipping!.setNormal(index, normal1);
     this.clipping!.setConstant(index, this.gridSize / 2);
     if (value == null) value = this.gridSize / 2;
     this.setClipSlider(index, value);
 
     const notifyObject: Record<string, unknown> = {};
-    notifyObject[`clip_normal_${index}`] = normal1;
+    notifyObject[`clip_normal_${index}`] = normal1.toArray();
     notifyObject[`clip_slider_${index}`] = value;
     this.checkChanges(notifyObject, notify);
 
@@ -3089,18 +2917,16 @@ class Viewer {
    * @param index - index of the normal: 0, 1 ,2
    * @param notify - whether to send notification or not.
    */
-  setClipNormalFromPosition = (index: number, notify: boolean = true): void => {
+  setClipNormalFromPosition = (index: ClipIndex, notify: boolean = true): void => {
     const cameraPosition = this.camera!.getPosition().clone();
-    const normal = cameraPosition
-      .sub(this.controls!.getTarget())
-      .normalize()
-      .negate()
-      .toArray() as Vector3;
+    const normal = toVector3Tuple(
+      cameraPosition
+        .sub(this.controls!.getTarget())
+        .normalize()
+        .negate()
+        .toArray()
+    );
     this.setClipNormal(index, normal, null, notify);
-
-    const notifyObject: Record<string, unknown> = {};
-    notifyObject[`clip_normal_${index}`] = normal;
-    this.checkChanges(notifyObject, notify);
   };
 
   /**
@@ -3108,8 +2934,9 @@ class Viewer {
    * @param index - index of the normal: 0, 1 ,2
    * @returns clip slider value.
    */
-  getClipSlider = (index: number): number => {
-    return (this.state.get as (key: string) => unknown)(`clipSlider${index}`) as number;
+  getClipSlider = (index: 0 | 1 | 2): number => {
+    const keys = ["clipSlider0", "clipSlider1", "clipSlider2"] as const;
+    return this.state.get(keys[index]);
   };
 
   /**
@@ -3118,10 +2945,15 @@ class Viewer {
    * @param value - value for the clipping slider
    * @param notify - whether to send notification or not.
    */
-  setClipSlider = (index: number, value: number, notify: boolean = true): void => {
+  setClipSlider = (
+    index: 0 | 1 | 2,
+    value: number,
+    notify: boolean = true,
+  ): void => {
     if (value === -1 || value == null) return;
 
-    (this.state.set as (key: string, value: number, notify?: boolean) => void)(`clipSlider${index}`, value, notify);
+    const keys = ["clipSlider0", "clipSlider1", "clipSlider2"] as const;
+    this.state.set(keys[index], value, notify);
   };
 
   // ---------------------------------------------------------------------------
@@ -3136,10 +2968,14 @@ class Viewer {
   pinAsPng = (): void => {
     const screenshot = this.getImage("screenshot");
     screenshot.then((data: ImageResult) => {
+      if (typeof data.dataUrl !== "string") {
+        console.error("Screenshot dataUrl is not a string");
+        return;
+      }
       const image = document.createElement("img");
       image.width = this.state.get("cadWidth");
       image.height = this.state.get("height");
-      image.src = data.dataUrl as string;
+      image.src = data.dataUrl;
       if (this.pinAsPngCallback == null) {
         // default, replace the viewer with the image
         this.display.replaceWithImage(image);
@@ -3194,7 +3030,11 @@ class Viewer {
    * @param speed - speed of animation.
    * @param multiplier - multiplier for length of trajectories.
    */
-  explode(duration: number = 2, speed: number = 1, multiplier: number = 2.5): void {
+  explode(
+    duration: number = 2,
+    speed: number = 1,
+    multiplier: number = 2.5,
+  ): void {
     this.clearAnimation();
 
     const use_origin = this.getAxes0();
@@ -3234,9 +3074,8 @@ class Viewer {
       scaledLocalDirection.sub(localDirection);
 
       // build an animation track for the group with this direction
-      this.addAnimationTrack(
+      this.addPositionTrack(
         id,
-        "t",
         [0, duration],
         [[0, 0, 0], scaledLocalDirection.toArray()],
       );
@@ -3310,7 +3149,7 @@ class Viewer {
   setKeyMap(config: KeymapConfig): void {
     const before = KeyMapper.get_config();
     KeyMapper.set(config);
-    this.display.updateHelp(before as Record<string, string>, config as Record<string, string>);
+    this.display.updateHelp(before, config);
   }
 
   // ---------------------------------------------------------------------------
@@ -3371,7 +3210,12 @@ class Viewer {
     return new THREE.Vector3(x, y, z);
   }
 
-  quaternion(x: number = 0, y: number = 0, z: number = 0, w: number = 1): THREE.Quaternion {
+  quaternion(
+    x: number = 0,
+    y: number = 0,
+    z: number = 0,
+    w: number = 1,
+  ): THREE.Quaternion {
     return new THREE.Quaternion(x, y, z, w);
   }
 }

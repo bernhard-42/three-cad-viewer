@@ -22,7 +22,7 @@ export interface FontData {
   familyName: string;
   lineHeight?: number;
   underlineThickness: number;
-  original_font_information?: Record<string, string>;
+  original_font_information: Record<string, string>;
 }
 
 export const helvetiker: FontData = {
@@ -56,4 +56,5 @@ export const helvetiker: FontData = {
   familyName: "Helvetiker",
   lineHeight: 1522,
   underlineThickness: 50,
+  original_font_information: {},
 };

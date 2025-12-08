@@ -1,18 +1,18 @@
 import * as THREE from "three";
-import { KeyMapper } from "./utils.js";
-import type { ObjectGroup } from "./objectgroup.js";
+import { KeyMapper, isMesh } from "./utils.js";
+import { isObjectGroup, type ObjectGroup } from "./objectgroup.js";
 import type { Camera } from "./camera.js";
 
 /**
  * Filter types for topology-based raycasting.
  */
 export const TopoFilter = {
-  none: null as null,
-  vertex: "vertex" as const,
-  edge: "edge" as const,
-  face: "face" as const,
-  solid: "solid" as const,
-};
+  none: null,
+  vertex: "vertex",
+  edge: "edge",
+  face: "face",
+  solid: "solid",
+} as const;
 
 export type TopoFilterType = typeof TopoFilter[keyof typeof TopoFilter];
 
@@ -56,7 +56,7 @@ export class PickedObject {
       }
     }
 
-    return (facesGroup?.children || []) as ObjectGroup[];
+    return (facesGroup?.children || []).filter(isObjectGroup);
   }
 
   /**
@@ -170,7 +170,7 @@ class Raycaster {
     const objects = this.raycaster.intersectObjects([this.group], true);
     const validObjs: THREE.Intersection[] = [];
     for (const obj of objects) {
-      if ((obj.object as THREE.Mesh).material && ((obj.object as THREE.Mesh).material as THREE.Material).visible) {
+      if (isMesh(obj.object) && !Array.isArray(obj.object.material) && obj.object.material.visible) {
         validObjs.push(obj);
       }
     }
@@ -187,27 +187,32 @@ class Raycaster {
       const objects = this.getIntersectedObjs();
 
       for (const object of objects) {
-        if (((object.object as THREE.Mesh).material as THREE.Material).visible) {
-          const objectGroup = object.object.parent as ObjectGroup | null;
-          if (objectGroup == null) continue;
+        if (!isMesh(object.object)) continue;
+        if (Array.isArray(object.object.material) || !object.object.material.visible) continue;
 
-          if (!objectGroup.shapeInfo) continue; // clipping plane
+        const objectGroup = object.object.parent;
+        if (!isObjectGroup(objectGroup)) continue;
 
-          const topo = objectGroup.shapeInfo.topo;
+        if (!objectGroup.shapeInfo) continue; // clipping plane
 
-          // Check if topology is acceptable given the topology filters
-          const isSolid = objectGroup.subtype === "solid";
-          const isSubShapeOfSolid =
-            this.filters.topoFilter.includes(TopoFilter.solid) && isSolid;
+        const topo = objectGroup.shapeInfo.topo;
 
-          const valid =
-            isSubShapeOfSolid ||
-            this.filters.topoFilter.includes(TopoFilter.none) ||
-            this.filters.topoFilter.includes(topo as TopoFilterType);
+        // Check if topology is acceptable given the topology filters
+        const isSolid = objectGroup.subtype === "solid";
+        const isSubShapeOfSolid =
+          this.filters.topoFilter.includes(TopoFilter.solid) && isSolid;
 
-          if (valid) {
-            validObjs.push(object);
-          }
+        // topo is a string from shapeInfo, check if it matches any filter
+        const topoMatchesFilter = this.filters.topoFilter.some(
+          (filter) => filter === topo
+        );
+        const valid =
+          isSubShapeOfSolid ||
+          this.filters.topoFilter.includes(TopoFilter.none) ||
+          topoMatchesFilter;
+
+        if (valid) {
+          validObjs.push(object);
         }
       }
     }

@@ -167,6 +167,7 @@ class Ellipsis {
 class BaseButton {
   name: string;
   html: HTMLSpanElement;
+  frame: HTMLSpanElement;
   containerId: string;
 
   constructor(theme: string, icon: string, tooltip: string) {
@@ -177,14 +178,18 @@ class BaseButton {
     html.className = "tcv_tooltip";
     html.setAttribute("data-tooltip", tooltip);
 
-    const frame = html.appendChild(document.createElement("span"));
+    const frame = document.createElement("span");
     frame.className = "tcv_button_frame";
-    frame.appendChild(document.createElement("input"));
-    (frame.children[0] as HTMLInputElement).className = "tcv_reset tcv_btn";
+    html.appendChild(frame);
 
-    (frame.children[0] as HTMLInputElement).type = "button";
-    frame.children[0].classList.add(`tcv_button_${icon}`);
+    const input = document.createElement("input");
+    input.className = "tcv_reset tcv_btn";
+    input.type = "button";
+    input.classList.add(`tcv_button_${icon}`);
+    frame.appendChild(input);
+
     this.html = html;
+    this.frame = frame;
 
     this.html.addEventListener("click", this._onClick);
   }
@@ -228,15 +233,12 @@ class Button extends BaseButton {
   }
 
   handler = (e: Event): void => {
-    this.action(this.name, KeyMapper.get(e as MouseEvent, "shift"));
+    const shift = e instanceof MouseEvent ? KeyMapper.get(e, "shift") : false;
+    this.action(this.name, shift);
   };
 
   highlight = (flag: boolean): void => {
-    if (flag) {
-      (this.html.firstChild as HTMLElement).classList.add("tcv_btn_highlight");
-    } else {
-      (this.html.firstChild as HTMLElement).classList.remove("tcv_btn_highlight");
-    }
+    this.frame.classList.toggle("tcv_btn_highlight", flag);
   };
 }
 
@@ -271,14 +273,24 @@ class ClickButton extends BaseButton {
         const dp = document.createElement("div");
         dp.className = "tcv_tooltip";
         dp.setAttribute("data-tooltip", `${tooltip} ${p}`);
-        dp.innerHTML =
-          `<input class='tcv_grid-${p} tcv_check tcv_dropdown-entry' id='tcv_grid-${p}_${this.containerId}' type="checkbox">` +
-          `<label for='tcv_grid-${p}_${this.containerId}' class="tcv_label tcv_dropdown-entry">${p}</label>`;
+
+        const checkbox = document.createElement("input");
+        checkbox.className = `tcv_grid-${p} tcv_check tcv_dropdown-entry`;
+        checkbox.id = `tcv_grid-${p}_${this.containerId}`;
+        checkbox.type = "checkbox";
+        dp.appendChild(checkbox);
+
+        const label = document.createElement("label");
+        label.htmlFor = checkbox.id;
+        label.className = "tcv_label tcv_dropdown-entry";
+        label.textContent = p;
+        dp.appendChild(label);
+
         d.appendChild(dp);
-        this.checkElems[p] = dp.children[0] as HTMLInputElement;
+        this.checkElems[p] = checkbox;
       }
-      (this.html.children[0] as HTMLElement).appendChild(d);
-      this.html.children[0].classList.add("tcv_grid-dropdown");
+      this.frame.appendChild(d);
+      this.frame.classList.add("tcv_grid-dropdown");
     }
   }
 
@@ -288,14 +300,14 @@ class ClickButton extends BaseButton {
 
   set = (state: boolean): void => {
     this.state = state;
-    this.html.children[0].classList.toggle("tcv_btn_click2", this.state);
+    this.frame.classList.toggle("tcv_btn_click2", this.state);
   };
 
   clearGroup = (): void => {
     for (const button of this.sameGroup) {
       if (button.state) {
         button.state = false;
-        button.html.children[0].classList.remove("tcv_btn_click2");
+        button.frame.classList.remove("tcv_btn_click2");
         button.action(this.name, false);
       }
     }
@@ -310,7 +322,8 @@ class ClickButton extends BaseButton {
   };
 
   handler = (e: Event): void => {
-    const target = e.target as HTMLInputElement;
+    if (!(e.target instanceof HTMLInputElement)) return;
+    const target = e.target;
     const id = this.extractIdFromName(target.id || "");
     if (this.dropdown != null && id && this.dropdown.includes(id)) {
       const newstate = target.checked;

@@ -17,8 +17,8 @@ describe('ViewerState', () => {
       expect(state.get('tools')).toBe(true);
 
       // Check render defaults
-      expect(state.get('metalness')).toBe(0.7);
-      expect(state.get('roughness')).toBe(0.7);
+      expect(state.get('metalness')).toBe(0.3);
+      expect(state.get('roughness')).toBe(0.65);
 
       // Check viewer defaults
       expect(state.get('axes')).toBe(false);
@@ -155,53 +155,111 @@ describe('ViewerState', () => {
     });
   });
 
-  describe('update', () => {
-    test('updates multiple values at once', () => {
+  describe('updateRenderState', () => {
+    test('updates multiple render values at once', () => {
       const state = new ViewerState();
 
-      state.update({
-        cadWidth: 1024,
-        height: 768,
-        axes: true,
+      state.updateRenderState({
+        ambientIntensity: 0.8,
+        metalness: 0.5,
       });
 
-      expect(state.get('cadWidth')).toBe(1024);
-      expect(state.get('height')).toBe(768);
-      expect(state.get('axes')).toBe(true);
+      expect(state.get('ambientIntensity')).toBe(0.8);
+      expect(state.get('metalness')).toBe(0.5);
     });
 
     test('notifies for each changed value', () => {
       const state = new ViewerState();
-      const widthListener = vi.fn();
-      const heightListener = vi.fn();
-      state.subscribe('cadWidth', widthListener);
-      state.subscribe('height', heightListener);
+      const intensityListener = vi.fn();
+      const metalnessListener = vi.fn();
+      state.subscribe('ambientIntensity', intensityListener);
+      state.subscribe('metalness', metalnessListener);
 
-      state.update({ cadWidth: 1024, height: 768 });
+      state.updateRenderState({ ambientIntensity: 0.8, metalness: 0.5 });
 
-      expect(widthListener).toHaveBeenCalled();
-      expect(heightListener).toHaveBeenCalled();
+      expect(intensityListener).toHaveBeenCalled();
+      expect(metalnessListener).toHaveBeenCalled();
     });
 
     test('skips unchanged values', () => {
       const state = new ViewerState();
-      const widthListener = vi.fn();
-      state.subscribe('cadWidth', widthListener);
+      const listener = vi.fn();
+      state.subscribe('metalness', listener);
 
-      state.update({ cadWidth: 800 }); // Same as default
+      state.updateRenderState({ metalness: 0.3 }); // Same as default
 
-      expect(widthListener).not.toHaveBeenCalled();
+      expect(listener).not.toHaveBeenCalled();
     });
 
     test('respects notify=false', () => {
       const state = new ViewerState();
       const listener = vi.fn();
-      state.subscribe('cadWidth', listener);
+      state.subscribe('metalness', listener);
 
-      state.update({ cadWidth: 1024 }, false);
+      state.updateRenderState({ metalness: 0.5 }, false);
 
-      expect(state.get('cadWidth')).toBe(1024);
+      expect(state.get('metalness')).toBe(0.5);
       expect(listener).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('updateViewerState', () => {
+    test('updates viewer values', () => {
+      const state = new ViewerState();
+
+      state.updateViewerState({
+        axes: true,
+        ortho: false,
+      });
+
+      expect(state.get('axes')).toBe(true);
+      expect(state.get('ortho')).toBe(false);
+    });
+
+    test('converts Vector3Tuple to THREE.Vector3', () => {
+      const state = new ViewerState();
+
+      state.updateViewerState({
+        clipNormal0: [1, 0, 0],
+        position: [10, 20, 30],
+      });
+
+      const clipNormal = state.get('clipNormal0');
+      const position = state.get('position');
+
+      expect(clipNormal.x).toBe(1);
+      expect(clipNormal.y).toBe(0);
+      expect(clipNormal.z).toBe(0);
+
+      expect(position.x).toBe(10);
+      expect(position.y).toBe(20);
+      expect(position.z).toBe(30);
+    });
+
+    test('converts QuaternionTuple to THREE.Quaternion', () => {
+      const state = new ViewerState();
+
+      state.updateViewerState({
+        quaternion: [0, 0, 0, 1],
+      });
+
+      const quaternion = state.get('quaternion');
+
+      expect(quaternion.x).toBe(0);
+      expect(quaternion.y).toBe(0);
+      expect(quaternion.z).toBe(0);
+      expect(quaternion.w).toBe(1);
+    });
+
+    test('handles null position/quaternion/target', () => {
+      const state = new ViewerState();
+      state.set('position', { x: 1, y: 2, z: 3 }); // Set non-null first
+
+      state.updateViewerState({
+        position: null,
+      });
+
+      expect(state.get('position')).toBeNull();
     });
   });
 
@@ -370,7 +428,7 @@ describe('ViewerState', () => {
       expect(defaults.cadWidth).toBe(800);
 
       // Check render defaults
-      expect(defaults.metalness).toBe(0.7);
+      expect(defaults.metalness).toBe(0.3);
 
       // Check viewer defaults
       expect(defaults.axes).toBe(false);

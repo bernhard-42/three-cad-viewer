@@ -6,7 +6,10 @@ import type { ControlType } from "./types";
 
 // Internal normalization factors for user-facing speed settings (1.0 = default experience)
 // TrackballControls and OrbitControls have different internal scaling, so we normalize separately
-const SPEED_FACTORS: Record<ControlType, { pan: number; rotate: number; zoom: number }> = {
+const SPEED_FACTORS: Record<
+  ControlType,
+  { pan: number; rotate: number; zoom: number }
+> = {
   trackball: {
     pan: 0.25,
     rotate: 1.0,
@@ -24,14 +27,14 @@ type ControlsInstance = CADOrbitControls | CADTrackballControls;
 class Controls {
   type: ControlType;
   camera: THREE.Camera;
-  target: number[];
-  target0: number[];
+  target: THREE.Vector3;
+  target0: THREE.Vector3;
   domElement: HTMLElement;
   rotateSpeed: number;
   zoomSpeed: number;
   panSpeed: number;
   holroyd: boolean;
-  controls!: ControlsInstance;
+  controls!: ControlsInstance | null;
   currentUpdateCallback: (() => void) | null;
 
   /**
@@ -48,7 +51,7 @@ class Controls {
   constructor(
     type: ControlType,
     camera: THREE.Camera,
-    target: number[],
+    target: THREE.Vector3,
     domElement: HTMLElement,
     rotateSpeed: number = 1.0,
     zoomSpeed: number = 1.0,
@@ -58,7 +61,7 @@ class Controls {
     this.type = type;
     this.camera = camera;
     this.target = target;
-    this.target0 = target.slice();
+    this.target0 = target.clone();
     this.domElement = domElement;
     this.rotateSpeed = rotateSpeed;
     this.zoomSpeed = zoomSpeed;
@@ -74,7 +77,7 @@ class Controls {
         break;
     }
 
-    this.controls.target = new THREE.Vector3(...this.target);
+    this.controls.target.copy(this.target);
     this._applySpeedFactors();
 
     this.currentUpdateCallback = null;
@@ -107,7 +110,7 @@ class Controls {
   dispose(): void {
     if (this.controls) {
       this.controls.dispose();
-      (this as { controls: ControlsInstance | null }).controls = null;
+      this.controls = null;
     }
   }
 
@@ -182,7 +185,7 @@ class Controls {
    * @param flag - holroyd mode enabled.
    */
   setHolroydTrackball(flag: boolean): void {
-    (this.controls as CADTrackballControls).holroyd = flag;
+    this.getTrackballControls().holroyd = flag;
   }
 
   /**
@@ -264,13 +267,29 @@ class Controls {
     target: THREE.Vector3,
     position: THREE.Vector3,
     quaternion: THREE.Quaternion,
-    zoom: number
+    zoom: number,
   ): void => {
     this.controls.target0.copy(target);
     this.controls.position0.copy(position);
     this.controls.quaternion0.copy(quaternion);
     this.controls.zoom0 = zoom;
   };
+
+  // Type-safe accessors for control-specific methods
+
+  private getOrbitControls(): CADOrbitControls {
+    if (!(this.controls instanceof CADOrbitControls)) {
+      throw new Error("Operation requires OrbitControls");
+    }
+    return this.controls;
+  }
+
+  private getTrackballControls(): CADTrackballControls {
+    if (!(this.controls instanceof CADTrackballControls)) {
+      throw new Error("Operation requires TrackballControls");
+    }
+    return this.controls;
+  }
 
   // Rotations for OrbitControls
 
@@ -279,7 +298,7 @@ class Controls {
    * @param angle - the angle to rotate.
    */
   rotateUp(angle: number): void {
-    (this.controls as CADOrbitControls).rotateUp((-angle / 180) * Math.PI);
+    this.getOrbitControls().rotateUp((-angle / 180) * Math.PI);
     this.update();
   }
 
@@ -288,7 +307,7 @@ class Controls {
    * @param angle - the angle to rotate.
    */
   rotateLeft(angle: number): void {
-    (this.controls as CADOrbitControls).rotateLeft((angle / 180) * Math.PI);
+    this.getOrbitControls().rotateLeft((angle / 180) * Math.PI);
     this.update();
   }
 
@@ -299,7 +318,7 @@ class Controls {
    * @param angle - the angle to rotate.
    */
   rotateX(angle: number): void {
-    (this.controls as CADTrackballControls).rotateX((angle / 180) * Math.PI);
+    this.getTrackballControls().rotateX((angle / 180) * Math.PI);
     this.update();
   }
 
@@ -308,7 +327,7 @@ class Controls {
    * @param angle - the angle to rotate.
    */
   rotateY(angle: number): void {
-    (this.controls as CADTrackballControls).rotateY((angle / 180) * Math.PI);
+    this.getTrackballControls().rotateY((angle / 180) * Math.PI);
     this.update();
   }
 
@@ -317,7 +336,7 @@ class Controls {
    * @param angle - the angle to rotate.
    */
   rotateZ(angle: number): void {
-    (this.controls as CADTrackballControls).rotateZ((angle / 180) * Math.PI);
+    this.getTrackballControls().rotateZ((angle / 180) * Math.PI);
     this.update();
   }
 }

@@ -59,14 +59,17 @@ class Slider {
     this.isReadyCheck = options.isReadyCheck || null;
     this.onSetSlider = options.onSetSlider || null;
 
-    this.slider = container.getElementsByClassName(`tcv_sld_value_${index}`)[0] as HTMLInputElement;
-    this.input = container.getElementsByClassName(`tcv_inp_value_${index}`)[0] as HTMLInputElement;
+    const sliderEl = container.getElementsByClassName(`tcv_sld_value_${index}`)[0];
+    const inputEl = container.getElementsByClassName(`tcv_inp_value_${index}`)[0];
 
-    if (!this.slider || !this.input) {
+    if (!(sliderEl instanceof HTMLInputElement) || !(inputEl instanceof HTMLInputElement)) {
       throw new Error(
         `Slider elements not found for index "${index}" in container`,
       );
     }
+
+    this.slider = sliderEl;
+    this.input = inputEl;
 
     this.slider.min = String(min);
     this.slider.max = String(max);
@@ -101,11 +104,10 @@ class Slider {
       // Check if ready (if check provided), or assume ready
       const isReady = this.isReadyCheck ? this.isReadyCheck() : true;
       if (isReady) {
-        let handlerValue: number | string = value;
-        if (this.percentage) {
-          handlerValue = parseFloat(value) / 100;
-        }
-        this.handler(handlerValue as number);
+        const handlerValue = this.percentage
+          ? parseFloat(value) / 100
+          : parseFloat(value);
+        this.handler(handlerValue);
       }
     }
   }
@@ -114,7 +116,8 @@ class Slider {
    * Handle slider drag/input events
    */
   sliderChange = (e: Event): void => {
-    const value = (e.target as HTMLInputElement).value;
+    if (!(e.target instanceof HTMLInputElement)) return;
+    const value = e.target.value;
     this.input.value = String(Math.round(1000 * parseFloat(value)) / 1000);
     this._handle(this.type, this.index, this.input.value);
     this._notify(value);
@@ -124,9 +127,9 @@ class Slider {
    * Handle text input change events
    */
   inputChange = (e: Event): void => {
-    const target = e.target as HTMLInputElement;
+    if (!(e.target instanceof HTMLInputElement)) return;
     const clampedValue = Math.max(
-      Math.min(parseFloat(target.value), parseFloat(this.slider.max)),
+      Math.min(parseFloat(e.target.value), parseFloat(this.slider.max)),
       parseFloat(this.slider.min),
     );
     this.input.value = String(Math.round(1000 * clampedValue) / 1000);

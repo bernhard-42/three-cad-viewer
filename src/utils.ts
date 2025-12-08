@@ -1,25 +1,52 @@
 import * as THREE from "three";
+import type { Vector3Tuple, QuaternionTuple } from "three";
 import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
+import type { Axis } from "./types.js";
 
-type CloneableValue = unknown;
-type CloneableObject = { [key: string]: CloneableValue };
+// =============================================================================
+// Constants
+// =============================================================================
 
-function clone<T extends CloneableValue>(obj: T): T {
-  if (Array.isArray(obj)) {
-    return obj.map((el) => clone(el)) as T;
-  } else if (obj !== null && typeof obj === "object") {
-    const result: CloneableObject = {};
-    for (const [k, v] of Object.entries(obj as CloneableObject)) {
-      result[k] = clone(v);
-    }
-    return result as T;
-  } else {
-    return obj;
-  }
+/** Unit vectors for each axis */
+export const AXIS_VECTORS: Readonly<Record<Axis, THREE.Vector3>> = {
+  x: new THREE.Vector3(1, 0, 0),
+  y: new THREE.Vector3(0, 1, 0),
+  z: new THREE.Vector3(0, 0, 1),
+};
+
+// =============================================================================
+// Utility Functions
+// =============================================================================
+
+/**
+ * Flatten a nested array of numbers to a 1D array.
+ * The cast is necessary because TypeScript's flat() return type
+ * is a complex union that doesn't simplify to number[].
+ */
+function flatten(arr: number[][] | number[][][] | number[][][][], depth: number = 1): number[] {
+  return arr.flat(depth) as number[];
 }
 
-function flatten(arr: number | number[] | number[][], depth: number = 1): number | number[] {
-  return Array.isArray(arr) ? (arr.flat(depth) as number[]) : arr;
+/**
+ * Convert an array to Vector3Tuple with validation.
+ * Throws if the input is not a 3-element array.
+ */
+function toVector3Tuple(arr: number[]): Vector3Tuple {
+  if (!Array.isArray(arr) || arr.length !== 3) {
+    throw new Error(`Expected array of length 3, got ${Array.isArray(arr) ? arr.length : typeof arr}`);
+  }
+  return arr as Vector3Tuple;
+}
+
+/**
+ * Convert an array to QuaternionTuple with validation.
+ * Throws if the input is not a 4-element array.
+ */
+function toQuaternionTuple(arr: number[]): QuaternionTuple {
+  if (!Array.isArray(arr) || arr.length !== 4) {
+    throw new Error(`Expected array of length 4, got ${Array.isArray(arr) ? arr.length : typeof arr}`);
+  }
+  return arr as QuaternionTuple;
 }
 
 function isEqual(obj1: unknown, obj2: unknown, tol: number = 1e-9): boolean {
@@ -28,14 +55,16 @@ function isEqual(obj1: unknown, obj2: unknown, tol: number = 1e-9): boolean {
       obj1.length === obj2.length && obj1.every((v, i) => isEqual(v, obj2[i], tol))
     );
   } else if (obj1 !== null && obj2 !== null && typeof obj1 === "object" && typeof obj2 === "object") {
-    const keys1 = Object.keys(obj1);
-    const keys2 = Object.keys(obj2);
+    const rec1 = obj1 as Record<string, unknown>;
+    const rec2 = obj2 as Record<string, unknown>;
+    const keys1 = Object.keys(rec1);
+    const keys2 = Object.keys(rec2);
 
     if (
       keys1.length === keys2.length &&
-      keys1.every((key) => Object.prototype.hasOwnProperty.call(obj2, key))
+      keys1.every((key) => Object.prototype.hasOwnProperty.call(rec2, key))
     ) {
-      return keys1.every((key) => isEqual((obj1 as Record<string, unknown>)[key], (obj2 as Record<string, unknown>)[key], tol));
+      return keys1.every((key) => isEqual(rec1[key], rec2[key], tol));
     } else {
       return false;
     }
@@ -47,12 +76,7 @@ function isEqual(obj1: unknown, obj2: unknown, tol: number = 1e-9): boolean {
   }
 }
 
-interface SceneObject {
-  children?: SceneObject[];
-  [key: string]: unknown;
-}
-
-function sceneTraverse(obj: SceneObject | null | undefined, fn: (obj: SceneObject) => void): void {
+function sceneTraverse(obj: THREE.Object3D | null | undefined, fn: (obj: THREE.Object3D) => void): void {
   if (!obj) return;
 
   fn(obj);
@@ -73,25 +97,31 @@ function disposeGeometry(geometry: GeometryLike | null | undefined): void {
   if (geometry) {
     geometry.dispose();
     for (const attr of Object.values(geometry.attributes)) {
-      (attr as { dispose?: () => void })?.dispose?.();
+      if (attr && typeof attr === "object" && "dispose" in attr && typeof attr.dispose === "function") {
+        attr.dispose();
+      }
     }
   }
 }
 
-interface TextureLike {
+interface Disposable {
   dispose: () => void;
+}
+
+function isDisposable(value: unknown): value is Disposable {
+  return value !== null && typeof value === "object" && "dispose" in value && typeof (value as Disposable).dispose === "function";
 }
 
 interface MaterialLike {
   dispose: () => void;
-  map?: TextureLike | null;
-  normalMap?: TextureLike | null;
-  roughnessMap?: TextureLike | null;
-  metalnessMap?: TextureLike | null;
-  aoMap?: TextureLike | null;
-  emissiveMap?: TextureLike | null;
-  alphaMap?: TextureLike | null;
-  bumpMap?: TextureLike | null;
+  map?: Disposable | null;
+  normalMap?: Disposable | null;
+  roughnessMap?: Disposable | null;
+  metalnessMap?: Disposable | null;
+  aoMap?: Disposable | null;
+  emissiveMap?: Disposable | null;
+  alphaMap?: Disposable | null;
+  bumpMap?: Disposable | null;
   [key: string]: unknown;
 }
 
@@ -114,8 +144,8 @@ function disposeMaterial(material: MaterialLike | null | undefined): void {
   ];
   for (const prop of textureProps) {
     const texture = material[prop];
-    if (texture && typeof texture === "object" && "dispose" in texture) {
-      (texture as TextureLike).dispose();
+    if (isDisposable(texture)) {
+      texture.dispose();
     }
   }
 
@@ -144,14 +174,9 @@ function disposeMesh(mesh: MeshLike): void {
   }
 }
 
-interface DisposableTree {
+interface DisposableTree extends MeshLike {
   children?: DisposableTree[];
   dispose?: () => void;
-  isMesh?: boolean;
-  isLine?: boolean;
-  isPoints?: boolean;
-  geometry?: GeometryLike | null;
-  material?: MaterialLike | MaterialLike[] | null;
 }
 
 function deepDispose(tree: DisposableTree | DisposableTree[] | null | undefined): void {
@@ -168,7 +193,7 @@ function deepDispose(tree: DisposableTree | DisposableTree[] | null | undefined)
   if (tree.dispose) {
     tree.dispose();
   } else if (tree.isMesh || tree.isLine || tree.isPoints) {
-    disposeMesh(tree as MeshLike);
+    disposeMesh(tree);
   }
 }
 
@@ -185,13 +210,6 @@ function prettyPrintVector(v: number[], a: number, b: number): string {
   return `${format(v[0], a, b)}, ${format(v[1], a, b)}, ${format(v[2], a, b)}`;
 }
 
-interface KeyMappingConfig {
-  shift: string;
-  ctrl: string;
-  meta: string;
-  alt?: string;
-}
-
 // KeyEventLike matches MouseEvent, PointerEvent, KeyboardEvent etc.
 type KeyEventLike = {
   ctrlKey: boolean;
@@ -200,8 +218,18 @@ type KeyEventLike = {
   metaKey: boolean;
 };
 
+type KeyEventKey = keyof KeyEventLike;
+type MappedKey = "shift" | "ctrl" | "meta" | "alt";
+
+interface KeyMappingConfig {
+  shift: KeyEventKey;
+  ctrl: KeyEventKey;
+  meta: KeyEventKey;
+  alt: KeyEventKey;
+}
+
 class _KeyMapper {
-  private keyMapping: { [key: string]: string };
+  private keyMapping: Record<MappedKey, KeyEventKey>;
 
   constructor() {
     this.keyMapping = {
@@ -212,22 +240,25 @@ class _KeyMapper {
     };
   }
 
-  getshortcuts = (key: string): string => {
+  getshortcuts = (key: MappedKey): string => {
     return this.keyMapping[key].replace("Key", "");
   };
 
-  get_config(): { [key: string]: string } {
+  get_config(): Record<MappedKey, KeyEventKey> {
     return Object.assign({}, this.keyMapping);
   }
 
-  get = (event: KeyEventLike, key: string): boolean => {
-    const prop = this.keyMapping[key] as keyof KeyEventLike;
+  get = (event: KeyEventLike, key: MappedKey): boolean => {
+    const prop = this.keyMapping[key];
     return event[prop];
   };
 
   set = (config: Partial<KeyMappingConfig>): void => {
-    for (const key in config) {
-      this.keyMapping[key] = config[key as keyof KeyMappingConfig] as string;
+    for (const key of Object.keys(config) as MappedKey[]) {
+      const value = config[key];
+      if (value !== undefined) {
+        this.keyMapping[key] = value;
+      }
     }
   };
 }
@@ -245,35 +276,37 @@ function scaleLight(intensity: number): number {
  * Type guard to check if an Object3D is a Mesh.
  */
 function isMesh(obj: THREE.Object3D): obj is THREE.Mesh {
-  return (obj as THREE.Mesh).isMesh === true;
+  return "isMesh" in obj && obj.isMesh === true;
 }
 
 /**
  * Type guard to check if an Object3D is a Line.
  */
 function isLine(obj: THREE.Object3D): obj is THREE.Line {
-  return (obj as THREE.Line).isLine === true;
+  return "isLine" in obj && obj.isLine === true;
 }
 
 /**
  * Type guard to check if an Object3D is a Points.
  */
 function isPoints(obj: THREE.Object3D): obj is THREE.Points {
-  return (obj as THREE.Points).isPoints === true;
+  return "isPoints" in obj && obj.isPoints === true;
 }
 
 /**
- * Type guard to check if a camera is an OrthographicCamera.
+ * Type guard to check if an object is an OrthographicCamera.
+ * Accepts Object3D to allow use in controls where camera type is broader.
  */
-function isOrthographicCamera(camera: THREE.Camera): camera is THREE.OrthographicCamera {
-  return (camera as THREE.OrthographicCamera).isOrthographicCamera === true;
+function isOrthographicCamera(obj: THREE.Object3D): obj is THREE.OrthographicCamera {
+  return "isOrthographicCamera" in obj && (obj as THREE.OrthographicCamera).isOrthographicCamera === true;
 }
 
 /**
- * Type guard to check if a camera is a PerspectiveCamera.
+ * Type guard to check if an object is a PerspectiveCamera.
+ * Accepts Object3D to allow use in controls where camera type is broader.
  */
-function isPerspectiveCamera(camera: THREE.Camera): camera is THREE.PerspectiveCamera {
-  return (camera as THREE.PerspectiveCamera).isPerspectiveCamera === true;
+function isPerspectiveCamera(obj: THREE.Object3D): obj is THREE.PerspectiveCamera {
+  return "isPerspectiveCamera" in obj && (obj as THREE.PerspectiveCamera).isPerspectiveCamera === true;
 }
 
 /**
@@ -301,7 +334,7 @@ function hasEmissive(material: THREE.Material): material is THREE.Material & { e
  * Type guard to check if a material is a MeshStandardMaterial.
  */
 function isMeshStandardMaterial(material: THREE.Material): material is THREE.MeshStandardMaterial {
-  return (material as THREE.MeshStandardMaterial).isMeshStandardMaterial === true;
+  return "isMeshStandardMaterial" in material && material.isMeshStandardMaterial === true;
 }
 
 const KeyMapper = new _KeyMapper();
@@ -344,7 +377,6 @@ class EventListenerManager {
 }
 
 export {
-  clone,
   flatten,
   isEqual,
   sceneTraverse,
@@ -364,4 +396,11 @@ export {
   hasColor,
   hasEmissive,
   isMeshStandardMaterial,
+  toVector3Tuple,
+  toQuaternionTuple,
+};
+
+export type {
+  KeyEventKey,
+  KeyMappingConfig,
 };

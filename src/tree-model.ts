@@ -10,6 +10,9 @@ const States = {
 
 type StateValue = typeof States[keyof typeof States];
 
+/** Icon index: 0 for shapes, 1 for edges */
+type IconIndex = 0 | 1;
+
 /**
  * Represents a node in the tree structure.
  */
@@ -31,11 +34,25 @@ interface TreeData {
 }
 
 /**
+ * Type guard to check if a tree data value is a leaf state array.
+ */
+function isLeafState(value: [StateValue, StateValue] | TreeData): value is [StateValue, StateValue] {
+  return Array.isArray(value) && value.length === 2;
+}
+
+/**
+ * Type guard to check if a tree data value is a nested TreeData object.
+ */
+function isTreeData(value: [StateValue, StateValue] | TreeData): value is TreeData {
+  return typeof value === "object" && !Array.isArray(value);
+}
+
+/**
  * Options for configuring a TreeModel instance.
  */
 interface TreeModelOptions {
   linkIcons?: boolean;
-  onStateChange?: ((node: TreeNode, iconNumber: number) => void) | null;
+  onStateChange?: ((node: TreeNode, iconNumber: IconIndex) => void) | null;
 }
 
 /**
@@ -44,9 +61,9 @@ interface TreeModelOptions {
  */
 class TreeModel {
   linkIcons: boolean;
-  onStateChange: ((node: TreeNode, iconNumber: number) => void) | null;
+  onStateChange: ((node: TreeNode, iconNumber: IconIndex) => void) | null;
   maxLevel: number;
-  root: TreeNode;
+  root: TreeNode | null;
 
   /**
    * Create a TreeModel instance.
@@ -72,7 +89,7 @@ class TreeModel {
       path: string | null,
       level: number
     ): [Record<string, TreeNode>, [StateValue, StateValue]] => {
-      let result: [StateValue, StateValue] = [-1 as StateValue, -1 as StateValue];
+      let result: [StateValue, StateValue] = [States.unselected, States.unselected];
 
       const calcState = (
         states: [[boolean, boolean], [boolean, boolean], [boolean, boolean], [boolean, boolean]]
@@ -119,9 +136,9 @@ class TreeModel {
         let childStates: [StateValue, StateValue];
         const value = data[key];
 
-        if (Array.isArray(value)) {
+        if (isLeafState(value)) {
           // Leaf node with state array
-          childStates = value as [StateValue, StateValue];
+          childStates = value;
           trackStates[value[0]][0] = true;
           trackStates[value[1]][1] = true;
           tree[key] = {
@@ -131,10 +148,10 @@ class TreeModel {
             rendered: false,
             level: level,
           };
-        } else if (typeof value === "object" && Object.keys(value).length > 0) {
+        } else if (isTreeData(value) && Object.keys(value).length > 0) {
           // Non-empty object - recurse into children
           let children: Record<string, TreeNode>;
-          [children, childStates] = build(value as TreeData, currentPath, level + 1);
+          [children, childStates] = build(value, currentPath, level + 1);
           trackStates[childStates[0]][0] = true;
           trackStates[childStates[1]][1] = true;
           tree[key] = {
@@ -214,6 +231,7 @@ class TreeModel {
    * @returns The found node or null.
    */
   findNodeByPath(path: string | string[]): TreeNode | null {
+    if (!this.root) return null;
     const parts = Array.isArray(path) ? path : path.split("/").filter(Boolean);
 
     let current: TreeNode = this.root;
@@ -261,11 +279,13 @@ class TreeModel {
    */
   getStates(): Record<string, [StateValue, StateValue]> {
     const states: Record<string, [StateValue, StateValue]> = {};
-    this.traverse(this.root, (node) => {
-      if (this.isLeaf(node)) {
-        states[this.getNodePath(node)] = node.state;
-      }
-    });
+    if (this.root) {
+      this.traverse(this.root, (node) => {
+        if (this.isLeaf(node)) {
+          states[this.getNodePath(node)] = node.state;
+        }
+      });
+    }
     return states;
   }
 
@@ -299,21 +319,21 @@ class TreeModel {
    * @param force - Force to specific state (true=selected, false=unselected, null=toggle).
    * @returns True if state was changed.
    */
-  toggleNodeState(node: TreeNode, iconNumber: number, force: boolean | null = null): boolean {
-    const currentState = node.state[iconNumber as 0 | 1];
+  toggleNodeState(node: TreeNode, iconNumber: IconIndex, force: boolean | null = null): boolean {
+    const currentState = node.state[iconNumber];
     if (currentState === States.disabled) {
       return false;
     }
 
     // Determine which icons to update (linked mode affects icon 0)
-    const icons = iconNumber === 0 ? (this.linkIcons ? [0, 1] : [0]) : [1];
+    const icons: IconIndex[] = iconNumber === 0 ? (this.linkIcons ? [0, 1] : [0]) : [1];
 
     for (const i of icons) {
-      if (node.state[i as 0 | 1] !== States.disabled) {
+      if (node.state[i] !== States.disabled) {
         if (force !== null) {
-          node.state[i as 0 | 1] = force ? States.selected : States.unselected;
+          node.state[i] = force ? States.selected : States.unselected;
         } else {
-          node.state[i as 0 | 1] =
+          node.state[i] =
             currentState === States.selected
               ? States.unselected
               : States.selected;
@@ -338,19 +358,19 @@ class TreeModel {
    * @param node - The node whose parents should be updated.
    * @param iconNumber - Which icon to update.
    */
-  private _updateParentStates(node: TreeNode, iconNumber: number): void {
+  private _updateParentStates(node: TreeNode, iconNumber: IconIndex): void {
     let current = this.getParent(node);
     while (current) {
       const children = Object.values(current.children!);
       const allSelected = children.every(
         (child) =>
-          child.state[iconNumber as 0 | 1] === States.selected ||
-          child.state[iconNumber as 0 | 1] === States.disabled
+          child.state[iconNumber] === States.selected ||
+          child.state[iconNumber] === States.disabled
       );
       const allUnselected = children.every(
         (child) =>
-          child.state[iconNumber as 0 | 1] === States.unselected ||
-          child.state[iconNumber as 0 | 1] === States.disabled
+          child.state[iconNumber] === States.unselected ||
+          child.state[iconNumber] === States.disabled
       );
 
       const newState: StateValue = allSelected
@@ -359,9 +379,9 @@ class TreeModel {
           ? States.unselected
           : States.mixed;
 
-      if (current.state[iconNumber as 0 | 1] !== newState) {
-        if (current.state[iconNumber as 0 | 1] !== States.disabled) {
-          current.state[iconNumber as 0 | 1] = newState;
+      if (current.state[iconNumber] !== newState) {
+        if (current.state[iconNumber] !== States.disabled) {
+          current.state[iconNumber] = newState;
           if (this.onStateChange) {
             this.onStateChange(current, iconNumber);
           }
@@ -376,13 +396,13 @@ class TreeModel {
    * @param node - The parent node.
    * @param iconNumber - Which icon to update.
    */
-  private _updateChildrenStates(node: TreeNode, iconNumber: number): void {
-    const newState = node.state[iconNumber as 0 | 1];
+  private _updateChildrenStates(node: TreeNode, iconNumber: IconIndex): void {
+    const newState = node.state[iconNumber];
 
     const updateChildren = (current: TreeNode): void => {
-      if (current.state[iconNumber as 0 | 1] !== newState) {
-        if (current.state[iconNumber as 0 | 1] !== States.disabled) {
-          current.state[iconNumber as 0 | 1] = newState;
+      if (current.state[iconNumber] !== newState) {
+        if (current.state[iconNumber] !== States.disabled) {
+          current.state[iconNumber] = newState;
           if (this.onStateChange) {
             this.onStateChange(current, iconNumber);
           }
@@ -406,6 +426,7 @@ class TreeModel {
    * Hide all nodes (set state to unselected).
    */
   hideAll(): void {
+    if (!this.root) return;
     this.toggleNodeState(this.root, 0, false);
     // Also handle case when all objects are edges and state[0] is disabled
     if (!this.linkIcons || this.root.state[0] === States.disabled) {
@@ -417,6 +438,7 @@ class TreeModel {
    * Show all nodes (set state to selected).
    */
   showAll(): void {
+    if (!this.root) return;
     this.toggleNodeState(this.root, 0, true);
     if (!this.linkIcons) {
       this.toggleNodeState(this.root, 1, true);
@@ -450,6 +472,7 @@ class TreeModel {
    * @param level - The level to expand to (-1 for smart expand).
    */
   setExpandedLevel(level: number): void {
+    if (!this.root) return;
     this.traverse(this.root, (node) => {
       if (this.isLeaf(node)) return;
 
@@ -510,10 +533,10 @@ class TreeModel {
    * Dispose of resources.
    */
   dispose(): void {
-    (this as { root: TreeNode | null }).root = null;
+    this.root = null;
     this.onStateChange = null;
   }
 }
 
 export { TreeModel, States };
-export type { TreeNode, TreeData, StateValue };
+export type { TreeNode, TreeData, StateValue, IconIndex };

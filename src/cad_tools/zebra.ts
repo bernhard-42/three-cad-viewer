@@ -222,10 +222,10 @@ export class ZebraTool {
     if (!mesh.isMesh) return;
 
     // Skip objects marked to be excluded
-    if ((mesh.userData as { excludeFromZebra?: boolean }).excludeFromZebra) return;
+    if (mesh.userData.excludeFromZebra) return;
 
-    // Store original material
-    const currentMaterial = mesh.material as THREE.Material;
+    // Store original material (handle array case by taking first)
+    const currentMaterial = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
     if (!this.originalMaterials.has(mesh.uuid)) {
       this.originalMaterials.set(mesh.uuid, currentMaterial);
     }

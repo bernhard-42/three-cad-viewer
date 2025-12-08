@@ -26,8 +26,8 @@ export function createMockObjectGroup(path, subtype = 'solid') {
     const backMesh = new THREE.Mesh(geometry, backMaterial);
     backMesh.name = 'back';
 
-    group.addType(frontMesh, 'front');
-    group.addType(backMesh, 'back');
+    group.setFront(frontMesh);
+    group.setBack(backMesh);
   }
 
   return group;
@@ -161,12 +161,8 @@ export function countStencilGroups(nestedGroup) {
   let count = 0;
   for (const path in nestedGroup.groups) {
     const group = nestedGroup.groups[path];
-    if (group.types) {
-      for (const key in group.types) {
-        if (key.startsWith('clipping-')) {
-          count++;
-        }
-      }
+    if (group.clipping) {
+      count += group.clipping.size;
     }
   }
   return count;

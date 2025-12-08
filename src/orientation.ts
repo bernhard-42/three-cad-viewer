@@ -3,15 +3,15 @@ import { AxesHelper } from "./axes.js";
 import { sceneTraverse } from "./utils.js";
 import { Font } from "three/examples/jsm/loaders/FontLoader.js";
 import { helvetiker, FontData } from "./font.js";
-import type { Theme } from "./types";
+import type { Theme, AxisColors, ColoredMaterial } from "./types";
 
 /** Length of orientation marker axes in pixels */
 const length = 54;
 /** Distance from origin to axis labels */
 const distance = length + 18;
 
-type ColorTuple = [number, number, number];
-type ThemeColors = Record<Theme, ColorTuple[]>;
+/** Typed mesh with colored material for cones and labels */
+type ColoredMesh = THREE.Mesh<THREE.BufferGeometry, ColoredMaterial>;
 
 /**
  * Displays an orientation gizmo in the corner showing XYZ axes.
@@ -25,10 +25,10 @@ class OrientationMarker {
   camera: THREE.OrthographicCamera | null;
   scene: THREE.Scene | null;
   renderer: THREE.WebGLRenderer | null;
-  labels: THREE.Mesh[];
+  labels: ColoredMesh[];
   ready: boolean;
-  colors: ThemeColors;
-  cones: THREE.Mesh[];
+  colors: AxisColors;
+  cones: ColoredMesh[];
   axes: AxesHelper | null;
 
   /**
@@ -171,9 +171,12 @@ class OrientationMarker {
    */
   dispose(): void {
     sceneTraverse(this.scene, (o) => {
-      const obj = o as THREE.Mesh;
-      obj.geometry?.dispose();
-      (obj.material as THREE.Material)?.dispose?.();
+      if (o instanceof THREE.Mesh) {
+        o.geometry?.dispose();
+        if (o.material instanceof THREE.Material) {
+          o.material.dispose();
+        }
+      }
     });
     this.scene = null;
     this.camera = null;
@@ -226,14 +229,14 @@ class OrientationMarker {
   changeTheme(theme: Theme): void {
     for (const i in this.cones) {
       const cone = this.cones[i];
-      (cone.material as THREE.MeshBasicMaterial).color = new THREE.Color(...this.colors[theme][i]);
+      cone.material.color = new THREE.Color(...this.colors[theme][i]);
     }
     if (this.axes) {
       this.axes.changeTheme(theme);
     }
     for (const i in this.labels) {
       const label = this.labels[i];
-      (label.material as THREE.LineBasicMaterial).color =
+      label.material.color =
         theme === "dark"
           ? new THREE.Color(0.9, 0.9, 0.9)
           : new THREE.Color(0, 0, 0);

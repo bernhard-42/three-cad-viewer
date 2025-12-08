@@ -1,17 +1,16 @@
 import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "./patches.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
-import type { Theme } from "./types";
-
-type ColorArray = number[];
-type ThemeColors = Record<Theme, ColorArray>;
+import type { Theme, AxisColorsFlatArray } from "./types";
 
 /**
  * Renders XYZ axes as colored line segments.
  * Extends LineSegments2 for thick line rendering.
  */
 class AxesHelper extends LineSegments2 {
-  colors: ThemeColors;
+  declare type: string;
+  declare geometry: LineSegmentsGeometry;
+  colors: AxisColorsFlatArray;
   center: number[];
 
   /**
@@ -33,7 +32,7 @@ class AxesHelper extends LineSegments2 {
     height: number,
     axes0: boolean,
     visible: boolean,
-    theme: Theme
+    theme: Theme,
   ) {
     // prettier-ignore
     const vertices = new Float32Array([
@@ -41,7 +40,6 @@ class AxesHelper extends LineSegments2 {
             0, 0, 0, 0, size, 0,
             0, 0, 0, 0, 0, size
         ]);
-    // prettier-ignore
 
     const geometry = new LineSegmentsGeometry();
     geometry.setPositions(vertices);
@@ -72,7 +70,7 @@ class AxesHelper extends LineSegments2 {
 
     this.center = center;
 
-    (this as { type: string }).type = "AxesHelper";
+    this.type = "AxesHelper";
     this.name = "AxesHelper";
     this.visible = visible;
     this.setCenter(axes0);
@@ -103,7 +101,7 @@ class AxesHelper extends LineSegments2 {
    * @param theme - The theme name ("dark" or "light").
    */
   changeTheme(theme: Theme): void {
-    (this.geometry as LineSegmentsGeometry).setColors(new Float32Array(this.colors[theme]));
+    this.geometry.setColors(new Float32Array(this.colors[theme]));
   }
 }
 

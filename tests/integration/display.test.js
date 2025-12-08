@@ -8,6 +8,50 @@ import { setupViewer, setupDisplay, cleanup, cleanupContainer, createContainer, 
 import { Display } from '../../src/display.js';
 
 // =============================================================================
+// MOCK EVENT HELPERS
+// =============================================================================
+
+/**
+ * Create a mock checkbox event with a real HTMLInputElement target
+ */
+function createCheckboxEvent(checked) {
+  const input = document.createElement('input');
+  input.type = 'checkbox';
+  input.checked = checked;
+  return { target: input };
+}
+
+/**
+ * Create a mock button event with a real HTMLButtonElement target
+ */
+function createButtonEvent(value) {
+  const button = document.createElement('button');
+  button.value = value;
+  return { target: button };
+}
+
+/**
+ * Create a mock element event with a real HTMLElement target
+ */
+function createElementEvent(className) {
+  const element = document.createElement('div');
+  element.className = className;
+  return { target: element };
+}
+
+/**
+ * Create a mock input event with a real HTMLInputElement target
+ */
+function createInputEvent(value, valueAsNumber = undefined) {
+  const input = document.createElement('input');
+  input.value = String(value);
+  if (valueAsNumber !== undefined) {
+    Object.defineProperty(input, 'valueAsNumber', { value: valueAsNumber });
+  }
+  return { target: input };
+}
+
+// =============================================================================
 // DISPLAY STANDALONE TESTS (No Viewer Required)
 // =============================================================================
 
@@ -58,15 +102,15 @@ describe('Display - Constructor & Initialization', () => {
     display = new Display(container, options);
 
     expect(display.cadTool).toBeDefined();
-    expect(display.toolbarButtons).toBeDefined();
-    expect(display.toolbarButtons['axes']).toBeDefined();
-    expect(display.toolbarButtons['axes0']).toBeDefined();
-    expect(display.toolbarButtons['grid']).toBeDefined();
-    expect(display.toolbarButtons['perspective']).toBeDefined();
-    expect(display.toolbarButtons['transparent']).toBeDefined();
-    expect(display.toolbarButtons['blackedges']).toBeDefined();
-    expect(display.toolbarButtons['reset']).toBeDefined();
-    expect(display.toolbarButtons['resize']).toBeDefined();
+    expect(display.clickButtons).toBeDefined();
+    expect(display.clickButtons['axes']).toBeDefined();
+    expect(display.clickButtons['axes0']).toBeDefined();
+    expect(display.clickButtons['grid']).toBeDefined();
+    expect(display.clickButtons['perspective']).toBeDefined();
+    expect(display.clickButtons['transparent']).toBeDefined();
+    expect(display.clickButtons['blackedges']).toBeDefined();
+    expect(display.buttons['reset']).toBeDefined();
+    expect(display.buttons['resize']).toBeDefined();
   });
 
   test('creates view buttons', () => {
@@ -74,13 +118,13 @@ describe('Display - Constructor & Initialization', () => {
     const options = getDisplayOptions();
     display = new Display(container, options);
 
-    expect(display.toolbarButtons['iso']).toBeDefined();
-    expect(display.toolbarButtons['front']).toBeDefined();
-    expect(display.toolbarButtons['rear']).toBeDefined();
-    expect(display.toolbarButtons['top']).toBeDefined();
-    expect(display.toolbarButtons['bottom']).toBeDefined();
-    expect(display.toolbarButtons['left']).toBeDefined();
-    expect(display.toolbarButtons['right']).toBeDefined();
+    expect(display.buttons['iso']).toBeDefined();
+    expect(display.buttons['front']).toBeDefined();
+    expect(display.buttons['rear']).toBeDefined();
+    expect(display.buttons['top']).toBeDefined();
+    expect(display.buttons['bottom']).toBeDefined();
+    expect(display.buttons['left']).toBeDefined();
+    expect(display.buttons['right']).toBeDefined();
   });
 
   test('creates tool buttons when enabled', () => {
@@ -88,10 +132,10 @@ describe('Display - Constructor & Initialization', () => {
     const options = { ...getDisplayOptions(), measureTools: true, selectTool: true, explodeTool: true };
     display = new Display(container, options);
 
-    expect(display.toolbarButtons['distance']).toBeDefined();
-    expect(display.toolbarButtons['properties']).toBeDefined();
-    expect(display.toolbarButtons['select']).toBeDefined();
-    expect(display.toolbarButtons['explode']).toBeDefined();
+    expect(display.clickButtons['distance']).toBeDefined();
+    expect(display.clickButtons['properties']).toBeDefined();
+    expect(display.clickButtons['select']).toBeDefined();
+    expect(display.clickButtons['explode']).toBeDefined();
   });
 
   test('creates help and pin buttons', () => {
@@ -99,8 +143,8 @@ describe('Display - Constructor & Initialization', () => {
     const options = getDisplayOptions();
     display = new Display(container, options);
 
-    expect(display.toolbarButtons['help']).toBeDefined();
-    expect(display.toolbarButtons['pin']).toBeDefined();
+    expect(display.buttons['help']).toBeDefined();
+    expect(display.buttons['pin']).toBeDefined();
   });
 
   test('sets initial tab visibility', () => {
@@ -326,8 +370,8 @@ describe('Display - Show/Hide Methods', () => {
     display = new Display(container, getDisplayOptions());
 
     // Spy on button show methods
-    const distanceSpy = vi.spyOn(display.toolbarButtons['distance'], 'show');
-    const propertiesSpy = vi.spyOn(display.toolbarButtons['properties'], 'show');
+    const distanceSpy = vi.spyOn(display.clickButtons['distance'], 'show');
+    const propertiesSpy = vi.spyOn(display.clickButtons['properties'], 'show');
 
     display.showMeasureTools(false);
     expect(distanceSpy).toHaveBeenCalledWith(false);
@@ -342,7 +386,7 @@ describe('Display - Show/Hide Methods', () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
-    const spy = vi.spyOn(display.toolbarButtons['select'], 'show');
+    const spy = vi.spyOn(display.clickButtons['select'], 'show');
 
     display.showSelectTool(false);
     expect(spy).toHaveBeenCalledWith(false);
@@ -355,7 +399,7 @@ describe('Display - Show/Hide Methods', () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
-    const spy = vi.spyOn(display.toolbarButtons['explode'], 'show');
+    const spy = vi.spyOn(display.clickButtons['explode'], 'show');
 
     display.showExplodeTool(false);
     expect(spy).toHaveBeenCalledWith(false);
@@ -368,7 +412,7 @@ describe('Display - Show/Hide Methods', () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
-    const spy = vi.spyOn(display.toolbarButtons['pin'], 'show');
+    const spy = vi.spyOn(display.buttons['pin'], 'show');
 
     display.showPinning(false);
     expect(spy).toHaveBeenCalledWith(false);
@@ -549,8 +593,8 @@ describe('Display - With Viewer Integration', () => {
     display.dispose();
 
     expect(display.viewer).toBeUndefined();
-    expect(display.cadTree).toBeUndefined();
-    expect(container.innerHTML).toBe('');
+    expect(display.cadTree).toBeNull();
+    expect(display.container).toBeNull();
   });
 
   test('updateUI syncs toolbar buttons with state', () => {
@@ -565,7 +609,7 @@ describe('Display - With Viewer Integration', () => {
     display.updateUI();
 
     // Buttons should be synced (can't easily check internal state, but method should not throw)
-    expect(display.toolbarButtons['axes']).toBeDefined();
+    expect(display.clickButtons['axes']).toBeDefined();
   });
 
   test('_widthThreshold calculates threshold based on features', () => {
@@ -618,7 +662,7 @@ describe('Display - State Subscriptions', () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    const spy = vi.spyOn(display.toolbarButtons['axes'], 'set');
+    const spy = vi.spyOn(display.clickButtons['axes'], 'set');
 
     viewer.state.set('axes', true);
     expect(spy).toHaveBeenCalledWith(true);
@@ -631,14 +675,14 @@ describe('Display - State Subscriptions', () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    const spy = vi.spyOn(display.toolbarButtons['perspective'], 'set');
+    const spy = vi.spyOn(display.clickButtons['perspective'], 'set');
 
     // Test that the perspective button's set method is called with correct value
     // This tests the subscription callback logic: perspective = !ortho
-    display.toolbarButtons['perspective'].set(false); // ortho = true
+    display.clickButtons['perspective'].set(false); // ortho = true
     expect(spy).toHaveBeenCalledWith(false);
 
-    display.toolbarButtons['perspective'].set(true); // ortho = false
+    display.clickButtons['perspective'].set(true); // ortho = false
     expect(spy).toHaveBeenCalledWith(true);
   });
 
@@ -646,7 +690,7 @@ describe('Display - State Subscriptions', () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    const spy = vi.spyOn(display.toolbarButtons['transparent'], 'set');
+    const spy = vi.spyOn(display.clickButtons['transparent'], 'set');
 
     viewer.state.set('transparent', true);
     expect(spy).toHaveBeenCalledWith(true);
@@ -659,7 +703,7 @@ describe('Display - State Subscriptions', () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    const spy = vi.spyOn(display.toolbarButtons['blackedges'], 'set');
+    const spy = vi.spyOn(display.clickButtons['blackedges'], 'set');
 
     viewer.state.set('blackEdges', true);
     expect(spy).toHaveBeenCalledWith(true);
@@ -721,8 +765,8 @@ describe('Display - State Subscriptions', () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    const frontSpy = vi.spyOn(display.toolbarButtons['front'], 'highlight');
-    const topSpy = vi.spyOn(display.toolbarButtons['top'], 'highlight');
+    const frontSpy = vi.spyOn(display.buttons['front'], 'highlight');
+    const topSpy = vi.spyOn(display.buttons['top'], 'highlight');
 
     viewer.state.set('highlightedButton', 'front');
     expect(frontSpy).toHaveBeenCalledWith(true);
@@ -739,8 +783,8 @@ describe('Display - State Subscriptions', () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    const distanceSpy = vi.spyOn(display.toolbarButtons['distance'], 'set');
-    const propertiesSpy = vi.spyOn(display.toolbarButtons['properties'], 'set');
+    const distanceSpy = vi.spyOn(display.clickButtons['distance'], 'set');
+    const propertiesSpy = vi.spyOn(display.clickButtons['properties'], 'set');
 
     viewer.state.set('activeTool', 'distance');
     expect(distanceSpy).toHaveBeenCalledWith(true);
@@ -778,11 +822,7 @@ describe('Display - Tab Navigation', () => {
     viewer.update = vi.fn();
 
     // Create mock event with target class
-    const mockEvent = {
-      target: { className: 'tcv_tab_clip tcv_tab-unselected' }
-    };
-
-    display.selectTab(mockEvent);
+    display.selectTab(createElementEvent('tcv_tab_clip tcv_tab-unselected'));
     expect(viewer.state.get('activeTab')).toBe('clip');
   });
 
@@ -937,8 +977,7 @@ describe('Display - Tab Navigation', () => {
       collapseAll: vi.fn(),
     };
 
-    const mockEvent = { target: { value: 'C' } };
-    display.handleCollapseNodes(mockEvent);
+    display.handleCollapseNodes(createButtonEvent('C'));
 
     expect(viewer.treeview.collapseAll).toHaveBeenCalled();
   });
@@ -1120,8 +1159,7 @@ describe('Display - Clipping Handlers', () => {
     // Mock to avoid clipping dependency
     viewer.setClipPlaneHelpers = vi.fn();
 
-    const mockEvent = { target: { checked: true } };
-    display.setClipPlaneHelpers(mockEvent);
+    display.setClipPlaneHelpers(createCheckboxEvent(true));
 
     expect(display.lastPlaneState).toBe(true);
     expect(viewer.setClipPlaneHelpers).toHaveBeenCalledWith(true);
@@ -1134,8 +1172,7 @@ describe('Display - Clipping Handlers', () => {
     // Mock to avoid nestedGroup dependency
     viewer.setClipIntersection = vi.fn();
 
-    const mockEvent = { target: { checked: true } };
-    display.setClipIntersection(mockEvent);
+    display.setClipIntersection(createCheckboxEvent(true));
 
     expect(viewer.setClipIntersection).toHaveBeenCalledWith(true);
   });
@@ -1147,8 +1184,7 @@ describe('Display - Clipping Handlers', () => {
     // Mock to avoid clipping dependency
     viewer.setClipObjectColorCaps = vi.fn();
 
-    const mockEvent = { target: { checked: true } };
-    display.setObjectColorCaps(mockEvent);
+    display.setObjectColorCaps(createCheckboxEvent(true));
 
     expect(viewer.setClipObjectColorCaps).toHaveBeenCalledWith(true);
   });
@@ -1160,8 +1196,7 @@ describe('Display - Clipping Handlers', () => {
     // Mock to avoid camera/controls dependency
     viewer.setClipNormalFromPosition = vi.fn();
 
-    const mockEvent = { target: { classList: ['tcv_btn_norm_plane2'] } };
-    display.setClipNormalFromPosition(mockEvent);
+    display.setClipNormalFromPosition(createElementEvent('tcv_btn_norm_plane2'));
 
     expect(viewer.setClipNormalFromPosition).toHaveBeenCalledWith(1); // index - 1
   });
@@ -1249,8 +1284,7 @@ describe('Display - Zebra Handlers', () => {
     // Mock to avoid nestedGroup dependency
     viewer.setZebraColorScheme = vi.fn();
 
-    const mockEvent = { target: { value: 'colorful' } };
-    display.setZebraColorScheme(mockEvent);
+    display.setZebraColorScheme(createInputEvent('colorful'));
 
     expect(viewer.setZebraColorScheme).toHaveBeenCalledWith('colorful');
   });
@@ -1272,8 +1306,7 @@ describe('Display - Zebra Handlers', () => {
     // Mock to avoid nestedGroup dependency
     viewer.setZebraMappingMode = vi.fn();
 
-    const mockEvent = { target: { value: 'normal' } };
-    display.setZebraMappingMode(mockEvent);
+    display.setZebraMappingMode(createInputEvent('normal'));
 
     expect(viewer.setZebraMappingMode).toHaveBeenCalledWith('normal');
   });
@@ -1340,8 +1373,7 @@ describe('Display - Animation Controls', () => {
     };
     viewer.controlAnimation = vi.fn();
 
-    const mockEvent = { target: { className: 'tcv_pause some-other-class' } };
-    display.controlAnimation(mockEvent);
+    display.controlAnimation(createElementEvent('tcv_pause some-other-class'));
 
     expect(viewer.controlAnimation).toHaveBeenCalledWith('pause');
   });
@@ -1355,8 +1387,7 @@ describe('Display - Animation Controls', () => {
     };
     viewer.lastBbox = { needsUpdate: false };
 
-    const mockEvent = { target: { valueAsNumber: 500 } };
-    display.animationChange(mockEvent);
+    display.animationChange(createInputEvent('500', 500));
 
     expect(viewer.animation.setRelativeTime).toHaveBeenCalledWith(0.5);
     expect(viewer.lastBbox.needsUpdate).toBe(true);

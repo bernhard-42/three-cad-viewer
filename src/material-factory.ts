@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
+import type { ColorValue } from "./types.js";
 
 /**
  * Options for MaterialFactory constructor
@@ -30,7 +31,7 @@ interface BaseProps {
  * Options for face materials
  */
 interface FaceMaterialOptions {
-  color: number;
+  color: ColorValue;
   alpha: number;
   visible?: boolean;
 }
@@ -47,7 +48,7 @@ interface BackFaceMaterialOptions extends FaceMaterialOptions {
  */
 interface EdgeMaterialOptions {
   lineWidth: number;
-  color?: number;
+  color?: ColorValue | null;
   vertexColors?: boolean;
   visible?: boolean;
   resolution?: { width: number; height: number };
@@ -57,7 +58,7 @@ interface EdgeMaterialOptions {
  * Options for simple edge materials
  */
 interface SimpleEdgeMaterialOptions {
-  color?: number;
+  color?: ColorValue | null;
   visible?: boolean;
 }
 
@@ -66,7 +67,7 @@ interface SimpleEdgeMaterialOptions {
  */
 interface VertexMaterialOptions {
   size: number;
-  color?: number;
+  color?: ColorValue | null;
   visible?: boolean;
 }
 
@@ -105,8 +106,8 @@ class MaterialFactory {
    */
   constructor(options: MaterialFactoryOptions = {}) {
     this.defaultOpacity = options.defaultOpacity ?? 1.0;
-    this.metalness = options.metalness ?? 0.7;
-    this.roughness = options.roughness ?? 0.7;
+    this.metalness = options.metalness ?? 0.3;
+    this.roughness = options.roughness ?? 0.65;
     this.edgeColor = options.edgeColor ?? 0x707070;
     this.transparent = options.transparent ?? false;
   }

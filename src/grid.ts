@@ -128,7 +128,7 @@ class GridHelper extends THREE.Object3D {
     );
 
     const dashedMaterial = new THREE.LineDashedMaterial({
-      color: colorGrid as THREE.ColorRepresentation,
+      color: colorGrid,
       dashSize: step / 20,
       gapSize: step / 20,
       opacity: 1,
@@ -145,7 +145,7 @@ class GridHelper extends THREE.Object3D {
       "position",
       new THREE.Float32BufferAttribute(solidVerticesX, 3),
     );
-    const xMaterial = new THREE.LineBasicMaterial({ color: colorX as THREE.ColorRepresentation });
+    const xMaterial = new THREE.LineBasicMaterial({ color: colorX });
     this.add(new THREE.LineSegments(xGeometry, xMaterial));
 
     // Centerline Y (solid)
@@ -154,7 +154,7 @@ class GridHelper extends THREE.Object3D {
       "position",
       new THREE.Float32BufferAttribute(solidVerticesY, 3),
     );
-    const yMaterial = new THREE.LineBasicMaterial({ color: colorY as THREE.ColorRepresentation });
+    const yMaterial = new THREE.LineBasicMaterial({ color: colorY });
     this.add(new THREE.LineSegments(yGeometry, yMaterial));
   }
 }
@@ -165,7 +165,7 @@ interface GridOptions {
   gridFontSize: number;
   centerGrid?: boolean;
   axes0?: boolean;
-  grid: boolean[];
+  grid: [boolean, boolean, boolean];
   flipY?: boolean;
   theme: Theme;
   cadWidth: number;
@@ -174,9 +174,8 @@ interface GridOptions {
   tickValueElement?: HTMLElement;
   tickInfoElement?: HTMLElement;
   getCamera: () => THREE.OrthographicCamera | THREE.PerspectiveCamera | null;
-  isOrtho: () => boolean;
   getAxes0: () => boolean;
-  onGridChange?: (allGrid: boolean, grids: boolean[]) => void;
+  onGridChange?: (allGrid: boolean, grids: [boolean, boolean, boolean]) => void;
 }
 
 /**
@@ -190,7 +189,7 @@ class Grid extends THREE.Group {
   bbox: BoundingBox;
   centerGrid: boolean;
   axes0: boolean;
-  grid: boolean[];
+  grid: [boolean, boolean, boolean];
   allGrid: boolean;
   theme: Theme;
   flipY: boolean;
@@ -202,9 +201,8 @@ class Grid extends THREE.Group {
   tickValue: HTMLElement | null;
   info: HTMLElement | null;
   getCamera: () => THREE.OrthographicCamera | THREE.PerspectiveCamera | null;
-  isOrtho: () => boolean;
   getAxes0: () => boolean;
-  onGridChange: ((allGrid: boolean, grids: boolean[]) => void) | null;
+  onGridChange: ((allGrid: boolean, grids: [boolean, boolean, boolean]) => void) | null;
   minFontIndex: number;
   minZoomIndex: number;
   zoomMaxIndex: number;
@@ -234,7 +232,6 @@ class Grid extends THREE.Group {
       "height",
       "maxAnisotropy",
       "getCamera",
-      "isOrtho",
       "getAxes0",
     ];
     for (const key of required) {
@@ -258,7 +255,6 @@ class Grid extends THREE.Group {
       tickValueElement,
       tickInfoElement,
       getCamera,
-      isOrtho,
       getAxes0,
       onGridChange,
     } = options;
@@ -287,7 +283,6 @@ class Grid extends THREE.Group {
 
     // Store callbacks for dynamic values
     this.getCamera = getCamera;
-    this.isOrtho = isOrtho;
     this.getAxes0 = getAxes0;
     this.onGridChange = onGridChange || null;
 
@@ -344,10 +339,9 @@ class Grid extends THREE.Group {
     // linear in between
     const fontSize = cappedLinear(300, 0.8, 800, 1.0, height) * pixel;
 
-    if (this.isOrtho()) {
+    if (camera instanceof THREE.OrthographicCamera) {
       // Ortho: convert pixel size to world units based on zoom
-      const cam = camera as THREE.OrthographicCamera;
-      const visibleWorldHeight = (cam.top - cam.bottom) / cam.zoom;
+      const visibleWorldHeight = (camera.top - camera.bottom) / camera.zoom;
       const pixelsPerWorldUnit = height / visibleWorldHeight;
 
       const scaleFactor = 1.6; // Adjust this to change ortho label size (1.0 = default, 2.0 = double)
@@ -365,10 +359,11 @@ class Grid extends THREE.Group {
    * Update scale of all grid labels
    */
   scaleLabels(): void {
-    for (const axis in this.children) {
-      const group = this.children[axis] as THREE.Group;
-      for (let i = 1; i < group.children.length; i++) {
-        const label = group.children[i] as THREE.Sprite;
+    for (const child of this.children) {
+      if (!(child instanceof THREE.Group)) continue;
+      for (let i = 1; i < child.children.length; i++) {
+        const label = child.children[i];
+        if (!(label instanceof THREE.Sprite)) continue;
         const s = this.calculateTextScale(this.gridFontSize);
         // Sprites need to maintain their individual aspect ratios
         const aspectRatio = label.userData.aspectRatio || 4; // fallback default
@@ -381,11 +376,10 @@ class Grid extends THREE.Group {
    * Show or hide all grid labels
    */
   private showLabels(flag: boolean): void {
-    for (const axis in this.children) {
-      const group = this.children[axis] as THREE.Group;
-      for (let i = 1; i < group.children.length; i++) {
-        const label = group.children[i];
-        label.visible = flag;
+    for (const child of this.children) {
+      if (!(child instanceof THREE.Group)) continue;
+      for (let i = 1; i < child.children.length; i++) {
+        child.children[i].visible = flag;
       }
     }
   }
@@ -430,7 +424,7 @@ class Grid extends THREE.Group {
       } else {
         // Only update scale in ortho mode
         // In perspective, sizeAttenuation handles scaling automatically
-        if (this.isOrtho()) {
+        if (this.getCamera() instanceof THREE.OrthographicCamera) {
           this.scaleLabels();
         }
         this.showLabels(true);

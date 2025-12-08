@@ -17,13 +17,13 @@ function createObjectGroupWithMesh() {
   const frontMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
   const frontMesh = new THREE.Mesh(geometry, frontMaterial);
   frontMesh.name = 'frontMaterial';
-  group.addType(frontMesh, 'front');
+  group.setFront(frontMesh);
 
   // Create mock back mesh
-  const backMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+  const backMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
   const backMesh = new THREE.Mesh(geometry, backMaterial);
   backMesh.name = 'backMaterial';
-  group.addType(backMesh, 'back');
+  group.setBack(backMesh);
 
   return group;
 }
@@ -36,7 +36,7 @@ function createObjectGroupWithEdges() {
   geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0, 1, 0, 0]), 3));
   const material = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 });
   const line = new THREE.LineSegments(geometry, material);
-  group.addType(line, 'edges');
+  group.setEdges(line);
 
   return group;
 }
@@ -49,7 +49,7 @@ function createObjectGroupWithVertices() {
   geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0, 1, 1, 1]), 3));
   const material = new THREE.PointsMaterial({ color: 0x0000ff, size: 5 });
   const points = new THREE.Points(geometry, material);
-  group.addType(points, 'vertices');
+  group.setVertices(points);
 
   return group;
 }
@@ -65,7 +65,10 @@ describe('ObjectGroup - Constructor', () => {
     expect(group.subtype).toBe('solid');
     expect(group.renderback).toBe(true);
     expect(group.isSelected).toBe(false);
-    expect(group.types).toEqual({ front: null, back: null, edges: null, vertices: null });
+    expect(group.front).toBeNull();
+    expect(group.back).toBeNull();
+    expect(group.edges).toBeNull();
+    expect(group.vertices).toBeNull();
   });
 
   test('handles null alpha (defaults to 1.0)', () => {
@@ -74,7 +77,7 @@ describe('ObjectGroup - Constructor', () => {
   });
 });
 
-describe('ObjectGroup - addType', () => {
+describe('ObjectGroup - setFront/setBack/setEdges/setVertices', () => {
   test('adds front mesh and stores original color', () => {
     const group = new ObjectGroup(0.5, 1.0, 0x707070, null, null, false);
 
@@ -82,9 +85,9 @@ describe('ObjectGroup - addType', () => {
     const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
     const mesh = new THREE.Mesh(geometry, material);
 
-    group.addType(mesh, 'front');
+    group.setFront(mesh);
 
-    expect(group.types.front).toBe(mesh);
+    expect(group.front).toBe(mesh);
     expect(group.originalColor).toBeDefined();
     expect(group.originalColor.getHex()).toBe(0xff0000);
   });
@@ -96,9 +99,9 @@ describe('ObjectGroup - addType', () => {
     const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
     const mesh = new THREE.Mesh(geometry, material);
 
-    group.addType(mesh, 'back');
+    group.setBack(mesh);
 
-    expect(group.types.back).toBe(mesh);
+    expect(group.back).toBe(mesh);
     expect(group.originalBackColor).toBeDefined();
     expect(group.originalBackColor.getHex()).toBe(0x00ff00);
   });
@@ -110,9 +113,9 @@ describe('ObjectGroup - addType', () => {
     const material = new THREE.PointsMaterial({ color: 0x0000ff, size: 5 });
     const points = new THREE.Points(geometry, material);
 
-    group.addType(points, 'vertices');
+    group.setVertices(points);
 
-    expect(group.types.vertices).toBe(points);
+    expect(group.vertices).toBe(points);
     expect(group.originalColor.getHex()).toBe(0x0000ff);
     expect(group.originalWidth).toBe(5);
   });
@@ -124,9 +127,9 @@ describe('ObjectGroup - addType', () => {
     const material = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
     const line = new THREE.LineSegments(geometry, material);
 
-    group.addType(line, 'edges');
+    group.setEdges(line);
 
-    expect(group.types.edges).toBe(line);
+    expect(group.edges).toBe(line);
     expect(group.originalColor.getHex()).toBe(0x000000);
     expect(group.originalWidth).toBe(2);
   });
@@ -138,8 +141,8 @@ describe('ObjectGroup - setTransparent', () => {
 
     group.setTransparent(true);
 
-    expect(group.types.front.material.depthWrite).toBe(false);
-    expect(group.types.back.material.depthWrite).toBe(false);
+    expect(group.front.material.depthWrite).toBe(false);
+    expect(group.back.material.depthWrite).toBe(false);
   });
 
   test('disables transparent mode', () => {
@@ -148,8 +151,8 @@ describe('ObjectGroup - setTransparent', () => {
     group.setTransparent(true);
     group.setTransparent(false);
 
-    expect(group.types.front.material.depthWrite).toBe(true);
-    expect(group.types.back.material.depthWrite).toBe(true);
+    expect(group.front.material.depthWrite).toBe(true);
+    expect(group.back.material.depthWrite).toBe(true);
   });
 
   test('handles alpha < 1 (always depthWrite off)', () => {
@@ -158,12 +161,12 @@ describe('ObjectGroup - setTransparent', () => {
     const geometry = new THREE.BufferGeometry();
     const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
     const mesh = new THREE.Mesh(geometry, material);
-    group.addType(mesh, 'front');
+    group.setFront(mesh);
 
     group.setTransparent(false);
 
     // With alpha < 1, depthWrite should stay off
-    expect(group.types.front.material.depthWrite).toBe(false);
+    expect(group.front.material.depthWrite).toBe(false);
   });
 });
 
@@ -175,11 +178,11 @@ describe('ObjectGroup - setBlackEdges', () => {
     const edgeGeometry = new THREE.BufferGeometry();
     const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x707070 });
     const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
-    group.addType(edges, 'edges');
+    group.setEdges(edges);
 
     group.setBlackEdges(true);
 
-    expect(group.types.edges.material.color.getHex()).toBe(0x000000);
+    expect(group.edges.material.color.getHex()).toBe(0x000000);
     expect(group.originalColor.getHex()).toBe(0x000000);
   });
 
@@ -190,12 +193,12 @@ describe('ObjectGroup - setBlackEdges', () => {
     const edgeGeometry = new THREE.BufferGeometry();
     const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x707070 });
     const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
-    group.addType(edges, 'edges');
+    group.setEdges(edges);
 
     group.setBlackEdges(true);
     group.setBlackEdges(false);
 
-    expect(group.types.edges.material.color.getHex()).toBe(0x707070);
+    expect(group.edges.material.color.getHex()).toBe(0x707070);
   });
 
   test('does nothing when no edges', () => {
@@ -213,7 +216,7 @@ describe('ObjectGroup - setEdgeColor', () => {
     group.setEdgeColor(0xff0000);
 
     expect(group.edge_color).toBe(0xff0000);
-    expect(group.types.edges.material.color.getHex()).toBe(0xff0000);
+    expect(group.edges.material.color.getHex()).toBe(0xff0000);
   });
 
   test('does nothing when no edges', () => {
@@ -230,8 +233,8 @@ describe('ObjectGroup - setOpacity', () => {
     group.setOpacity(0.7);
 
     expect(group.opacity).toBe(0.7);
-    expect(group.types.front.material.opacity).toBe(0.7);
-    expect(group.types.back.material.opacity).toBe(0.7);
+    expect(group.front.material.opacity).toBe(0.7);
+    expect(group.back.material.opacity).toBe(0.7);
   });
 
   test('handles missing front/back', () => {
@@ -247,10 +250,10 @@ describe('ObjectGroup - setShapeVisible', () => {
     const group = createObjectGroupWithMesh();
 
     group.setShapeVisible(false);
-    expect(group.types.front.material.visible).toBe(false);
+    expect(group.front.material.visible).toBe(false);
 
     group.setShapeVisible(true);
-    expect(group.types.front.material.visible).toBe(true);
+    expect(group.front.material.visible).toBe(true);
   });
 
   test('shows/hides back face when renderback is true', () => {
@@ -259,11 +262,11 @@ describe('ObjectGroup - setShapeVisible', () => {
     const geometry = new THREE.BufferGeometry();
     const frontMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
     const backMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
-    group.addType(frontMesh, 'front');
-    group.addType(backMesh, 'back');
+    group.setFront(frontMesh);
+    group.setBack(backMesh);
 
     group.setShapeVisible(false);
-    expect(group.types.back.material.visible).toBe(false);
+    expect(group.back.material.visible).toBe(false);
   });
 
   test('handles clipping planes', () => {
@@ -275,7 +278,7 @@ describe('ObjectGroup - setShapeVisible', () => {
     const child1 = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshStandardMaterial());
     const child2 = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshStandardMaterial());
     clippingGroup.add(child1, child2);
-    group.types['clipping-0'] = clippingGroup;
+    group.addClipping(clippingGroup, 0);
 
     group.setShapeVisible(false);
     expect(child1.material.visible).toBe(false);
@@ -288,35 +291,35 @@ describe('ObjectGroup - setEdgesVisible', () => {
     const group = createObjectGroupWithEdges();
 
     group.setEdgesVisible(false);
-    expect(group.types.edges.material.visible).toBe(false);
+    expect(group.edges.material.visible).toBe(false);
 
     group.setEdgesVisible(true);
-    expect(group.types.edges.material.visible).toBe(true);
+    expect(group.edges.material.visible).toBe(true);
   });
 
   test('shows/hides vertices', () => {
     const group = createObjectGroupWithVertices();
 
     group.setEdgesVisible(false);
-    expect(group.types.vertices.material.visible).toBe(false);
+    expect(group.vertices.material.visible).toBe(false);
 
     group.setEdgesVisible(true);
-    expect(group.types.vertices.material.visible).toBe(true);
+    expect(group.vertices.material.visible).toBe(true);
   });
 });
 
 describe('ObjectGroup - setBackVisible', () => {
   test('shows back when front is visible', () => {
     const group = createObjectGroupWithMesh();
-    group.types.front.material.visible = true;
+    group.front.material.visible = true;
 
     group.setBackVisible(true);
-    expect(group.types.back.material.visible).toBe(true);
+    expect(group.back.material.visible).toBe(true);
   });
 
   test('does not show back when front is not visible', () => {
     const group = createObjectGroupWithMesh();
-    group.types.front.material.visible = false;
+    group.front.material.visible = false;
 
     // setBackVisible only applies when front is visible AND there's both front and back
     // When front is invisible, setBackVisible doesn't change anything because the guard condition fails
@@ -330,7 +333,7 @@ describe('ObjectGroup - setBackVisible', () => {
     const group = new ObjectGroup(0.5, 1.0, 0x707070, null, null, false);
     const geometry = new THREE.BufferGeometry();
     const frontMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
-    group.addType(frontMesh, 'front');
+    group.setFront(frontMesh);
 
     expect(() => group.setBackVisible(true)).not.toThrow();
   });
@@ -339,11 +342,11 @@ describe('ObjectGroup - setBackVisible', () => {
 describe('ObjectGroup - getVisibility', () => {
   test('returns front visibility when front exists', () => {
     const group = createObjectGroupWithMesh();
-    group.types.front.material.visible = true;
+    group.front.material.visible = true;
 
     expect(group.getVisibility()).toBe(true);
 
-    group.types.front.material.visible = false;
+    group.front.material.visible = false;
     expect(group.getVisibility()).toBe(false);
   });
 
@@ -352,24 +355,24 @@ describe('ObjectGroup - getVisibility', () => {
 
     const edgeGeometry = new THREE.BufferGeometry();
     const edges = new THREE.LineSegments(edgeGeometry, new THREE.LineBasicMaterial());
-    group.addType(edges, 'edges');
+    group.setEdges(edges);
 
-    group.types.front.material.visible = false;
-    group.types.edges.material.visible = true;
+    group.front.material.visible = false;
+    group.edges.material.visible = true;
 
     expect(group.getVisibility()).toBe(true);
   });
 
   test('returns edge visibility when no front', () => {
     const group = createObjectGroupWithEdges();
-    group.types.edges.material.visible = true;
+    group.edges.material.visible = true;
 
     expect(group.getVisibility()).toBe(true);
   });
 
   test('returns vertex visibility when only vertices', () => {
     const group = createObjectGroupWithVertices();
-    group.types.vertices.material.visible = true;
+    group.vertices.material.visible = true;
 
     expect(group.getVisibility()).toBe(true);
   });
@@ -387,8 +390,8 @@ describe('ObjectGroup - setClipIntersection', () => {
 
     group.setClipIntersection(true);
 
-    expect(group.types.front.material.clipIntersection).toBe(true);
-    expect(group.types.back.material.clipIntersection).toBe(true);
+    expect(group.front.material.clipIntersection).toBe(true);
+    expect(group.back.material.clipIntersection).toBe(true);
   });
 });
 
@@ -399,8 +402,8 @@ describe('ObjectGroup - setClipPlanes', () => {
     const planes = [new THREE.Plane(new THREE.Vector3(1, 0, 0), 0)];
     group.setClipPlanes(planes);
 
-    expect(group.types.front.material.clippingPlanes).toBe(planes);
-    expect(group.types.back.material.clippingPlanes).toBe(planes);
+    expect(group.front.material.clippingPlanes).toBe(planes);
+    expect(group.back.material.clippingPlanes).toBe(planes);
   });
 
   test('sets clip planes on edges', () => {
@@ -409,7 +412,7 @@ describe('ObjectGroup - setClipPlanes', () => {
     const planes = [new THREE.Plane(new THREE.Vector3(1, 0, 0), 0)];
     group.setClipPlanes(planes);
 
-    expect(group.types.edges.material.clippingPlanes).toBe(planes);
+    expect(group.edges.material.clippingPlanes).toBe(planes);
   });
 
   test('sets clip planes on vertices', () => {
@@ -418,7 +421,7 @@ describe('ObjectGroup - setClipPlanes', () => {
     const planes = [new THREE.Plane(new THREE.Vector3(1, 0, 0), 0)];
     group.setClipPlanes(planes);
 
-    expect(group.types.vertices.material.clippingPlanes).toBe(planes);
+    expect(group.vertices.material.clippingPlanes).toBe(planes);
   });
 });
 
@@ -428,7 +431,7 @@ describe('ObjectGroup - setPolygonOffset', () => {
 
     group.setPolygonOffset(5);
 
-    expect(group.types.back.material.polygonOffsetUnits).toBe(5);
+    expect(group.back.material.polygonOffsetUnits).toBe(5);
   });
 
   test('handles missing back', () => {
@@ -446,8 +449,8 @@ describe('ObjectGroup - setZScale', () => {
 
     group.setZScale(2.0);
 
-    expect(group.types.front.scale.z).toBe(2.0);
-    expect(group.types.back.scale.z).toBe(2.0);
+    expect(group.front.scale.z).toBe(2.0);
+    expect(group.back.scale.z).toBe(2.0);
   });
 
   test('does nothing when no front/back/edges', () => {
@@ -472,7 +475,7 @@ describe('ObjectGroup - updateMaterials', () => {
 
     const edgeGeometry = new THREE.BufferGeometry();
     const edges = new THREE.LineSegments(edgeGeometry, new THREE.LineBasicMaterial());
-    group.addType(edges, 'edges');
+    group.setEdges(edges);
 
     expect(() => group.updateMaterials(true)).not.toThrow();
   });
@@ -485,24 +488,24 @@ describe('ObjectGroup - updateMaterials', () => {
 });
 
 describe('ObjectGroup - setMetalness', () => {
-  test('sets metalness on all materials', () => {
+  test('sets metalness on front face material', () => {
     const group = createObjectGroupWithMesh();
 
     group.setMetalness(0.8);
 
-    expect(group.types.front.material.metalness).toBe(0.8);
-    expect(group.types.back.material.metalness).toBe(0.8);
+    // Only front face has MeshStandardMaterial with metalness
+    expect(group.front.material.metalness).toBe(0.8);
   });
 });
 
 describe('ObjectGroup - setRoughness', () => {
-  test('sets roughness on all materials', () => {
+  test('sets roughness on front face material', () => {
     const group = createObjectGroupWithMesh();
 
     group.setRoughness(0.3);
 
-    expect(group.types.front.material.roughness).toBe(0.3);
-    expect(group.types.back.material.roughness).toBe(0.3);
+    // Only front face has MeshStandardMaterial with roughness
+    expect(group.front.material.roughness).toBe(0.3);
   });
 });
 
@@ -514,7 +517,7 @@ describe('ObjectGroup - highlight', () => {
     group.highlight(true);
 
     // Color should have changed
-    expect(group.types.front.material.color.getHex()).not.toBe(originalColor.getHex());
+    expect(group.front.material.color.getHex()).not.toBe(originalColor.getHex());
   });
 
   test('removes highlight', () => {
@@ -524,18 +527,18 @@ describe('ObjectGroup - highlight', () => {
     group.highlight(true);
     group.highlight(false);
 
-    expect(group.types.front.material.color.getHex()).toBe(originalColor.getHex());
+    expect(group.front.material.color.getHex()).toBe(originalColor.getHex());
   });
 
   test('highlights back mesh', () => {
     const group = createObjectGroupWithMesh();
     // originalBackColor may be null if front was added first (takes priority)
-    const backColorBefore = group.types.back.material.color.getHex();
+    const backColorBefore = group.back.material.color.getHex();
 
     group.highlight(true);
 
     // Color should have changed to highlight color
-    expect(group.types.back.material.color.getHex()).not.toBe(backColorBefore);
+    expect(group.back.material.color.getHex()).not.toBe(backColorBefore);
   });
 
   test('highlights vertices with size change', () => {
@@ -544,7 +547,7 @@ describe('ObjectGroup - highlight', () => {
 
     group.highlight(true);
 
-    expect(group.types.vertices.material.size).toBe(group.vertexFocusSize);
+    expect(group.vertices.material.size).toBe(group.vertexFocusSize);
   });
 
   test('highlights edges with linewidth change', () => {
@@ -552,7 +555,7 @@ describe('ObjectGroup - highlight', () => {
 
     group.highlight(true);
 
-    expect(group.types.edges.material.linewidth).toBe(group.edgeFocusWidth);
+    expect(group.edges.material.linewidth).toBe(group.edgeFocusWidth);
   });
 });
 
@@ -561,20 +564,20 @@ describe('ObjectGroup - widen', () => {
     const group = createObjectGroupWithVertices();
 
     group.widen(true);
-    expect(group.types.vertices.material.size).toBe(group.vertexFocusSize);
+    expect(group.vertices.material.size).toBe(group.vertexFocusSize);
 
     group.widen(false);
-    expect(group.types.vertices.material.size).toBe(group.originalWidth);
+    expect(group.vertices.material.size).toBe(group.originalWidth);
   });
 
   test('widens edges', () => {
     const group = createObjectGroupWithEdges();
 
     group.widen(true);
-    expect(group.types.edges.material.linewidth).toBe(group.edgeFocusWidth);
+    expect(group.edges.material.linewidth).toBe(group.edgeFocusWidth);
 
     group.widen(false);
-    expect(group.types.edges.material.linewidth).toBe(group.originalWidth);
+    expect(group.edges.material.linewidth).toBe(group.originalWidth);
   });
 
   test('uses selected width when selected', () => {
@@ -584,7 +587,7 @@ describe('ObjectGroup - widen', () => {
     group.widen(false);
 
     // When selected and not widened, uses focus size - 2
-    expect(group.types.vertices.material.size).toBe(group.vertexFocusSize - 2);
+    expect(group.vertices.material.size).toBe(group.vertexFocusSize - 2);
   });
 });
 

@@ -209,8 +209,8 @@ function captureSceneTree(scene) {
     if (obj.material) {
       materials.add(obj.material.constructor.name);
 
-      // Capture first mesh material as sample
-      if (!sampleMaterial && type.includes('Mesh')) {
+      // Capture first MeshStandardMaterial as sample (has metalness/roughness)
+      if (!sampleMaterial && type.includes('Mesh') && obj.material.metalness !== undefined) {
         const mat = obj.material;
         sampleMaterial = {
           type: mat.constructor.name,

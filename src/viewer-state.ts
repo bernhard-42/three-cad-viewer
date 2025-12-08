@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import type {
   Theme,
   ThemeInput,
@@ -7,12 +8,12 @@ import type {
   ActiveTab,
   ZebraColorScheme,
   ZebraMappingMode,
-  Vector3,
-  Quaternion,
   StateChange,
   StateSubscriber,
   GlobalStateSubscriber,
   SubscribeOptions,
+  RenderOptions,
+  ViewerOptions,
 } from "./types";
 
 /**
@@ -27,7 +28,7 @@ interface DisplayDefaults {
   pinning: boolean;
   glass: boolean;
   tools: boolean;
-  keymap: { shift: string; ctrl: string; meta: string };
+  keymap: Partial<{ shift: string; ctrl: string; meta: string; alt: string }>;
   newTreeBehavior: boolean;
   measureTools: boolean;
   selectTool: boolean;
@@ -64,9 +65,9 @@ interface ViewerDefaults {
   clipIntersection: boolean;
   clipPlaneHelpers: boolean;
   clipObjectColors: boolean;
-  clipNormal0: Vector3;
-  clipNormal1: Vector3;
-  clipNormal2: Vector3;
+  clipNormal0: THREE.Vector3;
+  clipNormal1: THREE.Vector3;
+  clipNormal2: THREE.Vector3;
   clipSlider0: number;
   clipSlider1: number;
   clipSlider2: number;
@@ -76,9 +77,9 @@ interface ViewerDefaults {
   ticks: number;
   gridFontSize: number;
   centerGrid: boolean;
-  position: Vector3 | null;
-  quaternion: Quaternion | null;
-  target: Vector3 | null;
+  position: THREE.Vector3 | null;
+  quaternion: THREE.Quaternion | null;
+  target: THREE.Vector3 | null;
   zoom: number;
   panSpeed: number;
   rotateSpeed: number;
@@ -120,9 +121,10 @@ type StateShape = DisplayDefaults & RenderDefaults & ViewerDefaults & ZebraDefau
 type StateKey = keyof StateShape;
 
 /**
- * Options that can be passed to ViewerState constructor
+ * Options that can be passed to ViewerState constructor.
+ * Accepts StateShape properties plus an index signature for runtime validation.
  */
-type ViewerStateOptions = Partial<StateShape> & { theme?: ThemeInput };
+type ViewerStateOptions = Partial<StateShape> & { theme?: ThemeInput } & { [key: string]: unknown };
 
 /**
  * All valid state keys for runtime validation
@@ -213,10 +215,10 @@ class ViewerState {
    * Default values for render configuration
    */
   static RENDER_DEFAULTS: RenderDefaults = {
-    ambientIntensity: 0.5,
-    directIntensity: 0.6,
-    metalness: 0.7,
-    roughness: 0.7,
+    ambientIntensity: 1,
+    directIntensity: 1.1,
+    metalness: 0.3,
+    roughness: 0.65,
     defaultOpacity: 0.5,
     edgeColor: 0x707070,
     normalLen: 0,
@@ -236,9 +238,9 @@ class ViewerState {
     clipIntersection: false,
     clipPlaneHelpers: false,
     clipObjectColors: false,
-    clipNormal0: [-1, 0, 0],
-    clipNormal1: [0, -1, 0],
-    clipNormal2: [0, 0, -1],
+    clipNormal0: new THREE.Vector3(-1, 0, 0),
+    clipNormal1: new THREE.Vector3(0, -1, 0),
+    clipNormal2: new THREE.Vector3(0, 0, -1),
     clipSlider0: -1,
     clipSlider1: -1,
     clipSlider2: -1,
@@ -355,10 +357,11 @@ class ViewerState {
   /**
    * Update multiple state values at once
    */
-  update(updates: Partial<StateShape>, notify: boolean = true): void {
+  private _update(updates: Partial<StateShape>, notify: boolean = true): void {
     const changes: Array<{ key: StateKey; change: StateChange<unknown> }> = [];
 
-    for (const key of Object.keys(updates) as StateKey[]) {
+    for (const key of Object.keys(updates)) {
+      if (!isStateKey(key)) continue;
       const value = updates[key];
       if (value === undefined) continue;
 
@@ -374,6 +377,45 @@ class ViewerState {
         this._notify(key, change);
       }
     }
+  }
+
+  /**
+   * Update render state from RenderOptions.
+   * RenderOptions types are directly compatible with StateShape.
+   */
+  updateRenderState(options: RenderOptions, notify: boolean = true): void {
+    this._update(options, notify);
+  }
+
+  /**
+   * Update viewer state from ViewerOptions.
+   * Converts Vector3Tuple/QuaternionTuple to THREE objects.
+   */
+  updateViewerState(options: ViewerOptions, notify: boolean = true): void {
+    const { clipNormal0, clipNormal1, clipNormal2, position, quaternion, target, ...rest } = options;
+
+    const converted: Partial<StateShape> = { ...rest };
+
+    if (clipNormal0 !== undefined) {
+      converted.clipNormal0 = new THREE.Vector3(...clipNormal0);
+    }
+    if (clipNormal1 !== undefined) {
+      converted.clipNormal1 = new THREE.Vector3(...clipNormal1);
+    }
+    if (clipNormal2 !== undefined) {
+      converted.clipNormal2 = new THREE.Vector3(...clipNormal2);
+    }
+    if (position !== undefined) {
+      converted.position = position ? new THREE.Vector3(...position) : null;
+    }
+    if (quaternion !== undefined) {
+      converted.quaternion = quaternion ? new THREE.Quaternion(...quaternion) : null;
+    }
+    if (target !== undefined) {
+      converted.target = target ? new THREE.Vector3(...target) : null;
+    }
+
+    this._update(converted, notify);
   }
 
   /**
@@ -471,7 +513,8 @@ class ViewerState {
     this._applyOptions(options);
 
     // Notify all changes
-    for (const key of Object.keys(this._state) as StateKey[]) {
+    for (const key of Object.keys(this._state)) {
+      if (!isStateKey(key)) continue;
       if (!valuesEqual(oldState[key], this._state[key])) {
         this._notify(key, { old: oldState[key], new: this._state[key] });
       }
@@ -495,30 +538,18 @@ class ViewerState {
    * Dump all state values to console, organized by category
    */
   dump(): void {
-    console.log("Display:");
-    for (const key of Object.keys(ViewerState.DISPLAY_DEFAULTS) as (keyof DisplayDefaults)[]) {
-      console.log(`- ${key}`, this._state[key]);
-    }
+    const logCategory = (name: string, defaults: Partial<StateShape>): void => {
+      console.log(`${name}:`);
+      for (const key of Object.keys(defaults)) {
+        console.log(`- ${key}`, this._state[key as StateKey]);
+      }
+    };
 
-    console.log("Render:");
-    for (const key of Object.keys(ViewerState.RENDER_DEFAULTS) as (keyof RenderDefaults)[]) {
-      console.log(`- ${key}`, this._state[key]);
-    }
-
-    console.log("View:");
-    for (const key of Object.keys(ViewerState.VIEWER_DEFAULTS) as (keyof ViewerDefaults)[]) {
-      console.log(`- ${key}`, this._state[key]);
-    }
-
-    console.log("Zebra:");
-    for (const key of Object.keys(ViewerState.ZEBRA_DEFAULTS) as (keyof ZebraDefaults)[]) {
-      console.log(`- ${key}`, this._state[key]);
-    }
-
-    console.log("Runtime:");
-    for (const key of Object.keys(ViewerState.RUNTIME_DEFAULTS) as (keyof RuntimeDefaults)[]) {
-      console.log(`- ${key}`, this._state[key]);
-    }
+    logCategory("Display", ViewerState.DISPLAY_DEFAULTS);
+    logCategory("Render", ViewerState.RENDER_DEFAULTS);
+    logCategory("View", ViewerState.VIEWER_DEFAULTS);
+    logCategory("Zebra", ViewerState.ZEBRA_DEFAULTS);
+    logCategory("Runtime", ViewerState.RUNTIME_DEFAULTS);
   }
 }
 

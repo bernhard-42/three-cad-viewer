@@ -146,15 +146,15 @@
           for (var name of legNames) {
             console.log(`/hexapod/${name}`, `/hexpod/${name}/lower_leg`);
             // move upper leg
-            viewer.addAnimationTrack(
+            viewer.addRotationTrack(
               `/hexapod/${name}`,
-              "rz",
+              "z",
               ...horizontal(4, isin("middle", name)),
             );
             // move lower leg
-            viewer.addAnimationTrack(
+            viewer.addRotationTrack(
               `/hexapod/${name}/lower_leg`,
-              "rz",
+              "z",
               ...vertical(
                 8,
                 4,
@@ -166,7 +166,7 @@
           viewer.initAnimation(4, 2);
         } else if (name == "linkage") {
           for (var track of linkage_tracks) {
-            viewer.addAnimationTrack(...track);
+            viewer.addPositionTrack(...track);
           }
           viewer.initAnimation(2, 2);
         }
@@ -176,7 +176,7 @@
       }
 
       function nc(change) {
-        console.debug("index.html:", JSON.stringify(change, null, 2));
+        // console.debug("index.html:", JSON.stringify(change, null, 2));
       }
 
       const timeit = false;
