@@ -166,7 +166,12 @@
           viewer.initAnimation(4, 2);
         } else if (name == "linkage") {
           for (var track of linkage_tracks) {
-            viewer.addPositionTrack(...track);
+            const [selector, type, times, values] = track;
+            if (type === "t") {
+              viewer.addPositionTrack(selector, times, values);
+            } else if (type === "rz") {
+              viewer.addRotationTrack(selector, "z", times, values);
+            }
           }
           viewer.initAnimation(2, 2);
         }

@@ -52,6 +52,23 @@ const cameraUp: Record<UpMode, [number, number, number]> = {
   legacy: [0, 0, 1],
 };
 
+/**
+ * Manages orthographic and perspective cameras for the viewer.
+ *
+ * Camera wraps both camera types and provides:
+ * - Seamless switching between orthographic and perspective
+ * - Preset positions (iso, front, top, etc.)
+ * - Support for Y-up and Z-up coordinate systems
+ * - Synchronized position/zoom across camera types
+ *
+ * ## Coordinate Systems
+ * Supports three modes via `up` parameter:
+ * - `"Y"`: Y-up (Fusion 360 compatible)
+ * - `"Z"`: Z-up (FreeCAD, OnShape compatible)
+ * - Legacy Z-up mode
+ *
+ * @internal - This is an internal class used by Viewer
+ */
 class Camera {
   target: THREE.Vector3;
   ortho: boolean;

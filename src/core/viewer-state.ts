@@ -186,7 +186,33 @@ function resolveTheme(inputTheme: ThemeInput | undefined): Theme | undefined {
 
 /**
  * Centralized state management for the viewer.
- * Provides a single source of truth with observable pattern for state changes.
+ *
+ * ViewerState is the single source of truth for all viewer configuration:
+ * - Display settings (theme, dimensions, tools enabled)
+ * - Render settings (lighting, materials)
+ * - View settings (camera, clipping, grid)
+ * - Runtime state (active tool, animation)
+ *
+ * ## Observable Pattern
+ * State changes can be observed via `subscribe()`:
+ * ```typescript
+ * const unsubscribe = state.subscribe("axes", (change) => {
+ *   console.log(`axes changed from ${change.old} to ${change.new}`);
+ * });
+ * ```
+ *
+ * ## Key Methods
+ * - `get(key)`: Get current value
+ * - `set(key, value)`: Set value (triggers subscribers)
+ * - `subscribe(key, callback)`: Subscribe to changes
+ * - `subscribeAll(callback)`: Subscribe to all changes
+ *
+ * ## Default Values
+ * - `DISPLAY_DEFAULTS`: Theme, dimensions, tools
+ * - `RENDER_DEFAULTS`: Lighting, materials
+ * - `VIEWER_DEFAULTS`: Camera, clipping, grid
+ *
+ * @internal - This is an internal class used by Viewer
  */
 class ViewerState {
   /**

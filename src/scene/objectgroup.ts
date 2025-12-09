@@ -41,7 +41,33 @@ type Edges = LineSegments2 | THREE.LineSegments;
 
 /**
  * Encapsulates material, visibility, and interaction state for a renderable CAD object.
- * Extends THREE.Group to manage front/back faces, edges, and vertices as a unit.
+ *
+ * ObjectGroup is the leaf node in the scene graph, managing a single CAD entity:
+ * - Front mesh (visible face)
+ * - Back mesh (for clipping visualization)
+ * - Edges (wireframe/boundary lines)
+ * - Vertices (point cloud)
+ *
+ * ## Responsibilities
+ * - Material management (color, opacity, metalness, roughness)
+ * - Visibility toggling (shapes, edges independently)
+ * - Selection/hover highlighting
+ * - Zebra stripe tool integration
+ * - Clipping plane caps
+ *
+ * ## Usage
+ * ObjectGroups are created by NestedGroup and accessed via `nestedGroup.groups[path]`.
+ *
+ * @example
+ * ```typescript
+ * const obj = viewer.nestedGroup.groups["/assembly/part"];
+ * if (isObjectGroup(obj)) {
+ *   obj.setShapeVisible(true);
+ *   obj.setEdgesVisible(false);
+ * }
+ * ```
+ *
+ * @internal - This is an internal class used by NestedGroup
  */
 class ObjectGroup extends THREE.Group {
   [key: string]: unknown; // Allow dynamic method access

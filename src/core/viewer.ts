@@ -468,8 +468,9 @@ class Viewer {
   }
 
   /**
-   * Return three-cad-viewer version as semver string
+   * Return three-cad-viewer version as semver string.
    * @returns semver version
+   * @public
    */
   version(): string {
     return version;
@@ -850,7 +851,17 @@ class Viewer {
   // ---------------------------------------------------------------------------
 
   /**
-   * Remove assets and event handlers.
+   * Remove all assets and event handlers. Call when done with the viewer.
+   *
+   * This disposes:
+   * - WebGL renderer and context
+   * - All Three.js objects (geometries, materials, textures)
+   * - Event listeners
+   * - CAD tools and raycaster
+   *
+   * After calling dispose(), the viewer instance should not be used.
+   *
+   * @public
    */
   dispose(): void {
     this.clear();
@@ -884,7 +895,12 @@ class Viewer {
   }
 
   /**
-   * Clear CAD view and remove event handler.
+   * Clear the current CAD view without disposing the renderer.
+   *
+   * Use this to remove shapes before rendering new ones.
+   * The viewer remains usable after clear().
+   *
+   * @public
    */
   clear(): void {
     if (this._rendered) {
@@ -907,6 +923,10 @@ class Viewer {
       if (this.shapes?.format === "GDS") {
         this.state.set("zscaleActive", false);
       }
+
+      // Reset to tree tab for next render
+      this.state.set("activeTab", "tree");
+
       // clear render canvas
       this.renderer.clear();
 
@@ -1043,7 +1063,12 @@ class Viewer {
    * @param path - path of the CAD object
    */
   getNodeColor = (path: string): string | null => {
-    const group = this.rendered.nestedGroup.groups["/" + path];
+    // Use _rendered directly since this may be called during initial render
+    // before _rendered is fully set up
+    if (!this._rendered) {
+      return null;
+    }
+    const group = this._rendered.nestedGroup.groups["/" + path];
     if (group instanceof ObjectGroup) {
       if (group.front) {
         return "#" + group.front.material.color.getHexString();
@@ -1238,10 +1263,18 @@ class Viewer {
   }
 
   /**
-   * Render a CAD object and build the navigation tree
+   * Render a CAD object and build the navigation tree.
+   *
+   * This is the main entry point for displaying CAD geometry. It:
+   * - Creates the Three.js scene with lights, camera, and controls
+   * - Tessellates and renders the shape geometry
+   * - Builds the navigation tree UI
+   * - Sets up clipping planes and helpers
+   *
    * @param shapes - the Shapes object representing the tessellated CAD object
-   * @param renderOptions - the render options
-   * @param viewerOptions - the viewer options
+   * @param renderOptions - the render options (edge color, opacity, etc.)
+   * @param viewerOptions - the viewer options (camera position, clipping, etc.)
+   * @public
    */
   render(
     shapes: Shapes,
@@ -1546,12 +1579,13 @@ class Viewer {
   // ---------------------------------------------------------------------------
 
   /**
-   * Move the camera to a given locations
+   * Move the camera to a given location.
    * @param relative - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
-   * @param position - the camera position as 3 dim array [x,y,z]
-   * @param quaternion - the camera rotation expressed by a quaternion array [x,y,z,w].
+   * @param position - the camera position as THREE.Vector3
+   * @param quaternion - the camera rotation expressed by a quaternion.
    * @param zoom - zoom value.
    * @param notify - whether to send notification or not.
+   * @public
    */
   setCamera = (
     relative: boolean,
@@ -1565,10 +1599,11 @@ class Viewer {
   };
 
   /**
-   * Move the camera to one of the preset locations
+   * Move the camera to one of the preset locations.
    * @param dir - can be "iso", "top", "bottom", "front", "rear", "left", "right"
    * @param zoom - zoom value
    * @param notify - whether to send notification or not.
+   * @public
    */
   presetCamera = (
     dir: CameraDirection,
@@ -1643,9 +1678,10 @@ class Viewer {
   }
 
   /**
-   * Set camera mode to OrthographicCamera or PerspectiveCamera (see also setOrtho)
-   * @param flag - whether the camera should be orthographic or perspective
+   * Set camera mode to OrthographicCamera or PerspectiveCamera.
+   * @param flag - true for orthographic, false for perspective
    * @param notify - whether to send notification or not.
+   * @public
    */
   switchCamera(flag: boolean, notify: boolean = true): void {
     this.state.set("ortho", flag);
@@ -1696,7 +1732,8 @@ class Viewer {
   }
 
   /**
-   * Reset zoom to 1.0
+   * Reset zoom to 1.0.
+   * @public
    */
   resize = (): void => {
     this.rendered.camera.setZoom(1.0);
@@ -1705,7 +1742,8 @@ class Viewer {
   };
 
   /**
-   * Reset the view to the initial camera and controls settings
+   * Reset the view to the initial camera and controls settings.
+   * @public
    */
   reset = (): void => {
     this.rendered.controls.reset();
@@ -2188,17 +2226,19 @@ class Viewer {
   // ---------------------------------------------------------------------------
 
   /**
-   * Get whether axes helpers are shown/hidden.
-   * @returns axes value.
+   * Get whether axes helpers are visible.
+   * @returns true if axes are shown
+   * @public
    */
   getAxes(): boolean {
     return this.state.get("axes");
   }
 
   /**
-   * Show/hide axes helper
-   * @param flag - whether to show the axes
-   * @param notify - whether to send notification or not.
+   * Show or hide the axes helper (X/Y/Z indicators).
+   * @param flag - true to show axes, false to hide
+   * @param notify - whether to send notification to callback
+   * @public
    */
   setAxes = (flag: boolean, notify: boolean = true): void => {
     if (!this.ready) return;
@@ -2304,9 +2344,10 @@ class Viewer {
   }
 
   /**
-   * Set CAD objects transparency
+   * Set CAD objects transparency.
    * @param flag - whether to show the CAD object in transparent mode
    * @param notify - whether to send notification or not.
+   * @public
    */
   setTransparent = (flag: boolean, notify: boolean = true): void => {
     this.state.set("transparent", flag);
@@ -2326,9 +2367,10 @@ class Viewer {
   }
 
   /**
-   * Show edges in black or the default edge color
+   * Show edges in black or the default edge color.
    * @param flag - whether to show edges in black
    * @param notify - whether to send notification or not.
+   * @public
    */
   setBlackEdges = (flag: boolean, notify: boolean = true): void => {
     this.state.set("blackEdges", flag);
@@ -2428,9 +2470,10 @@ class Viewer {
   }
 
   /**
-   * Set the intensity of ambient light
-   * @param val - the new ambient light intensity
+   * Set the intensity of ambient light.
+   * @param val - the new ambient light intensity (0-4)
    * @param notify - whether to send notification or not.
+   * @public
    */
   setAmbientLight = (val: number, notify: boolean = true): void => {
     if (!this.ready) return;
@@ -2450,9 +2493,10 @@ class Viewer {
   }
 
   /**
-   * Set the intensity of directional light
-   * @param val - the new direct light intensity
+   * Set the intensity of directional light.
+   * @param val - the new direct light intensity (0-4)
    * @param notify - whether to send notification or not.
+   * @public
    */
   setDirectLight = (val: number, notify: boolean = true): void => {
     if (!this.ready) return;
@@ -2475,8 +2519,9 @@ class Viewer {
   /**
    * Sets the metalness value for the viewer and updates related properties.
    *
-   * @param value - The metalness value to set.
+   * @param value - The metalness value to set (0-1).
    * @param notify - Whether to notify about the changes.
+   * @public
    */
   setMetalness = (value: number, notify: boolean = true): void => {
     value = Math.max(0, Math.min(1, value));
@@ -2498,8 +2543,9 @@ class Viewer {
   /**
    * Sets the roughness value for the viewer and updates related components.
    *
-   * @param value - The roughness value to set.
+   * @param value - The roughness value to set (0-1).
    * @param notify - Whether to notify about the changes.
+   * @public
    */
   setRoughness = (value: number, notify: boolean = true): void => {
     value = Math.max(0, Math.min(1, value));
@@ -2703,6 +2749,7 @@ class Viewer {
   /**
    * Get zoom value.
    * @returns zoom value.
+   * @public
    */
   getCameraZoom(): number {
     return this.rendered.camera.getZoom();
@@ -2712,6 +2759,7 @@ class Viewer {
    * Set zoom value.
    * @param val - float zoom value.
    * @param notify - whether to send notification or not.
+   * @public
    */
   setCameraZoom(val: number, notify: boolean = true): void {
     this.rendered.camera.setZoom(val);
@@ -2722,6 +2770,7 @@ class Viewer {
   /**
    * Get the current camera position.
    * @returns camera position as 3 dim array [x,y,z].
+   * @public
    */
   getCameraPosition(): number[] {
     return this.rendered.camera.getPosition().toArray();
@@ -2732,6 +2781,7 @@ class Viewer {
    * @param position - camera position as 3 dim Array [x,y,z].
    * @param relative - flag whether the position is a relative (e.g. [1,1,1] for iso) or absolute point.
    * @param notify - whether to send notification or not.
+   * @public
    */
   setCameraPosition(
     position: Vector3Tuple,
@@ -2746,6 +2796,7 @@ class Viewer {
   /**
    * Get the current camera rotation as quaternion.
    * @returns camera rotation as 4 dim quaternion array [x,y,z,w].
+   * @public
    */
   getCameraQuaternion(): QuaternionTuple {
     return toQuaternionTuple(this.rendered.camera.getQuaternion().toArray());
@@ -2755,6 +2806,7 @@ class Viewer {
    * Set camera rotation via quaternion.
    * @param quaternion - camera rotation as 4 dim quaternion array [x,y,z,w].
    * @param notify - whether to send notification or not.
+   * @public
    */
   setCameraQuaternion(
     quaternion: QuaternionTuple,
@@ -2768,6 +2820,7 @@ class Viewer {
   /**
    * Get the current camera target.
    * @returns camera target as 3 dim array array [x,y,z].
+   * @public
    */
   getCameraTarget(): Vector3Tuple {
     return toVector3Tuple(this.rendered.controls.getTarget().toArray());
@@ -2775,8 +2828,9 @@ class Viewer {
 
   /**
    * Set camera target.
-   * @param target - camera target as 3 dim array [x,y,z].
+   * @param target - camera target as THREE.Vector3.
    * @param notify - whether to send notification or not.
+   * @public
    */
   setCameraTarget(target: THREE.Vector3, notify: boolean = true): void {
     // Store current state
@@ -2838,17 +2892,20 @@ class Viewer {
   // ---------------------------------------------------------------------------
 
   /**
-   * Get states of a treeview leafs.
+   * Get states of all treeview leaves.
+   * @returns object mapping paths to visibility states.
+   * @public
    */
   getStates(): Record<string, VisibilityState> {
     return this.rendered.treeview.getStates();
   }
 
   /**
-   * Get state of a treeview leafs for a path.
+   * Get state of a treeview leaf for a path.
    * separator can be / or |
    * @param path - path of the object
    * @returns state value in the form of [mesh, edges] = [0/1, 0/1]
+   * @public
    */
   getState(path: string): VisibilityState | null {
     const p = path.replaceAll("|", "/");
@@ -2856,8 +2913,9 @@ class Viewer {
   }
 
   /**
-   * Set states of a treeview leafs
-   * @param states - states object
+   * Set states of treeview leaves.
+   * @param states - states object mapping paths to visibility states.
+   * @public
    */
   setStates = (states: Record<string, VisibilityState>): void => {
     this.rendered.treeview.setStates(states);
@@ -3161,7 +3219,9 @@ class Viewer {
   /**
    * Get the current canvas as png data.
    * @param taskId - an id to identify the screenshot
+   * @returns Promise resolving to task ID and data URL
    * Note: Only the canvas will be shown, no tools and orientation marker
+   * @public
    */
   getImage = (taskId: string): Promise<ImageResult> => {
     if (!this.ready) {
@@ -3202,11 +3262,12 @@ class Viewer {
   // ---------------------------------------------------------------------------
 
   /**
-   * Calculate explode trajectories and initiate the animation
+   * Calculate explode trajectories and initiate the animation.
    *
    * @param duration - duration of animation.
    * @param speed - speed of animation.
    * @param multiplier - multiplier for length of trajectories.
+   * @public
    */
   explode(
     duration: number = 2,
@@ -3262,8 +3323,9 @@ class Viewer {
   }
 
   /**
-   * Toggle explode mode on/off
+   * Toggle explode mode on/off.
    * @param flag - whether to enable or disable explode mode
+   * @public
    */
   setExplode(flag: boolean): void {
     const isExplodeActive = this.state.get("animationMode") === "explode";
@@ -3335,12 +3397,13 @@ class Viewer {
   // ---------------------------------------------------------------------------
 
   /**
-   * Resize UI and renderer
+   * Resize UI and renderer.
    *
    * @param cadWidth - new width of CAD View
    * @param treeWidth - new width of navigation tree
    * @param height - new height of CAD View
    * @param glass - Whether to use glass mode or not
+   * @public
    */
   resizeCadView(
     cadWidth: number,

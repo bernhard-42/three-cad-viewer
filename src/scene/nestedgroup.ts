@@ -80,7 +80,29 @@ class CompoundGroup extends THREE.Group {
 
 /**
  * Manages hierarchical 3D geometry rendering from tessellated CAD data.
- * Creates and organizes ObjectGroup instances for shapes, edges, and vertices.
+ *
+ * NestedGroup is the central scene graph manager that:
+ * - Parses Shapes data into Three.js geometry
+ * - Creates ObjectGroup instances for individual shapes, edges, and vertices
+ * - Maintains a flat `groups` map for path-based access
+ * - Handles materials, transparency, and clipping planes
+ *
+ * ## Architecture
+ * ```
+ * NestedGroup (manager)
+ *   └── rootGroup (THREE.Group)
+ *         └── CompoundGroup (per assembly)
+ *               └── ObjectGroup (per shape/edge/vertex)
+ *                     └── THREE.Mesh / LineSegments2
+ * ```
+ *
+ * ## Key Methods
+ * - `render()`: Build geometry from Shapes data
+ * - `setTransparent()`: Toggle transparency mode
+ * - `setClipPlanes()`: Apply clipping planes
+ * - `groups[path]`: Access ObjectGroup by path
+ *
+ * @internal - This is an internal class used by Viewer
  */
 class NestedGroup {
   shapes!: Shapes;

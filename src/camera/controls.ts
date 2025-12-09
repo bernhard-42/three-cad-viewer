@@ -24,6 +24,25 @@ const SPEED_FACTORS: Record<
 
 type ControlsInstance = CADOrbitControls | CADTrackballControls;
 
+/**
+ * Unified camera controls supporting both orbit and trackball modes.
+ *
+ * Controls wraps CADOrbitControls and CADTrackballControls, providing:
+ * - Consistent API regardless of control type
+ * - Normalized speed settings (1.0 = default experience)
+ * - State saving/restoring for reset functionality
+ * - Camera switching support
+ *
+ * ## Control Types
+ * - `"orbit"`: OrbitControls - familiar Google Maps style rotation
+ * - `"trackball"`: TrackballControls - unrestricted rotation with optional Holroyd mode
+ *
+ * ## Holroyd Mode
+ * When enabled for trackball controls, prevents tumbling by keeping
+ * the up vector stable. This provides a more intuitive CAD experience.
+ *
+ * @internal - This is an internal class used by Viewer
+ */
 class Controls {
   type: ControlType;
   camera: THREE.Camera;

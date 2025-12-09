@@ -104,6 +104,41 @@ type StoredEvent = [string, string, EventListener];
 // DISPLAY CLASS
 // =============================================================================
 
+/**
+ * Main entry point for three-cad-viewer. Creates the UI and manages the viewer.
+ *
+ * Display handles:
+ * - DOM structure (toolbar, tree view, tabs, sliders)
+ * - User interaction (button clicks, slider changes)
+ * - State subscriptions (UI updates when viewer state changes)
+ * - Theme management (light/dark/browser preference)
+ *
+ * ## Usage
+ * ```typescript
+ * import { Display } from 'three-cad-viewer';
+ *
+ * const container = document.getElementById('viewer');
+ * const display = new Display(container, {
+ *   cadWidth: 800,
+ *   height: 600,
+ *   theme: 'light'
+ * });
+ *
+ * // Load and render CAD shapes
+ * display.render(shapesData, states, renderOptions);
+ *
+ * // Access viewer for programmatic control
+ * display.viewer.setAxes(true);
+ *
+ * // Cleanup when done
+ * display.dispose();
+ * ```
+ *
+ * ## Options
+ * @see DisplayOptions for all configuration options
+ *
+ * @public
+ */
 class Display {
   // DOM Elements - all initialized in constructor from template
   container!: HTMLElement;
@@ -186,9 +221,10 @@ class Display {
   // ---------------------------------------------------------------------------
 
   /**
-   * Create Display
+   * Create Display.
    * @param container - the DOM element that should contain the Display
    * @param options - display options
+   * @public
    */
   constructor(container: HTMLElement, options: DisplayOptions) {
     this.container = container;
@@ -611,6 +647,20 @@ class Display {
   // Disposal & UI Layout
   // ---------------------------------------------------------------------------
 
+  /**
+   * Dispose of all resources. Call when done with the viewer.
+   *
+   * Disposes:
+   * - All state subscriptions
+   * - Event listeners
+   * - Toolbar and buttons
+   * - Sliders
+   * - DOM content
+   *
+   * After dispose(), the Display instance should not be used.
+   *
+   * @public
+   */
   dispose(): void {
     // Unsubscribe from all state subscriptions first (prevents callbacks to disposed UI)
     if (this._unsubscribers) {
@@ -722,8 +772,9 @@ class Display {
   }
 
   /**
-   * Set the width and height of the different UI elements (tree, canvas and info box)
+   * Set the width and height of the different UI elements (tree, canvas and info box).
    * @param options - Size options
+   * @public
    */
   setSizes(options: SizeOptions): void {
     if (options.cadWidth) {
@@ -769,8 +820,10 @@ class Display {
 
   /**
    * Set up the UI and attach the canvas element.
+   * Called by Viewer constructor, not intended for direct use.
    * @param viewer - The viewer instance for this UI.
    * @param canvasElement - The Three.js renderer canvas to attach.
+   * @internal
    */
   setupUI(viewer: Viewer, canvasElement: HTMLCanvasElement): void {
     this.viewer = viewer;
@@ -942,6 +995,7 @@ class Display {
   /**
    * Subscribe to ViewerState changes to keep UI in sync.
    * Stores unsubscribe functions for cleanup in dispose().
+   * @internal
    */
   private subscribeToStateChanges(): void {
     const state = this.viewer.state;
@@ -1145,6 +1199,7 @@ class Display {
   /**
    * Initialize UI elements from current state.
    * Called once during initialization. Subsequent updates happen via state subscriptions.
+   * @internal
    */
   updateUI(): void {
     const state = this.viewer.state;
@@ -1918,7 +1973,10 @@ class Display {
   }
 
   /**
-   * Set the UI theme
+   * Set the UI theme.
+   * @param theme - "light", "dark", or "browser" for auto-detection
+   * @returns The resolved theme ("light" or "dark")
+   * @public
    */
   setTheme(theme: ThemeInput): string {
     if (
