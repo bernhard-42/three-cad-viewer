@@ -1,19 +1,16 @@
 import js from "@eslint/js";
-import babelParser from "@babel/eslint-parser";
+import tseslint from "typescript-eslint";
 import prettier from "eslint-config-prettier";
 
-export default [
+export default tseslint.config(
   js.configs.recommended,
+  ...tseslint.configs.recommended,
   prettier,
   {
-    files: ["src/**/*.js"],
+    files: ["src/**/*.ts"],
     languageOptions: {
-      ecmaVersion: 2018,
+      ecmaVersion: 2020,
       sourceType: "module",
-      parser: babelParser,
-      parserOptions: {
-        requireConfigFile: false,
-      },
       globals: {
         // Browser globals
         window: "readonly",
@@ -45,6 +42,8 @@ export default [
     rules: {
       semi: ["error", "always"],
       quotes: ["error", "double"],
+      // Disable rules that TypeScript handles better
+      "@typescript-eslint/no-unused-vars": "off", // TypeScript's noUnusedLocals handles this
     },
   },
-];
+);

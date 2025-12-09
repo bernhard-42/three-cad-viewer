@@ -89,12 +89,12 @@ class TreeModel {
       path: string | null,
       level: number
     ): [Record<string, TreeNode>, [StateValue, StateValue]] => {
-      let result: [StateValue, StateValue] = [States.unselected, States.unselected];
+      const result: [StateValue, StateValue] = [States.unselected, States.unselected];
 
       const calcState = (
         states: [[boolean, boolean], [boolean, boolean], [boolean, boolean], [boolean, boolean]]
       ): [StateValue, StateValue] => {
-        for (let s of [0, 1] as const) {
+        for (const s of [0, 1] as const) {
           if (
             states[States.mixed][s] ||
             (states[States.selected][s] && states[States.unselected][s])

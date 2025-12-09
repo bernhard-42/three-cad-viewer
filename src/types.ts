@@ -510,43 +510,43 @@ export interface Shapes {
   /** ID of the group (slash-separated path) */
   id: string;
   /** Location: [position, quaternion] */
-  loc?: Location;
+  loc?: Location | undefined;
   /** Children of the group */
-  parts?: Shapes[];
+  parts?: Shapes[] | undefined;
   /** Shape object (null if parts != null) */
-  shape?: Shape | null;
+  shape?: Shape | null | undefined;
   /** Visibility state [faces, edges] */
-  state?: VisibilityState;
+  state?: VisibilityState | undefined;
   /** Object type */
-  type?: ShapeType;
+  type?: ShapeType | undefined;
   /** Object subtype (only for type "shapes") */
-  subtype?: ShapeSubtype;
+  subtype?: ShapeSubtype | undefined;
   /** RGB object color in CSS format or array of colors for multi-colored edges */
-  color?: string | string[];
+  color?: string | string[] | undefined;
   /** Object alpha transparency (0-1) */
-  alpha?: number;
+  alpha?: number | undefined;
   /** Whether to render the back of the face */
-  renderback?: boolean;
+  renderback?: boolean | undefined;
   /** Encoded texture */
-  texture?: Texture | null;
+  texture?: Texture | null | undefined;
   /** Bounding box */
-  bb?: BoundingBoxFlat | null;
+  bb?: BoundingBoxFlat | null | undefined;
   /** Accuracy */
-  accuracy?: number | null;
+  accuracy?: number | null | undefined;
   /** Normal length */
-  normal_len?: number;
+  normal_len?: number | undefined;
   /** Format identifier (e.g., "GDS" for GDSII format) */
-  format?: string;
+  format?: string | undefined;
   /** Instances data for GDS format */
-  instances?: Record<string, number[]>;
+  instances?: Record<string, number[]> | undefined;
   /** Geometry type (added during decomposition) */
-  geomtype?: number;
+  geomtype?: number | undefined;
   /** Whether the shape is from an exploded view (added during decomposition) */
-  exploded?: boolean;
+  exploded?: boolean | undefined;
   /** Edge width in pixels (added during decomposition for edge shapes) */
-  width?: number;
+  width?: number | undefined;
   /** Vertex size in pixels (added during decomposition for vertex shapes) */
-  size?: number;
+  size?: number | undefined;
 }
 
 // =============================================================================

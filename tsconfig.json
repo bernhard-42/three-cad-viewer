@@ -8,14 +8,15 @@
     "allowJs": true,
     "checkJs": false,
 
-    "declaration": false,
-    "declarationMap": false,
+    "declaration": true,
+    "declarationMap": true,
     "sourceMap": true,
 
     "outDir": "./dist",
     "rootDir": "./src",
 
     "strict": true,
+    "exactOptionalPropertyTypes": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
 

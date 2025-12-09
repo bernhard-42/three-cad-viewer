@@ -1644,7 +1644,7 @@ class Viewer {
   centerVisibleObjects(notify: boolean = true): void {
     const groups = this.rendered.nestedGroup.groups;
 
-    let bbox = new BoundingBox();
+    const bbox = new BoundingBox();
     for (const path in groups) {
       const obj = groups[path];
       if (obj instanceof ObjectGroup) {

@@ -143,7 +143,7 @@ class ShapeRenderer {
 
     if (part.type === "shapes") {
       // decompose faces
-      let new_part: Shapes = {
+      const new_part: Shapes = {
         version: 2,
         name: "faces",
         id: `${part.id}/faces`,

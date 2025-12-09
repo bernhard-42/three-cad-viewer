@@ -25,8 +25,8 @@ const default_plugins = [
   typescript({
     tsconfig: "./tsconfig.json",
     sourceMap: true,
-    declaration: false,
-    declarationDir: undefined,
+    declaration: true,
+    declarationDir: "./dist",
   }),
   postcss({
     plugins: [
@@ -49,7 +49,7 @@ var config;
 if (process.env.BUILD === "production") {
   config = [
     {
-      input: "src/index.js",
+      input: "src/index.ts",
       plugins: [...default_plugins],
       output: [
         {
@@ -64,7 +64,7 @@ if (process.env.BUILD === "production") {
       ],
     },
     {
-      input: "src/index.js",
+      input: "src/index.ts",
       plugins: [...default_plugins, terser()],
       output: [
         {
@@ -81,7 +81,7 @@ if (process.env.BUILD === "production") {
   ];
 } else {
   config = {
-    input: "src/index.js",
+    input: "src/index.ts",
     plugins: [
       ...default_plugins,
       serve({

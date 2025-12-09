@@ -432,7 +432,7 @@ class Measurement {
       const center = this.middlePoint
         .clone()
         .project(this.viewer.camera.getCamera());
-      let panelX = (center.x + 1) * (canvasRect.width / 2);
+      const panelX = (center.x + 1) * (canvasRect.width / 2);
       const panelY = (1 - center.y) * (canvasRect.height / 2);
 
       if (panelX < canvasRect.width / 2) {

@@ -736,7 +736,7 @@ class NestedGroup {
       const obj = this.groups[path];
       if (obj instanceof ObjectGroup) {
         const method = obj[func];
-        if (typeof method === 'function') {
+        if (typeof method === "function") {
           method.call(obj, flag);
         }
       }
