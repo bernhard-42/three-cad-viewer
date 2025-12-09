@@ -10,6 +10,7 @@ This document describes the architecture, patterns, and key concepts of the thre
 4. [UI Interaction Flows](#ui-interaction-flows)
 5. [Memory Management](#memory-management)
 6. [File Structure](#file-structure)
+7. [TypeScript Configuration](#typescript-configuration)
 
 ---
 
@@ -30,10 +31,10 @@ Three-cad-viewer is a WebGL-based CAD viewer built on Three.js. The architecture
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────────────┐ │
 │  │ Toolbar  │  │ TreeView │  │ Sliders  │  │ Tabs (clip/material) │ │
 │  └────┬─────┘  └────┬─────┘  └────┬─────┘  └──────────┬───────────┘ │
-└───────┼─────────────┼────────────┼────────────────────┼─────────────┘
-        │             │            │                    │
-        │  User actions call Viewer methods             │
-        ▼             ▼            ▼                    ▼
+└───────┼─────────────┼─────────────┼───────────────────┼─────────────┘
+        │             │             │                   │
+        │  User actions call  Viewer methods            │
+        ▼             ▼             ▼                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                              Viewer                                 │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────────────────┐  │
@@ -61,49 +62,49 @@ Three-cad-viewer is a WebGL-based CAD viewer built on Three.js. The architecture
 
 ### Entry Points
 
-| Class | File | Purpose |
-|-------|------|---------|
-| **Display** | `display.js` | Main entry point. Creates DOM structure, toolbar, sliders, and subscribes to ViewerState. |
-| **Viewer** | `viewer.js` | WebGL renderer, scene management, and state mutations. All state changes go through Viewer. |
+| Class       | File             | Purpose                                                                                     |
+| ----------- | ---------------- | ------------------------------------------------------------------------------------------- |
+| **Display** | `ui/display.ts`  | Main entry point. Creates DOM structure, toolbar, sliders, and subscribes to ViewerState.   |
+| **Viewer**  | `core/viewer.ts` | WebGL renderer, scene management, and state mutations. All state changes go through Viewer. |
 
 ### State Management
 
-| Class | File | Purpose |
-|-------|------|---------|
-| **ViewerState** | `viewer-state.js` | Centralized state with observable pattern. Stores all configuration and runtime state. |
+| Class           | File                   | Purpose                                                                                |
+| --------------- | ---------------------- | -------------------------------------------------------------------------------------- |
+| **ViewerState** | `core/viewer-state.ts` | Centralized state with observable pattern. Stores all configuration and runtime state. |
 
 ### Scene Components
 
-| Class | File | Purpose |
-|-------|------|---------|
-| **NestedGroup** | `nestedgroup.js` | Manages hierarchical CAD object scene graph. Coordinates ObjectGroups. |
-| **ObjectGroup** | `objectgroup.js` | THREE.Group subclass for individual CAD shapes (faces, edges, vertices). |
-| **MaterialFactory** | `material-factory.js` | Factory for creating Three.js materials with consistent CAD settings. |
+| Class               | File                            | Purpose                                                                  |
+| ------------------- | ------------------------------- | ------------------------------------------------------------------------ |
+| **NestedGroup**     | `scene/nestedgroup.ts`          | Manages hierarchical CAD object scene graph. Coordinates ObjectGroups.   |
+| **ObjectGroup**     | `scene/objectgroup.ts`          | THREE.Group subclass for individual CAD shapes (faces, edges, vertices). |
+| **MaterialFactory** | `rendering/material-factory.ts` | Factory for creating Three.js materials with consistent CAD settings.    |
 
 ### Clipping System
 
-| Class | File | Purpose |
-|-------|------|---------|
-| **Clipping** | `clipping.js` | Manages 3 clipping planes, stencil rendering, and visual helpers. |
-| **ClippingMaterials** | `clipping.js` | Static factory for clipping-related materials (stencil, plane helpers). |
-| **CenteredPlane** | `clipping.js` | THREE.Plane subclass with center-relative constant. |
-| **PlaneMesh** | `clipping.js` | Visual representation of clipping plane. |
+| Class                 | File                | Purpose                                                                 |
+| --------------------- | ------------------- | ----------------------------------------------------------------------- |
+| **Clipping**          | `scene/clipping.ts` | Manages 3 clipping planes, stencil rendering, and visual helpers.       |
+| **ClippingMaterials** | `scene/clipping.ts` | Static factory for clipping-related materials (stencil, plane helpers). |
+| **CenteredPlane**     | `scene/clipping.ts` | THREE.Plane subclass with center-relative constant.                     |
+| **PlaneMesh**         | `scene/clipping.ts` | Visual representation of clipping plane.                                |
 
 ### Tree Navigation
 
-| Class | File | Purpose |
-|-------|------|---------|
-| **TreeView** | `treeview.js` | DOM rendering, event handling, lazy rendering for object tree. |
-| **TreeModel** | `tree-model.js` | Tree data structure, traversal, state management (decoupled from DOM). |
+| Class         | File                      | Purpose                                                                |
+| ------------- | ------------------------- | ---------------------------------------------------------------------- |
+| **TreeView**  | `ui/treeview.ts`          | DOM rendering, event handling, lazy rendering for object tree.         |
+| **TreeModel** | `rendering/tree-model.ts` | Tree data structure, traversal, state management (decoupled from DOM). |
 
 ### Camera and Controls
 
-| Class | File | Purpose |
-|-------|------|---------|
-| **Camera** | `camera.js` | Manages orthographic and perspective cameras. |
-| **Controls** | `controls.js` | Wraps CADOrbitControls and CADTrackballControls for camera manipulation. |
-| **CADTrackballControls** | `controls/CADTrackballControls.js` | Trackball with Holroyd non-tumbling rotation (default). |
-| **CADOrbitControls** | `controls/CADOrbitControls.js` | Orbit controls for constrained rotation. |
+| Class                    | File                                      | Purpose                                                                  |
+| ------------------------ | ----------------------------------------- | ------------------------------------------------------------------------ |
+| **Camera**               | `camera/camera.ts`                        | Manages orthographic and perspective cameras.                            |
+| **Controls**             | `camera/controls.ts`                      | Wraps CADOrbitControls and CADTrackballControls for camera manipulation. |
+| **CADTrackballControls** | `camera/controls/CADTrackballControls.ts` | Trackball with Holroyd non-tumbling rotation (default).                  |
+| **CADOrbitControls**     | `camera/controls/CADOrbitControls.ts`     | Orbit controls for constrained rotation.                                 |
 
 #### Control Modes
 
@@ -127,59 +128,59 @@ Both control modes benefit from Three.js's modern control implementations:
 
 Both modes support modifier keys to restrict rotation to a single axis (uses KeyMapper for customization):
 
-| Modifier | Effect |
-|----------|--------|
-| **Ctrl + drag** | Vertical rotation only (up/down) |
-| **Meta + drag** | Horizontal rotation only (left/right) |
-| **Shift + drag** | Pan (both modes) |
+| Modifier         | Effect                                |
+| ---------------- | ------------------------------------- |
+| **Ctrl + drag**  | Vertical rotation only (up/down)      |
+| **Meta + drag**  | Horizontal rotation only (left/right) |
+| **Shift + drag** | Pan (both modes)                      |
 
 These work with all pointer types including touchscreens (e.g., laptop with touchscreen + keyboard).
 
 ### UI Components
 
-| Class | File | Purpose |
-|-------|------|---------|
-| **Toolbar** | `toolbar.js` | Button bar with collapsible groups. |
-| **BaseButton** | `toolbar.js` | Base class for toolbar buttons. |
-| **Ellipsis** | `toolbar.js` | Overflow indicator for collapsed toolbar groups. |
-| **Slider** | `slider.js` | Reusable slider component for numeric values. |
+| Class          | File            | Purpose                                          |
+| -------------- | --------------- | ------------------------------------------------ |
+| **Toolbar**    | `ui/toolbar.ts` | Button bar with collapsible groups.              |
+| **BaseButton** | `ui/toolbar.ts` | Base class for toolbar buttons.                  |
+| **Ellipsis**   | `ui/toolbar.ts` | Overflow indicator for collapsed toolbar groups. |
+| **Slider**     | `ui/slider.ts`  | Reusable slider component for numeric values.    |
 
 ### Visualization Helpers
 
-| Class | File | Purpose |
-|-------|------|---------|
-| **Grid** | `grid.js` | XY/XZ/YZ grid planes with labels. |
-| **Axes** | `axes.js` | XYZ axis indicators. |
-| **BoundingBox** | `bbox.js` | Visual bounding box display. |
-| **Info** | `info.js` | Object information overlay. |
-| **OrientationMarker** | `orientation.js` | 3D orientation cube in corner. |
+| Class                 | File                   | Purpose                           |
+| --------------------- | ---------------------- | --------------------------------- |
+| **Grid**              | `scene/grid.ts`        | XY/XZ/YZ grid planes with labels. |
+| **Axes**              | `scene/axes.ts`        | XYZ axis indicators.              |
+| **BoundingBox**       | `scene/bbox.ts`        | Visual bounding box display.      |
+| **Info**              | `ui/info.ts`           | Object information overlay.       |
+| **OrientationMarker** | `scene/orientation.ts` | 3D orientation cube in corner.    |
 
 ### CAD Tools
 
-| Class | File | Purpose |
-|-------|------|---------|
-| **CadTool** | `cad_tools/tools.js` | Tool manager for measurement, selection, properties. |
-| **Raycaster** | `raycast.js` | Mouse-based object picking with topology filtering. |
-| **PickedObject** | `raycast.js` | Represents a picked object (shape or solid). |
-| **DistanceLineArrow** | `cad_tools/measure.js` | Measurement visualization. |
-| **Zebra** | `cad_tools/zebra.js` | Zebra stripe surface analysis tool. |
-| **Select** | `cad_tools/select.js` | Object selection tool. |
+| Class                 | File                         | Purpose                                              |
+| --------------------- | ---------------------------- | ---------------------------------------------------- |
+| **CadTool**           | `tools/cad_tools/tools.ts`   | Tool manager for measurement, selection, properties. |
+| **Raycaster**         | `rendering/raycast.ts`       | Mouse-based object picking with topology filtering.  |
+| **PickedObject**      | `rendering/raycast.ts`       | Represents a picked object (shape or solid).         |
+| **DistanceLineArrow** | `tools/cad_tools/measure.ts` | Measurement visualization.                           |
+| **Zebra**             | `tools/cad_tools/zebra.ts`   | Zebra stripe surface analysis tool.                  |
+| **Select**            | `tools/cad_tools/select.ts`  | Object selection tool.                               |
 
 ### Animation
 
-| Class | File | Purpose |
-|-------|------|---------|
-| **Animation** | `animation.js` | THREE.js AnimationMixer integration for CAD animations. |
+| Class         | File                 | Purpose                                                 |
+| ------------- | -------------------- | ------------------------------------------------------- |
+| **Animation** | `scene/animation.ts` | THREE.js AnimationMixer integration for CAD animations. |
 
 ### Utilities
 
-| Class/Function | File | Purpose |
-|----------------|------|---------|
-| **EventListenerManager** | `utils.js` | Tracks DOM event listeners for proper cleanup. |
-| **KeyMapper** | `utils.js` | Maps keyboard modifiers to actions. |
-| **deepDispose** | `utils.js` | Recursively disposes Three.js objects. |
-| **disposeGeometry** | `utils.js` | Disposes geometry and its attributes. |
-| **disposeMaterial** | `utils.js` | Disposes material and its textures. |
+| Class/Function           | File             | Purpose                                        |
+| ------------------------ | ---------------- | ---------------------------------------------- |
+| **EventListenerManager** | `utils/utils.ts` | Tracks DOM event listeners for proper cleanup. |
+| **KeyMapper**            | `utils/utils.ts` | Maps keyboard modifiers to actions.            |
+| **deepDispose**          | `utils/utils.ts` | Recursively disposes Three.js objects.         |
+| **disposeGeometry**      | `utils/utils.ts` | Disposes geometry and its attributes.          |
+| **disposeMaterial**      | `utils/utils.ts` | Disposes material and its textures.            |
 
 ---
 
@@ -275,13 +276,20 @@ class MaterialFactory {
   createFrontFaceMaterial({ color, alpha, visible = true }) {
     return new THREE.MeshStandardMaterial({
       ...this._createBaseProps(alpha),
-      color, metalness: this.metalness, roughness: this.roughness,
-      side: THREE.FrontSide, visible
+      color,
+      metalness: this.metalness,
+      roughness: this.roughness,
+      side: THREE.FrontSide,
+      visible,
     });
   }
 
-  createEdgeMaterial({ lineWidth, color, resolution }) { /* ... */ }
-  createVertexMaterial({ size, color }) { /* ... */ }
+  createEdgeMaterial({ lineWidth, color, resolution }) {
+    /* ... */
+  }
+  createVertexMaterial({ size, color }) {
+    /* ... */
+  }
 }
 ```
 
@@ -323,7 +331,7 @@ function disposeMesh(mesh) {
 
 function disposeMaterial(material) {
   // Dispose all texture properties
-  const textureProps = ['map', 'normalMap', 'roughnessMap', /* ... */];
+  const textureProps = ["map", "normalMap", "roughnessMap" /* ... */];
   for (const prop of textureProps) {
     if (material[prop]) material[prop].dispose();
   }
@@ -356,8 +364,8 @@ class EventListenerManager {
 
 // Usage in Display
 const listeners = new EventListenerManager();
-listeners.add(element, 'click', this.handleClick);
-listeners.add(window, 'resize', this.handleResize);
+listeners.add(element, "click", this.handleClick);
+listeners.add(window, "resize", this.handleResize);
 
 // In dispose()
 listeners.dispose();
@@ -373,21 +381,23 @@ This section documents all UI interactions and categorizes them by their data fl
 
 ### Summary
 
-| Category | Count | Examples | Description |
-|----------|-------|----------|-------------|
-| **STATE SUBSCRIPTION** | 20 | axes, grid, clip settings, material sliders, zebra, animationMode | State change → subscription → UI update |
-| **ACTION** | 6 | reset, resize, pin | One-time actions, no state change |
-| **TOOL** | 4 | measure, zscale | Separate subsystems with own state |
-| **TRANSIENT** | 3 | view buttons, help | Derived/temporary visual indicators |
+| Category               | Count | Examples                                                          | Description                             |
+| ---------------------- | ----- | ----------------------------------------------------------------- | --------------------------------------- |
+| **STATE SUBSCRIPTION** | 20    | axes, grid, clip settings, material sliders, zebra, animationMode | State change → subscription → UI update |
+| **ACTION**             | 6     | reset, resize, pin                                                | One-time actions, no state change       |
+| **TOOL**               | 4     | measure, zscale                                                   | Separate subsystems with own state      |
+| **TRANSIENT**          | 3     | view buttons, help                                                | Derived/temporary visual indicators     |
 
 ### Data Flow Patterns
 
 **STATE SUBSCRIPTION** (configuration state):
+
 ```
 User Action → Display → Viewer method → state.set() → Subscription → UI update
 ```
 
 **ACTION** (no state change):
+
 ```
 User Action → Display → Viewer method → performs action (no state)
 ```
@@ -397,99 +407,119 @@ User Action → Display → Viewer method → performs action (no state)
 These follow the preferred pattern with subscription-based UI updates.
 
 #### 1. Axes Button
+
 - **Display handler**: `setAxes(name, flag)` → calls `this.viewer.setAxes(flag)`
 - **Viewer method**: `setAxes()` → `this.state.set("axes", flag)`
 - **Subscription**: `state.subscribe("axes", ...)` → updates button
 
 #### 2. Axes0 Button
+
 - **Display handler**: `setAxes0(name, flag)` → calls `this.viewer.setAxes0(flag)`
 - **Viewer method**: `setAxes0()` → `this.state.set("axes0", flag)`
 - **Subscription**: `state.subscribe("axes0", ...)` → updates button
 
 #### 3. Grid Button
+
 - **Display handler**: `setGrid(name, flag)` → calls `this.viewer.setGrid(name, flag)`
 - **Viewer method**: `setGrid()` → `this.state.set("grid", [...gridHelper.grid])`
 - **Subscription**: `state.subscribe("grid", ..., { immediate: true })` → updates button and checkboxes
 - **Note**: Arrays are copied to avoid reference issues
 
 #### 4. Perspective Button
+
 - **Display handler**: `setOrtho(name, flag)` → calls `this.viewer.switchCamera(!flag)`
 - **Viewer method**: `switchCamera()` → `this.state.set("ortho", flag)`
 - **Subscription**: `state.subscribe("ortho", ...)` → updates button
 
 #### 5. Transparent Button
+
 - **Display handler**: `setTransparent(name, flag)` → calls `this.viewer.setTransparent(flag)`
 - **Viewer method**: `setTransparent()` → `this.state.set("transparent", flag)`
 - **Subscription**: `state.subscribe("transparent", ...)` → updates button
 
 #### 6. Black Edges Button
+
 - **Display handler**: `setBlackEdges(name, flag)` → calls `this.viewer.setBlackEdges(flag)`
 - **Viewer method**: `setBlackEdges()` → `this.state.set("blackEdges", flag)`
 - **Subscription**: `state.subscribe("blackEdges", ...)` → updates button
 
 #### 7. Tools (toolbar visibility)
+
 - **Viewer method**: `setTools()` → `this.state.set("tools", flag)`
 - **Subscription**: `state.subscribe("tools", ...)` → calls `showTools()`
 
 #### 8. Glass Mode
+
 - **Viewer method**: `setGlass()` → `this.state.set("glass", flag)`
 - **Subscription**: `state.subscribe("glass", ...)` → calls `glassMode()`
 
 #### 9. Theme
+
 - **Subscription**: `state.subscribe("theme", ...)` → calls `setTheme()`
 
 #### 10. Clip Plane Helpers Checkbox
+
 - **Display handler**: `setClipPlaneHelpers(flag)` → calls `this.viewer.setClipPlaneHelpers(flag)`
 - **Viewer method**: `setClipPlaneHelpers()` → `this.state.set("clipPlaneHelpers", flag)`
 - **Subscription**: `state.subscribe("clipPlaneHelpers", ..., { immediate: true })` → updates checkbox
 
 #### 11. Clip Intersection Checkbox
+
 - **Display handler**: `setClipIntersection(flag)` → calls `this.viewer.setClipIntersection(flag)`
 - **Viewer method**: `setClipIntersection()` → `this.state.set("clipIntersection", flag)`
 - **Subscription**: `state.subscribe("clipIntersection", ...)` → updates checkbox
 
 #### 12. Clip Object Color Caps Checkbox
+
 - **Display handler**: `setObjectColorCaps(flag)` → calls `this.viewer.setClipObjectColorCaps(flag)`
 - **Viewer method**: `setClipObjectColorCaps()` → `this.state.set("clipObjectColors", flag)`
 - **Subscription**: `state.subscribe("clipObjectColors", ...)` → updates checkbox
 
 #### 13. Clip Plane Sliders (1, 2, 3)
+
 - **Display handler**: `refreshPlane(index, value)` → calls `this.viewer.refreshPlane(index, value)`
 - **Viewer method**: `setClipSlider()` → `this.state.set("clipSlider{index}", value)`
 - **Subscription**: `state.subscribe("clipSlider{0,1,2}", ...)` → updates slider via `setValueFromState()`
 
 #### 14. Material Sliders (ambient, direct, metalness, roughness)
+
 - **Display handler**: Uses `Slider` class with `handler` pointing to viewer methods
 - **Viewer methods**: `setAmbientLight()`, `setDirectLight()`, `setMetalness()`, `setRoughness()`
 - **State**: All call `state.set()` for their respective keys
 - **Subscription**: `state.subscribe("{key}", ..., { immediate: true })` → updates slider
 
 #### 15. Zebra Count Slider
+
 - **Display handler**: Uses `Slider` class with `handler` pointing to `viewer.setZebraCount`
 - **Viewer method**: `setZebraCount()` → `this.state.set("zebraCount", value)`
 - **Subscription**: `state.subscribe("zebraCount", ...)` → updates slider via `setValueFromState()`
 
 #### 16. Zebra Opacity Slider
+
 - **Display handler**: Uses `Slider` class with `handler` pointing to `viewer.setZebraOpacity`
 - **Viewer method**: `setZebraOpacity()` → `this.state.set("zebraOpacity", value)`
 - **Subscription**: `state.subscribe("zebraOpacity", ...)` → updates slider via `setValueFromState()`
 
 #### 17. Zebra Direction Slider
+
 - **Display handler**: Uses `Slider` class with `handler` pointing to `viewer.setZebraDirection`
 - **Viewer method**: `setZebraDirection()` → `this.state.set("zebraDirection", value)`
 - **Subscription**: `state.subscribe("zebraDirection", ...)` → updates slider via `setValueFromState()`
 
 #### 18. Zebra Color Scheme Radio Buttons
+
 - **Display handler**: `setZebraColorScheme()` → calls `this.viewer.setZebraColorScheme(value)`
 - **Viewer method**: `setZebraColorScheme()` → `this.state.set("zebraColorScheme", value)`
 - **Subscription**: `state.subscribe("zebraColorScheme", ...)` → updates radio button
 
 #### 19. Zebra Mapping Mode Radio Buttons
+
 - **Display handler**: `setZebraMappingMode()` → calls `this.viewer.setZebraMappingMode(value)`
 - **Viewer method**: `setZebraMappingMode()` → `this.state.set("zebraMappingMode", value)`
 - **Subscription**: `state.subscribe("zebraMappingMode", ...)` → updates radio button
 
 #### 20. Animation/Explode Mode (Unified)
+
 - **State**: `animationMode: "none" | "animation" | "explode"`
 - **Viewer methods**:
   - `initAnimation()` → `state.set("animationMode", label === "E" ? "explode" : "animation")`
@@ -506,27 +536,33 @@ These follow the preferred pattern with subscription-based UI updates.
 These buttons trigger one-time actions. No state is stored or updated.
 
 #### 21. Reset Button
+
 - **Display handler**: `reset()` → calls `this.viewer.reset()`
 - **Purpose**: Resets view to initial state
 
 #### 22. Resize Button
+
 - **Display handler**: `resize()` → calls `this.viewer.resize()`
 - **Purpose**: Fits object to viewport
 
 #### 23. Pin Button
+
 - **Display handler**: `pinAsPng()` → calls `this.viewer.pinAsPng()`
 - **Purpose**: Exports current view as PNG
 - **Note**: Uses `display.replaceWithImage()` for encapsulation
 
 #### 24. Material Reset Button
+
 - **Display handler**: `handleMaterialReset()` → calls `this.viewer.resetMaterial()`
 - **Purpose**: Resets material to defaults
 
 #### 25. Collapse Node Buttons
+
 - **Display handler**: `handleCollapseNodes()` → calls treeview methods
 - **Purpose**: Expand/collapse tree nodes
 
 #### 26. Toggle Info Button
+
 - **Display handler**: `toggleInfo()` → toggles info panel
 - **Purpose**: Show/hide info panel
 
@@ -535,16 +571,19 @@ These buttons trigger one-time actions. No state is stored or updated.
 These show temporary visual feedback derived from current state, not stored state.
 
 #### 27. View Buttons (iso, front, rear, top, bottom, left, right)
+
 - **Display handler**: `setView(button)` → calls `this.viewer.presetCamera(button)`
 - **State**: `highlightedButton` tracks which button is highlighted
 - **Subscription**: `state.subscribe("highlightedButton", ...)` → updates button highlight
 - **Note**: Highlight cleared when camera rotates manually
 
 #### 28. Help Button
+
 - **Display handler**: `showHelp(flag)` → toggles help overlay
 - **Visual**: Local UI toggle, not viewer state
 
 #### 29. Tab Selection
+
 - **Display handler**: `selectTab(tab)` → switches active tab
 - **Note**: Notifies via checkChanges for external consumers
 
@@ -553,37 +592,44 @@ These show temporary visual feedback derived from current state, not stored stat
 These tools have their own state management via `activeTool` and specialized subsystems.
 
 #### 30. Explode Button
+
 - **Display handler**: `setExplode(name, flag)` → calls `this.viewer.setExplode(flag)`
 - **Viewer method**: `setExplode()` → manages animation backup/restore, sets `animationMode`
 - **State**: Uses unified `animationMode` state
 - **Note**: No longer has separate `Display.explodeFlag`
 
 #### 31. ZScale Button
+
 - **Display handler**: `setZScale(name, flag)` → toggles z-scale slider
 - **State**: `zscaleActive` in ViewerState
 - **Subscription**: `state.subscribe("zscaleActive", ...)` → updates button
 - **Slider**: `viewer.setZscaleValue(value)` → runtime transform
 
 #### 32. Distance Tool
+
 - **Display handler**: `setTool("distance", flag)` → enables measurement
 - **State**: `activeTool` tracks current tool
 - **Subscription**: `state.subscribe("activeTool", ...)` → updates tool buttons
 
 #### 33. Properties Tool
+
 - **Display handler**: `setTool("properties", flag)` → enables property display
 - **State**: `activeTool` tracks current tool
 
 #### 34. Select Tool
+
 - **Display handler**: `setTool("select", flag)` → enables selection
 - **State**: `activeTool` tracks current tool
 
 ### Animation Subsystem
 
 #### 35. Animation Controls (play, pause, stop)
+
 - **Display handler**: `controlAnimation(btn)` → calls `this.viewer.controlAnimation(btn)`
 - **Note**: Animation has its own playback state management
 
 #### 36. Animation Slider
+
 - **Display handler**: `animationChange(e)` → calls `this.viewer.animation.setRelativeTime()`
 - **State**: `animationSliderValue` synced via subscription
 - **Subscription**: `state.subscribe("animationSliderValue", ..., { immediate: true })`
@@ -623,41 +669,86 @@ These tools have their own state management via `activeTool` and specialized sub
 ### ViewerState Summary
 
 #### DISPLAY_DEFAULTS (UI configuration)
+
 ```javascript
-theme, cadWidth, treeWidth, treeHeight, height, pinning, glass, tools,
-keymap, newTreeBehavior, measureTools, selectTool, explodeTool, zscaleTool, zebraTool
+(theme,
+  cadWidth,
+  treeWidth,
+  treeHeight,
+  height,
+  pinning,
+  glass,
+  tools,
+  keymap,
+  newTreeBehavior,
+  measureTools,
+  selectTool,
+  explodeTool,
+  zscaleTool,
+  zebraTool);
 ```
 
 #### RENDER_DEFAULTS (material settings)
+
 ```javascript
-ambientIntensity, directIntensity, metalness, roughness, defaultOpacity, edgeColor, normalLen
+(ambientIntensity,
+  directIntensity,
+  metalness,
+  roughness,
+  defaultOpacity,
+  edgeColor,
+  normalLen);
 ```
 
 #### VIEWER_DEFAULTS (view configuration)
+
 ```javascript
-axes, axes0, grid, ortho, transparent, blackEdges, collapse,
-clipIntersection, clipPlaneHelpers, clipObjectColors,
-clipNormal0/1/2, clipSlider0/1/2,
-control, holroyd, up, ticks, gridFontSize, centerGrid,
-position, quaternion, target, zoom, panSpeed, rotateSpeed, zoomSpeed
+(axes,
+  axes0,
+  grid,
+  ortho,
+  transparent,
+  blackEdges,
+  collapse,
+  clipIntersection,
+  clipPlaneHelpers,
+  clipObjectColors,
+  clipNormal0 / 1 / 2,
+  clipSlider0 / 1 / 2,
+  control,
+  holroyd,
+  up,
+  ticks,
+  gridFontSize,
+  centerGrid,
+  position,
+  quaternion,
+  target,
+  zoom,
+  panSpeed,
+  rotateSpeed,
+  zoomSpeed);
 ```
 
 #### ZEBRA_DEFAULTS (zebra tool)
+
 ```javascript
-zebraCount, zebraOpacity, zebraDirection, zebraColorScheme, zebraMappingMode
+(zebraCount, zebraOpacity, zebraDirection, zebraColorScheme, zebraMappingMode);
 ```
 
 #### RUNTIME_DEFAULTS (current session state)
+
 ```javascript
-activeTool,              // Current measurement tool
-animationMode,           // "none" | "animation" | "explode"
-animationSliderValue,    // Slider position (0-1000)
-zscaleActive,            // ZScale tool active
-highlightedButton,       // Camera button highlight
-activeTab                // "tree" | "clip" | "material" | "zebra"
+(activeTool, // Current measurement tool
+  animationMode, // "none" | "animation" | "explode"
+  animationSliderValue, // Slider position (0-1000)
+  zscaleActive, // ZScale tool active
+  highlightedButton, // Camera button highlight
+  activeTab); // "tree" | "clip" | "material" | "zebra"
 ```
 
 #### Subscription Options
+
 ```javascript
 // Standard subscription (fires on change only)
 state.subscribe("key", (change) => { ... });
@@ -707,62 +798,93 @@ Display.dispose()
 
 ## File Structure
 
+The source code is organized into 7 logical folders:
+
 ```
 src/
-├── index.js                 # Public exports
-├── viewer.js                # Main Viewer class
-├── display.js               # Display (UI container)
-├── viewer-state.js          # ViewerState (centralized state)
+├── index.ts                 # Public exports (classes and types)
 │
-├── nestedgroup.js           # Scene hierarchy
-├── objectgroup.js           # Individual CAD objects
-├── material-factory.js      # Material creation
+├── core/                    # Application foundation
+│   ├── viewer.ts            # Main Viewer class
+│   ├── viewer-state.ts      # ViewerState (centralized state)
+│   ├── types.ts             # Shared type definitions
+│   ├── patches.ts           # Three.js patches
+│   └── _version.ts          # Version info
 │
-├── clipping.js              # Clipping system
-├── camera.js                # Camera management
-├── controls.js              # Camera controls wrapper
-├── controls/
-│   ├── CADTrackballControls.js  # Trackball with Holroyd rotation
-│   └── CADOrbitControls.js      # Orbit controls
+├── scene/                   # 3D scene management
+│   ├── nestedgroup.ts       # Scene hierarchy, ObjectGroup management
+│   ├── objectgroup.ts       # Individual CAD objects (THREE.Group subclass)
+│   ├── bbox.ts              # Bounding box calculations
+│   ├── grid.ts              # XY/XZ/YZ grid planes with labels
+│   ├── axes.ts              # XYZ axis indicators
+│   ├── orientation.ts       # 3D orientation cube in corner
+│   ├── animation.ts         # Animation system (AnimationMixer)
+│   ├── clipping.ts          # Clipping planes with stencil rendering
+│   └── render-shape.ts      # Shape tessellation for rendering
 │
-├── treeview.js              # Tree DOM/events
-├── tree-model.js            # Tree data/state
+├── rendering/               # Rendering pipeline
+│   ├── material-factory.ts  # Factory for Three.js materials
+│   ├── raycast.ts           # Mouse-based object picking
+│   └── tree-model.ts        # Tree data structure for visibility
 │
-├── toolbar.js               # Toolbar UI
-├── slider.js                # Slider UI
+├── camera/                  # Camera & interaction
+│   ├── camera.ts            # Orthographic/perspective camera management
+│   ├── controls.ts          # Controls wrapper (orbit/trackball)
+│   └── controls/
+│       ├── CADTrackballControls.ts  # Trackball with Holroyd rotation
+│       └── CADOrbitControls.ts      # Orbit controls
 │
-├── grid.js                  # Grid helper
-├── axes.js                  # Axes helper
-├── bbox.js                  # Bounding box
-├── info.js                  # Info overlay
-├── orientation.js           # Orientation marker
+├── ui/                      # User interface components
+│   ├── display.ts           # Main UI container, toolbar, sliders
+│   ├── toolbar.ts           # Button bar with collapsible groups
+│   ├── treeview.ts          # Object tree DOM/events
+│   ├── slider.ts            # Reusable slider component
+│   ├── info.ts              # Object information overlay
+│   └── index.html           # HTML template
 │
-├── animation.js             # Animation system
-├── raycast.js               # Object picking
+├── tools/                   # CAD-specific tools
+│   └── cad_tools/
+│       ├── tools.ts         # Tool manager
+│       ├── measure.ts       # Distance/properties measurement
+│       ├── select.ts        # Object selection
+│       ├── zebra.ts         # Zebra stripe surface analysis
+│       └── ui.ts            # Tool UI helpers (panels, dropdowns)
 │
-├── cad_tools/
-│   ├── tools.js             # Tool manager
-│   ├── measure.js           # Measurement tool
-│   ├── select.js            # Selection tool
-│   ├── zebra.js             # Zebra analysis
-│   └── ui.js                # Tool UI helpers
+├── utils/                   # Utility functions
+│   ├── utils.ts             # dispose, EventListenerManager, KeyMapper
+│   ├── timer.ts             # Performance timing
+│   ├── sizeof.ts            # Memory size calculation
+│   └── font.ts              # Font data for 3D text
 │
-├── utils.js                 # Utilities (dispose, EventListenerManager)
-├── types.js                 # Type definitions
-├── patches.js               # Three.js patches
-├── sizeof.js                # Memory size calculation
-├── timer.js                 # Performance timing
-├── font.js                  # Font loading
-└── _version.js              # Version info
+└── types/                   # Type declaration files
+    ├── html.d.ts            # HTML element type augmentation
+    └── three-augmentation.d.ts  # THREE.js type augmentation
 
 tests/
-├── integration/
-│   └── clipping.test.js     # Clipping tests (36 tests)
-├── helpers/
-│   └── clipping-setup.js    # Test utilities
-├── tree-model.test.js       # TreeModel tests
-└── ...                      # Golden master and UI tests
+├── integration/             # Integration tests
+│   ├── clipping.test.js     # Clipping tests
+│   ├── viewer-methods.test.js
+│   └── ...
+├── unit/                    # Unit tests
+│   ├── viewer-state.test.js
+│   ├── tree-model.test.js
+│   └── ...
+└── helpers/                 # Test utilities
+    └── clipping-setup.js
 ```
+
+### Folder Responsibilities
+
+| Folder         | Purpose                                                                   |
+| -------------- | ------------------------------------------------------------------------- |
+| **core/**      | Application foundation: main Viewer class, state management, shared types |
+| **scene/**     | 3D scene graph management: object groups, helpers, clipping, animation    |
+| **rendering/** | Rendering mechanics: materials, raycasting, visibility trees              |
+| **camera/**    | Camera management and user interaction controls                           |
+| **ui/**        | DOM-based UI components: toolbar, tree view, sliders                      |
+| **tools/**     | CAD-specific tools: measurement, selection, zebra analysis                |
+| **utils/**     | Pure utility functions with no domain dependencies                        |
+| **types/**     | Ambient TypeScript declaration files                                      |
 
 ---
 
@@ -786,9 +908,13 @@ viewer.state.subscribe("axes", (change) => {
 });
 
 // With immediate callback
-viewer.state.subscribe("grid", (change) => {
-  updateGridUI(change.new);
-}, { immediate: true });
+viewer.state.subscribe(
+  "grid",
+  (change) => {
+    updateGridUI(change.new);
+  },
+  { immediate: true },
+);
 ```
 
 ### Adding Materials
@@ -797,12 +923,12 @@ viewer.state.subscribe("grid", (change) => {
 const factory = new MaterialFactory({
   metalness: 0.7,
   roughness: 0.7,
-  transparent: false
+  transparent: false,
 });
 
 const faceMaterial = factory.createFrontFaceMaterial({
   color: 0xff0000,
-  alpha: 1.0
+  alpha: 1.0,
 });
 ```
 
@@ -818,5 +944,76 @@ viewer.dispose();
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** December 4, 2025
+## TypeScript Configuration
+
+The codebase is fully migrated to TypeScript with strict type checking enabled.
+
+### Compiler Options
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  }
+}
+```
+
+### What `strict: true` Enables
+
+| Option                         | Description                                                |
+| ------------------------------ | ---------------------------------------------------------- |
+| `strictNullChecks`             | Variables cannot be null/undefined unless explicitly typed |
+| `strictFunctionTypes`          | Function parameter types are checked contravariantly       |
+| `strictBindCallApply`          | Correct types for bind, call, apply                        |
+| `strictPropertyInitialization` | Class properties must be initialized                       |
+| `noImplicitAny`                | Variables must have explicit types (no implicit any)       |
+| `noImplicitThis`               | `this` must have explicit type                             |
+| `alwaysStrict`                 | Emit "use strict" in all files                             |
+
+### Additional Strict Options
+
+| Option                       | Description                                              |
+| ---------------------------- | -------------------------------------------------------- |
+| `exactOptionalPropertyTypes` | Distinguishes between `undefined` and missing properties |
+| `noUnusedLocals`             | Error on unused local variables                          |
+| `noUnusedParameters`         | Error on unused function parameters                      |
+
+### Options Considered But Not Enabled
+
+| Option                     | Reason                                                                      |
+| -------------------------- | --------------------------------------------------------------------------- |
+| `noUncheckedIndexedAccess` | Too invasive (378 errors). Would require null checks on every array access. |
+
+### Explicit `any` Usage
+
+The codebase has only 2 explicit `any` usages, both documented:
+
+1. **`nestedgroup.ts:734`** - `_traverse(func: string, flag?: any)`: Dynamic dispatch pattern for calling methods by name with various argument types.
+
+2. **`slider.ts:11`** - `SliderHandler` type: Accommodates two different handler signatures (plane sliders vs value sliders).
+
+### Public API Types
+
+All public types are exported from `src/index.ts` for library consumers:
+
+```typescript
+import {
+  Viewer,
+  Display,
+  Timer,
+  type ViewerOptions,
+  type DisplayOptions,
+  type Shapes,
+  type PickInfo,
+} from "three-cad-viewer";
+```
+
+Type declarations are generated to `dist/index.d.ts` during build.
+
+---
+
+**Document Version:** 1.1
+**Last Updated:** December 9, 2025
