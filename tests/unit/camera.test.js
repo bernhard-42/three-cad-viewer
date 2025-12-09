@@ -496,13 +496,11 @@ describe('Camera', () => {
   });
 
   describe('dispose', () => {
-    test('sets cameras to null', () => {
+    test('dispose does not throw', () => {
       const camera = new Camera(800, 600, 100, [0, 0, 0], true, 'Z');
 
-      camera.dispose();
-
-      expect(camera.oCamera).toBeNull();
-      expect(camera.pCamera).toBeNull();
+      // Cameras are simple objects, dispose is a no-op
+      expect(() => camera.dispose()).not.toThrow();
     });
   });
 });

@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import { KeyMapper } from "./utils.js";
 import { TreeModel, States } from "./tree-model.js";
 import type { TreeNode, TreeData, StateValue, IconIndex } from "./tree-model.js";
@@ -37,8 +38,8 @@ type PickHandler = (
   meta: boolean,
   shift: boolean,
   alt: boolean,
-  extra: null,
-  nodeType: "leaf" | "node",
+  extra: THREE.Vector3 | null,
+  nodeType: "leaf" | "node" | string | null,
   fromTree: boolean
 ) => void;
 
@@ -114,7 +115,7 @@ class TreeView {
    */
   create(): HTMLUListElement {
     // Create the data model
-    this.model = new TreeModel(this.tree, {
+    this.model = new TreeModel(this.tree!, {
       linkIcons: this.linkIcons,
       onStateChange: (node, iconNumber) => this._handleStateChange(node, iconNumber),
     });

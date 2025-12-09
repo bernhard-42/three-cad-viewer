@@ -916,22 +916,21 @@ describe('Controls', () => {
   });
 
   describe('dispose', () => {
-    test('disposes controls and sets to null', () => {
+    test('disposes controls', () => {
       controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       const disposeSpy = vi.spyOn(controls.controls, 'dispose');
 
       controls.dispose();
 
       expect(disposeSpy).toHaveBeenCalled();
-      expect(controls.controls).toBeNull();
     });
 
-    test('handles already disposed controls', () => {
+    test('handles double dispose', () => {
       controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
       controls.dispose();
 
-      // Should not throw
-      controls.dispose();
+      // Should not throw (dispose can be called multiple times)
+      expect(() => controls.dispose()).not.toThrow();
     });
   });
 

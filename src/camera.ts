@@ -59,9 +59,9 @@ class Camera {
   yaxis: THREE.Vector3;
   zaxis: THREE.Vector3;
   camera_distance: number;
-  pCamera: THREE.PerspectiveCamera | null;
-  oCamera: THREE.OrthographicCamera | null;
-  camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
+  pCamera!: THREE.PerspectiveCamera; // Initialized in constructor
+  oCamera!: THREE.OrthographicCamera; // Initialized in constructor
+  camera!: THREE.PerspectiveCamera | THREE.OrthographicCamera; // Set in constructor
 
   /**
    * Create a combined camera (orthographic and perspective).
@@ -132,8 +132,8 @@ class Camera {
    * Remove assets.
    */
   dispose(): void {
-    this.oCamera = null;
-    this.pCamera = null;
+    // Cameras are simple objects; no explicit cleanup needed.
+    // The Camera instance itself will be garbage collected.
   }
 
   /**

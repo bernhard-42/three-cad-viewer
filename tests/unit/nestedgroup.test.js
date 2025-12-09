@@ -624,22 +624,22 @@ describe('NestedGroup - dispose', () => {
     ng.render();
 
     expect(ng.rootGroup).not.toBeNull();
-    expect(ng.groups).not.toBeNull();
+    expect(Object.keys(ng.groups).length).toBeGreaterThan(0);
 
     ng.dispose();
 
     expect(ng.rootGroup).toBeNull();
-    expect(ng.groups).toBeNull();
-    expect(ng.shapes).toBeNull();
+    expect(Object.keys(ng.groups).length).toBe(0);
+    // Note: shapes is not nulled out in dispose() since it's just data
+    // and the entire NestedGroup will be garbage collected
   });
 
-  test('handles dispose when already null', () => {
+  test('handles dispose when already empty', () => {
     const shapes = createMinimalShapeData();
     const ng = new NestedGroup(shapes, 800, 600, 0x707070, false, 0.5, 0.3, 0.65, 0, 100);
 
-    // Don't render, so rootGroup stays null
-    ng.groups = null;
-    ng.shapes = null;
+    // Don't render, so rootGroup stays null and groups is empty
+    ng.groups = {};
 
     // Should not throw
     expect(() => ng.dispose()).not.toThrow();

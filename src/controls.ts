@@ -34,7 +34,7 @@ class Controls {
   zoomSpeed: number;
   panSpeed: number;
   holroyd: boolean;
-  controls!: ControlsInstance | null;
+  controls!: ControlsInstance; // Initialized in constructor via initOrbitControls/initTrackballControls
   currentUpdateCallback: (() => void) | null;
 
   /**
@@ -108,10 +108,7 @@ class Controls {
    * Remove assets and event handlers.
    */
   dispose(): void {
-    if (this.controls) {
-      this.controls.dispose();
-      this.controls = null;
-    }
+    this.controls.dispose();
   }
 
   /**

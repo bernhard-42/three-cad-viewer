@@ -1435,10 +1435,8 @@ describe('Viewer - Utility Methods', () => {
 
     viewer.dispose();
 
-    expect(viewer.nestedGroup).toBeNull();
-    expect(viewer.orientationMarker).toBeNull();
-    expect(viewer.cadTools).toBeNull();
-    expect(viewer.animation).toBeNull();
+    // Viewer is no longer ready after dispose
+    expect(viewer.ready).toBe(false);
   });
 });
 
@@ -1902,10 +1900,11 @@ describe('Viewer - Clear', () => {
     const box1Data = await loadExample('box1');
     viewer.render(box1Data, renderOptions, viewerOptions);
 
-    expect(viewer.nestedGroup).not.toBeNull();
+    expect(viewer.ready).toBe(true);
+    expect(viewer.nestedGroup).toBeDefined();
 
     viewer.clear();
 
-    expect(viewer.nestedGroup).toBeNull();
+    expect(viewer.ready).toBe(false);
   });
 });

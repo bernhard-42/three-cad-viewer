@@ -203,6 +203,31 @@ interface DisplayOptionsInternal {
   [key: string]: unknown;
 }
 
+/**
+ * State that exists only after render() and before clear().
+ * Groups all resources that are created together during rendering.
+ */
+interface RenderedState {
+  // Core THREE.js objects
+  scene: THREE.Scene;
+  ambientLight: THREE.AmbientLight;
+  directLight: THREE.DirectionalLight;
+
+  // Camera and controls
+  camera: Camera;
+  controls: Controls;
+
+  // Helpers
+  gridHelper: Grid;
+  axesHelper: AxesHelper;
+  clipping: Clipping;
+  orientationMarker: OrientationMarker;
+
+  // These can change during lifetime (via toggleGroup)
+  nestedGroup: NestedGroup;
+  treeview: TreeView;
+}
+
 // =============================================================================
 // VIEWER CLASS
 // =============================================================================
@@ -219,44 +244,38 @@ class Viewer {
   updateMarker: boolean;
   ready: boolean;
 
-  // Display reference
-  display: Display | null;
+  // Always available (set in constructor)
+  display!: Display;
+  renderer!: THREE.WebGLRenderer;
+  mouse!: THREE.Vector2;
+  cadTools!: Tools;
+  animation!: Animation;
+  clipNormals!: [THREE.Vector3, THREE.Vector3, THREE.Vector3];
 
-  // THREE.js core objects
-  renderer: THREE.WebGLRenderer | null;
-  scene: THREE.Scene | null;
-  ambientLight: THREE.AmbientLight | null;
-  directLight: THREE.DirectionalLight | null;
-  mouse: THREE.Vector2 | null;
+  // Render-time state: created in render(), cleared in clear()
+  private _rendered: RenderedState | null;
 
-  // CAD objects
-  nestedGroup: NestedGroup | null;
+  /**
+   * Get rendered state, throwing if not yet rendered.
+   */
+  get rendered(): RenderedState {
+    if (!this._rendered) {
+      throw new Error("Viewer.render() must be called before this operation");
+    }
+    return this._rendered;
+  }
+
+  // Data objects (set in render, cleared in clear)
   tree: ShapeTreeData | null;
   bbox: BoundingBox | null;
   bb_max: number;
   bb_radius!: number;
   shapes: Shapes | null;
-
-  // Helpers
-  camera: Camera | null;
-  gridHelper: Grid | null;
-  axesHelper: AxesHelper | null;
-  controls: Controls | null;
-  orientationMarker: OrientationMarker | null;
-  treeview: TreeView | null;
-
-  // Tools
-  cadTools: Tools | null;
-
-  // Clipping
-  clipping: Clipping | null;
-  clipNormals: [THREE.Vector3, THREE.Vector3, THREE.Vector3] | null;
   gridSize!: number;
 
   // Animation
   hasAnimationLoop: boolean;
   mixer: THREE.AnimationMixer | null;
-  animation: Animation | null;
   continueAnimation: boolean;
   clipAction: THREE.AnimationAction | null;
 
@@ -334,24 +353,22 @@ class Viewer {
 
     window.THREE = THREE;
 
-    this.nestedGroup = null;
+    // Render-time state starts as null
+    this._rendered = null;
+
     this.tree = null;
     this.bbox = null;
     this.bb_max = 0;
-    this.scene = null;
-    this.camera = null;
-    this.gridHelper = null;
-    this.axesHelper = null;
-    this.controls = null;
-    this.orientationMarker = null;
-    this.treeview = null;
     this.cadTools = new Tools(this, options.measurementDebug ?? false);
 
     this.ready = false;
     this.mixer = null;
+    this.clipAction = null;
     this.animation = new Animation("|");
     this.continueAnimation = true;
     this.shapeRenderer = null;
+    this.materialSettings = null;
+    this.renderOptions = null;
 
     this.clipNormals = [
       new THREE.Vector3(-1, 0, 0),
@@ -394,7 +411,6 @@ class Viewer {
     this.keepHighlight = false;
 
     this.shapes = null;
-    this.clipping = null;
     this.raycaster = null;
 
     // Deprecated properties
@@ -527,7 +543,7 @@ class Viewer {
   ): void {
     this.animation.addPositionTrack(
       selector,
-      this.nestedGroup!.groups[selector],
+      this.rendered.nestedGroup.groups[selector],
       times,
       positions,
     );
@@ -548,7 +564,7 @@ class Viewer {
   ): void {
     this.animation.addTranslationTrack(
       selector,
-      this.nestedGroup!.groups[selector],
+      this.rendered.nestedGroup.groups[selector],
       axis,
       times,
       values,
@@ -568,7 +584,7 @@ class Viewer {
   ): void {
     this.animation.addQuaternionTrack(
       selector,
-      this.nestedGroup!.groups[selector],
+      this.rendered.nestedGroup.groups[selector],
       times,
       quaternions,
     );
@@ -589,7 +605,7 @@ class Viewer {
   ): void {
     this.animation.addRotationTrack(
       selector,
-      this.nestedGroup!.groups[selector],
+      this.rendered.nestedGroup.groups[selector],
       axis,
       times,
       angles,
@@ -620,7 +636,7 @@ class Viewer {
 
     this.state.set("animationMode", label === "E" ? "explode" : "animation");
     this.clipAction = this.animation.animate(
-      this.nestedGroup!.rootGroup,
+      this.rendered.nestedGroup.rootGroup!,
       duration,
       speed,
       repeat,
@@ -703,59 +719,59 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   update = (updateMarker: boolean, notify: boolean = true): void => {
-    if (this.ready) {
-      this.renderer!.clear();
+    if (!this.ready) return;
 
-      if (this.raycaster && this.raycaster.raycastMode) {
-        this.handleRaycast();
-      }
+    this.renderer.clear();
 
-      this.gridHelper!.update(this.camera!.getZoom());
-
-      this.renderer!.setViewport(
-        0,
-        0,
-        this.state.get("cadWidth"),
-        this.state.get("height"),
-      );
-      this.renderer!.render(this.scene!, this.camera!.getCamera());
-      this.cadTools.update();
-
-      this.directLight.position.copy(this.camera!.getCamera().position);
-
-      if (
-        this.lastBbox != null &&
-        (this.lastBbox.needsUpdate || this.bboxNeedsUpdate)
-      ) {
-        console.debug("updated bbox");
-        this.lastBbox.bbox.update();
-        this.lastBbox.needsUpdate = false;
-      }
-
-      if (updateMarker) {
-        this.renderer!.clearDepth(); // ensure orientation Marker is at the top
-
-        this.orientationMarker!.update(
-          this.camera!.getPosition().clone().sub(this.controls!.getTarget()),
-          this.camera!.getQuaternion(),
-        );
-        this.orientationMarker!.render(this.renderer!);
-      }
-
-      if (this.animation) {
-        this.animation.update();
-      }
-
-      this.checkChanges(
-        {
-          zoom: this.camera!.getZoom(),
-          position: this.camera!.getPosition().toArray(),
-          quaternion: this.camera!.getQuaternion().toArray(),
-          target: this.controls!.getTarget().toArray(),
-        },
-        notify,
-      );
+    if (this.raycaster && this.raycaster.raycastMode) {
+      this.handleRaycast();
     }
+
+    this.rendered.gridHelper.update(this.rendered.camera.getZoom());
+
+    this.renderer.setViewport(
+      0,
+      0,
+      this.state.get("cadWidth"),
+      this.state.get("height"),
+    );
+    this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
+    this.cadTools.update();
+
+    this.rendered.directLight.position.copy(this.rendered.camera.getCamera().position);
+
+    if (
+      this.lastBbox != null &&
+      (this.lastBbox.needsUpdate || this.bboxNeedsUpdate)
+    ) {
+      console.debug("updated bbox");
+      this.lastBbox.bbox.update();
+      this.lastBbox.needsUpdate = false;
+    }
+
+    if (updateMarker) {
+      this.renderer.clearDepth(); // ensure orientation Marker is at the top
+
+      this.rendered.orientationMarker.update(
+        this.rendered.camera.getPosition().clone().sub(this.rendered.controls.getTarget()),
+        this.rendered.camera.getQuaternion(),
+      );
+      this.rendered.orientationMarker.render(this.renderer);
+    }
+
+    if (this.animation) {
+      this.animation.update();
+    }
+
+    this.checkChanges(
+      {
+        zoom: this.rendered.camera.getZoom(),
+        position: this.rendered.camera.getPosition().toArray(),
+        quaternion: this.rendered.camera.getQuaternion().toArray(),
+        target: this.rendered.controls.getTarget().toArray(),
+      },
+      notify,
+    );
   };
 
   /**
@@ -764,7 +780,7 @@ class Viewer {
   animate = (): void => {
     if (this.continueAnimation) {
       requestAnimationFrame(this.animate);
-      this.controls!.update();
+      this.rendered.controls.update();
       this.update(true, true);
     } else {
       console.debug("three-cad-viewer: Animation loop stopped");
@@ -775,7 +791,7 @@ class Viewer {
     if (flag) {
       this.continueAnimation = true;
       this.hasAnimationLoop = true;
-      this.controls!.removeChangeListener();
+      this.rendered.controls.removeChangeListener();
       console.debug("three-cad-viewer: Change listener removed");
       this.animate();
       console.debug("three-cad-viewer: Animation loop started");
@@ -785,7 +801,7 @@ class Viewer {
       }
       this.continueAnimation = false;
       this.hasAnimationLoop = false;
-      this.controls!.addChangeListener(() => this.update(true, true));
+      this.rendered.controls.addChangeListener(() => this.update(true, true));
       console.debug("three-cad-viewer: Change listener registered");
 
       // ensure last animation cycle has finished
@@ -803,55 +819,24 @@ class Viewer {
   dispose(): void {
     this.clear();
 
-    // dispose the orientation marker
-    if (this.orientationMarker != null) {
-      this.orientationMarker.dispose();
-    }
-
     // dispose renderer
-    if (this.renderer != null) {
-      this.renderer.renderLists.dispose();
-      this.renderer.dispose();
-      // forceContextLoss may not exist in test mocks
-      if (typeof this.renderer.forceContextLoss === "function") {
-        this.renderer.forceContextLoss();
-      }
-      console.debug("three-cad-viewer: WebGL context disposed");
-      this.renderer = null;
+    this.renderer.renderLists.dispose();
+    this.renderer.dispose();
+    // forceContextLoss may not exist in test mocks
+    if (typeof this.renderer.forceContextLoss === "function") {
+      this.renderer.forceContextLoss();
     }
+    console.debug("three-cad-viewer: WebGL context disposed");
 
-    if (this.ambientLight) {
-      this.ambientLight.dispose();
-      this.ambientLight = null;
-    }
-    if (this.directLight) {
-      this.directLight.dispose();
-      this.directLight = null;
-    }
     this.materialSettings = null;
-    this.clipping = null;
-    this.camera = null;
-    this.gridHelper = null;
-    this.axesHelper = null;
-    this.controls = null;
-    this.orientationMarker = null;
     this.compactTree = null;
     deepDispose(this.cadTools);
-    this.cadTools = null;
     this.clipAction = null;
-    if (this.treeview) {
-      this.treeview.dispose();
-      this.treeview = null;
-    }
-    this.animation = null;
-    this.clipNormals = null;
     this.lastNotification = {};
     this.clipNormal0 = null;
     this.clipNormal1 = null;
     this.clipNormal2 = null;
-    this.display = null;
     this.renderOptions = null;
-    this.mouse = null;
     this.tree = null;
     // Info is owned by Display
     this.bbox = null;
@@ -866,16 +851,15 @@ class Viewer {
    * Clear CAD view and remove event handler.
    */
   clear(): void {
-    if (this.scene != null) {
+    if (this._rendered) {
       // stop animation
       this.hasAnimationLoop = false;
       this.continueAnimation = false;
 
       // remove change listener if exists
-      if (!this.hasAnimationLoop) {
-        this.controls!.removeChangeListener();
-        console.debug("three-cad-viewer: Change listener removed");
-      }
+      this._rendered.controls.removeChangeListener();
+      console.debug("three-cad-viewer: Change listener removed");
+
       this.hasAnimationLoop = false;
       this.state.set("animationMode", "none");
 
@@ -888,7 +872,7 @@ class Viewer {
         this.state.set("zscaleActive", false);
       }
       // clear render canvas
-      this.renderer!.clear();
+      this.renderer.clear();
 
       // deselect measurement tools
       if (this.cadTools) {
@@ -900,14 +884,13 @@ class Viewer {
         }
       }
 
-      // dispose scene
-      deepDispose(this.scene);
-
-      deepDispose(this.gridHelper);
-      this.gridHelper = null;
-
-      deepDispose(this.clipping);
-      this.clipping = null;
+      // dispose all rendered state objects
+      deepDispose(this._rendered.scene);
+      deepDispose(this._rendered.gridHelper);
+      deepDispose(this._rendered.clipping);
+      deepDispose(this._rendered.camera);
+      deepDispose(this._rendered.controls);
+      deepDispose(this._rendered.treeview);
 
       // clear tree view
       this.display.clearCadTree();
@@ -915,12 +898,7 @@ class Viewer {
       // clear info
       deepDispose(this.info);
 
-      // dispose camera and controls
-      deepDispose(this.camera);
-      deepDispose(this.controls);
-
-      // dispose scene
-      this.scene = null;
+      this._rendered = null;
       this.ready = false;
     }
 
@@ -936,10 +914,6 @@ class Viewer {
     if (this.compactNestedGroup != null) {
       deepDispose(this.compactNestedGroup);
       this.compactNestedGroup = null;
-    }
-    if (this.nestedGroup != null) {
-      deepDispose(this.nestedGroup);
-      this.nestedGroup = null;
     }
   }
 
@@ -1033,7 +1007,7 @@ class Viewer {
    * @param path - path of the CAD object
    */
   getNodeColor = (path: string): string | null => {
-    const group = this.nestedGroup!.groups["/" + path];
+    const group = this.rendered.nestedGroup.groups["/" + path];
     if (group instanceof ObjectGroup) {
       if (group.front) {
         return "#" + group.front.material.color.getHexString();
@@ -1043,65 +1017,46 @@ class Viewer {
   };
 
   /**
-   * Toggle the two version of the NestedGroup
+   * Build nestedGroup and treeview for initial render.
+   * @param scene - The scene to add the group to
    * @param expanded - whether to render the exploded or compact version
+   * @returns The nestedGroup and treeview
    */
-  toggleGroup(expanded: boolean): void {
-    const timer = new Timer("toggleGroup", this.state.get("timeit"));
-    const _config = (): void => {
-      this.nestedGroup!.setTransparent(this.state.get("transparent"));
-      this.nestedGroup!.setBlackEdges(this.state.get("blackEdges"));
-      this.nestedGroup!.setMetalness(this.state.get("metalness"));
-      this.nestedGroup!.setRoughness(this.state.get("roughness"));
-      this.nestedGroup!.setPolygonOffset(2);
-    };
+  private buildInitialGroup(
+    scene: THREE.Scene,
+    expanded: boolean,
+  ): { nestedGroup: NestedGroup; treeview: TreeView } {
+    const timer = new Timer("buildInitialGroup", this.state.get("timeit"));
 
-    if (
-      (this.compactNestedGroup == null && !expanded) ||
-      (this.expandedNestedGroup == null && expanded)
-    ) {
-      this.setRenderDefaults(this.renderOptions);
-      let result: RenderResult;
-      if (expanded) {
-        if (this.expandedNestedGroup == null) {
-          result = this.renderTessellatedShapes(expanded, this.shapes!);
-          this.nestedGroup = result.group;
-          this.expandedNestedGroup = result.group;
-          _config();
-          this.expandedTree = result.tree;
-        }
-      } else {
-        if (this.compactNestedGroup == null) {
-          result = this.renderTessellatedShapes(expanded, this.shapes!);
-          this.nestedGroup = result.group;
-          this.compactNestedGroup = result.group;
-          _config();
-          this.compactTree = result.tree;
-        }
-      }
-      timer.split(`rendered${expanded ? " exploded" : " compact"} shapes`);
+    this.setRenderDefaults(this.renderOptions!);
+    const result = this.renderTessellatedShapes(expanded, this.shapes!);
+    const nestedGroup = result.group;
+
+    if (expanded) {
+      this.expandedNestedGroup = result.group;
+      this.expandedTree = result.tree;
     } else {
-      this.nestedGroup = expanded
-        ? this.expandedNestedGroup
-        : this.compactNestedGroup;
-      _config();
+      this.compactNestedGroup = result.group;
+      this.compactTree = result.tree;
     }
 
-    // only sync if both trees exist
-    if (this.expandedTree) {
-      this.syncTreeStates(this.compactTree!, this.expandedTree, expanded, "");
-    }
-    timer.split("synched tree states");
+    // Configure the nested group
+    nestedGroup.setTransparent(this.state.get("transparent"));
+    nestedGroup.setBlackEdges(this.state.get("blackEdges"));
+    nestedGroup.setMetalness(this.state.get("metalness"));
+    nestedGroup.setRoughness(this.state.get("roughness"));
+    nestedGroup.setPolygonOffset(2);
+
+    timer.split(`rendered${expanded ? " exploded" : " compact"} shapes`);
 
     this.tree = expanded ? this.expandedTree : this.compactTree;
-    this.scene!.children[0] = this.nestedGroup!.rootGroup;
+    scene.children[0] = nestedGroup.rootGroup!;
     timer.split("added shapes to scene");
 
-    deepDispose(this.treeview);
     if (!this.tree) {
       throw new Error("Tree not initialized");
     }
-    this.treeview = new TreeView(
+    const treeview = new TreeView(
       this.tree,
       this.display.cadTreeScrollContainer,
       this.setObject,
@@ -1115,11 +1070,98 @@ class Viewer {
     );
 
     this.display.clearCadTree();
-    const t = this.treeview.create();
+    const t = treeview.create();
     timer.split("created tree");
 
     this.display.addCadTree(t);
-    this.treeview.render();
+    treeview.render();
+    timer.split("rendered tree");
+    timer.stop();
+
+    return { nestedGroup, treeview };
+  }
+
+  /**
+   * Toggle the two version of the NestedGroup.
+   * Must only be called after render() has completed.
+   * @param expanded - whether to render the exploded or compact version
+   */
+  toggleGroup(expanded: boolean): void {
+    if (!this.rendered) {
+      throw new Error("toggleGroup called before render()");
+    }
+
+    const timer = new Timer("toggleGroup", this.state.get("timeit"));
+
+    const _config = (group: NestedGroup): void => {
+      group.setTransparent(this.state.get("transparent"));
+      group.setBlackEdges(this.state.get("blackEdges"));
+      group.setMetalness(this.state.get("metalness"));
+      group.setRoughness(this.state.get("roughness"));
+      group.setPolygonOffset(2);
+    };
+
+    let nestedGroup: NestedGroup;
+
+    if (
+      (this.compactNestedGroup == null && !expanded) ||
+      (this.expandedNestedGroup == null && expanded)
+    ) {
+      this.setRenderDefaults(this.renderOptions!);
+      const result = this.renderTessellatedShapes(expanded, this.shapes!);
+      nestedGroup = result.group;
+
+      if (expanded) {
+        this.expandedNestedGroup = result.group;
+        this.expandedTree = result.tree;
+      } else {
+        this.compactNestedGroup = result.group;
+        this.compactTree = result.tree;
+      }
+      _config(nestedGroup);
+      timer.split(`rendered${expanded ? " exploded" : " compact"} shapes`);
+    } else {
+      nestedGroup = expanded
+        ? this.expandedNestedGroup!
+        : this.compactNestedGroup!;
+      _config(nestedGroup);
+    }
+
+    // only sync if both trees exist
+    if (this.expandedTree) {
+      this.syncTreeStates(this.compactTree!, this.expandedTree, expanded, "");
+    }
+    timer.split("synched tree states");
+
+    this.tree = expanded ? this.expandedTree : this.compactTree;
+    this.rendered.scene.children[0] = nestedGroup.rootGroup!;
+    this.rendered.nestedGroup = nestedGroup;
+    timer.split("added shapes to scene");
+
+    deepDispose(this.rendered.treeview);
+    if (!this.tree) {
+      throw new Error("Tree not initialized");
+    }
+    const treeview = new TreeView(
+      this.tree,
+      this.display.cadTreeScrollContainer,
+      this.setObject,
+      this.handlePick,
+      this.update,
+      this.notifyStates,
+      this.getNodeColor,
+      this.state.get("theme"),
+      this.state.get("newTreeBehavior"),
+      false,
+    );
+    this.rendered.treeview = treeview;
+
+    this.display.clearCadTree();
+    const t = treeview.create();
+    timer.split("created tree");
+
+    this.display.addCadTree(t);
+    treeview.render();
     timer.split("rendered tree");
     timer.stop();
   }
@@ -1138,17 +1180,17 @@ class Viewer {
     timer.split("collapse tree");
     switch (this.state.get("collapse")) {
       case 0:
-        this.treeview!.expandAll();
+        this.rendered.treeview.expandAll();
         break;
       case 1:
-        this.treeview!.openLevel(-1);
+        this.rendered.treeview.openLevel(-1);
         break;
       case 2:
-        this.treeview!.collapseAll();
+        this.rendered.treeview.collapseAll();
         break;
 
       case 3:
-        this.treeview!.openLevel(1);
+        this.rendered.treeview.openLevel(1);
         break;
       default:
         break;
@@ -1178,17 +1220,17 @@ class Viewer {
 
     const timer = new Timer("viewer", this.state.get("timeit"));
 
-    this.scene = new THREE.Scene();
+    const scene = new THREE.Scene();
 
     //
     // add shapes and cad tree
     //
 
-    this.toggleGroup(false);
+    const { nestedGroup, treeview } = this.buildInitialGroup(scene, false);
     timer.split("scene and tree done");
 
     if (!this.bbox) {
-      this.bbox = this.nestedGroup!.boundingBox();
+      this.bbox = nestedGroup.boundingBox();
     }
     const center = new THREE.Vector3();
     this.bbox.getCenter(center);
@@ -1202,7 +1244,7 @@ class Viewer {
     //
     // create cameras
     //
-    this.camera = new Camera(
+    const camera = new Camera(
       this.state.get("cadWidth"),
       this.state.get("height"),
       this.bb_radius,
@@ -1214,25 +1256,138 @@ class Viewer {
     //
     // build mouse/touch controls
     //
-    this.controls = new Controls(
+    const controls = new Controls(
       this.state.get("control"),
-      this.camera.getCamera(),
+      camera.getCamera(),
       new THREE.Vector3(...(viewerOptions.target ?? this.bbox.center())),
-      this.renderer!.domElement,
+      this.renderer.domElement,
       this.state.get("rotateSpeed"),
       this.state.get("zoomSpeed"),
       this.state.get("panSpeed"),
       this.state.get("holroyd"),
     );
     // Disable keyboard controls (these properties exist on THREE.js controls internally)
-    this.controls.controls.enableKeys = false;
+    controls.controls.enableKeys = false;
 
     // ensure panning works for screen coordinates (only exists on OrbitControls)
-    if ("screenSpacePanning" in this.controls.controls) {
-      this.controls.controls.screenSpacePanning = true;
+    if ("screenSpacePanning" in controls.controls) {
+      controls.controls.screenSpacePanning = true;
     }
 
-    // this needs to happen after the controls have been established
+    //
+    // add lights
+    //
+
+    const ambientLight = new THREE.AmbientLight(
+      0xffffff,
+      scaleLight(this.state.get("ambientIntensity")),
+    );
+    scene.add(ambientLight);
+
+    const directLight = new THREE.DirectionalLight(
+      0xffffff,
+      scaleLight(this.state.get("directIntensity")),
+    );
+    scene.add(directLight);
+
+    //
+    // add grid helpers
+    //
+
+    const gridHelper = new Grid({
+      bbox: this.bbox,
+      ticks: this.state.get("ticks"),
+      gridFontSize: this.state.get("gridFontSize"),
+      centerGrid: this.state.get("centerGrid"),
+      axes0: this.state.get("axes0"),
+      grid: [...this.state.get("grid")],
+      flipY: viewerOptions.up === "Z",
+      theme: this.state.get("theme"),
+      cadWidth: this.state.get("cadWidth"),
+      height: this.state.get("height"),
+      maxAnisotropy: this.renderer.capabilities.getMaxAnisotropy(),
+      tickValueElement: this.display.tickValueElement,
+      tickInfoElement: this.display.tickInfoElement,
+      getCamera: () => this._rendered?.camera.getCamera() ?? null,
+      getAxes0: () => this.state?.get("axes0") ?? false,
+    });
+    gridHelper.computeGrid();
+
+    scene.add(gridHelper);
+
+    this.gridSize = gridHelper.size;
+
+    //
+    // add axes helper
+    //
+
+    const axesHelper = new AxesHelper(
+      this.bbox.center(),
+      this.gridSize / 2,
+      2,
+      this.state.get("cadWidth"),
+      this.state.get("height"),
+      this.state.get("axes0"),
+      this.state.get("axes"),
+      this.state.get("theme"),
+    );
+    scene.add(axesHelper);
+
+    //
+    // set up clipping planes and helpers
+    //
+    const cSize =
+      1.1 *
+      Math.max(
+        Math.abs(this.bbox.min.length()),
+        Math.abs(this.bbox.max.length()),
+      );
+    const clipping = new Clipping(
+      this.bbox.center(),
+      2 * cSize,
+      nestedGroup,
+      {
+        onNormalChange: (index, normalArray) =>
+          this.display.setNormalLabel(index, normalArray),
+      },
+      this.state.get("theme"),
+    );
+
+    scene.add(clipping);
+
+    // Theme is already resolved ("light" or "dark") by ViewerState constructor
+    const theme = this.state.get("theme");
+
+    //
+    // set up the orientation marker
+    //
+
+    const orientationMarker = new OrientationMarker(
+      80,
+      80,
+      camera.getCamera(),
+      theme,
+    );
+    orientationMarker.create();
+
+    //
+    // Assemble rendered state
+    //
+    this._rendered = {
+      scene,
+      camera,
+      controls,
+      nestedGroup,
+      gridHelper,
+      axesHelper,
+      clipping,
+      treeview,
+      orientationMarker,
+      ambientLight,
+      directLight,
+    };
+
+    // Now that rendered state exists, configure camera position
     if (viewerOptions.position == null && viewerOptions.quaternion == null) {
       this.presetCamera("iso", this.state.get("zoom"));
       this.state.set("highlightedButton", "iso");
@@ -1246,7 +1401,7 @@ class Viewer {
         this.state.get("zoom"),
       );
       if (viewerOptions.quaternion == null) {
-        this.camera.lookAtTarget();
+        camera.lookAtTarget();
       }
     } else {
       this.display.addInfoHtml(
@@ -1254,92 +1409,13 @@ class Viewer {
       );
       this.presetCamera("iso", this.state.get("zoom"));
     }
-    this.controls.update();
+    controls.update();
 
     // Save the new state again
-    this.controls.saveState();
-
-    //
-    // add lights
-    //
-
-    this.ambientLight = new THREE.AmbientLight(
-      0xffffff,
-      scaleLight(this.state.get("ambientIntensity")),
-    );
-    this.scene.add(this.ambientLight);
-
-    this.directLight = new THREE.DirectionalLight(
-      0xffffff,
-      scaleLight(this.state.get("directIntensity")),
-    );
-    this.scene.add(this.directLight);
+    controls.saveState();
 
     this.setAmbientLight(this.state.get("ambientIntensity"));
     this.setDirectLight(this.state.get("directIntensity"));
-
-    //
-    // add grid helpers
-    //
-
-    this.gridHelper = new Grid({
-      bbox: this.bbox,
-      ticks: this.state.get("ticks"),
-      gridFontSize: this.state.get("gridFontSize"),
-      centerGrid: this.state.get("centerGrid"),
-      axes0: this.state.get("axes0"),
-      grid: [...this.state.get("grid")],
-      flipY: viewerOptions.up === "Z",
-      theme: this.state.get("theme"),
-      cadWidth: this.state.get("cadWidth"),
-      height: this.state.get("height"),
-      maxAnisotropy: this.renderer!.capabilities.getMaxAnisotropy(),
-      tickValueElement: this.display.tickValueElement,
-      tickInfoElement: this.display.tickInfoElement,
-      getCamera: () => this.camera?.getCamera() ?? null,
-      getAxes0: () => this.state?.get("axes0") ?? false,
-    });
-    this.gridHelper.computeGrid();
-
-    this.scene.add(this.gridHelper);
-
-    this.gridSize = this.gridHelper.size;
-
-    //
-    // add axes helper
-    //
-
-    this.axesHelper = new AxesHelper(
-      this.bbox.center(),
-      this.gridSize / 2,
-      2,
-      this.state.get("cadWidth"),
-      this.state.get("height"),
-      this.state.get("axes0"),
-      this.state.get("axes"),
-      this.state.get("theme"),
-    );
-    this.scene.add(this.axesHelper);
-
-    //
-    // set up clipping planes and helpers
-    //
-    const cSize =
-      1.1 *
-      Math.max(
-        Math.abs(this.bbox.min.length()),
-        Math.abs(this.bbox.max.length()),
-      );
-    this.clipping = new Clipping(
-      this.bbox.center(),
-      2 * cSize,
-      this.nestedGroup!,
-      {
-        onNormalChange: (index, normalArray) =>
-          this.display.setNormalLabel(index, normalArray),
-      },
-      this.state.get("theme"),
-    );
 
     this.display.setSliderLimits(this.gridSize / 2);
 
@@ -1367,29 +1443,13 @@ class Viewer {
     this.setClipIntersection(viewerOptions.clipIntersection ?? false, true);
     this.setClipObjectColorCaps(viewerOptions.clipObjectColors ?? false, true);
 
-    this.scene.add(this.clipping);
-    this.nestedGroup!.setClipPlanes(this.clipping.clipPlanes);
+    nestedGroup.setClipPlanes(clipping.clipPlanes);
 
     this.setLocalClipping(false); // only allow clipping when Clipping tab is selected
 
-    this.clipping.setVisible(false);
+    clipping.setVisible(false);
 
     this.toggleTab(false);
-
-    // Theme is already resolved ("light" or "dark") by ViewerState constructor
-    const theme = this.state.get("theme");
-
-    //
-    // set up the orientation marker
-    //
-
-    this.orientationMarker = new OrientationMarker(
-      80,
-      80,
-      this.camera.getCamera(),
-      theme,
-    );
-    this.orientationMarker.create();
 
     //
     // update UI elements
@@ -1418,11 +1478,11 @@ class Viewer {
         tab: { old: null, new: this.state.get("activeTab") },
         target: {
           old: null,
-          new: toVector3Tuple(this.controls.target.toArray()),
+          new: toVector3Tuple(controls.target.toArray()),
         },
         target0: {
           old: null,
-          new: toVector3Tuple(this.controls.target0.toArray()),
+          new: toVector3Tuple(controls.target0.toArray()),
         },
         clip_normal_0: { old: null, new: this.clipNormal0 },
         clip_normal_1: { old: null, new: this.clipNormal1 },
@@ -1432,7 +1492,7 @@ class Viewer {
     timer.split("notification done");
 
     this.update(true, false);
-    this.treeview!.update();
+    treeview.update();
     this.display.setTheme(this.state.get("theme"));
 
     this.setZebraCount(this.state.get("zebraCount"));
@@ -1464,7 +1524,7 @@ class Viewer {
     zoom: number | null = null,
     notify: boolean = true,
   ): void => {
-    this.camera!.setupCamera(relative, position, quaternion, zoom);
+    this.rendered.camera.setupCamera(relative, position, quaternion, zoom);
     this.update(true, notify);
   };
 
@@ -1479,9 +1539,9 @@ class Viewer {
     zoom: number | null = null,
     notify: boolean = true,
   ): void => {
-    this.camera!.target = new THREE.Vector3(...this.bbox!.center());
-    this.camera!.presetCamera(dir, zoom);
-    this.controls!.setTarget(this.camera!.target);
+    this.rendered.camera.target = new THREE.Vector3(...this.bbox!.center());
+    this.rendered.camera.presetCamera(dir, zoom);
+    this.rendered.controls.setTarget(this.rendered.camera.target);
     this.update(true, notify);
   };
 
@@ -1490,7 +1550,7 @@ class Viewer {
    * @returns target, position, quaternion, zoom as object.
    */
   getResetLocation = (): ResetLocation => {
-    return this.controls!.getResetLocation();
+    return this.rendered.controls.getResetLocation();
   };
 
   /**
@@ -1509,7 +1569,7 @@ class Viewer {
     notify: boolean = true,
   ): void => {
     const location = this.getResetLocation();
-    this.controls!.setResetLocation(
+    this.rendered.controls.setResetLocation(
       new THREE.Vector3(...target),
       new THREE.Vector3(...position),
       new THREE.Quaternion(...quaternion),
@@ -1543,7 +1603,7 @@ class Viewer {
    * @returns "ortho" or "perspective".
    */
   getCameraType(): string {
-    return this.camera!.ortho ? "ortho" : "perspective";
+    return this.rendered.camera.ortho ? "ortho" : "perspective";
   }
 
   /**
@@ -1553,13 +1613,13 @@ class Viewer {
    */
   switchCamera(flag: boolean, notify: boolean = true): void {
     this.state.set("ortho", flag);
-    this.camera!.switchCamera(flag);
-    this.controls!.setCamera(this.camera!.getCamera());
+    this.rendered.camera.switchCamera(flag);
+    this.rendered.controls.setCamera(this.rendered.camera.getCamera());
 
     this.checkChanges({ ortho: flag }, notify);
 
-    this.gridHelper!.scaleLabels();
-    this.gridHelper!.update(this.camera!.getZoom(), true);
+    this.rendered.gridHelper.scaleLabels();
+    this.rendered.gridHelper.update(this.rendered.camera.getZoom(), true);
 
     this.update(true, notify);
   }
@@ -1582,7 +1642,7 @@ class Viewer {
    * @param notify - Whether to notify listeners of the camera update
    */
   centerVisibleObjects(notify: boolean = true): void {
-    const groups = this.nestedGroup!.groups;
+    const groups = this.rendered.nestedGroup.groups;
 
     let bbox = new BoundingBox();
     for (const path in groups) {
@@ -1603,8 +1663,8 @@ class Viewer {
    * Reset zoom to 1.0
    */
   resize = (): void => {
-    this.camera!.setZoom(1.0);
-    this.camera!.updateProjectionMatrix();
+    this.rendered.camera.setZoom(1.0);
+    this.rendered.camera.updateProjectionMatrix();
     this.update(true);
   };
 
@@ -1612,7 +1672,7 @@ class Viewer {
    * Reset the view to the initial camera and controls settings
    */
   reset = (): void => {
-    this.controls!.reset();
+    this.rendered.controls.reset();
     this.update(true);
   };
 
@@ -1621,7 +1681,7 @@ class Viewer {
    * @param flag - whether to enable local clipping
    */
   setLocalClipping(flag: boolean): void {
-    this.renderer!.localClippingEnabled = flag;
+    this.renderer.localClippingEnabled = flag;
     this.update(this.updateMarker);
   }
 
@@ -1645,7 +1705,7 @@ class Viewer {
     notify: boolean = true,
     update: boolean = true,
   ): void => {
-    const objectGroup = this.nestedGroup!.groups[path];
+    const objectGroup = this.rendered.nestedGroup.groups[path];
     if (objectGroup != null && objectGroup instanceof ObjectGroup) {
       if (iconNumber === 0) {
         objectGroup.setShapeVisible(state === 1);
@@ -1654,7 +1714,8 @@ class Viewer {
       }
       if (notify) {
         const stateObj: Record<string, VisibilityState> = {};
-        stateObj[path] = this.getState(path);
+        const state_ = this.getState(path);
+        if (state_) stateObj[path] = state_;
       }
       if (update) {
         this.update(this.updateMarker);
@@ -1667,10 +1728,10 @@ class Viewer {
    * @param id - The ID of the group.
    */
   setBoundingBox = (id: string): void => {
-    const group = this.nestedGroup!.groups[id];
+    const group = this.rendered.nestedGroup.groups[id];
     if (group != null) {
       if (this.lastBbox != null) {
-        this.scene!.remove(this.lastBbox.bbox);
+        this.rendered.scene.remove(this.lastBbox.bbox);
         this.lastBbox.bbox.geometry.dispose();
         const mat = this.lastBbox.bbox.material;
         if (Array.isArray(mat)) {
@@ -1688,7 +1749,7 @@ class Viewer {
           bbox: new BoxHelper(group, 0xff00ff),
           needsUpdate: false,
         };
-        this.scene!.add(this.lastBbox.bbox);
+        this.rendered.scene.add(this.lastBbox.bbox);
       } else {
         this.lastBbox = null;
       }
@@ -1703,9 +1764,10 @@ class Viewer {
    * @param value - distance on the clipping normal from the center
    */
   refreshPlane = (index: ClipIndex, value: number): void => {
+    if (!this.ready) return;
     const sliderKeys = ["clipSlider0", "clipSlider1", "clipSlider2"] as const;
     this.state.set(sliderKeys[index], value);
-    this.clipping!.setConstant(index, value);
+    this.rendered.clipping.setConstant(index, value);
     this.update(this.updateMarker);
   };
 
@@ -1724,7 +1786,7 @@ class Viewer {
   restoreAnimation(): void {
     if (this.animation.hasBackup()) {
       const params = this.animation.restore();
-      this.initAnimation(params.duration, params.speed, "A", params.repeat);
+      this.initAnimation(params.duration!, params.speed!, "A", params.repeat!);
     }
   }
 
@@ -1733,6 +1795,7 @@ class Viewer {
    * @param btn - the pressed button as string: "play", "pause", "stop"
    */
   controlAnimation = (btn: string): void => {
+    if (!this.clipAction) return;
     switch (btn) {
       case "play":
         if (this.clipAction.paused) {
@@ -1762,13 +1825,13 @@ class Viewer {
     _nodeType: string = "leaf",
     notify: boolean = true,
   ): void => {
-    this.treeview!.setState(id, state);
+    this.rendered.treeview.setState(id, state);
     this.update(this.updateMarker, notify);
   };
 
   removeLastBbox(): void {
     if (this.lastBbox != null) {
-      this.scene!.remove(this.lastBbox.bbox);
+      this.rendered.scene.remove(this.lastBbox.bbox);
       this.lastBbox.bbox.dispose();
       this.lastBbox = null;
     }
@@ -1791,12 +1854,12 @@ class Viewer {
     meta: boolean,
     shift: boolean,
     _alt: boolean,
-    point: THREE.Vector3,
+    point: THREE.Vector3 | null,
     nodeType: string | null = "leaf",
     tree: boolean = false,
   ): void => {
     const id = `${path}/${name}`;
-    const object = this.nestedGroup!.groups[id];
+    const object = this.rendered.nestedGroup.groups[id];
     if (object == null) {
       return;
     }
@@ -1813,7 +1876,7 @@ class Viewer {
 
     if (this.lastBbox != null && this.lastBbox.id === id && !meta && !shift) {
       this.removeLastBbox();
-      this.treeview!.toggleLabelColor(null, id);
+      this.rendered.treeview.toggleLabelColor(null, id);
     } else {
       this.checkChanges({
         lastPick: {
@@ -1831,16 +1894,16 @@ class Viewer {
       if (shift && meta) {
         this.removeLastBbox();
         if (tree) {
-          this.treeview!.hideAll();
+          this.rendered.treeview.hideAll();
           this.setState(id, [1, 1], nodeType ?? "leaf");
         } else {
           const center = boundingBox.center();
-          this.setCameraTarget(point);
+          this.setCameraTarget(point ?? new THREE.Vector3(...center));
           this.display.showCenterInfo(center);
         }
       } else if (shift) {
         this.removeLastBbox();
-        this.treeview!.hideAll();
+        this.rendered.treeview.hideAll();
         this.setState(id, [1, 1], nodeType ?? "leaf");
         const center = boundingBox.center();
         this.setCameraTarget(new THREE.Vector3(...center));
@@ -1850,7 +1913,7 @@ class Viewer {
       } else {
         this.display.showBoundingBoxInfo(path, name, boundingBox);
         this.setBoundingBox(id);
-        this.treeview!.openPath(id);
+        this.rendered.treeview.openPath(id);
       }
     }
     this.update(true);
@@ -1862,9 +1925,9 @@ class Viewer {
 
   setPickHandler(flag: boolean): void {
     if (flag) {
-      this.renderer!.domElement.addEventListener("dblclick", this.pick, false);
+      this.renderer.domElement.addEventListener("dblclick", this.pick, false);
     } else {
-      this.renderer!.domElement.removeEventListener(
+      this.renderer.domElement.removeEventListener(
         "dblclick",
         this.pick,
         false,
@@ -1878,12 +1941,12 @@ class Viewer {
    */
   pick = (e: PointerEvent | MouseEvent): void => {
     const raycaster = new Raycaster(
-      this.camera!,
-      this.renderer!.domElement,
+      this.rendered.camera,
+      this.renderer.domElement,
       this.state.get("cadWidth"),
       this.state.get("height"),
       this.bb_max / 30,
-      this.scene!.children[0],
+      this.rendered.scene.children[0],
       () => {},
     );
     raycaster.init();
@@ -1945,7 +2008,7 @@ class Viewer {
   // ---------------------------------------------------------------------------
 
   clearSelection = (): void => {
-    this.nestedGroup!.clearSelection();
+    this.rendered.nestedGroup.clearSelection();
     this.cadTools.handleResetSelection();
   };
 
@@ -1963,9 +2026,9 @@ class Viewer {
       const objs = this.lastSelection.objs();
       for (const obj of objs) {
         obj.unhighlight(false);
-        this.treeview!.toggleLabelColor(
+        this.rendered.treeview.toggleLabelColor(
           null,
-          obj.name.replaceAll(this.nestedGroup!.delim, "/"),
+          obj.name.replaceAll(this.rendered.nestedGroup.delim, "/"),
         );
       }
       this.lastSelection = null;
@@ -1982,12 +2045,12 @@ class Viewer {
     if (flag) {
       // initiate raycasting
       this.raycaster = new Raycaster(
-        this.camera!,
-        this.renderer!.domElement,
+        this.rendered.camera,
+        this.renderer.domElement,
         this.state.get("cadWidth"),
         this.state.get("height"),
         this.bb_max / 30,
-        this.scene!.children[0],
+        this.rendered.scene.children[0],
         this.handleRaycastEvent,
       );
       this.raycaster.init();
@@ -2102,8 +2165,9 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setAxes = (flag: boolean, notify: boolean = true): void => {
+    if (!this.ready) return;
     this.state.set("axes", flag);
-    this.axesHelper!.setVisible(flag);
+    this.rendered.axesHelper.setVisible(flag);
 
     this.checkChanges({ axes: flag }, notify);
 
@@ -2117,12 +2181,12 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setGrid = (action: string, flag: boolean, notify: boolean = true): void => {
-    this.gridHelper!.setGrid(action, flag);
+    this.rendered.gridHelper.setGrid(action, flag);
     // Copy array to avoid reference comparison issues in state.set
-    const [a, b, c] = this.gridHelper!.grid;
+    const [a, b, c] = this.rendered.gridHelper.grid;
     this.state.set("grid", [a, b, c]);
 
-    this.checkChanges({ grid: this.gridHelper!.grid }, notify);
+    this.checkChanges({ grid: this.rendered.gridHelper.grid }, notify);
 
     this.update(this.updateMarker);
   };
@@ -2144,12 +2208,12 @@ class Viewer {
     grids: [boolean, boolean, boolean],
     notify: boolean = true,
   ): void => {
-    this.gridHelper!.setGrids(...grids);
+    this.rendered.gridHelper.setGrids(...grids);
     // Copy array to avoid reference comparison issues in state.set
-    const [a, b, c] = this.gridHelper!.grid;
+    const [a, b, c] = this.rendered.gridHelper.grid;
     this.state.set("grid", [a, b, c]);
 
-    this.checkChanges({ grid: this.gridHelper!.grid }, notify);
+    this.checkChanges({ grid: this.rendered.gridHelper.grid }, notify);
 
     this.update(this.updateMarker);
   };
@@ -2160,13 +2224,13 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setGridCenter = (center: boolean, notify: boolean = true): void => {
-    this.gridHelper!.centerGrid = center;
-    this.gridHelper!.setCenter(
+    this.rendered.gridHelper.centerGrid = center;
+    this.rendered.gridHelper.setCenter(
       this.state.get("axes0"),
       this.state.get("up") === "Z",
     );
 
-    this.checkChanges({ center_grid: this.gridHelper!.centerGrid }, notify);
+    this.checkChanges({ center_grid: this.rendered.gridHelper.centerGrid }, notify);
 
     this.update(this.updateMarker);
   };
@@ -2185,9 +2249,10 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setAxes0 = (flag: boolean, notify: boolean = true): void => {
+    if (!this.ready) return;
     this.state.set("axes0", flag);
-    this.gridHelper!.setCenter(flag, this.state.get("up") === "Z");
-    this.axesHelper!.setCenter(flag);
+    this.rendered.gridHelper.setCenter(flag, this.state.get("up") === "Z");
+    this.rendered.axesHelper.setCenter(flag);
 
     this.checkChanges({ axes0: flag }, notify);
 
@@ -2209,7 +2274,7 @@ class Viewer {
    */
   setTransparent = (flag: boolean, notify: boolean = true): void => {
     this.state.set("transparent", flag);
-    this.nestedGroup!.setTransparent(flag);
+    this.rendered.nestedGroup.setTransparent(flag);
 
     this.checkChanges({ transparent: flag }, notify);
 
@@ -2231,7 +2296,7 @@ class Viewer {
    */
   setBlackEdges = (flag: boolean, notify: boolean = true): void => {
     this.state.set("blackEdges", flag);
-    this.nestedGroup!.setBlackEdges(flag);
+    this.rendered.nestedGroup.setBlackEdges(flag);
 
     this.checkChanges({ black_edges: flag }, notify);
 
@@ -2273,7 +2338,7 @@ class Viewer {
    */
   setEdgeColor = (color: number, notify: boolean = true): void => {
     this.state.set("edgeColor", color);
-    this.nestedGroup!.setEdgeColor(color);
+    this.rendered.nestedGroup.setEdgeColor(color);
     this.update(this.updateMarker, notify);
   };
 
@@ -2292,7 +2357,7 @@ class Viewer {
    */
   setOpacity = (opacity: number, notify: boolean = true): void => {
     this.state.set("defaultOpacity", opacity);
-    this.nestedGroup!.setOpacity(opacity);
+    this.rendered.nestedGroup.setOpacity(opacity);
     this.update(this.updateMarker, notify);
   };
 
@@ -2332,9 +2397,10 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setAmbientLight = (val: number, notify: boolean = true): void => {
+    if (!this.ready) return;
     val = Math.max(0, Math.min(4, val));
     this.state.set("ambientIntensity", val);
-    this.ambientLight.intensity = scaleLight(val);
+    this.rendered.ambientLight.intensity = scaleLight(val);
     this.checkChanges({ ambient_intensity: val }, notify);
     this.update(this.updateMarker, notify);
   };
@@ -2353,9 +2419,10 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setDirectLight = (val: number, notify: boolean = true): void => {
+    if (!this.ready) return;
     val = Math.max(0, Math.min(4, val));
     this.state.set("directIntensity", val);
-    this.directLight.intensity = scaleLight(val);
+    this.rendered.directLight.intensity = scaleLight(val);
     this.checkChanges({ direct_intensity: val }, notify);
     this.update(this.updateMarker, notify);
   };
@@ -2378,7 +2445,7 @@ class Viewer {
   setMetalness = (value: number, notify: boolean = true): void => {
     value = Math.max(0, Math.min(1, value));
     this.state.set("metalness", value);
-    this.nestedGroup!.setMetalness(value);
+    this.rendered.nestedGroup.setMetalness(value);
     this.checkChanges({ metalness: value }, notify);
     this.update(this.updateMarker);
   };
@@ -2401,7 +2468,7 @@ class Viewer {
   setRoughness = (value: number, notify: boolean = true): void => {
     value = Math.max(0, Math.min(1, value));
     this.state.set("roughness", value);
-    this.nestedGroup!.setRoughness(value);
+    this.rendered.nestedGroup.setRoughness(value);
     this.checkChanges({ roughness: value }, notify);
     this.update(this.updateMarker);
   };
@@ -2412,6 +2479,7 @@ class Viewer {
    * based on the current material settings.
    */
   resetMaterial = (): void => {
+    if (!this.materialSettings) return;
     this.setMetalness(this.materialSettings.metalness, true);
     this.setRoughness(this.materialSettings.roughness, true);
     this.setAmbientLight(this.materialSettings.ambientIntensity, true);
@@ -2423,9 +2491,9 @@ class Viewer {
   // ---------------------------------------------------------------------------
 
   enableZebraTool = (flag: boolean): void => {
-    this.nestedGroup!.setZebra(flag);
+    this.rendered.nestedGroup.setZebra(flag);
     this.update(true, true);
-    this.treeview!.update();
+    this.rendered.treeview.update();
   };
 
   /**
@@ -2435,7 +2503,7 @@ class Viewer {
   setZebraCount = (value: number): void => {
     value = Math.max(2, Math.min(50, value));
     this.state.set("zebraCount", value);
-    this.nestedGroup!.setZebraCount(value);
+    this.rendered.nestedGroup.setZebraCount(value);
     this.update(this.updateMarker);
   };
 
@@ -2446,7 +2514,7 @@ class Viewer {
   setZebraOpacity = (value: number): void => {
     value = Math.max(0, Math.min(1, value));
     this.state.set("zebraOpacity", value);
-    this.nestedGroup!.setZebraOpacity(value);
+    this.rendered.nestedGroup.setZebraOpacity(value);
     this.update(this.updateMarker);
   };
 
@@ -2457,7 +2525,7 @@ class Viewer {
   setZebraDirection = (value: number): void => {
     value = Math.max(0, Math.min(90, value));
     this.state.set("zebraDirection", value);
-    this.nestedGroup!.setZebraDirection(value);
+    this.rendered.nestedGroup.setZebraDirection(value);
     this.update(this.updateMarker);
   };
 
@@ -2467,7 +2535,7 @@ class Viewer {
    */
   setZebraColorScheme = (value: ZebraColorScheme): void => {
     this.state.set("zebraColorScheme", value);
-    this.nestedGroup!.setZebraColorScheme(value);
+    this.rendered.nestedGroup.setZebraColorScheme(value);
     this.update(this.updateMarker);
   };
 
@@ -2477,7 +2545,7 @@ class Viewer {
    */
   setZebraMappingMode = (value: ZebraMappingMode): void => {
     this.state.set("zebraMappingMode", value);
-    this.nestedGroup!.setZebraMappingMode(value);
+    this.rendered.nestedGroup.setZebraMappingMode(value);
     this.update(this.updateMarker);
   };
 
@@ -2489,7 +2557,84 @@ class Viewer {
    * Get ortho value as property (for ViewerLike interface compatibility).
    */
   get ortho(): boolean {
-    return this.camera?.ortho ?? true;
+    return this._rendered?.camera.ortho ?? true;
+  }
+
+  /**
+   * Get camera property. Throws if not rendered.
+   */
+  get camera(): Camera {
+    return this.rendered.camera;
+  }
+
+  /**
+   * Get nestedGroup property. Throws if not rendered.
+   */
+  get nestedGroup(): NestedGroup {
+    return this.rendered.nestedGroup;
+  }
+
+  /**
+   * Get clipping property. Throws if not rendered.
+   */
+  get clipping(): Clipping {
+    return this.rendered.clipping;
+  }
+
+  /**
+   * Get treeview property. Throws if not rendered.
+   */
+  get treeview(): TreeView {
+    return this.rendered.treeview;
+  }
+
+  /**
+   * Get orientationMarker property. Throws if not rendered.
+   */
+  get orientationMarker(): OrientationMarker {
+    return this.rendered.orientationMarker;
+  }
+
+  /**
+   * Get gridHelper property. Throws if not rendered.
+   */
+  get gridHelper(): Grid {
+    return this.rendered.gridHelper;
+  }
+
+  /**
+   * Get axesHelper property. Throws if not rendered.
+   */
+  get axesHelper(): AxesHelper {
+    return this.rendered.axesHelper;
+  }
+
+  /**
+   * Get scene property. Throws if not rendered.
+   */
+  get scene(): THREE.Scene {
+    return this.rendered.scene;
+  }
+
+  /**
+   * Get controls property. Throws if not rendered.
+   */
+  get controls(): Controls {
+    return this.rendered.controls;
+  }
+
+  /**
+   * Get ambientLight property. Throws if not rendered.
+   */
+  get ambientLight(): THREE.AmbientLight {
+    return this.rendered.ambientLight;
+  }
+
+  /**
+   * Get directLight property. Throws if not rendered.
+   */
+  get directLight(): THREE.DirectionalLight {
+    return this.rendered.directLight;
   }
 
   /**
@@ -2497,7 +2642,7 @@ class Viewer {
    * @returns ortho value.
    */
   getOrtho(): boolean {
-    return this.camera!.ortho;
+    return this.rendered.camera.ortho;
   }
 
   /**
@@ -2514,7 +2659,7 @@ class Viewer {
    * @param value - scale factor.
    */
   setZscaleValue(value: number): void {
-    this.nestedGroup!.setZScale(value);
+    this.rendered.nestedGroup.setZScale(value);
     this.zScale = value;
     this.update(true);
   }
@@ -2524,7 +2669,7 @@ class Viewer {
    * @returns zoom value.
    */
   getCameraZoom(): number {
-    return this.camera!.getZoom();
+    return this.rendered.camera.getZoom();
   }
 
   /**
@@ -2533,8 +2678,8 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setCameraZoom(val: number, notify: boolean = true): void {
-    this.camera!.setZoom(val);
-    this.controls!.update();
+    this.rendered.camera.setZoom(val);
+    this.rendered.controls.update();
     this.update(true, notify);
   }
 
@@ -2543,7 +2688,7 @@ class Viewer {
    * @returns camera position as 3 dim array [x,y,z].
    */
   getCameraPosition(): number[] {
-    return this.camera!.getPosition().toArray();
+    return this.rendered.camera.getPosition().toArray();
   }
 
   /**
@@ -2557,8 +2702,8 @@ class Viewer {
     relative: boolean = false,
     notify: boolean = true,
   ): void {
-    this.camera!.setPosition(position, relative);
-    this.controls!.update();
+    this.rendered.camera.setPosition(position, relative);
+    this.rendered.controls.update();
     this.update(true, notify);
   }
 
@@ -2567,7 +2712,7 @@ class Viewer {
    * @returns camera rotation as 4 dim quaternion array [x,y,z,w].
    */
   getCameraQuaternion(): QuaternionTuple {
-    return toQuaternionTuple(this.camera!.getQuaternion().toArray());
+    return toQuaternionTuple(this.rendered.camera.getQuaternion().toArray());
   }
 
   /**
@@ -2579,8 +2724,8 @@ class Viewer {
     quaternion: QuaternionTuple,
     notify: boolean = true,
   ): void {
-    this.camera!.setQuaternion(quaternion);
-    this.controls!.update();
+    this.rendered.camera.setQuaternion(quaternion);
+    this.rendered.controls.update();
     this.update(true, notify);
   }
 
@@ -2589,7 +2734,7 @@ class Viewer {
    * @returns camera target as 3 dim array array [x,y,z].
    */
   getCameraTarget(): Vector3Tuple {
-    return toVector3Tuple(this.controls!.getTarget().toArray());
+    return toVector3Tuple(this.rendered.controls.getTarget().toArray());
   }
 
   /**
@@ -2599,15 +2744,15 @@ class Viewer {
    */
   setCameraTarget(target: THREE.Vector3, notify: boolean = true): void {
     // Store current state
-    const camera = this.camera!.getCamera();
+    const camera = this.rendered.camera.getCamera();
     const zoom = camera.zoom; // For orthographic cameras
 
-    const offset = camera.position.clone().sub(this.controls!.getTarget());
+    const offset = camera.position.clone().sub(this.rendered.controls.getTarget());
 
     // Update position and target
     camera.position.copy(target.clone().add(offset));
     camera.updateWorldMatrix(true, false);
-    this.controls!.getTarget().copy(target);
+    this.rendered.controls.getTarget().copy(target);
 
     // Preserve zoom for orthographic cameras
     if (isOrthographicCamera(camera)) {
@@ -2616,7 +2761,7 @@ class Viewer {
     }
 
     // Update controls
-    this.controls!.update();
+    this.rendered.controls.update();
     this.update(true, notify);
   }
 
@@ -2637,18 +2782,18 @@ class Viewer {
     notify: boolean = true,
   ): void {
     if (position != null) {
-      this.camera!.setPosition(position, false);
+      this.rendered.camera.setPosition(position, false);
     }
     if (quaternion != null && this.state.get("control") === "trackball") {
-      this.camera!.setQuaternion(quaternion);
+      this.rendered.camera.setQuaternion(quaternion);
     }
     if (target != null) {
-      this.controls!.setTarget(new THREE.Vector3(...target));
+      this.rendered.controls.setTarget(new THREE.Vector3(...target));
     }
     if (zoom != null) {
-      this.camera!.setZoom(zoom);
+      this.rendered.camera.setZoom(zoom);
     }
-    this.controls!.update();
+    this.rendered.controls.update();
     this.update(true, notify);
   }
 
@@ -2660,7 +2805,7 @@ class Viewer {
    * Get states of a treeview leafs.
    */
   getStates(): Record<string, VisibilityState> {
-    return this.treeview!.getStates();
+    return this.rendered.treeview.getStates();
   }
 
   /**
@@ -2669,9 +2814,9 @@ class Viewer {
    * @param path - path of the object
    * @returns state value in the form of [mesh, edges] = [0/1, 0/1]
    */
-  getState(path: string): VisibilityState {
+  getState(path: string): VisibilityState | null {
     const p = path.replaceAll("|", "/");
-    return this.treeview!.getState(p);
+    return this.rendered.treeview.getState(p);
   }
 
   /**
@@ -2679,7 +2824,7 @@ class Viewer {
    * @param states - states object
    */
   setStates = (states: Record<string, VisibilityState>): void => {
-    this.treeview!.setStates(states);
+    this.rendered.treeview.setStates(states);
   };
 
   // ---------------------------------------------------------------------------
@@ -2701,8 +2846,8 @@ class Viewer {
    */
   setZoomSpeed = (val: number, notify: boolean = true): void => {
     this.state.set("zoomSpeed", val);
-    this.controls!.setZoomSpeed(val);
-    this.checkChanges({ grid: this.gridHelper!.grid }, notify);
+    this.rendered.controls.setZoomSpeed(val);
+    this.checkChanges({ grid: this.rendered.gridHelper.grid }, notify);
   };
 
   /**
@@ -2720,8 +2865,8 @@ class Viewer {
    */
   setPanSpeed = (val: number, notify: boolean = true): void => {
     this.state.set("panSpeed", val);
-    this.controls!.setPanSpeed(val);
-    this.checkChanges({ grid: this.gridHelper!.grid }, notify);
+    this.rendered.controls.setPanSpeed(val);
+    this.checkChanges({ grid: this.rendered.gridHelper.grid }, notify);
   };
 
   /**
@@ -2739,8 +2884,8 @@ class Viewer {
    */
   setRotateSpeed = (val: number, notify: boolean = true): void => {
     this.state.set("rotateSpeed", val);
-    this.controls!.setRotateSpeed(val);
-    this.checkChanges({ grid: this.gridHelper!.grid }, notify);
+    this.rendered.controls.setRotateSpeed(val);
+    this.checkChanges({ grid: this.rendered.gridHelper.grid }, notify);
   };
 
   /**
@@ -2759,8 +2904,8 @@ class Viewer {
    */
   setHolroyd = (flag: boolean, notify: boolean = true): void => {
     this.state.set("holroyd", flag);
-    this.controls!.setHolroydTrackball(flag);
-    this.checkChanges({ grid: this.gridHelper!.grid }, notify);
+    this.rendered.controls.setHolroydTrackball(flag);
+    this.checkChanges({ grid: this.rendered.gridHelper.grid }, notify);
   };
 
   // ---------------------------------------------------------------------------
@@ -2781,34 +2926,34 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setClipIntersection = (flag: boolean, notify: boolean = true): void => {
-    if (flag == null) return;
+    if (flag == null || !this.ready) return;
 
     this.state.set("clipIntersection", flag);
-    this.nestedGroup!.setClipIntersection(flag);
+    this.rendered.nestedGroup.setClipIntersection(flag);
 
     const clipPlanes = flag
-      ? this.clipping!.reverseClipPlanes
-      : this.clipping!.clipPlanes;
+      ? this.rendered.clipping.reverseClipPlanes
+      : this.rendered.clipping.clipPlanes;
 
-    for (const child of this.nestedGroup!.rootGroup.children) {
+    for (const child of this.rendered.nestedGroup.rootGroup!.children) {
       if (child.name === "PlaneMeshes") {
         for (const capPlane of child.children) {
           if (!isIndexedMesh(capPlane)) continue;
           if (!isClippableMaterial(capPlane.material)) continue;
-          capPlane.material.clippingPlanes = clipPlanes.filter(
-            (_, j) => j !== capPlane.index,
+          capPlane.material.clippingPlanes = clipPlanes!.filter(
+            (_: THREE.Plane, j: number) => j !== capPlane.index,
           );
         }
       }
     }
 
-    for (const child of this.scene!.children) {
+    for (const child of this.rendered.scene.children) {
       if (child.name === "PlaneHelpers") {
         for (const helper of child.children[0].children) {
           if (!isIndexedMesh(helper)) continue;
           if (!isClippableMaterial(helper.material)) continue;
-          helper.material.clippingPlanes = clipPlanes.filter(
-            (_, j) => j !== helper.index,
+          helper.material.clippingPlanes = clipPlanes!.filter(
+            (_: THREE.Plane, j: number) => j !== helper.index,
           );
         }
       }
@@ -2824,7 +2969,7 @@ class Viewer {
    * @returns color caps value (object color (true) or RGB (false)).
    */
   getObjectColorCaps = (): boolean => {
-    return this.clipping!.getObjectColorCaps();
+    return this._rendered?.clipping.getObjectColorCaps() ?? false;
   };
 
   /**
@@ -2833,9 +2978,9 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setClipObjectColorCaps = (flag: boolean, notify: boolean = true): void => {
-    if (flag == null) return;
+    if (flag == null || !this.ready) return;
     this.state.set("clipObjectColors", flag);
-    this.clipping!.setObjectColorCaps(flag);
+    this.rendered.clipping.setObjectColorCaps(flag);
     this.checkChanges({ clip_object_colors: flag }, notify);
     this.update(this.updateMarker);
   };
@@ -2854,10 +2999,10 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setClipPlaneHelpers = (flag: boolean, notify: boolean = true): void => {
-    if (flag == null) return;
+    if (flag == null || !this.ready) return;
 
     this.state.set("clipPlaneHelpers", flag);
-    this.clipping!.planeHelpers.visible = flag;
+    this.rendered.clipping.planeHelpers!.visible = flag;
 
     this.checkChanges({ clip_planes: flag }, notify);
 
@@ -2886,12 +3031,12 @@ class Viewer {
     value: number | null = null,
     notify: boolean = true,
   ): void {
-    if (normal == null) return;
+    if (normal == null || !this.ready) return;
     const normal1 = new THREE.Vector3(...normal).normalize();
     this.clipNormals[index] = normal1;
 
-    this.clipping!.setNormal(index, normal1);
-    this.clipping!.setConstant(index, this.gridSize / 2);
+    this.rendered.clipping.setNormal(index, normal1);
+    this.rendered.clipping.setConstant(index, this.gridSize / 2);
     if (value == null) value = this.gridSize / 2;
     this.setClipSlider(index, value);
 
@@ -2900,7 +3045,7 @@ class Viewer {
     notifyObject[`clip_slider_${index}`] = value;
     this.checkChanges(notifyObject, notify);
 
-    this.nestedGroup!.setClipPlanes(this.clipping!.clipPlanes);
+    this.rendered.nestedGroup.setClipPlanes(this.rendered.clipping.clipPlanes);
 
     this.update(this.updateMarker);
   }
@@ -2911,10 +3056,11 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setClipNormalFromPosition = (index: ClipIndex, notify: boolean = true): void => {
-    const cameraPosition = this.camera!.getPosition().clone();
+    if (!this.ready) return;
+    const cameraPosition = this.rendered.camera.getPosition().clone();
     const normal = toVector3Tuple(
       cameraPosition
-        .sub(this.controls!.getTarget())
+        .sub(this.rendered.controls.getTarget())
         .normalize()
         .negate()
         .toArray()
@@ -2982,31 +3128,34 @@ class Viewer {
    * Note: Only the canvas will be shown, no tools and orientation marker
    */
   getImage = (taskId: string): Promise<ImageResult> => {
+    if (!this.ready) {
+      return Promise.resolve({ task: taskId, dataUrl: null });
+    }
     // canvas.toBlob can be very slow when animation loop is off!
     const animationLoop = this.hasAnimationLoop;
     if (!animationLoop) {
       this.toggleAnimationLoop(true);
     }
-    this.orientationMarker!.setVisible(false);
+    this.rendered.orientationMarker.setVisible(false);
     this.update(true);
 
     return this.display.captureCanvas({
       taskId,
       render: () => {
-        this.renderer!.setViewport(
+        this.renderer.setViewport(
           0,
           0,
           this.state.get("cadWidth"),
           this.state.get("height"),
         );
-        this.renderer!.render(this.scene!, this.camera!.getCamera());
+        this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
       },
       onComplete: () => {
         // Restore animation loop to original state
         if (!animationLoop) {
           this.toggleAnimationLoop(false);
         }
-        this.orientationMarker!.setVisible(true);
+        this.rendered.orientationMarker.setVisible(true);
         this.update(true);
       },
     });
@@ -3040,12 +3189,12 @@ class Viewer {
     let scaledLocalDirection: THREE.Vector3 | null = null;
 
     if (!use_origin) {
-      const bb = new THREE.Box3().setFromObject(this.nestedGroup!.rootGroup);
+      const bb = new THREE.Box3().setFromObject(this.rendered.nestedGroup.rootGroup!);
       bb.getCenter(worldCenterOrOrigin);
     }
-    for (const id in this.nestedGroup!.groups) {
+    for (const id in this.rendered.nestedGroup.groups) {
       // Loop over all Group elements
-      const group = this.nestedGroup!.groups[id];
+      const group = this.rendered.nestedGroup.groups[id];
 
       const b = new THREE.Box3();
       if (group instanceof ObjectGroup) {
@@ -3167,7 +3316,7 @@ class Viewer {
     this.state.set("height", height);
 
     // Adapt renderer dimensions
-    this.renderer!.setSize(cadWidth, height);
+    this.renderer.setSize(cadWidth, height);
 
     // Adapt display dimensions
     this.display.setSizes({
@@ -3183,7 +3332,7 @@ class Viewer {
     this.display.updateToolbarCollapse(fullWidth);
 
     // Adapt camera to new dimensions
-    this.camera!.changeDimensions(this.bb_radius, cadWidth, height);
+    this.rendered.camera.changeDimensions(this.bb_radius, cadWidth, height);
 
     // update the this
     this.update(true);

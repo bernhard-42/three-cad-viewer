@@ -1,9 +1,14 @@
 /**
  * Handler type for slider value changes.
  * For plane sliders: (index: number, value: string) => void
- * For other sliders: (value: number) => void
+ * For other sliders: (value: number, notify?: boolean) => void
+ *
+ * Note: Using a permissive second parameter type to accommodate both use cases
+ * while satisfying strictFunctionTypes. The Slider class handles the actual
+ * argument passing based on slider type.
  */
-type SliderHandler = (indexOrValue: number, value?: string | boolean) => void;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SliderHandler = (indexOrValue: number, value?: any) => void;
 
 /**
  * Options for configuring a Slider instance.

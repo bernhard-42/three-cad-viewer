@@ -137,7 +137,7 @@ export function cleanup({ viewer, display, container }) {
     // Stop grid updates by overriding the camera reference closure BEFORE nulling camera
     // The grid has getCamera closure that references viewer.camera
     // We provide a mock camera that has the properties Grid expects
-    if (viewer.gridHelper) {
+    if (viewer.ready) {
       const mockCamera = { top: 1, bottom: -1, zoom: 1 };
       viewer.gridHelper.getCamera = () => mockCamera;
       viewer.gridHelper.isOrtho = () => true;
@@ -156,7 +156,7 @@ export function cleanup({ viewer, display, container }) {
     }
 
     // Mock treeview dispose if needed
-    if (viewer.treeview && !viewer.treeview.dispose) {
+    if (viewer.ready && !viewer.treeview.dispose) {
       viewer.treeview.dispose = () => {};
     }
 

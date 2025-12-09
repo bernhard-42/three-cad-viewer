@@ -6,13 +6,19 @@ import type { Camera } from "./camera.js";
 /**
  * Filter types for topology-based raycasting.
  */
-export const TopoFilter = {
+export const TopoFilter: {
+  none: null;
+  vertex: "vertex";
+  edge: "edge";
+  face: "face";
+  solid: "solid";
+} = {
   none: null,
   vertex: "vertex",
   edge: "edge",
   face: "face",
   solid: "solid",
-} as const;
+};
 
 export type TopoFilterType = typeof TopoFilter[keyof typeof TopoFilter];
 
@@ -21,7 +27,7 @@ interface RaycastFilters {
 }
 
 interface RaycastCallback {
-  (event: { mouse?: string; shift?: boolean; key?: string }): void;
+  (event: { mouse?: "left" | "right"; shift?: boolean; key?: string }): void;
 }
 
 /**

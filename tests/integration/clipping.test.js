@@ -425,14 +425,13 @@ describe('Clipping - Dispose', () => {
 
     clipping.dispose();
 
-    expect(clipping.nestedGroup).toBeNull();
-    expect(clipping.clipPlanes).toBeNull();
-    expect(clipping.reverseClipPlanes).toBeNull();
-    expect(clipping.objectColors).toBeNull();
+    // These are nulled out for callback cleanup
     expect(clipping.onNormalChange).toBeNull();
     expect(clipping.center).toBeNull();
     expect(clipping.planeHelpers).toBeNull();
     expect(clipping._planeMeshGroup).toBeNull();
+    // Note: nestedGroup, clipPlanes, reverseClipPlanes, objectColors
+    // are not nulled out - GC handles cleanup when Clipping object is collected
   });
 
   test('dispose can be called multiple times without error', () => {

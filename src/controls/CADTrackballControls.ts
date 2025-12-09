@@ -61,11 +61,11 @@ class CADTrackballControls extends TrackballControls {
   private _holroydActive: boolean;
   private _horizontalRotate: boolean;
   private _verticalRotate: boolean;
-  private _holroydPointerDown: (event: PointerEvent) => void;
-  private _holroydPointerMove: (event: PointerEvent) => void;
-  private _holroydPointerUp: () => void;
-  private _holroydWheel: (event: WheelEvent) => void;
-  private _parentOnMouseDown: (event: MouseEvent) => void;
+  private _holroydPointerDown?: (event: PointerEvent) => void;
+  private _holroydPointerMove?: (event: PointerEvent) => void;
+  private _holroydPointerUp?: () => void;
+  private _holroydWheel?: (event: WheelEvent) => void;
+  private _parentOnMouseDown!: (event: MouseEvent) => void;
 
   // Expose internal properties for type safety
   declare state: number;
@@ -274,20 +274,15 @@ class CADTrackballControls extends TrackballControls {
    * Override dispose to clean up our event listeners.
    */
   dispose(): void {
-    if (this.domElement) {
-      this.domElement.removeEventListener(
-        "pointerdown",
-        this._holroydPointerDown
-      );
-      this.domElement.removeEventListener(
-        "pointermove",
-        this._holroydPointerMove
-      );
+    if (this.domElement &&
+        this._holroydPointerDown &&
+        this._holroydPointerMove &&
+        this._holroydPointerUp &&
+        this._holroydWheel) {
+      this.domElement.removeEventListener("pointerdown", this._holroydPointerDown);
+      this.domElement.removeEventListener("pointermove", this._holroydPointerMove);
       this.domElement.removeEventListener("pointerup", this._holroydPointerUp);
-      this.domElement.removeEventListener(
-        "pointercancel",
-        this._holroydPointerUp
-      );
+      this.domElement.removeEventListener("pointercancel", this._holroydPointerUp);
       this.domElement.removeEventListener("wheel", this._holroydWheel);
     }
     super.dispose();
@@ -335,7 +330,7 @@ class CADTrackballControls extends TrackballControls {
    * - NDC y: -1 (bottom) to +1 (top)
    */
   private _getMouseOnSphere(pageX: number, pageY: number, target: Vector3): Vector3 {
-    const rect = this.domElement.getBoundingClientRect();
+    const rect = this.domElement!.getBoundingClientRect();
 
     // Convert to NDC space (-1 to 1)
     // Note: Do NOT apply rotateSpeed here - it would break the sphere geometry

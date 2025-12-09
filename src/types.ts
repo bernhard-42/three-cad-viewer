@@ -74,7 +74,7 @@ export type AxisColorsFlatArray = Record<Theme, number[]>;
 
 /** State change object with old and new values */
 export interface StateChange<T> {
-  old: T | undefined;
+  old: T | null | undefined;
   new: T;
 }
 
@@ -154,9 +154,9 @@ export interface ChangeNotification {
   grid?: StateChange<[boolean, boolean, boolean]>;
   tab?: StateChange<ActiveTab | null>;
   // Clipping
-  clip_normal_0?: StateChange<Vector3Tuple>;
-  clip_normal_1?: StateChange<Vector3Tuple>;
-  clip_normal_2?: StateChange<Vector3Tuple>;
+  clip_normal_0?: StateChange<Vector3Tuple | null>;
+  clip_normal_1?: StateChange<Vector3Tuple | null>;
+  clip_normal_2?: StateChange<Vector3Tuple | null>;
   // Pick info
   lastPick?: StateChange<PickInfo | null>;
   // Allow other state properties dynamically

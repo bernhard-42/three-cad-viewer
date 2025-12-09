@@ -13,6 +13,8 @@ import * as THREE from 'three';
  * @returns {Object} Scene state snapshot
  */
 export function captureSceneState(viewer) {
+  const isReady = viewer.ready;
+
   const snapshot = {
     // Renderer state
     renderer: {
@@ -22,14 +24,14 @@ export function captureSceneState(viewer) {
       clearColor: viewer.renderer?.getClearColor?.(new THREE.Color()),
     },
 
-    // Camera state
-    camera: captureCamera(viewer.camera),
+    // Camera state (throws if not rendered)
+    camera: isReady ? captureCamera(viewer.camera) : null,
 
-    // Scene structure
-    scene: captureSceneTree(viewer.scene),
+    // Scene structure (throws if not rendered)
+    scene: isReady ? captureSceneTree(viewer.scene) : null,
 
     // CAD objects from nestedGroup (for testing state propagation)
-    cadObjects: viewer.nestedGroup ? captureNestedGroupMaterials(viewer.nestedGroup) : null,
+    cadObjects: isReady ? captureNestedGroupMaterials(viewer.nestedGroup) : null,
 
     // Animation state
     animation: {

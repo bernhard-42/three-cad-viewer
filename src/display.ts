@@ -105,29 +105,29 @@ type StoredEvent = [string, string, EventListener];
 // =============================================================================
 
 class Display {
-  // DOM Elements
-  container: HTMLElement | null;
-  cadBody: HTMLElement;
-  cadView: HTMLElement;
-  cadTree: HTMLElement | null;
-  cadTreeScrollContainer: HTMLElement | null;
-  cadTreeToggles: HTMLElement;
-  cadClip: HTMLElement;
-  cadMaterial: HTMLElement;
-  cadZebra: HTMLElement;
-  cadInfo: HTMLElement;
-  cadAnim: HTMLElement;
-  cadTools: HTMLElement;
-  cadHelp: HTMLElement;
-  tabTree: HTMLElement;
-  tabClip: HTMLElement;
-  tabMaterial: HTMLElement;
-  tabZebra: HTMLElement;
-  tickValueElement: HTMLElement;
-  tickInfoElement: HTMLElement;
-  distanceMeasurementPanel: HTMLElement;
-  propertiesMeasurementPanel: HTMLElement;
-  planeLabels: HTMLElement[];
+  // DOM Elements - all initialized in constructor from template
+  container!: HTMLElement;
+  cadBody!: HTMLElement;
+  cadView!: HTMLElement;
+  cadTree!: HTMLElement;
+  cadTreeScrollContainer!: HTMLElement;
+  cadTreeToggles!: HTMLElement;
+  cadClip!: HTMLElement;
+  cadMaterial!: HTMLElement;
+  cadZebra!: HTMLElement;
+  cadInfo!: HTMLElement;
+  cadAnim!: HTMLElement;
+  cadTools!: HTMLElement;
+  cadHelp!: HTMLElement;
+  tabTree!: HTMLElement;
+  tabClip!: HTMLElement;
+  tabMaterial!: HTMLElement;
+  tabZebra!: HTMLElement;
+  tickValueElement!: HTMLElement;
+  tickInfoElement!: HTMLElement;
+  distanceMeasurementPanel!: HTMLElement;
+  propertiesMeasurementPanel!: HTMLElement;
+  planeLabels!: HTMLElement[];
   animationSlider: HTMLInputElement | null;
 
   // Grouped UI elements for CAD tools (implements DisplayLike interface)
@@ -149,9 +149,9 @@ class Display {
   zebraOpacitySlider: Slider | undefined;
   zebraDirectionSlider: Slider | undefined;
 
-  // State
-  viewer: Viewer | null | undefined;
-  state: ViewerState | undefined;
+  // State - set in setupUI() which is called at end of Viewer constructor
+  viewer!: Viewer;
+  state!: ViewerState;
   measureTools: boolean;
   measurementDebug: boolean;
   selectTool: boolean;
@@ -274,7 +274,7 @@ class Display {
     for (let i = 1; i < 4; i++) {
       this.planeLabels.push(this.getElement(`tcv_lbl_norm_plane${i}`));
     }
-    this.viewer = null;
+    // viewer and state are set in setupUI(), called at end of Viewer constructor
     this.glass = options.glass;
     this.tools = options.tools;
     this.cadWidth = options.cadWidth;
@@ -446,7 +446,7 @@ class Display {
       listeners.add(el, "change", (e) => {
         if (!(e.target instanceof HTMLInputElement)) return;
         this.zScale = parseInt(e.target.value);
-        this.viewer!.setZscaleValue(parseInt(e.target.value));
+        this.viewer.setZscaleValue(parseInt(e.target.value));
       });
     }
 
@@ -542,9 +542,9 @@ class Display {
    */
   private _widthThreshold(): number {
     let threshold = 770;
-    if (!this.state!.get("pinning")) threshold -= 30;
-    if (!this.state!.get("selectTool")) threshold -= 30;
-    if (!this.state!.get("explodeTool") && !this.state!.get("zscaleTool")) threshold -= 30;
+    if (!this.state.get("pinning")) threshold -= 30;
+    if (!this.state.get("selectTool")) threshold -= 30;
+    if (!this.state.get("explodeTool") && !this.state.get("zscaleTool")) threshold -= 30;
     return threshold;
   }
 
@@ -639,21 +639,10 @@ class Display {
     this.zebraOpacitySlider?.dispose();
     this.zebraDirectionSlider?.dispose();
 
-    this.viewer = undefined;
-
-    if (this.cadTree) {
-      this.cadTree.innerHTML = "";
-      this.cadTree = null;
-    }
-
+    // Clear DOM content (elements remain valid until Display is GC'd)
+    this.cadTree.innerHTML = "";
     this.cadView.removeChild(this.cadView.children[2]);
-
-    if (this.container) {
-      this.container.innerHTML = "";
-      this.container = null;
-    }
-
-    this.cadTreeScrollContainer = null;
+    this.container.innerHTML = "";
   }
 
   // ---------------------------------------------------------------------------
@@ -830,13 +819,13 @@ class Display {
         new Slider(`plane${i}`, 0, 100, this.container, {
           handler: this.refreshPlane,
           notifyCallback: (change, notify) =>
-            this.viewer!.checkChanges(change, notify),
+            this.viewer.checkChanges(change, notify),
           onSetSlider: this.refreshPlane,
         }),
       );
     }
 
-    const viewerReadyCheck = () => this.viewer!.ready;
+    const viewerReadyCheck = () => this.viewer.ready;
 
     this.ambientlightSlider = new Slider(
       "ambientlight",
@@ -955,7 +944,7 @@ class Display {
    * Stores unsubscribe functions for cleanup in dispose().
    */
   private subscribeToStateChanges(): void {
-    const state = this.viewer!.state;
+    const state = this.viewer.state;
     this._unsubscribers = [];
 
     // Helper to subscribe and track unsubscribe function with type inference
@@ -1149,7 +1138,7 @@ class Display {
 
     // Active tab subscription
     sub("activeTab", (change) => {
-      this.switchToTab(change.new, change.old);
+      this.switchToTab(change.new, change.old ?? undefined);
     });
   }
 
@@ -1158,7 +1147,7 @@ class Display {
    * Called once during initialization. Subsequent updates happen via state subscriptions.
    */
   updateUI(): void {
-    const state = this.viewer!.state;
+    const state = this.viewer.state;
     const axes = state.get("axes");
     const axes0 = state.get("axes0");
     const ortho = state.get("ortho");
@@ -1244,42 +1233,42 @@ class Display {
    * Checkbox Handler for setting the axes parameter
    */
   setAxes = (_name: string, flag: boolean): void => {
-    this.viewer!.setAxes(flag);
+    this.viewer.setAxes(flag);
   };
 
   /**
    * Checkbox Handler for setting the grid parameter
    */
   setGrid = (name: string, flag: boolean): void => {
-    this.viewer!.setGrid(name, flag);
+    this.viewer.setGrid(name, flag);
   };
 
   /**
    * Checkbox Handler for setting the axes0 parameter
    */
   setAxes0 = (_name: string, flag: boolean): void => {
-    this.viewer!.setAxes0(flag);
+    this.viewer.setAxes0(flag);
   };
 
   /**
    * Checkbox Handler for setting the ortho parameter
    */
   setOrtho = (_name: string, flag: boolean): void => {
-    this.viewer!.switchCamera(!flag);
+    this.viewer.switchCamera(!flag);
   };
 
   /**
    * Checkbox Handler for setting the transparent parameter
    */
   setTransparent = (_name: string, flag: boolean): void => {
-    this.viewer!.setTransparent(flag);
+    this.viewer.setTransparent(flag);
   };
 
   /**
    * Checkbox Handler for setting the black edges parameter
    */
   setBlackEdges = (_name: string, flag: boolean): void => {
-    this.viewer!.setBlackEdges(flag);
+    this.viewer.setBlackEdges(flag);
   };
 
   // ---------------------------------------------------------------------------
@@ -1290,7 +1279,7 @@ class Display {
    * Handler for the explode button
    */
   setExplode = (_name: string, flag: boolean): void => {
-    this.viewer!.setExplode(flag);
+    this.viewer.setExplode(flag);
   };
 
   /**
@@ -1306,8 +1295,8 @@ class Display {
    */
   setZScale = (_name: string, flag: boolean): void => {
     this.showZScale(flag);
-    this.viewer!.nestedGroup!.setZScale(1);
-    this.viewer!.update(true);
+    this.viewer.nestedGroup.setZScale(1);
+    this.viewer.update(true);
     this.getInputElement("tcv_zscale_slider").value = "1";
   };
 
@@ -1324,55 +1313,55 @@ class Display {
    * Delegates state mutations to Viewer.activateTool() to maintain unidirectional data flow.
    */
   setTool = (name: string, flag: boolean): void => {
-    this.viewer!.toggleAnimationLoop(flag);
-    const activeTool = this.state!.get("activeTool");
+    this.viewer.toggleAnimationLoop(flag);
+    const activeTool = this.state.get("activeTool");
     const currentTool = typeof activeTool === "string" ? activeTool : "";
 
     if (flag) {
       // Delegate state mutations to Viewer
-      this.viewer!.activateTool(name, true);
+      this.viewer.activateTool(name, true);
 
       if (
         ["distance", "properties", "angle", "select"].includes(name) &&
         !["distance", "properties", "angle", "select"].includes(currentTool)
       ) {
-        this.viewer!.toggleGroup(true);
-        this.viewer!.toggleTab(true);
+        this.viewer.toggleGroup(true);
+        this.viewer.toggleTab(true);
       }
-      this.viewer!.setRaycastMode(flag);
-      this.shapeFilterDropDownMenu.setRaycaster(this.viewer!.raycaster!);
+      this.viewer.setRaycastMode(flag);
+      this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster!);
 
       if (name === "distance") {
-        this.viewer!.cadTools.enable(ToolTypes.DISTANCE);
-        this.viewer!.checkChanges({ activeTool: ToolTypes.DISTANCE });
+        this.viewer.cadTools.enable(ToolTypes.DISTANCE);
+        this.viewer.checkChanges({ activeTool: ToolTypes.DISTANCE });
       } else if (name === "properties") {
-        this.viewer!.cadTools.enable(ToolTypes.PROPERTIES);
-        this.viewer!.checkChanges({ activeTool: ToolTypes.PROPERTIES });
+        this.viewer.cadTools.enable(ToolTypes.PROPERTIES);
+        this.viewer.checkChanges({ activeTool: ToolTypes.PROPERTIES });
       } else if (name === "select") {
-        this.viewer!.cadTools.enable(ToolTypes.SELECT);
-        this.viewer!.checkChanges({ activeTool: ToolTypes.SELECT });
+        this.viewer.cadTools.enable(ToolTypes.SELECT);
+        this.viewer.checkChanges({ activeTool: ToolTypes.SELECT });
       }
     } else {
       if (currentTool === name || name === "explode") {
-        this.viewer!.toggleGroup(false);
-        this.viewer!.toggleTab(false);
+        this.viewer.toggleGroup(false);
+        this.viewer.toggleTab(false);
       }
       if (name === "distance") {
-        this.viewer!.cadTools.disable();
+        this.viewer.cadTools.disable();
       } else if (name === "properties") {
-        this.viewer!.cadTools.disable();
+        this.viewer.cadTools.disable();
       } else if (name === "select") {
-        this.viewer!.cadTools.disable();
+        this.viewer.cadTools.disable();
       }
-      this.viewer!.checkChanges({ activeTool: ToolTypes.NONE });
-      this.viewer!.clearSelection();
+      this.viewer.checkChanges({ activeTool: ToolTypes.NONE });
+      this.viewer.clearSelection();
 
       // Delegate state mutations to Viewer
-      this.viewer!.activateTool(name, false);
+      this.viewer.activateTool(name, false);
 
-      this.viewer!.setRaycastMode(flag);
+      this.viewer.setRaycastMode(flag);
     }
-    this.viewer!.setPickHandler(!flag);
+    this.viewer.setPickHandler(!flag);
     this.shapeFilterDropDownMenu.show(flag);
   };
 
@@ -1440,7 +1429,7 @@ class Display {
     if (!(e.target instanceof HTMLInputElement)) return;
     const flag = e.target.checked;
     this.lastPlaneState = flag;
-    this.viewer!.setClipPlaneHelpers(flag);
+    this.viewer.setClipPlaneHelpers(flag);
   };
 
   /**
@@ -1448,7 +1437,7 @@ class Display {
    */
   setClipIntersection = (e: Event): void => {
     if (!(e.target instanceof HTMLInputElement)) return;
-    this.viewer!.setClipIntersection(e.target.checked);
+    this.viewer.setClipIntersection(e.target.checked);
   };
 
   /**
@@ -1456,7 +1445,7 @@ class Display {
    */
   setObjectColorCaps = (e: Event): void => {
     if (!(e.target instanceof HTMLInputElement)) return;
-    this.viewer!.setClipObjectColorCaps(e.target.checked);
+    this.viewer.setClipObjectColorCaps(e.target.checked);
   };
 
   /**
@@ -1467,7 +1456,7 @@ class Display {
     const uiIndex = parseInt(e.target.classList[0].slice(-1));
     const index = uiIndex - 1;
     if (!isClipIndex(index)) return;
-    this.viewer!.setClipNormalFromPosition(index);
+    this.viewer.setClipNormalFromPosition(index);
   };
 
   /**
@@ -1487,15 +1476,15 @@ class Display {
    * Handler to reset position, zoom and up of the camera
    */
   reset = (): void => {
-    this.viewer!.reset();
-    this.viewer!.state.set("highlightedButton", null);
+    this.viewer.reset();
+    this.viewer.state.set("highlightedButton", null);
   };
 
   /**
    * Handler to reset zoom of the camera
    */
   resize = (): void => {
-    this.viewer!.resize();
+    this.viewer.resize();
   };
 
   /**
@@ -1504,13 +1493,13 @@ class Display {
    */
   setView = (direction: string, focus: boolean = false): void => {
     // Button names match CameraDirection values: "iso", "front", "rear", "left", "right", "top", "bottom"
-    this.viewer!.presetCamera(direction as CameraDirection);
+    this.viewer.presetCamera(direction as CameraDirection);
     if (focus) {
-      this.viewer!.centerVisibleObjects();
+      this.viewer.centerVisibleObjects();
     }
-    this.viewer!.state.set("highlightedButton", direction);
-    this.viewer!.keepHighlight = true;
-    this.viewer!.update(true, false);
+    this.viewer.state.set("highlightedButton", direction);
+    this.viewer.keepHighlight = true;
+    this.viewer.update(true, false);
   };
 
   /**
@@ -1524,7 +1513,7 @@ class Display {
    * Pin screenshot of canvas as PNG
    */
   pinAsPng = (_name: string, _shift: boolean): void => {
-    this.viewer!.pinAsPng();
+    this.viewer.pinAsPng();
   };
 
   // ---------------------------------------------------------------------------
@@ -1539,14 +1528,14 @@ class Display {
     const tab = e.target.className.split(" ")[0];
     const tabName = tab.slice(8);
     if (tabName === "clip" || tabName === "tree" || tabName === "material" || tabName === "zebra") {
-      this.viewer!.setActiveTab(tabName);
+      this.viewer.setActiveTab(tabName);
     }
   };
 
   /**
    * Switch to a tab (internal, called by activeTab subscription).
    */
-  private switchToTab(newTab: ActiveTab, oldTab: ActiveTab): void {
+  private switchToTab(newTab: ActiveTab, oldTab?: ActiveTab): void {
     if (!["clip", "tree", "material", "zebra"].includes(newTab)) {
       return;
     }
@@ -1558,34 +1547,34 @@ class Display {
       this.cadMaterial.style.display = showMaterial ? "block" : "none";
       this.cadZebra.style.display = showZebra ? "block" : "none";
 
-      this.viewer!.clipping!.setVisible(showClip);
-      this.viewer!.setLocalClipping(showClip);
+      this.viewer.clipping.setVisible(showClip);
+      this.viewer.setLocalClipping(showClip);
       if (!showClip) {
-        this.viewer!.setClipPlaneHelpers(false);
+        this.viewer.setClipPlaneHelpers(false);
       }
       if (newTab !== "zebra" && oldTab === "zebra") {
-        this.viewer!.enableZebraTool(false);
+        this.viewer.enableZebraTool(false);
       }
     };
 
     if (newTab === "tree") {
       _updateVisibility(true, false, false, false);
-      this.viewer!.nestedGroup!.setBackVisible(false);
+      this.viewer.nestedGroup.setBackVisible(false);
     } else if (newTab === "clip") {
       _updateVisibility(false, true, false, false);
-      this.viewer!.nestedGroup!.setBackVisible(true);
-      const clipIntersection = this.viewer!.state.get("clipIntersection");
+      this.viewer.nestedGroup.setBackVisible(true);
+      const clipIntersection = this.viewer.state.get("clipIntersection");
       if (typeof clipIntersection === "boolean") {
-        this.viewer!.setClipIntersection(clipIntersection);
+        this.viewer.setClipIntersection(clipIntersection);
       }
-      this.viewer!.setClipPlaneHelpers(this.lastPlaneState);
-      this.viewer!.update(true, false);
+      this.viewer.setClipPlaneHelpers(this.lastPlaneState);
+      this.viewer.update(true, false);
     } else if (newTab === "material") {
       _updateVisibility(false, false, true, false);
-      this.viewer!.nestedGroup!.setBackVisible(false);
+      this.viewer.nestedGroup.setBackVisible(false);
     } else if (newTab === "zebra") {
       _updateVisibility(false, false, false, true);
-      this.viewer!.enableZebraTool(true);
+      this.viewer.enableZebraTool(true);
     }
 
     // Update tab styling
@@ -1596,7 +1585,7 @@ class Display {
       },
     );
 
-    this.viewer!.checkChanges({ tab: newTab });
+    this.viewer.checkChanges({ tab: newTab });
     if (newTab === "tree") {
       this.tabTree.classList.add("tcv_tab-selected");
       this.tabTree.classList.remove("tcv_tab-unselected");
@@ -1637,13 +1626,13 @@ class Display {
    */
   collapseNodes(value: string): void {
     if (value === "1") {
-      this.viewer!.treeview!.openLevel(-1);
+      this.viewer.treeview.openLevel(-1);
     } else if (value === "R") {
-      this.viewer!.treeview!.openLevel(1);
+      this.viewer.treeview.openLevel(1);
     } else if (value === "C") {
-      this.viewer!.treeview!.collapseAll();
+      this.viewer.treeview.collapseAll();
     } else if (value === "E") {
-      this.viewer!.treeview!.expandAll();
+      this.viewer.treeview.expandAll();
     }
   }
 
@@ -1655,7 +1644,7 @@ class Display {
    * Reset material values to original values
    */
   handleMaterialReset = (_e: Event): void => {
-    this.viewer!.resetMaterial();
+    this.viewer.resetMaterial();
   };
 
   // ---------------------------------------------------------------------------
@@ -1690,7 +1679,7 @@ class Display {
     if (!(e.target instanceof HTMLInputElement)) return;
     const value = e.target.value;
     if (value === "blackwhite" || value === "colorful" || value === "grayscale") {
-      this.viewer!.setZebraColorScheme(value);
+      this.viewer.setZebraColorScheme(value);
       this.setZebraColorSchemeSelect(value);
     }
   };
@@ -1712,7 +1701,7 @@ class Display {
     if (!(e.target instanceof HTMLInputElement)) return;
     const value = e.target.value;
     if (value === "reflection" || value === "normal") {
-      this.viewer!.setZebraMappingMode(value);
+      this.viewer.setZebraMappingMode(value);
       this.setZebraMappingModeSelect(value);
     }
   };
@@ -1746,26 +1735,26 @@ class Display {
   refreshPlane = (uiIndex: number, value: string): void => {
     const index = uiIndex - 1;
     if (!isClipIndex(index)) return;
-    this.viewer!.refreshPlane(index, parseFloat(value));
+    this.viewer.refreshPlane(index, parseFloat(value));
   };
 
   /**
    * Handle animation control by button name
    */
   controlAnimationByName(btn: string): void {
-    this.viewer!.controlAnimation(btn);
+    this.viewer.controlAnimation(btn);
 
-    const currentTime = this.viewer!.animation.getRelativeTime();
-    this.viewer!.state.set("animationSliderValue", 1000 * currentTime);
+    const currentTime = this.viewer.animation.getRelativeTime();
+    this.viewer.state.set("animationSliderValue", 1000 * currentTime);
     if (btn == "play") {
-      this.viewer!.bboxNeedsUpdate = true;
+      this.viewer.bboxNeedsUpdate = true;
     } else if (btn == "stop") {
-      this.viewer!.bboxNeedsUpdate = false;
-      if (this.viewer!.lastBbox != null) {
-        this.viewer!.lastBbox.needsUpdate = true;
+      this.viewer.bboxNeedsUpdate = false;
+      if (this.viewer.lastBbox != null) {
+        this.viewer.lastBbox.needsUpdate = true;
       }
     } else {
-      this.viewer!.bboxNeedsUpdate = !this.viewer!.bboxNeedsUpdate;
+      this.viewer.bboxNeedsUpdate = !this.viewer.bboxNeedsUpdate;
     }
   }
 
@@ -1783,9 +1772,9 @@ class Display {
    */
   animationChange = (e: Event): void => {
     if (!(e.target instanceof HTMLInputElement)) return;
-    this.viewer!.animation.setRelativeTime(e.target.valueAsNumber / 1000);
-    if (this.viewer!.lastBbox != null) {
-      this.viewer!.lastBbox.needsUpdate = true;
+    this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
+    if (this.viewer.lastBbox != null) {
+      this.viewer.lastBbox.needsUpdate = true;
     }
   };
 
@@ -1913,11 +1902,12 @@ class Display {
    */
   updateHelp(before: KeyMappingConfig, after: Partial<KeyMappingConfig>): void {
     const help = this.getElement("tcv_cad_help_layout");
-    for (const k in before) {
+    const keys = Object.keys(before) as (keyof KeyMappingConfig)[];
+    for (const k of keys) {
       if (before[k] && after[k]) {
         help.innerHTML = help.innerHTML.replaceAll(
           "&lt;" + before[k].slice(0, -3) + "&gt;",
-          "&lt;_" + after[k].slice(0, -3) + "&gt;",
+          "&lt;_" + after[k]!.slice(0, -3) + "&gt;",
         );
       }
     }
@@ -1938,34 +1928,30 @@ class Display {
     ) {
       this.container.setAttribute("data-theme", "dark");
       document.body.setAttribute("data-theme", "dark");
-      if (this.viewer!.orientationMarker) {
-        this.viewer!.orientationMarker.changeTheme("dark");
-      }
-      if (this.viewer!.gridHelper) {
-        this.viewer!.gridHelper.clearCache();
-        this.viewer!.gridHelper.update(
-          this.viewer!.getCameraZoom(),
+      if (this.viewer.ready) {
+        this.viewer.orientationMarker.changeTheme("dark");
+        this.viewer.gridHelper.clearCache();
+        this.viewer.gridHelper.update(
+          this.viewer.getCameraZoom(),
           true,
           "dark",
         );
       }
-      this.viewer!.update(true);
+      this.viewer.update(true);
       return "dark";
     } else {
       this.container.setAttribute("data-theme", "light");
       document.body.setAttribute("data-theme", "light");
-      if (this.viewer!.orientationMarker) {
-        this.viewer!.orientationMarker.changeTheme("light");
-      }
-      if (this.viewer!.gridHelper) {
-        this.viewer!.gridHelper.clearCache();
-        this.viewer!.gridHelper.update(
-          this.viewer!.getCameraZoom(),
+      if (this.viewer.ready) {
+        this.viewer.orientationMarker.changeTheme("light");
+        this.viewer.gridHelper.clearCache();
+        this.viewer.gridHelper.update(
+          this.viewer.getCameraZoom(),
           true,
           "light",
         );
       }
-      this.viewer!.update(true);
+      this.viewer.update(true);
       return "light";
     }
   }

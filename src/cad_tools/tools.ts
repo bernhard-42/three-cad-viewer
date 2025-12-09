@@ -65,7 +65,7 @@ export interface ViewerLike {
   camera: {
     getCamera(): THREE.Camera;
     getZoom(): number;
-  };
+  } | null;
   state: {
     get(key: string): unknown;
   };

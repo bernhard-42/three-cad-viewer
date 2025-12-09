@@ -22,7 +22,7 @@ class DistanceLineArrow extends THREE.Group {
   arrowStart: boolean;
   arrowEnd: boolean;
   override type: string;
-  lineVec: THREE.Vector3 | undefined;
+  lineVec!: THREE.Vector3;
 
   constructor(
     coneLength: number,
@@ -42,7 +42,6 @@ class DistanceLineArrow extends THREE.Group {
     this.arrowStart = arrowStart;
     this.arrowEnd = arrowEnd;
     this.type = "DistanceLineArrow";
-    this.lineVec = undefined;
     this.initialize();
   }
 
@@ -107,14 +106,14 @@ class DistanceLineArrow extends THREE.Group {
     const newStart = this.point1
       .clone()
       .sub(
-        this.lineVec!
+        this.lineVec
           .clone()
           .multiplyScalar((scaleFactor * this.coneLength) / 2),
       );
     const newEnd = this.point2
       .clone()
       .sub(
-        this.lineVec!
+        this.lineVec
           .clone()
           .multiplyScalar((-scaleFactor * this.coneLength) / 2),
       );
@@ -424,7 +423,7 @@ class Measurement {
   };
 
   _movePanel = (): void => {
-    if (!this.panel || !this.viewer || !this.panel.isVisible()) return;
+    if (!this.panel || !this.viewer || !this.viewer.camera || !this.panel.isVisible()) return;
 
     const canvasRect = this.viewer.renderer.domElement.getBoundingClientRect();
     const panelRect = this.panel.html.getBoundingClientRect();
@@ -455,8 +454,10 @@ class Measurement {
 
     this.panel.relocate(this.panelX, this.panelY);
 
-    const panelCenterX = this.panelX! + panelRect.width / 2;
-    const panelCenterY = this.panelY! + panelRect.height / 2;
+    if (this.panelX == null || this.panelY == null) return;
+
+    const panelCenterX = this.panelX + panelRect.width / 2;
+    const panelCenterY = this.panelY + panelRect.height / 2;
     const ndcX = panelCenterX / (canvasRect.width / 2) - 1;
     const ndcY = 1 - panelCenterY / (canvasRect.height / 2);
     const ndcZ = this.viewer.ortho ? -0.9 : 1;
@@ -479,10 +480,11 @@ class Measurement {
    */
   _dragPanel = (e: MouseEvent): void => {
     if (!this.panelDragData.clicked || !this.panel || !this.viewer) return;
+    if (this.panelDragData.x == null || this.panelDragData.y == null) return;
     const panelRect = this.panel.html.getBoundingClientRect();
     const canvasRect = this.viewer.renderer.domElement.getBoundingClientRect();
-    const dx = e.clientX - this.panelDragData.x!;
-    const dy = e.clientY - this.panelDragData.y!;
+    const dx = e.clientX - this.panelDragData.x;
+    const dy = e.clientY - this.panelDragData.y;
 
     if (
       !(
@@ -542,7 +544,7 @@ class Measurement {
   }
 
   update(): void {
-    if (!this.viewer || !this.scene) return;
+    if (!this.viewer || !this.viewer.camera || !this.scene) return;
     const camera = this.viewer.camera.getCamera();
     const zoom = this.viewer.camera.getZoom();
     const cadWidth = this.viewer.state.get("cadWidth");

@@ -31,8 +31,8 @@ class CADOrbitControls extends OrbitControls {
   quaternion0: Quaternion;
   private _horizontalRotate: boolean;
   private _verticalRotate: boolean;
-  private _onCADPointerDown: (event: PointerEvent) => void;
-  private _onCADPointerUp: () => void;
+  private _onCADPointerDown?: (event: PointerEvent) => void;
+  private _onCADPointerUp?: () => void;
 
   // Expose internal properties for type safety
   declare state: number;
@@ -99,7 +99,7 @@ class CADOrbitControls extends OrbitControls {
    * Override dispose to clean up our event listeners.
    */
   dispose(): void {
-    if (this.domElement) {
+    if (this.domElement && this._onCADPointerDown && this._onCADPointerUp) {
       this.domElement.removeEventListener("pointerdown", this._onCADPointerDown);
       this.domElement.removeEventListener("pointerup", this._onCADPointerUp);
       this.domElement.removeEventListener("pointercancel", this._onCADPointerUp);

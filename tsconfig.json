@@ -15,11 +15,9 @@
     "outDir": "./dist",
     "rootDir": "./src",
 
-    "strict": false,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
 
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

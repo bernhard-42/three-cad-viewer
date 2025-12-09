@@ -83,7 +83,7 @@ class CompoundGroup extends THREE.Group {
  * Creates and organizes ObjectGroup instances for shapes, edges, and vertices.
  */
 class NestedGroup {
-  shapes: Shapes | null;
+  shapes!: Shapes;
   width: number;
   height: number;
   edgeColor: number;
@@ -100,7 +100,7 @@ class NestedGroup {
   instances: Record<string, number[]> | null;
   bbox: BoundingBox | null;
   bsphere: THREE.Sphere | null;
-  groups: GroupsMap | null;
+  groups!: GroupsMap; // Initialized to {} in constructor
   clipPlanes: THREE.Plane[] | null;
   materialFactory: MaterialFactory;
 
@@ -163,16 +163,14 @@ class NestedGroup {
    * Dispose of all resources and clean up memory.
    */
   dispose(): void {
-    if (this.groups) {
+    if (Object.keys(this.groups).length > 0) {
       deepDispose(Object.values(this.groups));
-      this.groups = null;
+      this.groups = {};
     }
     if (this.rootGroup) {
       deepDispose(this.rootGroup);
       this.rootGroup = null;
     }
-    // Clear shapes reference (it's just data, doesn't need disposal)
-    this.shapes = null;
   }
 
   /**
