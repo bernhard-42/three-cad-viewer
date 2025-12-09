@@ -6,6 +6,7 @@ import { BoundingBox } from "./bbox.js";
 import { ObjectGroup, isObjectGroup } from "./objectgroup.js";
 import { MaterialFactory } from "../rendering/material-factory.js";
 import { deepDispose, flatten } from "../utils/utils.js";
+import { gpuTracker } from "../utils/gpu-tracker.js";
 import type { ZebraColorScheme, ZebraMappingMode, Shapes, ColorValue, ColoredMaterial } from "../core/types";
 
 interface ShapeData {
@@ -235,11 +236,15 @@ class NestedGroup {
     edgeList: Float32Array | number[] | number[][],
     lineWidth: number,
     color: ColorValue | ColorValue[] | null,
-    state: number
+    state: number,
+    label?: string,
   ): LineSegments2 {
     const positions = this._toFloat32Array(edgeList, 3);
 
-    const lineGeometry = new LineSegmentsGeometry();
+    const lineGeometry = gpuTracker.trackGeometry(
+      new LineSegmentsGeometry(),
+      label ? `LineSegmentsGeometry for ${label}` : "LineSegmentsGeometry (edges)",
+    );
     lineGeometry.setPositions(positions);
 
     if (Array.isArray(color)) {
@@ -252,13 +257,16 @@ class NestedGroup {
       lineGeometry.setColors(colors);
     }
 
-    const lineMaterial = this.materialFactory.createEdgeMaterial({
-      lineWidth: lineWidth,
-      color: Array.isArray(color) ? null : color,
-      vertexColors: Array.isArray(color),
-      visible: state == 1,
-      resolution: { width: this.width, height: this.height },
-    });
+    const lineMaterial = this.materialFactory.createEdgeMaterial(
+      {
+        lineWidth: lineWidth,
+        color: Array.isArray(color) ? null : color,
+        vertexColors: Array.isArray(color),
+        visible: state == 1,
+        resolution: { width: this.width, height: this.height },
+      },
+      label ? `LineMaterial for ${label}` : "LineMaterial (edges)",
+    );
 
     const edges = new LineSegments2(lineGeometry, lineMaterial);
     edges.renderOrder = 999;
@@ -288,7 +296,7 @@ class NestedGroup {
       "edges",
     );
 
-    const edges = this._renderEdges(edgeData.edges, lineWidth, color, state);
+    const edges = this._renderEdges(edgeData.edges, lineWidth, color, state, path);
     if (name) {
       edges.name = name;
     }
@@ -322,17 +330,23 @@ class NestedGroup {
 
     const positions = this._toFloat32Array(vertexData.obj_vertices);
 
-    const geometry = new THREE.BufferGeometry();
+    const geometry = gpuTracker.trackGeometry(
+      new THREE.BufferGeometry(),
+      `BufferGeometry (vertices) for ${path}`,
+    );
     geometry.setAttribute(
       "position",
       new THREE.Float32BufferAttribute(positions, 3),
     );
 
-    const material = this.materialFactory.createVertexMaterial({
-      size: size,
-      color: color,
-      visible: state == 1,
-    });
+    const material = this.materialFactory.createVertexMaterial(
+      {
+        size: size,
+        color: color,
+        visible: state == 1,
+      },
+      `PointsMaterial for ${path}`,
+    );
 
     const points = new THREE.Points(geometry, material);
     if (name) {
@@ -393,17 +407,34 @@ class NestedGroup {
     if (texture_data != null) {
       const url = `data:image/${texture_data.format};base64,${texture_data.data}`;
       const img = new Image();
-      img.setAttribute("src", url);
-      shapeGeometry = new THREE.PlaneGeometry(texture_width!, texture_height!);
+      shapeGeometry = gpuTracker.trackGeometry(
+        new THREE.PlaneGeometry(texture_width!, texture_height!),
+        `PlaneGeometry (textured) for ${path}`,
+      );
 
-      texture = new THREE.Texture(img);
-      texture.needsUpdate = true;
+      texture = gpuTracker.trackTexture(
+        new THREE.Texture(img),
+        `Texture for ${path}`,
+      );
       texture.colorSpace = THREE.SRGBColorSpace;
 
-      frontMaterial = this.materialFactory.createTextureMaterial({ texture });
+      // Set src after texture is created, and mark needsUpdate in onload handler
+      // to avoid "Texture marked for update but image is incomplete" warning
+      img.onload = () => {
+        texture!.needsUpdate = true;
+      };
+      img.src = url;
+
+      frontMaterial = this.materialFactory.createTextureMaterial(
+        { texture },
+        `MeshBasicMaterial (textured) for ${path}`,
+      );
       renderback = false;
     } else {
-      shapeGeometry = new THREE.BufferGeometry();
+      shapeGeometry = gpuTracker.trackGeometry(
+        new THREE.BufferGeometry(),
+        `BufferGeometry (shape) for ${path}`,
+      );
       shapeGeometry.setAttribute(
         "position",
         new THREE.BufferAttribute(positions, 3),
@@ -415,11 +446,14 @@ class NestedGroup {
       shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
       group.shapeGeometry = shapeGeometry;
 
-      frontMaterial = this.materialFactory.createFrontFaceMaterial({
-        color: color,
-        alpha: alpha,
-        visible: states[0] == 1,
-      });
+      frontMaterial = this.materialFactory.createFrontFaceMaterial(
+        {
+          color: color,
+          alpha: alpha,
+          visible: states[0] == 1,
+        },
+        `MeshStandardMaterial (front) for ${path}`,
+      );
       frontMaterial.name = "frontMaterial";
     }
 
@@ -428,11 +462,14 @@ class NestedGroup {
         ? color
         : new THREE.Color(this.edgeColor).lerp(new THREE.Color(1, 1, 1), 0.15).getHex();
 
-    const backMaterial = this.materialFactory.createBackFaceBasicMaterial({
-      color: backColor,
-      alpha: alpha,
-      visible: states[0] == 1 && (renderback || this.backVisible),
-    });
+    const backMaterial = this.materialFactory.createBackFaceBasicMaterial(
+      {
+        color: backColor,
+        alpha: alpha,
+        visible: states[0] == 1 && (renderback || this.backVisible),
+      },
+      `MeshBasicMaterial (back) for ${path}`,
+    );
     backMaterial.name = "backMaterial";
 
     const back = new THREE.Mesh(shapeGeometry, backMaterial);
@@ -465,7 +502,7 @@ class NestedGroup {
 
     const edgeList = shape.edges;
     if (edgeList && edgeList.length > 0) {
-      const edges = this._renderEdges(edgeList, 1, null, states[1]);
+      const edges = this._renderEdges(edgeList, 1, null, states[1], path);
       edges.name = name;
       group.setEdges(edges);
     }
@@ -580,20 +617,29 @@ class NestedGroup {
       depth: shape.height,
       bevelEnabled: false,
     };
-    const polyGeometry = new THREE.ExtrudeGeometry(polygons, extrudeSettings);
+    const polyGeometry = gpuTracker.trackGeometry(
+      new THREE.ExtrudeGeometry(polygons, extrudeSettings),
+      `ExtrudeGeometry (polygon) for ${path}`,
+    );
 
-    const frontMaterial = this.materialFactory.createFrontFaceMaterial({
-      color: color,
-      alpha: alpha,
-      visible: states[0] == 1,
-    });
+    const frontMaterial = this.materialFactory.createFrontFaceMaterial(
+      {
+        color: color,
+        alpha: alpha,
+        visible: states[0] == 1,
+      },
+      `MeshStandardMaterial (front polygon) for ${path}`,
+    );
     frontMaterial.name = "frontMaterial";
 
-    const backMaterial = this.materialFactory.createBackFaceStandardMaterial({
-      color: color,
-      alpha: alpha,
-      visible: states[0] == 1 && (renderback || this.backVisible),
-    });
+    const backMaterial = this.materialFactory.createBackFaceStandardMaterial(
+      {
+        color: color,
+        alpha: alpha,
+        visible: states[0] == 1 && (renderback || this.backVisible),
+      },
+      `MeshStandardMaterial (back polygon) for ${path}`,
+    );
     backMaterial.name = "backMaterial";
 
     const back = new THREE.Mesh(polyGeometry, backMaterial);
@@ -602,9 +648,15 @@ class NestedGroup {
     front.name = name;
 
     // Edges
-    const edgeGeom = this._createEdgesFromPolygons(polygons, shape.height);
+    const edgeGeom = gpuTracker.trackGeometry(
+      this._createEdgesFromPolygons(polygons, shape.height),
+      `BufferGeometry (polygon edges) for ${path}`,
+    );
 
-    const lineMat = this.materialFactory.createSimpleEdgeMaterial({});
+    const lineMat = this.materialFactory.createSimpleEdgeMaterial(
+      {},
+      `LineBasicMaterial (polygon edges) for ${path}`,
+    );
 
     const polyEdges = new THREE.LineSegments(edgeGeom, lineMat);
 
