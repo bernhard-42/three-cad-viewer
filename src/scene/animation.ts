@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { AXIS_VECTORS } from "../utils/utils.js";
+import { logger } from "../utils/logger.js";
 import type { Axis } from "../core/types.js";
 
 /**
@@ -66,7 +67,7 @@ class Animation {
    */
   private _validateArrayLengths(times: number[], values: unknown[]): boolean {
     if (times.length !== values.length) {
-      console.error("times and values arrays need to have the same length");
+      logger.error("times and values arrays need to have the same length");
       return false;
     }
     return true;

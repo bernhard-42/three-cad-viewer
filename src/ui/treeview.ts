@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { KeyMapper } from "../utils/utils.js";
+import { logger } from "../utils/logger.js";
 import { TreeModel, States } from "../rendering/tree-model.js";
 import type { TreeNode, TreeData, StateValue, IconIndex } from "../rendering/tree-model.js";
 
@@ -193,12 +194,12 @@ class TreeView {
    * @param elements - The visible elements.
    */
   private _logVisibleElements(elements: Element[]): void {
-    console.log(`\nVisible elements (${elements.length}):`);
+    logger.debug(`\nVisible elements (${elements.length}):`);
     for (const el of elements) {
       if (!(el instanceof HTMLElement)) continue;
       const node = this.findNodeByPath(el.dataset.path || "");
       if (node) {
-        console.log(
+        logger.debug(
           node.path,
           node.state[0],
           node.state[1],
@@ -224,7 +225,7 @@ class TreeView {
 
     this.lastScrollTop = this.scrollContainer.scrollTop;
     if (this.debug) {
-      console.log("update => scroll");
+      logger.debug("update => scroll");
     }
     this.update();
   };
@@ -240,7 +241,7 @@ class TreeView {
       node.expanded = !node.expanded;
       this.showChildContainer(node);
       if (this.debug) {
-        console.log("update => navClick");
+        logger.debug("update => navClick");
       }
       this.update();
     };
@@ -277,7 +278,9 @@ class TreeView {
       true,
     );
 
-    console.log(`Label clicked: ${this.getNodePath(node)}`);
+    if (this.debug) {
+      logger.debug(`Label clicked: ${this.getNodePath(node)}`);
+    }
   }
 
   /**
@@ -326,7 +329,7 @@ class TreeView {
         }
         this.showChildContainer(node);
       } else {
-        console.error(`Node not found: ${path}`);
+        logger.error(`Node not found: ${path}`);
       }
     }
   };
@@ -345,7 +348,7 @@ class TreeView {
     this.container.innerHTML = "";
     this.renderPlaceholder(this.root, this.container);
     if (this.debug) {
-      console.log("update => render");
+      logger.debug("update => render");
     }
     this.update();
   }
@@ -358,7 +361,7 @@ class TreeView {
    */
   renderPlaceholder(node: TreeNode, container: HTMLElement, openPath: string | null = null): void {
     if (this.debug) {
-      console.log("renderPlaceholder", node.path, node.level);
+      logger.debug("renderPlaceholder", node.path, node.level);
     }
     const nodeElement = document.createElement("div");
     nodeElement.className = "tv-tree-node";
@@ -384,7 +387,7 @@ class TreeView {
    */
   renderNode(node: TreeNode, parentElement: HTMLElement): HTMLDivElement | null {
     if (this.debug) {
-      console.log("renderNode", node.path, node.level);
+      logger.debug("renderNode", node.path, node.level);
     }
     const nodeContent = document.createElement("div");
     nodeContent.className = "tv-node-content";
@@ -495,14 +498,14 @@ class TreeView {
           }
           if (!node.expanded) {
             if (this.debug) {
-              console.log("update => showChildContainer");
+              logger.debug("update => showChildContainer");
             }
             this.update();
           }
         }
       }
     } else {
-      console.error(`Element not found: ${path}`);
+      logger.error(`Element not found: ${path}`);
     }
   }
 
@@ -846,10 +849,10 @@ class TreeView {
         }
 
         if (this.debug) {
-          console.log("update => openPath", current);
+          logger.debug("update => openPath", current);
         }
       } else {
-        console.error(`Path not found: ${current}`);
+        logger.error(`Path not found: ${current}`);
         break;
       }
     }
@@ -878,11 +881,11 @@ class TreeView {
         this.scrollContainer.scrollTop = el.offsetTop - this.scrollContainer.offsetTop;
       }
       if (this.debug) {
-        console.log("update => collapsePath");
+        logger.debug("update => collapsePath");
       }
       this.update();
     } else {
-      console.error(`Path not found: ${path}`);
+      logger.error(`Path not found: ${path}`);
     }
   }
 
@@ -904,7 +907,7 @@ class TreeView {
     const maxIterations = level === -1 ? this.maxLevel : level;
     for (let i = 0; i <= maxIterations; i++) {
       if (this.debug) {
-        console.log("update => openLevel", i);
+        logger.debug("update => openLevel", i);
       }
       this.update();
     }

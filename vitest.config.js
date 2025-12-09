@@ -15,12 +15,13 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      include: ['src/**/*.js'],
+      include: ['src/**/*.ts'],
       exclude: [
-        'src/sizeof.js',      // Debug utility, not used in production
-        'src/types.js',       // TypeScript type definitions (JSDoc only)
-        'src/index.js',       // Re-export entry point
-        'src/patches.js',     // Three.js workaround, not application logic
+        'src/utils/sizeof.ts',   // Debug utility, not used in production
+        'src/core/types.ts',     // TypeScript type definitions only
+        'src/index.ts',          // Re-export entry point
+        'src/core/patches.ts',   // Three.js workaround, not application logic
+        'src/types/**/*.ts',     // Type declaration files
       ],
     },
 

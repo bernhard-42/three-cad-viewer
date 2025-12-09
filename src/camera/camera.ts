@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import type { Vector3Tuple, QuaternionTuple } from "three";
 import type { UpDirection } from "../core/types";
+import { logger } from "../utils/logger.js";
 
 type CameraDirection = "iso" | "front" | "rear" | "left" | "right" | "top" | "bottom";
 
@@ -320,7 +321,7 @@ class Camera {
     } else if (position instanceof THREE.Vector3) {
       this.setupCamera(relative, position);
     } else {
-      console.error("wrong type for position", position);
+      logger.error("wrong type for position", position);
     }
   }
 
@@ -342,7 +343,7 @@ class Camera {
     } else if (quaternion instanceof THREE.Quaternion) {
       this.setupCamera(false, null, quaternion);
     } else {
-      console.error("wrong type for quaternion", quaternion);
+      logger.error("wrong type for quaternion", quaternion);
     }
 
     this.updateProjectionMatrix();

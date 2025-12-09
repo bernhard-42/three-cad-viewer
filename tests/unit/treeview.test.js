@@ -5,6 +5,7 @@
 
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TreeView, States } from '../../src/ui/treeview.js';
+import { logger } from '../../src/utils/logger.js';
 
 // Helper to create a simple tree structure
 function createSimpleTree() {
@@ -369,8 +370,6 @@ describe('TreeView - handleLabelClick', () => {
   });
 
   test('handleLabelClick calls pickHandler', () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
     const node = treeView.findNodeByPath('/Root/Part1');
     const mockEvent = {
       metaKey: false,
@@ -381,9 +380,6 @@ describe('TreeView - handleLabelClick', () => {
     treeView.handleLabelClick(node, mockEvent);
 
     expect(pickHandler).toHaveBeenCalled();
-    expect(consoleSpy).toHaveBeenCalled();
-
-    consoleSpy.mockRestore();
   });
 });
 
@@ -930,12 +926,15 @@ describe('TreeView - getVisibleElements', () => {
 
   test('getVisibleElements logs in debug mode', () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const originalLevel = logger.getLevel();
+    logger.setLevel('debug');
     treeView.debug = true;
 
     treeView.getVisibleElements();
 
     expect(consoleSpy).toHaveBeenCalled();
 
+    logger.setLevel(originalLevel);
     consoleSpy.mockRestore();
   });
 });
@@ -973,25 +972,31 @@ describe('TreeView - debug mode', () => {
   test('closePath logs in debug mode', () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const originalLevel = logger.getLevel();
+    logger.setLevel('debug');
 
     treeView.openPath('/Root/Part2');
     consoleSpy.mockClear();
 
     treeView.closePath('/Root/Part2');
 
-    expect(consoleSpy).toHaveBeenCalledWith('update => collapsePath');
+    expect(consoleSpy).toHaveBeenCalledWith('[three-cad-viewer]', 'update => collapsePath');
 
+    logger.setLevel(originalLevel);
     consoleSpy.mockRestore();
     errorSpy.mockRestore();
   });
 
   test('openLevel logs in debug mode', () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const originalLevel = logger.getLevel();
+    logger.setLevel('debug');
 
     treeView.openLevel(1);
 
-    expect(consoleSpy).toHaveBeenCalledWith('update => openLevel', expect.any(Number));
+    expect(consoleSpy).toHaveBeenCalledWith('[three-cad-viewer]', 'update => openLevel', expect.any(Number));
 
+    logger.setLevel(originalLevel);
     consoleSpy.mockRestore();
   });
 });

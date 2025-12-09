@@ -5,6 +5,7 @@
 
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { ViewerState } from '../../src/core/viewer-state.js';
+import { logger } from '../../src/utils/logger.js';
 
 describe('ViewerState', () => {
   describe('constructor', () => {
@@ -80,7 +81,8 @@ describe('ViewerState', () => {
       new ViewerState({ unknownOption: 'value' });
 
       expect(warnSpy).toHaveBeenCalledWith(
-        'ViewerState: Unknown option "unknownOption" - ignored'
+        '[three-cad-viewer]',
+        'Unknown option "unknownOption" - ignored'
       );
 
       warnSpy.mockRestore();
@@ -454,19 +456,24 @@ describe('ViewerState', () => {
       const state = new ViewerState();
       const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
+      // Enable info level logging for dump() to work
+      const originalLevel = logger.getLevel();
+      logger.setLevel('info');
+
       state.dump();
 
-      // Should have category headers
-      expect(logSpy).toHaveBeenCalledWith('Display:');
-      expect(logSpy).toHaveBeenCalledWith('Render:');
-      expect(logSpy).toHaveBeenCalledWith('View:');
-      expect(logSpy).toHaveBeenCalledWith('Zebra:');
-      expect(logSpy).toHaveBeenCalledWith('Runtime:');
+      // Should have category headers (now with prefix)
+      expect(logSpy).toHaveBeenCalledWith('[three-cad-viewer]', 'Display:');
+      expect(logSpy).toHaveBeenCalledWith('[three-cad-viewer]', 'Render:');
+      expect(logSpy).toHaveBeenCalledWith('[three-cad-viewer]', 'View:');
+      expect(logSpy).toHaveBeenCalledWith('[three-cad-viewer]', 'Zebra:');
+      expect(logSpy).toHaveBeenCalledWith('[three-cad-viewer]', 'Runtime:');
 
       // Should log actual values
-      expect(logSpy).toHaveBeenCalledWith('- theme', 'light');
-      expect(logSpy).toHaveBeenCalledWith('- cadWidth', 800);
+      expect(logSpy).toHaveBeenCalledWith('[three-cad-viewer]', '- theme', 'light');
+      expect(logSpy).toHaveBeenCalledWith('[three-cad-viewer]', '- cadWidth', 800);
 
+      logger.setLevel(originalLevel);
       logSpy.mockRestore();
     });
   });

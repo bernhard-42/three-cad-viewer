@@ -207,7 +207,7 @@ class BaseButton {
   }
 
   handler = (_e: Event): void => {
-    console.log("not implemented yet");
+    // Default handler - override in subclass
   };
 
   alignRight(): void {

@@ -40,6 +40,7 @@ import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
 import { version } from "./_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
 import { ViewerState } from "./viewer-state.js";
+import { logger } from "../utils/logger.js";
 import type { Display } from "../ui/display.js";
 import type { Vector3Tuple, QuaternionTuple } from "three";
 import type {
@@ -663,10 +664,10 @@ class Viewer {
     repeat: boolean = true,
   ): void {
     if (this.animation == null || this.animation.tracks.length === 0) {
-      console.error("Animation does not have tracks");
+      logger.error("Animation does not have tracks");
       return;
     }
-    console.debug("three-cad-viewer: Animation initialized");
+    logger.debug("Animation initialized");
     if (!this.hasAnimationLoop) {
       this.toggleAnimationLoop(true);
     }
@@ -1721,7 +1722,6 @@ class Viewer {
       const obj = groups[path];
       if (obj instanceof ObjectGroup) {
         if (obj.getVisibility()) {
-          console.log(path);
           bbox.expandByObject(obj);
         }
       }
@@ -3202,7 +3202,7 @@ class Viewer {
     const screenshot = this.getImage("screenshot");
     screenshot.then((data: ImageResult) => {
       if (typeof data.dataUrl !== "string") {
-        console.error("Screenshot dataUrl is not a string");
+        logger.error("Screenshot dataUrl is not a string");
         return;
       }
       const image = document.createElement("img");

@@ -1,7 +1,8 @@
 {
   "name": "three-cad-viewer",
   "version": "4.0.0",
-  "description": "",
+  "type": "module",
+  "description": "WebGL-based CAD viewer built on Three.js with clipping planes, measurement tools, and tree navigation",
   "repository": {
     "type": "git",
     "url": "https://github.com/bernhard-42/three-cad-viewer"
@@ -13,9 +14,20 @@
   "main": "dist/three-cad-viewer.js",
   "module": "dist/three-cad-viewer.esm.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/three-cad-viewer.esm.js",
+      "require": "./dist/three-cad-viewer.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./css": "./dist/three-cad-viewer.css"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
   "scripts": {
     "clean": "rimraf ./dist/",
-    "build": "node ./scripts/copy_version.js && rollup -c --environment BUILD:production",
+    "build": "node ./scripts/copy_version.cjs && rollup -c --environment BUILD:production",
     "prepare": "yarn run build",
     "start": "rollup -w -c",
     "debug": "rollup -w -c --environment BUILD:development --sourcemap",

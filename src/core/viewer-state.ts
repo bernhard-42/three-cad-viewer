@@ -15,6 +15,7 @@ import type {
   RenderOptions,
   ViewerOptions,
 } from "./types";
+import { logger } from "../utils/logger.js";
 
 /**
  * Display configuration defaults
@@ -346,7 +347,7 @@ class ViewerState {
     for (const key of Object.keys(options)) {
       if (key === "theme") continue; // Already handled
       if (!isStateKey(key)) {
-        console.warn(`ViewerState: Unknown option "${key}" - ignored`);
+        logger.warn(`Unknown option "${key}" - ignored`);
         continue;
       }
       const value = options[key];
@@ -565,9 +566,9 @@ class ViewerState {
    */
   dump(): void {
     const logCategory = (name: string, defaults: Partial<StateShape>): void => {
-      console.log(`${name}:`);
+      logger.info(`${name}:`);
       for (const key of Object.keys(defaults)) {
-        console.log(`- ${key}`, this._state[key as StateKey]);
+        logger.info(`- ${key}`, this._state[key as StateKey]);
       }
     };
 
