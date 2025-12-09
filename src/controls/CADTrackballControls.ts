@@ -5,6 +5,22 @@
  * - Holroyd (non-tumbling) trackball rotation mode
  * - rotateX/Y/Z methods for programmatic world-axis rotation
  * - Quaternion-based saveState/reset
+ *
+ * Internal TrackballControls methods/properties used (see three-augmentation.d.ts):
+ * - _onMouseDown: Replaced to customize modifier key behavior (shift=pan)
+ * - _getMouseOnCircle: Called to convert page coordinates for rotation
+ * - _getMouseOnScreen: Called to convert page coordinates for pan/zoom
+ * - _rotateCamera: Overridden to implement holroyd sphere projection
+ * - _panCamera: Overridden to use quaternion-based camera orientation in holroyd mode
+ * - _zoomCamera: Called for zoom handling
+ * - _moveCurr/_movePrev: Rotation tracking vectors
+ * - _zoomStart/_zoomEnd: Zoom tracking vectors
+ * - _panStart/_panEnd: Pan tracking vectors
+ * - _eye: Camera-to-target vector
+ * - _lastPosition: Change detection
+ * - _target0/_position0/_up0/_zoom0: Saved state for reset
+ * - state/keyState: Current interaction mode tracking
+ * - noRotate/noZoom/noPan: Feature disable flags
  */
 
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js";

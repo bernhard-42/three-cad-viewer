@@ -5,6 +5,14 @@
  * - Public rotateLeft/rotateUp methods for programmatic rotation
  * - Quaternion-based saveState/reset
  * - Modifier key rotation restrictions (ctrl: vertical only, meta: horizontal only)
+ *
+ * Internal OrbitControls methods/properties used (see three-augmentation.d.ts):
+ * - _onMouseDown: Replaced to customize modifier key behavior (shift=pan, ctrl/meta=rotate with axis lock)
+ * - _handleMouseDownRotate: Called to initialize rotation state
+ * - _handleMouseDownDolly: Called to initialize dolly/zoom state
+ * - _handleMouseDownPan: Called to initialize pan state
+ * - _sphericalDelta: Modified in _rotateLeft/_rotateUp overrides to implement axis locking
+ * - state: Set to track current interaction mode (ROTATE/DOLLY/PAN/NONE)
  */
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
