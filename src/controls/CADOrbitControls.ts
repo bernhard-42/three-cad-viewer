@@ -8,7 +8,7 @@
  */
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { MOUSE, Quaternion, Vector3, Camera, PerspectiveCamera, OrthographicCamera } from "three";
+import { MOUSE, Quaternion, Vector3, Camera } from "three";
 import { KeyMapper, isOrthographicCamera, isPerspectiveCamera } from "../utils.js";
 
 // State constants matching OrbitControls internal state
@@ -18,17 +18,6 @@ const STATE = {
   DOLLY: 1,
   PAN: 2,
 };
-
-// Internal methods/properties exist on OrbitControls but are not typed
-interface OrbitControlsInternal {
-  _onMouseDown: (event: MouseEvent) => void;
-  _handleMouseDownDolly: (event: MouseEvent) => void;
-  _handleMouseDownPan: (event: MouseEvent) => void;
-  _handleMouseDownRotate: (event: MouseEvent) => void;
-}
-
-// Access to OrbitControls prototype methods (single cast point)
-const _proto = OrbitControls.prototype as unknown as OrbitControlsInternal;
 
 class CADOrbitControls extends OrbitControls {
   quaternion0: Quaternion;
@@ -44,6 +33,9 @@ class CADOrbitControls extends OrbitControls {
   declare target0: Vector3;
   declare position0: Vector3;
   declare _onMouseDown: (event: MouseEvent) => void;
+  declare _handleMouseDownRotate: (event: MouseEvent) => void;
+  declare _handleMouseDownDolly: (event: MouseEvent) => void;
+  declare _handleMouseDownPan: (event: MouseEvent) => void;
 
   /**
    * Constructs CAD-enhanced orbit controls.
@@ -131,14 +123,10 @@ class CADOrbitControls extends OrbitControls {
         mouseAction = -1;
     }
 
-    const handleMouseDownDolly = _proto._handleMouseDownDolly;
-    const handleMouseDownPan = _proto._handleMouseDownPan;
-    const handleMouseDownRotate = _proto._handleMouseDownRotate;
-
     switch (mouseAction) {
       case MOUSE.DOLLY:
         if (this.enableZoom === false) return;
-        handleMouseDownDolly.call(this, event);
+        this._handleMouseDownDolly(event);
         this.state = STATE.DOLLY;
         break;
 
@@ -146,12 +134,12 @@ class CADOrbitControls extends OrbitControls {
         // Check if shift key (via KeyMapper) is pressed for pan
         if (KeyMapper.get(event, "shift")) {
           if (this.enablePan === false) return;
-          handleMouseDownPan.call(this, event);
+          this._handleMouseDownPan(event);
           this.state = STATE.PAN;
         } else {
           // ctrl and meta are handled for rotation restriction in _handleCADPointerDown
           if (this.enableRotate === false) return;
-          handleMouseDownRotate.call(this, event);
+          this._handleMouseDownRotate(event);
           this.state = STATE.ROTATE;
         }
         break;
@@ -164,11 +152,11 @@ class CADOrbitControls extends OrbitControls {
           KeyMapper.get(event, "shift")
         ) {
           if (this.enableRotate === false) return;
-          handleMouseDownRotate.call(this, event);
+          this._handleMouseDownRotate(event);
           this.state = STATE.ROTATE;
         } else {
           if (this.enablePan === false) return;
-          handleMouseDownPan.call(this, event);
+          this._handleMouseDownPan(event);
           this.state = STATE.PAN;
         }
         break;

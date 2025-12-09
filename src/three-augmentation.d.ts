@@ -39,6 +39,14 @@ declare module "three/examples/jsm/controls/TrackballControls.js" {
      * Enable/disable keyboard controls
      */
     enableKeys: boolean;
+    /**
+     * Internal: rotate camera based on mouse movement
+     */
+    _rotateCamera(): void;
+    /**
+     * Internal: pan camera based on mouse movement
+     */
+    _panCamera(): void;
   }
 }
 

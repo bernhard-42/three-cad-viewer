@@ -8,7 +8,7 @@
  */
 
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js";
-import { MOUSE, Quaternion, Vector2, Vector3, Camera, PerspectiveCamera, OrthographicCamera } from "three";
+import { MOUSE, Quaternion, Vector2, Vector3, Camera } from "three";
 import { KeyMapper, AXIS_VECTORS, isOrthographicCamera, isPerspectiveCamera } from "../utils.js";
 import type { Axis } from "../types.js";
 
@@ -19,19 +19,6 @@ const STATE = {
   ZOOM: 1,
   PAN: 2,
 };
-
-// Internal methods/properties exist on TrackballControls but are not typed
-interface TrackballControlsInternal {
-  _rotateCamera: () => void;
-  _panCamera: () => void;
-  _zoomCamera: () => void;
-  _onMouseDown: (event: MouseEvent) => void;
-  _getMouseOnCircle: (x: number, y: number) => Vector2;
-  _getMouseOnScreen: (x: number, y: number) => Vector2;
-}
-
-// Access to TrackballControls prototype methods (single cast point)
-const _proto = TrackballControls.prototype as unknown as TrackballControlsInternal;
 
 // Used for change detection in holroyd mode
 const _lastQuaternion = new Quaternion();
@@ -83,6 +70,9 @@ class CADTrackballControls extends TrackballControls {
   declare noZoom: boolean;
   declare noPan: boolean;
   declare _onMouseDown: (event: MouseEvent) => void;
+  declare _getMouseOnCircle: (pageX: number, pageY: number) => Vector2;
+  declare _getMouseOnScreen: (pageX: number, pageY: number) => Vector2;
+  declare _zoomCamera: () => void;
 
   /**
    * Constructs CAD-enhanced trackball controls.
@@ -135,7 +125,7 @@ class CADTrackballControls extends TrackballControls {
     }
 
     // Save parent's _onMouseDown before overriding (for holroyd=false fallback)
-    this._parentOnMouseDown = _proto._onMouseDown;
+    this._parentOnMouseDown = this._onMouseDown;
     this._onMouseDown = this._handleMouseDown.bind(this);
   }
 
@@ -171,9 +161,6 @@ class CADTrackballControls extends TrackballControls {
       mouseAction = MOUSE.PAN;
     }
 
-    const getMouseOnCircle = _proto._getMouseOnCircle;
-    const getMouseOnScreen = _proto._getMouseOnScreen;
-
     switch (mouseAction) {
       case MOUSE.DOLLY:
         this.state = STATE.ZOOM;
@@ -191,13 +178,13 @@ class CADTrackballControls extends TrackballControls {
     const state = this.keyState !== STATE.NONE ? this.keyState : this.state;
 
     if (state === STATE.ROTATE && !this.noRotate) {
-      this._moveCurr.copy(getMouseOnCircle.call(this, event.pageX, event.pageY));
+      this._moveCurr.copy(this._getMouseOnCircle(event.pageX, event.pageY));
       this._movePrev.copy(this._moveCurr);
     } else if (state === STATE.ZOOM && !this.noZoom) {
-      this._zoomStart.copy(getMouseOnScreen.call(this, event.pageX, event.pageY));
+      this._zoomStart.copy(this._getMouseOnScreen(event.pageX, event.pageY));
       this._zoomEnd.copy(this._zoomStart);
     } else if (state === STATE.PAN && !this.noPan) {
-      this._panStart.copy(getMouseOnScreen.call(this, event.pageX, event.pageY));
+      this._panStart.copy(this._getMouseOnScreen(event.pageX, event.pageY));
       this._panEnd.copy(this._panStart);
     }
 
@@ -383,7 +370,7 @@ class CADTrackballControls extends TrackballControls {
     }
 
     if (!this.noZoom) {
-      _proto._zoomCamera.call(this);
+      this._zoomCamera();
     }
 
     if (!this.noPan) {
@@ -423,7 +410,7 @@ class CADTrackballControls extends TrackballControls {
   _rotateCamera(): void {
     if (!this.holroyd) {
       // Use default TrackballControls rotation
-      _proto._rotateCamera.call(this);
+      super._rotateCamera();
       return;
     }
 
@@ -482,7 +469,7 @@ class CADTrackballControls extends TrackballControls {
    */
   _panCamera(): void {
     if (!this.holroyd) {
-      _proto._panCamera.call(this);
+      super._panCamera();
       return;
     }
 
