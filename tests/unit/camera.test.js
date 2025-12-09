@@ -5,7 +5,7 @@
 
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import * as THREE from 'three';
-import { Camera } from '../../src/camera.js';
+import { Camera } from '../../src/camera/camera.js';
 
 describe('Camera', () => {
   describe('constructor', () => {

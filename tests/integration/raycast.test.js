@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as THREE from 'three';
-import { Raycaster, PickedObject, TopoFilter } from '../../src/raycast.js';
+import { Raycaster, PickedObject, TopoFilter } from '../../src/rendering/raycast.js';
 
 /**
  * Raycast Module Tests

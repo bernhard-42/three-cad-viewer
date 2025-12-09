@@ -15,10 +15,10 @@ import "../css/tools.css";
 // Core Classes
 // =============================================================================
 
-import { Viewer } from "./viewer.js";
-import { Display } from "./display.js";
-import { Timer } from "./timer.js";
-import { version } from "./_version.js";
+import { Viewer } from "./core/viewer.js";
+import { Display } from "./ui/display.js";
+import { Timer } from "./utils/timer.js";
+import { version } from "./core/_version.js";
 
 export { Viewer, Display, Timer, version };
 
@@ -47,34 +47,34 @@ export type {
   RGBColor,
   AxisColors,
   AxisColorsFlatArray,
-} from "./types.js";
+} from "./core/types.js";
 
 // Type guards and constants
-export { CLIP_INDICES, isClipIndex } from "./types.js";
+export { CLIP_INDICES, isClipIndex } from "./core/types.js";
 
 // State change types
 export type {
   StateChange,
   StateSubscriber,
   GlobalStateSubscriber,
-} from "./types.js";
+} from "./core/types.js";
 
 // Bounding box/sphere types
 export type {
   BoundingBox,
   BoundingSphere,
   BoundingBoxFlat,
-} from "./types.js";
+} from "./core/types.js";
 
 // Pick info
-export type { PickInfo } from "./types.js";
+export type { PickInfo } from "./core/types.js";
 
 // Change notification types
 export type {
   ChangeInfos,
   ChangeNotification,
   NotificationCallback,
-} from "./types.js";
+} from "./core/types.js";
 
 // Options types - these are the main configuration interfaces
 export type {
@@ -83,13 +83,13 @@ export type {
   ViewerOptions,
   ZebraOptions,
   CombinedOptions,
-} from "./types.js";
+} from "./core/types.js";
 
 // Viewer state shape
 export type {
   ViewerStateShape,
   StateKey,
-} from "./types.js";
+} from "./core/types.js";
 
 // Shape and texture types - for working with CAD data
 export type {
@@ -101,20 +101,20 @@ export type {
   VisibilityValue,
   VisibilityState,
   Shapes,
-} from "./types.js";
+} from "./core/types.js";
 
 // Shape type guards
 export {
   isShapeBinaryFormat,
   hasTrianglesPerFace,
   hasSegmentsPerEdge,
-} from "./types.js";
+} from "./core/types.js";
 
 // DOM event callback
-export type { DomEventCallback } from "./types.js";
+export type { DomEventCallback } from "./core/types.js";
 
 // Material types
-export type { ColoredMaterial } from "./types.js";
+export type { ColoredMaterial } from "./core/types.js";
 
 // Subscription options
-export type { SubscribeOptions } from "./types.js";
+export type { SubscribeOptions } from "./core/types.js";

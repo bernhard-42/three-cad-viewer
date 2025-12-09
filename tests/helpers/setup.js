@@ -1,5 +1,5 @@
-import { Display } from '../../src/display.js';
-import { Viewer } from '../../src/viewer.js';
+import { Display } from '../../src/ui/display.js';
+import { Viewer } from '../../src/core/viewer.js';
 
 /**
  * Create a minimal DOM container for testing

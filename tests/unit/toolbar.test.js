@@ -4,7 +4,7 @@
  */
 
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { Toolbar, Button, ClickButton, Ellipsis } from '../../src/toolbar.js';
+import { Toolbar, Button, ClickButton, Ellipsis } from '../../src/ui/toolbar.js';
 
 // Helper to create a toolbar container
 function createToolbarContainer() {

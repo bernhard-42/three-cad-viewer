@@ -4,7 +4,7 @@
  */
 
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { ViewerState } from '../../src/viewer-state.js';
+import { ViewerState } from '../../src/core/viewer-state.js';
 
 describe('ViewerState', () => {
   describe('constructor', () => {

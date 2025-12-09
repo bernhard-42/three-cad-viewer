@@ -5,7 +5,7 @@
 
 import { describe, test, expect, afterEach, beforeEach, vi } from 'vitest';
 import { setupViewer, setupDisplay, cleanup, cleanupContainer, createContainer, getDisplayOptions } from '../helpers/setup.js';
-import { Display } from '../../src/display.js';
+import { Display } from '../../src/ui/display.js';
 
 // =============================================================================
 // MOCK EVENT HELPERS

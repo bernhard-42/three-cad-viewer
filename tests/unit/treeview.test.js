@@ -4,7 +4,7 @@
  */
 
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { TreeView, States } from '../../src/treeview.js';
+import { TreeView, States } from '../../src/ui/treeview.js';
 
 // Helper to create a simple tree structure
 function createSimpleTree() {

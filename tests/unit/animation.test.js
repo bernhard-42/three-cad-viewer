@@ -5,7 +5,7 @@
 
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as THREE from 'three';
-import { Animation } from '../../src/animation.js';
+import { Animation } from '../../src/scene/animation.js';
 
 describe('Animation - Constructor', () => {
   test('creates Animation with delimiter', () => {

@@ -5,10 +5,10 @@
 
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as THREE from 'three';
-import { Controls } from '../../src/controls.js';
-import { CADTrackballControls } from '../../src/controls/CADTrackballControls.js';
-import { CADOrbitControls } from '../../src/controls/CADOrbitControls.js';
-import { KeyMapper } from '../../src/utils.js';
+import { Controls } from '../../src/camera/controls.js';
+import { CADTrackballControls } from '../../src/camera/controls/CADTrackballControls.js';
+import { CADOrbitControls } from '../../src/camera/controls/CADOrbitControls.js';
+import { KeyMapper } from '../../src/utils/utils.js';
 
 // Helper to create a mock DOM element with pointer capture support
 function createMockDomElement() {

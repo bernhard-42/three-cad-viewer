@@ -5,10 +5,10 @@
 
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as THREE from 'three';
-import { Tools, ToolTypes } from '../../src/cad_tools/tools.js';
-import { DistanceMeasurement, PropertiesMeasurement } from '../../src/cad_tools/measure.js';
-import { SelectObject } from '../../src/cad_tools/select.js';
-import { FilterByDropDownMenu, DistancePanel, PropertiesPanel } from '../../src/cad_tools/ui.js';
+import { Tools, ToolTypes } from '../../src/tools/cad_tools/tools.js';
+import { DistanceMeasurement, PropertiesMeasurement } from '../../src/tools/cad_tools/measure.js';
+import { SelectObject } from '../../src/tools/cad_tools/select.js';
+import { FilterByDropDownMenu, DistancePanel, PropertiesPanel } from '../../src/tools/cad_tools/ui.js';
 
 // =============================================================================
 // MOCK HELPERS

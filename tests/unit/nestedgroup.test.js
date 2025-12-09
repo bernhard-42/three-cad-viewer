@@ -5,7 +5,7 @@
 
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as THREE from 'three';
-import { NestedGroup, ObjectGroup } from '../../src/nestedgroup.js';
+import { NestedGroup, ObjectGroup } from '../../src/scene/nestedgroup.js';
 
 // Helper to create minimal shape data for testing
 function createMinimalShapeData() {

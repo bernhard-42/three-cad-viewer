@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Clipping } from '../../src/clipping.js';
-import { ObjectGroup } from '../../src/objectgroup.js';
+import { Clipping } from '../../src/scene/clipping.js';
+import { ObjectGroup } from '../../src/scene/objectgroup.js';
 
 /**
  * Create a mock ObjectGroup with shape geometry for clipping tests.

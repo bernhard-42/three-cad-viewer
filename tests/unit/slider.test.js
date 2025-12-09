@@ -4,7 +4,7 @@
  */
 
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { Slider } from '../../src/slider.js';
+import { Slider } from '../../src/ui/slider.js';
 
 // Helper to create slider DOM elements
 function createSliderDOM(index) {

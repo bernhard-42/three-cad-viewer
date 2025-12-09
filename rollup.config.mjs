@@ -41,7 +41,7 @@ const default_plugins = [
   resolve(),
   css({ output: "three-cad-viewer.css" }),
   image(),
-  string({ include: "src/index.html" }),
+  string({ include: "src/ui/index.html" }),
 ];
 
 var config;

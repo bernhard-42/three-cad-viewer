@@ -4,7 +4,7 @@
  */
 
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Timer } from '../../src/timer.js';
+import { Timer } from '../../src/utils/timer.js';
 
 describe('Timer', () => {
   let consoleSpy;

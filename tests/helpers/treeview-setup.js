@@ -1,4 +1,4 @@
-import { TreeView } from '../../src/treeview.js';
+import { TreeView } from '../../src/ui/treeview.js';
 
 /**
  * Create a mock scroll container for TreeView testing

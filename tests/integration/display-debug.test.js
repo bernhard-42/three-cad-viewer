@@ -1,6 +1,6 @@
 import { describe, test } from 'vitest';
 import { createContainer, getDisplayOptions } from '../helpers/setup.js';
-import { Display } from '../../src/display.js';
+import { Display } from '../../src/ui/display.js';
 
 describe('Display DEBUG', () => {
   test('can create container', () => {

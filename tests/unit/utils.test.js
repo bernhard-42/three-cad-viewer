@@ -12,7 +12,7 @@ import {
   scaleLight,
   deepDispose,
   disposeGeometry,
-} from '../../src/utils.js';
+} from '../../src/utils/utils.js';
 import * as THREE from 'three';
 
 // =============================================================================

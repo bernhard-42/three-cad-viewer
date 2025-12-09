@@ -5,7 +5,7 @@
 
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import * as THREE from 'three';
-import { ObjectGroup } from '../../src/nestedgroup.js';
+import { ObjectGroup } from '../../src/scene/nestedgroup.js';
 
 // Helper to create a basic ObjectGroup with mock mesh
 function createObjectGroupWithMesh() {
