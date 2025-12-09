@@ -16,7 +16,7 @@ import { Grid } from "./grid.js";
 import { AxesHelper } from "./axes.js";
 import { OrientationMarker } from "./orientation.js";
 import { TreeView } from "./treeview.js";
-import type { TreeData as TreeViewData, StateValue } from "./tree-model.js";
+// TreeData and StateValue available if needed for tree manipulation
 import { Timer } from "./timer.js";
 import { Clipping } from "./clipping.js";
 import { Animation } from "./animation.js";
@@ -43,13 +43,8 @@ import { ViewerState } from "./viewer-state.js";
 import type { Display } from "./display.js";
 import type { Vector3Tuple, QuaternionTuple } from "three";
 import type {
-  Theme,
-  ThemeInput,
-  ControlType,
-  UpDirection,
   ZebraColorScheme,
   ZebraMappingMode,
-  ChangeNotification,
   NotificationCallback,
   RenderOptions,
   ViewerOptions,
@@ -1795,7 +1790,7 @@ class Viewer {
     name: string,
     meta: boolean,
     shift: boolean,
-    alt: boolean,
+    _alt: boolean,
     point: THREE.Vector3,
     nodeType: string | null = "leaf",
     tree: boolean = false,

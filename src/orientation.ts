@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { AxesHelper } from "./axes.js";
 import { sceneTraverse } from "./utils.js";
 import { Font } from "three/examples/jsm/loaders/FontLoader.js";
-import { helvetiker, FontData } from "./font.js";
+import { helvetiker } from "./font.js";
 import type { Theme, AxisColors, ColoredMaterial } from "./types";
 
 /** Length of orientation marker axes in pixels */

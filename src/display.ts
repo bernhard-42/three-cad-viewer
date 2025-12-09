@@ -15,7 +15,7 @@ import type { Viewer } from "./viewer.js";
 import type { ViewerState } from "./viewer-state.js";
 import { isClipIndex } from "./types.js";
 import type { Vector3Tuple } from "three";
-import type { ActiveTab, Theme, ThemeInput, ZebraColorScheme, ZebraMappingMode, ClipIndex } from "./types.js";
+import type { ActiveTab, ThemeInput, ClipIndex } from "./types.js";
 import type { CameraDirection } from "./camera.js";
 
 import template from "./index.html";

@@ -5,7 +5,7 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { DistancePanel, PropertiesPanel, DistanceResponseData, PropertiesResponseData } from "./ui.js";
 import { deepDispose, isMesh, isLineSegments2, isPerspectiveCamera, isOrthographicCamera } from "../utils.js";
 import type { PickedObject } from "../raycast.js";
-import type { DisplayLike, ViewerLike } from "./tools.js";
+import type { ViewerLike } from "./tools.js";
 
 interface PanelDragData {
   x: number | null;

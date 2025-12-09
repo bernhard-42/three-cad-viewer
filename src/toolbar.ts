@@ -170,7 +170,7 @@ class BaseButton {
   frame: HTMLSpanElement;
   containerId: string;
 
-  constructor(theme: string, icon: string, tooltip: string) {
+  constructor(_theme: string, icon: string, tooltip: string) {
     this.name = icon;
     this.containerId = "";
 
@@ -206,7 +206,7 @@ class BaseButton {
     this.containerId = id;
   }
 
-  handler = (e: Event): void => {
+  handler = (_e: Event): void => {
     console.log("not implemented yet");
   };
 

@@ -505,7 +505,7 @@ class NestedGroup {
     color: ColorValue,
     alpha: number,
     renderback: boolean,
-    exploded: boolean,
+    _exploded: boolean,
     path: string,
     name: string,
     states: number[],
