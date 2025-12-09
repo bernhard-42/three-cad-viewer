@@ -14,10 +14,11 @@ import type { Shapes, Shape, VisibilityState } from "./types.js";
 // =============================================================================
 
 /**
- * Tree data structure for navigation.
+ * Tree data structure for shape visibility navigation.
+ * Maps object names to either nested tree data or visibility state.
  */
-interface TreeData {
-  [key: string]: TreeData | VisibilityState;
+interface ShapeTreeData {
+  [key: string]: ShapeTreeData | VisibilityState;
 }
 
 /**
@@ -25,7 +26,7 @@ interface TreeData {
  */
 interface RenderResult {
   group: NestedGroup;
-  tree: TreeData;
+  tree: ShapeTreeData;
 }
 
 /**
@@ -112,9 +113,9 @@ class ShapeRenderer {
    * @param shapes - The Shapes object.
    * @returns The navigation tree object.
    */
-  private _getTree(shapes: Shapes): TreeData {
-    const _getTree = (parts: Shapes[]): TreeData => {
-      const result: TreeData = {};
+  private _getTree(shapes: Shapes): ShapeTreeData {
+    const _getTree = (parts: Shapes[]): ShapeTreeData => {
+      const result: ShapeTreeData = {};
       for (const part of parts) {
         if (part.parts != null) {
           result[part.name] = _getTree(part.parts);
@@ -124,7 +125,7 @@ class ShapeRenderer {
       }
       return result;
     };
-    const tree: TreeData = {};
+    const tree: ShapeTreeData = {};
     tree[shapes.name] = _getTree(shapes.parts ?? []);
     return tree;
   }
@@ -592,4 +593,4 @@ class ShapeRenderer {
 }
 
 export { ShapeRenderer };
-export type { TreeData, RenderResult, ShapeRenderConfig };
+export type { ShapeTreeData, RenderResult, ShapeRenderConfig };

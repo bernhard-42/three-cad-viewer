@@ -29,8 +29,9 @@ import {
   toVector3Tuple,
   toQuaternionTuple,
 } from "./utils.js";
+import type { DisposableTree } from "./utils.js";
 import { ShapeRenderer } from "./render-shape.js";
-import type { TreeData, RenderResult } from "./render-shape.js";
+import type { ShapeTreeData, RenderResult } from "./render-shape.js";
 import type { KeyMappingConfig } from "./utils.js";
 import { Controls } from "./controls.js";
 import { Camera, type CameraDirection } from "./camera.js";
@@ -107,15 +108,15 @@ interface ResetLocation {
  * Type guard to check if a tree node is a leaf (VisibilityState)
  */
 function isVisibilityState(
-  node: TreeData | VisibilityState,
+  node: ShapeTreeData | VisibilityState,
 ): node is VisibilityState {
   return Array.isArray(node);
 }
 
 /**
- * Type guard to check if a tree node is a branch (TreeData)
+ * Type guard to check if a tree node is a branch (ShapeTreeData)
  */
-function isTreeData(node: TreeData | VisibilityState): node is TreeData {
+function isShapeTreeData(node: ShapeTreeData | VisibilityState): node is ShapeTreeData {
   return !Array.isArray(node);
 }
 
@@ -235,8 +236,7 @@ class Viewer {
 
   // CAD objects
   nestedGroup: NestedGroup | null;
-  mapping: unknown;
-  tree: TreeData | null;
+  tree: ShapeTreeData | null;
   bbox: BoundingBox | null;
   bb_max: number;
   bb_radius!: number;
@@ -264,7 +264,6 @@ class Viewer {
   animation: Animation | null;
   continueAnimation: boolean;
   clipAction: THREE.AnimationAction | null;
-  backupTracks: unknown;
 
   // Shape rendering
   shapeRenderer: ShapeRenderer | null;
@@ -286,8 +285,8 @@ class Viewer {
   keepHighlight: boolean;
 
   // Tree structures for expanded/compact views
-  expandedTree: TreeData | null;
-  compactTree: TreeData | null;
+  expandedTree: ShapeTreeData | null;
+  compactTree: ShapeTreeData | null;
   expandedNestedGroup: NestedGroup | null;
   compactNestedGroup: NestedGroup | null;
 
@@ -302,7 +301,7 @@ class Viewer {
   clipNormal1: Vector3Tuple | null;
   clipNormal2: Vector3Tuple | null;
   keymap: KeymapConfig | null;
-  info: unknown;
+  info: DisposableTree | null;
 
   // ---------------------------------------------------------------------------
   // Constructor & Initialization
@@ -341,7 +340,6 @@ class Viewer {
     window.THREE = THREE;
 
     this.nestedGroup = null;
-    this.mapping = null;
     this.tree = null;
     this.bbox = null;
     this.bb_max = 0;
@@ -963,22 +961,22 @@ class Viewer {
    * @param path - The current path in the tree structure.
    */
   syncTreeStates = (
-    compactTree: TreeData | VisibilityState,
-    expandedTree: TreeData | VisibilityState,
+    compactTree: ShapeTreeData | VisibilityState,
+    expandedTree: ShapeTreeData | VisibilityState,
     exploded: boolean,
     path: string,
   ): void => {
     // Leaf case: compactTree is a VisibilityState, expandedTree has type/label structure
     if (isVisibilityState(compactTree)) {
-      // expandedTree must be TreeData at this point (type level: shapes/edges/vertices)
-      if (!isTreeData(expandedTree)) return;
+      // expandedTree must be ShapeTreeData at this point (type level: shapes/edges/vertices)
+      if (!isShapeTreeData(expandedTree)) return;
       const expandedData = expandedTree;
 
       if (exploded) {
         // Apply compact state to all expanded children
         for (const typeKey in expandedData) {
           const typeNode = expandedData[typeKey];
-          if (!isTreeData(typeNode)) continue;
+          if (!isShapeTreeData(typeNode)) continue;
 
           for (const labelKey in typeNode) {
             const leafState = typeNode[labelKey];
@@ -1006,7 +1004,7 @@ class Viewer {
 
         for (const typeKey in expandedData) {
           const typeNode = expandedData[typeKey];
-          if (!isTreeData(typeNode)) continue;
+          if (!isShapeTreeData(typeNode)) continue;
 
           for (const labelKey in typeNode) {
             const leafState = typeNode[labelKey];
@@ -1026,7 +1024,7 @@ class Viewer {
       }
     } else {
       // Branch case: recurse into children
-      if (!isTreeData(expandedTree)) return;
+      if (!isShapeTreeData(expandedTree)) return;
       const expandedData = expandedTree;
       for (const key in compactTree) {
         const id = `${path}/${key}`;
@@ -1721,7 +1719,7 @@ class Viewer {
    */
   backupAnimation(): void {
     if (this.animation.hasTracks()) {
-      this.backupTracks = this.animation.backup();
+      this.animation.backup();
     }
   }
 

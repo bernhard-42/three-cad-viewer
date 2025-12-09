@@ -1,8 +1,5 @@
 import type { PickedObject } from "../raycast.js";
-
-interface ViewerLike {
-  checkChanges(changes: Record<string, unknown>, notify?: boolean): void;
-}
+import type { ViewerLike } from "./tools.js";
 
 class SelectObject {
   viewer: ViewerLike;

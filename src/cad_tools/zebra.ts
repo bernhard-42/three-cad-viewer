@@ -1,12 +1,16 @@
 import * as THREE from "three";
 import { isMeshStandardMaterial, hasColor } from "../utils.js";
+import type { ZebraColorScheme, ZebraMappingMode } from "../types.js";
 
+/**
+ * Internal settings for the zebra tool.
+ */
 interface ZebraSettings {
   stripeCount: number;
   stripeDirection: number;
-  colorScheme: "blackwhite" | "colorful" | "grayscale";
+  colorScheme: ZebraColorScheme;
   opacity: number;
-  mappingMode: "normal" | "reflection";
+  mappingMode: ZebraMappingMode;
 }
 
 /**

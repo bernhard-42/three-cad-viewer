@@ -55,7 +55,11 @@ export interface DisplayLike {
   filterDropdown: FilterDropdownElements;
 }
 
-interface ViewerLike {
+/**
+ * Minimal viewer interface for CAD tools.
+ * Used by measurement, selection, and zebra tools.
+ */
+export interface ViewerLike {
   display: DisplayLike;
   renderer: THREE.WebGLRenderer;
   camera: {

@@ -1,9 +1,12 @@
-interface SizeOptions {
+/**
+ * Options for memory size calculation.
+ */
+interface MemorySizeOptions {
   excludeAttributes?: string[];
   visited?: WeakSet<object>;
 }
 
-function calculateObjectSize(obj: unknown, options: SizeOptions = {}): number {
+function calculateObjectSize(obj: unknown, options: MemorySizeOptions = {}): number {
   const {
     excludeAttributes = ["parent", "context", "_parent", "__parent"],
     visited = new WeakSet(),

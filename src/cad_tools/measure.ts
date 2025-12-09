@@ -5,22 +5,7 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { DistancePanel, PropertiesPanel, DistanceResponseData, PropertiesResponseData } from "./ui.js";
 import { deepDispose, isMesh, isLineSegments2, isPerspectiveCamera, isOrthographicCamera } from "../utils.js";
 import type { PickedObject } from "../raycast.js";
-import type { DisplayLike } from "./tools.js";
-
-interface ViewerLike {
-  display: DisplayLike;
-  renderer: THREE.WebGLRenderer;
-  camera: {
-    getCamera(): THREE.Camera;
-    getZoom(): number;
-  };
-  state: {
-    get(key: string): unknown;
-  };
-  ortho: boolean;
-  bb_radius: number;
-  checkChanges(changes: Record<string, unknown>): void;
-}
+import type { DisplayLike, ViewerLike } from "./tools.js";
 
 interface PanelDragData {
   x: number | null;
@@ -299,7 +284,7 @@ class Measurement {
   /**
    * Wait for the backend to send the data needed to display the real BREP measurement.
    */
-  _waitResponse(resolve: (data: DistanceResponseData | PropertiesResponseData) => void, _reject: (reason?: unknown) => void): void {
+  _waitResponse(resolve: (data: DistanceResponseData | PropertiesResponseData) => void, _reject: (reason?: Error) => void): void {
     if (this.responseData) {
       resolve(this.responseData);
     } else {

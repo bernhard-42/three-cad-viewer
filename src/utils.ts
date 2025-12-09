@@ -403,4 +403,5 @@ export {
 export type {
   KeyEventKey,
   KeyMappingConfig,
+  DisposableTree,
 };
