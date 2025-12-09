@@ -2,9 +2,20 @@
 
 ## v4.0.0
 
+**TypeScript Migration**
+
+- Complete migration from JavaScript to TypeScript with full strict mode
+- All 24 source files converted with comprehensive type definitions
+- Created `src/core/types.ts` with shared interfaces and type guards
+- Added Three.js module augmentation for internal API usage
+- Enabled all strict compiler options: `strict`, `noUnusedLocals`, `noUnusedParameters`, `exactOptionalPropertyTypes`
+- Reduced explicit `any` usage to 2 documented cases
+- Exported all public API types from index.ts for library consumers
+
 **Architecture**
 
 - Major refactoring to decouple components and modernize the codebase
+- Reorganized filesystem into logical folders: `core/`, `scene/`, `camera/`, `rendering/`, `tools/`, `ui/`, `utils/`
 - Introduced centralized `ViewerState` class for state management with subscription support
 - Decoupled `Viewer` from `Display` - Display now receives Viewer instance via dependency injection
 - Controls architecture rewritten with separate `CADOrbitControls` and `CADTrackballControls` classes
@@ -18,12 +29,23 @@
 - Exposed `getHolroyd()` and `setHolroyd()` methods on Viewer
 - Normalized control speed settings (pan, rotate, zoom) - 1.0 now means consistent default experience across control types
 - Added comprehensive unit and integration test suite (1100+ tests, 94% coverage)
+- Added `logger` utility for configurable log levels (debug, info, warn, error, silent)
+- Added `gpuTracker` utility to detect GPU memory leaks with optional debug mode for stack traces
+
+**Build & Tooling**
+
+- Added `"type": "module"` to package.json for native ES modules
+- Added `exports` field for modern package resolution
+- Added `sideEffects` field for better tree-shaking
+- Updated vitest coverage configuration for TypeScript sources
+- Removed obsolete `.eslintrc.json` (using flat config)
 
 **Fixes**
 
 - Fixed trackball panning speed to be more responsive
 - Fixed holroyd (non-tumbling) trackball rotation
 - Ensured proper disposal of all Three.js objects to prevent memory leaks
+- Cleaned up debug console.log statements (now behind logger)
 
 ## v3.6.3
 

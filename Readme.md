@@ -190,6 +190,63 @@ To understand the data format, a look at the simple 1 unit sized box might be he
 
 Back to [Github repo](https://github.com/bernhard-42/three-cad-viewer)
 
+## Utilities
+
+### Logger
+
+Control log verbosity with the built-in logger:
+
+```javascript
+import { logger } from "three-cad-viewer";
+
+// Default level is "warn" (only warnings and errors shown)
+logger.setLevel("debug");   // Enable all logging
+logger.setLevel("info");    // Info, warnings, and errors
+logger.setLevel("warn");    // Warnings and errors (default)
+logger.setLevel("error");   // Only errors
+logger.setLevel("silent");  // Disable all logging
+```
+
+### GPU Resource Tracker
+
+Track GPU resource allocation to inspect current state or detect memory leaks:
+
+```javascript
+import { gpuTracker } from "three-cad-viewer";
+
+// Check resource counts at any time
+console.log(gpuTracker.summary);
+// { geometry: 5, material: 10, texture: 1, total: 16 }
+
+// Log details of allocated resources
+gpuTracker.details();
+```
+
+For detailed allocation info with stack traces:
+
+```javascript
+// Enable debug mode BEFORE creating the viewer
+gpuTracker.enableDebug();
+
+const display = new Display(container, displayOptions);
+const viewer = new Viewer(display, viewerOptions, nc);
+viewer.render(shapes, renderOptions, viewerOptions);
+
+// Inspect current allocations
+gpuTracker.details();
+// [1] geometry: BufferGeometry (shape) for /Assembly/Part1
+//     Created at: 1234.56ms
+//     Stack:
+//       at NestedGroup.renderShape (nestedgroup.ts:425)
+//       ...
+
+// After disposal, any remaining resources are potential leaks
+viewer.dispose();
+gpuTracker.details();
+```
+
+The tracker is also available globally in the browser console as `window.tcv_gpu`.
+
 ## Development
 
 Run a web server in watch and debug mode

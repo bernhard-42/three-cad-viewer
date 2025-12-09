@@ -2,6 +2,7 @@ import * as THREE from "three";
 import type { Vector3Tuple, QuaternionTuple } from "three";
 import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import type { Axis } from "../core/types.js";
+import { gpuTracker } from "./gpu-tracker.js";
 
 // =============================================================================
 // Constants
@@ -95,6 +96,7 @@ interface GeometryLike {
 
 function disposeGeometry(geometry: GeometryLike | null | undefined): void {
   if (geometry) {
+    gpuTracker.untrack("geometry", geometry);
     geometry.dispose();
     for (const attr of Object.values(geometry.attributes)) {
       if (attr && typeof attr === "object" && "dispose" in attr && typeof attr.dispose === "function") {
@@ -145,10 +147,12 @@ function disposeMaterial(material: MaterialLike | null | undefined): void {
   for (const prop of textureProps) {
     const texture = material[prop];
     if (isDisposable(texture)) {
+      gpuTracker.untrack("texture", texture);
       texture.dispose();
     }
   }
 
+  gpuTracker.untrack("material", material);
   material.dispose();
 }
 

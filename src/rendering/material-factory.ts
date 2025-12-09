@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import type { ColorValue } from "../core/types.js";
+import { gpuTracker } from "../utils/gpu-tracker.js";
 
 /**
  * Options for MaterialFactory constructor
@@ -131,8 +132,8 @@ class MaterialFactory {
   /**
    * Create a standard material for front faces with PBR properties.
    */
-  createFrontFaceMaterial({ color, alpha, visible = true }: FaceMaterialOptions): THREE.MeshStandardMaterial {
-    return new THREE.MeshStandardMaterial({
+  createFrontFaceMaterial({ color, alpha, visible = true }: FaceMaterialOptions, label?: string): THREE.MeshStandardMaterial {
+    const material = new THREE.MeshStandardMaterial({
       ...this._createBaseProps(alpha),
       color: color,
       metalness: this.metalness,
@@ -141,13 +142,15 @@ class MaterialFactory {
       side: THREE.FrontSide,
       visible: visible,
     });
+    gpuTracker.track("material", material, label ?? "MeshStandardMaterial (front face)");
+    return material;
   }
 
   /**
    * Create a standard material for back faces with PBR properties.
    * Used for polygon rendering where back faces need full shading.
    */
-  createBackFaceStandardMaterial({ color, alpha, polygonOffsetUnits = 2.0, visible = true }: BackFaceMaterialOptions): THREE.MeshStandardMaterial {
+  createBackFaceStandardMaterial({ color, alpha, polygonOffsetUnits = 2.0, visible = true }: BackFaceMaterialOptions, label?: string): THREE.MeshStandardMaterial {
     const material = new THREE.MeshStandardMaterial({
       ...this._createBaseProps(alpha),
       color: color,
@@ -158,6 +161,7 @@ class MaterialFactory {
       visible: visible,
     });
     material.polygonOffsetUnits = polygonOffsetUnits;
+    gpuTracker.track("material", material, label ?? "MeshStandardMaterial (back face)");
     return material;
   }
 
@@ -165,7 +169,7 @@ class MaterialFactory {
    * Create a basic material for back faces (no lighting/PBR).
    * Used for shape rendering where back faces are simple fills.
    */
-  createBackFaceBasicMaterial({ color, alpha, polygonOffsetUnits = 2.0, visible = true }: BackFaceMaterialOptions): THREE.MeshBasicMaterial {
+  createBackFaceBasicMaterial({ color, alpha, polygonOffsetUnits = 2.0, visible = true }: BackFaceMaterialOptions, label?: string): THREE.MeshBasicMaterial {
     const material = new THREE.MeshBasicMaterial({
       ...this._createBaseProps(alpha),
       color: color,
@@ -173,25 +177,28 @@ class MaterialFactory {
       visible: visible,
     });
     material.polygonOffsetUnits = polygonOffsetUnits;
+    gpuTracker.track("material", material, label ?? "MeshBasicMaterial (back face)");
     return material;
   }
 
   /**
    * Create a basic front face material (no PBR, for simple shapes).
    */
-  createBasicFaceMaterial({ color, alpha, visible = true }: FaceMaterialOptions): THREE.MeshBasicMaterial {
-    return new THREE.MeshBasicMaterial({
+  createBasicFaceMaterial({ color, alpha, visible = true }: FaceMaterialOptions, label?: string): THREE.MeshBasicMaterial {
+    const material = new THREE.MeshBasicMaterial({
       ...this._createBaseProps(alpha),
       color: color,
       side: THREE.FrontSide,
       visible: visible,
     });
+    gpuTracker.track("material", material, label ?? "MeshBasicMaterial (front face)");
+    return material;
   }
 
   /**
    * Create a fat line material (LineMaterial from Three.js examples).
    */
-  createEdgeMaterial({ lineWidth, color, vertexColors = false, visible = true, resolution }: EdgeMaterialOptions): LineMaterial {
+  createEdgeMaterial({ lineWidth, color, vertexColors = false, visible = true, resolution }: EdgeMaterialOptions, label?: string): LineMaterial {
     const material = new LineMaterial({
       linewidth: lineWidth,
       transparent: true,
@@ -211,26 +218,29 @@ class MaterialFactory {
       material.resolution.set(resolution.width, resolution.height);
     }
 
+    gpuTracker.track("material", material, label ?? "LineMaterial (edges)");
     return material;
   }
 
   /**
    * Create a basic line material for simple edges (e.g., polygon outlines).
    */
-  createSimpleEdgeMaterial({ color, visible = true }: SimpleEdgeMaterialOptions): THREE.LineBasicMaterial {
-    return new THREE.LineBasicMaterial({
+  createSimpleEdgeMaterial({ color, visible = true }: SimpleEdgeMaterialOptions, label?: string): THREE.LineBasicMaterial {
+    const material = new THREE.LineBasicMaterial({
       color: color ?? this.edgeColor,
       depthWrite: !this.transparent,
       depthTest: !this.transparent,
       visible: visible,
     });
+    gpuTracker.track("material", material, label ?? "LineBasicMaterial (simple edges)");
+    return material;
   }
 
   /**
    * Create a point material for vertex rendering.
    */
-  createVertexMaterial({ size, color, visible = true }: VertexMaterialOptions): THREE.PointsMaterial {
-    return new THREE.PointsMaterial({
+  createVertexMaterial({ size, color, visible = true }: VertexMaterialOptions, label?: string): THREE.PointsMaterial {
+    const material = new THREE.PointsMaterial({
       color: color ?? this.edgeColor,
       sizeAttenuation: false,
       size: size,
@@ -238,18 +248,22 @@ class MaterialFactory {
       clipIntersection: false,
       visible: visible,
     });
+    gpuTracker.track("material", material, label ?? "PointsMaterial (vertices)");
+    return material;
   }
 
   /**
    * Create a basic material for texture-mapped surfaces.
    */
-  createTextureMaterial({ texture, visible = true }: TextureMaterialOptions): THREE.MeshBasicMaterial {
-    return new THREE.MeshBasicMaterial({
+  createTextureMaterial({ texture, visible = true }: TextureMaterialOptions, label?: string): THREE.MeshBasicMaterial {
+    const material = new THREE.MeshBasicMaterial({
       color: "#ffffff",
       map: texture,
       side: THREE.DoubleSide,
       visible: visible,
     });
+    gpuTracker.track("material", material, label ?? "MeshBasicMaterial (textured)");
+    return material;
   }
 
   /**
