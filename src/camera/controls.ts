@@ -213,6 +213,16 @@ class Controls {
   }
 
   /**
+   * Check if the user is currently interacting with the controls (rotating, panning, zooming).
+   * @returns true if user is dragging/interacting, false otherwise.
+   */
+  isInteracting(): boolean {
+    // Both OrbitControls and TrackballControls use state = -1 for NONE (not interacting)
+    // Any other state value means the user is actively dragging
+    return this.controls.state !== -1;
+  }
+
+  /**
    * Get the initial zoom value of the camera.
    */
   getZoom0(): number {

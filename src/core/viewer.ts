@@ -761,7 +761,11 @@ class Viewer {
 
     this.renderer.clear();
 
-    if (this.raycaster && this.raycaster.raycastMode) {
+    if (
+      this.raycaster &&
+      this.raycaster.raycastMode &&
+      !this.rendered.controls.isInteracting()
+    ) {
       this.handleRaycast();
     }
 
