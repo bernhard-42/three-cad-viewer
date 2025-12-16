@@ -1140,14 +1140,6 @@ class Display {
     });
 
     // Animation/Explode mode subscription - controls slider visibility, label, and explode button
-    sub("zebraColorScheme", (change) => {
-      this.setZebraColorSchemeSelect(change.new);
-    });
-    sub("zebraMappingMode", (change) => {
-      this.setZebraMappingModeSelect(change.new);
-    });
-
-    // Animation/Explode mode subscription - controls slider visibility, label, and explode button
     sub(
       "animationMode",
       (change) => {
