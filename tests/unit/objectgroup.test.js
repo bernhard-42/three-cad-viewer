@@ -227,14 +227,39 @@ describe('ObjectGroup - setEdgeColor', () => {
 });
 
 describe('ObjectGroup - setOpacity', () => {
-  test('sets opacity on front and back', () => {
+  test('stores opacity value', () => {
     const group = createObjectGroupWithMesh();
 
     group.setOpacity(0.7);
 
     expect(group.opacity).toBe(0.7);
+    // Material opacity unchanged when transparent mode is off
+    expect(group.front.material.opacity).toBe(1);
+    expect(group.back.material.opacity).toBe(1);
+  });
+
+  test('applies opacity when transparent mode is enabled', () => {
+    const group = createObjectGroupWithMesh();
+
+    group.setTransparent(true);
+    group.setOpacity(0.7);
+
+    expect(group.opacity).toBe(0.7);
+    // Material opacity = opacity * alpha (alpha defaults to 1.0)
     expect(group.front.material.opacity).toBe(0.7);
     expect(group.back.material.opacity).toBe(0.7);
+  });
+
+  test('does not apply opacity when transparent mode is off', () => {
+    const group = createObjectGroupWithMesh();
+
+    group.setOpacity(0.5);
+    // Transparent is off, so material opacity stays at default (alpha)
+    expect(group.front.material.opacity).toBe(1);
+
+    // Now enable transparent - opacity should be applied
+    group.setTransparent(true);
+    expect(group.front.material.opacity).toBe(0.5);
   });
 
   test('handles missing front/back', () => {
