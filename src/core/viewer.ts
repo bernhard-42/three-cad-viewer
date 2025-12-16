@@ -3177,7 +3177,7 @@ class Viewer {
   };
 
   /**
-   * Set clipping slider value.
+   * Set clipping slider value and update the clipping plane.
    * @param index - index of the normal: 0, 1 ,2
    * @param value - value for the clipping slider
    * @param notify - whether to send notification or not.
@@ -3191,6 +3191,12 @@ class Viewer {
 
     const keys = ["clipSlider0", "clipSlider1", "clipSlider2"] as const;
     this.state.set(keys[index], value, notify);
+
+    // Also update the 3D clipping plane (consistent with other setters)
+    if (this.ready) {
+      this.rendered.clipping.setConstant(index, value);
+      this.update(this.updateMarker);
+    }
   };
 
   // ---------------------------------------------------------------------------
