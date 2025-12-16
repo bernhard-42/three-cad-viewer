@@ -422,9 +422,10 @@ class ObjectGroup extends THREE.Group {
 
   /**
    * Set whether edges should be rendered in black or original color.
+   * Skips edges with vertexColors enabled (e.g., trihedron axes).
    */
   setBlackEdges(flag: boolean): void {
-    if (this.edgeMaterial) {
+    if (this.edgeMaterial && !this.edgeMaterial.vertexColors) {
       const color = flag ? 0x000000 : this.edge_color;
       this.originalColor = new THREE.Color(color);
       this.edgeMaterial.color = new THREE.Color(color);
@@ -434,9 +435,10 @@ class ObjectGroup extends THREE.Group {
 
   /**
    * Set the edge color.
+   * Skips edges with vertexColors enabled (e.g., trihedron axes).
    */
   setEdgeColor(color: number): void {
-    if (this.edgeMaterial) {
+    if (this.edgeMaterial && !this.edgeMaterial.vertexColors) {
       this.edge_color = color;
       this.edgeMaterial.color = new THREE.Color(color);
       this.edgeMaterial.needsUpdate = true;

@@ -205,14 +205,14 @@ class MaterialFactory {
       depthWrite: !this.transparent,
       depthTest: !this.transparent,
       clipIntersection: false,
-      visible: visible,
+      vertexColors: vertexColors,  // boolean, not string "VertexColors"
+      toneMapped: false,           // critical for correct vertex colors
     });
 
-    if (vertexColors) {
-      material.vertexColors = "VertexColors";
-    } else {
+    if (!vertexColors) {
       material.color = new THREE.Color(color ?? this.edgeColor);
     }
+    material.visible = visible;
 
     if (resolution) {
       material.resolution.set(resolution.width, resolution.height);

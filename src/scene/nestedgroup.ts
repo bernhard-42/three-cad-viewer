@@ -243,24 +243,27 @@ class NestedGroup {
 
     const lineGeometry = gpuTracker.trackGeometry(
       new LineSegmentsGeometry(),
-      label ? `LineSegmentsGeometry for ${label}` : "LineSegmentsGeometry (edges)",
+      label
+        ? `LineSegmentsGeometry for ${label}`
+        : "LineSegmentsGeometry (edges)",
     );
     lineGeometry.setPositions(positions);
 
+    // Handle vertex colors for multi-colored edges (e.g., trihedron axes)
     if (Array.isArray(color)) {
       const colors = color
-        .map((c) => [
-          new THREE.Color(c).toArray(),
-          new THREE.Color(c).toArray(),
-        ])
-        .flat(2);
-      lineGeometry.setColors(colors);
+        .map((c) => {
+          const col = new THREE.Color(c);
+          return [col.r, col.g, col.b, col.r, col.g, col.b];
+        })
+        .flat();
+      lineGeometry.setColors(new Float32Array(colors));
     }
 
     const lineMaterial = this.materialFactory.createEdgeMaterial(
       {
-        lineWidth: lineWidth,
-        color: Array.isArray(color) ? null : color,
+        lineWidth,
+        color: Array.isArray(color) ? null : (color ?? this.edgeColor),
         vertexColors: Array.isArray(color),
         visible: state == 1,
         resolution: { width: this.width, height: this.height },
