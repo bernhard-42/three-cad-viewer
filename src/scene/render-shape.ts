@@ -48,7 +48,11 @@ interface ShapeRenderConfig {
 // =============================================================================
 
 /** Convert a hex color number to CSS hex string */
-function hexToColorString(hex: number): string {
+function hexToColorString(hex: number | string): string {
+  // If already a string with #, return as-is
+  if (typeof hex === "string") {
+    return hex.startsWith("#") ? hex : `#${hex}`;
+  }
   return `#${hex.toString(16).padStart(6, "0")}`;
 }
 
