@@ -78,6 +78,7 @@ class ObjectGroup extends THREE.Group {
   readonly isObjectGroup = true;
   opacity: number;
   alpha: number;
+  transparent: boolean;
   edge_color: ColorValue;
   shapeInfo: ShapeInfo | null;
   subtype: string | null;
@@ -122,6 +123,7 @@ class ObjectGroup extends THREE.Group {
     super();
     this.opacity = opacity;
     this.alpha = alpha == null ? 1.0 : alpha;
+    this.transparent = false;
     this.edge_color = edge_color;
     this.shapeInfo = shapeInfo;
     this.subtype = subtype;
@@ -401,6 +403,7 @@ class ObjectGroup extends THREE.Group {
    * Adjusts opacity and depth write settings.
    */
   setTransparent(flag: boolean): void {
+    this.transparent = flag;
     const newOpacity = flag ? this.opacity * this.alpha : this.alpha;
     if (this.back) {
       this.back.material.opacity = newOpacity;
@@ -441,17 +444,21 @@ class ObjectGroup extends THREE.Group {
   }
 
   /**
-   * Set the opacity for front and back materials.
+   * Set the opacity value. Only applied visually when transparent mode is enabled.
    */
   setOpacity(opacity: number): void {
     this.opacity = opacity;
-    if (this.front) {
-      this.front.material.opacity = this.opacity;
-      this.front.material.needsUpdate = true;
-    }
-    if (this.back) {
-      this.back.material.opacity = this.opacity;
-      this.back.material.needsUpdate = true;
+    // Only apply visually if transparent mode is enabled
+    if (this.transparent) {
+      const newOpacity = this.opacity * this.alpha;
+      if (this.front) {
+        this.front.material.opacity = newOpacity;
+        this.front.material.needsUpdate = true;
+      }
+      if (this.back) {
+        this.back.material.opacity = newOpacity;
+        this.back.material.needsUpdate = true;
+      }
     }
   }
 
