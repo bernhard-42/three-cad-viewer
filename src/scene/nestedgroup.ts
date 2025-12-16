@@ -7,7 +7,13 @@ import { ObjectGroup, isObjectGroup } from "./objectgroup.js";
 import { MaterialFactory } from "../rendering/material-factory.js";
 import { deepDispose, flatten } from "../utils/utils.js";
 import { gpuTracker } from "../utils/gpu-tracker.js";
-import type { ZebraColorScheme, ZebraMappingMode, Shapes, ColorValue, ColoredMaterial } from "../core/types";
+import type {
+  ZebraColorScheme,
+  ZebraMappingMode,
+  Shapes,
+  ColorValue,
+  ColoredMaterial,
+} from "../core/types";
 
 interface ShapeData {
   vertices: Float32Array | number[][];
@@ -64,7 +70,9 @@ interface ShapeTree {
 type GroupsMap = Record<string, ObjectGroup | CompoundGroup>;
 
 /** Type guard to check if a shape entry has nested parts (is a ShapeTree) */
-function isShapeTree(shape: ShapeEntry | ShapeTree | Shapes): shape is ShapeTree {
+function isShapeTree(
+  shape: ShapeEntry | ShapeTree | Shapes,
+): shape is ShapeTree {
   return "parts" in shape;
 }
 
@@ -206,7 +214,10 @@ class NestedGroup {
   /**
    * Convert array data to Float32Array, detecting nested arrays at runtime.
    */
-  private _toFloat32Array(data: Float32Array | number[] | number[][], depth: number = 1): Float32Array {
+  private _toFloat32Array(
+    data: Float32Array | number[] | number[][],
+    depth: number = 1,
+  ): Float32Array {
     if (data instanceof Float32Array) {
       return data;
     }
@@ -219,7 +230,10 @@ class NestedGroup {
   /**
    * Convert array data to Uint32Array, detecting nested arrays at runtime.
    */
-  private _toUint32Array(data: Uint32Array | number[] | number[][], depth: number = 1): Uint32Array {
+  private _toUint32Array(
+    data: Uint32Array | number[] | number[][],
+    depth: number = 1,
+  ): Uint32Array {
     if (data instanceof Uint32Array) {
       return data;
     }
@@ -287,10 +301,12 @@ class NestedGroup {
     path: string,
     name: string,
     state: number,
-    geomtype: { topo: string; geomtype: number | string | null } | null = null
+    geomtype: { topo: string; geomtype: number | string | null } | null = null,
   ): ObjectGroup {
     // For vertex colors (array), use default edge color for the group
-    const groupColor = Array.isArray(color) ? this.edgeColor : (color ?? this.edgeColor);
+    const groupColor = Array.isArray(color)
+      ? this.edgeColor
+      : (color ?? this.edgeColor);
     const group = new ObjectGroup(
       this.defaultOpacity,
       1.0,
@@ -299,7 +315,13 @@ class NestedGroup {
       "edges",
     );
 
-    const edges = this._renderEdges(edgeData.edges, lineWidth, color, state, path);
+    const edges = this._renderEdges(
+      edgeData.edges,
+      lineWidth,
+      color,
+      state,
+      path,
+    );
     if (name) {
       edges.name = name;
     }
@@ -321,7 +343,7 @@ class NestedGroup {
     path: string,
     name: string,
     state: number,
-    geomtype: { topo: string; geomtype: number | string | null } | null = null
+    geomtype: { topo: string; geomtype: number | string | null } | null = null,
   ): ObjectGroup {
     const group = new ObjectGroup(
       this.defaultOpacity,
@@ -463,7 +485,9 @@ class NestedGroup {
     const backColor =
       group.subtype === "solid" && !exploded
         ? color
-        : new THREE.Color(this.edgeColor).lerp(new THREE.Color(1, 1, 1), 0.15).getHex();
+        : new THREE.Color(this.edgeColor)
+            .lerp(new THREE.Color(1, 1, 1), 0.15)
+            .getHex();
 
     const backMaterial = this.materialFactory.createBackFaceBasicMaterial(
       {
@@ -516,7 +540,10 @@ class NestedGroup {
   /**
    * Create edge geometry from extruded polygons.
    */
-  private _createEdgesFromPolygons(polygons: THREE.Shape[], depth: number): THREE.BufferGeometry {
+  private _createEdgesFromPolygons(
+    polygons: THREE.Shape[],
+    depth: number,
+  ): THREE.BufferGeometry {
     const vertices: THREE.Vector3[] = [];
     const indices: number[] = [];
     let vertexOffset = 0;
@@ -681,7 +708,7 @@ class NestedGroup {
       shape: ShapeEntry,
       texture: TextureData | null,
       width: number | null,
-      height: number | null
+      height: number | null,
     ): ObjectGroup => {
       let mesh: ObjectGroup;
       switch (shape.type) {
@@ -724,7 +751,9 @@ class NestedGroup {
           break;
         default: {
           // Shape color must be a single value, not an array
-          const shapeColor = Array.isArray(shape.color) ? shape.color[0] : shape.color;
+          const shapeColor = Array.isArray(shape.color)
+            ? shape.color[0]
+            : shape.color;
           mesh = this.renderShape(
             shape.shape as ShapeData,
             shapeColor ?? this.edgeColor,
