@@ -3407,6 +3407,38 @@ class Viewer {
   // ---------------------------------------------------------------------------
 
   /**
+   * Get the current CAD view width.
+   * @public
+   */
+  get cadWidth(): number {
+    return this.state.get("cadWidth");
+  }
+
+  /**
+   * Get the current tree width.
+   * @public
+   */
+  get treeWidth(): number {
+    return this.state.get("treeWidth");
+  }
+
+  /**
+   * Get the current view height.
+   * @public
+   */
+  get height(): number {
+    return this.state.get("height");
+  }
+
+  /**
+   * Get the current glass mode state.
+   * @public
+   */
+  get glass(): boolean {
+    return this.state.get("glass");
+  }
+
+  /**
    * Resize UI and renderer.
    *
    * @param cadWidth - new width of CAD View
