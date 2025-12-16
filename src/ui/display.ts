@@ -8,7 +8,10 @@ import type { KeyMappingConfig } from "../utils/utils.js";
 import { Slider } from "./slider.js";
 import { Toolbar, Button, ClickButton, Ellipsis } from "./toolbar.js";
 import { ToolTypes } from "../tools/cad_tools/tools.js";
-import type { MeasurementPanelElements, FilterDropdownElements } from "../tools/cad_tools/tools.js";
+import type {
+  MeasurementPanelElements,
+  FilterDropdownElements,
+} from "../tools/cad_tools/tools.js";
 import { FilterByDropDownMenu } from "../tools/cad_tools/ui.js";
 import { Info } from "./info.js";
 import type { Viewer } from "../core/viewer.js";
@@ -546,12 +549,7 @@ class Display {
 
     this.showPinning(options.pinning);
 
-    this.buttons["help"] = new Button(
-      theme,
-      "help",
-      "Help",
-      this.toggleHelp,
-    );
+    this.buttons["help"] = new Button(theme, "help", "Help", this.toggleHelp);
     this.cadTool.addButton(this.buttons["help"], -1);
 
     // Initialize animation slider (will be set up in setupUI)
@@ -580,7 +578,8 @@ class Display {
     let threshold = 770;
     if (!this.state.get("pinning")) threshold -= 30;
     if (!this.state.get("selectTool")) threshold -= 30;
-    if (!this.state.get("explodeTool") && !this.state.get("zscaleTool")) threshold -= 30;
+    if (!this.state.get("explodeTool") && !this.state.get("zscaleTool"))
+      threshold -= 30;
     return threshold;
   }
 
@@ -597,7 +596,11 @@ class Display {
     }
   }
 
-  private setupCheckEvent(name: string, fn: EventListener, flag?: boolean): void {
+  private setupCheckEvent(
+    name: string,
+    fn: EventListener,
+    flag?: boolean,
+  ): void {
     const el = this.getInputElement(name);
     listeners.add(el, "change", fn);
     if (flag !== undefined) {
@@ -795,7 +798,9 @@ class Display {
       );
     }
     if (!options.glass && options.treeHeight) {
-      this.cadTree.parentElement!.parentElement!.style.height = px(options.treeHeight);
+      this.cadTree.parentElement!.parentElement!.style.height = px(
+        options.treeHeight,
+      );
       this.cadInfo.parentElement!.parentElement!.style.height = px(
         this.height - options.treeHeight - 4,
       );
@@ -971,8 +976,11 @@ class Display {
     this.setupClickEvent("tcv_play", this.controlAnimation);
     this.setupClickEvent("tcv_pause", this.controlAnimation);
     this.setupClickEvent("tcv_stop", this.controlAnimation);
-    const animSlider = this.container.getElementsByClassName("tcv_animation_slider")[0];
-    this.animationSlider = animSlider instanceof HTMLInputElement ? animSlider : null;
+    const animSlider = this.container.getElementsByClassName(
+      "tcv_animation_slider",
+    )[0];
+    this.animationSlider =
+      animSlider instanceof HTMLInputElement ? animSlider : null;
     // Initial value synced via subscription with immediate:true
     if (this.animationSlider) {
       listeners.add(this.animationSlider, "input", this.animationChange);
@@ -1005,7 +1013,7 @@ class Display {
     const sub = <K extends Parameters<typeof state.subscribe>[0]>(
       key: K,
       callback: Parameters<typeof state.subscribe<K>>[1],
-      options?: { immediate?: boolean }
+      options?: { immediate?: boolean },
     ) => {
       this._unsubscribers.push(state.subscribe(key, callback, options));
     };
@@ -1172,7 +1180,15 @@ class Display {
     // Camera button highlight subscription
     sub("highlightedButton", (change) => {
       // Clear all highlights first
-      const buttonNames = ["front", "rear", "top", "bottom", "left", "right", "iso"] as const;
+      const buttonNames = [
+        "front",
+        "rear",
+        "top",
+        "bottom",
+        "left",
+        "right",
+        "iso",
+      ] as const;
       buttonNames.forEach((btn) => {
         this.buttons[btn]?.highlight(false);
       });
@@ -1218,9 +1234,12 @@ class Display {
 
     if (typeof axes === "boolean") this.clickButtons["axes"].set(axes);
     if (typeof axes0 === "boolean") this.clickButtons["axes0"].set(axes0);
-    if (typeof ortho === "boolean") this.clickButtons["perspective"].set(!ortho);
-    if (typeof transparent === "boolean") this.clickButtons["transparent"].set(transparent);
-    if (typeof blackEdges === "boolean") this.clickButtons["blackedges"].set(blackEdges);
+    if (typeof ortho === "boolean")
+      this.clickButtons["perspective"].set(!ortho);
+    if (typeof transparent === "boolean")
+      this.clickButtons["transparent"].set(transparent);
+    if (typeof blackEdges === "boolean")
+      this.clickButtons["blackedges"].set(blackEdges);
 
     if (typeof tools === "boolean") this.showTools(tools);
     if (typeof glass === "boolean") this.glassMode(glass);
@@ -1228,7 +1247,8 @@ class Display {
     this.updateToolbarCollapse(width);
 
     // Initialize lastPlaneState from options (used for tab switching)
-    this.lastPlaneState = typeof clipPlaneHelpers === "boolean" ? clipPlaneHelpers : false;
+    this.lastPlaneState =
+      typeof clipPlaneHelpers === "boolean" ? clipPlaneHelpers : false;
   }
 
   // ---------------------------------------------------------------------------
@@ -1521,7 +1541,10 @@ class Display {
   /**
    * Handler to set the label of a clipping normal widget
    */
-  setNormalLabel = (index: ClipIndex, normal: [number, number, number]): void => {
+  setNormalLabel = (
+    index: ClipIndex,
+    normal: [number, number, number],
+  ): void => {
     this.planeLabels[index].innerHTML = `N=(${normal[0].toFixed(
       2,
     )}, ${normal[1].toFixed(2)}, ${normal[2].toFixed(2)})`;
@@ -1586,7 +1609,12 @@ class Display {
     if (!(e.target instanceof HTMLElement)) return;
     const tab = e.target.className.split(" ")[0];
     const tabName = tab.slice(8);
-    if (tabName === "clip" || tabName === "tree" || tabName === "material" || tabName === "zebra") {
+    if (
+      tabName === "clip" ||
+      tabName === "tree" ||
+      tabName === "material" ||
+      tabName === "zebra"
+    ) {
       this.viewer.setActiveTab(tabName);
     }
   };
@@ -1599,7 +1627,12 @@ class Display {
       return;
     }
 
-    const _updateVisibility = (showTree: boolean, showClip: boolean, showMaterial: boolean, showZebra: boolean) => {
+    const _updateVisibility = (
+      showTree: boolean,
+      showClip: boolean,
+      showMaterial: boolean,
+      showZebra: boolean,
+    ) => {
       this.cadTree.style.display = showTree ? "block" : "none";
       this.cadTreeToggles.style.display = showTree ? "block" : "none";
       this.cadClip.style.display = showClip ? "block" : "none";
@@ -1737,7 +1770,11 @@ class Display {
   setZebraColorScheme = (e: Event): void => {
     if (!(e.target instanceof HTMLInputElement)) return;
     const value = e.target.value;
-    if (value === "blackwhite" || value === "colorful" || value === "grayscale") {
+    if (
+      value === "blackwhite" ||
+      value === "colorful" ||
+      value === "grayscale"
+    ) {
       this.viewer.setZebraColorScheme(value);
       this.setZebraColorSchemeSelect(value);
     }
@@ -1918,7 +1955,10 @@ class Display {
    */
   glassMode(flag: boolean): void {
     const stateTreeHeight = this.state?.get("treeHeight");
-    const treeHeight = typeof stateTreeHeight === "number" ? stateTreeHeight : Math.round((this.height * 2) / 3);
+    const treeHeight =
+      typeof stateTreeHeight === "number"
+        ? stateTreeHeight
+        : Math.round((this.height * 2) / 3);
     const cadTree = this.getElement("tcv_cad_tree");
     if (flag) {
       cadTree.classList.add("tcv_cad_tree_glass");
