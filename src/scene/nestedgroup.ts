@@ -1025,8 +1025,16 @@ class NestedGroup {
  * Uses the isCompoundGroup property following Three.js convention.
  */
 function isCompoundGroup(obj: THREE.Object3D | null): obj is CompoundGroup {
-  return obj != null && "isCompoundGroup" in obj && obj.isCompoundGroup === true;
+  return (
+    obj != null && "isCompoundGroup" in obj && obj.isCompoundGroup === true
+  );
 }
 
-export { NestedGroup, ObjectGroup, CompoundGroup, isObjectGroup, isCompoundGroup };
+export {
+  NestedGroup,
+  ObjectGroup,
+  CompoundGroup,
+  isObjectGroup,
+  isCompoundGroup,
+};
 export type { ShapeEntry };
