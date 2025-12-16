@@ -1140,16 +1140,28 @@ class Display {
     });
 
     // Animation/Explode mode subscription - controls slider visibility, label, and explode button
-    sub("animationMode", (change) => {
-      const mode = change.new;
-      // Show/hide slider control
-      this.cadAnim.style.display = mode !== "none" ? "block" : "none";
-      // Set label: "A" for animation, "E" for explode
-      this.getElement("tcv_animation_label").innerHTML =
-        mode === "explode" ? "E" : "A";
-      // Update explode button state
-      this.clickButtons["explode"]?.set(mode === "explode");
+    sub("zebraColorScheme", (change) => {
+      this.setZebraColorSchemeSelect(change.new);
     });
+    sub("zebraMappingMode", (change) => {
+      this.setZebraMappingModeSelect(change.new);
+    });
+
+    // Animation/Explode mode subscription - controls slider visibility, label, and explode button
+    sub(
+      "animationMode",
+      (change) => {
+        const mode = change.new;
+        // Show/hide slider control
+        this.cadAnim.style.display = mode !== "none" ? "block" : "none";
+        // Set label: "A" for animation, "E" for explode
+        this.getElement("tcv_animation_label").innerHTML =
+          mode === "explode" ? "E" : "A";
+        // Update explode button state
+        this.clickButtons["explode"]?.set(mode === "explode");
+      },
+      { immediate: true },
+    );
     sub(
       "animationSliderValue",
       (change) => {
