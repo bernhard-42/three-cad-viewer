@@ -1,0 +1,874 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Viewer Public API Test</title>
+    <link rel="stylesheet" href="./dist/three-cad-viewer.css" />
+    <script src="./examples/assembly.js"></script>
+    <style>
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: var(--tcv-bg-color);
+          color: var(--tcv-font-color);
+        }
+      }
+
+      body {
+        margin: 0px !important;
+        font-family: monospace;
+      }
+
+      .main {
+        margin: 12px;
+      }
+
+      #log {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        background: rgba(0, 0, 0, 0.9);
+        color: #0f0;
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 12px;
+        z-index: 10000;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      #log .header {
+        color: #ff0;
+        font-weight: bold;
+        font-size: 14px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #ff0;
+        padding-bottom: 5px;
+      }
+
+      #log .original {
+        color: #88f;
+      }
+
+      #log .changed {
+        color: #f80;
+      }
+
+      #log .reset {
+        color: #0ff;
+      }
+
+      #log .instruction {
+        color: #fff;
+        background: #333;
+        padding: 5px;
+        margin: 10px 0;
+        border-radius: 4px;
+      }
+
+      #log .success {
+        color: #0f0;
+      }
+
+      #log .error {
+        color: #f00;
+      }
+
+      #log .phase {
+        color: #f0f;
+        font-weight: bold;
+        margin-top: 8px;
+      }
+
+      #progress {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.85);
+        color: #fff;
+        padding: 10px 15px;
+        border-radius: 8px;
+        z-index: 10000;
+      }
+
+      #controls {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.85);
+        color: #fff;
+        padding: 10px 15px;
+        border-radius: 8px;
+        z-index: 10000;
+      }
+
+      #controls button {
+        margin: 0 5px;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="main">
+      <div id="cad_view"></div>
+    </div>
+    <div id="log">
+      <div class="header">Viewer Public API Test</div>
+      <div id="log-content">Loading viewer...</div>
+    </div>
+    <div id="progress">Ready</div>
+    <div id="controls">
+      <button id="startBtn">Start Test (Space)</button>
+      <button id="skipBtn" disabled>Skip (S)</button>
+      <button id="nextBtn" disabled>Next (Enter/Space)</button>
+    </div>
+
+    <script type="module">
+      import { Viewer, Display } from "./dist/three-cad-viewer.esm.js";
+
+      const logEl = document.getElementById("log-content");
+      const progressEl = document.getElementById("progress");
+      const startBtn = document.getElementById("startBtn");
+      const skipBtn = document.getElementById("skipBtn");
+      const nextBtn = document.getElementById("nextBtn");
+
+      function log(msg, className = "") {
+        const div = document.createElement("div");
+        div.className = className;
+        div.textContent = msg;
+        logEl.appendChild(div);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function clearLog() {
+        logEl.innerHTML = "";
+      }
+
+      function setProgress(current, total, name) {
+        progressEl.textContent = `Test ${current}/${total}: ${name}`;
+      }
+
+      function formatValue(val) {
+        if (val === null || val === undefined) return String(val);
+        if (Array.isArray(val)) return `[${val.map(formatValue).join(", ")}]`;
+        if (typeof val === "number") return Number.isInteger(val) ? String(val) : val.toFixed(4);
+        if (typeof val === "object") {
+          if (val.isVector3) return `Vector3(${val.x.toFixed(2)}, ${val.y.toFixed(2)}, ${val.z.toFixed(2)})`;
+          return JSON.stringify(val);
+        }
+        return String(val);
+      }
+
+      // Wait for keypress
+      function waitForKey(validKeys = ["Enter", " "]) {
+        return new Promise((resolve) => {
+          const handler = (e) => {
+            if (validKeys.includes(e.key)) {
+              document.removeEventListener("keydown", handler);
+              resolve(e.key);
+            }
+          };
+          document.addEventListener("keydown", handler);
+        });
+      }
+
+      // Define all getter/setter test cases
+      const apiTests = [
+        // ===== APPEARANCE =====
+        {
+          name: "Axes",
+          getter: "getAxes",
+          setter: "setAxes",
+          testValue: true,
+          description: "Show XYZ axes helper lines",
+        },
+        {
+          name: "Axes0 (Origin)",
+          getter: "getAxes0",
+          setter: "setAxes0",
+          testValue: true,
+          description: "Center axes/grid at origin (0,0,0) instead of bbox center",
+          setup: (viewer) => viewer.setAxes(true),
+          teardown: (viewer) => viewer.setAxes(false),
+        },
+        {
+          name: "Grids",
+          getter: "getGrids",
+          setter: "setGrids",
+          testValue: [true, true, true],
+          description: "Show all three grid planes [XY, XZ, YZ]",
+        },
+        {
+          name: "Transparent",
+          getter: "getTransparent",
+          setter: "setTransparent",
+          testValue: true,
+          description: "Make CAD objects semi-transparent",
+        },
+        {
+          name: "Black Edges",
+          getter: "getBlackEdges",
+          setter: "setBlackEdges",
+          testValue: true,
+          description: "Show edges in black instead of default color",
+        },
+        {
+          name: "Edge Color",
+          getter: "getEdgeColor",
+          setter: "setEdgeColor",
+          testValue: 0xff0000,
+          description: "Set edge color to red (0xff0000)",
+        },
+        {
+          name: "Opacity",
+          getter: "getOpacity",
+          setter: "setOpacity",
+          testValue: 0.3,
+          description: "Set default opacity to 0.3 (30%)",
+        },
+        {
+          name: "Tools Visibility",
+          getter: "getTools",
+          setter: "setTools",
+          testValue: false,
+          description: "Hide the toolbar/tools panel",
+        },
+
+        // ===== LIGHTING & MATERIALS =====
+        {
+          name: "Ambient Light",
+          getter: "getAmbientLight",
+          setter: "setAmbientLight",
+          testValue: 3.5,
+          description: "Increase ambient light intensity to 3.5 (max 4)",
+          setup: (viewer) => viewer.setActiveTab("material"),
+        },
+        {
+          name: "Direct Light",
+          getter: "getDirectLight",
+          setter: "setDirectLight",
+          testValue: 0.1,
+          description: "Decrease direct light intensity to 0.1 (dimmer)",
+          setup: (viewer) => viewer.setActiveTab("material"),
+        },
+        {
+          name: "Metalness",
+          getter: "getMetalness",
+          setter: "setMetalness",
+          testValue: 0.95,
+          description: "Increase metalness to 0.95 (very metallic)",
+          setup: (viewer) => viewer.setActiveTab("material"),
+        },
+        {
+          name: "Roughness",
+          getter: "getRoughness",
+          setter: "setRoughness",
+          testValue: 0.05,
+          description: "Decrease roughness to 0.05 (mirror-like)",
+          setup: (viewer) => viewer.setActiveTab("material"),
+        },
+
+        // ===== CAMERA TYPE =====
+        {
+          name: "Ortho (Camera Type)",
+          getter: "getOrtho",
+          setter: "setOrtho",
+          testValue: false,
+          description: "Switch to perspective camera (depth distortion)",
+        },
+
+        // ===== CAMERA POSITION & ORIENTATION =====
+        {
+          name: "Camera Zoom",
+          getter: "getCameraZoom",
+          setter: "setCameraZoom",
+          testValue: 2.5,
+          description: "Zoom in to 2.5x magnification",
+        },
+        {
+          name: "Camera Position",
+          getter: "getCameraPosition",
+          setter: "setCameraPosition",
+          testValue: [50, 50, 50],
+          description: "Move camera to position [50, 50, 50]",
+        },
+        {
+          name: "Camera Quaternion",
+          getter: "getCameraQuaternion",
+          setter: "setCameraQuaternion",
+          testValue: [0.5, 0.5, 0.5, 0.5],
+          description: "Rotate camera via quaternion (different angle)",
+        },
+        {
+          name: "Camera Target",
+          getter: "getCameraTarget",
+          setter: "setCameraTarget",
+          testValue: null,
+          testValueFn: (viewer) => viewer.vector3(3, 3, 3),
+          description: "Set camera look-at target to [3, 3, 3]",
+        },
+
+        // ===== PRESET CAMERA (Action, not getter/setter) =====
+        {
+          name: "presetCamera (top view)",
+          getter: null,
+          setter: "presetCamera",
+          testValue: "top",
+          description: "Switch to top-down view",
+          getterFn: () => "current view",
+          resetFn: (viewer) => viewer.presetCamera("iso"),
+        },
+        {
+          name: "presetCamera (front view)",
+          getter: null,
+          setter: "presetCamera",
+          testValue: "front",
+          description: "Switch to front view",
+          getterFn: () => "current view",
+          resetFn: (viewer) => viewer.presetCamera("iso"),
+        },
+        {
+          name: "presetCamera (right view)",
+          getter: null,
+          setter: "presetCamera",
+          testValue: "right",
+          description: "Switch to right side view",
+          getterFn: () => "current view",
+          resetFn: (viewer) => viewer.presetCamera("iso"),
+        },
+
+        // ===== CONTROL SENSITIVITY =====
+        {
+          name: "Zoom Speed",
+          getter: "getZoomSpeed",
+          setter: "setZoomSpeed",
+          testValue: 4.0,
+          description: "Increase zoom speed to 4x (try mouse wheel)",
+        },
+        {
+          name: "Pan Speed",
+          getter: "getPanSpeed",
+          setter: "setPanSpeed",
+          testValue: 4.0,
+          description: "Increase pan speed to 4x (try Shift+drag)",
+        },
+        {
+          name: "Rotate Speed",
+          getter: "getRotateSpeed",
+          setter: "setRotateSpeed",
+          testValue: 4.0,
+          description: "Increase rotate speed to 4x (try dragging)",
+        },
+        {
+          name: "Holroyd Trackball",
+          getter: "getHolroyd",
+          setter: "setHolroyd",
+          testValue: false,
+          description: "Disable Holroyd mode (tumbling trackball). Try rotating.",
+        },
+
+        // ===== CLIPPING - BASIC =====
+        {
+          name: "Clip Plane Helpers",
+          getter: "getClipPlaneHelpers",
+          setter: "setClipPlaneHelpers",
+          testValue: true,
+          description: "Show clipping plane helper visualizations",
+          setup: (viewer) => {
+            viewer.setActiveTab("clip");
+            viewer.setLocalClipping(true);
+          },
+          teardown: (viewer) => {
+            viewer.setLocalClipping(false);
+          },
+        },
+        {
+          name: "Clip Intersection Mode",
+          getter: "getClipIntersection",
+          setter: "setClipIntersection",
+          testValue: true,
+          description: "Enable intersection mode (shows inside of cut)",
+          setup: (viewer) => {
+            viewer.setActiveTab("clip");
+            viewer.setLocalClipping(true);
+            viewer.setClipSlider(0, -0.5);
+            viewer.setClipSlider(1, 2.3);
+            viewer.setClipSlider(2, 3.5);
+          },
+          teardown: (viewer) => {
+            viewer.setLocalClipping(false);
+            viewer.setClipSlider(0, viewer.gridSize / 2);
+            viewer.setClipSlider(1, viewer.gridSize / 2);
+            viewer.setClipSlider(2, viewer.gridSize / 2);
+          },
+        },
+        {
+          name: "Clip Object Color Caps",
+          getter: "getObjectColorCaps",
+          setter: "setClipObjectColorCaps",
+          testValue: true,
+          description: "Use object colors for clipping caps (vs RGB)",
+          setup: (viewer) => {
+            viewer.setActiveTab("clip");
+            viewer.setLocalClipping(true);
+            viewer.setClipIntersection(true);
+            viewer.setClipSlider(0, 0);
+          },
+          teardown: (viewer) => {
+            viewer.setClipIntersection(false);
+            viewer.setLocalClipping(false);
+            viewer.setClipSlider(0, viewer.gridSize / 2);
+          },
+        },
+
+        // ===== CLIPPING - SLIDERS =====
+        {
+          name: "Clip Slider 0 (X plane)",
+          getter: null,
+          getterFn: (viewer) => viewer.getClipSlider(0),
+          setter: "setClipSlider",
+          setterArgs: (val) => [0, val],
+          testValue: 0,
+          description: "Move X clipping plane to center (cuts object)",
+          setup: (viewer) => {
+            viewer.setActiveTab("clip");
+            viewer.setLocalClipping(true);
+            viewer.setClipIntersection(true);
+            viewer.setClipPlaneHelpers(true);
+          },
+          teardown: (viewer) => {
+            viewer.setClipIntersection(false);
+            viewer.setClipPlaneHelpers(false);
+            viewer.setLocalClipping(false);
+          },
+        },
+        {
+          name: "Clip Slider 1 (Y plane)",
+          getter: null,
+          getterFn: (viewer) => viewer.getClipSlider(1),
+          setter: "setClipSlider",
+          setterArgs: (val) => [1, val],
+          testValue: 0,
+          description: "Move Y clipping plane to center (cuts object)",
+          setup: (viewer) => {
+            viewer.setActiveTab("clip");
+            viewer.setLocalClipping(true);
+            viewer.setClipIntersection(true);
+            viewer.setClipPlaneHelpers(true);
+          },
+          teardown: (viewer) => {
+            viewer.setClipIntersection(false);
+            viewer.setClipPlaneHelpers(false);
+            viewer.setLocalClipping(false);
+          },
+        },
+        {
+          name: "Clip Slider 2 (Z plane)",
+          getter: null,
+          getterFn: (viewer) => viewer.getClipSlider(2),
+          setter: "setClipSlider",
+          setterArgs: (val) => [2, val],
+          testValue: 0,
+          description: "Move Z clipping plane to center (cuts object)",
+          setup: (viewer) => {
+            viewer.setActiveTab("clip");
+            viewer.setLocalClipping(true);
+            viewer.setClipIntersection(true);
+            viewer.setClipPlaneHelpers(true);
+          },
+          teardown: (viewer) => {
+            viewer.setClipIntersection(false);
+            viewer.setClipPlaneHelpers(false);
+            viewer.setLocalClipping(false);
+          },
+        },
+
+        // ===== CLIPPING - NORMALS =====
+        {
+          name: "Clip Normal 0 (change to Z-axis)",
+          getter: null,
+          getterFn: (viewer) => viewer.getClipNormal(0),
+          setter: "setClipNormal",
+          setterArgs: (val) => [0, val, 0],
+          testValue: [0, 0, -1],
+          description: "Change plane 0 normal to Z-axis (horizontal cut)",
+          setup: (viewer) => {
+            viewer.setActiveTab("clip");
+            viewer.setLocalClipping(true);
+            viewer.setClipIntersection(true);
+            viewer.setClipPlaneHelpers(true);
+            viewer.setClipSlider(0, 0);
+          },
+          teardown: (viewer) => {
+            viewer.setClipIntersection(false);
+            viewer.setClipPlaneHelpers(false);
+            viewer.setLocalClipping(false);
+            viewer.setClipNormal(0, [-1, 0, 0], viewer.gridSize / 2);
+          },
+        },
+        {
+          name: "Clip Normal 1 (change to diagonal)",
+          getter: null,
+          getterFn: (viewer) => viewer.getClipNormal(1),
+          setter: "setClipNormal",
+          setterArgs: (val) => [1, val, 0],
+          testValue: [-0.707, -0.707, 0],
+          description: "Change plane 1 normal to 45-degree diagonal",
+          setup: (viewer) => {
+            viewer.setActiveTab("clip");
+            viewer.setLocalClipping(true);
+            viewer.setClipIntersection(true);
+            viewer.setClipPlaneHelpers(true);
+            viewer.setClipSlider(1, 0);
+          },
+          teardown: (viewer) => {
+            viewer.setClipIntersection(false);
+            viewer.setClipPlaneHelpers(false);
+            viewer.setLocalClipping(false);
+            viewer.setClipNormal(1, [0, -1, 0], viewer.gridSize / 2);
+          },
+        },
+
+        // ===== ZEBRA TOOL =====
+        {
+          name: "Zebra Stripe Count",
+          getter: null,
+          getterFn: (viewer) => viewer.state.get("zebraCount"),
+          setter: "setZebraCount",
+          testValue: 30,
+          description: "Increase zebra stripe count to 30",
+          setup: (viewer) => {
+            viewer.setActiveTab("zebra");
+            viewer.enableZebraTool(true);
+          },
+          teardown: (viewer) => {
+            viewer.enableZebraTool(false);
+          },
+        },
+        {
+          name: "Zebra Opacity",
+          getter: null,
+          getterFn: (viewer) => viewer.state.get("zebraOpacity"),
+          setter: "setZebraOpacity",
+          testValue: 0.8,
+          description: "Increase zebra opacity to 0.8",
+          setup: (viewer) => {
+            viewer.setActiveTab("zebra");
+            viewer.enableZebraTool(true);
+          },
+          teardown: (viewer) => {
+            viewer.enableZebraTool(false);
+          },
+        },
+        {
+          name: "Zebra Direction",
+          getter: null,
+          getterFn: (viewer) => viewer.state.get("zebraDirection"),
+          setter: "setZebraDirection",
+          testValue: 45,
+          description: "Change zebra direction to 45 degrees",
+          setup: (viewer) => {
+            viewer.setActiveTab("zebra");
+            viewer.enableZebraTool(true);
+          },
+          teardown: (viewer) => {
+            viewer.enableZebraTool(false);
+          },
+        },
+        {
+          name: "Zebra Color Scheme",
+          getter: null,
+          getterFn: (viewer) => viewer.state.get("zebraColorScheme"),
+          setter: "setZebraColorScheme",
+          testValue: "colorful",
+          description: "Change zebra to colorful scheme",
+          setup: (viewer) => {
+            viewer.setActiveTab("zebra");
+            viewer.enableZebraTool(true);
+          },
+          teardown: (viewer) => {
+            viewer.enableZebraTool(false);
+          },
+        },
+        {
+          name: "Zebra Mapping Mode",
+          getter: null,
+          getterFn: (viewer) => viewer.state.get("zebraMappingMode"),
+          setter: "setZebraMappingMode",
+          testValue: "normal",
+          description: "Change zebra to normal mapping mode",
+          setup: (viewer) => {
+            viewer.setActiveTab("zebra");
+            viewer.enableZebraTool(true);
+          },
+          teardown: (viewer) => {
+            viewer.enableZebraTool(false);
+          },
+        },
+
+        // ===== ACTIONS (reset, resize) =====
+        {
+          name: "resize (reset zoom)",
+          getter: null,
+          getterFn: (viewer) => viewer.getCameraZoom(),
+          setter: null,
+          setterFn: (viewer) => {
+            viewer.setCameraZoom(3.0);
+            return "zoom set to 3.0";
+          },
+          testValue: "zoom reset to 1.0",
+          description: "First zooms to 3x, then resize() resets to 1.0",
+          resetFn: (viewer) => viewer.resize(),
+        },
+        {
+          name: "reset (reset camera)",
+          getter: null,
+          getterFn: (viewer) => "initial state",
+          setter: null,
+          setterFn: (viewer) => {
+            viewer.setCameraPosition([80, 80, 80]);
+            viewer.setCameraZoom(2.0);
+            return "camera moved & zoomed";
+          },
+          testValue: "camera reset",
+          description: "Moves camera, then reset() returns to initial state",
+          resetFn: (viewer) => viewer.reset(),
+        },
+      ];
+
+      // Setup viewer
+      const container = document.getElementById("cad_view");
+      const displayOptions = {
+        cadWidth: 900,
+        height: 675,
+        treeWidth: 240,
+        theme: "browser",
+        pinning: false,
+        measureTools: false,
+        explodeTool: true,
+        zebraTool: true,
+      };
+
+      const renderOptions = {
+        ambientIntensity: 1.0,
+        directIntensity: 1.1,
+        metalness: 0.3,
+        roughness: 0.65,
+        edgeColor: 0x707070,
+        defaultOpacity: 0.5,
+      };
+
+      const viewerOptions = {
+        ortho: true,
+        control: "trackball",
+        up: "Z",
+        collapse: 1,
+      };
+
+      const display = new Display(container, displayOptions);
+      const viewer = new Viewer(display, displayOptions, () => {});
+      viewer.render(structuredClone(assembly), renderOptions, viewerOptions);
+
+      window.viewer = viewer;
+      log(`Viewer loaded with 'assembly' example`);
+      log(`Total tests: ${apiTests.length}`);
+      log("");
+      log("This test iterates through all public API getter/setter pairs.", "instruction");
+      log("For each test:", "instruction");
+      log("  1. Shows original value", "instruction");
+      log("  2. Sets new value -> PAUSE to verify", "instruction");
+      log("  3. Resets to original -> PAUSE to verify", "instruction");
+      log("  4. Continues to next test", "instruction");
+      log("");
+      log("Press SPACE or click 'Start Test' to begin.", "instruction");
+
+      let testRunning = false;
+
+      async function runTests() {
+        if (testRunning) return;
+        testRunning = true;
+
+        startBtn.disabled = true;
+        skipBtn.disabled = false;
+        nextBtn.disabled = false;
+
+        const total = apiTests.length;
+
+        for (let i = 0; i < total; i++) {
+          const test = apiTests[i];
+
+          clearLog();
+          setProgress(i + 1, total, test.name);
+
+          // Reset to tree tab at start of each test
+          viewer.setActiveTab("tree");
+
+          log(`=== Test ${i + 1}/${total}: ${test.name} ===`, "header");
+          log(test.description);
+          log("");
+
+          // Setup if needed (may switch to different tab)
+          if (test.setup) {
+            test.setup(viewer);
+          }
+
+          // Get original value
+          let originalValue;
+          try {
+            if (test.getterFn) {
+              originalValue = test.getterFn(viewer);
+            } else if (test.getter) {
+              originalValue = viewer[test.getter]();
+            }
+            log(`Original value: ${formatValue(originalValue)}`, "original");
+          } catch (e) {
+            log(`Error getting value: ${e.message}`, "error");
+          }
+
+          // Determine test value
+          let testValue = test.testValue;
+          if (test.testValueFn) {
+            testValue = test.testValueFn(viewer);
+          }
+
+          // Set new value
+          log("", "");
+          log(">>> PHASE 1: Setting new value", "phase");
+          try {
+            let result;
+            if (test.setterFn) {
+              result = test.setterFn(viewer);
+              log(`Action performed: ${result}`, "changed");
+            } else if (test.setterArgs) {
+              const args = test.setterArgs(testValue);
+              viewer[test.setter](...args);
+              log(`New value set: ${formatValue(testValue)}`, "changed");
+            } else if (test.setter) {
+              viewer[test.setter](testValue);
+              log(`New value set: ${formatValue(testValue)}`, "changed");
+            }
+
+            // Verify by reading back
+            let newValue;
+            if (test.getterFn) {
+              newValue = test.getterFn(viewer);
+            } else if (test.getter) {
+              newValue = viewer[test.getter]();
+            }
+            if (newValue !== undefined) {
+              log(`Read back: ${formatValue(newValue)}`, "success");
+            }
+          } catch (e) {
+            log(`Error setting value: ${e.message}`, "error");
+          }
+
+          log("");
+          log("Verify the CHANGE visually. Press ENTER/SPACE to continue, S to skip.", "instruction");
+
+          // Wait for user input after setting new value
+          let key = await waitForKey(["Enter", " ", "s", "S", "Escape"]);
+
+          if (key === "Escape") {
+            log("Test aborted by user.", "error");
+            break;
+          }
+
+          if (key === "s" || key === "S") {
+            // Teardown and skip to next
+            if (test.teardown) {
+              test.teardown(viewer);
+            }
+            continue;
+          }
+
+          // Reset to original value
+          log("", "");
+          log(">>> PHASE 2: Resetting to original value", "phase");
+          try {
+            if (test.resetFn) {
+              test.resetFn(viewer);
+              log("Reset via custom resetFn", "reset");
+            } else if (test.setterArgs) {
+              const args = test.setterArgs(originalValue);
+              viewer[test.setter](...args);
+              log(`Reset to: ${formatValue(originalValue)}`, "reset");
+            } else if (test.setter && originalValue !== undefined) {
+              viewer[test.setter](originalValue);
+              log(`Reset to: ${formatValue(originalValue)}`, "reset");
+            } else {
+              log("No reset needed/possible", "reset");
+            }
+
+            // Verify reset
+            let resetValue;
+            if (test.getterFn) {
+              resetValue = test.getterFn(viewer);
+            } else if (test.getter) {
+              resetValue = viewer[test.getter]();
+            }
+            if (resetValue !== undefined) {
+              log(`Verified: ${formatValue(resetValue)}`, "success");
+            }
+          } catch (e) {
+            log(`Error resetting: ${e.message}`, "error");
+          }
+
+          // Teardown if needed
+          if (test.teardown) {
+            test.teardown(viewer);
+          }
+
+          log("");
+          log("Verify the RESET visually. Press ENTER/SPACE to continue.", "instruction");
+
+          // Wait for user input after reset
+          key = await waitForKey(["Enter", " ", "Escape"]);
+
+          if (key === "Escape") {
+            log("Test aborted by user.", "error");
+            break;
+          }
+
+          // Small delay between tests
+          await new Promise((r) => setTimeout(r, 50));
+        }
+
+        clearLog();
+        log("=== All tests completed! ===", "header");
+        log("");
+        log(`Tested ${apiTests.length} getter/setter pairs.`, "success");
+        log("");
+        log("You can now interact with the viewer freely.", "instruction");
+        log("Press F5 to run tests again.", "instruction");
+
+        testRunning = false;
+        startBtn.disabled = false;
+        skipBtn.disabled = true;
+        nextBtn.disabled = true;
+        setProgress(total, total, "Complete");
+      }
+
+      // Button handlers
+      startBtn.addEventListener("click", runTests);
+      skipBtn.addEventListener("click", () => {
+        document.dispatchEvent(new KeyboardEvent("keydown", { key: "s" }));
+      });
+      nextBtn.addEventListener("click", () => {
+        document.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+      });
+
+      // Global key handler for starting
+      document.addEventListener("keydown", (e) => {
+        if (!testRunning && e.key === " ") {
+          e.preventDefault();
+          runTests();
+        }
+      });
+    </script>
+  </body>
+</html>
