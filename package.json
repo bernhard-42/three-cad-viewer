@@ -8,8 +8,8 @@
     "url": "https://github.com/bernhard-42/three-cad-viewer"
   },
   "files": [
-    "src",
-    "dist"
+    "dist",
+    "src"
   ],
   "main": "dist/three-cad-viewer.js",
   "module": "dist/three-cad-viewer.esm.js",

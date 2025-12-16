@@ -1,7 +1,6 @@
 import process from "process";
 import resolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
-import css from "rollup-plugin-import-css";
 import terser from "@rollup/plugin-terser";
 import serve from "rollup-plugin-serve";
 import livereload from "rollup-plugin-livereload";
@@ -20,11 +19,11 @@ function addMin(name) {
 }
 
 const umdName = "CadViewer";
+const sourcemap = process.env.SOURCEMAP !== "false"; // Enable by default
 
 const default_plugins = [
   typescript({
     tsconfig: "./tsconfig.json",
-    sourceMap: true,
     declaration: true,
     declarationDir: "./dist",
   }),
@@ -36,10 +35,9 @@ const default_plugins = [
         fallback: "copy", // if file too large, falls back to copy
       }),
     ],
-    extract: "three-cad-viewer.css", // or your desired filename
+    extract: "three-cad-viewer.css",
   }),
   resolve(),
-  css({ output: "three-cad-viewer.css" }),
   image(),
   string({ include: "src/ui/index.html" }),
 ];
@@ -55,11 +53,13 @@ if (process.env.BUILD === "production") {
         {
           format: "es",
           file: pkg.module,
+          sourcemap,
         },
         {
           format: "umd",
           name: umdName,
           file: pkg.main,
+          sourcemap,
         },
       ],
     },
@@ -70,11 +70,13 @@ if (process.env.BUILD === "production") {
         {
           format: "es",
           file: addMin(pkg.module),
+          sourcemap,
         },
         {
           format: "umd",
           name: umdName,
           file: addMin(pkg.main),
+          sourcemap,
         },
       ],
     },
@@ -93,6 +95,7 @@ if (process.env.BUILD === "production") {
     output: {
       format: "es",
       file: pkg.module,
+      sourcemap: "inline",
     },
   };
 }
