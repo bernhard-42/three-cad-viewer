@@ -478,8 +478,9 @@ These follow the preferred pattern with subscription-based UI updates.
 #### 13. Clip Plane Sliders (1, 2, 3)
 
 - **Display handler**: `refreshPlane(index, value)` → calls `this.viewer.refreshPlane(index, value)`
-- **Viewer method**: `setClipSlider()` → `this.state.set("clipSlider{index}", value)`
+- **Viewer method**: `setClipSlider()` → `this.state.set()` + `clipping.setConstant()` + `update()`
 - **Subscription**: `state.subscribe("clipSlider{0,1,2}", ...)` → updates slider via `setValueFromState()`
+- **Note**: Both `setClipSlider()` and `refreshPlane()` update state AND the 3D scene (consistent with other setters)
 
 #### 14. Material Sliders (ambient, direct, metalness, roughness)
 
