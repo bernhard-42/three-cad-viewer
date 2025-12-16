@@ -95,6 +95,7 @@ class Info {
    * @param control - Control mode name (e.g., "orbit", "trackball").
    */
   readyMsg(version: string, control: string): void {
+    this.clear();
     const html = `<div class="tcv_info_header">Ready</div>
             <table class="small_table">
               <tr class="tcv_small_table_row" ><td>Version</td><td>${version}</td> </tr>
