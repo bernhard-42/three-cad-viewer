@@ -1493,11 +1493,9 @@ class Viewer {
     this.setDirectLight(this.state.get("directIntensity"));
 
     this.display.setSliderLimits(this.gridSize / 2);
+    this.display.syncClipSlidersFromState();
 
-    this.setClipNormal(0, viewerOptions.clipNormal0 ?? null, null, true);
-    this.setClipNormal(1, viewerOptions.clipNormal1 ?? null, null, true);
-    this.setClipNormal(2, viewerOptions.clipNormal2 ?? null, null, true);
-
+    // Compute clip slider values (used later after ready=true)
     const clipSlider0 =
       viewerOptions.clipSlider0 != null
         ? viewerOptions.clipSlider0
@@ -1510,13 +1508,6 @@ class Viewer {
       viewerOptions.clipSlider2 != null
         ? viewerOptions.clipSlider2
         : this.gridSize / 2;
-
-    this.setClipSlider(0, clipSlider0, true);
-    this.setClipSlider(1, clipSlider1, true);
-    this.setClipSlider(2, clipSlider2, true);
-
-    this.setClipIntersection(viewerOptions.clipIntersection ?? false, true);
-    this.setClipObjectColorCaps(viewerOptions.clipObjectColors ?? false, true);
 
     nestedGroup.setClipPlanes(clipping.clipPlanes);
 
@@ -1542,6 +1533,20 @@ class Viewer {
     this.toggleAnimationLoop(this.hasAnimationLoop);
 
     this.ready = true;
+
+    // Apply clip settings AFTER ready=true (clip setters check this.ready)
+    // Set normals first (if provided), passing slider values to avoid reset to gridSize/2
+    this.setClipNormal(0, viewerOptions.clipNormal0 ?? null, clipSlider0, true);
+    this.setClipNormal(1, viewerOptions.clipNormal1 ?? null, clipSlider1, true);
+    this.setClipNormal(2, viewerOptions.clipNormal2 ?? null, clipSlider2, true);
+    // Set sliders for any planes without custom normals (setClipNormal returns early if normal is null)
+    this.setClipSlider(0, clipSlider0, true);
+    this.setClipSlider(1, clipSlider1, true);
+    this.setClipSlider(2, clipSlider2, true);
+    this.setClipIntersection(viewerOptions.clipIntersection ?? false, true);
+    this.setClipObjectColorCaps(viewerOptions.clipObjectColors ?? false, true);
+    this.setClipPlaneHelpers(viewerOptions.clipPlaneHelpers ?? false, true);
+
     this.display.showReadyMessage(version, this.state.get("control"));
 
     //

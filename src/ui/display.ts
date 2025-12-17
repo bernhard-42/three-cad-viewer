@@ -1086,15 +1086,22 @@ class Display {
       this.getInputElement("tcv_clip_caps").checked = change.new;
     });
 
-    // Clip slider subscriptions
+    // Clip slider subscriptions - handle runtime changes
+    // Initial sync happens via syncClipSlidersFromState() after limits are set
     sub("clipSlider0", (change) => {
-      this.clipSliders?.[0]?.setValueFromState(change.new);
+      if (change.new !== -1) {
+        this.clipSliders?.[0]?.setValueFromState(change.new);
+      }
     });
     sub("clipSlider1", (change) => {
-      this.clipSliders?.[1]?.setValueFromState(change.new);
+      if (change.new !== -1) {
+        this.clipSliders?.[1]?.setValueFromState(change.new);
+      }
     });
     sub("clipSlider2", (change) => {
-      this.clipSliders?.[2]?.setValueFromState(change.new);
+      if (change.new !== -1) {
+        this.clipSliders?.[2]?.setValueFromState(change.new);
+      }
     });
 
     // Material slider subscriptions (state stores 0-1, sliders display 0-100 or 0-400)
@@ -1821,7 +1828,25 @@ class Display {
    */
   setSliderLimits(limit: number): void {
     for (let i = 0; i < 3; i++) {
-      this.clipSliders![i].setSlider(limit);
+      this.clipSliders![i].setLimits(limit);
+    }
+  }
+
+  /**
+   * Sync clip slider UI from current state values.
+   * Called after setSliderLimits to apply initial values with correct limits.
+   */
+  syncClipSlidersFromState(): void {
+    const state = this.viewer.state;
+    const values = [
+      state.get("clipSlider0"),
+      state.get("clipSlider1"),
+      state.get("clipSlider2"),
+    ];
+    for (let i = 0; i < 3; i++) {
+      if (values[i] !== -1) {
+        this.clipSliders![i].setValueFromState(values[i]);
+      }
     }
   }
 

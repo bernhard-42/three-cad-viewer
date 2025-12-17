@@ -144,20 +144,16 @@ class Slider {
   };
 
   /**
-   * Configure slider for symmetric range around zero (used for clipping planes)
-   * Sets min to -limit, max to +limit, and calculates appropriate step size
+   * Configure slider range for symmetric limits around zero (used for clipping planes).
+   * Only sets min/max/step - does NOT change the current value.
+   * Values should be set via state subscriptions.
    * @param limit - The absolute limit value for both min (-limit) and max (+limit)
    */
-  setSlider(limit: number): void {
+  setLimits(limit: number): void {
     const exp = Math.abs(Math.round(Math.log10(2 * limit)));
     this.slider.min = String(-limit);
     this.slider.max = String(limit);
     this.slider.step = String(Math.pow(10, -(3 - exp)));
-    this.slider.value = String(limit);
-    this.input.value = String(Math.round(1000 * parseFloat(this.slider.max)) / 1000);
-    if (this.onSetSlider && this.index !== undefined) {
-      this.onSetSlider(this.index, this.input.value);
-    }
   }
 
   /**
