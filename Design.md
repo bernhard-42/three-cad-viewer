@@ -64,8 +64,50 @@ Three-cad-viewer is a WebGL-based CAD viewer built on Three.js. The architecture
 
 | Class       | File             | Purpose                                                                                     |
 | ----------- | ---------------- | ------------------------------------------------------------------------------------------- |
-| **Display** | `ui/display.ts`  | Main entry point. Creates DOM structure, toolbar, sliders, and subscribes to ViewerState.   |
-| **Viewer**  | `core/viewer.ts` | WebGL renderer, scene management, and state mutations. All state changes go through Viewer. |
+| **Display** | `ui/display.ts`  | Creates DOM structure, toolbar, sliders, and subscribes to ViewerState. Internal use only.  |
+| **Viewer**  | `core/viewer.ts` | **Public API**. WebGL renderer, scene management, state mutations, and UI control wrappers. |
+
+**Important**: The public API is exposed through `Viewer`. External code should call `viewer.xxx()` methods rather than accessing `viewer.display.xxx()` directly. Display is an internal implementation detail.
+
+### Viewer Public API
+
+The Viewer class organizes its methods into logical sections:
+
+| Section | Methods | Purpose |
+| ------- | ------- | ------- |
+| **Shape Tessellation** | `render()`, `clear()`, `dispose()` | Scene lifecycle |
+| **Animation Control** | `initAnimation()`, `addPositionTrack()`, `addRotationTrack()`, etc. | Animation management |
+| **Camera Controls** | `reset()`, `resize()`, `presetCamera()`, `centerVisibleObjects()` | Camera manipulation |
+| **Camera State** | `getCameraZoom()`, `setCameraZoom()`, `getCameraPosition()`, `setCameraPosition()`, etc. | Camera state getters/setters |
+| **Appearance** | `setAxes()`, `setGrid()`, `setOrtho()`, `setTransparent()`, `setBlackEdges()`, `showTools()` | Visual settings |
+| **Lighting & Materials** | `setAmbientLight()`, `setDirectLight()`, `setMetalness()`, `setRoughness()`, `resetMaterial()` | Material properties |
+| **Zebra Tool** | `enableZebraTool()`, `setZebraCount()`, `setZebraOpacity()`, `setZebraDirection()`, etc. | Surface analysis |
+| **Clipping Planes** | `setClipSlider()`, `setClipNormal()`, `setClipIntersection()`, `setClipPlaneHelpers()` | Clipping controls |
+| **Object Visibility** | `setState()`, `setVisible()`, `getState()` | Object visibility |
+| **Object Picking** | `pick()`, `getPickInfo()` | Mouse-based selection |
+| **Image Export** | `getImage()`, `pinAsPng()` | Screenshot/export |
+| **Explode Animation** | `setExplode()` | Explode view |
+| **View Layout** | `resizeCadView()` | Viewport sizing |
+| **UI Control Wrappers** | See table below | Delegate to Display |
+
+#### UI Control Wrappers
+
+These methods provide a clean public API by delegating to Display:
+
+| Method | Purpose |
+| ------ | ------- |
+| `setView(direction, focus?)` | Set camera to predefined view (iso, front, rear, top, bottom, left, right) |
+| `glassMode(flag)` | Enable/disable glass mode (transparent overlay UI) |
+| `collapseNodes(value)` | Collapse/expand tree nodes ("1", "R", "C", "E") |
+| `setTheme(theme)` | Set UI theme ("light", "dark", "browser") |
+| `showHelp(flag)` | Show/hide help dialog |
+| `showInfo(flag)` | Show/hide info panel |
+| `showPinning(flag)` | Show/hide pinning button |
+| `showMeasureTools(flag)` | Show/hide measure tools |
+| `showSelectTool(flag)` | Show/hide select tool |
+| `showExplodeTool(flag)` | Show/hide explode tool |
+| `showZScaleTool(flag)` | Show/hide z-scale tool |
+| `getCanvas()` | Get canvas DOM element |
 
 ### State Management
 
@@ -896,8 +938,22 @@ tests/
 ```javascript
 import { Display, Viewer } from "three-cad-viewer";
 
-const display = new Display(container, options);
-display.render(shapesData, states);
+const display = new Display(container, displayOptions);
+const viewer = new Viewer(display, viewerOptions, notifyCallback, backendCallback);
+viewer.render(shapesData, renderOptions, viewerOptions);
+```
+
+### Using the Public API
+
+```javascript
+// All public methods are on viewer, not viewer.display
+viewer.setView("iso");
+viewer.glassMode(true);
+viewer.setTheme("dark");
+viewer.setAmbientLight(1.5);
+viewer.setMetalness(0.5);
+viewer.showTools(false);
+viewer.setExplode(true);
 ```
 
 ### Subscribing to State
@@ -1016,5 +1072,5 @@ Type declarations are generated to `dist/index.d.ts` during build.
 
 ---
 
-**Document Version:** 1.1
-**Last Updated:** December 9, 2025
+**Document Version:** 1.2
+**Last Updated:** December 17, 2025
