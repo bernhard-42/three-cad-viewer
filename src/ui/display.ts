@@ -1716,7 +1716,7 @@ class Display {
    * Collapse nodes handler (event handler)
    */
   handleCollapseNodes = (e: Event): void => {
-    if (!(e.target instanceof HTMLButtonElement)) return;
+    if (!(e.target instanceof HTMLInputElement)) return;
     this.collapseNodes(e.target.value);
   };
 
