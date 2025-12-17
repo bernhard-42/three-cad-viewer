@@ -55,6 +55,7 @@ import type {
   ActiveTab,
   Axis,
   ClipIndex,
+  ThemeInput,
 } from "./types.js";
 
 // =============================================================================
@@ -3484,6 +3485,120 @@ class Viewer {
       this.raycaster.height = height;
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // UI Control Wrappers (delegate to display)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Set camera to a predefined view direction.
+   * @param direction - "iso", "front", "rear", "left", "right", "top", or "bottom"
+   * @param focus - whether to focus/center on visible objects
+   * @public
+   */
+  setView = (direction: string, focus: boolean = false): void => {
+    this.display.setView(direction, focus);
+  };
+
+  /**
+   * Enable/disable glass mode (transparent overlay UI).
+   * @param flag - whether to enable glass mode
+   * @public
+   */
+  glassMode = (flag: boolean): void => {
+    this.display.glassMode(flag);
+  };
+
+  /**
+   * Collapse or expand tree nodes.
+   * @param value - "1" (one level), "R" (root), "C" (collapse all), "E" (expand all)
+   * @public
+   */
+  collapseNodes = (value: string): void => {
+    this.display.collapseNodes(value);
+  };
+
+  /**
+   * Set the UI theme.
+   * @param theme - "light", "dark", or "browser" for auto-detection
+   * @returns The resolved theme ("light" or "dark")
+   * @public
+   */
+  setTheme = (theme: ThemeInput): string => {
+    return this.display.setTheme(theme);
+  };
+
+  /**
+   * Show/hide the help dialog.
+   * @param flag - whether to show the help dialog
+   * @public
+   */
+  showHelp = (flag: boolean): void => {
+    this.display.showHelp(flag);
+  };
+
+  /**
+   * Show/hide the info panel.
+   * @param flag - whether to show the info panel
+   * @public
+   */
+  showInfo = (flag: boolean): void => {
+    this.display.showInfo(flag);
+  };
+
+  /**
+   * Show/hide the pinning button.
+   * @param flag - whether to show the pinning button
+   * @public
+   */
+  showPinning = (flag: boolean): void => {
+    this.display.showPinning(flag);
+  };
+
+  /**
+   * Show/hide the measure tools.
+   * @param flag - whether to show the measure tools
+   * @public
+   */
+  showMeasureTools = (flag: boolean): void => {
+    this.display.showMeasureTools(flag);
+  };
+
+  /**
+   * Show/hide the select tool.
+   * @param flag - whether to show the select tool
+   * @public
+   */
+  showSelectTool = (flag: boolean): void => {
+    this.display.showSelectTool(flag);
+  };
+
+  /**
+   * Show/hide the explode tool.
+   * @param flag - whether to show the explode tool
+   * @public
+   */
+  showExplodeTool = (flag: boolean): void => {
+    this.display.showExplodeTool(flag);
+  };
+
+  /**
+   * Show/hide the z-scale tool.
+   * @param flag - whether to show the z-scale tool
+   * @public
+   */
+  showZScaleTool = (flag: boolean): void => {
+    this.display.showZScaleTool(flag);
+  };
+
+  /**
+   * Get the canvas DOM element.
+   * @returns The canvas element
+   * @public
+   */
+  getCanvas = (): Element => {
+    return this.display.getCanvas();
+  };
 
   // ---------------------------------------------------------------------------
   // THREE.js Helper Factories
