@@ -16,9 +16,9 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/three-cad-viewer.esm.js",
-      "require": "./dist/three-cad-viewer.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/three-cad-viewer.js"
     },
     "./css": "./dist/three-cad-viewer.css"
   },
