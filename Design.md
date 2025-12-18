@@ -73,41 +73,41 @@ Three-cad-viewer is a WebGL-based CAD viewer built on Three.js. The architecture
 
 The Viewer class organizes its methods into logical sections:
 
-| Section | Methods | Purpose |
-| ------- | ------- | ------- |
-| **Shape Tessellation** | `render()`, `clear()`, `dispose()` | Scene lifecycle |
-| **Animation Control** | `initAnimation()`, `addPositionTrack()`, `addRotationTrack()`, etc. | Animation management |
-| **Camera Controls** | `reset()`, `resize()`, `presetCamera()`, `centerVisibleObjects()` | Camera manipulation |
-| **Camera State** | `getCameraZoom()`, `setCameraZoom()`, `getCameraPosition()`, `setCameraPosition()`, etc. | Camera state getters/setters |
-| **Appearance** | `setAxes()`, `setGrid()`, `setOrtho()`, `setTransparent()`, `setBlackEdges()`, `showTools()` | Visual settings |
-| **Lighting & Materials** | `setAmbientLight()`, `setDirectLight()`, `setMetalness()`, `setRoughness()`, `resetMaterial()` | Material properties |
-| **Zebra Tool** | `enableZebraTool()`, `setZebraCount()`, `setZebraOpacity()`, `setZebraDirection()`, etc. | Surface analysis |
-| **Clipping Planes** | `setClipSlider()`, `setClipNormal()`, `setClipIntersection()`, `setClipPlaneHelpers()` | Clipping controls |
-| **Object Visibility** | `setState()`, `setVisible()`, `getState()` | Object visibility |
-| **Object Picking** | `pick()`, `getPickInfo()` | Mouse-based selection |
-| **Image Export** | `getImage()`, `pinAsPng()` | Screenshot/export |
-| **Explode Animation** | `setExplode()` | Explode view |
-| **View Layout** | `resizeCadView()` | Viewport sizing |
-| **UI Control Wrappers** | See table below | Delegate to Display |
+| Section                  | Methods                                                                                        | Purpose                      |
+| ------------------------ | ---------------------------------------------------------------------------------------------- | ---------------------------- |
+| **Shape Tessellation**   | `render()`, `clear()`, `dispose()`                                                             | Scene lifecycle              |
+| **Animation Control**    | `initAnimation()`, `addPositionTrack()`, `addRotationTrack()`, etc.                            | Animation management         |
+| **Camera Controls**      | `reset()`, `resize()`, `presetCamera()`, `centerVisibleObjects()`                              | Camera manipulation          |
+| **Camera State**         | `getCameraZoom()`, `setCameraZoom()`, `getCameraPosition()`, `setCameraPosition()`, etc.       | Camera state getters/setters |
+| **Appearance**           | `setAxes()`, `setGrid()`, `setOrtho()`, `setTransparent()`, `setBlackEdges()`, `showTools()`   | Visual settings              |
+| **Lighting & Materials** | `setAmbientLight()`, `setDirectLight()`, `setMetalness()`, `setRoughness()`, `resetMaterial()` | Material properties          |
+| **Zebra Tool**           | `enableZebraTool()`, `setZebraCount()`, `setZebraOpacity()`, `setZebraDirection()`, etc.       | Surface analysis             |
+| **Clipping Planes**      | `setClipSlider()`, `setClipNormal()`, `setClipIntersection()`, `setClipPlaneHelpers()`         | Clipping controls            |
+| **Object Visibility**    | `setState()`, `setVisible()`, `getState()`                                                     | Object visibility            |
+| **Object Picking**       | `pick()`, `getPickInfo()`                                                                      | Mouse-based selection        |
+| **Image Export**         | `getImage()`, `pinAsPng()`                                                                     | Screenshot/export            |
+| **Explode Animation**    | `setExplode()`                                                                                 | Explode view                 |
+| **View Layout**          | `resizeCadView()`                                                                              | Viewport sizing              |
+| **UI Control Wrappers**  | See table below                                                                                | Delegate to Display          |
 
 #### UI Control Wrappers
 
 These methods provide a clean public API by delegating to Display:
 
-| Method | Purpose |
-| ------ | ------- |
+| Method                       | Purpose                                                                    |
+| ---------------------------- | -------------------------------------------------------------------------- |
 | `setView(direction, focus?)` | Set camera to predefined view (iso, front, rear, top, bottom, left, right) |
-| `glassMode(flag)` | Enable/disable glass mode (transparent overlay UI) |
-| `collapseNodes(value)` | Collapse/expand tree nodes ("1", "R", "C", "E") |
-| `setTheme(theme)` | Set UI theme ("light", "dark", "browser") |
-| `showHelp(flag)` | Show/hide help dialog |
-| `showInfo(flag)` | Show/hide info panel |
-| `showPinning(flag)` | Show/hide pinning button |
-| `showMeasureTools(flag)` | Show/hide measure tools |
-| `showSelectTool(flag)` | Show/hide select tool |
-| `showExplodeTool(flag)` | Show/hide explode tool |
-| `showZScaleTool(flag)` | Show/hide z-scale tool |
-| `getCanvas()` | Get canvas DOM element |
+| `glassMode(flag)`            | Enable/disable glass mode (transparent overlay UI)                         |
+| `collapseNodes(value)`       | Collapse/expand tree nodes ("1", "R", "C", "E")                            |
+| `setTheme(theme)`            | Set UI theme ("light", "dark", "browser")                                  |
+| `showHelp(flag)`             | Show/hide help dialog                                                      |
+| `showInfo(flag)`             | Show/hide info panel                                                       |
+| `showPinning(flag)`          | Show/hide pinning button                                                   |
+| `showMeasureTools(flag)`     | Show/hide measure tools                                                    |
+| `showSelectTool(flag)`       | Show/hide select tool                                                      |
+| `showExplodeTool(flag)`      | Show/hide explode tool                                                     |
+| `showZScaleTool(flag)`       | Show/hide z-scale tool                                                     |
+| `getCanvas()`                | Get canvas DOM element                                                     |
 
 ### State Management
 
@@ -939,7 +939,12 @@ tests/
 import { Display, Viewer } from "three-cad-viewer";
 
 const display = new Display(container, displayOptions);
-const viewer = new Viewer(display, viewerOptions, notifyCallback, backendCallback);
+const viewer = new Viewer(
+  display,
+  viewerOptions,
+  notifyCallback,
+  backendCallback,
+);
 viewer.render(shapesData, renderOptions, viewerOptions);
 ```
 
@@ -1072,5 +1077,134 @@ Type declarations are generated to `dist/index.d.ts` during build.
 
 ---
 
-**Document Version:** 1.2
-**Last Updated:** December 17, 2025
+## Version 4.0 Migration Reference
+
+This section documents breaking changes and migration patterns for upgrading from v3.x to v4.0.
+
+### Breaking Changes Summary
+
+| Old (v3.x)                               | New (v4.0)                              | Notes                                                         |
+| ---------------------------------------- | --------------------------------------- | ------------------------------------------------------------- |
+| `viewer.collapse = 0/1/2/-1`             | `viewer.collapseNodes(CollapseState.*)` | Use `CollapseState` enum                                      |
+| `display.collapseNodes("R"/"C"/"E"/"1")` | `viewer.collapseNodes(CollapseState.*)` | Method moved to Viewer                                        |
+| Direct property access                   | State-based getters/setters             | e.g., `viewer.axes` → `viewer.getAxes()` / `viewer.setAxes()` |
+| `viewer.ambientIntensity`                | `viewer.state.get("ambientIntensity")`  | Properties moved to ViewerState                               |
+| `viewer.cadWidth` property               | `viewer.getCadWidth()` getter           | Use dimension getters                                         |
+| `edge_color` notification                | `default_edgecolor` notification        | Key renamed for consistency                                   |
+
+### CollapseState Enum
+
+Replaced magic numbers with named constants:
+
+```typescript
+export enum CollapseState {
+  LEAVES = -1, // Show only leaf nodes
+  COLLAPSED = 0, // All nodes collapsed
+  ROOT = 1, // Only root expanded
+  EXPANDED = 2, // All nodes expanded
+}
+
+// Usage
+import { CollapseState } from "three-cad-viewer";
+viewer.collapseNodes(CollapseState.EXPANDED);
+```
+
+### STATE_TO_NOTIFICATION_KEY Mapping
+
+Centralized mapping from ViewerState keys to notification callback keys:
+
+```typescript
+export const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
+  axes: "axes",
+  grid: "grid",
+  ortho: "ortho",
+  transparent: "transparent",
+  blackEdges: "black_edges",
+  defaultOpacity: "default_opacity",
+  defaultEdgeColor: "default_edgecolor",
+  ambientIntensity: "ambient_intensity",
+  directIntensity: "direct_intensity",
+  metalness: "metalness",
+  roughness: "roughness",
+  tools: "tools",
+  measureTools: "measureTools",
+  clipIntersection: "clip_intersection",
+  clipPlaneHelpers: "clip_plane_helpers",
+  clipObjectColors: "clip_object_colors",
+  clipNormal0: "clip_normal_0",
+  // ... additional mappings
+};
+```
+
+### UI Slider Synchronization Pattern
+
+Three sync methods ensure UI sliders reflect state values after `render()` applies config:
+
+```typescript
+// Called from Display.updateUI() after render completes
+syncMaterialSlidersFromState(): void {
+  const state = this.viewer.state;
+  this.ambientlightSlider?.setValueFromState(state.get("ambientIntensity") * 100);
+  this.directionallightSlider?.setValueFromState(state.get("directIntensity") * 100);
+  this.metalnessSlider?.setValueFromState(state.get("metalness") * 100);
+  this.roughnessSlider?.setValueFromState(state.get("roughness") * 100);
+}
+
+syncZebraSlidersFromState(): void {
+  const state = this.viewer.state;
+  this.zebraCountSlider?.setValueFromState(state.get("zebraCount"));
+  this.zebraOpacitySlider?.setValueFromState(state.get("zebraOpacity"));
+  this.zebraDirectionSlider?.setValueFromState(state.get("zebraDirection"));
+  this.setZebraColorSchemeSelect(state.get("zebraColorScheme"));
+  this.setZebraMappingModeSelect(state.get("zebraMappingMode"));
+}
+
+syncClipSlidersFromState(): void {
+  // Similar pattern for clipping sliders
+}
+```
+
+**Why this pattern exists:** State subscriptions with `immediate: true` fire during `setupUI()` before `render()` applies config values. Since `setRenderDefaults()` uses `notify=false`, subscriptions don't re-fire. These sync methods are called from `updateUI()` after render completes.
+
+### Event Listener Changes
+
+Keyboard event listeners moved from element-level to document-level:
+
+**Problem:** Canvas and div elements don't receive keyboard focus by default. Attaching `keydown` listeners to these elements requires `tabindex` attribute.
+
+**Solution:** Use document-level listeners for keyboard events:
+
+```typescript
+// Before (v3.x) - broken without tabindex
+this.domElement.addEventListener("keydown", this.onKeyDown);
+
+// After (v4.0) - works reliably
+document.addEventListener("keydown", this.onKeyDown);
+```
+
+Affected files:
+
+- `src/rendering/raycast.ts` - ESC/Backspace handling
+- `src/tools/cad_tools/ui.ts` - Filter keyboard shortcuts (v/e/f/s)
+
+### Raycaster Object Type Support
+
+Extended raycaster to support all topology types:
+
+```typescript
+// Before (v3.x) - only meshes
+if (isMesh(object) && object.material.visible) {
+  validObjs.push(obj);
+}
+
+// After (v4.0) - meshes, points, and lines
+const isValidType = isMesh(object) || isPoints(object) || isLine(object);
+if (isValidType && !Array.isArray(object.material) && object.material.visible) {
+  validObjs.push(obj);
+}
+```
+
+---
+
+**Document Version:** 1.3
+**Last Updated:** December 18, 2025

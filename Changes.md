@@ -28,9 +28,14 @@
 - Added `holroyd` parameter to control non-tumbling trackball rotation mode
 - Exposed `getHolroyd()` and `setHolroyd()` methods on Viewer
 - Normalized control speed settings (pan, rotate, zoom) - 1.0 now means consistent default experience across control types
-- Added comprehensive unit and integration test suite (1100+ tests, 94% coverage)
 - Added `logger` utility for configurable log levels (debug, info, warn, error, silent)
 - Added `gpuTracker` utility to detect GPU memory leaks with optional debug mode for stack traces
+- Added `CollapseState` enum replacing numeric collapse values with named constants (`LEAVES`, `COLLAPSED`, `ROOT`, `EXPANDED`)
+- Centralized state notification system with `STATE_TO_NOTIFICATION_KEY` mapping
+- Added `syncMaterialSlidersFromState()`, `syncZebraSlidersFromState()`, and `syncClipSlidersFromState()` for proper UI initialization
+- Export getters for `cadWidth`, `treeWidth`, `height` dimensions
+- Added `isCompoundGroup` type guard
+- Added comprehensive unit and integration test suite (1200+ tests, 90% coverage)
 
 **Build & Tooling**
 
@@ -46,6 +51,88 @@
 - Fixed holroyd (non-tumbling) trackball rotation
 - Ensured proper disposal of all Three.js objects to prevent memory leaks
 - Cleaned up debug console.log statements (now behind logger)
+
+**Migration from 3.6 to 4.0**
+
+_Import Changes_
+
+```javascript
+// Before (3.x)
+import { Viewer, Display } from "three-cad-viewer";
+
+// After (4.0) - same, but internal structure changed
+import { Viewer, Display } from "three-cad-viewer";
+
+// New exports available
+import { CollapseState, logger, gpuTracker } from "three-cad-viewer";
+```
+
+_CollapseState Enum_
+
+```javascript
+// Before (3.x)
+viewer.collapse = 0; // collapsed
+viewer.collapse = 1; // root only
+viewer.collapse = 2; // expanded
+viewer.collapse = -1; // leaves
+
+// After (4.0)
+import { CollapseState } from "three-cad-viewer";
+viewer.collapseNodes(CollapseState.COLLAPSED);
+viewer.collapseNodes(CollapseState.ROOT);
+viewer.collapseNodes(CollapseState.EXPANDED);
+viewer.collapseNodes(CollapseState.LEAVES);
+```
+
+_State Access_
+
+```javascript
+// Before (3.x) - direct property access
+const isOrtho = viewer.ortho;
+viewer.ortho = false;
+
+// After (4.0) - use getters/setters
+const isOrtho = viewer.getOrtho();
+viewer.setOrtho(false);
+
+// Or via state (for TypeScript users)
+const isOrtho = viewer.state.get("ortho");
+viewer.state.set("ortho", false);
+```
+
+_Notification Key Changes_
+
+```javascript
+// Before (3.x)
+callback({ edge_color: { new: 0x707070, old: 0x000000 } });
+
+// After (4.0)
+callback({ default_edgecolor: { new: 0x707070, old: 0x000000 } });
+```
+
+_Control Speed Normalization_
+
+Control speed values (pan, rotate, zoom) are now normalized. A value of `1.0` provides consistent default behavior across both OrbitControls and TrackballControls.
+
+```javascript
+// Before (3.x) - different scales for different control types
+viewer.rotateSpeed = 2.0;
+
+// After (4.0) - normalized, 1.0 is default
+viewer.setRotateSpeed(1.0);
+```
+
+_Logger Usage_
+
+```javascript
+// Before (3.x) - console.log scattered through code
+console.log("debug info");
+
+// After (4.0) - centralized logger
+import { logger } from "three-cad-viewer";
+logger.setLevel("debug"); // "debug" | "info" | "warn" | "error" | "silent"
+logger.debug("debug info");
+```
 
 ## v3.6.3
 
