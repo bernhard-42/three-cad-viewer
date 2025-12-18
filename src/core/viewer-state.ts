@@ -199,6 +199,12 @@ const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
   clipNormal0: "clip_normal_0",
   clipNormal1: "clip_normal_1",
   clipNormal2: "clip_normal_2",
+  // Zebra settings
+  zebraCount: "zebra_count",
+  zebraOpacity: "zebra_opacity",
+  zebraDirection: "zebra_direction",
+  zebraColorScheme: "zebra_color_scheme",
+  zebraMappingMode: "zebra_mapping_mode",
 };
 
 /**

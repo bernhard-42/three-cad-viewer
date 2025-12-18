@@ -1579,6 +1579,11 @@ class Viewer {
         clip_normal_0: { old: null, new: this.getClipNormal(0) },
         clip_normal_1: { old: null, new: this.getClipNormal(1) },
         clip_normal_2: { old: null, new: this.getClipNormal(2) },
+        zebra_count: { old: null, new: this.state.get("zebraCount") },
+        zebra_opacity: { old: null, new: this.state.get("zebraOpacity") },
+        zebra_direction: { old: null, new: this.state.get("zebraDirection") },
+        zebra_color_scheme: { old: null, new: this.state.get("zebraColorScheme") },
+        zebra_mapping_mode: { old: null, new: this.state.get("zebraMappingMode") },
       });
     }
     timer.split("notification done");
