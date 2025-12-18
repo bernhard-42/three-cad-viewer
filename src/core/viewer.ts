@@ -2625,6 +2625,46 @@ class Viewer {
     this.update(this.updateMarker);
   };
 
+  /**
+   * Gets the current stripe count value.
+   * @returns The stripe count (2-50).
+   */
+  getZebraCount = (): number => {
+    return this.state.get("zebraCount");
+  };
+
+  /**
+   * Gets the current stripe opacity value.
+   * @returns The stripe opacity (0-1).
+   */
+  getZebraOpacity = (): number => {
+    return this.state.get("zebraOpacity");
+  };
+
+  /**
+   * Gets the current stripe direction value.
+   * @returns The stripe direction in degrees (0-90).
+   */
+  getZebraDirection = (): number => {
+    return this.state.get("zebraDirection");
+  };
+
+  /**
+   * Gets the current stripe color scheme.
+   * @returns The color scheme ("blackwhite", "colorful", "grayscale").
+   */
+  getZebraColorScheme = (): ZebraColorScheme => {
+    return this.state.get("zebraColorScheme");
+  };
+
+  /**
+   * Gets the current stripe mapping mode.
+   * @returns The mapping mode ("reflection", "normal").
+   */
+  getZebraMappingMode = (): ZebraMappingMode => {
+    return this.state.get("zebraMappingMode");
+  };
+
   // ---------------------------------------------------------------------------
   // Camera State Getters & Setters
   // ---------------------------------------------------------------------------
