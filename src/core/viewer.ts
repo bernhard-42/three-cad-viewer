@@ -43,19 +43,20 @@ import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
 import type { Display } from "../ui/display.js";
 import type { Vector3Tuple, QuaternionTuple } from "three";
-import type {
-  ZebraColorScheme,
-  ZebraMappingMode,
-  NotificationCallback,
-  RenderOptions,
-  ViewerOptions,
-  Shapes,
-  VisibilityState,
-  StateChange,
-  ActiveTab,
-  Axis,
-  ClipIndex,
-  ThemeInput,
+import {
+  CollapseState,
+  type ZebraColorScheme,
+  type ZebraMappingMode,
+  type NotificationCallback,
+  type RenderOptions,
+  type ViewerOptions,
+  type Shapes,
+  type VisibilityState,
+  type StateChange,
+  type ActiveTab,
+  type Axis,
+  type ClipIndex,
+  type ThemeInput,
 } from "./types.js";
 
 // =============================================================================
@@ -376,6 +377,17 @@ class Viewer {
   ) {
     // Create centralized state from options (single source of truth)
     this.state = new ViewerState(options);
+
+    // Register callback for automatic external notifications from state changes
+    this.state.setExternalNotifyCallback((key, change) => {
+      // Skip notifications before viewer is ready (during setViewerDefaults)
+      if (!this.ready) return;
+      // Convert THREE.Vector3 to array for external notification
+      const value = change.new instanceof THREE.Vector3
+        ? change.new.toArray()
+        : change.new;
+      this.checkChanges({ [key]: value }, true);
+    });
 
     this.notifyCallback = notifyCallback;
     this.pinAsPngCallback = pinAsPngCallback;
@@ -1236,28 +1248,28 @@ class Viewer {
   /**
    * Set the active sidebar tab.
    * @param tabName - Tab name: "tree", "clip", "material", or "zebra"
+   * @param notify - whether to send notification or not.
    */
-  setActiveTab(tabName: ActiveTab): void {
-    this.state.set("activeTab", tabName);
+  setActiveTab(tabName: ActiveTab, notify: boolean = true): void {
+    this.state.set("activeTab", tabName, notify);
   }
 
   toggleTab(disable: boolean): void {
     const timer = new Timer("toggleTab", this.state.get("timeit"));
-    this.setActiveTab("tree");
+    this.setActiveTab("tree", false);
     timer.split("collapse tree");
     switch (this.state.get("collapse")) {
-      case 0:
-        this.rendered.treeview.expandAll();
-        break;
-      case 1:
-        this.rendered.treeview.openLevel(-1);
-        break;
-      case 2:
+      case CollapseState.COLLAPSED:
         this.rendered.treeview.collapseAll();
         break;
-
-      case 3:
+      case CollapseState.ROOT:
         this.rendered.treeview.openLevel(1);
+        break;
+      case CollapseState.EXPANDED:
+        this.rendered.treeview.expandAll();
+        break;
+      case CollapseState.LEAVES:
+        this.rendered.treeview.openLevel(-1);
         break;
       default:
         break;
@@ -1564,9 +1576,9 @@ class Viewer {
           old: null,
           new: toVector3Tuple(controls.target0.toArray()),
         },
-        clip_normal_0: { old: null, new: this.clipNormal0 },
-        clip_normal_1: { old: null, new: this.clipNormal1 },
-        clip_normal_2: { old: null, new: this.clipNormal2 },
+        clip_normal_0: { old: null, new: this.getClipNormal(0) },
+        clip_normal_1: { old: null, new: this.getClipNormal(1) },
+        clip_normal_2: { old: null, new: this.getClipNormal(2) },
       });
     }
     timer.split("notification done");
@@ -1695,16 +1707,14 @@ class Viewer {
    * @public
    */
   switchCamera(flag: boolean, notify: boolean = true): void {
-    this.state.set("ortho", flag);
+    this.state.set("ortho", flag, notify);
     this.rendered.camera.switchCamera(flag);
     this.rendered.controls.setCamera(this.rendered.camera.getCamera());
-
-    this.checkChanges({ ortho: flag }, notify);
 
     this.rendered.gridHelper.scaleLabels();
     this.rendered.gridHelper.update(this.rendered.camera.getZoom(), true);
 
-    this.update(true, notify);
+    this.update(true);
   }
 
   /**
@@ -2252,11 +2262,8 @@ class Viewer {
    */
   setAxes = (flag: boolean, notify: boolean = true): void => {
     if (!this.ready) return;
-    this.state.set("axes", flag);
+    this.state.set("axes", flag, notify);
     this.rendered.axesHelper.setVisible(flag);
-
-    this.checkChanges({ axes: flag }, notify);
-
     this.update(this.updateMarker);
   };
 
@@ -2270,10 +2277,7 @@ class Viewer {
     this.rendered.gridHelper.setGrid(action, flag);
     // Copy array to avoid reference comparison issues in state.set
     const [a, b, c] = this.rendered.gridHelper.grid;
-    this.state.set("grid", [a, b, c]);
-
-    this.checkChanges({ grid: this.rendered.gridHelper.grid }, notify);
-
+    this.state.set("grid", [a, b, c], notify);
     this.update(this.updateMarker);
   };
 
@@ -2297,10 +2301,7 @@ class Viewer {
     this.rendered.gridHelper.setGrids(...grids);
     // Copy array to avoid reference comparison issues in state.set
     const [a, b, c] = this.rendered.gridHelper.grid;
-    this.state.set("grid", [a, b, c]);
-
-    this.checkChanges({ grid: this.rendered.gridHelper.grid }, notify);
-
+    this.state.set("grid", [a, b, c], notify);
     this.update(this.updateMarker);
   };
 
@@ -2310,14 +2311,12 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setGridCenter = (center: boolean, notify: boolean = true): void => {
+    this.state.set("centerGrid", center, notify);
     this.rendered.gridHelper.centerGrid = center;
     this.rendered.gridHelper.setCenter(
       this.state.get("axes0"),
       this.state.get("up") === "Z",
     );
-
-    this.checkChanges({ center_grid: this.rendered.gridHelper.centerGrid }, notify);
-
     this.update(this.updateMarker);
   };
 
@@ -2336,12 +2335,9 @@ class Viewer {
    */
   setAxes0 = (flag: boolean, notify: boolean = true): void => {
     if (!this.ready) return;
-    this.state.set("axes0", flag);
+    this.state.set("axes0", flag, notify);
     this.rendered.gridHelper.setCenter(flag, this.state.get("up") === "Z");
     this.rendered.axesHelper.setCenter(flag);
-
-    this.checkChanges({ axes0: flag }, notify);
-
     this.update(this.updateMarker);
   };
 
@@ -2360,11 +2356,8 @@ class Viewer {
    * @public
    */
   setTransparent = (flag: boolean, notify: boolean = true): void => {
-    this.state.set("transparent", flag);
+    this.state.set("transparent", flag, notify);
     this.rendered.nestedGroup.setTransparent(flag);
-
-    this.checkChanges({ transparent: flag }, notify);
-
     this.update(this.updateMarker);
   };
 
@@ -2383,11 +2376,8 @@ class Viewer {
    * @public
    */
   setBlackEdges = (flag: boolean, notify: boolean = true): void => {
-    this.state.set("blackEdges", flag);
+    this.state.set("blackEdges", flag, notify);
     this.rendered.nestedGroup.setBlackEdges(flag);
-
-    this.checkChanges({ black_edges: flag }, notify);
-
     this.update(this.updateMarker);
   };
 
@@ -2397,8 +2387,7 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setTools = (flag: boolean, notify: boolean = true): void => {
-    this.state.set("tools", flag);
-    this.checkChanges({ tools: flag }, notify);
+    this.state.set("tools", flag, notify);
   };
 
   /**
@@ -2407,8 +2396,7 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setGlass = (flag: boolean, notify: boolean = true): void => {
-    this.state.set("glass", flag);
-    this.checkChanges({ glass: flag }, notify);
+    this.state.set("glass", flag, notify);
   };
 
   /**
@@ -2425,9 +2413,9 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setEdgeColor = (color: number, notify: boolean = true): void => {
-    this.state.set("edgeColor", color);
+    this.state.set("edgeColor", color, notify);
     this.rendered.nestedGroup.setEdgeColor(color);
-    this.update(this.updateMarker, notify);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -2444,9 +2432,9 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setOpacity = (opacity: number, notify: boolean = true): void => {
-    this.state.set("defaultOpacity", opacity);
+    this.state.set("defaultOpacity", opacity, notify);
     this.rendered.nestedGroup.setOpacity(opacity);
-    this.update(this.updateMarker, notify);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -2463,8 +2451,8 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   showTools = (flag: boolean, notify: boolean = true): void => {
-    this.state.set("tools", flag);
-    this.update(this.updateMarker, notify);
+    this.state.set("tools", flag, notify);
+    this.update(this.updateMarker);
   };
 
   // ---------------------------------------------------------------------------
@@ -2488,10 +2476,9 @@ class Viewer {
   setAmbientLight = (val: number, notify: boolean = true): void => {
     if (!this.ready) return;
     val = Math.max(0, Math.min(4, val));
-    this.state.set("ambientIntensity", val);
+    this.state.set("ambientIntensity", val, notify);
     this.rendered.ambientLight.intensity = scaleLight(val);
-    this.checkChanges({ ambient_intensity: val }, notify);
-    this.update(this.updateMarker, notify);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -2511,10 +2498,9 @@ class Viewer {
   setDirectLight = (val: number, notify: boolean = true): void => {
     if (!this.ready) return;
     val = Math.max(0, Math.min(4, val));
-    this.state.set("directIntensity", val);
+    this.state.set("directIntensity", val, notify);
     this.rendered.directLight.intensity = scaleLight(val);
-    this.checkChanges({ direct_intensity: val }, notify);
-    this.update(this.updateMarker, notify);
+    this.update(this.updateMarker);
   };
 
   /**
@@ -2535,9 +2521,8 @@ class Viewer {
    */
   setMetalness = (value: number, notify: boolean = true): void => {
     value = Math.max(0, Math.min(1, value));
-    this.state.set("metalness", value);
+    this.state.set("metalness", value, notify);
     this.rendered.nestedGroup.setMetalness(value);
-    this.checkChanges({ metalness: value }, notify);
     this.update(this.updateMarker);
   };
 
@@ -2559,9 +2544,8 @@ class Viewer {
    */
   setRoughness = (value: number, notify: boolean = true): void => {
     value = Math.max(0, Math.min(1, value));
-    this.state.set("roughness", value);
+    this.state.set("roughness", value, notify);
     this.rendered.nestedGroup.setRoughness(value);
-    this.checkChanges({ roughness: value }, notify);
     this.update(this.updateMarker);
   };
 
@@ -2838,11 +2822,16 @@ class Viewer {
 
   /**
    * Set camera target.
-   * @param target - camera target as THREE.Vector3.
+   * @param target - camera target as THREE.Vector3 or [x, y, z] tuple.
    * @param notify - whether to send notification or not.
    * @public
    */
-  setCameraTarget(target: THREE.Vector3, notify: boolean = true): void {
+  setCameraTarget(target: THREE.Vector3 | Vector3Tuple, notify: boolean = true): void {
+    // Convert tuple to Vector3 if needed
+    const targetVec = Array.isArray(target)
+      ? new THREE.Vector3(...target)
+      : target;
+
     // Store current state
     const camera = this.rendered.camera.getCamera();
     const zoom = camera.zoom; // For orthographic cameras
@@ -2850,9 +2839,9 @@ class Viewer {
     const offset = camera.position.clone().sub(this.rendered.controls.getTarget());
 
     // Update position and target
-    camera.position.copy(target.clone().add(offset));
+    camera.position.copy(targetVec.clone().add(offset));
     camera.updateWorldMatrix(true, false);
-    this.rendered.controls.getTarget().copy(target);
+    this.rendered.controls.getTarget().copy(targetVec);
 
     // Preserve zoom for orthographic cameras
     if (isOrthographicCamera(camera)) {
@@ -2949,9 +2938,8 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setZoomSpeed = (val: number, notify: boolean = true): void => {
-    this.state.set("zoomSpeed", val);
+    this.state.set("zoomSpeed", val, notify);
     this.rendered.controls.setZoomSpeed(val);
-    this.checkChanges({ grid: this.rendered.gridHelper.grid }, notify);
   };
 
   /**
@@ -2968,9 +2956,8 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setPanSpeed = (val: number, notify: boolean = true): void => {
-    this.state.set("panSpeed", val);
+    this.state.set("panSpeed", val, notify);
     this.rendered.controls.setPanSpeed(val);
-    this.checkChanges({ grid: this.rendered.gridHelper.grid }, notify);
   };
 
   /**
@@ -2987,9 +2974,8 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setRotateSpeed = (val: number, notify: boolean = true): void => {
-    this.state.set("rotateSpeed", val);
+    this.state.set("rotateSpeed", val, notify);
     this.rendered.controls.setRotateSpeed(val);
-    this.checkChanges({ grid: this.rendered.gridHelper.grid }, notify);
   };
 
   /**
@@ -3007,9 +2993,8 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setHolroyd = (flag: boolean, notify: boolean = true): void => {
-    this.state.set("holroyd", flag);
+    this.state.set("holroyd", flag, notify);
     this.rendered.controls.setHolroydTrackball(flag);
-    this.checkChanges({ grid: this.rendered.gridHelper.grid }, notify);
   };
 
   // ---------------------------------------------------------------------------
@@ -3032,7 +3017,7 @@ class Viewer {
   setClipIntersection = (flag: boolean, notify: boolean = true): void => {
     if (flag == null || !this.ready) return;
 
-    this.state.set("clipIntersection", flag);
+    this.state.set("clipIntersection", flag, notify);
     this.rendered.nestedGroup.setClipIntersection(flag);
 
     const clipPlanes = flag
@@ -3063,8 +3048,6 @@ class Viewer {
       }
     }
 
-    this.checkChanges({ clip_intersection: flag }, notify);
-
     this.update(this.updateMarker);
   };
 
@@ -3083,9 +3066,8 @@ class Viewer {
    */
   setClipObjectColorCaps = (flag: boolean, notify: boolean = true): void => {
     if (flag == null || !this.ready) return;
-    this.state.set("clipObjectColors", flag);
+    this.state.set("clipObjectColors", flag, notify);
     this.rendered.clipping.setObjectColorCaps(flag);
-    this.checkChanges({ clip_object_colors: flag }, notify);
     this.update(this.updateMarker);
   };
 
@@ -3105,10 +3087,10 @@ class Viewer {
   setClipPlaneHelpers = (flag: boolean, notify: boolean = true): void => {
     if (flag == null || !this.ready) return;
 
-    this.state.set("clipPlaneHelpers", flag);
-    this.rendered.clipping.planeHelpers!.visible = flag;
-
-    this.checkChanges({ clip_planes: flag }, notify);
+    this.state.set("clipPlaneHelpers", flag, notify);
+    // Only show plane helpers if flag is true AND clip tab is active
+    const isClipTabActive = this.state.get("activeTab") === "clip";
+    this.rendered.clipping.planeHelpers!.visible = flag && isClipTabActive;
 
     this.update(this.updateMarker);
   };
@@ -3139,15 +3121,15 @@ class Viewer {
     const normal1 = new THREE.Vector3(...normal).normalize();
     this.clipNormals[index] = normal1;
 
+    // Update state (triggers auto-notification for clipNormal)
+    const normalKeys = ["clipNormal0", "clipNormal1", "clipNormal2"] as const;
+    this.state.set(normalKeys[index], normal1, notify);
+
     this.rendered.clipping.setNormal(index, normal1);
     this.rendered.clipping.setConstant(index, this.gridSize / 2);
     if (value == null) value = this.gridSize / 2;
-    this.setClipSlider(index, value);
-
-    const notifyObject: Record<string, unknown> = {};
-    notifyObject[`clip_normal_${index}`] = normal1.toArray();
-    notifyObject[`clip_slider_${index}`] = value;
-    this.checkChanges(notifyObject, notify);
+    // setClipSlider will handle its own state update and notification
+    this.setClipSlider(index, value, notify);
 
     this.rendered.nestedGroup.setClipPlanes(this.rendered.clipping.clipPlanes);
 
@@ -3341,9 +3323,10 @@ class Viewer {
   /**
    * Toggle explode mode on/off.
    * @param flag - whether to enable or disable explode mode
+   * @param notify - whether to send notification or not.
    * @public
    */
-  setExplode(flag: boolean): void {
+  setExplode(flag: boolean, notify: boolean = true): void {
     const isExplodeActive = this.state.get("animationMode") === "explode";
     if (flag === isExplodeActive) return;
 
@@ -3361,6 +3344,9 @@ class Viewer {
         this.state.set("animationMode", "none");
       }
     }
+
+    // Send explode notification (client expects boolean, not animationMode)
+    this.checkChanges({ explode: flag }, notify);
   }
 
   /**
@@ -3508,19 +3494,37 @@ class Viewer {
   /**
    * Enable/disable glass mode (transparent overlay UI).
    * @param flag - whether to enable glass mode
+   * @param notify - whether to send notification or not.
    * @public
    */
-  glassMode = (flag: boolean): void => {
+  glassMode = (flag: boolean, notify: boolean = true): void => {
+    this.state.set("glass", flag, notify);
     this.display.glassMode(flag);
   };
 
   /**
    * Collapse or expand tree nodes.
-   * @param value - "1" (one level), "R" (root), "C" (collapse all), "E" (expand all)
+   * @param value - CollapseState enum value
+   * @param notify - whether to send notification or not.
    * @public
    */
-  collapseNodes = (value: string): void => {
-    this.display.collapseNodes(value);
+  collapseNodes = (value: CollapseState, notify: boolean = true): void => {
+    this.state.set("collapse", value, notify);
+    // Translate CollapseState to treeview operations
+    switch (value) {
+      case CollapseState.COLLAPSED:
+        this.treeview.collapseAll();
+        break;
+      case CollapseState.ROOT:
+        this.treeview.openLevel(1);
+        break;
+      case CollapseState.LEAVES:
+        this.treeview.openLevel(-1);
+        break;
+      case CollapseState.EXPANDED:
+        this.treeview.expandAll();
+        break;
+    }
   };
 
   /**

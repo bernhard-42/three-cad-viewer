@@ -56,6 +56,14 @@ export function isClipIndex(n: number): n is ClipIndex {
   return n === 0 || n === 1 || n === 2;
 }
 
+/** Tree collapse state */
+export enum CollapseState {
+  LEAVES = -1,    // Button "1" - smart expand (openLevel -1)
+  COLLAPSED = 0,  // Button "C" - all nodes collapsed
+  ROOT = 1,       // Button "R" - only root expanded
+  EXPANDED = 2,   // Button "E" - all nodes expanded (maxLevel)
+}
+
 /** Color value that THREE.Color accepts - hex number or CSS string */
 export type ColorValue = number | string;
 

@@ -57,8 +57,8 @@ export type {
   AxisColorsFlatArray,
 } from "./core/types.js";
 
-// Type guards and constants
-export { CLIP_INDICES, isClipIndex } from "./core/types.js";
+// Type guards, constants, and enums
+export { CLIP_INDICES, isClipIndex, CollapseState } from "./core/types.js";
 
 // State change types
 export type {

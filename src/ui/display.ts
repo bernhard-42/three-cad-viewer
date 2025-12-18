@@ -16,7 +16,7 @@ import { FilterByDropDownMenu } from "../tools/cad_tools/ui.js";
 import { Info } from "./info.js";
 import type { Viewer } from "../core/viewer.js";
 import type { ViewerState } from "../core/viewer-state.js";
-import { isClipIndex } from "../core/types.js";
+import { isClipIndex, CollapseState } from "../core/types.js";
 import type { Vector3Tuple } from "three";
 import type { ActiveTab, ThemeInput, ClipIndex } from "../core/types.js";
 import type { CameraDirection } from "../camera/camera.js";
@@ -1714,26 +1714,22 @@ class Display {
 
   /**
    * Collapse nodes handler (event handler)
+   * Translates button codes to CollapseState and calls viewer
    */
   handleCollapseNodes = (e: Event): void => {
     if (!(e.target instanceof HTMLInputElement)) return;
-    this.collapseNodes(e.target.value);
-  };
-
-  /**
-   * Collapse or expand tree nodes
-   */
-  collapseNodes(value: string): void {
-    if (value === "1") {
-      this.viewer.treeview.openLevel(-1);
-    } else if (value === "R") {
-      this.viewer.treeview.openLevel(1);
-    } else if (value === "C") {
-      this.viewer.treeview.collapseAll();
-    } else if (value === "E") {
-      this.viewer.treeview.expandAll();
+    const buttonCode = e.target.value;
+    const stateMap: Record<string, CollapseState> = {
+      "1": CollapseState.LEAVES,
+      R: CollapseState.ROOT,
+      C: CollapseState.COLLAPSED,
+      E: CollapseState.EXPANDED,
+    };
+    const state = stateMap[buttonCode];
+    if (state !== undefined) {
+      this.viewer.collapseNodes(state);
     }
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Material Handlers
@@ -1971,7 +1967,7 @@ class Display {
   autoCollapse(): void {
     if (this.cadWidth < 600 && this.glass) {
       console.info("Small view, collapsing tree");
-      this.collapseNodes("C");
+      this.viewer.collapseNodes(CollapseState.COLLAPSED);
     }
   }
 

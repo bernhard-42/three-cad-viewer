@@ -1,19 +1,20 @@
 import * as THREE from "three";
-import type {
-  Theme,
-  ThemeInput,
-  ControlType,
-  UpDirection,
-  AnimationMode,
-  ActiveTab,
-  ZebraColorScheme,
-  ZebraMappingMode,
-  StateChange,
-  StateSubscriber,
-  GlobalStateSubscriber,
-  SubscribeOptions,
-  RenderOptions,
-  ViewerOptions,
+import {
+  CollapseState,
+  type Theme,
+  type ThemeInput,
+  type ControlType,
+  type UpDirection,
+  type AnimationMode,
+  type ActiveTab,
+  type ZebraColorScheme,
+  type ZebraMappingMode,
+  type StateChange,
+  type StateSubscriber,
+  type GlobalStateSubscriber,
+  type SubscribeOptions,
+  type RenderOptions,
+  type ViewerOptions,
 } from "./types";
 import { logger } from "../utils/logger.js";
 
@@ -62,7 +63,7 @@ interface ViewerDefaults {
   ortho: boolean;
   transparent: boolean;
   blackEdges: boolean;
-  collapse: number;
+  collapse: CollapseState;
   clipIntersection: boolean;
   clipPlaneHelpers: boolean;
   clipObjectColors: boolean;
@@ -157,6 +158,48 @@ const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
 function isStateKey(key: string): key is StateKey {
   return STATE_KEYS.has(key);
 }
+
+/**
+ * Mapping from state keys to external notification keys.
+ * Only keys that should trigger external notifications are included.
+ * State keys not in this map won't trigger external notifications.
+ */
+const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
+  // View settings
+  axes: "axes",
+  axes0: "axes0",
+  grid: "grid",
+  ortho: "ortho",
+  transparent: "transparent",
+  blackEdges: "black_edges",
+  tools: "tools",
+  glass: "glass",
+  centerGrid: "center_grid",
+  collapse: "collapse",
+  activeTab: "tab",
+  // Render settings
+  ambientIntensity: "ambient_intensity",
+  directIntensity: "direct_intensity",
+  metalness: "metalness",
+  roughness: "roughness",
+  edgeColor: "default_edgecolor",
+  defaultOpacity: "default_opacity",
+  // Control settings
+  zoomSpeed: "zoom_speed",
+  panSpeed: "pan_speed",
+  rotateSpeed: "rotate_speed",
+  holroyd: "holroyd",
+  // Clipping settings
+  clipIntersection: "clip_intersection",
+  clipObjectColors: "clip_object_colors",
+  clipPlaneHelpers: "clip_planes",
+  clipSlider0: "clip_slider_0",
+  clipSlider1: "clip_slider_1",
+  clipSlider2: "clip_slider_2",
+  clipNormal0: "clip_normal_0",
+  clipNormal1: "clip_normal_1",
+  clipNormal2: "clip_normal_2",
+};
 
 /**
  * Compare two values for equality (handles arrays)
@@ -261,7 +304,7 @@ class ViewerState {
     ortho: true,
     transparent: false,
     blackEdges: false,
-    collapse: 0,
+    collapse: CollapseState.COLLAPSED,
     clipIntersection: false,
     clipPlaneHelpers: false,
     clipObjectColors: false,
@@ -313,6 +356,7 @@ class ViewerState {
   private _state: StateShape;
   private _listeners: Map<StateKey, StateSubscriber<unknown>[]>;
   private _globalListeners: GlobalStateSubscriber[];
+  private _externalNotifyCallback: ((key: string, change: StateChange<unknown>) => void) | null = null;
 
   /**
    * Create a ViewerState instance
@@ -498,10 +542,17 @@ class ViewerState {
   }
 
   /**
-   * Notify listeners of a state change
+   * Set a callback for external notifications (e.g., to notify external clients).
+   * The callback receives the notification key (snake_case) and the change object.
    */
+  setExternalNotifyCallback(
+    callback: ((key: string, change: StateChange<unknown>) => void) | null
+  ): void {
+    this._externalNotifyCallback = callback;
+  }
+
   private _notify(key: StateKey, change: StateChange<unknown>): void {
-    // Notify key-specific listeners
+    // Notify key-specific listeners (internal UI updates)
     const listeners = this._listeners.get(key);
     if (listeners) {
       for (const listener of listeners) {
@@ -509,9 +560,17 @@ class ViewerState {
       }
     }
 
-    // Notify global listeners
+    // Notify global listeners (internal)
     for (const listener of this._globalListeners) {
       listener(key, change);
+    }
+
+    // Notify external callback if registered and key has a notification mapping
+    if (this._externalNotifyCallback) {
+      const notificationKey = STATE_TO_NOTIFICATION_KEY[key];
+      if (notificationKey) {
+        this._externalNotifyCallback(notificationKey, change);
+      }
     }
   }
 
