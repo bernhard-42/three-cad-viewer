@@ -1256,6 +1256,9 @@ class Display {
     // Initialize lastPlaneState from options (used for tab switching)
     this.lastPlaneState =
       typeof clipPlaneHelpers === "boolean" ? clipPlaneHelpers : false;
+
+    // Sync material sliders with current state values
+    this.syncMaterialSlidersFromState();
   }
 
   // ---------------------------------------------------------------------------
@@ -1844,6 +1847,19 @@ class Display {
         this.clipSliders![i].setValueFromState(values[i]);
       }
     }
+  }
+
+  /**
+   * Sync material slider UI from current state values.
+   * Called from updateUI after render options are applied to state.
+   * State stores values in 0-1 range, sliders display 0-100 (or 0-400 for lights).
+   */
+  syncMaterialSlidersFromState(): void {
+    const state = this.viewer.state;
+    this.ambientlightSlider?.setValueFromState(state.get("ambientIntensity") * 100);
+    this.directionallightSlider?.setValueFromState(state.get("directIntensity") * 100);
+    this.metalnessSlider?.setValueFromState(state.get("metalness") * 100);
+    this.roughnessSlider?.setValueFromState(state.get("roughness") * 100);
   }
 
   /**
