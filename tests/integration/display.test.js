@@ -22,10 +22,12 @@ function createCheckboxEvent(checked) {
 }
 
 /**
- * Create a mock button event with a real HTMLButtonElement target
+ * Create a mock button event with a real HTMLInputElement target
+ * Note: The UI uses <input type="button"> elements, not <button> elements
  */
 function createButtonEvent(value) {
-  const button = document.createElement('button');
+  const button = document.createElement('input');
+  button.type = 'button';
   button.value = value;
   return { target: button };
 }
@@ -483,16 +485,16 @@ describe('Display - Clipping UI', () => {
 
     // Mock clipSliders
     display.clipSliders = [
-      { setSlider: vi.fn() },
-      { setSlider: vi.fn() },
-      { setSlider: vi.fn() },
+      { setLimits: vi.fn() },
+      { setLimits: vi.fn() },
+      { setLimits: vi.fn() },
     ];
 
     display.setSliderLimits(50);
 
-    expect(display.clipSliders[0].setSlider).toHaveBeenCalledWith(50);
-    expect(display.clipSliders[1].setSlider).toHaveBeenCalledWith(50);
-    expect(display.clipSliders[2].setSlider).toHaveBeenCalledWith(50);
+    expect(display.clipSliders[0].setLimits).toHaveBeenCalledWith(50);
+    expect(display.clipSliders[1].setLimits).toHaveBeenCalledWith(50);
+    expect(display.clipSliders[2].setLimits).toHaveBeenCalledWith(50);
   });
 });
 
@@ -956,7 +958,7 @@ describe('Display - Tab Navigation', () => {
 
   test('collapseNodes calls treeview methods', () => {
     testContext = setupViewer();
-    const { viewer, display } = testContext;
+    const { viewer } = testContext;
 
     // Mock treeview via rendered
     viewer._rendered = {
@@ -967,16 +969,20 @@ describe('Display - Tab Navigation', () => {
       },
     };
 
-    display.collapseNodes('1');
+    // CollapseState.LEAVES = -1
+    viewer.collapseNodes(-1);
     expect(viewer.treeview.openLevel).toHaveBeenCalledWith(-1);
 
-    display.collapseNodes('R');
+    // CollapseState.ROOT = 1
+    viewer.collapseNodes(1);
     expect(viewer.treeview.openLevel).toHaveBeenCalledWith(1);
 
-    display.collapseNodes('C');
+    // CollapseState.COLLAPSED = 0
+    viewer.collapseNodes(0);
     expect(viewer.treeview.collapseAll).toHaveBeenCalled();
 
-    display.collapseNodes('E');
+    // CollapseState.EXPANDED = 2
+    viewer.collapseNodes(2);
     expect(viewer.treeview.expandAll).toHaveBeenCalled();
   });
 

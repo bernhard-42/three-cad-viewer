@@ -453,7 +453,7 @@ export function captureCompleteRendering(viewer) {
       const geo = obj.geometry;
       objData.geometry = {
         type: geo.constructor.name,
-        id: geo.id,
+        // Note: geo.id excluded - it's an auto-incrementing internal ID that varies between runs
       };
 
       // Capture attributes
@@ -539,7 +539,7 @@ export function captureCompleteRendering(viewer) {
       const mat = obj.material;
       objData.material = {
         type: mat.constructor.name,
-        id: mat.id,
+        // Note: mat.id excluded - it's an auto-incrementing internal ID that varies between runs
       };
 
       // Common material properties

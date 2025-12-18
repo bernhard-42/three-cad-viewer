@@ -3,7 +3,7 @@
  * Target: 90%+ coverage
  */
 
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, test, expect, afterEach, vi } from 'vitest';
 import { Slider } from '../../src/ui/slider.js';
 
 // Helper to create slider DOM elements
@@ -335,7 +335,7 @@ describe('Slider - inputChange', () => {
   });
 });
 
-describe('Slider - setSlider', () => {
+describe('Slider - setLimits', () => {
   let container;
 
   afterEach(() => {
@@ -348,12 +348,11 @@ describe('Slider - setSlider', () => {
 
     const slider = new Slider('plane1', 0, 100, container, { handler });
 
-    slider.setSlider(50);
+    slider.setLimits(50);
 
     expect(slider.slider.min).toBe('-50');
     expect(slider.slider.max).toBe('50');
-    expect(slider.slider.value).toBe('50');
-    expect(slider.input.value).toBe('50');
+    // Note: setLimits only sets min/max/step, not the value
 
     slider.dispose();
   });
@@ -364,7 +363,7 @@ describe('Slider - setSlider', () => {
 
     const slider = new Slider('plane1', 0, 100, container, { handler });
 
-    slider.setSlider(0.5); // 2 * 0.5 = 1, log10(1) = 0, step = 10^-3 = 0.001
+    slider.setLimits(0.5); // 2 * 0.5 = 1, log10(1) = 0, step = 10^-3 = 0.001
 
     expect(slider.slider.step).toBe('0.001');
 
@@ -377,26 +376,9 @@ describe('Slider - setSlider', () => {
 
     const slider = new Slider('plane1', 0, 100, container, { handler });
 
-    slider.setSlider(500); // 2 * 500 = 1000, log10(1000) = 3, step = 10^0 = 1
+    slider.setLimits(500); // 2 * 500 = 1000, log10(1000) = 3, step = 10^0 = 1
 
     expect(slider.slider.step).toBe('1');
-
-    slider.dispose();
-  });
-
-  test('calls onSetSlider callback', () => {
-    container = createSliderDOM('plane1');
-    const handler = vi.fn();
-    const onSetSlider = vi.fn();
-
-    const slider = new Slider('plane1', 0, 100, container, {
-      handler,
-      onSetSlider,
-    });
-
-    slider.setSlider(50);
-
-    expect(onSetSlider).toHaveBeenCalledWith(1, '50');
 
     slider.dispose();
   });

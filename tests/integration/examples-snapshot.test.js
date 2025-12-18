@@ -118,6 +118,7 @@ describe('Examples - Snapshot Tests', () => {
   // Snapshot test for important examples (nested groups, unit testing, complex geometry)
   test.each(importantExamples)(
     'important snapshot for %s',
+    { timeout: 10000 }, // 10 seconds for large examples
     async (exampleName) => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
@@ -135,14 +136,14 @@ describe('Examples - Snapshot Tests', () => {
 
       // Create named snapshot for this example
       expect(snapshot).toMatchSnapshot(`${exampleName}-scene`);
-    },
-    { timeout: 10000 } // 10 seconds for large examples
+    }
   );
 
   // Snapshot test for special examples that use unique rendering paths
   // Slow tests (22+ seconds) - skip by default, run with: RUN_SLOW_TESTS=true yarn test
   test.skipIf(!process.env.RUN_SLOW_TESTS).each(specialExamples)(
     'special rendering snapshot for %s',
+    { timeout: 60000 }, // 60 seconds for very large/slow examples
     async (exampleName) => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
@@ -160,7 +161,6 @@ describe('Examples - Snapshot Tests', () => {
 
       // Create named snapshot for this example
       expect(snapshot).toMatchSnapshot(`${exampleName}-scene`);
-    },
-    { timeout: 60000 } // 60 seconds for very large/slow examples
+    }
   );
 });

@@ -103,12 +103,18 @@ export function setupDisplay(displayOptions = {}) {
  * Create a Viewer instance for testing
  * Quick & dirty - minimal setup (WebGL mocked globally)
  * Returns viewer with render/viewer options for later use
+ *
+ * @param displayOptions - Display options (may include notifyCallback for tests)
+ * @param renderOptions - Render options
+ * @param viewerOptions - Viewer options
  */
 export function setupViewer(displayOptions = {}, renderOptions = {}, viewerOptions = {}) {
-  const { display, container, displayOptions: displayOpts } = setupDisplay(displayOptions);
+  // Extract notifyCallback from displayOptions if provided
+  const { notifyCallback: customNotifyCallback, ...restDisplayOptions } = displayOptions;
+  const { display, container, displayOptions: displayOpts } = setupDisplay(restDisplayOptions);
 
-  // Minimal notification callback
-  const notifyCallback = () => {};
+  // Use custom callback if provided, otherwise use empty function
+  const notifyCallback = customNotifyCallback || (() => {});
 
   const viewer = new Viewer(display, displayOpts, notifyCallback);
 

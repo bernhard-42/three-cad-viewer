@@ -249,9 +249,7 @@ describe('Complete Rendering Snapshots', () => {
       expect(mat.type).toBeDefined();
       expect(typeof mat.type).toBe('string');
 
-      // Should have ID
-      expect(mat.id).toBeDefined();
-      expect(typeof mat.id).toBe('number');
+      // Note: mat.id is intentionally not captured - it's an unstable Three.js internal ID
 
       // If it has color, should be a hex number
       if (mat.color !== undefined) {
