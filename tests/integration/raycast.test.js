@@ -277,13 +277,15 @@ describe('Raycaster', () => {
 
     test('adds event listeners to DOM element', () => {
       const addEventSpy = vi.spyOn(mockDomElement, 'addEventListener');
+      const docAddEventSpy = vi.spyOn(document, 'addEventListener');
 
       raycaster.init();
 
       expect(addEventSpy).toHaveBeenCalledWith('mousemove', raycaster.onPointerMove);
       expect(addEventSpy).toHaveBeenCalledWith('mouseup', raycaster.onMouseKeyUp, false);
       expect(addEventSpy).toHaveBeenCalledWith('mousedown', raycaster.onMouseKeyDown, false);
-      expect(addEventSpy).toHaveBeenCalledWith('keydown', raycaster.onKeyDown, false);
+      // Keyboard listener is on document (canvas doesn't receive focus)
+      expect(docAddEventSpy).toHaveBeenCalledWith('keydown', raycaster.onKeyDown, false);
     });
   });
 
@@ -291,6 +293,7 @@ describe('Raycaster', () => {
     test('removes event listeners', () => {
       raycaster.init();
       const removeEventSpy = vi.spyOn(mockDomElement, 'removeEventListener');
+      const docRemoveEventSpy = vi.spyOn(document, 'removeEventListener');
 
       raycaster.dispose();
       raycaster = null; // Prevent afterEach from calling dispose again
@@ -298,7 +301,8 @@ describe('Raycaster', () => {
       expect(removeEventSpy).toHaveBeenCalledWith('mousemove', expect.any(Function));
       expect(removeEventSpy).toHaveBeenCalledWith('mouseup', expect.any(Function));
       expect(removeEventSpy).toHaveBeenCalledWith('mousedown', expect.any(Function));
-      expect(removeEventSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+      // Keyboard listener is on document (canvas doesn't receive focus)
+      expect(docRemoveEventSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
     });
 
     test('disables raycastMode', () => {

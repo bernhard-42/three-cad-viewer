@@ -424,7 +424,8 @@ class FilterByDropDownMenu {
    */
   show(flag: boolean): void {
     if (flag) {
-      this.display.container.addEventListener("keydown", this.keybindSelect as EventListener);
+      // Use document-level listener for keyboard shortcuts (container div can't receive focus)
+      document.addEventListener("keydown", this.keybindSelect as EventListener);
       this.display.container.addEventListener("click", this.closeDropdown);
 
       this.elements.content.addEventListener("click", this.toggleDropdown as EventListener);
@@ -433,7 +434,7 @@ class FilterByDropDownMenu {
         el.addEventListener("click", this.handleSelection);
       }
     } else {
-      this.display.container.removeEventListener(
+      document.removeEventListener(
         "keydown",
         this.keybindSelect as EventListener,
       );

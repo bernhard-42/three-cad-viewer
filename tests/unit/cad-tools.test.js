@@ -1286,9 +1286,9 @@ describe('FilterByDropDownMenu', () => {
       filter.setRaycaster(mockRaycaster);
       filter.show(true);
 
-      // Simulate keyboard event
+      // Simulate keyboard event (now on document, not container)
       const event = new KeyboardEvent('keydown', { key: 'v' });
-      display.container.dispatchEvent(event);
+      document.dispatchEvent(event);
 
       expect(display.filterDropdown.value.innerText).toBe('Vertex');
     });
@@ -1304,7 +1304,7 @@ describe('FilterByDropDownMenu', () => {
 
       // Simulate keyboard event - should not change value since listener removed
       const event = new KeyboardEvent('keydown', { key: 'e' });
-      display.container.dispatchEvent(event);
+      document.dispatchEvent(event);
 
       expect(display.filterDropdown.value.innerText).toBe('None');
     });
@@ -1319,44 +1319,44 @@ describe('FilterByDropDownMenu', () => {
 
     test('v key sets Vertex', () => {
       const event = new KeyboardEvent('keydown', { key: 'v' });
-      display.container.dispatchEvent(event);
+      document.dispatchEvent(event);
       expect(display.filterDropdown.value.innerText).toBe('Vertex');
     });
 
     test('e key sets Edge', () => {
       const event = new KeyboardEvent('keydown', { key: 'e' });
-      display.container.dispatchEvent(event);
+      document.dispatchEvent(event);
       expect(display.filterDropdown.value.innerText).toBe('Edge');
     });
 
     test('f key sets Face', () => {
       const event = new KeyboardEvent('keydown', { key: 'f' });
-      display.container.dispatchEvent(event);
+      document.dispatchEvent(event);
       expect(display.filterDropdown.value.innerText).toBe('Face');
     });
 
     test('s key sets Solid', () => {
       const event = new KeyboardEvent('keydown', { key: 's' });
-      display.container.dispatchEvent(event);
+      document.dispatchEvent(event);
       expect(display.filterDropdown.value.innerText).toBe('Solid');
     });
 
     test('n key sets None', () => {
       // First set to something else
       const event1 = new KeyboardEvent('keydown', { key: 'v' });
-      display.container.dispatchEvent(event1);
+      document.dispatchEvent(event1);
 
       const event2 = new KeyboardEvent('keydown', { key: 'n' });
-      display.container.dispatchEvent(event2);
+      document.dispatchEvent(event2);
       expect(display.filterDropdown.value.innerText).toBe('None');
     });
 
     test('invalid key does not change value', () => {
       const event1 = new KeyboardEvent('keydown', { key: 'v' });
-      display.container.dispatchEvent(event1);
+      document.dispatchEvent(event1);
 
       const event2 = new KeyboardEvent('keydown', { key: 'x' });
-      display.container.dispatchEvent(event2);
+      document.dispatchEvent(event2);
 
       expect(display.filterDropdown.value.innerText).toBe('Vertex');
     });

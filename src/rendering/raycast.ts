@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { KeyMapper, isMesh } from "../utils/utils.js";
+import { KeyMapper, isMesh, isPoints, isLine } from "../utils/utils.js";
 import { isObjectGroup, type ObjectGroup } from "../scene/objectgroup.js";
 import type { Camera } from "../camera/camera.js";
 
@@ -144,8 +144,9 @@ class Raycaster {
       this.domElement.removeEventListener("mousemove", this.onPointerMove);
       this.domElement.removeEventListener("mouseup", this.onMouseKeyUp);
       this.domElement.removeEventListener("mousedown", this.onMouseKeyDown);
-      this.domElement.removeEventListener("keydown", this.onKeyDown);
     }
+    // Keyboard listener is on document (canvas doesn't receive focus)
+    document.removeEventListener("keydown", this.onKeyDown);
     this.raycastMode = false;
     this.group = null;
     this.domElement = null;
@@ -160,7 +161,8 @@ class Raycaster {
     this.domElement.addEventListener("mousemove", this.onPointerMove);
     this.domElement.addEventListener("mouseup", this.onMouseKeyUp, false);
     this.domElement.addEventListener("mousedown", this.onMouseKeyDown, false);
-    this.domElement.addEventListener("keydown", this.onKeyDown, false);
+    // Use document-level listener for keyboard (canvas doesn't receive focus)
+    document.addEventListener("keydown", this.onKeyDown, false);
     this.raycastMode = true;
   }
 
@@ -176,7 +178,10 @@ class Raycaster {
     const objects = this.raycaster.intersectObjects([this.group], true);
     const validObjs: THREE.Intersection[] = [];
     for (const obj of objects) {
-      if (isMesh(obj.object) && !Array.isArray(obj.object.material) && obj.object.material.visible) {
+      const object = obj.object;
+      // Accept Mesh (faces), Points (vertices), and Line (edges)
+      const isValidType = isMesh(object) || isPoints(object) || isLine(object);
+      if (isValidType && !Array.isArray(object.material) && object.material.visible) {
         validObjs.push(obj);
       }
     }
@@ -193,8 +198,11 @@ class Raycaster {
       const objects = this.getIntersectedObjs();
 
       for (const object of objects) {
-        if (!isMesh(object.object)) continue;
-        if (Array.isArray(object.object.material) || !object.object.material.visible) continue;
+        const obj = object.object;
+        // Accept Mesh (faces), Points (vertices), and Line (edges)
+        const isValidType = isMesh(obj) || isPoints(obj) || isLine(obj);
+        if (!isValidType) continue;
+        if (Array.isArray(obj.material) || !obj.material.visible) continue;
 
         const objectGroup = object.object.parent;
         if (!isObjectGroup(objectGroup)) continue;
