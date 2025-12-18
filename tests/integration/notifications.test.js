@@ -397,7 +397,7 @@ describe('Setter Notifications via State', () => {
     expect(notification.default_opacity.new).toBe(0.5);
   });
 
-  test('setEdgeColor sends edge_color notification', async () => {
+  test('setEdgeColor sends default_edgecolor notification', async () => {
     testContext = setupViewer({ notifyCallback: collector.callback });
     const { viewer, renderOptions, viewerOptions } = testContext;
 
@@ -569,6 +569,7 @@ describe('Camera and View Notifications', () => {
     const notification = getLastNotificationWithKey(collector.notifications, 'zoom');
     expect(notification).toBeDefined();
     expect(typeof notification.zoom.new).toBe('number');
+    expect(notification.zoom.new).toBeCloseTo(2.0, 1);
   });
 
   test('setCameraPosition sends position notification', async () => {
@@ -701,6 +702,19 @@ describe('Grid Notifications', () => {
     expect(notification).toBeDefined();
     expect(notification.center_grid.new).toBe(true);
   });
+
+  test('setGridCenter with notify=false does not send notification', async () => {
+    testContext = setupViewer({ notifyCallback: collector.callback });
+    const { viewer, renderOptions, viewerOptions } = testContext;
+
+    const box1Data = await loadExample('box1');
+    viewer.render(box1Data, renderOptions, viewerOptions);
+    collector.notifications.length = 0;
+
+    viewer.setGridCenter(true, false);
+
+    expect(getLastNotificationWithKey(collector.notifications, 'center_grid')).toBeNull();
+  });
 });
 
 // =============================================================================
@@ -755,10 +769,10 @@ describe('Tree State Notifications', () => {
     expect(typeof notification.states.new).toBe('object');
     // Each value should be a visibility array [mesh, edges]
     const values = Object.values(notification.states.new);
-    if (values.length > 0) {
-      expect(values[0]).toBeInstanceOf(Array);
-      expect(values[0]).toHaveLength(2);
-    }
+    // box1 should have at least one part, so there must be values
+    expect(values.length).toBeGreaterThan(0);
+    expect(values[0]).toBeInstanceOf(Array);
+    expect(values[0]).toHaveLength(2);
   });
 });
 
@@ -2015,6 +2029,7 @@ describe('Camera Location Notifications', () => {
     const notification = getLastNotificationWithKey(collector.notifications, 'zoom');
     expect(notification).toBeDefined();
     expect(typeof notification.zoom.new).toBe('number');
+    expect(notification.zoom.new).toBeCloseTo(2.0, 1);
   });
 
   test('target0 is sent in initial notification', async () => {
