@@ -143,7 +143,7 @@ describe('Examples - Snapshot Tests', () => {
   // Slow tests (22+ seconds) - skip by default, run with: RUN_SLOW_TESTS=true yarn test
   test.skipIf(!process.env.RUN_SLOW_TESTS).each(specialExamples)(
     'special rendering snapshot for %s',
-    { timeout: 60000 }, // 60 seconds for very large/slow examples
+    { timeout: 120000 }, // 120 seconds for very large/slow examples (transceiver_mzi is 3.4MB)
     async (exampleName) => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;

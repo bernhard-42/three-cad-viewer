@@ -110,61 +110,65 @@ if (typeof HTMLCanvasElement !== 'undefined') {
   };
 }
 
-// Mock WebGLRenderer at the module level (before any imports)
-const mockRenderer = {
-  domElement: document.createElement('canvas'),
-  setPixelRatio: vi.fn(),
-  setSize: vi.fn(),
-  setViewport: vi.fn(),
-  setScissor: vi.fn(),
-  setScissorTest: vi.fn(),
-  setClearColor: vi.fn(),
-  getClearColor: vi.fn(() => new THREE.Color(0x000000)),
-  getPixelRatio: vi.fn(() => 1),
-  getSize: vi.fn((target) => {
-    if (target) {
-      target.set(800, 600);
-      return target;
-    }
-    return { width: 800, height: 600 };
-  }),
-  render: vi.fn(),
-  clear: vi.fn(),
-  clearColor: vi.fn(),
-  clearDepth: vi.fn(),
-  clearStencil: vi.fn(),
-  dispose: vi.fn(),
-  autoClear: false,
-  shadowMap: {
-    enabled: false,
-    type: THREE.PCFSoftShadowMap,
-  },
-  toneMapping: THREE.NoToneMapping,
-  toneMappingExposure: 1,
-  capabilities: {
-    getMaxAnisotropy: vi.fn(() => 16),
-    getMaxPrecision: vi.fn(() => 'highp'),
-    precision: 'highp',
-    logarithmicDepthBuffer: false,
-    maxTextures: 16,
-    maxVertexTextures: 16,
-    maxTextureSize: 16384,
-    maxCubemapSize: 16384,
-    maxAttributes: 16,
-    maxVertexUniforms: 1024,
-    maxVaryings: 30,
-    maxFragmentUniforms: 1024,
-    vertexTextures: true,
-    floatFragmentTextures: true,
-    floatVertexTextures: true,
-  },
-};
+// Factory function to create fresh mockRenderer for each instantiation
+// This prevents shared state issues when tests run in parallel
+function createMockRenderer() {
+  return {
+    domElement: document.createElement('canvas'),
+    setPixelRatio: vi.fn(),
+    setSize: vi.fn(),
+    setViewport: vi.fn(),
+    setScissor: vi.fn(),
+    setScissorTest: vi.fn(),
+    setClearColor: vi.fn(),
+    getClearColor: vi.fn(() => new THREE.Color(0x000000)),
+    getPixelRatio: vi.fn(() => 1),
+    getSize: vi.fn((target) => {
+      if (target) {
+        target.set(800, 600);
+        return target;
+      }
+      return { width: 800, height: 600 };
+    }),
+    render: vi.fn(),
+    clear: vi.fn(),
+    clearColor: vi.fn(),
+    clearDepth: vi.fn(),
+    clearStencil: vi.fn(),
+    dispose: vi.fn(),
+    autoClear: false,
+    shadowMap: {
+      enabled: false,
+      type: THREE.PCFSoftShadowMap,
+    },
+    toneMapping: THREE.NoToneMapping,
+    toneMappingExposure: 1,
+    capabilities: {
+      getMaxAnisotropy: vi.fn(() => 16),
+      getMaxPrecision: vi.fn(() => 'highp'),
+      precision: 'highp',
+      logarithmicDepthBuffer: false,
+      maxTextures: 16,
+      maxVertexTextures: 16,
+      maxTextureSize: 16384,
+      maxCubemapSize: 16384,
+      maxAttributes: 16,
+      maxVertexUniforms: 1024,
+      maxVaryings: 30,
+      maxFragmentUniforms: 1024,
+      vertexTextures: true,
+      floatFragmentTextures: true,
+      floatVertexTextures: true,
+    },
+  };
+}
 
 // Mock THREE.WebGLRenderer before tests run
+// Each instantiation gets a fresh mock to prevent shared state issues
 vi.mock('three', async () => {
   const actual = await vi.importActual('three');
   return {
     ...actual,
-    WebGLRenderer: vi.fn(() => mockRenderer),
+    WebGLRenderer: vi.fn(() => createMockRenderer()),
   };
 });

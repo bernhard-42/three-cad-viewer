@@ -37,7 +37,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:run-all": "RUN_SLOW_TESTS=true vitest run",
+    "test:run-slow": "RUN_SLOW_TESTS=true vitest run tests/integration/z-examples-snapshot.test.js",
     "test:coverage": "vitest run --coverage"
   },
   "author": "Bernhard Walter",
