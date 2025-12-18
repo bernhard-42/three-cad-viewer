@@ -1257,8 +1257,9 @@ class Display {
     this.lastPlaneState =
       typeof clipPlaneHelpers === "boolean" ? clipPlaneHelpers : false;
 
-    // Sync material sliders with current state values
+    // Sync material and zebra sliders with current state values
     this.syncMaterialSlidersFromState();
+    this.syncZebraSlidersFromState();
   }
 
   // ---------------------------------------------------------------------------
@@ -1860,6 +1861,19 @@ class Display {
     this.directionallightSlider?.setValueFromState(state.get("directIntensity") * 100);
     this.metalnessSlider?.setValueFromState(state.get("metalness") * 100);
     this.roughnessSlider?.setValueFromState(state.get("roughness") * 100);
+  }
+
+  /**
+   * Sync zebra slider UI from current state values.
+   * Called from updateUI after viewer options are applied to state.
+   */
+  syncZebraSlidersFromState(): void {
+    const state = this.viewer.state;
+    this.zebraCountSlider?.setValueFromState(state.get("zebraCount"));
+    this.zebraOpacitySlider?.setValueFromState(state.get("zebraOpacity"));
+    this.zebraDirectionSlider?.setValueFromState(state.get("zebraDirection"));
+    this.setZebraColorSchemeSelect(state.get("zebraColorScheme"));
+    this.setZebraMappingModeSelect(state.get("zebraMappingMode"));
   }
 
   /**
