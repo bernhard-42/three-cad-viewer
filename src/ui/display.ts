@@ -1919,7 +1919,7 @@ class Display {
    */
   animationChange = (e: Event): void => {
     if (!(e.target instanceof HTMLInputElement)) return;
-    this.viewer.animation.setRelativeTime(e.target.valueAsNumber / 1000);
+    this.viewer.setRelativeTime(e.target.valueAsNumber / 1000);
     if (this.viewer.lastBbox != null) {
       this.viewer.lastBbox.needsUpdate = true;
     }

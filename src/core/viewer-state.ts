@@ -205,6 +205,17 @@ const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
   zebraDirection: "zebra_direction",
   zebraColorScheme: "zebra_color_scheme",
   zebraMappingMode: "zebra_mapping_mode",
+  // Animation/Explode slider (shared state, mutually exclusive modes)
+  animationSliderValue: "relative_time",
+};
+
+/**
+ * Transform functions for notification values.
+ * Converts internal state values to external notification format.
+ */
+const STATE_NOTIFICATION_TRANSFORM: Partial<Record<StateKey, (v: unknown) => unknown>> = {
+  // Slider stores 0-1000, but notifications should be 0-1
+  animationSliderValue: (v) => (v as number) / 1000,
 };
 
 /**
@@ -575,7 +586,12 @@ class ViewerState {
     if (this._externalNotifyCallback) {
       const notificationKey = STATE_TO_NOTIFICATION_KEY[key];
       if (notificationKey) {
-        this._externalNotifyCallback(notificationKey, change);
+        // Apply transform if defined (e.g., slider 0-1000 → relative 0-1)
+        const transform = STATE_NOTIFICATION_TRANSFORM[key];
+        const notifyChange = transform
+          ? { old: change.old != null ? transform(change.old) : null, new: transform(change.new) }
+          : change;
+        this._externalNotifyCallback(notificationKey, notifyChange);
       }
     }
   }

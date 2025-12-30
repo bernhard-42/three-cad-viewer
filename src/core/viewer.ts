@@ -714,6 +714,24 @@ class Viewer {
     this.toggleAnimationLoop(false);
   }
 
+  /**
+   * Set the animation to a specific relative time (0-1).
+   * Pauses the animation at that point.
+   * @param fraction - relative time between 0 and 1.
+   */
+  setRelativeTime(fraction: number): void {
+    this.animation.setRelativeTime(fraction);
+    this.state.set("animationSliderValue", fraction * 1000);
+  }
+
+  /**
+   * Get the current relative animation time (0-1).
+   * @returns relative time between 0 and 1.
+   */
+  getRelativeTime(): number {
+    return this.animation.getRelativeTime();
+  }
+
   // ---------------------------------------------------------------------------
   // Render Loop & Scene Updates
   // ---------------------------------------------------------------------------
@@ -1584,6 +1602,7 @@ class Viewer {
         zebra_direction: { old: null, new: this.state.get("zebraDirection") },
         zebra_color_scheme: { old: null, new: this.state.get("zebraColorScheme") },
         zebra_mapping_mode: { old: null, new: this.state.get("zebraMappingMode") },
+        relative_time: { old: null, new: this.state.get("animationSliderValue") / 1000 },
       });
     }
     timer.split("notification done");
