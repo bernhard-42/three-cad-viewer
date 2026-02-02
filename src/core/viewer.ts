@@ -2722,10 +2722,10 @@ class Viewer {
   }
 
   /**
-   * Get treeview property. Throws if not rendered.
+   * Get treeview property. Returns null if not rendered.
    */
-  get treeview(): TreeView {
-    return this.rendered.treeview;
+  get treeview(): TreeView | null {
+    return this._rendered?.treeview ?? null;
   }
 
   /**
@@ -2960,7 +2960,8 @@ class Viewer {
    * @public
    */
   getStates(): Record<string, VisibilityState> {
-    return this.rendered.treeview.getStates();
+    if (!this._rendered) return {};
+    return this._rendered.treeview.getStates();
   }
 
   /**
@@ -2971,8 +2972,9 @@ class Viewer {
    * @public
    */
   getState(path: string): VisibilityState | null {
+    if (!this._rendered) return null;
     const p = path.replaceAll("|", "/");
-    return this.rendered.treeview.getState(p);
+    return this._rendered.treeview.getState(p);
   }
 
   /**
@@ -2981,7 +2983,8 @@ class Viewer {
    * @public
    */
   setStates = (states: Record<string, VisibilityState>): void => {
-    this.rendered.treeview.setStates(states);
+    if (!this._rendered) return;
+    this._rendered.treeview.setStates(states);
   };
 
   // ---------------------------------------------------------------------------
@@ -3574,6 +3577,7 @@ class Viewer {
    */
   collapseNodes = (value: CollapseState, notify: boolean = true): void => {
     this.state.set("collapse", value, notify);
+    if (!this.treeview) return;
     // Translate CollapseState to treeview operations
     switch (value) {
       case CollapseState.COLLAPSED:
