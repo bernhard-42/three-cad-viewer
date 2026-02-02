@@ -1663,6 +1663,10 @@ class Display {
     if (newTab === "tree") {
       _updateVisibility(true, false, false, false);
       this.viewer.nestedGroup.setBackVisible(false);
+      // Lazy-rendered tree nodes may be stale if the tree was rebuilt
+      // while this tab was hidden (display:none → getBoundingClientRect
+      // returns zero, so update() rendered nothing).  Kick it now.
+      this.viewer.treeview?.update();
     } else if (newTab === "clip") {
       _updateVisibility(false, true, false, false);
       this.viewer.nestedGroup.setBackVisible(true);

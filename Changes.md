@@ -25,6 +25,10 @@
 
 **Features**
 
+- Added `addPart(parentPath, partData)` to dynamically add a leaf shape or subtree to the scene after `render()`, and `removePart(path)` to remove a part or entire subtree by absolute path
+  - Leaf parts use a plain `name` (no leading slash); the viewer constructs the absolute path from the parent
+  - Subtree parts use slash-prefixed relative ids; `addPart` prefixes every id with the parent path before rendering
+  - Both methods validate uniqueness at the insertion level and update the bounding box, clipping, and tree view
 - Added `holroyd` parameter to control non-tumbling trackball rotation mode
 - Exposed `getHolroyd()` and `setHolroyd()` methods on Viewer
 - Normalized control speed settings (pan, rotate, zoom) - 1.0 now means consistent default experience across control types

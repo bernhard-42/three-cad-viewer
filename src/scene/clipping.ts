@@ -3,7 +3,7 @@ import type { Vector3Tuple } from "three";
 import { ObjectGroup } from "./nestedgroup.js";
 import { CLIP_INDICES } from "../core/types";
 import type { Theme, ClipIndex } from "../core/types";
-import { toVector3Tuple } from "../utils/utils.js";
+import { toVector3Tuple, deepDispose } from "../utils/utils.js";
 
 // ============================================================================
 // Constants
@@ -456,6 +456,46 @@ class Clipping extends THREE.Group {
     }
 
     this.nestedGroup.rootGroup!.add(this._planeMeshGroup);
+  }
+
+  /**
+   * Rebuild stencil meshes after scene changes (part add/remove).
+   * Clears existing stencils from all ObjectGroups and rebuilds from scratch.
+   * Also updates clipping region size if center/size changed.
+   * @param center - The new center point [x, y, z].
+   * @param size - The new size of the clipping region.
+   */
+  rebuildStencils(center: number[], size: number): void {
+    // Clear existing clipping stencils from all ObjectGroups
+    for (const path in this.nestedGroup.groups) {
+      const group = this.nestedGroup.groups[path];
+      if (group instanceof ObjectGroup) {
+        group.clearClipping();
+      }
+    }
+
+    // Remove old plane mesh group from scene
+    if (this._planeMeshGroup && this.nestedGroup.rootGroup) {
+      this.nestedGroup.rootGroup.remove(this._planeMeshGroup);
+      deepDispose(this._planeMeshGroup);
+      this._planeMeshGroup = null;
+    }
+
+    // Clear object colors
+    this.objectColors = [];
+
+    // Update size/distance
+    this.center = center;
+    this.size = size;
+    this.distance = size / 2;
+
+    // Rebuild stencils with current state
+    this._createStencils(center, size, this.theme);
+
+    // Reapply object color caps if enabled
+    if (this.objectColorCaps) {
+      this.setObjectColorCaps(true);
+    }
   }
 
   /**

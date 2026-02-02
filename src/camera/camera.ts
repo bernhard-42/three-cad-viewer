@@ -147,6 +147,17 @@ class Camera {
   }
 
   /**
+   * Update the far clipping plane for both cameras.
+   * @param distance - The new bounding radius to base the far plane on.
+   */
+  updateFarPlane(distance: number): void {
+    const far = 100 * distance;
+    this.pCamera.far = far;
+    this.oCamera.far = far;
+    this.camera.updateProjectionMatrix();
+  }
+
+  /**
    * Remove assets.
    */
   dispose(): void {

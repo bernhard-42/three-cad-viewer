@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>addPart / removePart visual test</title>
+  <link rel="stylesheet" href="./dist/three-cad-viewer.css" />
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    #cad_view { height: 525px; }
+    #controls { position: relative; z-index: 200; margin-top: 216px; margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .sep { border-left: 1px solid #ccc; height: 28px; margin: 0 4px; }
+    button { padding: 6px 14px; cursor: pointer; border: 1px solid #aaa; border-radius: 4px; background: #f8f8f8; }
+    button:hover:not(:disabled) { background: #e8e8e8; }
+    button:disabled { opacity: 0.35; cursor: default; }
+    #log { position: relative; z-index: 200; margin-top: 12px; padding: 8px; background: #f4f4f4; border: 1px solid #ddd;
+           font-family: monospace; font-size: 12px; max-height: 180px; overflow-y: auto; white-space: pre; }
+  </style>
+</head>
+<body>
+  <h3>addPart / removePart &mdash; visual test</h3>
+  <div id="cad_view"></div>
+  <div id="controls">
+    <button id="btnAddExtras">Add Extras subtree</button>
+    <button id="btnRemoveExtras" disabled>Remove Extras subtree</button>
+    <button id="btnAddTorus" disabled>Add Torus to Extras</button>
+    <button id="btnRemoveTorus" disabled>Remove Torus</button>
+    <div class="sep"></div>
+    <button id="btnRemoveBox1">Remove Box1</button>
+    <button id="btnRemoveSphere1">Remove Sphere1</button>
+    <button id="btnRemoveTallBox">Remove TallBox</button>
+  </div>
+  <div id="log"></div>
+
+  <script type="module">
+    import { Viewer, Display } from "./dist/three-cad-viewer.esm.js";
+
+    // -----------------------------------------------------------------------
+    //  Logging
+    // -----------------------------------------------------------------------
+    const logEl = document.getElementById("log");
+    function log(msg) {
+      const line = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logEl.textContent += line + "\n";
+      logEl.scrollTop = logEl.scrollHeight;
+      console.log(line);
+    }
+
+    // -----------------------------------------------------------------------
+    //  Geometry helpers
+    // -----------------------------------------------------------------------
+
+    /** Unit box centred at (cx,cy,cz) with half-extents hw,hh,hd */
+    function makeBox(cx, cy, cz, w, h, d) {
+      const hw = w / 2, hh = h / 2, hd = d / 2;
+      const faces = [
+        { n: [-1, 0, 0], v: [[cx-hw,cy-hh,cz-hd],[cx-hw,cy+hh,cz-hd],[cx-hw,cy+hh,cz+hd],[cx-hw,cy-hh,cz+hd]] },
+        { n: [ 1, 0, 0], v: [[cx+hw,cy-hh,cz-hd],[cx+hw,cy-hh,cz+hd],[cx+hw,cy+hh,cz+hd],[cx+hw,cy+hh,cz-hd]] },
+        { n: [0, -1, 0], v: [[cx-hw,cy-hh,cz-hd],[cx-hw,cy-hh,cz+hd],[cx+hw,cy-hh,cz+hd],[cx+hw,cy-hh,cz-hd]] },
+        { n: [0,  1, 0], v: [[cx-hw,cy+hh,cz-hd],[cx+hw,cy+hh,cz-hd],[cx+hw,cy+hh,cz+hd],[cx-hw,cy+hh,cz+hd]] },
+        { n: [0, 0, -1], v: [[cx-hw,cy-hh,cz-hd],[cx+hw,cy-hh,cz-hd],[cx+hw,cy+hh,cz-hd],[cx-hw,cy+hh,cz-hd]] },
+        { n: [0, 0,  1], v: [[cx-hw,cy-hh,cz+hd],[cx-hw,cy+hh,cz+hd],[cx+hw,cy+hh,cz+hd],[cx+hw,cy-hh,cz+hd]] },
+      ];
+      const vertices = [], normals = [], triangles = [];
+      const face_types = [], triangles_per_face = [];
+      faces.forEach((f, i) => {
+        const b = i * 4;
+        f.v.forEach(p => { vertices.push(...p); normals.push(...f.n); });
+        triangles.push(b, b+1, b+2, b, b+2, b+3);
+        face_types.push(0);
+        triangles_per_face.push(2);
+      });
+      // 8 unique corners → 12 edges
+      const c = [];
+      for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1])
+        c.push([cx + sx*hw, cy + sy*hh, cz + sz*hd]);
+      const ep = [[0,1],[2,3],[4,5],[6,7],[0,2],[1,3],[4,6],[5,7],[0,4],[1,5],[2,6],[3,7]];
+      const edges = [], edge_types = [], segments_per_edge = [];
+      ep.forEach(([a, b]) => { edges.push(...c[a], ...c[b]); edge_types.push(0); segments_per_edge.push(1); });
+      return { vertices, triangles, normals, edges, obj_vertices: c.flat(),
+               face_types, edge_types, triangles_per_face, segments_per_edge };
+    }
+
+    /** UV-sphere centred at (cx,cy,cz) with radius r */
+    function makeSphere(cx, cy, cz, r, latSegs = 10, lonSegs = 16) {
+      const vertices = [], normals = [], triangles = [];
+      for (let lat = 0; lat <= latSegs; lat++) {
+        const theta = lat * Math.PI / latSegs;
+        const st = Math.sin(theta), ct = Math.cos(theta);
+        for (let lon = 0; lon <= lonSegs; lon++) {
+          const phi = lon * 2 * Math.PI / lonSegs;
+          const nx = st * Math.cos(phi), ny = st * Math.sin(phi), nz = ct;
+          vertices.push(cx + r*nx, cy + r*ny, cz + r*nz);
+          normals.push(nx, ny, nz);
+        }
+      }
+      for (let lat = 0; lat < latSegs; lat++) {
+        for (let lon = 0; lon < lonSegs; lon++) {
+          const a = lat * (lonSegs + 1) + lon, b = a + lonSegs + 1;
+          if (lat !== 0)          triangles.push(a, a+1, b);
+          if (lat !== latSegs-1)  triangles.push(a+1, b+1, b);
+        }
+      }
+      // edges: equator + 4 meridians
+      const edges = [], edge_types = [], segments_per_edge = [];
+      for (let i = 0; i < lonSegs; i++) {
+        const p1 = i * 2 * Math.PI / lonSegs, p2 = (i+1) * 2 * Math.PI / lonSegs;
+        edges.push(cx+r*Math.cos(p1), cy+r*Math.sin(p1), cz,
+                   cx+r*Math.cos(p2), cy+r*Math.sin(p2), cz);
+        edge_types.push(0); segments_per_edge.push(1);
+      }
+      for (let m = 0; m < 4; m++) {
+        const phi = m * Math.PI / 2;
+        for (let lat = 0; lat < latSegs; lat++) {
+          const t1 = lat * Math.PI / latSegs, t2 = (lat+1) * Math.PI / latSegs;
+          edges.push(cx+r*Math.sin(t1)*Math.cos(phi), cy+r*Math.sin(t1)*Math.sin(phi), cz+r*Math.cos(t1),
+                     cx+r*Math.sin(t2)*Math.cos(phi), cy+r*Math.sin(t2)*Math.sin(phi), cz+r*Math.cos(t2));
+          edge_types.push(0); segments_per_edge.push(1);
+        }
+      }
+      return { vertices, triangles, normals, edges,
+               obj_vertices: [cx,cy,cz+r, cx,cy,cz-r],
+               face_types: [0], triangles_per_face: [triangles.length / 3],
+               edge_types, segments_per_edge };
+    }
+
+    /** Cone with base at z=cz and apex at z=cz+h */
+    function makeCone(cx, cy, cz, r, h, segs = 16) {
+      const vertices = [], normals = [], triangles = [];
+      const apex = [cx, cy, cz + h];
+      const L = Math.sqrt(r*r + h*h), nzSide = r / L, nrSide = h / L;
+      let vi = 0;
+      // --- side ---
+      for (let i = 0; i < segs; i++) {
+        const a1 = i * 2 * Math.PI / segs, a2 = (i+1) * 2 * Math.PI / segs;
+        const c1 = Math.cos(a1), s1 = Math.sin(a1);
+        const c2 = Math.cos(a2), s2 = Math.sin(a2);
+        const am = (a1 + a2) / 2, cm = Math.cos(am), sm = Math.sin(am);
+        vertices.push(cx+r*c1, cy+r*s1, cz);  normals.push(nrSide*c1, nrSide*s1, nzSide);
+        vertices.push(cx+r*c2, cy+r*s2, cz);  normals.push(nrSide*c2, nrSide*s2, nzSide);
+        vertices.push(...apex);                normals.push(nrSide*cm, nrSide*sm, nzSide);
+        triangles.push(vi, vi+1, vi+2);
+        vi += 3;
+      }
+      // --- base (normal pointing -Z) ---
+      const bc = vi;
+      vertices.push(cx, cy, cz); normals.push(0, 0, -1); vi++;
+      for (let i = 0; i <= segs; i++) {
+        const a = i * 2 * Math.PI / segs;
+        vertices.push(cx+r*Math.cos(a), cy+r*Math.sin(a), cz);
+        normals.push(0, 0, -1); vi++;
+      }
+      for (let i = 0; i < segs; i++)
+        triangles.push(bc, bc+1+((i+1) % (segs+1)), bc+1+i);
+
+      // edges: base circle + 4 slant lines
+      const edges = [], edge_types = [], segments_per_edge = [];
+      for (let i = 0; i < segs; i++) {
+        const a1 = i * 2 * Math.PI / segs, a2 = (i+1) * 2 * Math.PI / segs;
+        edges.push(cx+r*Math.cos(a1), cy+r*Math.sin(a1), cz,
+                   cx+r*Math.cos(a2), cy+r*Math.sin(a2), cz);
+        edge_types.push(0); segments_per_edge.push(1);
+      }
+      for (let i = 0; i < 4; i++) {
+        const a = i * Math.PI / 2;
+        edges.push(cx+r*Math.cos(a), cy+r*Math.sin(a), cz, ...apex);
+        edge_types.push(0); segments_per_edge.push(1);
+      }
+      return { vertices, triangles, normals, edges,
+               obj_vertices: [cx, cy, cz, ...apex],
+               face_types: [0, 0], triangles_per_face: [segs, segs],
+               edge_types, segments_per_edge };
+    }
+
+    /** Torus centred at (cx,cy,cz) with major radius R and tube radius r */
+    function makeTorus(cx, cy, cz, R, r, radSegs = 24, tubeSegs = 12) {
+      const vertices = [], normals = [], triangles = [];
+      for (let i = 0; i <= radSegs; i++) {
+        const u = i * 2 * Math.PI / radSegs;
+        const cu = Math.cos(u), su = Math.sin(u);
+        for (let j = 0; j <= tubeSegs; j++) {
+          const v = j * 2 * Math.PI / tubeSegs;
+          const cv = Math.cos(v), sv = Math.sin(v);
+          const px = (R + r * cv) * cu + cx;
+          const py = (R + r * cv) * su + cy;
+          const pz = r * sv + cz;
+          vertices.push(px, py, pz);
+          normals.push(cv * cu, cv * su, sv);
+        }
+      }
+      for (let i = 0; i < radSegs; i++) {
+        for (let j = 0; j < tubeSegs; j++) {
+          const a = i * (tubeSegs + 1) + j;
+          const b = a + tubeSegs + 1;
+          triangles.push(a, a + 1, b);
+          triangles.push(a + 1, b + 1, b);
+        }
+      }
+      // edges: 4 radial circles + 4 tube circles
+      const edges = [], edge_types = [], segments_per_edge = [];
+      for (let ring = 0; ring < 4; ring++) {
+        const v = ring * Math.PI / 2;
+        const cv = Math.cos(v), sv = Math.sin(v);
+        for (let i = 0; i < radSegs; i++) {
+          const u1 = i * 2 * Math.PI / radSegs, u2 = (i+1) * 2 * Math.PI / radSegs;
+          edges.push(
+            (R + r*cv)*Math.cos(u1)+cx, (R + r*cv)*Math.sin(u1)+cy, r*sv+cz,
+            (R + r*cv)*Math.cos(u2)+cx, (R + r*cv)*Math.sin(u2)+cy, r*sv+cz,
+          );
+          edge_types.push(0); segments_per_edge.push(1);
+        }
+      }
+      for (let spoke = 0; spoke < 4; spoke++) {
+        const u = spoke * Math.PI / 2;
+        const cu = Math.cos(u), su = Math.sin(u);
+        for (let j = 0; j < tubeSegs; j++) {
+          const v1 = j * 2 * Math.PI / tubeSegs, v2 = (j+1) * 2 * Math.PI / tubeSegs;
+          edges.push(
+            (R + r*Math.cos(v1))*cu+cx, (R + r*Math.cos(v1))*su+cy, r*Math.sin(v1)+cz,
+            (R + r*Math.cos(v2))*cu+cx, (R + r*Math.cos(v2))*su+cy, r*Math.sin(v2)+cz,
+          );
+          edge_types.push(0); segments_per_edge.push(1);
+        }
+      }
+      return { vertices, triangles, normals, edges,
+               obj_vertices: [cx+R+r, cy, cz, cx-R-r, cy, cz],
+               face_types: [0], triangles_per_face: [triangles.length / 3],
+               edge_types, segments_per_edge };
+    }
+
+    // -----------------------------------------------------------------------
+    //  Notification callback
+    // -----------------------------------------------------------------------
+    function nc(change) {
+      // silent – uncomment to debug:
+      // console.log("NOTIFY:", JSON.stringify(change, null, 2));
+    }
+
+    // -----------------------------------------------------------------------
+    //  Viewer setup
+    // -----------------------------------------------------------------------
+    const displayOptions = {
+      cadWidth: 800, height: 500, treeWidth: 220,
+      theme: "browser", pinning: false,
+      keymap: { shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey" },
+    };
+    const renderOptions = {
+      ambientIntensity: 1.0, directIntensity: 1.1,
+      metalness: 0.30, roughness: 0.65,
+      edgeColor: 0x707070, defaultOpacity: 0.5, normalLen: 0,
+    };
+    const viewerOptions = { target: [0, 0, 0], up: "Z" };
+
+    const container = document.getElementById("cad_view");
+    const display = new Display(container, displayOptions);
+    const viewer  = new Viewer(display, viewerOptions, nc);
+
+    // -----------------------------------------------------------------------
+    //  Initial scene: 3 shapes under /Scene
+    // -----------------------------------------------------------------------
+    const shapes = {
+      version: 3,
+      name: "Scene",
+      id: "/Scene",
+      loc: [[0, 0, 0], [0, 0, 0, 1]],
+      bb: { xmin: -1, xmax: 4, ymin: -1, ymax: 4, zmin: -1, zmax: 2 },
+      parts: [
+        {
+          version: 3, name: "Box1", id: "/Scene/Box1",
+          type: "shapes", subtype: "solid",
+          shape: makeBox(0, 0, 0, 1, 1, 1),
+          state: [1, 1], color: "#4488cc", alpha: 1.0,
+          loc: [[0, 0, 0], [0, 0, 0, 1]], renderback: false,
+          texture: null, accuracy: null, bb: null,
+        },
+        {
+          version: 3, name: "Sphere1", id: "/Scene/Sphere1",
+          type: "shapes", subtype: "solid",
+          shape: makeSphere(3, 0, 0, 0.7),
+          state: [1, 1], color: "#cc4444", alpha: 1.0,
+          loc: [[0, 0, 0], [0, 0, 0, 1]], renderback: false,
+          texture: null, accuracy: null, bb: null,
+        },
+        {
+          version: 3, name: "TallBox", id: "/Scene/TallBox",
+          type: "shapes", subtype: "solid",
+          shape: makeBox(0, 3, 0, 1, 1, 2),
+          state: [1, 1], color: "#44aa44", alpha: 1.0,
+          loc: [[0, 0, 0], [0, 0, 0, 1]], renderback: false,
+          texture: null, accuracy: null, bb: null,
+        },
+      ],
+    };
+
+    viewer.render(shapes, renderOptions, viewerOptions);
+    viewer.collapseNodes(2); // expand all tree nodes
+    log("Rendered initial scene: Box1, Sphere1, TallBox");
+
+    // -----------------------------------------------------------------------
+    //  Extras subtree (relative ids, added under /Scene)
+    // -----------------------------------------------------------------------
+    function makeExtrasSubtree() {
+      return {
+        version: 3, name: "Extras", id: "/Extras",
+        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        parts: [
+          {
+            version: 3, name: "Cone1", id: "/Extras/Cone1",
+            type: "shapes", subtype: "solid",
+            shape: makeCone(-2, 0, 0, 0.6, 1.5, 16),
+            state: [1, 1], color: "#ccaa22", alpha: 1.0,
+            loc: [[0, 0, 0], [0, 0, 0, 1]], renderback: false,
+            texture: null, accuracy: null, bb: null,
+          },
+          {
+            version: 3, name: "SmallBox", id: "/Extras/SmallBox",
+            type: "shapes", subtype: "solid",
+            shape: makeBox(-2, 3, 0, 0.8, 0.8, 0.8),
+            state: [1, 1], color: "#9944cc", alpha: 1.0,
+            loc: [[0, 0, 0], [0, 0, 0, 1]], renderback: false,
+            texture: null, accuracy: null, bb: null,
+          },
+        ],
+      };
+    }
+
+    // -----------------------------------------------------------------------
+    //  Button wiring
+    // -----------------------------------------------------------------------
+    const btnAdd    = document.getElementById("btnAddExtras");
+    const btnRem    = document.getElementById("btnRemoveExtras");
+    const btnAddT   = document.getElementById("btnAddTorus");
+    const btnRemT   = document.getElementById("btnRemoveTorus");
+    const btnBox1   = document.getElementById("btnRemoveBox1");
+    const btnSph    = document.getElementById("btnRemoveSphere1");
+    const btnTall   = document.getElementById("btnRemoveTallBox");
+
+    function tryAction(label, fn, btnToDisable) {
+      try {
+        fn();
+        log(label + "  OK");
+        if (btnToDisable) btnToDisable.disabled = true;
+      } catch (e) {
+        log(label + "  ERROR: " + e.message);
+      }
+    }
+
+    btnAdd.addEventListener("click", () => {
+      tryAction("addPart /Scene  Extras subtree", () => {
+        viewer.addPart("/Scene", makeExtrasSubtree());
+      });
+      btnAdd.disabled = true;
+      btnRem.disabled = false;
+      btnAddT.disabled = false;
+    });
+
+    btnRem.addEventListener("click", () => {
+      tryAction("removePart /Scene/Extras", () => {
+        viewer.removePart("/Scene/Extras");
+      });
+      btnRem.disabled = true;
+      btnAdd.disabled = false;
+      btnAddT.disabled = true;
+      btnRemT.disabled = true;
+    });
+
+    btnAddT.addEventListener("click", () => {
+      tryAction("addPart /Scene/Extras  Torus (leaf)", () => {
+        viewer.addPart("/Scene/Extras", {
+          version: 3, name: "Torus", type: "shapes", subtype: "solid",
+          shape: makeTorus(-2, 1.5, 0, 0.6, 0.2),
+          state: [1, 1], color: "#ee6633", alpha: 1.0,
+          loc: [[0, 0, 0], [0, 0, 0, 1]], renderback: false,
+          texture: null, accuracy: null, bb: null,
+        });
+      });
+      btnAddT.disabled = true;
+      btnRemT.disabled = false;
+    });
+
+    btnRemT.addEventListener("click", () => {
+      tryAction("removePart /Scene/Extras/Torus", () => {
+        viewer.removePart("/Scene/Extras/Torus");
+      });
+      btnRemT.disabled = true;
+      btnAddT.disabled = false;
+    });
+
+    btnBox1.addEventListener("click", () => {
+      tryAction("removePart /Scene/Box1", () => {
+        viewer.removePart("/Scene/Box1");
+      }, btnBox1);
+    });
+
+    btnSph.addEventListener("click", () => {
+      tryAction("removePart /Scene/Sphere1", () => {
+        viewer.removePart("/Scene/Sphere1");
+      }, btnSph);
+    });
+
+    btnTall.addEventListener("click", () => {
+      tryAction("removePart /Scene/TallBox", () => {
+        viewer.removePart("/Scene/TallBox");
+      }, btnTall);
+    });
+
+    log("Ready. Click buttons to test addPart / removePart.");
+  </script>
+</body>
+</html>

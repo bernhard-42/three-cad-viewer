@@ -84,6 +84,7 @@ The Viewer class organizes its methods into logical sections:
 | **Zebra Tool**           | `enableZebraTool()`, `setZebraCount()`, `setZebraOpacity()`, `setZebraDirection()`, etc.       | Surface analysis             |
 | **Clipping Planes**      | `setClipSlider()`, `setClipNormal()`, `setClipIntersection()`, `setClipPlaneHelpers()`         | Clipping controls            |
 | **Object Visibility**    | `setState()`, `setVisible()`, `getState()`                                                     | Object visibility            |
+| **Scene Mutation**       | `addPart(parentPath, partData)`, `removePart(path)`                                            | Add/remove parts after render |
 | **Object Picking**       | `pick()`, `getPickInfo()`                                                                      | Mouse-based selection        |
 | **Image Export**         | `getImage()`, `pinAsPng()`                                                                     | Screenshot/export            |
 | **Explode Animation**    | `setExplode()`                                                                                 | Explode view                 |
@@ -372,10 +373,21 @@ function disposeMesh(mesh) {
 }
 
 function disposeMaterial(material) {
-  // Dispose all texture properties
-  const textureProps = ["map", "normalMap", "roughnessMap" /* ... */];
-  for (const prop of textureProps) {
-    if (material[prop]) material[prop].dispose();
+  if (!material) return;
+
+  // Dispose all texture properties via direct access
+  const textures = [
+    material.map,
+    material.normalMap,
+    material.roughnessMap,
+    material.metalnessMap,
+    material.aoMap,
+    material.emissiveMap,
+    material.alphaMap,
+    material.bumpMap,
+  ];
+  for (const texture of textures) {
+    if (isDisposable(texture)) texture.dispose();
   }
   material.dispose();
 }
@@ -959,6 +971,103 @@ viewer.setAmbientLight(1.5);
 viewer.setMetalness(0.5);
 viewer.showTools(false);
 viewer.setExplode(true);
+```
+
+### Adding and Removing Parts
+
+After `render()`, you can dynamically add or remove parts from the scene.
+`addPart(parentPath, partData)` takes an absolute parent path and part data
+with relative naming.  The absolute path is constructed by the viewer.
+
+#### Adding a leaf part
+
+For leaves, provide a `name` (no leading slash).  The resulting path is
+`parentPath + "/" + name`.
+
+```javascript
+// Add a single shape under "/Group"
+const leafPart = {
+  version: 3,
+  name: "Shelf",        // plain name, no slash
+  shape: {
+    vertices: [/* ... */],
+    triangles: [/* ... */],
+    normals: [/* ... */],
+    edges: [/* ... */],
+    obj_vertices: [/* ... */],
+    face_types: [0],
+    edge_types: [0],
+    triangles_per_face: [2],
+    segments_per_edge: [1],
+  },
+  color: "#5b9bd5",
+  alpha: 1.0,
+  state: [1, 1],
+  type: "shapes",
+  subtype: "solid",
+  renderback: false,
+};
+
+const addedPath = viewer.addPart("/Group", leafPart);
+// addedPath === "/Group/Shelf"
+```
+
+#### Adding a subtree
+
+For subtrees, provide slash-prefixed **relative** ids.  `addPart` prefixes
+every `id` in the tree with `parentPath` before rendering.
+
+```javascript
+// Add a compound group with children under "/Group"
+const subtree = {
+  version: 3,
+  name: "Assembly",
+  id: "/Assembly",               // relative, slash-prefixed
+  loc: [[0, 0, 0], [0, 0, 0, 1]],
+  parts: [
+    {
+      version: 3,
+      name: "Bolt",
+      id: "/Assembly/Bolt",      // relative to the tree root
+      shape: { /* ... */ },
+      color: "#aaaaaa",
+      alpha: 1.0,
+      state: [1, 1],
+      type: "shapes",
+      subtype: "solid",
+    },
+  ],
+};
+
+viewer.addPart("/Group", subtree);
+// Registers: /Group/Assembly, /Group/Assembly/Bolt
+```
+
+#### Removing a part
+
+`removePart` takes an absolute path; it removes the node and its entire
+subtree.
+
+```javascript
+viewer.removePart("/Group/Shelf");
+viewer.removePart("/Group/Assembly"); // removes Assembly + Bolt
+```
+
+#### Error cases
+
+```javascript
+// Throws: viewer must be rendered first
+viewer.addPart("/Group", leafPart); // before render() → Error
+
+// Throws: name already exists at that level
+viewer.addPart("/Group", leafPart);
+viewer.addPart("/Group", leafPart); // duplicate → Error
+
+// Throws: parent must exist as a CompoundGroup
+viewer.addPart("/NoSuchGroup", leafPart); // → Error
+
+// Throws: path not found
+viewer.removePart("/Group/NonExistent"); // → Error
 ```
 
 ### Subscribing to State

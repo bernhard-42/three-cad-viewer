@@ -823,3 +823,43 @@ describe('ObjectGroup - _forEachMaterial', () => {
     expect(materials.length).toBe(2); // front and back only
   });
 });
+
+describe('ObjectGroup - clearClipping', () => {
+  test('removes all clipping groups', () => {
+    const group = createObjectGroupWithMesh();
+
+    // Add clipping groups for 3 planes
+    for (let i = 0; i < 3; i++) {
+      const clippingGroup = new THREE.Group();
+      clippingGroup.name = `clipping-${i}`;
+      clippingGroup.add(new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial()));
+      group.addClipping(clippingGroup, i);
+    }
+
+    expect(group.clipping.size).toBe(3);
+    const childCountBefore = group.children.length;
+
+    group.clearClipping();
+
+    expect(group.clipping.size).toBe(0);
+    expect(group.children.length).toBe(childCountBefore - 3);
+  });
+
+  test('is safe to call with no clipping groups', () => {
+    const group = createObjectGroupWithMesh();
+    expect(group.clipping.size).toBe(0);
+
+    expect(() => group.clearClipping()).not.toThrow();
+    expect(group.clipping.size).toBe(0);
+  });
+
+  test('is safe to call twice', () => {
+    const group = createObjectGroupWithMesh();
+    const clippingGroup = new THREE.Group();
+    group.addClipping(clippingGroup, 0);
+
+    group.clearClipping();
+    expect(() => group.clearClipping()).not.toThrow();
+    expect(group.clipping.size).toBe(0);
+  });
+});

@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-import { NestedGroup, ObjectGroup, isObjectGroup } from "../scene/nestedgroup.js";
+import { NestedGroup, ObjectGroup, isObjectGroup, isCompoundGroup } from "../scene/nestedgroup.js";
 import { Grid } from "../scene/grid.js";
 import { AxesHelper } from "../scene/axes.js";
 import { OrientationMarker } from "../scene/orientation.js";
@@ -2986,6 +2986,325 @@ class Viewer {
     if (!this._rendered) return;
     this._rendered.treeview.setStates(states);
   };
+
+  // ---------------------------------------------------------------------------
+  // Dynamic Part Management
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Build tree data from a Shapes object.
+   * Mirrors ShapeRenderer._getTree() logic.
+   */
+  private _buildTreeData(shapes: Shapes): ShapeTreeData {
+    const build = (parts: Shapes[]): ShapeTreeData => {
+      const result: ShapeTreeData = {};
+      for (const part of parts) {
+        if (part.parts != null) {
+          result[part.name] = build(part.parts);
+        } else {
+          result[part.name] = part.state as VisibilityState;
+        }
+      }
+      return result;
+    };
+    const tree: ShapeTreeData = {};
+    tree[shapes.name] = build(shapes.parts ?? []);
+    return tree;
+  }
+
+  /**
+   * Find the parent Shapes node and the parent's parts array for a given path.
+   * @param path - Absolute path like "/root/group/part"
+   * @returns The parent Shapes node, or null if not found.
+   */
+  private _findShapesParent(path: string): Shapes | null {
+    if (!this.shapes) return null;
+    const parts = path.split("/").filter(Boolean);
+    // parts[0] is the root name, parent is everything except the last segment
+    if (parts.length < 2) return null;
+    const parentParts = parts.slice(0, -1);
+
+    let current: Shapes = this.shapes;
+    // The first segment should match the root
+    if (current.name !== parentParts[0]) return null;
+
+    for (let i = 1; i < parentParts.length; i++) {
+      if (!current.parts) return null;
+      const child = current.parts.find((p) => p.name === parentParts[i]);
+      if (!child) return null;
+      current = child;
+    }
+    return current;
+  }
+
+  /**
+   * Recalculate bounding box and update camera/clipping after scene changes.
+   */
+  private _updateBounds(): void {
+    const nestedGroup = this.rendered.nestedGroup;
+    const clipping = this.rendered.clipping;
+
+    // Recompute bounding box from current geometry
+    nestedGroup.bbox = null;
+    this.bbox = nestedGroup.boundingBox();
+
+    const center = new THREE.Vector3();
+    this.bbox.getCenter(center);
+    this.bb_max = this.bbox.max_dist_from_center();
+    this.bb_radius = Math.max(
+      this.bbox.boundingSphere().radius,
+      center.length(),
+    );
+
+    // Update camera far plane
+    this.rendered.camera.updateFarPlane(this.bb_radius);
+
+    // Rebuild clipping stencils with new bounds
+    const cSize =
+      1.1 *
+      Math.max(
+        Math.abs(this.bbox.min.length()),
+        Math.abs(this.bbox.max.length()),
+      );
+    clipping.rebuildStencils(this.bbox.center(), 2 * cSize);
+    nestedGroup.setClipPlanes(clipping.clipPlanes);
+
+    // Update slider limits to match new clipping region
+    this.display.setSliderLimits(cSize);
+  }
+
+  /**
+   * Rebuild the treeview from the current shapes data.
+   */
+  private _rebuildTreeView(): void {
+    // Rebuild tree data from this.shapes
+    this.compactTree = this._buildTreeData(this.shapes!);
+    this.tree = this.compactTree;
+
+    // Dispose old treeview and create new one
+    deepDispose(this.rendered.treeview);
+
+    const treeview = new TreeView(
+      this.tree,
+      this.display.cadTreeScrollContainer,
+      this.setObject,
+      this.handlePick,
+      this.update,
+      this.notifyStates,
+      this.getNodeColor,
+      this.state.get("theme"),
+      this.state.get("newTreeBehavior"),
+      false,
+    );
+    this.rendered.treeview = treeview;
+
+    this.display.clearCadTree();
+    const t = treeview.create();
+    this.display.addCadTree(t);
+    treeview.render();
+
+    // Re-apply the current collapse state to the new tree
+    const collapse = this.state.get("collapse") as CollapseState;
+    if (collapse != null) {
+      this.collapseNodes(collapse, false);
+    }
+  }
+
+  /**
+   * Apply current material/rendering settings to new objects in the group.
+   * @param paths - The paths of the newly added objects.
+   */
+  private _applyCurrentSettings(paths: string[]): void {
+    const nestedGroup = this.rendered.nestedGroup;
+    for (const path of paths) {
+      const obj = nestedGroup.groups[path];
+      if (obj instanceof ObjectGroup) {
+        obj.setTransparent(this.state.get("transparent"));
+        obj.setBlackEdges(this.state.get("blackEdges"));
+        obj.setMetalness(this.state.get("metalness"));
+        obj.setRoughness(this.state.get("roughness"));
+        obj.setPolygonOffset(2);
+        if (nestedGroup.clipPlanes) {
+          obj.setClipPlanes(nestedGroup.clipPlanes);
+        }
+      }
+    }
+  }
+
+  /**
+   * Add a part (leaf or subtree) to the scene under an existing parent.
+   *
+   * For a **leaf**, pass a Shapes object with `shape` set and `name`
+   * as a plain name (no leading slash).  The absolute path is built as
+   * `parentPath + "/" + partData.name`.
+   *
+   * For a **subtree**, pass a Shapes object with `parts` set and `id`
+   * as a slash-prefixed relative tree (e.g. `"/shelf"`).  All `id`
+   * fields in the tree are prefixed with `parentPath` before rendering.
+   *
+   * @param parentPath - Absolute path of the parent group
+   *   (e.g. "/assembly").  Must already exist as a CompoundGroup.
+   * @param partData - A Shapes object describing the part to add.
+   * @returns The absolute path of the added root element.
+   * @throws If the viewer is not rendered, the parent doesn't exist,
+   *   or the name/id already exists at that level.
+   * @public
+   */
+  addPart(parentPath: string, partData: Shapes): string {
+    if (!this._rendered) {
+      throw new Error("Viewer.render() must be called before addPart()");
+    }
+
+    const nestedGroup = this.rendered.nestedGroup;
+
+    // Validate parent exists and is a CompoundGroup
+    const parentGroup = nestedGroup.groups[parentPath];
+    if (!parentGroup || !isCompoundGroup(parentGroup)) {
+      throw new Error(
+        `Parent group not found or not a CompoundGroup: ${parentPath}`,
+      );
+    }
+
+    const isTree = partData.parts != null && Array.isArray(partData.parts);
+
+    // Build the absolute root path
+    const path = isTree
+      ? parentPath + partData.id // "/group1/group2" + "/shelf" → "/group1/group2/shelf"
+      : parentPath + "/" + partData.name; // "/group1/group2" + "/" + "obj1"
+
+    // Validate root doesn't already exist at this level
+    if (nestedGroup.groups[path] != null) {
+      throw new Error(`Part already exists: ${path}`);
+    }
+
+    // Rewrite ids to absolute paths
+    if (isTree) {
+      this._prefixIds(partData, parentPath);
+    } else {
+      partData.id = path;
+    }
+
+    // Update this.shapes tree
+    const parentShapes = this._findShapesParent(path);
+    if (!parentShapes) {
+      throw new Error(`Parent not found in shapes data: ${parentPath}`);
+    }
+    if (!parentShapes.parts) {
+      parentShapes.parts = [];
+    }
+    parentShapes.parts.push(partData);
+
+    // Render the new part using existing NestedGroup methods
+    if (isTree) {
+      // Subtree with children - renderLoop handles it directly
+      const newGroup = nestedGroup.renderLoop(partData);
+      parentGroup.add(newGroup);
+    } else {
+      // Single leaf shape - wrap in temporary tree for renderLoop
+      const wrapperId = `${path}/__addPart_tmp__`;
+      const wrapper: Shapes = {
+        version: partData.version,
+        id: wrapperId,
+        name: "__addPart_tmp__",
+        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        parts: [partData],
+      };
+      const wrapperGroup = nestedGroup.renderLoop(wrapper);
+      // Move the rendered leaf from wrapper to actual parent
+      const leafGroup = nestedGroup.groups[path]!;
+      wrapperGroup.remove(leafGroup);
+      parentGroup.add(leafGroup);
+      // Clean up temporary wrapper
+      delete nestedGroup.groups[wrapperId];
+    }
+
+    // Collect all new paths for settings application
+    const newPaths = Object.keys(nestedGroup.groups).filter(
+      (p) => p === path || p.startsWith(path + "/"),
+    );
+    this._applyCurrentSettings(newPaths);
+
+    // Invalidate explode cache
+    if (this.expandedNestedGroup != null) {
+      deepDispose(this.expandedNestedGroup);
+      this.expandedNestedGroup = null;
+      this.expandedTree = null;
+    }
+
+    // Update bounds, clipping, treeview
+    this._updateBounds();
+    this._rebuildTreeView();
+    this.update(this.updateMarker);
+
+    return path;
+  }
+
+  /**
+   * Recursively prefix all `id` fields in a Shapes tree.
+   */
+  private _prefixIds(shapes: Shapes, prefix: string): void {
+    shapes.id = prefix + shapes.id;
+    if (shapes.parts) {
+      for (const part of shapes.parts) {
+        this._prefixIds(part, prefix);
+      }
+    }
+  }
+
+  /**
+   * Remove a part (leaf or subtree) from the scene by path.
+   *
+   * @param path - The absolute path of the part to remove
+   *   (e.g., "/assembly/shelf_5").
+   * @throws If the viewer is not rendered or the path doesn't exist.
+   * @public
+   */
+  removePart(path: string): void {
+    if (!this._rendered) {
+      throw new Error("Viewer.render() must be called before removePart()");
+    }
+
+    const nestedGroup = this.rendered.nestedGroup;
+    const group = nestedGroup.groups[path];
+    if (!group) {
+      throw new Error(`Part not found: ${path}`);
+    }
+
+    // Remove from Three.js scene graph
+    if (group.parent) {
+      group.parent.remove(group);
+    }
+
+    // Collect all paths in this subtree and remove from groups map
+    const pathsToRemove = Object.keys(nestedGroup.groups).filter(
+      (p) => p === path || p.startsWith(path + "/"),
+    );
+    for (const p of pathsToRemove) {
+      delete nestedGroup.groups[p];
+    }
+
+    // Dispose the removed Three.js objects
+    deepDispose(group);
+
+    // Remove from this.shapes tree
+    const parentShapes = this._findShapesParent(path);
+    if (parentShapes && parentShapes.parts) {
+      const name = path.substring(path.lastIndexOf("/") + 1);
+      parentShapes.parts = parentShapes.parts.filter((p) => p.name !== name);
+    }
+
+    // Invalidate explode cache
+    if (this.expandedNestedGroup != null) {
+      deepDispose(this.expandedNestedGroup);
+      this.expandedNestedGroup = null;
+      this.expandedTree = null;
+    }
+
+    // Update bounds, clipping, treeview
+    this._updateBounds();
+    this._rebuildTreeView();
+    this.update(this.updateMarker);
+  }
 
   // ---------------------------------------------------------------------------
   // UI sensitivity

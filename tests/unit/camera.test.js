@@ -495,6 +495,35 @@ describe('Camera', () => {
     });
   });
 
+  describe('updateFarPlane', () => {
+    test('updates far plane on both cameras', () => {
+      const camera = new Camera(800, 600, 100, [0, 0, 0], true, 'Z');
+
+      camera.updateFarPlane(200);
+
+      expect(camera.pCamera.far).toBe(20000);
+      expect(camera.oCamera.far).toBe(20000);
+    });
+
+    test('updates projection matrix', () => {
+      const camera = new Camera(800, 600, 100, [0, 0, 0], true, 'Z');
+      const spy = vi.spyOn(camera.camera, 'updateProjectionMatrix');
+
+      camera.updateFarPlane(50);
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    test('works when perspective camera is active', () => {
+      const camera = new Camera(800, 600, 100, [0, 0, 0], false, 'Z');
+
+      camera.updateFarPlane(300);
+
+      expect(camera.pCamera.far).toBe(30000);
+      expect(camera.oCamera.far).toBe(30000);
+    });
+  });
+
   describe('dispose', () => {
     test('dispose does not throw', () => {
       const camera = new Camera(800, 600, 100, [0, 0, 0], true, 'Z');

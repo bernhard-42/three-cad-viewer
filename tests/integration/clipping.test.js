@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import {
   setupClipping,
   cleanupClipping,
+  createMockObjectGroup,
   getPlaneMeshes,
   getPlaneHelpers,
   countStencilGroups,
@@ -528,5 +529,118 @@ describe('Clipping - Edge Cases', () => {
 
     const normal = getPlaneNormal(clipping, 0);
     expect(normal.x).toBe(2);
+  });
+});
+
+describe('Clipping - rebuildStencils', () => {
+  let testContext;
+
+  afterEach(() => {
+    if (testContext) {
+      cleanupClipping(testContext);
+      testContext = null;
+    }
+  });
+
+  test('rebuilds stencils with same configuration', () => {
+    testContext = setupClipping({ numSolids: 2 });
+    const { clipping, nestedGroup } = testContext;
+
+    const stencilCountBefore = countStencilGroups(nestedGroup);
+    const planeMeshesBefore = getPlaneMeshes(nestedGroup).length;
+
+    clipping.rebuildStencils([0, 0, 0], 10);
+
+    const stencilCountAfter = countStencilGroups(nestedGroup);
+    const planeMeshesAfter = getPlaneMeshes(nestedGroup).length;
+
+    // Same number of stencils after rebuild
+    expect(stencilCountAfter).toBe(stencilCountBefore);
+    expect(planeMeshesAfter).toBe(planeMeshesBefore);
+  });
+
+  test('clears old stencils from ObjectGroups before rebuilding', () => {
+    testContext = setupClipping({ numSolids: 2 });
+    const { clipping, nestedGroup } = testContext;
+
+    // Each solid has 3 clipping planes
+    expect(countStencilGroups(nestedGroup)).toBe(6);
+
+    clipping.rebuildStencils([0, 0, 0], 10);
+
+    // Should still be exactly 6, not 12
+    expect(countStencilGroups(nestedGroup)).toBe(6);
+  });
+
+  test('updates size and distance', () => {
+    testContext = setupClipping({ size: 10 });
+    const { clipping } = testContext;
+
+    expect(clipping.size).toBe(10);
+    expect(clipping.distance).toBe(5);
+
+    clipping.rebuildStencils([0, 0, 0], 20);
+
+    expect(clipping.size).toBe(20);
+    expect(clipping.distance).toBe(10);
+  });
+
+  test('updates center', () => {
+    testContext = setupClipping();
+    const { clipping } = testContext;
+
+    clipping.rebuildStencils([5, 5, 5], 10);
+
+    expect(clipping.center).toEqual([5, 5, 5]);
+  });
+
+  test('handles rebuild after adding an object to nestedGroup', () => {
+    testContext = setupClipping({ numSolids: 1 });
+    const { clipping, nestedGroup } = testContext;
+
+    // Initially 1 solid × 3 planes = 3 stencils
+    expect(countStencilGroups(nestedGroup)).toBe(3);
+
+    // Add a new solid to the groups map
+    const newObj = createMockObjectGroup('/root/solid_new', 'solid');
+    nestedGroup.groups['/root/solid_new'] = newObj;
+    nestedGroup.rootGroup.add(newObj);
+
+    clipping.rebuildStencils([0, 0, 0], 10);
+
+    // Now 2 solids × 3 planes = 6 stencils
+    expect(countStencilGroups(nestedGroup)).toBe(6);
+  });
+
+  test('handles rebuild after removing an object from nestedGroup', () => {
+    testContext = setupClipping({ numSolids: 2 });
+    const { clipping, nestedGroup } = testContext;
+
+    // Initially 2 solids × 3 planes = 6 stencils
+    expect(countStencilGroups(nestedGroup)).toBe(6);
+
+    // Remove one solid from the groups map
+    const removedGroup = nestedGroup.groups['/root/solid_0'];
+    nestedGroup.rootGroup.remove(removedGroup);
+    delete nestedGroup.groups['/root/solid_0'];
+
+    clipping.rebuildStencils([0, 0, 0], 10);
+
+    // Now 1 solid × 3 planes = 3 stencils
+    expect(countStencilGroups(nestedGroup)).toBe(3);
+  });
+
+  test('reapplies object color caps after rebuild', () => {
+    testContext = setupClipping({ numSolids: 1 });
+    const { clipping, nestedGroup } = testContext;
+
+    // Enable object color caps
+    clipping.setObjectColorCaps(true);
+    expect(clipping.objectColorCaps).toBe(true);
+
+    clipping.rebuildStencils([0, 0, 0], 10);
+
+    // objectColorCaps should still be true after rebuild
+    expect(clipping.objectColorCaps).toBe(true);
   });
 });

@@ -619,6 +619,17 @@ class ObjectGroup extends THREE.Group {
   }
 
   /**
+   * Remove and dispose all clipping groups from this object.
+   */
+  clearClipping(): void {
+    for (const [, group] of this.clipping) {
+      this.remove(group);
+      deepDispose(group);
+    }
+    this.clipping.clear();
+  }
+
+  /**
    * Enable or disable zebra stripe visualization on front faces.
    */
   setZebra(flag: boolean): void {
