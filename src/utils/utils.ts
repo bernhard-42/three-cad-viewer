@@ -124,7 +124,6 @@ interface MaterialLike {
   emissiveMap?: Disposable | null;
   alphaMap?: Disposable | null;
   bumpMap?: Disposable | null;
-  [key: string]: unknown;
 }
 
 /**
@@ -134,18 +133,17 @@ function disposeMaterial(material: MaterialLike | null | undefined): void {
   if (!material) return;
 
   // Dispose all texture properties
-  const textureProps: (keyof MaterialLike)[] = [
-    "map",
-    "normalMap",
-    "roughnessMap",
-    "metalnessMap",
-    "aoMap",
-    "emissiveMap",
-    "alphaMap",
-    "bumpMap",
+  const textures = [
+    material.map,
+    material.normalMap,
+    material.roughnessMap,
+    material.metalnessMap,
+    material.aoMap,
+    material.emissiveMap,
+    material.alphaMap,
+    material.bumpMap,
   ];
-  for (const prop of textureProps) {
-    const texture = material[prop];
+  for (const texture of textures) {
     if (isDisposable(texture)) {
       gpuTracker.untrack("texture", texture);
       texture.dispose();
