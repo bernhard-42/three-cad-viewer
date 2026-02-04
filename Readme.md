@@ -304,6 +304,46 @@ viewer.ensureStencilSize({
 // All updates within these bounds are now stencil-rebuild-free
 ```
 
+## Keyboard Shortcuts
+
+The keymap serves two purposes:
+
+- **Modifier keys** (`shift`, `ctrl`, `meta`, `alt`) remap which physical modifier key is used for mouse interactions (e.g. shift-click to isolate, ctrl-rotate). Values are DOM event properties like `"shiftKey"`, `"ctrlKey"`, `"metaKey"`, `"altKey"`.
+- **Action shortcuts** map single keys (with or without Shift) to toolbar buttons, camera presets, tab switches, and animation control. Only plain keys are supported — Ctrl/Alt/Meta combinations are reserved for modifier-based mouse interactions.
+
+Click on the viewer to give it focus, then press shortcut keys to trigger actions. Button tooltips show `[key]` suffixes when shortcuts are configured.
+
+The default keymap:
+
+```javascript
+keymap: {
+  // Modifier keys (remap physical keys for mouse interactions)
+  shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey", alt: "altKey",
+  // Toggle buttons
+  axes: "a", axes0: "A", grid: "g", gridxy: "G",
+  perspective: "p", transparent: "t", blackedges: "b",
+  explode: "x", zscale: "L",
+  distance: "D", properties: "P", select: "S",
+  // Execute buttons
+  reset: "R", resize: "r",
+  iso: "0", front: "1", rear: "2", top: "3", bottom: "4", left: "5", right: "6",
+  // Help
+  help: "h",
+  // Animation
+  play: " ", stop: "Escape",
+  // Tab selection
+  tree: "T", clip: "C", material: "M", zebra: "Z",
+}
+```
+
+Pass a partial keymap to override individual bindings — unspecified keys keep their defaults:
+
+```javascript
+const displayOptions = {
+  keymap: { axes: "q", reset: "!" },  // only these two change
+};
+```
+
 ## Examples
 
 To understand the data format, a look at the simple 1 unit sized box might be helpful:
