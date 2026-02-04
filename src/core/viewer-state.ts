@@ -9,6 +9,7 @@ import {
   type ActiveTab,
   type ZebraColorScheme,
   type ZebraMappingMode,
+  type Keymap,
   type StateChange,
   type StateSubscriber,
   type GlobalStateSubscriber,
@@ -30,7 +31,7 @@ interface DisplayDefaults {
   pinning: boolean;
   glass: boolean;
   tools: boolean;
-  keymap: Partial<{ shift: string; ctrl: string; meta: string; alt: string }>;
+  keymap: Keymap;
   newTreeBehavior: boolean;
   measureTools: boolean;
   selectTool: boolean;
@@ -288,7 +289,14 @@ class ViewerState {
     pinning: false,
     glass: false,
     tools: true,
-    keymap: { shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey" },
+    keymap: {
+      shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey", alt: "altKey",
+      axes: "a", axes0: "A", grid: "g", gridxy: "G", perspective: "p", transparent: "t", blackedges: "b",
+      reset: "R", resize: "r",
+      iso: "0", front: "1", rear: "2", top: "3", bottom: "4", left: "5", right: "6",
+      explode: "x", zscale: "L", distance: "D", properties: "P", select: "S", help: "h", play: " ", stop: "Escape",
+      tree: "T", clip: "C", material: "M", zebra: "Z",
+    },
     newTreeBehavior: true,
     measureTools: true,
     selectTool: true,

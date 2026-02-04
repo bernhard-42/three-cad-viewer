@@ -232,6 +232,8 @@ interface KeyMappingConfig {
 
 class _KeyMapper {
   private keyMapping: Record<MappedKey, KeyEventKey>;
+  private actionShortcuts: Record<string, string>;
+  private reverseActionShortcuts: Record<string, string>;
 
   constructor() {
     this.keyMapping = {
@@ -240,6 +242,8 @@ class _KeyMapper {
       meta: "altKey",
       alt: "metaKey",
     };
+    this.actionShortcuts = {};
+    this.reverseActionShortcuts = {};
   }
 
   getshortcuts = (key: MappedKey): string => {
@@ -262,6 +266,26 @@ class _KeyMapper {
         this.keyMapping[key] = value;
       }
     }
+  };
+
+  setActionShortcuts = (shortcuts: Record<string, string>): void => {
+    this.actionShortcuts = { ...shortcuts };
+    this.reverseActionShortcuts = {};
+    for (const [action, key] of Object.entries(shortcuts)) {
+      this.reverseActionShortcuts[key] = action;
+    }
+  };
+
+  getActionForKey = (key: string): string | undefined => {
+    return this.reverseActionShortcuts[key];
+  };
+
+  getShortcutForAction = (action: string): string | undefined => {
+    return this.actionShortcuts[action];
+  };
+
+  getActionShortcuts = (): Record<string, string> => {
+    return { ...this.actionShortcuts };
   };
 }
 

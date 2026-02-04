@@ -231,6 +231,8 @@ class Display {
    */
   constructor(container: HTMLElement, options: DisplayOptions) {
     this.container = container;
+    this.container.setAttribute("tabindex", "0");
+    this.container.style.outline = "none";
     this.container.innerHTML = TEMPLATE(this.container.id);
 
     this.cadBody = this.getElement("tcv_cad_body");
@@ -998,6 +1000,10 @@ class Display {
 
     // Subscribe to state changes
     this.subscribeToStateChanges();
+
+    // Focus handling for keyboard shortcuts
+    listeners.add(this.container, "mousedown", () => this.container.focus());
+    listeners.add(this.container, "keydown", this._handleKeyboardShortcut);
   }
 
   /**
@@ -1928,6 +1934,168 @@ class Display {
       this.viewer.lastBbox.needsUpdate = true;
     }
   };
+
+  // ---------------------------------------------------------------------------
+  // Keyboard Shortcuts
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Handle keyboard shortcut events on the container.
+   */
+  private _handleKeyboardShortcut = (e: Event): void => {
+    if (!(e instanceof KeyboardEvent)) return;
+
+    // Skip if modifier keys are held (avoid conflicts with modifier-based mouse actions)
+    if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+    // Skip if target is a form input element
+    const target = e.target;
+    if (
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target instanceof HTMLSelectElement
+    ) {
+      return;
+    }
+
+    const action = KeyMapper.getActionForKey(e.key);
+    if (action) {
+      e.preventDefault();
+      e.stopPropagation();
+      this._dispatchAction(action);
+    }
+  };
+
+  /**
+   * Dispatch a keyboard shortcut action.
+   */
+  private _dispatchAction(action: string): void {
+    // Toggle buttons
+    const toggleActions = [
+      "axes", "axes0", "grid", "perspective", "transparent", "blackedges",
+      "explode", "zscale", "distance", "properties", "select",
+    ];
+    if (toggleActions.includes(action)) {
+      this._toggleClickButton(action);
+      return;
+    }
+
+    // Grid XY only
+    if (action === "gridxy") {
+      const grid = this.state.get("grid");
+      const xyOnly = grid[0] && !grid[1] && !grid[2];
+      // Hide all grids first
+      this.viewer.setGrid("grid", false);
+      // If not already in XY-only state, turn XY on
+      if (!xyOnly) {
+        this.viewer.setGrid("grid-xy", true);
+      }
+      return;
+    }
+
+    // Execute buttons
+    switch (action) {
+      case "reset":
+        this.reset();
+        return;
+      case "resize":
+        this.resize();
+        return;
+      case "iso":
+      case "front":
+      case "rear":
+      case "top":
+      case "bottom":
+      case "left":
+      case "right":
+        this.setView(action);
+        return;
+      case "help":
+        this.toggleHelp();
+        return;
+      case "play": {
+        const mode = this.state.get("animationMode");
+        if (mode === "animation" || mode === "explode") {
+          const clipAction = this.viewer.clipAction;
+          if (clipAction && clipAction.isRunning()) {
+            this.controlAnimationByName("pause");
+          } else {
+            this.controlAnimationByName("play");
+          }
+        }
+        return;
+      }
+      case "stop": {
+        if (this.help_shown) {
+          this.showHelp(false);
+          this.container.focus();
+          return;
+        }
+        const stopMode = this.state.get("animationMode");
+        if (stopMode === "explode") {
+          this._toggleClickButton("explode");
+        } else if (stopMode === "animation") {
+          this.controlAnimationByName("stop");
+        }
+        return;
+      }
+      case "tree":
+      case "clip":
+      case "material":
+      case "zebra":
+        this.viewer.setActiveTab(action);
+        return;
+    }
+  }
+
+  /**
+   * Programmatically toggle a ClickButton by name.
+   */
+  private _toggleClickButton(name: string): void {
+    const button = this.clickButtons[name];
+    if (!button) return;
+
+    // Skip if button is hidden
+    if (button.html.style.display === "none") return;
+
+    if (!button.state) {
+      button.clearGroup();
+    }
+    button.set(!button.state);
+    button.action(button.name, button.state);
+  }
+
+  /**
+   * Update tooltips with keyboard shortcut suffixes.
+   */
+  updateTooltips(): void {
+    const shortcuts = KeyMapper.getActionShortcuts();
+
+    for (const [action, key] of Object.entries(shortcuts)) {
+      // Check clickButtons and buttons
+      const button = this.clickButtons[action] || this.buttons[action];
+      if (button) {
+        const baseTooltip = button.html.getAttribute("data-base-tooltip");
+        if (baseTooltip) {
+          button.html.setAttribute("data-tooltip", `${baseTooltip} [${key}]`);
+        }
+      }
+    }
+
+    // Update tab titles
+    const tabMap: Record<string, HTMLElement | undefined> = {
+      tree: this.tabTree,
+      clip: this.tabClip,
+      material: this.tabMaterial,
+      zebra: this.tabZebra,
+    };
+    for (const [action, key] of Object.entries(shortcuts)) {
+      const tab = tabMap[action];
+      if (tab) {
+        tab.title = `[${key}]`;
+      }
+    }
+  }
 
   // ---------------------------------------------------------------------------
   // Help & Info Panels

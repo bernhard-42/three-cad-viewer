@@ -178,6 +178,20 @@ export type NotificationCallback = (change: ChangeNotification) => void;
 // Options
 // =============================================================================
 
+/** Action shortcut names for toolbar buttons and tabs */
+export type ActionShortcutName =
+  | "axes" | "axes0" | "grid" | "gridxy" | "perspective" | "transparent" | "blackedges" | "zscale"
+  | "reset" | "resize" | "iso" | "front" | "rear" | "top" | "bottom" | "left" | "right"
+  | "explode" | "distance" | "properties" | "select" | "help"
+  | "play" | "stop"
+  | "tree" | "clip" | "material" | "zebra";
+
+/** Action keymap: action name → key character */
+export type ActionKeymap = Partial<Record<ActionShortcutName, string>>;
+
+/** Combined keymap: modifier keys + action shortcuts */
+export type Keymap = Partial<{ shift: string; ctrl: string; meta: string; alt: string }> & ActionKeymap;
+
 /** Display options */
 export interface DisplayOptions {
   /** Width of CAD canvas (default: 800) */
@@ -197,11 +211,7 @@ export interface DisplayOptions {
   /** Show/hide all tools (default: true) */
   tools?: boolean;
   /** Keymap configuration */
-  keymap?: {
-    shift: string;
-    ctrl: string;
-    meta: string;
-  };
+  keymap?: Keymap;
   /** Use new tree behavior (default: true) */
   newTreeBehavior?: boolean;
   /** Show measure tools (default: true) */
@@ -332,7 +342,7 @@ export interface ViewerStateShape {
   pinning: boolean;
   glass: boolean;
   tools: boolean;
-  keymap: { shift: string; ctrl: string; meta: string };
+  keymap: Keymap;
   newTreeBehavior: boolean;
   measureTools: boolean;
   selectTool: boolean;

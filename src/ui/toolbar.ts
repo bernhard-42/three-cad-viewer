@@ -177,6 +177,7 @@ class BaseButton {
     const html = document.createElement("span");
     html.className = "tcv_tooltip";
     html.setAttribute("data-tooltip", tooltip);
+    html.setAttribute("data-base-tooltip", tooltip);
 
     const frame = document.createElement("span");
     frame.className = "tcv_button_frame";

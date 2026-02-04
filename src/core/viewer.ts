@@ -59,6 +59,7 @@ import {
   type ClipIndex,
   type ThemeInput,
   type BoundingBoxFlat,
+  type Keymap,
 } from "./types.js";
 
 // =============================================================================
@@ -402,7 +403,9 @@ class Viewer {
     this.display = display;
 
     if (options.keymap) {
-      this.setKeyMap(options.keymap);
+      this.setKeyMap({ ...ViewerState.DISPLAY_DEFAULTS.keymap, ...options.keymap });
+    } else {
+      this.setKeyMap(ViewerState.DISPLAY_DEFAULTS.keymap);
     }
 
     window.THREE = THREE;
@@ -4100,14 +4103,32 @@ class Viewer {
   // ---------------------------------------------------------------------------
 
   /**
-   * Set modifiers for keymap
+   * Set modifiers and action shortcuts for keymap
    *
-   * @param config - keymap e.g. {"shift": "shiftKey", "ctrl": "ctrlKey", "meta": "altKey"}
+   * @param config - keymap e.g. {"shift": "shiftKey", "ctrl": "ctrlKey", "meta": "altKey", "axes": "a", ...}
    */
-  setKeyMap(config: KeymapConfig): void {
-    const before = KeyMapper.get_config();
-    KeyMapper.set(config);
-    this.display.updateHelp(before, config);
+  setKeyMap(config: Keymap): void {
+    const modifierKeys = new Set(["shift", "ctrl", "meta", "alt"]);
+    const modifiers: Partial<KeyMappingConfig> = {};
+    const actions: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(config)) {
+      if (value === undefined) continue;
+      if (modifierKeys.has(key)) {
+        modifiers[key as keyof KeyMappingConfig] = value as KeyMappingConfig[keyof KeyMappingConfig];
+      } else {
+        actions[key] = value;
+      }
+    }
+
+    if (Object.keys(modifiers).length > 0) {
+      const before = KeyMapper.get_config();
+      KeyMapper.set(modifiers);
+      this.display.updateHelp(before, modifiers);
+    }
+
+    KeyMapper.setActionShortcuts(actions);
+    this.display.updateTooltips();
   }
 
   // ---------------------------------------------------------------------------
