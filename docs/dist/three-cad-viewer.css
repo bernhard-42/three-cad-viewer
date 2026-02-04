@@ -130,6 +130,16 @@ body {
   background-color: var(--tcv-bg-color);
 }
 
+.radio-group {
+  display: inline-flex;
+  align-items: center;
+}
+
+input[type="radio"] {
+  vertical-align: middle;
+  transform: translateY(-2px);
+}
+
 .tcv_button_bottom {
   background-image: var(--tcv-icon-bottom);
 }
@@ -696,6 +706,15 @@ input[type="button"] {
   user-select: none;
 }
 
+.tcv_radio_label {
+  font-family: sans-serif;
+  font-size: 14px;
+  margin-right: 4px;
+  vertical-align: middle;
+  margin-top: 2px;
+  user-select: none;
+}
+
 .tcv_check {
   vertical-align: middle;
   margin-right: 2px;
@@ -765,12 +784,31 @@ input[type="button"] {
 }
 
 .tcv_cad_clip_container {
-  margin-top: 0px;
+  margin-top: 14px;
   overflow: hidden;
 }
 
 .tcv_cad_material_container {
   overflow: hidden;
+}
+
+.tcv_cad_zebra_container {
+  overflow: hidden;
+}
+
+.tcv_zebra_stripe_count {
+  margin-top: 20px;
+}
+
+.tcv_zebra_radio {
+  margin-top: 8px;
+  margin-bottom: 4px;
+  margin-left: -3px;
+}
+
+.tcv_zebra_mapping {
+  margin-top: 8px;
+  margin-bottom: 4px;
 }
 
 .tcv_clip_checks {
@@ -822,6 +860,7 @@ input[type="button"] {
 }
 
 .tcv_lbl_norm_plane1 {
+  margin-top: 20px;
   color: var(--tcv-x-color);
 }
 
@@ -908,6 +947,10 @@ input[type="button"] {
 }
 
 .tcv_material_info {
+  font-size: 12px;
+}
+
+.tcv_zebra_info {
   font-size: 12px;
 }
 
