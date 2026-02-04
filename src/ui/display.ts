@@ -1960,16 +1960,19 @@ class Display {
 
     const action = KeyMapper.getActionForKey(e.key);
     if (action) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._dispatchAction(action);
+      const result = this._dispatchAction(action);
+      if (result !== "propagate") {
+        e.preventDefault();
+        e.stopPropagation();
+      }
     }
   };
 
   /**
    * Dispatch a keyboard shortcut action.
+   * Returns "propagate" if the event should not be suppressed.
    */
-  private _dispatchAction(action: string): void {
+  private _dispatchAction(action: string): string | void {
     // Toggle buttons
     const toggleActions = [
       "axes", "axes0", "grid", "perspective", "transparent", "blackedges",
@@ -2031,6 +2034,9 @@ class Display {
           this.container.focus();
           return;
         }
+        // When a tool is active, let ESC propagate to the raycaster
+        // for shape deselection
+        if (this.state.get("activeTool")) return "propagate";
         const stopMode = this.state.get("animationMode");
         if (stopMode === "explode") {
           this._toggleClickButton("explode");
