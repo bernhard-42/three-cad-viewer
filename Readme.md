@@ -236,6 +236,9 @@ For the `States` object, see [Class States](https://bernhard-42.github.io/three-
 
       // 6) Remove the part again by absolute path
       viewer.removePart("/Group/Box2");
+
+      // 7) Update an existing part's geometry (see "Dynamic Scene Updates" below)
+      viewer.updatePart("/Group/Box2", updatedPartData);
     </script>
   </head>
 
@@ -243,6 +246,62 @@ For the `States` object, see [Class States](https://bernhard-42.github.io/three-
     <div id="cad_view"></div>
   </body>
 </html>
+```
+
+## Dynamic Scene Updates
+
+After the initial `viewer.render()`, parts can be added, removed, or updated without re-rendering the entire scene.
+
+### addPart / removePart
+
+`addPart(parentPath, partData)` creates new Three.js objects (meshes, edges, clipping stencils) from the part data and inserts them into the scene graph and navigation tree. `removePart(path)` disposes the Three.js objects and removes the part from the scene.
+
+```js
+viewer.addPart("/Group", partData);    // creates "/Group/PartName"
+viewer.removePart("/Group/PartName");
+```
+
+### updatePart
+
+`updatePart(path, partData)` updates an existing part's geometry without tearing down and recreating the Three.js objects. When the mesh topology is unchanged (same number of vertices, triangles, and edge segments), vertex positions, normals, and edge coordinates are written directly into the existing GPU buffers — this is significantly faster than a remove/add cycle. When the topology differs (e.g. a re-tessellation changed the face or edge count), `updatePart` automatically falls back to a batched `removePart` + `addPart` so the caller does not need to handle this case.
+
+```js
+viewer.updatePart("/Group/PartName", updatedPartData);
+```
+
+### Batching
+
+Each of the three methods individually recomputes the bounding box, rebuilds clipping stencils, and (for add/remove) rebuilds the navigation tree. In a loop over N parts this becomes the dominant cost. All three methods accept an optional `{ skipBounds: true }` parameter that defers this work. Call `updateBounds()` once after the loop to perform a single recomputation for the entire batch:
+
+```js
+for (const part of partsToUpdate) {
+  viewer.updatePart(`/Group/${part.name}`, part, { skipBounds: true });
+}
+for (const part of partsToAdd) {
+  viewer.addPart("/Group", part, { skipBounds: true });
+}
+for (const path of pathsToRemove) {
+  viewer.removePart(path, { skipBounds: true });
+}
+viewer.updateBounds();
+```
+
+Add, remove, and update calls can be freely mixed within a single batch.
+
+### ensureStencilSize
+
+`updateBounds()` rebuilds clipping stencils whenever the scene's bounding box grows beyond the region that stencils were previously built for. This rebuild is the most expensive part of the bounds update. When the maximum extent of the geometry is known upfront (e.g. the full parameter range of a slider), call `ensureStencilSize()` once after the initial render to pre-size the stencil region. All subsequent `updateBounds()` calls whose geometry stays within this region will skip the stencil rebuild entirely:
+
+```js
+viewer.render(shapes, renderOptions, viewerOptions);
+
+viewer.ensureStencilSize({
+  xmin: -200, xmax: 200,
+  ymin: -200, ymax: 200,
+  zmin: 0,    zmax: 300,
+});
+
+// All updates within these bounds are now stencil-rebuild-free
 ```
 
 ## Examples

@@ -26,6 +26,7 @@ import {
   scaleLight,
   deepDispose,
   isOrthographicCamera,
+  isLineSegments2,
   toVector3Tuple,
   toQuaternionTuple,
 } from "../utils/utils.js";
@@ -57,6 +58,7 @@ import {
   type Axis,
   type ClipIndex,
   type ThemeInput,
+  type BoundingBoxFlat,
 } from "./types.js";
 
 // =============================================================================
@@ -309,6 +311,8 @@ class Viewer {
   bbox: BoundingBox | null;
   bb_max: number;
   bb_radius!: number;
+  private _stencilCSize: number;
+  private _treeNeedsRebuild: boolean;
   shapes: Shapes | null;
   gridSize!: number;
 
@@ -409,6 +413,8 @@ class Viewer {
     this.tree = null;
     this.bbox = null;
     this.bb_max = 0;
+    this._stencilCSize = 0;
+    this._treeNeedsRebuild = false;
     this.cadTools = new Tools(this, options.measurementDebug ?? false);
 
     this.ready = false;
@@ -923,6 +929,8 @@ class Viewer {
     this.tree = null;
     // Info is owned by Display
     this.bbox = null;
+    this._stencilCSize = 0;
+    this._treeNeedsRebuild = false;
     this.keymap = null;
     if (this.raycaster) {
       this.raycaster.dispose();
@@ -1447,6 +1455,7 @@ class Viewer {
         Math.abs(this.bbox.min.length()),
         Math.abs(this.bbox.max.length()),
       );
+    this._stencilCSize = cSize;
     const clipping = new Clipping(
       this.bbox.center(),
       2 * cSize,
@@ -3066,6 +3075,7 @@ class Viewer {
         Math.abs(this.bbox.min.length()),
         Math.abs(this.bbox.max.length()),
       );
+    this._stencilCSize = cSize;
     clipping.rebuildStencils(this.bbox.center(), 2 * cSize);
     nestedGroup.setClipPlanes(clipping.clipPlanes);
 
@@ -3142,15 +3152,26 @@ class Viewer {
    * as a slash-prefixed relative tree (e.g. `"/shelf"`).  All `id`
    * fields in the tree are prefixed with `parentPath` before rendering.
    *
+   * When adding many parts in a batch, pass `{ skipBounds: true }` to
+   * defer the expensive bounds/clipping/treeview recomputation, then call
+   * `updateBounds()` once after the loop.
+   *
    * @param parentPath - Absolute path of the parent group
    *   (e.g. "/assembly").  Must already exist as a CompoundGroup.
    * @param partData - A Shapes object describing the part to add.
+   * @param options - Optional settings.
+   * @param options.skipBounds - When true, skip bounds/clipping/treeview
+   *   update and re-render.  Caller must call `updateBounds()` afterwards.
    * @returns The absolute path of the added root element.
    * @throws If the viewer is not rendered, the parent doesn't exist,
    *   or the name/id already exists at that level.
    * @public
    */
-  addPart(parentPath: string, partData: Shapes): string {
+  addPart(
+    parentPath: string,
+    partData: Shapes,
+    options: { skipBounds?: boolean } = {},
+  ): string {
     if (!this._rendered) {
       throw new Error("Viewer.render() must be called before addPart()");
     }
@@ -3231,6 +3252,11 @@ class Viewer {
       this.expandedTree = null;
     }
 
+    if (options.skipBounds) {
+      this._treeNeedsRebuild = true;
+      return path;
+    }
+
     // Update bounds, clipping, treeview
     this._updateBounds();
     this._rebuildTreeView();
@@ -3254,12 +3280,19 @@ class Viewer {
   /**
    * Remove a part (leaf or subtree) from the scene by path.
    *
+   * When removing many parts in a batch, pass `{ skipBounds: true }` to
+   * defer the expensive bounds/clipping/treeview recomputation, then call
+   * `updateBounds()` once after the loop.
+   *
    * @param path - The absolute path of the part to remove
    *   (e.g., "/assembly/shelf_5").
+   * @param options - Optional settings.
+   * @param options.skipBounds - When true, skip bounds/clipping/treeview
+   *   update and re-render.  Caller must call `updateBounds()` afterwards.
    * @throws If the viewer is not rendered or the path doesn't exist.
    * @public
    */
-  removePart(path: string): void {
+  removePart(path: string, options: { skipBounds?: boolean } = {}): void {
     if (!this._rendered) {
       throw new Error("Viewer.render() must be called before removePart()");
     }
@@ -3300,10 +3333,307 @@ class Viewer {
       this.expandedTree = null;
     }
 
+    if (options.skipBounds) {
+      this._treeNeedsRebuild = true;
+      return;
+    }
+
     // Update bounds, clipping, treeview
     this._updateBounds();
     this._rebuildTreeView();
     this.update(this.updateMarker);
+  }
+
+  /**
+   * Update an existing part's geometry.
+   *
+   * When the mesh topology is unchanged (same number of vertices, triangles,
+   * and edge segments), buffers are updated in-place — no Three.js objects
+   * are disposed or recreated.  When topology differs the method
+   * automatically falls back to a batched `removePart` + `addPart`.
+   *
+   * Only leaf parts (ObjectGroups with `shapeGeometry`) are supported.
+   * The part must already exist in the scene.
+   *
+   * When updating many parts in a batch, pass `{ skipBounds: true }` to
+   * defer the expensive bounds/clipping recomputation, then call
+   * `updateBounds()` once after the loop:
+   *
+   * ```ts
+   * for (const p of parts) {
+   *   viewer.updatePart(path, data, { skipBounds: true });
+   * }
+   * viewer.updateBounds();
+   * ```
+   *
+   * @param path - The absolute path of the part to update
+   *   (e.g., "/assembly/part").
+   * @param partData - A Shapes object with the new `shape` data.
+   *   The `shape.vertices`, `shape.normals`, `shape.triangles`, and
+   *   `shape.edges` fields are used to update the geometry.
+   *   Optionally `color`, `alpha`, and `loc` are synced into `this.shapes`.
+   * @param options - Optional settings.
+   * @param options.skipBounds - When true, skip bounds/clipping/explode-cache
+   *   update and re-render.  Caller must call `updateBounds()` afterwards.
+   * @throws If the viewer is not rendered, the path doesn't exist,
+   *   or the target is not a leaf ObjectGroup with shape geometry.
+   * @public
+   */
+  updatePart(
+    path: string,
+    partData: Shapes,
+    options: { skipBounds?: boolean } = {},
+  ): void {
+    if (!this._rendered) {
+      throw new Error("Viewer.render() must be called before updatePart()");
+    }
+
+    const nestedGroup = this.rendered.nestedGroup;
+    const group = nestedGroup.groups[path];
+    if (!group) {
+      throw new Error(`Part not found: ${path}`);
+    }
+    if (!isObjectGroup(group)) {
+      throw new Error(`Part is not a leaf ObjectGroup: ${path}`);
+    }
+    if (!group.shapeGeometry) {
+      throw new Error(
+        `Part has no shape geometry (may be edges/vertices only): ${path}`,
+      );
+    }
+    if (!partData.shape) {
+      throw new Error(`partData.shape is required for updatePart`);
+    }
+
+    const shape = partData.shape;
+    const geom = group.shapeGeometry;
+
+    // --- Check whether topology is unchanged ---
+    const flatLen = (
+      data: number[] | number[][] | Float32Array | Uint32Array | undefined,
+    ): number => {
+      if (!data) return 0;
+      if (data instanceof Float32Array || data instanceof Uint32Array)
+        return data.length;
+      if (Array.isArray(data) && data.length > 0 && Array.isArray(data[0]))
+        return (data as number[][]).reduce((s, a) => s + a.length, 0);
+      return (data as number[]).length;
+    };
+
+    const posAttr = geom.getAttribute("position") as THREE.BufferAttribute;
+    const oldIndex = geom.getIndex();
+
+    const sameVertices = posAttr.count === flatLen(shape.vertices) / 3;
+    const sameTriangles =
+      oldIndex != null && oldIndex.count === flatLen(shape.triangles);
+
+    let sameEdges = true;
+    if (group.edges && shape.edges) {
+      if (isLineSegments2(group.edges)) {
+        const edgeGeom = group.edges.geometry;
+        const instanceCount =
+          edgeGeom.getAttribute("instanceStart")?.count ?? 0;
+        // LineSegmentsGeometry stores 1 instance per segment (2 points)
+        sameEdges = instanceCount === flatLen(shape.edges) / 6;
+      } else {
+        const edgePosAttr = group.edges.geometry.getAttribute(
+          "position",
+        ) as THREE.BufferAttribute | null;
+        sameEdges =
+          edgePosAttr != null &&
+          edgePosAttr.count === flatLen(shape.edges) / 3;
+      }
+    }
+
+    if (!sameVertices || !sameTriangles || !sameEdges) {
+      // Topology changed — fall back to remove + add
+      const parentPath = path.substring(0, path.lastIndexOf("/"));
+      this.removePart(path, { skipBounds: true });
+      this.addPart(parentPath, partData, { skipBounds: true });
+      if (!options.skipBounds) {
+        this.updateBounds();
+      }
+      return;
+    }
+
+    // --- Topology matches — fast in-place buffer update ---
+
+    // Helper: convert to typed arrays
+    const toF32 = (
+      data: number[] | number[][] | Float32Array,
+    ): Float32Array => {
+      if (data instanceof Float32Array) return data;
+      if (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) {
+        return new Float32Array((data as number[][]).flat());
+      }
+      return new Float32Array(data as number[]);
+    };
+    const toU32 = (
+      data: number[] | number[][] | Uint32Array,
+    ): Uint32Array => {
+      if (data instanceof Uint32Array) return data;
+      if (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) {
+        return new Uint32Array((data as number[][]).flat());
+      }
+      return new Uint32Array(data as number[]);
+    };
+
+    // Step 1: Update face geometry buffers (in-place, counts match)
+    const newPositions = toF32(shape.vertices);
+    const newNormals = toF32(shape.normals);
+    const newTriangles = toU32(shape.triangles);
+
+    (posAttr.array as Float32Array).set(newPositions);
+    posAttr.needsUpdate = true;
+    const normAttr = geom.getAttribute("normal") as THREE.BufferAttribute;
+    (normAttr.array as Float32Array).set(newNormals);
+    normAttr.needsUpdate = true;
+    (oldIndex!.array as Uint32Array).set(newTriangles);
+    oldIndex!.needsUpdate = true;
+
+    geom.computeBoundingBox();
+    geom.computeBoundingSphere();
+
+    // Step 2: Update edge geometry (in-place, counts match)
+    if (group.edges && shape.edges && shape.edges.length > 0) {
+      const newEdgePositions = toF32(shape.edges);
+      if (isLineSegments2(group.edges)) {
+        group.edges.geometry.setPositions(newEdgePositions);
+      } else {
+        const edgeGeom = group.edges.geometry;
+        const edgePosAttr = edgeGeom.getAttribute(
+          "position",
+        ) as THREE.BufferAttribute;
+        (edgePosAttr.array as Float32Array).set(newEdgePositions);
+        edgePosAttr.needsUpdate = true;
+        edgeGeom.computeBoundingBox();
+        edgeGeom.computeBoundingSphere();
+      }
+    }
+
+    // Step 3: Sync this.shapes data
+    const parentShapes = this._findShapesParent(path);
+    if (parentShapes && parentShapes.parts) {
+      const name = path.substring(path.lastIndexOf("/") + 1);
+      const entry = parentShapes.parts.find((p) => p.name === name);
+      if (entry) {
+        entry.shape = shape;
+        if (partData.color !== undefined) entry.color = partData.color;
+        if (partData.alpha !== undefined) entry.alpha = partData.alpha;
+        if (partData.loc !== undefined) entry.loc = partData.loc;
+      }
+    }
+
+    // Step 4: Update bounds or defer
+    if (options.skipBounds) {
+      return;
+    }
+
+    this.updateBounds();
+  }
+
+  /**
+   * Recompute scene bounds, camera far plane, clipping stencils, and
+   * re-render.  Call this once after a batch of
+   * `addPart`, `removePart`, or `updatePart` calls that used
+   * `{ skipBounds: true }`.
+   *
+   * If parts were added or removed in the batch, the navigation treeview
+   * is also rebuilt automatically.
+   *
+   * @public
+   */
+  updateBounds(): void {
+    if (!this._rendered) {
+      throw new Error("Viewer.render() must be called before updateBounds()");
+    }
+
+    const nestedGroup = this.rendered.nestedGroup;
+
+    // Recompute bounding box from current geometry
+    nestedGroup.bbox = null;
+    this.bbox = nestedGroup.boundingBox();
+
+    const center = new THREE.Vector3();
+    this.bbox.getCenter(center);
+    this.bb_max = this.bbox.max_dist_from_center();
+    this.bb_radius = Math.max(
+      this.bbox.boundingSphere().radius,
+      center.length(),
+    );
+
+    // Always update camera far plane (cheap)
+    this.rendered.camera.updateFarPlane(this.bb_radius);
+
+    // Only rebuild stencils if geometry grew beyond the region that stencils
+    // were last built for.  Shrinking geometry still fits within existing
+    // stencils, so skip the expensive rebuild in that case.
+    const newCSize = 1.1 * Math.max(
+      Math.abs(this.bbox.min.length()),
+      Math.abs(this.bbox.max.length()),
+    );
+    if (newCSize > this._stencilCSize + 1e-6) {
+      this._stencilCSize = newCSize;
+      const clipping = this.rendered.clipping;
+      clipping.rebuildStencils(this.bbox.center(), 2 * newCSize);
+      nestedGroup.setClipPlanes(clipping.clipPlanes);
+      this.display.setSliderLimits(newCSize);
+    }
+
+    // Invalidate explode cache
+    if (this.expandedNestedGroup != null) {
+      deepDispose(this.expandedNestedGroup);
+      this.expandedNestedGroup = null;
+      this.expandedTree = null;
+    }
+
+    // Rebuild treeview if parts were added or removed in this batch
+    if (this._treeNeedsRebuild) {
+      this._treeNeedsRebuild = false;
+      this._rebuildTreeView();
+    }
+
+    // Re-render
+    this.update(this.updateMarker);
+  }
+
+  /**
+   * Pre-size the clipping stencil region so that all future `updatePart` /
+   * `updateBounds` calls whose geometry stays within `bb` will never trigger
+   * an expensive `rebuildStencils`.
+   *
+   * Call this once before a series of updates when the maximum extent of the
+   * geometry is known upfront (e.g. the parameter range of a slider).
+   *
+   * @param bb - The maximum bounding box that geometry will ever occupy.
+   */
+  ensureStencilSize(bb: BoundingBoxFlat): void {
+    if (!this._rendered) {
+      throw new Error(
+        "Viewer.render() must be called before ensureStencilSize()",
+      );
+    }
+
+    const min = new THREE.Vector3(bb.xmin, bb.ymin, bb.zmin);
+    const max = new THREE.Vector3(bb.xmax, bb.ymax, bb.zmax);
+    const center = new THREE.Vector3()
+      .addVectors(min, max)
+      .multiplyScalar(0.5);
+
+    const requiredCSize =
+      1.1 * Math.max(Math.abs(min.length()), Math.abs(max.length()));
+
+    if (requiredCSize > this._stencilCSize + 1e-6) {
+      this._stencilCSize = requiredCSize;
+      const clipping = this.rendered.clipping;
+      const nestedGroup = this.rendered.nestedGroup;
+      clipping.rebuildStencils(
+        [center.x, center.y, center.z] as [number, number, number],
+        2 * requiredCSize,
+      );
+      nestedGroup.setClipPlanes(clipping.clipPlanes);
+      this.display.setSliderLimits(requiredCSize);
+    }
   }
 
   // ---------------------------------------------------------------------------
