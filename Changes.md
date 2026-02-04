@@ -19,6 +19,9 @@
     - Views: `0` iso, `1`–`6` front/rear/top/bottom/left/right, `r` resize, `R` reset
     - Tabs: `T` tree, `C` clip, `M` material, `Z` zebra
     - Other: `h` help, `Space` play/pause, `Escape` stop/close-help
+- Measurement improvements
+  - Measurement arrows adapt to point proximity: cones flip outward when points are close, and are hidden when coincident — preventing visual overlap
+  - Measurement panels now render grouped backend responses with horizontal separators between groups
 
 **Build & Tooling**
 

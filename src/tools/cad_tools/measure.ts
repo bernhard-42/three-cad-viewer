@@ -23,6 +23,7 @@ class DistanceLineArrow extends THREE.Group {
   arrowEnd: boolean;
   override type: string;
   lineVec!: THREE.Vector3;
+  mode: "inward" | "outward";
 
   constructor(
     coneLength: number,
@@ -42,59 +43,85 @@ class DistanceLineArrow extends THREE.Group {
     this.arrowStart = arrowStart;
     this.arrowEnd = arrowEnd;
     this.type = "DistanceLineArrow";
+    this.mode = "inward";
     this.initialize();
   }
 
   initialize(): void {
-    const coneLength = this.coneLength;
+    const coneLength = this.coneLength * 0.8;
     this.lineVec = this.point1.clone().sub(this.point2.clone()).normalize();
+
+    // Determine mode based on distance between points
+    const dist = this.point1.distanceTo(this.point2);
+    if (dist < coneLength) {
+      this.mode = "outward";
+    } else {
+      this.mode = "inward";
+    }
+
+    // sign: +1 = cones sit inside the line (inward), -1 = cones sit outside (outward)
+    const sign = this.mode === "inward" ? 1 : -1;
+
     let start: THREE.Vector3, end: THREE.Vector3;
     if (this.arrowStart) {
       start = this.point1
         .clone()
-        .sub(this.lineVec.clone().multiplyScalar(coneLength / 2));
+        .sub(this.lineVec.clone().multiplyScalar(sign * coneLength * 0.3));
     } else {
       start = this.point1.clone();
     }
     if (this.arrowEnd) {
       end = this.point2
         .clone()
-        .sub(this.lineVec.clone().multiplyScalar(-coneLength / 2));
+        .sub(this.lineVec.clone().multiplyScalar(-sign * coneLength * 0.3));
     } else {
       end = this.point2.clone();
     }
+
     const material = new LineMaterial({
       linewidth: this.linewidth,
       color: this.color,
     });
     const geom = new LineSegmentsGeometry();
     geom.setPositions([...start.toArray(), ...end.toArray()]);
-
     const line = new LineSegments2(geom, material);
 
-    const coneGeom = new THREE.ConeGeometry(coneLength / 4, coneLength, 10);
-    const coneMaterial = new THREE.MeshBasicMaterial({ color: this.color });
-    const startCone = new THREE.Mesh(coneGeom, coneMaterial);
-    const endCone = new THREE.Mesh(coneGeom, coneMaterial);
-    startCone.name = "startCone";
-    endCone.name = "endCone";
-    const matrix = new THREE.Matrix4();
-    const quaternion = new THREE.Quaternion();
-    matrix.lookAt(this.point1, this.point2, startCone.up);
-    quaternion.setFromRotationMatrix(matrix);
-    startCone.setRotationFromQuaternion(quaternion);
-    matrix.lookAt(this.point2, this.point1, endCone.up);
-    quaternion.setFromRotationMatrix(matrix);
-    endCone.setRotationFromQuaternion(quaternion);
-    startCone.rotateX((90 * Math.PI) / 180);
-    endCone.rotateX((90 * Math.PI) / 180);
+    if (dist >= 1e-9) {
+      const coneGeom = new THREE.ConeGeometry(coneLength / 4, coneLength * 0.6, 10);
+      const coneMaterial = new THREE.MeshBasicMaterial({ color: this.color });
+      const startCone = new THREE.Mesh(coneGeom, coneMaterial);
+      const endCone = new THREE.Mesh(coneGeom, coneMaterial);
+      startCone.name = "startCone";
+      endCone.name = "endCone";
 
-    startCone.position.copy(start);
-    endCone.position.copy(end);
+      const matrix = new THREE.Matrix4();
+      const quaternion = new THREE.Quaternion();
+      if (this.mode === "inward") {
+        // Cones point outward toward p1/p2
+        matrix.lookAt(this.point1, this.point2, startCone.up);
+        quaternion.setFromRotationMatrix(matrix);
+        startCone.setRotationFromQuaternion(quaternion);
+        matrix.lookAt(this.point2, this.point1, endCone.up);
+        quaternion.setFromRotationMatrix(matrix);
+        endCone.setRotationFromQuaternion(quaternion);
+      } else {
+        // Cones point inward toward the line center
+        matrix.lookAt(this.point2, this.point1, startCone.up);
+        quaternion.setFromRotationMatrix(matrix);
+        startCone.setRotationFromQuaternion(quaternion);
+        matrix.lookAt(this.point1, this.point2, endCone.up);
+        quaternion.setFromRotationMatrix(matrix);
+        endCone.setRotationFromQuaternion(quaternion);
+      }
+      startCone.rotateX((90 * Math.PI) / 180);
+      endCone.rotateX((90 * Math.PI) / 180);
 
-    if (this.arrowStart) this.add(startCone);
+      startCone.position.copy(start);
+      endCone.position.copy(end);
 
-    if (this.arrowEnd) this.add(endCone);
+      if (this.arrowStart) this.add(startCone);
+      if (this.arrowEnd) this.add(endCone);
+    }
 
     this.add(line);
   }
@@ -103,19 +130,22 @@ class DistanceLineArrow extends THREE.Group {
    * Update the arrow so it keeps the same size on the screen.
    */
   update(scaleFactor: number): void {
+    const coneLength = this.coneLength * 0.8;
+    const sign = this.mode === "inward" ? 1 : -1;
+
     const newStart = this.point1
       .clone()
       .sub(
         this.lineVec
           .clone()
-          .multiplyScalar((scaleFactor * this.coneLength) / 2),
+          .multiplyScalar(sign * scaleFactor * coneLength * 0.3),
       );
     const newEnd = this.point2
       .clone()
       .sub(
         this.lineVec
           .clone()
-          .multiplyScalar((-scaleFactor * this.coneLength) / 2),
+          .multiplyScalar(-sign * scaleFactor * coneLength * 0.3),
       );
     const line = this.children.find((child) => isLineSegments2(child));
     if (line && isLineSegments2(line)) {
@@ -338,14 +368,14 @@ class Measurement {
           this.point1 = obj1.localToWorld(center1);
           this.point2 = obj2.localToWorld(center2);
           responseData = {
+            groups: [
+              { distance: 2.345, info: "center" },
+              { "point 1": this.point1.toArray(), "point 2": this.point2.toArray() },
+              { angle: 43.21, "reference 1": "Plane (Face)", "reference 2": "Plane (Face)" },
+            ],
             type: "backend_response",
-            Distance: 2.345,
-            info: "center",
             refpoint1: this.point1.toArray(),
             refpoint2: this.point2.toArray(),
-            Angle: 43.21,
-            info1: "Plane (Face)",
-            info2: "Plane (Face)",
           };
         } else if (this instanceof PropertiesMeasurement) {
           const obj = this.selectedShapes[0].obj;
@@ -356,19 +386,13 @@ class Measurement {
             type: "backend_response",
             shape_type: "Edge",
             geom_type: "EllipseArc",
-            "Major radius": 0.4,
-            "Minor radius": 0.2,
-            Length: 0.6868592404716374,
-            Start: [2.4, -1.0, 0.0],
-            Center: this.point1.toArray(),
             refpoint: this.point1.toArray(),
-            End: [1.8, -0.8267949192431111, 0.0],
-            bb: {
-              min: [1.8, -1.0, 0.0],
-              center: [2.1, -0.9, 0.0],
-              max: [2.4, -0.8, 0.0],
-              size: [0.56, 0.2, 0.0],
-            },
+            groups: [
+              { center: this.point1.toArray(), "major radius": 0.4, "minor radius": 0.2 },
+              { start: [2.4, -1.0, 0.0], end: [1.8, -0.8267949192431111, 0.0] },
+              { length: 0.6868592404716374 },
+              { bb: { min: [1.8, -1.0, 0.0], center: [2.1, -0.9, 0.0], max: [2.4, -0.8, 0.0], size: [0.56, 0.2, 0.0] } },
+            ],
           };
         } else {
           return;
@@ -639,7 +663,7 @@ class DistanceMeasurement extends Measurement {
       this.coneLength,
       this.point1,
       this.point2,
-      2 * lineWidth,
+      lineWidth,
       this.measurementLineColor,
     );
     this.scene.add(distanceLine);

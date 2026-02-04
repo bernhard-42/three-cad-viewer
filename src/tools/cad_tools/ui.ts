@@ -23,6 +23,14 @@ interface CallbackEntry {
   type: string;
 }
 
+/**
+ * Format a key for display: lowercase and insert space before trailing digits.
+ * e.g. "normal1" → "normal 1", "Point 1" → "point 1", "Distance" → "distance"
+ */
+function formatKey(key: string): string {
+  return key.toLowerCase().replace(/(\D)(\d+)$/, "$1 $2");
+}
+
 function createVectorRow(key: string, value: number[]): HTMLTableRowElement {
   const xyzColors = [
     "tcv_x_measure_val",
@@ -32,7 +40,7 @@ function createVectorRow(key: string, value: number[]): HTMLTableRowElement {
   const tr = document.createElement("tr");
   const th = document.createElement("th");
 
-  th.textContent = key;
+  th.textContent = formatKey(key);
   th.classList.add("tcv_measure_key");
   th.classList.add("tcv_measure_cell");
   tr.appendChild(th);
@@ -63,7 +71,7 @@ function createStringRow(key: string, value: string): HTMLTableRowElement {
   const tr = document.createElement("tr");
   const th = document.createElement("th");
   const td = document.createElement("td");
-  th.textContent = key;
+  th.textContent = formatKey(key);
   th.classList.add("tcv_measure_key");
   th.classList.add("tcv_measure_cell");
   tr.appendChild(th);
@@ -82,7 +90,7 @@ function createValueRow(key: string, value: number, qualifier: string | null = n
   const th = document.createElement("th");
   const td = document.createElement("td");
 
-  th.textContent = key;
+  th.textContent = formatKey(key);
   th.classList.add("tcv_measure_key");
   th.classList.add("tcv_measure_cell");
   tr.appendChild(th);
@@ -180,12 +188,83 @@ abstract class Panel {
   }
 }
 
+/**
+ * Skip list for technical fields that should not be rendered in panels.
+ */
+const SKIP_KEYS = [
+  "type", "tool_type", "subtype", "info",
+  "refpoint", "refpoint1", "refpoint2",
+  "shape_type", "geom_type", "groups", "result",
+];
+
+/**
+ * Render entries from a group object into a tbody.
+ * If addSeparator is true, the first rendered row gets a top border.
+ */
+function renderGroup(
+  group: Record<string, unknown>,
+  tbody: HTMLTableSectionElement,
+  addSeparator: boolean,
+): void {
+  let firstRow = true;
+  for (const key in group) {
+    if (!Object.prototype.hasOwnProperty.call(group, key)) continue;
+    if (SKIP_KEYS.includes(key.toLowerCase())) continue;
+
+    const value = group[key];
+
+    let tr: HTMLTableRowElement | undefined;
+    if (key.toLowerCase() === "bb" && isBoundingBoxData(value)) {
+      for (const bbKey in value) {
+        const bbTr = createVectorRow(`bb ${bbKey}`, value[bbKey]);
+        if (addSeparator && firstRow) {
+          bbTr.classList.add("tcv_measure_cell_top_border");
+          firstRow = false;
+        }
+        tbody.appendChild(bbTr);
+      }
+    } else if (isNumberArray(value, 3)) {
+      tr = createVectorRow(key, value);
+    } else if (typeof value === "number") {
+      if (key.toLowerCase() === "distance") {
+        const info = typeof group["info"] === "string" ? group["info"] : undefined;
+        tr = createValueRow(key, value, info ?? null);
+      } else {
+        tr = createValueRow(key, value);
+      }
+    } else if (typeof value === "string") {
+      tr = createStringRow(key, value);
+    }
+    if (tr) {
+      if (addSeparator && firstRow) {
+        tr.classList.add("tcv_measure_cell_top_border");
+      }
+      tbody.appendChild(tr);
+      firstRow = false;
+    }
+  }
+}
+
+/**
+ * Render groups into a tbody, or fall back to treating properties as a single group.
+ */
+function renderGroups(
+  properties: Record<string, unknown>,
+  tbody: HTMLTableSectionElement,
+): void {
+  const groups = properties.result ?? properties.groups;
+  if (Array.isArray(groups)) {
+    for (let i = 0; i < groups.length; i++) {
+      renderGroup(groups[i] as Record<string, unknown>, tbody, i > 0);
+    }
+  } else {
+    renderGroup(properties, tbody, false);
+  }
+}
+
 interface DistanceResponseData {
-  Distance?: number;
-  Angle?: number;
-  info?: string;
-  info1?: string;
-  info2?: string;
+  result?: Record<string, unknown>[];
+  groups?: Record<string, unknown>[];
   refpoint1?: number[];
   refpoint2?: number[];
   [key: string]: unknown;
@@ -208,53 +287,7 @@ class DistancePanel extends Panel {
     const table = document.createElement("table");
     table.classList.add("tcv_properties_table");
     const tbody = document.createElement("tbody");
-    for (const key in properties) {
-      if (!Object.prototype.hasOwnProperty.call(properties, key)) continue;
-      if (
-        [
-          "shape_type",
-          "geom_type",
-          "type",
-          "type",
-          "tool_type",
-          "subtype",
-          "info",
-          "info1",
-          "info2",
-          "refpoint1",
-          "refpoint2",
-        ].includes(key.toLowerCase())
-      )
-        continue;
-
-      const value = properties[key];
-
-      let tr: HTMLTableRowElement;
-      if (isNumberArray(value, 3)) {
-        tr = createVectorRow(key, value);
-        tbody.appendChild(tr);
-      } else if (typeof value === "number") {
-        if (key.toLowerCase() === "distance") {
-          const info = typeof properties["info"] === "string" ? properties["info"] : undefined;
-          tr = createValueRow(key, value, info ?? null);
-        } else {
-          tr = createValueRow(key, value);
-        }
-        tbody.appendChild(tr);
-
-        if (key.toLowerCase() == "angle") {
-          tr.classList.add("tcv_measure_cell_top_border");
-
-          const info1 = typeof properties["info1"] === "string" ? properties["info1"] : "";
-          const info2 = typeof properties["info2"] === "string" ? properties["info2"] : "";
-          tr = createStringRow("Reference 1", info1);
-          tbody.appendChild(tr);
-          tr = createStringRow("Reference 2", info2);
-          tbody.appendChild(tr);
-        }
-        tbody.appendChild(tr);
-      }
-    }
+    renderGroups(properties as Record<string, unknown>, tbody);
     table.appendChild(tbody);
     this.html.append(table);
     this.finished = true;
@@ -262,10 +295,11 @@ class DistancePanel extends Panel {
 }
 
 interface PropertiesResponseData {
+  result?: Record<string, unknown>[];
+  groups?: Record<string, unknown>[];
   shape_type?: string;
   geom_type?: string;
   refpoint?: number[];
-  bb?: Record<string, number[]>;
   [key: string]: unknown;
 }
 
@@ -294,42 +328,7 @@ class PropertiesPanel extends Panel {
     const table = document.createElement("table");
     table.classList.add("tcv_properties_table");
     const tbody = document.createElement("tbody");
-    for (const key in properties) {
-      if (!Object.prototype.hasOwnProperty.call(properties, key)) continue;
-      if (
-        [
-          "shape_type",
-          "geom_type",
-          "type",
-          "tool_type",
-          "subtype",
-          "refpoint",
-        ].includes(key.toLowerCase())
-      )
-        continue;
-
-      const value = properties[key];
-
-      let tr: HTMLTableRowElement | undefined;
-      if (key.toLowerCase() === "bb" && isBoundingBoxData(value)) {
-        for (const bbKey in value) {
-          const bbTr = createVectorRow(`BB ${bbKey}`, value[bbKey]);
-          if (bbKey === "min") {
-            bbTr.classList.add("tcv_measure_cell_top_border");
-          }
-          tbody.appendChild(bbTr);
-        }
-      } else if (isNumberArray(value, 3)) {
-        tr = createVectorRow(key, value);
-        tbody.appendChild(tr);
-      } else if (typeof value === "number") {
-        tr = createValueRow(key, value);
-        tbody.appendChild(tr);
-      }
-      if (tr && ["length", "area", "volume", "start"].includes(key.toLowerCase())) {
-        tr.classList.add("tcv_measure_cell_top_border");
-      }
-    }
+    renderGroups(properties as Record<string, unknown>, tbody);
     table.appendChild(tbody);
     this.html.append(table);
     this.finished = true;
