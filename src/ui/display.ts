@@ -1948,10 +1948,11 @@ class Display {
     // Skip if modifier keys are held (avoid conflicts with modifier-based mouse actions)
     if (e.ctrlKey || e.altKey || e.metaKey) return;
 
-    // Skip if target is a form input element
+    // Skip if target is a text-entry input element (but allow buttons/checkboxes)
     const target = e.target;
     if (
-      target instanceof HTMLInputElement ||
+      (target instanceof HTMLInputElement &&
+        target.type !== "button" && target.type !== "checkbox") ||
       target instanceof HTMLTextAreaElement ||
       target instanceof HTMLSelectElement
     ) {
