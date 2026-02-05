@@ -293,7 +293,7 @@ class ViewerState {
       shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey", alt: "altKey",
       axes: "a", axes0: "A", grid: "g", gridxy: "G", perspective: "p", transparent: "t", blackedges: "b",
       reset: "R", resize: "r",
-      iso: "0", front: "1", rear: "2", top: "3", bottom: "4", left: "5", right: "6",
+      iso: "5", front: "1", rear: "3", top: "8", bottom: "2", left: "4", right: "6",
       explode: "x", zscale: "L", distance: "D", properties: "P", select: "S", help: "h", play: " ", stop: "Escape",
       tree: "T", clip: "C", material: "M", zebra: "Z",
     },
