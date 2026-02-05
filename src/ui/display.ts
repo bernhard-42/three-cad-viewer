@@ -2083,22 +2083,22 @@ class Display {
       if (button) {
         const baseTooltip = button.html.getAttribute("data-base-tooltip");
         if (baseTooltip) {
-          button.html.setAttribute("data-tooltip", `${baseTooltip} [${key}]`);
+          button.html.setAttribute("data-tooltip", `${baseTooltip} › ${key}`);
         }
       }
     }
 
     // Update tab titles
-    const tabMap: Record<string, HTMLElement | undefined> = {
-      tree: this.tabTree,
-      clip: this.tabClip,
-      material: this.tabMaterial,
-      zebra: this.tabZebra,
+    const tabMap: Record<string, { el: HTMLElement | undefined; label: string }> = {
+      tree: { el: this.tabTree, label: "Navigation Tree" },
+      clip: { el: this.tabClip, label: "Clipping Tool" },
+      material: { el: this.tabMaterial, label: "Material Selection" },
+      zebra: { el: this.tabZebra, label: "Zebra Tool" },
     };
     for (const [action, key] of Object.entries(shortcuts)) {
-      const tab = tabMap[action];
-      if (tab) {
-        tab.title = `[${key}]`;
+      const entry = tabMap[action];
+      if (entry?.el?.parentElement) {
+        entry.el.parentElement.setAttribute("data-tooltip", `${entry.label} › ${key}`);
       }
     }
   }

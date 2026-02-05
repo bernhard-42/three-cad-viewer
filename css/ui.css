@@ -810,7 +810,7 @@ input[type="button"] {
   opacity: 0;
   font-size: 11px;
   font-family: sans-serif;
-  transition: opacity 0.5s;
+  transition: opacity 0.3s;
   z-index: 100;
   color: var(--tcv-font-color);
   background-color: var(--tcv-bg-tooltip-color);
@@ -823,6 +823,7 @@ input[type="button"] {
 
 [data-tooltip]:hover:before {
   opacity: 1;
+  transition-delay: 0.5s;
 }
 
 .tcv_material_info {
