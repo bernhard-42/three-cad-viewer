@@ -3486,7 +3486,16 @@ class Viewer {
     if (group.edges && shape.edges && shape.edges.length > 0) {
       const newEdgePositions = toF32(shape.edges);
       if (isLineSegments2(group.edges)) {
-        group.edges.geometry.setPositions(newEdgePositions);
+        const startAttr = group.edges.geometry.getAttribute("instanceStart");
+        if (startAttr && "data" in startAttr) {
+          const buffer = (startAttr as THREE.InterleavedBufferAttribute).data;
+          (buffer.array as Float32Array).set(newEdgePositions);
+          buffer.needsUpdate = true;
+        } else {
+          group.edges.geometry.setPositions(newEdgePositions);
+        }
+        group.edges.geometry.computeBoundingBox();
+        group.edges.geometry.computeBoundingSphere();
       } else {
         const edgeGeom = group.edges.geometry;
         const edgePosAttr = edgeGeom.getAttribute(
