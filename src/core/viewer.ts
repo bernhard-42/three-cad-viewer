@@ -3431,19 +3431,13 @@ class Viewer {
     }
 
     if (!sameVertices || !sameTriangles || !sameEdges) {
-      // Topology changed — fall back to remove + add
-      const savedStates = this.rendered.treeview.getStates();
+      // Topology changed — fall back to remove + add.
+      // Visibility states are preserved by _rebuildTreeView() which is
+      // triggered via updateBounds() (or the caller's updateBounds call
+      // when skipBounds is true).
       const parentPath = path.substring(0, path.lastIndexOf("/"));
       this.removePart(path, { skipBounds: true });
       this.addPart(parentPath, partData, { skipBounds: true });
-      // Restore visibility state for the re-added path and any children
-      for (const key in savedStates) {
-        if (key === path || key.startsWith(path + "/")) {
-          const [faces, edges] = savedStates[key];
-          this.setObject(key, faces, 0, false, false);
-          this.setObject(key, edges, 1, false, false);
-        }
-      }
       if (!options.skipBounds) {
         this.updateBounds();
       }
