@@ -1801,6 +1801,11 @@ class Viewer {
    * @public
    */
   resize = (): void => {
+    this.rendered.camera.changeDimensions(
+      this.bb_radius,
+      this.state.get("cadWidth"),
+      this.state.get("height"),
+    );
     this.rendered.camera.setZoom(1.0);
     this.rendered.camera.updateProjectionMatrix();
     this.update(true);
@@ -1811,6 +1816,11 @@ class Viewer {
    * @public
    */
   reset = (): void => {
+    this.rendered.camera.changeDimensions(
+      this.bb_radius,
+      this.state.get("cadWidth"),
+      this.state.get("height"),
+    );
     this.rendered.controls.reset();
     this.update(true);
   };
@@ -3562,6 +3572,21 @@ class Viewer {
     // Always update camera far plane and distance (cheap)
     this.rendered.camera.updateFarPlane(this.bb_radius);
     this.rendered.camera.updateCameraDistance(this.bb_radius);
+
+    // Update controls reset location to current bbox center so that
+    // reset() frames the updated geometry, not the original.
+    // Shift both target and position by the same offset to preserve
+    // the viewing direction and distance.
+    const loc = this.rendered.controls.getResetLocation();
+    const offset = loc.position0.clone().sub(loc.target0);
+    loc.target0.set(...this.bbox.center());
+    loc.position0.copy(loc.target0).add(offset);
+    this.rendered.controls.setResetLocation(
+      loc.target0,
+      loc.position0,
+      loc.quaternion0,
+      loc.zoom0,
+    );
 
     // Only rebuild stencils if geometry grew beyond the region that stencils
     // were last built for.  Shrinking geometry still fits within existing
