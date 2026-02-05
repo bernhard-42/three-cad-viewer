@@ -3077,8 +3077,9 @@ class Viewer {
       center.length(),
     );
 
-    // Update camera far plane
+    // Update camera far plane and distance
     this.rendered.camera.updateFarPlane(this.bb_radius);
+    this.rendered.camera.updateCameraDistance(this.bb_radius);
 
     // Rebuild clipping stencils with new bounds
     const cSize =
@@ -3590,8 +3591,9 @@ class Viewer {
       center.length(),
     );
 
-    // Always update camera far plane (cheap)
+    // Always update camera far plane and distance (cheap)
     this.rendered.camera.updateFarPlane(this.bb_radius);
+    this.rendered.camera.updateCameraDistance(this.bb_radius);
 
     // Only rebuild stencils if geometry grew beyond the region that stencils
     // were last built for.  Shrinking geometry still fits within existing

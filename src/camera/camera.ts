@@ -71,6 +71,8 @@ const cameraUp: Record<UpMode, [number, number, number]> = {
  * @internal - This is an internal class used by Viewer
  */
 class Camera {
+  private static readonly DISTANCE_FACTOR = 5;
+
   target: THREE.Vector3;
   ortho: boolean;
   up: UpMode;
@@ -116,8 +118,7 @@ class Camera {
     // 22 is a good compromise
     const fov = 22;
 
-    const dfactor = 5;
-    this.camera_distance = dfactor * distance;
+    this.camera_distance = Camera.DISTANCE_FACTOR * distance;
 
     this.pCamera = new THREE.PerspectiveCamera(
       fov,
@@ -155,6 +156,15 @@ class Camera {
     this.pCamera.far = far;
     this.oCamera.far = far;
     this.camera.updateProjectionMatrix();
+  }
+
+  /**
+   * Recalculate camera_distance from a new bounding radius.
+   * Uses the same factor as the constructor so that zoom 1.0 frames the scene.
+   * @param distance - The new bounding radius (bb_radius).
+   */
+  updateCameraDistance(distance: number): void {
+    this.camera_distance = Camera.DISTANCE_FACTOR * distance;
   }
 
   /**
