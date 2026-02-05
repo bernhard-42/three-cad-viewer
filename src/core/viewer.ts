@@ -3060,8 +3060,12 @@ class Viewer {
 
   /**
    * Rebuild the treeview from the current shapes data.
+   * Preserves visibility states across the rebuild.
    */
   private _rebuildTreeView(): void {
+    // Save visibility states before disposing the old tree
+    const savedStates = this.rendered.treeview.getStates();
+
     // Rebuild tree data from this.shapes
     this.compactTree = this._buildTreeData(this.shapes!);
     this.tree = this.compactTree;
@@ -3087,6 +3091,9 @@ class Viewer {
     const t = treeview.create();
     this.display.addCadTree(t);
     treeview.render();
+
+    // Restore visibility states (updates both tree model and 3D objects)
+    this.rendered.treeview.setStates(savedStates);
 
     // Re-apply the current collapse state to the new tree
     const collapse = this.state.get("collapse") as CollapseState;
