@@ -24,6 +24,7 @@ class DistanceLineArrow extends THREE.Group {
   override type: string;
   lineVec!: THREE.Vector3;
   mode: "inward" | "outward";
+  renderMode: "arrows" | "dot";
 
   constructor(
     coneLength: number,
@@ -44,15 +45,30 @@ class DistanceLineArrow extends THREE.Group {
     this.arrowEnd = arrowEnd;
     this.type = "DistanceLineArrow";
     this.mode = "inward";
+    this.renderMode = "arrows";
     this.initialize();
   }
 
   initialize(): void {
     const coneLength = this.coneLength * 0.8;
+    const dist = this.point1.distanceTo(this.point2);
+
+    // Coincident points: show a single dot instead of arrows
+    if (dist < 1e-9) {
+      this.renderMode = "dot";
+      const sphereGeom = new THREE.SphereGeometry(coneLength / 6, 16, 12);
+      const sphereMat = new THREE.MeshBasicMaterial({ color: this.color });
+      const dot = new THREE.Mesh(sphereGeom, sphereMat);
+      dot.name = "dot";
+      dot.position.copy(this.point1);
+      this.add(dot);
+      return;
+    }
+
+    this.renderMode = "arrows";
     this.lineVec = this.point1.clone().sub(this.point2.clone()).normalize();
 
     // Determine mode based on distance between points
-    const dist = this.point1.distanceTo(this.point2);
     if (dist < coneLength) {
       this.mode = "outward";
     } else {
@@ -86,42 +102,40 @@ class DistanceLineArrow extends THREE.Group {
     geom.setPositions([...start.toArray(), ...end.toArray()]);
     const line = new LineSegments2(geom, material);
 
-    if (dist >= 1e-9) {
-      const coneGeom = new THREE.ConeGeometry(coneLength / 4, coneLength * 0.6, 10);
-      const coneMaterial = new THREE.MeshBasicMaterial({ color: this.color });
-      const startCone = new THREE.Mesh(coneGeom, coneMaterial);
-      const endCone = new THREE.Mesh(coneGeom, coneMaterial);
-      startCone.name = "startCone";
-      endCone.name = "endCone";
+    const coneGeom = new THREE.ConeGeometry(coneLength / 4, coneLength * 0.6, 10);
+    const coneMaterial = new THREE.MeshBasicMaterial({ color: this.color });
+    const startCone = new THREE.Mesh(coneGeom, coneMaterial);
+    const endCone = new THREE.Mesh(coneGeom, coneMaterial);
+    startCone.name = "startCone";
+    endCone.name = "endCone";
 
-      const matrix = new THREE.Matrix4();
-      const quaternion = new THREE.Quaternion();
-      if (this.mode === "inward") {
-        // Cones point outward toward p1/p2
-        matrix.lookAt(this.point1, this.point2, startCone.up);
-        quaternion.setFromRotationMatrix(matrix);
-        startCone.setRotationFromQuaternion(quaternion);
-        matrix.lookAt(this.point2, this.point1, endCone.up);
-        quaternion.setFromRotationMatrix(matrix);
-        endCone.setRotationFromQuaternion(quaternion);
-      } else {
-        // Cones point inward toward the line center
-        matrix.lookAt(this.point2, this.point1, startCone.up);
-        quaternion.setFromRotationMatrix(matrix);
-        startCone.setRotationFromQuaternion(quaternion);
-        matrix.lookAt(this.point1, this.point2, endCone.up);
-        quaternion.setFromRotationMatrix(matrix);
-        endCone.setRotationFromQuaternion(quaternion);
-      }
-      startCone.rotateX((90 * Math.PI) / 180);
-      endCone.rotateX((90 * Math.PI) / 180);
-
-      startCone.position.copy(start);
-      endCone.position.copy(end);
-
-      if (this.arrowStart) this.add(startCone);
-      if (this.arrowEnd) this.add(endCone);
+    const matrix = new THREE.Matrix4();
+    const quaternion = new THREE.Quaternion();
+    if (this.mode === "inward") {
+      // Cones point outward toward p1/p2
+      matrix.lookAt(this.point1, this.point2, startCone.up);
+      quaternion.setFromRotationMatrix(matrix);
+      startCone.setRotationFromQuaternion(quaternion);
+      matrix.lookAt(this.point2, this.point1, endCone.up);
+      quaternion.setFromRotationMatrix(matrix);
+      endCone.setRotationFromQuaternion(quaternion);
+    } else {
+      // Cones point inward toward the line center
+      matrix.lookAt(this.point2, this.point1, startCone.up);
+      quaternion.setFromRotationMatrix(matrix);
+      startCone.setRotationFromQuaternion(quaternion);
+      matrix.lookAt(this.point1, this.point2, endCone.up);
+      quaternion.setFromRotationMatrix(matrix);
+      endCone.setRotationFromQuaternion(quaternion);
     }
+    startCone.rotateX((90 * Math.PI) / 180);
+    endCone.rotateX((90 * Math.PI) / 180);
+
+    startCone.position.copy(start);
+    endCone.position.copy(end);
+
+    if (this.arrowStart) this.add(startCone);
+    if (this.arrowEnd) this.add(endCone);
 
     this.add(line);
   }
@@ -130,6 +144,16 @@ class DistanceLineArrow extends THREE.Group {
    * Update the arrow so it keeps the same size on the screen.
    */
   update(scaleFactor: number): void {
+    if (this.renderMode === "dot") {
+      const dot = this.children.find(
+        (child) => isMesh(child) && child.name === "dot",
+      );
+      if (dot && isMesh(dot)) {
+        dot.scale.set(scaleFactor, scaleFactor, scaleFactor);
+      }
+      return;
+    }
+
     const coneLength = this.coneLength * 0.8;
     const sign = this.mode === "inward" ? 1 : -1;
 
@@ -201,6 +225,20 @@ class DistanceLineArrow extends THREE.Group {
       }
     }
     // endCone shares geometry and material with startCone, no need to dispose again
+
+    // Dispose dot geometry and material
+    const dot = this.children.find(
+      (child) => isMesh(child) && child.name === "dot",
+    );
+    if (dot && isMesh(dot)) {
+      dot.geometry.dispose();
+      const dotMaterial = dot.material;
+      if (Array.isArray(dotMaterial)) {
+        dotMaterial.forEach((m) => m.dispose());
+      } else {
+        dotMaterial.dispose();
+      }
+    }
 
     this.clear();
   }
