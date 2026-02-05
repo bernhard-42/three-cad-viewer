@@ -314,6 +314,7 @@ class Viewer {
   bb_radius!: number;
   private _stencilCSize: number;
   private _treeNeedsRebuild: boolean;
+  private _pendingDisposal: THREE.Object3D[];
   shapes: Shapes | null;
   gridSize!: number;
 
@@ -418,6 +419,7 @@ class Viewer {
     this.bb_max = 0;
     this._stencilCSize = 0;
     this._treeNeedsRebuild = false;
+    this._pendingDisposal = [];
     this.cadTools = new Tools(this, options.measurementDebug ?? false);
 
     this.ready = false;
@@ -934,6 +936,13 @@ class Viewer {
     this.bbox = null;
     this._stencilCSize = 0;
     this._treeNeedsRebuild = false;
+
+    // Flush any pending deferred disposals
+    for (const obj of this._pendingDisposal) {
+      deepDispose(obj);
+    }
+    this._pendingDisposal = [];
+
     this.keymap = null;
     if (this.raycaster) {
       this.raycaster.dispose();
@@ -3319,9 +3328,6 @@ class Viewer {
       delete nestedGroup.groups[p];
     }
 
-    // Dispose the removed Three.js objects
-    deepDispose(group);
-
     // Remove from this.shapes tree
     const parentShapes = this._findShapesParent(path);
     if (parentShapes && parentShapes.parts) {
@@ -3337,9 +3343,19 @@ class Viewer {
     }
 
     if (options.skipBounds) {
+      // Defer disposal: keep materials alive so WebGL shader programs stay
+      // cached.  Programs are reference-counted; disposing all materials of a
+      // type deletes the compiled program, causing expensive recompilation
+      // when addPart creates new materials.  Deferred groups are disposed in
+      // updateBounds() after the render pass, when new materials already
+      // share the programs.
+      this._pendingDisposal.push(group);
       this._treeNeedsRebuild = true;
       return;
     }
+
+    // Dispose the removed Three.js objects
+    deepDispose(group);
 
     // Update bounds, clipping, treeview
     this._updateBounds();
@@ -3607,6 +3623,15 @@ class Viewer {
 
     // Re-render
     this.update(this.updateMarker);
+
+    // Flush deferred disposal: now that new materials have been rendered
+    // (and share compiled shader programs), dispose the old objects safely.
+    if (this._pendingDisposal.length > 0) {
+      for (const obj of this._pendingDisposal) {
+        deepDispose(obj);
+      }
+      this._pendingDisposal = [];
+    }
   }
 
   /**
