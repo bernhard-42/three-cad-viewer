@@ -38,7 +38,7 @@ import { Controls } from "../camera/controls.js";
 import { Camera, type CameraDirection } from "../camera/camera.js";
 import { BoundingBox, BoxHelper } from "../scene/bbox.js";
 import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
-import { version } from "./_version.js";
+import { version } from "../_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";

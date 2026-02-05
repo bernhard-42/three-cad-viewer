@@ -20,7 +20,7 @@ import { Display } from "./ui/display.js";
 import { Timer } from "./utils/timer.js";
 import { logger } from "./utils/logger.js";
 import { gpuTracker } from "./utils/gpu-tracker.js";
-import { version } from "./core/_version.js";
+import { version } from "./_version.js";
 
 export { Viewer, Display, Timer, logger, gpuTracker, version };
 
