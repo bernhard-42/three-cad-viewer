@@ -2038,9 +2038,7 @@ class Display {
         // for shape deselection
         if (this.state.get("activeTool")) return "propagate";
         const stopMode = this.state.get("animationMode");
-        if (stopMode === "explode") {
-          this._toggleClickButton("explode");
-        } else if (stopMode === "animation") {
+        if (stopMode === "explode" || stopMode === "animation") {
           this.controlAnimationByName("stop");
         }
         return;
