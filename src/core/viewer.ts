@@ -3059,44 +3059,6 @@ class Viewer {
   }
 
   /**
-   * Recalculate bounding box and update camera/clipping after scene changes.
-   */
-  private _updateBounds(): void {
-    const nestedGroup = this.rendered.nestedGroup;
-    const clipping = this.rendered.clipping;
-
-    // Recompute bounding box from current geometry
-    nestedGroup.bbox = null;
-    this.bbox = nestedGroup.boundingBox();
-
-    const center = new THREE.Vector3();
-    this.bbox.getCenter(center);
-    this.bb_max = this.bbox.max_dist_from_center();
-    this.bb_radius = Math.max(
-      this.bbox.boundingSphere().radius,
-      center.length(),
-    );
-
-    // Update camera far plane and distance
-    this.rendered.camera.updateFarPlane(this.bb_radius);
-    this.rendered.camera.updateCameraDistance(this.bb_radius);
-
-    // Rebuild clipping stencils with new bounds
-    const cSize =
-      1.1 *
-      Math.max(
-        Math.abs(this.bbox.min.length()),
-        Math.abs(this.bbox.max.length()),
-      );
-    this._stencilCSize = cSize;
-    clipping.rebuildStencils(this.bbox.center(), 2 * cSize);
-    nestedGroup.setClipPlanes(clipping.clipPlanes);
-
-    // Update slider limits to match new clipping region
-    this.display.setSliderLimits(cSize);
-  }
-
-  /**
    * Rebuild the treeview from the current shapes data.
    */
   private _rebuildTreeView(): void {
@@ -3270,10 +3232,8 @@ class Viewer {
       return path;
     }
 
-    // Update bounds, clipping, treeview
-    this._updateBounds();
-    this._rebuildTreeView();
-    this.update(this.updateMarker);
+    this._treeNeedsRebuild = true;
+    this.updateBounds();
 
     return path;
   }
@@ -3358,10 +3318,8 @@ class Viewer {
     // Dispose the removed Three.js objects
     deepDispose(group);
 
-    // Update bounds, clipping, treeview
-    this._updateBounds();
-    this._rebuildTreeView();
-    this.update(this.updateMarker);
+    this._treeNeedsRebuild = true;
+    this.updateBounds();
   }
 
   /**
