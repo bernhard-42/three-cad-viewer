@@ -384,15 +384,19 @@ class Viewer {
     // Create centralized state from options (single source of truth)
     this.state = new ViewerState(options);
 
-    // Register callback for automatic external notifications from state changes
-    this.state.setExternalNotifyCallback((key, change) => {
-      // Skip notifications before viewer is ready (during setViewerDefaults)
-      if (!this.ready) return;
-      // Convert THREE.Vector3 to array for external notification
-      const value = change.new instanceof THREE.Vector3
-        ? change.new.toArray()
-        : change.new;
-      this.checkChanges({ [key]: value }, true);
+    // Register callback for external notifications from state changes during runtime
+    // Initial config sync is handled explicitly in render() via notifyCallback
+    this.state.setExternalNotifyCallback((input) => {
+      const notifications = Array.isArray(input) ? input : [input];
+      const changes: Record<string, unknown> = {};
+      for (const { key, change } of notifications) {
+        // Convert THREE.Vector3 to array for external notification
+        const value = change.new instanceof THREE.Vector3
+          ? change.new.toArray()
+          : change.new;
+        changes[key] = value;
+      }
+      this.checkChanges(changes, true);
     });
 
     this.notifyCallback = notifyCallback;
@@ -508,7 +512,7 @@ class Viewer {
    */
   setRenderDefaults(options: RenderOptions): void {
     // Update state with any render-specific options
-    this.state.updateRenderState(options, false);
+    this.state.updateRenderState(options, true);
 
     // Build materialSettings from current state
     this.materialSettings = {
@@ -1599,30 +1603,58 @@ class Viewer {
     this.setClipPlaneHelpers(viewerOptions.clipPlaneHelpers ?? false, true);
 
     this.display.showReadyMessage(version, this.state.get("control"));
-
-    //
-    // notify calculated results
-    //
     timer.split("show done");
+
+    // Notify computed values and all config defaults
     if (this.notifyCallback) {
       this.notifyCallback({
+        // Computed values from controls/camera
+        target: { old: null, new: toVector3Tuple(controls.target.toArray()) },
+        target0: { old: null, new: toVector3Tuple(controls.target0.toArray()) },
+        position: { old: null, new: this.rendered.camera.getPosition().toArray() },
+        quaternion: { old: null, new: this.rendered.camera.getQuaternion().toArray() },
+        zoom: { old: null, new: this.rendered.camera.getZoom() },
+        // View settings
+        axes: { old: null, new: this.state.get("axes") },
+        axes0: { old: null, new: this.state.get("axes0") },
+        grid: { old: null, new: this.state.get("grid") },
+        ortho: { old: null, new: this.state.get("ortho") },
+        transparent: { old: null, new: this.state.get("transparent") },
+        black_edges: { old: null, new: this.state.get("blackEdges") },
+        tools: { old: null, new: this.state.get("tools") },
+        glass: { old: null, new: this.state.get("glass") },
+        center_grid: { old: null, new: this.state.get("centerGrid") },
+        collapse: { old: null, new: this.state.get("collapse") },
         tab: { old: null, new: this.state.get("activeTab") },
-        target: {
-          old: null,
-          new: toVector3Tuple(controls.target.toArray()),
-        },
-        target0: {
-          old: null,
-          new: toVector3Tuple(controls.target0.toArray()),
-        },
-        clip_normal_0: { old: null, new: this.getClipNormal(0) },
-        clip_normal_1: { old: null, new: this.getClipNormal(1) },
-        clip_normal_2: { old: null, new: this.getClipNormal(2) },
+        // Render settings
+        ambient_intensity: { old: null, new: this.state.get("ambientIntensity") },
+        direct_intensity: { old: null, new: this.state.get("directIntensity") },
+        metalness: { old: null, new: this.state.get("metalness") },
+        roughness: { old: null, new: this.state.get("roughness") },
+        default_edgecolor: { old: null, new: this.state.get("edgeColor") },
+        default_opacity: { old: null, new: this.state.get("defaultOpacity") },
+        // Control settings
+        zoom_speed: { old: null, new: this.state.get("zoomSpeed") },
+        pan_speed: { old: null, new: this.state.get("panSpeed") },
+        rotate_speed: { old: null, new: this.state.get("rotateSpeed") },
+        holroyd: { old: null, new: this.state.get("holroyd") },
+        // Clipping settings
+        clip_intersection: { old: null, new: this.state.get("clipIntersection") },
+        clip_object_colors: { old: null, new: this.state.get("clipObjectColors") },
+        clip_planes: { old: null, new: this.state.get("clipPlaneHelpers") },
+        clip_slider_0: { old: null, new: this.state.get("clipSlider0") },
+        clip_slider_1: { old: null, new: this.state.get("clipSlider1") },
+        clip_slider_2: { old: null, new: this.state.get("clipSlider2") },
+        clip_normal_0: { old: null, new: this.state.get("clipNormal0").toArray() },
+        clip_normal_1: { old: null, new: this.state.get("clipNormal1").toArray() },
+        clip_normal_2: { old: null, new: this.state.get("clipNormal2").toArray() },
+        // Zebra settings
         zebra_count: { old: null, new: this.state.get("zebraCount") },
         zebra_opacity: { old: null, new: this.state.get("zebraOpacity") },
         zebra_direction: { old: null, new: this.state.get("zebraDirection") },
         zebra_color_scheme: { old: null, new: this.state.get("zebraColorScheme") },
         zebra_mapping_mode: { old: null, new: this.state.get("zebraMappingMode") },
+        // Animation
         relative_time: { old: null, new: this.state.get("animationSliderValue") / 1000 },
       });
     }

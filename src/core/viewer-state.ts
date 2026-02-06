@@ -130,6 +130,11 @@ type StateKey = keyof StateShape;
 type ViewerStateOptions = Partial<StateShape> & { theme?: ThemeInput } & { [key: string]: unknown };
 
 /**
+ * External notification payload - single key/change pair
+ */
+type ExternalNotification = { key: string; change: StateChange<unknown> };
+
+/**
  * All valid state keys for runtime validation
  */
 const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
@@ -381,7 +386,9 @@ class ViewerState {
   private _state: StateShape;
   private _listeners: Map<StateKey, StateSubscriber<unknown>[]>;
   private _globalListeners: GlobalStateSubscriber[];
-  private _externalNotifyCallback: ((key: string, change: StateChange<unknown>) => void) | null = null;
+  private _externalNotifyCallback: ((
+    input: ExternalNotification | ExternalNotification[]
+  ) => void) | null = null;
 
   /**
    * Create a ViewerState instance
@@ -488,10 +495,12 @@ class ViewerState {
    * Converts Vector3Tuple/QuaternionTuple to THREE objects.
    */
   updateViewerState(options: ViewerOptions, notify: boolean = true): void {
+    // Extract properties that need conversion to THREE objects
     const { clipNormal0, clipNormal1, clipNormal2, position, quaternion, target, ...rest } = options;
 
     const converted: Partial<StateShape> = { ...rest };
 
+    // Convert tuple values to THREE objects
     if (clipNormal0 !== undefined) {
       converted.clipNormal0 = new THREE.Vector3(...clipNormal0);
     }
@@ -571,7 +580,7 @@ class ViewerState {
    * The callback receives the notification key (snake_case) and the change object.
    */
   setExternalNotifyCallback(
-    callback: ((key: string, change: StateChange<unknown>) => void) | null
+    callback: ((input: ExternalNotification | ExternalNotification[]) => void) | null
   ): void {
     this._externalNotifyCallback = callback;
   }
@@ -599,7 +608,7 @@ class ViewerState {
         const notifyChange = transform
           ? { old: change.old != null ? transform(change.old) : null, new: transform(change.new) }
           : change;
-        this._externalNotifyCallback(notificationKey, notifyChange);
+        this._externalNotifyCallback({ key: notificationKey, change: notifyChange });
       }
     }
   }
