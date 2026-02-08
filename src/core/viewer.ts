@@ -3429,7 +3429,7 @@ class Viewer {
       );
     }
     if (!partData.shape) {
-      throw new Error(`partData.shape is required for updatePart`);
+      throw new Error("partData.shape is required for updatePart");
     }
 
     const shape = partData.shape;
