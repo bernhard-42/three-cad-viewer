@@ -1614,48 +1614,8 @@ class Viewer {
         position: { old: null, new: this.rendered.camera.getPosition().toArray() },
         quaternion: { old: null, new: this.rendered.camera.getQuaternion().toArray() },
         zoom: { old: null, new: this.rendered.camera.getZoom() },
-        // View settings
-        axes: { old: null, new: this.state.get("axes") },
-        axes0: { old: null, new: this.state.get("axes0") },
-        grid: { old: null, new: this.state.get("grid") },
-        ortho: { old: null, new: this.state.get("ortho") },
-        transparent: { old: null, new: this.state.get("transparent") },
-        black_edges: { old: null, new: this.state.get("blackEdges") },
-        tools: { old: null, new: this.state.get("tools") },
-        glass: { old: null, new: this.state.get("glass") },
-        center_grid: { old: null, new: this.state.get("centerGrid") },
-        collapse: { old: null, new: this.state.get("collapse") },
-        tab: { old: null, new: this.state.get("activeTab") },
-        // Render settings
-        ambient_intensity: { old: null, new: this.state.get("ambientIntensity") },
-        direct_intensity: { old: null, new: this.state.get("directIntensity") },
-        metalness: { old: null, new: this.state.get("metalness") },
-        roughness: { old: null, new: this.state.get("roughness") },
-        default_edgecolor: { old: null, new: this.state.get("edgeColor") },
-        default_opacity: { old: null, new: this.state.get("defaultOpacity") },
-        // Control settings
-        zoom_speed: { old: null, new: this.state.get("zoomSpeed") },
-        pan_speed: { old: null, new: this.state.get("panSpeed") },
-        rotate_speed: { old: null, new: this.state.get("rotateSpeed") },
-        holroyd: { old: null, new: this.state.get("holroyd") },
-        // Clipping settings
-        clip_intersection: { old: null, new: this.state.get("clipIntersection") },
-        clip_object_colors: { old: null, new: this.state.get("clipObjectColors") },
-        clip_planes: { old: null, new: this.state.get("clipPlaneHelpers") },
-        clip_slider_0: { old: null, new: this.state.get("clipSlider0") },
-        clip_slider_1: { old: null, new: this.state.get("clipSlider1") },
-        clip_slider_2: { old: null, new: this.state.get("clipSlider2") },
-        clip_normal_0: { old: null, new: this.state.get("clipNormal0").toArray() },
-        clip_normal_1: { old: null, new: this.state.get("clipNormal1").toArray() },
-        clip_normal_2: { old: null, new: this.state.get("clipNormal2").toArray() },
-        // Zebra settings
-        zebra_count: { old: null, new: this.state.get("zebraCount") },
-        zebra_opacity: { old: null, new: this.state.get("zebraOpacity") },
-        zebra_direction: { old: null, new: this.state.get("zebraDirection") },
-        zebra_color_scheme: { old: null, new: this.state.get("zebraColorScheme") },
-        zebra_mapping_mode: { old: null, new: this.state.get("zebraMappingMode") },
-        // Animation
-        relative_time: { old: null, new: this.state.get("animationSliderValue") / 1000 },
+        // All config values from state
+        ...this.state.getAllNotifiable(),
       });
     }
     timer.split("notification done");

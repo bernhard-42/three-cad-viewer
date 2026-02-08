@@ -585,6 +585,26 @@ class ViewerState {
     this._externalNotifyCallback = callback;
   }
 
+  /**
+   * Get all notifiable state values in external format.
+   * Returns a dictionary with snake_case keys and StateChange values.
+   * Used for initial config sync to external clients.
+   */
+  getAllNotifiable(): Record<string, StateChange<unknown>> {
+    const result: Record<string, StateChange<unknown>> = {};
+    for (const [stateKey, notifyKey] of Object.entries(STATE_TO_NOTIFICATION_KEY)) {
+      const value = this._state[stateKey as StateKey];
+      const transform = STATE_NOTIFICATION_TRANSFORM[stateKey as StateKey];
+      const transformedValue = transform
+        ? transform(value)
+        : value instanceof THREE.Vector3
+          ? value.toArray()
+          : value;
+      result[notifyKey] = { old: null, new: transformedValue };
+    }
+    return result;
+  }
+
   private _notify(key: StateKey, change: StateChange<unknown>): void {
     // Notify key-specific listeners (internal UI updates)
     const listeners = this._listeners.get(key);
