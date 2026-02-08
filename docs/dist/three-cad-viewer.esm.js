@@ -1,3 +1,5 @@
+
+(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 /**
  * @license
  * Copyright 2010-2025 Three.js Authors
@@ -88836,8 +88838,7 @@ class Camera {
         const aspect = width / height;
         // 22 is a good compromise
         const fov = 22;
-        const dfactor = 5;
-        this.camera_distance = dfactor * distance;
+        this.camera_distance = Camera.DISTANCE_FACTOR * distance;
         this.pCamera = new PerspectiveCamera(fov, aspect, 0.1, 100 * distance);
         this.pCamera.up.set(...cameraUp[this.up]);
         this.pCamera.lookAt(this.target);
@@ -88858,6 +88859,14 @@ class Camera {
         this.pCamera.far = far;
         this.oCamera.far = far;
         this.camera.updateProjectionMatrix();
+    }
+    /**
+     * Recalculate camera_distance from a new bounding radius.
+     * Uses the same factor as the constructor so that zoom 1.0 frames the scene.
+     * @param distance - The new bounding radius (bb_radius).
+     */
+    updateCameraDistance(distance) {
+        this.camera_distance = Camera.DISTANCE_FACTOR * distance;
     }
     /**
      * Remove assets.
@@ -89090,6 +89099,7 @@ class Camera {
         }
     }
 }
+Camera.DISTANCE_FACTOR = 5;
 
 /**
  * Filter types for topology-based raycasting.
@@ -89333,6 +89343,13 @@ function isBoundingBoxData(value) {
     }
     return Object.values(value).every((v) => isNumberArray(v, 3));
 }
+/**
+ * Format a key for display: lowercase and insert space before trailing digits.
+ * e.g. "normal1" → "normal 1", "Point 1" → "point 1", "Distance" → "distance"
+ */
+function formatKey(key) {
+    return key.toLowerCase().replace(/(\D)(\d+)$/, "$1 $2");
+}
 function createVectorRow(key, value) {
     const xyzColors = [
         "tcv_x_measure_val",
@@ -89341,7 +89358,7 @@ function createVectorRow(key, value) {
     ];
     const tr = document.createElement("tr");
     const th = document.createElement("th");
-    th.textContent = key;
+    th.textContent = formatKey(key);
     th.classList.add("tcv_measure_key");
     th.classList.add("tcv_measure_cell");
     tr.appendChild(th);
@@ -89367,7 +89384,7 @@ function createStringRow(key, value) {
     const tr = document.createElement("tr");
     const th = document.createElement("th");
     const td = document.createElement("td");
-    th.textContent = key;
+    th.textContent = formatKey(key);
     th.classList.add("tcv_measure_key");
     th.classList.add("tcv_measure_cell");
     tr.appendChild(th);
@@ -89382,7 +89399,7 @@ function createValueRow(key, value, qualifier = null) {
     const tr = document.createElement("tr");
     const th = document.createElement("th");
     const td = document.createElement("td");
-    th.textContent = key;
+    th.textContent = formatKey(key);
     th.classList.add("tcv_measure_key");
     th.classList.add("tcv_measure_cell");
     tr.appendChild(th);
@@ -89462,6 +89479,75 @@ class Panel {
         }
     }
 }
+/**
+ * Skip list for technical fields that should not be rendered in panels.
+ */
+const SKIP_KEYS = [
+    "type", "tool_type", "subtype", "info",
+    "refpoint", "refpoint1", "refpoint2",
+    "shape_type", "geom_type", "groups", "result",
+];
+/**
+ * Render entries from a group object into a tbody.
+ * If addSeparator is true, the first rendered row gets a top border.
+ */
+function renderGroup(group, tbody, addSeparator) {
+    let firstRow = true;
+    for (const key in group) {
+        if (!Object.prototype.hasOwnProperty.call(group, key))
+            continue;
+        if (SKIP_KEYS.includes(key.toLowerCase()))
+            continue;
+        const value = group[key];
+        let tr;
+        if (key.toLowerCase() === "bb" && isBoundingBoxData(value)) {
+            for (const bbKey in value) {
+                const bbTr = createVectorRow(`bb ${bbKey}`, value[bbKey]);
+                if (addSeparator && firstRow) {
+                    bbTr.classList.add("tcv_measure_cell_top_border");
+                    firstRow = false;
+                }
+                tbody.appendChild(bbTr);
+            }
+        }
+        else if (isNumberArray(value, 3)) {
+            tr = createVectorRow(key, value);
+        }
+        else if (typeof value === "number") {
+            if (key.toLowerCase() === "distance") {
+                const info = typeof group["info"] === "string" ? group["info"] : undefined;
+                tr = createValueRow(key, value, info ?? null);
+            }
+            else {
+                tr = createValueRow(key, value);
+            }
+        }
+        else if (typeof value === "string") {
+            tr = createStringRow(key, value);
+        }
+        if (tr) {
+            if (addSeparator && firstRow) {
+                tr.classList.add("tcv_measure_cell_top_border");
+            }
+            tbody.appendChild(tr);
+            firstRow = false;
+        }
+    }
+}
+/**
+ * Render groups into a tbody, or fall back to treating properties as a single group.
+ */
+function renderGroups(properties, tbody) {
+    const groups = properties.result ?? properties.groups;
+    if (Array.isArray(groups)) {
+        for (let i = 0; i < groups.length; i++) {
+            renderGroup(groups[i], tbody, i > 0);
+        }
+    }
+    else {
+        renderGroup(properties, tbody, false);
+    }
+}
 class DistancePanel extends Panel {
     constructor(display) {
         super(display);
@@ -89476,50 +89562,7 @@ class DistancePanel extends Panel {
         const table = document.createElement("table");
         table.classList.add("tcv_properties_table");
         const tbody = document.createElement("tbody");
-        for (const key in properties) {
-            if (!Object.prototype.hasOwnProperty.call(properties, key))
-                continue;
-            if ([
-                "shape_type",
-                "geom_type",
-                "type",
-                "type",
-                "tool_type",
-                "subtype",
-                "info",
-                "info1",
-                "info2",
-                "refpoint1",
-                "refpoint2",
-            ].includes(key.toLowerCase()))
-                continue;
-            const value = properties[key];
-            let tr;
-            if (isNumberArray(value, 3)) {
-                tr = createVectorRow(key, value);
-                tbody.appendChild(tr);
-            }
-            else if (typeof value === "number") {
-                if (key.toLowerCase() === "distance") {
-                    const info = typeof properties["info"] === "string" ? properties["info"] : undefined;
-                    tr = createValueRow(key, value, info ?? null);
-                }
-                else {
-                    tr = createValueRow(key, value);
-                }
-                tbody.appendChild(tr);
-                if (key.toLowerCase() == "angle") {
-                    tr.classList.add("tcv_measure_cell_top_border");
-                    const info1 = typeof properties["info1"] === "string" ? properties["info1"] : "";
-                    const info2 = typeof properties["info2"] === "string" ? properties["info2"] : "";
-                    tr = createStringRow("Reference 1", info1);
-                    tbody.appendChild(tr);
-                    tr = createStringRow("Reference 2", info2);
-                    tbody.appendChild(tr);
-                }
-                tbody.appendChild(tr);
-            }
-        }
+        renderGroups(properties, tbody);
         table.appendChild(tbody);
         this.html.append(table);
         this.finished = true;
@@ -89544,41 +89587,7 @@ class PropertiesPanel extends Panel {
         const table = document.createElement("table");
         table.classList.add("tcv_properties_table");
         const tbody = document.createElement("tbody");
-        for (const key in properties) {
-            if (!Object.prototype.hasOwnProperty.call(properties, key))
-                continue;
-            if ([
-                "shape_type",
-                "geom_type",
-                "type",
-                "tool_type",
-                "subtype",
-                "refpoint",
-            ].includes(key.toLowerCase()))
-                continue;
-            const value = properties[key];
-            let tr;
-            if (key.toLowerCase() === "bb" && isBoundingBoxData(value)) {
-                for (const bbKey in value) {
-                    const bbTr = createVectorRow(`BB ${bbKey}`, value[bbKey]);
-                    if (bbKey === "min") {
-                        bbTr.classList.add("tcv_measure_cell_top_border");
-                    }
-                    tbody.appendChild(bbTr);
-                }
-            }
-            else if (isNumberArray(value, 3)) {
-                tr = createVectorRow(key, value);
-                tbody.appendChild(tr);
-            }
-            else if (typeof value === "number") {
-                tr = createValueRow(key, value);
-                tbody.appendChild(tr);
-            }
-            if (tr && ["length", "area", "volume", "start"].includes(key.toLowerCase())) {
-                tr.classList.add("tcv_measure_cell_top_border");
-            }
-        }
+        renderGroups(properties, tbody);
         table.appendChild(tbody);
         this.html.append(table);
         this.finished = true;
@@ -89699,16 +89708,40 @@ class DistanceLineArrow extends Group {
         this.arrowStart = arrowStart;
         this.arrowEnd = arrowEnd;
         this.type = "DistanceLineArrow";
+        this.mode = "inward";
+        this.renderMode = "arrows";
         this.initialize();
     }
     initialize() {
-        const coneLength = this.coneLength;
+        const coneLength = this.coneLength * 0.8;
+        const dist = this.point1.distanceTo(this.point2);
+        // Coincident points: show a single dot instead of arrows
+        if (dist < 1e-9) {
+            this.renderMode = "dot";
+            const sphereGeom = new SphereGeometry(coneLength / 6, 16, 12);
+            const sphereMat = new MeshBasicMaterial({ color: this.color });
+            const dot = new Mesh(sphereGeom, sphereMat);
+            dot.name = "dot";
+            dot.position.copy(this.point1);
+            this.add(dot);
+            return;
+        }
+        this.renderMode = "arrows";
         this.lineVec = this.point1.clone().sub(this.point2.clone()).normalize();
+        // Determine mode based on distance between points
+        if (dist < coneLength) {
+            this.mode = "outward";
+        }
+        else {
+            this.mode = "inward";
+        }
+        // sign: +1 = cones sit inside the line (inward), -1 = cones sit outside (outward)
+        const sign = this.mode === "inward" ? 1 : -1;
         let start, end;
         if (this.arrowStart) {
             start = this.point1
                 .clone()
-                .sub(this.lineVec.clone().multiplyScalar(coneLength / 2));
+                .sub(this.lineVec.clone().multiplyScalar(sign * coneLength * 0.3));
         }
         else {
             start = this.point1.clone();
@@ -89716,7 +89749,7 @@ class DistanceLineArrow extends Group {
         if (this.arrowEnd) {
             end = this.point2
                 .clone()
-                .sub(this.lineVec.clone().multiplyScalar(-coneLength / 2));
+                .sub(this.lineVec.clone().multiplyScalar(-sign * coneLength * 0.3));
         }
         else {
             end = this.point2.clone();
@@ -89728,7 +89761,7 @@ class DistanceLineArrow extends Group {
         const geom = new LineSegmentsGeometry$1();
         geom.setPositions([...start.toArray(), ...end.toArray()]);
         const line = new LineSegments2(geom, material);
-        const coneGeom = new ConeGeometry(coneLength / 4, coneLength, 10);
+        const coneGeom = new ConeGeometry(coneLength / 4, coneLength * 0.6, 10);
         const coneMaterial = new MeshBasicMaterial({ color: this.color });
         const startCone = new Mesh(coneGeom, coneMaterial);
         const endCone = new Mesh(coneGeom, coneMaterial);
@@ -89736,12 +89769,24 @@ class DistanceLineArrow extends Group {
         endCone.name = "endCone";
         const matrix = new Matrix4();
         const quaternion = new Quaternion();
-        matrix.lookAt(this.point1, this.point2, startCone.up);
-        quaternion.setFromRotationMatrix(matrix);
-        startCone.setRotationFromQuaternion(quaternion);
-        matrix.lookAt(this.point2, this.point1, endCone.up);
-        quaternion.setFromRotationMatrix(matrix);
-        endCone.setRotationFromQuaternion(quaternion);
+        if (this.mode === "inward") {
+            // Cones point outward toward p1/p2
+            matrix.lookAt(this.point1, this.point2, startCone.up);
+            quaternion.setFromRotationMatrix(matrix);
+            startCone.setRotationFromQuaternion(quaternion);
+            matrix.lookAt(this.point2, this.point1, endCone.up);
+            quaternion.setFromRotationMatrix(matrix);
+            endCone.setRotationFromQuaternion(quaternion);
+        }
+        else {
+            // Cones point inward toward the line center
+            matrix.lookAt(this.point2, this.point1, startCone.up);
+            quaternion.setFromRotationMatrix(matrix);
+            startCone.setRotationFromQuaternion(quaternion);
+            matrix.lookAt(this.point1, this.point2, endCone.up);
+            quaternion.setFromRotationMatrix(matrix);
+            endCone.setRotationFromQuaternion(quaternion);
+        }
         startCone.rotateX((90 * Math.PI) / 180);
         endCone.rotateX((90 * Math.PI) / 180);
         startCone.position.copy(start);
@@ -89756,16 +89801,25 @@ class DistanceLineArrow extends Group {
      * Update the arrow so it keeps the same size on the screen.
      */
     update(scaleFactor) {
+        if (this.renderMode === "dot") {
+            const dot = this.children.find((child) => isMesh(child) && child.name === "dot");
+            if (dot && isMesh(dot)) {
+                dot.scale.set(scaleFactor, scaleFactor, scaleFactor);
+            }
+            return;
+        }
+        const coneLength = this.coneLength * 0.8;
+        const sign = this.mode === "inward" ? 1 : -1;
         const newStart = this.point1
             .clone()
             .sub(this.lineVec
             .clone()
-            .multiplyScalar((scaleFactor * this.coneLength) / 2));
+            .multiplyScalar(sign * scaleFactor * coneLength * 0.3));
         const newEnd = this.point2
             .clone()
             .sub(this.lineVec
             .clone()
-            .multiplyScalar((-scaleFactor * this.coneLength) / 2));
+            .multiplyScalar(-sign * scaleFactor * coneLength * 0.3));
         const line = this.children.find((child) => isLineSegments2(child));
         if (line && isLineSegments2(line)) {
             line.geometry.setPositions([
@@ -89812,6 +89866,18 @@ class DistanceLineArrow extends Group {
             }
         }
         // endCone shares geometry and material with startCone, no need to dispose again
+        // Dispose dot geometry and material
+        const dot = this.children.find((child) => isMesh(child) && child.name === "dot");
+        if (dot && isMesh(dot)) {
+            dot.geometry.dispose();
+            const dotMaterial = dot.material;
+            if (Array.isArray(dotMaterial)) {
+                dotMaterial.forEach((m) => m.dispose());
+            }
+            else {
+                dotMaterial.dispose();
+            }
+        }
         this.clear();
     }
 }
@@ -90035,14 +90101,14 @@ class Measurement {
                     this.point1 = obj1.localToWorld(center1);
                     this.point2 = obj2.localToWorld(center2);
                     responseData = {
+                        groups: [
+                            { distance: 2.345, info: "center" },
+                            { "point 1": this.point1.toArray(), "point 2": this.point2.toArray() },
+                            { angle: 43.21, "reference 1": "Plane (Face)", "reference 2": "Plane (Face)" },
+                        ],
                         type: "backend_response",
-                        Distance: 2.345,
-                        info: "center",
                         refpoint1: this.point1.toArray(),
                         refpoint2: this.point2.toArray(),
-                        Angle: 43.21,
-                        info1: "Plane (Face)",
-                        info2: "Plane (Face)",
                     };
                 }
                 else if (this instanceof PropertiesMeasurement) {
@@ -90055,19 +90121,13 @@ class Measurement {
                         type: "backend_response",
                         shape_type: "Edge",
                         geom_type: "EllipseArc",
-                        "Major radius": 0.4,
-                        "Minor radius": 0.2,
-                        Length: 0.6868592404716374,
-                        Start: [2.4, -1, 0.0],
-                        Center: this.point1.toArray(),
                         refpoint: this.point1.toArray(),
-                        End: [1.8, -0.8267949192431111, 0.0],
-                        bb: {
-                            min: [1.8, -1, 0.0],
-                            center: [2.1, -0.9, 0.0],
-                            max: [2.4, -0.8, 0.0],
-                            size: [0.56, 0.2, 0.0],
-                        },
+                        groups: [
+                            { center: this.point1.toArray(), "major radius": 0.4, "minor radius": 0.2 },
+                            { start: [2.4, -1, 0.0], end: [1.8, -0.8267949192431111, 0.0] },
+                            { length: 0.6868592404716374 },
+                            { bb: { min: [1.8, -1, 0.0], center: [2.1, -0.9, 0.0], max: [2.4, -0.8, 0.0], size: [0.56, 0.2, 0.0] } },
+                        ],
                     };
                 }
                 else {
@@ -90201,7 +90261,7 @@ class DistanceMeasurement extends Measurement {
         if (!this.coneLength || !this.point1 || !this.point2 || !this.panelCenter)
             return;
         const lineWidth = 1.5;
-        const distanceLine = new DistanceLineArrow(this.coneLength, this.point1, this.point2, 2 * lineWidth, this.measurementLineColor);
+        const distanceLine = new DistanceLineArrow(this.coneLength, this.point1, this.point2, lineWidth, this.measurementLineColor);
         this.scene.add(distanceLine);
         this.middlePoint = new Vector3()
             .addVectors(this.point1, this.point2)
@@ -90513,7 +90573,7 @@ class Tools {
     }
 }
 
-const version = "4.0.0";
+const version = "4.1.0";
 
 /**
  * All valid state keys for runtime validation
@@ -90753,8 +90813,10 @@ class ViewerState {
      * Converts Vector3Tuple/QuaternionTuple to THREE objects.
      */
     updateViewerState(options, notify = true) {
+        // Extract properties that need conversion to THREE objects
         const { clipNormal0, clipNormal1, clipNormal2, position, quaternion, target, ...rest } = options;
         const converted = { ...rest };
+        // Convert tuple values to THREE objects
         if (clipNormal0 !== undefined) {
             converted.clipNormal0 = new Vector3(...clipNormal0);
         }
@@ -90824,6 +90886,25 @@ class ViewerState {
     setExternalNotifyCallback(callback) {
         this._externalNotifyCallback = callback;
     }
+    /**
+     * Get all notifiable state values in external format.
+     * Returns a dictionary with snake_case keys and StateChange values.
+     * Used for initial config sync to external clients.
+     */
+    getAllNotifiable() {
+        const result = {};
+        for (const [stateKey, notifyKey] of Object.entries(STATE_TO_NOTIFICATION_KEY)) {
+            const value = this._state[stateKey];
+            const transform = STATE_NOTIFICATION_TRANSFORM[stateKey];
+            const transformedValue = transform
+                ? transform(value)
+                : value instanceof Vector3
+                    ? value.toArray()
+                    : value;
+            result[notifyKey] = { old: null, new: transformedValue };
+        }
+        return result;
+    }
     _notify(key, change) {
         // Notify key-specific listeners (internal UI updates)
         const listeners = this._listeners.get(key);
@@ -90845,7 +90926,7 @@ class ViewerState {
                 const notifyChange = transform
                     ? { old: change.old != null ? transform(change.old) : null, new: transform(change.new) }
                     : change;
-                this._externalNotifyCallback(notificationKey, notifyChange);
+                this._externalNotifyCallback({ key: notificationKey, change: notifyChange });
             }
         }
     }
@@ -90923,7 +91004,7 @@ ViewerState.DISPLAY_DEFAULTS = {
         shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey", alt: "altKey",
         axes: "a", axes0: "A", grid: "g", gridxy: "G", perspective: "p", transparent: "t", blackedges: "b",
         reset: "R", resize: "r",
-        iso: "0", front: "1", rear: "2", top: "3", bottom: "4", left: "5", right: "6",
+        iso: "5", front: "1", rear: "3", top: "8", bottom: "2", left: "4", right: "6",
         explode: "x", zscale: "L", distance: "D", properties: "P", select: "S", help: "h", play: " ", stop: "Escape",
         tree: "T", clip: "C", material: "M", zebra: "Z",
     },
@@ -91367,6 +91448,7 @@ class Viewer {
          * @public
          */
         this.resize = () => {
+            this.rendered.camera.changeDimensions(this.bb_radius, this.state.get("cadWidth"), this.state.get("height"));
             this.rendered.camera.setZoom(1.0);
             this.rendered.camera.updateProjectionMatrix();
             this.update(true);
@@ -91376,6 +91458,7 @@ class Viewer {
          * @public
          */
         this.reset = () => {
+            this.rendered.camera.changeDimensions(this.bb_radius, this.state.get("cadWidth"), this.state.get("height"));
             this.rendered.controls.reset();
             this.update(true);
         };
@@ -92349,16 +92432,19 @@ class Viewer {
         };
         // Create centralized state from options (single source of truth)
         this.state = new ViewerState(options);
-        // Register callback for automatic external notifications from state changes
-        this.state.setExternalNotifyCallback((key, change) => {
-            // Skip notifications before viewer is ready (during setViewerDefaults)
-            if (!this.ready)
-                return;
-            // Convert THREE.Vector3 to array for external notification
-            const value = change.new instanceof Vector3
-                ? change.new.toArray()
-                : change.new;
-            this.checkChanges({ [key]: value }, true);
+        // Register callback for external notifications from state changes during runtime
+        // Initial config sync is handled explicitly in render() via notifyCallback
+        this.state.setExternalNotifyCallback((input) => {
+            const notifications = Array.isArray(input) ? input : [input];
+            const changes = {};
+            for (const { key, change } of notifications) {
+                // Convert THREE.Vector3 to array for external notification
+                const value = change.new instanceof Vector3
+                    ? change.new.toArray()
+                    : change.new;
+                changes[key] = value;
+            }
+            this.checkChanges(changes, true);
         });
         this.notifyCallback = notifyCallback;
         this.pinAsPngCallback = pinAsPngCallback;
@@ -92379,6 +92465,7 @@ class Viewer {
         this.bb_max = 0;
         this._stencilCSize = 0;
         this._treeNeedsRebuild = false;
+        this._pendingDisposal = [];
         this.cadTools = new Tools(this, options.measurementDebug ?? false);
         this.ready = false;
         this.mixer = null;
@@ -92448,7 +92535,7 @@ class Viewer {
      */
     setRenderDefaults(options) {
         // Update state with any render-specific options
-        this.state.updateRenderState(options, false);
+        this.state.updateRenderState(options, true);
         // Build materialSettings from current state
         this.materialSettings = {
             ambientIntensity: this.state.get("ambientIntensity"),
@@ -92672,6 +92759,11 @@ class Viewer {
         this.bbox = null;
         this._stencilCSize = 0;
         this._treeNeedsRebuild = false;
+        // Flush any pending deferred disposals
+        for (const obj of this._pendingDisposal) {
+            deepDispose(obj);
+        }
+        this._pendingDisposal = [];
         this.keymap = null;
         if (this.raycaster) {
             this.raycaster.dispose();
@@ -93058,30 +93150,18 @@ class Viewer {
         this.setClipObjectColorCaps(viewerOptions.clipObjectColors ?? false, true);
         this.setClipPlaneHelpers(viewerOptions.clipPlaneHelpers ?? false, true);
         this.display.showReadyMessage(version, this.state.get("control"));
-        //
-        // notify calculated results
-        //
         timer.split("show done");
+        // Notify computed values and all config defaults
         if (this.notifyCallback) {
             this.notifyCallback({
-                tab: { old: null, new: this.state.get("activeTab") },
-                target: {
-                    old: null,
-                    new: toVector3Tuple(controls.target.toArray()),
-                },
-                target0: {
-                    old: null,
-                    new: toVector3Tuple(controls.target0.toArray()),
-                },
-                clip_normal_0: { old: null, new: this.getClipNormal(0) },
-                clip_normal_1: { old: null, new: this.getClipNormal(1) },
-                clip_normal_2: { old: null, new: this.getClipNormal(2) },
-                zebra_count: { old: null, new: this.state.get("zebraCount") },
-                zebra_opacity: { old: null, new: this.state.get("zebraOpacity") },
-                zebra_direction: { old: null, new: this.state.get("zebraDirection") },
-                zebra_color_scheme: { old: null, new: this.state.get("zebraColorScheme") },
-                zebra_mapping_mode: { old: null, new: this.state.get("zebraMappingMode") },
-                relative_time: { old: null, new: this.state.get("animationSliderValue") / 1000 },
+                // Computed values from controls/camera
+                target: { old: null, new: toVector3Tuple(controls.target.toArray()) },
+                target0: { old: null, new: toVector3Tuple(controls.target0.toArray()) },
+                position: { old: null, new: this.rendered.camera.getPosition().toArray() },
+                quaternion: { old: null, new: this.rendered.camera.getQuaternion().toArray() },
+                zoom: { old: null, new: this.rendered.camera.getZoom() },
+                // All config values from state
+                ...this.state.getAllNotifiable(),
             });
         }
         timer.split("notification done");
@@ -93583,33 +93663,12 @@ class Viewer {
         return current;
     }
     /**
-     * Recalculate bounding box and update camera/clipping after scene changes.
-     */
-    _updateBounds() {
-        const nestedGroup = this.rendered.nestedGroup;
-        const clipping = this.rendered.clipping;
-        // Recompute bounding box from current geometry
-        nestedGroup.bbox = null;
-        this.bbox = nestedGroup.boundingBox();
-        const center = new Vector3();
-        this.bbox.getCenter(center);
-        this.bb_max = this.bbox.max_dist_from_center();
-        this.bb_radius = Math.max(this.bbox.boundingSphere().radius, center.length());
-        // Update camera far plane
-        this.rendered.camera.updateFarPlane(this.bb_radius);
-        // Rebuild clipping stencils with new bounds
-        const cSize = 1.1 *
-            Math.max(Math.abs(this.bbox.min.length()), Math.abs(this.bbox.max.length()));
-        this._stencilCSize = cSize;
-        clipping.rebuildStencils(this.bbox.center(), 2 * cSize);
-        nestedGroup.setClipPlanes(clipping.clipPlanes);
-        // Update slider limits to match new clipping region
-        this.display.setSliderLimits(cSize);
-    }
-    /**
      * Rebuild the treeview from the current shapes data.
+     * Preserves visibility states across the rebuild.
      */
     _rebuildTreeView() {
+        // Save visibility states before disposing the old tree
+        const savedStates = this.rendered.treeview.getStates();
         // Rebuild tree data from this.shapes
         this.compactTree = this._buildTreeData(this.shapes);
         this.tree = this.compactTree;
@@ -93621,6 +93680,8 @@ class Viewer {
         const t = treeview.create();
         this.display.addCadTree(t);
         treeview.render();
+        // Restore visibility states (updates both tree model and 3D objects)
+        this.rendered.treeview.setStates(savedStates);
         // Re-apply the current collapse state to the new tree
         const collapse = this.state.get("collapse");
         if (collapse != null) {
@@ -93745,10 +93806,8 @@ class Viewer {
             this._treeNeedsRebuild = true;
             return path;
         }
-        // Update bounds, clipping, treeview
-        this._updateBounds();
-        this._rebuildTreeView();
-        this.update(this.updateMarker);
+        this._treeNeedsRebuild = true;
+        this.updateBounds();
         return path;
     }
     /**
@@ -93795,8 +93854,6 @@ class Viewer {
         for (const p of pathsToRemove) {
             delete nestedGroup.groups[p];
         }
-        // Dispose the removed Three.js objects
-        deepDispose(group);
         // Remove from this.shapes tree
         const parentShapes = this._findShapesParent(path);
         if (parentShapes && parentShapes.parts) {
@@ -93810,13 +93867,20 @@ class Viewer {
             this.expandedTree = null;
         }
         if (options.skipBounds) {
+            // Defer disposal: keep materials alive so WebGL shader programs stay
+            // cached.  Programs are reference-counted; disposing all materials of a
+            // type deletes the compiled program, causing expensive recompilation
+            // when addPart creates new materials.  Deferred groups are disposed in
+            // updateBounds() after the render pass, when new materials already
+            // share the programs.
+            this._pendingDisposal.push(group);
             this._treeNeedsRebuild = true;
             return;
         }
-        // Update bounds, clipping, treeview
-        this._updateBounds();
-        this._rebuildTreeView();
-        this.update(this.updateMarker);
+        // Dispose the removed Three.js objects
+        deepDispose(group);
+        this._treeNeedsRebuild = true;
+        this.updateBounds();
     }
     /**
      * Update an existing part's geometry.
@@ -93869,7 +93933,7 @@ class Viewer {
             throw new Error(`Part has no shape geometry (may be edges/vertices only): ${path}`);
         }
         if (!partData.shape) {
-            throw new Error(`partData.shape is required for updatePart`);
+            throw new Error("partData.shape is required for updatePart");
         }
         const shape = partData.shape;
         const geom = group.shapeGeometry;
@@ -93903,7 +93967,10 @@ class Viewer {
             }
         }
         if (!sameVertices || !sameTriangles || !sameEdges) {
-            // Topology changed — fall back to remove + add
+            // Topology changed — fall back to remove + add.
+            // Visibility states are preserved by _rebuildTreeView() which is
+            // triggered via updateBounds() (or the caller's updateBounds call
+            // when skipBounds is true).
             const parentPath = path.substring(0, path.lastIndexOf("/"));
             this.removePart(path, { skipBounds: true });
             this.addPart(parentPath, partData, { skipBounds: true });
@@ -93947,7 +94014,17 @@ class Viewer {
         if (group.edges && shape.edges && shape.edges.length > 0) {
             const newEdgePositions = toF32(shape.edges);
             if (isLineSegments2(group.edges)) {
-                group.edges.geometry.setPositions(newEdgePositions);
+                const startAttr = group.edges.geometry.getAttribute("instanceStart");
+                if (startAttr && "data" in startAttr) {
+                    const buffer = startAttr.data;
+                    buffer.array.set(newEdgePositions);
+                    buffer.needsUpdate = true;
+                }
+                else {
+                    group.edges.geometry.setPositions(newEdgePositions);
+                }
+                group.edges.geometry.computeBoundingBox();
+                group.edges.geometry.computeBoundingSphere();
             }
             else {
                 const edgeGeom = group.edges.geometry;
@@ -94002,8 +94079,18 @@ class Viewer {
         this.bbox.getCenter(center);
         this.bb_max = this.bbox.max_dist_from_center();
         this.bb_radius = Math.max(this.bbox.boundingSphere().radius, center.length());
-        // Always update camera far plane (cheap)
+        // Always update camera far plane and distance (cheap)
         this.rendered.camera.updateFarPlane(this.bb_radius);
+        this.rendered.camera.updateCameraDistance(this.bb_radius);
+        // Update controls reset location to current bbox center so that
+        // reset() frames the updated geometry, not the original.
+        // Shift both target and position by the same offset to preserve
+        // the viewing direction and distance.
+        const loc = this.rendered.controls.getResetLocation();
+        const offset = loc.position0.clone().sub(loc.target0);
+        loc.target0.set(...this.bbox.center());
+        loc.position0.copy(loc.target0).add(offset);
+        this.rendered.controls.setResetLocation(loc.target0, loc.position0, loc.quaternion0, loc.zoom0);
         // Only rebuild stencils if geometry grew beyond the region that stencils
         // were last built for.  Shrinking geometry still fits within existing
         // stencils, so skip the expensive rebuild in that case.
@@ -94028,6 +94115,14 @@ class Viewer {
         }
         // Re-render
         this.update(this.updateMarker);
+        // Flush deferred disposal: now that new materials have been rendered
+        // (and share compiled shader programs), dispose the old objects safely.
+        if (this._pendingDisposal.length > 0) {
+            for (const obj of this._pendingDisposal) {
+                deepDispose(obj);
+            }
+            this._pendingDisposal = [];
+        }
     }
     /**
      * Pre-size the clipping stencil region so that all future `updatePart` /
@@ -94898,7 +94993,7 @@ class Info {
     }
 }
 
-var template = "<div class=\"tcv_cad_viewer\">\n    <div class=\"tcv_cad_toolbar tcv_round\"></div>\n\n    <div class=\"tcv_cad_body\">\n        <div class=\"tcv_cad_navigation\">\n            <div class=\"tcv_cad_tree tcv_round\">\n                <div class=\"tcv_tabnav\">\n                    <input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value=\"Tree\" type=\"button\" />\n                    <input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Clip\"\n                        type=\"button\" />\n                    <input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Material\"\n                        type=\"button\" />\n                    <input class='tcv_tab_zebra tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Zebra\"\n                        type=\"button\" />\n                </div>\n                <div class=\"tcv_cad_tree_toggles\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase nodes with a single leaf\">\n                        <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value=\"1\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand root node only\">\n                        <input class='tcv_expand_root tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase tree\">\n                        <input class='tcv_collapse_all tcv_btn tcv_small_btn' value=\"C\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand tree\">\n                        <input class='tcv_expand tcv_btn tcv_small_btn' value=\"E\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                    <div class=\"tcv_cad_tree_container\"></div>\n                    <div class=\"tcv_cad_clip_container\">\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Set red clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane1 tcv_label\">N1 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane1 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane1 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set green clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane2 tcv_label\">N2 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane2 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane2 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set blue clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane3 tcv_label\">N3 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane3 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane3 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_clip_checks\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Use intersection clipping\">\n                                    <input class='tcv_clip_intersection tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Intersection</span>\n                                </span>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Show clipping planes\">\n                                    <input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Planes</span>\n                                </span>\n                            </div>\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Use object color caps instead of RGB\">\n                                <input class='tcv_clip_caps tcv_axes0 tcv_check' type=\"checkbox\" />\n                                <span class=\"tcv_label\">Use object color caps</span>\n                            </span>\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_material_container\">\n                        <div class=\"tcv_cad_tree_toggles\">\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Reset to original values\">\n                                <input class='tcv_material_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                            </span>\n                        </div>\n                        <div class=\"tcv_material_ambientlight tcv_label\">\n                            Ambient light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"20\" value=\"1\"\n                                    class=\"tcv_sld_value_ambientlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_ambientlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_pointlight tcv_label\">\n                            Directional light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"40\" value=\"1\"\n                                    class=\"tcv_sld_value_pointlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_pointlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_metalness tcv_label\">\n                            Metalness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_metalness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_metalness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_roughness tcv_label\">\n                            Roughness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_roughness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_roughness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_info\">\n                            Note: This is not a full material renderer.\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_zebra_container\">\n                        <div class=\"tcv_zebra_stripe_count tcv_label\">\n                            Stripe Count\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"2\" max=\"50\" value=\"10\"\n                                    class=\"tcv_sld_value_zebra_count tcv_clip_slider\">\n                                <input value=10 class=\"tcv_inp_value_zebra_count tcv_clip_input\"></input>\n                            </div>\n                        </div>                        \n                        <div class=\"tcv_zebra_stripe_opacity tcv_label\">\n                            Stripe Opacity\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0.0\" max=\"1.0\" step=\"0.01\" value=\"1.0\"\n                                    class=\"tcv_sld_value_zebra_opacity tcv_clip_slider\">\n                                <input value=1.0 class=\"tcv_inp_value_zebra_opacity tcv_clip_input\"></input>\n                            </div>\n                        </div>                        \n                        <div class=\"tcv_zebra_stripe_direction tcv_label\">\n                            Stripe Direction\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"90\" step=\"0.5\" value=\"0\"\n                                    class=\"tcv_sld_value_zebra_direction tcv_clip_slider\">\n                                <input value=0 class=\"tcv_inp_value_zebra_direction tcv_clip_input\"></input>\n                            </div>\n                        </div>   \n                        <div class=\"tcv_zebra_radio\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Select stripe color scheme\">\n                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color1' type=\"radio\" id=\"zebra_blackwhite\" name=\"zebra_color_group\" value=\"blackwhite\" checked>\n                                    <label for=\"zebra_blackwhite\" class=\"tcv_radio_label\">B/W</label>\n                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color2' type=\"radio\" id=\"zebra_grayscale\" name=\"zebra_color_group\" value=\"grayscale\">\n                                    <label for=\"zebra_grayscale\" class=\"tcv_radio_label\">Gray</label>\n                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color3' type=\"radio\" id=\"zebra_colorful\" name=\"zebra_color_group\" value=\"colorful\">\n                                    <label for=\"zebra_colorful\" class=\"tcv_radio_label\">Colors</label>\n                                </span>\n\n                            </div>\n                        </div>                                             \n                        <div class=\"tcv_zebra_radio\">\n                            <div>\n                               <span class=\"tcv_tooltip\" data-tooltip=\"Select stripe mapping\">\n                                    <input class='tcv_zebra_mapping tcv_radio tcv_zebra_mapping1' type=\"radio\" id=\"zebra_reflection\" name=\"zebra_mapping_group\" value=\"reflection\" checked>\n                                    <label for=\"zebra_reflection\" class=\"tcv_radio_label\">Reflection</label>\n                                    <input class='tcv_zebra_mapping tcv_radio tcv_zebra_mapping2' type=\"radio\" id=\"zebra_normal\" name=\"zebra_mapping_group\" value=\"normal\">\n                                    <label for=\"zebra_normal\" class=\"tcv_radio_label\">Normal</label>\n                                </span>\n                            </div>\n                        </div>                                             \n                    </div>\n                </div>\n            </div>\n            <div class=\"tcv_cad_info_wrapper\">\n                <div class=\"tcv_toggle_info_wrapper\">\n                    <!-- <span class=\"tooltip\" data-tooltip=\"Open/close info box\"> -->\n                        <!-- <input class='tcv_toggle_info tcv_btn tcv_small_info_btn' value=\"<\" type=\"button\" /> -->\n                        <span class='tcv_toggle_info'></span><span class=\"tcv_info_label\">Info</span>\n                    <!-- </span> -->\n                </div>\n                <div class=\"tcv_cad_info tcv_round\">\n                    <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                        <div class=\"tcv_cad_info_container\"></div>\n                    </div>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_cad_view\">\n            <div class=\"tcv_distance_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Distance</div>\n            </div>\n\n            <div class=\"tcv_properties_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Properties</div>\n                <div class=\"tcv_measure_subheader\">Shape</div>\n            </div>\n\n            <div class=\"tcv_cad_animation tcv_round\">\n                <span class=\"tcv_animation_label\">E</span>\n                <span><input type=\"range\" min=\"0\" max=\"1000\" value=\"0\"\n                        class=\"tcv_animation_slider tcv_clip_slider\"></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Play animation\"><input class='tcv_play tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Pause animation\"><input class='tcv_pause tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Stop and reset animation\"><input class='tcv_stop tcv_btn'\n                        type=\"button\" /></span>\n            </div>\n            \n            <div class=\"tcv_cad_zscale tcv_round\">\n                <span class=\"tcv_animation_label\">Z</span>\n                <span><input type=\"range\" min=\"1\" max=\"32\" value=\"0\"\n                        class=\"tcv_zscale_slider tcv_clip_slider\"></span>\n            </div>\n\n            <div class=\"tcv_cad_help tcv_round\">\n                <table class=\"tcv_cad_help_layout\">\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Navigation</b></td>\n                    </tr>\n                    <tr>\n                        <td>Rotate</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate up / down</td>\n                        <td>&lt;{{ctrl}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate left / right</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Pan</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Zoom</td>\n                        <td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td>\n                    </tr>\n\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Selection</b></td>\n                    </tr>\n                    <tr>\n                        <td>Pick element</td>\n                        <td>&lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>Click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>(Shows axis-aligned bounding box, AABB)</td>\n                    </tr>\n                    <tr>\n                        <td>Isolate element</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{shift}}&gt; + click on navigation tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide element</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; double click object</td>\n                    </tr>\n                    <tr>    \n                        <td></td>                \n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide other elements</td>\n                        <td>&lt;{{shift}}&gt; + &lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Set camera target</td>\n                        <td>&lt;{{shift}}&gt + &lt;{{meta}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>                    \n                    <tr>\n                        <td></td>\n                        <td><b>CAD Object Tree</b></td>\n                    </tr>\n                    <tr>\n                        <td>Collapse single leafs</td>\n                        <td>Button '1' (all nodes with one leaf only)</td>\n                    </tr>\n                    <tr>\n                        <td>Expand root only</td>\n                        <td>Button 'R'</td>\n                    </tr>\n                    <tr>\n                        <td>Collapse all nodes</td>\n                        <td>Button 'C'</td>\n                    </tr>\n                    <tr>\n                        <td>Expand all nodes</td>\n                        <td>Button 'E'</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td><b>Measure Mode</b></td>\n                    </tr>\n                    <tr>\n                        <td>Select 1. (and 2.) object</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Use center instead of min distance</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; for the second selection</td>\n                    </tr>\n                    <tr>\n                        <td>Filter object types</td>\n                        <td>Type menu or &lt;n&gt;one, &lt;s&gt;olid, &lt;f&gt;ace, &lt;e&gt;dge , &lt;v&gt;ertices</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect last object</td>\n                        <td>&lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect all objects</td>\n                        <td>&lt;ESC&gt;</td>\n                    </tr>\n                </table>\n            </div>\n            <div class=\"tcv_filter_menu\">\n                <div class=\"tcv_drop_down tcv_shape_filter\">\n                    <span class=\"tcv_round tcv_filter_content\"><span class=\"tcv_filter_value\">None</span>\n                        <span class=\"tcv_filter_icon\">⏶\n                        </span></span>\n                    <div class=\"tcv_filter_dropdown tcv_round\">\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_none\">None</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_vertex\">Vertex</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_edge\">Edge</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_face\">Face</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_solid\">Solid</div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n    <div class=\"tcv_tick_size\">\n        ⊢⊣<span class=\"tcv_tick_size_value\">0</span>\n    </div>\n</div>";
+var template = "<div class=\"tcv_cad_viewer\">\n    <div class=\"tcv_cad_toolbar tcv_round\"></div>\n\n    <div class=\"tcv_cad_body\">\n        <div class=\"tcv_cad_navigation\">\n            <div class=\"tcv_cad_tree tcv_round\">\n                <div class=\"tcv_tabnav\">\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value=\"Tree\" type=\"button\" style=\"width: 100%\" /></span>\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Clip\" type=\"button\" style=\"width: 100%\" /></span>\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Material\" type=\"button\" style=\"width: 100%\" /></span>\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_zebra tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Zebra\" type=\"button\" style=\"width: 100%\" /></span>\n                </div>\n                <div class=\"tcv_cad_tree_toggles\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase nodes with a single leaf\">\n                        <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value=\"1\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand root node only\">\n                        <input class='tcv_expand_root tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase tree\">\n                        <input class='tcv_collapse_all tcv_btn tcv_small_btn' value=\"C\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand tree\">\n                        <input class='tcv_expand tcv_btn tcv_small_btn' value=\"E\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                    <div class=\"tcv_cad_tree_container\"></div>\n                    <div class=\"tcv_cad_clip_container\">\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Set red clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane1 tcv_label\">N1 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane1 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane1 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set green clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane2 tcv_label\">N2 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane2 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane2 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set blue clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane3 tcv_label\">N3 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane3 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane3 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_clip_checks\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Use intersection clipping\">\n                                    <input class='tcv_clip_intersection tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Intersection</span>\n                                </span>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Show clipping planes\">\n                                    <input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Planes</span>\n                                </span>\n                            </div>\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Use object color caps instead of RGB\">\n                                <input class='tcv_clip_caps tcv_axes0 tcv_check' type=\"checkbox\" />\n                                <span class=\"tcv_label\">Use object color caps</span>\n                            </span>\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_material_container\">\n                        <div class=\"tcv_cad_tree_toggles\">\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Reset to original values\">\n                                <input class='tcv_material_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                            </span>\n                        </div>\n                        <div class=\"tcv_material_ambientlight tcv_label\">\n                            Ambient light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"20\" value=\"1\"\n                                    class=\"tcv_sld_value_ambientlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_ambientlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_pointlight tcv_label\">\n                            Directional light intensity (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"40\" value=\"1\"\n                                    class=\"tcv_sld_value_pointlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_pointlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_metalness tcv_label\">\n                            Metalness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_metalness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_metalness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_roughness tcv_label\">\n                            Roughness (%)\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_roughness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_roughness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_info\">\n                            Note: This is not a full material renderer.\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_zebra_container\">\n                        <div class=\"tcv_zebra_stripe_count tcv_label\">\n                            Stripe Count\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"2\" max=\"50\" value=\"10\"\n                                    class=\"tcv_sld_value_zebra_count tcv_clip_slider\">\n                                <input value=10 class=\"tcv_inp_value_zebra_count tcv_clip_input\"></input>\n                            </div>\n                        </div>                        \n                        <div class=\"tcv_zebra_stripe_opacity tcv_label\">\n                            Stripe Opacity\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0.0\" max=\"1.0\" step=\"0.01\" value=\"1.0\"\n                                    class=\"tcv_sld_value_zebra_opacity tcv_clip_slider\">\n                                <input value=1.0 class=\"tcv_inp_value_zebra_opacity tcv_clip_input\"></input>\n                            </div>\n                        </div>                        \n                        <div class=\"tcv_zebra_stripe_direction tcv_label\">\n                            Stripe Direction\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <input type=\"range\" min=\"0\" max=\"90\" step=\"0.5\" value=\"0\"\n                                    class=\"tcv_sld_value_zebra_direction tcv_clip_slider\">\n                                <input value=0 class=\"tcv_inp_value_zebra_direction tcv_clip_input\"></input>\n                            </div>\n                        </div>   \n                        <div class=\"tcv_zebra_radio\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Select stripe color scheme\">\n                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color1' type=\"radio\" id=\"zebra_blackwhite\" name=\"zebra_color_group\" value=\"blackwhite\" checked>\n                                    <label for=\"zebra_blackwhite\" class=\"tcv_radio_label\">B/W</label>\n                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color2' type=\"radio\" id=\"zebra_grayscale\" name=\"zebra_color_group\" value=\"grayscale\">\n                                    <label for=\"zebra_grayscale\" class=\"tcv_radio_label\">Gray</label>\n                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color3' type=\"radio\" id=\"zebra_colorful\" name=\"zebra_color_group\" value=\"colorful\">\n                                    <label for=\"zebra_colorful\" class=\"tcv_radio_label\">Colors</label>\n                                </span>\n\n                            </div>\n                        </div>                                             \n                        <div class=\"tcv_zebra_radio\">\n                            <div>\n                               <span class=\"tcv_tooltip\" data-tooltip=\"Select stripe mapping\">\n                                    <input class='tcv_zebra_mapping tcv_radio tcv_zebra_mapping1' type=\"radio\" id=\"zebra_reflection\" name=\"zebra_mapping_group\" value=\"reflection\" checked>\n                                    <label for=\"zebra_reflection\" class=\"tcv_radio_label\">Reflection</label>\n                                    <input class='tcv_zebra_mapping tcv_radio tcv_zebra_mapping2' type=\"radio\" id=\"zebra_normal\" name=\"zebra_mapping_group\" value=\"normal\">\n                                    <label for=\"zebra_normal\" class=\"tcv_radio_label\">Normal</label>\n                                </span>\n                            </div>\n                        </div>                                             \n                    </div>\n                </div>\n            </div>\n            <div class=\"tcv_cad_info_wrapper\">\n                <div class=\"tcv_toggle_info_wrapper\">\n                    <!-- <span class=\"tooltip\" data-tooltip=\"Open/close info box\"> -->\n                        <!-- <input class='tcv_toggle_info tcv_btn tcv_small_info_btn' value=\"<\" type=\"button\" /> -->\n                        <span class='tcv_toggle_info'></span><span class=\"tcv_info_label\">Info</span>\n                    <!-- </span> -->\n                </div>\n                <div class=\"tcv_cad_info tcv_round\">\n                    <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                        <div class=\"tcv_cad_info_container\"></div>\n                    </div>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_cad_view\">\n            <div class=\"tcv_distance_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Distance</div>\n            </div>\n\n            <div class=\"tcv_properties_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Properties</div>\n                <div class=\"tcv_measure_subheader\">Shape</div>\n            </div>\n\n            <div class=\"tcv_cad_animation tcv_round\">\n                <span class=\"tcv_animation_label\">E</span>\n                <span><input type=\"range\" min=\"0\" max=\"1000\" value=\"0\"\n                        class=\"tcv_animation_slider tcv_clip_slider\"></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Play animation\"><input class='tcv_play tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Pause animation\"><input class='tcv_pause tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Stop and reset animation\"><input class='tcv_stop tcv_btn'\n                        type=\"button\" /></span>\n            </div>\n            \n            <div class=\"tcv_cad_zscale tcv_round\">\n                <span class=\"tcv_animation_label\">Z</span>\n                <span><input type=\"range\" min=\"1\" max=\"32\" value=\"0\"\n                        class=\"tcv_zscale_slider tcv_clip_slider\"></span>\n            </div>\n\n            <div class=\"tcv_cad_help tcv_round\">\n                <table class=\"tcv_cad_help_layout\">\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Navigation</b></td>\n                    </tr>\n                    <tr>\n                        <td>Rotate</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate up / down</td>\n                        <td>&lt;{{ctrl}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate left / right</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Pan</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Zoom</td>\n                        <td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td>\n                    </tr>\n\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Selection</b></td>\n                    </tr>\n                    <tr>\n                        <td>Pick element</td>\n                        <td>&lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>Click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>(Shows axis-aligned bounding box, AABB)</td>\n                    </tr>\n                    <tr>\n                        <td>Isolate element</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{shift}}&gt; + click on navigation tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide element</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; double click object</td>\n                    </tr>\n                    <tr>    \n                        <td></td>                \n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide other elements</td>\n                        <td>&lt;{{shift}}&gt; + &lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Set camera target</td>\n                        <td>&lt;{{shift}}&gt + &lt;{{meta}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>                    \n                    <tr>\n                        <td></td>\n                        <td><b>CAD Object Tree</b></td>\n                    </tr>\n                    <tr>\n                        <td>Collapse single leafs</td>\n                        <td>Button '1' (all nodes with one leaf only)</td>\n                    </tr>\n                    <tr>\n                        <td>Expand root only</td>\n                        <td>Button 'R'</td>\n                    </tr>\n                    <tr>\n                        <td>Collapse all nodes</td>\n                        <td>Button 'C'</td>\n                    </tr>\n                    <tr>\n                        <td>Expand all nodes</td>\n                        <td>Button 'E'</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td><b>Measure Mode</b></td>\n                    </tr>\n                    <tr>\n                        <td>Select 1. (and 2.) object</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Use center instead of min distance</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; for the second selection</td>\n                    </tr>\n                    <tr>\n                        <td>Filter object types</td>\n                        <td>Type menu or &lt;n&gt;one, &lt;s&gt;olid, &lt;f&gt;ace, &lt;e&gt;dge , &lt;v&gt;ertices</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect last object</td>\n                        <td>&lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect all objects</td>\n                        <td>&lt;ESC&gt;</td>\n                    </tr>\n                </table>\n            </div>\n            <div class=\"tcv_filter_menu\">\n                <div class=\"tcv_drop_down tcv_shape_filter\">\n                    <span class=\"tcv_round tcv_filter_content\"><span class=\"tcv_filter_value\">None</span>\n                        <span class=\"tcv_filter_icon\">⏶\n                        </span></span>\n                    <div class=\"tcv_filter_dropdown tcv_round\">\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_none\">None</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_vertex\">Vertex</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_edge\">Edge</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_face\">Face</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_solid\">Solid</div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n    <div class=\"tcv_tick_size\">\n        ⊢⊣<span class=\"tcv_tick_size_value\">0</span>\n    </div>\n</div>";
 
 // =============================================================================
 // IMPORTS & HELPERS
@@ -95389,18 +95484,21 @@ class Display {
             // Skip if modifier keys are held (avoid conflicts with modifier-based mouse actions)
             if (e.ctrlKey || e.altKey || e.metaKey)
                 return;
-            // Skip if target is a form input element
+            // Skip if target is a text-entry input element (but allow buttons/checkboxes)
             const target = e.target;
-            if (target instanceof HTMLInputElement ||
+            if ((target instanceof HTMLInputElement &&
+                target.type !== "button" && target.type !== "checkbox") ||
                 target instanceof HTMLTextAreaElement ||
                 target instanceof HTMLSelectElement) {
                 return;
             }
             const action = KeyMapper.getActionForKey(e.key);
             if (action) {
-                e.preventDefault();
-                e.stopPropagation();
-                this._dispatchAction(action);
+                const result = this._dispatchAction(action);
+                if (result !== "propagate") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
             }
         };
         // ---------------------------------------------------------------------------
@@ -96379,6 +96477,7 @@ class Display {
     }
     /**
      * Dispatch a keyboard shortcut action.
+     * Returns "propagate" if the event should not be suppressed.
      */
     _dispatchAction(action) {
         // Toggle buttons
@@ -96441,11 +96540,12 @@ class Display {
                     this.container.focus();
                     return;
                 }
+                // When a tool is active, let ESC propagate to the raycaster
+                // for shape deselection
+                if (this.state.get("activeTool"))
+                    return "propagate";
                 const stopMode = this.state.get("animationMode");
-                if (stopMode === "explode") {
-                    this._toggleClickButton("explode");
-                }
-                else if (stopMode === "animation") {
+                if (stopMode === "explode" || stopMode === "animation") {
                     this.controlAnimationByName("stop");
                 }
                 return;
@@ -96485,21 +96585,21 @@ class Display {
             if (button) {
                 const baseTooltip = button.html.getAttribute("data-base-tooltip");
                 if (baseTooltip) {
-                    button.html.setAttribute("data-tooltip", `${baseTooltip} [${key}]`);
+                    button.html.setAttribute("data-tooltip", `${baseTooltip} › ${key}`);
                 }
             }
         }
         // Update tab titles
         const tabMap = {
-            tree: this.tabTree,
-            clip: this.tabClip,
-            material: this.tabMaterial,
-            zebra: this.tabZebra,
+            tree: { el: this.tabTree, label: "Navigation Tree" },
+            clip: { el: this.tabClip, label: "Clipping Tool" },
+            material: { el: this.tabMaterial, label: "Material Selection" },
+            zebra: { el: this.tabZebra, label: "Zebra Tool" },
         };
         for (const [action, key] of Object.entries(shortcuts)) {
-            const tab = tabMap[action];
-            if (tab) {
-                tab.title = `[${key}]`;
+            const entry = tabMap[action];
+            if (entry?.el?.parentElement) {
+                entry.el.parentElement.setAttribute("data-tooltip", `${entry.label} › ${key}`);
             }
         }
     }

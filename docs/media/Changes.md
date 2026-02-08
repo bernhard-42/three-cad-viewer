@@ -1,5 +1,32 @@
 # Change log
 
+## v4.1.0
+
+**Features**
+
+- Added `addPart(parentPath, partData)` to dynamically add a leaf shape or subtree to the scene after `render()`, and `removePart(path)` to remove a part or entire subtree by absolute path
+  - Leaf parts use a plain `name` (no leading slash); the viewer constructs the absolute path from the parent
+  - Subtree parts use slash-prefixed relative ids; `addPart` prefixes every id with the parent path before rendering
+  - Both methods validate uniqueness at the insertion level and update the bounding box, clipping, and tree view
+- Added `updatePart(path, updates)` for in-place buffer updates on existing parts without rebuilding the scene graph, and `updateParts(updates[])` for batched updates
+- Added keyboard shortcuts for toolbar buttons, camera presets, tab navigation, and animation control
+  - When the viewer container has focus (via click), single-key presses trigger actions
+  - Modifier-key mappings (shift/ctrl/meta/alt) continue to work as before
+  - The `keymap` option is fully configurable; user overrides merge with defaults
+  - Button tooltips show `[key]` suffixes; tab elements get title attributes with their shortcut
+  - Default bindings:
+    - Toggle: `a`/`A` axes, `g`/`G` grid, `p` perspective, `t` transparent, `b` blackedges, `x` explode, `L` zscale, `D` distance, `P` properties, `S` select
+    - Views: `0` iso, `1`–`6` front/rear/top/bottom/left/right, `r` resize, `R` reset
+    - Tabs: `T` tree, `C` clip, `M` material, `Z` zebra
+    - Other: `h` help, `Space` play/pause, `Escape` stop/close-help
+- Measurement improvements
+  - Measurement arrows adapt to point proximity: cones flip outward when points are close, and are hidden when coincident — preventing visual overlap
+  - Measurement panels now render grouped backend responses with horizontal separators between groups
+
+**Build & Tooling**
+
+- Switched documentation generator from JSDoc to TypeDoc for native TypeScript support
+
 ## v4.0.0
 
 **TypeScript Migration**
@@ -25,10 +52,6 @@
 
 **Features**
 
-- Added `addPart(parentPath, partData)` to dynamically add a leaf shape or subtree to the scene after `render()`, and `removePart(path)` to remove a part or entire subtree by absolute path
-  - Leaf parts use a plain `name` (no leading slash); the viewer constructs the absolute path from the parent
-  - Subtree parts use slash-prefixed relative ids; `addPart` prefixes every id with the parent path before rendering
-  - Both methods validate uniqueness at the insertion level and update the bounding box, clipping, and tree view
 - Added `holroyd` parameter to control non-tumbling trackball rotation mode
 - Exposed `getHolroyd()` and `setHolroyd()` methods on Viewer
 - Normalized control speed settings (pan, rotate, zoom) - 1.0 now means consistent default experience across control types
