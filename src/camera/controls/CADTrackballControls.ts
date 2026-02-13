@@ -25,7 +25,12 @@
 
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js";
 import { MOUSE, Quaternion, Vector2, Vector3, Camera } from "three";
-import { KeyMapper, AXIS_VECTORS, isOrthographicCamera, isPerspectiveCamera } from "../../utils/utils.js";
+import {
+  KeyMapper,
+  AXIS_VECTORS,
+  isOrthographicCamera,
+  isPerspectiveCamera,
+} from "../../utils/utils.js";
 import type { Axis } from "../../core/types.js";
 
 // State constants matching TrackballControls internal state
@@ -50,7 +55,6 @@ const _rotateEnd3 = new Vector3();
 const _panDirection = new Vector3();
 const _cameraUp = new Vector3();
 const _cameraRight = new Vector3();
-
 
 class CADTrackballControls extends TrackballControls {
   holroyd: boolean;
@@ -137,7 +141,9 @@ class CADTrackballControls extends TrackballControls {
       domElement.addEventListener("pointermove", this._holroydPointerMove);
       domElement.addEventListener("pointerup", this._holroydPointerUp);
       domElement.addEventListener("pointercancel", this._holroydPointerUp);
-      domElement.addEventListener("wheel", this._holroydWheel, { passive: false });
+      domElement.addEventListener("wheel", this._holroydWheel, {
+        passive: false,
+      });
     }
 
     // Save parent's _onMouseDown before overriding (for holroyd=false fallback)
@@ -247,7 +253,8 @@ class CADTrackballControls extends TrackballControls {
     // Call update to process the pointer movement and dispatch "change" event
     // This enables change-listener mode (non-animation loop) to work
     // Note: this runs for all pointer moves while dragging (rotate, pan, zoom)
-    if (this.state !== -1) { // STATE.NONE = -1
+    if (this.state !== -1) {
+      // STATE.NONE = -1
       this.update();
     }
   }
@@ -274,15 +281,26 @@ class CADTrackballControls extends TrackballControls {
    * Override dispose to clean up our event listeners.
    */
   dispose(): void {
-    if (this.domElement &&
-        this._holroydPointerDown &&
-        this._holroydPointerMove &&
-        this._holroydPointerUp &&
-        this._holroydWheel) {
-      this.domElement.removeEventListener("pointerdown", this._holroydPointerDown);
-      this.domElement.removeEventListener("pointermove", this._holroydPointerMove);
+    if (
+      this.domElement &&
+      this._holroydPointerDown &&
+      this._holroydPointerMove &&
+      this._holroydPointerUp &&
+      this._holroydWheel
+    ) {
+      this.domElement.removeEventListener(
+        "pointerdown",
+        this._holroydPointerDown,
+      );
+      this.domElement.removeEventListener(
+        "pointermove",
+        this._holroydPointerMove,
+      );
       this.domElement.removeEventListener("pointerup", this._holroydPointerUp);
-      this.domElement.removeEventListener("pointercancel", this._holroydPointerUp);
+      this.domElement.removeEventListener(
+        "pointercancel",
+        this._holroydPointerUp,
+      );
       this.domElement.removeEventListener("wheel", this._holroydWheel);
     }
     super.dispose();
@@ -329,7 +347,11 @@ class CADTrackballControls extends TrackballControls {
    * - NDC x: -1 (left) to +1 (right)
    * - NDC y: -1 (bottom) to +1 (top)
    */
-  private _getMouseOnSphere(pageX: number, pageY: number, target: Vector3): Vector3 {
+  private _getMouseOnSphere(
+    pageX: number,
+    pageY: number,
+    target: Vector3,
+  ): Vector3 {
     const rect = this.domElement!.getBoundingClientRect();
 
     // Convert to NDC space (-1 to 1)
@@ -392,9 +414,10 @@ class CADTrackballControls extends TrackballControls {
 
     // In holroyd mode, we set quaternion directly - skip lookAt
     // Just check for changes and dispatch event
-    const currentZoom = (isPerspectiveCamera(this.object) || isOrthographicCamera(this.object))
-      ? this.object.zoom
-      : 1;
+    const currentZoom =
+      isPerspectiveCamera(this.object) || isOrthographicCamera(this.object)
+        ? this.object.zoom
+        : 1;
     const zoomChanged = Math.abs(currentZoom - _lastZoom) > 0.000001;
     if (
       this._lastPosition.distanceToSquared(this.object.position) > 0.000001 ||
@@ -438,7 +461,7 @@ class CADTrackballControls extends TrackballControls {
     this._getMouseOnSphere(
       this._holroydStart.x,
       this._holroydStart.y,
-      _rotateStart3
+      _rotateStart3,
     );
     this._getMouseOnSphere(this._holroydEnd.x, this._holroydEnd.y, _rotateEnd3);
 
@@ -494,16 +517,23 @@ class CADTrackballControls extends TrackballControls {
       return;
     }
 
-    // Apply orthographic scaling to keep pan in sync with mouse at all zoom levels
-    if (isOrthographicCamera(this.object) && this.domElement) {
-      const scaleX = (this.object.right - this.object.left) / this.object.zoom / this.domElement.clientWidth;
-      const scaleY = (this.object.top - this.object.bottom) / this.object.zoom / this.domElement.clientHeight;
-      mouseChange.x *= scaleX * 2.5;
-      mouseChange.y *= scaleY * 2.5;
+    // Apply pan scaling based on camera type
+    if (isOrthographicCamera(this.object)) {
+      // For orthographic: pan distance = frustum size at zoom level
+      // mouseChange is already normalized, so just scale by world units visible
+      const scaleX = (this.object.right - this.object.left) / this.object.zoom;
+      const scaleY = (this.object.top - this.object.bottom) / this.object.zoom;
+      mouseChange.x *= scaleX * this.panSpeed * 4;
+      mouseChange.y *= scaleY * this.panSpeed * 4;
+    } else if (isPerspectiveCamera(this.object) && this.domElement) {
+      // For perspective: correct for aspect ratio since _getMouseOnScreen normalizes by width
+      const aspect = this.domElement.clientWidth / this.domElement.clientHeight;
+      mouseChange.x *= aspect;
+      mouseChange.multiplyScalar(this._eye.length() * this.panSpeed * 1.6);
+    } else {
+      // Fallback for other camera types
+      mouseChange.multiplyScalar(this._eye.length() * this.panSpeed * 2.0);
     }
-
-    // Scale factor tuned to align pan speed with mouse movement
-    mouseChange.multiplyScalar(this._eye.length() * this.panSpeed * 2.0);
 
     // Get camera's actual right and up vectors from quaternion
     // Camera looks down -Z in its local space, so:
