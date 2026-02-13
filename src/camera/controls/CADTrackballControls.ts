@@ -494,6 +494,14 @@ class CADTrackballControls extends TrackballControls {
       return;
     }
 
+    // Apply orthographic scaling to keep pan in sync with mouse at all zoom levels
+    if (isOrthographicCamera(this.object) && this.domElement) {
+      const scaleX = (this.object.right - this.object.left) / this.object.zoom / this.domElement.clientWidth;
+      const scaleY = (this.object.top - this.object.bottom) / this.object.zoom / this.domElement.clientHeight;
+      mouseChange.x *= scaleX * 2.5;
+      mouseChange.y *= scaleY * 2.5;
+    }
+
     // Scale factor tuned to align pan speed with mouse movement
     mouseChange.multiplyScalar(this._eye.length() * this.panSpeed * 2.0);
 

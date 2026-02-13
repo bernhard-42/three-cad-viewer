@@ -11,7 +11,7 @@ const SPEED_FACTORS: Record<
   { pan: number; rotate: number; zoom: number }
 > = {
   trackball: {
-    pan: 0.25,
+    pan: 0.22,
     rotate: 1.0,
     zoom: 0.5,
   },
