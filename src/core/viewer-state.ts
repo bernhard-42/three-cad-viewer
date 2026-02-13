@@ -427,7 +427,7 @@ class ViewerState {
         continue;
       }
       const value = options[key];
-      if (value !== undefined) {
+      if (value !== undefined && value !== null) {
         // Type-safe assignment using Object.assign for the single property
         Object.assign(this._state, { [key]: value });
       }
@@ -466,7 +466,9 @@ class ViewerState {
     for (const key of Object.keys(updates)) {
       if (!isStateKey(key)) continue;
       const value = updates[key];
-      if (value === undefined) continue;
+      // Skip undefined/null, except for keys where null is a valid value (reset to default)
+      const KEYS_WITH_VALID_NULL = ["position", "quaternion", "target"];
+      if (value === undefined || (value === null && !KEYS_WITH_VALID_NULL.includes(key))) continue;
 
       const oldValue = this._state[key];
       if (!valuesEqual(oldValue, value)) {
