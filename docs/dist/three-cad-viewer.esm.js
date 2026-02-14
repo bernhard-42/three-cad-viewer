@@ -1,5 +1,3 @@
-
-(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 /**
  * @license
  * Copyright 2010-2025 Three.js Authors
@@ -88118,7 +88116,9 @@ class CADTrackballControls extends TrackballControls {
             domElement.addEventListener("pointermove", this._holroydPointerMove);
             domElement.addEventListener("pointerup", this._holroydPointerUp);
             domElement.addEventListener("pointercancel", this._holroydPointerUp);
-            domElement.addEventListener("wheel", this._holroydWheel, { passive: false });
+            domElement.addEventListener("wheel", this._holroydWheel, {
+                passive: false,
+            });
         }
         // Save parent's _onMouseDown before overriding (for holroyd=false fallback)
         this._parentOnMouseDown = this._onMouseDown;
@@ -88218,7 +88218,8 @@ class CADTrackballControls extends TrackballControls {
         // Call update to process the pointer movement and dispatch "change" event
         // This enables change-listener mode (non-animation loop) to work
         // Note: this runs for all pointer moves while dragging (rotate, pan, zoom)
-        if (this.state !== -1) { // STATE.NONE = -1
+        if (this.state !== -1) {
+            // STATE.NONE = -1
             this.update();
         }
     }
@@ -88346,7 +88347,7 @@ class CADTrackballControls extends TrackballControls {
         this.object.position.addVectors(this.target, this._eye);
         // In holroyd mode, we set quaternion directly - skip lookAt
         // Just check for changes and dispatch event
-        const currentZoom = (isPerspectiveCamera(this.object) || isOrthographicCamera(this.object))
+        const currentZoom = isPerspectiveCamera(this.object) || isOrthographicCamera(this.object)
             ? this.object.zoom
             : 1;
         const zoomChanged = Math.abs(currentZoom - _lastZoom) > 0.000001;
@@ -88421,8 +88422,25 @@ class CADTrackballControls extends TrackballControls {
         if (mouseChange.lengthSq() === 0) {
             return;
         }
-        // Scale factor tuned to align pan speed with mouse movement
-        mouseChange.multiplyScalar(this._eye.length() * this.panSpeed * 2.0);
+        // Apply pan scaling based on camera type
+        if (isOrthographicCamera(this.object)) {
+            // For orthographic: pan distance = frustum size at zoom level
+            // mouseChange is already normalized, so just scale by world units visible
+            const scaleX = (this.object.right - this.object.left) / this.object.zoom;
+            const scaleY = (this.object.top - this.object.bottom) / this.object.zoom;
+            mouseChange.x *= scaleX * this.panSpeed * 4;
+            mouseChange.y *= scaleY * this.panSpeed * 4;
+        }
+        else if (isPerspectiveCamera(this.object) && this.domElement) {
+            // For perspective: correct for aspect ratio since _getMouseOnScreen normalizes by width
+            const aspect = this.domElement.clientWidth / this.domElement.clientHeight;
+            mouseChange.x *= aspect;
+            mouseChange.multiplyScalar(this._eye.length() * this.panSpeed * 1.6);
+        }
+        else {
+            // Fallback for other camera types
+            mouseChange.multiplyScalar(this._eye.length() * this.panSpeed * 2.0);
+        }
         // Get camera's actual right and up vectors from quaternion
         // Camera looks down -Z in its local space, so:
         // - local +X is right
@@ -88472,7 +88490,7 @@ class CADTrackballControls extends TrackballControls {
 // TrackballControls and OrbitControls have different internal scaling, so we normalize separately
 const SPEED_FACTORS = {
     trackball: {
-        pan: 0.25,
+        pan: 0.22,
         rotate: 1.0,
         zoom: 0.5,
     },
@@ -88628,6 +88646,15 @@ class Controls {
      */
     update() {
         this.controls.update();
+    }
+    /**
+     * Update screen dimensions after canvas resize.
+     * Only applies to TrackballControls which caches screen dimensions.
+     */
+    handleResize() {
+        if (this.controls instanceof CADTrackballControls) {
+            this.controls.handleResize();
+        }
     }
     /**
      * Reset camera to initial (automatically saved) state of position, up, quaternion and zoom.
@@ -90753,7 +90780,7 @@ class ViewerState {
                 continue;
             }
             const value = options[key];
-            if (value !== undefined) {
+            if (value !== undefined && value !== null) {
                 // Type-safe assignment using Object.assign for the single property
                 Object.assign(this._state, { [key]: value });
             }
@@ -90787,7 +90814,9 @@ class ViewerState {
             if (!isStateKey(key))
                 continue;
             const value = updates[key];
-            if (value === undefined)
+            // Skip undefined/null, except for keys where null is a valid value (reset to default)
+            const KEYS_WITH_VALID_NULL = ["position", "quaternion", "target"];
+            if (value === undefined || (value === null && !KEYS_WITH_VALID_NULL.includes(key)))
                 continue;
             const oldValue = this._state[key];
             if (!valuesEqual(oldValue, value)) {
@@ -94425,6 +94454,7 @@ class Viewer {
         this.display.updateToolbarCollapse(fullWidth);
         // Adapt camera to new dimensions
         this.rendered.camera.changeDimensions(this.bb_radius, cadWidth, height);
+        this.controls.handleResize();
         // update the this
         this.update(true);
         // update the raycaster
