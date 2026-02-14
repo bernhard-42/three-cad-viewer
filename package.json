@@ -8,7 +8,13 @@
     "url": "https://github.com/bernhard-42/three-cad-viewer"
   },
   "files": [
-    "dist",
+    "dist/**/*.d.ts",
+    "dist/three-cad-viewer.css",
+    "dist/three-cad-viewer.esm.js",
+    "dist/three-cad-viewer.esm.js.map",
+    "dist/three-cad-viewer.esm.min.js",
+    "dist/three-cad-viewer.js",
+    "dist/three-cad-viewer.min.js",
     "src"
   ],
   "main": "dist/three-cad-viewer.js",
