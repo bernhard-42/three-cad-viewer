@@ -19,7 +19,17 @@ echo "creating github release"
 
 github-release release -u bernhard-42 -r three-cad-viewer -t v$CURRENT_VERSION -n three-cad-viewer-$CURRENT_VERSION
 sleep 5
-for f in dist/*; do
+
+# Upload only the distributable bundles (not .d.ts folders)
+RELEASE_FILES=(
+    "dist/three-cad-viewer.js"
+    "dist/three-cad-viewer.min.js"
+    "dist/three-cad-viewer.esm.js"
+    "dist/three-cad-viewer.esm.min.js"
+    "dist/three-cad-viewer.css"
+)
+
+for f in "${RELEASE_FILES[@]}"; do
     echo $f
-    github-release upload  -u bernhard-42 -r three-cad-viewer -t v$CURRENT_VERSION -n $(basename $f) -f $f
+    github-release upload -u bernhard-42 -r three-cad-viewer -t v$CURRENT_VERSION -n $(basename $f) -f $f
 done
