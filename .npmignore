@@ -1,2 +1,6 @@
 # Exclude docs from npm package
 docs/
+
+# Exclude unnecessary source maps (keep only .esm.js.map)
+*.min.js.map
+three-cad-viewer.js.map
