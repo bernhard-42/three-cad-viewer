@@ -182,6 +182,16 @@ class Controls {
   }
 
   /**
+   * Update screen dimensions after canvas resize.
+   * Only applies to TrackballControls which caches screen dimensions.
+   */
+  handleResize(): void {
+    if (this.controls instanceof CADTrackballControls) {
+      this.controls.handleResize();
+    }
+  }
+
+  /**
    * Reset camera to initial (automatically saved) state of position, up, quaternion and zoom.
    */
   reset(): void {

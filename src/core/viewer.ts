@@ -4224,6 +4224,7 @@ class Viewer {
 
     // Adapt camera to new dimensions
     this.rendered.camera.changeDimensions(this.bb_radius, cadWidth, height);
+    this.controls.handleResize();
 
     // update the this
     this.update(true);
