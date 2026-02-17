@@ -7,8 +7,9 @@
                 <div class="tcv_tabnav">
                     <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button" style="width: 100%" /></span>
                     <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clip" type="button" style="width: 100%" /></span>
-                    <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value="Material" type="button" style="width: 100%" /></span>
                     <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_zebra tcv_tab tcv_tab-right tcv_tab-unselected' value="Zebra" type="button" style="width: 100%" /></span>
+                    <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value="Material" type="button" style="width: 100%" /></span>
+                    <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_studio tcv_tab tcv_tab-right tcv_tab-unselected' value="Studio" type="button" style="width: 100%" /></span>
                 </div>
                 <div class="tcv_cad_tree_toggles">
                     <span class="tcv_tooltip" data-tooltip="Collpase nodes with a single leaf">
@@ -186,7 +187,78 @@
                                     <label for="zebra_normal" class="tcv_radio_label">Normal</label>
                                 </span>
                             </div>
-                        </div>                                             
+                        </div>
+                    </div>
+                    <div class="tcv_cad_studio_container">
+                        <div class="tcv_cad_tree_toggles">
+                            <span class="tcv_tooltip" data-tooltip="Reset to default values">
+                                <input class='tcv_studio_reset tcv_btn tcv_small_btn' value="R" type="button" />
+                            </span>
+                        </div>
+                        <div class="tcv_studio_environment_label tcv_label">
+                            Environment
+                        </div>
+                        <div class="tcv_slider_group">
+                            <div>
+                                <select class="tcv_studio_environment tcv_studio_select">
+                                    <option value="studio">Studio</option>
+                                    <option value="neutral">Neutral</option>
+                                    <option value="outdoor">Outdoor</option>
+                                    <option value="none">None</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="tcv_studio_env_intensity_label tcv_label">
+                            Env Intensity
+                        </div>
+                        <div class="tcv_slider_group">
+                            <div>
+                                <input type="range" min="0" max="300" step="1" value="100"
+                                    class="tcv_sld_value_studio_env_intensity tcv_clip_slider">
+                                <input value=100 class="tcv_inp_value_studio_env_intensity tcv_clip_input"></input>
+                            </div>
+                        </div>
+                        <div class="tcv_studio_checks">
+                            <div>
+                                <span class="tcv_tooltip" data-tooltip="Show environment as scene background">
+                                    <input class='tcv_studio_show_background tcv_check' type="checkbox" />
+                                    <span class="tcv_label">Show Background</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="tcv_studio_tone_mapping_label tcv_label">
+                            Tone Mapping
+                        </div>
+                        <div class="tcv_slider_group">
+                            <div>
+                                <select class="tcv_studio_tone_mapping tcv_studio_select">
+                                    <option value="ACES">ACES</option>
+                                    <option value="AgX">AgX</option>
+                                    <option value="none">None</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="tcv_studio_exposure_label tcv_label">
+                            Exposure
+                        </div>
+                        <div class="tcv_slider_group">
+                            <div>
+                                <input type="range" min="0" max="300" step="1" value="100"
+                                    class="tcv_sld_value_studio_exposure tcv_clip_slider">
+                                <input value=100 class="tcv_inp_value_studio_exposure tcv_clip_input"></input>
+                            </div>
+                        </div>
+                        <div class="tcv_studio_checks">
+                            <div>
+                                <span class="tcv_tooltip" data-tooltip="Show/hide CAD edges in Studio mode">
+                                    <input class='tcv_studio_show_edges tcv_check' type="checkbox" />
+                                    <span class="tcv_label">Show Edges</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="tcv_studio_info">
+                            Tip: Assign material presets to objects for realistic rendering. Environment lighting and tone mapping are active.
+                        </div>
                     </div>
                 </div>
             </div>

@@ -537,7 +537,10 @@ input[type="button"] {
   /* margin-bottom: 6px; */
   background-color: transparent;
   color: var(--tcv-font-color);
-  font-size: 14px;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tcv_tab:hover {
@@ -672,6 +675,10 @@ input[type="button"] {
 }
 
 .tcv_cad_zebra_container {
+  overflow: hidden;
+}
+
+.tcv_cad_studio_container {
   overflow: hidden;
 }
 
@@ -832,6 +839,44 @@ input[type="button"] {
 
 .tcv_zebra_info {
   font-size: 12px;
+}
+
+.tcv_studio_select {
+  font-family: sans-serif;
+  font-size: 13px;
+  padding: 2px 4px;
+  border: 1px solid #d3d3d3;
+  border-radius: 3px;
+  background-color: var(--tcv-bg-overlay-color);
+  color: var(--tcv-font-color);
+  width: 60%;
+  outline: none;
+}
+
+.tcv_studio_select:hover {
+  opacity: 1;
+}
+
+.tcv_studio_select option {
+  background-color: var(--tcv-bg-color);
+  color: var(--tcv-font-color);
+}
+
+.tcv_studio_checks {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.tcv_studio_environment_label {
+  margin-top: 4px;
+}
+
+.tcv_studio_info {
+  font-size: 12px;
+  margin-top: 8px;
+  color: var(--tcv-font-color);
+  opacity: 0.7;
+  font-style: italic;
 }
 
 .tcv_filter_menu {

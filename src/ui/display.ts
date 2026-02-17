@@ -59,6 +59,7 @@ export interface DisplayOptions {
   explodeTool: boolean;
   zscaleTool: boolean;
   zebraTool: boolean;
+  studioTool: boolean;
   glass: boolean;
   tools: boolean;
   cadWidth: number;
@@ -153,6 +154,7 @@ class Display {
   cadClip!: HTMLElement;
   cadMaterial!: HTMLElement;
   cadZebra!: HTMLElement;
+  cadStudio!: HTMLElement;
   cadInfo!: HTMLElement;
   cadAnim!: HTMLElement;
   cadTools!: HTMLElement;
@@ -161,6 +163,7 @@ class Display {
   tabClip!: HTMLElement;
   tabMaterial!: HTMLElement;
   tabZebra!: HTMLElement;
+  tabStudio!: HTMLElement;
   tickValueElement!: HTMLElement;
   tickInfoElement!: HTMLElement;
   distanceMeasurementPanel!: HTMLElement;
@@ -186,6 +189,8 @@ class Display {
   zebraCountSlider: Slider | undefined;
   zebraOpacitySlider: Slider | undefined;
   zebraDirectionSlider: Slider | undefined;
+  studioEnvIntensitySlider: Slider | undefined;
+  studioExposureSlider: Slider | undefined;
 
   // State - set in setupUI() which is called at end of Viewer constructor
   viewer!: Viewer;
@@ -292,10 +297,12 @@ class Display {
     this.cadClip = this.getElement("tcv_cad_clip_container");
     this.cadMaterial = this.getElement("tcv_cad_material_container");
     this.cadZebra = this.getElement("tcv_cad_zebra_container");
+    this.cadStudio = this.getElement("tcv_cad_studio_container");
     this.tabTree = this.getElement("tcv_tab_tree");
     this.tabClip = this.getElement("tcv_tab_clip");
-    this.tabMaterial = this.getElement("tcv_tab_material");
     this.tabZebra = this.getElement("tcv_tab_zebra");
+    this.tabMaterial = this.getElement("tcv_tab_material");
+    this.tabStudio = this.getElement("tcv_tab_studio");
     this.cadInfo = this.getElement("tcv_cad_info_container");
     this._info = new Info(this.cadInfo);
     this.tickValueElement = this.getElement("tcv_tick_size_value");
@@ -304,6 +311,9 @@ class Display {
     this.cadTools = this.getElement("tcv_cad_tools");
     if (!options.zebraTool) {
       this.tabZebra.style.display = "none";
+    }
+    if (options.studioTool === false) {
+      this.tabStudio.style.display = "none";
     }
     this.cadHelp = this.getElement("tcv_cad_help");
     listeners.add(this.cadHelp, "contextmenu", (e) => {
@@ -331,6 +341,7 @@ class Display {
     this.cadClip.style.display = "none";
     this.cadMaterial.style.display = "none";
     this.cadZebra.style.display = "none";
+    this.cadStudio.style.display = "none";
     this.clipSliders = null;
 
     // Note: activeTool is managed by ViewerState, not stored locally
@@ -624,6 +635,15 @@ class Display {
   }
 
   /**
+   * Wire a select element's change event
+   */
+  private setupSelectEvent(name: string, fn: EventListener): void {
+    const el = this.getElement(name);
+    listeners.add(el, "change", fn);
+    this._events.push(["change", name, fn]);
+  }
+
+  /**
    * Get a DOM element by class name (internal use only).
    * @param name - Name of the DOM element class
    * @returns The DOM element
@@ -693,6 +713,8 @@ class Display {
     this.zebraCountSlider?.dispose();
     this.zebraOpacitySlider?.dispose();
     this.zebraDirectionSlider?.dispose();
+    this.studioEnvIntensitySlider?.dispose();
+    this.studioExposureSlider?.dispose();
 
     // Clear DOM content (elements remain valid until Display is GC'd)
     this.cadTree.innerHTML = "";
@@ -866,8 +888,9 @@ class Display {
     const tabs = [
       "tcv_tab_tree",
       "tcv_tab_clip",
-      "tcv_tab_material",
       "tcv_tab_zebra",
+      "tcv_tab_material",
+      "tcv_tab_studio",
     ];
     tabs.forEach((name) => {
       this.setupClickEvent(name, this.selectTab);
@@ -974,6 +997,52 @@ class Display {
     [1, 2].forEach((id) => {
       this.setupRadioEvent(`tcv_zebra_mapping${id}`, this.setZebraMappingMode);
     });
+
+    // Studio tab controls
+    this.studioEnvIntensitySlider = new Slider(
+      "studio_env_intensity",
+      0,
+      300,
+      this.container,
+      {
+        handler: this.handleStudioEnvIntensity,
+        percentage: true,
+        isReadyCheck: viewerReadyCheck,
+      },
+    );
+    this.studioExposureSlider = new Slider(
+      "studio_exposure",
+      0,
+      300,
+      this.container,
+      {
+        handler: this.handleStudioExposure,
+        percentage: true,
+        isReadyCheck: viewerReadyCheck,
+      },
+    );
+
+    this.setupCheckEvent(
+      "tcv_studio_show_background",
+      this.handleStudioShowBackground,
+      false,
+    );
+    this.setupCheckEvent(
+      "tcv_studio_show_edges",
+      this.handleStudioShowEdges,
+      false,
+    );
+
+    this.setupSelectEvent(
+      "tcv_studio_environment",
+      this.handleStudioEnvironment,
+    );
+    this.setupSelectEvent(
+      "tcv_studio_tone_mapping",
+      this.handleStudioToneMapping,
+    );
+
+    this.setupClickEvent("tcv_studio_reset", this.handleStudioReset);
 
     this.setupClickEvent("tcv_play", this.controlAnimation);
     this.setupClickEvent("tcv_pause", this.controlAnimation);
@@ -1160,6 +1229,36 @@ class Display {
       this.setZebraMappingModeSelect(change.new);
     });
 
+    // Studio tab subscriptions
+    sub("studioEnvironment", (change) => {
+      const el = this.container.querySelector(".tcv_studio_environment");
+      if (el instanceof HTMLSelectElement) el.value = change.new;
+    });
+    sub(
+      "studioEnvIntensity",
+      (change) => {
+        this.studioEnvIntensitySlider?.setValueFromState(change.new * 100);
+      },
+      { immediate: true },
+    );
+    sub("studioShowBackground", (change) => {
+      this.getInputElement("tcv_studio_show_background").checked = change.new;
+    });
+    sub("studioToneMapping", (change) => {
+      const el = this.container.querySelector(".tcv_studio_tone_mapping");
+      if (el instanceof HTMLSelectElement) el.value = change.new;
+    });
+    sub(
+      "studioExposure",
+      (change) => {
+        this.studioExposureSlider?.setValueFromState(change.new * 100);
+      },
+      { immediate: true },
+    );
+    sub("studioShowEdges", (change) => {
+      this.getInputElement("tcv_studio_show_edges").checked = change.new;
+    });
+
     // Animation/Explode mode subscription - controls slider visibility, label, and explode button
     sub(
       "animationMode",
@@ -1263,9 +1362,10 @@ class Display {
     this.lastPlaneState =
       typeof clipPlaneHelpers === "boolean" ? clipPlaneHelpers : false;
 
-    // Sync material and zebra sliders with current state values
+    // Sync material, zebra, and studio sliders with current state values
     this.syncMaterialSlidersFromState();
     this.syncZebraSlidersFromState();
+    this.syncStudioSlidersFromState();
   }
 
   // ---------------------------------------------------------------------------
@@ -1629,8 +1729,9 @@ class Display {
     if (
       tabName === "clip" ||
       tabName === "tree" ||
+      tabName === "zebra" ||
       tabName === "material" ||
-      tabName === "zebra"
+      tabName === "studio"
     ) {
       this.viewer.setActiveTab(tabName);
     }
@@ -1640,21 +1741,23 @@ class Display {
    * Switch to a tab (internal, called by activeTab subscription).
    */
   private switchToTab(newTab: ActiveTab, oldTab?: ActiveTab): void {
-    if (!["clip", "tree", "material", "zebra"].includes(newTab)) {
+    if (!["clip", "tree", "zebra", "material", "studio"].includes(newTab)) {
       return;
     }
 
     const _updateVisibility = (
       showTree: boolean,
       showClip: boolean,
-      showMaterial: boolean,
       showZebra: boolean,
+      showMaterial: boolean,
+      showStudio: boolean,
     ) => {
       this.cadTree.style.display = showTree ? "block" : "none";
       this.cadTreeToggles.style.display = showTree ? "block" : "none";
       this.cadClip.style.display = showClip ? "block" : "none";
-      this.cadMaterial.style.display = showMaterial ? "block" : "none";
       this.cadZebra.style.display = showZebra ? "block" : "none";
+      this.cadMaterial.style.display = showMaterial ? "block" : "none";
+      this.cadStudio.style.display = showStudio ? "block" : "none";
 
       this.viewer.clipping.setVisible(showClip);
       this.viewer.setLocalClipping(showClip);
@@ -1667,14 +1770,14 @@ class Display {
     };
 
     if (newTab === "tree") {
-      _updateVisibility(true, false, false, false);
+      _updateVisibility(true, false, false, false, false);
       this.viewer.nestedGroup.setBackVisible(false);
       // Lazy-rendered tree nodes may be stale if the tree was rebuilt
       // while this tab was hidden (display:none → getBoundingClientRect
       // returns zero, so update() rendered nothing).  Kick it now.
       this.viewer.treeview?.update();
     } else if (newTab === "clip") {
-      _updateVisibility(false, true, false, false);
+      _updateVisibility(false, true, false, false, false);
       this.viewer.nestedGroup.setBackVisible(true);
       const clipIntersection = this.viewer.state.get("clipIntersection");
       if (typeof clipIntersection === "boolean") {
@@ -1682,16 +1785,21 @@ class Display {
       }
       this.viewer.setClipPlaneHelpers(this.lastPlaneState);
       this.viewer.update(true, false);
-    } else if (newTab === "material") {
-      _updateVisibility(false, false, true, false);
-      this.viewer.nestedGroup.setBackVisible(false);
     } else if (newTab === "zebra") {
-      _updateVisibility(false, false, false, true);
+      _updateVisibility(false, false, true, false, false);
       this.viewer.enableZebraTool(true);
+    } else if (newTab === "material") {
+      _updateVisibility(false, false, false, true, false);
+      this.viewer.nestedGroup.setBackVisible(false);
+    } else if (newTab === "studio") {
+      // Phase 2: Only show the panel. No rendering changes yet.
+      // Phase 5 will add enter/leave Studio mode logic here
+      _updateVisibility(false, false, false, false, true);
+      this.viewer.nestedGroup.setBackVisible(false);
     }
 
     // Update tab styling
-    [this.tabTree, this.tabClip, this.tabMaterial, this.tabZebra].forEach(
+    [this.tabTree, this.tabClip, this.tabZebra, this.tabMaterial, this.tabStudio].forEach(
       (tabEl) => {
         tabEl.classList.add("tcv_tab-unselected");
         tabEl.classList.remove("tcv_tab-selected");
@@ -1705,12 +1813,15 @@ class Display {
     } else if (newTab === "clip") {
       this.tabClip.classList.add("tcv_tab-selected");
       this.tabClip.classList.remove("tcv_tab-unselected");
+    } else if (newTab === "zebra") {
+      this.tabZebra.classList.add("tcv_tab-selected");
+      this.tabZebra.classList.remove("tcv_tab-unselected");
     } else if (newTab === "material") {
       this.tabMaterial.classList.add("tcv_tab-selected");
       this.tabMaterial.classList.remove("tcv_tab-unselected");
-    } else if (newTab === "zebra") {
-      this.tabZebra.classList.remove("tcv_tab-unselected");
-      this.tabZebra.classList.add("tcv_tab-selected");
+    } else if (newTab === "studio") {
+      this.tabStudio.classList.add("tcv_tab-selected");
+      this.tabStudio.classList.remove("tcv_tab-unselected");
     }
   }
 
@@ -1754,6 +1865,70 @@ class Display {
    */
   handleMaterialReset = (_e: Event): void => {
     this.viewer.resetMaterial();
+  };
+
+  // ---------------------------------------------------------------------------
+  // Studio Tab Handlers
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Handler for Studio environment dropdown change
+   */
+  handleStudioEnvironment = (e: Event): void => {
+    if (!(e.target instanceof HTMLSelectElement)) return;
+    this.state.set("studioEnvironment", e.target.value);
+  };
+
+  /**
+   * Handler for Studio env intensity slider change.
+   * Slider range 0-300 with percentage=true, so value arrives as 0-3.
+   */
+  handleStudioEnvIntensity = (value: number): void => {
+    this.state.set("studioEnvIntensity", value);
+  };
+
+  /**
+   * Handler for Studio show background checkbox change
+   */
+  handleStudioShowBackground = (e: Event): void => {
+    if (!(e.target instanceof HTMLInputElement)) return;
+    this.state.set("studioShowBackground", e.target.checked);
+  };
+
+  /**
+   * Handler for Studio tone mapping dropdown change.
+   * Validates against the StudioToneMapping union before setting state.
+   */
+  handleStudioToneMapping = (e: Event): void => {
+    if (!(e.target instanceof HTMLSelectElement)) return;
+    const value = e.target.value;
+    if (value === "ACES" || value === "AgX" || value === "none") {
+      this.state.set("studioToneMapping", value);
+    }
+  };
+
+  /**
+   * Handler for Studio exposure slider change.
+   * Slider range 0-300 with percentage=true, so value arrives as 0-3.
+   */
+  handleStudioExposure = (value: number): void => {
+    this.state.set("studioExposure", value);
+  };
+
+  /**
+   * Handler for Studio show edges checkbox change
+   */
+  handleStudioShowEdges = (e: Event): void => {
+    if (!(e.target instanceof HTMLInputElement)) return;
+    this.state.set("studioShowEdges", e.target.checked);
+  };
+
+  /**
+   * Reset Studio tab values to defaults.
+   * Delegates to viewer.resetStudio() (same pattern as handleMaterialReset -> resetMaterial()).
+   */
+  handleStudioReset = (_e: Event): void => {
+    this.viewer.resetStudio();
   };
 
   // ---------------------------------------------------------------------------
@@ -1884,6 +2059,21 @@ class Display {
     this.zebraDirectionSlider?.setValueFromState(state.get("zebraDirection"));
     this.setZebraColorSchemeSelect(state.get("zebraColorScheme"));
     this.setZebraMappingModeSelect(state.get("zebraMappingMode"));
+  }
+
+  /**
+   * Sync Studio slider/control UI from current state values.
+   */
+  syncStudioSlidersFromState(): void {
+    const state = this.viewer.state;
+    this.studioEnvIntensitySlider?.setValueFromState(state.get("studioEnvIntensity") * 100);
+    this.studioExposureSlider?.setValueFromState(state.get("studioExposure") * 100);
+    this.getInputElement("tcv_studio_show_background").checked = state.get("studioShowBackground");
+    this.getInputElement("tcv_studio_show_edges").checked = state.get("studioShowEdges");
+    const envEl = this.container.querySelector(".tcv_studio_environment");
+    if (envEl instanceof HTMLSelectElement) envEl.value = state.get("studioEnvironment");
+    const tmEl = this.container.querySelector(".tcv_studio_tone_mapping");
+    if (tmEl instanceof HTMLSelectElement) tmEl.value = state.get("studioToneMapping");
   }
 
   /**
@@ -2046,8 +2236,9 @@ class Display {
       }
       case "tree":
       case "clip":
-      case "material":
       case "zebra":
+      case "material":
+      case "studio":
         this.viewer.setActiveTab(action);
         return;
     }
@@ -2091,8 +2282,9 @@ class Display {
     const tabMap: Record<string, { el: HTMLElement | undefined; label: string }> = {
       tree: { el: this.tabTree, label: "Navigation Tree" },
       clip: { el: this.tabClip, label: "Clipping Tool" },
-      material: { el: this.tabMaterial, label: "Material Selection" },
       zebra: { el: this.tabZebra, label: "Zebra Tool" },
+      material: { el: this.tabMaterial, label: "Material Selection" },
+      studio: { el: this.tabStudio, label: "Studio Mode" },
     };
     for (const [action, key] of Object.entries(shortcuts)) {
       const entry = tabMap[action];

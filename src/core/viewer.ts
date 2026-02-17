@@ -48,6 +48,7 @@ import {
   CollapseState,
   type ZebraColorScheme,
   type ZebraMappingMode,
+  type StudioToneMapping,
   type NotificationCallback,
   type RenderOptions,
   type ViewerOptions,
@@ -1289,7 +1290,7 @@ class Viewer {
 
   /**
    * Set the active sidebar tab.
-   * @param tabName - Tab name: "tree", "clip", "material", or "zebra"
+   * @param tabName - Tab name: "tree", "clip", "material", "zebra", or "studio"
    * @param notify - whether to send notification or not.
    */
   setActiveTab(tabName: ActiveTab, notify: boolean = true): void {
@@ -2710,6 +2711,141 @@ class Viewer {
    */
   getZebraMappingMode = (): ZebraMappingMode => {
     return this.state.get("zebraMappingMode");
+  };
+
+  // ---------------------------------------------------------------------------
+  // Getters & Setters: Studio Mode
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Sets the studio environment preset.
+   * @param value - The environment name ("studio", "neutral", "outdoor", "none", or custom HDR URL).
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioEnvironment = (value: string, notify: boolean = true): void => {
+    this.state.set("studioEnvironment", value, notify);
+  };
+
+  /**
+   * Sets the studio environment intensity.
+   * @param value - The environment intensity (0-3).
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioEnvIntensity = (value: number, notify: boolean = true): void => {
+    value = Math.max(0, Math.min(3, value));
+    this.state.set("studioEnvIntensity", value, notify);
+  };
+
+  /**
+   * Sets whether the environment background is shown in Studio mode.
+   * @param value - True to show the environment as background.
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioShowBackground = (value: boolean, notify: boolean = true): void => {
+    this.state.set("studioShowBackground", value, notify);
+  };
+
+  /**
+   * Sets the tone mapping mode for Studio mode.
+   * @param value - The tone mapping mode ("ACES", "AgX", or "none").
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioToneMapping = (value: StudioToneMapping, notify: boolean = true): void => {
+    this.state.set("studioToneMapping", value, notify);
+  };
+
+  /**
+   * Sets the exposure value for Studio mode.
+   * @param value - The exposure value (0-3).
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioExposure = (value: number, notify: boolean = true): void => {
+    value = Math.max(0, Math.min(3, value));
+    this.state.set("studioExposure", value, notify);
+  };
+
+  /**
+   * Sets whether edges are shown in Studio mode.
+   * @param value - True to show edges.
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioShowEdges = (value: boolean, notify: boolean = true): void => {
+    this.state.set("studioShowEdges", value, notify);
+  };
+
+  /**
+   * Gets the current studio environment preset.
+   * @returns The environment name ("studio", "neutral", "outdoor", "none", or custom HDR URL).
+   * @public
+   */
+  getStudioEnvironment = (): string => {
+    return this.state.get("studioEnvironment");
+  };
+
+  /**
+   * Gets the current studio environment intensity.
+   * @returns The environment intensity (0-3).
+   * @public
+   */
+  getStudioEnvIntensity = (): number => {
+    return this.state.get("studioEnvIntensity");
+  };
+
+  /**
+   * Gets whether the environment background is shown in Studio mode.
+   * @returns True if the environment background is visible.
+   * @public
+   */
+  getStudioShowBackground = (): boolean => {
+    return this.state.get("studioShowBackground");
+  };
+
+  /**
+   * Gets the current tone mapping mode for Studio mode.
+   * @returns The tone mapping mode ("ACES", "AgX", or "none").
+   * @public
+   */
+  getStudioToneMapping = (): StudioToneMapping => {
+    return this.state.get("studioToneMapping");
+  };
+
+  /**
+   * Gets the current exposure value for Studio mode.
+   * @returns The exposure value (0-3).
+   * @public
+   */
+  getStudioExposure = (): number => {
+    return this.state.get("studioExposure");
+  };
+
+  /**
+   * Gets whether edges are shown in Studio mode.
+   * @returns True if edges are visible in Studio mode.
+   * @public
+   */
+  getStudioShowEdges = (): boolean => {
+    return this.state.get("studioShowEdges");
+  };
+
+  /**
+   * Resets the studio settings of the viewer to their default values.
+   * Resets environment, intensity, background, tone mapping, exposure, and edges
+   * based on the studio mode defaults from ViewerState.
+   */
+  resetStudio = (): void => {
+    const defaults = ViewerState.STUDIO_MODE_DEFAULTS;
+    this.state.set("studioEnvironment", defaults.studioEnvironment);
+    this.state.set("studioEnvIntensity", defaults.studioEnvIntensity);
+    this.state.set("studioShowBackground", defaults.studioShowBackground);
+    this.state.set("studioToneMapping", defaults.studioToneMapping);
+    this.state.set("studioExposure", defaults.studioExposure);
+    this.state.set("studioShowEdges", defaults.studioShowEdges);
   };
 
   // ---------------------------------------------------------------------------

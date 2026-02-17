@@ -9,6 +9,7 @@ import {
   type ActiveTab,
   type ZebraColorScheme,
   type ZebraMappingMode,
+  type StudioToneMapping,
   type Keymap,
   type StateChange,
   type StateSubscriber,
@@ -103,6 +104,18 @@ interface ZebraDefaults {
 }
 
 /**
+ * Studio mode defaults
+ */
+interface StudioModeDefaults {
+  studioEnvironment: string;
+  studioEnvIntensity: number;
+  studioShowBackground: boolean;
+  studioToneMapping: StudioToneMapping;
+  studioExposure: number;
+  studioShowEdges: boolean;
+}
+
+/**
  * Runtime state defaults
  */
 interface RuntimeDefaults {
@@ -117,7 +130,7 @@ interface RuntimeDefaults {
 /**
  * Complete state shape
  */
-type StateShape = DisplayDefaults & RenderDefaults & ViewerDefaults & ZebraDefaults & RuntimeDefaults;
+type StateShape = DisplayDefaults & RenderDefaults & ViewerDefaults & ZebraDefaults & StudioModeDefaults & RuntimeDefaults;
 
 /**
  * Keys of the state shape
@@ -154,6 +167,9 @@ const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
   "panSpeed", "rotateSpeed", "zoomSpeed", "timeit",
   // Zebra
   "zebraCount", "zebraOpacity", "zebraDirection", "zebraColorScheme", "zebraMappingMode",
+  // Studio
+  "studioEnvironment", "studioEnvIntensity", "studioShowBackground",
+  "studioToneMapping", "studioExposure", "studioShowEdges",
   // Runtime
   "activeTool", "animationMode", "animationSliderValue", "zscaleActive", "highlightedButton",
   "activeTab",
@@ -212,6 +228,13 @@ const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
   zebraDirection: "zebra_direction",
   zebraColorScheme: "zebra_color_scheme",
   zebraMappingMode: "zebra_mapping_mode",
+  // Studio settings
+  studioEnvironment: "studio_environment",
+  studioEnvIntensity: "studio_env_intensity",
+  studioShowBackground: "studio_show_background",
+  studioToneMapping: "studio_tone_mapping",
+  studioExposure: "studio_exposure",
+  studioShowEdges: "studio_show_edges",
   // Animation/Explode slider (shared state, mutually exclusive modes)
   animationSliderValue: "relative_time",
 };
@@ -289,7 +312,7 @@ class ViewerState {
   static DISPLAY_DEFAULTS: DisplayDefaults = {
     theme: "light",
     cadWidth: 800,
-    treeWidth: 250,
+    treeWidth: 260,
     treeHeight: 400,
     height: 600,
     pinning: false,
@@ -374,6 +397,18 @@ class ViewerState {
   };
 
   /**
+   * Studio mode settings
+   */
+  static STUDIO_MODE_DEFAULTS: StudioModeDefaults = {
+    studioEnvironment: "studio",
+    studioEnvIntensity: 1.0,
+    studioShowBackground: false,
+    studioToneMapping: "ACES",
+    studioExposure: 1.0,
+    studioShowEdges: false,
+  };
+
+  /**
    * Runtime state (not from options, changes during execution)
    */
   static RUNTIME_DEFAULTS: RuntimeDefaults = {
@@ -402,6 +437,7 @@ class ViewerState {
       ...ViewerState.RENDER_DEFAULTS,
       ...ViewerState.VIEWER_DEFAULTS,
       ...ViewerState.ZEBRA_DEFAULTS,
+      ...ViewerState.STUDIO_MODE_DEFAULTS,
       ...ViewerState.RUNTIME_DEFAULTS,
     };
 
@@ -649,6 +685,7 @@ class ViewerState {
       ...ViewerState.RENDER_DEFAULTS,
       ...ViewerState.VIEWER_DEFAULTS,
       ...ViewerState.ZEBRA_DEFAULTS,
+      ...ViewerState.STUDIO_MODE_DEFAULTS,
       ...ViewerState.RUNTIME_DEFAULTS,
     };
 
@@ -679,6 +716,7 @@ class ViewerState {
       ...ViewerState.RENDER_DEFAULTS,
       ...ViewerState.VIEWER_DEFAULTS,
       ...ViewerState.ZEBRA_DEFAULTS,
+      ...ViewerState.STUDIO_MODE_DEFAULTS,
       ...ViewerState.RUNTIME_DEFAULTS,
     };
   }
@@ -698,6 +736,7 @@ class ViewerState {
     logCategory("Render", ViewerState.RENDER_DEFAULTS);
     logCategory("View", ViewerState.VIEWER_DEFAULTS);
     logCategory("Zebra", ViewerState.ZEBRA_DEFAULTS);
+    logCategory("Studio", ViewerState.STUDIO_MODE_DEFAULTS);
     logCategory("Runtime", ViewerState.RUNTIME_DEFAULTS);
   }
 }

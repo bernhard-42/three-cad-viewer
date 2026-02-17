@@ -36,6 +36,12 @@ export type ZebraColorScheme = "blackwhite" | "colorful" | "grayscale";
 /** Zebra mapping mode */
 export type ZebraMappingMode = "reflection" | "normal";
 
+/** Studio environment preset */
+export type StudioEnvironment = "studio" | "neutral" | "outdoor" | "none";
+
+/** Studio tone mapping algorithm */
+export type StudioToneMapping = "ACES" | "AgX" | "none";
+
 /** Shape type */
 export type ShapeType = "shapes" | "edges" | "vertices";
 
@@ -329,8 +335,24 @@ export interface ZebraOptions {
   zebraMappingMode?: ZebraMappingMode;
 }
 
+/** Studio mode options (environment, tone mapping, edges) */
+export interface StudioModeOptions {
+  /** Environment preset or custom HDR URL (default: "studio") */
+  studioEnvironment?: string;
+  /** Environment map intensity, 0-3 (default: 1.0) */
+  studioEnvIntensity?: number;
+  /** Show environment as scene background (default: false) */
+  studioShowBackground?: boolean;
+  /** Tone mapping algorithm (default: "ACES") */
+  studioToneMapping?: StudioToneMapping;
+  /** Tone mapping exposure, 0-3 (default: 1.0) */
+  studioExposure?: number;
+  /** Show edges in Studio mode (default: false) */
+  studioShowEdges?: boolean;
+}
+
 /** Combined options for initialization */
-export type CombinedOptions = DisplayOptions & RenderOptions & ViewerOptions & ZebraOptions;
+export type CombinedOptions = DisplayOptions & RenderOptions & ViewerOptions & ZebraOptions & StudioModeOptions;
 
 // =============================================================================
 // Viewer State Shape
@@ -404,6 +426,14 @@ export interface ViewerStateShape {
   zebraDirection: number;
   zebraColorScheme: ZebraColorScheme;
   zebraMappingMode: ZebraMappingMode;
+
+  // Studio
+  studioEnvironment: string;
+  studioEnvIntensity: number;
+  studioShowBackground: boolean;
+  studioToneMapping: StudioToneMapping;
+  studioExposure: number;
+  studioShowEdges: boolean;
 
   // Runtime
   activeTool: string | null;

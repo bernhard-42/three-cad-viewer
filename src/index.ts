@@ -131,6 +131,9 @@ export type {
   TextureEntry,
   StudioOptions,
   StudioEnvironmentOptions,
+  StudioModeOptions,
+  StudioEnvironment,
+  StudioToneMapping,
 } from "./core/types.js";
 
 // Subscription options
