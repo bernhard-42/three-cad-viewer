@@ -273,6 +273,20 @@ interface ClippingOptions {
 }
 
 /**
+ * Saved clipping state for mode transitions (e.g., entering/leaving Studio mode).
+ * Captures only Clipping-internal state; renderer flags and ViewerState keys
+ * are managed by the caller.
+ */
+interface ClippingState {
+  /** Centered constant (position) for each of the 3 clip planes */
+  planeConstants: [number, number, number];
+  /** Whether the plane helper meshes (translucent colored rectangles) are visible */
+  helperVisible: boolean;
+  /** Whether the stencil plane meshes (solid colored caps) are visible */
+  planesVisible: boolean;
+}
+
+/**
  * Manages clipping planes, stencil rendering, and plane visualization.
  */
 class Clipping extends THREE.Group {
@@ -567,6 +581,50 @@ class Clipping extends THREE.Group {
   };
 
   /**
+   * Save the current clipping state for later restoration.
+   * Captures plane positions, helper visibility, and stencil plane visibility.
+   * Used by Studio mode to snapshot clipping state before disabling clipping.
+   *
+   * Note: `renderer.localClippingEnabled` and `clipPlaneHelpers` ViewerState
+   * are managed by the caller (Display/Viewer layer), not captured here.
+   */
+  saveState(): ClippingState {
+    return {
+      planeConstants: [
+        this.clipPlanes[0].centeredConstant,
+        this.clipPlanes[1].centeredConstant,
+        this.clipPlanes[2].centeredConstant,
+      ],
+      helperVisible: this.planeHelpers?.visible ?? false,
+      planesVisible: this._planeMeshGroup?.children.length
+        ? this._planeMeshGroup.children[0].material.visible
+        : false,
+    };
+  }
+
+  /**
+   * Restore a previously saved clipping state.
+   * Re-applies plane positions, helper visibility, and stencil plane visibility.
+   * Used by Studio mode when leaving to restore the clipping configuration.
+   *
+   * @param state - The state previously captured by `saveState()`.
+   */
+  restoreState(state: ClippingState): void {
+    // Restore plane positions
+    for (const i of CLIP_INDICES) {
+      this.setConstant(i, state.planeConstants[i]);
+    }
+
+    // Restore plane helper visibility
+    if (this.planeHelpers) {
+      this.planeHelpers.visible = state.helperVisible;
+    }
+
+    // Restore stencil plane mesh visibility
+    this.setVisible(state.planesVisible);
+  }
+
+  /**
    * Clean up resources.
    * Note: We don't null out arrays/references as GC handles cleanup when the Clipping object is collected.
    */
@@ -579,3 +637,4 @@ class Clipping extends THREE.Group {
 }
 
 export { Clipping };
+export type { ClippingState };

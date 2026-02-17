@@ -155,6 +155,7 @@ class Display {
   cadMaterial!: HTMLElement;
   cadZebra!: HTMLElement;
   cadStudio!: HTMLElement;
+  private _studioLoadingEl: HTMLElement | null = null;
   cadInfo!: HTMLElement;
   cadAnim!: HTMLElement;
   cadTools!: HTMLElement;
@@ -298,6 +299,7 @@ class Display {
     this.cadMaterial = this.getElement("tcv_cad_material_container");
     this.cadZebra = this.getElement("tcv_cad_zebra_container");
     this.cadStudio = this.getElement("tcv_cad_studio_container");
+    this._studioLoadingEl = this.getElement("tcv_studio_loading");
     this.tabTree = this.getElement("tcv_tab_tree");
     this.tabClip = this.getElement("tcv_tab_clip");
     this.tabZebra = this.getElement("tcv_tab_zebra");
@@ -1745,6 +1747,16 @@ class Display {
       return;
     }
 
+    // --- Leave the OLD mode FIRST (before _updateVisibility runs) ---
+    // This ensures all state (clipping, materials, etc.) is restored
+    // before the new tab's controls are activated.
+    if (oldTab === "zebra" && newTab !== "zebra") {
+      this.viewer.enableZebraTool(false);
+    }
+    if (oldTab === "studio" && newTab !== "studio") {
+      this.viewer.leaveStudioMode();
+    }
+
     const _updateVisibility = (
       showTree: boolean,
       showClip: boolean,
@@ -1764,12 +1776,8 @@ class Display {
       if (!showClip) {
         this.viewer.setClipPlaneHelpers(false);
       }
-      if (newTab !== "zebra" && oldTab === "zebra") {
-        this.viewer.enableZebraTool(false);
-      }
-      if (newTab !== "studio" && oldTab === "studio") {
-        this.viewer.leaveStudioMode();
-      }
+      // NOTE: zebra and studio leave calls removed from here --
+      // they now run above, before _updateVisibility is called.
     };
 
     if (newTab === "tree") {
@@ -1797,7 +1805,10 @@ class Display {
     } else if (newTab === "studio") {
       _updateVisibility(false, false, false, false, true);
       this.viewer.nestedGroup.setBackVisible(false);
-      this.viewer.enterStudioMode();
+      this._showStudioLoading(true);
+      this.viewer.enterStudioMode().finally(() => {
+        this._showStudioLoading(false);
+      });
     }
 
     // Update tab styling
@@ -1825,6 +1836,24 @@ class Display {
       this.tabStudio.classList.add("tcv_tab-selected");
       this.tabStudio.classList.remove("tcv_tab-unselected");
     }
+  }
+
+  /**
+   * Show or hide the Studio loading indicator and enable/disable Studio controls.
+   * While loading, the loading text is shown and all Studio controls are disabled.
+   * When loading completes, the loading text is hidden and controls are re-enabled.
+   */
+  private _showStudioLoading(show: boolean): void {
+    // Show/hide loading text
+    if (this._studioLoadingEl) {
+      this._studioLoadingEl.style.display = show ? "block" : "none";
+    }
+
+    // Disable/enable all interactive controls within the studio panel
+    const interactiveEls = this.cadStudio.querySelectorAll("select, input");
+    interactiveEls.forEach((el) => {
+      (el as HTMLSelectElement | HTMLInputElement).disabled = show;
+    });
   }
 
   /**

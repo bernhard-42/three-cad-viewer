@@ -19,6 +19,7 @@ import { TreeView } from "../ui/treeview.js";
 // TreeData and StateValue available if needed for tree manipulation
 import { Timer } from "../utils/timer.js";
 import { Clipping } from "../scene/clipping.js";
+import type { ClippingState } from "../scene/clipping.js";
 import { Animation } from "../scene/animation.js";
 import {
   isEqual,
@@ -357,6 +358,13 @@ class Viewer {
   // Studio environment manager (survives clear(), disposed only on dispose())
   envManager: EnvironmentManager;
 
+  // Studio mode state
+  private _isStudioActive: boolean = false;
+  private _savedClippingState: ClippingState | null = null;
+  private _studioKeyLight: THREE.DirectionalLight | null = null;
+  private _studioRimLight: THREE.DirectionalLight | null = null;
+  private _studioHemiLight: THREE.HemisphereLight | null = null;
+
   // Z-scale
   zScale!: number;
 
@@ -521,7 +529,7 @@ class Viewer {
    */
   private _setupStudioSubscriptions(): void {
     const isStudioActive = (): boolean => {
-      return this._rendered !== null && this.state.get("activeTab") === "studio";
+      return this._isStudioActive && this._rendered !== null;
     };
 
     // studioEnvironment changed -> re-load and re-apply
@@ -559,6 +567,27 @@ class Viewer {
         this.state.get("studioEnvIntensity"),
         this.state.get("studioShowBackground"),
       );
+      this.update(true, false);
+    });
+
+    // studioToneMapping changed -> re-apply tone mapping
+    this.state.subscribe("studioToneMapping", () => {
+      if (!isStudioActive()) return;
+      this._applyStudioToneMapping();
+      this.update(true, false);
+    });
+
+    // studioExposure changed -> re-apply exposure
+    this.state.subscribe("studioExposure", () => {
+      if (!isStudioActive()) return;
+      this._applyStudioToneMapping();
+      this.update(true, false);
+    });
+
+    // studioShowEdges changed -> toggle edge visibility
+    this.state.subscribe("studioShowEdges", (change) => {
+      if (!isStudioActive()) return;
+      this.nestedGroup.setStudioShowEdges(change.new);
       this.update(true, false);
     });
   }
@@ -987,6 +1016,22 @@ class Viewer {
     // dispose environment manager (releases cached PMREM textures)
     this.envManager.dispose();
 
+    // Dispose studio lights
+    if (this._studioKeyLight) {
+      this._studioKeyLight.dispose();
+      this._studioKeyLight = null;
+    }
+    if (this._studioRimLight) {
+      this._studioRimLight.dispose();
+      this._studioRimLight = null;
+    }
+    if (this._studioHemiLight) {
+      this._studioHemiLight.dispose();
+      this._studioHemiLight = null;
+    }
+    this._isStudioActive = false;
+    this._savedClippingState = null;
+
     // dispose renderer
     this.renderer.renderLists.dispose();
     this.renderer.dispose();
@@ -1054,7 +1099,11 @@ class Viewer {
         this.state.set("zscaleActive", false);
       }
 
-      // Reset to tree tab for next render
+      // Reset to tree tab for next render.
+      // IMPORTANT: This fires the activeTab subscription synchronously,
+      // which calls switchToTab("tree", oldTab). If oldTab was "studio",
+      // leaveStudioMode() runs here, while _rendered and scene are still valid.
+      // Do NOT move this after deepDispose(scene).
       this.state.set("activeTab", "tree");
 
       // clear render canvas
@@ -1072,6 +1121,14 @@ class Viewer {
 
       // dispose all rendered state objects
       deepDispose(this._rendered.scene);
+
+      // Studio lights were children of the scene and have been disposed by
+      // deepDispose above. Null the references so the next render() call
+      // re-creates them instead of re-adding disposed lights.
+      this._studioKeyLight = null;
+      this._studioRimLight = null;
+      this._studioHemiLight = null;
+
       deepDispose(this._rendered.gridHelper);
       deepDispose(this._rendered.clipping);
       deepDispose(this._rendered.camera);
@@ -1586,6 +1643,29 @@ class Viewer {
       ambientLight,
       directLight,
     };
+
+    // Create studio-mode lights (persistent across clear/re-render).
+    // Set visible=false; toggled on enterStudioMode().
+    if (!this._studioKeyLight) {
+      this._studioKeyLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      this._studioKeyLight.position.set(5, 10, 7);
+      this._studioKeyLight.visible = false;
+      this._studioKeyLight.name = "studioKeyLight";
+    }
+    if (!this._studioRimLight) {
+      this._studioRimLight = new THREE.DirectionalLight(0xffffff, 0.3);
+      this._studioRimLight.position.set(-5, 5, -7);
+      this._studioRimLight.visible = false;
+      this._studioRimLight.name = "studioRimLight";
+    }
+    if (!this._studioHemiLight) {
+      this._studioHemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.4);
+      this._studioHemiLight.visible = false;
+      this._studioHemiLight.name = "studioHemiLight";
+    }
+    scene.add(this._studioKeyLight);
+    scene.add(this._studioRimLight);
+    scene.add(this._studioHemiLight);
 
     // Now that rendered state exists, configure camera position
     if (viewerOptions.position == null && viewerOptions.quaternion == null) {
@@ -2906,43 +2986,136 @@ class Viewer {
    * Enter Studio mode: load and apply the current environment map.
    *
    * Called by display.ts switchToTab() when switching TO the Studio tab.
-   * Loads the environment (async, may hit cache) and applies it to the scene.
-   * If loading fails, the EnvironmentManager falls back to the bundled
-   * "studio" RoomEnvironment internally.
+   * Orchestrates: clipping save/disable, material swap, environment load,
+   * 3-point lighting, tone mapping, and edge visibility.
    *
    * @internal
    */
   enterStudioMode = async (): Promise<void> => {
     if (!this._rendered) return;
+    this._isStudioActive = true;
+
     try {
+      // 1. Save and disable clipping
+      this._savedClippingState = this.clipping.saveState();
+      this.renderer.localClippingEnabled = false;
+      this.clipping.setVisible(false);
+      if (this.clipping.planeHelpers) {
+        this.clipping.planeHelpers.visible = false;
+      }
+
+      // 2. Build/swap studio materials (async due to textures).
+      //    NestedGroup owns this.materialFactory, so no need to pass it.
+      await this.nestedGroup.enterStudioMode(
+        this.state.get("metalness"),
+        this.state.get("roughness"),
+      );
+
+      // Guard: user may have left studio during async material build
+      if (!this._isStudioActive) return;
+
+      // 3. Load environment map
       const envName = this.state.get("studioEnvironment");
       await this.envManager.loadEnvironment(envName, this.renderer);
-      // Guard: tab may have changed during async load
-      if (this.state.get("activeTab") !== "studio") return;
+      if (!this._isStudioActive) return;
+
+      // 4. Apply ALL rendering changes atomically
       this.envManager.apply(
         this.rendered.scene,
         this.state.get("studioEnvIntensity"),
         this.state.get("studioShowBackground"),
       );
+
+      // Lighting: disable CAD lights, enable studio lights
+      this.rendered.ambientLight.intensity = 0.2;
+      this.rendered.directLight.intensity = 0;
+      this._studioKeyLight!.visible = true;
+      this._studioRimLight!.visible = true;
+      this._studioHemiLight!.visible = true;
+
+      // Tone mapping
+      this._applyStudioToneMapping();
+
+      // Edges
+      const showEdges = this.state.get("studioShowEdges");
+      this.nestedGroup.setStudioShowEdges(showEdges);
+
       this.update(true, false);
     } catch (err) {
+      // Clear active flag so subscription callbacks don't think Studio is active
+      this._isStudioActive = false;
       logger.error("Unexpected error entering studio mode", err);
     }
   };
 
   /**
-   * Leave Studio mode: remove the environment map from the scene.
+   * Leave Studio mode: restore CAD materials, lighting, tone mapping, clipping.
    *
    * Called by display.ts switchToTab() when switching AWAY from the Studio tab.
-   * Does not dispose the cached environment (allows fast re-entry).
+   * Does not dispose cached materials or environment (allows fast re-entry).
    *
    * @internal
    */
   leaveStudioMode = (): void => {
     if (!this._rendered) return;
+
+    // 1. Restore materials
+    this.nestedGroup.leaveStudioMode();
+
+    // 2. Remove environment
     this.envManager.remove(this.rendered.scene);
+
+    // 3. Restore lighting
+    this.rendered.ambientLight.intensity = scaleLight(this.state.get("ambientIntensity"));
+    this.rendered.directLight.intensity = scaleLight(this.state.get("directIntensity"));
+    this._studioKeyLight!.visible = false;
+    this._studioRimLight!.visible = false;
+    this._studioHemiLight!.visible = false;
+
+    // 4. Disable tone mapping
+    this.renderer.toneMapping = THREE.NoToneMapping;
+    this.renderer.toneMappingExposure = 1.0;
+
+    // 5. Restore clipping state.
+    //    Note: renderer.localClippingEnabled is NOT restored here. It is
+    //    restored by the caller's tab-switch flow (_updateVisibility ->
+    //    setLocalClipping), which runs after leaveStudioMode returns.
+    if (this._savedClippingState) {
+      this.clipping.restoreState(this._savedClippingState);
+      this._savedClippingState = null;
+    }
+
+    // 6. Edges restored by ObjectGroup.leaveStudioMode()
+
+    // 7. Clear active flag
+    this._isStudioActive = false;
+
     this.update(true, false);
   };
+
+  /**
+   * Apply current studio tone mapping settings to the renderer.
+   * @internal
+   */
+  private _applyStudioToneMapping(): void {
+    const mapping = this.state.get("studioToneMapping");
+    switch (mapping) {
+      case "ACES":
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        break;
+      case "AgX":
+        this.renderer.toneMapping = THREE.AgXToneMapping;
+        break;
+      case "none":
+        this.renderer.toneMapping = THREE.NoToneMapping;
+        break;
+      default:
+        logger.warn(`Unknown studioToneMapping value: "${mapping}", falling back to NoToneMapping`);
+        this.renderer.toneMapping = THREE.NoToneMapping;
+        break;
+    }
+    this.renderer.toneMappingExposure = this.state.get("studioExposure");
+  }
 
   /**
    * Resets the studio settings of the viewer to their default values.

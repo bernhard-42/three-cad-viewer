@@ -18,6 +18,8 @@ import type {
 } from "../core/types";
 import { MATERIAL_PRESETS } from "../rendering/material-presets.js";
 import { logger } from "../utils/logger.js";
+import { TextureCache } from "../rendering/texture-cache.js";
+import type { TextureCacheInterface } from "../rendering/material-factory.js";
 
 interface ShapeData {
   vertices: Float32Array | number[][];
@@ -142,6 +144,9 @@ class NestedGroup {
   texturesTable: Record<string, TextureEntry> | null;
   materialsTable: Record<string, MaterialAppearance> | null;
   resolvedMaterials: Map<string, MaterialAppearance>;
+  private _textureCache: TextureCache | null;
+  private _studioMaterialCache: Map<string, THREE.MeshPhysicalMaterial | THREE.MeshBasicMaterial>;
+  private _isStudioMode: boolean;
 
   /**
    * Create a NestedGroup for rendering CAD geometry.
@@ -192,6 +197,9 @@ class NestedGroup {
     this.texturesTable = null;
     this.materialsTable = null;
     this.resolvedMaterials = new Map();
+    this._textureCache = null;
+    this._studioMaterialCache = new Map();
+    this._isStudioMode = false;
 
     this.materialFactory = new MaterialFactory({
       defaultOpacity: opacity,
@@ -214,6 +222,7 @@ class NestedGroup {
       deepDispose(this.rootGroup);
       this.rootGroup = null;
     }
+    this._disposeStudioResources();
     this.resolvedMaterials.clear();
     this.texturesTable = null;
     this.materialsTable = null;
@@ -890,6 +899,10 @@ class NestedGroup {
         const height = has_texture ? entry.texture!.height : null;
         const objectGroup = _render(entry, texture, width, height);
         this.groups[entry.id] = objectGroup;
+        // Store material tag on ObjectGroup for Studio mode lookup
+        if (entry.material !== undefined && entry.material !== null) {
+          objectGroup.materialTag = entry.material;
+        }
         group.add(objectGroup);
       }
     }
@@ -1106,6 +1119,170 @@ class NestedGroup {
    */
   setZebraMappingMode(flag: ZebraMappingMode): void {
     this._traverse("setZebraMappingMode", flag);
+  }
+
+  // ===========================================================================
+  // Studio Mode
+  // ===========================================================================
+
+  /**
+   * Enter Studio mode: build and apply studio materials to all ObjectGroups.
+   *
+   * For each ObjectGroup with a front mesh:
+   * 1. Resolve the material tag to a MaterialAppearance (or use fallback)
+   * 2. Compute a sharing key for material instance reuse
+   * 3. Build or reuse a MeshPhysicalMaterial via MaterialFactory
+   * 4. For renderback objects, clone with BackSide
+   * 5. Call objectGroup.enterStudioMode(studioFront, studioBack)
+   *
+   * Uses `this.materialFactory` (owned by NestedGroup) for creating studio
+   * materials.
+   *
+   * @param currentMetalness - Current metalness from the Material tab
+   * @param currentRoughness - Current roughness from the Material tab
+   */
+  async enterStudioMode(
+    currentMetalness: number,
+    currentRoughness: number,
+  ): Promise<void> {
+    // Create TextureCache lazily
+    if (!this._textureCache) {
+      this._textureCache = new TextureCache();
+    }
+    this._textureCache.setTexturesTable(this.texturesTable ?? undefined);
+
+    // Iterate all ObjectGroups with front meshes
+    for (const path in this.groups) {
+      const obj = this.groups[path];
+      if (!(obj instanceof ObjectGroup)) continue;
+      if (!obj.front) continue;
+
+      // Determine material tag, leaf color, and leaf alpha
+      const tag = obj.materialTag || "";
+      const leafColor = obj.originalColor
+        ? "#" + obj.originalColor.getHexString()
+        : "#707070";
+      const leafAlpha = obj.alpha;
+
+      // Compute sharing key
+      const sharingKey = `${tag}:${leafColor}:${leafAlpha}`;
+
+      // Check cached material for this key
+      let studioMaterial = this._studioMaterialCache.get(sharingKey);
+
+      if (studioMaterial) {
+        // Re-entry: update fallback materials in-place (no tag = fallback)
+        if (tag === "" && studioMaterial instanceof THREE.MeshPhysicalMaterial) {
+          studioMaterial.metalness = currentMetalness;
+          studioMaterial.roughness = currentRoughness;
+          studioMaterial.needsUpdate = true;
+        }
+      } else {
+        // Build new studio material
+        let materialDef = tag ? this.resolveMaterialTag(tag, path) : null;
+
+        if (!materialDef) {
+          // Fallback: use current metalness/roughness from Material tab
+          materialDef = {
+            metallic: currentMetalness,
+            roughness: currentRoughness,
+          };
+        }
+
+        // Per-object try/catch: a single material creation failure should not
+        // abort Studio mode entry for all other objects.
+        try {
+          studioMaterial = await this.materialFactory.createStudioMaterial({
+            materialDef,
+            fallbackColor: leafColor,
+            fallbackAlpha: leafAlpha,
+            textureCache: this._textureCache as TextureCacheInterface,
+          });
+        } catch (err) {
+          logger.warn(
+            `Studio material creation failed for "${path}" (tag="${tag}"), skipping`,
+            err,
+          );
+          continue; // Skip this object, proceed with remaining objects
+        }
+
+        this._studioMaterialCache.set(sharingKey, studioMaterial);
+      }
+
+      // Build back-face variant if needed
+      let studioBack: THREE.MeshPhysicalMaterial | null = null;
+      if (obj.renderback && studioMaterial instanceof THREE.MeshPhysicalMaterial) {
+        const backKey = sharingKey + ":back";
+        let cachedBack = this._studioMaterialCache.get(backKey);
+        if (!cachedBack) {
+          cachedBack = studioMaterial.clone();
+          cachedBack.side = THREE.BackSide;
+          this._studioMaterialCache.set(backKey, cachedBack);
+        } else if (tag === "" && cachedBack instanceof THREE.MeshPhysicalMaterial) {
+          cachedBack.metalness = currentMetalness;
+          cachedBack.roughness = currentRoughness;
+          cachedBack.needsUpdate = true;
+        }
+        studioBack = cachedBack as THREE.MeshPhysicalMaterial;
+      }
+
+      // Apply to ObjectGroup (Worker 2's method)
+      obj.enterStudioMode(
+        studioMaterial instanceof THREE.MeshPhysicalMaterial ? studioMaterial : null,
+        studioBack,
+      );
+    }
+
+    this._isStudioMode = true;
+  }
+
+  /**
+   * Leave Studio mode: restore CAD materials on all ObjectGroups.
+   * Does NOT clear the material cache (allows fast re-entry).
+   */
+  leaveStudioMode(): void {
+    for (const path in this.groups) {
+      const obj = this.groups[path];
+      if (!(obj instanceof ObjectGroup)) continue;
+      obj.leaveStudioMode();
+    }
+    this._isStudioMode = false;
+  }
+
+  /**
+   * Set edge visibility across all ObjectGroups while in Studio mode.
+   * @param visible - Whether edges should be visible
+   */
+  setStudioShowEdges(visible: boolean): void {
+    for (const path in this.groups) {
+      const obj = this.groups[path];
+      if (!(obj instanceof ObjectGroup)) continue;
+      obj.setStudioShowEdges(visible);
+    }
+  }
+
+  /**
+   * Dispose all Studio mode resources (material cache + texture cache).
+   */
+  private _disposeStudioResources(): void {
+    // Leave studio mode if still active
+    if (this._isStudioMode) {
+      this.leaveStudioMode();
+    }
+
+    // Dispose cached studio materials
+    for (const [, material] of this._studioMaterialCache) {
+      material.dispose();
+    }
+    this._studioMaterialCache.clear();
+
+    // Dispose texture cache
+    if (this._textureCache) {
+      this._textureCache.disposeFull();
+      this._textureCache = null;
+    }
+
+    this._isStudioMode = false;
   }
 }
 

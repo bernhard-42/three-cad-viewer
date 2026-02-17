@@ -110,12 +110,9 @@ interface Disposable {
   dispose: () => void;
 }
 
-function isDisposable(value: unknown): value is Disposable {
-  return value !== null && typeof value === "object" && "dispose" in value && typeof (value as Disposable).dispose === "function";
-}
-
 interface MaterialLike {
   dispose: () => void;
+  // MeshStandardMaterial texture maps
   map?: Disposable | null;
   normalMap?: Disposable | null;
   roughnessMap?: Disposable | null;
@@ -124,29 +121,45 @@ interface MaterialLike {
   emissiveMap?: Disposable | null;
   alphaMap?: Disposable | null;
   bumpMap?: Disposable | null;
+  // MeshPhysicalMaterial additional texture maps
+  transmissionMap?: Disposable | null;
+  clearcoatMap?: Disposable | null;
+  clearcoatRoughnessMap?: Disposable | null;
+  clearcoatNormalMap?: Disposable | null;
+  thicknessMap?: Disposable | null;
+  specularIntensityMap?: Disposable | null;
+  specularColorMap?: Disposable | null;
+  sheenColorMap?: Disposable | null;
+  sheenRoughnessMap?: Disposable | null;
+  anisotropyMap?: Disposable | null;
 }
 
+/** All texture map property names on MaterialLike (for iteration) */
+const MATERIAL_TEXTURE_KEYS: readonly (keyof Omit<MaterialLike, "dispose">)[] = [
+  // MeshStandardMaterial
+  "map", "normalMap", "roughnessMap", "metalnessMap",
+  "aoMap", "emissiveMap", "alphaMap", "bumpMap",
+  // MeshPhysicalMaterial
+  "transmissionMap", "clearcoatMap", "clearcoatRoughnessMap", "clearcoatNormalMap",
+  "thicknessMap", "specularIntensityMap", "specularColorMap",
+  "sheenColorMap", "sheenRoughnessMap", "anisotropyMap",
+];
+
 /**
- * Dispose a material and its associated textures.
+ * Dispose a material and detach its texture references.
+ *
+ * Texture GPU resources are NOT freed here -- TextureCache is the sole owner
+ * of loaded textures and is responsible for calling texture.dispose().
+ * This function only nulls out the material's texture map references to
+ * break the association, then disposes the material itself.
  */
 function disposeMaterial(material: MaterialLike | null | undefined): void {
   if (!material) return;
 
-  // Dispose all texture properties
-  const textures = [
-    material.map,
-    material.normalMap,
-    material.roughnessMap,
-    material.metalnessMap,
-    material.aoMap,
-    material.emissiveMap,
-    material.alphaMap,
-    material.bumpMap,
-  ];
-  for (const texture of textures) {
-    if (isDisposable(texture)) {
-      gpuTracker.untrack("texture", texture);
-      texture.dispose();
+  // Detach all texture references (do NOT dispose -- TextureCache owns them)
+  for (const key of MATERIAL_TEXTURE_KEYS) {
+    if (material[key]) {
+      (material as unknown as Record<string, unknown>)[key] = null;
     }
   }
 

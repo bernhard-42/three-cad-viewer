@@ -99,9 +99,19 @@ class ObjectGroup extends THREE.Group {
   vertexFocusSize: number;
   edgeFocusWidth: number;
   shapeGeometry?: THREE.BufferGeometry | null;
+  /** Material tag from shapes data, used for Studio mode material lookup */
+  materialTag: string;
   minZ?: number;
   height?: number;
   private _zebra: ZebraTool | null;
+
+  // Studio mode state
+  private _cadFrontMaterial: ColoredMaterial | null;
+  private _cadBackMaterial: ColoredMaterial | null;
+  private _cadOriginalColor: THREE.Color | null;
+  private _cadOriginalBackColor: THREE.Color | null;
+  private _isStudioMode: boolean;
+  private _cadEdgesVisible: boolean | null;
 
   /**
    * Create an ObjectGroup for managing a CAD object's visual representation.
@@ -145,6 +155,15 @@ class ObjectGroup extends THREE.Group {
     this.edgeFocusWidth = 5; // Size of the edges when highlighted
 
     this._zebra = null; // Lazy-initialized zebra tool
+    this.materialTag = "";
+
+    // Studio mode state
+    this._cadFrontMaterial = null;
+    this._cadBackMaterial = null;
+    this._cadOriginalColor = null;
+    this._cadOriginalBackColor = null;
+    this._isStudioMode = false;
+    this._cadEdgesVisible = null;
   }
 
   /**
@@ -155,6 +174,13 @@ class ObjectGroup extends THREE.Group {
       this._zebra = new ZebraTool();
     }
     return this._zebra;
+  }
+
+  /**
+   * Whether this ObjectGroup is currently in Studio mode.
+   */
+  get isStudioMode(): boolean {
+    return this._isStudioMode;
   }
 
   /**
@@ -175,6 +201,13 @@ class ObjectGroup extends THREE.Group {
       this._zebra.dispose();
       this._zebra = null;
     }
+    // Release studio material references (do NOT dispose -- NestedGroup owns them)
+    this._cadFrontMaterial = null;
+    this._cadBackMaterial = null;
+    this._cadOriginalColor = null;
+    this._cadOriginalBackColor = null;
+    this._isStudioMode = false;
+    this._cadEdgesVisible = null;
   }
 
   /**
@@ -676,6 +709,122 @@ class ObjectGroup extends THREE.Group {
    */
   setZebraMappingMode(value: ZebraMappingMode): void {
     this.zebra.setMappingMode(value);
+  }
+
+  // ===========================================================================
+  // Studio Mode
+  // ===========================================================================
+
+  /**
+   * Enter Studio mode: swap CAD materials for pre-built Studio materials.
+   *
+   * The caller (NestedGroup) is responsible for resolving material tags and
+   * building MeshPhysicalMaterial instances via MaterialFactory. ObjectGroup
+   * just receives the finished materials and performs the swap.
+   *
+   * On first call, saves the current CAD material references so they can be
+   * restored by `leaveStudioMode()`. Copies the `material.visible` flag from
+   * CAD to Studio material to preserve tree-view hide/show state. Updates
+   * `originalColor` / `originalBackColor` so highlight/unhighlight works
+   * correctly in Studio mode.
+   *
+   * @param studioFront - Studio material for front face, or null if this object has no front mesh
+   * @param studioBack - Studio material for back face, or null if back face should not be swapped
+   */
+  enterStudioMode(
+    studioFront: THREE.MeshPhysicalMaterial | null,
+    studioBack: THREE.MeshPhysicalMaterial | null,
+  ): void {
+    if (this._isStudioMode) return;
+
+    // --- Save CAD state ---
+    if (this.front) {
+      this._cadFrontMaterial = this.front.material;
+    }
+    if (this.back) {
+      this._cadBackMaterial = this.back.material;
+    }
+    // Save original colors used by highlight/unhighlight
+    this._cadOriginalColor = this.originalColor ? this.originalColor.clone() : null;
+    this._cadOriginalBackColor = this.originalBackColor ? this.originalBackColor.clone() : null;
+
+    // Save edge visibility state
+    this._cadEdgesVisible = this.edgeMaterial ? this.edgeMaterial.visible : null;
+
+    // --- Swap front material ---
+    if (this.front && studioFront) {
+      // Copy visible flag from CAD -> Studio to preserve tree-view hide/show
+      studioFront.visible = this.front.material.visible;
+      this.front.material = studioFront;
+      // Update originalColor to studio material's color for correct highlight
+      this.originalColor = studioFront.color;
+    }
+
+    // --- Swap back material ---
+    if (this.back && studioBack && this.renderback) {
+      // Copy visible flag from CAD -> Studio
+      studioBack.visible = this.back.material.visible;
+      this.back.material = studioBack;
+      // Update originalBackColor for correct highlight on back face
+      this.originalBackColor = studioBack.color;
+    }
+
+    this._isStudioMode = true;
+  }
+
+  /**
+   * Leave Studio mode: restore CAD materials.
+   *
+   * Copies `material.visible` from Studio back to CAD material to preserve
+   * any visibility changes made while in Studio mode (e.g., tree-view toggle).
+   * Restores `originalColor` / `originalBackColor` to CAD material colors.
+   * Restores edge visibility to the state saved when entering Studio mode.
+   */
+  leaveStudioMode(): void {
+    if (!this._isStudioMode) return;
+
+    // --- Restore front material ---
+    if (this.front && this._cadFrontMaterial) {
+      // Copy visible flag from Studio -> CAD to preserve tree-view changes
+      this._cadFrontMaterial.visible = this.front.material.visible;
+      this.front.material = this._cadFrontMaterial;
+    }
+
+    // --- Restore back material ---
+    if (this.back && this._cadBackMaterial && this.renderback) {
+      // Copy visible flag from Studio -> CAD
+      this._cadBackMaterial.visible = this.back.material.visible;
+      this.back.material = this._cadBackMaterial;
+    }
+
+    // --- Restore original colors for highlight ---
+    if (this._cadOriginalColor) {
+      this.originalColor = this._cadOriginalColor.clone();
+    }
+    if (this._cadOriginalBackColor) {
+      this.originalBackColor = this._cadOriginalBackColor.clone();
+    }
+
+    // --- Restore edge visibility ---
+    if (this.edgeMaterial && this._cadEdgesVisible !== null) {
+      this.edgeMaterial.visible = this._cadEdgesVisible;
+    }
+
+    this._isStudioMode = false;
+  }
+
+  /**
+   * Toggle edge visibility while in Studio mode.
+   *
+   * Only affects edges (not vertices). Should only be called while in
+   * Studio mode; the saved CAD edge visibility is not affected.
+   *
+   * @param visible - Whether edges should be visible
+   */
+  setStudioShowEdges(visible: boolean): void {
+    if (this.edgeMaterial) {
+      this.edgeMaterial.visible = visible;
+    }
   }
 }
 
