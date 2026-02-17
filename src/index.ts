@@ -53,6 +53,7 @@ export type {
   ClipIndex,
   ColorValue,
   RGBColor,
+  RGBAColor,
   AxisColors,
   AxisColorsFlatArray,
 } from "./core/types.js";
@@ -123,6 +124,14 @@ export type { DomEventCallback } from "./core/types.js";
 
 // Material types
 export type { ColoredMaterial } from "./core/types.js";
+
+// Studio mode & PBR material types
+export type {
+  MaterialAppearance,
+  TextureEntry,
+  StudioOptions,
+  StudioEnvironmentOptions,
+} from "./core/types.js";
 
 // Subscription options
 export type { SubscribeOptions } from "./core/types.js";

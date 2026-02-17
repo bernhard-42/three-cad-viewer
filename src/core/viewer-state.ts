@@ -38,6 +38,7 @@ interface DisplayDefaults {
   explodeTool: boolean;
   zscaleTool: boolean;
   zebraTool: boolean;
+  studioTool: boolean;
   measurementDebug: boolean;
 }
 
@@ -141,7 +142,7 @@ const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
   // Display
   "theme", "cadWidth", "treeWidth", "treeHeight", "height", "pinning", "glass", "tools",
   "keymap", "newTreeBehavior", "measureTools", "selectTool", "explodeTool", "zscaleTool",
-  "zebraTool", "measurementDebug",
+  "zebraTool", "studioTool", "measurementDebug",
   // Render
   "ambientIntensity", "directIntensity", "metalness", "roughness", "defaultOpacity",
   "edgeColor", "normalLen",
@@ -300,7 +301,7 @@ class ViewerState {
       reset: "R", resize: "r",
       iso: "5", front: "1", rear: "3", top: "8", bottom: "2", left: "4", right: "6",
       explode: "x", zscale: "L", distance: "D", properties: "P", select: "S", help: "h", play: " ", stop: "Escape",
-      tree: "T", clip: "C", material: "M", zebra: "Z",
+      tree: "T", clip: "C", material: "M", zebra: "Z", studio: "s",
     },
     newTreeBehavior: true,
     measureTools: true,
@@ -308,6 +309,7 @@ class ViewerState {
     explodeTool: true,
     zscaleTool: false,
     zebraTool: true,
+    studioTool: true,
     measurementDebug: false,
   };
 

@@ -28,7 +28,7 @@ export type UpDirection = "Z" | "Y" | "legacy";
 export type AnimationMode = "none" | "animation" | "explode";
 
 /** Active sidebar tab */
-export type ActiveTab = "tree" | "clip" | "material" | "zebra";
+export type ActiveTab = "tree" | "clip" | "material" | "zebra" | "studio";
 
 /** Zebra color scheme */
 export type ZebraColorScheme = "blackwhite" | "colorful" | "grayscale";
@@ -69,6 +69,9 @@ export type ColorValue = number | string;
 
 /** RGB color as tuple [r, g, b] with values 0-1 */
 export type RGBColor = [number, number, number];
+
+/** RGBA color as tuple [r, g, b, a] with values 0-1 */
+export type RGBAColor = [number, number, number, number];
 
 /** Axis colors per theme - array of RGB colors for X, Y, Z axes */
 export type AxisColors = Record<Theme, RGBColor[]>;
@@ -184,7 +187,7 @@ export type ActionShortcutName =
   | "reset" | "resize" | "iso" | "front" | "rear" | "top" | "bottom" | "left" | "right"
   | "explode" | "distance" | "properties" | "select" | "help"
   | "play" | "stop"
-  | "tree" | "clip" | "material" | "zebra";
+  | "tree" | "clip" | "material" | "zebra" | "studio";
 
 /** Action keymap: action name → key character */
 export type ActionKeymap = Partial<Record<ActionShortcutName, string>>;
@@ -224,6 +227,8 @@ export interface DisplayOptions {
   zscaleTool?: boolean;
   /** Show zebra tool (default: true) */
   zebraTool?: boolean;
+  /** Show studio tool (default: true) */
+  studioTool?: boolean;
   /** Enable measurement debug mode (default: false) */
   measurementDebug?: boolean;
 }
@@ -232,13 +237,13 @@ export interface DisplayOptions {
 export interface RenderOptions {
   /** Default edge color (default: 0x707070) */
   edgeColor?: number;
-  /** Ambient light intensity (default: 0.5) */
+  /** Ambient light intensity (default: 1) */
   ambientIntensity?: number;
-  /** Direct light intensity (default: 0.6) */
+  /** Direct light intensity (default: 1.1) */
   directIntensity?: number;
-  /** Metalness (default: 0.7) */
+  /** Metalness (default: 0.3) */
   metalness?: number;
-  /** Roughness (default: 0.7) */
+  /** Roughness (default: 0.65) */
   roughness?: number;
   /** Default opacity level for transparency (default: 0.5) */
   defaultOpacity?: number;
@@ -349,6 +354,7 @@ export interface ViewerStateShape {
   explodeTool: boolean;
   zscaleTool: boolean;
   zebraTool: boolean;
+  studioTool: boolean;
   measurementDebug: boolean;
 
   // Render
@@ -410,6 +416,200 @@ export interface ViewerStateShape {
 
 /** Keys of ViewerStateShape */
 export type StateKey = keyof ViewerStateShape;
+
+// =============================================================================
+// Material Appearance (Studio Mode)
+// =============================================================================
+
+/**
+ * Material appearance definition for Studio mode.
+ *
+ * All fields are optional. Only provided fields override defaults.
+ * In Studio mode the viewer uses MeshPhysicalMaterial; properties left
+ * unset default to their "off" values (transmission=0, clearcoat=0, etc.)
+ * which the shader skips at near-zero cost.
+ *
+ * This is a data-format interface (describes JSON input), not a Three.js material.
+ * Texture string fields reference either a key in the root-level `textures` table,
+ * a data URI, or a URL resolved against the HTML page.
+ */
+export interface MaterialAppearance {
+  /** Display name */
+  name?: string;
+  /** Reference to a built-in preset (e.g., "stainless-steel", "car-paint") */
+  preset?: string;
+
+  // -- Color --
+
+  /** Linear RGBA base color, 0-1. Overrides leaf color/alpha in Studio mode. */
+  baseColor?: RGBAColor;
+  /** Texture reference for base color */
+  baseColorTexture?: string;
+
+  // -- Metallic-Roughness PBR --
+
+  /** Metallic factor, 0-1 (default: 0.0) */
+  metallic?: number;
+  /** Roughness factor, 0-1 (default: 0.5) */
+  roughness?: number;
+
+  // -- Textures (Standard) --
+
+  /** Normal map texture reference */
+  normalTexture?: string;
+  /** Ambient occlusion texture reference */
+  occlusionTexture?: string;
+  /** Combined metallic-roughness texture reference */
+  metallicRoughnessTexture?: string;
+
+  // -- Emissive --
+
+  /** Emissive color, linear RGB */
+  emissive?: RGBColor;
+  /** Emissive map texture reference */
+  emissiveTexture?: string;
+  /** Emissive intensity multiplier (default: 1.0) */
+  emissiveStrength?: number;
+
+  // -- Alpha --
+
+  /** Alpha blending mode */
+  alphaMode?: "OPAQUE" | "MASK" | "BLEND";
+  /** Alpha cutoff threshold for MASK mode (default: 0.5) */
+  alphaCutoff?: number;
+
+  // -- Transmission (glass, water) --
+
+  /** Transmission factor, 0-1 */
+  transmission?: number;
+  /** Transmission map texture reference */
+  transmissionTexture?: string;
+
+  // -- Clearcoat (car paint, varnish) --
+
+  /** Clearcoat intensity, 0-1 */
+  clearcoat?: number;
+  /** Clearcoat roughness */
+  clearcoatRoughness?: number;
+  /** Clearcoat intensity texture reference */
+  clearcoatTexture?: string;
+  /** Clearcoat roughness texture reference */
+  clearcoatRoughnessTexture?: string;
+  /** Clearcoat normal map texture reference */
+  clearcoatNormalTexture?: string;
+
+  // -- Volume (subsurface: jade, wax, skin) --
+
+  /** Thickness for volume effects */
+  thickness?: number;
+  /** Thickness map texture reference */
+  thicknessTexture?: string;
+  /** Attenuation distance for volume absorption */
+  attenuationDistance?: number;
+  /** Attenuation color, linear RGB */
+  attenuationColor?: RGBColor;
+
+  // -- IOR --
+
+  /** Index of refraction (default: 1.5) */
+  ior?: number;
+
+  // -- Specular --
+
+  /** Specular intensity, 0-1 */
+  specularIntensity?: number;
+  /** Specular tint color, linear RGB */
+  specularColor?: RGBColor;
+  /** Specular intensity texture reference */
+  specularIntensityTexture?: string;
+  /** Specular color texture reference */
+  specularColorTexture?: string;
+
+  // -- Sheen (fabric, velvet) --
+
+  /** Sheen intensity, 0-1 (required to enable sheen layer) */
+  sheen?: number;
+  /** Sheen tint color, linear RGB */
+  sheenColor?: RGBColor;
+  /** Sheen roughness */
+  sheenRoughness?: number;
+  /** Sheen color texture reference */
+  sheenColorTexture?: string;
+  /** Sheen roughness texture reference */
+  sheenRoughnessTexture?: string;
+
+  // -- Anisotropy (brushed metal) --
+
+  /** Anisotropy strength, 0-1 */
+  anisotropy?: number;
+  /** Anisotropy rotation in radians */
+  anisotropyRotation?: number;
+  /** Anisotropy direction texture reference */
+  anisotropyTexture?: string;
+
+  // -- Misc --
+
+  /** Use MeshBasicMaterial (unlit, no shading) */
+  unlit?: boolean;
+  /** Render both sides of faces (THREE.DoubleSide) */
+  doubleSided?: boolean;
+}
+
+// =============================================================================
+// Texture Entry (Studio Mode)
+// =============================================================================
+
+/**
+ * Entry in the root-level `textures` table.
+ *
+ * Each entry is either embedded (base64-encoded image data) or a URL reference
+ * loaded on demand. At least one of `data`+`format` or `url` must be provided.
+ * An empty TextureEntry is invalid and will be ignored at runtime.
+ * Multiple MaterialAppearance texture fields can reference the same key for
+ * deduplication.
+ */
+export interface TextureEntry {
+  /** Base64-encoded image data (for embedded textures) */
+  data?: string;
+  /** Image format, e.g., "png", "jpg", "webp" (required when data is provided) */
+  format?: string;
+  /** URL to load the texture from (for URL-referenced textures) */
+  url?: string;
+}
+
+// =============================================================================
+// Studio Options
+// =============================================================================
+
+/** Environment map configuration for Studio mode */
+export interface StudioEnvironmentOptions {
+  /** Environment source type */
+  type: "url" | "built-in";
+  /** HDR environment map URL (when type="url") */
+  url?: string;
+  /** Environment map intensity (default: 1.0) */
+  intensity?: number;
+  /** Show environment as scene background (default: false) */
+  showBackground?: boolean;
+}
+
+/**
+ * Root-level Studio mode configuration.
+ *
+ * Optional configuration for the rendering environment, only used when
+ * the Studio tab is active. Nested structure is flattened into ViewerState
+ * keys on load.
+ */
+export interface StudioOptions {
+  /** Environment map configuration */
+  environment?: StudioEnvironmentOptions;
+  /** Tone mapping algorithm (default: "ACES") */
+  toneMapping?: "ACES" | "AgX" | "none";
+  /** Tone mapping exposure (default: 1.0) */
+  toneMappingExposure?: number;
+  /** Show edges in Studio mode (default: false) */
+  showEdges?: boolean;
+}
 
 // =============================================================================
 // Shape & Texture Types
@@ -565,6 +765,14 @@ export interface Shapes {
   width?: number | undefined;
   /** Vertex size in pixels (added during decomposition for vertex shapes) */
   size?: number | undefined;
+  /** Material tag referencing materials table or built-in preset (leaf nodes) */
+  material?: string | undefined;
+  /** User-defined material library (root node) */
+  materials?: Record<string, MaterialAppearance> | undefined;
+  /** Shared texture data referenced by MaterialAppearance texture fields (root node) */
+  textures?: Record<string, TextureEntry> | undefined;
+  /** Studio mode rendering environment configuration (root node) */
+  studioOptions?: StudioOptions | undefined;
 }
 
 // =============================================================================
