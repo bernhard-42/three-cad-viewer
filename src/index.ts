@@ -17,12 +17,16 @@ import "../css/tools.css";
 
 import { Viewer } from "./core/viewer.js";
 import { Display } from "./ui/display.js";
+import { EnvironmentManager } from "./rendering/environment.js";
 import { Timer } from "./utils/timer.js";
 import { logger } from "./utils/logger.js";
 import { gpuTracker } from "./utils/gpu-tracker.js";
 import { version } from "./_version.js";
 
-export { Viewer, Display, Timer, logger, gpuTracker, version };
+export { Viewer, Display, EnvironmentManager, Timer, logger, gpuTracker, version };
+
+// Material presets
+export { MATERIAL_PRESETS, MATERIAL_PRESET_NAMES } from "./rendering/material-presets.js";
 
 // Logger type export
 export type { LogLevel } from "./utils/logger.js";

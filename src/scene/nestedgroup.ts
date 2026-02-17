@@ -13,7 +13,11 @@ import type {
   Shapes,
   ColorValue,
   ColoredMaterial,
+  MaterialAppearance,
+  TextureEntry,
 } from "../core/types";
+import { MATERIAL_PRESETS } from "../rendering/material-presets.js";
+import { logger } from "../utils/logger.js";
 
 interface ShapeData {
   vertices: Float32Array | number[][];
@@ -57,6 +61,7 @@ interface ShapeEntry {
   geomtype?: number | null;
   subtype?: string | null;
   texture?: { image: TextureData; width: number; height: number };
+  material?: string;
 }
 
 interface ShapeTree {
@@ -134,6 +139,9 @@ class NestedGroup {
   groups!: GroupsMap; // Initialized to {} in constructor
   clipPlanes: THREE.Plane[] | null;
   materialFactory: MaterialFactory;
+  texturesTable: Record<string, TextureEntry> | null;
+  materialsTable: Record<string, MaterialAppearance> | null;
+  resolvedMaterials: Map<string, MaterialAppearance>;
 
   /**
    * Create a NestedGroup for rendering CAD geometry.
@@ -181,6 +189,10 @@ class NestedGroup {
 
     this.clipPlanes = null;
 
+    this.texturesTable = null;
+    this.materialsTable = null;
+    this.resolvedMaterials = new Map();
+
     this.materialFactory = new MaterialFactory({
       defaultOpacity: opacity,
       metalness: metalness,
@@ -202,6 +214,75 @@ class NestedGroup {
       deepDispose(this.rootGroup);
       this.rootGroup = null;
     }
+    this.resolvedMaterials.clear();
+    this.texturesTable = null;
+    this.materialsTable = null;
+  }
+
+  /**
+   * Resolve a material tag to a MaterialAppearance definition.
+   *
+   * Resolution order:
+   * 1. Check resolved cache
+   * 2. Look up in root-level `materials` table (user-defined library)
+   *    - If the entry has a `preset` field, merge built-in preset as base
+   * 3. Look up in built-in MATERIAL_PRESETS
+   * 4. No match -> warning, return null
+   *
+   * Empty string tags are treated as "no tag" and return null without warning.
+   *
+   * @param tag - The material tag from a leaf node
+   * @param objectPath - The object path (for warning messages)
+   * @returns Resolved MaterialAppearance or null if not found
+   */
+  resolveMaterialTag(tag: string, objectPath: string): MaterialAppearance | null {
+    // Empty string is equivalent to no tag -- skip silently
+    if (tag === "") {
+      return null;
+    }
+
+    // Check cache first
+    const cached = this.resolvedMaterials.get(tag);
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    // 1. Look up in user-defined materials table
+    if (this.materialsTable && tag in this.materialsTable) {
+      const entry = this.materialsTable[tag];
+      let resolved: MaterialAppearance;
+
+      if (entry.preset) {
+        // Merge: start with built-in preset as base, overlay user fields
+        const presetBase = MATERIAL_PRESETS[entry.preset];
+        if (presetBase) {
+          resolved = { ...presetBase, ...entry };
+        } else {
+          // Preset reference not found in built-ins -- use entry as-is but warn
+          logger.warn(
+            `Unknown preset '${entry.preset}' referenced in materials table entry '${tag}'`,
+          );
+          resolved = { ...entry };
+        }
+      } else {
+        resolved = { ...entry };
+      }
+
+      this.resolvedMaterials.set(tag, resolved);
+      return resolved;
+    }
+
+    // 2. Look up in built-in presets
+    const preset = MATERIAL_PRESETS[tag];
+    if (preset) {
+      const resolved = { ...preset };
+      this.resolvedMaterials.set(tag, resolved);
+      return resolved;
+    }
+
+    // 3. No match -- warn and return null
+    logger.warn(`Unknown material tag '${tag}' on object '${objectPath}'`);
+    return null;
   }
 
   /**
@@ -798,6 +879,11 @@ class NestedGroup {
         group.add(this.renderLoop(shape));
       } else {
         const entry = shape as ShapeEntry;
+        // Propagate material tag from shapes data to local ShapeEntry
+        const materialTag = (shape as Shapes).material;
+        if (materialTag != null) {
+          entry.material = materialTag;
+        }
         const has_texture = entry.texture != null;
         const texture = has_texture ? entry.texture!.image : null;
         const width = has_texture ? entry.texture!.width : null;
@@ -817,6 +903,9 @@ class NestedGroup {
     if (this.shapes.format == "GDS") {
       this.instances = this.shapes.instances || null;
     }
+    this.texturesTable = this.shapes.textures || null;
+    this.materialsTable = this.shapes.materials || null;
+    this.resolvedMaterials.clear();
     this.rootGroup = this.renderLoop(this.shapes);
     return this.rootGroup;
   }

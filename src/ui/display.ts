@@ -1767,6 +1767,9 @@ class Display {
       if (newTab !== "zebra" && oldTab === "zebra") {
         this.viewer.enableZebraTool(false);
       }
+      if (newTab !== "studio" && oldTab === "studio") {
+        this.viewer.leaveStudioMode();
+      }
     };
 
     if (newTab === "tree") {
@@ -1792,10 +1795,9 @@ class Display {
       _updateVisibility(false, false, false, true, false);
       this.viewer.nestedGroup.setBackVisible(false);
     } else if (newTab === "studio") {
-      // Phase 2: Only show the panel. No rendering changes yet.
-      // Phase 5 will add enter/leave Studio mode logic here
       _updateVisibility(false, false, false, false, true);
       this.viewer.nestedGroup.setBackVisible(false);
+      this.viewer.enterStudioMode();
     }
 
     // Update tab styling

@@ -40,6 +40,7 @@ import { BoundingBox, BoxHelper } from "../scene/bbox.js";
 import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
 import { version } from "../_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
+import { EnvironmentManager } from "../rendering/environment.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
 import type { Display } from "../ui/display.js";
@@ -353,6 +354,9 @@ class Viewer {
   // Raycaster
   raycaster: Raycaster | null;
 
+  // Studio environment manager (survives clear(), disposed only on dispose())
+  envManager: EnvironmentManager;
+
   // Z-scale
   zScale!: number;
 
@@ -457,6 +461,9 @@ class Viewer {
     this.renderer.setClearColor(0xffffff, 0);
     this.renderer.autoClear = false;
 
+    // Create environment manager (after renderer, before any rendering)
+    this.envManager = new EnvironmentManager();
+
     this.lastNotification = {};
     this.lastBbox = null;
 
@@ -494,7 +501,66 @@ class Viewer {
 
     this.display.setupUI(this, this.renderer.domElement);
 
+    // Wire studio state subscriptions (react to changes while studio tab is active)
+    this._setupStudioSubscriptions();
+
     console.debug("three-cad-viewer: WebGL Renderer created");
+  }
+
+  /**
+   * Set up state subscriptions for Studio mode.
+   *
+   * These subscriptions only take effect when activeTab is "studio".
+   * When a studio-related state key changes while the studio tab is active,
+   * the environment is updated accordingly:
+   * - studioEnvironment: reload environment, re-apply
+   * - studioEnvIntensity: re-apply with new intensity
+   * - studioShowBackground: re-apply with new background setting
+   *
+   * @internal
+   */
+  private _setupStudioSubscriptions(): void {
+    const isStudioActive = (): boolean => {
+      return this._rendered !== null && this.state.get("activeTab") === "studio";
+    };
+
+    // studioEnvironment changed -> re-load and re-apply
+    this.state.subscribe("studioEnvironment", (change) => {
+      if (!isStudioActive()) return;
+      this.envManager.loadEnvironment(change.new, this.renderer).then(() => {
+        if (!isStudioActive()) return;
+        this.envManager.apply(
+          this.rendered.scene,
+          this.state.get("studioEnvIntensity"),
+          this.state.get("studioShowBackground"),
+        );
+        this.update(true, false);
+      }).catch((err) => {
+        logger.error("Unexpected error loading studio environment", err);
+      });
+    });
+
+    // studioEnvIntensity changed -> re-apply (no reload needed)
+    this.state.subscribe("studioEnvIntensity", () => {
+      if (!isStudioActive()) return;
+      this.envManager.apply(
+        this.rendered.scene,
+        this.state.get("studioEnvIntensity"),
+        this.state.get("studioShowBackground"),
+      );
+      this.update(true, false);
+    });
+
+    // studioShowBackground changed -> re-apply (no reload needed)
+    this.state.subscribe("studioShowBackground", () => {
+      if (!isStudioActive()) return;
+      this.envManager.apply(
+        this.rendered.scene,
+        this.state.get("studioEnvIntensity"),
+        this.state.get("studioShowBackground"),
+      );
+      this.update(true, false);
+    });
   }
 
   /**
@@ -917,6 +983,9 @@ class Viewer {
    */
   dispose(): void {
     this.clear();
+
+    // dispose environment manager (releases cached PMREM textures)
+    this.envManager.dispose();
 
     // dispose renderer
     this.renderer.renderLists.dispose();
@@ -2831,6 +2900,48 @@ class Viewer {
    */
   getStudioShowEdges = (): boolean => {
     return this.state.get("studioShowEdges");
+  };
+
+  /**
+   * Enter Studio mode: load and apply the current environment map.
+   *
+   * Called by display.ts switchToTab() when switching TO the Studio tab.
+   * Loads the environment (async, may hit cache) and applies it to the scene.
+   * If loading fails, the EnvironmentManager falls back to the bundled
+   * "studio" RoomEnvironment internally.
+   *
+   * @internal
+   */
+  enterStudioMode = async (): Promise<void> => {
+    if (!this._rendered) return;
+    try {
+      const envName = this.state.get("studioEnvironment");
+      await this.envManager.loadEnvironment(envName, this.renderer);
+      // Guard: tab may have changed during async load
+      if (this.state.get("activeTab") !== "studio") return;
+      this.envManager.apply(
+        this.rendered.scene,
+        this.state.get("studioEnvIntensity"),
+        this.state.get("studioShowBackground"),
+      );
+      this.update(true, false);
+    } catch (err) {
+      logger.error("Unexpected error entering studio mode", err);
+    }
+  };
+
+  /**
+   * Leave Studio mode: remove the environment map from the scene.
+   *
+   * Called by display.ts switchToTab() when switching AWAY from the Studio tab.
+   * Does not dispose the cached environment (allows fast re-entry).
+   *
+   * @internal
+   */
+  leaveStudioMode = (): void => {
+    if (!this._rendered) return;
+    this.envManager.remove(this.rendered.scene);
+    this.update(true, false);
   };
 
   /**
