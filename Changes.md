@@ -1,5 +1,11 @@
 # Change log
 
+## v4.1.1
+
+**Fixes**
+
+- Fix the zoom state residual issue beacuse of TrackballControls using dynamic damping
+
 ## v4.1.0
 
 **Features**
