@@ -1,5 +1,12 @@
 # Change log
 
+## v4.1.2
+
+**Fixes**
+
+- Make default zoom faster again (regression from 4.1.1)
+- Fix boundary color of colorful zebra for odd stripe count
+
 ## v4.1.1
 
 **Fixes**
