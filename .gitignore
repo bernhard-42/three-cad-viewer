@@ -9,3 +9,4 @@ scratch
 .claude
 ANALYSIS
 coverage/
+examples/toycar.js

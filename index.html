@@ -36,6 +36,8 @@
     <script src="./examples/linkage-tracks.js"></script>
     <script src="./examples/sky130.js"></script>
     <script src="./examples/transceiver_mzi.js"></script>
+    <script src="./examples/studio_mode.js"></script>
+    <!-- toycar.js (169 MB) is loaded on demand, not via script tag -->
 
     <script type="module">
       // ESM import
@@ -73,7 +75,25 @@
         single_vertices,
         sky130,
         transceiver_mzi,
+        studio_mode,
+        "lazy:toycar",  // loaded on demand (169 MB)
       ];
+
+      // Lazy-load a large example by script injection.
+      // Returns a promise that resolves to the shape data.
+      function lazyLoadExample(name) {
+        return new Promise((resolve, reject) => {
+          if (window[name]) { resolve(window[name]); return; }
+          const script = document.createElement("script");
+          script.src = `./examples/${name}.js`;
+          script.onload = () => {
+            if (window[name]) resolve(window[name]);
+            else reject(new Error(`${name}.js loaded but window.${name} not found`));
+          };
+          script.onerror = () => reject(new Error(`Failed to load ${name}.js`));
+          document.head.appendChild(script);
+        });
+      }
 
       function render(name, shapes) {
         const timer = new Timer("renderer", timeit);
@@ -207,7 +227,7 @@
         },
         newTreeBehavior: true,
         measurementDebug: true,
-        measureTools: false,
+        measureTools: true,
         selectTool: false,
         explodeTool: true,
         zscaleTool: false,
@@ -297,10 +317,18 @@
         viewerOptions.control = control_up[0];
         viewerOptions.up = control_up[1][0];
 
-        render(
-          window.selectedExample,
-          structuredClone(examples[window.selectedIndex]),
-        );
+        const exampleData = examples[window.selectedIndex];
+        if (typeof exampleData === "string" && exampleData.startsWith("lazy:")) {
+          const lazyName = exampleData.slice(5);
+          lazyLoadExample(lazyName).then((data) => {
+            render(window.selectedExample, structuredClone(data));
+          }).catch((err) => console.error(err));
+        } else {
+          render(
+            window.selectedExample,
+            structuredClone(exampleData),
+          );
+        }
         // viewer.presetCamera("top");
         timer.stop();
 
@@ -412,6 +440,8 @@
           <option value="single_vertices">single vertices</option>
           <option value="sky130">GDS:sky130</option>
           <option value="transceiver_mzi">GDS:transceiver_mzi</option>
+          <option value="studio_mode">studio_mode</option>
+          <option value="toycar">toycar</option>
         </select>
       </span>
     </div>

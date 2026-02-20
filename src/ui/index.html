@@ -204,10 +204,61 @@
                         <div class="tcv_slider_group">
                             <div>
                                 <select class="tcv_studio_environment tcv_studio_select">
-                                    <option value="studio">Studio</option>
-                                    <option value="neutral">Neutral</option>
-                                    <option value="outdoor">Outdoor</option>
+                                    <option value="studio">Built-in (procedural)</option>
                                     <option value="none">None</option>
+                                    <optgroup label="Studio — Top/overhead">
+                                        <option value="studio_small_03">Studio Small 03</option>
+                                        <option value="studio_small_05">Studio Small 05</option>
+                                        <option value="studio_small_07">Studio Small 07</option>
+                                        <option value="cyclorama_hard_light">Cyclorama Hard Light</option>
+                                    </optgroup>
+                                    <optgroup label="Studio — Side/directional">
+                                        <option value="studio_small_04">Studio Small 04</option>
+                                        <option value="studio_small_02">Studio Small 02</option>
+                                        <option value="studio_small_06">Studio Small 06</option>
+                                        <option value="photo_studio_loft_hall">Photo Studio Loft Hall</option>
+                                        <option value="studio_country_hall">Studio Country Hall</option>
+                                        <option value="brown_photostudio_02">Brown Photostudio 02</option>
+                                        <option value="brown_photostudio_06">Brown Photostudio 06</option>
+                                    </optgroup>
+                                    <optgroup label="Studio — Soft/diffuse">
+                                        <option value="studio_small_08">Studio Small 08</option>
+                                        <option value="studio_small_09">Studio Small 09</option>
+                                        <option value="photo_studio_01">Photo Studio 01</option>
+                                        <option value="provence_studio">Provence Studio</option>
+                                        <option value="photo_studio_broadway_hall">Photo Studio Broadway Hall</option>
+                                        <option value="white_studio_05">White Studio 05</option>
+                                    </optgroup>
+                                    <optgroup label="Studio — Product viz">
+                                        <option value="white_studio_01">White Studio 01</option>
+                                        <option value="white_studio_03">White Studio 03</option>
+                                        <option value="pav_studio_01">Pav Studio 01</option>
+                                        <option value="monochrome_studio_01">Monochrome Studio 01</option>
+                                        <option value="ferndale_studio_01">Ferndale Studio 01</option>
+                                        <option value="wooden_studio_01">Wooden Studio 01</option>
+                                    </optgroup>
+                                    <optgroup label="Outdoor — Overhead sun">
+                                        <option value="noon_grass">Noon Grass</option>
+                                        <option value="wide_street_01">Wide Street 01</option>
+                                        <option value="kloofendal_48d_partly_cloudy_puresky">Kloofendal Partly Cloudy</option>
+                                        <option value="rural_asphalt_road">Rural Asphalt Road</option>
+                                    </optgroup>
+                                    <optgroup label="Outdoor — Side sun">
+                                        <option value="meadow_2">Meadow 2</option>
+                                        <option value="autumn_park">Autumn Park</option>
+                                        <option value="autumn_field_puresky">Autumn Field</option>
+                                        <option value="spiaggia_di_mondello">Spiaggia di Mondello</option>
+                                    </optgroup>
+                                    <optgroup label="Outdoor — Low sun">
+                                        <option value="spruit_sunrise">Spruit Sunrise</option>
+                                        <option value="lilienstein">Lilienstein</option>
+                                        <option value="venice_sunset">Venice Sunset</option>
+                                        <option value="kloppenheim_06">Kloppenheim 06</option>
+                                    </optgroup>
+                                    <optgroup label="Outdoor — Overcast">
+                                        <option value="overcast_soil_puresky">Overcast Soil</option>
+                                        <option value="canary_wharf">Canary Wharf</option>
+                                    </optgroup>
                                 </select>
                             </div>
                         </div>
@@ -216,17 +267,31 @@
                         </div>
                         <div class="tcv_slider_group">
                             <div>
-                                <input type="range" min="0" max="300" step="1" value="100"
+                                <input type="range" min="0" max="200" step="1" value="100"
                                     class="tcv_sld_value_studio_env_intensity tcv_clip_slider">
                                 <input value=100 class="tcv_inp_value_studio_env_intensity tcv_clip_input"></input>
                             </div>
                         </div>
                         <div class="tcv_studio_checks">
                             <div>
-                                <span class="tcv_tooltip" data-tooltip="Show environment as scene background">
-                                    <input class='tcv_studio_show_background tcv_check' type="checkbox" />
-                                    <span class="tcv_label">Show Background</span>
+                                <span class="tcv_tooltip" data-tooltip="Show floor grid in Studio mode">
+                                    <input class='tcv_studio_show_floor tcv_check' type="checkbox" />
+                                    <span class="tcv_label">Show Floor</span>
                                 </span>
+                            </div>
+                        </div>
+                        <div class="tcv_studio_background_label tcv_label">
+                            Background
+                        </div>
+                        <div class="tcv_slider_group">
+                            <div>
+                                <select class="tcv_studio_background tcv_studio_select">
+                                    <option value="grey">Solid Grey</option>
+                                    <option value="white">Solid White</option>
+                                    <option value="gradient">Gradient</option>
+                                    <option value="environment">Blurred Environment</option>
+                                    <option value="transparent">Transparent</option>
+                                </select>
                             </div>
                         </div>
                         <div class="tcv_studio_tone_mapping_label tcv_label">
@@ -235,9 +300,10 @@
                         <div class="tcv_slider_group">
                             <div>
                                 <select class="tcv_studio_tone_mapping tcv_studio_select">
-                                    <option value="ACES">ACES</option>
+                                    <option value="neutral">PBR Neutral</option>
                                     <option value="AgX">AgX</option>
-                                    <option value="none">None</option>
+                                    <option value="ACES">ACES Filmic</option>
+                                    <option value="none">Linear (none)</option>
                                 </select>
                             </div>
                         </div>
@@ -246,7 +312,7 @@
                         </div>
                         <div class="tcv_slider_group">
                             <div>
-                                <input type="range" min="0" max="300" step="1" value="100"
+                                <input type="range" min="0" max="200" step="1" value="100"
                                     class="tcv_sld_value_studio_exposure tcv_clip_slider">
                                 <input value=100 class="tcv_inp_value_studio_exposure tcv_clip_input"></input>
                             </div>

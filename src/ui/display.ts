@@ -1004,18 +1004,18 @@ class Display {
     this.studioEnvIntensitySlider = new Slider(
       "studio_env_intensity",
       0,
-      300,
+      200,
       this.container,
       {
         handler: this.handleStudioEnvIntensity,
-        percentage: true,
+        percentage: false,
         isReadyCheck: viewerReadyCheck,
       },
     );
     this.studioExposureSlider = new Slider(
       "studio_exposure",
       0,
-      300,
+      200,
       this.container,
       {
         handler: this.handleStudioExposure,
@@ -1025,8 +1025,8 @@ class Display {
     );
 
     this.setupCheckEvent(
-      "tcv_studio_show_background",
-      this.handleStudioShowBackground,
+      "tcv_studio_show_floor",
+      this.handleStudioShowFloor,
       false,
     );
     this.setupCheckEvent(
@@ -1038,6 +1038,10 @@ class Display {
     this.setupSelectEvent(
       "tcv_studio_environment",
       this.handleStudioEnvironment,
+    );
+    this.setupSelectEvent(
+      "tcv_studio_background",
+      this.handleStudioBackground,
     );
     this.setupSelectEvent(
       "tcv_studio_tone_mapping",
@@ -1239,12 +1243,16 @@ class Display {
     sub(
       "studioEnvIntensity",
       (change) => {
-        this.studioEnvIntensitySlider?.setValueFromState(change.new * 100);
+        this.studioEnvIntensitySlider?.setValueFromState(change.new * 200);
       },
       { immediate: true },
     );
-    sub("studioShowBackground", (change) => {
-      this.getInputElement("tcv_studio_show_background").checked = change.new;
+    sub("studioShowFloor", (change) => {
+      this.getInputElement("tcv_studio_show_floor").checked = change.new;
+    });
+    sub("studioBackground", (change) => {
+      const el = this.container.querySelector(".tcv_studio_background");
+      if (el instanceof HTMLSelectElement) el.value = change.new;
     });
     sub("studioToneMapping", (change) => {
       const el = this.container.querySelector(".tcv_studio_tone_mapping");
@@ -1511,6 +1519,10 @@ class Display {
    * Delegates state mutations to Viewer.activateTool() to maintain unidirectional data flow.
    */
   setTool = (name: string, flag: boolean): void => {
+    // Block tool activation while Studio mode is active
+    if (flag && this.viewer.isStudioActive) {
+      return;
+    }
     this.viewer.toggleAnimationLoop(flag);
     const activeTool = this.state.get("activeTool");
     const currentTool = typeof activeTool === "string" ? activeTool : "";
@@ -1615,6 +1627,38 @@ class Display {
       this.showZScale(false);
     }
   };
+
+  /**
+   * Deactivate any running tool and hide tool buttons for Studio mode.
+   * Called when entering Studio mode.
+   * @internal
+   */
+  private _deactivateToolsForStudio(): void {
+    // If a tool is currently active, deactivate it cleanly
+    const activeTool = this.state.get("activeTool");
+    if (activeTool && ["distance", "properties", "angle", "select"].includes(activeTool)) {
+      this.clickButtons[activeTool]?.set(false);
+      this.setTool(activeTool, false);
+      // setTool→toggleTab(false) silently sets activeTab to "tree" (no notification).
+      // Restore to "studio" so the next tab click correctly detects Studio as oldTab.
+      this.state.set("activeTab", "studio", false);
+    }
+
+    // Hide tool buttons
+    this.showMeasureTools(false);
+    this.showSelectTool(false);
+  }
+
+  /**
+   * Restore tool button visibility after leaving Studio mode.
+   * Respects original feature flags (measureTools, selectTool).
+   * Does not auto-activate any tool.
+   * @internal
+   */
+  private _restoreToolsAfterStudio(): void {
+    this.showMeasureTools(this.measureTools);
+    this.showSelectTool(this.selectTool);
+  }
 
   // ---------------------------------------------------------------------------
   // Clipping Handlers
@@ -1755,6 +1799,8 @@ class Display {
     }
     if (oldTab === "studio" && newTab !== "studio") {
       this.viewer.leaveStudioMode();
+      // Restore tool button visibility based on feature flags
+      this._restoreToolsAfterStudio();
     }
 
     const _updateVisibility = (
@@ -1805,6 +1851,10 @@ class Display {
     } else if (newTab === "studio") {
       _updateVisibility(false, false, false, false, true);
       this.viewer.nestedGroup.setBackVisible(false);
+
+      // Disable any active tool before entering Studio mode
+      this._deactivateToolsForStudio();
+
       this._showStudioLoading(true);
       this.viewer.enterStudioMode().finally(() => {
         this._showStudioLoading(false);
@@ -1912,18 +1962,30 @@ class Display {
 
   /**
    * Handler for Studio env intensity slider change.
-   * Slider range 0-300 with percentage=true, so value arrives as 0-3.
+   * Slider range 0-200, percentage=false. Slider 100 = state 0.5 (default).
    */
   handleStudioEnvIntensity = (value: number): void => {
-    this.state.set("studioEnvIntensity", value);
+    this.state.set("studioEnvIntensity", value / 200);
   };
 
   /**
-   * Handler for Studio show background checkbox change
+   * Handler for Studio show floor checkbox change
    */
-  handleStudioShowBackground = (e: Event): void => {
+  handleStudioShowFloor = (e: Event): void => {
     if (!(e.target instanceof HTMLInputElement)) return;
-    this.state.set("studioShowBackground", e.target.checked);
+    this.state.set("studioShowFloor", e.target.checked);
+  };
+
+  /**
+   * Handler for Studio background dropdown change.
+   * Validates against the StudioBackground union before setting state.
+   */
+  handleStudioBackground = (e: Event): void => {
+    if (!(e.target instanceof HTMLSelectElement)) return;
+    const value = e.target.value;
+    if (value === "grey" || value === "white" || value === "gradient" || value === "environment" || value === "transparent") {
+      this.state.set("studioBackground", value);
+    }
   };
 
   /**
@@ -1933,14 +1995,14 @@ class Display {
   handleStudioToneMapping = (e: Event): void => {
     if (!(e.target instanceof HTMLSelectElement)) return;
     const value = e.target.value;
-    if (value === "ACES" || value === "AgX" || value === "none") {
+    if (value === "neutral" || value === "AgX" || value === "ACES" || value === "none") {
       this.state.set("studioToneMapping", value);
     }
   };
 
   /**
    * Handler for Studio exposure slider change.
-   * Slider range 0-300 with percentage=true, so value arrives as 0-3.
+   * Slider range 0-200 with percentage=true, so value arrives as 0-2.
    */
   handleStudioExposure = (value: number): void => {
     this.state.set("studioExposure", value);
@@ -2097,12 +2159,14 @@ class Display {
    */
   syncStudioSlidersFromState(): void {
     const state = this.viewer.state;
-    this.studioEnvIntensitySlider?.setValueFromState(state.get("studioEnvIntensity") * 100);
+    this.studioEnvIntensitySlider?.setValueFromState(state.get("studioEnvIntensity") * 200);
     this.studioExposureSlider?.setValueFromState(state.get("studioExposure") * 100);
-    this.getInputElement("tcv_studio_show_background").checked = state.get("studioShowBackground");
+    this.getInputElement("tcv_studio_show_floor").checked = state.get("studioShowFloor");
     this.getInputElement("tcv_studio_show_edges").checked = state.get("studioShowEdges");
     const envEl = this.container.querySelector(".tcv_studio_environment");
     if (envEl instanceof HTMLSelectElement) envEl.value = state.get("studioEnvironment");
+    const bgEl = this.container.querySelector(".tcv_studio_background");
+    if (bgEl instanceof HTMLSelectElement) bgEl.value = state.get("studioBackground");
     const tmEl = this.container.querySelector(".tcv_studio_tone_mapping");
     if (tmEl instanceof HTMLSelectElement) tmEl.value = state.get("studioToneMapping");
   }
