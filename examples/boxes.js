@@ -1,5 +1,9 @@
 var boxes = {
   version: 3,
+  materials: {
+    "plastic": { metallic: 0, roughness: 0.6 },
+  },
+  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       version: 3,
@@ -954,6 +958,7 @@ var boxes = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "plastic",
         },
       ],
       loc: [
@@ -1529,6 +1534,7 @@ var boxes = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "plastic",
         },
       ],
       loc: [
@@ -2125,6 +2131,7 @@ var boxes = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "plastic",
         },
       ],
       loc: [

@@ -1,5 +1,9 @@
 var linkage = {
   version: 3,
+  materials: {
+    "link": { metallic: 0, roughness: 0.6 },
+  },
+  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       version: 3,
@@ -2443,6 +2447,7 @@ var linkage = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "link",
         },
       ],
       loc: [
@@ -4906,6 +4911,7 @@ var linkage = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "link",
         },
       ],
       loc: [
@@ -6593,6 +6599,7 @@ var linkage = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "link",
         },
       ],
       loc: [
@@ -8347,6 +8354,7 @@ var linkage = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "link",
         },
       ],
       loc: [
@@ -10109,6 +10117,7 @@ var linkage = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "link",
         },
       ],
       loc: [
@@ -11964,6 +11973,7 @@ var linkage = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "link",
         },
       ],
       loc: [
@@ -13822,6 +13832,7 @@ var linkage = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "link",
         },
       ],
       loc: [

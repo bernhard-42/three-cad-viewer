@@ -1,5 +1,9 @@
 var faces = {
   version: 3,
+  materials: {
+    "brass": { preset: "brass" },
+  },
+  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       id: "/Group/faces",
@@ -622,7 +626,7 @@ var faces = {
         ],
       },
       state: [1, 1],
-      color: "#ee82ee",
+      color: "#f2e6b3",
       alpha: 1.0,
       texture: null,
       loc: [
@@ -632,6 +636,7 @@ var faces = {
       renderback: true,
       accuracy: null,
       bb: null,
+      material: "brass",
     },
     {
       id: "/Group/box",
@@ -1515,7 +1520,7 @@ var faces = {
         ],
       },
       state: [0, 1],
-      color: "#e8b024",
+      color: "#f2e6b3",
       alpha: 1.0,
       texture: null,
       loc: [
@@ -1525,6 +1530,7 @@ var faces = {
       renderback: false,
       accuracy: null,
       bb: null,
+      material: "brass",
     },
   ],
   loc: [

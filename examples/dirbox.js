@@ -1,5 +1,9 @@
 var dirbox = {
   version: 3,
+  materials: {
+    "wood": { preset: "wood-dark", baseColorTexture: "builtin:wood-dark" },
+  },
+  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       id: "/Group/Solid",
@@ -2267,7 +2271,7 @@ var dirbox = {
         ],
       },
       state: [1, 1],
-      color: "#e8b024",
+      color: "#a18261",
       alpha: 1.0,
       texture: null,
       loc: [
@@ -2277,6 +2281,7 @@ var dirbox = {
       renderback: false,
       accuracy: null,
       bb: null,
+      material: "wood",
     },
   ],
   loc: [

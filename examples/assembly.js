@@ -1,5 +1,13 @@
 var assembly = {
   version: 3,
+  materials: {
+    "blue-steel": { preset: "stainless-steel", baseColor: [0.3, 0.4, 0.65, 1] },
+    "glass": { preset: "glass-clear" },
+    "chrome": { preset: "chrome" },
+    "gold": { preset: "gold" },
+    "light-wood": { preset: "wood-light", baseColorTexture: "builtin:wood-dark" },
+  },
+  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       id: "/c1/box",
@@ -45,7 +53,7 @@ var assembly = {
         segments_per_edge: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       },
       state: [1, 1],
-      color: "#ff0000",
+      color: "#4d66a6",
       alpha: 1.0,
       texture: null,
       loc: [
@@ -55,6 +63,7 @@ var assembly = {
       renderback: false,
       accuracy: null,
       bb: null,
+      material: "blue-steel",
     },
     {
       version: 3,
@@ -1455,7 +1464,7 @@ var assembly = {
             segments_per_edge: [63, 6, 77],
           },
           state: [1, 1],
-          color: "#008000",
+          color: "#ffed00",
           alpha: 1.0,
           texture: null,
           loc: [
@@ -1465,6 +1474,7 @@ var assembly = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "gold",
         },
         {
           id: "/c1/c2/cylinder",
@@ -2173,7 +2183,7 @@ var assembly = {
             segments_per_edge: [71, 1, 71],
           },
           state: [1, 1],
-          color: "#0000ff",
+          color: "#e3ccad",
           alpha: 1.0,
           texture: null,
           loc: [
@@ -2183,6 +2193,7 @@ var assembly = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "light-wood",
         },
       ],
       loc: [
@@ -8600,7 +8611,7 @@ var assembly = {
             segments_per_edge: [1, 36, 1],
           },
           state: [1, 1],
-          color: "#e8b024",
+          color: "#ffffff",
           alpha: 1.0,
           texture: null,
           loc: [
@@ -8610,6 +8621,7 @@ var assembly = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "glass",
         },
         {
           id: "/c1/c3/torus",
@@ -21682,7 +21694,7 @@ var assembly = {
             segments_per_edge: [79, 63],
           },
           state: [1, 1],
-          color: "#00ffff",
+          color: "#fafafa",
           alpha: 1.0,
           texture: null,
           loc: [
@@ -21692,6 +21704,7 @@ var assembly = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "chrome",
         },
       ],
       loc: [

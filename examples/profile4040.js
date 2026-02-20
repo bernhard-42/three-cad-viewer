@@ -1,5 +1,9 @@
 var profile4040 = {
   version: 3,
+  materials: {
+    "aluminum": { preset: "brushed-aluminum" },
+  },
+  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       id: "/Group/profile 40x40",
@@ -8233,7 +8237,7 @@ var profile4040 = {
         ],
       },
       state: [1, 1],
-      color: "#c0c0c0",
+      color: "#f5f5f8",
       alpha: 1.0,
       texture: null,
       loc: [
@@ -8243,6 +8247,7 @@ var profile4040 = {
       renderback: false,
       accuracy: null,
       bb: null,
+      material: "aluminum",
     },
   ],
   loc: [
