@@ -17,6 +17,9 @@ const BUILTIN_NAMES = [
   "sandblasted",
   "hammered",
   "checker",
+  "wood-dark",
+  "leather",
+  "fabric-weave",
 ] as const;
 
 type BuiltinName = (typeof BUILTIN_NAMES)[number];
@@ -288,6 +291,247 @@ function generateChecker(size: number): HTMLCanvasElement | OffscreenCanvas {
   return canvas;
 }
 
+/**
+ * Generate a dark wood grain base color texture.
+ *
+ * Creates concentric growth rings with noise perturbation,
+ * in warm walnut/mahogany tones. Intended as a baseColorTexture (sRGB).
+ */
+function generateWoodDark(size: number): HTMLCanvasElement | OffscreenCanvas {
+  const { canvas, ctx } = createCanvas(size);
+  const imageData = ctx.createImageData(size, size);
+  const data = imageData.data;
+  const rng = mulberry32(73);
+
+  // Pre-generate a noise field for grain perturbation
+  const noise = new Float32Array(size * size);
+  for (let i = 0; i < noise.length; i++) {
+    noise[i] = rng();
+  }
+
+  // Smooth the noise (simple box blur, 2 passes)
+  const tmp = new Float32Array(size * size);
+  for (let pass = 0; pass < 2; pass++) {
+    const src = pass === 0 ? noise : tmp;
+    const dst = pass === 0 ? tmp : noise;
+    const k = 3;
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        let sum = 0;
+        let count = 0;
+        for (let dy = -k; dy <= k; dy++) {
+          for (let dx = -k; dx <= k; dx++) {
+            const px = (x + dx + size) % size;
+            const py = (y + dy + size) % size;
+            sum += src[py * size + px];
+            count++;
+          }
+        }
+        dst[y * size + x] = sum / count;
+      }
+    }
+  }
+
+  // Wood color palette (sRGB, will be decoded by Three.js)
+  // Dark grain lines: ~[80, 45, 22]  Light wood body: ~[145, 90, 48]
+  const darkR = 80, darkG = 45, darkB = 22;
+  const lightR = 145, lightG = 90, lightB = 48;
+
+  // Ring center (offset from image center for asymmetry)
+  const cx = size * 0.45;
+  const cy = size * 0.52;
+
+  const ringScale = 0.08; // Controls ring spacing
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const idx = (y * size + x) * 4;
+
+      // Distance from center with noise distortion
+      const n = noise[y * size + x];
+      const dx = x - cx + (n - 0.5) * 30;
+      const dy = y - cy + (n - 0.5) * 15;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      // Growth ring pattern (sinusoidal)
+      const ring = Math.sin(dist * ringScale * Math.PI * 2);
+      // Remap from [-1,1] to [0,1]
+      const t = ring * 0.5 + 0.5;
+      // sqrt biases toward light — dark lines stay thin, brown dominates
+      const ringFactor = Math.sqrt(t);
+
+      // Add fine-grain noise for fiber texture
+      const fineNoise = (rng() - 0.5) * 12;
+
+      // Interpolate between dark and light
+      const r = Math.round(darkR + (lightR - darkR) * ringFactor + fineNoise);
+      const g = Math.round(darkG + (lightG - darkG) * ringFactor + fineNoise * 0.6);
+      const b = Math.round(darkB + (lightB - darkB) * ringFactor + fineNoise * 0.3);
+
+      data[idx] = Math.max(0, Math.min(255, r));
+      data[idx + 1] = Math.max(0, Math.min(255, g));
+      data[idx + 2] = Math.max(0, Math.min(255, b));
+      data[idx + 3] = 255;
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  return canvas;
+}
+
+/**
+ * Generate a leather pebble-grain normal map.
+ *
+ * Creates irregular rounded bumps (Voronoi-like cells) typical of
+ * top-grain or pebbled leather. Each cell has a smooth dome shape
+ * with slight creases between cells.
+ */
+function generateLeather(size: number): HTMLCanvasElement | OffscreenCanvas {
+  const { canvas, ctx } = createCanvas(size);
+  const imageData = ctx.createImageData(size, size);
+  const data = imageData.data;
+  const rng = mulberry32(217);
+
+  // Scatter seed points for Voronoi cells (pebbles)
+  const cellCount = 180;
+  const seeds: Array<{ x: number; y: number }> = [];
+  for (let i = 0; i < cellCount; i++) {
+    seeds.push({ x: rng() * size, y: rng() * size });
+  }
+
+  // Build a height field from Voronoi distance
+  const heights = new Float32Array(size * size);
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      // Find distance to nearest seed (with wrapping for tileability)
+      let minDist = Infinity;
+      for (const s of seeds) {
+        let dx = Math.abs(x - s.x);
+        let dy = Math.abs(y - s.y);
+        if (dx > size / 2) dx = size - dx;
+        if (dy > size / 2) dy = size - dy;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < minDist) minDist = d;
+      }
+      // Invert: closer to seed = higher (dome center)
+      // Normalize roughly by expected average cell radius
+      const avgRadius = size / Math.sqrt(cellCount);
+      const t = Math.min(minDist / avgRadius, 1.0);
+      // Smooth dome falloff: 1 at center, 0 at edge
+      heights[y * size + x] = (1 - t * t) * 0.8 + rng() * 0.05;
+    }
+  }
+
+  // Derive normals from height field via finite differences
+  const strength = 0.35;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const idx = (y * size + x) * 4;
+
+      const xp = (x + 1) % size;
+      const xm = (x - 1 + size) % size;
+      const yp = (y + 1) % size;
+      const ym = (y - 1 + size) % size;
+
+      const dhdx = (heights[y * size + xp] - heights[y * size + xm]) * 0.5;
+      const dhdy = (heights[yp * size + x] - heights[ym * size + x]) * 0.5;
+
+      data[idx] = Math.round(Math.max(0, Math.min(255, (0.5 - dhdx * strength) * 255)));
+      data[idx + 1] = Math.round(Math.max(0, Math.min(255, (0.5 - dhdy * strength) * 255)));
+      data[idx + 2] = 255;
+      data[idx + 3] = 255;
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  return canvas;
+}
+
+/**
+ * Generate a fabric twill-weave normal map.
+ *
+ * Creates a repeating over-under weave pattern with slightly raised
+ * warp/weft threads and recessed gaps, typical of upholstery fabric.
+ */
+function generateFabricWeave(size: number): HTMLCanvasElement | OffscreenCanvas {
+  const { canvas, ctx } = createCanvas(size);
+  const imageData = ctx.createImageData(size, size);
+  const data = imageData.data;
+  const rng = mulberry32(159);
+
+  // Thread parameters
+  const threadCount = 32; // threads per axis
+  const cellSize = size / threadCount;
+
+  // Build height field: each cell is either warp-over or weft-over
+  const heights = new Float32Array(size * size);
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const cx = Math.floor(x / cellSize);
+      const cy = Math.floor(y / cellSize);
+
+      // Position within the cell [0, 1]
+      const lx = (x % cellSize) / cellSize;
+      const ly = (y % cellSize) / cellSize;
+
+      // Twill pattern: diagonal shift (2/1 twill)
+      const isWarpOver = ((cx + cy) % 3) < 2;
+
+      // Thread profile: rounded bump across the thread width
+      // Warp threads run vertically (bump shape across x)
+      // Weft threads run horizontally (bump shape across y)
+      const warpProfile = Math.sin(lx * Math.PI);
+      const weftProfile = Math.sin(ly * Math.PI);
+
+      // Gap between threads (edges of cells are lower)
+      const edgeFalloff = Math.min(
+        Math.sin(lx * Math.PI),
+        Math.sin(ly * Math.PI),
+      );
+
+      let h: number;
+      if (isWarpOver) {
+        // Warp on top: height from warp profile
+        h = 0.5 + warpProfile * 0.4 * edgeFalloff;
+      } else {
+        // Weft on top: height from weft profile
+        h = 0.5 + weftProfile * 0.4 * edgeFalloff;
+      }
+
+      // Add subtle noise for fabric irregularity
+      h += (rng() - 0.5) * 0.04;
+
+      heights[y * size + x] = h;
+    }
+  }
+
+  // Derive normals from height field
+  const strength = 0.3;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const idx = (y * size + x) * 4;
+
+      const xp = (x + 1) % size;
+      const xm = (x - 1 + size) % size;
+      const yp = (y + 1) % size;
+      const ym = (y - 1 + size) % size;
+
+      const dhdx = (heights[y * size + xp] - heights[y * size + xm]) * 0.5;
+      const dhdy = (heights[yp * size + x] - heights[ym * size + x]) * 0.5;
+
+      data[idx] = Math.round(Math.max(0, Math.min(255, (0.5 - dhdx * strength) * 255)));
+      data[idx + 1] = Math.round(Math.max(0, Math.min(255, (0.5 - dhdy * strength) * 255)));
+      data[idx + 2] = 255;
+      data[idx + 3] = 255;
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  return canvas;
+}
+
 /** Map of builtin texture names to their generator functions */
 const BUILTIN_GENERATORS: Record<
   BuiltinName,
@@ -298,6 +542,9 @@ const BUILTIN_GENERATORS: Record<
   sandblasted: generateSandblasted,
   hammered: generateHammered,
   checker: generateChecker,
+  "wood-dark": generateWoodDark,
+  leather: generateLeather,
+  "fabric-weave": generateFabricWeave,
 };
 
 // =============================================================================

@@ -460,7 +460,11 @@ class ObjectGroup extends THREE.Group {
   setBlackEdges(flag: boolean): void {
     if (this.edgeMaterial && !this.edgeMaterial.vertexColors) {
       const color = flag ? 0x000000 : this.edge_color;
-      this.originalColor = new THREE.Color(color);
+      // Only update originalColor for edge-only objects (no face mesh).
+      // For face+edge objects, originalColor tracks the face color.
+      if (!this.front) {
+        this.originalColor = new THREE.Color(color);
+      }
       this.edgeMaterial.color = new THREE.Color(color);
       this.edgeMaterial.needsUpdate = true;
     }

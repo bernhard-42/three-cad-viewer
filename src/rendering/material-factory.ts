@@ -314,8 +314,12 @@ class MaterialFactory {
     let opacity: number;
 
     if (def.baseColor) {
-      // MaterialAppearance provides linear RGBA directly
-      baseColor = new THREE.Color(def.baseColor[0], def.baseColor[1], def.baseColor[2]);
+      // MaterialAppearance baseColor is sRGB [R, G, B, A?] (0-1).
+      // Convert to linear working space for Three.js.
+      baseColor = new THREE.Color().setRGB(
+        def.baseColor[0], def.baseColor[1], def.baseColor[2],
+        THREE.SRGBColorSpace,
+      );
       opacity = def.baseColor[3] ?? 1.0;
     } else {
       // Fall back to leaf node's CSS hex color + alpha.
@@ -344,18 +348,23 @@ class MaterialFactory {
     }
 
     // --- PBR path: MeshPhysicalMaterial ---
-    // Note: _createBaseProps(opacity) inherits CAD-mode global transparency
-    // settings (this.transparent, this.defaultOpacity). When alphaMode is
-    // explicitly set, _applyAlphaMode() overrides these values. When no
-    // alphaMode is set, the default transparent:true behavior is intentionally
-    // preserved for consistency with the viewer's existing material handling.
+    // Studio materials default to opaque (transparent: false). Unlike CAD
+    // mode, Studio mode has no clipping and doesn't need the global
+    // transparent:true flag. Only BLEND alpha mode enables transparency.
+    const isBlend = def.alphaMode === "BLEND" || (!def.alphaMode && opacity < 1.0);
     const material = new THREE.MeshPhysicalMaterial({
-      ...this._createBaseProps(opacity),
       color: baseColor,
       metalness: def.metallic ?? 0.0,
       roughness: def.roughness ?? 0.5,
       flatShading: false,
       side,
+      transparent: isBlend,
+      opacity: opacity,
+      depthWrite: !isBlend,
+      depthTest: true,
+      polygonOffset: true,
+      polygonOffsetFactor: 1.0,
+      polygonOffsetUnits: 1.0,
     });
 
     // --- Alpha mode ---
@@ -370,8 +379,16 @@ class MaterialFactory {
     }
 
     // --- Transmission (glass, water) ---
+    // Transmission uses a separate render target in Three.js and must NOT
+    // be combined with alpha blending (transparent: true). Override here
+    // so users don't need to set alphaMode: "OPAQUE" manually.
     if (def.transmission !== undefined) {
       material.transmission = def.transmission;
+      if (def.transmission > 0) {
+        material.transparent = false;
+        material.opacity = 1.0;
+        material.depthWrite = true;
+      }
     }
 
     // --- Clearcoat (car paint, varnish) ---

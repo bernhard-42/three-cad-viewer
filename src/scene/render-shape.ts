@@ -167,6 +167,7 @@ class ShapeRenderer {
       }
       const vertices = shape.vertices;
       const normals = shape.normals;
+      const uvs = shape.uvs instanceof Float32Array ? shape.uvs : null;
       // Determine format and validate
       let current = 0;
       if (hasTrianglesPerFace(shape)) {
@@ -186,6 +187,7 @@ class ShapeRenderer {
 
           const vecs = new Float32Array(triangles.length * 3);
           const norms = new Float32Array(triangles.length * 3);
+          const uvArr = uvs ? new Float32Array(triangles.length * 2) : null;
           for (let i = 0; i < triangles.length; i++) {
             const s = triangles[i];
             vecs[3 * i] = vertices[3 * s];
@@ -194,6 +196,22 @@ class ShapeRenderer {
             norms[3 * i] = normals[3 * s];
             norms[3 * i + 1] = normals[3 * s + 1];
             norms[3 * i + 2] = normals[3 * s + 2];
+            if (uvs && uvArr) {
+              uvArr[2 * i] = uvs[2 * s];
+              uvArr[2 * i + 1] = uvs[2 * s + 1];
+            }
+          }
+          const newShapeObj: Shape = {
+            triangles: [...Array(triangles.length).keys()],
+            vertices: Array.from(vecs),
+            normals: Array.from(norms),
+            edges: [],
+            obj_vertices: [],
+            edge_types: [],
+            face_types: [shape.face_types[j]],
+          };
+          if (uvArr) {
+            newShapeObj.uvs = Array.from(uvArr);
           }
           const new_shape: Shapes = {
             version: 2,
@@ -206,22 +224,17 @@ class ShapeRenderer {
             type: "shapes",
             color: part.color,
             alpha: part.alpha,
-            renderback: true,
+            renderback: part.subtype !== "solid",
             state: [1, 3],
             accuracy: part.accuracy,
             bb: null,
-            shape: {
-              triangles: [...Array(triangles.length).keys()],
-              vertices: Array.from(vecs),
-              normals: Array.from(norms),
-              edges: [],
-              obj_vertices: [],
-              edge_types: [],
-              face_types: [shape.face_types[j]],
-            },
+            shape: newShapeObj,
           };
           if (part.texture) {
             new_shape.texture = part.texture;
+          }
+          if (part.material) {
+            new_shape.material = part.material;
           }
           new_shape.geomtype = shape.face_types[j];
           new_shape.subtype = part.subtype;
@@ -241,6 +254,7 @@ class ShapeRenderer {
 
           const vecs = new Float32Array(triangles.length * 3);
           const norms = new Float32Array(triangles.length * 3);
+          const uvArr = uvs ? new Float32Array(triangles.length * 2) : null;
           for (let i = 0; i < triangles.length; i++) {
             const s = triangles[i];
             vecs[3 * i] = vertices[3 * s];
@@ -249,6 +263,22 @@ class ShapeRenderer {
             norms[3 * i] = normals[3 * s];
             norms[3 * i + 1] = normals[3 * s + 1];
             norms[3 * i + 2] = normals[3 * s + 2];
+            if (uvs && uvArr) {
+              uvArr[2 * i] = uvs[2 * s];
+              uvArr[2 * i + 1] = uvs[2 * s + 1];
+            }
+          }
+          const newShapeObj2: Shape = {
+            triangles: [...Array(triangles.length).keys()],
+            vertices: Array.from(vecs),
+            normals: Array.from(norms),
+            edges: [],
+            obj_vertices: [],
+            edge_types: [],
+            face_types: [shape.face_types[j]],
+          };
+          if (uvArr) {
+            newShapeObj2.uvs = Array.from(uvArr);
           }
           const new_shape: Shapes = {
             version: 2,
@@ -261,22 +291,17 @@ class ShapeRenderer {
             type: "shapes",
             color: part.color,
             alpha: part.alpha,
-            renderback: true,
+            renderback: part.subtype !== "solid",
             state: [1, 3],
             accuracy: part.accuracy,
             bb: null,
-            shape: {
-              triangles: [...Array(triangles.length).keys()],
-              vertices: Array.from(vecs),
-              normals: Array.from(norms),
-              edges: [],
-              obj_vertices: [],
-              edge_types: [],
-              face_types: [shape.face_types[j]],
-            },
+            shape: newShapeObj2,
           };
           if (part.texture) {
             new_shape.texture = part.texture;
+          }
+          if (part.material) {
+            new_shape.material = part.material;
           }
           new_shape.geomtype = shape.face_types[j];
           new_shape.subtype = part.subtype;
@@ -468,6 +493,7 @@ class ShapeRenderer {
       edge_types: number[] | Uint8Array | Uint32Array;
       triangles_per_face?: number[] | Uint32Array;
       segments_per_edge?: number[] | Uint32Array;
+      uvs?: number[] | Float32Array;
     }
 
     // Shape interface matches MutableShape - we cast to allow reassignment
@@ -490,9 +516,12 @@ class ShapeRenderer {
     // Only flatten if it's actually nested (no segments_per_edge means nested format)
     if (s.edges != null && !(s.edges instanceof Float32Array)) {
       if (s.segments_per_edge !== undefined) {
-        // Binary format with flat edges - convert directly
         if (!Array.isArray(s.edges[0])) {
+          // Flat number[] — convert directly
           s.edges = new Float32Array(s.edges as number[]);
+        } else {
+          // Nested number[][] with segments_per_edge — flatten then convert
+          s.edges = new Float32Array(flatten(s.edges as number[][], 1));
         }
       }
       // If no segments_per_edge, leave as number[][] for _decompose
@@ -520,6 +549,11 @@ class ShapeRenderer {
     // obj_vertices: always flat number[] -> Float32Array
     if (s.obj_vertices != null && !(s.obj_vertices instanceof Float32Array)) {
       s.obj_vertices = new Float32Array(s.obj_vertices as number[]);
+    }
+
+    // uvs: flat number[] -> Float32Array (2 floats per vertex)
+    if (s.uvs != null && !(s.uvs instanceof Float32Array)) {
+      s.uvs = new Float32Array(s.uvs as number[]);
     }
 
     // face_types: number[] -> Uint32Array

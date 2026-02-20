@@ -26,6 +26,7 @@ interface ShapeData {
   normals: Float32Array | number[][];
   triangles: Uint32Array | number[][];
   edges?: Float32Array | number[][];
+  uvs?: Float32Array | number[];
 }
 
 interface EdgeData {
@@ -120,6 +121,91 @@ class CompoundGroup extends THREE.Group {
  *
  * @internal - This is an internal class used by Viewer
  */
+
+/** Texture field names on MaterialAppearance that require UV coordinates. */
+const TEXTURE_FIELDS = [
+  "baseColorTexture", "normalTexture", "occlusionTexture",
+  "metallicRoughnessTexture", "emissiveTexture", "transmissionTexture",
+  "clearcoatTexture", "clearcoatRoughnessTexture", "clearcoatNormalTexture",
+  "thicknessTexture", "specularIntensityTexture", "specularColorTexture",
+  "sheenColorTexture", "sheenRoughnessTexture", "anisotropyTexture",
+] as const;
+
+/** Check whether a resolved MaterialAppearance references any texture. */
+function materialHasTexture(def: MaterialAppearance): boolean {
+  for (const f of TEXTURE_FIELDS) {
+    if ((def as Record<string, unknown>)[f]) return true;
+  }
+  return false;
+}
+
+/**
+ * Generate box-projected UV coordinates for a BufferGeometry that lacks them.
+ *
+ * For each triangle, the dominant axis of the face normal selects the
+ * projection plane (XY, XZ, or YZ). UVs are normalized to [0, 1] based on
+ * the geometry's own bounding box so the texture tiles once across the part.
+ */
+function generateBoxProjectedUVs(geometry: THREE.BufferGeometry): void {
+  const pos = geometry.getAttribute("position");
+  const nor = geometry.getAttribute("normal");
+  if (!pos || !nor) return;
+
+  // Compute bounding box for normalization
+  geometry.computeBoundingBox();
+  const bb = geometry.boundingBox!;
+  const size = new THREE.Vector3();
+  bb.getSize(size);
+  // Avoid division by zero on degenerate axes
+  const sx = size.x > 1e-6 ? size.x : 1;
+  const sy = size.y > 1e-6 ? size.y : 1;
+  const sz = size.z > 1e-6 ? size.z : 1;
+
+  const index = geometry.getIndex();
+  const vertexCount = pos.count;
+  const uvs = new Float32Array(vertexCount * 2);
+
+  const triCount = index ? index.count / 3 : vertexCount / 3;
+  const faceNormal = new THREE.Vector3();
+
+  for (let t = 0; t < triCount; t++) {
+    const i0 = index ? index.getX(t * 3) : t * 3;
+    const i1 = index ? index.getX(t * 3 + 1) : t * 3 + 1;
+    const i2 = index ? index.getX(t * 3 + 2) : t * 3 + 2;
+
+    // Average face normal from vertex normals
+    faceNormal.set(
+      nor.getX(i0) + nor.getX(i1) + nor.getX(i2),
+      nor.getY(i0) + nor.getY(i1) + nor.getY(i2),
+      nor.getZ(i0) + nor.getZ(i1) + nor.getZ(i2),
+    );
+    const ax = Math.abs(faceNormal.x);
+    const ay = Math.abs(faceNormal.y);
+    const az = Math.abs(faceNormal.z);
+
+    for (const vi of [i0, i1, i2]) {
+      let u: number, v: number;
+      if (ax >= ay && ax >= az) {
+        // Project onto YZ plane
+        u = (pos.getY(vi) - bb.min.y) / sy;
+        v = (pos.getZ(vi) - bb.min.z) / sz;
+      } else if (ay >= ax && ay >= az) {
+        // Project onto XZ plane
+        u = (pos.getX(vi) - bb.min.x) / sx;
+        v = (pos.getZ(vi) - bb.min.z) / sz;
+      } else {
+        // Project onto XY plane
+        u = (pos.getX(vi) - bb.min.x) / sx;
+        v = (pos.getY(vi) - bb.min.y) / sy;
+      }
+      uvs[vi * 2] = u;
+      uvs[vi * 2 + 1] = v;
+    }
+  }
+
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+}
+
 class NestedGroup {
   shapes!: Shapes;
   width: number;
@@ -559,6 +645,15 @@ class NestedGroup {
         new THREE.BufferAttribute(normals, 3),
       );
       shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
+      if (shape.uvs && shape.uvs.length > 0) {
+        const uvArray = shape.uvs instanceof Float32Array
+          ? shape.uvs
+          : new Float32Array(shape.uvs);
+        shapeGeometry.setAttribute(
+          "uv",
+          new THREE.BufferAttribute(uvArray, 2),
+        );
+      }
       group.shapeGeometry = shapeGeometry;
 
       frontMaterial = this.materialFactory.createFrontFaceMaterial(
@@ -1138,13 +1233,8 @@ class NestedGroup {
    * Uses `this.materialFactory` (owned by NestedGroup) for creating studio
    * materials.
    *
-   * @param currentMetalness - Current metalness from the Material tab
-   * @param currentRoughness - Current roughness from the Material tab
    */
-  async enterStudioMode(
-    currentMetalness: number,
-    currentRoughness: number,
-  ): Promise<void> {
+  async enterStudioMode(): Promise<void> {
     // Create TextureCache lazily
     if (!this._textureCache) {
       this._textureCache = new TextureCache();
@@ -1171,22 +1261,17 @@ class NestedGroup {
       let studioMaterial = this._studioMaterialCache.get(sharingKey);
 
       if (studioMaterial) {
-        // Re-entry: update fallback materials in-place (no tag = fallback)
-        if (tag === "" && studioMaterial instanceof THREE.MeshPhysicalMaterial) {
-          studioMaterial.metalness = currentMetalness;
-          studioMaterial.roughness = currentRoughness;
-          studioMaterial.needsUpdate = true;
-        }
+        // Re-entry: no-tag materials use plastic-glossy preset (fixed values),
+        // no in-place update needed.
       } else {
         // Build new studio material
         let materialDef = tag ? this.resolveMaterialTag(tag, path) : null;
 
         if (!materialDef) {
-          // Fallback: use current metalness/roughness from Material tab
-          materialDef = {
-            metallic: currentMetalness,
-            roughness: currentRoughness,
-          };
+          // Fallback: plastic-glossy preset, tinted with the object's CAD color.
+          // Omit baseColor so createStudioMaterial uses the fallbackColor (leaf color).
+          const { baseColor: _, ...plasticGlossy } = MATERIAL_PRESETS["plastic-glossy"];
+          materialDef = plasticGlossy;
         }
 
         // Per-object try/catch: a single material creation failure should not
@@ -1218,12 +1303,17 @@ class NestedGroup {
           cachedBack = studioMaterial.clone();
           cachedBack.side = THREE.BackSide;
           this._studioMaterialCache.set(backKey, cachedBack);
-        } else if (tag === "" && cachedBack instanceof THREE.MeshPhysicalMaterial) {
-          cachedBack.metalness = currentMetalness;
-          cachedBack.roughness = currentRoughness;
-          cachedBack.needsUpdate = true;
         }
         studioBack = cachedBack as THREE.MeshPhysicalMaterial;
+      }
+
+      // Auto-generate box-projected UVs if the material uses textures but
+      // the geometry has none (common for CAD meshes without explicit UVs).
+      if (obj.shapeGeometry && !obj.shapeGeometry.getAttribute("uv")) {
+        const resolvedDef = tag ? this.resolveMaterialTag(tag, path) : null;
+        if (resolvedDef && materialHasTexture(resolvedDef)) {
+          generateBoxProjectedUVs(obj.shapeGeometry);
+        }
       }
 
       // Apply to ObjectGroup (Worker 2's method)
