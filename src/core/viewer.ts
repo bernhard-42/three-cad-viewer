@@ -42,6 +42,7 @@ import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
 import { version } from "../_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
 import { EnvironmentManager } from "../rendering/environment.js";
+import { StudioFloor } from "../rendering/studio-floor.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
 import type { Display } from "../ui/display.js";
@@ -51,6 +52,7 @@ import {
   type ZebraColorScheme,
   type ZebraMappingMode,
   type StudioToneMapping,
+  type StudioBackground,
   type NotificationCallback,
   type RenderOptions,
   type ViewerOptions,
@@ -358,12 +360,12 @@ class Viewer {
   // Studio environment manager (survives clear(), disposed only on dispose())
   envManager: EnvironmentManager;
 
+  // Studio floor (survives clear(), disposed only on dispose())
+  private _studioFloor: StudioFloor;
+
   // Studio mode state
   private _isStudioActive: boolean = false;
   private _savedClippingState: ClippingState | null = null;
-  private _studioKeyLight: THREE.DirectionalLight | null = null;
-  private _studioRimLight: THREE.DirectionalLight | null = null;
-  private _studioHemiLight: THREE.HemisphereLight | null = null;
 
   // Z-scale
   zScale!: number;
@@ -469,8 +471,9 @@ class Viewer {
     this.renderer.setClearColor(0xffffff, 0);
     this.renderer.autoClear = false;
 
-    // Create environment manager (after renderer, before any rendering)
+    // Create environment manager and floor (after renderer, before any rendering)
     this.envManager = new EnvironmentManager();
+    this._studioFloor = new StudioFloor();
 
     this.lastNotification = {};
     this.lastBbox = null;
@@ -520,10 +523,7 @@ class Viewer {
    *
    * These subscriptions only take effect when activeTab is "studio".
    * When a studio-related state key changes while the studio tab is active,
-   * the environment is updated accordingly:
-   * - studioEnvironment: reload environment, re-apply
-   * - studioEnvIntensity: re-apply with new intensity
-   * - studioShowBackground: re-apply with new background setting
+   * the environment/floor/rendering is updated accordingly.
    *
    * @internal
    */
@@ -540,7 +540,8 @@ class Viewer {
         this.envManager.apply(
           this.rendered.scene,
           this.state.get("studioEnvIntensity"),
-          this.state.get("studioShowBackground"),
+          this.state.get("studioBackground"),
+          this.state.get("up") === "Z",
         );
         this.update(true, false);
       }).catch((err) => {
@@ -554,19 +555,34 @@ class Viewer {
       this.envManager.apply(
         this.rendered.scene,
         this.state.get("studioEnvIntensity"),
-        this.state.get("studioShowBackground"),
+        this.state.get("studioBackground"),
+        this.state.get("up") === "Z",
       );
       this.update(true, false);
     });
 
-    // studioShowBackground changed -> re-apply (no reload needed)
-    this.state.subscribe("studioShowBackground", () => {
+    // studioShowFloor changed -> toggle floor visibility
+    this.state.subscribe("studioShowFloor", (change) => {
       if (!isStudioActive()) return;
+      if (change.new) {
+        this._studioFloor.show();
+      } else {
+        this._studioFloor.hide();
+      }
+      this.update(true, false);
+    });
+
+    // studioBackground changed -> re-apply environment + update floor contrast
+    this.state.subscribe("studioBackground", () => {
+      if (!isStudioActive()) return;
+      const bg = this.state.get("studioBackground");
       this.envManager.apply(
         this.rendered.scene,
         this.state.get("studioEnvIntensity"),
-        this.state.get("studioShowBackground"),
+        bg,
+        this.state.get("up") === "Z",
       );
+      this._studioFloor.updateForBackground(bg);
       this.update(true, false);
     });
 
@@ -1013,22 +1029,10 @@ class Viewer {
   dispose(): void {
     this.clear();
 
-    // dispose environment manager (releases cached PMREM textures)
+    // dispose environment manager and floor
     this.envManager.dispose();
+    this._studioFloor.dispose();
 
-    // Dispose studio lights
-    if (this._studioKeyLight) {
-      this._studioKeyLight.dispose();
-      this._studioKeyLight = null;
-    }
-    if (this._studioRimLight) {
-      this._studioRimLight.dispose();
-      this._studioRimLight = null;
-    }
-    if (this._studioHemiLight) {
-      this._studioHemiLight.dispose();
-      this._studioHemiLight = null;
-    }
     this._isStudioActive = false;
     this._savedClippingState = null;
 
@@ -1123,12 +1127,6 @@ class Viewer {
       deepDispose(this._rendered.scene);
 
       // Studio lights were children of the scene and have been disposed by
-      // deepDispose above. Null the references so the next render() call
-      // re-creates them instead of re-adding disposed lights.
-      this._studioKeyLight = null;
-      this._studioRimLight = null;
-      this._studioHemiLight = null;
-
       deepDispose(this._rendered.gridHelper);
       deepDispose(this._rendered.clipping);
       deepDispose(this._rendered.camera);
@@ -1612,6 +1610,9 @@ class Viewer {
 
     scene.add(clipping);
 
+    // Add studio floor group to scene (hidden by default, shown in enterStudioMode)
+    scene.add(this._studioFloor.group);
+
     // Theme is already resolved ("light" or "dark") by ViewerState constructor
     const theme = this.state.get("theme");
 
@@ -1643,29 +1644,6 @@ class Viewer {
       ambientLight,
       directLight,
     };
-
-    // Create studio-mode lights (persistent across clear/re-render).
-    // Set visible=false; toggled on enterStudioMode().
-    if (!this._studioKeyLight) {
-      this._studioKeyLight = new THREE.DirectionalLight(0xffffff, 0.8);
-      this._studioKeyLight.position.set(5, 10, 7);
-      this._studioKeyLight.visible = false;
-      this._studioKeyLight.name = "studioKeyLight";
-    }
-    if (!this._studioRimLight) {
-      this._studioRimLight = new THREE.DirectionalLight(0xffffff, 0.3);
-      this._studioRimLight.position.set(-5, 5, -7);
-      this._studioRimLight.visible = false;
-      this._studioRimLight.name = "studioRimLight";
-    }
-    if (!this._studioHemiLight) {
-      this._studioHemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.4);
-      this._studioHemiLight.visible = false;
-      this._studioHemiLight.name = "studioHemiLight";
-    }
-    scene.add(this._studioKeyLight);
-    scene.add(this._studioRimLight);
-    scene.add(this._studioHemiLight);
 
     // Now that rendered state exists, configure camera position
     if (viewerOptions.position == null && viewerOptions.quaternion == null) {
@@ -2888,18 +2866,28 @@ class Viewer {
   };
 
   /**
-   * Sets whether the environment background is shown in Studio mode.
-   * @param value - True to show the environment as background.
+   * Sets whether the floor is shown in Studio mode.
+   * @param value - True to show the floor.
    * @param notify - Whether to notify about the changes.
    * @public
    */
-  setStudioShowBackground = (value: boolean, notify: boolean = true): void => {
-    this.state.set("studioShowBackground", value, notify);
+  setStudioShowFloor = (value: boolean, notify: boolean = true): void => {
+    this.state.set("studioShowFloor", value, notify);
+  };
+
+  /**
+   * Sets the background mode for Studio mode.
+   * @param value - The background mode ("grey", "white", "gradient", "environment", or "transparent").
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioBackground = (value: StudioBackground, notify: boolean = true): void => {
+    this.state.set("studioBackground", value, notify);
   };
 
   /**
    * Sets the tone mapping mode for Studio mode.
-   * @param value - The tone mapping mode ("ACES", "AgX", or "none").
+   * @param value - The tone mapping mode ("neutral", "ACES", "AgX", or "none").
    * @param notify - Whether to notify about the changes.
    * @public
    */
@@ -2909,12 +2897,12 @@ class Viewer {
 
   /**
    * Sets the exposure value for Studio mode.
-   * @param value - The exposure value (0-3).
+   * @param value - The exposure value (0-2).
    * @param notify - Whether to notify about the changes.
    * @public
    */
   setStudioExposure = (value: number, notify: boolean = true): void => {
-    value = Math.max(0, Math.min(3, value));
+    value = Math.max(0, Math.min(2, value));
     this.state.set("studioExposure", value, notify);
   };
 
@@ -2947,17 +2935,26 @@ class Viewer {
   };
 
   /**
-   * Gets whether the environment background is shown in Studio mode.
-   * @returns True if the environment background is visible.
+   * Gets whether the floor is shown in Studio mode.
+   * @returns True if the floor is visible.
    * @public
    */
-  getStudioShowBackground = (): boolean => {
-    return this.state.get("studioShowBackground");
+  getStudioShowFloor = (): boolean => {
+    return this.state.get("studioShowFloor");
+  };
+
+  /**
+   * Gets the current background mode for Studio mode.
+   * @returns The background mode ("grey", "white", "gradient", "environment", or "transparent").
+   * @public
+   */
+  getStudioBackground = (): StudioBackground => {
+    return this.state.get("studioBackground");
   };
 
   /**
    * Gets the current tone mapping mode for Studio mode.
-   * @returns The tone mapping mode ("ACES", "AgX", or "none").
+   * @returns The tone mapping mode ("neutral", "ACES", "AgX", or "none").
    * @public
    */
   getStudioToneMapping = (): StudioToneMapping => {
@@ -2983,6 +2980,15 @@ class Viewer {
   };
 
   /**
+   * Returns whether Studio mode is currently active.
+   * @returns True if Studio mode is active and the viewer has rendered content.
+   * @public
+   */
+  get isStudioActive(): boolean {
+    return this._isStudioActive && this._rendered !== null;
+  }
+
+  /**
    * Enter Studio mode: load and apply the current environment map.
    *
    * Called by display.ts switchToTab() when switching TO the Studio tab.
@@ -3006,10 +3012,7 @@ class Viewer {
 
       // 2. Build/swap studio materials (async due to textures).
       //    NestedGroup owns this.materialFactory, so no need to pass it.
-      await this.nestedGroup.enterStudioMode(
-        this.state.get("metalness"),
-        this.state.get("roughness"),
-      );
+      await this.nestedGroup.enterStudioMode();
 
       // Guard: user may have left studio during async material build
       if (!this._isStudioActive) return;
@@ -3023,15 +3026,23 @@ class Viewer {
       this.envManager.apply(
         this.rendered.scene,
         this.state.get("studioEnvIntensity"),
-        this.state.get("studioShowBackground"),
+        this.state.get("studioBackground"),
+        this.state.get("up") === "Z",
       );
 
-      // Lighting: disable CAD lights, enable studio lights
-      this.rendered.ambientLight.intensity = 0.2;
+      // Lighting: disable CAD lights; environment IBL provides all illumination
+      // (matching the Three.js car paint reference — pure IBL, no explicit lights).
+      this.rendered.ambientLight.intensity = 0;
       this.rendered.directLight.intensity = 0;
-      this._studioKeyLight!.visible = true;
-      this._studioRimLight!.visible = true;
-      this._studioHemiLight!.visible = true;
+
+      // Floor
+      this._configureStudioFloor();
+      this._studioFloor.updateForBackground(this.state.get("studioBackground"));
+      if (this.state.get("studioShowFloor")) {
+        this._studioFloor.show();
+      } else {
+        this._studioFloor.hide();
+      }
 
       // Tone mapping
       this._applyStudioToneMapping();
@@ -3062,15 +3073,13 @@ class Viewer {
     // 1. Restore materials
     this.nestedGroup.leaveStudioMode();
 
-    // 2. Remove environment
+    // 2. Remove environment and hide floor
     this.envManager.remove(this.rendered.scene);
+    this._studioFloor.hide();
 
     // 3. Restore lighting
     this.rendered.ambientLight.intensity = scaleLight(this.state.get("ambientIntensity"));
     this.rendered.directLight.intensity = scaleLight(this.state.get("directIntensity"));
-    this._studioKeyLight!.visible = false;
-    this._studioRimLight!.visible = false;
-    this._studioHemiLight!.visible = false;
 
     // 4. Disable tone mapping
     this.renderer.toneMapping = THREE.NoToneMapping;
@@ -3094,24 +3103,44 @@ class Viewer {
   };
 
   /**
+   * Configure the studio floor based on the current bounding box.
+   * Call when entering studio mode or when the bounding box changes.
+   * @internal
+   */
+  private _configureStudioFloor(): void {
+    if (!this.bbox) return;
+    const maxExtent = Math.max(
+      this.bbox.max.x - this.bbox.min.x,
+      this.bbox.max.y - this.bbox.min.y,
+      this.bbox.max.z - this.bbox.min.z,
+    );
+    // Position floor slightly below the bottom to avoid z-fighting
+    const zPosition = this.bbox.min.z - maxExtent * 0.001;
+    this._studioFloor.configure("grid", zPosition, maxExtent);
+  }
+
+  /**
    * Apply current studio tone mapping settings to the renderer.
    * @internal
    */
   private _applyStudioToneMapping(): void {
     const mapping = this.state.get("studioToneMapping");
     switch (mapping) {
-      case "ACES":
-        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      case "neutral":
+        this.renderer.toneMapping = THREE.NeutralToneMapping;
         break;
       case "AgX":
         this.renderer.toneMapping = THREE.AgXToneMapping;
+        break;
+      case "ACES":
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         break;
       case "none":
         this.renderer.toneMapping = THREE.NoToneMapping;
         break;
       default:
-        logger.warn(`Unknown studioToneMapping value: "${mapping}", falling back to NoToneMapping`);
-        this.renderer.toneMapping = THREE.NoToneMapping;
+        logger.warn(`Unknown studioToneMapping value: "${mapping}", falling back to NeutralToneMapping`);
+        this.renderer.toneMapping = THREE.NeutralToneMapping;
         break;
     }
     this.renderer.toneMappingExposure = this.state.get("studioExposure");
@@ -3121,12 +3150,14 @@ class Viewer {
    * Resets the studio settings of the viewer to their default values.
    * Resets environment, intensity, background, tone mapping, exposure, and edges
    * based on the studio mode defaults from ViewerState.
+   * @public
    */
   resetStudio = (): void => {
     const defaults = ViewerState.STUDIO_MODE_DEFAULTS;
     this.state.set("studioEnvironment", defaults.studioEnvironment);
     this.state.set("studioEnvIntensity", defaults.studioEnvIntensity);
-    this.state.set("studioShowBackground", defaults.studioShowBackground);
+    this.state.set("studioShowFloor", defaults.studioShowFloor);
+    this.state.set("studioBackground", defaults.studioBackground);
     this.state.set("studioToneMapping", defaults.studioToneMapping);
     this.state.set("studioExposure", defaults.studioExposure);
     this.state.set("studioShowEdges", defaults.studioShowEdges);

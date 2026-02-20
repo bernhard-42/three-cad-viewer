@@ -134,7 +134,7 @@ export type {
   MaterialAppearance,
   TextureEntry,
   StudioOptions,
-  StudioEnvironmentOptions,
+  StudioBackground,
   StudioModeOptions,
   StudioEnvironment,
   StudioToneMapping,

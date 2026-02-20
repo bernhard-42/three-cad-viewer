@@ -9,6 +9,7 @@ import {
   type ActiveTab,
   type ZebraColorScheme,
   type ZebraMappingMode,
+  type StudioBackground,
   type StudioToneMapping,
   type Keymap,
   type StateChange,
@@ -109,7 +110,8 @@ interface ZebraDefaults {
 interface StudioModeDefaults {
   studioEnvironment: string;
   studioEnvIntensity: number;
-  studioShowBackground: boolean;
+  studioShowFloor: boolean;
+  studioBackground: StudioBackground;
   studioToneMapping: StudioToneMapping;
   studioExposure: number;
   studioShowEdges: boolean;
@@ -168,7 +170,7 @@ const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
   // Zebra
   "zebraCount", "zebraOpacity", "zebraDirection", "zebraColorScheme", "zebraMappingMode",
   // Studio
-  "studioEnvironment", "studioEnvIntensity", "studioShowBackground",
+  "studioEnvironment", "studioEnvIntensity", "studioShowFloor", "studioBackground",
   "studioToneMapping", "studioExposure", "studioShowEdges",
   // Runtime
   "activeTool", "animationMode", "animationSliderValue", "zscaleActive", "highlightedButton",
@@ -231,7 +233,8 @@ const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
   // Studio settings
   studioEnvironment: "studio_environment",
   studioEnvIntensity: "studio_env_intensity",
-  studioShowBackground: "studio_show_background",
+  studioShowFloor: "studio_show_floor",
+  studioBackground: "studio_background",
   studioToneMapping: "studio_tone_mapping",
   studioExposure: "studio_exposure",
   studioShowEdges: "studio_show_edges",
@@ -401,9 +404,10 @@ class ViewerState {
    */
   static STUDIO_MODE_DEFAULTS: StudioModeDefaults = {
     studioEnvironment: "studio",
-    studioEnvIntensity: 1.0,
-    studioShowBackground: false,
-    studioToneMapping: "ACES",
+    studioEnvIntensity: 0.5,
+    studioShowFloor: false,
+    studioBackground: "gradient",
+    studioToneMapping: "neutral",
     studioExposure: 1.0,
     studioShowEdges: false,
   };

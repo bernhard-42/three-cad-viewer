@@ -36,11 +36,19 @@ export type ZebraColorScheme = "blackwhite" | "colorful" | "grayscale";
 /** Zebra mapping mode */
 export type ZebraMappingMode = "reflection" | "normal";
 
-/** Studio environment preset */
-export type StudioEnvironment = "studio" | "neutral" | "outdoor" | "none";
+/**
+ * Studio environment preset name.
+ * - "studio": Built-in procedural RoomEnvironment (zero network)
+ * - "none": No environment map
+ * - Any other string: Poly Haven HDR preset slug or custom HDR URL
+ */
+export type StudioEnvironment = string;
 
 /** Studio tone mapping algorithm */
-export type StudioToneMapping = "ACES" | "AgX" | "none";
+export type StudioToneMapping = "neutral" | "AgX" | "ACES" | "none";
+
+/** Studio background mode */
+export type StudioBackground = "grey" | "white" | "gradient" | "environment" | "transparent";
 
 /** Shape type */
 export type ShapeType = "shapes" | "edges" | "vertices";
@@ -339,13 +347,15 @@ export interface ZebraOptions {
 export interface StudioModeOptions {
   /** Environment preset or custom HDR URL (default: "studio") */
   studioEnvironment?: string;
-  /** Environment map intensity, 0-3 (default: 1.0) */
+  /** Environment map intensity, 0-1 (default: 0.5) */
   studioEnvIntensity?: number;
-  /** Show environment as scene background (default: false) */
-  studioShowBackground?: boolean;
-  /** Tone mapping algorithm (default: "ACES") */
+  /** Show floor in Studio mode (default: false) */
+  studioShowFloor?: boolean;
+  /** Background mode (default: "gradient") */
+  studioBackground?: StudioBackground;
+  /** Tone mapping algorithm (default: "neutral") */
   studioToneMapping?: StudioToneMapping;
-  /** Tone mapping exposure, 0-3 (default: 1.0) */
+  /** Tone mapping exposure, 0-2 (default: 1.0) */
   studioExposure?: number;
   /** Show edges in Studio mode (default: false) */
   studioShowEdges?: boolean;
@@ -430,7 +440,8 @@ export interface ViewerStateShape {
   // Studio
   studioEnvironment: string;
   studioEnvIntensity: number;
-  studioShowBackground: boolean;
+  studioShowFloor: boolean;
+  studioBackground: StudioBackground;
   studioToneMapping: StudioToneMapping;
   studioExposure: number;
   studioShowEdges: boolean;
@@ -471,7 +482,7 @@ export interface MaterialAppearance {
 
   // -- Color --
 
-  /** Linear RGBA base color, 0-1. Overrides leaf color/alpha in Studio mode. */
+  /** sRGB RGBA base color, 0-1. Converted to linear by the material factory. */
   baseColor?: RGBAColor;
   /** Texture reference for base color */
   baseColorTexture?: string;
@@ -611,30 +622,23 @@ export interface TextureEntry {
 // Studio Options
 // =============================================================================
 
-/** Environment map configuration for Studio mode */
-export interface StudioEnvironmentOptions {
-  /** Environment source type */
-  type: "url" | "built-in";
-  /** HDR environment map URL (when type="url") */
-  url?: string;
-  /** Environment map intensity (default: 1.0) */
-  intensity?: number;
-  /** Show environment as scene background (default: false) */
-  showBackground?: boolean;
-}
-
 /**
  * Root-level Studio mode configuration.
  *
  * Optional configuration for the rendering environment, only used when
- * the Studio tab is active. Nested structure is flattened into ViewerState
- * keys on load.
+ * the Studio tab is active. Fields map directly to ViewerState keys on load.
  */
 export interface StudioOptions {
-  /** Environment map configuration */
-  environment?: StudioEnvironmentOptions;
-  /** Tone mapping algorithm (default: "ACES") */
-  toneMapping?: "ACES" | "AgX" | "none";
+  /** Environment preset slug, custom HDR URL, or "none" (default: "studio") */
+  environment?: StudioEnvironment;
+  /** Environment map intensity, 0-1 (default: 0.5) */
+  envIntensity?: number;
+  /** Background mode (default: "gradient") */
+  background?: StudioBackground;
+  /** Show grid floor below objects (default: false) */
+  showFloor?: boolean;
+  /** Tone mapping algorithm (default: "neutral") */
+  toneMapping?: StudioToneMapping;
   /** Tone mapping exposure (default: 1.0) */
   toneMappingExposure?: number;
   /** Show edges in Studio mode (default: false) */
@@ -681,6 +685,8 @@ export interface Shape {
   triangles_per_face?: number[] | Uint32Array;
   /** Number of segments per edge (when edges is flat) */
   segments_per_edge?: number[] | Uint32Array;
+  /** UV coordinates (2 floats per vertex, same indexing as vertices) */
+  uvs?: number[] | Float32Array;
 }
 
 /**
