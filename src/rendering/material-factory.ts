@@ -2,6 +2,12 @@ import * as THREE from "three";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import type { ColorValue, MaterialAppearance } from "../core/types.js";
 import { gpuTracker } from "../utils/gpu-tracker.js";
+import { getColorSpaceForMap } from "./texture-cache.js";
+
+/** materialx-db param keys that hold [r,g,b] color arrays (linear RGB). */
+const COLOR_ARRAY_KEYS = new Set([
+  "color", "specularColor", "sheenColor", "emissive", "attenuationColor",
+]);
 
 /**
  * Options for MaterialFactory constructor
@@ -457,6 +463,123 @@ class MaterialFactory {
     }
 
     gpuTracker.track("material", material, label ?? "MeshPhysicalMaterial (studio)");
+    return material;
+  }
+
+  /**
+   * Create a Studio mode material from a materialx-db format entry.
+   *
+   * materialx-db `params` uses Three.js MeshPhysicalMaterial property names
+   * directly with colors in **linear RGB** (not sRGB). Texture references in
+   * params are keys into the textures dict (data URIs).
+   *
+   * @param params - MeshPhysicalMaterial params (Three.js property names)
+   * @param textureMap - Texture data URIs keyed by texture path references
+   * @param colorOverride - Optional linear RGB color override (replaces params.color and removes params.map)
+   * @param textureRepeat - Optional [u, v] texture tiling applied to all loaded textures
+   * @param textureCache - TextureCache for resolving data URI textures
+   * @param label - Optional label for GPU tracking
+   * @returns Configured MeshPhysicalMaterial
+   */
+  async createStudioMaterialFromMaterialX(
+    params: Record<string, unknown>,
+    textureMap: Record<string, string>,
+    colorOverride: [number, number, number] | undefined,
+    textureRepeat: [number, number] | undefined,
+    textureCache: TextureCacheInterface | null,
+    label?: string,
+  ): Promise<THREE.MeshPhysicalMaterial> {
+    // Clone params to avoid mutating the input
+    const p = { ...params };
+
+    // Apply colorOverride: replace params.color and remove base color texture
+    if (colorOverride) {
+      p.color = colorOverride;
+      delete p.map;
+    }
+
+    // Separate scalar/color params from texture params (strings referencing textures/)
+    const scalarParams: Record<string, unknown> = {};
+    const textureParams: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(p)) {
+      if (typeof value === "string" && value.startsWith("textures/")) {
+        textureParams[key] = value;
+      } else {
+        scalarParams[key] = value;
+      }
+    }
+
+    // --- Build material options ---
+    const matOptions: Record<string, unknown> = {
+      flatShading: false,
+      side: THREE.FrontSide,
+      polygonOffset: true,
+      polygonOffsetFactor: 1.0,
+      polygonOffsetUnits: 1.0,
+      depthTest: true,
+    };
+
+    // Color arrays → THREE.Color (already linear, no sRGB conversion)
+    for (const [key, value] of Object.entries(scalarParams)) {
+      if (COLOR_ARRAY_KEYS.has(key) && Array.isArray(value)) {
+        const [r, g, b] = value as number[];
+        matOptions[key] = new THREE.Color(r, g, b);
+      } else if (key === "iridescenceThicknessRange" && Array.isArray(value)) {
+        matOptions[key] = value;
+      } else {
+        matOptions[key] = value;
+      }
+    }
+
+    // --- Handle transmission ---
+    if (typeof scalarParams.transmission === "number" && scalarParams.transmission > 0) {
+      matOptions.transparent = false;
+      matOptions.opacity = 1.0;
+      matOptions.depthWrite = true;
+    } else if (scalarParams.transparent === true || (typeof scalarParams.opacity === "number" && scalarParams.opacity < 1.0)) {
+      matOptions.transparent = true;
+      matOptions.depthWrite = false;
+    } else {
+      matOptions.transparent = false;
+      matOptions.depthWrite = true;
+    }
+
+    const material = new THREE.MeshPhysicalMaterial(matOptions);
+
+    // --- Resolve texture params ---
+    if (textureCache) {
+      for (const [mapName, texturePath] of Object.entries(textureParams)) {
+        const dataUri = textureMap[texturePath];
+        if (!dataUri) continue;
+
+        // Determine color space from the Three.js map property name.
+        // TextureCache.get() expects a MaterialAppearance role name to decide
+        // colorSpace (e.g., "baseColorTexture" → sRGB). We bridge from the
+        // Three.js map name → colorSpace → a proxy role name that triggers
+        // the correct colorSpace inside TextureCache.
+        const colorSpace = getColorSpaceForMap(mapName);
+        const roleForCache = colorSpace === THREE.SRGBColorSpace
+          ? "baseColorTexture"
+          : "normalTexture";
+        const tex = await textureCache.get(dataUri, roleForCache);
+        if (tex) {
+          if (textureRepeat) {
+            tex.repeat.set(textureRepeat[0], textureRepeat[1]);
+          }
+          // Assign the texture to the correct material property
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (material as any)[mapName] = tex;
+        }
+      }
+    }
+
+    // Force shader recompile if textures were assigned post-construction
+    if (Object.keys(textureParams).length > 0) {
+      material.needsUpdate = true;
+    }
+
+    gpuTracker.track("material", material, label ?? "MeshPhysicalMaterial (materialx-db)");
     return material;
   }
 

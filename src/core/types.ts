@@ -597,6 +597,47 @@ export interface MaterialAppearance {
 }
 
 // =============================================================================
+// MaterialX Material (materialx-db format)
+// =============================================================================
+
+/**
+ * Material definition from materialx-db (Three.js MeshPhysicalMaterial-compatible).
+ *
+ * This format is produced by the materialx-db Python library, which catalogs
+ * PBR materials from ambientCG, GPUOpen, PolyHaven, and PhysicallyBased.
+ * The `params` dict uses Three.js MeshPhysicalMaterial property names directly,
+ * with colors in linear RGB and texture references as keys into the `textures` dict.
+ *
+ * Detected by the presence of the `params` key.
+ */
+export interface MaterialXMaterial {
+  /** MeshPhysicalMaterial params (Three.js property names, linear color space) */
+  params: Record<string, unknown>;
+  /** Texture data URIs keyed by texture path references in params */
+  textures?: Record<string, string>;
+  /** Optional linear RGB color override, replaces params.color and removes params.map */
+  colorOverride?: [number, number, number];
+  /** Optional texture tiling [u, v], default [1, 1]. Applied to all textures on the material. */
+  textureRepeat?: [number, number];
+  /** Optional material ID from the source database */
+  id?: string;
+  /** Optional display name */
+  name?: string;
+  /** Optional source database (e.g., "gpuopen", "ambientcg") */
+  source?: string;
+  /** Optional material category (e.g., "metal", "wood") */
+  category?: string;
+}
+
+/**
+ * Type guard to check if a material entry is a materialx-db format dict.
+ * Detected by the presence of the `params` key.
+ */
+export function isMaterialXMaterial(m: unknown): m is MaterialXMaterial {
+  return typeof m === "object" && m !== null && "params" in m;
+}
+
+// =============================================================================
 // Texture Entry (Studio Mode)
 // =============================================================================
 
@@ -606,8 +647,8 @@ export interface MaterialAppearance {
  * Each entry is either embedded (base64-encoded image data) or a URL reference
  * loaded on demand. At least one of `data`+`format` or `url` must be provided.
  * An empty TextureEntry is invalid and will be ignored at runtime.
- * Multiple MaterialAppearance texture fields can reference the same key for
- * deduplication.
+ * Multiple builtin preset texture fields can reference the same key for
+ * deduplication. materialx-db materials carry their own textures as inline data URIs.
  */
 export interface TextureEntry {
   /** Base64-encoded image data (for embedded textures) */
@@ -803,9 +844,14 @@ export interface Shapes {
   size?: number | undefined;
   /** Material tag referencing materials table or built-in preset (leaf nodes) */
   material?: string | undefined;
-  /** User-defined material library (root node) */
-  materials?: Record<string, MaterialAppearance> | undefined;
-  /** Shared texture data referenced by MaterialAppearance texture fields (root node) */
+  /** User-defined material library (root node).
+   *  Values can be:
+   *  - string: builtin preset reference (e.g., "builtin:car-paint")
+   *  - MaterialXMaterial: materialx-db format (detected by `params` key)
+   */
+  materials?: Record<string, string | MaterialXMaterial> | undefined;
+  /** Shared texture table for builtin preset materials (root node).
+   *  materialx-db materials carry their own textures inline. */
   textures?: Record<string, TextureEntry> | undefined;
   /** Studio mode rendering environment configuration (root node) */
   studioOptions?: StudioOptions | undefined;

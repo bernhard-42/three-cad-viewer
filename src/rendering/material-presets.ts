@@ -25,8 +25,8 @@ import type { MaterialAppearance } from "../core/types.js";
 /**
  * Built-in material presets keyed by preset name.
  *
- * Usage: look up a preset by the `material` tag on a leaf node, or by
- * the `preset` field on a user-defined `MaterialAppearance`.
+ * Usage: look up a preset by the `material` tag on a leaf node, or via
+ * `"builtin:<name>"` strings in the materials table.
  */
 export const MATERIAL_PRESETS: Record<string, MaterialAppearance> = {
   // ---------------------------------------------------------------------------

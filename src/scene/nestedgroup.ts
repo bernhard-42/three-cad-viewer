@@ -14,8 +14,10 @@ import type {
   ColorValue,
   ColoredMaterial,
   MaterialAppearance,
+  MaterialXMaterial,
   TextureEntry,
 } from "../core/types";
+import { isMaterialXMaterial } from "../core/types";
 import { MATERIAL_PRESETS } from "../rendering/material-presets.js";
 import { logger } from "../utils/logger.js";
 import { TextureCache } from "../rendering/texture-cache.js";
@@ -139,6 +141,16 @@ function materialHasTexture(def: MaterialAppearance): boolean {
   return false;
 }
 
+/** Check whether a materialx-db entry has texture references in its params. */
+function materialXHasTextures(entry: MaterialXMaterial): boolean {
+  for (const [key, value] of Object.entries(entry.params)) {
+    // colorOverride removes "map", but other texture params may still exist
+    if (entry.colorOverride && key === "map") continue;
+    if (typeof value === "string" && value.startsWith("textures/")) return true;
+  }
+  return false;
+}
+
 /**
  * Generate box-projected UV coordinates for a BufferGeometry that lacks them.
  *
@@ -228,10 +240,14 @@ class NestedGroup {
   clipPlanes: THREE.Plane[] | null;
   materialFactory: MaterialFactory;
   texturesTable: Record<string, TextureEntry> | null;
-  materialsTable: Record<string, MaterialAppearance> | null;
+  materialsTable: Record<string, string | MaterialXMaterial> | null;
   resolvedMaterials: Map<string, MaterialAppearance>;
+  /** Cache for materialx-db entries resolved from the materials table */
+  resolvedMaterialX: Map<string, MaterialXMaterial>;
   private _textureCache: TextureCache | null;
   private _studioMaterialCache: Map<string, THREE.MeshPhysicalMaterial | THREE.MeshBasicMaterial>;
+  /** Sharing keys of materials that have textures (for UV generation on cache hits) */
+  private _texturedMaterialKeys: Set<string>;
   private _isStudioMode: boolean;
 
   /**
@@ -283,8 +299,10 @@ class NestedGroup {
     this.texturesTable = null;
     this.materialsTable = null;
     this.resolvedMaterials = new Map();
+    this.resolvedMaterialX = new Map();
     this._textureCache = null;
     this._studioMaterialCache = new Map();
+    this._texturedMaterialKeys = new Set();
     this._isStudioMode = false;
 
     this.materialFactory = new MaterialFactory({
@@ -310,64 +328,83 @@ class NestedGroup {
     }
     this._disposeStudioResources();
     this.resolvedMaterials.clear();
+    this.resolvedMaterialX.clear();
     this.texturesTable = null;
     this.materialsTable = null;
   }
 
   /**
-   * Resolve a material tag to a MaterialAppearance definition.
+   * Resolve a material tag to its definition.
+   *
+   * Returns either a MaterialAppearance (for builtin presets) or a
+   * MaterialXMaterial (for materialx-db entries). The caller must check the
+   * return type to determine which factory method to use.
    *
    * Resolution order:
-   * 1. Check resolved cache
-   * 2. Look up in root-level `materials` table (user-defined library)
-   *    - If the entry has a `preset` field, merge built-in preset as base
-   * 3. Look up in built-in MATERIAL_PRESETS
-   * 4. No match -> warning, return null
-   *
-   * Empty string tags are treated as "no tag" and return null without warning.
+   * 1. Check caches (resolvedMaterials / resolvedMaterialX)
+   * 2. Look up in root-level `materials` table:
+   *    - string starting with "builtin:" → MATERIAL_PRESETS lookup
+   *    - object with `params` key → materialx-db entry
+   * 3. Direct lookup in MATERIAL_PRESETS by tag name
+   * 4. No match → warning, return null
    *
    * @param tag - The material tag from a leaf node
    * @param objectPath - The object path (for warning messages)
-   * @returns Resolved MaterialAppearance or null if not found
+   * @returns Resolved material definition or null if not found
    */
-  resolveMaterialTag(tag: string, objectPath: string): MaterialAppearance | null {
+  resolveMaterialTag(
+    tag: string,
+    objectPath: string,
+  ): MaterialAppearance | MaterialXMaterial | null {
     // Empty string is equivalent to no tag -- skip silently
     if (tag === "") {
       return null;
     }
 
-    // Check cache first
-    const cached = this.resolvedMaterials.get(tag);
-    if (cached !== undefined) {
-      return cached;
-    }
+    // Check caches
+    const cachedPreset = this.resolvedMaterials.get(tag);
+    if (cachedPreset !== undefined) return cachedPreset;
+
+    const cachedMX = this.resolvedMaterialX.get(tag);
+    if (cachedMX !== undefined) return cachedMX;
 
     // 1. Look up in user-defined materials table
     if (this.materialsTable && tag in this.materialsTable) {
       const entry = this.materialsTable[tag];
-      let resolved: MaterialAppearance;
 
-      if (entry.preset) {
-        // Merge: start with built-in preset as base, overlay user fields
-        const presetBase = MATERIAL_PRESETS[entry.preset];
-        if (presetBase) {
-          resolved = { ...presetBase, ...entry };
-        } else {
-          // Preset reference not found in built-ins -- use entry as-is but warn
+      // String entry: "builtin:<preset-name>"
+      if (typeof entry === "string") {
+        if (entry.startsWith("builtin:")) {
+          const presetName = entry.slice(8);
+          const preset = MATERIAL_PRESETS[presetName];
+          if (preset) {
+            const resolved = { ...preset };
+            this.resolvedMaterials.set(tag, resolved);
+            return resolved;
+          }
           logger.warn(
-            `Unknown preset '${entry.preset}' referenced in materials table entry '${tag}'`,
+            `Unknown builtin preset '${presetName}' referenced by '${tag}' on '${objectPath}'`,
           );
-          resolved = { ...entry };
+          return null;
         }
-      } else {
-        resolved = { ...entry };
+        logger.warn(
+          `Invalid material string '${entry}' for tag '${tag}' (expected "builtin:" prefix)`,
+        );
+        return null;
       }
 
-      this.resolvedMaterials.set(tag, resolved);
-      return resolved;
+      // MaterialXMaterial entry: object with `params` key
+      if (isMaterialXMaterial(entry)) {
+        this.resolvedMaterialX.set(tag, entry);
+        return entry;
+      }
+
+      // Should not happen with current type, but guard anyway
+      logger.warn(`Unrecognised material entry for tag '${tag}' on '${objectPath}'`);
+      return null;
     }
 
-    // 2. Look up in built-in presets
+    // 2. Direct lookup in built-in presets (leaf tag matches preset name)
     const preset = MATERIAL_PRESETS[tag];
     if (preset) {
       const resolved = { ...preset };
@@ -375,7 +412,7 @@ class NestedGroup {
       return resolved;
     }
 
-    // 3. No match -- warn and return null
+    // 3. No match
     logger.warn(`Unknown material tag '${tag}' on object '${objectPath}'`);
     return null;
   }
@@ -1014,6 +1051,7 @@ class NestedGroup {
     this.texturesTable = this.shapes.textures || null;
     this.materialsTable = this.shapes.materials || null;
     this.resolvedMaterials.clear();
+    this.resolvedMaterialX.clear();
     this.rootGroup = this.renderLoop(this.shapes);
     return this.rootGroup;
   }
@@ -1223,16 +1261,14 @@ class NestedGroup {
   /**
    * Enter Studio mode: build and apply studio materials to all ObjectGroups.
    *
-   * For each ObjectGroup with a front mesh:
-   * 1. Resolve the material tag to a MaterialAppearance (or use fallback)
-   * 2. Compute a sharing key for material instance reuse
-   * 3. Build or reuse a MeshPhysicalMaterial via MaterialFactory
-   * 4. For renderback objects, clone with BackSide
-   * 5. Call objectGroup.enterStudioMode(studioFront, studioBack)
-   *
-   * Uses `this.materialFactory` (owned by NestedGroup) for creating studio
-   * materials.
-   *
+   * Material resolution per ObjectGroup:
+   * 1. Resolve the material tag via `resolveMaterialTag()`
+   *    - MaterialXMaterial  → `createStudioMaterialFromMaterialX`
+   *    - MaterialAppearance → `createStudioMaterial` (builtin presets)
+   *    - null (no tag)      → fallback plastic-glossy preset tinted with CAD color
+   * 2. Cache by sharing key for reuse across objects with the same tag+color
+   * 3. Clone BackSide variant for renderback objects
+   * 4. Auto-generate box-projected UVs when textured but geometry has no UVs
    */
   async enterStudioMode(): Promise<void> {
     // Create TextureCache lazily
@@ -1260,35 +1296,50 @@ class NestedGroup {
       // Check cached material for this key
       let studioMaterial = this._studioMaterialCache.get(sharingKey);
 
-      if (studioMaterial) {
-        // Re-entry: no-tag materials use plastic-glossy preset (fixed values),
-        // no in-place update needed.
-      } else {
-        // Build new studio material
-        let materialDef = tag ? this.resolveMaterialTag(tag, path) : null;
+      if (!studioMaterial) {
+        // Resolve the tag
+        const resolved = tag ? this.resolveMaterialTag(tag, path) : null;
 
-        if (!materialDef) {
-          // Fallback: plastic-glossy preset, tinted with the object's CAD color.
-          // Omit baseColor so createStudioMaterial uses the fallbackColor (leaf color).
-          const { baseColor: _, ...plasticGlossy } = MATERIAL_PRESETS["plastic-glossy"];
-          materialDef = plasticGlossy;
-        }
-
-        // Per-object try/catch: a single material creation failure should not
-        // abort Studio mode entry for all other objects.
+        // Per-object try/catch: a single failure should not abort the rest
         try {
-          studioMaterial = await this.materialFactory.createStudioMaterial({
-            materialDef,
-            fallbackColor: leafColor,
-            fallbackAlpha: leafAlpha,
-            textureCache: this._textureCache as TextureCacheInterface,
-          });
+          if (resolved && isMaterialXMaterial(resolved)) {
+            // --- materialx-db path ---
+            studioMaterial = await this.materialFactory.createStudioMaterialFromMaterialX(
+              resolved.params,
+              resolved.textures ?? {},
+              resolved.colorOverride,
+              resolved.textureRepeat,
+              this._textureCache as TextureCacheInterface,
+            );
+            if (materialXHasTextures(resolved)) {
+              this._texturedMaterialKeys.add(sharingKey);
+            }
+          } else {
+            // --- Builtin preset path (or fallback) ---
+            let materialDef: MaterialAppearance;
+            if (resolved) {
+              materialDef = resolved;
+            } else {
+              // Fallback: plastic-glossy tinted with CAD color
+              const { baseColor: _, ...plasticGlossy } = MATERIAL_PRESETS["plastic-glossy"];
+              materialDef = plasticGlossy;
+            }
+            studioMaterial = await this.materialFactory.createStudioMaterial({
+              materialDef,
+              fallbackColor: leafColor,
+              fallbackAlpha: leafAlpha,
+              textureCache: this._textureCache as TextureCacheInterface,
+            });
+            if (materialHasTexture(materialDef)) {
+              this._texturedMaterialKeys.add(sharingKey);
+            }
+          }
         } catch (err) {
           logger.warn(
             `Studio material creation failed for "${path}" (tag="${tag}"), skipping`,
             err,
           );
-          continue; // Skip this object, proceed with remaining objects
+          continue;
         }
 
         this._studioMaterialCache.set(sharingKey, studioMaterial);
@@ -1307,16 +1358,14 @@ class NestedGroup {
         studioBack = cachedBack as THREE.MeshPhysicalMaterial;
       }
 
-      // Auto-generate box-projected UVs if the material uses textures but
-      // the geometry has none (common for CAD meshes without explicit UVs).
-      if (obj.shapeGeometry && !obj.shapeGeometry.getAttribute("uv")) {
-        const resolvedDef = tag ? this.resolveMaterialTag(tag, path) : null;
-        if (resolvedDef && materialHasTexture(resolvedDef)) {
-          generateBoxProjectedUVs(obj.shapeGeometry);
-        }
+      // Auto-generate box-projected UVs if material uses textures but
+      // geometry has none (common for CAD meshes without explicit UVs).
+      // Uses _texturedMaterialKeys so cache-hit objects also get UVs.
+      if (this._texturedMaterialKeys.has(sharingKey) && obj.shapeGeometry && !obj.shapeGeometry.getAttribute("uv")) {
+        generateBoxProjectedUVs(obj.shapeGeometry);
       }
 
-      // Apply to ObjectGroup (Worker 2's method)
+      // Apply to ObjectGroup
       obj.enterStudioMode(
         studioMaterial instanceof THREE.MeshPhysicalMaterial ? studioMaterial : null,
         studioBack,
@@ -1365,6 +1414,7 @@ class NestedGroup {
       material.dispose();
     }
     this._studioMaterialCache.clear();
+    this._texturedMaterialKeys.clear();
 
     // Dispose texture cache
     if (this._textureCache) {

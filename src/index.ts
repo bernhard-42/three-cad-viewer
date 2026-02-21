@@ -132,6 +132,7 @@ export type { ColoredMaterial } from "./core/types.js";
 // Studio mode & PBR material types
 export type {
   MaterialAppearance,
+  MaterialXMaterial,
   TextureEntry,
   StudioOptions,
   StudioBackground,
@@ -139,6 +140,9 @@ export type {
   StudioEnvironment,
   StudioToneMapping,
 } from "./core/types.js";
+
+// MaterialX type guard
+export { isMaterialXMaterial } from "./core/types.js";
 
 // Subscription options
 export type { SubscribeOptions } from "./core/types.js";

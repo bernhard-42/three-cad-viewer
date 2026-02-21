@@ -39,6 +39,20 @@ const SRGB_TEXTURE_ROLES = new Set([
   "specularColorTexture",
 ]);
 
+/**
+ * Three.js MeshPhysicalMaterial map property names that carry sRGB color data.
+ *
+ * Used by materialx-db integration where texture params use Three.js property
+ * names directly (e.g., "map", "emissiveMap") instead of MaterialAppearance
+ * role names (e.g., "baseColorTexture", "emissiveTexture").
+ */
+const THREEJS_SRGB_MAPS = new Set([
+  "map",
+  "emissiveMap",
+  "sheenColorMap",
+  "specularColorMap",
+]);
+
 // =============================================================================
 // Builtin Procedural Texture Generators
 // =============================================================================
@@ -611,7 +625,7 @@ class TextureCache {
    * THREE.Texture with the correct colorSpace set.
    *
    * @param ref - Texture reference string (builtin name, table key, data URI, or URL)
-   * @param textureRole - The MaterialAppearance field name using this texture
+   * @param textureRole - The texture role name (MaterialAppearance field name or proxy role)
    *   (e.g. "baseColorTexture", "normalTexture"). Used to determine colorSpace.
    * @returns The resolved THREE.Texture, or null if the reference is invalid
    *   or loading fails
@@ -990,4 +1004,17 @@ class TextureCache {
   }
 }
 
-export { TextureCache, SRGB_TEXTURE_ROLES, BUILTIN_NAMES };
+/**
+ * Get the correct color space for a Three.js material map property name.
+ *
+ * sRGB maps (color data): map, emissiveMap, sheenColorMap, specularColorMap
+ * Linear maps (non-color data): everything else (normalMap, roughnessMap, etc.)
+ *
+ * @param mapName - Three.js material property name (e.g., "map", "normalMap")
+ * @returns THREE.SRGBColorSpace or THREE.LinearSRGBColorSpace
+ */
+function getColorSpaceForMap(mapName: string): THREE.ColorSpace {
+  return THREEJS_SRGB_MAPS.has(mapName) ? THREE.SRGBColorSpace : THREE.LinearSRGBColorSpace;
+}
+
+export { TextureCache, SRGB_TEXTURE_ROLES, BUILTIN_NAMES, getColorSpaceForMap };
