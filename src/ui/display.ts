@@ -151,6 +151,10 @@ class Display {
   cadTree!: HTMLElement;
   cadTreeScrollContainer!: HTMLElement;
   cadTreeToggles!: HTMLElement;
+  cadClipToggles!: HTMLElement;
+  cadMaterialToggles!: HTMLElement;
+  cadZebraToggles!: HTMLElement;
+  cadStudioToggles!: HTMLElement;
   cadClip!: HTMLElement;
   cadMaterial!: HTMLElement;
   cadZebra!: HTMLElement;
@@ -211,6 +215,7 @@ class Display {
   lastPlaneState: boolean;
   help_shown: boolean;
   info_shown: boolean;
+  tools_shown: boolean;
 
   // Info panel
   _info: Info;
@@ -294,7 +299,11 @@ class Display {
 
     this.cadTree = this.getElement("tcv_cad_tree_container");
     this.cadTreeScrollContainer = this.getElement("tcv_box_content");
-    this.cadTreeToggles = this.getElement("tcv_cad_tree_toggles");
+    this.cadTreeToggles = this.getElement("tcv_toggles_tree");
+    this.cadClipToggles = this.getElement("tcv_toggles_clip");
+    this.cadMaterialToggles = this.getElement("tcv_toggles_material");
+    this.cadZebraToggles = this.getElement("tcv_toggles_zebra");
+    this.cadStudioToggles = this.getElement("tcv_toggles_studio");
     this.cadClip = this.getElement("tcv_cad_clip_container");
     this.cadMaterial = this.getElement("tcv_cad_material_container");
     this.cadZebra = this.getElement("tcv_cad_zebra_container");
@@ -351,6 +360,7 @@ class Display {
     this.lastPlaneState = false;
     this.help_shown = true;
     this.info_shown = !this.glass;
+    this.tools_shown = true;
 
     const theme = options.theme;
     this.theme = theme;
@@ -880,9 +890,12 @@ class Display {
     this.setupClickEvent("tcv_collapse_all", this.handleCollapseNodes);
     this.setupClickEvent("tcv_expand", this.handleCollapseNodes);
 
+    this.setupClickEvent("tcv_clip_reset", this.handleClipReset);
     this.setupClickEvent("tcv_material_reset", this.handleMaterialReset);
+    this.setupClickEvent("tcv_zebra_reset", this.handleZebraReset);
 
     this.setupClickEvent("tcv_toggle_info", this.toggleInfo);
+    this.setupClickEvent("tcv_toggle_tools_wrapper", this.toggleToolsPanel);
 
     this.help_shown = true;
     this.info_shown = !this.glass;
@@ -1812,9 +1825,13 @@ class Display {
     ) => {
       this.cadTree.style.display = showTree ? "block" : "none";
       this.cadTreeToggles.style.display = showTree ? "block" : "none";
+      this.cadClipToggles.style.display = showClip ? "block" : "none";
       this.cadClip.style.display = showClip ? "block" : "none";
+      this.cadZebraToggles.style.display = showZebra ? "block" : "none";
       this.cadZebra.style.display = showZebra ? "block" : "none";
+      this.cadMaterialToggles.style.display = showMaterial ? "block" : "none";
       this.cadMaterial.style.display = showMaterial ? "block" : "none";
+      this.cadStudioToggles.style.display = showStudio ? "block" : "none";
       this.cadStudio.style.display = showStudio ? "block" : "none";
 
       this.viewer.clipping.setVisible(showClip);
@@ -1938,6 +1955,17 @@ class Display {
   };
 
   // ---------------------------------------------------------------------------
+  // Clip Reset Handler
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Reset clip planes to default normals and slider positions
+   */
+  handleClipReset = (_e: Event): void => {
+    this.viewer.resetClip();
+  };
+
+  // ---------------------------------------------------------------------------
   // Material Handlers
   // ---------------------------------------------------------------------------
 
@@ -1946,6 +1974,13 @@ class Display {
    */
   handleMaterialReset = (_e: Event): void => {
     this.viewer.resetMaterial();
+  };
+
+  /**
+   * Reset zebra tool to default settings
+   */
+  handleZebraReset = (_e: Event): void => {
+    this.viewer.resetZebra();
   };
 
   // ---------------------------------------------------------------------------
@@ -2451,6 +2486,23 @@ class Display {
     this.showInfo(!this.info_shown);
   };
 
+  /**
+   * Show or hide tools panel (tabs + content) in glass mode
+   */
+  showToolsPanel = (flag: boolean): void => {
+    const cadTree = this.getElement("tcv_cad_tree");
+    cadTree.style.display = flag ? "" : "none";
+    this.getElement("tcv_toggle_tools").innerHTML = flag ? "\u25BE" : "\u25B8";
+    this.tools_shown = flag;
+  };
+
+  /**
+   * Toggle tools panel visibility
+   */
+  toggleToolsPanel = (): void => {
+    this.showToolsPanel(!this.tools_shown);
+  };
+
   // ---------------------------------------------------------------------------
   // Theme & Glass Mode
   // ---------------------------------------------------------------------------
@@ -2484,8 +2536,10 @@ class Display {
       this.getElement("tcv_cad_view").classList.add("tcv_cad_view_glass");
 
       this.getElement("tcv_toggle_info_wrapper").style.display = "block";
+      this.getElement("tcv_toggle_tools_wrapper").style.display = "block";
 
       this.showInfo(false);
+      this.showToolsPanel(true);
       this.glass = true;
       this.autoCollapse();
     } else {
@@ -2496,8 +2550,10 @@ class Display {
       this.getElement("tcv_cad_view").classList.remove("tcv_cad_view_glass");
 
       this.getElement("tcv_toggle_info_wrapper").style.display = "none";
+      this.getElement("tcv_toggle_tools_wrapper").style.display = "none";
 
       this.showInfo(true);
+      this.showToolsPanel(true);
       this.glass = false;
     }
     const options: SizeOptions = {

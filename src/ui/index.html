@@ -3,6 +3,9 @@
 
     <div class="tcv_cad_body">
         <div class="tcv_cad_navigation">
+            <div class="tcv_toggle_tools_wrapper">
+                <span class='tcv_toggle_tools'></span><span class="tcv_tools_label">Tools</span>
+            </div>
             <div class="tcv_cad_tree tcv_round">
                 <div class="tcv_tabnav">
                     <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button" style="width: 100%" /></span>
@@ -11,7 +14,7 @@
                     <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value="Material" type="button" style="width: 100%" /></span>
                     <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_studio tcv_tab tcv_tab-right tcv_tab-unselected' value="Studio" type="button" style="width: 100%" /></span>
                 </div>
-                <div class="tcv_cad_tree_toggles">
+                <div class="tcv_cad_tree_toggles tcv_toggles_tree">
                     <span class="tcv_tooltip" data-tooltip="Collpase nodes with a single leaf">
                         <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value="1" type="button" />
                     </span>
@@ -23,6 +26,26 @@
                     </span>
                     <span class="tcv_tooltip" data-tooltip="Expand tree">
                         <input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
+                    </span>
+                </div>
+                <div class="tcv_cad_tree_toggles tcv_toggles_clip" style="display: none;">
+                    <span class="tcv_tooltip" data-tooltip="Reset to default clip planes">
+                        <input class='tcv_clip_reset tcv_btn tcv_small_btn' value="R" type="button" />
+                    </span>
+                </div>
+                <div class="tcv_cad_tree_toggles tcv_toggles_material" style="display: none;">
+                    <span class="tcv_tooltip" data-tooltip="Reset to original values">
+                        <input class='tcv_material_reset tcv_btn tcv_small_btn' value="R" type="button" />
+                    </span>
+                </div>
+                <div class="tcv_cad_tree_toggles tcv_toggles_zebra" style="display: none;">
+                    <span class="tcv_tooltip" data-tooltip="Reset to default zebra settings">
+                        <input class='tcv_zebra_reset tcv_btn tcv_small_btn' value="R" type="button" />
+                    </span>
+                </div>
+                <div class="tcv_cad_tree_toggles tcv_toggles_studio" style="display: none;">
+                    <span class="tcv_tooltip" data-tooltip="Reset to default values">
+                        <input class='tcv_studio_reset tcv_btn tcv_small_btn' value="R" type="button" />
                     </span>
                 </div>
                 <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
@@ -85,81 +108,62 @@
                         </div>
                     </div>
                     <div class="tcv_cad_material_container">
-                        <div class="tcv_cad_tree_toggles">
-                            <span class="tcv_tooltip" data-tooltip="Reset to original values">
-                                <input class='tcv_material_reset tcv_btn tcv_small_btn' value="R" type="button" />
-                            </span>
-                        </div>
-                        <div class="tcv_material_ambientlight tcv_label">
-                            Ambient light intensity (%)
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Ambient Light</span>
+                            <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="20" value="1"
                                     class="tcv_sld_value_ambientlight tcv_clip_slider">
                                 <input value=1 class="tcv_inp_value_ambientlight tcv_clip_input"></input>
                             </div>
                         </div>
-                        <div class="tcv_material_pointlight tcv_label">
-                            Directional light intensity (%)
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Direct Light</span>
+                            <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="40" value="1"
                                     class="tcv_sld_value_pointlight tcv_clip_slider">
                                 <input value=1 class="tcv_inp_value_pointlight tcv_clip_input"></input>
                             </div>
                         </div>
-                        <div class="tcv_material_metalness tcv_label">
-                            Metalness (%)
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Metalness</span>
+                            <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="100" value="40"
                                     class="tcv_sld_value_metalness tcv_clip_slider">
                                 <input value=40 class="tcv_inp_value_metalness tcv_clip_input"></input>
                             </div>
                         </div>
-                        <div class="tcv_material_roughness tcv_label">
-                            Roughness (%)
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Roughness</span>
+                            <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="100" value="40"
                                     class="tcv_sld_value_roughness tcv_clip_slider">
                                 <input value=40 class="tcv_inp_value_roughness tcv_clip_input"></input>
                             </div>
                         </div>
                         <div class="tcv_material_info">
-                            Note: This is not a full material renderer.
+                            Control material for CAD view, values in %
                         </div>
                     </div>
                     <div class="tcv_cad_zebra_container">
-                        <div class="tcv_zebra_stripe_count tcv_label">
-                            Stripe Count
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Stripe Count</span>
+                            <div class="tcv_studio_slider_group">
                                 <input type="range" min="2" max="50" value="10"
                                     class="tcv_sld_value_zebra_count tcv_clip_slider">
                                 <input value=10 class="tcv_inp_value_zebra_count tcv_clip_input"></input>
                             </div>
-                        </div>                        
-                        <div class="tcv_zebra_stripe_opacity tcv_label">
-                            Stripe Opacity
                         </div>
-                        <div class="tcv_slider_group">
-                            <div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Stripe Opacity</span>
+                            <div class="tcv_studio_slider_group">
                                 <input type="range" min="0.0" max="1.0" step="0.01" value="1.0"
                                     class="tcv_sld_value_zebra_opacity tcv_clip_slider">
                                 <input value=1.0 class="tcv_inp_value_zebra_opacity tcv_clip_input"></input>
                             </div>
-                        </div>                        
-                        <div class="tcv_zebra_stripe_direction tcv_label">
-                            Stripe Direction
                         </div>
-                        <div class="tcv_slider_group">
-                            <div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Direction</span>
+                            <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="90" step="0.5" value="0"
                                     class="tcv_sld_value_zebra_direction tcv_clip_slider">
                                 <input value=0 class="tcv_inp_value_zebra_direction tcv_clip_input"></input>
@@ -193,140 +197,69 @@
                         <div class="tcv_studio_loading" style="display: none;">
                             Loading Studio mode...
                         </div>
-                        <div class="tcv_cad_tree_toggles">
-                            <span class="tcv_tooltip" data-tooltip="Reset to default values">
-                                <input class='tcv_studio_reset tcv_btn tcv_small_btn' value="R" type="button" />
-                            </span>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Environment</span>
+                            <select class="tcv_studio_environment tcv_studio_select">
+                                <optgroup label="Studio">
+                                    <option value="studio">Procedural Studio</option>
+                                    <option value="studio_small_08" title="Poly Haven: studio_small_08.hdr (soft light, neutral, backlight)">Soft Light</option>
+                                    <option value="white_studio_05" title="Poly Haven: white_studio_05.hdr (white, product, bright, neutral lighting)">Bright Neutral</option>
+                                    <option value="white_studio_03" title="Poly Haven: white_studio_03.hdr (white, softbox, reflection, clean)">Clean Softbox</option>
+                                    <option value="photo_studio_01" title="Poly Haven: photo_studio_01.hdr (lighting setup, spotlights)">Spotlit Setup</option>
+                                    <option value="studio_small_09" title="Poly Haven: studio_small_09.hdr (product lighting, controlled, soft reflections)">Controlled Light</option>
+                                    <option value="cyclorama_hard_light" title="Poly Haven: cyclorama_hard_light.hdr (cyclorama, hard light, contrast)">Hard Contrast Light</option>
+                                </optgroup>
+                                <optgroup label="Outdoor">
+                                    <option value="canary_wharf" title="Poly Haven: canary_wharf.hdr (urban, city, overcast)">Urban Overcast</option>
+                                    <option value="kiara_1_dawn" title="Poly Haven: kiara_1_dawn.hdr (dawn, warm, nature, sunrise)">Outdoor Warm</option>
+                                    <option value="empty_warehouse_01" title="Poly Haven: empty_warehouse_01.hdr (warehouse, neutral, big space)">Neutral Industrial</option>
+                                </optgroup>
+                            </select>
                         </div>
-                        <div class="tcv_studio_environment_label tcv_label">
-                            Environment
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Background</span>
+                            <select class="tcv_studio_background tcv_studio_select">
+                                <option value="grey">Solid Grey</option>
+                                <option value="white">Solid White</option>
+                                <option value="gradient">Gradient</option>
+                                <option value="environment">Blurred Environment</option>
+                                <option value="transparent">Transparent</option>
+                            </select>
                         </div>
-                        <div class="tcv_slider_group">
-                            <div>
-                                <select class="tcv_studio_environment tcv_studio_select">
-                                    <option value="studio">Built-in (procedural)</option>
-                                    <option value="none">None</option>
-                                    <optgroup label="Studio — Top/overhead">
-                                        <option value="studio_small_03">Studio Small 03</option>
-                                        <option value="studio_small_05">Studio Small 05</option>
-                                        <option value="studio_small_07">Studio Small 07</option>
-                                        <option value="cyclorama_hard_light">Cyclorama Hard Light</option>
-                                    </optgroup>
-                                    <optgroup label="Studio — Side/directional">
-                                        <option value="studio_small_04">Studio Small 04</option>
-                                        <option value="studio_small_02">Studio Small 02</option>
-                                        <option value="studio_small_06">Studio Small 06</option>
-                                        <option value="photo_studio_loft_hall">Photo Studio Loft Hall</option>
-                                        <option value="studio_country_hall">Studio Country Hall</option>
-                                        <option value="brown_photostudio_02">Brown Photostudio 02</option>
-                                        <option value="brown_photostudio_06">Brown Photostudio 06</option>
-                                    </optgroup>
-                                    <optgroup label="Studio — Soft/diffuse">
-                                        <option value="studio_small_08">Studio Small 08</option>
-                                        <option value="studio_small_09">Studio Small 09</option>
-                                        <option value="photo_studio_01">Photo Studio 01</option>
-                                        <option value="provence_studio">Provence Studio</option>
-                                        <option value="photo_studio_broadway_hall">Photo Studio Broadway Hall</option>
-                                        <option value="white_studio_05">White Studio 05</option>
-                                    </optgroup>
-                                    <optgroup label="Studio — Product viz">
-                                        <option value="white_studio_01">White Studio 01</option>
-                                        <option value="white_studio_03">White Studio 03</option>
-                                        <option value="pav_studio_01">Pav Studio 01</option>
-                                        <option value="monochrome_studio_01">Monochrome Studio 01</option>
-                                        <option value="ferndale_studio_01">Ferndale Studio 01</option>
-                                        <option value="wooden_studio_01">Wooden Studio 01</option>
-                                    </optgroup>
-                                    <optgroup label="Outdoor — Overhead sun">
-                                        <option value="noon_grass">Noon Grass</option>
-                                        <option value="wide_street_01">Wide Street 01</option>
-                                        <option value="kloofendal_48d_partly_cloudy_puresky">Kloofendal Partly Cloudy</option>
-                                        <option value="rural_asphalt_road">Rural Asphalt Road</option>
-                                    </optgroup>
-                                    <optgroup label="Outdoor — Side sun">
-                                        <option value="meadow_2">Meadow 2</option>
-                                        <option value="autumn_park">Autumn Park</option>
-                                        <option value="autumn_field_puresky">Autumn Field</option>
-                                        <option value="spiaggia_di_mondello">Spiaggia di Mondello</option>
-                                    </optgroup>
-                                    <optgroup label="Outdoor — Low sun">
-                                        <option value="spruit_sunrise">Spruit Sunrise</option>
-                                        <option value="lilienstein">Lilienstein</option>
-                                        <option value="venice_sunset">Venice Sunset</option>
-                                        <option value="kloppenheim_06">Kloppenheim 06</option>
-                                    </optgroup>
-                                    <optgroup label="Outdoor — Overcast">
-                                        <option value="overcast_soil_puresky">Overcast Soil</option>
-                                        <option value="canary_wharf">Canary Wharf</option>
-                                    </optgroup>
-                                </select>
-                            </div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Tone Mapping</span>
+                            <select class="tcv_studio_tone_mapping tcv_studio_select">
+                                <option value="neutral">PBR Neutral</option>
+                                <option value="AgX">AgX</option>
+                                <option value="ACES">ACES Filmic</option>
+                                <option value="none">Linear (none)</option>
+                            </select>
                         </div>
-                        <div class="tcv_studio_env_intensity_label tcv_label">
-                            Env Intensity
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Env Intensity</span>
+                            <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="200" step="1" value="100"
                                     class="tcv_sld_value_studio_env_intensity tcv_clip_slider">
                                 <input value=100 class="tcv_inp_value_studio_env_intensity tcv_clip_input"></input>
                             </div>
                         </div>
-                        <div class="tcv_studio_checks">
-                            <div>
-                                <span class="tcv_tooltip" data-tooltip="Show floor grid in Studio mode">
-                                    <input class='tcv_studio_show_floor tcv_check' type="checkbox" />
-                                    <span class="tcv_label">Show Floor</span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="tcv_studio_background_label tcv_label">
-                            Background
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
-                                <select class="tcv_studio_background tcv_studio_select">
-                                    <option value="grey">Solid Grey</option>
-                                    <option value="white">Solid White</option>
-                                    <option value="gradient">Gradient</option>
-                                    <option value="environment">Blurred Environment</option>
-                                    <option value="transparent">Transparent</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="tcv_studio_tone_mapping_label tcv_label">
-                            Tone Mapping
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
-                                <select class="tcv_studio_tone_mapping tcv_studio_select">
-                                    <option value="neutral">PBR Neutral</option>
-                                    <option value="AgX">AgX</option>
-                                    <option value="ACES">ACES Filmic</option>
-                                    <option value="none">Linear (none)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="tcv_studio_exposure_label tcv_label">
-                            Exposure
-                        </div>
-                        <div class="tcv_slider_group">
-                            <div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Exposure</span>
+                            <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="200" step="1" value="100"
                                     class="tcv_sld_value_studio_exposure tcv_clip_slider">
                                 <input value=100 class="tcv_inp_value_studio_exposure tcv_clip_input"></input>
                             </div>
                         </div>
                         <div class="tcv_studio_checks">
-                            <div>
-                                <span class="tcv_tooltip" data-tooltip="Show/hide CAD edges in Studio mode">
-                                    <input class='tcv_studio_show_edges tcv_check' type="checkbox" />
-                                    <span class="tcv_label">Show Edges</span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="tcv_studio_info">
-                            Tip: Assign material presets to objects for realistic rendering. Environment lighting and tone mapping are active.
+                            <span class="tcv_tooltip" data-tooltip="Show floor grid in Studio mode">
+                                <input class='tcv_studio_show_floor tcv_check' type="checkbox" />
+                                <span class="tcv_label">Show Floor</span>
+                            </span>
+                            <span class="tcv_tooltip" data-tooltip="Show/hide CAD edges in Studio mode">
+                                <input class='tcv_studio_show_edges tcv_check' type="checkbox" />
+                                <span class="tcv_label">Show Edges</span>
+                            </span>
                         </div>
                     </div>
                 </div>

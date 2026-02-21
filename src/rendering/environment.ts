@@ -61,63 +61,22 @@ const PH = "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k";
  * All maps from Poly Haven (CC0 license, permissive CORS) at 2K resolution.
  * Host applications can override these via the `presetUrls` constructor option.
  *
- * Organized by category:
- * - Studio: top-down, side, soft/diffuse, product-viz
- * - Outdoor: overhead sun, side sun, low sun, overcast
+ * Curated for CAD/product visualization: neutral white studios that make
+ * every material look good, plus two overcast outdoor options for context.
  */
 const DEFAULT_PRESET_URLS: Record<string, string> = {
-  // --- Studio: Top-down / overhead key light ---
-  studio_small_03:      `${PH}/studio_small_03_2k.hdr`,
-  studio_small_05:      `${PH}/studio_small_05_2k.hdr`,
-  studio_small_07:      `${PH}/studio_small_07_2k.hdr`,
+  // --- Studio: Soft / neutral ---
+  studio_small_08:   `${PH}/studio_small_08_2k.hdr`,
+  white_studio_05:   `${PH}/white_studio_05_2k.hdr`,
+  white_studio_03:   `${PH}/white_studio_03_2k.hdr`,
+  photo_studio_01:   `${PH}/photo_studio_01_2k.hdr`,
+  studio_small_09:   `${PH}/studio_small_09_2k.hdr`,
   cyclorama_hard_light: `${PH}/cyclorama_hard_light_2k.hdr`,
 
-  // --- Studio: Side / directional key light ---
-  studio_small_04:        `${PH}/studio_small_04_2k.hdr`,
-  studio_small_02:        `${PH}/studio_small_02_2k.hdr`,
-  studio_small_06:        `${PH}/studio_small_06_2k.hdr`,
-  photo_studio_loft_hall: `${PH}/photo_studio_loft_hall_2k.hdr`,
-  studio_country_hall:    `${PH}/studio_country_hall_2k.hdr`,
-  brown_photostudio_02:   `${PH}/brown_photostudio_02_2k.hdr`,
-  brown_photostudio_06:   `${PH}/brown_photostudio_06_2k.hdr`,
-
-  // --- Studio: Soft / diffuse / wraparound ---
-  studio_small_08:            `${PH}/studio_small_08_2k.hdr`,
-  studio_small_09:            `${PH}/studio_small_09_2k.hdr`,
-  photo_studio_01:            `${PH}/photo_studio_01_2k.hdr`,
-  provence_studio:            `${PH}/provence_studio_2k.hdr`,
-  photo_studio_broadway_hall: `${PH}/photo_studio_broadway_hall_2k.hdr`,
-  white_studio_05:            `${PH}/white_studio_05_2k.hdr`,
-
-  // --- Studio: Product-viz (clean backgrounds) ---
-  white_studio_01:      `${PH}/white_studio_01_2k.hdr`,
-  white_studio_03:      `${PH}/white_studio_03_2k.hdr`,
-  pav_studio_01:        `${PH}/pav_studio_01_2k.hdr`,
-  monochrome_studio_01: `${PH}/monochrome_studio_01_2k.hdr`,
-  ferndale_studio_01:   `${PH}/ferndale_studio_01_2k.hdr`,
-  wooden_studio_01:     `${PH}/wooden_studio_01_2k.hdr`,
-
-  // --- Outdoor: Overhead sun (midday) ---
-  noon_grass:                              `${PH}/noon_grass_2k.hdr`,
-  wide_street_01:                          `${PH}/wide_street_01_2k.hdr`,
-  kloofendal_48d_partly_cloudy_puresky:    `${PH}/kloofendal_48d_partly_cloudy_puresky_2k.hdr`,
-  rural_asphalt_road:                      `${PH}/rural_asphalt_road_2k.hdr`,
-
-  // --- Outdoor: Side sun (morning / afternoon) ---
-  meadow_2:             `${PH}/meadow_2_2k.hdr`,
-  autumn_park:          `${PH}/autumn_park_2k.hdr`,
-  autumn_field_puresky: `${PH}/autumn_field_puresky_2k.hdr`,
-  spiaggia_di_mondello: `${PH}/spiaggia_di_mondello_2k.hdr`,
-
-  // --- Outdoor: Low sun (sunrise / sunset) ---
-  spruit_sunrise: `${PH}/spruit_sunrise_2k.hdr`,
-  lilienstein:    `${PH}/lilienstein_2k.hdr`,
-  venice_sunset:  `${PH}/venice_sunset_2k.hdr`,
-  kloppenheim_06: `${PH}/kloppenheim_06_2k.hdr`,
-
-  // --- Outdoor: Overcast / diffuse ---
-  overcast_soil_puresky: `${PH}/overcast_soil_puresky_2k.hdr`,
+  // --- Outdoor ---
   canary_wharf:          `${PH}/canary_wharf_2k.hdr`,
+  kiara_1_dawn:          `${PH}/kiara_1_dawn_2k.hdr`,
+  empty_warehouse_01:    `${PH}/empty_warehouse_01_2k.hdr`,
 };
 
 /**

@@ -137,6 +137,7 @@ input[type="radio"] {
 
 
 .tcv_cad_viewer {
+  --tcv-ui-row-gap: 8px;
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -171,7 +172,7 @@ input[type="radio"] {
 
 .tcv_cad_tree_toggles {
   text-align: right;
-  margin-right: 0px;
+  padding: 0 4px;
   margin-bottom: 3px;
 }
 
@@ -189,6 +190,7 @@ input[type="radio"] {
 .tcv_cad_tree_glass {
   border: none !important;
   height: fit-content;
+  background-color: var(--tcv-bg-overlay-rest-color);
 }
 
 .tcv_cad_tree_glass:hover {
@@ -200,8 +202,6 @@ input[type="radio"] {
   height: 146px;
   font-family: sans-serif;
   font-size: 12px;
-  border-style: solid;
-  border-width: 1px;
   overflow: hidden;
   user-select:text;
 }
@@ -232,12 +232,38 @@ input[type="radio"] {
   font-weight: bold;
   margin-left: 4px;
   padding-bottom: 4px;
+}
+
+.tcv_toggle_tools {
+  vertical-align: middle;
+  display: inline-block;
+  width: 0.8rem;
+  cursor: pointer;
+}
+
+.tcv_toggle_tools_wrapper {
+  display: none;
+  margin-left: 4px;
+  cursor: pointer;
+}
+
+.tcv_tools_label {
+  font-size: 12px;
+  font-family: sans-serif;
+  font-weight: bold;
+  margin-left: 4px;
+  padding-bottom: 4px;
   vertical-align: middle;
   user-select: none;
 }
 
 .tcv_cad_info_glass {
   display: none;
+  border: none !important;
+  background: var(--tcv-bg-overlay-rest-color);
+}
+
+.tcv_cad_info_glass:hover {
   background: var(--tcv-bg-overlay-color);
 }
 
@@ -431,7 +457,7 @@ th {
 }
 
 .tcv_box_content {
-  overflow: scroll;
+  overflow: auto;
   height: 100%;
   /* margin: 0px 0px 0px 4px; */
   padding-top: 2px;
@@ -658,51 +684,60 @@ input[type="button"] {
 }
 
 .tcv_slider_group {
-  margin-bottom: 10px;
+  margin-bottom: var(--tcv-ui-row-gap);
+}
+
+.tcv_slider_group > div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tcv_slider_group > div:first-child {
+  align-items: flex-end;
+}
+
+.tcv_slider_group .tcv_label {
+  margin-bottom: 0;
 }
 
 .tcv_material_ambientlight {
   margin-top: 4px;
 }
 
-.tcv_cad_clip_container {
-  margin-top: 14px;
-  overflow: hidden;
+.tcv_cad_material_container .tcv_studio_slider_group {
+  width: 60%;
 }
 
-.tcv_cad_material_container {
-  overflow: hidden;
-}
-
-.tcv_cad_zebra_container {
-  overflow: hidden;
-}
-
+.tcv_cad_clip_container,
+.tcv_cad_material_container,
+.tcv_cad_zebra_container,
 .tcv_cad_studio_container {
   overflow: hidden;
+  padding: 0 4px;
 }
 
-.tcv_zebra_stripe_count {
-  margin-top: 20px;
+.tcv_cad_clip_container .tcv_label,
+.tcv_cad_material_container .tcv_label,
+.tcv_cad_zebra_container .tcv_label,
+.tcv_cad_studio_container .tcv_label {
+  margin-left: 0;
+  margin-right: 0;
 }
+
 
 .tcv_zebra_radio {
-  margin-top: 8px;
-  margin-bottom: 4px;
+  margin-bottom: var(--tcv-ui-row-gap);
   margin-left: -3px;
 }
 
-.tcv_zebra_mapping {
-  margin-top: 8px;
-  margin-bottom: 4px;
-}
-
 .tcv_clip_checks {
-  margin-top: 20px;
+  margin-top: var(--tcv-ui-row-gap);
 }
 
 .tcv_clip_input {
-  width: 25%;
+  width: 36px;
+  flex-shrink: 0;
   border: 1px solid #d3d3d3;
   background-color: var(--tcv-bg-overlay-color);
   color: var(--tcv-font-color);
@@ -711,7 +746,8 @@ input[type="button"] {
 .tcv_clip_slider {
   -webkit-appearance: none;
   appearance: none;
-  width: 60%;
+  flex: 1;
+  min-width: 0;
   height: 5px;
   border-radius: 2px;
   background: #d3d3d3;
@@ -746,7 +782,6 @@ input[type="button"] {
 }
 
 .tcv_lbl_norm_plane1 {
-  margin-top: 20px;
   color: var(--tcv-x-color);
 }
 
@@ -850,6 +885,8 @@ input[type="button"] {
   background-color: var(--tcv-bg-overlay-color);
   color: var(--tcv-font-color);
   width: 60%;
+  flex-shrink: 0;
+  margin-left: auto;
   outline: none;
 }
 
@@ -862,13 +899,44 @@ input[type="button"] {
   color: var(--tcv-font-color);
 }
 
-.tcv_studio_checks {
-  margin-top: 8px;
-  margin-bottom: 8px;
+.tcv_studio_row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--tcv-ui-row-gap);
 }
 
-.tcv_studio_environment_label {
-  margin-top: 4px;
+.tcv_studio_row > .tcv_label {
+  margin-left: 0;
+  padding-bottom: 0;
+  flex-shrink: 0;
+}
+
+.tcv_studio_slider_group {
+  display: flex;
+  align-items: center;
+  width: 60%;
+  flex-shrink: 0;
+  margin-left: auto;
+  gap: 4px;
+}
+
+.tcv_studio_slider_group > .tcv_clip_slider {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+
+.tcv_studio_slider_group > .tcv_clip_input {
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.tcv_studio_checks {
+  display: flex;
+  gap: 16px;
+  margin-top: var(--tcv-ui-row-gap);
+  margin-bottom: var(--tcv-ui-row-gap);
 }
 
 .tcv_studio_info {

@@ -2801,6 +2801,18 @@ class Viewer {
   };
 
   /**
+   * Resets zebra tool settings to defaults: count=9, opacity=1, direction=0,
+   * colorScheme=blackwhite, mappingMode=reflection.
+   */
+  resetZebra = (): void => {
+    this.setZebraCount(9);
+    this.setZebraOpacity(1.0);
+    this.setZebraDirection(0);
+    this.setZebraColorScheme("blackwhite");
+    this.setZebraMappingMode("reflection");
+  };
+
+  /**
    * Gets the current stripe count value.
    * @returns The stripe count (2-50).
    */
@@ -4378,6 +4390,21 @@ class Viewer {
     }
   };
 
+  /**
+   * Resets clip planes to default normals and slider positions.
+   * Normals reset to -X, -Y, -Z; sliders to gridSize/2; checkboxes unchecked.
+   */
+  resetClip = (): void => {
+    if (!this.ready) return;
+    const mid = this.gridSize / 2;
+    this.setClipNormal(0, [-1, 0, 0], mid, true);
+    this.setClipNormal(1, [0, -1, 0], mid, true);
+    this.setClipNormal(2, [0, 0, -1], mid, true);
+    this.setClipIntersection(false, true);
+    this.setClipObjectColorCaps(false, true);
+    this.setClipPlaneHelpers(false, true);
+  };
+
   // ---------------------------------------------------------------------------
   // Image Export
   // ---------------------------------------------------------------------------
@@ -4758,12 +4785,29 @@ class Viewer {
   };
 
   /**
-   * Show/hide the info panel.
-   * @param flag - whether to show the info panel
+   * Collapse or expand the info panel in glass mode.
+   * @param flag - true to show, false to collapse
    * @public
    */
-  showInfo = (flag: boolean): void => {
+  showInfoPanel = (flag: boolean): void => {
     this.display.showInfo(flag);
+  };
+
+  /**
+   * @deprecated Use showInfoPanel() instead.
+   */
+  showInfo = (flag: boolean): void => {
+    console.warn("showInfo() is deprecated, use showInfoPanel() instead.");
+    this.showInfoPanel(flag);
+  };
+
+  /**
+   * Collapse or expand the tools panel (tabs + content) in glass mode.
+   * @param flag - true to show, false to collapse
+   * @public
+   */
+  showToolsPanel = (flag: boolean): void => {
+    this.display.showToolsPanel(flag);
   };
 
   /**

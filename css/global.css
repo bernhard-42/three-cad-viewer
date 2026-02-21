@@ -4,6 +4,7 @@
   --tcv-font-color: #333;
   --tcv-bg-color: #fff;
   --tcv-bg-overlay-color: rgba(255, 255, 255, 0.7);
+  --tcv-bg-overlay-rest-color: rgba(255, 255, 255, 0.14);
   --tcv-bg-highlight-color: #ddd;
   --tcv-bg-pressed-color: #eee;
   --tcv-bg-pressed-border-color: #bbb;
@@ -63,6 +64,7 @@
   --tcv-font-color: #ddd;
   --tcv-bg-color: #444;
   --tcv-bg-overlay-color: rgba(68, 68, 68, 0.7);
+  --tcv-bg-overlay-rest-color: rgba(68, 68, 68, 0.14);
   --tcv-bg-highlight-color: rgb(104, 104, 104);
   --tcv-bg-pressed-color: rgb(94, 94, 94);
   --tcv-bg-pressed-border-color: #999;
