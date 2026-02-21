@@ -1,6 +1,6 @@
 {
   "name": "three-cad-viewer",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "type": "module",
   "description": "WebGL-based CAD viewer built on Three.js with clipping planes, measurement tools, and tree navigation",
   "repository": {

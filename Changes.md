@@ -1,5 +1,52 @@
 # Change log
 
+## v4.2.0
+
+**Studio Mode** (new)
+
+A new **Studio** tab provides physically-based rendering with per-object materials, environment-based lighting, and tone mapping — turning the CAD viewer into a product visualization tool.
+
+- **Per-object PBR materials**: Assign materials to shapes via a `material` string tag on leaf nodes and a root-level `materials` dictionary
+  - Supports two formats: `"builtin:preset-name"` strings (31 built-in presets) and `MaterialXMaterial` objects (from the [materialx-db](https://github.com/bernhard-42/materialx-db) Python library, 3,200+ PBR materials)
+  - `MeshPhysicalMaterial` for all objects in Studio mode (clearcoat, transmission, sheen, IOR, etc.)
+  - Automatic box-projected UV generation for CAD meshes lacking texture coordinates
+- **Environment maps**: Image-based lighting (IBL) via Poly Haven HDR presets (CC0 license)
+  - 9 curated presets (studio + outdoor), loaded on demand from Poly Haven CDN
+  - Procedural `RoomEnvironment` bundled as zero-network fallback
+  - Custom HDR URL support via API
+  - 2K default resolution with runtime **4K toggle** ("Use 4K Env Maps" checkbox)
+- **Background modes**: grey, white, gradient (default), environment, or transparent
+  - Environment background rendered via fixed-FOV virtual camera for consistent appearance across ortho/perspective
+- **Tone mapping**: PBR Neutral (default), AgX, ACES Filmic, or none — with exposure control
+- **Studio floor**: Optional grid floor at scene bounding box bottom, adaptive contrast for all backgrounds
+- **Texture system**: `TextureCache` with 4-tier resolution (builtin procedural, textures table, data URI, URL) and 8 procedural builtins (brushed, knurled, sandblasted, hammered, checker, wood-dark, leather, fabric-weave)
+- **Material presets**: 31 built-in presets (polished/matte metals, plastics, glass, rubber, painted, natural) — usable as `"builtin:preset-name"` in the materials dictionary
+- **Data format**: New fields on shapes root node: `materials`, `textures`, `studioOptions`
+- **Studio tab controls**: Environment selector, env intensity slider, background mode, tone mapping, exposure, show floor, show edges, 4K env maps toggle, reset button
+- **API**: `setStudioEnvironment()`, `setStudioEnvIntensity()`, `setStudioBackground()`, `setStudioToneMapping()`, `setStudioExposure()`, `setStudioShowFloor()`, `setStudioShowEdges()`, `setStudio4kEnvMaps()`, `enterStudioMode()`, `leaveStudioMode()`, `resetStudio()`, `isStudioActive`
+- **Keyboard shortcut**: `s` to switch to Studio tab
+
+**UI Improvements**
+
+- Reordered tabs: Tree | Clip | Zebra | Material | Studio
+- Added reset buttons for Clip and Zebra tabs
+- Collapsible Tools and Info panels in glass mode with arrow toggle indicators
+- Tools panel toggle also hides/shows orientation marker and animation/explode slider
+- Animation and Z-scale bars use same rest/hover transparency as tools and info panels
+- Semi-transparent overlay backgrounds in glass mode (rest vs hover states)
+- Inline label+control layout for Studio, Material, and Zebra sliders
+
+**Fixes**
+
+- Fixed z-fighting on large models by scaling near plane with scene size (`near = max(0.1, 0.01 * boundingRadius)`)
+- Fixed environment map background appearing as tiny rectangle with orthographic cameras
+- Fixed release script to include type declaration files and source maps
+
+**New Dependencies**
+
+- Uses Three.js `HDRLoader` (replaces deprecated `RGBELoader`) and `PMREMGenerator` for environment maps
+- Uses Three.js `RoomEnvironment` for bundled procedural environment
+
 ## v4.1.0
 
 **Features**
