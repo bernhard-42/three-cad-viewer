@@ -1,6 +1,5 @@
-// Studio mode example: demonstrates all Studio material types
-// - Car paint (clearcoat), glass (transmission), brushed aluminum (anisotropy),
-//   rubber (built-in preset), and textured wood (textures).
+// Studio mode example: demonstrates builtin material presets
+// - Chrome, glass, brushed aluminum, rubber, car paint (Ferrari red)
 //
 // Geometry: UV spheres — curved surfaces show material properties clearly.
 
@@ -104,32 +103,16 @@ var studio_mode = {
   version: 3,
 
   // =========================================================================
-  // Studio mode: material library (tag -> MaterialAppearance)
+  // Studio mode: material library (tag -> builtin preset reference)
   // =========================================================================
   materials: {
-    "car-paint": {
-      preset: "car-paint",
-      baseColor: [0.8, 0.0, 0.0, 1.0],
-    },
-    "windshield": {
-      baseColor: [1.0, 1.0, 1.0, 1.0],
-      transmission: 1.0,
-      roughness: 0.0,
-      ior: 1.5,
-      thickness: 0.2,
-    },
-    "trim": {
-      preset: "brushed-aluminum",
-      normalTexture: "builtin:brushed",
-    },
-    "dashboard": {
-      baseColorTexture: "builtin:checker",
-      normalTexture: "builtin:brushed",
-      roughness: 0.7,
-    },
+    "chrome": "builtin:chrome",
+    "glass": "builtin:glass-clear",
+    "brushed-aluminum": "builtin:brushed-aluminum",
+    "rubber-black": "builtin:rubber-black",
+    "car-paint-red": "builtin:car-paint",
   },
 
-  // Using builtin: references for all textures (no embedded image data needed).
   textures: {},
 
   // Studio mode rendering hints
@@ -146,26 +129,26 @@ var studio_mode = {
   // =========================================================================
   parts: [
     {
-      id: "/Studio/Sphere A (car-paint)",
+      id: "/Studio/Chrome",
       type: "shapes",
       subtype: "solid",
-      name: "Sphere A (car-paint)",
+      name: "Chrome",
       shape: makeSphere(0, 0, 0, 3, 48, 96),
       state: [1, 1],
-      color: "#cc0000",
+      color: "#cccccc",
       alpha: 1.0,
       texture: null,
       loc: [[0, 0, 0], [0, 0, 0, 1]],
       renderback: false,
       accuracy: null,
       bb: null,
-      material: "car-paint",
+      material: "chrome",
     },
     {
-      id: "/Studio/Sphere B (glass)",
+      id: "/Studio/Glass",
       type: "shapes",
       subtype: "solid",
-      name: "Sphere B (glass)",
+      name: "Glass",
       shape: makeSphere(5, 0, 2, 2, 48, 96),
       state: [1, 1],
       color: "#aaddff",
@@ -175,13 +158,13 @@ var studio_mode = {
       renderback: false,
       accuracy: null,
       bb: null,
-      material: "windshield",
+      material: "glass",
     },
     {
-      id: "/Studio/Sphere C (brushed-aluminum)",
+      id: "/Studio/Brushed Aluminum",
       type: "shapes",
       subtype: "solid",
-      name: "Sphere C (brushed-aluminum)",
+      name: "Brushed Aluminum",
       shape: makeSphere(-5, 0, 1, 1.5, 48, 96),
       state: [1, 1],
       color: "#888888",
@@ -191,13 +174,13 @@ var studio_mode = {
       renderback: false,
       accuracy: null,
       bb: null,
-      material: "trim",
+      material: "brushed-aluminum",
     },
     {
-      id: "/Studio/Sphere D (rubber-black)",
+      id: "/Studio/Rubber",
       type: "shapes",
       subtype: "solid",
-      name: "Sphere D (rubber-black)",
+      name: "Rubber",
       shape: makeSphere(3, 0, -4, 1, 48, 96),
       state: [1, 1],
       color: "#333333",
@@ -210,20 +193,20 @@ var studio_mode = {
       material: "rubber-black",
     },
     {
-      id: "/Studio/Sphere E (textured)",
+      id: "/Studio/Car Paint",
       type: "shapes",
       subtype: "solid",
-      name: "Sphere E (textured)",
+      name: "Car Paint",
       shape: makeSphere(-3, 0, -4, 1.5, 48, 96),
       state: [1, 1],
-      color: "#8b4513",
+      color: "#cc0000",
       alpha: 1.0,
       texture: null,
       loc: [[0, 0, 0], [0, 0, 0, 1]],
       renderback: false,
       accuracy: null,
       bb: null,
-      material: "dashboard",
+      material: "car-paint-red",
     },
   ],
   loc: [[0, 0, 0], [0, 0, 0, 1]],

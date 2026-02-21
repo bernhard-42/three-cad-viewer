@@ -366,7 +366,6 @@ class Viewer {
   // Studio mode state
   private _isStudioActive: boolean = false;
   private _savedClippingState: ClippingState | null = null;
-
   // Z-scale
   zScale!: number;
 
@@ -542,6 +541,7 @@ class Viewer {
           this.state.get("studioEnvIntensity"),
           this.state.get("studioBackground"),
           this.state.get("up") === "Z",
+          this.rendered.camera.ortho,
         );
         this.update(true, false);
       }).catch((err) => {
@@ -557,6 +557,7 @@ class Viewer {
         this.state.get("studioEnvIntensity"),
         this.state.get("studioBackground"),
         this.state.get("up") === "Z",
+        this.rendered.camera.ortho,
       );
       this.update(true, false);
     });
@@ -581,8 +582,24 @@ class Viewer {
         this.state.get("studioEnvIntensity"),
         bg,
         this.state.get("up") === "Z",
+        this.rendered.camera.ortho,
       );
       this._studioFloor.updateForBackground(bg);
+      this.update(true, false);
+    });
+
+    // ortho changed while Studio active -> re-apply background (env map needs perspective)
+    this.state.subscribe("ortho", (change) => {
+      if (!isStudioActive()) return;
+      // Use change.new, not camera.ortho — the camera hasn't switched yet
+      // when this subscriber fires (state is set before camera.switchCamera).
+      this.envManager.apply(
+        this.rendered.scene,
+        this.state.get("studioEnvIntensity"),
+        this.state.get("studioBackground"),
+        this.state.get("up") === "Z",
+        change.new as boolean,
+      );
       this.update(true, false);
     });
 
@@ -935,6 +952,14 @@ class Viewer {
       this.state.get("cadWidth"),
       this.state.get("height"),
     );
+
+    // Ortho env background: render HDRI to a 2D render target so Three.js
+    // can use it as scene.background with ortho cameras (and transmission)
+    if (this.envManager.needsOrthoEnvUpdate) {
+      const cam = this.rendered.camera.getCamera() as THREE.OrthographicCamera;
+      this.envManager.updateOrthoEnvBackground(this.renderer, cam);
+    }
+
     this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
     this.cadTools.update();
 
@@ -1035,7 +1060,6 @@ class Viewer {
 
     this._isStudioActive = false;
     this._savedClippingState = null;
-
     // dispose renderer
     this.renderer.renderLists.dispose();
     this.renderer.dispose();
@@ -3040,6 +3064,7 @@ class Viewer {
         this.state.get("studioEnvIntensity"),
         this.state.get("studioBackground"),
         this.state.get("up") === "Z",
+        this.rendered.camera.ortho,
       );
 
       // Lighting: disable CAD lights; environment IBL provides all illumination
@@ -4460,6 +4485,10 @@ class Viewer {
           this.state.get("cadWidth"),
           this.state.get("height"),
         );
+        if (this.envManager.needsOrthoEnvUpdate) {
+          const cam = this.rendered.camera.getCamera() as THREE.OrthographicCamera;
+          this.envManager.updateOrthoEnvBackground(this.renderer, cam);
+        }
         this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
       },
       onComplete: () => {

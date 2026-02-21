@@ -123,11 +123,29 @@ class EnvironmentManager {
   /** HDRLoader instance (created lazily on first HDR load) */
   private _hdrLoader: HDRLoader | null = null;
 
-  /** The last loaded PMREM texture (stateful — used by apply()) */
+  /** The last loaded PMREM texture (stateful — used by apply() for IBL) */
   private _currentTexture: THREE.Texture | null = null;
 
   /** Whether this manager has been disposed */
   private _disposed = false;
+
+  /**
+   * Ortho env background workaround.
+   *
+   * Three.js cannot render PMREM/cubemap textures as scene.background with
+   * orthographic cameras (renders as a tiny rectangle). We work around this by
+   * rendering the env map to a render target using a virtual perspective camera,
+   * then setting that 2D texture as scene.background. A 2D texture background
+   * renders as a fullscreen quad regardless of camera projection, and the
+   * transmission pass (glass refraction) also sees it correctly.
+   */
+  private _bgScene: THREE.Scene | null = null;
+  private _bgCamera: THREE.PerspectiveCamera | null = null;
+  private _bgRenderTarget: THREE.WebGLRenderTarget | null = null;
+  private _orthoEnvMainScene: THREE.Scene | null = null;
+
+  /** Whether the current state requires ortho env background rendering */
+  needsOrthoEnvUpdate: boolean = false;
 
   /**
    * Deferred-apply state: if apply() was called with backgroundMode "environment"
@@ -138,6 +156,7 @@ class EnvironmentManager {
     scene: THREE.Scene;
     envIntensity: number;
     upIsZ: boolean;
+    ortho: boolean;
   } | null = null;
 
   constructor(options: EnvironmentManagerOptions = {}) {
@@ -206,9 +225,9 @@ class EnvironmentManager {
       // Self-healing: if apply() was called with "environment" background
       // while texture was null, re-apply now that the texture is ready.
       if (this._deferredApply) {
-        const { scene, envIntensity, upIsZ } = this._deferredApply;
+        const { scene, envIntensity, upIsZ, ortho } = this._deferredApply;
         this._deferredApply = null;
-        this.apply(scene, envIntensity, "environment", upIsZ);
+        this.apply(scene, envIntensity, "environment", upIsZ, ortho);
       }
 
       return texture;
@@ -233,12 +252,14 @@ class EnvironmentManager {
    * @param envIntensity - Environment intensity multiplier (0-3, default 1.0)
    * @param backgroundMode - Background mode
    * @param upIsZ - Whether the scene uses Z-up coordinates (default true)
+   * @param ortho - Whether the camera is orthographic (env background falls back to gradient)
    */
   apply(
     scene: THREE.Scene,
     envIntensity: number,
     backgroundMode: StudioBackground = "grey",
     upIsZ: boolean = true,
+    ortho: boolean = false,
   ): void {
     if (this._currentTexture) {
       scene.environment = this._currentTexture;
@@ -266,47 +287,55 @@ class EnvironmentManager {
         scene.background = STUDIO_BACKGROUND_WHITE;
         scene.backgroundIntensity = 1.0;
         scene.backgroundBlurriness = 0;
+        this._teardownOrthoEnvBackground();
         break;
       case "gradient":
         scene.background = _getGradientTexture();
         scene.backgroundIntensity = 1.0;
         scene.backgroundBlurriness = 0;
+        this._teardownOrthoEnvBackground();
         break;
       case "environment":
         if (this._currentTexture) {
-          // Use the PMREM texture directly as background.
-          // CubeUVReflectionMapping is natively supported by the WebGLBackground
-          // box-mesh shader. backgroundBlurriness selects a blurred MIP level
-          // from the pre-filtered radiance map.
-          scene.background = this._currentTexture;
-          scene.backgroundIntensity = 0.4;
-          scene.backgroundBlurriness = 0.8;
-          // Apply the same Y→Z rotation to the background
-          if (upIsZ) {
-            scene.backgroundRotation.set(Math.PI / 2, 0, 0);
+          if (ortho) {
+            // Three.js can't render PMREM backgrounds with ortho cameras.
+            // Render env to a 2D render target, then use that as scene.background.
+            // This works for both the visual background and transmission (glass).
+            this._setupOrthoEnvBackground(scene, this._currentTexture, upIsZ);
           } else {
-            scene.backgroundRotation.set(0, 0, 0);
+            scene.background = this._currentTexture;
+            scene.backgroundIntensity = 1.0;
+            scene.backgroundBlurriness = 0;
+            if (upIsZ) {
+              scene.backgroundRotation.set(Math.PI / 2, 0, 0);
+            } else {
+              scene.backgroundRotation.set(0, 0, 0);
+            }
+            this._teardownOrthoEnvBackground();
           }
           this._deferredApply = null;
         } else {
           // No environment loaded — fall back to grey.
           // Record deferred-apply so loadEnvironment() can re-apply once ready.
-          this._deferredApply = { scene, envIntensity, upIsZ };
+          this._deferredApply = { scene, envIntensity, upIsZ, ortho };
           scene.background = STUDIO_BACKGROUND_GREY;
           scene.backgroundIntensity = 1.0;
           scene.backgroundBlurriness = 0;
+          this._teardownOrthoEnvBackground();
         }
         break;
       case "transparent":
         scene.background = null;
         scene.backgroundIntensity = 1.0;
         scene.backgroundBlurriness = 0;
+        this._teardownOrthoEnvBackground();
         break;
       case "grey":
       default:
         scene.background = STUDIO_BACKGROUND_GREY;
         scene.backgroundIntensity = 1.0;
         scene.backgroundBlurriness = 0;
+        this._teardownOrthoEnvBackground();
         break;
     }
   }
@@ -321,6 +350,7 @@ class EnvironmentManager {
    */
   remove(scene: THREE.Scene): void {
     this._deferredApply = null;
+    this._teardownOrthoEnvBackground();
     scene.environment = null;
     scene.background = null;
     scene.environmentIntensity = 1.0;
@@ -328,6 +358,68 @@ class EnvironmentManager {
     scene.backgroundIntensity = 1.0;
     scene.backgroundBlurriness = 0;
     scene.backgroundRotation.set(0, 0, 0);
+  }
+
+  /**
+   * Update the ortho env background render target.
+   *
+   * Renders the PMREM env map to a 2D render target using a virtual perspective
+   * camera that matches the ortho camera's orientation. The resulting 2D texture
+   * is set as the main scene's background, which Three.js can render correctly
+   * with ortho cameras (it's just a fullscreen quad). Transmission (glass
+   * refraction) also sees this background.
+   *
+   * Call this before the main `renderer.render()` each frame while
+   * `needsOrthoEnvUpdate` is true.
+   *
+   * @param renderer - WebGL renderer
+   * @param orthoCamera - The active orthographic camera (orientation is copied)
+   */
+  updateOrthoEnvBackground(
+    renderer: THREE.WebGLRenderer,
+    orthoCamera: THREE.OrthographicCamera,
+  ): void {
+    if (
+      !this.needsOrthoEnvUpdate ||
+      !this._bgScene ||
+      !this._bgCamera ||
+      !this._orthoEnvMainScene
+    ) {
+      return;
+    }
+
+    // Match viewport size for the render target
+    const size = renderer.getDrawingBufferSize(new THREE.Vector2());
+    const w = size.x;
+    const h = size.y;
+
+    if (!this._bgRenderTarget || this._bgRenderTarget.width !== w || this._bgRenderTarget.height !== h) {
+      this._bgRenderTarget?.dispose();
+      this._bgRenderTarget = new THREE.WebGLRenderTarget(w, h);
+    }
+
+    // Match viewport aspect ratio
+    const aspect = w / h;
+    if (this._bgCamera.aspect !== aspect) {
+      this._bgCamera.aspect = aspect;
+      this._bgCamera.updateProjectionMatrix();
+    }
+
+    // Sync virtual perspective camera with the ortho camera's orientation
+    this._bgCamera.position.copy(orthoCamera.position);
+    this._bgCamera.quaternion.copy(orthoCamera.quaternion);
+    this._bgCamera.updateMatrixWorld();
+
+    // Render env background to the render target
+    renderer.setRenderTarget(this._bgRenderTarget);
+    renderer.clear();
+    renderer.render(this._bgScene, this._bgCamera);
+    renderer.setRenderTarget(null);
+
+    // Set the 2D texture as the main scene's background
+    this._orthoEnvMainScene.background = this._bgRenderTarget.texture;
+    this._orthoEnvMainScene.backgroundIntensity = 1.0;
+    this._orthoEnvMainScene.backgroundBlurriness = 0;
   }
 
   /**
@@ -344,6 +436,13 @@ class EnvironmentManager {
     this._disposed = true;
     this._currentTexture = null;
     this._deferredApply = null;
+    this._teardownOrthoEnvBackground();
+    this._bgScene = null;
+    this._bgCamera = null;
+    if (this._bgRenderTarget) {
+      this._bgRenderTarget.dispose();
+      this._bgRenderTarget = null;
+    }
 
     // Dispose all cached PMREM render targets (disposes textures too)
     for (const [key, renderTarget] of this._cache) {
@@ -370,6 +469,43 @@ class EnvironmentManager {
   // ---------------------------------------------------------------------------
   // Private helpers
   // ---------------------------------------------------------------------------
+
+  /**
+   * Set up the ortho env background: a separate scene with the PMREM texture
+   * as background and a virtual perspective camera for rendering to a 2D target.
+   */
+  private _setupOrthoEnvBackground(
+    mainScene: THREE.Scene,
+    texture: THREE.Texture,
+    upIsZ: boolean,
+  ): void {
+    if (!this._bgScene) {
+      this._bgScene = new THREE.Scene();
+    }
+    if (!this._bgCamera) {
+      this._bgCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 10);
+    }
+
+    this._bgScene.background = texture;
+    this._bgScene.backgroundIntensity = 1.0;
+    this._bgScene.backgroundBlurriness = 0;
+    if (upIsZ) {
+      this._bgScene.backgroundRotation.set(Math.PI / 2, 0, 0);
+    } else {
+      this._bgScene.backgroundRotation.set(0, 0, 0);
+    }
+
+    this._orthoEnvMainScene = mainScene;
+    this.needsOrthoEnvUpdate = true;
+  }
+
+  /**
+   * Tear down the ortho env background state.
+   */
+  private _teardownOrthoEnvBackground(): void {
+    this.needsOrthoEnvUpdate = false;
+    this._orthoEnvMainScene = null;
+  }
 
   /**
    * Resolve environment name to an HDR URL, if applicable.
@@ -523,8 +659,7 @@ class EnvironmentManager {
     // Generate PMREM cubemap from equirectangular HDR
     const renderTarget = pmremGenerator.fromEquirectangular(hdrTexture);
 
-    // Dispose the source HDR texture (PMREM is now in GPU memory).
-    // For "environment" background mode, the PMREM texture itself is used directly.
+    // Dispose the source equirectangular texture (PMREM is now in GPU memory).
     hdrTexture.dispose();
 
     // Cache render target and track its texture
