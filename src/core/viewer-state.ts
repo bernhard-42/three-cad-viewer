@@ -115,6 +115,7 @@ interface StudioModeDefaults {
   studioToneMapping: StudioToneMapping;
   studioExposure: number;
   studioShowEdges: boolean;
+  studio4kEnvMaps: boolean;
 }
 
 /**
@@ -171,7 +172,7 @@ const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
   "zebraCount", "zebraOpacity", "zebraDirection", "zebraColorScheme", "zebraMappingMode",
   // Studio
   "studioEnvironment", "studioEnvIntensity", "studioShowFloor", "studioBackground",
-  "studioToneMapping", "studioExposure", "studioShowEdges",
+  "studioToneMapping", "studioExposure", "studioShowEdges", "studio4kEnvMaps",
   // Runtime
   "activeTool", "animationMode", "animationSliderValue", "zscaleActive", "highlightedButton",
   "activeTab",
@@ -238,6 +239,7 @@ const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
   studioToneMapping: "studio_tone_mapping",
   studioExposure: "studio_exposure",
   studioShowEdges: "studio_show_edges",
+  studio4kEnvMaps: "studio_4k_env_maps",
   // Animation/Explode slider (shared state, mutually exclusive modes)
   animationSliderValue: "relative_time",
 };
@@ -410,6 +412,7 @@ class ViewerState {
     studioToneMapping: "neutral",
     studioExposure: 1.0,
     studioShowEdges: false,
+    studio4kEnvMaps: false,
   };
 
   /**

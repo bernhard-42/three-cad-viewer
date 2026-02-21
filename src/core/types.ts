@@ -359,6 +359,8 @@ export interface StudioModeOptions {
   studioExposure?: number;
   /** Show edges in Studio mode (default: false) */
   studioShowEdges?: boolean;
+  /** Use 4K environment maps instead of 2K (default: false) */
+  studio4kEnvMaps?: boolean;
 }
 
 /** Combined options for initialization */
@@ -445,6 +447,7 @@ export interface ViewerStateShape {
   studioToneMapping: StudioToneMapping;
   studioExposure: number;
   studioShowEdges: boolean;
+  studio4kEnvMaps: boolean;
 
   // Runtime
   activeTool: string | null;
@@ -684,6 +687,8 @@ export interface StudioOptions {
   toneMappingExposure?: number;
   /** Show edges in Studio mode (default: false) */
   showEdges?: boolean;
+  /** Use 4K environment maps instead of 2K (default: false) */
+  use4kEnvMaps?: boolean;
 }
 
 // =============================================================================

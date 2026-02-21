@@ -1047,6 +1047,11 @@ class Display {
       this.handleStudioShowEdges,
       false,
     );
+    this.setupCheckEvent(
+      "tcv_studio_4k_env_maps",
+      this.handleStudio4kEnvMaps,
+      false,
+    );
 
     this.setupSelectEvent(
       "tcv_studio_environment",
@@ -1252,6 +1257,8 @@ class Display {
     sub("studioEnvironment", (change) => {
       const el = this.container.querySelector(".tcv_studio_environment");
       if (el instanceof HTMLSelectElement) el.value = change.new;
+      // Disable 4K checkbox for non-preset environments (custom URLs, "studio")
+      this._update4kCheckboxEnabled(change.new);
     });
     sub(
       "studioEnvIntensity",
@@ -1280,6 +1287,9 @@ class Display {
     );
     sub("studioShowEdges", (change) => {
       this.getInputElement("tcv_studio_show_edges").checked = change.new;
+    });
+    sub("studio4kEnvMaps", (change) => {
+      this.getInputElement("tcv_studio_4k_env_maps").checked = change.new;
     });
 
     // Animation/Explode mode subscription - controls slider visibility, label, and explode button
@@ -2052,6 +2062,28 @@ class Display {
   };
 
   /**
+   * Handler for Studio 4K env maps checkbox change.
+   * Shows a "Loading…" indicator while the new resolution downloads.
+   */
+  handleStudio4kEnvMaps = (e: Event): void => {
+    if (!(e.target instanceof HTMLInputElement)) return;
+    const use4k = e.target.checked;
+    const loadingEl = this.container.querySelector(".tcv_studio_4k_loading") as HTMLElement | null;
+    if (loadingEl) loadingEl.style.display = "inline";
+    this.state.set("studio4kEnvMaps", use4k);
+
+    // The state subscriber in viewer.ts triggers the async reload via
+    // envManager.setUse4kEnvMaps(). Listen for the viewer to signal
+    // completion by dispatching a custom event on the container.
+    const hideLoading = () => {
+      if (loadingEl) loadingEl.style.display = "none";
+    };
+    this.container.addEventListener("tcv-env-loaded", hideLoading, { once: true });
+    // Safety timeout: hide after 30s regardless
+    setTimeout(hideLoading, 30000);
+  };
+
+  /**
    * Reset Studio tab values to defaults.
    * Delegates to viewer.resetStudio() (same pattern as handleMaterialReset -> resetMaterial()).
    */
@@ -2198,12 +2230,30 @@ class Display {
     this.studioExposureSlider?.setValueFromState(state.get("studioExposure") * 100);
     this.getInputElement("tcv_studio_show_floor").checked = state.get("studioShowFloor");
     this.getInputElement("tcv_studio_show_edges").checked = state.get("studioShowEdges");
+    this.getInputElement("tcv_studio_4k_env_maps").checked = state.get("studio4kEnvMaps");
     const envEl = this.container.querySelector(".tcv_studio_environment");
     if (envEl instanceof HTMLSelectElement) envEl.value = state.get("studioEnvironment");
     const bgEl = this.container.querySelector(".tcv_studio_background");
     if (bgEl instanceof HTMLSelectElement) bgEl.value = state.get("studioBackground");
     const tmEl = this.container.querySelector(".tcv_studio_tone_mapping");
     if (tmEl instanceof HTMLSelectElement) tmEl.value = state.get("studioToneMapping");
+    this._update4kCheckboxEnabled(state.get("studioEnvironment"));
+  }
+
+  /**
+   * Enable/disable the 4K checkbox based on whether the current environment
+   * is a Poly Haven preset (resolution-switchable) or a custom URL / "studio".
+   */
+  private _update4kCheckboxEnabled(envName: string): void {
+    const cb = this.container.querySelector(".tcv_studio_4k_env_maps") as HTMLInputElement | null;
+    if (!cb) return;
+    const isPreset = this.viewer.envManager.isPreset(envName);
+    cb.disabled = !isPreset;
+    if (!isPreset) {
+      cb.title = "4K switching is only available for built-in Poly Haven presets";
+    } else {
+      cb.title = "";
+    }
   }
 
   /**

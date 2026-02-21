@@ -623,6 +623,25 @@ class Viewer {
       this.nestedGroup.setStudioShowEdges(change.new);
       this.update(true, false);
     });
+
+    // studio4kEnvMaps changed -> switch resolution and reload
+    this.state.subscribe("studio4kEnvMaps", (change) => {
+      if (!isStudioActive()) return;
+      const envName = this.state.get("studioEnvironment");
+      this.envManager.setUse4kEnvMaps(change.new, envName, this.renderer).then(() => {
+        if (!isStudioActive()) return;
+        this.envManager.apply(
+          this.rendered.scene,
+          this.state.get("studioEnvIntensity"),
+          this.state.get("studioBackground"),
+          this.state.get("up") === "Z",
+          this.rendered.camera.ortho,
+        );
+        this.update(true, false);
+        // Signal UI that loading is complete
+        this.display.container.dispatchEvent(new Event("tcv-env-loaded"));
+      });
+    });
   }
 
   /**
@@ -953,11 +972,10 @@ class Viewer {
       this.state.get("height"),
     );
 
-    // Ortho env background: render HDRI to a 2D render target so Three.js
-    // can use it as scene.background with ortho cameras (and transmission)
-    if (this.envManager.needsOrthoEnvUpdate) {
-      const cam = this.rendered.camera.getCamera() as THREE.OrthographicCamera;
-      this.envManager.updateOrthoEnvBackground(this.renderer, cam);
+    // Env background: render HDRI to a 2D render target via a fixed-FOV
+    // virtual camera so the background looks consistent across camera types
+    if (this.envManager.needsEnvBackgroundUpdate) {
+      this.envManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
     }
 
     this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
@@ -2953,6 +2971,16 @@ class Viewer {
   };
 
   /**
+   * Sets whether 4K environment maps are used (default: 2K).
+   * @param value - True for 4K, false for 2K.
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudio4kEnvMaps = (value: boolean, notify: boolean = true): void => {
+    this.state.set("studio4kEnvMaps", value, notify);
+  };
+
+  /**
    * Gets the current studio environment preset.
    * @returns The environment name ("studio", "neutral", "outdoor", "none", or custom HDR URL).
    * @public
@@ -3198,6 +3226,7 @@ class Viewer {
     this.state.set("studioToneMapping", defaults.studioToneMapping);
     this.state.set("studioExposure", defaults.studioExposure);
     this.state.set("studioShowEdges", defaults.studioShowEdges);
+    this.state.set("studio4kEnvMaps", defaults.studio4kEnvMaps);
   };
 
   // ---------------------------------------------------------------------------
@@ -4485,9 +4514,8 @@ class Viewer {
           this.state.get("cadWidth"),
           this.state.get("height"),
         );
-        if (this.envManager.needsOrthoEnvUpdate) {
-          const cam = this.rendered.camera.getCamera() as THREE.OrthographicCamera;
-          this.envManager.updateOrthoEnvBackground(this.renderer, cam);
+        if (this.envManager.needsEnvBackgroundUpdate) {
+          this.envManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
         }
         this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
       },

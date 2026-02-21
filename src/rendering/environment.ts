@@ -53,31 +53,42 @@ function _getGradientTexture(): THREE.Texture {
  * Poly Haven CDN base URL for HDR files.
  * Pattern: {BASE}/{resolution}/{slug}_{resolution}.hdr
  */
-const PH = "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k";
+const PH_BASE = "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr";
 
 /**
- * Default HDR preset URLs.
+ * Default HDR preset slugs (Poly Haven asset names).
  *
- * All maps from Poly Haven (CC0 license, permissive CORS) at 2K resolution.
- * Host applications can override these via the `presetUrls` constructor option.
+ * All maps from Poly Haven (CC0 license, permissive CORS).
+ * Resolution is selected at runtime via `use4kEnvMaps`.
+ * Host applications can override URLs via the `presetUrls` constructor option.
  *
  * Curated for CAD/product visualization: neutral white studios that make
  * every material look good, plus two overcast outdoor options for context.
  */
-const DEFAULT_PRESET_URLS: Record<string, string> = {
+const DEFAULT_PRESET_SLUGS: string[] = [
   // --- Studio: Soft / neutral ---
-  studio_small_08:   `${PH}/studio_small_08_2k.hdr`,
-  white_studio_05:   `${PH}/white_studio_05_2k.hdr`,
-  white_studio_03:   `${PH}/white_studio_03_2k.hdr`,
-  photo_studio_01:   `${PH}/photo_studio_01_2k.hdr`,
-  studio_small_09:   `${PH}/studio_small_09_2k.hdr`,
-  cyclorama_hard_light: `${PH}/cyclorama_hard_light_2k.hdr`,
+  "studio_small_08",
+  "white_studio_05",
+  "white_studio_03",
+  "photo_studio_01",
+  "studio_small_09",
+  "cyclorama_hard_light",
 
   // --- Outdoor ---
-  canary_wharf:          `${PH}/canary_wharf_2k.hdr`,
-  kiara_1_dawn:          `${PH}/kiara_1_dawn_2k.hdr`,
-  empty_warehouse_01:    `${PH}/empty_warehouse_01_2k.hdr`,
-};
+  "canary_wharf",
+  "kiara_1_dawn",
+  "empty_warehouse_01",
+];
+
+/** Build preset URL map for the given resolution tier. */
+function _buildPresetUrls(use4k: boolean): Record<string, string> {
+  const res = use4k ? "4k" : "2k";
+  const urls: Record<string, string> = {};
+  for (const slug of DEFAULT_PRESET_SLUGS) {
+    urls[slug] = `${PH_BASE}/${res}/${slug}_${res}.hdr`;
+  }
+  return urls;
+}
 
 /**
  * Configuration options for EnvironmentManager.
@@ -120,6 +131,12 @@ class EnvironmentManager {
   /** Resolved preset URLs (defaults merged with user overrides) */
   private _presetUrls: Record<string, string>;
 
+  /** Whether 4K env maps are enabled (default false = 2K) */
+  private _use4k: boolean = false;
+
+  /** User-provided URL overrides from constructor */
+  private _userOverrides: Record<string, string> = {};
+
   /** HDRLoader instance (created lazily on first HDR load) */
   private _hdrLoader: HDRLoader | null = null;
 
@@ -144,8 +161,8 @@ class EnvironmentManager {
   private _bgRenderTarget: THREE.WebGLRenderTarget | null = null;
   private _orthoEnvMainScene: THREE.Scene | null = null;
 
-  /** Whether the current state requires ortho env background rendering */
-  needsOrthoEnvUpdate: boolean = false;
+  /** Whether the current state requires env background rendering to a 2D target */
+  needsEnvBackgroundUpdate: boolean = false;
 
   /**
    * Deferred-apply state: if apply() was called with backgroundMode "environment"
@@ -160,9 +177,10 @@ class EnvironmentManager {
   } | null = null;
 
   constructor(options: EnvironmentManagerOptions = {}) {
+    this._userOverrides = (options.presetUrls as Record<string, string> | undefined) ?? {};
     this._presetUrls = {
-      ...DEFAULT_PRESET_URLS,
-      ...(options.presetUrls as Record<string, string> | undefined),
+      ..._buildPresetUrls(false),
+      ...this._userOverrides,
     };
   }
 
@@ -287,32 +305,21 @@ class EnvironmentManager {
         scene.background = STUDIO_BACKGROUND_WHITE;
         scene.backgroundIntensity = 1.0;
         scene.backgroundBlurriness = 0;
-        this._teardownOrthoEnvBackground();
+        this._teardownEnvBackground();
         break;
       case "gradient":
         scene.background = _getGradientTexture();
         scene.backgroundIntensity = 1.0;
         scene.backgroundBlurriness = 0;
-        this._teardownOrthoEnvBackground();
+        this._teardownEnvBackground();
         break;
       case "environment":
         if (this._currentTexture) {
-          if (ortho) {
-            // Three.js can't render PMREM backgrounds with ortho cameras.
-            // Render env to a 2D render target, then use that as scene.background.
-            // This works for both the visual background and transmission (glass).
-            this._setupOrthoEnvBackground(scene, this._currentTexture, upIsZ);
-          } else {
-            scene.background = this._currentTexture;
-            scene.backgroundIntensity = 1.0;
-            scene.backgroundBlurriness = 0;
-            if (upIsZ) {
-              scene.backgroundRotation.set(Math.PI / 2, 0, 0);
-            } else {
-              scene.backgroundRotation.set(0, 0, 0);
-            }
-            this._teardownOrthoEnvBackground();
-          }
+          // Render env map to a 2D render target via a fixed-FOV virtual camera,
+          // then use that texture as scene.background. This gives a consistent
+          // "distant" background for both ortho and perspective cameras, and
+          // avoids the main camera's narrow FOV making the env appear too close.
+          this._setupEnvBackground(scene, this._currentTexture, upIsZ);
           this._deferredApply = null;
         } else {
           // No environment loaded — fall back to grey.
@@ -321,21 +328,21 @@ class EnvironmentManager {
           scene.background = STUDIO_BACKGROUND_GREY;
           scene.backgroundIntensity = 1.0;
           scene.backgroundBlurriness = 0;
-          this._teardownOrthoEnvBackground();
+          this._teardownEnvBackground();
         }
         break;
       case "transparent":
         scene.background = null;
         scene.backgroundIntensity = 1.0;
         scene.backgroundBlurriness = 0;
-        this._teardownOrthoEnvBackground();
+        this._teardownEnvBackground();
         break;
       case "grey":
       default:
         scene.background = STUDIO_BACKGROUND_GREY;
         scene.backgroundIntensity = 1.0;
         scene.backgroundBlurriness = 0;
-        this._teardownOrthoEnvBackground();
+        this._teardownEnvBackground();
         break;
     }
   }
@@ -350,7 +357,7 @@ class EnvironmentManager {
    */
   remove(scene: THREE.Scene): void {
     this._deferredApply = null;
-    this._teardownOrthoEnvBackground();
+    this._teardownEnvBackground();
     scene.environment = null;
     scene.background = null;
     scene.environmentIntensity = 1.0;
@@ -361,26 +368,86 @@ class EnvironmentManager {
   }
 
   /**
-   * Update the ortho env background render target.
+   * Switch between 2K and 4K environment map resolution.
    *
-   * Renders the PMREM env map to a 2D render target using a virtual perspective
-   * camera that matches the ortho camera's orientation. The resulting 2D texture
-   * is set as the main scene's background, which Three.js can render correctly
-   * with ortho cameras (it's just a fullscreen quad). Transmission (glass
-   * refraction) also sees this background.
+   * Rebuilds preset URLs, evicts cached HDR presets (so they reload at
+   * the new resolution), and reloads the current environment if one is
+   * active.
+   *
+   * @param use4k - True for 4K, false for 2K
+   * @param currentEnvName - The currently active environment name (to reload)
+   * @param renderer - WebGL renderer (needed for reload)
+   * @returns Promise that resolves when the new texture is ready
+   */
+  async setUse4kEnvMaps(
+    use4k: boolean,
+    currentEnvName: string,
+    renderer: THREE.WebGLRenderer,
+  ): Promise<THREE.Texture | null> {
+    if (use4k === this._use4k) return this._currentTexture;
+    this._use4k = use4k;
+
+    // Rebuild preset URLs at the new resolution
+    this._presetUrls = {
+      ..._buildPresetUrls(use4k),
+      ...this._userOverrides,
+    };
+
+    // Evict cached HDR presets (they point to the old resolution).
+    // "studio" (RoomEnvironment) is procedural and unaffected.
+    for (const slug of DEFAULT_PRESET_SLUGS) {
+      const cached = this._cache.get(slug);
+      if (cached) {
+        gpuTracker.untrack("texture", cached.texture);
+        cached.dispose();
+        this._cache.delete(slug);
+        logger.debug(`Evicted cached environment "${slug}" for resolution switch`);
+      }
+    }
+
+    // Reload the current environment at the new resolution
+    if (currentEnvName && currentEnvName !== "none" && currentEnvName !== "studio") {
+      return this.loadEnvironment(currentEnvName, renderer);
+    }
+
+    return this._currentTexture;
+  }
+
+  /** Whether 4K env maps are currently enabled. */
+  get use4kEnvMaps(): boolean {
+    return this._use4k;
+  }
+
+  /**
+   * Whether an environment name is a Poly Haven preset (resolution-switchable).
+   * Returns false for "studio", "none", and custom URLs.
+   */
+  isPreset(name: string): boolean {
+    return DEFAULT_PRESET_SLUGS.includes(name);
+  }
+
+  /**
+   * Update the env background render target.
+   *
+   * Renders the PMREM env map to a 2D render target using a fixed-FOV virtual
+   * perspective camera that matches the active camera's orientation. The
+   * resulting 2D texture is set as the main scene's background, giving a
+   * consistent "distant" environment look regardless of camera projection
+   * (the main perspective camera's narrow 22° FOV would otherwise make the
+   * env appear too close / zoomed in).
    *
    * Call this before the main `renderer.render()` each frame while
-   * `needsOrthoEnvUpdate` is true.
+   * `needsEnvBackgroundUpdate` is true.
    *
    * @param renderer - WebGL renderer
-   * @param orthoCamera - The active orthographic camera (orientation is copied)
+   * @param camera - The active camera (orientation is copied)
    */
-  updateOrthoEnvBackground(
+  updateEnvBackground(
     renderer: THREE.WebGLRenderer,
-    orthoCamera: THREE.OrthographicCamera,
+    camera: THREE.Camera,
   ): void {
     if (
-      !this.needsOrthoEnvUpdate ||
+      !this.needsEnvBackgroundUpdate ||
       !this._bgScene ||
       !this._bgCamera ||
       !this._orthoEnvMainScene
@@ -405,9 +472,9 @@ class EnvironmentManager {
       this._bgCamera.updateProjectionMatrix();
     }
 
-    // Sync virtual perspective camera with the ortho camera's orientation
-    this._bgCamera.position.copy(orthoCamera.position);
-    this._bgCamera.quaternion.copy(orthoCamera.quaternion);
+    // Sync virtual perspective camera with the active camera's orientation
+    this._bgCamera.position.copy(camera.position);
+    this._bgCamera.quaternion.copy(camera.quaternion);
     this._bgCamera.updateMatrixWorld();
 
     // Render env background to the render target
@@ -436,7 +503,7 @@ class EnvironmentManager {
     this._disposed = true;
     this._currentTexture = null;
     this._deferredApply = null;
-    this._teardownOrthoEnvBackground();
+    this._teardownEnvBackground();
     this._bgScene = null;
     this._bgCamera = null;
     if (this._bgRenderTarget) {
@@ -471,10 +538,11 @@ class EnvironmentManager {
   // ---------------------------------------------------------------------------
 
   /**
-   * Set up the ortho env background: a separate scene with the PMREM texture
-   * as background and a virtual perspective camera for rendering to a 2D target.
+   * Set up the env background: a separate scene with the PMREM texture
+   * as background and a fixed-FOV virtual perspective camera for rendering
+   * to a 2D target. Used for both ortho and perspective cameras.
    */
-  private _setupOrthoEnvBackground(
+  private _setupEnvBackground(
     mainScene: THREE.Scene,
     texture: THREE.Texture,
     upIsZ: boolean,
@@ -496,14 +564,14 @@ class EnvironmentManager {
     }
 
     this._orthoEnvMainScene = mainScene;
-    this.needsOrthoEnvUpdate = true;
+    this.needsEnvBackgroundUpdate = true;
   }
 
   /**
-   * Tear down the ortho env background state.
+   * Tear down the env background state.
    */
-  private _teardownOrthoEnvBackground(): void {
-    this.needsOrthoEnvUpdate = false;
+  private _teardownEnvBackground(): void {
+    this.needsEnvBackgroundUpdate = false;
     this._orthoEnvMainScene = null;
   }
 
