@@ -73,6 +73,14 @@ const cameraUp: Record<UpMode, [number, number, number]> = {
 class Camera {
   private static readonly DISTANCE_FACTOR = 5;
 
+  /**
+   * Near plane factor: near = max(0.1, NEAR_FACTOR * distance).
+   * With far = 100 * distance, this gives a far/near ratio of 10,000:1,
+   * which is comfortable for 24-bit depth buffers and avoids z-fighting
+   * on large models (e.g. toycar at ~1100 unit bounding radius).
+   */
+  private static readonly NEAR_FACTOR = 0.01;
+
   target: THREE.Vector3;
   ortho: boolean;
   up: UpMode;
@@ -82,6 +90,14 @@ class Camera {
   pCamera!: THREE.PerspectiveCamera; // Initialized in constructor
   oCamera!: THREE.OrthographicCamera; // Initialized in constructor
   camera!: THREE.PerspectiveCamera | THREE.OrthographicCamera; // Set in constructor
+
+  /**
+   * Compute the near clipping plane from the bounding radius.
+   * Keeps the far/near ratio bounded for depth buffer precision.
+   */
+  private static _computeNear(distance: number): number {
+    return Math.max(0.1, Camera.NEAR_FACTOR * distance);
+  }
 
   /**
    * Create a combined camera (orthographic and perspective).
@@ -120,12 +136,10 @@ class Camera {
 
     this.camera_distance = Camera.DISTANCE_FACTOR * distance;
 
-    this.pCamera = new THREE.PerspectiveCamera(
-      fov,
-      aspect,
-      0.1,
-      100 * distance,
-    );
+    const near = Camera._computeNear(distance);
+    const far = 100 * distance;
+
+    this.pCamera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     this.pCamera.up.set(...cameraUp[this.up]);
     this.pCamera.lookAt(this.target);
 
@@ -137,8 +151,8 @@ class Camera {
       pSize[0],
       pSize[1],
       -pSize[1],
-      0.1,
-      100 * distance,
+      near,
+      far,
     );
     this.oCamera.up.set(...cameraUp[this.up]);
     this.oCamera.lookAt(this.target);
@@ -148,12 +162,15 @@ class Camera {
   }
 
   /**
-   * Update the far clipping plane for both cameras.
-   * @param distance - The new bounding radius to base the far plane on.
+   * Update the near/far clipping planes for both cameras.
+   * @param distance - The new bounding radius to base the clipping planes on.
    */
   updateFarPlane(distance: number): void {
+    const near = Camera._computeNear(distance);
     const far = 100 * distance;
+    this.pCamera.near = near;
     this.pCamera.far = far;
+    this.oCamera.near = near;
     this.oCamera.far = far;
     this.camera.updateProjectionMatrix();
   }
