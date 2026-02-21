@@ -162,6 +162,7 @@ class Display {
   private _studioLoadingEl: HTMLElement | null = null;
   cadInfo!: HTMLElement;
   cadAnim!: HTMLElement;
+  private _animWasVisible: boolean = false;
   cadTools!: HTMLElement;
   cadHelp!: HTMLElement;
   tabTree!: HTMLElement;
@@ -2537,13 +2538,28 @@ class Display {
   };
 
   /**
-   * Show or hide tools panel (tabs + content) in glass mode
+   * Show or hide tools panel (tabs + content) in glass mode.
+   * Also toggles the orientation marker and animation/explode slider.
    */
   showToolsPanel = (flag: boolean): void => {
     const cadTree = this.getElement("tcv_cad_tree");
     cadTree.style.display = flag ? "" : "none";
     this.getElement("tcv_toggle_tools").innerHTML = flag ? "\u25BE" : "\u25B8";
     this.tools_shown = flag;
+
+    // Toggle orientation marker
+    if (this.viewer.ready) {
+      this.viewer.rendered.orientationMarker.setVisible(flag);
+      this.viewer.update(true, false);
+    }
+
+    // Toggle animation/explode slider (only if it was visible before hiding)
+    if (!flag) {
+      this._animWasVisible = this.cadAnim.style.display !== "none";
+      this.cadAnim.style.display = "none";
+    } else if (this._animWasVisible) {
+      this.cadAnim.style.display = "block";
+    }
   };
 
   /**

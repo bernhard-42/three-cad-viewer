@@ -379,7 +379,7 @@ th {
 
 .tcv_cad_animation {
   height: 36px;
-  background-color: var(--tcv-bg-overlay-color);
+  background-color: var(--tcv-bg-overlay-rest-color);
   border: none;
   margin: 0;
   padding: 0px;
@@ -389,9 +389,13 @@ th {
   z-index: 100;
 }
 
+.tcv_cad_animation:hover {
+  background-color: var(--tcv-bg-overlay-color);
+}
+
 .tcv_cad_zscale {
   height: 36px;
-  background-color: var(--tcv-bg-overlay-color);
+  background-color: var(--tcv-bg-overlay-rest-color);
   border: none;
   margin: 0;
   padding: 0px;
@@ -400,6 +404,10 @@ th {
   bottom: 0px;
   z-index: 100;
   align-content: center;
+}
+
+.tcv_cad_zscale:hover {
+  background-color: var(--tcv-bg-overlay-color);
 }
 
 .tcv_cad_tools {
