@@ -39,6 +39,7 @@ interface DisplayDefaults {
   zscaleTool: boolean;
   zebraTool: boolean;
   measurementDebug: boolean;
+  headless: boolean;
 }
 
 /**
@@ -141,7 +142,7 @@ const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
   // Display
   "theme", "cadWidth", "treeWidth", "treeHeight", "height", "pinning", "glass", "tools",
   "keymap", "newTreeBehavior", "measureTools", "selectTool", "explodeTool", "zscaleTool",
-  "zebraTool", "measurementDebug",
+  "zebraTool", "measurementDebug", "headless",
   // Render
   "ambientIntensity", "directIntensity", "metalness", "roughness", "defaultOpacity",
   "edgeColor", "normalLen",
@@ -309,6 +310,7 @@ class ViewerState {
     zscaleTool: false,
     zebraTool: true,
     measurementDebug: false,
+    headless: false,
   };
 
   /**

@@ -11,56 +11,55 @@ declare global {
   }
 }
 
-import { NestedGroup, ObjectGroup, isObjectGroup, isCompoundGroup } from "../scene/nestedgroup.js";
-import { Grid } from "../scene/grid.js";
 import { AxesHelper } from "../scene/axes.js";
+import { Grid } from "../scene/grid.js";
+import { isCompoundGroup, isObjectGroup, NestedGroup, ObjectGroup } from "../scene/nestedgroup.js";
 import { OrientationMarker } from "../scene/orientation.js";
 import { TreeView } from "../ui/treeview.js";
 // TreeData and StateValue available if needed for tree manipulation
-import { Timer } from "../utils/timer.js";
-import { Clipping } from "../scene/clipping.js";
+import type { QuaternionTuple, Vector3Tuple } from "three";
+import { version } from "../_version.js";
+import { Camera, type CameraDirection } from "../camera/camera.js";
+import { Controls } from "../camera/controls.js";
+import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
 import { Animation } from "../scene/animation.js";
+import { BoundingBox, BoxHelper } from "../scene/bbox.js";
+import { Clipping } from "../scene/clipping.js";
+import type { RenderResult, ShapeTreeData } from "../scene/render-shape.js";
+import { ShapeRenderer } from "../scene/render-shape.js";
+import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
+import type { Display } from "../ui/display.js";
+import { logger } from "../utils/logger.js";
+import { Timer } from "../utils/timer.js";
+import type { DisposableTree, KeyMappingConfig } from "../utils/utils.js";
 import {
+  deepDispose,
   isEqual,
+  isLineSegments2,
+  isOrthographicCamera,
   KeyMapper,
   scaleLight,
-  deepDispose,
-  isOrthographicCamera,
-  isLineSegments2,
-  toVector3Tuple,
   toQuaternionTuple,
+  toVector3Tuple,
 } from "../utils/utils.js";
-import type { DisposableTree } from "../utils/utils.js";
-import { ShapeRenderer } from "../scene/render-shape.js";
-import type { ShapeTreeData, RenderResult } from "../scene/render-shape.js";
-import type { KeyMappingConfig } from "../utils/utils.js";
-import { Controls } from "../camera/controls.js";
-import { Camera, type CameraDirection } from "../camera/camera.js";
-import { BoundingBox, BoxHelper } from "../scene/bbox.js";
-import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
-import { version } from "../_version.js";
-import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
-import { ViewerState } from "./viewer-state.js";
-import { logger } from "../utils/logger.js";
-import type { Display } from "../ui/display.js";
-import type { Vector3Tuple, QuaternionTuple } from "three";
 import {
   CollapseState,
-  type ZebraColorScheme,
-  type ZebraMappingMode,
-  type NotificationCallback,
-  type RenderOptions,
-  type ViewerOptions,
-  type Shapes,
-  type VisibilityState,
-  type StateChange,
   type ActiveTab,
   type Axis,
-  type ClipIndex,
-  type ThemeInput,
   type BoundingBoxFlat,
+  type ClipIndex,
   type Keymap,
+  type NotificationCallback,
+  type RenderOptions,
+  type Shapes,
+  type StateChange,
+  type ThemeInput,
+  type ViewerOptions,
+  type VisibilityState,
+  type ZebraColorScheme,
+  type ZebraMappingMode,
 } from "./types.js";
+import { ViewerState } from "./viewer-state.js";
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -205,6 +204,9 @@ interface DisplayOptionsInternal {
   zebraTool?: boolean;
   glass?: boolean;
   tools?: boolean;
+  headless?: boolean;
+  canvas?: HTMLCanvasElement;
+  gl?: WebGLRenderingContext | WebGL2RenderingContext;
   keymap?: KeymapConfig;
   [key: string]: unknown;
 }
@@ -289,6 +291,8 @@ class Viewer {
   // Always available (set in constructor)
   display!: Display;
   renderer!: THREE.WebGLRenderer;
+  private _externalGl: boolean;
+  onAfterRender: (() => void) | null;
   mouse!: THREE.Vector2;
   cadTools!: Tools;
   animation!: Animation;
@@ -402,6 +406,7 @@ class Viewer {
     this.notifyCallback = notifyCallback;
     this.pinAsPngCallback = pinAsPngCallback;
     this.updateMarker = updateMarker;
+    this.onAfterRender = null;
 
     this.hasAnimationLoop = false;
 
@@ -445,12 +450,20 @@ class Viewer {
 
     this.mouse = new THREE.Vector2();
 
-    // setup renderer
-    this.renderer = new THREE.WebGLRenderer({
+    // setup renderer — support externally provided canvas and/or WebGL context
+    const rendererParams: THREE.WebGLRendererParameters = {
       alpha: true,
       antialias: true,
       stencil: true,
-    });
+    };
+    if (options.canvas) {
+      rendererParams.canvas = options.canvas;
+    }
+    if (options.gl) {
+      rendererParams.context = options.gl;
+    }
+    this._externalGl = !!(options.canvas || options.gl);
+    this.renderer = new THREE.WebGLRenderer(rendererParams);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.state.get("cadWidth"), this.state.get("height"));
     this.renderer.setClearColor(0xffffff, 0);
@@ -805,6 +818,9 @@ class Viewer {
   update = (updateMarker: boolean, notify: boolean = true): void => {
     if (!this.ready) return;
 
+    if (this._externalGl) {
+      this.renderer.resetState();
+    }
     this.renderer.clear();
 
     if (
@@ -837,7 +853,7 @@ class Viewer {
       this.lastBbox.needsUpdate = false;
     }
 
-    if (updateMarker) {
+    if (updateMarker && !this.state.get("headless")) {
       this.renderer.clearDepth(); // ensure orientation Marker is at the top
 
       this.rendered.orientationMarker.update(
@@ -860,6 +876,10 @@ class Viewer {
       },
       notify,
     );
+
+    if (this.onAfterRender) {
+      this.onAfterRender();
+    }
   };
 
   /**
@@ -920,8 +940,8 @@ class Viewer {
     // dispose renderer
     this.renderer.renderLists.dispose();
     this.renderer.dispose();
-    // forceContextLoss may not exist in test mocks
-    if (typeof this.renderer.forceContextLoss === "function") {
+    // Skip context loss for externally provided WebGL contexts
+    if (!this._externalGl && typeof this.renderer.forceContextLoss === "function") {
       this.renderer.forceContextLoss();
     }
     console.debug("three-cad-viewer: WebGL context disposed");

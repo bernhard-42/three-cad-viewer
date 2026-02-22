@@ -226,6 +226,12 @@ export interface DisplayOptions {
   zebraTool?: boolean;
   /** Enable measurement debug mode (default: false) */
   measurementDebug?: boolean;
+  /** Headless mode: disables all UI overlays (toolbar, gizmo, sidebar, sliders). Only the renderer canvas is shown. (default: false) */
+  headless?: boolean;
+  /** External canvas element to use for the WebGL renderer, enabling shared WebGL context scenarios (default: undefined — renderer creates its own canvas) */
+  canvas?: HTMLCanvasElement;
+  /** External WebGL context to use for the renderer. When provided together with `canvas`, the renderer will use this context instead of creating a new one. Useful for sharing a context with other renderers like PixiJS. (default: undefined) */
+  gl?: WebGLRenderingContext | WebGL2RenderingContext;
 }
 
 /** Render options */
@@ -350,6 +356,7 @@ export interface ViewerStateShape {
   zscaleTool: boolean;
   zebraTool: boolean;
   measurementDebug: boolean;
+  headless: boolean;
 
   // Render
   ambientIntensity: number;
