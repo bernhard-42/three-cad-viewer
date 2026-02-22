@@ -799,13 +799,6 @@ class Display {
       this.cadView.style.height = px(options.height);
     }
 
-    // In headless mode, skip sidebar/tree sizing and just size the body to the canvas
-    if (this.headless) {
-      this.cadBody.style.width = px(this.cadWidth + 2);
-      this.cadBody.style.height = px(this.height + 4);
-      this.cadTool.container.style.width = px(this.cadWidth + 2);
-      return;
-    }
 
     if (options.treeWidth) {
       this.treeWidth = options.treeWidth;
