@@ -229,7 +229,7 @@ interface RenderedState {
   gridHelper: Grid;
   axesHelper: AxesHelper;
   clipping: Clipping;
-  orientationMarker: OrientationMarker;
+  orientationMarker: OrientationMarker | undefined;
 
   // These can change during lifetime (via toggleGroup)
   nestedGroup: NestedGroup;
@@ -853,7 +853,7 @@ class Viewer {
       this.lastBbox.needsUpdate = false;
     }
 
-    if (updateMarker && !this.state.get("headless")) {
+    if (updateMarker && this.rendered.orientationMarker) {
       this.renderer.clearDepth(); // ensure orientation Marker is at the top
 
       this.rendered.orientationMarker.update(
@@ -1509,16 +1509,19 @@ class Viewer {
     const theme = this.state.get("theme");
 
     //
-    // set up the orientation marker
+    // set up the orientation marker (skipped in headless mode)
     //
 
-    const orientationMarker = new OrientationMarker(
-      80,
-      80,
-      camera.getCamera(),
-      theme,
-    );
-    orientationMarker.create();
+    let orientationMarker: OrientationMarker | undefined;
+    if (!this.state.get("headless")) {
+      orientationMarker = new OrientationMarker(
+        80,
+        80,
+        camera.getCamera(),
+        theme,
+      );
+      orientationMarker.create();
+    }
 
     //
     // Assemble rendered state
@@ -2772,9 +2775,9 @@ class Viewer {
   }
 
   /**
-   * Get orientationMarker property. Throws if not rendered.
+   * Get orientationMarker property. Returns undefined in headless mode.
    */
-  get orientationMarker(): OrientationMarker {
+  get orientationMarker(): OrientationMarker | undefined {
     return this.rendered.orientationMarker;
   }
 
@@ -3990,7 +3993,7 @@ class Viewer {
     if (!animationLoop) {
       this.toggleAnimationLoop(true);
     }
-    this.rendered.orientationMarker.setVisible(false);
+    this.rendered.orientationMarker?.setVisible(false);
     this.update(true);
 
     return this.display.captureCanvas({
@@ -4009,7 +4012,7 @@ class Viewer {
         if (!animationLoop) {
           this.toggleAnimationLoop(false);
         }
-        this.rendered.orientationMarker.setVisible(true);
+        this.rendered.orientationMarker?.setVisible(true);
         this.update(true);
       },
     });

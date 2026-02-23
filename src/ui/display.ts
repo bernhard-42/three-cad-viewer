@@ -701,10 +701,7 @@ class Display {
 
     // Clear DOM content (elements remain valid until Display is GC'd)
     this.cadTree.innerHTML = "";
-    const attachedCanvas = this.cadView.querySelector("canvas");
-    if (attachedCanvas && attachedCanvas.parentElement === this.cadView) {
-      this.cadView.removeChild(attachedCanvas);
-    }
+    this.cadView.removeChild(this.cadView.children[2]);
     this.container.innerHTML = "";
   }
 
@@ -798,7 +795,6 @@ class Display {
       this.height = options.height;
       this.cadView.style.height = px(options.height);
     }
-
 
     if (options.treeWidth) {
       this.treeWidth = options.treeWidth;
@@ -1330,9 +1326,7 @@ class Display {
    * Get the DOM canvas element
    */
   getCanvas(): Element {
-    const localCanvas = this.cadView.querySelector("canvas");
-    if (localCanvas) return localCanvas;
-    return this.viewer.renderer.domElement;
+    return this.cadView.children[this.cadView.children.length - 1];
   }
 
   /**
@@ -2330,7 +2324,7 @@ class Display {
       this.container.setAttribute("data-theme", "dark");
       document.body.setAttribute("data-theme", "dark");
       if (this.viewer.ready) {
-        this.viewer.orientationMarker.changeTheme("dark");
+        this.viewer.orientationMarker?.changeTheme("dark");
         this.viewer.gridHelper.clearCache();
         this.viewer.gridHelper.update(
           this.viewer.getCameraZoom(),
@@ -2344,7 +2338,7 @@ class Display {
       this.container.setAttribute("data-theme", "light");
       document.body.setAttribute("data-theme", "light");
       if (this.viewer.ready) {
-        this.viewer.orientationMarker.changeTheme("light");
+        this.viewer.orientationMarker?.changeTheme("light");
         this.viewer.gridHelper.clearCache();
         this.viewer.gridHelper.update(
           this.viewer.getCameraZoom(),
