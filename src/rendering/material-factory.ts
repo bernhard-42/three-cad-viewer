@@ -4,10 +4,32 @@ import type { ColorValue, MaterialAppearance } from "../core/types.js";
 import { gpuTracker } from "../utils/gpu-tracker.js";
 import { getColorSpaceForMap } from "./texture-cache.js";
 
-/** materialx-db param keys that hold [r,g,b] color arrays (linear RGB). */
+/** material-db property keys that hold [r,g,b] color arrays (linear RGB). */
 const COLOR_ARRAY_KEYS = new Set([
   "color", "specularColor", "sheenColor", "emissive", "attenuationColor",
 ]);
+
+/** Map from material-db property names to Three.js texture map property names. */
+const PROPERTY_TO_MAP: Record<string, string> = {
+  color: "map",
+  metalness: "metalnessMap",
+  roughness: "roughnessMap",
+  normal: "normalMap",
+  emissive: "emissiveMap",
+  specularIntensity: "specularIntensityMap",
+  specularColor: "specularColorMap",
+  clearcoat: "clearcoatMap",
+  clearcoatRoughness: "clearcoatRoughnessMap",
+  clearcoatNormal: "clearcoatNormalMap",
+  transmission: "transmissionMap",
+  sheenColor: "sheenColorMap",
+  sheenRoughness: "sheenRoughnessMap",
+  anisotropy: "anisotropyMap",
+  iridescence: "iridescenceMap",
+  iridescenceThickness: "iridescenceThicknessMap",
+  occlusion: "aoMap",
+  thickness: "thicknessMap",
+};
 
 /**
  * Options for MaterialFactory constructor
@@ -467,50 +489,27 @@ class MaterialFactory {
   }
 
   /**
-   * Create a Studio mode material from a materialx-db format entry.
+   * Create a Studio mode material from a material-db format entry.
    *
-   * materialx-db `params` uses Three.js MeshPhysicalMaterial property names
-   * directly with colors in **linear RGB** (not sRGB). Texture references in
-   * params are keys into the textures dict (data URIs).
+   * material-db `properties` uses simplified property names (e.g., "color",
+   * "roughness", "normal") where each entry has an optional `value` (scalar or
+   * [r,g,b] array in **linear RGB**) and/or `texture` (inline data URI).
    *
-   * @param params - MeshPhysicalMaterial params (Three.js property names)
-   * @param textureMap - Texture data URIs keyed by texture path references
-   * @param colorOverride - Optional linear RGB color override (replaces params.color and removes params.map)
+   * @param properties - Material properties from material-db
+   * @param colorOverride - Optional linear RGB color override (replaces color.value, removes color.texture)
    * @param textureRepeat - Optional [u, v] texture tiling applied to all loaded textures
    * @param textureCache - TextureCache for resolving data URI textures
    * @param label - Optional label for GPU tracking
    * @returns Configured MeshPhysicalMaterial
    */
   async createStudioMaterialFromMaterialX(
-    params: Record<string, unknown>,
-    textureMap: Record<string, string>,
+    properties: Record<string, { value?: unknown; texture?: string }>,
     colorOverride: [number, number, number] | undefined,
     textureRepeat: [number, number] | undefined,
     textureCache: TextureCacheInterface | null,
     label?: string,
   ): Promise<THREE.MeshPhysicalMaterial> {
-    // Clone params to avoid mutating the input
-    const p = { ...params };
-
-    // Apply colorOverride: replace params.color and remove base color texture
-    if (colorOverride) {
-      p.color = colorOverride;
-      delete p.map;
-    }
-
-    // Separate scalar/color params from texture params (strings referencing textures/)
-    const scalarParams: Record<string, unknown> = {};
-    const textureParams: Record<string, string> = {};
-
-    for (const [key, value] of Object.entries(p)) {
-      if (typeof value === "string" && value.startsWith("textures/")) {
-        textureParams[key] = value;
-      } else {
-        scalarParams[key] = value;
-      }
-    }
-
-    // --- Build material options ---
+    // --- Build material options from scalar values ---
     const matOptions: Record<string, unknown> = {
       flatShading: false,
       side: THREE.FrontSide,
@@ -520,24 +519,40 @@ class MaterialFactory {
       depthTest: true,
     };
 
-    // Color arrays → THREE.Color (already linear, no sRGB conversion)
-    for (const [key, value] of Object.entries(scalarParams)) {
-      if (COLOR_ARRAY_KEYS.has(key) && Array.isArray(value)) {
-        const [r, g, b] = value as number[];
+    for (const [key, prop] of Object.entries(properties)) {
+      if (prop.value === undefined) continue;
+
+      // Apply colorOverride: replace color value
+      if (key === "color" && colorOverride) {
+        matOptions.color = new THREE.Color(colorOverride[0], colorOverride[1], colorOverride[2]);
+        continue;
+      }
+
+      // Color arrays → THREE.Color (already linear, no sRGB conversion)
+      if (COLOR_ARRAY_KEYS.has(key) && Array.isArray(prop.value)) {
+        const [r, g, b] = prop.value as number[];
         matOptions[key] = new THREE.Color(r, g, b);
-      } else if (key === "iridescenceThicknessRange" && Array.isArray(value)) {
-        matOptions[key] = value;
+      } else if (key === "iridescenceThicknessRange" && Array.isArray(prop.value)) {
+        matOptions[key] = prop.value;
       } else {
-        matOptions[key] = value;
+        matOptions[key] = prop.value;
       }
     }
 
+    // If colorOverride was given but no "color" property existed, set it anyway
+    if (colorOverride && !matOptions.color) {
+      matOptions.color = new THREE.Color(colorOverride[0], colorOverride[1], colorOverride[2]);
+    }
+
     // --- Handle transmission ---
-    if (typeof scalarParams.transmission === "number" && scalarParams.transmission > 0) {
+    const transmissionVal = properties.transmission?.value;
+    const opacityVal = properties.opacity?.value;
+    const transparentVal = properties.transparent?.value;
+    if (typeof transmissionVal === "number" && transmissionVal > 0) {
       matOptions.transparent = false;
       matOptions.opacity = 1.0;
       matOptions.depthWrite = true;
-    } else if (scalarParams.transparent === true || (typeof scalarParams.opacity === "number" && scalarParams.opacity < 1.0)) {
+    } else if (transparentVal === true || (typeof opacityVal === "number" && opacityVal < 1.0)) {
       matOptions.transparent = true;
       matOptions.depthWrite = false;
     } else {
@@ -547,39 +562,42 @@ class MaterialFactory {
 
     const material = new THREE.MeshPhysicalMaterial(matOptions);
 
-    // --- Resolve texture params ---
+    // --- Resolve textures ---
+    let hasTextures = false;
     if (textureCache) {
-      for (const [mapName, texturePath] of Object.entries(textureParams)) {
-        const dataUri = textureMap[texturePath];
-        if (!dataUri) continue;
+      for (const [key, prop] of Object.entries(properties)) {
+        if (!prop.texture) continue;
+        // colorOverride removes the color (base color) texture
+        if (key === "color" && colorOverride) continue;
+
+        const mapName = PROPERTY_TO_MAP[key];
+        if (!mapName) continue;
 
         // Determine color space from the Three.js map property name.
-        // TextureCache.get() expects a MaterialAppearance role name to decide
-        // colorSpace (e.g., "baseColorTexture" → sRGB). We bridge from the
-        // Three.js map name → colorSpace → a proxy role name that triggers
-        // the correct colorSpace inside TextureCache.
+        // TextureCache.get() expects a role name to decide colorSpace.
+        // Bridge from Three.js map name → colorSpace → a proxy role name.
         const colorSpace = getColorSpaceForMap(mapName);
         const roleForCache = colorSpace === THREE.SRGBColorSpace
           ? "baseColorTexture"
           : "normalTexture";
-        const tex = await textureCache.get(dataUri, roleForCache);
+        const tex = await textureCache.get(prop.texture, roleForCache);
         if (tex) {
           if (textureRepeat) {
             tex.repeat.set(textureRepeat[0], textureRepeat[1]);
           }
-          // Assign the texture to the correct material property
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (material as any)[mapName] = tex;
+          hasTextures = true;
         }
       }
     }
 
     // Force shader recompile if textures were assigned post-construction
-    if (Object.keys(textureParams).length > 0) {
+    if (hasTextures) {
       material.needsUpdate = true;
     }
 
-    gpuTracker.track("material", material, label ?? "MeshPhysicalMaterial (materialx-db)");
+    gpuTracker.track("material", material, label ?? "MeshPhysicalMaterial (material-db)");
     return material;
   }
 

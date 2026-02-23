@@ -1,7 +1,7 @@
 var dirbox = {
   version: 3,
   materials: {
-    "wood": { preset: "wood-dark", baseColorTexture: "builtin:wood-dark" },
+    "wood": "builtin:wood-dark",
   },
   studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [

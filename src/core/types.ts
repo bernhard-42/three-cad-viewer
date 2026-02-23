@@ -600,44 +600,37 @@ export interface MaterialAppearance {
 }
 
 // =============================================================================
-// MaterialX Material (materialx-db format)
+// MaterialX Material (material-db format)
 // =============================================================================
 
 /**
- * Material definition from materialx-db (Three.js MeshPhysicalMaterial-compatible).
+ * Material definition from material-db (Three.js MeshPhysicalMaterial-compatible).
  *
- * This format is produced by the materialx-db Python library, which catalogs
+ * This format is produced by the material-db Python library, which catalogs
  * PBR materials from ambientCG, GPUOpen, PolyHaven, and PhysicallyBased.
- * The `params` dict uses Three.js MeshPhysicalMaterial property names directly,
- * with colors in linear RGB and texture references as keys into the `textures` dict.
+ * The `properties` dict uses simplified property names (e.g., "color", "roughness",
+ * "normal") where each entry has an optional `value` (scalar or color array in
+ * linear RGB) and/or `texture` (inline data URI).
  *
- * Detected by the presence of the `params` key.
+ * Detected by the presence of the `properties` key.
+ * Extra keys from material-db (id, name, source, url, license) pass through
+ * harmlessly and are not part of this interface.
  */
 export interface MaterialXMaterial {
-  /** MeshPhysicalMaterial params (Three.js property names, linear color space) */
-  params: Record<string, unknown>;
-  /** Texture data URIs keyed by texture path references in params */
-  textures?: Record<string, string>;
-  /** Optional linear RGB color override, replaces params.color and removes params.map */
+  /** Material properties from material-db. Each key maps to { value?, texture? } */
+  properties: Record<string, { value?: unknown; texture?: string }>;
+  /** Optional linear RGB color override (replaces color.value and removes color.texture) */
   colorOverride?: [number, number, number];
-  /** Optional texture tiling [u, v], default [1, 1]. Applied to all textures on the material. */
+  /** Optional texture tiling [u, v], default [1, 1]. Applied to all textures. */
   textureRepeat?: [number, number];
-  /** Optional material ID from the source database */
-  id?: string;
-  /** Optional display name */
-  name?: string;
-  /** Optional source database (e.g., "gpuopen", "ambientcg") */
-  source?: string;
-  /** Optional material category (e.g., "metal", "wood") */
-  category?: string;
 }
 
 /**
- * Type guard to check if a material entry is a materialx-db format dict.
- * Detected by the presence of the `params` key.
+ * Type guard to check if a material entry is a material-db format dict.
+ * Detected by the presence of the `properties` key.
  */
 export function isMaterialXMaterial(m: unknown): m is MaterialXMaterial {
-  return typeof m === "object" && m !== null && "params" in m;
+  return typeof m === "object" && m !== null && "properties" in m;
 }
 
 // =============================================================================
@@ -852,7 +845,7 @@ export interface Shapes {
   /** User-defined material library (root node).
    *  Values can be:
    *  - string: builtin preset reference (e.g., "builtin:car-paint")
-   *  - MaterialXMaterial: materialx-db format (detected by `params` key)
+   *  - MaterialXMaterial: material-db format (detected by `properties` key)
    */
   materials?: Record<string, string | MaterialXMaterial> | undefined;
   /** Shared texture table for builtin preset materials (root node).

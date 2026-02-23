@@ -141,12 +141,12 @@ function materialHasTexture(def: MaterialAppearance): boolean {
   return false;
 }
 
-/** Check whether a materialx-db entry has texture references in its params. */
+/** Check whether a material-db entry has texture references in its properties. */
 function materialXHasTextures(entry: MaterialXMaterial): boolean {
-  for (const [key, value] of Object.entries(entry.params)) {
-    // colorOverride removes "map", but other texture params may still exist
-    if (entry.colorOverride && key === "map") continue;
-    if (typeof value === "string" && value.startsWith("textures/")) return true;
+  for (const [key, prop] of Object.entries(entry.properties)) {
+    // colorOverride removes the color texture
+    if (entry.colorOverride && key === "color") continue;
+    if (prop.texture) return true;
   }
   return false;
 }
@@ -1305,8 +1305,7 @@ class NestedGroup {
           if (resolved && isMaterialXMaterial(resolved)) {
             // --- materialx-db path ---
             studioMaterial = await this.materialFactory.createStudioMaterialFromMaterialX(
-              resolved.params,
-              resolved.textures ?? {},
+              resolved.properties,
               resolved.colorOverride,
               resolved.textureRepeat,
               this._textureCache as TextureCacheInterface,
