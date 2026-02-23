@@ -45,6 +45,7 @@ import { EnvironmentManager } from "../rendering/environment.js";
 import { StudioFloor } from "../rendering/studio-floor.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
+import { isInstancedFormat, decodeInstancedFormat } from "../utils/decode-instances.js";
 import type { Display } from "../ui/display.js";
 import type { Vector3Tuple, QuaternionTuple } from "three";
 import {
@@ -1508,6 +1509,12 @@ class Viewer {
     renderOptions: RenderOptions,
     viewerOptions: ViewerOptions,
   ): void {
+    // Decode instanced/compressed format if detected
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (isInstancedFormat(shapes as any)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      shapes = decodeInstancedFormat(shapes as any);
+    }
     this.shapes = shapes;
     this.renderOptions = renderOptions;
     this.setViewerDefaults(viewerOptions);

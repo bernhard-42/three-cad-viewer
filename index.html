@@ -37,7 +37,7 @@
     <script src="./examples/sky130.js"></script>
     <script src="./examples/transceiver_mzi.js"></script>
     <script src="./examples/studio_mode.js"></script>
-    <!-- toycar.js (169 MB) is loaded on demand, not via script tag -->
+    <!-- toycar.js is loaded on demand, not via script tag -->
 
     <script type="module">
       // ESM import
@@ -76,7 +76,7 @@
         sky130,
         transceiver_mzi,
         studio_mode,
-        "lazy:toycar",  // loaded on demand (169 MB)
+        "lazy:toycar",  // instanced/compressed format
       ];
 
       // Lazy-load a large example by script injection.

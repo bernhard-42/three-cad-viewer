@@ -757,6 +757,16 @@ export interface ShapeNested {
 }
 
 /**
+ * Shape reference for the instanced/compressed format.
+ * Before decoding, a part's shape field may be `{ ref: N }` referencing
+ * the Nth entry in the instances array. After decoding, all ShapeRefs
+ * are replaced with full Shape objects.
+ */
+export interface ShapeRef {
+  ref: number;
+}
+
+/**
  * Check if shape uses binary format (has triangles_per_face).
  */
 export function isShapeBinaryFormat(shape: Shape): shape is Shape & { triangles_per_face: Uint32Array | number[] } {

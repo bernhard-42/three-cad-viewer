@@ -144,5 +144,8 @@ export type {
 // MaterialX type guard
 export { isMaterialXMaterial } from "./core/types.js";
 
+// Instanced/compressed format decoding
+export { isInstancedFormat, decodeInstancedFormat } from "./utils/decode-instances.js";
+
 // Subscription options
 export type { SubscribeOptions } from "./core/types.js";
