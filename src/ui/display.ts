@@ -2,24 +2,24 @@
 // IMPORTS & HELPERS
 // =============================================================================
 
-import type { Vector3Tuple } from "three";
 import * as THREE from "three";
-import type { CameraDirection } from "../camera/camera.js";
-import type { ActiveTab, ClipIndex, ThemeInput } from "../core/types.js";
-import { CollapseState, isClipIndex } from "../core/types.js";
-import type { ViewerState } from "../core/viewer-state.js";
-import type { Viewer } from "../core/viewer.js";
-import type {
-  FilterDropdownElements,
-  MeasurementPanelElements,
-} from "../tools/cad_tools/tools.js";
-import { ToolTypes } from "../tools/cad_tools/tools.js";
-import { FilterByDropDownMenu } from "../tools/cad_tools/ui.js";
+import { KeyMapper, EventListenerManager } from "../utils/utils.js";
 import type { KeyMappingConfig } from "../utils/utils.js";
-import { EventListenerManager, KeyMapper } from "../utils/utils.js";
-import { Info } from "./info.js";
 import { Slider } from "./slider.js";
-import { Button, ClickButton, Ellipsis, Toolbar } from "./toolbar.js";
+import { Toolbar, Button, ClickButton, Ellipsis } from "./toolbar.js";
+import { ToolTypes } from "../tools/cad_tools/tools.js";
+import type {
+  MeasurementPanelElements,
+  FilterDropdownElements,
+} from "../tools/cad_tools/tools.js";
+import { FilterByDropDownMenu } from "../tools/cad_tools/ui.js";
+import { Info } from "./info.js";
+import type { Viewer } from "../core/viewer.js";
+import type { ViewerState } from "../core/viewer-state.js";
+import { isClipIndex, CollapseState } from "../core/types.js";
+import type { Vector3Tuple } from "three";
+import type { ActiveTab, ThemeInput, ClipIndex } from "../core/types.js";
+import type { CameraDirection } from "../camera/camera.js";
 
 import template from "./index.html";
 
@@ -67,7 +67,6 @@ export interface DisplayOptions {
   treeHeight?: number;
   theme: ThemeInput;
   pinning: boolean;
-  headless?: boolean;
   canvas?: HTMLCanvasElement;
   gl?: WebGLRenderingContext | WebGL2RenderingContext;
 }
@@ -201,7 +200,6 @@ class Display {
   zScale: number;
   glass: boolean;
   tools: boolean;
-  headless: boolean;
   cadWidth: number;
   height: number;
   treeWidth: number;
@@ -322,7 +320,6 @@ class Display {
     // viewer and state are set in setupUI(), called at end of Viewer constructor
     this.glass = options.glass;
     this.tools = options.tools;
-    this.headless = options.headless ?? false;
     this.cadWidth = options.cadWidth;
     this.height = options.height;
     this.treeWidth = options.treeWidth;
@@ -701,7 +698,10 @@ class Display {
 
     // Clear DOM content (elements remain valid until Display is GC'd)
     this.cadTree.innerHTML = "";
-    this.cadView.removeChild(this.cadView.children[2]);
+    const attachedCanvas = this.cadView.querySelector("canvas");
+    if (attachedCanvas && attachedCanvas.parentElement === this.cadView) {
+      this.cadView.removeChild(attachedCanvas);
+    }
     this.container.innerHTML = "";
   }
 
@@ -1004,10 +1004,6 @@ class Display {
     this.showExplodeTool(this.explodeTool);
     this.showZScaleTool(this.zscaleTool);
 
-    if (this.headless) {
-      this.applyHeadlessMode();
-    }
-
     // Subscribe to state changes
     this.subscribeToStateChanges();
 
@@ -1076,6 +1072,9 @@ class Display {
 
     sub("tools", (change) => {
       this.showTools(change.new);
+      const animationMode = this.state.get("animationMode");
+      this.cadAnim.style.display =
+        change.new && animationMode !== "none" ? "block" : "none";
     });
 
     sub("glass", (change) => {
@@ -1175,10 +1174,10 @@ class Display {
       "animationMode",
       (change) => {
         const mode = change.new;
-        // In headless mode, keep slider hidden
-        if (!this.headless) {
-          this.cadAnim.style.display = mode !== "none" ? "block" : "none";
-        }
+        const toolsEnabled = this.state.get("tools");
+        // Show/hide slider control (only when tools panel is enabled)
+        this.cadAnim.style.display =
+          toolsEnabled && mode !== "none" ? "block" : "none";
         // Set label: "A" for animation, "E" for explode
         this.getElement("tcv_animation_label").innerHTML =
           mode === "explode" ? "E" : "A";
@@ -1326,7 +1325,9 @@ class Display {
    * Get the DOM canvas element
    */
   getCanvas(): Element {
-    return this.cadView.children[this.cadView.children.length - 1];
+    const localCanvas = this.cadView.querySelector("canvas");
+    if (localCanvas) return localCanvas;
+    return this.viewer.renderer.domElement;
   }
 
   /**
@@ -1489,7 +1490,6 @@ class Display {
    * This method only updates the visual state - it does not modify ViewerState.
    */
   showTools = (flag: boolean): void => {
-    if (this.headless) return;
     this.tools = flag;
     const tb = this.getElement("tcv_cad_toolbar");
     const cn = this.getElement("tcv_cad_navigation");
@@ -1506,44 +1506,8 @@ class Display {
     }
   };
 
-  /**
-   * Apply headless mode: hides all UI elements, leaving only the renderer canvas.
-   * This hides the toolbar, sidebar/navigation, tabs, info panel, animation controls,
-   * help overlay, and adjusts sizing so only the canvas area is visible.
-   */
-  private applyHeadlessMode(): void {
-    // Hide toolbar
-    const tb = this.getElement("tcv_cad_toolbar");
-    tb.style.height = "0px";
-    tb.style.display = "none";
-
-    // Hide navigation bar (tab row above sidebar)
-    const cn = this.getElement("tcv_cad_navigation");
-    cn.style.height = "0px";
-    cn.style.display = "none";
-
-    // Hide sidebar (tree/clip/material/zebra panels + info)
-    const cadTree = this.getElement("tcv_cad_tree");
-    cadTree.style.display = "none";
-    const cadInfo = this.getElement("tcv_cad_info");
-    cadInfo.style.display = "none";
-
-    // Hide animation/explode slider
-    this.cadAnim.style.display = "none";
-
-    // Hide help overlay
-    this.cadHelp.style.display = "none";
-
-    // Hide zscale slider
-    const zscale = this.container.getElementsByClassName("tcv_zscale");
-    for (let i = 0; i < zscale.length; i++) {
-      (zscale[i] as HTMLElement).style.display = "none";
-    }
-
-    // Size the body to just the canvas
-    this.cadBody.style.width = px(this.cadWidth + 2);
-    this.cadBody.style.height = px(this.height + 4);
-    this.cadTool.container.style.width = px(this.cadWidth + 2);
+  showToolsPanel = (flag: boolean): void => {
+    this.showTools(flag);
   };
 
   /**
@@ -2246,7 +2210,6 @@ class Display {
    * Enable/disable glass mode (UI update only).
    */
   glassMode(flag: boolean): void {
-    if (this.headless) return;
     const stateTreeHeight = this.state?.get("treeHeight");
     const treeHeight =
       typeof stateTreeHeight === "number"
@@ -2324,7 +2287,7 @@ class Display {
       this.container.setAttribute("data-theme", "dark");
       document.body.setAttribute("data-theme", "dark");
       if (this.viewer.ready) {
-        this.viewer.orientationMarker?.changeTheme("dark");
+        this.viewer.orientationMarker.changeTheme("dark");
         this.viewer.gridHelper.clearCache();
         this.viewer.gridHelper.update(
           this.viewer.getCameraZoom(),
@@ -2338,7 +2301,7 @@ class Display {
       this.container.setAttribute("data-theme", "light");
       document.body.setAttribute("data-theme", "light");
       if (this.viewer.ready) {
-        this.viewer.orientationMarker?.changeTheme("light");
+        this.viewer.orientationMarker.changeTheme("light");
         this.viewer.gridHelper.clearCache();
         this.viewer.gridHelper.update(
           this.viewer.getCameraZoom(),

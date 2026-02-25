@@ -11,55 +11,56 @@ declare global {
   }
 }
 
-import { AxesHelper } from "../scene/axes.js";
+import { NestedGroup, ObjectGroup, isObjectGroup, isCompoundGroup } from "../scene/nestedgroup.js";
 import { Grid } from "../scene/grid.js";
-import { isCompoundGroup, isObjectGroup, NestedGroup, ObjectGroup } from "../scene/nestedgroup.js";
+import { AxesHelper } from "../scene/axes.js";
 import { OrientationMarker } from "../scene/orientation.js";
 import { TreeView } from "../ui/treeview.js";
 // TreeData and StateValue available if needed for tree manipulation
-import type { QuaternionTuple, Vector3Tuple } from "three";
-import { version } from "../_version.js";
-import { Camera, type CameraDirection } from "../camera/camera.js";
-import { Controls } from "../camera/controls.js";
-import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
-import { Animation } from "../scene/animation.js";
-import { BoundingBox, BoxHelper } from "../scene/bbox.js";
-import { Clipping } from "../scene/clipping.js";
-import type { RenderResult, ShapeTreeData } from "../scene/render-shape.js";
-import { ShapeRenderer } from "../scene/render-shape.js";
-import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
-import type { Display } from "../ui/display.js";
-import { logger } from "../utils/logger.js";
 import { Timer } from "../utils/timer.js";
-import type { DisposableTree, KeyMappingConfig } from "../utils/utils.js";
+import { Clipping } from "../scene/clipping.js";
+import { Animation } from "../scene/animation.js";
 import {
-  deepDispose,
   isEqual,
-  isLineSegments2,
-  isOrthographicCamera,
   KeyMapper,
   scaleLight,
-  toQuaternionTuple,
+  deepDispose,
+  isOrthographicCamera,
+  isLineSegments2,
   toVector3Tuple,
+  toQuaternionTuple,
 } from "../utils/utils.js";
+import type { DisposableTree } from "../utils/utils.js";
+import { ShapeRenderer } from "../scene/render-shape.js";
+import type { ShapeTreeData, RenderResult } from "../scene/render-shape.js";
+import type { KeyMappingConfig } from "../utils/utils.js";
+import { Controls } from "../camera/controls.js";
+import { Camera, type CameraDirection } from "../camera/camera.js";
+import { BoundingBox, BoxHelper } from "../scene/bbox.js";
+import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
+import { version } from "../_version.js";
+import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
+import { ViewerState } from "./viewer-state.js";
+import { logger } from "../utils/logger.js";
+import type { Display } from "../ui/display.js";
+import type { Vector3Tuple, QuaternionTuple } from "three";
 import {
   CollapseState,
-  type ActiveTab,
-  type Axis,
-  type BoundingBoxFlat,
-  type ClipIndex,
-  type Keymap,
-  type NotificationCallback,
-  type RenderOptions,
-  type Shapes,
-  type StateChange,
-  type ThemeInput,
-  type ViewerOptions,
-  type VisibilityState,
   type ZebraColorScheme,
   type ZebraMappingMode,
+  type NotificationCallback,
+  type RenderOptions,
+  type ViewerOptions,
+  type Shapes,
+  type VisibilityState,
+  type StateChange,
+  type ActiveTab,
+  type Axis,
+  type ClipIndex,
+  type ThemeInput,
+  type BoundingBoxFlat,
+  type Keymap,
 } from "./types.js";
-import { ViewerState } from "./viewer-state.js";
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -204,7 +205,6 @@ interface DisplayOptionsInternal {
   zebraTool?: boolean;
   glass?: boolean;
   tools?: boolean;
-  headless?: boolean;
   canvas?: HTMLCanvasElement;
   gl?: WebGLRenderingContext | WebGL2RenderingContext;
   keymap?: KeymapConfig;
@@ -229,7 +229,7 @@ interface RenderedState {
   gridHelper: Grid;
   axesHelper: AxesHelper;
   clipping: Clipping;
-  orientationMarker: OrientationMarker | undefined;
+  orientationMarker: OrientationMarker;
 
   // These can change during lifetime (via toggleGroup)
   nestedGroup: NestedGroup;
@@ -853,7 +853,7 @@ class Viewer {
       this.lastBbox.needsUpdate = false;
     }
 
-    if (updateMarker && this.rendered.orientationMarker) {
+    if (updateMarker) {
       this.renderer.clearDepth(); // ensure orientation Marker is at the top
 
       this.rendered.orientationMarker.update(
@@ -876,6 +876,12 @@ class Viewer {
       },
       notify,
     );
+
+    // In shared/external WebGL mode, clean up renderer state before external
+    // renderers/hooks (overlays, etc.) draw on the same context.
+    if (this._externalGl) {
+      this.renderer.resetState();
+    }
 
     if (this.onAfterRender) {
       this.onAfterRender();
@@ -1455,8 +1461,12 @@ class Viewer {
       cadWidth: this.state.get("cadWidth"),
       height: this.state.get("height"),
       maxAnisotropy: this.renderer.capabilities.getMaxAnisotropy(),
-      tickValueElement: this.display.tickValueElement,
-      tickInfoElement: this.display.tickInfoElement,
+      ...(this.state.get("tools")
+        ? {
+            tickValueElement: this.display.tickValueElement,
+            tickInfoElement: this.display.tickInfoElement,
+          }
+        : {}),
       getCamera: () => this._rendered?.camera.getCamera() ?? null,
       getAxes0: () => this.state?.get("axes0") ?? false,
     });
@@ -1509,19 +1519,16 @@ class Viewer {
     const theme = this.state.get("theme");
 
     //
-    // set up the orientation marker (skipped in headless mode)
+    // set up the orientation marker
     //
 
-    let orientationMarker: OrientationMarker | undefined;
-    if (!this.state.get("headless")) {
-      orientationMarker = new OrientationMarker(
-        80,
-        80,
-        camera.getCamera(),
-        theme,
-      );
-      orientationMarker.create();
-    }
+    const orientationMarker = new OrientationMarker(
+      80,
+      80,
+      camera.getCamera(),
+      theme,
+    );
+    orientationMarker.create();
 
     //
     // Assemble rendered state
@@ -1611,6 +1618,11 @@ class Viewer {
     this.toggleAnimationLoop(this.hasAnimationLoop);
 
     this.ready = true;
+
+    if (!this.state.get("tools")) {
+      this.display.showToolsPanel(false);
+      this.rendered.orientationMarker.setVisible(false);
+    }
 
     // Apply clip settings AFTER ready=true (clip setters check this.ready)
     // Set normals first (if provided), passing slider values to avoid reset to gridSize/2
@@ -2775,9 +2787,9 @@ class Viewer {
   }
 
   /**
-   * Get orientationMarker property. Returns undefined in headless mode.
+   * Get orientationMarker property. Throws if not rendered.
    */
-  get orientationMarker(): OrientationMarker | undefined {
+  get orientationMarker(): OrientationMarker {
     return this.rendered.orientationMarker;
   }
 
@@ -3993,7 +4005,7 @@ class Viewer {
     if (!animationLoop) {
       this.toggleAnimationLoop(true);
     }
-    this.rendered.orientationMarker?.setVisible(false);
+    this.rendered.orientationMarker.setVisible(false);
     this.update(true);
 
     return this.display.captureCanvas({
@@ -4012,7 +4024,7 @@ class Viewer {
         if (!animationLoop) {
           this.toggleAnimationLoop(false);
         }
-        this.rendered.orientationMarker?.setVisible(true);
+        this.rendered.orientationMarker.setVisible(true);
         this.update(true);
       },
     });

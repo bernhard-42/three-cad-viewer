@@ -191,8 +191,20 @@ class OrientationMarker {
    */
   render(renderer: THREE.WebGLRenderer): void {
     if (this.ready && this.scene && this.camera) {
+      // Rendering the corner marker mutates renderer state (viewport/scissor/scissor test).
+      // Preserve and restore those values so downstream renders are not clipped or offset.
+      const prevViewport = renderer.getViewport(new THREE.Vector4());
+      const prevScissor = renderer.getScissor(new THREE.Vector4());
+      const prevScissorTest = renderer.getScissorTest();
+
+      // Draw marker in its small corner viewport.
       renderer.setViewport(0, 0, this.width, this.height);
       renderer.render(this.scene, this.camera);
+
+      // Restore previous state for the main scene / shared render pipeline.
+      renderer.setViewport(prevViewport);
+      renderer.setScissor(prevScissor);
+      renderer.setScissorTest(prevScissorTest);
     }
   }
 
