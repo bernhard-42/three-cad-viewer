@@ -68,6 +68,7 @@ const PH_BASE = "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr";
 const DEFAULT_PRESET_SLUGS: string[] = [
   // --- Studio: Soft / neutral ---
   "studio_small_08",
+  "studio_small_03",
   "white_studio_05",
   "white_studio_03",
   "photo_studio_01",
@@ -78,6 +79,7 @@ const DEFAULT_PRESET_SLUGS: string[] = [
   "canary_wharf",
   "kiara_1_dawn",
   "empty_warehouse_01",
+  "san_giuseppe_bridge",
 ];
 
 /** Build preset URL map for the given resolution tier. */

@@ -1022,7 +1022,7 @@ class Display {
       this.container,
       {
         handler: this.handleStudioEnvIntensity,
-        percentage: false,
+        percentage: true,
         isReadyCheck: viewerReadyCheck,
       },
     );
@@ -1264,7 +1264,7 @@ class Display {
     sub(
       "studioEnvIntensity",
       (change) => {
-        this.studioEnvIntensitySlider?.setValueFromState(change.new * 200);
+        this.studioEnvIntensitySlider?.setValueFromState(change.new * 100);
       },
       { immediate: true },
     );
@@ -2008,10 +2008,10 @@ class Display {
 
   /**
    * Handler for Studio env intensity slider change.
-   * Slider range 0-200, percentage=false. Slider 100 = state 0.5 (default).
+   * Slider range 0-200 with percentage=true, so value arrives as 0-2.
    */
   handleStudioEnvIntensity = (value: number): void => {
-    this.state.set("studioEnvIntensity", value / 200);
+    this.state.set("studioEnvIntensity", value);
   };
 
   /**
@@ -2227,7 +2227,7 @@ class Display {
    */
   syncStudioSlidersFromState(): void {
     const state = this.viewer.state;
-    this.studioEnvIntensitySlider?.setValueFromState(state.get("studioEnvIntensity") * 200);
+    this.studioEnvIntensitySlider?.setValueFromState(state.get("studioEnvIntensity") * 100);
     this.studioExposureSlider?.setValueFromState(state.get("studioExposure") * 100);
     this.getInputElement("tcv_studio_show_floor").checked = state.get("studioShowFloor");
     this.getInputElement("tcv_studio_show_edges").checked = state.get("studioShowEdges");

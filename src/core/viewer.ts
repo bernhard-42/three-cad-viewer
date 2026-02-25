@@ -466,6 +466,7 @@ class Viewer {
       antialias: true,
       stencil: true,
     });
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.state.get("cadWidth"), this.state.get("height"));
     this.renderer.setClearColor(0xffffff, 0);
@@ -2265,7 +2266,7 @@ class Viewer {
       this.state.get("height"),
       this.bb_max / 30,
       this.rendered.scene.children[0],
-      () => {},
+      () => { },
     );
     raycaster.init();
     raycaster.onPointerMove(e);
@@ -2298,9 +2299,9 @@ class Viewer {
       boundingBox:
         shapesFormat === "GDS"
           ? new THREE.Box3(
-              point.clone().subScalar(10),
-              point.clone().addScalar(10),
-            )
+            point.clone().subScalar(10),
+            point.clone().addScalar(10),
+          )
           : nearestMesh.geometry.boundingBox,
       boundingSphere:
         shapesFormat === "GDS"
