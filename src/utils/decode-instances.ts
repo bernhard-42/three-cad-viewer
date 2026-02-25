@@ -25,7 +25,7 @@ interface EncodedBuffer {
   codec: "b64";
 }
 
-/** An encoded geometry instance (all 9 buffer fields). */
+/** An encoded geometry instance (all 9 buffer fields + optional uvs). */
 interface EncodedInstance {
   vertices: EncodedBuffer;
   triangles: EncodedBuffer;
@@ -36,6 +36,7 @@ interface EncodedInstance {
   edge_types: EncodedBuffer;
   triangles_per_face: EncodedBuffer;
   segments_per_edge: EncodedBuffer;
+  uvs?: EncodedBuffer;
 }
 
 /** Top-level structure of the instanced format. */
@@ -83,7 +84,7 @@ function decodeBuffer(buf: EncodedBuffer): Float32Array | Uint32Array {
 
 /** Decode all buffer fields of an instance into a Shape object. */
 function decodeInstance(inst: EncodedInstance): Shape {
-  return {
+  const shape: Shape = {
     vertices: decodeBuffer(inst.vertices) as Float32Array,
     triangles: decodeBuffer(inst.triangles) as Uint32Array,
     normals: decodeBuffer(inst.normals) as Float32Array,
@@ -94,6 +95,10 @@ function decodeInstance(inst: EncodedInstance): Shape {
     triangles_per_face: decodeBuffer(inst.triangles_per_face) as Uint32Array,
     segments_per_edge: decodeBuffer(inst.segments_per_edge) as Uint32Array,
   };
+  if (inst.uvs) {
+    shape.uvs = decodeBuffer(inst.uvs) as Float32Array;
+  }
+  return shape;
 }
 
 /** Check if a shape field is an unresolved reference. */

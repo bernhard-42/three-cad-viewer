@@ -29,6 +29,7 @@ const PROPERTY_TO_MAP: Record<string, string> = {
   iridescenceThickness: "iridescenceThicknessMap",
   occlusion: "aoMap",
   thickness: "thicknessMap",
+  opacity: "alphaMap",
 };
 
 /**
@@ -590,6 +591,29 @@ class MaterialFactory {
           hasTextures = true;
         }
       }
+
+      // glTF packed metallic-roughness texture: G=roughness, B=metalness.
+      // Three.js reads the correct channels when the same texture is
+      // assigned to both metalnessMap and roughnessMap.
+      const mrProp = properties["metallicRoughness"];
+      if (mrProp?.texture) {
+        const colorSpace = getColorSpaceForMap("metalnessMap");
+        const roleForCache = colorSpace === THREE.SRGBColorSpace
+          ? "baseColorTexture" : "normalTexture";
+        const mrTex = await textureCache.get(mrProp.texture, roleForCache);
+        if (mrTex) {
+          if (textureRepeat) mrTex.repeat.set(textureRepeat[0], textureRepeat[1]);
+          material.metalnessMap = mrTex;
+          material.roughnessMap = mrTex;
+          hasTextures = true;
+        }
+      }
+    }
+
+    // Enable alpha cutout when an alphaMap is present
+    if (material.alphaMap) {
+      material.alphaTest = 0.5;
+      material.side = THREE.DoubleSide;
     }
 
     // Force shader recompile if textures were assigned post-construction

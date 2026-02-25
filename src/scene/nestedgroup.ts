@@ -22,6 +22,7 @@ import { MATERIAL_PRESETS } from "../rendering/material-presets.js";
 import { logger } from "../utils/logger.js";
 import { TextureCache } from "../rendering/texture-cache.js";
 import type { TextureCacheInterface } from "../rendering/material-factory.js";
+import { applyTriplanarMapping } from "../rendering/triplanar.js";
 
 interface ShapeData {
   vertices: Float32Array | number[][];
@@ -149,73 +150,6 @@ function materialXHasTextures(entry: MaterialXMaterial): boolean {
     if (prop.texture) return true;
   }
   return false;
-}
-
-/**
- * Generate box-projected UV coordinates for a BufferGeometry that lacks them.
- *
- * For each triangle, the dominant axis of the face normal selects the
- * projection plane (XY, XZ, or YZ). UVs are normalized to [0, 1] based on
- * the geometry's own bounding box so the texture tiles once across the part.
- */
-function generateBoxProjectedUVs(geometry: THREE.BufferGeometry): void {
-  const pos = geometry.getAttribute("position");
-  const nor = geometry.getAttribute("normal");
-  if (!pos || !nor) return;
-
-  // Compute bounding box for normalization
-  geometry.computeBoundingBox();
-  const bb = geometry.boundingBox!;
-  const size = new THREE.Vector3();
-  bb.getSize(size);
-  // Avoid division by zero on degenerate axes
-  const sx = size.x > 1e-6 ? size.x : 1;
-  const sy = size.y > 1e-6 ? size.y : 1;
-  const sz = size.z > 1e-6 ? size.z : 1;
-
-  const index = geometry.getIndex();
-  const vertexCount = pos.count;
-  const uvs = new Float32Array(vertexCount * 2);
-
-  const triCount = index ? index.count / 3 : vertexCount / 3;
-  const faceNormal = new THREE.Vector3();
-
-  for (let t = 0; t < triCount; t++) {
-    const i0 = index ? index.getX(t * 3) : t * 3;
-    const i1 = index ? index.getX(t * 3 + 1) : t * 3 + 1;
-    const i2 = index ? index.getX(t * 3 + 2) : t * 3 + 2;
-
-    // Average face normal from vertex normals
-    faceNormal.set(
-      nor.getX(i0) + nor.getX(i1) + nor.getX(i2),
-      nor.getY(i0) + nor.getY(i1) + nor.getY(i2),
-      nor.getZ(i0) + nor.getZ(i1) + nor.getZ(i2),
-    );
-    const ax = Math.abs(faceNormal.x);
-    const ay = Math.abs(faceNormal.y);
-    const az = Math.abs(faceNormal.z);
-
-    for (const vi of [i0, i1, i2]) {
-      let u: number, v: number;
-      if (ax >= ay && ax >= az) {
-        // Project onto YZ plane
-        u = (pos.getY(vi) - bb.min.y) / sy;
-        v = (pos.getZ(vi) - bb.min.z) / sz;
-      } else if (ay >= ax && ay >= az) {
-        // Project onto XZ plane
-        u = (pos.getX(vi) - bb.min.x) / sx;
-        v = (pos.getZ(vi) - bb.min.z) / sz;
-      } else {
-        // Project onto XY plane
-        u = (pos.getX(vi) - bb.min.x) / sx;
-        v = (pos.getY(vi) - bb.min.y) / sy;
-      }
-      uvs[vi * 2] = u;
-      uvs[vi * 2 + 1] = v;
-    }
-  }
-
-  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
 }
 
 class NestedGroup {
@@ -1344,24 +1278,46 @@ class NestedGroup {
         this._studioMaterialCache.set(sharingKey, studioMaterial);
       }
 
+      // Triplanar mapping for textured materials on geometry without UVs.
+      // Each auto-UV object gets its own material clone with shader-based
+      // triplanar sampling (eliminates seams on curved surfaces).
+      const hasUVs = obj.shapeGeometry?.getAttribute("uv") != null;
+      const needsTriplanar =
+        this._texturedMaterialKeys.has(sharingKey) &&
+        obj.shapeGeometry &&
+        !hasUVs;
+
+      if (this._texturedMaterialKeys.has(sharingKey)) {
+        logger.debug(`Studio "${path}": ${hasUVs ? "using parametric UVs" : "using triplanar fallback"}`);
+      }
+
+      if (needsTriplanar && studioMaterial instanceof THREE.MeshPhysicalMaterial) {
+        const triKey = `${sharingKey}:tri:${path}`;
+        let triMat = this._studioMaterialCache.get(triKey);
+        if (!triMat) {
+          triMat = studioMaterial.clone();
+          applyTriplanarMapping(triMat as THREE.MeshPhysicalMaterial, obj.shapeGeometry!);
+          this._studioMaterialCache.set(triKey, triMat);
+        }
+        studioMaterial = triMat;
+      }
+
       // Build back-face variant if needed
       let studioBack: THREE.MeshPhysicalMaterial | null = null;
       if (obj.renderback && studioMaterial instanceof THREE.MeshPhysicalMaterial) {
-        const backKey = sharingKey + ":back";
+        const backKey = needsTriplanar
+          ? `${sharingKey}:tri:${path}:back`
+          : `${sharingKey}:back`;
         let cachedBack = this._studioMaterialCache.get(backKey);
         if (!cachedBack) {
           cachedBack = studioMaterial.clone();
           cachedBack.side = THREE.BackSide;
+          if (needsTriplanar && obj.shapeGeometry) {
+            applyTriplanarMapping(cachedBack as THREE.MeshPhysicalMaterial, obj.shapeGeometry);
+          }
           this._studioMaterialCache.set(backKey, cachedBack);
         }
         studioBack = cachedBack as THREE.MeshPhysicalMaterial;
-      }
-
-      // Auto-generate box-projected UVs if material uses textures but
-      // geometry has none (common for CAD meshes without explicit UVs).
-      // Uses _texturedMaterialKeys so cache-hit objects also get UVs.
-      if (this._texturedMaterialKeys.has(sharingKey) && obj.shapeGeometry && !obj.shapeGeometry.getAttribute("uv")) {
-        generateBoxProjectedUVs(obj.shapeGeometry);
       }
 
       // Apply to ObjectGroup
