@@ -1493,16 +1493,32 @@ class Display {
     this.tools = flag;
     const tb = this.getElement("tcv_cad_toolbar");
     const cn = this.getElement("tcv_cad_navigation");
+    const tickInfo = this.tickInfoElement;
     if (flag) {
       tb.style.height = "38px";
       tb.style.display = "flex";
       cn.style.height = "38px";
       cn.style.display = "block";
+
+      // Tick size badge belongs to the tools UI. Restore it only when tools are visible and at least one grid is visible.
+      if (tickInfo) {
+        if (this.viewer?.ready) {
+          tickInfo.style.display = this.viewer.rendered.gridHelper.getVisible()
+            ? "block"
+            : "none";
+        } else {
+          tickInfo.style.display = "none";
+        }
+      }
     } else {
       tb.style.height = "0px";
       tb.style.display = "none";
       cn.style.height = "0px";
       cn.style.display = "none";
+
+      if (tickInfo) {
+        tickInfo.style.display = "none";
+      }
     }
   };
 
