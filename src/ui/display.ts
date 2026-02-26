@@ -197,6 +197,7 @@ class Display {
   zebraDirectionSlider: Slider | undefined;
   studioEnvIntensitySlider: Slider | undefined;
   studioExposureSlider: Slider | undefined;
+  studioEnvRotationSlider: Slider | undefined;
 
   // State - set in setupUI() which is called at end of Viewer constructor
   viewer!: Viewer;
@@ -728,6 +729,7 @@ class Display {
     this.zebraDirectionSlider?.dispose();
     this.studioEnvIntensitySlider?.dispose();
     this.studioExposureSlider?.dispose();
+    this.studioEnvRotationSlider?.dispose();
 
     // Clear DOM content (elements remain valid until Display is GC'd)
     this.cadTree.innerHTML = "";
@@ -1018,7 +1020,7 @@ class Display {
     this.studioEnvIntensitySlider = new Slider(
       "studio_env_intensity",
       0,
-      200,
+      300,
       this.container,
       {
         handler: this.handleStudioEnvIntensity,
@@ -1029,11 +1031,21 @@ class Display {
     this.studioExposureSlider = new Slider(
       "studio_exposure",
       0,
-      200,
+      300,
       this.container,
       {
         handler: this.handleStudioExposure,
         percentage: true,
+        isReadyCheck: viewerReadyCheck,
+      },
+    );
+    this.studioEnvRotationSlider = new Slider(
+      "studio_env_rotation",
+      0,
+      360,
+      this.container,
+      {
+        handler: this.handleStudioEnvRotation,
         isReadyCheck: viewerReadyCheck,
       },
     );
@@ -1065,6 +1077,10 @@ class Display {
     this.setupSelectEvent(
       "tcv_studio_tone_mapping",
       this.handleStudioToneMapping,
+    );
+    this.setupSelectEvent(
+      "tcv_studio_texture_mapping",
+      this.handleStudioTextureMapping,
     );
 
     this.setupClickEvent("tcv_studio_reset", this.handleStudioReset);
@@ -1268,6 +1284,13 @@ class Display {
       },
       { immediate: true },
     );
+    sub(
+      "studioEnvRotation",
+      (change) => {
+        this.studioEnvRotationSlider?.setValueFromState(change.new);
+      },
+      { immediate: true },
+    );
     sub("studioShowFloor", (change) => {
       this.getInputElement("tcv_studio_show_floor").checked = change.new;
     });
@@ -1277,6 +1300,10 @@ class Display {
     });
     sub("studioToneMapping", (change) => {
       const el = this.container.querySelector(".tcv_studio_tone_mapping");
+      if (el instanceof HTMLSelectElement) el.value = change.new;
+    });
+    sub("studioTextureMapping", (change) => {
+      const el = this.container.querySelector(".tcv_studio_texture_mapping");
       if (el instanceof HTMLSelectElement) el.value = change.new;
     });
     sub(
@@ -2014,6 +2041,10 @@ class Display {
     this.state.set("studioEnvIntensity", value);
   };
 
+  handleStudioEnvRotation = (value: number): void => {
+    this.state.set("studioEnvRotation", value);
+  };
+
   /**
    * Handler for Studio show floor checkbox change
    */
@@ -2029,7 +2060,7 @@ class Display {
   handleStudioBackground = (e: Event): void => {
     if (!(e.target instanceof HTMLSelectElement)) return;
     const value = e.target.value;
-    if (value === "grey" || value === "white" || value === "gradient" || value === "environment" || value === "transparent") {
+    if (value === "grey" || value === "darkgrey" || value === "white" || value === "gradient" || value === "environment" || value === "transparent") {
       this.state.set("studioBackground", value);
     }
   };
@@ -2050,6 +2081,14 @@ class Display {
    * Handler for Studio exposure slider change.
    * Slider range 0-200 with percentage=true, so value arrives as 0-2.
    */
+  handleStudioTextureMapping = (e: Event): void => {
+    if (!(e.target instanceof HTMLSelectElement)) return;
+    const value = e.target.value;
+    if (value === "triplanar" || value === "parametric") {
+      this.state.set("studioTextureMapping", value);
+    }
+  };
+
   handleStudioExposure = (value: number): void => {
     this.state.set("studioExposure", value);
   };
@@ -2229,6 +2268,7 @@ class Display {
     const state = this.viewer.state;
     this.studioEnvIntensitySlider?.setValueFromState(state.get("studioEnvIntensity") * 100);
     this.studioExposureSlider?.setValueFromState(state.get("studioExposure") * 100);
+    this.studioEnvRotationSlider?.setValueFromState(state.get("studioEnvRotation"));
     this.getInputElement("tcv_studio_show_floor").checked = state.get("studioShowFloor");
     this.getInputElement("tcv_studio_show_edges").checked = state.get("studioShowEdges");
     this.getInputElement("tcv_studio_4k_env_maps").checked = state.get("studio4kEnvMaps");
@@ -2238,6 +2278,8 @@ class Display {
     if (bgEl instanceof HTMLSelectElement) bgEl.value = state.get("studioBackground");
     const tmEl = this.container.querySelector(".tcv_studio_tone_mapping");
     if (tmEl instanceof HTMLSelectElement) tmEl.value = state.get("studioToneMapping");
+    const txmEl = this.container.querySelector(".tcv_studio_texture_mapping");
+    if (txmEl instanceof HTMLSelectElement) txmEl.value = state.get("studioTextureMapping");
     this._update4kCheckboxEnabled(state.get("studioEnvironment"));
   }
 

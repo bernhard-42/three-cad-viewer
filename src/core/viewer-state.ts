@@ -11,6 +11,7 @@ import {
   type ZebraMappingMode,
   type StudioBackground,
   type StudioToneMapping,
+  type StudioTextureMapping,
   type Keymap,
   type StateChange,
   type StateSubscriber,
@@ -116,6 +117,8 @@ interface StudioModeDefaults {
   studioExposure: number;
   studioShowEdges: boolean;
   studio4kEnvMaps: boolean;
+  studioTextureMapping: StudioTextureMapping;
+  studioEnvRotation: number;
 }
 
 /**
@@ -172,7 +175,8 @@ const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
   "zebraCount", "zebraOpacity", "zebraDirection", "zebraColorScheme", "zebraMappingMode",
   // Studio
   "studioEnvironment", "studioEnvIntensity", "studioShowFloor", "studioBackground",
-  "studioToneMapping", "studioExposure", "studioShowEdges", "studio4kEnvMaps",
+  "studioToneMapping", "studioExposure", "studioShowEdges", "studio4kEnvMaps", "studioTextureMapping",
+  "studioEnvRotation",
   // Runtime
   "activeTool", "animationMode", "animationSliderValue", "zscaleActive", "highlightedButton",
   "activeTab",
@@ -240,6 +244,8 @@ const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
   studioExposure: "studio_exposure",
   studioShowEdges: "studio_show_edges",
   studio4kEnvMaps: "studio_4k_env_maps",
+  studioTextureMapping: "studio_texture_mapping",
+  studioEnvRotation: "studio_env_rotation",
   // Animation/Explode slider (shared state, mutually exclusive modes)
   animationSliderValue: "relative_time",
 };
@@ -413,6 +419,8 @@ class ViewerState {
     studioExposure: 1.0,
     studioShowEdges: false,
     studio4kEnvMaps: false,
+    studioTextureMapping: "triplanar",
+    studioEnvRotation: 0,
   };
 
   /**

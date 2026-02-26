@@ -533,18 +533,24 @@ class Viewer {
       return this._isStudioActive && this._rendered !== null;
     };
 
+    // Helper to re-apply the current environment with current state values
+    const reapplyEnv = (orthoOverride?: boolean): void => {
+      this.envManager.apply(
+        this.rendered.scene,
+        this.state.get("studioEnvIntensity"),
+        this.state.get("studioBackground"),
+        this.state.get("up") === "Z",
+        orthoOverride ?? this.rendered.camera.ortho,
+        this.state.get("studioEnvRotation"),
+      );
+    };
+
     // studioEnvironment changed -> re-load and re-apply
     this.state.subscribe("studioEnvironment", (change) => {
       if (!isStudioActive()) return;
       this.envManager.loadEnvironment(change.new, this.renderer).then(() => {
         if (!isStudioActive()) return;
-        this.envManager.apply(
-          this.rendered.scene,
-          this.state.get("studioEnvIntensity"),
-          this.state.get("studioBackground"),
-          this.state.get("up") === "Z",
-          this.rendered.camera.ortho,
-        );
+        reapplyEnv();
         this.update(true, false);
       }).catch((err) => {
         logger.error("Unexpected error loading studio environment", err);
@@ -554,13 +560,14 @@ class Viewer {
     // studioEnvIntensity changed -> re-apply (no reload needed)
     this.state.subscribe("studioEnvIntensity", () => {
       if (!isStudioActive()) return;
-      this.envManager.apply(
-        this.rendered.scene,
-        this.state.get("studioEnvIntensity"),
-        this.state.get("studioBackground"),
-        this.state.get("up") === "Z",
-        this.rendered.camera.ortho,
-      );
+      reapplyEnv();
+      this.update(true, false);
+    });
+
+    // studioEnvRotation changed -> re-apply rotation
+    this.state.subscribe("studioEnvRotation", () => {
+      if (!isStudioActive()) return;
+      reapplyEnv();
       this.update(true, false);
     });
 
@@ -578,15 +585,8 @@ class Viewer {
     // studioBackground changed -> re-apply environment + update floor contrast
     this.state.subscribe("studioBackground", () => {
       if (!isStudioActive()) return;
-      const bg = this.state.get("studioBackground");
-      this.envManager.apply(
-        this.rendered.scene,
-        this.state.get("studioEnvIntensity"),
-        bg,
-        this.state.get("up") === "Z",
-        this.rendered.camera.ortho,
-      );
-      this._studioFloor.updateForBackground(bg);
+      reapplyEnv();
+      this._studioFloor.updateForBackground(this.state.get("studioBackground"));
       this.update(true, false);
     });
 
@@ -595,13 +595,7 @@ class Viewer {
       if (!isStudioActive()) return;
       // Use change.new, not camera.ortho — the camera hasn't switched yet
       // when this subscriber fires (state is set before camera.switchCamera).
-      this.envManager.apply(
-        this.rendered.scene,
-        this.state.get("studioEnvIntensity"),
-        this.state.get("studioBackground"),
-        this.state.get("up") === "Z",
-        change.new as boolean,
-      );
+      reapplyEnv(change.new as boolean);
       this.update(true, false);
     });
 
@@ -632,19 +626,34 @@ class Viewer {
       const envName = this.state.get("studioEnvironment");
       this.envManager.setUse4kEnvMaps(change.new, envName, this.renderer).then(() => {
         if (!isStudioActive()) return;
-        this.envManager.apply(
-          this.rendered.scene,
-          this.state.get("studioEnvIntensity"),
-          this.state.get("studioBackground"),
-          this.state.get("up") === "Z",
-          this.rendered.camera.ortho,
-        );
+        reapplyEnv();
         this.update(true, false);
         // Signal UI that loading is complete
         this.display.container.dispatchEvent(new Event("tcv-env-loaded"));
       });
     });
+
+    // studioTextureMapping changed -> rebuild materials with new mapping mode
+    this.state.subscribe("studioTextureMapping", () => {
+      if (!isStudioActive()) return;
+      this._rebuildStudioMaterials();
+    });
   }
+
+  /**
+   * Rebuild Studio materials after a mapping mode change.
+   * Leaves and re-enters studio mode with the current texture mapping setting.
+   * @internal
+   */
+  private _rebuildStudioMaterials = async (): Promise<void> => {
+    this.nestedGroup.leaveStudioMode();
+    this.nestedGroup.clearStudioMaterialCache();
+    await this.nestedGroup.enterStudioMode(this.state.get("studioTextureMapping"));
+    if (this._isStudioActive) {
+      this.nestedGroup.setStudioShowEdges(this.state.get("studioShowEdges"));
+      this.update(true, false);
+    }
+  };
 
   /**
    * Return three-cad-viewer version as semver string.
@@ -3084,7 +3093,7 @@ class Viewer {
 
       // 2. Build/swap studio materials (async due to textures).
       //    NestedGroup owns this.materialFactory, so no need to pass it.
-      await this.nestedGroup.enterStudioMode();
+      await this.nestedGroup.enterStudioMode(this.state.get("studioTextureMapping"));
 
       // Guard: user may have left studio during async material build
       if (!this._isStudioActive) return;
@@ -3101,6 +3110,7 @@ class Viewer {
         this.state.get("studioBackground"),
         this.state.get("up") === "Z",
         this.rendered.camera.ortho,
+        this.state.get("studioEnvRotation"),
       );
 
       // Lighting: disable CAD lights; environment IBL provides all illumination
@@ -3235,6 +3245,8 @@ class Viewer {
     this.state.set("studioExposure", defaults.studioExposure);
     this.state.set("studioShowEdges", defaults.studioShowEdges);
     this.state.set("studio4kEnvMaps", defaults.studio4kEnvMaps);
+    this.state.set("studioTextureMapping", defaults.studioTextureMapping);
+    this.state.set("studioEnvRotation", defaults.studioEnvRotation);
   };
 
   // ---------------------------------------------------------------------------

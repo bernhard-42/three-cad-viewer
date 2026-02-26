@@ -48,7 +48,10 @@ export type StudioEnvironment = string;
 export type StudioToneMapping = "neutral" | "AgX" | "ACES" | "none";
 
 /** Studio background mode */
-export type StudioBackground = "grey" | "white" | "gradient" | "environment" | "transparent";
+export type StudioBackground = "grey" | "darkgrey" | "white" | "gradient" | "environment" | "transparent";
+
+/** Studio texture mapping mode */
+export type StudioTextureMapping = "triplanar" | "parametric";
 
 /** Shape type */
 export type ShapeType = "shapes" | "edges" | "vertices";
@@ -361,6 +364,10 @@ export interface StudioModeOptions {
   studioShowEdges?: boolean;
   /** Use 4K environment maps instead of 2K (default: false) */
   studio4kEnvMaps?: boolean;
+  /** Texture mapping mode: triplanar projection or parametric UVs (default: "triplanar") */
+  studioTextureMapping?: StudioTextureMapping;
+  /** Environment map rotation in degrees, 0-360 (default: 0) */
+  studioEnvRotation?: number;
 }
 
 /** Combined options for initialization */
@@ -448,6 +455,8 @@ export interface ViewerStateShape {
   studioExposure: number;
   studioShowEdges: boolean;
   studio4kEnvMaps: boolean;
+  studioTextureMapping: StudioTextureMapping;
+  studioEnvRotation: number;
 
   // Runtime
   activeTool: string | null;
@@ -619,8 +628,6 @@ export interface MaterialAppearance {
 export interface MaterialXMaterial {
   /** Material properties from material-db. Each key maps to { value?, texture? } */
   properties: Record<string, { value?: unknown; texture?: string }>;
-  /** Optional linear RGB color override (replaces color.value and removes color.texture) */
-  colorOverride?: [number, number, number];
   /** Optional texture tiling [u, v], default [1, 1]. Applied to all textures. */
   textureRepeat?: [number, number];
 }
@@ -682,6 +689,10 @@ export interface StudioOptions {
   showEdges?: boolean;
   /** Use 4K environment maps instead of 2K (default: false) */
   use4kEnvMaps?: boolean;
+  /** Texture mapping mode (default: "triplanar") */
+  textureMapping?: StudioTextureMapping;
+  /** Environment map rotation in degrees (default: 0) */
+  envRotation?: number;
 }
 
 // =============================================================================

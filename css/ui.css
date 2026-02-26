@@ -898,6 +898,10 @@ input[type="button"] {
   outline: none;
 }
 
+.tcv_studio_texture_mapping {
+  width: auto;
+}
+
 .tcv_studio_select:hover {
   opacity: 1;
 }

@@ -12,6 +12,9 @@ import { logger } from "../utils/logger.js";
  */
 const STUDIO_BACKGROUND_GREY = new THREE.Color(0.18, 0.18, 0.18);
 
+/** Dark grey background for high-contrast viewing of light materials. */
+const STUDIO_BACKGROUND_DARKGREY = new THREE.Color(0.03, 0.03, 0.03);
+
 /** White background color for clean product shots. */
 const STUDIO_BACKGROUND_WHITE = new THREE.Color(1.0, 1.0, 1.0);
 
@@ -273,6 +276,7 @@ class EnvironmentManager {
    * @param backgroundMode - Background mode
    * @param upIsZ - Whether the scene uses Z-up coordinates (default true)
    * @param ortho - Whether the camera is orthographic (env background falls back to gradient)
+   * @param envRotationDeg - Environment map rotation in degrees (default 0)
    */
   apply(
     scene: THREE.Scene,
@@ -280,15 +284,18 @@ class EnvironmentManager {
     backgroundMode: StudioBackground = "grey",
     upIsZ: boolean = true,
     ortho: boolean = false,
+    envRotationDeg: number = 0,
   ): void {
+    const rotY = (envRotationDeg * Math.PI) / 180;
     if (this._currentTexture) {
       scene.environment = this._currentTexture;
       scene.environmentIntensity = envIntensity;
-      // HDR maps assume Y-up; rotate 90° around X to align with Z-up scenes
+      // HDR maps assume Y-up; rotate 90° around X to align with Z-up scenes.
+      // Additional Y-axis rotation for user-controlled azimuthal rotation.
       if (upIsZ) {
-        scene.environmentRotation.set(Math.PI / 2, 0, 0);
+        scene.environmentRotation.set(Math.PI / 2, 0, rotY);
       } else {
-        scene.environmentRotation.set(0, 0, 0);
+        scene.environmentRotation.set(0, rotY, 0);
       }
     } else {
       scene.environment = null;
@@ -321,7 +328,7 @@ class EnvironmentManager {
           // then use that texture as scene.background. This gives a consistent
           // "distant" background for both ortho and perspective cameras, and
           // avoids the main camera's narrow FOV making the env appear too close.
-          this._setupEnvBackground(scene, this._currentTexture, upIsZ);
+          this._setupEnvBackground(scene, this._currentTexture, upIsZ, rotY);
           this._deferredApply = null;
         } else {
           // No environment loaded — fall back to grey.
@@ -335,6 +342,12 @@ class EnvironmentManager {
         break;
       case "transparent":
         scene.background = null;
+        scene.backgroundIntensity = 1.0;
+        scene.backgroundBlurriness = 0;
+        this._teardownEnvBackground();
+        break;
+      case "darkgrey":
+        scene.background = STUDIO_BACKGROUND_DARKGREY;
         scene.backgroundIntensity = 1.0;
         scene.backgroundBlurriness = 0;
         this._teardownEnvBackground();
@@ -548,6 +561,7 @@ class EnvironmentManager {
     mainScene: THREE.Scene,
     texture: THREE.Texture,
     upIsZ: boolean,
+    rotY: number = 0,
   ): void {
     if (!this._bgScene) {
       this._bgScene = new THREE.Scene();
@@ -560,9 +574,9 @@ class EnvironmentManager {
     this._bgScene.backgroundIntensity = 1.0;
     this._bgScene.backgroundBlurriness = 0;
     if (upIsZ) {
-      this._bgScene.backgroundRotation.set(Math.PI / 2, 0, 0);
+      this._bgScene.backgroundRotation.set(Math.PI / 2, 0, rotY);
     } else {
-      this._bgScene.backgroundRotation.set(0, 0, 0);
+      this._bgScene.backgroundRotation.set(0, rotY, 0);
     }
 
     this._orthoEnvMainScene = mainScene;
