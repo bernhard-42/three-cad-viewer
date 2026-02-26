@@ -67,6 +67,8 @@ export interface DisplayOptions {
   treeHeight?: number;
   theme: ThemeInput;
   pinning: boolean;
+  canvas?: HTMLCanvasElement;
+  gl?: WebGLRenderingContext | WebGL2RenderingContext;
 }
 
 /**
@@ -696,7 +698,10 @@ class Display {
 
     // Clear DOM content (elements remain valid until Display is GC'd)
     this.cadTree.innerHTML = "";
-    this.cadView.removeChild(this.cadView.children[2]);
+    const attachedCanvas = this.cadView.querySelector("canvas");
+    if (attachedCanvas && attachedCanvas.parentElement === this.cadView) {
+      this.cadView.removeChild(attachedCanvas);
+    }
     this.container.innerHTML = "";
   }
 
@@ -790,6 +795,7 @@ class Display {
       this.height = options.height;
       this.cadView.style.height = px(options.height);
     }
+
     if (options.treeWidth) {
       this.treeWidth = options.treeWidth;
       this.cadTree.parentElement!.parentElement!.style.width = px(
@@ -1066,6 +1072,9 @@ class Display {
 
     sub("tools", (change) => {
       this.showTools(change.new);
+      const animationMode = this.state.get("animationMode");
+      this.cadAnim.style.display =
+        change.new && animationMode !== "none" ? "block" : "none";
     });
 
     sub("glass", (change) => {
@@ -1165,8 +1174,10 @@ class Display {
       "animationMode",
       (change) => {
         const mode = change.new;
-        // Show/hide slider control
-        this.cadAnim.style.display = mode !== "none" ? "block" : "none";
+        const toolsEnabled = this.state.get("tools");
+        // Show/hide slider control (only when tools panel is enabled)
+        this.cadAnim.style.display =
+          toolsEnabled && mode !== "none" ? "block" : "none";
         // Set label: "A" for animation, "E" for explode
         this.getElement("tcv_animation_label").innerHTML =
           mode === "explode" ? "E" : "A";
@@ -1286,6 +1297,17 @@ class Display {
    * @param canvasElement - The canvas to attach.
    */
   private attachCanvas(canvasElement: HTMLCanvasElement): void {
+    // If the canvas is already attached elsewhere
+    // do not re-parent it into this display.
+    if (canvasElement.parentElement && canvasElement.parentElement !== this.cadView) {
+      listeners.add(canvasElement, "click", () => {
+        if (this.help_shown) {
+          this.showHelp(false);
+        }
+      });
+      return;
+    }
+
     const existingCanvas = this.cadView.querySelector("canvas");
     if (existingCanvas) {
       this.cadView.replaceChild(canvasElement, existingCanvas);
@@ -1303,7 +1325,9 @@ class Display {
    * Get the DOM canvas element
    */
   getCanvas(): Element {
-    return this.cadView.children[this.cadView.children.length - 1];
+    const localCanvas = this.cadView.querySelector("canvas");
+    if (localCanvas) return localCanvas;
+    return this.viewer.renderer.domElement;
   }
 
   /**
@@ -1469,17 +1493,37 @@ class Display {
     this.tools = flag;
     const tb = this.getElement("tcv_cad_toolbar");
     const cn = this.getElement("tcv_cad_navigation");
+    const tickInfo = this.tickInfoElement;
     if (flag) {
       tb.style.height = "38px";
       tb.style.display = "flex";
       cn.style.height = "38px";
       cn.style.display = "block";
+
+      // Tick size badge belongs to the tools UI. Restore it only when tools are visible and at least one grid is visible.
+      if (tickInfo) {
+        if (this.viewer?.ready) {
+          tickInfo.style.display = this.viewer.rendered.gridHelper.getVisible()
+            ? "block"
+            : "none";
+        } else {
+          tickInfo.style.display = "none";
+        }
+      }
     } else {
       tb.style.height = "0px";
       tb.style.display = "none";
       cn.style.height = "0px";
       cn.style.display = "none";
+
+      if (tickInfo) {
+        tickInfo.style.display = "none";
+      }
     }
+  };
+
+  showToolsPanel = (flag: boolean): void => {
+    this.showTools(flag);
   };
 
   /**
