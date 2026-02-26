@@ -68,8 +68,18 @@ export class ZebraTool {
           color2 = "#ffffff";
           break;
         case "colorful": {
-          // Rainbow colors
-          const hue = (i / this.settings.stripeCount) * 360;
+          // Rainbow colors — for odd counts, first and last half-stripes
+          // merge at the tile boundary, so they must share the same hue.
+          // Distribute hues across N-1 divisions (the merged pair counts as one).
+          let hue: number;
+          if (isOddCount && i === this.settings.stripeCount - 1) {
+            hue = 0;
+          } else {
+            const divisions = isOddCount
+              ? this.settings.stripeCount - 1
+              : this.settings.stripeCount;
+            hue = (i / divisions) * 360;
+          }
           color1 = `hsl(${hue}, 100%, 50%)`;
           color2 = `hsl(${(hue + 180) % 360}, 100%, 50%)`;
           break;

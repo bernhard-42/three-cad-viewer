@@ -275,6 +275,13 @@ class CADTrackballControls extends TrackballControls {
   private _onHolroydWheel(): void {
     // Parent's wheel handler already processed the event, just call update
     this.update();
+
+    // TrackballControls uses dynamic damping (staticMoving=false) which only
+    // consumes ~20% of the zoom delta per update() call. In animation-loop mode
+    // this creates smooth deceleration, but in change-listener mode (no continuous
+    // updates) the residual delta persists and gets applied on the next interaction
+    // (e.g., clicking to rotate), causing a phantom zoom. Clear it.
+    this._zoomStart.copy(this._zoomEnd);
   }
 
   /**

@@ -211,6 +211,8 @@ interface DisplayOptionsInternal {
   zebraTool?: boolean;
   glass?: boolean;
   tools?: boolean;
+  canvas?: HTMLCanvasElement;
+  gl?: WebGLRenderingContext | WebGL2RenderingContext;
   keymap?: KeymapConfig;
   [key: string]: unknown;
 }
@@ -295,6 +297,8 @@ class Viewer {
   // Always available (set in constructor)
   display!: Display;
   renderer!: THREE.WebGLRenderer;
+  private _externalGl: boolean;
+  onAfterRender: (() => void) | null;
   mouse!: THREE.Vector2;
   cadTools!: Tools;
   animation!: Animation;
@@ -417,6 +421,7 @@ class Viewer {
     this.notifyCallback = notifyCallback;
     this.pinAsPngCallback = pinAsPngCallback;
     this.updateMarker = updateMarker;
+    this.onAfterRender = null;
 
     this.hasAnimationLoop = false;
 
@@ -460,12 +465,20 @@ class Viewer {
 
     this.mouse = new THREE.Vector2();
 
-    // setup renderer
-    this.renderer = new THREE.WebGLRenderer({
+    // setup renderer — support externally provided canvas and/or WebGL context
+    const rendererParams: THREE.WebGLRendererParameters = {
       alpha: true,
       antialias: true,
       stencil: true,
-    });
+    };
+    if (options.canvas) {
+      rendererParams.canvas = options.canvas;
+    }
+    if (options.gl) {
+      rendererParams.context = options.gl;
+    }
+    this._externalGl = !!(options.canvas || options.gl);
+    this.renderer = new THREE.WebGLRenderer(rendererParams);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.state.get("cadWidth"), this.state.get("height"));
@@ -964,6 +977,9 @@ class Viewer {
   update = (updateMarker: boolean, notify: boolean = true): void => {
     if (!this.ready) return;
 
+    if (this._externalGl) {
+      this.renderer.resetState();
+    }
     this.renderer.clear();
 
     if (
@@ -1026,6 +1042,16 @@ class Viewer {
       },
       notify,
     );
+
+    // In shared/external WebGL mode, clean up renderer state before external
+    // renderers/hooks (overlays, etc.) draw on the same context.
+    if (this._externalGl) {
+      this.renderer.resetState();
+    }
+
+    if (this.onAfterRender) {
+      this.onAfterRender();
+    }
   };
 
   /**
@@ -1092,8 +1118,8 @@ class Viewer {
     // dispose renderer
     this.renderer.renderLists.dispose();
     this.renderer.dispose();
-    // forceContextLoss may not exist in test mocks
-    if (typeof this.renderer.forceContextLoss === "function") {
+    // Skip context loss for externally provided WebGL contexts
+    if (!this._externalGl && typeof this.renderer.forceContextLoss === "function") {
       this.renderer.forceContextLoss();
     }
     console.debug("three-cad-viewer: WebGL context disposed");
@@ -1619,8 +1645,12 @@ class Viewer {
       cadWidth: this.state.get("cadWidth"),
       height: this.state.get("height"),
       maxAnisotropy: this.renderer.capabilities.getMaxAnisotropy(),
-      tickValueElement: this.display.tickValueElement,
-      tickInfoElement: this.display.tickInfoElement,
+      ...(this.state.get("tools")
+        ? {
+            tickValueElement: this.display.tickValueElement,
+            tickInfoElement: this.display.tickInfoElement,
+          }
+        : {}),
       getCamera: () => this._rendered?.camera.getCamera() ?? null,
       getAxes0: () => this.state?.get("axes0") ?? false,
     });
@@ -1775,6 +1805,11 @@ class Viewer {
     this.toggleAnimationLoop(this.hasAnimationLoop);
 
     this.ready = true;
+
+    if (!this.state.get("tools")) {
+      this.display.showToolsPanel(false);
+      this.rendered.orientationMarker.setVisible(false);
+    }
 
     // Apply clip settings AFTER ready=true (clip setters check this.ready)
     // Set normals first (if provided), passing slider values to avoid reset to gridSize/2

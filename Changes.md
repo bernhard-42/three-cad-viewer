@@ -47,6 +47,19 @@ A new **Studio** tab provides physically-based rendering with per-object materia
 - Uses Three.js `HDRLoader` (replaces deprecated `RGBELoader`) and `PMREMGenerator` for environment maps
 - Uses Three.js `RoomEnvironment` for bundled procedural environment
 
+## v4.1.2
+
+**Fixes**
+
+- Make default zoom faster again (regression from 4.1.1)
+- Fix boundary color of colorful zebra for odd stripe count
+
+## v4.1.1
+
+**Fixes**
+
+- Fix the zoom state residual issue beacuse of TrackballControls using dynamic damping
+
 ## v4.1.0
 
 **Features**
