@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import type { ColorValue, MaterialAppearance } from "../core/types.js";
 import { gpuTracker } from "../utils/gpu-tracker.js";
+import { logger } from "../utils/logger.js";
 import { getColorSpaceForMap } from "./texture-cache.js";
 
 /** material-db property keys that hold [r,g,b] color arrays (linear RGB). */
@@ -27,6 +28,7 @@ const PROPERTY_TO_MAP: Record<string, string> = {
   anisotropy: "anisotropyMap",
   iridescence: "iridescenceMap",
   iridescenceThickness: "iridescenceThicknessMap",
+  ao: "aoMap",
   occlusion: "aoMap",
   thickness: "thicknessMap",
   opacity: "alphaMap",
@@ -497,7 +499,6 @@ class MaterialFactory {
    * [r,g,b] array in **linear RGB**) and/or `texture` (inline data URI).
    *
    * @param properties - Material properties from material-db
-   * @param colorOverride - Optional linear RGB color override (replaces color.value, removes color.texture)
    * @param textureRepeat - Optional [u, v] texture tiling applied to all loaded textures
    * @param textureCache - TextureCache for resolving data URI textures
    * @param label - Optional label for GPU tracking
@@ -505,7 +506,6 @@ class MaterialFactory {
    */
   async createStudioMaterialFromMaterialX(
     properties: Record<string, { value?: unknown; texture?: string }>,
-    colorOverride: [number, number, number] | undefined,
     textureRepeat: [number, number] | undefined,
     textureCache: TextureCacheInterface | null,
     label?: string,
@@ -520,14 +520,16 @@ class MaterialFactory {
       depthTest: true,
     };
 
+    // Warn once if displacement data is present (not supported in Studio)
+    if (properties.displacement?.texture || properties.displacementScale?.value !== undefined) {
+      logger.warn("Displacement not supported by the Studio");
+    }
+
     for (const [key, prop] of Object.entries(properties)) {
       if (prop.value === undefined) continue;
 
-      // Apply colorOverride: replace color value
-      if (key === "color" && colorOverride) {
-        matOptions.color = new THREE.Color(colorOverride[0], colorOverride[1], colorOverride[2]);
-        continue;
-      }
+      // Skip displacement properties (not supported, would waste GPU memory)
+      if (key === "displacement" || key === "displacementScale" || key === "displacementBias") continue;
 
       // Color arrays → THREE.Color (already linear, no sRGB conversion)
       if (COLOR_ARRAY_KEYS.has(key) && Array.isArray(prop.value)) {
@@ -538,11 +540,6 @@ class MaterialFactory {
       } else {
         matOptions[key] = prop.value;
       }
-    }
-
-    // If colorOverride was given but no "color" property existed, set it anyway
-    if (colorOverride && !matOptions.color) {
-      matOptions.color = new THREE.Color(colorOverride[0], colorOverride[1], colorOverride[2]);
     }
 
     // --- Handle transmission ---
@@ -568,8 +565,6 @@ class MaterialFactory {
     if (textureCache) {
       for (const [key, prop] of Object.entries(properties)) {
         if (!prop.texture) continue;
-        // colorOverride removes the color (base color) texture
-        if (key === "color" && colorOverride) continue;
 
         const mapName = PROPERTY_TO_MAP[key];
         if (!mapName) continue;
