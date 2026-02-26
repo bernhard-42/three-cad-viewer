@@ -10,6 +10,7 @@ import { gpuTracker } from "../utils/gpu-tracker.js";
 import type {
   ZebraColorScheme,
   ZebraMappingMode,
+  StudioTextureMapping,
   Shapes,
   ColorValue,
   ColoredMaterial,
@@ -144,9 +145,7 @@ function materialHasTexture(def: MaterialAppearance): boolean {
 
 /** Check whether a material-db entry has texture references in its properties. */
 function materialXHasTextures(entry: MaterialXMaterial): boolean {
-  for (const [key, prop] of Object.entries(entry.properties)) {
-    // colorOverride removes the color texture
-    if (entry.colorOverride && key === "color") continue;
+  for (const [, prop] of Object.entries(entry.properties)) {
     if (prop.texture) return true;
   }
   return false;
@@ -1204,7 +1203,7 @@ class NestedGroup {
    * 3. Clone BackSide variant for renderback objects
    * 4. Auto-generate box-projected UVs when textured but geometry has no UVs
    */
-  async enterStudioMode(): Promise<void> {
+  async enterStudioMode(textureMapping: StudioTextureMapping = "triplanar"): Promise<void> {
     // Create TextureCache lazily
     if (!this._textureCache) {
       this._textureCache = new TextureCache();
@@ -1240,7 +1239,6 @@ class NestedGroup {
             // --- materialx-db path ---
             studioMaterial = await this.materialFactory.createStudioMaterialFromMaterialX(
               resolved.properties,
-              resolved.colorOverride,
               resolved.textureRepeat,
               this._textureCache as TextureCacheInterface,
             );
@@ -1278,17 +1276,18 @@ class NestedGroup {
         this._studioMaterialCache.set(sharingKey, studioMaterial);
       }
 
-      // Triplanar mapping for textured materials on geometry without UVs.
-      // Each auto-UV object gets its own material clone with shader-based
-      // triplanar sampling (eliminates seams on curved surfaces).
+      // Triplanar mapping for textured materials.
+      // "triplanar" mode: always use triplanar for textured materials
+      // "parametric" mode: triplanar only when geometry has no UVs (fallback)
+      const textured = this._texturedMaterialKeys.has(sharingKey);
       const hasUVs = obj.shapeGeometry?.getAttribute("uv") != null;
       const needsTriplanar =
-        this._texturedMaterialKeys.has(sharingKey) &&
-        obj.shapeGeometry &&
-        !hasUVs;
+        textured &&
+        obj.shapeGeometry != null &&
+        (textureMapping === "triplanar" || !hasUVs);
 
-      if (this._texturedMaterialKeys.has(sharingKey)) {
-        logger.debug(`Studio "${path}": ${hasUVs ? "using parametric UVs" : "using triplanar fallback"}`);
+      if (textured) {
+        logger.debug(`Studio "${path}": ${needsTriplanar ? "using triplanar" : "using parametric UVs"}`);
       }
 
       if (needsTriplanar && studioMaterial instanceof THREE.MeshPhysicalMaterial) {
@@ -1341,6 +1340,17 @@ class NestedGroup {
       obj.leaveStudioMode();
     }
     this._isStudioMode = false;
+  }
+
+  /**
+   * Clear cached Studio materials so they are rebuilt on next enterStudioMode.
+   */
+  clearStudioMaterialCache(): void {
+    for (const [, material] of this._studioMaterialCache) {
+      material.dispose();
+    }
+    this._studioMaterialCache.clear();
+    this._texturedMaterialKeys.clear();
   }
 
   /**
