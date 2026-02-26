@@ -1687,10 +1687,6 @@ class Display {
     }
   };
 
-  showToolsPanel = (flag: boolean): void => {
-    this.showTools(flag);
-  };
-
   /**
    * Show or hides measurement tools, measurement tools needs a backend to be used.
    */
