@@ -4,6 +4,11 @@ import { HDRLoader } from "three/examples/jsm/loaders/HDRLoader.js";
 import type { StudioEnvironment, StudioBackground } from "../core/types.js";
 import { gpuTracker } from "../utils/gpu-tracker.js";
 import { logger } from "../utils/logger.js";
+import {
+  detectDominantLights,
+  getDefaultLights,
+  type LightDetectionResult,
+} from "./light-detection.js";
 
 /**
  * Neutral grey background color for Studio mode.
@@ -11,6 +16,9 @@ import { logger } from "../utils/logger.js";
  * a sensible backdrop for transmission/glass materials.
  */
 const STUDIO_BACKGROUND_GREY = new THREE.Color(0.18, 0.18, 0.18);
+
+/** Scratch vector for per-frame getDrawingBufferSize() calls. */
+const _bgSizeVec = new THREE.Vector2();
 
 /** Dark grey background for high-contrast viewing of light materials. */
 const STUDIO_BACKGROUND_DARKGREY = new THREE.Color(0.03, 0.03, 0.03);
@@ -127,6 +135,9 @@ class EnvironmentManager {
   /** Cached PMREM render targets keyed by environment name or URL */
   private _cache: Map<string, THREE.WebGLRenderTarget> = new Map();
 
+  /** Cached light detection results keyed by environment name or URL */
+  private _lightDetectionCache: Map<string, LightDetectionResult> = new Map();
+
   /** In-flight load promises keyed by environment name or URL */
   private _inflight: Map<string, Promise<THREE.Texture>> = new Map();
 
@@ -166,8 +177,8 @@ class EnvironmentManager {
   private _bgRenderTarget: THREE.WebGLRenderTarget | null = null;
   private _orthoEnvMainScene: THREE.Scene | null = null;
 
-  /** Whether the current state requires env background rendering to a 2D target */
-  needsEnvBackgroundUpdate: boolean = false;
+  /** Whether the env background feature is active (ortho + environment background). */
+  private _envBackgroundActive: boolean = false;
 
   /**
    * Deferred-apply state: if apply() was called with backgroundMode "environment"
@@ -291,7 +302,7 @@ class EnvironmentManager {
       scene.environment = this._currentTexture;
       scene.environmentIntensity = envIntensity;
       // HDR maps assume Y-up; rotate 90° around X to align with Z-up scenes.
-      // Additional Y-axis rotation for user-controlled azimuthal rotation.
+      // Additional rotation for user-controlled azimuthal rotation.
       if (upIsZ) {
         scene.environmentRotation.set(Math.PI / 2, 0, rotY);
       } else {
@@ -324,11 +335,18 @@ class EnvironmentManager {
         break;
       case "environment":
         if (this._currentTexture) {
-          // Render env map to a 2D render target via a fixed-FOV virtual camera,
-          // then use that texture as scene.background. This gives a consistent
-          // "distant" background for both ortho and perspective cameras, and
-          // avoids the main camera's narrow FOV making the env appear too close.
-          this._setupEnvBackground(scene, this._currentTexture, upIsZ, rotY);
+          if (ortho) {
+            // Ortho: render-to-texture with camera tracking (Three.js can't
+            // do cubemap backgrounds with orthographic cameras)
+            this._setupEnvBackground(scene, this._currentTexture, upIsZ, rotY);
+          } else {
+            // Perspective: native cubemap background (world-space, rotates with orbit)
+            this._teardownEnvBackground();
+            scene.background = this._currentTexture;
+            scene.backgroundIntensity = 1.0;
+            scene.backgroundBlurriness = 0;
+            scene.backgroundRotation.copy(scene.environmentRotation);
+          }
           this._deferredApply = null;
         } else {
           // No environment loaded — fall back to grey.
@@ -416,6 +434,7 @@ class EnvironmentManager {
         gpuTracker.untrack("texture", cached.texture);
         cached.dispose();
         this._cache.delete(slug);
+        this._lightDetectionCache.delete(slug);
         logger.debug(`Evicted cached environment "${slug}" for resolution switch`);
       }
     }
@@ -442,27 +461,44 @@ class EnvironmentManager {
   }
 
   /**
-   * Update the env background render target.
+   * Whether the render-to-texture env background path is currently active.
+   * When true, the caller must call updateEnvBackground() each frame.
+   */
+  get isEnvBackgroundActive(): boolean {
+    return this._envBackgroundActive;
+  }
+
+  /**
+   * Get cached light detection result for an environment.
+   *
+   * @param envName - Environment name or URL (same key used in loadEnvironment)
+   * @returns Detection result, or null if not yet analyzed
+   */
+  getLightDetection(envName: string): LightDetectionResult | null {
+    return this._lightDetectionCache.get(envName) ?? null;
+  }
+
+  /**
+   * Update the env background render target (ortho camera workaround).
    *
    * Renders the PMREM env map to a 2D render target using a fixed-FOV virtual
-   * perspective camera that matches the active camera's orientation. The
+   * perspective camera whose quaternion is synced with the main camera. The
    * resulting 2D texture is set as the main scene's background, giving a
-   * consistent "distant" environment look regardless of camera projection
-   * (the main perspective camera's narrow 22° FOV would otherwise make the
-   * env appear too close / zoomed in).
+   * world-space environment that tracks camera orbit — matching how
+   * scene.environment (IBL reflections) already behaves.
    *
-   * Call this before the main `renderer.render()` each frame while
-   * `needsEnvBackgroundUpdate` is true.
+   * Called every frame from the render loop when isEnvBackgroundActive is true.
+   * Only active in ortho mode (perspective uses native cubemap background).
    *
    * @param renderer - WebGL renderer
-   * @param camera - The active camera (orientation is copied)
+   * @param mainCamera - The active camera whose orientation to match
    */
   updateEnvBackground(
     renderer: THREE.WebGLRenderer,
-    camera: THREE.Camera,
+    mainCamera?: THREE.Camera,
   ): void {
     if (
-      !this.needsEnvBackgroundUpdate ||
+      !this._envBackgroundActive ||
       !this._bgScene ||
       !this._bgCamera ||
       !this._orthoEnvMainScene
@@ -471,7 +507,7 @@ class EnvironmentManager {
     }
 
     // Match viewport size for the render target
-    const size = renderer.getDrawingBufferSize(new THREE.Vector2());
+    const size = renderer.getDrawingBufferSize(_bgSizeVec);
     const w = size.x;
     const h = size.y;
 
@@ -487,10 +523,11 @@ class EnvironmentManager {
       this._bgCamera.updateProjectionMatrix();
     }
 
-    // Sync virtual perspective camera with the active camera's orientation
-    this._bgCamera.position.copy(camera.position);
-    this._bgCamera.quaternion.copy(camera.quaternion);
-    this._bgCamera.updateMatrixWorld();
+    // Sync bgCamera orientation with the main camera so the background
+    // rotates with orbit, matching the world-space IBL reflections.
+    if (mainCamera) {
+      this._bgCamera.quaternion.copy(mainCamera.quaternion);
+    }
 
     // Render env background to the render target
     renderer.setRenderTarget(this._bgRenderTarget);
@@ -533,6 +570,7 @@ class EnvironmentManager {
       logger.debug(`Disposed cached environment render target: ${key}`);
     }
     this._cache.clear();
+    this._lightDetectionCache.clear();
 
     // Clear in-flight promises (they'll resolve but won't be cached)
     this._inflight.clear();
@@ -555,7 +593,8 @@ class EnvironmentManager {
   /**
    * Set up the env background: a separate scene with the PMREM texture
    * as background and a fixed-FOV virtual perspective camera for rendering
-   * to a 2D target. Used for both ortho and perspective cameras.
+   * to a 2D target. Used only for ortho cameras (perspective uses native
+   * cubemap background).
    */
   private _setupEnvBackground(
     mainScene: THREE.Scene,
@@ -570,6 +609,9 @@ class EnvironmentManager {
       this._bgCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 10);
     }
 
+    // bgCamera orientation is synced with the main camera in
+    // updateEnvBackground() — no fixed rotation needed here.
+
     this._bgScene.background = texture;
     this._bgScene.backgroundIntensity = 1.0;
     this._bgScene.backgroundBlurriness = 0;
@@ -580,14 +622,14 @@ class EnvironmentManager {
     }
 
     this._orthoEnvMainScene = mainScene;
-    this.needsEnvBackgroundUpdate = true;
+    this._envBackgroundActive = true;
   }
 
   /**
    * Tear down the env background state.
    */
   private _teardownEnvBackground(): void {
-    this.needsEnvBackgroundUpdate = false;
+    this._envBackgroundActive = false;
     this._orthoEnvMainScene = null;
   }
 
@@ -702,6 +744,10 @@ class EnvironmentManager {
     // Cache render target and track its texture
     this._cache.set(cacheKey, renderTarget);
     gpuTracker.trackTexture(renderTarget.texture, `PMREM environment: ${cacheKey}`);
+
+    // Cache default light detection for procedural environment
+    this._lightDetectionCache.set(cacheKey, getDefaultLights());
+
     logger.debug(`Generated RoomEnvironment PMREM, cached as "${cacheKey}"`);
 
     return renderTarget.texture;
@@ -742,6 +788,17 @@ class EnvironmentManager {
 
     // Generate PMREM cubemap from equirectangular HDR
     const renderTarget = pmremGenerator.fromEquirectangular(hdrTexture);
+
+    // Analyze HDR pixel data for dominant light sources BEFORE disposing.
+    // hdrTexture.image.data is Uint16Array (HalfFloatType) from HDRLoader.
+    if (hdrTexture.image?.data && hdrTexture.image.width && hdrTexture.image.height) {
+      const result = detectDominantLights(
+        hdrTexture.image.data as Uint16Array,
+        hdrTexture.image.width as number,
+        hdrTexture.image.height as number,
+      );
+      this._lightDetectionCache.set(cacheKey, result);
+    }
 
     // Dispose the source equirectangular texture (PMREM is now in GPU memory).
     hdrTexture.dispose();

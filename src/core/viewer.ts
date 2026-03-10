@@ -43,6 +43,7 @@ import { version } from "../_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
 import { EnvironmentManager } from "../rendering/environment.js";
 import { StudioFloor } from "../rendering/studio-floor.js";
+import { enablePCSS, disablePCSS } from "../rendering/pcss-shadows.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
 import { isInstancedFormat, decodeInstancedFormat } from "../utils/decode-instances.js";
@@ -371,6 +372,8 @@ class Viewer {
   // Studio mode state
   private _isStudioActive: boolean = false;
   private _savedClippingState: ClippingState | null = null;
+  /** Shadow-casting DirectionalLights generated from HDR analysis. */
+  private _studioShadowLights: THREE.DirectionalLight[] = [];
   // Z-scale
   zScale!: number;
 
@@ -564,6 +567,10 @@ class Viewer {
       this.envManager.loadEnvironment(change.new, this.renderer).then(() => {
         if (!isStudioActive()) return;
         reapplyEnv();
+        // Rebuild shadow lights for the new environment
+        if (this.state.get("studioShowShadows")) {
+          this._configureStudioShadowLights();
+        }
         this.update(true, false);
       }).catch((err) => {
         logger.error("Unexpected error loading studio environment", err);
@@ -577,10 +584,13 @@ class Viewer {
       this.update(true, false);
     });
 
-    // studioEnvRotation changed -> re-apply rotation
+    // studioEnvRotation changed -> re-apply rotation + rebuild shadow lights
     this.state.subscribe("studioEnvRotation", () => {
       if (!isStudioActive()) return;
       reapplyEnv();
+      if (this.state.get("studioShowShadows")) {
+        this._configureStudioShadowLights();
+      }
       this.update(true, false);
     });
 
@@ -592,6 +602,13 @@ class Viewer {
       } else {
         this._studioFloor.hide();
       }
+      this.update(true, false);
+    });
+
+    // studioShowShadows changed -> toggle shadow rendering
+    this.state.subscribe("studioShowShadows", (change) => {
+      if (!isStudioActive()) return;
+      this._setStudioShadowsEnabled(change.new);
       this.update(true, false);
     });
 
@@ -640,6 +657,10 @@ class Viewer {
       this.envManager.setUse4kEnvMaps(change.new, envName, this.renderer).then(() => {
         if (!isStudioActive()) return;
         reapplyEnv();
+        // Rebuild shadow lights (detection re-ran on new HDR data)
+        if (this.state.get("studioShowShadows")) {
+          this._configureStudioShadowLights();
+        }
         this.update(true, false);
         // Signal UI that loading is complete
         this.display.container.dispatchEvent(new Event("tcv-env-loaded"));
@@ -999,9 +1020,8 @@ class Viewer {
       this.state.get("height"),
     );
 
-    // Env background: render HDRI to a 2D render target via a fixed-FOV
-    // virtual camera so the background looks consistent across camera types
-    if (this.envManager.needsEnvBackgroundUpdate) {
+    // Env background: render HDRI to 2D render target for ortho cameras
+    if (this.envManager.isEnvBackgroundActive) {
       this.envManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
     }
 
@@ -1109,7 +1129,8 @@ class Viewer {
   dispose(): void {
     this.clear();
 
-    // dispose environment manager and floor
+    // dispose environment manager, floor, and shadow lights
+    this._removeStudioShadowLights();
     this.envManager.dispose();
     this._studioFloor.dispose();
 
@@ -3096,6 +3117,25 @@ class Viewer {
   };
 
   /**
+   * Sets whether shadows are shown in Studio mode.
+   * @param value - True to show shadows.
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioShowShadows = (value: boolean, notify: boolean = true): void => {
+    this.state.set("studioShowShadows", value, notify);
+  };
+
+  /**
+   * Gets whether shadows are shown in Studio mode.
+   * @returns True if shadows are visible in Studio mode.
+   * @public
+   */
+  getStudioShowShadows = (): boolean => {
+    return this.state.get("studioShowShadows");
+  };
+
+  /**
    * Returns whether Studio mode is currently active.
    * @returns True if Studio mode is active and the viewer has rendered content.
    * @public
@@ -3162,6 +3202,11 @@ class Viewer {
         this._studioFloor.hide();
       }
 
+      // Shadows
+      if (this.state.get("studioShowShadows")) {
+        this._setStudioShadowsEnabled(true);
+      }
+
       // Tone mapping
       this._applyStudioToneMapping();
 
@@ -3191,9 +3236,10 @@ class Viewer {
     // 1. Restore materials
     this.nestedGroup.leaveStudioMode();
 
-    // 2. Remove environment and hide floor
+    // 2. Remove environment, hide floor, and disable shadows
     this.envManager.remove(this.rendered.scene);
     this._studioFloor.hide();
+    this._setStudioShadowsEnabled(false);
 
     // 3. Restore lighting
     this.rendered.ambientLight.intensity = scaleLight(this.state.get("ambientIntensity"));
@@ -3235,6 +3281,189 @@ class Viewer {
     // Position floor slightly below the bottom to avoid z-fighting
     const zPosition = this.bbox.min.z - maxExtent * 0.001;
     this._studioFloor.configure("grid", zPosition, maxExtent);
+  }
+
+  /**
+   * Create shadow-casting DirectionalLights from HDR light detection results.
+   *
+   * Positions lights relative to the scene bounding box. Each light's
+   * shadow camera frustum is fitted to the scene extents.
+   *
+   * @internal
+   */
+  private _configureStudioShadowLights(): void {
+    // Remove any existing shadow lights first
+    this._removeStudioShadowLights();
+
+    if (!this.bbox || !this._rendered) return;
+
+    const envName = this.state.get("studioEnvironment");
+    const detection = this.envManager.getLightDetection(envName);
+    if (!detection || detection.lights.length === 0) return;
+
+    const bboxCenter = new THREE.Vector3(
+      (this.bbox.min.x + this.bbox.max.x) / 2,
+      (this.bbox.min.y + this.bbox.max.y) / 2,
+      (this.bbox.min.z + this.bbox.max.z) / 2,
+    );
+    const maxExtent = Math.max(
+      this.bbox.max.x - this.bbox.min.x,
+      this.bbox.max.y - this.bbox.min.y,
+      this.bbox.max.z - this.bbox.min.z,
+    );
+
+    const isZUp = this.state.get("up") === "Z";
+    const envRotationDeg = this.state.get("studioEnvRotation");
+    const envRotationRad = (envRotationDeg * Math.PI) / 180;
+
+    // Enable shadow mapping with BasicShadowMap (required for PCSS raw depth reads)
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.BasicShadowMap;
+    enablePCSS();
+
+    for (const detected of detection.lights) {
+      let [dx, dy, dz] = detected.direction;
+
+      // environmentRotation = Euler(PI/2, 0, rotY, 'XYZ')
+      // Extrinsic matrix: M = Rz(rotY) * Rx(PI/2)
+      // Env dir → scene dir: d_scene = Rz(rotY) * Rx(PI/2) * d_env
+      //
+      // Step 1: Rx(PI/2) — Y-up env coords → Z-up scene coords
+      // Step 2: Rz(rotY) — user env rotation in Z-up scene space
+      if (isZUp) {
+        // Rx(PI/2): x' = x, y' = -z, z' = y
+        const oy = dy;
+        const oz = dz;
+        dy = -oz;
+        dz = oy;
+      }
+
+      if (envRotationRad !== 0) {
+        if (isZUp) {
+          // Rz(rotY) in Z-up scene space (horizontal rotation)
+          const cosR = Math.cos(envRotationRad);
+          const sinR = Math.sin(envRotationRad);
+          const nx = dx * cosR - dy * sinR;
+          const ny = dx * sinR + dy * cosR;
+          dx = nx;
+          dy = ny;
+        } else {
+          // Ry(rotY) in Y-up scene space
+          const cosR = Math.cos(envRotationRad);
+          const sinR = Math.sin(envRotationRad);
+          const nx = dx * cosR + dz * sinR;
+          const nz = -dx * sinR + dz * cosR;
+          dx = nx;
+          dz = nz;
+        }
+      }
+
+      const dir = new THREE.Vector3(dx, dy, dz).normalize();
+
+      // Near-zero intensity: enough for shadow map generation but invisible
+      // as illumination. ShadowMaterial computes shadow geometrically from
+      // the depth map, independent of light intensity.
+      const light = new THREE.DirectionalLight(0xffffff, 0.001);
+
+      // Position light along the detected direction, far from the scene
+      light.position.copy(bboxCenter).addScaledVector(dir, maxExtent * 3);
+      light.target.position.copy(bboxCenter);
+
+      // Shadow camera frustum covers both casters (objects) and the floor
+      // where shadows land. Floor extends 4× maxExtent; at oblique light
+      // angles shadows project far, so the frustum must be generous.
+      light.castShadow = true;
+      const frustumSize = maxExtent * 2.0;
+      light.shadow.camera.left = -frustumSize;
+      light.shadow.camera.right = frustumSize;
+      light.shadow.camera.top = frustumSize;
+      light.shadow.camera.bottom = -frustumSize;
+      light.shadow.camera.near = maxExtent * 0.1;
+      light.shadow.camera.far = maxExtent * 7;
+      light.shadow.mapSize.set(2048, 2048);
+
+      // normalBias offsets shadow lookups along the surface normal,
+      // preventing surfaces from self-occluding (shadow acne).
+      // Scale with scene size since normalBias is in world units.
+      light.shadow.normalBias = maxExtent * 0.005;
+
+      this.rendered.scene.add(light);
+      this.rendered.scene.add(light.target);
+      this._studioShadowLights.push(light);
+    }
+  }
+
+  /**
+   * Remove all studio shadow lights from the scene and dispose their resources.
+   * @internal
+   */
+  private _removeStudioShadowLights(): void {
+    for (const light of this._studioShadowLights) {
+      if (this._rendered) {
+        this.rendered.scene.remove(light);
+        this.rendered.scene.remove(light.target);
+      }
+      light.shadow.map?.dispose();
+      light.dispose();
+    }
+    this._studioShadowLights = [];
+    disablePCSS();
+  }
+
+  /**
+   * Enable or disable shadow rendering in Studio mode.
+   *
+   * When enabling: sets up shadow map on renderer, creates shadow lights,
+   * enables castShadow on shape meshes, and shows the floor shadow plane.
+   *
+   * When disabling: removes shadow lights, disables castShadow on meshes,
+   * disables shadow map, and hides the floor shadow plane.
+   *
+   * @param enabled - Whether to enable shadows
+   * @internal
+   */
+  private _setStudioShadowsEnabled(enabled: boolean): void {
+    if (!this._rendered) return;
+
+    if (enabled) {
+      this._configureStudioShadowLights();
+
+      // Enable cast + receive shadow on all shape meshes (self-shadowing)
+      this.nestedGroup.rootGroup?.traverse((obj) => {
+        if (obj instanceof THREE.Mesh) {
+          obj.castShadow = true;
+          obj.receiveShadow = true;
+        }
+      });
+
+      this._studioFloor.setShadowsEnabled(true);
+
+      // Force shader recompilation: programs compiled without shadow support
+      // won't include shadow sampling code until materials are invalidated.
+      this.rendered.scene.traverse((obj) => {
+        if (obj instanceof THREE.Mesh && obj.material) {
+          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+          for (const m of mats) {
+            m.needsUpdate = true;
+          }
+        }
+      });
+    } else {
+      this._removeStudioShadowLights();
+
+      // Disable shadow map on renderer (saves GPU work)
+      this.renderer.shadowMap.enabled = false;
+
+      // Disable cast + receive shadow on all shape meshes
+      this.nestedGroup.rootGroup?.traverse((obj) => {
+        if (obj instanceof THREE.Mesh) {
+          obj.castShadow = false;
+          obj.receiveShadow = false;
+        }
+      });
+
+      this._studioFloor.setShadowsEnabled(false);
+    }
   }
 
   /**
@@ -3282,6 +3511,7 @@ class Viewer {
     this.state.set("studio4kEnvMaps", defaults.studio4kEnvMaps);
     this.state.set("studioTextureMapping", defaults.studioTextureMapping);
     this.state.set("studioEnvRotation", defaults.studioEnvRotation);
+    this.state.set("studioShowShadows", defaults.studioShowShadows);
   };
 
   // ---------------------------------------------------------------------------
@@ -4569,7 +4799,7 @@ class Viewer {
           this.state.get("cadWidth"),
           this.state.get("height"),
         );
-        if (this.envManager.needsEnvBackgroundUpdate) {
+        if (this.envManager.isEnvBackgroundActive) {
           this.envManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
         }
         this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());

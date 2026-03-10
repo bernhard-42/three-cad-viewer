@@ -20,15 +20,26 @@ export type StudioFloorType = "grid";
  * Designed to be extensible: currently supports a grid line pattern,
  * with future support for checkerboard, textured floors, etc.
  *
- * The floor is added to the scene via its `group` property, and
- * visibility is toggled via `show()` / `hide()`.
+ * The floor is added to the scene via its `group` property.
+ * Grid visibility is toggled via `show()` / `hide()`.
+ * Shadow plane visibility is toggled via `setShadowsEnabled()`.
+ * The group is visible whenever either the grid or shadow plane is shown.
  */
 class StudioFloor {
   /** The Group to add to the scene. Contains the floor mesh(es). */
   readonly group: THREE.Group;
 
-  /** Current floor child (GridHelper, Mesh, etc.) */
+  /** Current grid child (GridHelper) */
   private _currentChild: THREE.Object3D | null = null;
+
+  /** Shadow-receiving plane (ShadowMaterial) */
+  private _shadowPlane: THREE.Mesh | null = null;
+
+  /** Whether the grid is currently shown */
+  private _gridVisible: boolean = false;
+
+  /** Whether shadows are currently enabled */
+  private _shadowsEnabled: boolean = false;
 
   constructor() {
     this.group = new THREE.Group();
@@ -54,16 +65,34 @@ class StudioFloor {
         this._createGrid(zPosition, sceneSize);
         break;
     }
+
+    // Create shadow plane at the same position and size
+    this._createShadowPlane(zPosition, sceneSize);
   }
 
-  /** Make the floor visible. */
+  /** Make the grid visible. */
   show(): void {
-    this.group.visible = true;
+    this._gridVisible = true;
+    if (this._currentChild) this._currentChild.visible = true;
+    this._updateGroupVisibility();
   }
 
-  /** Hide the floor. */
+  /** Hide the grid. */
   hide(): void {
-    this.group.visible = false;
+    this._gridVisible = false;
+    if (this._currentChild) this._currentChild.visible = false;
+    this._updateGroupVisibility();
+  }
+
+  /**
+   * Toggle shadow plane visibility independently from the grid.
+   *
+   * @param enabled - Whether to show the shadow plane
+   */
+  setShadowsEnabled(enabled: boolean): void {
+    this._shadowsEnabled = enabled;
+    if (this._shadowPlane) this._shadowPlane.visible = enabled;
+    this._updateGroupVisibility();
   }
 
   /**
@@ -119,8 +148,36 @@ class StudioFloor {
     material.transparent = true;
     material.depthWrite = false;
 
+    // Start hidden; show() will make it visible
+    grid.visible = this._gridVisible;
+
     this._currentChild = grid;
     this.group.add(grid);
+  }
+
+  /**
+   * Create a shadow-receiving plane at the floor position.
+   *
+   * Uses ShadowMaterial which is fully transparent except where shadows
+   * are cast, providing a natural grounding effect without obscuring
+   * the background.
+   */
+  private _createShadowPlane(zPosition: number, sceneSize: number): void {
+    const floorSize = sceneSize * 4;
+
+    const geometry = new THREE.PlaneGeometry(floorSize, floorSize);
+    const material = new THREE.ShadowMaterial({ opacity: 0.35 });
+
+    const plane = new THREE.Mesh(geometry, material);
+    plane.position.z = zPosition;
+    plane.receiveShadow = true;
+    plane.name = "studioShadowPlane";
+
+    // Start hidden; setShadowsEnabled() controls visibility
+    plane.visible = this._shadowsEnabled;
+
+    this._shadowPlane = plane;
+    this.group.add(plane);
   }
 
   // Future: _createChecker(), _createTextured(), etc.
@@ -129,29 +186,41 @@ class StudioFloor {
   // Internal helpers
   // ---------------------------------------------------------------------------
 
-  /** Remove and dispose the current floor child. */
+  /** Update group visibility: visible if either grid or shadow plane is shown. */
+  private _updateGroupVisibility(): void {
+    this.group.visible = this._gridVisible || this._shadowsEnabled;
+  }
+
+  /** Remove and dispose the current floor children (grid + shadow plane). */
   private _clearCurrent(): void {
-    if (!this._currentChild) return;
+    if (this._currentChild) {
+      this.group.remove(this._currentChild);
 
-    this.group.remove(this._currentChild);
-
-    // Dispose geometry and material(s)
-    this._currentChild.traverse((obj) => {
-      if (
-        obj instanceof THREE.Mesh ||
-        obj instanceof THREE.LineSegments
-      ) {
-        obj.geometry?.dispose();
-        const mat = obj.material;
-        if (Array.isArray(mat)) {
-          mat.forEach((m) => m.dispose());
-        } else if (mat) {
-          mat.dispose();
+      // Dispose geometry and material(s)
+      this._currentChild.traverse((obj) => {
+        if (
+          obj instanceof THREE.Mesh ||
+          obj instanceof THREE.LineSegments
+        ) {
+          obj.geometry?.dispose();
+          const mat = obj.material;
+          if (Array.isArray(mat)) {
+            mat.forEach((m) => m.dispose());
+          } else if (mat) {
+            mat.dispose();
+          }
         }
-      }
-    });
+      });
 
-    this._currentChild = null;
+      this._currentChild = null;
+    }
+
+    if (this._shadowPlane) {
+      this.group.remove(this._shadowPlane);
+      this._shadowPlane.geometry.dispose();
+      (this._shadowPlane.material as THREE.Material).dispose();
+      this._shadowPlane = null;
+    }
   }
 }
 

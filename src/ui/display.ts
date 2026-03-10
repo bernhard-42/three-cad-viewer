@@ -1067,6 +1067,11 @@ class Display {
       false,
     );
     this.setupCheckEvent(
+      "tcv_studio_show_shadows",
+      this.handleStudioShowShadows,
+      false,
+    );
+    this.setupCheckEvent(
       "tcv_studio_4k_env_maps",
       this.handleStudio4kEnvMaps,
       false,
@@ -1324,6 +1329,9 @@ class Display {
     );
     sub("studioShowEdges", (change) => {
       this.getInputElement("tcv_studio_show_edges").checked = change.new;
+    });
+    sub("studioShowShadows", (change) => {
+      this.getInputElement("tcv_studio_show_shadows").checked = change.new;
     });
     sub("studio4kEnvMaps", (change) => {
       this.getInputElement("tcv_studio_4k_env_maps").checked = change.new;
@@ -2142,6 +2150,14 @@ class Display {
   };
 
   /**
+   * Handler for Studio show shadows checkbox change
+   */
+  handleStudioShowShadows = (e: Event): void => {
+    if (!(e.target instanceof HTMLInputElement)) return;
+    this.state.set("studioShowShadows", e.target.checked);
+  };
+
+  /**
    * Handler for Studio 4K env maps checkbox change.
    * Shows a "Loading…" indicator while the new resolution downloads.
    */
@@ -2311,6 +2327,7 @@ class Display {
     this.studioEnvRotationSlider?.setValueFromState(state.get("studioEnvRotation"));
     this.getInputElement("tcv_studio_show_floor").checked = state.get("studioShowFloor");
     this.getInputElement("tcv_studio_show_edges").checked = state.get("studioShowEdges");
+    this.getInputElement("tcv_studio_show_shadows").checked = state.get("studioShowShadows");
     this.getInputElement("tcv_studio_4k_env_maps").checked = state.get("studio4kEnvMaps");
     const envEl = this.container.querySelector(".tcv_studio_environment");
     if (envEl instanceof HTMLSelectElement) envEl.value = state.get("studioEnvironment");

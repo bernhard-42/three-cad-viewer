@@ -119,6 +119,7 @@ interface StudioModeDefaults {
   studio4kEnvMaps: boolean;
   studioTextureMapping: StudioTextureMapping;
   studioEnvRotation: number;
+  studioShowShadows: boolean;
 }
 
 /**
@@ -176,7 +177,7 @@ const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
   // Studio
   "studioEnvironment", "studioEnvIntensity", "studioShowFloor", "studioBackground",
   "studioToneMapping", "studioExposure", "studioShowEdges", "studio4kEnvMaps", "studioTextureMapping",
-  "studioEnvRotation",
+  "studioEnvRotation", "studioShowShadows",
   // Runtime
   "activeTool", "animationMode", "animationSliderValue", "zscaleActive", "highlightedButton",
   "activeTab",
@@ -246,6 +247,7 @@ const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
   studio4kEnvMaps: "studio_4k_env_maps",
   studioTextureMapping: "studio_texture_mapping",
   studioEnvRotation: "studio_env_rotation",
+  studioShowShadows: "studio_show_shadows",
   // Animation/Explode slider (shared state, mutually exclusive modes)
   animationSliderValue: "relative_time",
 };
@@ -421,6 +423,7 @@ class ViewerState {
     studio4kEnvMaps: false,
     studioTextureMapping: "triplanar",
     studioEnvRotation: 0,
+    studioShowShadows: false,
   };
 
   /**

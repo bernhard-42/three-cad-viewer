@@ -372,6 +372,8 @@ export interface StudioModeOptions {
   studioTextureMapping?: StudioTextureMapping;
   /** Environment map rotation in degrees, 0-360 (default: 0) */
   studioEnvRotation?: number;
+  /** Show shadows in Studio mode (default: false) */
+  studioShowShadows?: boolean;
 }
 
 /** Combined options for initialization */
@@ -461,6 +463,7 @@ export interface ViewerStateShape {
   studio4kEnvMaps: boolean;
   studioTextureMapping: StudioTextureMapping;
   studioEnvRotation: number;
+  studioShowShadows: boolean;
 
   // Runtime
   activeTool: string | null;
@@ -697,6 +700,8 @@ export interface StudioOptions {
   textureMapping?: StudioTextureMapping;
   /** Environment map rotation in degrees (default: 0) */
   envRotation?: number;
+  /** Show shadows in Studio mode (default: false) */
+  showShadows?: boolean;
 }
 
 // =============================================================================
