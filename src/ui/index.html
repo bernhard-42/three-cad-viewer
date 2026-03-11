@@ -219,41 +219,6 @@
                             </select>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Background</span>
-                            <select class="tcv_studio_background tcv_studio_select">
-                                <option value="grey">Solid Grey</option>
-                                <option value="darkgrey">Solid Dark Grey</option>
-                                <option value="white">Solid White</option>
-                                <option value="gradient">Gradient</option>
-                                <option value="environment">Environment</option>
-                                <option value="transparent">Transparent</option>
-                            </select>
-                        </div>
-                        <div class="tcv_studio_row">
-                            <span class="tcv_label">Tone Mapping</span>
-                            <select class="tcv_studio_tone_mapping tcv_studio_select">
-                                <option value="neutral">PBR Neutral</option>
-                                <option value="AgX">AgX</option>
-                                <option value="ACES">ACES Filmic</option>
-                                <option value="none">Linear (none)</option>
-                            </select>
-                        </div>
-                        <div class="tcv_studio_row">
-                            <span class="tcv_label">Texture Mapping</span>
-                            <select class="tcv_studio_texture_mapping tcv_studio_select">
-                                <option value="triplanar">Triplanar</option>
-                                <option value="parametric">Parametric UV</option>
-                            </select>
-                        </div>
-                        <div class="tcv_studio_row">
-                            <span class="tcv_label">Exposure</span>
-                            <div class="tcv_studio_slider_group">
-                                <input type="range" min="0" max="300" step="1" value="100"
-                                    class="tcv_sld_value_studio_exposure tcv_clip_slider">
-                                <input value=100 class="tcv_inp_value_studio_exposure tcv_clip_input"></input>
-                            </div>
-                        </div>
-                        <div class="tcv_studio_row">
                             <span class="tcv_label">Env Intensity</span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="300" step="1" value="100"
@@ -276,21 +241,54 @@
                                 <span class="tcv_studio_4k_loading" style="display:none; margin-left:4px; font-size:0.85em; opacity:0.7;">Loading…</span>
                             </span>
                         </div>
-                        <div class="tcv_studio_checks">
-                            <span class="tcv_tooltip" data-tooltip="Show floor grid in Studio mode">
-                                <input class='tcv_studio_show_floor tcv_check' type="checkbox" />
-                                <span class="tcv_label">Show Floor</span>
-                            </span>
-                            <span class="tcv_tooltip" data-tooltip="Show/hide CAD edges in Studio mode">
-                                <input class='tcv_studio_show_edges tcv_check' type="checkbox" />
-                                <span class="tcv_label">Show Edges</span>
-                            </span>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Tone Mapping</span>
+                            <select class="tcv_studio_tone_mapping tcv_studio_select">
+                                <option value="neutral">PBR Neutral</option>
+                                <option value="AgX">AgX</option>
+                                <option value="ACES">ACES Filmic</option>
+                                <option value="none">Linear (none)</option>
+                            </select>
+                        </div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Exposure</span>
+                            <div class="tcv_studio_slider_group">
+                                <input type="range" min="0" max="300" step="1" value="100"
+                                    class="tcv_sld_value_studio_exposure tcv_clip_slider">
+                                <input value=100 class="tcv_inp_value_studio_exposure tcv_clip_input"></input>
+                            </div>
+                        </div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Background</span>
+                            <select class="tcv_studio_background tcv_studio_select">
+                                <option value="grey">Solid Grey</option>
+                                <option value="darkgrey">Solid Dark Grey</option>
+                                <option value="white">Solid White</option>
+                                <option value="gradient">Gradient</option>
+                                <option value="environment">Environment</option>
+                                <option value="transparent">Transparent</option>
+                            </select>
                         </div>
                         <div class="tcv_studio_checks">
                             <span class="tcv_tooltip" data-tooltip="Show shadows from environment lighting">
                                 <input class='tcv_studio_show_shadows tcv_check' type="checkbox" />
                                 <span class="tcv_label">Show Shadows</span>
                             </span>
+                        </div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">AO Intensity</span>
+                            <div class="tcv_studio_slider_group">
+                                <input type="range" min="0" max="300" step="10" value="0"
+                                    class="tcv_sld_value_studio_ao_intensity tcv_clip_slider">
+                                <input value=0 class="tcv_inp_value_studio_ao_intensity tcv_clip_input"></input>
+                            </div>
+                        </div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Texture Mapping</span>
+                            <select class="tcv_studio_texture_mapping tcv_studio_select">
+                                <option value="triplanar">Triplanar</option>
+                                <option value="parametric">Parametric UV</option>
+                            </select>
                         </div>
                     </div>
                 </div>

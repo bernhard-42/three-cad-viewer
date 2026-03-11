@@ -44,6 +44,7 @@ import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
 import { EnvironmentManager } from "../rendering/environment.js";
 import { StudioFloor } from "../rendering/studio-floor.js";
 import { enablePCSS, disablePCSS } from "../rendering/pcss-shadows.js";
+import { StudioComposer } from "../rendering/studio-composer.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
 import { isInstancedFormat, decodeInstancedFormat } from "../utils/decode-instances.js";
@@ -369,6 +370,9 @@ class Viewer {
   // Studio floor (survives clear(), disposed only on dispose())
   private _studioFloor: StudioFloor;
 
+  // Studio post-processing composer (created on enterStudioMode, disposed on leave)
+  private _studioComposer: StudioComposer | null = null;
+
   // Studio mode state
   private _isStudioActive: boolean = false;
   private _savedClippingState: ClippingState | null = null;
@@ -594,17 +598,6 @@ class Viewer {
       this.update(true, false);
     });
 
-    // studioShowFloor changed -> toggle floor visibility
-    this.state.subscribe("studioShowFloor", (change) => {
-      if (!isStudioActive()) return;
-      if (change.new) {
-        this._studioFloor.show();
-      } else {
-        this._studioFloor.hide();
-      }
-      this.update(true, false);
-    });
-
     // studioShowShadows changed -> toggle shadow rendering
     this.state.subscribe("studioShowShadows", (change) => {
       if (!isStudioActive()) return;
@@ -612,11 +605,21 @@ class Viewer {
       this.update(true, false);
     });
 
-    // studioBackground changed -> re-apply environment + update floor contrast
+    // studioAOIntensity changed -> enable/disable AO and set strength via composer
+    this.state.subscribe("studioAOIntensity", (change) => {
+      if (!isStudioActive()) return;
+      if (this._studioComposer) {
+        const intensity = change.new;
+        this._studioComposer.setAOEnabled(intensity > 0);
+        this._studioComposer.setAOIntensity(intensity);
+      }
+      this.update(true, false);
+    });
+
+    // studioBackground changed -> re-apply environment
     this.state.subscribe("studioBackground", () => {
       if (!isStudioActive()) return;
       reapplyEnv();
-      this._studioFloor.updateForBackground(this.state.get("studioBackground"));
       this.update(true, false);
     });
 
@@ -640,13 +643,6 @@ class Viewer {
     this.state.subscribe("studioExposure", () => {
       if (!isStudioActive()) return;
       this._applyStudioToneMapping();
-      this.update(true, false);
-    });
-
-    // studioShowEdges changed -> toggle edge visibility
-    this.state.subscribe("studioShowEdges", (change) => {
-      if (!isStudioActive()) return;
-      this.nestedGroup.setStudioShowEdges(change.new);
       this.update(true, false);
     });
 
@@ -684,7 +680,7 @@ class Viewer {
     this.nestedGroup.clearStudioMaterialCache();
     await this.nestedGroup.enterStudioMode(this.state.get("studioTextureMapping"));
     if (this._isStudioActive) {
-      this.nestedGroup.setStudioShowEdges(this.state.get("studioShowEdges"));
+      this.nestedGroup.setStudioShowEdges(false);
       this.update(true, false);
     }
   };
@@ -1001,7 +997,11 @@ class Viewer {
     if (this._externalGl) {
       this.renderer.resetState();
     }
-    this.renderer.clear();
+    // When the composer is active, its RenderPass handles clearing;
+    // skip manual clear to avoid double-clear artifacts.
+    if (!this._studioComposer) {
+      this.renderer.clear();
+    }
 
     if (
       this.raycaster &&
@@ -1025,7 +1025,13 @@ class Viewer {
       this.envManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
     }
 
-    this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
+    // Render: use composer pipeline when available (AO + tone mapping + SMAA),
+    // otherwise fall back to direct renderer.render().
+    if (this._studioComposer) {
+      this._studioComposer.render();
+    } else {
+      this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
+    }
     this.cadTools.update();
 
     this.rendered.directLight.position.copy(this.rendered.camera.getCamera().position);
@@ -1128,6 +1134,12 @@ class Viewer {
    */
   dispose(): void {
     this.clear();
+
+    // dispose composer (must happen before renderer disposal)
+    if (this._studioComposer) {
+      this._studioComposer.dispose();
+      this._studioComposer = null;
+    }
 
     // dispose environment manager, floor, and shadow lights
     this._removeStudioShadowLights();
@@ -1990,6 +2002,12 @@ class Viewer {
     this.state.set("ortho", flag, notify);
     this.rendered.camera.switchCamera(flag);
     this.rendered.controls.setCamera(this.rendered.camera.getCamera());
+
+    // Update composer camera after the actual swap (not in the ortho
+    // subscriber, which fires before the camera switches)
+    if (this._studioComposer) {
+      this._studioComposer.setCamera(this.rendered.camera.getCamera());
+    }
 
     this.rendered.gridHelper.scaleLabels();
     this.rendered.gridHelper.update(this.rendered.camera.getZoom(), true);
@@ -2993,16 +3011,6 @@ class Viewer {
   };
 
   /**
-   * Sets whether the floor is shown in Studio mode.
-   * @param value - True to show the floor.
-   * @param notify - Whether to notify about the changes.
-   * @public
-   */
-  setStudioShowFloor = (value: boolean, notify: boolean = true): void => {
-    this.state.set("studioShowFloor", value, notify);
-  };
-
-  /**
    * Sets the background mode for Studio mode.
    * @param value - The background mode ("grey", "white", "gradient", "environment", or "transparent").
    * @param notify - Whether to notify about the changes.
@@ -3034,16 +3042,6 @@ class Viewer {
   };
 
   /**
-   * Sets whether edges are shown in Studio mode.
-   * @param value - True to show edges.
-   * @param notify - Whether to notify about the changes.
-   * @public
-   */
-  setStudioShowEdges = (value: boolean, notify: boolean = true): void => {
-    this.state.set("studioShowEdges", value, notify);
-  };
-
-  /**
    * Sets whether 4K environment maps are used (default: 2K).
    * @param value - True for 4K, false for 2K.
    * @param notify - Whether to notify about the changes.
@@ -3069,15 +3067,6 @@ class Viewer {
    */
   getStudioEnvIntensity = (): number => {
     return this.state.get("studioEnvIntensity");
-  };
-
-  /**
-   * Gets whether the floor is shown in Studio mode.
-   * @returns True if the floor is visible.
-   * @public
-   */
-  getStudioShowFloor = (): boolean => {
-    return this.state.get("studioShowFloor");
   };
 
   /**
@@ -3108,15 +3097,6 @@ class Viewer {
   };
 
   /**
-   * Gets whether edges are shown in Studio mode.
-   * @returns True if edges are visible in Studio mode.
-   * @public
-   */
-  getStudioShowEdges = (): boolean => {
-    return this.state.get("studioShowEdges");
-  };
-
-  /**
    * Sets whether shadows are shown in Studio mode.
    * @param value - True to show shadows.
    * @param notify - Whether to notify about the changes.
@@ -3133,6 +3113,26 @@ class Viewer {
    */
   getStudioShowShadows = (): boolean => {
     return this.state.get("studioShowShadows");
+  };
+
+  /**
+   * Sets the ambient occlusion intensity in Studio mode.
+   * A value of 0 disables AO; values > 0 enable it at that intensity.
+   * @param value - The AO intensity (0-3.0).
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioAOIntensity = (value: number, notify: boolean = true): void => {
+    this.state.set("studioAOIntensity", value, notify);
+  };
+
+  /**
+   * Gets the current ambient occlusion intensity in Studio mode.
+   * @returns The AO intensity value (0.5-3.0).
+   * @public
+   */
+  getStudioAOIntensity = (): number => {
+    return this.state.get("studioAOIntensity");
   };
 
   /**
@@ -3193,29 +3193,50 @@ class Viewer {
       this.rendered.ambientLight.intensity = 0;
       this.rendered.directLight.intensity = 0;
 
-      // Floor
+      // Floor — shadow plane only (no grid in Studio mode, like KeyShot/Fusion 360)
       this._configureStudioFloor();
-      this._studioFloor.updateForBackground(this.state.get("studioBackground"));
-      if (this.state.get("studioShowFloor")) {
-        this._studioFloor.show();
-      } else {
-        this._studioFloor.hide();
-      }
 
       // Shadows
       if (this.state.get("studioShowShadows")) {
         this._setStudioShadowsEnabled(true);
       }
 
-      // Tone mapping
+      // Tone mapping (initial: renderer-level, then delegated to composer below)
       this._applyStudioToneMapping();
 
-      // Edges
-      const showEdges = this.state.get("studioShowEdges");
-      this.nestedGroup.setStudioShowEdges(showEdges);
+      // Create composer (replaces direct renderer.render in Studio mode)
+      if (!this._studioComposer) {
+        this._studioComposer = new StudioComposer(
+          this.renderer,
+          this.rendered.scene,
+          this.rendered.camera.getCamera(),
+          this.state.get("cadWidth"),
+          this.state.get("height"),
+        );
+      }
+      // Sync tone mapping to composer's ToneMappingEffect
+      this._studioComposer.setToneMapping(
+        this.state.get("studioToneMapping"),
+        this.state.get("studioExposure"),
+      );
+      // Disable renderer's built-in tone mapping (composer handles it)
+      this.renderer.toneMapping = THREE.NoToneMapping;
+
+      // Ambient Occlusion
+      const aoIntensity = this.state.get("studioAOIntensity");
+      this._studioComposer.setAOIntensity(aoIntensity);
+      this._studioComposer.setAOEnabled(aoIntensity > 0);
+
+      // Edges are always hidden in Studio mode
+      this.nestedGroup.setStudioShowEdges(false);
 
       this.update(true, false);
     } catch (err) {
+      // Clean up composer on error to avoid GPU resource leaks
+      if (this._studioComposer) {
+        this._studioComposer.dispose();
+        this._studioComposer = null;
+      }
       // Clear active flag so subscription callbacks don't think Studio is active
       this._isStudioActive = false;
       logger.error("Unexpected error entering studio mode", err);
@@ -3236,20 +3257,25 @@ class Viewer {
     // 1. Restore materials
     this.nestedGroup.leaveStudioMode();
 
-    // 2. Remove environment, hide floor, and disable shadows
+    // 2. Tear down composer (restores direct renderer.render path)
+    if (this._studioComposer) {
+      this._studioComposer.dispose();
+      this._studioComposer = null;
+    }
+
+    // 3. Remove environment, disable shadows
     this.envManager.remove(this.rendered.scene);
-    this._studioFloor.hide();
     this._setStudioShadowsEnabled(false);
 
-    // 3. Restore lighting
+    // 4. Restore lighting
     this.rendered.ambientLight.intensity = scaleLight(this.state.get("ambientIntensity"));
     this.rendered.directLight.intensity = scaleLight(this.state.get("directIntensity"));
 
-    // 4. Disable tone mapping
+    // 5. Disable tone mapping
     this.renderer.toneMapping = THREE.NoToneMapping;
     this.renderer.toneMappingExposure = 1.0;
 
-    // 5. Restore clipping state.
+    // 6. Restore clipping state.
     //    Note: renderer.localClippingEnabled is NOT restored here. It is
     //    restored by the caller's tab-switch flow (_updateVisibility ->
     //    setLocalClipping), which runs after leaveStudioMode returns.
@@ -3258,9 +3284,9 @@ class Viewer {
       this._savedClippingState = null;
     }
 
-    // 6. Edges restored by ObjectGroup.leaveStudioMode()
+    // 7. Edges restored by ObjectGroup.leaveStudioMode()
 
-    // 7. Clear active flag
+    // 8. Clear active flag
     this._isStudioActive = false;
 
     this.update(true, false);
@@ -3280,7 +3306,7 @@ class Viewer {
     );
     // Position floor slightly below the bottom to avoid z-fighting
     const zPosition = this.bbox.min.z - maxExtent * 0.001;
-    this._studioFloor.configure("grid", zPosition, maxExtent);
+    this._studioFloor.configure(zPosition, maxExtent);
   }
 
   /**
@@ -3471,26 +3497,39 @@ class Viewer {
    * @internal
    */
   private _applyStudioToneMapping(): void {
-    const mapping = this.state.get("studioToneMapping");
-    switch (mapping) {
-      case "neutral":
-        this.renderer.toneMapping = THREE.NeutralToneMapping;
-        break;
-      case "AgX":
-        this.renderer.toneMapping = THREE.AgXToneMapping;
-        break;
-      case "ACES":
-        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        break;
-      case "none":
-        this.renderer.toneMapping = THREE.NoToneMapping;
-        break;
-      default:
-        logger.warn(`Unknown studioToneMapping value: "${mapping}", falling back to NeutralToneMapping`);
-        this.renderer.toneMapping = THREE.NeutralToneMapping;
-        break;
+    if (this._studioComposer) {
+      // Delegate to composer's ToneMappingEffect (post-process pass).
+      // setToneMapping() sets renderer.toneMappingExposure to the correct
+      // value (ToneMappingEffect reads from it).
+      this._studioComposer.setToneMapping(
+        this.state.get("studioToneMapping"),
+        this.state.get("studioExposure"),
+      );
+      // Ensure renderer's built-in tone mapping is off to avoid double-mapping
+      this.renderer.toneMapping = THREE.NoToneMapping;
+    } else {
+      // Fallback: direct renderer tone mapping (no composer available)
+      const mapping = this.state.get("studioToneMapping");
+      switch (mapping) {
+        case "neutral":
+          this.renderer.toneMapping = THREE.NeutralToneMapping;
+          break;
+        case "AgX":
+          this.renderer.toneMapping = THREE.AgXToneMapping;
+          break;
+        case "ACES":
+          this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+          break;
+        case "none":
+          this.renderer.toneMapping = THREE.NoToneMapping;
+          break;
+        default:
+          logger.warn(`Unknown studioToneMapping value: "${mapping}", falling back to NeutralToneMapping`);
+          this.renderer.toneMapping = THREE.NeutralToneMapping;
+          break;
+      }
+      this.renderer.toneMappingExposure = this.state.get("studioExposure");
     }
-    this.renderer.toneMappingExposure = this.state.get("studioExposure");
   }
 
   /**
@@ -3503,15 +3542,14 @@ class Viewer {
     const defaults = ViewerState.STUDIO_MODE_DEFAULTS;
     this.state.set("studioEnvironment", defaults.studioEnvironment);
     this.state.set("studioEnvIntensity", defaults.studioEnvIntensity);
-    this.state.set("studioShowFloor", defaults.studioShowFloor);
     this.state.set("studioBackground", defaults.studioBackground);
     this.state.set("studioToneMapping", defaults.studioToneMapping);
     this.state.set("studioExposure", defaults.studioExposure);
-    this.state.set("studioShowEdges", defaults.studioShowEdges);
     this.state.set("studio4kEnvMaps", defaults.studio4kEnvMaps);
     this.state.set("studioTextureMapping", defaults.studioTextureMapping);
     this.state.set("studioEnvRotation", defaults.studioEnvRotation);
     this.state.set("studioShowShadows", defaults.studioShowShadows);
+    this.state.set("studioAOIntensity", defaults.studioAOIntensity);
   };
 
   // ---------------------------------------------------------------------------
@@ -4802,7 +4840,11 @@ class Viewer {
         if (this.envManager.isEnvBackgroundActive) {
           this.envManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
         }
-        this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
+        if (this._studioComposer) {
+          this._studioComposer.render();
+        } else {
+          this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
+        }
       },
       onComplete: () => {
         // Restore animation loop to original state
@@ -5045,6 +5087,11 @@ class Viewer {
     // Adapt camera to new dimensions
     this.rendered.camera.changeDimensions(this.bb_radius, cadWidth, height);
     this.controls.handleResize();
+
+    // Resize the post-processing composer (render targets must match viewport)
+    if (this._studioComposer) {
+      this._studioComposer.setSize(cadWidth, height);
+    }
 
     // update the this
     this.update(true);

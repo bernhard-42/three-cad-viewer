@@ -200,6 +200,7 @@ class Display {
   studioEnvIntensitySlider: Slider | undefined;
   studioExposureSlider: Slider | undefined;
   studioEnvRotationSlider: Slider | undefined;
+  studioAOIntensitySlider: Slider | undefined;
 
   // State - set in setupUI() which is called at end of Viewer constructor
   viewer!: Viewer;
@@ -732,6 +733,7 @@ class Display {
     this.studioEnvIntensitySlider?.dispose();
     this.studioExposureSlider?.dispose();
     this.studioEnvRotationSlider?.dispose();
+    this.studioAOIntensitySlider?.dispose();
 
     // Clear DOM content (elements remain valid until Display is GC'd)
     this.cadTree.innerHTML = "";
@@ -1057,19 +1059,20 @@ class Display {
     );
 
     this.setupCheckEvent(
-      "tcv_studio_show_floor",
-      this.handleStudioShowFloor,
-      false,
-    );
-    this.setupCheckEvent(
-      "tcv_studio_show_edges",
-      this.handleStudioShowEdges,
-      false,
-    );
-    this.setupCheckEvent(
       "tcv_studio_show_shadows",
       this.handleStudioShowShadows,
       false,
+    );
+    this.studioAOIntensitySlider = new Slider(
+      "studio_ao_intensity",
+      0,
+      300,
+      this.container,
+      {
+        handler: this.handleStudioAOIntensity,
+        percentage: true,
+        isReadyCheck: viewerReadyCheck,
+      },
     );
     this.setupCheckEvent(
       "tcv_studio_4k_env_maps",
@@ -1305,9 +1308,6 @@ class Display {
       },
       { immediate: true },
     );
-    sub("studioShowFloor", (change) => {
-      this.getInputElement("tcv_studio_show_floor").checked = change.new;
-    });
     sub("studioBackground", (change) => {
       const el = this.container.querySelector(".tcv_studio_background");
       if (el instanceof HTMLSelectElement) el.value = change.new;
@@ -1327,12 +1327,16 @@ class Display {
       },
       { immediate: true },
     );
-    sub("studioShowEdges", (change) => {
-      this.getInputElement("tcv_studio_show_edges").checked = change.new;
-    });
     sub("studioShowShadows", (change) => {
       this.getInputElement("tcv_studio_show_shadows").checked = change.new;
     });
+    sub(
+      "studioAOIntensity",
+      (change) => {
+        this.studioAOIntensitySlider?.setValueFromState(change.new * 100);
+      },
+      { immediate: true },
+    );
     sub("studio4kEnvMaps", (change) => {
       this.getInputElement("tcv_studio_4k_env_maps").checked = change.new;
     });
@@ -2094,14 +2098,6 @@ class Display {
   };
 
   /**
-   * Handler for Studio show floor checkbox change
-   */
-  handleStudioShowFloor = (e: Event): void => {
-    if (!(e.target instanceof HTMLInputElement)) return;
-    this.state.set("studioShowFloor", e.target.checked);
-  };
-
-  /**
    * Handler for Studio background dropdown change.
    * Validates against the StudioBackground union before setting state.
    */
@@ -2142,19 +2138,20 @@ class Display {
   };
 
   /**
-   * Handler for Studio show edges checkbox change
-   */
-  handleStudioShowEdges = (e: Event): void => {
-    if (!(e.target instanceof HTMLInputElement)) return;
-    this.state.set("studioShowEdges", e.target.checked);
-  };
-
-  /**
    * Handler for Studio show shadows checkbox change
    */
   handleStudioShowShadows = (e: Event): void => {
     if (!(e.target instanceof HTMLInputElement)) return;
     this.state.set("studioShowShadows", e.target.checked);
+  };
+
+  /**
+   * Handler for Studio AO intensity slider change.
+   * Slider range 0-300 with percentage=true, so value arrives as 0-3.0.
+   * A value of 0 disables AO.
+   */
+  handleStudioAOIntensity = (value: number): void => {
+    this.state.set("studioAOIntensity", value);
   };
 
   /**
@@ -2325,9 +2322,8 @@ class Display {
     this.studioEnvIntensitySlider?.setValueFromState(state.get("studioEnvIntensity") * 100);
     this.studioExposureSlider?.setValueFromState(state.get("studioExposure") * 100);
     this.studioEnvRotationSlider?.setValueFromState(state.get("studioEnvRotation"));
-    this.getInputElement("tcv_studio_show_floor").checked = state.get("studioShowFloor");
-    this.getInputElement("tcv_studio_show_edges").checked = state.get("studioShowEdges");
     this.getInputElement("tcv_studio_show_shadows").checked = state.get("studioShowShadows");
+    this.studioAOIntensitySlider?.setValueFromState(state.get("studioAOIntensity") * 100);
     this.getInputElement("tcv_studio_4k_env_maps").checked = state.get("studio4kEnvMaps");
     const envEl = this.container.querySelector(".tcv_studio_environment");
     if (envEl instanceof HTMLSelectElement) envEl.value = state.get("studioEnvironment");

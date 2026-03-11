@@ -111,15 +111,14 @@ interface ZebraDefaults {
 interface StudioModeDefaults {
   studioEnvironment: string;
   studioEnvIntensity: number;
-  studioShowFloor: boolean;
   studioBackground: StudioBackground;
   studioToneMapping: StudioToneMapping;
   studioExposure: number;
-  studioShowEdges: boolean;
   studio4kEnvMaps: boolean;
   studioTextureMapping: StudioTextureMapping;
   studioEnvRotation: number;
   studioShowShadows: boolean;
+  studioAOIntensity: number;
 }
 
 /**
@@ -175,9 +174,9 @@ const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
   // Zebra
   "zebraCount", "zebraOpacity", "zebraDirection", "zebraColorScheme", "zebraMappingMode",
   // Studio
-  "studioEnvironment", "studioEnvIntensity", "studioShowFloor", "studioBackground",
-  "studioToneMapping", "studioExposure", "studioShowEdges", "studio4kEnvMaps", "studioTextureMapping",
-  "studioEnvRotation", "studioShowShadows",
+  "studioEnvironment", "studioEnvIntensity", "studioBackground",
+  "studioToneMapping", "studioExposure", "studio4kEnvMaps", "studioTextureMapping",
+  "studioEnvRotation", "studioShowShadows", "studioAOIntensity",
   // Runtime
   "activeTool", "animationMode", "animationSliderValue", "zscaleActive", "highlightedButton",
   "activeTab",
@@ -239,15 +238,14 @@ const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
   // Studio settings
   studioEnvironment: "studio_environment",
   studioEnvIntensity: "studio_env_intensity",
-  studioShowFloor: "studio_show_floor",
   studioBackground: "studio_background",
   studioToneMapping: "studio_tone_mapping",
   studioExposure: "studio_exposure",
-  studioShowEdges: "studio_show_edges",
   studio4kEnvMaps: "studio_4k_env_maps",
   studioTextureMapping: "studio_texture_mapping",
   studioEnvRotation: "studio_env_rotation",
   studioShowShadows: "studio_show_shadows",
+  studioAOIntensity: "studio_ao_intensity",
   // Animation/Explode slider (shared state, mutually exclusive modes)
   animationSliderValue: "relative_time",
 };
@@ -415,15 +413,14 @@ class ViewerState {
   static STUDIO_MODE_DEFAULTS: StudioModeDefaults = {
     studioEnvironment: "studio",
     studioEnvIntensity: 1.0,
-    studioShowFloor: false,
     studioBackground: "gradient",
     studioToneMapping: "neutral",
     studioExposure: 1.0,
-    studioShowEdges: false,
     studio4kEnvMaps: false,
     studioTextureMapping: "triplanar",
     studioEnvRotation: 0,
     studioShowShadows: false,
+    studioAOIntensity: 0,
   };
 
   /**

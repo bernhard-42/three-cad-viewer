@@ -356,16 +356,12 @@ export interface StudioModeOptions {
   studioEnvironment?: string;
   /** Environment map intensity, 0-1 (default: 0.5) */
   studioEnvIntensity?: number;
-  /** Show floor in Studio mode (default: false) */
-  studioShowFloor?: boolean;
   /** Background mode (default: "gradient") */
   studioBackground?: StudioBackground;
   /** Tone mapping algorithm (default: "neutral") */
   studioToneMapping?: StudioToneMapping;
   /** Tone mapping exposure, 0-2 (default: 1.0) */
   studioExposure?: number;
-  /** Show edges in Studio mode (default: false) */
-  studioShowEdges?: boolean;
   /** Use 4K environment maps instead of 2K (default: false) */
   studio4kEnvMaps?: boolean;
   /** Texture mapping mode: triplanar projection or parametric UVs (default: "triplanar") */
@@ -374,6 +370,8 @@ export interface StudioModeOptions {
   studioEnvRotation?: number;
   /** Show shadows in Studio mode (default: false) */
   studioShowShadows?: boolean;
+  /** Ambient occlusion intensity, 0-3.0 (default: 0 = off) */
+  studioAOIntensity?: number;
 }
 
 /** Combined options for initialization */
@@ -455,15 +453,14 @@ export interface ViewerStateShape {
   // Studio
   studioEnvironment: string;
   studioEnvIntensity: number;
-  studioShowFloor: boolean;
   studioBackground: StudioBackground;
   studioToneMapping: StudioToneMapping;
   studioExposure: number;
-  studioShowEdges: boolean;
   studio4kEnvMaps: boolean;
   studioTextureMapping: StudioTextureMapping;
   studioEnvRotation: number;
   studioShowShadows: boolean;
+  studioAOIntensity: number;
 
   // Runtime
   activeTool: string | null;
@@ -686,14 +683,10 @@ export interface StudioOptions {
   envIntensity?: number;
   /** Background mode (default: "gradient") */
   background?: StudioBackground;
-  /** Show grid floor below objects (default: false) */
-  showFloor?: boolean;
   /** Tone mapping algorithm (default: "neutral") */
   toneMapping?: StudioToneMapping;
   /** Tone mapping exposure (default: 1.0) */
   toneMappingExposure?: number;
-  /** Show edges in Studio mode (default: false) */
-  showEdges?: boolean;
   /** Use 4K environment maps instead of 2K (default: false) */
   use4kEnvMaps?: boolean;
   /** Texture mapping mode (default: "triplanar") */
@@ -702,6 +695,8 @@ export interface StudioOptions {
   envRotation?: number;
   /** Show shadows in Studio mode (default: false) */
   showShadows?: boolean;
+  /** Ambient occlusion intensity, 0-3.0 (default: 0 = off) */
+  aoIntensity?: number;
 }
 
 // =============================================================================

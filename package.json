@@ -49,7 +49,9 @@
   "author": "Bernhard Walter",
   "license": "MIT",
   "dependencies": {
-    "three": "0.180.0"
+    "three": "0.180.0",
+    "n8ao": "^1.10.0",
+    "postprocessing": "^6.36.4"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
