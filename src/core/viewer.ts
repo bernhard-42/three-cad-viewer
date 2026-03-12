@@ -43,7 +43,7 @@ import { version } from "../_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
 import { EnvironmentManager } from "../rendering/environment.js";
 import { StudioFloor } from "../rendering/studio-floor.js";
-import { enablePCSS, disablePCSS } from "../rendering/pcss-shadows.js";
+
 import { StudioComposer } from "../rendering/studio-composer.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
@@ -553,7 +553,9 @@ class Viewer {
       return this._isStudioActive && this._rendered !== null;
     };
 
-    // Helper to re-apply the current environment with current state values
+    // Helper to re-apply the current environment with current state values.
+    // Also syncs background protection on the composer: solid-color backgrounds
+    // are excluded from tone mapping via alpha compositing.
     const reapplyEnv = (orthoOverride?: boolean): void => {
       this.envManager.apply(
         this.rendered.scene,
@@ -563,6 +565,13 @@ class Viewer {
         orthoOverride ?? this.rendered.camera.ortho,
         this.state.get("studioEnvRotation"),
       );
+      // Sync background protection: protect solid colors from tone mapping
+      if (this._studioComposer) {
+        const bg = this.rendered.scene.background;
+        this._studioComposer.setBackgroundProtect(
+          bg instanceof THREE.Color ? bg : null,
+        );
+      }
     };
 
     // studioEnvironment changed -> re-load and re-apply
@@ -572,7 +581,7 @@ class Viewer {
         if (!isStudioActive()) return;
         reapplyEnv();
         // Rebuild shadow lights for the new environment
-        if (this.state.get("studioShowShadows")) {
+        if (this.state.get("studioShadowIntensity") > 0) {
           this._configureStudioShadowLights();
         }
         this.update(true, false);
@@ -592,16 +601,45 @@ class Viewer {
     this.state.subscribe("studioEnvRotation", () => {
       if (!isStudioActive()) return;
       reapplyEnv();
-      if (this.state.get("studioShowShadows")) {
+      if (this.state.get("studioShadowIntensity") > 0) {
         this._configureStudioShadowLights();
       }
       this.update(true, false);
     });
 
-    // studioShowShadows changed -> toggle shadow rendering
-    this.state.subscribe("studioShowShadows", (change) => {
+    // studioShadowIntensity changed -> enable/disable shadows and set darkness
+    this.state.subscribe("studioShadowIntensity", (change) => {
       if (!isStudioActive()) return;
-      this._setStudioShadowsEnabled(change.new);
+      const intensity = change.new;
+      const wasEnabled = change.old != null && change.old > 0;
+      const nowEnabled = intensity > 0;
+
+      if (nowEnabled && !wasEnabled) {
+        this._setStudioShadowsEnabled(true);
+      } else if (!nowEnabled && wasEnabled) {
+        this._setStudioShadowsEnabled(false);
+      }
+
+      // Update shadow darkness on the light, floor, and object mask
+      if (nowEnabled) {
+        for (const light of this._studioShadowLights) {
+          light.shadow.intensity = intensity;
+        }
+        this._studioFloor.setShadowIntensity(intensity);
+        if (this._studioComposer) {
+          this._studioComposer.setShadowMaskIntensity(intensity * 0.75);
+        }
+      }
+      this.update(true, false);
+    });
+
+    // studioShadowSoftness changed -> update screen-space blur kernel size
+    this.state.subscribe("studioShadowSoftness", (change) => {
+      if (!isStudioActive()) return;
+      if (this.state.get("studioShadowIntensity") <= 0) return;
+      if (this._studioComposer) {
+        this._studioComposer.setShadowSoftness(change.new);
+      }
       this.update(true, false);
     });
 
@@ -654,7 +692,7 @@ class Viewer {
         if (!isStudioActive()) return;
         reapplyEnv();
         // Rebuild shadow lights (detection re-ran on new HDR data)
-        if (this.state.get("studioShowShadows")) {
+        if (this.state.get("studioShadowIntensity") > 0) {
           this._configureStudioShadowLights();
         }
         this.update(true, false);
@@ -3097,22 +3135,45 @@ class Viewer {
   };
 
   /**
-   * Sets whether shadows are shown in Studio mode.
-   * @param value - True to show shadows.
+   * Sets the shadow intensity in Studio mode.
+   * A value of 0 disables shadows; values > 0 enable them at that darkness.
+   * @param value - The shadow intensity (0-1).
    * @param notify - Whether to notify about the changes.
    * @public
    */
-  setStudioShowShadows = (value: boolean, notify: boolean = true): void => {
-    this.state.set("studioShowShadows", value, notify);
+  setStudioShadowIntensity = (value: number, notify: boolean = true): void => {
+    value = Math.max(0, Math.min(1, value));
+    this.state.set("studioShadowIntensity", value, notify);
   };
 
   /**
-   * Gets whether shadows are shown in Studio mode.
-   * @returns True if shadows are visible in Studio mode.
+   * Gets the current shadow intensity in Studio mode.
+   * @returns The shadow intensity (0-1). 0 means shadows are off.
    * @public
    */
-  getStudioShowShadows = (): boolean => {
-    return this.state.get("studioShowShadows");
+  getStudioShadowIntensity = (): number => {
+    return this.state.get("studioShadowIntensity");
+  };
+
+  /**
+   * Sets the shadow softness in Studio mode.
+   * Controls PCSS penumbra width (virtual light source size).
+   * @param value - The shadow softness (0-1).
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioShadowSoftness = (value: number, notify: boolean = true): void => {
+    value = Math.max(0, Math.min(1, value));
+    this.state.set("studioShadowSoftness", value, notify);
+  };
+
+  /**
+   * Gets the current shadow softness in Studio mode.
+   * @returns The shadow softness (0-1).
+   * @public
+   */
+  getStudioShadowSoftness = (): number => {
+    return this.state.get("studioShadowSoftness");
   };
 
   /**
@@ -3196,15 +3257,11 @@ class Viewer {
       // Floor — shadow plane only (no grid in Studio mode, like KeyShot/Fusion 360)
       this._configureStudioFloor();
 
-      // Shadows
-      if (this.state.get("studioShowShadows")) {
-        this._setStudioShadowsEnabled(true);
-      }
-
-      // Tone mapping (initial: renderer-level, then delegated to composer below)
-      this._applyStudioToneMapping();
-
-      // Create composer (replaces direct renderer.render in Studio mode)
+      // Create composer (replaces direct renderer.render in Studio mode).
+      // The composer sets renderer.toneMapping = NoToneMapping and handles
+      // tone mapping via its own ToneMappingEffect.
+      // Must be created BEFORE shadows so _configureStudioShadowLights()
+      // can wire the shadow mask pipeline on the composer.
       if (!this._studioComposer) {
         this._studioComposer = new StudioComposer(
           this.renderer,
@@ -3214,13 +3271,23 @@ class Viewer {
           this.state.get("height"),
         );
       }
-      // Sync tone mapping to composer's ToneMappingEffect
+
+      // Shadows (requires composer to be created first)
+      if (this.state.get("studioShadowIntensity") > 0) {
+        this._setStudioShadowsEnabled(true);
+      }
+
+      // Sync tone mapping mode and exposure to the composer
       this._studioComposer.setToneMapping(
         this.state.get("studioToneMapping"),
         this.state.get("studioExposure"),
       );
-      // Disable renderer's built-in tone mapping (composer handles it)
-      this.renderer.toneMapping = THREE.NoToneMapping;
+
+      // Background protection: exclude solid colors from tone mapping
+      const bg = this.rendered.scene.background;
+      this._studioComposer.setBackgroundProtect(
+        bg instanceof THREE.Color ? bg : null,
+      );
 
       // Ambient Occlusion
       const aoIntensity = this.state.get("studioAOIntensity");
@@ -3342,10 +3409,10 @@ class Viewer {
     const envRotationDeg = this.state.get("studioEnvRotation");
     const envRotationRad = (envRotationDeg * Math.PI) / 180;
 
-    // Enable shadow mapping with BasicShadowMap (required for PCSS raw depth reads)
+    // Enable shadow mapping with PCFShadowMap (4-tap PCF eliminates stairstepping
+    // on the floor while still giving clean edges for the screen-space blur pipeline)
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.BasicShadowMap;
-    enablePCSS();
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
 
     for (const detected of detection.lights) {
       let [dx, dy, dz] = detected.direction;
@@ -3386,10 +3453,10 @@ class Viewer {
 
       const dir = new THREE.Vector3(dx, dy, dz).normalize();
 
-      // Near-zero intensity: enough for shadow map generation but invisible
-      // as illumination. ShadowMaterial computes shadow geometrically from
-      // the depth map, independent of light intensity.
-      const light = new THREE.DirectionalLight(0xffffff, 0.001);
+      // Near-zero intensity: shadow map generation only, no visible illumination.
+      // Floor ShadowMaterial reads the shadow map directly (independent of
+      // light intensity). N8AO handles object contact shadows.
+      const light = new THREE.DirectionalLight(0xffffff, 0.01);
 
       // Position light along the detected direction, far from the scene
       light.position.copy(bboxCenter).addScaledVector(dir, maxExtent * 3);
@@ -3399,23 +3466,31 @@ class Viewer {
       // where shadows land. Floor extends 4× maxExtent; at oblique light
       // angles shadows project far, so the frustum must be generous.
       light.castShadow = true;
-      const frustumSize = maxExtent * 2.0;
+      const frustumSize = maxExtent * 4.0;
       light.shadow.camera.left = -frustumSize;
       light.shadow.camera.right = frustumSize;
       light.shadow.camera.top = frustumSize;
       light.shadow.camera.bottom = -frustumSize;
       light.shadow.camera.near = maxExtent * 0.1;
       light.shadow.camera.far = maxExtent * 7;
-      light.shadow.mapSize.set(2048, 2048);
+      light.shadow.mapSize.set(4096, 4096);
 
-      // normalBias offsets shadow lookups along the surface normal,
-      // preventing surfaces from self-occluding (shadow acne).
-      // Scale with scene size since normalBias is in world units.
-      light.shadow.normalBias = maxExtent * 0.005;
+      // PCFShadowMap bias — small negative value prevents shadow acne
+      light.shadow.bias = -0.001;
+
+      // Shadow intensity controls darkness via Three.js's built-in mechanism.
+      light.shadow.intensity = this.state.get("studioShadowIntensity");
 
       this.rendered.scene.add(light);
       this.rendered.scene.add(light.target);
       this._studioShadowLights.push(light);
+    }
+
+    // Wire up the screen-space shadow mask pipeline on the composer
+    if (this._studioComposer) {
+      this._studioComposer.setShadowMaskEnabled(true);
+      this._studioComposer.setShadowSoftness(this.state.get("studioShadowSoftness"));
+      this._studioComposer.setShadowMaskIntensity(this.state.get("studioShadowIntensity") * 0.75);
     }
   }
 
@@ -3433,7 +3508,11 @@ class Viewer {
       light.dispose();
     }
     this._studioShadowLights = [];
-    disablePCSS();
+
+    // Disable the screen-space shadow mask pipeline
+    if (this._studioComposer) {
+      this._studioComposer.setShadowMaskEnabled(false);
+    }
   }
 
   /**
@@ -3454,11 +3533,11 @@ class Viewer {
     if (enabled) {
       this._configureStudioShadowLights();
 
-      // Enable cast + receive shadow on all shape meshes (self-shadowing)
+      // Objects cast shadows; receiveShadow is toggled per-frame in the
+      // shadow mask pass (studio-composer), not permanently set here.
       this.nestedGroup.rootGroup?.traverse((obj) => {
         if (obj instanceof THREE.Mesh) {
           obj.castShadow = true;
-          obj.receiveShadow = true;
         }
       });
 
@@ -3480,11 +3559,10 @@ class Viewer {
       // Disable shadow map on renderer (saves GPU work)
       this.renderer.shadowMap.enabled = false;
 
-      // Disable cast + receive shadow on all shape meshes
+      // Disable castShadow on all shape meshes
       this.nestedGroup.rootGroup?.traverse((obj) => {
         if (obj instanceof THREE.Mesh) {
           obj.castShadow = false;
-          obj.receiveShadow = false;
         }
       });
 
@@ -3493,42 +3571,16 @@ class Viewer {
   }
 
   /**
-   * Apply current studio tone mapping settings to the renderer.
+   * Apply current studio tone mapping settings via the composer.
+   * The composer owns tone mapping — renderer.toneMapping stays NoToneMapping.
    * @internal
    */
   private _applyStudioToneMapping(): void {
     if (this._studioComposer) {
-      // Delegate to composer's ToneMappingEffect (post-process pass).
-      // setToneMapping() sets renderer.toneMappingExposure to the correct
-      // value (ToneMappingEffect reads from it).
       this._studioComposer.setToneMapping(
         this.state.get("studioToneMapping"),
         this.state.get("studioExposure"),
       );
-      // Ensure renderer's built-in tone mapping is off to avoid double-mapping
-      this.renderer.toneMapping = THREE.NoToneMapping;
-    } else {
-      // Fallback: direct renderer tone mapping (no composer available)
-      const mapping = this.state.get("studioToneMapping");
-      switch (mapping) {
-        case "neutral":
-          this.renderer.toneMapping = THREE.NeutralToneMapping;
-          break;
-        case "AgX":
-          this.renderer.toneMapping = THREE.AgXToneMapping;
-          break;
-        case "ACES":
-          this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-          break;
-        case "none":
-          this.renderer.toneMapping = THREE.NoToneMapping;
-          break;
-        default:
-          logger.warn(`Unknown studioToneMapping value: "${mapping}", falling back to NeutralToneMapping`);
-          this.renderer.toneMapping = THREE.NeutralToneMapping;
-          break;
-      }
-      this.renderer.toneMappingExposure = this.state.get("studioExposure");
     }
   }
 
@@ -3548,7 +3600,8 @@ class Viewer {
     this.state.set("studio4kEnvMaps", defaults.studio4kEnvMaps);
     this.state.set("studioTextureMapping", defaults.studioTextureMapping);
     this.state.set("studioEnvRotation", defaults.studioEnvRotation);
-    this.state.set("studioShowShadows", defaults.studioShowShadows);
+    this.state.set("studioShadowIntensity", defaults.studioShadowIntensity);
+    this.state.set("studioShadowSoftness", defaults.studioShadowSoftness);
     this.state.set("studioAOIntensity", defaults.studioAOIntensity);
   };
 

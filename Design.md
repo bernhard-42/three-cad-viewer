@@ -10,7 +10,8 @@ This document describes the architecture, patterns, and key concepts of the thre
 4. [UI Interaction Flows](#ui-interaction-flows)
 5. [Memory Management](#memory-management)
 6. [File Structure](#file-structure)
-7. [TypeScript Configuration](#typescript-configuration)
+7. [Studio Rendering Pipeline](#studio-rendering-pipeline)
+8. [TypeScript Configuration](#typescript-configuration)
 
 ---
 
@@ -880,7 +881,11 @@ src/
 ├── rendering/               # Rendering pipeline
 │   ├── material-factory.ts  # Factory for Three.js materials
 │   ├── raycast.ts           # Mouse-based object picking
-│   └── tree-model.ts        # Tree data structure for visibility
+│   ├── tree-model.ts        # Tree data structure for visibility
+│   ├── studio-composer.ts   # Postprocessing pipeline (tone mapping, shadows, AO, SMAA)
+│   ├── studio-floor.ts      # ShadowMaterial ground plane for Studio mode
+│   ├── environment.ts       # HDR environment map loading and background modes
+│   └── light-detection.ts   # HDR analysis for directional shadow light placement
 │
 ├── camera/                  # Camera & interaction
 │   ├── camera.ts            # Orthographic/perspective camera management
@@ -940,6 +945,122 @@ tests/
 | **tools/**     | CAD-specific tools: measurement, selection, zebra analysis                |
 | **utils/**     | Pure utility functions with no domain dependencies                        |
 | **types/**     | Ambient TypeScript declaration files                                      |
+
+---
+
+## Studio Rendering Pipeline
+
+Studio mode replaces the standard `renderer.render()` call with a postprocessing
+pipeline managed by `StudioComposer`. The pipeline provides tone mapping,
+screen-space ambient occlusion, directional shadow mapping with screen-space blur,
+and anti-aliasing.
+
+### Pipeline Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     Per-Frame Render Steps                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. Shadow mask: objects pass (floor hidden, receiveShadow=true)│
+│     → renders to _shadowMaskRT (half-res)                       │
+│     → shadow map generated as side effect (4096×4096 PCF)       │
+│     → KawaseBlurPass → _blurredObjectMaskRT                     │
+│                                                                 │
+│  2. Shadow mask: floor pass (objects hidden)                    │
+│     → renders to _shadowMaskRT (reuses shadow map)              │
+│     → KawaseBlurPass → _blurredFloorMaskRT                      │
+│                                                                 │
+│  3. Floor hidden for main render                                │
+│                                                                 │
+│  4. EffectComposer pipeline:                                    │
+│     ┌──────────────┐                                            │
+│     │  RenderPass   │  Scene (no floor, skipShadowMapUpdate)    │
+│     └──────┬───────┘                                            │
+│            ▼                                                    │
+│     ┌──────────────┐                                            │
+│     │ N8AOPostPass  │  Screen-space ambient occlusion           │
+│     └──────┬───────┘                                            │
+│            ▼                                                    │
+│     ┌──────────────────────────────────────────────┐            │
+│     │ EffectPass (3 effects in one shader)          │            │
+│     │  ├─ ShadowMaskEffect (depth-masked composite) │            │
+│     │  ├─ ToneMappingEffect (Neutral/AgX/ACES)      │            │
+│     │  └─ SMAAEffect (anti-aliasing)                 │            │
+│     └──────────────────────────────────────────────┘            │
+│                                                                 │
+│  5. Floor visibility restored                                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Shadow System
+
+Directional shadows are driven by HDR light detection (`light-detection.ts`),
+which analyzes the environment map to find the dominant light direction.
+
+**Shadow map generation:**
+- One `DirectionalLight` at intensity 0.01 (invisible illumination — shadow map only)
+- `PCFShadowMap` at 4096×4096, bias=-0.001
+- Shadow frustum sized to scene bounding box (`±maxExtent × 4`)
+
+**Two-pass screen-space blur:**
+
+Both passes render the scene with `ShadowMaterial` as `scene.overrideMaterial`
+(opaque, `NoBlending`) to a shared half-resolution render target. Each pass is
+then blurred via `KawaseBlurPass` into its own output RT.
+
+| Pass | Visible geometry | Purpose |
+|------|-----------------|---------|
+| Objects | Objects only (floor hidden), `receiveShadow=true` | Inter-object + self shadows |
+| Floor | Floor only (objects hidden) | Ground shadow |
+
+Separating the passes eliminates depth discontinuities between floor and objects,
+which would otherwise cause glow halos when blurred.
+
+**Depth-based compositing:**
+
+The `ShadowMaskEffect` uses `EffectAttribute.DEPTH` to read the main render's
+depth buffer. Since the floor is hidden during the main render, floor pixels
+have depth ≈ 1.0 (far plane). The shader uses this to decide:
+
+```glsl
+float isFloorArea = step(0.9999, depth);
+float shadowAmount = max(objectShadow, floorShadow * isFloorArea);
+```
+
+- At object pixels (depth < 1.0): only object shadows apply
+- At floor pixels (depth ≈ 1.0): floor shadow applies
+
+This prevents the floor shadow (which extends under objects in the floor-only
+pass) from bleeding through onto objects in screen space.
+
+**Background-protect shadow rendering:**
+
+With solid backgrounds, the FBO is cleared transparent and alpha-blended onto a
+pre-cleared canvas. At floor pixels the FBO has `rgba(0,0,0,0)` — darkening
+zero produces zero. The fix: at transparent pixels, the shadow is output as
+alpha `vec4(0, 0, 0, shadowAmount)`. `NormalBlending` composites this as
+`bgColor × (1 - shadowAmount)`, correctly darkening the canvas background.
+
+**User controls:**
+- Shadow Intensity (0–100): controls shadow darkness. Object shadows are 75% of floor intensity.
+- Shadow Softness (0–100): continuous `KawaseBlurPass.scale` on a fixed `HUGE` kernel (10 iterations).
+
+### Tone Mapping
+
+Tone mapping is owned by `ToneMappingEffect` (postprocessing library), not
+`renderer.toneMapping`. The renderer must be set to `NoToneMapping`.
+
+**Background protection:** Solid-color backgrounds are excluded from tone mapping
+via alpha compositing — `RenderPass.ignoreBackground = true`, FBO cleared
+transparent, canvas pre-cleared with the correct color, `EffectPass` alpha-blends
+on top.
+
+### Ambient Occlusion
+
+N8AO provides screen-space ambient occlusion at half resolution with depth-aware
+upsampling. It runs as a separate pass after the RenderPass and before the
+EffectPass. User-controlled intensity (0–3.0, default 0.5).
 
 ---
 
@@ -1315,5 +1436,5 @@ if (isValidType && !Array.isArray(object.material) && object.material.visible) {
 
 ---
 
-**Document Version:** 1.3
-**Last Updated:** December 18, 2025
+**Document Version:** 1.4
+**Last Updated:** March 12, 2026

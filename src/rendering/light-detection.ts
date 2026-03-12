@@ -46,7 +46,7 @@ const GRID_H = 64;
 /** Threshold multiplier: pixels brighter than median * this are "light sources". */
 const THRESHOLD_MULTIPLIER = 10;
 /** Maximum number of lights to return. */
-const MAX_LIGHTS = 2;
+const MAX_LIGHTS = 1;
 
 // ---------------------------------------------------------------------------
 // Half-float decoding

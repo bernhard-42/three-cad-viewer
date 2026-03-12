@@ -378,6 +378,7 @@ class EnvironmentManager {
         this._teardownEnvBackground();
         break;
     }
+
   }
 
   /**

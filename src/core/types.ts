@@ -368,8 +368,10 @@ export interface StudioModeOptions {
   studioTextureMapping?: StudioTextureMapping;
   /** Environment map rotation in degrees, 0-360 (default: 0) */
   studioEnvRotation?: number;
-  /** Show shadows in Studio mode (default: false) */
-  studioShowShadows?: boolean;
+  /** Shadow intensity, 0-1 (default: 0 = off) */
+  studioShadowIntensity?: number;
+  /** Shadow softness, 0-1 (default: 0.3) */
+  studioShadowSoftness?: number;
   /** Ambient occlusion intensity, 0-3.0 (default: 0 = off) */
   studioAOIntensity?: number;
 }
@@ -459,7 +461,8 @@ export interface ViewerStateShape {
   studio4kEnvMaps: boolean;
   studioTextureMapping: StudioTextureMapping;
   studioEnvRotation: number;
-  studioShowShadows: boolean;
+  studioShadowIntensity: number;
+  studioShadowSoftness: number;
   studioAOIntensity: number;
 
   // Runtime
@@ -693,8 +696,10 @@ export interface StudioOptions {
   textureMapping?: StudioTextureMapping;
   /** Environment map rotation in degrees (default: 0) */
   envRotation?: number;
-  /** Show shadows in Studio mode (default: false) */
-  showShadows?: boolean;
+  /** Shadow intensity, 0-1 (default: 0 = off) */
+  shadowIntensity?: number;
+  /** Shadow softness, 0-1 (default: 0.3) */
+  shadowSoftness?: number;
   /** Ambient occlusion intensity, 0-3.0 (default: 0 = off) */
   aoIntensity?: number;
 }

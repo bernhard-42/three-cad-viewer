@@ -269,18 +269,28 @@
                                 <option value="transparent">Transparent</option>
                             </select>
                         </div>
-                        <div class="tcv_studio_checks">
-                            <span class="tcv_tooltip" data-tooltip="Show shadows from environment lighting">
-                                <input class='tcv_studio_show_shadows tcv_check' type="checkbox" />
-                                <span class="tcv_label">Show Shadows</span>
-                            </span>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Shadow Intensity</span>
+                            <div class="tcv_studio_slider_group">
+                                <input type="range" min="0" max="100" step="1" value="60"
+                                    class="tcv_sld_value_studio_shadow_intensity tcv_clip_slider">
+                                <input value=60 class="tcv_inp_value_studio_shadow_intensity tcv_clip_input"></input>
+                            </div>
+                        </div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label">Shadow Softness</span>
+                            <div class="tcv_studio_slider_group">
+                                <input type="range" min="0" max="100" step="1" value="40"
+                                    class="tcv_sld_value_studio_shadow_softness tcv_clip_slider">
+                                <input value=40 class="tcv_inp_value_studio_shadow_softness tcv_clip_input"></input>
+                            </div>
                         </div>
                         <div class="tcv_studio_row">
                             <span class="tcv_label">AO Intensity</span>
                             <div class="tcv_studio_slider_group">
-                                <input type="range" min="0" max="300" step="10" value="0"
+                                <input type="range" min="0" max="30" value="5"
                                     class="tcv_sld_value_studio_ao_intensity tcv_clip_slider">
-                                <input value=0 class="tcv_inp_value_studio_ao_intensity tcv_clip_input"></input>
+                                <input value=5 class="tcv_inp_value_studio_ao_intensity tcv_clip_input"></input>
                             </div>
                         </div>
                         <div class="tcv_studio_row">

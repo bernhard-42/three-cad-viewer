@@ -51,6 +51,19 @@ class StudioFloor {
     this.group.visible = this._shadowsEnabled;
   }
 
+  /**
+   * Set the ground shadow opacity (how dark the shadow appears on the floor).
+   * This supplements `light.shadow.intensity` which controls shadow darkness
+   * on lit materials; the ground plane ShadowMaterial needs its own opacity.
+   *
+   * @param intensity - Shadow intensity 0-1
+   */
+  setShadowIntensity(intensity: number): void {
+    if (this._shadowPlane) {
+      (this._shadowPlane.material as THREE.ShadowMaterial).opacity = intensity * 1.0;
+    }
+  }
+
   /** Dispose all GPU resources. */
   dispose(): void {
     this._clearCurrent();
@@ -67,7 +80,7 @@ class StudioFloor {
     const floorSize = sceneSize * 4;
 
     const geometry = new THREE.PlaneGeometry(floorSize, floorSize);
-    const material = new THREE.ShadowMaterial({ opacity: 0.35, depthWrite: false });
+    const material = new THREE.ShadowMaterial({ opacity: 0.5, depthWrite: false });
 
     const plane = new THREE.Mesh(geometry, material);
     plane.position.z = zPosition;

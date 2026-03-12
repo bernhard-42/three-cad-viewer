@@ -200,6 +200,8 @@ class Display {
   studioEnvIntensitySlider: Slider | undefined;
   studioExposureSlider: Slider | undefined;
   studioEnvRotationSlider: Slider | undefined;
+  studioShadowIntensitySlider: Slider | undefined;
+  studioShadowSoftnessSlider: Slider | undefined;
   studioAOIntensitySlider: Slider | undefined;
 
   // State - set in setupUI() which is called at end of Viewer constructor
@@ -1058,19 +1060,35 @@ class Display {
       },
     );
 
-    this.setupCheckEvent(
-      "tcv_studio_show_shadows",
-      this.handleStudioShowShadows,
-      false,
+    this.studioShadowIntensitySlider = new Slider(
+      "studio_shadow_intensity",
+      0,
+      100,
+      this.container,
+      {
+        handler: this.handleStudioShadowIntensity,
+        percentage: true,
+        isReadyCheck: viewerReadyCheck,
+      },
+    );
+    this.studioShadowSoftnessSlider = new Slider(
+      "studio_shadow_softness",
+      0,
+      100,
+      this.container,
+      {
+        handler: this.handleStudioShadowSoftness,
+        percentage: true,
+        isReadyCheck: viewerReadyCheck,
+      },
     );
     this.studioAOIntensitySlider = new Slider(
       "studio_ao_intensity",
       0,
-      300,
+      30,
       this.container,
       {
         handler: this.handleStudioAOIntensity,
-        percentage: true,
         isReadyCheck: viewerReadyCheck,
       },
     );
@@ -1327,13 +1345,24 @@ class Display {
       },
       { immediate: true },
     );
-    sub("studioShowShadows", (change) => {
-      this.getInputElement("tcv_studio_show_shadows").checked = change.new;
-    });
+    sub(
+      "studioShadowIntensity",
+      (change) => {
+        this.studioShadowIntensitySlider?.setValueFromState(change.new * 100);
+      },
+      { immediate: true },
+    );
+    sub(
+      "studioShadowSoftness",
+      (change) => {
+        this.studioShadowSoftnessSlider?.setValueFromState(change.new * 100);
+      },
+      { immediate: true },
+    );
     sub(
       "studioAOIntensity",
       (change) => {
-        this.studioAOIntensitySlider?.setValueFromState(change.new * 100);
+        this.studioAOIntensitySlider?.setValueFromState(change.new * 10);
       },
       { immediate: true },
     );
@@ -2137,21 +2166,21 @@ class Display {
     this.state.set("studioExposure", value);
   };
 
-  /**
-   * Handler for Studio show shadows checkbox change
-   */
-  handleStudioShowShadows = (e: Event): void => {
-    if (!(e.target instanceof HTMLInputElement)) return;
-    this.state.set("studioShowShadows", e.target.checked);
+  handleStudioShadowIntensity = (value: number): void => {
+    this.state.set("studioShadowIntensity", value);
+  };
+
+  handleStudioShadowSoftness = (value: number): void => {
+    this.state.set("studioShadowSoftness", value);
   };
 
   /**
    * Handler for Studio AO intensity slider change.
-   * Slider range 0-300 with percentage=true, so value arrives as 0-3.0.
+   * Slider range 0-30, divided by 10 → state gets 0-3.0.
    * A value of 0 disables AO.
    */
   handleStudioAOIntensity = (value: number): void => {
-    this.state.set("studioAOIntensity", value);
+    this.state.set("studioAOIntensity", value / 10);
   };
 
   /**
@@ -2322,8 +2351,9 @@ class Display {
     this.studioEnvIntensitySlider?.setValueFromState(state.get("studioEnvIntensity") * 100);
     this.studioExposureSlider?.setValueFromState(state.get("studioExposure") * 100);
     this.studioEnvRotationSlider?.setValueFromState(state.get("studioEnvRotation"));
-    this.getInputElement("tcv_studio_show_shadows").checked = state.get("studioShowShadows");
-    this.studioAOIntensitySlider?.setValueFromState(state.get("studioAOIntensity") * 100);
+    this.studioShadowIntensitySlider?.setValueFromState(state.get("studioShadowIntensity") * 100);
+    this.studioShadowSoftnessSlider?.setValueFromState(state.get("studioShadowSoftness") * 100);
+    this.studioAOIntensitySlider?.setValueFromState(state.get("studioAOIntensity") * 10);
     this.getInputElement("tcv_studio_4k_env_maps").checked = state.get("studio4kEnvMaps");
     const envEl = this.container.querySelector(".tcv_studio_environment");
     if (envEl instanceof HTMLSelectElement) envEl.value = state.get("studioEnvironment");
