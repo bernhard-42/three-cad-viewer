@@ -45,7 +45,7 @@ export type ZebraMappingMode = "reflection" | "normal";
 export type StudioEnvironment = string;
 
 /** Studio tone mapping algorithm */
-export type StudioToneMapping = "neutral" | "AgX" | "ACES" | "none";
+export type StudioToneMapping = "neutral" | "ACES" | "none";
 
 /** Studio background mode */
 export type StudioBackground = "grey" | "darkgrey" | "white" | "gradient" | "environment" | "transparent";

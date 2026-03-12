@@ -197,8 +197,10 @@
                         <div class="tcv_studio_loading" style="display: none;">
                             Loading Studio mode...
                         </div>
+
+                        <!-- Group 1: Environment -->
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Environment</span>
+                            <span class="tcv_label" title="HDR environment map for lighting and reflections">Environment</span>
                             <select class="tcv_studio_environment tcv_studio_select">
                                 <optgroup label="Studio">
                                     <option value="studio">Procedural Studio</option>
@@ -218,8 +220,13 @@
                                 </optgroup>
                             </select>
                         </div>
+                        <div class="tcv_studio_checks tcv_studio_4k_row">
+                            <input class='tcv_studio_4k_env_maps tcv_check' type="checkbox" title="Download 4K environment maps (sharper reflections, slower)" />
+                            <span class="tcv_label" title="Download 4K environment maps (sharper reflections, slower)">Use 4K maps</span>
+                            <span class="tcv_studio_4k_loading" style="display:none; margin-left:4px; font-size:0.85em; opacity:0.7;">Loading…</span>
+                        </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Env Intensity</span>
+                            <span class="tcv_label" title="Brightness of the environment lighting">Env Intensity</span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="300" step="1" value="100"
                                     class="tcv_sld_value_studio_env_intensity tcv_clip_slider">
@@ -227,39 +234,19 @@
                             </div>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Env Rotation</span>
+                            <span class="tcv_label" title="Rotate the environment map around the vertical axis">Env Rotation</span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="360" step="1" value="0"
                                     class="tcv_sld_value_studio_env_rotation tcv_clip_slider">
                                 <input value=0 class="tcv_inp_value_studio_env_rotation tcv_clip_input"></input>
                             </div>
                         </div>
-                        <div class="tcv_studio_checks">
-                            <span class="tcv_tooltip" data-tooltip="Use 4K environment maps (slower download, sharper reflections)">
-                                <input class='tcv_studio_4k_env_maps tcv_check' type="checkbox" />
-                                <span class="tcv_label">Use 4K Env Maps</span>
-                                <span class="tcv_studio_4k_loading" style="display:none; margin-left:4px; font-size:0.85em; opacity:0.7;">Loading…</span>
-                            </span>
-                        </div>
+
+                        <div class="tcv_studio_group_spacer"></div>
+
+                        <!-- Group 2: Appearance -->
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Tone Mapping</span>
-                            <select class="tcv_studio_tone_mapping tcv_studio_select">
-                                <option value="neutral">PBR Neutral</option>
-                                <option value="AgX">AgX</option>
-                                <option value="ACES">ACES Filmic</option>
-                                <option value="none">Linear (none)</option>
-                            </select>
-                        </div>
-                        <div class="tcv_studio_row">
-                            <span class="tcv_label">Exposure</span>
-                            <div class="tcv_studio_slider_group">
-                                <input type="range" min="0" max="300" step="1" value="100"
-                                    class="tcv_sld_value_studio_exposure tcv_clip_slider">
-                                <input value=100 class="tcv_inp_value_studio_exposure tcv_clip_input"></input>
-                            </div>
-                        </div>
-                        <div class="tcv_studio_row">
-                            <span class="tcv_label">Background</span>
+                            <span class="tcv_label" title="Scene background style">Background</span>
                             <select class="tcv_studio_background tcv_studio_select">
                                 <option value="grey">Solid Grey</option>
                                 <option value="darkgrey">Solid Dark Grey</option>
@@ -270,31 +257,55 @@
                             </select>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Shadow Intensity</span>
+                            <span class="tcv_label" title="Tone mapping algorithm for HDR to display conversion">Tone Mapping</span>
+                            <select class="tcv_studio_tone_mapping tcv_studio_select">
+                                <option value="neutral">PBR Neutral</option>
+                                <option value="ACES">ACES Filmic</option>
+                                <option value="none">Linear (none)</option>
+                            </select>
+                        </div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label" title="Overall brightness of the rendered image">Exposure</span>
                             <div class="tcv_studio_slider_group">
-                                <input type="range" min="0" max="100" step="1" value="60"
+                                <input type="range" min="0" max="300" step="1" value="100"
+                                    class="tcv_sld_value_studio_exposure tcv_clip_slider">
+                                <input value=100 class="tcv_inp_value_studio_exposure tcv_clip_input"></input>
+                            </div>
+                        </div>
+
+                        <div class="tcv_studio_group_spacer"></div>
+
+                        <!-- Group 3: Shadows & AO -->
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label" title="Darkness of directional shadows on the floor and between objects">Shadow Intensity</span>
+                            <div class="tcv_studio_slider_group">
+                                <input type="range" min="0" max="100" step="1" value="50"
                                     class="tcv_sld_value_studio_shadow_intensity tcv_clip_slider">
-                                <input value=60 class="tcv_inp_value_studio_shadow_intensity tcv_clip_input"></input>
+                                <input value=50 class="tcv_inp_value_studio_shadow_intensity tcv_clip_input"></input>
                             </div>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Shadow Softness</span>
+                            <span class="tcv_label" title="Blur amount for shadow edges (sharp to soft)">Shadow Softness</span>
                             <div class="tcv_studio_slider_group">
-                                <input type="range" min="0" max="100" step="1" value="40"
+                                <input type="range" min="0" max="100" step="1" value="20"
                                     class="tcv_sld_value_studio_shadow_softness tcv_clip_slider">
-                                <input value=40 class="tcv_inp_value_studio_shadow_softness tcv_clip_input"></input>
+                                <input value=20 class="tcv_inp_value_studio_shadow_softness tcv_clip_input"></input>
                             </div>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">AO Intensity</span>
+                            <span class="tcv_label" title="Screen-space ambient occlusion — darkens crevices and contact areas">AO Intensity</span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="30" value="5"
                                     class="tcv_sld_value_studio_ao_intensity tcv_clip_slider">
                                 <input value=5 class="tcv_inp_value_studio_ao_intensity tcv_clip_input"></input>
                             </div>
                         </div>
+
+                        <div class="tcv_studio_group_spacer"></div>
+
+                        <!-- Group 4: Textures -->
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Texture Mapping</span>
+                            <span class="tcv_label" title="How textures are projected onto surfaces without UV coordinates">Texture Mapping</span>
                             <select class="tcv_studio_texture_mapping tcv_studio_select">
                                 <option value="triplanar">Triplanar</option>
                                 <option value="parametric">Parametric UV</option>

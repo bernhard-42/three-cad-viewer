@@ -3060,7 +3060,7 @@ class Viewer {
 
   /**
    * Sets the tone mapping mode for Studio mode.
-   * @param value - The tone mapping mode ("neutral", "ACES", "AgX", or "none").
+   * @param value - The tone mapping mode ("neutral", "ACES", or "none").
    * @param notify - Whether to notify about the changes.
    * @public
    */
@@ -3118,7 +3118,7 @@ class Viewer {
 
   /**
    * Gets the current tone mapping mode for Studio mode.
-   * @returns The tone mapping mode ("neutral", "ACES", "AgX", or "none").
+   * @returns The tone mapping mode ("neutral", "ACES", or "none").
    * @public
    */
   getStudioToneMapping = (): StudioToneMapping => {

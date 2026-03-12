@@ -2145,7 +2145,7 @@ class Display {
   handleStudioToneMapping = (e: Event): void => {
     if (!(e.target instanceof HTMLSelectElement)) return;
     const value = e.target.value;
-    if (value === "neutral" || value === "AgX" || value === "ACES" || value === "none") {
+    if (value === "neutral" || value === "ACES" || value === "none") {
       this.state.set("studioToneMapping", value);
     }
   };

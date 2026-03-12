@@ -53,7 +53,6 @@ import { logger } from "../utils/logger.js";
 
 const TONE_MAP_MODE: Record<StudioToneMapping, ToneMappingMode> = {
   "neutral": ToneMappingMode.NEUTRAL,
-  "AgX": ToneMappingMode.AGX,
   "ACES": ToneMappingMode.ACES_FILMIC,
   "none": ToneMappingMode.LINEAR,
 };
@@ -267,7 +266,7 @@ class StudioComposer {
   /**
    * Set the tone mapping algorithm and exposure.
    *
-   * @param mode     - One of "neutral", "AgX", "ACES", "none"
+   * @param mode     - One of "neutral", "ACES", "none"
    * @param exposure - Exposure multiplier (0 to 2, default 1.0)
    */
   setToneMapping(mode: StudioToneMapping, exposure: number): void {

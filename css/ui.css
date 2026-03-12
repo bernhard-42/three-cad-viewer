@@ -892,7 +892,7 @@ input[type="button"] {
   border-radius: 3px;
   background-color: var(--tcv-bg-overlay-color);
   color: var(--tcv-font-color);
-  width: 60%;
+  width: 55%;
   flex-shrink: 0;
   margin-left: auto;
   outline: none;
@@ -927,7 +927,7 @@ input[type="button"] {
 .tcv_studio_slider_group {
   display: flex;
   align-items: center;
-  width: 60%;
+  width: 55%;
   flex-shrink: 0;
   margin-left: auto;
   gap: 4px;
@@ -949,6 +949,16 @@ input[type="button"] {
   gap: 16px;
   margin-top: var(--tcv-ui-row-gap);
   margin-bottom: var(--tcv-ui-row-gap);
+}
+
+.tcv_studio_4k_row {
+  /* Align checkbox with the slider/dropdown column (45% label + 55% control) */
+  margin-left: 45%;
+  gap: 4px;
+}
+
+.tcv_studio_group_spacer {
+  height: calc(var(--tcv-ui-row-gap) * 0.6);
 }
 
 .tcv_studio_info {

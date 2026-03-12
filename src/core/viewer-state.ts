@@ -422,7 +422,7 @@ class ViewerState {
     studioTextureMapping: "triplanar",
     studioEnvRotation: 0,
     studioShadowIntensity: 0.5,
-    studioShadowSoftness: 0.5,
+    studioShadowSoftness: 0.2,
     studioAOIntensity: 0.5,
   };
 
