@@ -506,7 +506,12 @@ class ObjectGroup extends THREE.Group {
    */
   setShapeVisible(flag: boolean): void {
     if (this.front) {
-      this.front.material.visible = flag;
+      if (this._isStudioMode) {
+        // Studio materials are shared — use mesh.visible for per-object visibility
+        this.front.visible = flag;
+      } else {
+        this.front.material.visible = flag;
+      }
     }
     for (const clippingGroup of this.clipping.values()) {
       const child0 = clippingGroup.children[0];
@@ -525,7 +530,11 @@ class ObjectGroup extends THREE.Group {
       }
     }
     if (this.back && this.renderback) {
-      this.back.material.visible = flag;
+      if (this._isStudioMode) {
+        this.back.visible = flag;
+      } else {
+        this.back.material.visible = flag;
+      }
     }
   }
 
@@ -545,12 +554,17 @@ class ObjectGroup extends THREE.Group {
    * Set visibility of back faces.
    */
   setBackVisible(flag: boolean): void {
-    if (
-      this.back &&
-      this.front &&
-      this.front.material.visible
-    ) {
-      this.back.material.visible = this.renderback || flag;
+    if (this.back && this.front) {
+      const frontVisible = this._isStudioMode
+        ? this.front.visible
+        : this.front.material.visible;
+      if (frontVisible) {
+        if (this._isStudioMode) {
+          this.back.visible = this.renderback || flag;
+        } else {
+          this.back.material.visible = this.renderback || flag;
+        }
+      }
     }
   }
 
@@ -559,10 +573,13 @@ class ObjectGroup extends THREE.Group {
    */
   getVisibility(): boolean {
     if (this.front) {
+      const frontVisible = this._isStudioMode
+        ? this.front.visible
+        : this.front.material.visible;
       if (this.edgeMaterial) {
-        return this.front.material.visible || this.edgeMaterial.visible;
+        return frontVisible || this.edgeMaterial.visible;
       } else {
-        return this.front.material.visible;
+        return frontVisible;
       }
     } else if (this.edgeMaterial) {
       return this.edgeMaterial.visible;
@@ -757,8 +774,10 @@ class ObjectGroup extends THREE.Group {
 
     // --- Swap front material ---
     if (this.front && studioFront) {
-      // Copy visible flag from CAD -> Studio to preserve tree-view hide/show
-      studioFront.visible = this.front.material.visible;
+      // Transfer per-object visibility to mesh.visible (NOT material.visible)
+      // because studio materials are shared across objects via cache.
+      // Writing to a shared material's .visible would affect all users.
+      this.front.visible = this.front.material.visible;
       this.front.material = studioFront;
       // Update originalColor to studio material's color for correct highlight
       this.originalColor = studioFront.color;
@@ -766,8 +785,8 @@ class ObjectGroup extends THREE.Group {
 
     // --- Swap back material ---
     if (this.back && studioBack && this.renderback) {
-      // Copy visible flag from CAD -> Studio
-      studioBack.visible = this.back.material.visible;
+      // Same: per-object visibility via mesh.visible, not shared material
+      this.back.visible = this.back.material.visible;
       this.back.material = studioBack;
       // Update originalBackColor for correct highlight on back face
       this.originalBackColor = studioBack.color;
@@ -789,16 +808,19 @@ class ObjectGroup extends THREE.Group {
 
     // --- Restore front material ---
     if (this.front && this._cadFrontMaterial) {
-      // Copy visible flag from Studio -> CAD to preserve tree-view changes
-      this._cadFrontMaterial.visible = this.front.material.visible;
+      // Copy visibility from mesh.visible back to CAD material
+      // (studio mode uses mesh.visible for per-object visibility)
+      this._cadFrontMaterial.visible = this.front.visible;
       this.front.material = this._cadFrontMaterial;
+      this.front.visible = true; // Reset mesh visibility
     }
 
     // --- Restore back material ---
     if (this.back && this._cadBackMaterial && this.renderback) {
-      // Copy visible flag from Studio -> CAD
-      this._cadBackMaterial.visible = this.back.material.visible;
+      // Copy visibility from mesh.visible back to CAD material
+      this._cadBackMaterial.visible = this.back.visible;
       this.back.material = this._cadBackMaterial;
+      this.back.visible = true; // Reset mesh visibility
     }
 
     // --- Restore original colors for highlight ---
