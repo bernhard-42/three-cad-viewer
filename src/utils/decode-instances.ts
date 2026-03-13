@@ -101,6 +101,52 @@ function decodeInstance(inst: EncodedInstance): Shape {
   return shape;
 }
 
+/** Check if a value is an encoded buffer (inline base64 field). */
+function isEncodedBuffer(val: unknown): val is EncodedBuffer {
+  return (
+    typeof val === "object" &&
+    val !== null &&
+    "buffer" in val &&
+    "dtype" in val &&
+    "codec" in val &&
+    (val as EncodedBuffer).codec === "b64"
+  );
+}
+
+/**
+ * Decode any inline encoded buffers on a shape object.
+ * Mutates the shape in place, replacing EncodedBuffer fields with TypedArrays.
+ */
+function decodeInlineShapeBuffers(shape: Record<string, unknown>): void {
+  for (const key of Object.keys(shape)) {
+    if (isEncodedBuffer(shape[key])) {
+      shape[key] = decodeBuffer(shape[key] as EncodedBuffer);
+    }
+  }
+}
+
+/**
+ * Walk the shapes tree and decode any inline encoded buffers found in
+ * part.shape objects. This handles edge/vertex-only objects that embed
+ * encoded buffers directly (not via instance refs).
+ */
+function decodeInlineBuffers(shapes: Shapes): void {
+  if (shapes.parts) {
+    for (const part of shapes.parts) {
+      if (
+        part.shape != null &&
+        typeof part.shape === "object" &&
+        !isShapeRef(part.shape as unknown)
+      ) {
+        decodeInlineShapeBuffers(part.shape as unknown as Record<string, unknown>);
+      }
+      if (part.parts) {
+        decodeInlineBuffers(part);
+      }
+    }
+  }
+}
+
 /** Check if a shape field is an unresolved reference. */
 function isShapeRef(shape: unknown): shape is ShapeRef {
   return (
@@ -169,5 +215,5 @@ function decodeInstancedFormat(data: InstancedData): Shapes {
   return shapes;
 }
 
-export { isInstancedFormat, decodeInstancedFormat };
+export { isInstancedFormat, decodeInstancedFormat, decodeInlineBuffers };
 export type { InstancedData, EncodedBuffer, EncodedInstance };

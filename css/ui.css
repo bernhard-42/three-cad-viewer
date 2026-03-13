@@ -758,7 +758,7 @@ input[type="button"] {
   min-width: 0;
   height: 5px;
   border-radius: 2px;
-  background: #d3d3d3;
+  background: #a0a0a0;
   outline: none;
   opacity: 0.7;
   -webkit-transition: 0.2s;

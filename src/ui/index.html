@@ -44,6 +44,9 @@
                     </span>
                 </div>
                 <div class="tcv_cad_tree_toggles tcv_toggles_studio" style="display: none;">
+                    <span class="tcv_tooltip" data-tooltip="Edit material of selected object">
+                        <input class='tcv_mat_editor_toggle tcv_btn tcv_small_btn' value="E" type="button" />
+                    </span>
                     <span class="tcv_tooltip" data-tooltip="Reset to default values">
                         <input class='tcv_studio_reset tcv_btn tcv_small_btn' value="R" type="button" />
                     </span>
@@ -333,6 +336,18 @@
         <div class="tcv_cad_view">
             <div class="tcv_distance_measurement_panel tcv_panel tcv_round">
                 <div class="tcv_measure_header">Distance</div>
+            </div>
+
+            <div class="tcv_mat_editor tcv_round" style="display: none;">
+                <div class="tcv_mat_editor_titlebar">
+                    <span class="tcv_mat_editor_title">Material Editor</span>
+                    <span class="tcv_mat_editor_titlebar_btns">
+                        <input class="tcv_mat_editor_reset tcv_btn tcv_small_btn" value="R" type="button" title="Reset to original material" />
+                        <input class="tcv_mat_editor_close tcv_btn tcv_small_btn" value="X" type="button" title="Close" />
+                    </span>
+                </div>
+                <div class="tcv_mat_editor_path"></div>
+                <div class="tcv_mat_editor_content tcv_mac-scrollbar tcv_scroller"></div>
             </div>
 
             <div class="tcv_properties_measurement_panel tcv_panel tcv_round">

@@ -1,9 +1,5 @@
 var torusknot = {
   version: 3,
-  materials: {
-    "blue-paint": { preset: "paint-glossy", baseColor: [0.1, 0.2, 0.8, 1] },
-  },
-  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       id: "/Group/Solid",
@@ -29268,7 +29264,7 @@ var torusknot = {
         segments_per_edge: [177, 66, 66, 1, 63],
       },
       state: [1, 1],
-      color: "#1a33cc",
+      color: "#c0c0c0",
       alpha: 1.0,
       texture: null,
       loc: [
@@ -29278,7 +29274,7 @@ var torusknot = {
       renderback: false,
       accuracy: null,
       bb: null,
-      material: "blue-paint",
+      material: "polished-steel",
     },
   ],
   loc: [

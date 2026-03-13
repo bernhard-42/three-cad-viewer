@@ -47,7 +47,7 @@ import { StudioFloor } from "../rendering/studio-floor.js";
 import { StudioComposer } from "../rendering/studio-composer.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
-import { isInstancedFormat, decodeInstancedFormat } from "../utils/decode-instances.js";
+import { isInstancedFormat, decodeInstancedFormat, decodeInlineBuffers } from "../utils/decode-instances.js";
 import type { Display } from "../ui/display.js";
 import type { Vector3Tuple, QuaternionTuple } from "three";
 import {
@@ -1408,6 +1408,9 @@ class Viewer {
       if (group.front) {
         return "#" + group.front.material.color.getHexString();
       }
+      if (group.originalColor) {
+        return "#" + group.originalColor.getHexString();
+      }
     }
     return null;
   };
@@ -1622,6 +1625,8 @@ class Viewer {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       shapes = decodeInstancedFormat(shapes as any);
     }
+    // Decode any remaining inline base64 buffers (e.g., edge/vertex-only objects)
+    decodeInlineBuffers(shapes);
     this.shapes = shapes;
     this.renderOptions = renderOptions;
     this.setViewerDefaults(viewerOptions);
@@ -2355,6 +2360,9 @@ class Viewer {
         this.setBoundingBox(id);
         this.rendered.treeview.openPath(id);
       }
+    }
+    if (this._isStudioActive) {
+      this.display.onSelectionChanged(this.lastBbox?.id ?? null);
     }
     this.update(true);
   };
@@ -3203,6 +3211,22 @@ class Viewer {
    */
   get isStudioActive(): boolean {
     return this._isStudioActive && this._rendered !== null;
+  }
+
+  /**
+   * Get the ObjectGroup and path for the currently selected object in Studio mode.
+   * Returns null if nothing is selected, Studio mode is inactive, or the
+   * selection is a CompoundGroup (assembly node) rather than a leaf object.
+   */
+  getSelectedObjectGroup(): { object: ObjectGroup; path: string } | null {
+    if (!this._isStudioActive || this.lastBbox == null) {
+      return null;
+    }
+    const entry = this.rendered.nestedGroup.groups[this.lastBbox.id];
+    if (!isObjectGroup(entry)) {
+      return null;
+    }
+    return { object: entry, path: this.lastBbox.id };
   }
 
   /**
