@@ -74,23 +74,23 @@ Three-cad-viewer is a WebGL-based CAD viewer built on Three.js. The architecture
 
 The Viewer class organizes its methods into logical sections:
 
-| Section                  | Methods                                                                                        | Purpose                      |
-| ------------------------ | ---------------------------------------------------------------------------------------------- | ---------------------------- |
-| **Shape Tessellation**   | `render()`, `clear()`, `dispose()`                                                             | Scene lifecycle              |
-| **Animation Control**    | `initAnimation()`, `addPositionTrack()`, `addRotationTrack()`, etc.                            | Animation management         |
-| **Camera Controls**      | `reset()`, `resize()`, `presetCamera()`, `centerVisibleObjects()`                              | Camera manipulation          |
-| **Camera State**         | `getCameraZoom()`, `setCameraZoom()`, `getCameraPosition()`, `setCameraPosition()`, etc.       | Camera state getters/setters |
-| **Appearance**           | `setAxes()`, `setGrid()`, `setOrtho()`, `setTransparent()`, `setBlackEdges()`, `showTools()`   | Visual settings              |
-| **Lighting & Materials** | `setAmbientLight()`, `setDirectLight()`, `setMetalness()`, `setRoughness()`, `resetMaterial()` | Material properties          |
-| **Zebra Tool**           | `enableZebraTool()`, `setZebraCount()`, `setZebraOpacity()`, `setZebraDirection()`, etc.       | Surface analysis             |
-| **Clipping Planes**      | `setClipSlider()`, `setClipNormal()`, `setClipIntersection()`, `setClipPlaneHelpers()`         | Clipping controls            |
-| **Object Visibility**    | `setState()`, `setVisible()`, `getState()`                                                     | Object visibility            |
+| Section                  | Methods                                                                                        | Purpose                       |
+| ------------------------ | ---------------------------------------------------------------------------------------------- | ----------------------------- |
+| **Shape Tessellation**   | `render()`, `clear()`, `dispose()`                                                             | Scene lifecycle               |
+| **Animation Control**    | `initAnimation()`, `addPositionTrack()`, `addRotationTrack()`, etc.                            | Animation management          |
+| **Camera Controls**      | `reset()`, `resize()`, `presetCamera()`, `centerVisibleObjects()`                              | Camera manipulation           |
+| **Camera State**         | `getCameraZoom()`, `setCameraZoom()`, `getCameraPosition()`, `setCameraPosition()`, etc.       | Camera state getters/setters  |
+| **Appearance**           | `setAxes()`, `setGrid()`, `setOrtho()`, `setTransparent()`, `setBlackEdges()`, `showTools()`   | Visual settings               |
+| **Lighting & Materials** | `setAmbientLight()`, `setDirectLight()`, `setMetalness()`, `setRoughness()`, `resetMaterial()` | Material properties           |
+| **Zebra Tool**           | `enableZebraTool()`, `setZebraCount()`, `setZebraOpacity()`, `setZebraDirection()`, etc.       | Surface analysis              |
+| **Clipping Planes**      | `setClipSlider()`, `setClipNormal()`, `setClipIntersection()`, `setClipPlaneHelpers()`         | Clipping controls             |
+| **Object Visibility**    | `setState()`, `setVisible()`, `getState()`                                                     | Object visibility             |
 | **Scene Mutation**       | `addPart(parentPath, partData)`, `removePart(path)`                                            | Add/remove parts after render |
-| **Object Picking**       | `pick()`, `getPickInfo()`                                                                      | Mouse-based selection        |
-| **Image Export**         | `getImage()`, `pinAsPng()`                                                                     | Screenshot/export            |
-| **Explode Animation**    | `setExplode()`                                                                                 | Explode view                 |
-| **View Layout**          | `resizeCadView()`                                                                              | Viewport sizing              |
-| **UI Control Wrappers**  | See table below                                                                                | Delegate to Display          |
+| **Object Picking**       | `pick()`, `getPickInfo()`                                                                      | Mouse-based selection         |
+| **Image Export**         | `getImage()`, `pinAsPng()`                                                                     | Screenshot/export             |
+| **Explode Animation**    | `setExplode()`                                                                                 | Explode view                  |
+| **View Layout**          | `resizeCadView()`                                                                              | Viewport sizing               |
+| **UI Control Wrappers**  | See table below                                                                                | Delegate to Display           |
 
 #### UI Control Wrappers
 
@@ -274,7 +274,7 @@ class ViewerState {
 **Why no infinite loops?**
 
 1. Subscription handlers only update UI - they don't call Viewer methods
-2. `ViewerState.set()` has change detection: if `oldValue === newValue`, no notification
+2. `ViewerState.set()` has change detection: if old and new values are identical, no notification
 
 ### 2. TreeModel/TreeView Separation
 
@@ -959,7 +959,7 @@ and anti-aliasing.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Per-Frame Render Steps                       │
+│                     Per-Frame Render Steps                      │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  1. Shadow mask: objects pass (floor hidden, receiveShadow=true)│
@@ -975,18 +975,18 @@ and anti-aliasing.
 │                                                                 │
 │  4. EffectComposer pipeline:                                    │
 │     ┌──────────────┐                                            │
-│     │  RenderPass   │  Scene (no floor, skipShadowMapUpdate)    │
+│     │  RenderPass  │  Scene (no floor, skipShadowMapUpdate)     │
 │     └──────┬───────┘                                            │
 │            ▼                                                    │
 │     ┌──────────────┐                                            │
-│     │ N8AOPostPass  │  Screen-space ambient occlusion           │
+│     │ N8AOPostPass │  Screen-space ambient occlusion            │
 │     └──────┬───────┘                                            │
 │            ▼                                                    │
 │     ┌──────────────────────────────────────────────┐            │
-│     │ EffectPass (3 effects in one shader)          │            │
-│     │  ├─ ShadowMaskEffect (depth-masked composite) │            │
-│     │  ├─ ToneMappingEffect (Neutral/AgX/ACES)      │            │
-│     │  └─ SMAAEffect (anti-aliasing)                 │            │
+│     │ EffectPass (3 effects in one shader)         │            │
+│     │  ├─ ShadowMaskEffect (depth-masked composite)│            │
+│     │  ├─ ToneMappingEffect (Neutral/AgX/ACES)     │            │
+│     │  └─ SMAAEffect (anti-aliasing)               │            │
 │     └──────────────────────────────────────────────┘            │
 │                                                                 │
 │  5. Floor visibility restored                                   │
@@ -999,6 +999,7 @@ Directional shadows are driven by HDR light detection (`light-detection.ts`),
 which analyzes the environment map to find the dominant light direction.
 
 **Shadow map generation:**
+
 - One `DirectionalLight` at intensity 0.01 (invisible illumination — shadow map only)
 - `PCFShadowMap` at 4096×4096, bias=-0.001
 - Shadow frustum sized to scene bounding box (`±maxExtent × 4`)
@@ -1009,10 +1010,10 @@ Both passes render the scene with `ShadowMaterial` as `scene.overrideMaterial`
 (opaque, `NoBlending`) to a shared half-resolution render target. Each pass is
 then blurred via `KawaseBlurPass` into its own output RT.
 
-| Pass | Visible geometry | Purpose |
-|------|-----------------|---------|
+| Pass    | Visible geometry                                  | Purpose                     |
+| ------- | ------------------------------------------------- | --------------------------- |
 | Objects | Objects only (floor hidden), `receiveShadow=true` | Inter-object + self shadows |
-| Floor | Floor only (objects hidden) | Ground shadow |
+| Floor   | Floor only (objects hidden)                       | Ground shadow               |
 
 Separating the passes eliminates depth discontinuities between floor and objects,
 which would otherwise cause glow halos when blurred.
@@ -1043,6 +1044,7 @@ alpha `vec4(0, 0, 0, shadowAmount)`. `NormalBlending` composites this as
 `bgColor × (1 - shadowAmount)`, correctly darkening the canvas background.
 
 **User controls:**
+
 - Shadow Intensity (0–100): controls shadow darkness. Object shadows are 75% of floor intensity.
 - Shadow Softness (0–100): continuous `KawaseBlurPass.scale` on a fixed `HUGE` kernel (10 iterations).
 
@@ -1061,6 +1063,59 @@ on top.
 N8AO provides screen-space ambient occlusion at half resolution with depth-aware
 upsampling. It runs as a separate pass after the RenderPass and before the
 EffectPass. User-controlled intensity (0–3.0, default 0.5).
+
+### Material Editor
+
+The Material Editor is an overlay panel in Studio mode that allows interactive
+tweaking of PBR material parameters on individual objects. It is designed as a
+prototyping tool — users adjust parameters visually, then copy the values back
+to their Python code.
+
+**Activation:** Click the "E" button in the Studio toolbar, or press ESC to close.
+Requires an object to be selected (double-click in viewport). If no object is
+selected, a hint dialog appears.
+
+**Architecture:**
+
+```
+User double-clicks object → Viewer.handlePick() → Display.onSelectionChanged()
+                                                    ↓ (if editor open)
+                                              closeMatEditor() + openMatEditor(newObject)
+
+User clicks "E" button → handleMatEditorToggle()
+                           ↓
+                    getSelectedObjectGroup() → openMatEditor(object, path)
+                           ↓
+                    Clone material (preserving triplanar mapping)
+                           ↓
+                    Build slider UI from MAT_EDITOR_PARAMS[]
+```
+
+**Material cloning:** On first edit, the object's `MeshPhysicalMaterial` is
+cloned so changes are per-object and non-destructive. The original material is
+stored in `_matEditorClones` for reset. If the original uses triplanar texture
+mapping (`customProgramCacheKey() === "triplanar"`), `applyTriplanarMapping()`
+is re-applied to the clone since `onBeforeCompile` is not copied by
+`Material.clone()`.
+
+**Parameter definitions:** `MAT_EDITOR_PARAMS` is a declarative array defining
+all editable parameters with key, label, min/max/step, group name, and an
+optional `infinity` flag (for `attenuationDistance`). Groups render as section
+headers in the UI.
+
+**Changed-value highlighting:** Labels turn red when a parameter differs from
+the original material value (tolerance: half step size). This persists across
+close/reopen cycles, helping users identify which values to copy to Python.
+
+**Lifecycle:**
+
+- Clone created on first edit, reused on reopen
+- Reset ("R") restores original material, disposes clone, creates fresh clone
+- Closing editor hides panel but preserves clone (edits survive close/reopen)
+- Leaving Studio tab or `Display.dispose()` disposes all clones and restores originals
+- Drag listeners use `AbortController` for clean removal on dispose
+
+**Keyboard:** ESC closes the editor (takes priority over help panel).
 
 ---
 
@@ -1098,24 +1153,34 @@ viewer.setExplode(true);
 
 After `render()`, you can dynamically add or remove parts from the scene.
 `addPart(parentPath, partData)` takes an absolute parent path and part data
-with relative naming.  The absolute path is constructed by the viewer.
+with relative naming. The absolute path is constructed by the viewer.
 
 #### Adding a leaf part
 
-For leaves, provide a `name` (no leading slash).  The resulting path is
+For leaves, provide a `name` (no leading slash). The resulting path is
 `parentPath + "/" + name`.
 
 ```javascript
 // Add a single shape under "/Group"
 const leafPart = {
   version: 3,
-  name: "Shelf",        // plain name, no slash
+  name: "Shelf", // plain name, no slash
   shape: {
-    vertices: [/* ... */],
-    triangles: [/* ... */],
-    normals: [/* ... */],
-    edges: [/* ... */],
-    obj_vertices: [/* ... */],
+    vertices: [
+      /* ... */
+    ],
+    triangles: [
+      /* ... */
+    ],
+    normals: [
+      /* ... */
+    ],
+    edges: [
+      /* ... */
+    ],
+    obj_vertices: [
+      /* ... */
+    ],
     face_types: [0],
     edge_types: [0],
     triangles_per_face: [2],
@@ -1135,7 +1200,7 @@ const addedPath = viewer.addPart("/Group", leafPart);
 
 #### Adding a subtree
 
-For subtrees, provide slash-prefixed **relative** ids.  `addPart` prefixes
+For subtrees, provide slash-prefixed **relative** ids. `addPart` prefixes
 every `id` in the tree with `parentPath` before rendering.
 
 ```javascript
@@ -1143,14 +1208,19 @@ every `id` in the tree with `parentPath` before rendering.
 const subtree = {
   version: 3,
   name: "Assembly",
-  id: "/Assembly",               // relative, slash-prefixed
-  loc: [[0, 0, 0], [0, 0, 0, 1]],
+  id: "/Assembly", // relative, slash-prefixed
+  loc: [
+    [0, 0, 0],
+    [0, 0, 0, 1],
+  ],
   parts: [
     {
       version: 3,
       name: "Bolt",
-      id: "/Assembly/Bolt",      // relative to the tree root
-      shape: { /* ... */ },
+      id: "/Assembly/Bolt", // relative to the tree root
+      shape: {
+        /* ... */
+      },
       color: "#aaaaaa",
       alpha: 1.0,
       state: [1, 1],

@@ -1928,14 +1928,32 @@ front lit surface (alpha=0), causing the entire shadow footprint to appear on al
 - `src/ui/display.ts`: Shadow sliders, AO intensity slider rescaled (0–30)
 - `src/ui/index.html`: Shadow/softness/AO slider HTML
 
-### ~~Phase 7: Material Editor~~ (DROPPED)
+### Phase 7: Material Editor (Simplified — IMPLEMENTED)
 
-**Status: DROPPED.** The visual material editor has been removed from the plan.
-Material assignment is done entirely on the Python side via `materialx-db` or
-by constructing builtin preset references. The `materials` dict in the data
-format is the sole mechanism for per-object material assignment.
+**Status: IMPLEMENTED** as a lightweight PBR parameter tweaker, replacing the
+original full material editor design (Part 10). The simplified version focuses
+on interactive parameter tuning rather than full material assignment.
 
-See Part 10 (also marked as dropped) for the original design.
+**What was implemented:**
+- Overlay panel (not inline in Studio tab) with draggable titlebar
+- "E" toolbar button to toggle, ESC or "X" to close
+- Hint dialog when no object is selected
+- Per-object material cloning with triplanar mapping preservation
+- Slider UI for 14 PBR parameters (metalness, roughness, clearcoat, transmission,
+  IOR, thickness, attenuation distance, sheen, specular, anisotropy, emissive)
+- Red label highlighting for changed values (aids copying to Python)
+- Reset to original material, auto-reopen on selection change
+- Proper cleanup (AbortController for drag listeners, clone disposal on exit)
+
+**What was NOT implemented** (from original Part 10 design):
+- Preset picker / dropdown
+- Color picker
+- Texture assignment UI
+- Export to materials dict
+- Undo/redo
+
+Material assignment remains on the Python side via `materialx-db`; the editor
+is a prototyping aid for tuning numeric PBR parameters visually.
 
 ---
 
@@ -2181,17 +2199,15 @@ Phase 5). It could be Phase 6a, before or alongside the polish phase:
 
 ---
 
-## ~~Part 10: Material Editor~~ (DROPPED)
+## Part 10: Material Editor (Simplified Implementation)
 
-**Status: DROPPED.** The material editor feature has been removed from the plan.
-The introduction of `materialx-db` integration (Section 1.10) provides a better
-workflow: users browse and select materials in Python using the materialx-db
-library, which provides a catalog of thousands of PBR materials from ambientCG,
-GPUOpen, PolyHaven, and PhysicallyBased. This is more powerful and maintainable
-than a built-in visual editor.
+**Status: PARTIALLY IMPLEMENTED.** A simplified material editor was implemented
+in Phase 7 as a PBR parameter tweaker. The full preset/texture/export workflow
+described in the original design below was not implemented — material assignment
+remains on the Python side via `materialx-db`.
 
-The original design is preserved below for historical reference but will not be
-implemented.
+See Phase 7 above for what was implemented. The original design is preserved
+below for historical reference.
 
 <details>
 <summary>Original design (historical, not implemented)</summary>
