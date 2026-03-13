@@ -27,37 +27,45 @@ const STUDIO_BACKGROUND_DARKGREY = new THREE.Color(0.03, 0.03, 0.03);
 const STUDIO_BACKGROUND_WHITE = new THREE.Color(1.0, 1.0, 1.0);
 
 /**
- * Lazy-created radial gradient texture for the "gradient" background mode.
- * Vignette style: light grey center fading to darker grey edges.
+ * Create a radial vignette gradient texture (512×512 canvas).
+ * Light center fading to darker edges.
  */
-let _gradientTexture: THREE.Texture | null = null;
-
-function _getGradientTexture(): THREE.Texture {
-  if (_gradientTexture) return _gradientTexture;
-
+function _createGradientTexture(centerColor: string, edgeColor: string): THREE.Texture {
   const size = 512;
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d")!;
 
-  // Radial gradient: light center → darker edges (vignette)
   const cx = size / 2;
   const cy = size / 2;
-  const radius = size * 0.7; // gradient covers ~70% radius, edges are the dark color
+  const radius = size * 0.7;
   const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-  gradient.addColorStop(0, "#f0f0f0");   // light grey center
-  gradient.addColorStop(1, "#c8c8c8");   // darker grey edges
+  gradient.addColorStop(0, centerColor);
+  gradient.addColorStop(1, edgeColor);
 
-  ctx.fillStyle = "#c8c8c8"; // fill entire canvas with edge color first
+  ctx.fillStyle = edgeColor;
   ctx.fillRect(0, 0, size, size);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, size, size);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
-  _gradientTexture = texture;
   return texture;
+}
+
+/** Lazy-cached gradient textures */
+let _gradientTexture: THREE.Texture | null = null;
+let _gradientDarkTexture: THREE.Texture | null = null;
+
+function _getGradientTexture(): THREE.Texture {
+  if (!_gradientTexture) _gradientTexture = _createGradientTexture("#f0f0f0", "#c8c8c8");
+  return _gradientTexture;
+}
+
+function _getGradientDarkTexture(): THREE.Texture {
+  if (!_gradientDarkTexture) _gradientDarkTexture = _createGradientTexture("#808080", "#606060");
+  return _gradientDarkTexture;
 }
 
 /**
@@ -329,6 +337,12 @@ class EnvironmentManager {
         break;
       case "gradient":
         scene.background = _getGradientTexture();
+        scene.backgroundIntensity = 1.0;
+        scene.backgroundBlurriness = 0;
+        this._teardownEnvBackground();
+        break;
+      case "gradient-dark":
+        scene.background = _getGradientDarkTexture();
         scene.backgroundIntensity = 1.0;
         scene.backgroundBlurriness = 0;
         this._teardownEnvBackground();

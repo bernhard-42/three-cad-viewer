@@ -2133,7 +2133,7 @@ class Display {
   handleStudioBackground = (e: Event): void => {
     if (!(e.target instanceof HTMLSelectElement)) return;
     const value = e.target.value;
-    if (value === "grey" || value === "darkgrey" || value === "white" || value === "gradient" || value === "environment" || value === "transparent") {
+    if (value === "grey" || value === "darkgrey" || value === "white" || value === "gradient" || value === "gradient-dark" || value === "environment" || value === "transparent") {
       this.state.set("studioBackground", value);
     }
   };

@@ -123,7 +123,7 @@ export const MATERIAL_PRESETS: Record<string, MaterialAppearance> = {
     name: "Plastic (Glossy)",
     baseColor: [0.91, 0.91, 0.91, 1],
     metallic: 0.0,
-    roughness: 0.15,
+    roughness: 0.4,
   },
 
   "plastic-matte": {

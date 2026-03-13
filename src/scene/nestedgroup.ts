@@ -1250,6 +1250,11 @@ class NestedGroup {
             let materialDef: MaterialAppearance;
             if (resolved) {
               materialDef = resolved;
+            } else if (leafAlpha < 1) {
+              // Fallback for transparent objects: acrylic-clear with
+              // transmission matching the CAD alpha, tinted with CAD color
+              const { baseColor: _, ...acrylicClear } = MATERIAL_PRESETS["acrylic-clear"];
+              materialDef = { ...acrylicClear, transmission: 1 - leafAlpha };
             } else {
               // Fallback: plastic-glossy tinted with CAD color
               const { baseColor: _, ...plasticGlossy } = MATERIAL_PRESETS["plastic-glossy"];

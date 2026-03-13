@@ -48,7 +48,7 @@ export type StudioEnvironment = string;
 export type StudioToneMapping = "neutral" | "ACES" | "none";
 
 /** Studio background mode */
-export type StudioBackground = "grey" | "darkgrey" | "white" | "gradient" | "environment" | "transparent";
+export type StudioBackground = "grey" | "darkgrey" | "white" | "gradient" | "gradient-dark" | "environment" | "transparent";
 
 /** Studio texture mapping mode */
 export type StudioTextureMapping = "triplanar" | "parametric";
