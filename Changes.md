@@ -4,32 +4,49 @@
 
 **Studio Mode** (new)
 
-A new **Studio** tab provides physically-based rendering with per-object materials, environment-based lighting, and tone mapping — turning the CAD viewer into a product visualization tool.
+A new **Studio** tab provides physically-based rendering with per-object materials, environment-based lighting, shadows, ambient occlusion, and tone mapping — turning the CAD viewer into a product visualization tool.
 
 - **Per-object PBR materials**: Assign materials to shapes via a `material` string tag on leaf nodes and a root-level `materials` dictionary
-  - Supports two formats: `"builtin:preset-name"` strings (31 built-in presets) and `MaterialXMaterial` objects (from the [materialx-db](https://github.com/bernhard-42/materialx-db) Python library, 3,200+ PBR materials)
-  - `MeshPhysicalMaterial` for all objects in Studio mode (clearcoat, transmission, sheen, IOR, etc.)
-  - Automatic box-projected UV generation for CAD meshes lacking texture coordinates
+  - Supports two formats: `"builtin:preset-name"` strings (31 built-in presets) and `MaterialXMaterial` objects (from the [threejs-materials](https://github.com/bernhard-42/threejs-materials) Python library, 3,200+ PBR materials)
+  - `MeshPhysicalMaterial` for all objects in Studio mode (clearcoat, transmission, sheen, IOR, anisotropy, etc.)
+  - Transparent objects auto-converted: `alpha < 1` → `acrylic-clear` preset with `transmission = 1 - alpha`
+- **Texture mapping**: Triplanar shader injection for UV-less CAD geometry (default), with parametric fallback toggle
+  - 8 procedural builtins (brushed, knurled, sandblasted, hammered, checker, wood-dark, leather, fabric-weave)
+  - `TextureCache` with 4-tier resolution (builtin procedural, textures table, data URI, URL) and promise deduplication
 - **Environment maps**: Image-based lighting (IBL) via Poly Haven HDR presets (CC0 license)
-  - 9 curated presets (studio + outdoor), loaded on demand from Poly Haven CDN
+  - 15+ curated presets (studio, workshop, outdoor, architectural), loaded on demand from Poly Haven CDN
   - Procedural `RoomEnvironment` bundled as zero-network fallback
   - Custom HDR URL support via API
-  - 2K default resolution with runtime **4K toggle** ("Use 4K Env Maps" checkbox)
-- **Background modes**: grey, white, gradient (default), environment, or transparent
+  - 2K default resolution with runtime **4K toggle**
+  - Environment rotation slider with synchronized shadow light positioning
+- **Background modes**: gradient grey, gradient dark grey (default), white, environment, or transparent
   - Environment background rendered via fixed-FOV virtual camera for consistent appearance across ortho/perspective
-- **Tone mapping**: PBR Neutral (default), AgX, ACES Filmic, or none — with exposure control
-- **Studio floor**: Optional grid floor at scene bounding box bottom, adaptive contrast for all backgrounds
-- **Texture system**: `TextureCache` with 4-tier resolution (builtin procedural, textures table, data URI, URL) and 8 procedural builtins (brushed, knurled, sandblasted, hammered, checker, wood-dark, leather, fabric-weave)
+  - Solid-color backgrounds excluded from tone mapping via alpha compositing
+- **Shadows**: Two-pass blurred shadow system with depth masking
+  - Automatic shadow light placement from HDR environment analysis (light detection)
+  - PCF shadow maps at 4096×4096, Kawase blur with continuous softness control
+  - Floor-only + objects-only mask passes to avoid depth-discontinuity glow halos
+  - Shadow intensity and softness sliders
+- **Ambient Occlusion**: N8AO screen-space AO with depth-aware upsampling and user-controlled intensity
+- **Tone mapping**: PBR Neutral (default), ACES Filmic, or none — with exposure control
+- **Anti-aliasing**: SMAA via postprocessing library EffectComposer
+- **Material Editor**: Interactive PBR parameter tweaker for selected objects in Studio mode
+  - 14 slider parameters (metalness, roughness, clearcoat, transmission, IOR, sheen, anisotropy, emissive, specular)
+  - Per-object material cloning with triplanar mapping preservation
+  - Changed-value highlighting, draggable panel, auto-reopen on selection change
+  - Material editor changes persist across tab switches
 - **Material presets**: 31 built-in presets (polished/matte metals, plastics, glass, rubber, painted, natural) — usable as `"builtin:preset-name"` in the materials dictionary
 - **Data format**: New fields on shapes root node: `materials`, `textures`, `studioOptions`
-- **Studio tab controls**: Environment selector, env intensity slider, background mode, tone mapping, exposure, show floor, show edges, 4K env maps toggle, reset button
-- **API**: `setStudioEnvironment()`, `setStudioEnvIntensity()`, `setStudioBackground()`, `setStudioToneMapping()`, `setStudioExposure()`, `setStudioShowFloor()`, `setStudioShowEdges()`, `setStudio4kEnvMaps()`, `enterStudioMode()`, `leaveStudioMode()`, `resetStudio()`, `isStudioActive`
+- **Studio tab controls**: Environment selector, env intensity/rotation sliders, background mode, tone mapping, exposure, shadow intensity/softness, AO intensity, texture mapping toggle, 4K env maps toggle, reset button
+- **API**: `setStudioEnvironment()`, `setStudioEnvIntensity()`, `setStudioBackground()`, `setStudioToneMapping()`, `setStudioExposure()`, `setStudio4kEnvMaps()`, `setStudioEnvRotation()`, `setStudioTextureMapping()`, `setStudioShadowIntensity()`, `setStudioShadowSoftness()`, `setStudioAOIntensity()`, `enterStudioMode()`, `leaveStudioMode()`, `resetStudio()`, `isStudioActive`, `getSelectedObjectGroup()`
 - **Keyboard shortcut**: `s` to switch to Studio tab
+- **Architecture**: `StudioManager` class encapsulates Studio orchestration (subscriptions, enter/leave, shadows, floor, tone mapping) — extracted from viewer.ts for maintainability
 
 **UI Improvements**
 
 - Reordered tabs: Tree | Clip | Zebra | Material | Studio
 - Added reset buttons for Clip and Zebra tabs
+- 4 visual groups in Studio tab: Environment | Appearance | Shadows & AO | Textures
 - Collapsible Tools and Info panels in glass mode with arrow toggle indicators
 - Tools panel toggle also hides/shows orientation marker and animation/explode slider
 - Animation and Z-scale bars use same rest/hover transparency as tools and info panels
@@ -40,12 +57,21 @@ A new **Studio** tab provides physically-based rendering with per-object materia
 
 - Fixed z-fighting on large models by scaling near plane with scene size (`near = max(0.1, 0.01 * boundingRadius)`)
 - Fixed environment map background appearing as tiny rectangle with orthographic cameras
+- Fixed raycaster not filtering hidden objects in Studio mode (Three.js `intersectObjects` does not check `Object3D.visible`)
+- Fixed shift-double-click (isolate) showing edges in Studio mode
+- Fixed staircase artifacts in procedural studio environment background
 - Fixed release script to include type declaration files and source maps
 
 **New Dependencies**
 
-- Uses Three.js `HDRLoader` (replaces deprecated `RGBELoader`) and `PMREMGenerator` for environment maps
-- Uses Three.js `RoomEnvironment` for bundled procedural environment
+- `three` upgraded from r180 to r183 (WebGL 1.0 removed, `Clock` deprecated → migrated to `Timer`)
+- `postprocessing` 6.38.3 — EffectComposer, ToneMappingEffect, SMAA, KawaseBlur
+- `n8ao` 1.10.1 — screen-space ambient occlusion
+
+**Tests**
+
+- 67 Studio-specific tests across 5 test files (decode-instances, mode switching, light detection, material presets, material factory, studio floor)
+- Full suite: 1332 passed, 0 failed
 
 ## v4.1.2
 
