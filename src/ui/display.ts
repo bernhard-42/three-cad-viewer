@@ -204,6 +204,7 @@ class Display {
   private _matEditorPath: string | null = null;
   private _matEditorClones: Map<string, { original: THREE.MeshPhysicalMaterial; clone: THREE.MeshPhysicalMaterial }> = new Map();
   private _matEditorDragAbort: AbortController | null = null;
+  private _matEditorInputAbort: AbortController | null = null;
   cadInfo!: HTMLElement;
   cadAnim!: HTMLElement;
   private _animWasVisible: boolean = false;
@@ -2349,7 +2350,10 @@ class Display {
     const toggleBtn = this.container.querySelector(".tcv_mat_editor_toggle") as HTMLElement;
     if (toggleBtn) toggleBtn.classList.add("tcv_active");
 
-    // Populate content
+    // Populate content — abort previous input listeners before rebuilding
+    this._matEditorInputAbort?.abort();
+    this._matEditorInputAbort = new AbortController();
+
     const content = dialog.querySelector(".tcv_mat_editor_content") as HTMLElement;
     if (!content) return;
     content.innerHTML = "";
@@ -2359,6 +2363,9 @@ class Display {
   }
 
   closeMatEditor(): void {
+    this._matEditorInputAbort?.abort();
+    this._matEditorInputAbort = null;
+
     const dialog = this.container.querySelector(".tcv_mat_editor") as HTMLElement;
     if (dialog) {
       const content = dialog.querySelector(".tcv_mat_editor_content") as HTMLElement;
@@ -2372,6 +2379,9 @@ class Display {
 
   /** Dispose all cloned materials, restoring originals first (call on Studio mode exit) */
   disposeMatEditorClones(): void {
+    this._matEditorInputAbort?.abort();
+    this._matEditorInputAbort = null;
+
     let groups: Record<string, THREE.Object3D> | null = null;
     try { groups = this.viewer.rendered.nestedGroup.groups; } catch { /* not rendered */ }
 
@@ -2551,7 +2561,7 @@ class Display {
       label.classList.toggle("tcv_mat_editor_changed", isChanged(newValue));
 
       this.viewer.update(true, false);
-    });
+    }, { signal: this._matEditorInputAbort!.signal });
 
     sliderGroup.appendChild(slider);
     sliderGroup.appendChild(valueDisplay);

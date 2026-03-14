@@ -20,7 +20,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -216,7 +216,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -257,7 +257,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -307,7 +307,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -316,7 +316,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "iso": {
@@ -337,7 +337,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -533,7 +533,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -574,7 +574,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -624,7 +624,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -633,7 +633,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "right": {
@@ -654,7 +654,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -850,7 +850,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -891,7 +891,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -941,7 +941,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -950,7 +950,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "top": {
@@ -971,7 +971,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -1167,7 +1167,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -1208,7 +1208,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -1258,7 +1258,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -1267,7 +1267,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -1293,7 +1293,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -1489,7 +1489,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -1530,7 +1530,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -1580,7 +1580,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -1589,7 +1589,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "resetState": {
@@ -1610,7 +1610,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -1806,7 +1806,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -1847,7 +1847,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -1897,7 +1897,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -1906,7 +1906,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "zoomedInState": {
@@ -1927,7 +1927,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -2123,7 +2123,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -2164,7 +2164,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -2214,7 +2214,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -2223,7 +2223,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "zoomedOutState": {
@@ -2244,7 +2244,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -2440,7 +2440,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -2481,7 +2481,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -2531,7 +2531,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -2540,7 +2540,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -2566,7 +2566,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -2762,7 +2762,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -2803,7 +2803,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -2853,7 +2853,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -2862,7 +2862,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "orthoState": {
@@ -2883,7 +2883,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -3079,7 +3079,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -3120,7 +3120,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -3170,7 +3170,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -3179,7 +3179,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "perspectiveState": {
@@ -3200,7 +3200,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -3396,7 +3396,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -3437,7 +3437,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -3487,7 +3487,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -3496,7 +3496,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -3554,7 +3554,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "box",
@@ -3566,7 +3566,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cone",
@@ -3578,7 +3578,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cylinder",
@@ -3590,7 +3590,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "sphere",
@@ -3602,7 +3602,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "torus",
@@ -4074,7 +4074,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4084,7 +4084,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4094,7 +4094,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4104,7 +4104,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4114,7 +4114,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4275,7 +4275,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -4325,7 +4325,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -4334,7 +4334,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "step2": {
@@ -4387,7 +4387,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "box",
@@ -4399,7 +4399,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cone",
@@ -4411,7 +4411,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cylinder",
@@ -4423,7 +4423,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "sphere",
@@ -4435,7 +4435,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "torus",
@@ -4907,7 +4907,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4917,7 +4917,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4927,7 +4927,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4937,7 +4937,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4947,7 +4947,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -5108,7 +5108,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -5158,7 +5158,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -5167,7 +5167,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "step3": {
@@ -5220,7 +5220,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "box",
@@ -5232,7 +5232,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "cone",
@@ -5244,7 +5244,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "cylinder",
@@ -5256,7 +5256,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "sphere",
@@ -5268,7 +5268,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "torus",
@@ -5740,7 +5740,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -5750,7 +5750,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -5760,7 +5760,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -5770,7 +5770,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -5780,7 +5780,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -5941,7 +5941,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -5991,7 +5991,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.9,
         "opacity": 1,
@@ -6000,7 +6000,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "step4": {
@@ -6053,7 +6053,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "box",
@@ -6065,7 +6065,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "cone",
@@ -6077,7 +6077,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "cylinder",
@@ -6089,7 +6089,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "sphere",
@@ -6101,7 +6101,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "torus",
@@ -6573,7 +6573,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -6583,7 +6583,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -6593,7 +6593,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -6603,7 +6603,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -6613,7 +6613,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -6774,7 +6774,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -6824,7 +6824,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.9,
         "opacity": 1,
@@ -6833,7 +6833,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "step5": {
@@ -6886,7 +6886,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "box",
@@ -6898,7 +6898,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "cone",
@@ -6910,7 +6910,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "cylinder",
@@ -6922,7 +6922,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "sphere",
@@ -6934,7 +6934,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "torus",
@@ -7406,7 +7406,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -7416,7 +7416,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -7426,7 +7426,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -7436,7 +7436,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -7446,7 +7446,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -7607,7 +7607,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -7657,7 +7657,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.9,
         "opacity": 1,
@@ -7666,7 +7666,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -7692,7 +7692,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "Workplane(Solid)",
@@ -7888,7 +7888,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 1,
@@ -7929,7 +7929,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -7979,7 +7979,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.8,
         "opacity": 1,
@@ -7988,7 +7988,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "secondRender": {
@@ -8009,7 +8009,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -8205,7 +8205,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 0.5,
@@ -8246,7 +8246,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -8296,7 +8296,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 0.5,
@@ -8305,7 +8305,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -8331,7 +8331,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -8527,7 +8527,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -8568,7 +8568,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -8618,7 +8618,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -8627,7 +8627,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "axesOnAgainState": {
@@ -8648,7 +8648,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -8844,7 +8844,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -8885,7 +8885,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -8935,7 +8935,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -8944,7 +8944,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "axesOnState": {
@@ -8965,7 +8965,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -9161,7 +9161,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -9202,7 +9202,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -9252,7 +9252,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -9261,7 +9261,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -9287,7 +9287,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -9483,7 +9483,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -9524,7 +9524,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -9574,7 +9574,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -9583,7 +9583,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "allOnAgainState": {
@@ -9604,7 +9604,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -9800,7 +9800,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -9841,7 +9841,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -9891,7 +9891,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -9900,7 +9900,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "allOnState": {
@@ -9921,7 +9921,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -10117,7 +10117,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -10158,7 +10158,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -10208,7 +10208,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -10217,7 +10217,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "xyOffState": {
@@ -10238,7 +10238,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -10434,7 +10434,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -10475,7 +10475,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -10525,7 +10525,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -10534,7 +10534,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "xzOffState": {
@@ -10555,7 +10555,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -10751,7 +10751,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -10792,7 +10792,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -10842,7 +10842,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -10851,7 +10851,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -10876,7 +10876,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
     ],
     "meshMaterials": [
       {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "Workplane(Solid)",
@@ -11072,7 +11072,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
     ],
     "allMeshMaterials": [
       {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -11113,7 +11113,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       },
     ],
     "counts": {
-      "groups": 8,
+      "groups": 9,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -11163,7 +11163,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       "type": "LineMaterial",
     },
     "sampleMaterial": {
-      "color": 15249444,
+      "color": 16702650,
       "emissive": 0,
       "metalness": 0.3,
       "opacity": 1,
@@ -11172,7 +11172,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -11197,7 +11197,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -11393,7 +11393,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -11434,7 +11434,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -11484,7 +11484,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -11493,7 +11493,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "dimState": {
@@ -11514,7 +11514,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -11710,7 +11710,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -11751,7 +11751,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -11801,7 +11801,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -11810,7 +11810,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "initialState": {
@@ -11831,7 +11831,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -12027,7 +12027,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -12068,7 +12068,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -12118,7 +12118,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -12127,7 +12127,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -12153,7 +12153,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -12349,7 +12349,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -12390,7 +12390,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -12440,7 +12440,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -12449,7 +12449,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "dimState": {
@@ -12470,7 +12470,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -12666,7 +12666,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -12707,7 +12707,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -12757,7 +12757,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -12766,7 +12766,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "initialState": {
@@ -12787,7 +12787,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -12983,7 +12983,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -13024,7 +13024,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -13074,7 +13074,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -13083,7 +13083,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -13108,7 +13108,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
     ],
     "meshMaterials": [
       {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "Workplane(Solid)",
@@ -13304,7 +13304,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
     ],
     "allMeshMaterials": [
       {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -13345,7 +13345,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
     ],
     "counts": {
-      "groups": 8,
+      "groups": 9,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -13395,7 +13395,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "type": "LineMaterial",
     },
     "sampleMaterial": {
-      "color": 15249444,
+      "color": 16702650,
       "emissive": 0,
       "metalness": 0.3,
       "opacity": 1,
@@ -13404,7 +13404,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -13460,7 +13460,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
     ],
     "meshMaterials": [
       {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "box",
@@ -13472,7 +13472,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 32768,
+        "color": 16772352,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "cone",
@@ -13484,7 +13484,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 255,
+        "color": 14929069,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "cylinder",
@@ -13496,7 +13496,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 15249444,
+        "color": 16777215,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "sphere",
@@ -13508,7 +13508,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 65535,
+        "color": 16448250,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "torus",
@@ -13980,7 +13980,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
     ],
     "allMeshMaterials": [
       {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -13990,7 +13990,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 32768,
+        "color": 16772352,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -14000,7 +14000,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 255,
+        "color": 14929069,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -14010,7 +14010,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 15249444,
+        "color": 16777215,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -14020,7 +14020,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 65535,
+        "color": 16448250,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -14181,7 +14181,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
     ],
     "counts": {
-      "groups": 26,
+      "groups": 27,
       "helpers": 4,
       "lights": 2,
       "lines": 14,
@@ -14231,7 +14231,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "type": "LineMaterial",
     },
     "sampleMaterial": {
-      "color": 16711680,
+      "color": 5072550,
       "emissive": 0,
       "metalness": 0.3,
       "opacity": 1,
@@ -14240,7 +14240,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -14296,7 +14296,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
     ],
     "meshMaterials": [
       {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "box",
@@ -14308,7 +14308,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 32768,
+        "color": 16772352,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "cone",
@@ -14320,7 +14320,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 255,
+        "color": 14929069,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "cylinder",
@@ -14332,7 +14332,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 15249444,
+        "color": 16777215,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "sphere",
@@ -14344,7 +14344,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 65535,
+        "color": 16448250,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "torus",
@@ -14816,7 +14816,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
     ],
     "allMeshMaterials": [
       {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -14826,7 +14826,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 32768,
+        "color": 16772352,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -14836,7 +14836,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 255,
+        "color": 14929069,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -14846,7 +14846,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 15249444,
+        "color": 16777215,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -14856,7 +14856,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 65535,
+        "color": 16448250,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -15017,7 +15017,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
     ],
     "counts": {
-      "groups": 26,
+      "groups": 27,
       "helpers": 4,
       "lights": 2,
       "lines": 14,
@@ -15067,7 +15067,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "type": "LineMaterial",
     },
     "sampleMaterial": {
-      "color": 16711680,
+      "color": 5072550,
       "emissive": 0,
       "metalness": 0.3,
       "opacity": 1,
@@ -15076,7 +15076,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -15209,7 +15209,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
   },
   "camera": {
     "far": 1874.0363097282832,
-    "near": 0.1,
+    "near": 0.1874036309728283,
     "ortho": true,
     "position": {
       "x": 54.098768394637844,
@@ -15363,7 +15363,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 11,
@@ -15422,7 +15422,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -15547,7 +15547,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
   },
   "camera": {
     "far": 1870.8287174404832,
-    "near": 0.1,
+    "near": 0.1870828717440483,
     "ortho": true,
     "position": {
       "x": 54.00617318109725,
@@ -15695,7 +15695,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -15755,7 +15755,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -15880,7 +15880,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
   },
   "camera": {
     "far": 1870.8287174404832,
-    "near": 0.1,
+    "near": 0.1870828717440483,
     "ortho": true,
     "position": {
       "x": 54.00617318109725,
@@ -16028,7 +16028,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -16088,7 +16088,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -16113,7 +16113,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0,
           "objectName": "Workplane(Solid)",
@@ -16309,7 +16309,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0,
           "opacity": 1,
@@ -16350,7 +16350,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -16400,7 +16400,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0,
         "opacity": 1,
@@ -16409,7 +16409,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "metalness_0.3": {
@@ -16430,7 +16430,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -16626,7 +16626,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -16667,7 +16667,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -16717,7 +16717,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -16726,7 +16726,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "metalness_0.5": {
@@ -16747,7 +16747,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.5,
           "objectName": "Workplane(Solid)",
@@ -16943,7 +16943,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.5,
           "opacity": 1,
@@ -16984,7 +16984,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -17034,7 +17034,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.5,
         "opacity": 1,
@@ -17043,7 +17043,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "metalness_0.8": {
@@ -17064,7 +17064,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "Workplane(Solid)",
@@ -17260,7 +17260,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 1,
@@ -17301,7 +17301,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -17351,7 +17351,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.8,
         "opacity": 1,
@@ -17360,7 +17360,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "metalness_1": {
@@ -17381,7 +17381,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 1,
           "objectName": "Workplane(Solid)",
@@ -17577,7 +17577,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 1,
           "opacity": 1,
@@ -17618,7 +17618,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -17668,7 +17668,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 1,
         "opacity": 1,
@@ -17677,7 +17677,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -17703,7 +17703,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -17899,7 +17899,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -17940,7 +17940,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -17990,7 +17990,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -17999,7 +17999,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "roughness_0.25": {
@@ -18020,7 +18020,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -18216,7 +18216,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -18257,7 +18257,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -18307,7 +18307,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -18316,7 +18316,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "roughness_0.5": {
@@ -18337,7 +18337,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -18533,7 +18533,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -18574,7 +18574,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -18624,7 +18624,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -18633,7 +18633,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "roughness_0.75": {
@@ -18654,7 +18654,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -18850,7 +18850,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -18891,7 +18891,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -18941,7 +18941,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -18950,7 +18950,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "roughness_1": {
@@ -18971,7 +18971,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -19167,7 +19167,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -19208,7 +19208,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -19258,7 +19258,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -19267,7 +19267,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -19293,7 +19293,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "Workplane(Solid)",
@@ -19489,7 +19489,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 0.5,
@@ -19530,7 +19530,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -19580,7 +19580,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.8,
         "opacity": 0.5,
@@ -19589,7 +19589,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "initialState": {
@@ -19610,7 +19610,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -19806,7 +19806,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -19847,7 +19847,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -19897,7 +19897,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -19906,7 +19906,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -19932,7 +19932,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -20128,7 +20128,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -20169,7 +20169,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -20219,7 +20219,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -20228,7 +20228,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "edgesOffState": {
@@ -20249,7 +20249,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -20445,7 +20445,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -20486,7 +20486,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -20536,7 +20536,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -20545,7 +20545,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "edgesOnState": {
@@ -20566,7 +20566,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -20762,7 +20762,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -20803,7 +20803,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -20853,7 +20853,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -20862,7 +20862,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -20920,7 +20920,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "box",
@@ -20932,7 +20932,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cone",
@@ -20944,7 +20944,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cylinder",
@@ -20956,7 +20956,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "sphere",
@@ -20968,7 +20968,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "torus",
@@ -21440,7 +21440,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -21450,7 +21450,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -21460,7 +21460,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -21470,7 +21470,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -21480,7 +21480,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -21641,7 +21641,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -21691,7 +21691,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -21700,7 +21700,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "transparentState": {
@@ -21753,7 +21753,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "box",
@@ -21765,7 +21765,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cone",
@@ -21777,7 +21777,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cylinder",
@@ -21789,7 +21789,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "sphere",
@@ -21801,7 +21801,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "torus",
@@ -22273,7 +22273,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 0.5,
@@ -22283,7 +22283,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 0.5,
@@ -22293,7 +22293,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 0.5,
@@ -22303,7 +22303,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 0.5,
@@ -22313,7 +22313,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 0.5,
@@ -22474,7 +22474,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -22524,7 +22524,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 0.5,
@@ -22533,7 +22533,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -22591,7 +22591,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "box",
@@ -22603,7 +22603,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cone",
@@ -22615,7 +22615,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cylinder",
@@ -22627,7 +22627,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "sphere",
@@ -22639,7 +22639,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "torus",
@@ -23111,7 +23111,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -23121,7 +23121,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -23131,7 +23131,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -23141,7 +23141,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -23151,7 +23151,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -23312,7 +23312,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -23362,7 +23362,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -23371,7 +23371,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "hidden_1": {
@@ -23424,7 +23424,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "box",
@@ -23436,7 +23436,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cone",
@@ -23448,7 +23448,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cylinder",
@@ -23460,7 +23460,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "sphere",
@@ -23472,7 +23472,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "torus",
@@ -23944,7 +23944,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -23954,7 +23954,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -23964,7 +23964,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -23974,7 +23974,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -23984,7 +23984,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -24145,7 +24145,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -24195,7 +24195,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -24204,7 +24204,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "initial": {
@@ -24257,7 +24257,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "box",
@@ -24269,7 +24269,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cone",
@@ -24281,7 +24281,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cylinder",
@@ -24293,7 +24293,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "sphere",
@@ -24305,7 +24305,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "torus",
@@ -24777,7 +24777,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -24787,7 +24787,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -24797,7 +24797,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -24807,7 +24807,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -24817,7 +24817,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -24978,7 +24978,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -25028,7 +25028,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -25037,7 +25037,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -25063,7 +25063,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -25259,7 +25259,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -25300,7 +25300,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -25350,7 +25350,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -25359,7 +25359,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "shownState": {
@@ -25380,7 +25380,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -25576,7 +25576,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -25617,7 +25617,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -25667,7 +25667,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -25676,7 +25676,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "visibleState": {
@@ -25697,7 +25697,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -25893,7 +25893,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -25934,7 +25934,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -25984,7 +25984,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -25993,7 +25993,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }

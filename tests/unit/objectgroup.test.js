@@ -183,7 +183,8 @@ describe('ObjectGroup - setBlackEdges', () => {
     group.setBlackEdges(true);
 
     expect(group.edges.material.color.getHex()).toBe(0x000000);
-    expect(group.originalColor.getHex()).toBe(0x000000);
+    // originalColor tracks the FACE color on face+edge objects, not the edge color
+    expect(group.originalColor.getHex()).toBe(0xff0000);
   });
 
   test('restores original edge color', () => {

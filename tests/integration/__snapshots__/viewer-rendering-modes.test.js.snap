@@ -19,7 +19,7 @@ exports[`Viewer - Rendering Modes > compact mode (exploded=false) - renders soli
     ],
     "meshMaterials": [
       {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "Workplane(Solid)",
@@ -215,7 +215,7 @@ exports[`Viewer - Rendering Modes > compact mode (exploded=false) - renders soli
     ],
     "allMeshMaterials": [
       {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -256,7 +256,7 @@ exports[`Viewer - Rendering Modes > compact mode (exploded=false) - renders soli
       },
     ],
     "counts": {
-      "groups": 8,
+      "groups": 9,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -306,7 +306,7 @@ exports[`Viewer - Rendering Modes > compact mode (exploded=false) - renders soli
       "type": "LineMaterial",
     },
     "sampleMaterial": {
-      "color": 15249444,
+      "color": 16702650,
       "emissive": 0,
       "metalness": 0.3,
       "opacity": 1,
@@ -315,7 +315,7 @@ exports[`Viewer - Rendering Modes > compact mode (exploded=false) - renders soli
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;

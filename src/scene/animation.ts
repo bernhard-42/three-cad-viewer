@@ -30,7 +30,7 @@ class Animation {
   mixer: THREE.AnimationMixer | null;
   clip: THREE.AnimationClip | null;
   clipAction: THREE.AnimationAction | null;
-  clock: THREE.Clock;
+  clock: THREE.Timer;
   duration: number | null;
   speed: number | null;
   repeat: boolean | null;
@@ -47,7 +47,7 @@ class Animation {
     this.mixer = null;
     this.clip = null;
     this.clipAction = null;
-    this.clock = new THREE.Clock();
+    this.clock = new THREE.Timer();
     this.duration = null;
     this._backup = null;
     this.root = null;
@@ -334,6 +334,7 @@ class Animation {
    */
   update(): void {
     if (this.mixer) {
+      this.clock.update();
       this.mixer.update(this.clock.getDelta());
     }
   }

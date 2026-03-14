@@ -20,7 +20,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -216,7 +216,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -257,7 +257,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -307,7 +307,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -316,7 +316,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "front": {
@@ -337,7 +337,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -533,7 +533,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -574,7 +574,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -624,7 +624,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -633,7 +633,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "iso": {
@@ -654,7 +654,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -850,7 +850,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -891,7 +891,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -941,7 +941,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -950,7 +950,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "left": {
@@ -971,7 +971,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -1167,7 +1167,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -1208,7 +1208,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -1258,7 +1258,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -1267,7 +1267,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "rear": {
@@ -1288,7 +1288,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -1484,7 +1484,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -1525,7 +1525,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -1575,7 +1575,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -1584,7 +1584,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "right": {
@@ -1605,7 +1605,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -1801,7 +1801,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -1842,7 +1842,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -1892,7 +1892,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -1901,7 +1901,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "top": {
@@ -1922,7 +1922,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -2118,7 +2118,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -2159,7 +2159,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -2209,7 +2209,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -2218,7 +2218,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -2244,7 +2244,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -2440,7 +2440,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -2481,7 +2481,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -2531,7 +2531,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -2540,7 +2540,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "orthoState": {
@@ -2561,7 +2561,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -2757,7 +2757,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -2798,7 +2798,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -2848,7 +2848,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -2857,7 +2857,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "perspectiveState": {
@@ -2878,7 +2878,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -3074,7 +3074,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -3115,7 +3115,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -3165,7 +3165,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -3174,7 +3174,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -3200,7 +3200,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 1,
           "objectName": "Workplane(Solid)",
@@ -3396,7 +3396,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 1,
           "opacity": 1,
@@ -3437,7 +3437,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -3487,7 +3487,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 1,
         "opacity": 1,
@@ -3496,7 +3496,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "materialsAdjusted": {
@@ -3517,7 +3517,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 1,
           "objectName": "Workplane(Solid)",
@@ -3713,7 +3713,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 1,
           "opacity": 1,
@@ -3754,7 +3754,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -3804,7 +3804,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 1,
         "opacity": 1,
@@ -3813,7 +3813,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "topView": {
@@ -3834,7 +3834,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 1,
           "objectName": "Workplane(Solid)",
@@ -4030,7 +4030,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 1,
           "opacity": 1,
@@ -4071,7 +4071,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -4121,7 +4121,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 1,
         "opacity": 1,
@@ -4130,7 +4130,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -4188,7 +4188,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "box",
@@ -4200,7 +4200,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cone",
@@ -4212,7 +4212,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cylinder",
@@ -4224,7 +4224,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "sphere",
@@ -4236,7 +4236,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "torus",
@@ -4708,7 +4708,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4718,7 +4718,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4728,7 +4728,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4738,7 +4738,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4748,7 +4748,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -4909,7 +4909,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -4959,7 +4959,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -4968,7 +4968,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "step2": {
@@ -5021,7 +5021,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "box",
@@ -5033,7 +5033,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cone",
@@ -5045,7 +5045,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cylinder",
@@ -5057,7 +5057,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "sphere",
@@ -5069,7 +5069,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "torus",
@@ -5541,7 +5541,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -5551,7 +5551,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -5561,7 +5561,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -5571,7 +5571,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -5581,7 +5581,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -5742,7 +5742,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -5792,7 +5792,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -5801,7 +5801,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "step3": {
@@ -5854,7 +5854,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "box",
@@ -5866,7 +5866,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "cone",
@@ -5878,7 +5878,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "cylinder",
@@ -5890,7 +5890,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "sphere",
@@ -5902,7 +5902,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "torus",
@@ -6374,7 +6374,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 1,
@@ -6384,7 +6384,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 1,
@@ -6394,7 +6394,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 1,
@@ -6404,7 +6404,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 1,
@@ -6414,7 +6414,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 1,
@@ -6575,7 +6575,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -6625,7 +6625,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.8,
         "opacity": 1,
@@ -6634,7 +6634,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "step4": {
@@ -6687,7 +6687,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "box",
@@ -6699,7 +6699,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "cone",
@@ -6711,7 +6711,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "cylinder",
@@ -6723,7 +6723,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "sphere",
@@ -6735,7 +6735,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "torus",
@@ -7207,7 +7207,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 1,
@@ -7217,7 +7217,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 1,
@@ -7227,7 +7227,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 1,
@@ -7237,7 +7237,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 1,
@@ -7247,7 +7247,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 1,
@@ -7408,7 +7408,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -7458,7 +7458,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.8,
         "opacity": 1,
@@ -7467,7 +7467,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "step5": {
@@ -7520,7 +7520,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "box",
@@ -7532,7 +7532,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "cone",
@@ -7544,7 +7544,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "cylinder",
@@ -7556,7 +7556,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "sphere",
@@ -7568,7 +7568,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.8,
           "objectName": "torus",
@@ -8040,7 +8040,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 0.5,
@@ -8050,7 +8050,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 0.5,
@@ -8060,7 +8060,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 0.5,
@@ -8070,7 +8070,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 0.5,
@@ -8080,7 +8080,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.8,
           "opacity": 0.5,
@@ -8241,7 +8241,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -8291,7 +8291,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.8,
         "opacity": 0.5,
@@ -8300,7 +8300,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -8325,7 +8325,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
     ],
     "meshMaterials": [
       {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "Workplane(Solid)",
@@ -8521,7 +8521,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
     ],
     "allMeshMaterials": [
       {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -8562,7 +8562,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       },
     ],
     "counts": {
-      "groups": 8,
+      "groups": 9,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -8612,7 +8612,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       "type": "LineMaterial",
     },
     "sampleMaterial": {
-      "color": 15249444,
+      "color": 16702650,
       "emissive": 0,
       "metalness": 0.3,
       "opacity": 1,
@@ -8621,7 +8621,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -8646,7 +8646,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -8842,7 +8842,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -8883,7 +8883,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -8933,7 +8933,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -8942,7 +8942,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "axesOnAgainState": {
@@ -8963,7 +8963,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -9159,7 +9159,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -9200,7 +9200,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -9250,7 +9250,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -9259,7 +9259,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "axesOnState": {
@@ -9280,7 +9280,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -9476,7 +9476,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -9517,7 +9517,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -9567,7 +9567,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -9576,7 +9576,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -9602,7 +9602,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -9798,7 +9798,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -9839,7 +9839,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -9889,7 +9889,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -9898,7 +9898,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "toggledState": {
@@ -9919,7 +9919,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -10115,7 +10115,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -10156,7 +10156,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -10206,7 +10206,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -10215,7 +10215,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -10241,7 +10241,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -10437,7 +10437,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -10478,7 +10478,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -10528,7 +10528,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -10537,7 +10537,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "gridOnAgainState": {
@@ -10558,7 +10558,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -10754,7 +10754,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -10795,7 +10795,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -10845,7 +10845,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -10854,7 +10854,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "gridOnState": {
@@ -10875,7 +10875,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -11071,7 +11071,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -11112,7 +11112,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -11162,7 +11162,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -11171,7 +11171,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -11197,7 +11197,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.7,
           "objectName": "Workplane(Solid)",
@@ -11393,7 +11393,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.7,
           "opacity": 1,
@@ -11434,7 +11434,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -11484,7 +11484,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.7,
         "opacity": 1,
@@ -11493,7 +11493,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "before": {
@@ -11514,7 +11514,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -11710,7 +11710,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -11751,7 +11751,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -11801,7 +11801,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -11810,7 +11810,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -11837,7 +11837,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         ],
         "meshMaterials": [
           {
-            "color": 15249444,
+            "color": 16702650,
             "emissive": 0,
             "metalness": 0.3,
             "objectName": "Workplane(Solid)",
@@ -12033,7 +12033,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         ],
         "allMeshMaterials": [
           {
-            "color": 15249444,
+            "color": 16702650,
             "emissive": 0,
             "metalness": 0.3,
             "opacity": 1,
@@ -12074,7 +12074,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           },
         ],
         "counts": {
-          "groups": 8,
+          "groups": 9,
           "helpers": 4,
           "lights": 2,
           "lines": 10,
@@ -12124,7 +12124,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "type": "LineMaterial",
         },
         "sampleMaterial": {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -12133,7 +12133,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "transparent": true,
           "type": "MeshStandardMaterial",
         },
-        "totalChildren": 6,
+        "totalChildren": 7,
       },
     },
     "stateUpdated": true,
@@ -12158,7 +12158,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         ],
         "meshMaterials": [
           {
-            "color": 15249444,
+            "color": 16702650,
             "emissive": 0,
             "metalness": 0.3,
             "objectName": "Workplane(Solid)",
@@ -12354,7 +12354,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         ],
         "allMeshMaterials": [
           {
-            "color": 15249444,
+            "color": 16702650,
             "emissive": 0,
             "metalness": 0.3,
             "opacity": 1,
@@ -12395,7 +12395,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           },
         ],
         "counts": {
-          "groups": 8,
+          "groups": 9,
           "helpers": 4,
           "lights": 2,
           "lines": 10,
@@ -12445,7 +12445,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "type": "LineMaterial",
         },
         "sampleMaterial": {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -12454,7 +12454,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "transparent": true,
           "type": "MeshStandardMaterial",
         },
-        "totalChildren": 6,
+        "totalChildren": 7,
       },
     },
     "stateUpdated": true,
@@ -12479,7 +12479,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         ],
         "meshMaterials": [
           {
-            "color": 15249444,
+            "color": 16702650,
             "emissive": 0,
             "metalness": 0.3,
             "objectName": "Workplane(Solid)",
@@ -12675,7 +12675,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         ],
         "allMeshMaterials": [
           {
-            "color": 15249444,
+            "color": 16702650,
             "emissive": 0,
             "metalness": 0.3,
             "opacity": 0.5,
@@ -12716,7 +12716,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           },
         ],
         "counts": {
-          "groups": 8,
+          "groups": 9,
           "helpers": 4,
           "lights": 2,
           "lines": 10,
@@ -12766,7 +12766,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "type": "LineMaterial",
         },
         "sampleMaterial": {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 0.5,
@@ -12775,7 +12775,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "transparent": true,
           "type": "MeshStandardMaterial",
         },
-        "totalChildren": 6,
+        "totalChildren": 7,
       },
     },
     "stateUpdated": true,
@@ -12800,7 +12800,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         ],
         "meshMaterials": [
           {
-            "color": 15249444,
+            "color": 16702650,
             "emissive": 0,
             "metalness": 0.3,
             "objectName": "Workplane(Solid)",
@@ -12996,7 +12996,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         ],
         "allMeshMaterials": [
           {
-            "color": 15249444,
+            "color": 16702650,
             "emissive": 0,
             "metalness": 0.3,
             "opacity": 0.5,
@@ -13037,7 +13037,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           },
         ],
         "counts": {
-          "groups": 8,
+          "groups": 9,
           "helpers": 4,
           "lights": 2,
           "lines": 10,
@@ -13087,7 +13087,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "type": "LineMaterial",
         },
         "sampleMaterial": {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 0.5,
@@ -13096,7 +13096,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "transparent": true,
           "type": "MeshStandardMaterial",
         },
-        "totalChildren": 6,
+        "totalChildren": 7,
       },
     },
     "stateUpdated": true,
@@ -13125,7 +13125,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -13321,7 +13321,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -13362,7 +13362,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -13412,7 +13412,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -13421,7 +13421,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "blackEdgesOnState": {
@@ -13442,7 +13442,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -13638,7 +13638,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -13679,7 +13679,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -13729,7 +13729,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -13738,7 +13738,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "initialState": {
@@ -13759,7 +13759,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -13955,7 +13955,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -13996,7 +13996,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -14046,7 +14046,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -14055,7 +14055,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -14081,7 +14081,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -14277,7 +14277,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -14318,7 +14318,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -14368,7 +14368,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -14377,7 +14377,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "opaqueState": {
@@ -14398,7 +14398,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -14594,7 +14594,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -14635,7 +14635,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -14685,7 +14685,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -14694,7 +14694,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "transparentState": {
@@ -14715,7 +14715,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -14911,7 +14911,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 0.5,
@@ -14952,7 +14952,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -15002,7 +15002,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 0.5,
@@ -15011,7 +15011,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -15037,7 +15037,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -15233,7 +15233,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -15274,7 +15274,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -15324,7 +15324,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -15333,7 +15333,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "initialState": {
@@ -15354,7 +15354,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -15550,7 +15550,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -15591,7 +15591,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -15641,7 +15641,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -15650,7 +15650,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -15676,7 +15676,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -15872,7 +15872,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -15913,7 +15913,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -15963,7 +15963,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -15972,7 +15972,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "initialState": {
@@ -15993,7 +15993,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -16189,7 +16189,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -16230,7 +16230,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -16280,7 +16280,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -16289,7 +16289,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -16315,7 +16315,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.9,
           "objectName": "Workplane(Solid)",
@@ -16511,7 +16511,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.9,
           "opacity": 1,
@@ -16552,7 +16552,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -16602,7 +16602,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.9,
         "opacity": 1,
@@ -16611,7 +16611,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "initialState": {
@@ -16632,7 +16632,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -16828,7 +16828,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -16869,7 +16869,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -16919,7 +16919,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -16928,7 +16928,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -16954,7 +16954,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -17150,7 +17150,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -17191,7 +17191,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -17241,7 +17241,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -17250,7 +17250,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "initialState": {
@@ -17271,7 +17271,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "meshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "Workplane(Solid)",
@@ -17467,7 +17467,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
       ],
       "allMeshMaterials": [
         {
-          "color": 15249444,
+          "color": 16702650,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -17508,7 +17508,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 8,
+        "groups": 9,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -17558,7 +17558,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -17567,7 +17567,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }
@@ -17625,7 +17625,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "box",
@@ -17637,7 +17637,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cone",
@@ -17649,7 +17649,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cylinder",
@@ -17661,7 +17661,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "sphere",
@@ -17673,7 +17673,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "torus",
@@ -18145,7 +18145,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -18155,7 +18155,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -18165,7 +18165,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -18175,7 +18175,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -18185,7 +18185,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -18346,7 +18346,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -18396,7 +18396,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -18405,7 +18405,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
   "explodedState": {
@@ -18458,7 +18458,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
       ],
       "meshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "box",
@@ -18470,7 +18470,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cone",
@@ -18482,7 +18482,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "cylinder",
@@ -18494,7 +18494,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "sphere",
@@ -18506,7 +18506,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "objectName": "torus",
@@ -18978,7 +18978,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
       ],
       "allMeshMaterials": [
         {
-          "color": 16711680,
+          "color": 5072550,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -18988,7 +18988,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 32768,
+          "color": 16772352,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -18998,7 +18998,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 255,
+          "color": 14929069,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -19008,7 +19008,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 15249444,
+          "color": 16777215,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -19018,7 +19018,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "type": "MeshStandardMaterial",
         },
         {
-          "color": 65535,
+          "color": 16448250,
           "emissive": 0,
           "metalness": 0.3,
           "opacity": 1,
@@ -19179,7 +19179,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         },
       ],
       "counts": {
-        "groups": 26,
+        "groups": 27,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -19229,7 +19229,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         "type": "LineMaterial",
       },
       "sampleMaterial": {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -19238,7 +19238,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 6,
+      "totalChildren": 7,
     },
   },
 }

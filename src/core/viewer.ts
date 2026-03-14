@@ -55,6 +55,7 @@ import {
   type ZebraColorScheme,
   type ZebraMappingMode,
   type StudioToneMapping,
+  type StudioTextureMapping,
   type StudioBackground,
   type NotificationCallback,
   type RenderOptions,
@@ -3095,6 +3096,53 @@ class Viewer {
    */
   setStudio4kEnvMaps = (value: boolean, notify: boolean = true): void => {
     this.state.set("studio4kEnvMaps", value, notify);
+  };
+
+  /**
+   * Gets whether 4K environment maps are enabled.
+   * @returns True for 4K, false for 2K.
+   * @public
+   */
+  getStudio4kEnvMaps = (): boolean => {
+    return this.state.get("studio4kEnvMaps");
+  };
+
+  /**
+   * Sets the environment rotation for Studio mode.
+   * @param value - The rotation in degrees (0-360).
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioEnvRotation = (value: number, notify: boolean = true): void => {
+    this.state.set("studioEnvRotation", value, notify);
+  };
+
+  /**
+   * Gets the current environment rotation for Studio mode.
+   * @returns The rotation in degrees (0-360).
+   * @public
+   */
+  getStudioEnvRotation = (): number => {
+    return this.state.get("studioEnvRotation");
+  };
+
+  /**
+   * Sets the texture mapping mode for Studio mode.
+   * @param value - The texture mapping mode ("triplanar" or "parametric").
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioTextureMapping = (value: StudioTextureMapping, notify: boolean = true): void => {
+    this.state.set("studioTextureMapping", value, notify);
+  };
+
+  /**
+   * Gets the current texture mapping mode for Studio mode.
+   * @returns The texture mapping mode ("triplanar" or "parametric").
+   * @public
+   */
+  getStudioTextureMapping = (): StudioTextureMapping => {
+    return this.state.get("studioTextureMapping");
   };
 
   /**

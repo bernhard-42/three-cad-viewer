@@ -688,9 +688,9 @@ describe('Controls', () => {
     test('trackball applies speed factors', () => {
       controls = new Controls('trackball', camera, new THREE.Vector3(), domElement, 1.0, 1.0, 1.0);
 
-      // Trackball factors: pan: 0.22, rotate: 1.0, zoom: 0.5
+      // Trackball factors: pan: 0.22, rotate: 1.0, zoom: 2.0
       expect(controls.controls.rotateSpeed).toBe(1.0);
-      expect(controls.controls.zoomSpeed).toBe(0.5);
+      expect(controls.controls.zoomSpeed).toBe(2.0);
       expect(controls.controls.panSpeed).toBe(0.22);
     });
 
@@ -711,7 +711,7 @@ describe('Controls', () => {
       controls.setZoomSpeed(2.0);
 
       expect(controls.zoomSpeed).toBe(2.0);
-      expect(controls.controls.zoomSpeed).toBe(1.0); // 2.0 * 0.5 factor
+      expect(controls.controls.zoomSpeed).toBe(4.0); // 2.0 * 2.0 factor
     });
   });
 

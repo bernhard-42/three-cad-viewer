@@ -19,7 +19,7 @@ exports[`Examples - Snapshot Tests > box1 scene state snapshot 1`] = `
     ],
     "meshMaterials": [
       {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "Workplane(Solid)",
@@ -215,7 +215,7 @@ exports[`Examples - Snapshot Tests > box1 scene state snapshot 1`] = `
     ],
     "allMeshMaterials": [
       {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -256,7 +256,7 @@ exports[`Examples - Snapshot Tests > box1 scene state snapshot 1`] = `
       },
     ],
     "counts": {
-      "groups": 8,
+      "groups": 9,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -306,7 +306,7 @@ exports[`Examples - Snapshot Tests > box1 scene state snapshot 1`] = `
       "type": "LineMaterial",
     },
     "sampleMaterial": {
-      "color": 15249444,
+      "color": 16702650,
       "emissive": 0,
       "metalness": 0.3,
       "opacity": 1,
@@ -315,7 +315,7 @@ exports[`Examples - Snapshot Tests > box1 scene state snapshot 1`] = `
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -371,7 +371,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
     ],
     "meshMaterials": [
       {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "box",
@@ -383,7 +383,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 32768,
+        "color": 16772352,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "cone",
@@ -395,7 +395,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 255,
+        "color": 14929069,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "cylinder",
@@ -407,7 +407,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 15249444,
+        "color": 16777215,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "sphere",
@@ -419,7 +419,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 65535,
+        "color": 16448250,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "torus",
@@ -891,7 +891,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
     ],
     "allMeshMaterials": [
       {
-        "color": 16711680,
+        "color": 5072550,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -901,7 +901,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 32768,
+        "color": 16772352,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -911,7 +911,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 255,
+        "color": 14929069,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -921,7 +921,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 15249444,
+        "color": 16777215,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -931,7 +931,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 65535,
+        "color": 16448250,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -1092,7 +1092,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
       },
     ],
     "counts": {
-      "groups": 26,
+      "groups": 27,
       "helpers": 4,
       "lights": 2,
       "lines": 14,
@@ -1142,7 +1142,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
       "type": "LineMaterial",
     },
     "sampleMaterial": {
-      "color": 16711680,
+      "color": 5072550,
       "emissive": 0,
       "metalness": 0.3,
       "opacity": 1,
@@ -1151,7 +1151,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -1175,7 +1175,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_feet 
     ],
     "meshMaterials": [
       {
-        "color": 15249444,
+        "color": 13947340,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "Solid",
@@ -1264,7 +1264,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_feet 
   },
   "camera": {
     "far": 97583.61518957373,
-    "near": 0.1,
+    "near": 9.758361518957374,
     "ortho": true,
     "position": {
       "x": 3731.3963493239253,
@@ -1371,7 +1371,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_feet 
     ],
     "allMeshMaterials": [
       {
-        "color": 15249444,
+        "color": 13947340,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -1412,7 +1412,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_feet 
       },
     ],
     "counts": {
-      "groups": 8,
+      "groups": 9,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -1462,7 +1462,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_feet 
       "type": "LineMaterial",
     },
     "sampleMaterial": {
-      "color": 15249444,
+      "color": 13947340,
       "emissive": 0,
       "metalness": 0.3,
       "opacity": 1,
@@ -1471,7 +1471,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_feet 
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -1495,7 +1495,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_mm > 
     ],
     "meshMaterials": [
       {
-        "color": 15249444,
+        "color": 4210752,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "Solid",
@@ -1691,7 +1691,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_mm > 
     ],
     "allMeshMaterials": [
       {
-        "color": 15249444,
+        "color": 4210752,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -1732,7 +1732,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_mm > 
       },
     ],
     "counts": {
-      "groups": 8,
+      "groups": 9,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -1782,7 +1782,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_mm > 
       "type": "LineMaterial",
     },
     "sampleMaterial": {
-      "color": 15249444,
+      "color": 4210752,
       "emissive": 0,
       "metalness": 0.3,
       "opacity": 1,
@@ -1791,7 +1791,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_mm > 
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -2082,7 +2082,7 @@ exports[`Examples - Snapshot Tests > important snapshot for boxes > boxes-scene 
   },
   "camera": {
     "far": 2750,
-    "near": 0.1,
+    "near": 0.275,
     "ortho": true,
     "position": {
       "x": 79.38566201357355,
@@ -2322,7 +2322,7 @@ exports[`Examples - Snapshot Tests > important snapshot for boxes > boxes-scene 
       },
     ],
     "counts": {
-      "groups": 19,
+      "groups": 20,
       "helpers": 4,
       "lights": 2,
       "lines": 12,
@@ -2381,7 +2381,7 @@ exports[`Examples - Snapshot Tests > important snapshot for boxes > boxes-scene 
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -3766,7 +3766,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
   },
   "camera": {
     "far": 18616.569055941298,
-    "near": 0.1,
+    "near": 1.8616569055941299,
     "ortho": true,
     "position": {
       "x": 537.4140577917483,
@@ -4604,7 +4604,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       },
     ],
     "counts": {
-      "groups": 80,
+      "groups": 81,
       "helpers": 4,
       "lights": 2,
       "lines": 25,
@@ -4663,7 +4663,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -5298,7 +5298,7 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
   },
   "camera": {
     "far": 7896.548930604932,
-    "near": 0.1,
+    "near": 0.7896548930604932,
     "ortho": true,
     "position": {
       "x": 236.05659203476077,
@@ -5722,7 +5722,7 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       },
     ],
     "counts": {
-      "groups": 39,
+      "groups": 40,
       "helpers": 4,
       "lights": 2,
       "lines": 16,
@@ -5781,7 +5781,7 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -5805,7 +5805,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box > box-scene 1`] = `
     ],
     "meshMaterials": [
       {
-        "color": 15249444,
+        "color": 15263979,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "Workplane(Solid)",
@@ -5894,7 +5894,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box > box-scene 1`] = `
   },
   "camera": {
     "far": 1870.8286933869708,
-    "near": 0.1,
+    "near": 0.18708286933869708,
     "ortho": true,
     "position": {
       "x": 54.00617248673217,
@@ -6001,7 +6001,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box > box-scene 1`] = `
     ],
     "allMeshMaterials": [
       {
-        "color": 15249444,
+        "color": 15263979,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -6042,7 +6042,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box > box-scene 1`] = `
       },
     ],
     "counts": {
-      "groups": 8,
+      "groups": 9,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -6092,7 +6092,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box > box-scene 1`] = `
       "type": "LineMaterial",
     },
     "sampleMaterial": {
-      "color": 15249444,
+      "color": 15263979,
       "emissive": 0,
       "metalness": 0.3,
       "opacity": 1,
@@ -6101,7 +6101,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box > box-scene 1`] = `
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -6125,7 +6125,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box1 > box1-scene 1`] = 
     ],
     "meshMaterials": [
       {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "Workplane(Solid)",
@@ -6321,7 +6321,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box1 > box1-scene 1`] = 
     ],
     "allMeshMaterials": [
       {
-        "color": 15249444,
+        "color": 16702650,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -6362,7 +6362,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box1 > box1-scene 1`] = 
       },
     ],
     "counts": {
-      "groups": 8,
+      "groups": 9,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -6412,7 +6412,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box1 > box1-scene 1`] = 
       "type": "LineMaterial",
     },
     "sampleMaterial": {
-      "color": 15249444,
+      "color": 16702650,
       "emissive": 0,
       "metalness": 0.3,
       "opacity": 1,
@@ -6421,7 +6421,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box1 > box1-scene 1`] = 
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -6554,7 +6554,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for edges > edges-scene 1`] 
   },
   "camera": {
     "far": 1874.0363097282832,
-    "near": 0.1,
+    "near": 0.1874036309728283,
     "ortho": true,
     "position": {
       "x": 54.098768394637844,
@@ -6708,7 +6708,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for edges > edges-scene 1`] 
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 11,
@@ -6767,7 +6767,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for edges > edges-scene 1`] 
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -6799,7 +6799,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
     ],
     "meshMaterials": [
       {
-        "color": 15631086,
+        "color": 15918771,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "faces",
@@ -6811,7 +6811,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 15249444,
+        "color": 15918771,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "box",
@@ -6924,7 +6924,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
   },
   "camera": {
     "far": 1870.8286933869708,
-    "near": 0.1,
+    "near": 0.18708286933869708,
     "ortho": true,
     "position": {
       "x": 54.00617248673217,
@@ -7037,7 +7037,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
     ],
     "allMeshMaterials": [
       {
-        "color": 15631086,
+        "color": 15918771,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -7047,7 +7047,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 15249444,
+        "color": 15918771,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -7088,7 +7088,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 11,
@@ -7138,7 +7138,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
       "type": "LineMaterial",
     },
     "sampleMaterial": {
-      "color": 15631086,
+      "color": 15918771,
       "emissive": 0,
       "metalness": 0.3,
       "opacity": 1,
@@ -7147,7 +7147,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -7239,7 +7239,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for objs1d > objs1d-scene 1`
   },
   "camera": {
     "far": 2941.5302278236068,
-    "near": 0.1,
+    "near": 0.2941530227823607,
     "ortho": true,
     "position": {
       "x": 90.41466344316905,
@@ -7358,7 +7358,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for objs1d > objs1d-scene 1`
     ],
     "allMeshMaterials": [],
     "counts": {
-      "groups": 7,
+      "groups": 8,
       "helpers": 4,
       "lights": 2,
       "lines": 12,
@@ -7407,7 +7407,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for objs1d > objs1d-scene 1`
       "type": "LineMaterial",
     },
     "sampleMaterial": null,
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -7566,7 +7566,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-edges > single-ed
     ],
     "allMeshMaterials": [],
     "counts": {
-      "groups": 5,
+      "groups": 6,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -7615,7 +7615,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-edges > single-ed
       "type": "LineMaterial",
     },
     "sampleMaterial": null,
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -7810,7 +7810,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-faces > single-fa
       },
     ],
     "counts": {
-      "groups": 5,
+      "groups": 6,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -7869,7 +7869,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-faces > single-fa
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -8013,7 +8013,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-vertices > single
     ],
     "allMeshMaterials": [],
     "counts": {
-      "groups": 5,
+      "groups": 6,
       "helpers": 4,
       "lights": 2,
       "lines": 9,
@@ -8063,7 +8063,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-vertices > single
       "type": "LineDashedMaterial",
     },
     "sampleMaterial": null,
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;
@@ -8188,7 +8188,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for vertices > vertices-scen
   },
   "camera": {
     "far": 1870.8287174404832,
-    "near": 0.1,
+    "near": 0.1870828717440483,
     "ortho": true,
     "position": {
       "x": 54.00617318109725,
@@ -8336,7 +8336,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for vertices > vertices-scen
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -8396,7 +8396,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for vertices > vertices-scen
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;

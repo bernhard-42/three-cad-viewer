@@ -599,6 +599,9 @@ class EnvironmentManager {
 
     // Null HDR loader reference (no explicit dispose needed)
     this._hdrLoader = null;
+
+    // Dispose module-level gradient textures
+    disposeGradientTextures();
   }
 
   // ---------------------------------------------------------------------------
@@ -794,8 +797,13 @@ class EnvironmentManager {
 
     logger.debug(`Loading HDR environment from: ${url}`);
 
-    // Load HDR file (returns a DataTexture)
-    const hdrTexture = await loader.loadAsync(url);
+    // Load HDR file with timeout (30 seconds) to prevent indefinite blocking
+    const hdrTexture = await Promise.race([
+      loader.loadAsync(url),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error(`HDR load timed out after 30 s: ${url}`)), 30_000),
+      ),
+    ]);
 
     // Bail out if disposed while loading
     if (this._disposed) {
@@ -831,5 +839,11 @@ class EnvironmentManager {
   }
 }
 
-export { EnvironmentManager };
+/** Dispose lazy-cached gradient textures (called from EnvironmentManager.dispose). */
+function disposeGradientTextures(): void {
+  if (_gradientTexture) { _gradientTexture.dispose(); _gradientTexture = null; }
+  if (_gradientDarkTexture) { _gradientDarkTexture.dispose(); _gradientDarkTexture = null; }
+}
+
+export { EnvironmentManager, disposeGradientTextures };
 export type { EnvironmentManagerOptions };

@@ -139,6 +139,7 @@ export type {
   StudioModeOptions,
   StudioEnvironment,
   StudioToneMapping,
+  StudioTextureMapping,
 } from "./core/types.js";
 
 // MaterialX type guard
