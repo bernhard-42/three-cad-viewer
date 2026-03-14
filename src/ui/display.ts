@@ -203,6 +203,7 @@ class Display {
   // Material editor state
   private _matEditorPath: string | null = null;
   private _matEditorClones: Map<string, { original: THREE.MeshPhysicalMaterial; clone: THREE.MeshPhysicalMaterial }> = new Map();
+  private _savedMatEditorChanges: Map<string, Record<string, number>> = new Map();
   private _matEditorDragAbort: AbortController | null = null;
   private _matEditorInputAbort: AbortController | null = null;
   cadInfo!: HTMLElement;
@@ -1982,6 +1983,7 @@ class Display {
     }
     if (oldTab === "studio" && newTab !== "studio") {
       this.closeMatEditor();
+      this._saveMatEditorChanges();
       this.disposeMatEditorClones();
       this.viewer.leaveStudioMode();
       // Restore tool button visibility based on feature flags
@@ -2047,6 +2049,9 @@ class Display {
       this._showStudioLoading(true);
       this.viewer.enterStudioMode().finally(() => {
         this._showStudioLoading(false);
+        this._reapplyMatEditorChanges();
+        this.syncStudioSlidersFromState();
+        this.viewer.update(true, false);
       });
     }
 
@@ -2396,6 +2401,52 @@ class Display {
       clone.dispose();
     }
     this._matEditorClones.clear();
+  }
+
+  /** Save material editor property deltas so they survive a Studio mode leave/enter cycle. */
+  private _saveMatEditorChanges(): void {
+    this._savedMatEditorChanges.clear();
+    for (const [path, { original, clone }] of this._matEditorClones.entries()) {
+      const changes: Record<string, number> = {};
+      for (const param of MAT_EDITOR_PARAMS) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const origVal = (original as any)[param.key] as number;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const cloneVal = (clone as any)[param.key] as number;
+        if (origVal !== cloneVal) {
+          changes[param.key] = cloneVal;
+        }
+      }
+      if (Object.keys(changes).length > 0) {
+        this._savedMatEditorChanges.set(path, changes);
+      }
+    }
+  }
+
+  /** Reapply saved material editor changes after re-entering Studio mode. */
+  private _reapplyMatEditorChanges(): void {
+    if (this._savedMatEditorChanges.size === 0) return;
+    let groups: Record<string, THREE.Object3D>;
+    try { groups = this.viewer.rendered.nestedGroup.groups; } catch { return; }
+
+    for (const [path, changes] of this._savedMatEditorChanges.entries()) {
+      const group = groups[path] as ObjectGroup | undefined;
+      if (!group?.front?.material) continue;
+      const currentMat = group.front.material;
+      if (!(currentMat instanceof THREE.MeshPhysicalMaterial)) continue;
+
+      const clone = currentMat.clone();
+      if (currentMat.customProgramCacheKey() === "triplanar" && group.shapeGeometry) {
+        applyTriplanarMapping(clone, group.shapeGeometry);
+      }
+      for (const [key, value] of Object.entries(changes)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (clone as any)[key] = value;
+      }
+      group.front.material = clone;
+      this._matEditorClones.set(path, { original: currentMat as THREE.MeshPhysicalMaterial, clone });
+    }
+    this._savedMatEditorChanges.clear();
   }
 
   /**

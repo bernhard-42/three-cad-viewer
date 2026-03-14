@@ -181,7 +181,7 @@ class Raycaster {
       const object = obj.object;
       // Accept Mesh (faces), Points (vertices), and Line (edges)
       const isValidType = isMesh(object) || isPoints(object) || isLine(object);
-      if (isValidType && !Array.isArray(object.material) && object.material.visible) {
+      if (isValidType && object.visible && !Array.isArray(object.material) && object.material.visible) {
         validObjs.push(obj);
       }
     }
@@ -202,7 +202,7 @@ class Raycaster {
         // Accept Mesh (faces), Points (vertices), and Line (edges)
         const isValidType = isMesh(obj) || isPoints(obj) || isLine(obj);
         if (!isValidType) continue;
-        if (Array.isArray(obj.material) || !obj.material.visible) continue;
+        if (!obj.visible || Array.isArray(obj.material) || !obj.material.visible) continue;
 
         const objectGroup = object.object.parent;
         if (!isObjectGroup(objectGroup)) continue;

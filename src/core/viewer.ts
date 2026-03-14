@@ -19,7 +19,6 @@ import { TreeView } from "../ui/treeview.js";
 // TreeData and StateValue available if needed for tree manipulation
 import { Timer } from "../utils/timer.js";
 import { Clipping } from "../scene/clipping.js";
-import type { ClippingState } from "../scene/clipping.js";
 import { Animation } from "../scene/animation.js";
 import {
   isEqual,
@@ -41,10 +40,7 @@ import { BoundingBox, BoxHelper } from "../scene/bbox.js";
 import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
 import { version } from "../_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
-import { EnvironmentManager } from "../rendering/environment.js";
-import { StudioFloor } from "../rendering/studio-floor.js";
-
-import { StudioComposer } from "../rendering/studio-composer.js";
+import { StudioManager } from "./studio-manager.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
 import { isInstancedFormat, decodeInstancedFormat, decodeInlineBuffers } from "../utils/decode-instances.js";
@@ -365,20 +361,11 @@ class Viewer {
   // Raycaster
   raycaster: Raycaster | null;
 
-  // Studio environment manager (survives clear(), disposed only on dispose())
-  envManager: EnvironmentManager;
+  // Studio mode orchestration (owns composer, floor, shadow lights, env manager)
+  private _studioManager!: StudioManager;
 
-  // Studio floor (survives clear(), disposed only on dispose())
-  private _studioFloor: StudioFloor;
-
-  // Studio post-processing composer (created on enterStudioMode, disposed on leave)
-  private _studioComposer: StudioComposer | null = null;
-
-  // Studio mode state
-  private _isStudioActive: boolean = false;
-  private _savedClippingState: ClippingState | null = null;
-  /** Shadow-casting DirectionalLights generated from HDR analysis. */
-  private _studioShadowLights: THREE.DirectionalLight[] = [];
+  /** Environment manager — proxied from StudioManager for display.ts access. */
+  get envManager() { return this._studioManager.envManager; }
   // Z-scale
   zScale!: number;
 
@@ -493,9 +480,7 @@ class Viewer {
     this.renderer.setClearColor(0xffffff, 0);
     this.renderer.autoClear = false;
 
-    // Create environment manager and floor (after renderer, before any rendering)
-    this.envManager = new EnvironmentManager();
-    this._studioFloor = new StudioFloor();
+    // Create studio manager (env, floor, composer created lazily inside)
 
     this.lastNotification = {};
     this.lastBbox = null;
@@ -534,195 +519,27 @@ class Viewer {
 
     this.display.setupUI(this, this.renderer.domElement);
 
-    // Wire studio state subscriptions (react to changes while studio tab is active)
-    this._setupStudioSubscriptions();
+    // Create studio manager (owns env, floor, composer, shadows, subscriptions)
+    this._studioManager = new StudioManager({
+      renderer: this.renderer,
+      state: this.state,
+      isRendered: () => this._rendered !== null,
+      getScene: () => this.rendered.scene,
+      getCamera: () => this.rendered.camera,
+      getAmbientLight: () => this.rendered.ambientLight,
+      getDirectLight: () => this.rendered.directLight,
+      getNestedGroup: () => this.rendered.nestedGroup,
+      getClipping: () => this.rendered.clipping,
+      getBbox: () => this.bbox,
+      getLastBboxId: () => this.lastBbox?.id ?? null,
+      update: (updateMarker, notify) => this.update(updateMarker, notify),
+      dispatchEvent: (event) => this.display.container.dispatchEvent(event),
+      onSelectionChanged: (id) => this.display.onSelectionChanged(id),
+    });
 
     console.debug("three-cad-viewer: WebGL Renderer created");
   }
 
-  /**
-   * Set up state subscriptions for Studio mode.
-   *
-   * These subscriptions only take effect when activeTab is "studio".
-   * When a studio-related state key changes while the studio tab is active,
-   * the environment/floor/rendering is updated accordingly.
-   *
-   * @internal
-   */
-  private _setupStudioSubscriptions(): void {
-    const isStudioActive = (): boolean => {
-      return this._isStudioActive && this._rendered !== null;
-    };
-
-    // Helper to re-apply the current environment with current state values.
-    // Also syncs background protection on the composer: solid-color backgrounds
-    // are excluded from tone mapping via alpha compositing.
-    const reapplyEnv = (orthoOverride?: boolean): void => {
-      this.envManager.apply(
-        this.rendered.scene,
-        this.state.get("studioEnvIntensity"),
-        this.state.get("studioBackground"),
-        this.state.get("up") === "Z",
-        orthoOverride ?? this.rendered.camera.ortho,
-        this.state.get("studioEnvRotation"),
-      );
-      // Sync background protection: protect solid colors from tone mapping
-      if (this._studioComposer) {
-        const bg = this.rendered.scene.background;
-        this._studioComposer.setBackgroundProtect(
-          bg instanceof THREE.Color ? bg : null,
-        );
-      }
-    };
-
-    // studioEnvironment changed -> re-load and re-apply
-    this.state.subscribe("studioEnvironment", (change) => {
-      if (!isStudioActive()) return;
-      this.envManager.loadEnvironment(change.new, this.renderer).then(() => {
-        if (!isStudioActive()) return;
-        reapplyEnv();
-        // Rebuild shadow lights for the new environment
-        if (this.state.get("studioShadowIntensity") > 0) {
-          this._configureStudioShadowLights();
-        }
-        this.update(true, false);
-      }).catch((err) => {
-        logger.error("Unexpected error loading studio environment", err);
-      });
-    });
-
-    // studioEnvIntensity changed -> re-apply (no reload needed)
-    this.state.subscribe("studioEnvIntensity", () => {
-      if (!isStudioActive()) return;
-      reapplyEnv();
-      this.update(true, false);
-    });
-
-    // studioEnvRotation changed -> re-apply rotation + rebuild shadow lights
-    this.state.subscribe("studioEnvRotation", () => {
-      if (!isStudioActive()) return;
-      reapplyEnv();
-      if (this.state.get("studioShadowIntensity") > 0) {
-        this._configureStudioShadowLights();
-      }
-      this.update(true, false);
-    });
-
-    // studioShadowIntensity changed -> enable/disable shadows and set darkness
-    this.state.subscribe("studioShadowIntensity", (change) => {
-      if (!isStudioActive()) return;
-      const intensity = change.new;
-      const wasEnabled = change.old != null && change.old > 0;
-      const nowEnabled = intensity > 0;
-
-      if (nowEnabled && !wasEnabled) {
-        this._setStudioShadowsEnabled(true);
-      } else if (!nowEnabled && wasEnabled) {
-        this._setStudioShadowsEnabled(false);
-      }
-
-      // Update shadow darkness on the light, floor, and object mask
-      if (nowEnabled) {
-        for (const light of this._studioShadowLights) {
-          light.shadow.intensity = intensity;
-        }
-        this._studioFloor.setShadowIntensity(intensity);
-        if (this._studioComposer) {
-          this._studioComposer.setShadowMaskIntensity(intensity * 0.75);
-        }
-      }
-      this.update(true, false);
-    });
-
-    // studioShadowSoftness changed -> update screen-space blur kernel size
-    this.state.subscribe("studioShadowSoftness", (change) => {
-      if (!isStudioActive()) return;
-      if (this.state.get("studioShadowIntensity") <= 0) return;
-      if (this._studioComposer) {
-        this._studioComposer.setShadowSoftness(change.new);
-      }
-      this.update(true, false);
-    });
-
-    // studioAOIntensity changed -> enable/disable AO and set strength via composer
-    this.state.subscribe("studioAOIntensity", (change) => {
-      if (!isStudioActive()) return;
-      if (this._studioComposer) {
-        const intensity = change.new;
-        this._studioComposer.setAOEnabled(intensity > 0);
-        this._studioComposer.setAOIntensity(intensity);
-      }
-      this.update(true, false);
-    });
-
-    // studioBackground changed -> re-apply environment
-    this.state.subscribe("studioBackground", () => {
-      if (!isStudioActive()) return;
-      reapplyEnv();
-      this.update(true, false);
-    });
-
-    // ortho changed while Studio active -> re-apply background (env map needs perspective)
-    this.state.subscribe("ortho", (change) => {
-      if (!isStudioActive()) return;
-      // Use change.new, not camera.ortho — the camera hasn't switched yet
-      // when this subscriber fires (state is set before camera.switchCamera).
-      reapplyEnv(change.new as boolean);
-      this.update(true, false);
-    });
-
-    // studioToneMapping changed -> re-apply tone mapping
-    this.state.subscribe("studioToneMapping", () => {
-      if (!isStudioActive()) return;
-      this._applyStudioToneMapping();
-      this.update(true, false);
-    });
-
-    // studioExposure changed -> re-apply exposure
-    this.state.subscribe("studioExposure", () => {
-      if (!isStudioActive()) return;
-      this._applyStudioToneMapping();
-      this.update(true, false);
-    });
-
-    // studio4kEnvMaps changed -> switch resolution and reload
-    this.state.subscribe("studio4kEnvMaps", (change) => {
-      if (!isStudioActive()) return;
-      const envName = this.state.get("studioEnvironment");
-      this.envManager.setUse4kEnvMaps(change.new, envName, this.renderer).then(() => {
-        if (!isStudioActive()) return;
-        reapplyEnv();
-        // Rebuild shadow lights (detection re-ran on new HDR data)
-        if (this.state.get("studioShadowIntensity") > 0) {
-          this._configureStudioShadowLights();
-        }
-        this.update(true, false);
-        // Signal UI that loading is complete
-        this.display.container.dispatchEvent(new Event("tcv-env-loaded"));
-      });
-    });
-
-    // studioTextureMapping changed -> rebuild materials with new mapping mode
-    this.state.subscribe("studioTextureMapping", () => {
-      if (!isStudioActive()) return;
-      this._rebuildStudioMaterials();
-    });
-  }
-
-  /**
-   * Rebuild Studio materials after a mapping mode change.
-   * Leaves and re-enters studio mode with the current texture mapping setting.
-   * @internal
-   */
-  private _rebuildStudioMaterials = async (): Promise<void> => {
-    this.nestedGroup.leaveStudioMode();
-    this.nestedGroup.clearStudioMaterialCache();
-    await this.nestedGroup.enterStudioMode(this.state.get("studioTextureMapping"));
-    if (this._isStudioActive) {
-      this.nestedGroup.setStudioShowEdges(false);
-      this.update(true, false);
-    }
-  };
 
   /**
    * Return three-cad-viewer version as semver string.
@@ -1038,7 +855,7 @@ class Viewer {
     }
     // When the composer is active, its RenderPass handles clearing;
     // skip manual clear to avoid double-clear artifacts.
-    if (!this._studioComposer) {
+    if (!this._studioManager.hasComposer) {
       this.renderer.clear();
     }
 
@@ -1060,14 +877,14 @@ class Viewer {
     );
 
     // Env background: render HDRI to 2D render target for ortho cameras
-    if (this.envManager.isEnvBackgroundActive) {
-      this.envManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
+    if (this._studioManager.isEnvBackgroundActive) {
+      this._studioManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
     }
 
     // Render: use composer pipeline when available (AO + tone mapping + SMAA),
     // otherwise fall back to direct renderer.render().
-    if (this._studioComposer) {
-      this._studioComposer.render();
+    if (this._studioManager.hasComposer) {
+      this._studioManager.render();
     } else {
       this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
     }
@@ -1174,19 +991,8 @@ class Viewer {
   dispose(): void {
     this.clear();
 
-    // dispose composer (must happen before renderer disposal)
-    if (this._studioComposer) {
-      this._studioComposer.dispose();
-      this._studioComposer = null;
-    }
-
-    // dispose environment manager, floor, and shadow lights
-    this._removeStudioShadowLights();
-    this.envManager.dispose();
-    this._studioFloor.dispose();
-
-    this._isStudioActive = false;
-    this._savedClippingState = null;
+    // dispose studio resources (composer, floor, env, shadows — must be before renderer)
+    this._studioManager.dispose();
     // dispose renderer
     this.renderer.renderLists.dispose();
     this.renderer.dispose();
@@ -1777,7 +1583,7 @@ class Viewer {
     scene.add(clipping);
 
     // Add studio floor group to scene (hidden by default, shown in enterStudioMode)
-    scene.add(this._studioFloor.group);
+    scene.add(this._studioManager.floor.group);
 
     // Theme is already resolved ("light" or "dark") by ViewerState constructor
     const theme = this.state.get("theme");
@@ -2049,9 +1855,7 @@ class Viewer {
 
     // Update composer camera after the actual swap (not in the ortho
     // subscriber, which fires before the camera switches)
-    if (this._studioComposer) {
-      this._studioComposer.setCamera(this.rendered.camera.getCamera());
-    }
+    this._studioManager.setCamera(this.rendered.camera.getCamera());
 
     this.rendered.gridHelper.scaleLabels();
     this.rendered.gridHelper.update(this.rendered.camera.getZoom(), true);
@@ -2341,7 +2145,8 @@ class Viewer {
         this.removeLastBbox();
         if (tree) {
           this.rendered.treeview.hideAll();
-          this.setState(id, [1, 1], nodeType ?? "leaf");
+          const showEdges = this._studioManager.isActive ? 0 : 1;
+          this.setState(id, [1, showEdges], nodeType ?? "leaf");
         } else {
           const center = boundingBox.center();
           this.setCameraTarget(point ?? new THREE.Vector3(...center));
@@ -2350,7 +2155,8 @@ class Viewer {
       } else if (shift) {
         this.removeLastBbox();
         this.rendered.treeview.hideAll();
-        this.setState(id, [1, 1], nodeType ?? "leaf");
+        const showEdges = this._studioManager.isActive ? 0 : 1;
+        this.setState(id, [1, showEdges], nodeType ?? "leaf");
         const center = boundingBox.center();
         this.setCameraTarget(new THREE.Vector3(...center));
         this.display.showCenterInfo(center);
@@ -2362,7 +2168,7 @@ class Viewer {
         this.rendered.treeview.openPath(id);
       }
     }
-    if (this._isStudioActive) {
+    if (this._studioManager.isActive) {
       this.display.onSelectionChanged(this.lastBbox?.id ?? null);
     }
     this.update(true);
@@ -3258,7 +3064,7 @@ class Viewer {
    * @public
    */
   get isStudioActive(): boolean {
-    return this._isStudioActive && this._rendered !== null;
+    return this._studioManager.isActive;
   }
 
   /**
@@ -3267,415 +3073,17 @@ class Viewer {
    * selection is a CompoundGroup (assembly node) rather than a leaf object.
    */
   getSelectedObjectGroup(): { object: ObjectGroup; path: string } | null {
-    if (!this._isStudioActive || this.lastBbox == null) {
-      return null;
-    }
-    const entry = this.rendered.nestedGroup.groups[this.lastBbox.id];
-    if (!isObjectGroup(entry)) {
-      return null;
-    }
-    return { object: entry, path: this.lastBbox.id };
+    return this._studioManager.getSelectedObjectGroup();
   }
 
-  /**
-   * Enter Studio mode: load and apply the current environment map.
-   *
-   * Called by display.ts switchToTab() when switching TO the Studio tab.
-   * Orchestrates: clipping save/disable, material swap, environment load,
-   * 3-point lighting, tone mapping, and edge visibility.
-   *
-   * @internal
-   */
-  enterStudioMode = async (): Promise<void> => {
-    if (!this._rendered) return;
-    this._isStudioActive = true;
+  /** Enter Studio mode. Called by display.ts switchToTab(). @internal */
+  enterStudioMode = () => this._studioManager.enterStudioMode();
 
-    try {
-      // 1. Save and disable clipping
-      this._savedClippingState = this.clipping.saveState();
-      this.renderer.localClippingEnabled = false;
-      this.clipping.setVisible(false);
-      if (this.clipping.planeHelpers) {
-        this.clipping.planeHelpers.visible = false;
-      }
+  /** Leave Studio mode. Called by display.ts switchToTab(). @internal */
+  leaveStudioMode = () => this._studioManager.leaveStudioMode();
 
-      // 2. Build/swap studio materials (async due to textures).
-      //    NestedGroup owns this.materialFactory, so no need to pass it.
-      await this.nestedGroup.enterStudioMode(this.state.get("studioTextureMapping"));
-
-      // Guard: user may have left studio during async material build
-      if (!this._isStudioActive) return;
-
-      // 3. Load environment map
-      const envName = this.state.get("studioEnvironment");
-      await this.envManager.loadEnvironment(envName, this.renderer);
-      if (!this._isStudioActive) return;
-
-      // 4. Apply ALL rendering changes atomically
-      this.envManager.apply(
-        this.rendered.scene,
-        this.state.get("studioEnvIntensity"),
-        this.state.get("studioBackground"),
-        this.state.get("up") === "Z",
-        this.rendered.camera.ortho,
-        this.state.get("studioEnvRotation"),
-      );
-
-      // Lighting: disable CAD lights; environment IBL provides all illumination
-      // (matching the Three.js car paint reference — pure IBL, no explicit lights).
-      this.rendered.ambientLight.intensity = 0;
-      this.rendered.directLight.intensity = 0;
-
-      // Floor — shadow plane only (no grid in Studio mode, like KeyShot/Fusion 360)
-      this._configureStudioFloor();
-
-      // Create composer (replaces direct renderer.render in Studio mode).
-      // The composer sets renderer.toneMapping = NoToneMapping and handles
-      // tone mapping via its own ToneMappingEffect.
-      // Must be created BEFORE shadows so _configureStudioShadowLights()
-      // can wire the shadow mask pipeline on the composer.
-      if (!this._studioComposer) {
-        this._studioComposer = new StudioComposer(
-          this.renderer,
-          this.rendered.scene,
-          this.rendered.camera.getCamera(),
-          this.state.get("cadWidth"),
-          this.state.get("height"),
-        );
-      }
-
-      // Shadows (requires composer to be created first)
-      if (this.state.get("studioShadowIntensity") > 0) {
-        this._setStudioShadowsEnabled(true);
-      }
-
-      // Sync tone mapping mode and exposure to the composer
-      this._studioComposer.setToneMapping(
-        this.state.get("studioToneMapping"),
-        this.state.get("studioExposure"),
-      );
-
-      // Background protection: exclude solid colors from tone mapping
-      const bg = this.rendered.scene.background;
-      this._studioComposer.setBackgroundProtect(
-        bg instanceof THREE.Color ? bg : null,
-      );
-
-      // Ambient Occlusion
-      const aoIntensity = this.state.get("studioAOIntensity");
-      this._studioComposer.setAOIntensity(aoIntensity);
-      this._studioComposer.setAOEnabled(aoIntensity > 0);
-
-      // Edges are always hidden in Studio mode
-      this.nestedGroup.setStudioShowEdges(false);
-
-      this.update(true, false);
-    } catch (err) {
-      // Clean up composer on error to avoid GPU resource leaks
-      if (this._studioComposer) {
-        this._studioComposer.dispose();
-        this._studioComposer = null;
-      }
-      // Clear active flag so subscription callbacks don't think Studio is active
-      this._isStudioActive = false;
-      logger.error("Unexpected error entering studio mode", err);
-    }
-  };
-
-  /**
-   * Leave Studio mode: restore CAD materials, lighting, tone mapping, clipping.
-   *
-   * Called by display.ts switchToTab() when switching AWAY from the Studio tab.
-   * Does not dispose cached materials or environment (allows fast re-entry).
-   *
-   * @internal
-   */
-  leaveStudioMode = (): void => {
-    if (!this._rendered) return;
-
-    // 1. Restore materials
-    this.nestedGroup.leaveStudioMode();
-
-    // 2. Tear down composer (restores direct renderer.render path)
-    if (this._studioComposer) {
-      this._studioComposer.dispose();
-      this._studioComposer = null;
-    }
-
-    // 3. Remove environment, disable shadows
-    this.envManager.remove(this.rendered.scene);
-    this._setStudioShadowsEnabled(false);
-
-    // 4. Restore lighting
-    this.rendered.ambientLight.intensity = scaleLight(this.state.get("ambientIntensity"));
-    this.rendered.directLight.intensity = scaleLight(this.state.get("directIntensity"));
-
-    // 5. Disable tone mapping
-    this.renderer.toneMapping = THREE.NoToneMapping;
-    this.renderer.toneMappingExposure = 1.0;
-
-    // 6. Restore clipping state.
-    //    Note: renderer.localClippingEnabled is NOT restored here. It is
-    //    restored by the caller's tab-switch flow (_updateVisibility ->
-    //    setLocalClipping), which runs after leaveStudioMode returns.
-    if (this._savedClippingState) {
-      this.clipping.restoreState(this._savedClippingState);
-      this._savedClippingState = null;
-    }
-
-    // 7. Edges restored by ObjectGroup.leaveStudioMode()
-
-    // 8. Clear active flag
-    this._isStudioActive = false;
-
-    this.update(true, false);
-  };
-
-  /**
-   * Configure the studio floor based on the current bounding box.
-   * Call when entering studio mode or when the bounding box changes.
-   * @internal
-   */
-  private _configureStudioFloor(): void {
-    if (!this.bbox) return;
-    const maxExtent = Math.max(
-      this.bbox.max.x - this.bbox.min.x,
-      this.bbox.max.y - this.bbox.min.y,
-      this.bbox.max.z - this.bbox.min.z,
-    );
-    // Position floor slightly below the bottom to avoid z-fighting
-    const zPosition = this.bbox.min.z - maxExtent * 0.001;
-    this._studioFloor.configure(zPosition, maxExtent);
-  }
-
-  /**
-   * Create shadow-casting DirectionalLights from HDR light detection results.
-   *
-   * Positions lights relative to the scene bounding box. Each light's
-   * shadow camera frustum is fitted to the scene extents.
-   *
-   * @internal
-   */
-  private _configureStudioShadowLights(): void {
-    // Remove any existing shadow lights first
-    this._removeStudioShadowLights();
-
-    if (!this.bbox || !this._rendered) return;
-
-    const envName = this.state.get("studioEnvironment");
-    const detection = this.envManager.getLightDetection(envName);
-    if (!detection || detection.lights.length === 0) return;
-
-    const bboxCenter = new THREE.Vector3(
-      (this.bbox.min.x + this.bbox.max.x) / 2,
-      (this.bbox.min.y + this.bbox.max.y) / 2,
-      (this.bbox.min.z + this.bbox.max.z) / 2,
-    );
-    const maxExtent = Math.max(
-      this.bbox.max.x - this.bbox.min.x,
-      this.bbox.max.y - this.bbox.min.y,
-      this.bbox.max.z - this.bbox.min.z,
-    );
-
-    const isZUp = this.state.get("up") === "Z";
-    const envRotationDeg = this.state.get("studioEnvRotation");
-    const envRotationRad = (envRotationDeg * Math.PI) / 180;
-
-    // Enable shadow mapping with PCFShadowMap (4-tap PCF eliminates stairstepping
-    // on the floor while still giving clean edges for the screen-space blur pipeline)
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFShadowMap;
-
-    for (const detected of detection.lights) {
-      let [dx, dy, dz] = detected.direction;
-
-      // environmentRotation = Euler(PI/2, 0, rotY, 'XYZ')
-      // Extrinsic matrix: M = Rz(rotY) * Rx(PI/2)
-      // Env dir → scene dir: d_scene = Rz(rotY) * Rx(PI/2) * d_env
-      //
-      // Step 1: Rx(PI/2) — Y-up env coords → Z-up scene coords
-      // Step 2: Rz(rotY) — user env rotation in Z-up scene space
-      if (isZUp) {
-        // Rx(PI/2): x' = x, y' = -z, z' = y
-        const oy = dy;
-        const oz = dz;
-        dy = -oz;
-        dz = oy;
-      }
-
-      if (envRotationRad !== 0) {
-        if (isZUp) {
-          // Rz(rotY) in Z-up scene space (horizontal rotation)
-          const cosR = Math.cos(envRotationRad);
-          const sinR = Math.sin(envRotationRad);
-          const nx = dx * cosR - dy * sinR;
-          const ny = dx * sinR + dy * cosR;
-          dx = nx;
-          dy = ny;
-        } else {
-          // Ry(rotY) in Y-up scene space
-          const cosR = Math.cos(envRotationRad);
-          const sinR = Math.sin(envRotationRad);
-          const nx = dx * cosR + dz * sinR;
-          const nz = -dx * sinR + dz * cosR;
-          dx = nx;
-          dz = nz;
-        }
-      }
-
-      const dir = new THREE.Vector3(dx, dy, dz).normalize();
-
-      // Near-zero intensity: shadow map generation only, no visible illumination.
-      // Floor ShadowMaterial reads the shadow map directly (independent of
-      // light intensity). N8AO handles object contact shadows.
-      const light = new THREE.DirectionalLight(0xffffff, 0.01);
-
-      // Position light along the detected direction, far from the scene
-      light.position.copy(bboxCenter).addScaledVector(dir, maxExtent * 3);
-      light.target.position.copy(bboxCenter);
-
-      // Shadow camera frustum covers both casters (objects) and the floor
-      // where shadows land. Floor extends 4× maxExtent; at oblique light
-      // angles shadows project far, so the frustum must be generous.
-      light.castShadow = true;
-      const frustumSize = maxExtent * 4.0;
-      light.shadow.camera.left = -frustumSize;
-      light.shadow.camera.right = frustumSize;
-      light.shadow.camera.top = frustumSize;
-      light.shadow.camera.bottom = -frustumSize;
-      light.shadow.camera.near = maxExtent * 0.1;
-      light.shadow.camera.far = maxExtent * 7;
-      light.shadow.mapSize.set(4096, 4096);
-
-      // PCFShadowMap bias — small negative value prevents shadow acne
-      light.shadow.bias = -0.001;
-
-      // Shadow intensity controls darkness via Three.js's built-in mechanism.
-      light.shadow.intensity = this.state.get("studioShadowIntensity");
-
-      this.rendered.scene.add(light);
-      this.rendered.scene.add(light.target);
-      this._studioShadowLights.push(light);
-    }
-
-    // Wire up the screen-space shadow mask pipeline on the composer
-    if (this._studioComposer) {
-      this._studioComposer.setShadowMaskEnabled(true);
-      this._studioComposer.setShadowSoftness(this.state.get("studioShadowSoftness"));
-      this._studioComposer.setShadowMaskIntensity(this.state.get("studioShadowIntensity") * 0.75);
-    }
-  }
-
-  /**
-   * Remove all studio shadow lights from the scene and dispose their resources.
-   * @internal
-   */
-  private _removeStudioShadowLights(): void {
-    for (const light of this._studioShadowLights) {
-      if (this._rendered) {
-        this.rendered.scene.remove(light);
-        this.rendered.scene.remove(light.target);
-      }
-      light.shadow.map?.dispose();
-      light.dispose();
-    }
-    this._studioShadowLights = [];
-
-    // Disable the screen-space shadow mask pipeline
-    if (this._studioComposer) {
-      this._studioComposer.setShadowMaskEnabled(false);
-    }
-  }
-
-  /**
-   * Enable or disable shadow rendering in Studio mode.
-   *
-   * When enabling: sets up shadow map on renderer, creates shadow lights,
-   * enables castShadow on shape meshes, and shows the floor shadow plane.
-   *
-   * When disabling: removes shadow lights, disables castShadow on meshes,
-   * disables shadow map, and hides the floor shadow plane.
-   *
-   * @param enabled - Whether to enable shadows
-   * @internal
-   */
-  private _setStudioShadowsEnabled(enabled: boolean): void {
-    if (!this._rendered) return;
-
-    if (enabled) {
-      this._configureStudioShadowLights();
-
-      // Objects cast shadows; receiveShadow is toggled per-frame in the
-      // shadow mask pass (studio-composer), not permanently set here.
-      this.nestedGroup.rootGroup?.traverse((obj) => {
-        if (obj instanceof THREE.Mesh) {
-          obj.castShadow = true;
-        }
-      });
-
-      this._studioFloor.setShadowsEnabled(true);
-
-      // Force shader recompilation: programs compiled without shadow support
-      // won't include shadow sampling code until materials are invalidated.
-      this.rendered.scene.traverse((obj) => {
-        if (obj instanceof THREE.Mesh && obj.material) {
-          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-          for (const m of mats) {
-            m.needsUpdate = true;
-          }
-        }
-      });
-    } else {
-      this._removeStudioShadowLights();
-
-      // Disable shadow map on renderer (saves GPU work)
-      this.renderer.shadowMap.enabled = false;
-
-      // Disable castShadow on all shape meshes
-      this.nestedGroup.rootGroup?.traverse((obj) => {
-        if (obj instanceof THREE.Mesh) {
-          obj.castShadow = false;
-        }
-      });
-
-      this._studioFloor.setShadowsEnabled(false);
-    }
-  }
-
-  /**
-   * Apply current studio tone mapping settings via the composer.
-   * The composer owns tone mapping — renderer.toneMapping stays NoToneMapping.
-   * @internal
-   */
-  private _applyStudioToneMapping(): void {
-    if (this._studioComposer) {
-      this._studioComposer.setToneMapping(
-        this.state.get("studioToneMapping"),
-        this.state.get("studioExposure"),
-      );
-    }
-  }
-
-  /**
-   * Resets the studio settings of the viewer to their default values.
-   * Resets environment, intensity, background, tone mapping, exposure, and edges
-   * based on the studio mode defaults from ViewerState.
-   * @public
-   */
-  resetStudio = (): void => {
-    const defaults = ViewerState.STUDIO_MODE_DEFAULTS;
-    this.state.set("studioEnvironment", defaults.studioEnvironment);
-    this.state.set("studioEnvIntensity", defaults.studioEnvIntensity);
-    this.state.set("studioBackground", defaults.studioBackground);
-    this.state.set("studioToneMapping", defaults.studioToneMapping);
-    this.state.set("studioExposure", defaults.studioExposure);
-    this.state.set("studio4kEnvMaps", defaults.studio4kEnvMaps);
-    this.state.set("studioTextureMapping", defaults.studioTextureMapping);
-    this.state.set("studioEnvRotation", defaults.studioEnvRotation);
-    this.state.set("studioShadowIntensity", defaults.studioShadowIntensity);
-    this.state.set("studioShadowSoftness", defaults.studioShadowSoftness);
-    this.state.set("studioAOIntensity", defaults.studioAOIntensity);
-  };
+  /** Reset Studio settings to defaults. @public */
+  resetStudio = () => this._studioManager.resetStudio();
 
   // ---------------------------------------------------------------------------
   // Camera State Getters & Setters
@@ -4962,11 +4370,11 @@ class Viewer {
           this.state.get("cadWidth"),
           this.state.get("height"),
         );
-        if (this.envManager.isEnvBackgroundActive) {
-          this.envManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
+        if (this._studioManager.isEnvBackgroundActive) {
+          this._studioManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
         }
-        if (this._studioComposer) {
-          this._studioComposer.render();
+        if (this._studioManager.hasComposer) {
+          this._studioManager.render();
         } else {
           this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
         }
@@ -5214,9 +4622,7 @@ class Viewer {
     this.controls.handleResize();
 
     // Resize the post-processing composer (render targets must match viewport)
-    if (this._studioComposer) {
-      this._studioComposer.setSize(cadWidth, height);
-    }
+    this._studioManager.setSize(cadWidth, height);
 
     // update the this
     this.update(true);
