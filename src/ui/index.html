@@ -44,6 +44,7 @@
                     </span>
                 </div>
                 <div class="tcv_cad_tree_toggles tcv_toggles_studio" style="display: none;">
+                    <div class="tcv_studio_spinner"></div>
                     <span class="tcv_tooltip" data-tooltip="Edit material of selected object">
                         <input class='tcv_mat_editor_toggle tcv_btn tcv_small_btn' value="E" type="button" />
                     </span>
@@ -197,10 +198,6 @@
                         </div>
                     </div>
                     <div class="tcv_cad_studio_container">
-                        <div class="tcv_studio_loading" style="display: none;">
-                            Loading Studio mode...
-                        </div>
-
                         <!-- Group 1: Environment -->
                         <div class="tcv_studio_row">
                             <span class="tcv_label" title="HDR environment map for lighting and reflections">Environment</span>
@@ -226,7 +223,6 @@
                         <div class="tcv_studio_checks tcv_studio_4k_row">
                             <input class='tcv_studio_4k_env_maps tcv_check' type="checkbox" title="Download 4K environment maps (sharper reflections, slower)" />
                             <span class="tcv_label" title="Download 4K environment maps (sharper reflections, slower)">Use 4K maps</span>
-                            <span class="tcv_studio_4k_loading" style="display:none; margin-left:4px; font-size:0.85em; opacity:0.7;">Loading…</span>
                         </div>
                         <div class="tcv_studio_row">
                             <span class="tcv_label" title="Brightness of the environment lighting">Env Intensity</span>
@@ -251,13 +247,13 @@
                         <div class="tcv_studio_row">
                             <span class="tcv_label" title="Scene background style">Background</span>
                             <select class="tcv_studio_background tcv_studio_select">
-                                <option value="grey">Solid Grey</option>
-                                <option value="darkgrey">Solid Dark Grey</option>
-                                <option value="white">Solid White</option>
-                                <option value="gradient">Gradient Grey</option>
-                                <option value="gradient-dark">Gradient Dark Grey</option>
                                 <option value="environment">Environment</option>
                                 <option value="transparent">Transparent</option>
+                                <option value="gradient">Gradient Grey</option>
+                                <option value="gradient-dark">Gradient Dark Grey</option>
+                                <option value="white">Solid White</option>
+                                <option value="grey">Solid Grey</option>
+                                <option value="darkgrey">Solid Dark Grey</option>
                             </select>
                         </div>
                         <div class="tcv_studio_row">

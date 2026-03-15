@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { CleanRoomEnvironment } from "./room-environment.js";
 import { HDRLoader } from "three/examples/jsm/loaders/HDRLoader.js";
 import type { StudioEnvironment, StudioBackground } from "../core/types.js";
 import { gpuTracker } from "../utils/gpu-tracker.js";
@@ -744,7 +744,7 @@ class EnvironmentManager {
     }
 
     const pmremGenerator = this._ensurePmremGenerator(renderer);
-    const roomScene = new RoomEnvironment();
+    const roomScene = new CleanRoomEnvironment();
     const renderTarget = pmremGenerator.fromScene(roomScene, 0, 0.1, 100, {
       size: 1024,
     });

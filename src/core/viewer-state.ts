@@ -415,7 +415,7 @@ class ViewerState {
   static STUDIO_MODE_DEFAULTS: StudioModeDefaults = {
     studioEnvironment: "studio",
     studioEnvIntensity: 1.0,
-    studioBackground: "gradient-dark",
+    studioBackground: "environment",
     studioToneMapping: "neutral",
     studioExposure: 1.0,
     studio4kEnvMaps: false,

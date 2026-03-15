@@ -356,7 +356,7 @@ export interface StudioModeOptions {
   studioEnvironment?: string;
   /** Environment map intensity, 0-1 (default: 0.5) */
   studioEnvIntensity?: number;
-  /** Background mode (default: "gradient") */
+  /** Background mode (default: "environment") */
   studioBackground?: StudioBackground;
   /** Tone mapping algorithm (default: "neutral") */
   studioToneMapping?: StudioToneMapping;
@@ -616,31 +616,31 @@ export interface MaterialAppearance {
 }
 
 // =============================================================================
-// MaterialX Material (material-db format)
+// MaterialX Material (threejs-materials format)
 // =============================================================================
 
 /**
- * Material definition from material-db (Three.js MeshPhysicalMaterial-compatible).
+ * Material definition from threejs-materials (Three.js MeshPhysicalMaterial-compatible).
  *
- * This format is produced by the material-db Python library, which catalogs
+ * This format is produced by the threejs-materials Python library, which catalogs
  * PBR materials from ambientCG, GPUOpen, PolyHaven, and PhysicallyBased.
  * The `properties` dict uses simplified property names (e.g., "color", "roughness",
  * "normal") where each entry has an optional `value` (scalar or color array in
  * linear RGB) and/or `texture` (inline data URI).
  *
  * Detected by the presence of the `properties` key.
- * Extra keys from material-db (id, name, source, url, license) pass through
+ * Extra keys from threejs-materials (id, name, source, url, license) pass through
  * harmlessly and are not part of this interface.
  */
 export interface MaterialXMaterial {
-  /** Material properties from material-db. Each key maps to { value?, texture? } */
+  /** Material properties from threejs-materials. Each key maps to { value?, texture? } */
   properties: Record<string, { value?: unknown; texture?: string }>;
   /** Optional texture tiling [u, v], default [1, 1]. Applied to all textures. */
   textureRepeat?: [number, number];
 }
 
 /**
- * Type guard to check if a material entry is a material-db format dict.
+ * Type guard to check if a material entry is a threejs-materials format dict.
  * Detected by the presence of the `properties` key.
  */
 export function isMaterialXMaterial(m: unknown): m is MaterialXMaterial {
@@ -658,7 +658,7 @@ export function isMaterialXMaterial(m: unknown): m is MaterialXMaterial {
  * loaded on demand. At least one of `data`+`format` or `url` must be provided.
  * An empty TextureEntry is invalid and will be ignored at runtime.
  * Multiple builtin preset texture fields can reference the same key for
- * deduplication. materialx-db materials carry their own textures as inline data URIs.
+ * deduplication. threejs-materials carry their own textures as inline data URIs.
  */
 export interface TextureEntry {
   /** Base64-encoded image data (for embedded textures) */
@@ -684,7 +684,7 @@ export interface StudioOptions {
   environment?: StudioEnvironment;
   /** Environment map intensity, 0-1 (default: 0.5) */
   envIntensity?: number;
-  /** Background mode (default: "gradient") */
+  /** Background mode (default: "environment") */
   background?: StudioBackground;
   /** Tone mapping algorithm (default: "neutral") */
   toneMapping?: StudioToneMapping;
@@ -875,11 +875,11 @@ export interface Shapes {
   /** User-defined material library (root node).
    *  Values can be:
    *  - string: builtin preset reference (e.g., "builtin:car-paint")
-   *  - MaterialXMaterial: material-db format (detected by `properties` key)
+   *  - MaterialXMaterial: threejs-materials format (detected by `properties` key)
    */
   materials?: Record<string, string | MaterialXMaterial> | undefined;
   /** Shared texture table for builtin preset materials (root node).
-   *  materialx-db materials carry their own textures inline. */
+   *  threejs-materials carry their own textures inline. */
   textures?: Record<string, TextureEntry> | undefined;
   /** Studio mode rendering environment configuration (root node) */
   studioOptions?: StudioOptions | undefined;

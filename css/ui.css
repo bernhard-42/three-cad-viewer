@@ -969,13 +969,21 @@ input[type="button"] {
   font-style: italic;
 }
 
-.tcv_studio_loading {
-  padding: 12px 8px;
-  font-size: 13px;
-  color: var(--tcv-font-color);
-  opacity: 0.7;
-  font-style: italic;
-  text-align: center;
+.tcv_studio_spinner {
+  display: none;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--tcv-font-color);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: tcv_spin 0.7s linear infinite;
+  opacity: 0.6;
+  float: left;
+  margin-top: 5px;
+}
+
+@keyframes tcv_spin {
+  to { transform: rotate(360deg); }
 }
 
 .tcv_filter_menu {

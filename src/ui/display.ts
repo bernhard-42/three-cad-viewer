@@ -199,7 +199,8 @@ class Display {
   cadMaterial!: HTMLElement;
   cadZebra!: HTMLElement;
   cadStudio!: HTMLElement;
-  private _studioLoadingEl: HTMLElement | null = null;
+  private _spinnerEl: HTMLElement | null = null;
+  private _spinnerCount: number = 0;
   // Material editor state
   private _matEditorPath: string | null = null;
   private _matEditorClones: Map<string, { original: THREE.MeshPhysicalMaterial; clone: THREE.MeshPhysicalMaterial }> = new Map();
@@ -359,7 +360,7 @@ class Display {
     this.cadMaterial = this.getElement("tcv_cad_material_container");
     this.cadZebra = this.getElement("tcv_cad_zebra_container");
     this.cadStudio = this.getElement("tcv_cad_studio_container");
-    this._studioLoadingEl = this.getElement("tcv_studio_loading");
+    this._spinnerEl = this.container.querySelector(".tcv_studio_spinner") as HTMLElement | null;
     this.tabTree = this.getElement("tcv_tab_tree");
     this.tabClip = this.getElement("tcv_tab_clip");
     this.tabZebra = this.getElement("tcv_tab_zebra");
@@ -2046,9 +2047,9 @@ class Display {
       // Disable any active tool before entering Studio mode
       this._deactivateToolsForStudio();
 
-      this._showStudioLoading(true);
+      this._showSpinner();
       this.viewer.enterStudioMode().finally(() => {
-        this._showStudioLoading(false);
+        this._hideSpinner();
         this._reapplyMatEditorChanges();
         this.syncStudioSlidersFromState();
         this.viewer.update(true, false);
@@ -2082,22 +2083,18 @@ class Display {
     }
   }
 
-  /**
-   * Show or hide the Studio loading indicator and enable/disable Studio controls.
-   * While loading, the loading text is shown and all Studio controls are disabled.
-   * When loading completes, the loading text is hidden and controls are re-enabled.
-   */
-  private _showStudioLoading(show: boolean): void {
-    // Show/hide loading text
-    if (this._studioLoadingEl) {
-      this._studioLoadingEl.style.display = show ? "block" : "none";
-    }
+  /** Show the toolbar spinner (ref-counted for overlapping async ops). */
+  private _showSpinner(): void {
+    this._spinnerCount++;
+    if (this._spinnerEl) this._spinnerEl.style.display = "block";
+  }
 
-    // Disable/enable all interactive controls within the studio panel
-    const interactiveEls = this.cadStudio.querySelectorAll("select, input");
-    interactiveEls.forEach((el) => {
-      (el as HTMLSelectElement | HTMLInputElement).disabled = show;
-    });
+  /** Hide the toolbar spinner (only when all pending ops complete). */
+  private _hideSpinner(): void {
+    this._spinnerCount = Math.max(0, this._spinnerCount - 1);
+    if (this._spinnerCount === 0 && this._spinnerEl) {
+      this._spinnerEl.style.display = "none";
+    }
   }
 
   /**
@@ -2169,7 +2166,9 @@ class Display {
    */
   handleStudioEnvironment = (e: Event): void => {
     if (!(e.target instanceof HTMLSelectElement)) return;
+    this._showSpinner();
     this.state.set("studioEnvironment", e.target.value);
+    this.container.addEventListener("tcv-studio-ready", () => this._hideSpinner(), { once: true });
   };
 
   /**
@@ -2216,7 +2215,9 @@ class Display {
     if (!(e.target instanceof HTMLSelectElement)) return;
     const value = e.target.value;
     if (value === "triplanar" || value === "parametric") {
+      this._showSpinner();
       this.state.set("studioTextureMapping", value);
+      this.container.addEventListener("tcv-studio-ready", () => this._hideSpinner(), { once: true });
     }
   };
 
@@ -2247,20 +2248,9 @@ class Display {
    */
   handleStudio4kEnvMaps = (e: Event): void => {
     if (!(e.target instanceof HTMLInputElement)) return;
-    const use4k = e.target.checked;
-    const loadingEl = this.container.querySelector(".tcv_studio_4k_loading") as HTMLElement | null;
-    if (loadingEl) loadingEl.style.display = "inline";
-    this.state.set("studio4kEnvMaps", use4k);
-
-    // The state subscriber in viewer.ts triggers the async reload via
-    // envManager.setUse4kEnvMaps(). Listen for the viewer to signal
-    // completion by dispatching a custom event on the container.
-    const hideLoading = () => {
-      if (loadingEl) loadingEl.style.display = "none";
-    };
-    this.container.addEventListener("tcv-env-loaded", hideLoading, { once: true });
-    // Safety timeout: hide after 30s regardless
-    setTimeout(hideLoading, 30000);
+    this._showSpinner();
+    this.state.set("studio4kEnvMaps", e.target.checked);
+    this.container.addEventListener("tcv-studio-ready", () => this._hideSpinner(), { once: true });
   };
 
   /**

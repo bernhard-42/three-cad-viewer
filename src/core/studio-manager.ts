@@ -337,8 +337,10 @@ class StudioManager {
           this._configureShadowLights();
         }
         this._ctx.update(true, false);
+        this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
       }).catch((err) => {
         logger.error("Unexpected error loading studio environment", err);
+        this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
       });
     });
 
@@ -434,13 +436,15 @@ class StudioManager {
           this._configureShadowLights();
         }
         this._ctx.update(true, false);
-        this._ctx.dispatchEvent(new Event("tcv-env-loaded"));
+        this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
       });
     });
 
     state.subscribe("studioTextureMapping", () => {
       if (!isActive()) return;
-      this._rebuildMaterials();
+      this._rebuildMaterials().finally(() => {
+        this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
+      });
     });
   }
 
