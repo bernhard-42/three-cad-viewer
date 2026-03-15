@@ -3,7 +3,6 @@ var dirbox = {
   materials: {
     "wood": "builtin:wood-dark",
   },
-  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       id: "/Group/Solid",

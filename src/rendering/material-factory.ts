@@ -5,12 +5,12 @@ import { gpuTracker } from "../utils/gpu-tracker.js";
 import { logger } from "../utils/logger.js";
 import { getColorSpaceForMap } from "./texture-cache.js";
 
-/** material-db property keys that hold [r,g,b] color arrays (linear RGB). */
+/** threejs-materials property keys that hold [r,g,b] color arrays (linear RGB). */
 const COLOR_ARRAY_KEYS = new Set([
   "color", "specularColor", "sheenColor", "emissive", "attenuationColor",
 ]);
 
-/** Map from material-db property names to Three.js texture map property names. */
+/** Map from threejs-materials property names to Three.js texture map property names. */
 const PROPERTY_TO_MAP: Record<string, string> = {
   color: "map",
   metalness: "metalnessMap",
@@ -492,13 +492,13 @@ class MaterialFactory {
   }
 
   /**
-   * Create a Studio mode material from a material-db format entry.
+   * Create a Studio mode material from a threejs-materials format entry.
    *
-   * material-db `properties` uses simplified property names (e.g., "color",
+   * threejs-materials `properties` uses simplified property names (e.g., "color",
    * "roughness", "normal") where each entry has an optional `value` (scalar or
    * [r,g,b] array in **linear RGB**) and/or `texture` (inline data URI).
    *
-   * @param properties - Material properties from material-db
+   * @param properties - Material properties from threejs-materials
    * @param textureRepeat - Optional [u, v] texture tiling applied to all loaded textures
    * @param textureCache - TextureCache for resolving data URI textures
    * @param label - Optional label for GPU tracking
@@ -616,7 +616,7 @@ class MaterialFactory {
       material.needsUpdate = true;
     }
 
-    gpuTracker.track("material", material, label ?? "MeshPhysicalMaterial (material-db)");
+    gpuTracker.track("material", material, label ?? "MeshPhysicalMaterial (threejs-materials)");
     return material;
   }
 

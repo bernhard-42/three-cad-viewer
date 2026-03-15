@@ -39,7 +39,6 @@ var profile4040 = {
       textureRepeat: [1, 1],
     },
   },
-  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       id: "/Group/profile 40x40",

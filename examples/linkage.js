@@ -3,7 +3,6 @@ var linkage = {
   materials: {
     "link": { metallic: 0, roughness: 0.6 },
   },
-  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       version: 3,

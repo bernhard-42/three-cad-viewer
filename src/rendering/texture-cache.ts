@@ -42,7 +42,7 @@ const SRGB_TEXTURE_ROLES = new Set([
 /**
  * Three.js MeshPhysicalMaterial map property names that carry sRGB color data.
  *
- * Used by materialx-db integration where texture params use Three.js property
+ * Used by threejs-materials integration where texture params use Three.js property
  * names directly (e.g., "map", "emissiveMap") instead of MaterialAppearance
  * role names (e.g., "baseColorTexture", "emissiveTexture").
  */

@@ -7,7 +7,6 @@ var assembly = {
     "gold": { preset: "gold" },
     "light-wood": { preset: "wood-light", baseColorTexture: "builtin:wood-dark" },
   },
-  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       id: "/c1/box",

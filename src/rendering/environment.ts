@@ -746,7 +746,7 @@ class EnvironmentManager {
     const pmremGenerator = this._ensurePmremGenerator(renderer);
     const roomScene = new CleanRoomEnvironment();
     const renderTarget = pmremGenerator.fromScene(roomScene, 0, 0.1, 100, {
-      size: 1024,
+      size: 2048,
     });
 
     // Dispose the intermediate scene (not needed after PMREM generation)

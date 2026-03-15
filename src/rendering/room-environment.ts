@@ -48,9 +48,7 @@ class CleanRoomEnvironment extends Scene {
     const hx = 31.713 / 2, hy = 28.305 / 2, hz = 28.591 / 2;
     const floorY = cy - hy;       // ≈ -0.93
     const wallMinX = cx - hx;     // ≈ -16.61
-    const wallMaxX = cx + hx;     // ≈ 15.10
     const wallMinZ = cz - hz;     // ≈ -13.58
-    const wallMaxZ = cz + hz;     // ≈ 15.01
     const R = 6;
 
     // Single infinity cove on the -z wall (faces default camera after 45° rotation).

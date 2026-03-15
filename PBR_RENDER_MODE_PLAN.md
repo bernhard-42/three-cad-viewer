@@ -1,5 +1,12 @@
 # Plan: Per-Object PBR Materials & Studio Mode
 
+> **Post-implementation note (2026-03-15):** `studioOptions` has been moved from
+> shape data (`Shapes.studioOptions`) to viewer-level configuration (`ViewerOptions`).
+> Studio settings (environment, background, shadows, AO, tone mapping) describe the
+> physical studio, not the objects, and belong alongside other viewer options. References
+> to `studioOptions` on shapes throughout this design doc reflect the original plan;
+> the implementation uses `studioEnvironment`, `studioBackground`, etc. in `viewerOptions`.
+
 **Branch**: `studio` (all implementation work happens here, merged to `master` when complete)
 
 ## Vision

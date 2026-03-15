@@ -13,12 +13,12 @@ function makeSphere(cx, cy, cz, radius, latDiv, lonDiv) {
 
   // Generate vertices row by row (north pole to south pole)
   for (var i = 0; i <= latDiv; i++) {
-    var theta = Math.PI * i / latDiv;
+    var theta = (Math.PI * i) / latDiv;
     var st = Math.sin(theta);
     var ct = Math.cos(theta);
 
     for (var j = 0; j <= lonDiv; j++) {
-      var phi = 2 * Math.PI * j / lonDiv;
+      var phi = (2 * Math.PI * j) / lonDiv;
       var cp = Math.cos(phi);
       var sp = Math.sin(phi);
 
@@ -66,8 +66,12 @@ function makeSphere(cx, cy, cz, radius, latDiv, lonDiv) {
     var idx1 = eqRow * (lonDiv + 1) + j;
     var idx2 = idx1 + 1;
     edges.push(
-      vertices[idx1 * 3], vertices[idx1 * 3 + 1], vertices[idx1 * 3 + 2],
-      vertices[idx2 * 3], vertices[idx2 * 3 + 1], vertices[idx2 * 3 + 2]
+      vertices[idx1 * 3],
+      vertices[idx1 * 3 + 1],
+      vertices[idx1 * 3 + 2],
+      vertices[idx2 * 3],
+      vertices[idx2 * 3 + 1],
+      vertices[idx2 * 3 + 2],
     );
     segments_per_edge.push(1);
     edge_types.push(0);
@@ -78,8 +82,12 @@ function makeSphere(cx, cy, cz, radius, latDiv, lonDiv) {
     var idx1 = i * (lonDiv + 1);
     var idx2 = (i + 1) * (lonDiv + 1);
     edges.push(
-      vertices[idx1 * 3], vertices[idx1 * 3 + 1], vertices[idx1 * 3 + 2],
-      vertices[idx2 * 3], vertices[idx2 * 3 + 1], vertices[idx2 * 3 + 2]
+      vertices[idx1 * 3],
+      vertices[idx1 * 3 + 1],
+      vertices[idx1 * 3 + 2],
+      vertices[idx2 * 3],
+      vertices[idx2 * 3 + 1],
+      vertices[idx2 * 3 + 2],
     );
     segments_per_edge.push(1);
     edge_types.push(0);
@@ -106,8 +114,8 @@ var studio_mode = {
   // Studio mode: material library (tag -> builtin preset reference)
   // =========================================================================
   materials: {
-    "chrome": "builtin:chrome",
-    "glass": "builtin:glass-clear",
+    chrome: "builtin:chrome",
+    glass: "builtin:glass-clear",
     "brushed-aluminum": "builtin:brushed-aluminum",
     "rubber-black": "builtin:rubber-black",
     "car-paint-red": "builtin:car-paint",
@@ -116,11 +124,6 @@ var studio_mode = {
   textures: {},
 
   // Studio mode rendering hints
-  studioOptions: {
-    environment: { type: "built-in" },
-    toneMapping: "neutral",
-    showEdges: false,
-  },
 
   // =========================================================================
   // Parts — flat list of leaves under root
@@ -138,7 +141,10 @@ var studio_mode = {
       color: "#cccccc",
       alpha: 1.0,
       texture: null,
-      loc: [[0, 0, 0], [0, 0, 0, 1]],
+      loc: [
+        [0, 0, 0],
+        [0, 0, 0, 1],
+      ],
       renderback: false,
       accuracy: null,
       bb: null,
@@ -154,7 +160,10 @@ var studio_mode = {
       color: "#aaddff",
       alpha: 0.3,
       texture: null,
-      loc: [[0, 0, 0], [0, 0, 0, 1]],
+      loc: [
+        [0, 0, 0],
+        [0, 0, 0, 1],
+      ],
       renderback: false,
       accuracy: null,
       bb: null,
@@ -170,7 +179,10 @@ var studio_mode = {
       color: "#888888",
       alpha: 1.0,
       texture: null,
-      loc: [[0, 0, 0], [0, 0, 0, 1]],
+      loc: [
+        [0, 0, 0],
+        [0, 0, 0, 1],
+      ],
       renderback: false,
       accuracy: null,
       bb: null,
@@ -186,7 +198,10 @@ var studio_mode = {
       color: "#333333",
       alpha: 1.0,
       texture: null,
-      loc: [[0, 0, 0], [0, 0, 0, 1]],
+      loc: [
+        [0, 0, 0],
+        [0, 0, 0, 1],
+      ],
       renderback: false,
       accuracy: null,
       bb: null,
@@ -202,14 +217,20 @@ var studio_mode = {
       color: "#cc0000",
       alpha: 1.0,
       texture: null,
-      loc: [[0, 0, 0], [0, 0, 0, 1]],
+      loc: [
+        [0, 0, 0],
+        [0, 0, 0, 1],
+      ],
       renderback: false,
       accuracy: null,
       bb: null,
       material: "car-paint-red",
     },
   ],
-  loc: [[0, 0, 0], [0, 0, 0, 1]],
+  loc: [
+    [0, 0, 0],
+    [0, 0, 0, 1],
+  ],
   name: "Studio",
   id: "/Studio",
   normal_len: 0,

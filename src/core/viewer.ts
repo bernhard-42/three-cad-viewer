@@ -1438,6 +1438,14 @@ class Viewer {
     this.renderOptions = renderOptions;
     this.setViewerDefaults(viewerOptions);
 
+    // Backward compat: studioOptions on shapes root is deprecated
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((shapes as any).studioOptions) {
+      logger.warn("shapes.studioOptions is deprecated — pass studio settings in viewerOptions instead");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.state.updateStudioState((shapes as any).studioOptions);
+    }
+
     this.animation.cleanBackup();
 
     const timer = new Timer("viewer", this.state.get("timeit"));

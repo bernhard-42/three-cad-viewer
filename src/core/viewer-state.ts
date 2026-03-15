@@ -19,6 +19,7 @@ import {
   type SubscribeOptions,
   type RenderOptions,
   type ViewerOptions,
+  type StudioOptions,
 } from "./types";
 import { logger } from "../utils/logger.js";
 
@@ -579,6 +580,26 @@ class ViewerState {
     }
 
     this._update(converted, notify);
+  }
+
+  /**
+   * Update studio state from StudioOptions (shapes.studioOptions).
+   * Maps short field names to prefixed state keys.
+   */
+  updateStudioState(options: StudioOptions): void {
+    const map: Partial<StateShape> = {};
+    if (options.environment !== undefined) map.studioEnvironment = options.environment;
+    if (options.envIntensity !== undefined) map.studioEnvIntensity = options.envIntensity;
+    if (options.background !== undefined) map.studioBackground = options.background;
+    if (options.toneMapping !== undefined) map.studioToneMapping = options.toneMapping;
+    if (options.toneMappingExposure !== undefined) map.studioExposure = options.toneMappingExposure;
+    if (options.use4kEnvMaps !== undefined) map.studio4kEnvMaps = options.use4kEnvMaps;
+    if (options.textureMapping !== undefined) map.studioTextureMapping = options.textureMapping;
+    if (options.envRotation !== undefined) map.studioEnvRotation = options.envRotation;
+    if (options.shadowIntensity !== undefined) map.studioShadowIntensity = options.shadowIntensity;
+    if (options.shadowSoftness !== undefined) map.studioShadowSoftness = options.shadowSoftness;
+    if (options.aoIntensity !== undefined) map.studioAOIntensity = options.aoIntensity;
+    this._update(map, false);
   }
 
   /**

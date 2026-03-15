@@ -3,7 +3,6 @@ var orient_box = {
   materials: {
     "orange-glass": { preset: "glass-tinted", baseColor: [1.0, 0.5, 0.0, 1] },
   },
-  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       id: "/Group/Solid",

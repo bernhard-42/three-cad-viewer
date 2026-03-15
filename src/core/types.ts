@@ -272,8 +272,8 @@ export interface RenderOptions {
   normalLen?: number;
 }
 
-/** Viewer options */
-export interface ViewerOptions {
+/** Viewer options (includes studio mode configuration) */
+export interface ViewerOptions extends StudioModeOptions {
   /** Use OrbitControls or TrackballControls (default: "orbit") */
   control?: ControlType;
   /** Show X-, Y-, Z-axes (default: false) */
@@ -881,8 +881,6 @@ export interface Shapes {
   /** Shared texture table for builtin preset materials (root node).
    *  threejs-materials carry their own textures inline. */
   textures?: Record<string, TextureEntry> | undefined;
-  /** Studio mode rendering environment configuration (root node) */
-  studioOptions?: StudioOptions | undefined;
 }
 
 // =============================================================================

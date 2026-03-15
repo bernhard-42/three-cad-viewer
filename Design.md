@@ -792,6 +792,22 @@ These tools have their own state management via `activeTool` and specialized sub
 (zebraCount, zebraOpacity, zebraDirection, zebraColorScheme, zebraMappingMode);
 ```
 
+#### STUDIO_MODE_DEFAULTS (studio environment)
+
+```javascript
+(studioEnvironment,      // "studio" (procedural, zero-network)
+  studioEnvIntensity,     // 1.0
+  studioBackground,       // "environment"
+  studioToneMapping,      // "neutral" (PBR Neutral)
+  studioExposure,         // 1.0
+  studio4kEnvMaps,        // false
+  studioTextureMapping,   // "triplanar"
+  studioEnvRotation,      // 0
+  studioShadowIntensity,  // 0.5
+  studioShadowSoftness,   // 0.2
+  studioAOIntensity);     // 0.5
+```
+
 #### RUNTIME_DEFAULTS (current session state)
 
 ```javascript
@@ -861,7 +877,8 @@ src/
 ├── index.ts                 # Public exports (classes and types)
 │
 ├── core/                    # Application foundation
-│   ├── viewer.ts            # Main Viewer class
+│   ├── viewer.ts            # Main Viewer class (public API, rendering, camera)
+│   ├── studio-manager.ts    # Studio mode orchestration (env, shadows, floor, subscriptions)
 │   ├── viewer-state.ts      # ViewerState (centralized state)
 │   ├── types.ts             # Shared type definitions
 │   ├── patches.ts           # Three.js patches
@@ -885,6 +902,7 @@ src/
 │   ├── studio-composer.ts   # Postprocessing pipeline (tone mapping, shadows, AO, SMAA)
 │   ├── studio-floor.ts      # ShadowMaterial ground plane for Studio mode
 │   ├── environment.ts       # HDR environment map loading and background modes
+│   ├── room-environment.ts  # Clean procedural studio (RoomEnvironment without boxes, with cove)
 │   └── light-detection.ts   # HDR analysis for directional shadow light placement
 │
 ├── camera/                  # Camera & interaction

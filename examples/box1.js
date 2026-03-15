@@ -3,7 +3,6 @@ var box1 = {
   materials: {
     acrylic: { preset: "acrylic-clear" },
   },
-  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       id: "/Group/Workplane(Solid)",

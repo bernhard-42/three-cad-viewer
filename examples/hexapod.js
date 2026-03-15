@@ -3,7 +3,6 @@ var hexapod = {
   materials: {
     "body": { metallic: 0, roughness: 0.15 },
   },
-  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       id: "/hexapod/bottom",

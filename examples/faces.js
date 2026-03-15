@@ -3,7 +3,6 @@ var faces = {
   materials: {
     "brass": { preset: "brass" },
   },
-  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       id: "/Group/faces",

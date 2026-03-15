@@ -652,6 +652,422 @@ their geometry directly using encoded buffers -- the viewer decodes those inline
 
 ---
 
+## Configuration
+
+The viewer accepts configuration at three levels:
+
+1. **Display options** -- passed to `new Display(container, displayOptions)` for UI layout
+2. **Render/Viewer options** -- passed to `viewer.render(shapes, renderOptions, viewerOptions)` for rendering and camera
+3. **Data-level configuration** -- embedded in the `Shapes` object itself (materials, textures, studio settings)
+
+This section documents all three levels.
+
+### Display Options
+
+Passed as the second argument to `new Display(container, options)`. Controls UI layout and
+tool visibility.
+
+| Field              | Type                             | Default   | Description                                    |
+|--------------------|----------------------------------|-----------|------------------------------------------------|
+| `cadWidth`         | `number`                         | `800`     | Width of CAD canvas in pixels.                 |
+| `height`           | `number`                         | `600`     | Height of CAD canvas in pixels.                |
+| `treeWidth`        | `number`                         | `260`     | Width of tree navigation panel in pixels.      |
+| `treeHeight`       | `number`                         | `400`     | Height of tree navigation panel in pixels.     |
+| `theme`            | `"light" \| "dark" \| "browser"` | `"light"` | UI theme. `"browser"` follows system setting.  |
+| `pinning`          | `boolean`                        | `false`   | Enable pin-as-PNG button.                      |
+| `glass`            | `boolean`                        | `false`   | Enable glass mode (compact overlay UI).        |
+| `tools`            | `boolean`                        | `true`    | Show/hide all toolbar tools.                   |
+| `keymap`           | `Keymap`                         | See below | Custom keyboard shortcuts.                     |
+| `newTreeBehavior`  | `boolean`                        | `true`    | Use new tree navigation behavior.              |
+| `measureTools`     | `boolean`                        | `true`    | Show measurement tools in toolbar.             |
+| `selectTool`       | `boolean`                        | `true`    | Show select tool in toolbar.                   |
+| `explodeTool`      | `boolean`                        | `true`    | Show explode/animation tool in toolbar.        |
+| `zscaleTool`       | `boolean`                        | `false`   | Show z-scale tool in toolbar.                  |
+| `zebraTool`        | `boolean`                        | `true`    | Show zebra tool in toolbar.                    |
+| `studioTool`       | `boolean`                        | `true`    | Show Studio mode tool in toolbar.              |
+| `measurementDebug` | `boolean`                        | `false`   | Log measurement debug info to console.         |
+| `canvas`           | `HTMLCanvasElement`              | —         | External canvas for shared WebGL context.      |
+| `gl`               | `WebGLRenderingContext`          | —         | External WebGL context (use with `canvas`).    |
+
+### Render Options
+
+Passed as the second argument to `viewer.render(shapes, renderOptions, viewerOptions)`.
+Controls CAD mode material appearance and lighting.
+
+| Field              | Type     | Default    | Description                                     |
+|--------------------|----------|------------|-------------------------------------------------|
+| `edgeColor`        | `number` | `0x707070` | Default edge color (hex).                       |
+| `ambientIntensity` | `number` | `1.0`      | Ambient light intensity.                        |
+| `directIntensity`  | `number` | `1.1`      | Directional light intensity.                    |
+| `metalness`        | `number` | `0.3`      | Default metalness factor (0--1).                |
+| `roughness`        | `number` | `0.65`     | Default roughness factor (0--1).                |
+| `defaultOpacity`   | `number` | `0.5`      | Opacity level when transparency is enabled.     |
+| `normalLen`        | `number` | `0`        | Length of normal display vectors. `0` to hide.  |
+
+### Viewer Options
+
+Passed as the third argument to `viewer.render(shapes, renderOptions, viewerOptions)`.
+Controls camera, grid, clipping, and controls.
+
+| Field              | Type                                 | Default                 | Description                                       |
+|--------------------|--------------------------------------|-------------------------|---------------------------------------------------|
+| `control`          | `"orbit" \| "trackball"`             | `"orbit"`               | Camera control type.                              |
+| `axes`             | `boolean`                            | `false`                 | Show X/Y/Z axes.                                  |
+| `axes0`            | `boolean`                            | `false`                 | Show axes at origin instead of object center.     |
+| `grid`             | `[boolean, boolean, boolean]`        | `[false, false, false]` | Show grid planes [XY, XZ, YZ].                   |
+| `ortho`            | `boolean`                            | `true`                  | Use orthographic camera (`false` = perspective).  |
+| `transparent`      | `boolean`                            | `false`                 | Render object as transparent.                     |
+| `blackEdges`       | `boolean`                            | `false`                 | Render edges in black.                            |
+| `collapse`         | `number`                             | `0`                     | Tree collapse level (0=collapsed, 1=root, 2=all, -1=smart). |
+| `clipIntersection` | `boolean`                            | `false`                 | Use intersection clipping mode.                   |
+| `clipPlaneHelpers` | `boolean`                            | `false`                 | Show clipping plane helpers.                      |
+| `clipObjectColors` | `boolean`                            | `false`                 | Use object colors for clipping caps.              |
+| `clipNormal0`      | `[number, number, number]`           | `[-1, 0, 0]`           | Clipping plane 0 normal direction.                |
+| `clipNormal1`      | `[number, number, number]`           | `[0, -1, 0]`           | Clipping plane 1 normal direction.                |
+| `clipNormal2`      | `[number, number, number]`           | `[0, 0, -1]`           | Clipping plane 2 normal direction.                |
+| `clipSlider0`      | `number`                             | `-1`                    | Clipping plane 0 slider position.                 |
+| `clipSlider1`      | `number`                             | `-1`                    | Clipping plane 1 slider position.                 |
+| `clipSlider2`      | `number`                             | `-1`                    | Clipping plane 2 slider position.                 |
+| `holroyd`          | `boolean`                            | `true`                  | Holroyd non-tumbling rotation for trackball.      |
+| `up`               | `"Z" \| "Y" \| "legacy"`            | `"Z"`                   | World up direction.                               |
+| `ticks`            | `number`                             | `10`                    | Grid tick count hint.                             |
+| `gridFontSize`     | `number`                             | `10`                    | Font size for grid labels.                        |
+| `centerGrid`       | `boolean`                            | `false`                 | Center grid on object instead of origin.          |
+| `position`         | `[number, number, number] \| null`   | `null`                  | Camera position.                                  |
+| `quaternion`       | `[number, number, number, number] \| null` | `null`            | Camera rotation quaternion [x, y, z, w].          |
+| `target`           | `[number, number, number] \| null`   | `null`                  | Camera look-at target.                            |
+| `zoom`             | `number`                             | `1.0`                   | Camera zoom level.                                |
+| `panSpeed`         | `number`                             | `1.0`                   | Pan speed multiplier.                             |
+| `rotateSpeed`      | `number`                             | `1.0`                   | Rotation speed multiplier.                        |
+| `zoomSpeed`        | `number`                             | `1.0`                   | Zoom speed multiplier.                            |
+| `timeit`           | `boolean`                            | `false`                 | Log render timings to console.                    |
+| `zebraCount`       | `number`                                   | `9`             | Number of zebra stripes.                          |
+| `zebraOpacity`     | `number`                                   | `1.0`           | Zebra stripe opacity (0--1).                      |
+| `zebraDirection`   | `number`                                   | `0`             | Stripe direction (0--360 degrees).                |
+| `zebraColorScheme` | `"blackwhite" \| "colorful" \| "grayscale"` | `"blackwhite"` | Zebra color scheme.                               |
+| `zebraMappingMode` | `"reflection" \| "normal"`                 | `"reflection"`  | Zebra mapping mode.                               |
+| `studioEnvironment` | `string`                                  | `"studio"`      | Studio environment preset or custom HDR URL. See [Environment Presets](#environment-presets). |
+| `studioEnvIntensity` | `number`                                 | `1.0`           | Studio environment map intensity (0--3).          |
+| `studioBackground` | `StudioBackground`                          | `"environment"` | Studio background mode.                         |
+| `studioToneMapping` | `"neutral" \| "ACES" \| "none"`            | `"neutral"`     | Studio tone mapping algorithm.                    |
+| `studioExposure`   | `number`                                    | `1.0`           | Studio tone mapping exposure (0--2).              |
+| `studio4kEnvMaps`  | `boolean`                                   | `false`         | Use 4K environment maps.                          |
+| `studioTextureMapping` | `"triplanar" \| "parametric"`           | `"triplanar"`   | Studio texture mapping mode.                      |
+| `studioEnvRotation` | `number`                                   | `0`             | Studio environment rotation (0--360 degrees).     |
+| `studioShadowIntensity` | `number`                               | `0.5`           | Studio shadow intensity (0--1). `0` = off.        |
+| `studioShadowSoftness` | `number`                                | `0.2`           | Studio shadow softness (0--1).                    |
+| `studioAOIntensity` | `number`                                   | `0.5`           | Studio ambient occlusion intensity (0--3). `0` = off. |
+
+> **Conceptual split:** Viewer Options describe the _studio_ (lighting, backdrop, camera
+> processing) — things independent of the objects being viewed. Shape data describes the
+> _objects_ (geometry, hierarchy, color, material) — physical properties of the parts.
+
+#### Environment Presets
+
+The `studioEnvironment` field accepts these values:
+
+| Value | UI Label | Description |
+|-------|----------|-------------|
+| `"studio"` | Procedural Studio | Built-in procedural studio (no network required). |
+| `"studio_small_08"` | Soft Light | Soft light, neutral, backlight. |
+| `"studio_small_03"` | High Contrast Studio | High-contrast, softbox + ceiling lamp. |
+| `"white_studio_05"` | Bright Neutral | White, product, bright, neutral lighting. |
+| `"white_studio_03"` | Clean Softbox | White, softbox, reflection, clean. |
+| `"photo_studio_01"` | Spotlit Setup | Lighting setup, spotlights. |
+| `"studio_small_09"` | Controlled Light | Product lighting, controlled, soft reflections. |
+| `"cyclorama_hard_light"` | Hard Contrast Light | Cyclorama, hard light, contrast. |
+| `"canary_wharf"` | Urban Overcast | Urban, city, overcast. |
+| `"kiara_1_dawn"` | Outdoor Warm | Dawn, warm, nature, sunrise. |
+| `"empty_warehouse_01"` | Neutral Industrial | Warehouse, neutral, big space. |
+| `"san_giuseppe_bridge"` | San Giuseppe Bridge | Bridge, outdoor. |
+| `"none"` | — | No environment map. |
+| Custom URL | — | Any `.hdr` file URL (loaded via HDRLoader). |
+
+### Data-Level Configuration (Root Node)
+
+These fields are set on the **root `Shapes` node** alongside `parts`, `name`, etc.
+They configure which **materials** and **textures** are available for objects in Studio mode.
+
+> **Note:** Studio _environment_ settings (lighting, background, shadows, AO, tone mapping)
+> are **not** part of the shape data. They describe the physical studio, not the objects,
+> and are configured via [Viewer Options](#viewer-options) (`studioEnvironment`,
+> `studioBackground`, etc.).
+
+#### `materials` — Material Library
+
+A dictionary mapping material tag names to material definitions. Leaf nodes
+reference entries by name via their `material` field.
+
+```js
+materials: {
+  // Builtin preset: prefix with "builtin:"
+  "chrome":    "builtin:chrome",
+  "my-glass":  "builtin:glass-clear",
+
+  // Material-db format: full PBR definition with textures
+  "aluminum": {
+    properties: {
+      color:     { value: [1.0, 1.0, 1.0], texture: "data:image/png;base64,..." },
+      roughness: { value: 0.35,             texture: "data:image/png;base64,..." },
+      metallic:  { value: 1.0 },
+      normal:    {                           texture: "data:image/png;base64,..." },
+    },
+    textureRepeat: [0.25, 0.25],
+  },
+}
+```
+
+**Value types:**
+
+| Value Form | Description |
+|------------|-------------|
+| `"builtin:<preset>"` | References a built-in preset. See [Built-in Presets](#built-in-presets) below. |
+| `MaterialXMaterial` object | threejs-materials format (detected by presence of `properties` key). See [MaterialX Material](#materialx-material) below. |
+| `MaterialAppearance` object | Explicit PBR properties (no `properties` key). See [Material Appearance](#material-appearance) below. |
+
+##### Built-in Presets
+
+31 presets organized by category:
+
+| Category | Presets |
+|----------|---------|
+| Polished Metals | `chrome`, `polished-steel`, `polished-aluminum`, `gold`, `copper`, `brass` |
+| Matte/Brushed Metals | `stainless-steel`, `brushed-aluminum`, `cast-iron`, `titanium`, `galvanized` |
+| Plastics | `plastic-glossy`, `plastic-matte`, `abs-black`, `nylon` |
+| Glass & Transparent | `acrylic-clear`, `glass-clear`, `glass-tinted`, `glass-frosted` |
+| Rubber & Elastomers | `rubber-black`, `rubber-gray`, `rubber-red` |
+| Painted Surfaces | `paint-matte`, `paint-glossy`, `paint-metallic`, `car-paint` |
+| Natural & Other | `wood-light`, `wood-dark`, `ceramic-white`, `carbon-fiber`, `concrete` |
+
+#### `textures` — Shared Texture Table
+
+Optional dictionary of shared textures referenced by `MaterialAppearance` fields.
+Material-db materials carry their own textures inline as data URIs, so this table
+is mainly used for builtin preset textures.
+
+```js
+textures: {
+  "wood-basecolor": {
+    data: "<base64-encoded image>",
+    format: "png"
+  },
+  "hdri-preview": {
+    url: "https://example.com/texture.jpg"
+  },
+}
+```
+
+| Field    | Type     | Description                                        |
+|----------|----------|----------------------------------------------------|
+| `data`   | `string` | Base64-encoded image data (for embedded textures). |
+| `format` | `string` | Image format: `"png"`, `"jpg"`, `"webp"`, etc.    |
+| `url`    | `string` | URL to load the texture from.                      |
+
+At least one of (`data` + `format`) or `url` must be provided.
+
+### MaterialX Material
+
+The `MaterialXMaterial` format is produced by the **threejs-materials** Python library,
+which catalogs PBR materials from GPUOpen, ambientCG, PolyHaven, and PhysicallyBased.
+
+```js
+{
+  // Required: property dict
+  properties: {
+    color:     { value: [0.8, 0.2, 0.1] },              // linear RGB
+    roughness: { value: 0.4, texture: "data:image/..." }, // scalar + texture
+    metallic:  { value: 1.0 },
+    normal:    { texture: "data:image/png;base64,..." },  // texture only
+  },
+
+  // Optional: texture tiling
+  textureRepeat: [0.25, 0.25],
+}
+```
+
+Detected by the presence of the `properties` key. Extra keys from threejs-materials
+(`id`, `name`, `source`, `url`, `license`) pass through harmlessly.
+
+| Field           | Type                                                    | Default  | Description                                                      |
+|-----------------|---------------------------------------------------------|----------|------------------------------------------------------------------|
+| `properties`    | `Record<string, { value?: unknown; texture?: string }>` | required | Property dict. Keys are simplified names (`"color"`, `"roughness"`, `"normal"`, etc.). Each entry has optional `value` (scalar or linear RGB array) and/or `texture` (data URI). |
+| `textureRepeat` | `[number, number]`                                      | `[1, 1]` | Texture tiling factor `[u, v]`, applied to all textures.         |
+
+### Material Appearance
+
+An alternative material definition format using explicit PBR property names.
+Can be used in the `materials` dict instead of `MaterialXMaterial`.
+
+All fields are optional. Only provided fields override defaults. Texture string
+fields reference either a key in the root-level `textures` table, a data URI,
+or a URL resolved against the HTML page.
+
+#### Core Properties
+
+| Field                      | Type                           | Default | Description                                     |
+|----------------------------|--------------------------------|---------|-------------------------------------------------|
+| `name`                     | `string`                       | —       | Display name.                                   |
+| `preset`                   | `string`                       | —       | Built-in preset reference (e.g., `"stainless-steel"`). |
+| `baseColor`                | `[r, g, b, a]`                 | —       | sRGB RGBA base color (0--1).                    |
+| `baseColorTexture`         | `string`                       | —       | Base color texture reference.                   |
+| `metallic`                 | `number`                       | `0.0`   | Metallic factor (0--1).                         |
+| `roughness`                | `number`                       | `0.5`   | Roughness factor (0--1).                        |
+| `normalTexture`            | `string`                       | —       | Normal map texture reference.                   |
+| `occlusionTexture`         | `string`                       | —       | Ambient occlusion texture reference.            |
+| `metallicRoughnessTexture` | `string`                       | —       | Combined metallic-roughness texture reference.  |
+
+#### Emissive
+
+| Field              | Type        | Default | Description                   |
+|--------------------|-------------|---------|-------------------------------|
+| `emissive`         | `[r, g, b]` | —       | Emissive color (linear RGB). |
+| `emissiveTexture`  | `string`    | —       | Emissive map texture.        |
+| `emissiveStrength` | `number`    | `1.0`   | Emissive intensity.          |
+
+#### Transmission (glass, water)
+
+| Field                 | Type     | Default | Description                  |
+|-----------------------|----------|---------|------------------------------|
+| `transmission`        | `number` | —       | Transmission factor (0--1). |
+| `transmissionTexture` | `string` | —       | Transmission map texture.   |
+
+#### Clearcoat (car paint, varnish)
+
+| Field                        | Type     | Default | Description                       |
+|------------------------------|----------|---------|-----------------------------------|
+| `clearcoat`                  | `number` | —       | Clearcoat intensity (0--1).      |
+| `clearcoatRoughness`         | `number` | —       | Clearcoat roughness.             |
+| `clearcoatTexture`           | `string` | —       | Clearcoat intensity texture.     |
+| `clearcoatRoughnessTexture`  | `string` | —       | Clearcoat roughness texture.     |
+| `clearcoatNormalTexture`     | `string` | —       | Clearcoat normal map texture.    |
+
+#### Volume (subsurface: jade, wax, skin)
+
+| Field                | Type        | Default | Description                    |
+|----------------------|-------------|---------|--------------------------------|
+| `thickness`          | `number`    | —       | Thickness for volume effects. |
+| `thicknessTexture`   | `string`    | —       | Thickness map texture.        |
+| `attenuationDistance` | `number`   | —       | Attenuation distance.         |
+| `attenuationColor`   | `[r, g, b]` | —      | Attenuation color (linear RGB). |
+
+#### IOR, Specular, Sheen, Anisotropy
+
+| Field                      | Type        | Default | Description                               |
+|----------------------------|-------------|---------|-------------------------------------------|
+| `ior`                      | `number`    | `1.5`   | Index of refraction.                      |
+| `specularIntensity`        | `number`    | —       | Specular intensity (0--1).                |
+| `specularColor`            | `[r, g, b]` | —      | Specular tint color (linear RGB).         |
+| `specularIntensityTexture` | `string`    | —       | Specular intensity texture.               |
+| `specularColorTexture`     | `string`    | —       | Specular color texture.                   |
+| `sheen`                    | `number`    | —       | Sheen intensity (0--1).                   |
+| `sheenColor`               | `[r, g, b]` | —      | Sheen tint color (linear RGB).            |
+| `sheenRoughness`           | `number`    | —       | Sheen roughness.                          |
+| `sheenColorTexture`        | `string`    | —       | Sheen color texture.                      |
+| `sheenRoughnessTexture`    | `string`    | —       | Sheen roughness texture.                  |
+| `anisotropy`               | `number`    | —       | Anisotropy strength (0--1).               |
+| `anisotropyRotation`       | `number`    | —       | Anisotropy rotation (radians).            |
+| `anisotropyTexture`        | `string`    | —       | Anisotropy direction texture.             |
+
+#### Alpha & Misc
+
+| Field         | Type                              | Default | Description                           |
+|---------------|-----------------------------------|---------|---------------------------------------|
+| `alphaMode`   | `"OPAQUE" \| "MASK" \| "BLEND"`  | —       | Alpha blending mode.                  |
+| `alphaCutoff` | `number`                          | `0.5`   | Alpha cutoff for `MASK` mode.         |
+| `unlit`       | `boolean`                         | —       | Use unlit material (no shading).      |
+| `doubleSided` | `boolean`                         | —       | Render both sides of faces.           |
+
+### Studio Materials Example
+
+All three material formats in one model -- a builtin preset reference, a
+MaterialX material from threejs-materials, and an inline Material Appearance:
+
+```js
+{
+  version: 3,
+  name: "Lamp",
+  id: "/Lamp",
+  loc: [[0, 0, 0], [0, 0, 0, 1]],
+  bb: { xmin: -5, xmax: 5, ymin: -5, ymax: 5, zmin: 0, zmax: 12 },
+
+  materials: {
+    // 1. Builtin preset reference
+    "arm": "builtin:chrome",
+
+    // 2. MaterialX material (threejs-materials format, detected by `properties` key)
+    "base": {
+      properties: {
+        color:     { value: [0.9, 0.9, 0.9], texture: "data:image/png;base64,..." },
+        roughness: { value: 0.35 },
+        metallic:  { value: 1.0 },
+        normal:    { texture: "data:image/png;base64,..." },
+      },
+      textureRepeat: [0.5, 0.5],
+    },
+
+    // 3. Material Appearance (explicit PBR properties)
+    "shade": {
+      transmission: 0.95,
+      roughness: 0.05,
+      ior: 1.52,
+      thickness: 2.0,
+      attenuationColor: [0.95, 0.9, 0.8],   // linear RGB, warm tint
+      attenuationDistance: 10.0,
+    },
+  },
+
+  parts: [
+    {
+      version: 3,
+      id: "/Lamp/Arm",
+      name: "Arm",
+      type: "shapes",
+      subtype: "solid",
+      state: [1, 1],
+      color: "#cccccc",
+      material: "arm",           // → builtin chrome preset
+      shape: { /* ... */ },
+    },
+    {
+      version: 3,
+      id: "/Lamp/Base",
+      name: "Base",
+      type: "shapes",
+      subtype: "solid",
+      state: [1, 1],
+      color: "#888888",
+      material: "base",          // → MaterialX with textures
+      shape: { /* ... */ },
+    },
+    {
+      version: 3,
+      id: "/Lamp/Shade",
+      name: "Shade",
+      type: "shapes",
+      subtype: "solid",
+      state: [1, 1],
+      color: "#eeddcc",
+      material: "shade",         // → Material Appearance (glass)
+      shape: { /* ... */ },
+    },
+  ],
+}
+```
+
+### Material Resolution
+
+In CAD mode, `material` tags are ignored and objects render with standard
+`MeshStandardMaterial` using their `color` and `alpha` values. In Studio mode,
+the material library is resolved and `MeshPhysicalMaterial` instances are created
+with the full PBR property set.
+
+Objects without a `material` tag use the `plastic-glossy` preset in Studio mode.
+Objects with `alpha < 1` and no explicit material tag automatically use the
+`acrylic-clear` preset with `transmission = 1 - alpha`, simulating glass/acrylic
+appearance.
+
+---
+
 ## Processing Pipeline
 
 When `viewer.render(shapes)` is called:

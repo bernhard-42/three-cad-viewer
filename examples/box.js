@@ -3,7 +3,6 @@ var box = {
   materials: {
     "steel": { preset: "stainless-steel" },
   },
-  studioOptions: { toneMapping: "neutral", showEdges: false },
   parts: [
     {
       id: "/Group/Workplane(Solid)",

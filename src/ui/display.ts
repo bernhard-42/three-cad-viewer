@@ -1360,9 +1360,7 @@ class Display {
 
     // Studio tab subscriptions
     sub("studioEnvironment", (change) => {
-      const el = this.container.querySelector(".tcv_studio_environment");
-      if (el instanceof HTMLSelectElement) el.value = change.new;
-      // Disable 4K checkbox for non-preset environments (custom URLs, "studio")
+      this._syncEnvDropdown(change.new);
       this._update4kCheckboxEnabled(change.new);
     });
     sub(
@@ -2753,8 +2751,7 @@ class Display {
     this.studioShadowSoftnessSlider?.setValueFromState(state.get("studioShadowSoftness") * 100);
     this.studioAOIntensitySlider?.setValueFromState(state.get("studioAOIntensity") * 10);
     this.getInputElement("tcv_studio_4k_env_maps").checked = state.get("studio4kEnvMaps");
-    const envEl = this.container.querySelector(".tcv_studio_environment");
-    if (envEl instanceof HTMLSelectElement) envEl.value = state.get("studioEnvironment");
+    this._syncEnvDropdown(state.get("studioEnvironment"));
     const bgEl = this.container.querySelector(".tcv_studio_background");
     if (bgEl instanceof HTMLSelectElement) bgEl.value = state.get("studioBackground");
     const tmEl = this.container.querySelector(".tcv_studio_tone_mapping");
@@ -2762,6 +2759,47 @@ class Display {
     const txmEl = this.container.querySelector(".tcv_studio_texture_mapping");
     if (txmEl instanceof HTMLSelectElement) txmEl.value = state.get("studioTextureMapping");
     this._update4kCheckboxEnabled(state.get("studioEnvironment"));
+  }
+
+  /**
+   * Ensure the environment dropdown can display a custom HDR URL.
+   * If envName isn't already an option, adds a "Custom HDR" entry.
+   * Removes stale custom entries when switching back to a built-in preset.
+   */
+  private _syncEnvDropdown(envName: string): void {
+    const el = this.container.querySelector(".tcv_studio_environment");
+    if (!(el instanceof HTMLSelectElement)) return;
+
+    // Remove any previously added custom option
+    const existing = el.querySelector("option[data-custom]");
+
+    // Check if the value matches a built-in option
+    const isBuiltin = Array.from(el.options).some(
+      (opt) => !opt.hasAttribute("data-custom") && opt.value === envName,
+    );
+
+    if (isBuiltin) {
+      el.value = envName;
+    } else {
+      // Add or update a "Custom" optgroup with the custom HDR entry
+      const label = envName.split("/").pop()?.replace(/\.hdr$/i, "") || "Custom HDR";
+      let customGroup = el.querySelector("optgroup[data-custom]") as HTMLOptGroupElement | null;
+      if (customGroup) {
+        const opt = customGroup.querySelector("option")!;
+        opt.value = envName;
+        opt.textContent = label;
+      } else {
+        customGroup = document.createElement("optgroup");
+        customGroup.label = "Custom";
+        customGroup.setAttribute("data-custom", "true");
+        const opt = document.createElement("option");
+        opt.value = envName;
+        opt.textContent = label;
+        customGroup.appendChild(opt);
+        el.appendChild(customGroup);
+      }
+      el.value = envName;
+    }
   }
 
   /**

@@ -143,7 +143,7 @@ function materialHasTexture(def: MaterialAppearance): boolean {
   return false;
 }
 
-/** Check whether a material-db entry has texture references in its properties. */
+/** Check whether a threejs-materials entry has texture references in its properties. */
 function materialXHasTextures(entry: MaterialXMaterial): boolean {
   for (const [, prop] of Object.entries(entry.properties)) {
     if (prop.texture) return true;
@@ -175,7 +175,7 @@ class NestedGroup {
   texturesTable: Record<string, TextureEntry> | null;
   materialsTable: Record<string, string | MaterialXMaterial> | null;
   resolvedMaterials: Map<string, MaterialAppearance>;
-  /** Cache for materialx-db entries resolved from the materials table */
+  /** Cache for threejs-materials entries resolved from the materials table */
   resolvedMaterialX: Map<string, MaterialXMaterial>;
   private _textureCache: TextureCache | null;
   private _studioMaterialCache: Map<string, THREE.MeshPhysicalMaterial | THREE.MeshBasicMaterial>;
@@ -270,14 +270,14 @@ class NestedGroup {
    * Resolve a material tag to its definition.
    *
    * Returns either a MaterialAppearance (for builtin presets) or a
-   * MaterialXMaterial (for materialx-db entries). The caller must check the
+   * MaterialXMaterial (for threejs-materials entries). The caller must check the
    * return type to determine which factory method to use.
    *
    * Resolution order:
    * 1. Check caches (resolvedMaterials / resolvedMaterialX)
    * 2. Look up in root-level `materials` table:
    *    - string starting with "builtin:" → MATERIAL_PRESETS lookup
-   *    - object with `params` key → materialx-db entry
+   *    - object with `properties` key → threejs-materials entry
    * 3. Direct lookup in MATERIAL_PRESETS by tag name
    * 4. No match → warning, return null
    *
@@ -1236,7 +1236,7 @@ class NestedGroup {
         // Per-object try/catch: a single failure should not abort the rest
         try {
           if (resolved && isMaterialXMaterial(resolved)) {
-            // --- materialx-db path ---
+            // --- threejs-materials path ---
             studioMaterial = await this.materialFactory.createStudioMaterialFromMaterialX(
               resolved.properties,
               resolved.textureRepeat,
