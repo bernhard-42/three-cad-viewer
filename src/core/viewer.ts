@@ -1541,9 +1541,9 @@ class Viewer {
       maxAnisotropy: this.renderer.capabilities.getMaxAnisotropy(),
       ...(this.state.get("tools")
         ? {
-            tickValueElement: this.display.tickValueElement,
-            tickInfoElement: this.display.tickInfoElement,
-          }
+          tickValueElement: this.display.tickValueElement,
+          tickInfoElement: this.display.tickInfoElement,
+        }
         : {}),
       getCamera: () => this._rendered?.camera.getCamera() ?? null,
       getAxes0: () => this.state?.get("axes0") ?? false,
@@ -2114,7 +2114,7 @@ class Viewer {
     name: string,
     meta: boolean,
     shift: boolean,
-    _alt: boolean,
+    alt: boolean,
     point: THREE.Vector3 | null,
     nodeType: string | null = "leaf",
     tree: boolean = false,
@@ -2173,6 +2173,11 @@ class Viewer {
         this.display.showCenterInfo(center);
       } else if (meta) {
         this.setState(id, [0, 0], nodeType ?? "leaf");
+      } else if (alt) {
+        // same as else branch to make typscript happy
+        this.display.showBoundingBoxInfo(path, name, boundingBox);
+        this.setBoundingBox(id);
+        this.rendered.treeview.openPath(id);
       } else {
         this.display.showBoundingBoxInfo(path, name, boundingBox);
         this.setBoundingBox(id);
