@@ -800,16 +800,16 @@ reference entries by name via their `material` field.
 
 ```js
 materials: {
-  // Builtin preset: prefix with "builtin:"
-  "chrome":    "builtin:chrome",
-  "my-glass":  "builtin:glass-clear",
+  // Builtin preset (with optional overrides)
+  "chrome":       { builtin: "chrome" },
+  "blue-acrylic": { builtin: "acrylic-clear", color: "#0000ff" },
 
-  // Material-db format: full PBR definition with textures
+  // MaterialXMaterial format: full PBR definition with textures
   "aluminum": {
     properties: {
       color:     { value: [1.0, 1.0, 1.0], texture: "data:image/png;base64,..." },
       roughness: { value: 0.35,             texture: "data:image/png;base64,..." },
-      metallic:  { value: 1.0 },
+      metalness: { value: 1.0 },
       normal:    {                           texture: "data:image/png;base64,..." },
     },
     textureRepeat: [0.25, 0.25],
@@ -821,9 +821,8 @@ materials: {
 
 | Value Form | Description |
 |------------|-------------|
-| `"builtin:<preset>"` | References a built-in preset. See [Built-in Presets](#built-in-presets) below. |
-| `MaterialXMaterial` object | threejs-materials format (detected by presence of `properties` key). See [MaterialX Material](#materialx-material) below. |
-| `MaterialAppearance` object | Explicit PBR properties (no `properties` key). See [Material Appearance](#material-appearance) below. |
+| `MaterialAppearance` object | Builtin preset with optional overrides (detected by `builtin` key). See [Material Appearance](#material-appearance) below. |
+| `MaterialXMaterial` object | threejs-materials format (detected by `properties` key). See [MaterialX Material](#materialx-material) below. |
 
 ##### Built-in Presets
 
@@ -876,7 +875,7 @@ which catalogs PBR materials from GPUOpen, ambientCG, PolyHaven, and PhysicallyB
   properties: {
     color:     { value: [0.8, 0.2, 0.1] },              // linear RGB
     roughness: { value: 0.4, texture: "data:image/..." }, // scalar + texture
-    metallic:  { value: 1.0 },
+    metalness: { value: 1.0 },
     normal:    { texture: "data:image/png;base64,..." },  // texture only
   },
 
@@ -895,78 +894,79 @@ Detected by the presence of the `properties` key. Extra keys from threejs-materi
 
 ### Material Appearance
 
-An alternative material definition format using explicit PBR property names.
-Can be used in the `materials` dict instead of `MaterialXMaterial`.
+A builtin preset reference with optional property overrides.
+Field names follow Three.js `MeshPhysicalMaterial` naming.
 
-All fields are optional. Only provided fields override defaults. Texture string
-fields reference either a key in the root-level `textures` table, a data URI,
-or a URL resolved against the HTML page.
+All fields except `builtin` are optional. Only provided fields override the
+preset defaults. Texture string fields reference either a key in the root-level
+`textures` table, a data URI, or a URL resolved against the HTML page.
 
 #### Core Properties
 
-| Field                      | Type                           | Default | Description                                     |
-|----------------------------|--------------------------------|---------|-------------------------------------------------|
-| `name`                     | `string`                       | —       | Display name.                                   |
-| `preset`                   | `string`                       | —       | Built-in preset reference (e.g., `"stainless-steel"`). |
-| `baseColor`                | `[r, g, b, a]`                 | —       | sRGB RGBA base color (0--1).                    |
-| `baseColorTexture`         | `string`                       | —       | Base color texture reference.                   |
-| `metallic`                 | `number`                       | `0.0`   | Metallic factor (0--1).                         |
-| `roughness`                | `number`                       | `0.5`   | Roughness factor (0--1).                        |
-| `normalTexture`            | `string`                       | —       | Normal map texture reference.                   |
-| `occlusionTexture`         | `string`                       | —       | Ambient occlusion texture reference.            |
-| `metallicRoughnessTexture` | `string`                       | —       | Combined metallic-roughness texture reference.  |
+| Field              | Type                           | Default | Description                                     |
+|--------------------|--------------------------------|---------|-------------------------------------------------|
+| `name`             | `string`                       | —       | Display name.                                   |
+| `builtin`          | `string`                       | —       | Built-in preset reference (e.g., `"stainless-steel"`). |
+| `color`            | `[r, g, b, a]` or `"#rrggbb"` | —       | sRGB base color. RGBA tuple (0--1) or CSS hex.  |
+| `map`              | `string`                       | —       | Base color texture reference.                   |
+| `metalness`        | `number`                       | `0.0`   | Metalness factor (0--1).                        |
+| `roughness`        | `number`                       | `0.5`   | Roughness factor (0--1).                        |
+| `metalnessMap`     | `string`                       | —       | Metalness map texture reference.                |
+| `roughnessMap`     | `string`                       | —       | Roughness map texture reference.                |
+| `normalMap`        | `string`                       | —       | Normal map texture reference.                   |
+| `aoMap`            | `string`                       | —       | Ambient occlusion texture reference.            |
 
 #### Emissive
 
 | Field              | Type        | Default | Description                   |
 |--------------------|-------------|---------|-------------------------------|
 | `emissive`         | `[r, g, b]` | —       | Emissive color (linear RGB). |
-| `emissiveTexture`  | `string`    | —       | Emissive map texture.        |
-| `emissiveStrength` | `number`    | `1.0`   | Emissive intensity.          |
+| `emissiveMap`      | `string`    | —       | Emissive map texture.        |
+| `emissiveIntensity`| `number`    | `1.0`   | Emissive intensity.          |
 
 #### Transmission (glass, water)
 
-| Field                 | Type     | Default | Description                  |
-|-----------------------|----------|---------|------------------------------|
-| `transmission`        | `number` | —       | Transmission factor (0--1). |
-| `transmissionTexture` | `string` | —       | Transmission map texture.   |
+| Field              | Type     | Default | Description                  |
+|--------------------|----------|---------|------------------------------|
+| `transmission`     | `number` | —       | Transmission factor (0--1). |
+| `transmissionMap`  | `string` | —       | Transmission map texture.   |
 
 #### Clearcoat (car paint, varnish)
 
-| Field                        | Type     | Default | Description                       |
-|------------------------------|----------|---------|-----------------------------------|
-| `clearcoat`                  | `number` | —       | Clearcoat intensity (0--1).      |
-| `clearcoatRoughness`         | `number` | —       | Clearcoat roughness.             |
-| `clearcoatTexture`           | `string` | —       | Clearcoat intensity texture.     |
-| `clearcoatRoughnessTexture`  | `string` | —       | Clearcoat roughness texture.     |
-| `clearcoatNormalTexture`     | `string` | —       | Clearcoat normal map texture.    |
+| Field                    | Type     | Default | Description                       |
+|--------------------------|----------|---------|-----------------------------------|
+| `clearcoat`              | `number` | —       | Clearcoat intensity (0--1).      |
+| `clearcoatRoughness`     | `number` | —       | Clearcoat roughness.             |
+| `clearcoatMap`           | `string` | —       | Clearcoat intensity texture.     |
+| `clearcoatRoughnessMap`  | `string` | —       | Clearcoat roughness texture.     |
+| `clearcoatNormalMap`     | `string` | —       | Clearcoat normal map texture.    |
 
 #### Volume (subsurface: jade, wax, skin)
 
 | Field                | Type        | Default | Description                    |
 |----------------------|-------------|---------|--------------------------------|
 | `thickness`          | `number`    | —       | Thickness for volume effects. |
-| `thicknessTexture`   | `string`    | —       | Thickness map texture.        |
+| `thicknessMap`       | `string`    | —       | Thickness map texture.        |
 | `attenuationDistance` | `number`   | —       | Attenuation distance.         |
 | `attenuationColor`   | `[r, g, b]` | —      | Attenuation color (linear RGB). |
 
 #### IOR, Specular, Sheen, Anisotropy
 
-| Field                      | Type        | Default | Description                               |
-|----------------------------|-------------|---------|-------------------------------------------|
-| `ior`                      | `number`    | `1.5`   | Index of refraction.                      |
-| `specularIntensity`        | `number`    | —       | Specular intensity (0--1).                |
-| `specularColor`            | `[r, g, b]` | —      | Specular tint color (linear RGB).         |
-| `specularIntensityTexture` | `string`    | —       | Specular intensity texture.               |
-| `specularColorTexture`     | `string`    | —       | Specular color texture.                   |
-| `sheen`                    | `number`    | —       | Sheen intensity (0--1).                   |
-| `sheenColor`               | `[r, g, b]` | —      | Sheen tint color (linear RGB).            |
-| `sheenRoughness`           | `number`    | —       | Sheen roughness.                          |
-| `sheenColorTexture`        | `string`    | —       | Sheen color texture.                      |
-| `sheenRoughnessTexture`    | `string`    | —       | Sheen roughness texture.                  |
-| `anisotropy`               | `number`    | —       | Anisotropy strength (0--1).               |
-| `anisotropyRotation`       | `number`    | —       | Anisotropy rotation (radians).            |
-| `anisotropyTexture`        | `string`    | —       | Anisotropy direction texture.             |
+| Field                  | Type        | Default | Description                               |
+|------------------------|-------------|---------|-------------------------------------------|
+| `ior`                  | `number`    | `1.5`   | Index of refraction.                      |
+| `specularIntensity`    | `number`    | —       | Specular intensity (0--1).                |
+| `specularColor`        | `[r, g, b]` | —      | Specular tint color (linear RGB).         |
+| `specularIntensityMap` | `string`    | —       | Specular intensity texture.               |
+| `specularColorMap`     | `string`    | —       | Specular color texture.                   |
+| `sheen`                | `number`    | —       | Sheen intensity (0--1).                   |
+| `sheenColor`           | `[r, g, b]` | —      | Sheen tint color (linear RGB).            |
+| `sheenRoughness`       | `number`    | —       | Sheen roughness.                          |
+| `sheenColorMap`        | `string`    | —       | Sheen color texture.                      |
+| `sheenRoughnessMap`    | `string`    | —       | Sheen roughness texture.                  |
+| `anisotropy`           | `number`    | —       | Anisotropy strength (0--1).               |
+| `anisotropyRotation`   | `number`    | —       | Anisotropy rotation (radians).            |
+| `anisotropyMap`        | `string`    | —       | Anisotropy direction texture.             |
 
 #### Alpha & Misc
 
@@ -979,8 +979,8 @@ or a URL resolved against the HTML page.
 
 ### Studio Materials Example
 
-All three material formats in one model -- a builtin preset reference, a
-MaterialX material from threejs-materials, and an inline Material Appearance:
+Both material formats in one model -- a builtin preset with overrides, and a
+MaterialX material from threejs-materials:
 
 ```js
 {
@@ -991,28 +991,25 @@ MaterialX material from threejs-materials, and an inline Material Appearance:
   bb: { xmin: -5, xmax: 5, ymin: -5, ymax: 5, zmin: 0, zmax: 12 },
 
   materials: {
-    // 1. Builtin preset reference
-    "arm": "builtin:chrome",
+    // 1. Builtin preset (with overrides)
+    "arm": { builtin: "chrome" },
+    "shade": {
+      builtin: "glass-clear",
+      color: "#eeddcc",
+      thickness: 2.0,
+      attenuationColor: [0.95, 0.9, 0.8],
+      attenuationDistance: 10.0,
+    },
 
     // 2. MaterialX material (threejs-materials format, detected by `properties` key)
     "base": {
       properties: {
         color:     { value: [0.9, 0.9, 0.9], texture: "data:image/png;base64,..." },
         roughness: { value: 0.35 },
-        metallic:  { value: 1.0 },
+        metalness: { value: 1.0 },
         normal:    { texture: "data:image/png;base64,..." },
       },
       textureRepeat: [0.5, 0.5],
-    },
-
-    // 3. Material Appearance (explicit PBR properties)
-    "shade": {
-      transmission: 0.95,
-      roughness: 0.05,
-      ior: 1.52,
-      thickness: 2.0,
-      attenuationColor: [0.95, 0.9, 0.8],   // linear RGB, warm tint
-      attenuationDistance: 10.0,
     },
   },
 

@@ -1,7 +1,7 @@
 var hexapod = {
   version: 3,
   materials: {
-    "body": { metallic: 0, roughness: 0.15 },
+    "body": { builtin: "plastic-glossy", metalness: 0, roughness: 0.15 },
   },
   parts: [
     {

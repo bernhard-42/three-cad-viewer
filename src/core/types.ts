@@ -497,39 +497,41 @@ export interface MaterialAppearance {
   /** Display name */
   name?: string;
   /** Reference to a built-in preset (e.g., "stainless-steel", "car-paint") */
-  preset?: string;
+  builtin?: string;
 
   // -- Color --
 
   /** sRGB base color. Accepts RGBA tuple [r,g,b,a] (0-1) or CSS hex string "#rrggbb". */
-  baseColor?: RGBAColor | string;
+  color?: RGBAColor | string;
   /** Texture reference for base color */
-  baseColorTexture?: string;
+  map?: string;
 
   // -- Metallic-Roughness PBR --
 
-  /** Metallic factor, 0-1 (default: 0.0) */
-  metallic?: number;
+  /** Metalness factor, 0-1 (default: 0.0) */
+  metalness?: number;
   /** Roughness factor, 0-1 (default: 0.5) */
   roughness?: number;
 
   // -- Textures (Standard) --
 
   /** Normal map texture reference */
-  normalTexture?: string;
+  normalMap?: string;
   /** Ambient occlusion texture reference */
-  occlusionTexture?: string;
-  /** Combined metallic-roughness texture reference */
-  metallicRoughnessTexture?: string;
+  aoMap?: string;
+  /** Metalness map texture reference */
+  metalnessMap?: string;
+  /** Roughness map texture reference */
+  roughnessMap?: string;
 
   // -- Emissive --
 
   /** Emissive color, linear RGB */
   emissive?: RGBColor;
   /** Emissive map texture reference */
-  emissiveTexture?: string;
+  emissiveMap?: string;
   /** Emissive intensity multiplier (default: 1.0) */
-  emissiveStrength?: number;
+  emissiveIntensity?: number;
 
   // -- Alpha --
 
@@ -543,7 +545,7 @@ export interface MaterialAppearance {
   /** Transmission factor, 0-1 */
   transmission?: number;
   /** Transmission map texture reference */
-  transmissionTexture?: string;
+  transmissionMap?: string;
 
   // -- Clearcoat (car paint, varnish) --
 
@@ -552,18 +554,18 @@ export interface MaterialAppearance {
   /** Clearcoat roughness */
   clearcoatRoughness?: number;
   /** Clearcoat intensity texture reference */
-  clearcoatTexture?: string;
+  clearcoatMap?: string;
   /** Clearcoat roughness texture reference */
-  clearcoatRoughnessTexture?: string;
+  clearcoatRoughnessMap?: string;
   /** Clearcoat normal map texture reference */
-  clearcoatNormalTexture?: string;
+  clearcoatNormalMap?: string;
 
   // -- Volume (subsurface: jade, wax, skin) --
 
   /** Thickness for volume effects */
   thickness?: number;
   /** Thickness map texture reference */
-  thicknessTexture?: string;
+  thicknessMap?: string;
   /** Attenuation distance for volume absorption */
   attenuationDistance?: number;
   /** Attenuation color, linear RGB */
@@ -581,9 +583,9 @@ export interface MaterialAppearance {
   /** Specular tint color, linear RGB */
   specularColor?: RGBColor;
   /** Specular intensity texture reference */
-  specularIntensityTexture?: string;
+  specularIntensityMap?: string;
   /** Specular color texture reference */
-  specularColorTexture?: string;
+  specularColorMap?: string;
 
   // -- Sheen (fabric, velvet) --
 
@@ -594,9 +596,9 @@ export interface MaterialAppearance {
   /** Sheen roughness */
   sheenRoughness?: number;
   /** Sheen color texture reference */
-  sheenColorTexture?: string;
+  sheenColorMap?: string;
   /** Sheen roughness texture reference */
-  sheenRoughnessTexture?: string;
+  sheenRoughnessMap?: string;
 
   // -- Anisotropy (brushed metal) --
 
@@ -605,7 +607,7 @@ export interface MaterialAppearance {
   /** Anisotropy rotation in radians */
   anisotropyRotation?: number;
   /** Anisotropy direction texture reference */
-  anisotropyTexture?: string;
+  anisotropyMap?: string;
 
   // -- Misc --
 
@@ -876,7 +878,7 @@ export interface Shapes {
    *  Values can be:
    *  - string: builtin preset reference (e.g., "builtin:car-paint")
    *  - MaterialXMaterial: threejs-materials format (detected by `properties` key)
-   *  - MaterialAppearance: preset with overrides (e.g., { preset: "acrylic-clear", baseColor: "#55a0e3" })
+   *  - MaterialAppearance: preset with overrides (e.g., { builtin: "acrylic-clear", color: "#55a0e3" })
    */
   materials?: Record<string, string | MaterialXMaterial | MaterialAppearance> | undefined;
   /** Shared texture table for builtin preset materials (root node).

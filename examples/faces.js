@@ -1,7 +1,7 @@
 var faces = {
   version: 3,
   materials: {
-    "brass": { preset: "brass" },
+    "brass": { builtin: "brass" },
   },
   parts: [
     {

@@ -110,11 +110,11 @@ describe('MaterialFactory — Studio materials', () => {
     });
     expect(mat).toBeInstanceOf(THREE.MeshPhysicalMaterial);
     expect(mat.roughness).toBeCloseTo(preset.roughness, 2);
-    expect(mat.metalness).toBeCloseTo(preset.metallic, 2);
+    expect(mat.metalness).toBeCloseTo(preset.metalness, 2);
   });
 
-  test('createStudioMaterial applies fallback color when no baseColor in preset', async () => {
-    const appearance = { name: 'test', metallic: 0.5, roughness: 0.5 };
+  test('createStudioMaterial applies fallback color when no color in preset', async () => {
+    const appearance = { name: 'test', metalness: 0.5, roughness: 0.5 };
     const mat = await factory.createStudioMaterial({
       materialDef: appearance,
       fallbackColor: '#ff0000',
@@ -167,11 +167,11 @@ describe('MaterialFactory — Studio materials', () => {
     const cache = mockTextureCache();
     const appearance = {
       name: 'textured',
-      metallic: 0.5,
+      metalness: 0.5,
       roughness: 0.5,
-      baseColor: [0.8, 0.8, 0.8, 1.0],
-      baseColorTexture: 'tex://basecolor.png',
-      normalTexture: 'tex://normal.png',
+      color: [0.8, 0.8, 0.8, 1.0],
+      map: 'tex://basecolor.png',
+      normalMap: 'tex://normal.png',
     };
     await factory.createStudioMaterial({
       materialDef: appearance,
@@ -180,17 +180,17 @@ describe('MaterialFactory — Studio materials', () => {
       textureCache: cache,
     });
     // Should have called cache.get for each texture ref
-    expect(cache.get).toHaveBeenCalledWith('tex://basecolor.png', 'baseColorTexture');
-    expect(cache.get).toHaveBeenCalledWith('tex://normal.png', 'normalTexture');
+    expect(cache.get).toHaveBeenCalledWith('tex://basecolor.png', 'baseColorTexture');  // role string, not field name
+    expect(cache.get).toHaveBeenCalledWith('tex://normal.png', 'normalTexture');  // role string, not field name
   });
 
   test('createStudioMaterial with unlit appearance returns MeshBasicMaterial', async () => {
     const appearance = {
       name: 'unlit-test',
-      metallic: 0,
+      metalness: 0,
       roughness: 1,
       unlit: true,
-      baseColor: [1, 0, 0, 1],
+      color: [1, 0, 0, 1],
     };
     const mat = await factory.createStudioMaterial({
       materialDef: appearance,
@@ -269,9 +269,9 @@ describe('MaterialFactory — alpha mode handling', () => {
   test('opaque alpha mode disables transparency', async () => {
     const appearance = {
       name: 'opaque',
-      metallic: 0,
+      metalness: 0,
       roughness: 0.5,
-      baseColor: [1, 0, 0, 1],
+      color: [1, 0, 0, 1],
       alphaMode: 'OPAQUE',
     };
     const mat = await factory.createStudioMaterial({
@@ -287,9 +287,9 @@ describe('MaterialFactory — alpha mode handling', () => {
   test('blend alpha mode enables transparency', async () => {
     const appearance = {
       name: 'blend',
-      metallic: 0,
+      metalness: 0,
       roughness: 0.5,
-      baseColor: [1, 0, 0, 0.5],
+      color: [1, 0, 0, 0.5],
       alphaMode: 'BLEND',
     };
     const mat = await factory.createStudioMaterial({
@@ -305,9 +305,9 @@ describe('MaterialFactory — alpha mode handling', () => {
   test('mask alpha mode sets alphaTest', async () => {
     const appearance = {
       name: 'mask',
-      metallic: 0,
+      metalness: 0,
       roughness: 0.5,
-      baseColor: [1, 0, 0, 1],
+      color: [1, 0, 0, 1],
       alphaMode: 'MASK',
       alphaCutoff: 0.3,
     };

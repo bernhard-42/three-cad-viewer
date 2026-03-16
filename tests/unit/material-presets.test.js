@@ -16,23 +16,23 @@ describe('MATERIAL_PRESETS', () => {
     for (const [name, preset] of Object.entries(MATERIAL_PRESETS)) {
       expect(preset, `${name} missing name`).toHaveProperty('name');
       expect(typeof preset.name, `${name}.name not string`).toBe('string');
-      expect(preset, `${name} missing metallic`).toHaveProperty('metallic');
+      expect(preset, `${name} missing metalness`).toHaveProperty('metalness');
       expect(preset, `${name} missing roughness`).toHaveProperty('roughness');
-      expect(preset.metallic, `${name}.metallic out of range`).toBeGreaterThanOrEqual(0);
-      expect(preset.metallic, `${name}.metallic out of range`).toBeLessThanOrEqual(1);
+      expect(preset.metalness, `${name}.metalness out of range`).toBeGreaterThanOrEqual(0);
+      expect(preset.metalness, `${name}.metalness out of range`).toBeLessThanOrEqual(1);
       expect(preset.roughness, `${name}.roughness out of range`).toBeGreaterThanOrEqual(0);
       expect(preset.roughness, `${name}.roughness out of range`).toBeLessThanOrEqual(1);
     }
   });
 
-  test('presets with baseColor have valid RGBA arrays', () => {
+  test('presets with color have valid RGBA arrays', () => {
     for (const [name, preset] of Object.entries(MATERIAL_PRESETS)) {
-      if (preset.baseColor) {
-        expect(Array.isArray(preset.baseColor), `${name}.baseColor not array`).toBe(true);
-        expect(preset.baseColor.length, `${name}.baseColor wrong length`).toBe(4);
-        for (const v of preset.baseColor) {
-          expect(v, `${name}.baseColor value out of range`).toBeGreaterThanOrEqual(0);
-          expect(v, `${name}.baseColor value out of range`).toBeLessThanOrEqual(1);
+      if (preset.color) {
+        expect(Array.isArray(preset.color), `${name}.color not array`).toBe(true);
+        expect(preset.color.length, `${name}.color wrong length`).toBe(4);
+        for (const v of preset.color) {
+          expect(v, `${name}.color value out of range`).toBeGreaterThanOrEqual(0);
+          expect(v, `${name}.color value out of range`).toBeLessThanOrEqual(1);
         }
       }
     }
@@ -47,11 +47,11 @@ describe('MATERIAL_PRESETS', () => {
     }
   });
 
-  test('metal presets have metallic=1', () => {
+  test('metal presets have metalness=1', () => {
     for (const name of ['chrome', 'stainless-steel', 'brushed-aluminum', 'gold', 'copper']) {
       const p = MATERIAL_PRESETS[name];
       expect(p, `${name} missing`).toBeDefined();
-      expect(p.metallic, `${name} should be fully metallic`).toBe(1.0);
+      expect(p.metalness, `${name} should be fully metalness`).toBe(1.0);
     }
   });
 
@@ -67,11 +67,11 @@ describe('MATERIAL_PRESETS', () => {
     expect(p.anisotropy).toBeGreaterThan(0);
   });
 
-  test('plastic presets are non-metallic', () => {
+  test('plastic presets are non-metalness', () => {
     for (const name of ['plastic-glossy', 'plastic-matte']) {
       const p = MATERIAL_PRESETS[name];
       expect(p, `${name} missing`).toBeDefined();
-      expect(p.metallic, `${name} should be non-metallic`).toBe(0);
+      expect(p.metalness, `${name} should be non-metalness`).toBe(0);
     }
   });
 });

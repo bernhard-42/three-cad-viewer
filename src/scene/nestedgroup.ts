@@ -128,11 +128,11 @@ class CompoundGroup extends THREE.Group {
 
 /** Texture field names on MaterialAppearance that require UV coordinates. */
 const TEXTURE_FIELDS = [
-  "baseColorTexture", "normalTexture", "occlusionTexture",
-  "metallicRoughnessTexture", "emissiveTexture", "transmissionTexture",
-  "clearcoatTexture", "clearcoatRoughnessTexture", "clearcoatNormalTexture",
-  "thicknessTexture", "specularIntensityTexture", "specularColorTexture",
-  "sheenColorTexture", "sheenRoughnessTexture", "anisotropyTexture",
+  "map", "normalMap", "aoMap",
+  "metalnessMap", "roughnessMap", "emissiveMap", "transmissionMap",
+  "clearcoatMap", "clearcoatRoughnessMap", "clearcoatNormalMap",
+  "thicknessMap", "specularIntensityMap", "specularColorMap",
+  "sheenColorMap", "sheenRoughnessMap", "anisotropyMap",
 ] as const;
 
 /** Check whether a resolved MaterialAppearance references any texture. */
@@ -332,10 +332,10 @@ class NestedGroup {
         return entry;
       }
 
-      // MaterialAppearance entry: object with `preset` key (preset + overrides)
-      if (typeof entry === "object" && "preset" in entry) {
+      // MaterialAppearance entry: object with `builtin` key (preset + overrides)
+      if (typeof entry === "object" && "builtin" in entry) {
         const appearance = entry as MaterialAppearance;
-        const presetName = appearance.preset!;
+        const presetName = appearance.builtin!;
         const preset = MATERIAL_PRESETS[presetName];
         if (!preset) {
           logger.warn(
@@ -1275,11 +1275,11 @@ class NestedGroup {
             } else if (leafAlpha < 1) {
               // Fallback for transparent objects: acrylic-clear with
               // transmission matching the CAD alpha, tinted with CAD color
-              const { baseColor: _, ...acrylicClear } = MATERIAL_PRESETS["acrylic-clear"];
+              const { color: _, ...acrylicClear } = MATERIAL_PRESETS["acrylic-clear"];
               materialDef = { ...acrylicClear, transmission: 1 - leafAlpha };
             } else {
               // Fallback: plastic-glossy tinted with CAD color
-              const { baseColor: _, ...plasticGlossy } = MATERIAL_PRESETS["plastic-glossy"];
+              const { color: _, ...plasticGlossy } = MATERIAL_PRESETS["plastic-glossy"];
               materialDef = plasticGlossy;
             }
             studioMaterial = await this.materialFactory.createStudioMaterial({

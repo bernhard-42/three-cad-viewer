@@ -344,18 +344,18 @@ class MaterialFactory {
     let baseColor: THREE.Color;
     let opacity: number;
 
-    if (def.baseColor) {
-      if (typeof def.baseColor === "string") {
+    if (def.color) {
+      if (typeof def.color === "string") {
         // CSS hex string (e.g. "#55a0e3") — THREE.Color parses as sRGB
-        baseColor = new THREE.Color(def.baseColor);
+        baseColor = new THREE.Color(def.color);
         opacity = 1.0;
       } else {
         // sRGB RGBA tuple [R, G, B, A?] (0-1)
         baseColor = new THREE.Color().setRGB(
-          def.baseColor[0], def.baseColor[1], def.baseColor[2],
+          def.color[0], def.color[1], def.color[2],
           THREE.SRGBColorSpace,
         );
-        opacity = def.baseColor[3] ?? 1.0;
+        opacity = def.color[3] ?? 1.0;
       }
     } else {
       // Fall back to leaf node's CSS hex color + alpha.
@@ -375,8 +375,8 @@ class MaterialFactory {
       // Apply alpha mode to basic material too
       this._applyAlphaMode(basicMat, def, opacity);
       // Resolve base color texture
-      if (def.baseColorTexture && textureCache) {
-        const tex = await textureCache.get(def.baseColorTexture, "baseColorTexture");
+      if (def.map && textureCache) {
+        const tex = await textureCache.get(def.map, "baseColorTexture");
         if (tex) basicMat.map = tex;
       }
       gpuTracker.track("material", basicMat, label ?? "MeshBasicMaterial (studio unlit)");
@@ -390,7 +390,7 @@ class MaterialFactory {
     const isBlend = def.alphaMode === "BLEND" || (!def.alphaMode && opacity < 1.0);
     const material = new THREE.MeshPhysicalMaterial({
       color: baseColor,
-      metalness: def.metallic ?? 0.0,
+      metalness: def.metalness ?? 0.0,
       roughness: def.roughness ?? 0.5,
       flatShading: false,
       side,
@@ -410,8 +410,8 @@ class MaterialFactory {
     if (def.emissive) {
       material.emissive = new THREE.Color(def.emissive[0], def.emissive[1], def.emissive[2]);
     }
-    if (def.emissiveStrength !== undefined) {
-      material.emissiveIntensity = def.emissiveStrength;
+    if (def.emissiveIntensity !== undefined) {
+      material.emissiveIntensity = def.emissiveIntensity;
     }
 
     // --- Transmission (glass, water) ---
@@ -592,22 +592,6 @@ class MaterialFactory {
         }
       }
 
-      // glTF packed metallic-roughness texture: G=roughness, B=metalness.
-      // Three.js reads the correct channels when the same texture is
-      // assigned to both metalnessMap and roughnessMap.
-      const mrProp = properties["metallicRoughness"];
-      if (mrProp?.texture) {
-        const colorSpace = getColorSpaceForMap("metalnessMap");
-        const roleForCache = colorSpace === THREE.SRGBColorSpace
-          ? "baseColorTexture" : "normalTexture";
-        const mrTex = await textureCache.get(mrProp.texture, roleForCache);
-        if (mrTex) {
-          if (textureRepeat) mrTex.repeat.set(textureRepeat[0], textureRepeat[1]);
-          material.metalnessMap = mrTex;
-          material.roughnessMap = mrTex;
-          hasTextures = true;
-        }
-      }
     }
 
     // Enable alpha cutout when an alphaMap is present
@@ -686,55 +670,53 @@ class MaterialFactory {
     };
 
     // --- sRGB color-data textures ---
-    const baseColorTex = await resolve(def.baseColorTexture, "baseColorTexture");
+    const baseColorTex = await resolve(def.map, "baseColorTexture");
     if (baseColorTex) material.map = baseColorTex;
 
-    const emissiveTex = await resolve(def.emissiveTexture, "emissiveTexture");
+    const emissiveTex = await resolve(def.emissiveMap, "emissiveTexture");
     if (emissiveTex) material.emissiveMap = emissiveTex;
 
-    const sheenColorTex = await resolve(def.sheenColorTexture, "sheenColorTexture");
+    const sheenColorTex = await resolve(def.sheenColorMap, "sheenColorTexture");
     if (sheenColorTex) material.sheenColorMap = sheenColorTex;
 
-    const specularColorTex = await resolve(def.specularColorTexture, "specularColorTexture");
+    const specularColorTex = await resolve(def.specularColorMap, "specularColorTexture");
     if (specularColorTex) material.specularColorMap = specularColorTex;
 
     // --- Linear non-color data textures ---
-    const normalTex = await resolve(def.normalTexture, "normalTexture");
+    const normalTex = await resolve(def.normalMap, "normalTexture");
     if (normalTex) material.normalMap = normalTex;
 
-    const occlusionTex = await resolve(def.occlusionTexture, "occlusionTexture");
+    const occlusionTex = await resolve(def.aoMap, "occlusionTexture");
     if (occlusionTex) material.aoMap = occlusionTex;
 
-    // metallicRoughnessTexture: single texture -> two material properties
-    // B channel = metalness, G channel = roughness
-    const metalRoughTex = await resolve(def.metallicRoughnessTexture, "metallicRoughnessTexture");
-    if (metalRoughTex) {
-      material.metalnessMap = metalRoughTex;
-      material.roughnessMap = metalRoughTex;
-    }
+    const metalnessTex = await resolve(def.metalnessMap, "metallicRoughnessTexture");
+    if (metalnessTex) material.metalnessMap = metalnessTex;
 
-    const transmissionTex = await resolve(def.transmissionTexture, "transmissionTexture");
+    const roughnessTex = await resolve(def.roughnessMap, "metallicRoughnessTexture");
+    if (roughnessTex) material.roughnessMap = roughnessTex;
+
+    const transmissionTex = await resolve(def.transmissionMap, "transmissionTexture");
     if (transmissionTex) material.transmissionMap = transmissionTex;
 
-    const thicknessTex = await resolve(def.thicknessTexture, "thicknessTexture");
+    const thicknessTex = await resolve(def.thicknessMap, "thicknessTexture");
     if (thicknessTex) material.thicknessMap = thicknessTex;
 
-    const clearcoatTex = await resolve(def.clearcoatTexture, "clearcoatTexture");
+    const clearcoatTex = await resolve(def.clearcoatMap, "clearcoatTexture");
     if (clearcoatTex) material.clearcoatMap = clearcoatTex;
 
-    const clearcoatRoughnessTex = await resolve(def.clearcoatRoughnessTexture, "clearcoatRoughnessTexture");
+    const clearcoatRoughnessTex = await resolve(def.clearcoatRoughnessMap, "clearcoatRoughnessTexture");
     if (clearcoatRoughnessTex) material.clearcoatRoughnessMap = clearcoatRoughnessTex;
 
-    const clearcoatNormalTex = await resolve(def.clearcoatNormalTexture, "clearcoatNormalTexture");
+    const clearcoatNormalTex = await resolve(def.clearcoatNormalMap, "clearcoatNormalTexture");
     if (clearcoatNormalTex) material.clearcoatNormalMap = clearcoatNormalTex;
 
-    const specularIntensityTex = await resolve(def.specularIntensityTexture, "specularIntensityTexture");
+    const specularIntensityTex = await resolve(def.specularIntensityMap, "specularIntensityTexture");
     if (specularIntensityTex) material.specularIntensityMap = specularIntensityTex;
 
-    const sheenRoughnessTex = await resolve(def.sheenRoughnessTexture, "sheenRoughnessTexture");
+    const sheenRoughnessTex = await resolve(def.sheenRoughnessMap, "sheenRoughnessTexture");
     if (sheenRoughnessTex) material.sheenRoughnessMap = sheenRoughnessTex;
 
-    const anisotropyTex = await resolve(def.anisotropyTexture, "anisotropyTexture");
+    const anisotropyTex = await resolve(def.anisotropyMap, "anisotropyTexture");
     if (anisotropyTex) material.anisotropyMap = anisotropyTex;
   }
 
