@@ -1,5 +1,3 @@
-
-(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 /**
  * @license
  * Copyright 2010-2026 Three.js Authors
@@ -81146,30 +81144,31 @@ function disposeGeometry(geometry) {
         }
     }
 }
-function isDisposable(value) {
-    return value !== null && typeof value === "object" && "dispose" in value && typeof value.dispose === "function";
-}
+/** All texture map property names on MaterialLike (for iteration) */
+const MATERIAL_TEXTURE_KEYS = [
+    // MeshStandardMaterial
+    "map", "normalMap", "roughnessMap", "metalnessMap",
+    "aoMap", "emissiveMap", "alphaMap", "bumpMap",
+    // MeshPhysicalMaterial
+    "transmissionMap", "clearcoatMap", "clearcoatRoughnessMap", "clearcoatNormalMap",
+    "thicknessMap", "specularIntensityMap", "specularColorMap",
+    "sheenColorMap", "sheenRoughnessMap", "anisotropyMap",
+];
 /**
- * Dispose a material and its associated textures.
+ * Dispose a material and detach its texture references.
+ *
+ * Texture GPU resources are NOT freed here -- TextureCache is the sole owner
+ * of loaded textures and is responsible for calling texture.dispose().
+ * This function only nulls out the material's texture map references to
+ * break the association, then disposes the material itself.
  */
 function disposeMaterial(material) {
     if (!material)
         return;
-    // Dispose all texture properties
-    const textures = [
-        material.map,
-        material.normalMap,
-        material.roughnessMap,
-        material.metalnessMap,
-        material.aoMap,
-        material.emissiveMap,
-        material.alphaMap,
-        material.bumpMap,
-    ];
-    for (const texture of textures) {
-        if (isDisposable(texture)) {
-            gpuTracker.untrack("texture", texture);
-            texture.dispose();
+    // Detach all texture references (do NOT dispose -- TextureCache owns them)
+    for (const key of MATERIAL_TEXTURE_KEYS) {
+        if (material[key]) {
+            material[key] = null;
         }
     }
     gpuTracker.untrack("material", material);
@@ -81720,6 +81719,14 @@ class ObjectGroup extends Group {
         this.vertexFocusSize = 8; // Size of the points when highlighted
         this.edgeFocusWidth = 5; // Size of the edges when highlighted
         this._zebra = null; // Lazy-initialized zebra tool
+        this.materialTag = "";
+        // Studio mode state
+        this._cadFrontMaterial = null;
+        this._cadBackMaterial = null;
+        this._cadOriginalColor = null;
+        this._cadOriginalBackColor = null;
+        this._isStudioMode = false;
+        this._cadEdgesVisible = null;
     }
     /**
      * Get the zebra tool, creating it on first access.
@@ -81729,6 +81736,12 @@ class ObjectGroup extends Group {
             this._zebra = new ZebraTool();
         }
         return this._zebra;
+    }
+    /**
+     * Whether this ObjectGroup is currently in Studio mode.
+     */
+    get isStudioMode() {
+        return this._isStudioMode;
     }
     /**
      * Dispose of all resources and clean up memory.
@@ -81748,6 +81761,13 @@ class ObjectGroup extends Group {
             this._zebra.dispose();
             this._zebra = null;
         }
+        // Release studio material references (do NOT dispose -- NestedGroup owns them)
+        this._cadFrontMaterial = null;
+        this._cadBackMaterial = null;
+        this._cadOriginalColor = null;
+        this._cadOriginalBackColor = null;
+        this._isStudioMode = false;
+        this._cadEdgesVisible = null;
     }
     /**
      * Set the front face mesh.
@@ -81973,7 +81993,11 @@ class ObjectGroup extends Group {
     setBlackEdges(flag) {
         if (this.edgeMaterial && !this.edgeMaterial.vertexColors) {
             const color = flag ? 0x000000 : this.edge_color;
-            this.originalColor = new Color(color);
+            // Only update originalColor for edge-only objects (no face mesh).
+            // For face+edge objects, originalColor tracks the face color.
+            if (!this.front) {
+                this.originalColor = new Color(color);
+            }
             this.edgeMaterial.color = new Color(color);
             this.edgeMaterial.needsUpdate = true;
         }
@@ -82012,7 +82036,13 @@ class ObjectGroup extends Group {
      */
     setShapeVisible(flag) {
         if (this.front) {
-            this.front.material.visible = flag;
+            if (this._isStudioMode) {
+                // Studio materials are shared — use mesh.visible for per-object visibility
+                this.front.visible = flag;
+            }
+            else {
+                this.front.material.visible = flag;
+            }
         }
         for (const clippingGroup of this.clipping.values()) {
             const child0 = clippingGroup.children[0];
@@ -82031,7 +82061,12 @@ class ObjectGroup extends Group {
             }
         }
         if (this.back && this.renderback) {
-            this.back.material.visible = flag;
+            if (this._isStudioMode) {
+                this.back.visible = flag;
+            }
+            else {
+                this.back.material.visible = flag;
+            }
         }
     }
     /**
@@ -82049,10 +82084,18 @@ class ObjectGroup extends Group {
      * Set visibility of back faces.
      */
     setBackVisible(flag) {
-        if (this.back &&
-            this.front &&
-            this.front.material.visible) {
-            this.back.material.visible = this.renderback || flag;
+        if (this.back && this.front) {
+            const frontVisible = this._isStudioMode
+                ? this.front.visible
+                : this.front.material.visible;
+            if (frontVisible) {
+                if (this._isStudioMode) {
+                    this.back.visible = this.renderback || flag;
+                }
+                else {
+                    this.back.material.visible = this.renderback || flag;
+                }
+            }
         }
     }
     /**
@@ -82060,11 +82103,14 @@ class ObjectGroup extends Group {
      */
     getVisibility() {
         if (this.front) {
+            const frontVisible = this._isStudioMode
+                ? this.front.visible
+                : this.front.material.visible;
             if (this.edgeMaterial) {
-                return this.front.material.visible || this.edgeMaterial.visible;
+                return frontVisible || this.edgeMaterial.visible;
             }
             else {
-                return this.front.material.visible;
+                return frontVisible;
             }
         }
         else if (this.edgeMaterial) {
@@ -82202,6 +82248,112 @@ class ObjectGroup extends Group {
      */
     setZebraMappingMode(value) {
         this.zebra.setMappingMode(value);
+    }
+    // ===========================================================================
+    // Studio Mode
+    // ===========================================================================
+    /**
+     * Enter Studio mode: swap CAD materials for pre-built Studio materials.
+     *
+     * The caller (NestedGroup) is responsible for resolving material tags and
+     * building MeshPhysicalMaterial instances via MaterialFactory. ObjectGroup
+     * just receives the finished materials and performs the swap.
+     *
+     * On first call, saves the current CAD material references so they can be
+     * restored by `leaveStudioMode()`. Copies the `material.visible` flag from
+     * CAD to Studio material to preserve tree-view hide/show state. Updates
+     * `originalColor` / `originalBackColor` so highlight/unhighlight works
+     * correctly in Studio mode.
+     *
+     * @param studioFront - Studio material for front face, or null if this object has no front mesh
+     * @param studioBack - Studio material for back face, or null if back face should not be swapped
+     */
+    enterStudioMode(studioFront, studioBack) {
+        if (this._isStudioMode)
+            return;
+        // --- Save CAD state ---
+        if (this.front) {
+            this._cadFrontMaterial = this.front.material;
+        }
+        if (this.back) {
+            this._cadBackMaterial = this.back.material;
+        }
+        // Save original colors used by highlight/unhighlight
+        this._cadOriginalColor = this.originalColor ? this.originalColor.clone() : null;
+        this._cadOriginalBackColor = this.originalBackColor ? this.originalBackColor.clone() : null;
+        // Save edge visibility state
+        this._cadEdgesVisible = this.edgeMaterial ? this.edgeMaterial.visible : null;
+        // --- Swap front material ---
+        if (this.front && studioFront) {
+            // Transfer per-object visibility to mesh.visible (NOT material.visible)
+            // because studio materials are shared across objects via cache.
+            // Writing to a shared material's .visible would affect all users.
+            this.front.visible = this.front.material.visible;
+            this.front.material = studioFront;
+            // Update originalColor to studio material's color for correct highlight
+            this.originalColor = studioFront.color;
+        }
+        // --- Swap back material ---
+        if (this.back && studioBack && this.renderback) {
+            // Same: per-object visibility via mesh.visible, not shared material
+            this.back.visible = this.back.material.visible;
+            this.back.material = studioBack;
+            // Update originalBackColor for correct highlight on back face
+            this.originalBackColor = studioBack.color;
+        }
+        this._isStudioMode = true;
+    }
+    /**
+     * Leave Studio mode: restore CAD materials.
+     *
+     * Copies `material.visible` from Studio back to CAD material to preserve
+     * any visibility changes made while in Studio mode (e.g., tree-view toggle).
+     * Restores `originalColor` / `originalBackColor` to CAD material colors.
+     * Restores edge visibility to the state saved when entering Studio mode.
+     */
+    leaveStudioMode() {
+        if (!this._isStudioMode)
+            return;
+        // --- Restore front material ---
+        if (this.front && this._cadFrontMaterial) {
+            // Copy visibility from mesh.visible back to CAD material
+            // (studio mode uses mesh.visible for per-object visibility)
+            this._cadFrontMaterial.visible = this.front.visible;
+            this.front.material = this._cadFrontMaterial;
+            this.front.visible = true; // Reset mesh visibility
+        }
+        // --- Restore back material ---
+        if (this.back && this._cadBackMaterial && this.renderback) {
+            // Copy visibility from mesh.visible back to CAD material
+            this._cadBackMaterial.visible = this.back.visible;
+            this.back.material = this._cadBackMaterial;
+            this.back.visible = true; // Reset mesh visibility
+        }
+        // --- Restore original colors for highlight ---
+        if (this._cadOriginalColor) {
+            this.originalColor = this._cadOriginalColor.clone();
+        }
+        if (this._cadOriginalBackColor) {
+            this.originalBackColor = this._cadOriginalBackColor.clone();
+        }
+        // --- Restore edge visibility ---
+        if (this.edgeMaterial && this._cadEdgesVisible !== null) {
+            this.edgeMaterial.visible = this._cadEdgesVisible;
+        }
+        this._isStudioMode = false;
+    }
+    /**
+     * Toggle edge visibility while in Studio mode.
+     *
+     * Only affects edges (not vertices). Should only be called while in
+     * Studio mode; the saved CAD edge visibility is not affected.
+     *
+     * @param visible - Whether edges should be visible
+     */
+    setStudioShowEdges(visible) {
+        if (this.edgeMaterial) {
+            this.edgeMaterial.visible = visible;
+        }
     }
 }
 /**
@@ -83228,11 +83380,11 @@ function getColorSpaceForMap(mapName) {
     return THREEJS_SRGB_MAPS.has(mapName) ? SRGBColorSpace : LinearSRGBColorSpace;
 }
 
-/** material-db property keys that hold [r,g,b] color arrays (linear RGB). */
+/** threejs-materials property keys that hold [r,g,b] color arrays (linear RGB). */
 const COLOR_ARRAY_KEYS = new Set([
     "color", "specularColor", "sheenColor", "emissive", "attenuationColor",
 ]);
-/** Map from material-db property names to Three.js texture map property names. */
+/** Map from threejs-materials property names to Three.js texture map property names. */
 const PROPERTY_TO_MAP = {
     color: "map",
     metalness: "metalnessMap",
@@ -83430,11 +83582,17 @@ class MaterialFactory {
         // --- Resolve base color and opacity ---
         let baseColor;
         let opacity;
-        if (def.baseColor) {
-            // MaterialAppearance baseColor is sRGB [R, G, B, A?] (0-1).
-            // Convert to linear working space for Three.js.
-            baseColor = new Color().setRGB(def.baseColor[0], def.baseColor[1], def.baseColor[2], SRGBColorSpace);
-            opacity = def.baseColor[3] ?? 1.0;
+        if (def.color) {
+            if (typeof def.color === "string") {
+                // CSS hex string (e.g. "#55a0e3") — THREE.Color parses as sRGB
+                baseColor = new Color(def.color);
+                opacity = 1.0;
+            }
+            else {
+                // sRGB RGBA tuple [R, G, B, A?] (0-1)
+                baseColor = new Color().setRGB(def.color[0], def.color[1], def.color[2], SRGBColorSpace);
+                opacity = def.color[3] ?? 1.0;
+            }
         }
         else {
             // Fall back to leaf node's CSS hex color + alpha.
@@ -83453,8 +83611,8 @@ class MaterialFactory {
             // Apply alpha mode to basic material too
             this._applyAlphaMode(basicMat, def, opacity);
             // Resolve base color texture
-            if (def.baseColorTexture && textureCache) {
-                const tex = await textureCache.get(def.baseColorTexture, "baseColorTexture");
+            if (def.map && textureCache) {
+                const tex = await textureCache.get(def.map, "baseColorTexture");
                 if (tex)
                     basicMat.map = tex;
             }
@@ -83468,7 +83626,7 @@ class MaterialFactory {
         const isBlend = def.alphaMode === "BLEND" || (!def.alphaMode && opacity < 1.0);
         const material = new MeshPhysicalMaterial({
             color: baseColor,
-            metalness: def.metallic ?? 0.0,
+            metalness: def.metalness ?? 0.0,
             roughness: def.roughness ?? 0.5,
             flatShading: false,
             side,
@@ -83486,8 +83644,8 @@ class MaterialFactory {
         if (def.emissive) {
             material.emissive = new Color(def.emissive[0], def.emissive[1], def.emissive[2]);
         }
-        if (def.emissiveStrength !== undefined) {
-            material.emissiveIntensity = def.emissiveStrength;
+        if (def.emissiveIntensity !== undefined) {
+            material.emissiveIntensity = def.emissiveIntensity;
         }
         // --- Transmission (glass, water) ---
         // Transmission uses a separate render target in Three.js and must NOT
@@ -83557,13 +83715,13 @@ class MaterialFactory {
         return material;
     }
     /**
-     * Create a Studio mode material from a material-db format entry.
+     * Create a Studio mode material from a threejs-materials format entry.
      *
-     * material-db `properties` uses simplified property names (e.g., "color",
+     * threejs-materials `properties` uses simplified property names (e.g., "color",
      * "roughness", "normal") where each entry has an optional `value` (scalar or
      * [r,g,b] array in **linear RGB**) and/or `texture` (inline data URI).
      *
-     * @param properties - Material properties from material-db
+     * @param properties - Material properties from threejs-materials
      * @param textureRepeat - Optional [u, v] texture tiling applied to all loaded textures
      * @param textureCache - TextureCache for resolving data URI textures
      * @param label - Optional label for GPU tracking
@@ -83645,23 +83803,6 @@ class MaterialFactory {
                     hasTextures = true;
                 }
             }
-            // glTF packed metallic-roughness texture: G=roughness, B=metalness.
-            // Three.js reads the correct channels when the same texture is
-            // assigned to both metalnessMap and roughnessMap.
-            const mrProp = properties["metallicRoughness"];
-            if (mrProp?.texture) {
-                const colorSpace = getColorSpaceForMap("metalnessMap");
-                const roleForCache = colorSpace === SRGBColorSpace
-                    ? "baseColorTexture" : "normalTexture";
-                const mrTex = await textureCache.get(mrProp.texture, roleForCache);
-                if (mrTex) {
-                    if (textureRepeat)
-                        mrTex.repeat.set(textureRepeat[0], textureRepeat[1]);
-                    material.metalnessMap = mrTex;
-                    material.roughnessMap = mrTex;
-                    hasTextures = true;
-                }
-            }
         }
         // Enable alpha cutout when an alphaMap is present
         if (material.alphaMap) {
@@ -83672,7 +83813,7 @@ class MaterialFactory {
         if (hasTextures) {
             material.needsUpdate = true;
         }
-        gpuTracker.track("material", material, label ?? "MeshPhysicalMaterial (material-db)");
+        gpuTracker.track("material", material, label ?? "MeshPhysicalMaterial (threejs-materials)");
         return material;
     }
     /**
@@ -83727,54 +83868,53 @@ class MaterialFactory {
             return textureCache.get(key, textureRole);
         };
         // --- sRGB color-data textures ---
-        const baseColorTex = await resolve(def.baseColorTexture, "baseColorTexture");
+        const baseColorTex = await resolve(def.map, "baseColorTexture");
         if (baseColorTex)
             material.map = baseColorTex;
-        const emissiveTex = await resolve(def.emissiveTexture, "emissiveTexture");
+        const emissiveTex = await resolve(def.emissiveMap, "emissiveTexture");
         if (emissiveTex)
             material.emissiveMap = emissiveTex;
-        const sheenColorTex = await resolve(def.sheenColorTexture, "sheenColorTexture");
+        const sheenColorTex = await resolve(def.sheenColorMap, "sheenColorTexture");
         if (sheenColorTex)
             material.sheenColorMap = sheenColorTex;
-        const specularColorTex = await resolve(def.specularColorTexture, "specularColorTexture");
+        const specularColorTex = await resolve(def.specularColorMap, "specularColorTexture");
         if (specularColorTex)
             material.specularColorMap = specularColorTex;
         // --- Linear non-color data textures ---
-        const normalTex = await resolve(def.normalTexture, "normalTexture");
+        const normalTex = await resolve(def.normalMap, "normalTexture");
         if (normalTex)
             material.normalMap = normalTex;
-        const occlusionTex = await resolve(def.occlusionTexture, "occlusionTexture");
+        const occlusionTex = await resolve(def.aoMap, "occlusionTexture");
         if (occlusionTex)
             material.aoMap = occlusionTex;
-        // metallicRoughnessTexture: single texture -> two material properties
-        // B channel = metalness, G channel = roughness
-        const metalRoughTex = await resolve(def.metallicRoughnessTexture, "metallicRoughnessTexture");
-        if (metalRoughTex) {
-            material.metalnessMap = metalRoughTex;
-            material.roughnessMap = metalRoughTex;
-        }
-        const transmissionTex = await resolve(def.transmissionTexture, "transmissionTexture");
+        const metalnessTex = await resolve(def.metalnessMap, "metallicRoughnessTexture");
+        if (metalnessTex)
+            material.metalnessMap = metalnessTex;
+        const roughnessTex = await resolve(def.roughnessMap, "metallicRoughnessTexture");
+        if (roughnessTex)
+            material.roughnessMap = roughnessTex;
+        const transmissionTex = await resolve(def.transmissionMap, "transmissionTexture");
         if (transmissionTex)
             material.transmissionMap = transmissionTex;
-        const thicknessTex = await resolve(def.thicknessTexture, "thicknessTexture");
+        const thicknessTex = await resolve(def.thicknessMap, "thicknessTexture");
         if (thicknessTex)
             material.thicknessMap = thicknessTex;
-        const clearcoatTex = await resolve(def.clearcoatTexture, "clearcoatTexture");
+        const clearcoatTex = await resolve(def.clearcoatMap, "clearcoatTexture");
         if (clearcoatTex)
             material.clearcoatMap = clearcoatTex;
-        const clearcoatRoughnessTex = await resolve(def.clearcoatRoughnessTexture, "clearcoatRoughnessTexture");
+        const clearcoatRoughnessTex = await resolve(def.clearcoatRoughnessMap, "clearcoatRoughnessTexture");
         if (clearcoatRoughnessTex)
             material.clearcoatRoughnessMap = clearcoatRoughnessTex;
-        const clearcoatNormalTex = await resolve(def.clearcoatNormalTexture, "clearcoatNormalTexture");
+        const clearcoatNormalTex = await resolve(def.clearcoatNormalMap, "clearcoatNormalTexture");
         if (clearcoatNormalTex)
             material.clearcoatNormalMap = clearcoatNormalTex;
-        const specularIntensityTex = await resolve(def.specularIntensityTexture, "specularIntensityTexture");
+        const specularIntensityTex = await resolve(def.specularIntensityMap, "specularIntensityTexture");
         if (specularIntensityTex)
             material.specularIntensityMap = specularIntensityTex;
-        const sheenRoughnessTex = await resolve(def.sheenRoughnessTexture, "sheenRoughnessTexture");
+        const sheenRoughnessTex = await resolve(def.sheenRoughnessMap, "sheenRoughnessTexture");
         if (sheenRoughnessTex)
             material.sheenRoughnessMap = sheenRoughnessTex;
-        const anisotropyTex = await resolve(def.anisotropyTexture, "anisotropyTexture");
+        const anisotropyTex = await resolve(def.anisotropyMap, "anisotropyTexture");
         if (anisotropyTex)
             material.anisotropyMap = anisotropyTex;
     }
@@ -83813,7 +83953,7 @@ var CollapseState;
     CollapseState[CollapseState["EXPANDED"] = 2] = "EXPANDED";
 })(CollapseState || (CollapseState = {}));
 /**
- * Type guard to check if a material entry is a material-db format dict.
+ * Type guard to check if a material entry is a threejs-materials format dict.
  * Detected by the presence of the `properties` key.
  */
 function isMaterialXMaterial(m) {
@@ -83846,12 +83986,12 @@ function hasSegmentsPerEdge(shape) {
  * and natural/other materials.
  *
  * These are pure data definitions — no textures, no runtime cost.
- * The `preset` field is intentionally omitted; it is used by user-defined
+ * The `builtin` field is intentionally omitted; it is used by user-defined
  * materials to reference these presets, not by presets themselves.
  *
- * All baseColor values are in sRGB color space (0-1 per channel).
+ * All color values are in sRGB color space (0-1 per channel).
  * The material factory converts sRGB to linear when creating Three.js materials.
- * Presets with neutral baseColor (plastics, paints) rely on the leaf node's
+ * Presets with neutral color (plastics, paints) rely on the leaf node's
  * color field for the actual tint via fallback in the material factory.
  *
  */
@@ -83870,38 +84010,38 @@ const MATERIAL_PRESETS = {
     // ---------------------------------------------------------------------------
     "chrome": {
         name: "Chrome",
-        baseColor: [0.98, 0.98, 0.98, 1],
-        metallic: 1.0,
+        color: [0.98, 0.98, 0.98, 1],
+        metalness: 1.0,
         roughness: 0.05,
     },
     "polished-steel": {
         name: "Polished Steel",
-        baseColor: [0.91, 0.91, 0.92, 1],
-        metallic: 1.0,
+        color: [0.91, 0.91, 0.92, 1],
+        metalness: 1.0,
         roughness: 0.1,
     },
     "polished-aluminum": {
         name: "Polished Aluminum",
-        baseColor: [0.916, 0.923, 0.924, 1],
-        metallic: 1.0,
+        color: [0.916, 0.923, 0.924, 1],
+        metalness: 1.0,
         roughness: 0.1,
     },
     "gold": {
         name: "Gold",
-        baseColor: [1, 0.93, 0, 1],
-        metallic: 1.0,
+        color: [1, 0.93, 0, 1],
+        metalness: 1.0,
         roughness: 0.1,
     },
     "copper": {
         name: "Copper",
-        baseColor: [0.98, 0.82, 0.76, 1],
-        metallic: 1.0,
+        color: [0.98, 0.82, 0.76, 1],
+        metalness: 1.0,
         roughness: 0.15,
     },
     "brass": {
         name: "Brass",
-        baseColor: [0.95, 0.9, 0.7, 1],
-        metallic: 1.0,
+        color: [0.95, 0.9, 0.7, 1],
+        metalness: 1.0,
         roughness: 0.15,
     },
     // ---------------------------------------------------------------------------
@@ -83909,33 +84049,33 @@ const MATERIAL_PRESETS = {
     // ---------------------------------------------------------------------------
     "stainless-steel": {
         name: "Stainless Steel",
-        baseColor: [0.91, 0.91, 0.92, 1],
-        metallic: 1.0,
+        color: [0.91, 0.91, 0.92, 1],
+        metalness: 1.0,
         roughness: 0.4,
     },
     "brushed-aluminum": {
         name: "Brushed Aluminum",
-        baseColor: [0.916, 0.923, 0.924, 1],
-        metallic: 1.0,
+        color: [0.916, 0.923, 0.924, 1],
+        metalness: 1.0,
         roughness: 0.35,
         anisotropy: 0.5,
     },
     "cast-iron": {
         name: "Cast Iron",
-        baseColor: [0.68, 0.68, 0.69, 1],
-        metallic: 0.9,
+        color: [0.68, 0.68, 0.69, 1],
+        metalness: 0.9,
         roughness: 0.7,
     },
     "titanium": {
         name: "Titanium",
-        baseColor: [0.81, 0.79, 0.77, 1],
-        metallic: 1.0,
+        color: [0.81, 0.79, 0.77, 1],
+        metalness: 1.0,
         roughness: 0.45,
     },
     "galvanized": {
         name: "Galvanized",
-        baseColor: [0.88, 0.88, 0.9, 1],
-        metallic: 0.8,
+        color: [0.88, 0.88, 0.9, 1],
+        metalness: 0.8,
         roughness: 0.5,
     },
     // ---------------------------------------------------------------------------
@@ -83943,32 +84083,32 @@ const MATERIAL_PRESETS = {
     // ---------------------------------------------------------------------------
     "plastic-glossy": {
         name: "Plastic (Glossy)",
-        baseColor: [0.91, 0.91, 0.91, 1],
-        metallic: 0.0,
+        color: [0.91, 0.91, 0.91, 1],
+        metalness: 0.0,
         roughness: 0.4,
     },
     "plastic-matte": {
         name: "Plastic (Matte)",
-        baseColor: [0.91, 0.91, 0.91, 1],
-        metallic: 0.0,
+        color: [0.91, 0.91, 0.91, 1],
+        metalness: 0.0,
         roughness: 0.6,
     },
     "abs-black": {
         name: "ABS Black",
-        baseColor: [0.25, 0.25, 0.25, 1],
-        metallic: 0.0,
+        color: [0.25, 0.25, 0.25, 1],
+        metalness: 0.0,
         roughness: 0.4,
     },
     "nylon": {
         name: "Nylon",
-        baseColor: [0.95, 0.94, 0.92, 1],
-        metallic: 0.0,
+        color: [0.95, 0.94, 0.92, 1],
+        metalness: 0.0,
         roughness: 0.55,
     },
     "acrylic-clear": {
         name: "Acrylic (Clear)",
-        baseColor: [1, 1, 1, 1],
-        metallic: 0.0,
+        color: [1, 1, 1, 1],
+        metalness: 0.0,
         roughness: 0.0,
         transmission: 0.95,
         ior: 1.49,
@@ -83978,8 +84118,8 @@ const MATERIAL_PRESETS = {
     // ---------------------------------------------------------------------------
     "glass-clear": {
         name: "Glass (Clear)",
-        baseColor: [1, 1, 1, 1],
-        metallic: 0.0,
+        color: [1, 1, 1, 1],
+        metalness: 0.0,
         roughness: 0.0,
         transmission: 1.0,
         ior: 1.52,
@@ -83987,8 +84127,8 @@ const MATERIAL_PRESETS = {
     },
     "glass-tinted": {
         name: "Glass (Tinted)",
-        baseColor: [0.8, 0.91, 0.95, 1],
-        metallic: 0.0,
+        color: [0.8, 0.91, 0.95, 1],
+        metalness: 0.0,
         roughness: 0.0,
         transmission: 0.9,
         ior: 1.52,
@@ -83996,8 +84136,8 @@ const MATERIAL_PRESETS = {
     },
     "glass-frosted": {
         name: "Glass (Frosted)",
-        baseColor: [1, 1, 1, 1],
-        metallic: 0.0,
+        color: [1, 1, 1, 1],
+        metalness: 0.0,
         roughness: 0.3,
         transmission: 0.85,
         ior: 1.52,
@@ -84008,20 +84148,20 @@ const MATERIAL_PRESETS = {
     // ---------------------------------------------------------------------------
     "rubber-black": {
         name: "Rubber (Black)",
-        baseColor: [0.31, 0.31, 0.31, 1],
-        metallic: 0.0,
+        color: [0.31, 0.31, 0.31, 1],
+        metalness: 0.0,
         roughness: 0.9,
     },
     "rubber-gray": {
         name: "Rubber (Gray)",
-        baseColor: [0.63, 0.63, 0.63, 1],
-        metallic: 0.0,
+        color: [0.63, 0.63, 0.63, 1],
+        metalness: 0.0,
         roughness: 0.85,
     },
     "rubber-red": {
         name: "Rubber (Red)",
-        baseColor: [0.85, 0.35, 0.35, 1],
-        metallic: 0.0,
+        color: [0.85, 0.35, 0.35, 1],
+        metalness: 0.0,
         roughness: 0.8,
     },
     // ---------------------------------------------------------------------------
@@ -84029,26 +84169,26 @@ const MATERIAL_PRESETS = {
     // ---------------------------------------------------------------------------
     "paint-matte": {
         name: "Paint (Matte)",
-        baseColor: [0.91, 0.91, 0.91, 1],
-        metallic: 0.0,
+        color: [0.91, 0.91, 0.91, 1],
+        metalness: 0.0,
         roughness: 0.7,
     },
     "paint-glossy": {
         name: "Paint (Glossy)",
-        baseColor: [0.91, 0.91, 0.91, 1],
-        metallic: 0.0,
+        color: [0.91, 0.91, 0.91, 1],
+        metalness: 0.0,
         roughness: 0.15,
     },
     "paint-metallic": {
         name: "Paint (Metallic)",
-        baseColor: [0.91, 0.91, 0.91, 1],
-        metallic: 0.5,
+        color: [0.91, 0.91, 0.91, 1],
+        metalness: 0.5,
         roughness: 0.25,
     },
     "car-paint": {
         name: "Car Paint",
-        baseColor: [0.91, 0, 0, 1],
-        metallic: 0.5,
+        color: [0.91, 0, 0, 1],
+        metalness: 0.5,
         roughness: 0.2,
         clearcoat: 1.0,
         clearcoatRoughness: 0.03,
@@ -84058,33 +84198,33 @@ const MATERIAL_PRESETS = {
     // ---------------------------------------------------------------------------
     "wood-light": {
         name: "Wood (Light)",
-        baseColor: [0.89, 0.8, 0.68, 1],
-        metallic: 0.0,
+        color: [0.89, 0.8, 0.68, 1],
+        metalness: 0.0,
         roughness: 0.6,
     },
     "wood-dark": {
         name: "Wood (Dark)",
-        baseColor: [0.63, 0.51, 0.38, 1],
-        metallic: 0.0,
+        color: [0.63, 0.51, 0.38, 1],
+        metalness: 0.0,
         roughness: 0.55,
     },
     "ceramic-white": {
         name: "Ceramic (White)",
-        baseColor: [0.98, 0.98, 0.97, 1],
-        metallic: 0.0,
+        color: [0.98, 0.98, 0.97, 1],
+        metalness: 0.0,
         roughness: 0.1,
     },
     "carbon-fiber": {
         name: "Carbon Fiber",
-        baseColor: [0.25, 0.25, 0.25, 1],
-        metallic: 0.3,
+        color: [0.25, 0.25, 0.25, 1],
+        metalness: 0.3,
         roughness: 0.35,
         anisotropy: 0.3,
     },
     "concrete": {
         name: "Concrete",
-        baseColor: [0.83, 0.82, 0.8, 1],
-        metallic: 0.0,
+        color: [0.83, 0.82, 0.8, 1],
+        metalness: 0.0,
         roughness: 0.85,
     },
 };
@@ -84097,7 +84237,7 @@ const MATERIAL_PRESETS = {
  * Useful for UI dropdowns, validation, and programmatic enumeration.
  * Derived from MATERIAL_PRESETS keys at module load time.
  */
-Object.keys(MATERIAL_PRESETS).sort();
+const MATERIAL_PRESET_NAMES = Object.keys(MATERIAL_PRESETS).sort();
 
 /**
  * Triplanar texture mapping for MeshPhysicalMaterial.
@@ -84433,11 +84573,11 @@ class CompoundGroup extends Group {
  */
 /** Texture field names on MaterialAppearance that require UV coordinates. */
 const TEXTURE_FIELDS = [
-    "baseColorTexture", "normalTexture", "occlusionTexture",
-    "metallicRoughnessTexture", "emissiveTexture", "transmissionTexture",
-    "clearcoatTexture", "clearcoatRoughnessTexture", "clearcoatNormalTexture",
-    "thicknessTexture", "specularIntensityTexture", "specularColorTexture",
-    "sheenColorTexture", "sheenRoughnessTexture", "anisotropyTexture",
+    "map", "normalMap", "aoMap",
+    "metalnessMap", "roughnessMap", "emissiveMap", "transmissionMap",
+    "clearcoatMap", "clearcoatRoughnessMap", "clearcoatNormalMap",
+    "thicknessMap", "specularIntensityMap", "specularColorMap",
+    "sheenColorMap", "sheenRoughnessMap", "anisotropyMap",
 ];
 /** Check whether a resolved MaterialAppearance references any texture. */
 function materialHasTexture(def) {
@@ -84573,10 +84713,23 @@ class NestedGroup {
                 logger.warn(`Invalid material string '${entry}' for tag '${tag}' (expected "builtin:" prefix)`);
                 return null;
             }
-            // MaterialXMaterial entry: object with `params` key
+            // MaterialXMaterial entry: object with `properties` key
             if (isMaterialXMaterial(entry)) {
                 this.resolvedMaterialX.set(tag, entry);
                 return entry;
+            }
+            // MaterialAppearance entry: object with `builtin` key (preset + overrides)
+            if (typeof entry === "object" && "builtin" in entry) {
+                const appearance = entry;
+                const presetName = appearance.builtin;
+                const preset = MATERIAL_PRESETS[presetName];
+                if (!preset) {
+                    logger.warn(`Unknown builtin preset '${presetName}' referenced by '${tag}' on '${objectPath}'`);
+                    return null;
+                }
+                const resolved = { ...preset, ...appearance };
+                this.resolvedMaterials.set(tag, resolved);
+                return resolved;
             }
             // Should not happen with current type, but guard anyway
             logger.warn(`Unrecognised material entry for tag '${tag}' on '${objectPath}'`);
@@ -85165,6 +85318,8 @@ class NestedGroup {
             this._textureCache = new TextureCache();
         }
         this._textureCache.setTexturesTable(this.texturesTable ?? undefined);
+        // Track material tags that failed to resolve
+        const unresolvedTags = new Set();
         // Iterate all ObjectGroups with front meshes
         for (const path in this.groups) {
             const obj = this.groups[path];
@@ -85185,6 +85340,9 @@ class NestedGroup {
             if (!studioMaterial) {
                 // Resolve the tag
                 const resolved = tag ? this.resolveMaterialTag(tag, path) : null;
+                if (tag && !resolved) {
+                    unresolvedTags.add(tag);
+                }
                 // Per-object try/catch: a single failure should not abort the rest
                 try {
                     if (resolved && isMaterialXMaterial(resolved)) {
@@ -85203,12 +85361,12 @@ class NestedGroup {
                         else if (leafAlpha < 1) {
                             // Fallback for transparent objects: acrylic-clear with
                             // transmission matching the CAD alpha, tinted with CAD color
-                            const { baseColor: _, ...acrylicClear } = MATERIAL_PRESETS["acrylic-clear"];
+                            const { color: _, ...acrylicClear } = MATERIAL_PRESETS["acrylic-clear"];
                             materialDef = { ...acrylicClear, transmission: 1 - leafAlpha };
                         }
                         else {
                             // Fallback: plastic-glossy tinted with CAD color
-                            const { baseColor: _, ...plasticGlossy } = MATERIAL_PRESETS["plastic-glossy"];
+                            const { color: _, ...plasticGlossy } = MATERIAL_PRESETS["plastic-glossy"];
                             materialDef = plasticGlossy;
                         }
                         studioMaterial = await this.materialFactory.createStudioMaterial({
@@ -85270,6 +85428,7 @@ class NestedGroup {
             obj.enterStudioMode(studioMaterial instanceof MeshPhysicalMaterial ? studioMaterial : null, studioBack);
         }
         this._isStudioMode = true;
+        return [...unresolvedTags];
     }
     /**
      * Leave Studio mode: restore CAD materials on all ObjectGroups.
@@ -86433,8 +86592,18 @@ class OrientationMarker {
      */
     render(renderer) {
         if (this.ready && this.scene && this.camera) {
+            // Rendering the corner marker mutates renderer state (viewport/scissor/scissor test).
+            // Preserve and restore those values so downstream renders are not clipped or offset.
+            const prevViewport = renderer.getViewport(new Vector4());
+            const prevScissor = renderer.getScissor(new Vector4());
+            const prevScissorTest = renderer.getScissorTest();
+            // Draw marker in its small corner viewport.
             renderer.setViewport(0, 0, this.width, this.height);
             renderer.render(this.scene, this.camera);
+            // Restore previous state for the main scene / shared render pipeline.
+            renderer.setViewport(prevViewport);
+            renderer.setScissor(prevScissor);
+            renderer.setScissorTest(prevScissorTest);
         }
     }
     /**
@@ -88163,6 +88332,46 @@ class Clipping extends Group {
         this.reverseClipPlanes[index].setConstant(-value);
     }
     /**
+     * Save the current clipping state for later restoration.
+     * Captures plane positions, helper visibility, and stencil plane visibility.
+     * Used by Studio mode to snapshot clipping state before disabling clipping.
+     *
+     * Note: `renderer.localClippingEnabled` and `clipPlaneHelpers` ViewerState
+     * are managed by the caller (Display/Viewer layer), not captured here.
+     */
+    saveState() {
+        return {
+            planeConstants: [
+                this.clipPlanes[0].centeredConstant,
+                this.clipPlanes[1].centeredConstant,
+                this.clipPlanes[2].centeredConstant,
+            ],
+            helperVisible: this.planeHelpers?.visible ?? false,
+            planesVisible: this._planeMeshGroup?.children.length
+                ? this._planeMeshGroup.children[0].material.visible
+                : false,
+        };
+    }
+    /**
+     * Restore a previously saved clipping state.
+     * Re-applies plane positions, helper visibility, and stencil plane visibility.
+     * Used by Studio mode when leaving to restore the clipping configuration.
+     *
+     * @param state - The state previously captured by `saveState()`.
+     */
+    restoreState(state) {
+        // Restore plane positions
+        for (const i of CLIP_INDICES) {
+            this.setConstant(i, state.planeConstants[i]);
+        }
+        // Restore plane helper visibility
+        if (this.planeHelpers) {
+            this.planeHelpers.visible = state.helperVisible;
+        }
+        // Restore stencil plane mesh visibility
+        this.setVisible(state.planesVisible);
+    }
+    /**
      * Clean up resources.
      * Note: We don't null out arrays/references as GC handles cleanup when the Clipping object is collected.
      */
@@ -88506,6 +88715,7 @@ class ShapeRenderer {
             }
             const vertices = shape.vertices;
             const normals = shape.normals;
+            const uvs = shape.uvs instanceof Float32Array ? shape.uvs : null;
             // Determine format and validate
             let current = 0;
             if (hasTrianglesPerFace(shape)) {
@@ -88521,6 +88731,7 @@ class ShapeRenderer {
                     current += 3 * perFace[j];
                     const vecs = new Float32Array(triangles.length * 3);
                     const norms = new Float32Array(triangles.length * 3);
+                    const uvArr = uvs ? new Float32Array(triangles.length * 2) : null;
                     for (let i = 0; i < triangles.length; i++) {
                         const s = triangles[i];
                         vecs[3 * i] = vertices[3 * s];
@@ -88529,6 +88740,22 @@ class ShapeRenderer {
                         norms[3 * i] = normals[3 * s];
                         norms[3 * i + 1] = normals[3 * s + 1];
                         norms[3 * i + 2] = normals[3 * s + 2];
+                        if (uvs && uvArr) {
+                            uvArr[2 * i] = uvs[2 * s];
+                            uvArr[2 * i + 1] = uvs[2 * s + 1];
+                        }
+                    }
+                    const newShapeObj = {
+                        triangles: [...Array(triangles.length).keys()],
+                        vertices: Array.from(vecs),
+                        normals: Array.from(norms),
+                        edges: [],
+                        obj_vertices: [],
+                        edge_types: [],
+                        face_types: [shape.face_types[j]],
+                    };
+                    if (uvArr) {
+                        newShapeObj.uvs = Array.from(uvArr);
                     }
                     const new_shape = {
                         version: 2,
@@ -88541,22 +88768,17 @@ class ShapeRenderer {
                         type: "shapes",
                         color: part.color,
                         alpha: part.alpha,
-                        renderback: true,
+                        renderback: part.subtype !== "solid",
                         state: [1, 3],
                         accuracy: part.accuracy,
                         bb: null,
-                        shape: {
-                            triangles: [...Array(triangles.length).keys()],
-                            vertices: Array.from(vecs),
-                            normals: Array.from(norms),
-                            edges: [],
-                            obj_vertices: [],
-                            edge_types: [],
-                            face_types: [shape.face_types[j]],
-                        },
+                        shape: newShapeObj,
                     };
                     if (part.texture) {
                         new_shape.texture = part.texture;
+                    }
+                    if (part.material) {
+                        new_shape.material = part.material;
                     }
                     new_shape.geomtype = shape.face_types[j];
                     new_shape.subtype = part.subtype;
@@ -88576,6 +88798,7 @@ class ShapeRenderer {
                     triangles = trianglesNested[j];
                     const vecs = new Float32Array(triangles.length * 3);
                     const norms = new Float32Array(triangles.length * 3);
+                    const uvArr = uvs ? new Float32Array(triangles.length * 2) : null;
                     for (let i = 0; i < triangles.length; i++) {
                         const s = triangles[i];
                         vecs[3 * i] = vertices[3 * s];
@@ -88584,6 +88807,22 @@ class ShapeRenderer {
                         norms[3 * i] = normals[3 * s];
                         norms[3 * i + 1] = normals[3 * s + 1];
                         norms[3 * i + 2] = normals[3 * s + 2];
+                        if (uvs && uvArr) {
+                            uvArr[2 * i] = uvs[2 * s];
+                            uvArr[2 * i + 1] = uvs[2 * s + 1];
+                        }
+                    }
+                    const newShapeObj2 = {
+                        triangles: [...Array(triangles.length).keys()],
+                        vertices: Array.from(vecs),
+                        normals: Array.from(norms),
+                        edges: [],
+                        obj_vertices: [],
+                        edge_types: [],
+                        face_types: [shape.face_types[j]],
+                    };
+                    if (uvArr) {
+                        newShapeObj2.uvs = Array.from(uvArr);
                     }
                     const new_shape = {
                         version: 2,
@@ -88596,22 +88835,17 @@ class ShapeRenderer {
                         type: "shapes",
                         color: part.color,
                         alpha: part.alpha,
-                        renderback: true,
+                        renderback: part.subtype !== "solid",
                         state: [1, 3],
                         accuracy: part.accuracy,
                         bb: null,
-                        shape: {
-                            triangles: [...Array(triangles.length).keys()],
-                            vertices: Array.from(vecs),
-                            normals: Array.from(norms),
-                            edges: [],
-                            obj_vertices: [],
-                            edge_types: [],
-                            face_types: [shape.face_types[j]],
-                        },
+                        shape: newShapeObj2,
                     };
                     if (part.texture) {
                         new_shape.texture = part.texture;
+                    }
+                    if (part.material) {
+                        new_shape.material = part.material;
                     }
                     new_shape.geomtype = shape.face_types[j];
                     new_shape.subtype = part.subtype;
@@ -88802,9 +89036,13 @@ class ShapeRenderer {
         // Only flatten if it's actually nested (no segments_per_edge means nested format)
         if (s.edges != null && !(s.edges instanceof Float32Array)) {
             if (s.segments_per_edge !== undefined) {
-                // Binary format with flat edges - convert directly
                 if (!Array.isArray(s.edges[0])) {
+                    // Flat number[] — convert directly
                     s.edges = new Float32Array(s.edges);
+                }
+                else {
+                    // Nested number[][] with segments_per_edge — flatten then convert
+                    s.edges = new Float32Array(flatten(s.edges, 1));
                 }
             }
             // If no segments_per_edge, leave as number[][] for _decompose
@@ -88830,6 +89068,10 @@ class ShapeRenderer {
         // obj_vertices: always flat number[] -> Float32Array
         if (s.obj_vertices != null && !(s.obj_vertices instanceof Float32Array)) {
             s.obj_vertices = new Float32Array(s.obj_vertices);
+        }
+        // uvs: flat number[] -> Float32Array (2 floats per vertex)
+        if (s.uvs != null && !(s.uvs instanceof Float32Array)) {
+            s.uvs = new Float32Array(s.uvs);
         }
         // face_types: number[] -> Uint32Array
         if (s.face_types != null && !(s.face_types instanceof Uint32Array)) {
@@ -92855,6 +93097,13 @@ const cameraUp = {
  */
 class Camera {
     /**
+     * Compute the near clipping plane from the bounding radius.
+     * Keeps the far/near ratio bounded for depth buffer precision.
+     */
+    static _computeNear(distance) {
+        return Math.max(0.1, Camera.NEAR_FACTOR * distance);
+    }
+    /**
      * Create a combined camera (orthographic and perspective).
      * @param width - canvas width.
      * @param height - canvas height.
@@ -92879,24 +93128,29 @@ class Camera {
         // 22 is a good compromise
         const fov = 22;
         this.camera_distance = Camera.DISTANCE_FACTOR * distance;
-        this.pCamera = new PerspectiveCamera(fov, aspect, 0.1, 100 * distance);
+        const near = Camera._computeNear(distance);
+        const far = 100 * distance;
+        this.pCamera = new PerspectiveCamera(fov, aspect, near, far);
         this.pCamera.up.set(...cameraUp[this.up]);
         this.pCamera.lookAt(this.target);
         // define the orthographic camera
         const pSize = this.projectSize(distance, aspect);
-        this.oCamera = new OrthographicCamera(-pSize[0], pSize[0], pSize[1], -pSize[1], 0.1, 100 * distance);
+        this.oCamera = new OrthographicCamera(-pSize[0], pSize[0], pSize[1], -pSize[1], near, far);
         this.oCamera.up.set(...cameraUp[this.up]);
         this.oCamera.lookAt(this.target);
         this.camera = ortho ? this.oCamera : this.pCamera;
         this.camera.up.set(...cameraUp[this.up]);
     }
     /**
-     * Update the far clipping plane for both cameras.
-     * @param distance - The new bounding radius to base the far plane on.
+     * Update the near/far clipping planes for both cameras.
+     * @param distance - The new bounding radius to base the clipping planes on.
      */
     updateFarPlane(distance) {
+        const near = Camera._computeNear(distance);
         const far = 100 * distance;
+        this.pCamera.near = near;
         this.pCamera.far = far;
+        this.oCamera.near = near;
         this.oCamera.far = far;
         this.camera.updateProjectionMatrix();
     }
@@ -93140,6 +93394,13 @@ class Camera {
     }
 }
 Camera.DISTANCE_FACTOR = 5;
+/**
+ * Near plane factor: near = max(0.1, NEAR_FACTOR * distance).
+ * With far = 100 * distance, this gives a far/near ratio of 10,000:1,
+ * which is comfortable for 24-bit depth buffers and avoids z-fighting
+ * on large models (e.g. toycar at ~1100 unit bounding radius).
+ */
+Camera.NEAR_FACTOR = 0.01;
 
 /**
  * Filter types for topology-based raycasting.
@@ -104102,7 +104363,7 @@ const STATE_KEYS = new Set([
     // Display
     "theme", "cadWidth", "treeWidth", "treeHeight", "height", "pinning", "glass", "tools",
     "keymap", "newTreeBehavior", "measureTools", "selectTool", "explodeTool", "zscaleTool",
-    "zebraTool", "measurementDebug",
+    "zebraTool", "studioTool", "measurementDebug",
     // Render
     "ambientIntensity", "directIntensity", "metalness", "roughness", "defaultOpacity",
     "edgeColor", "normalLen",
@@ -104114,6 +104375,10 @@ const STATE_KEYS = new Set([
     "panSpeed", "rotateSpeed", "zoomSpeed", "timeit",
     // Zebra
     "zebraCount", "zebraOpacity", "zebraDirection", "zebraColorScheme", "zebraMappingMode",
+    // Studio
+    "studioEnvironment", "studioEnvIntensity", "studioBackground",
+    "studioToneMapping", "studioExposure", "studio4kEnvMaps", "studioTextureMapping",
+    "studioEnvRotation", "studioShadowIntensity", "studioShadowSoftness", "studioAOIntensity",
     // Runtime
     "activeTool", "animationMode", "animationSliderValue", "zscaleActive", "highlightedButton",
     "activeTab",
@@ -104170,6 +104435,18 @@ const STATE_TO_NOTIFICATION_KEY = {
     zebraDirection: "zebra_direction",
     zebraColorScheme: "zebra_color_scheme",
     zebraMappingMode: "zebra_mapping_mode",
+    // Studio settings
+    studioEnvironment: "studio_environment",
+    studioEnvIntensity: "studio_env_intensity",
+    studioBackground: "studio_background",
+    studioToneMapping: "studio_tone_mapping",
+    studioExposure: "studio_exposure",
+    studio4kEnvMaps: "studio_4k_env_maps",
+    studioTextureMapping: "studio_texture_mapping",
+    studioEnvRotation: "studio_env_rotation",
+    studioShadowIntensity: "studio_shadow_intensity",
+    studioShadowSoftness: "studio_shadow_softness",
+    studioAOIntensity: "studio_ao_intensity",
     // Animation/Explode slider (shared state, mutually exclusive modes)
     animationSliderValue: "relative_time",
 };
@@ -104249,6 +104526,7 @@ class ViewerState {
             ...ViewerState.RENDER_DEFAULTS,
             ...ViewerState.VIEWER_DEFAULTS,
             ...ViewerState.ZEBRA_DEFAULTS,
+            ...ViewerState.STUDIO_MODE_DEFAULTS,
             ...ViewerState.RUNTIME_DEFAULTS,
         };
         // Handle special theme logic (browser theme detection)
@@ -104360,6 +104638,36 @@ class ViewerState {
         this._update(converted, notify);
     }
     /**
+     * Update studio state from StudioOptions (shapes.studioOptions).
+     * Maps short field names to prefixed state keys.
+     */
+    updateStudioState(options) {
+        const map = {};
+        if (options.environment !== undefined)
+            map.studioEnvironment = options.environment;
+        if (options.envIntensity !== undefined)
+            map.studioEnvIntensity = options.envIntensity;
+        if (options.background !== undefined)
+            map.studioBackground = options.background;
+        if (options.toneMapping !== undefined)
+            map.studioToneMapping = options.toneMapping;
+        if (options.toneMappingExposure !== undefined)
+            map.studioExposure = options.toneMappingExposure;
+        if (options.use4kEnvMaps !== undefined)
+            map.studio4kEnvMaps = options.use4kEnvMaps;
+        if (options.textureMapping !== undefined)
+            map.studioTextureMapping = options.textureMapping;
+        if (options.envRotation !== undefined)
+            map.studioEnvRotation = options.envRotation;
+        if (options.shadowIntensity !== undefined)
+            map.studioShadowIntensity = options.shadowIntensity;
+        if (options.shadowSoftness !== undefined)
+            map.studioShadowSoftness = options.shadowSoftness;
+        if (options.aoIntensity !== undefined)
+            map.studioAOIntensity = options.aoIntensity;
+        this._update(map, false);
+    }
+    /**
      * Get all state as a plain object (for serialization)
      */
     getAll() {
@@ -104463,6 +104771,7 @@ class ViewerState {
             ...ViewerState.RENDER_DEFAULTS,
             ...ViewerState.VIEWER_DEFAULTS,
             ...ViewerState.ZEBRA_DEFAULTS,
+            ...ViewerState.STUDIO_MODE_DEFAULTS,
             ...ViewerState.RUNTIME_DEFAULTS,
         };
         // Handle special theme logic
@@ -104490,6 +104799,7 @@ class ViewerState {
             ...ViewerState.RENDER_DEFAULTS,
             ...ViewerState.VIEWER_DEFAULTS,
             ...ViewerState.ZEBRA_DEFAULTS,
+            ...ViewerState.STUDIO_MODE_DEFAULTS,
             ...ViewerState.RUNTIME_DEFAULTS,
         };
     }
@@ -104507,6 +104817,7 @@ class ViewerState {
         logCategory("Render", ViewerState.RENDER_DEFAULTS);
         logCategory("View", ViewerState.VIEWER_DEFAULTS);
         logCategory("Zebra", ViewerState.ZEBRA_DEFAULTS);
+        logCategory("Studio", ViewerState.STUDIO_MODE_DEFAULTS);
         logCategory("Runtime", ViewerState.RUNTIME_DEFAULTS);
     }
 }
@@ -104516,7 +104827,7 @@ class ViewerState {
 ViewerState.DISPLAY_DEFAULTS = {
     theme: "light",
     cadWidth: 800,
-    treeWidth: 250,
+    treeWidth: 260,
     treeHeight: 400,
     height: 600,
     pinning: false,
@@ -104528,7 +104839,7 @@ ViewerState.DISPLAY_DEFAULTS = {
         reset: "R", resize: "r",
         iso: "5", front: "1", rear: "3", top: "8", bottom: "2", left: "4", right: "6",
         explode: "x", zscale: "L", distance: "D", properties: "P", select: "S", help: "h", play: " ", stop: "Escape",
-        tree: "T", clip: "C", material: "M", zebra: "Z",
+        tree: "T", clip: "C", material: "M", zebra: "Z", studio: "s",
     },
     newTreeBehavior: true,
     measureTools: true,
@@ -104536,6 +104847,7 @@ ViewerState.DISPLAY_DEFAULTS = {
     explodeTool: true,
     zscaleTool: false,
     zebraTool: true,
+    studioTool: true,
     measurementDebug: false,
 };
 /**
@@ -104596,6 +104908,22 @@ ViewerState.ZEBRA_DEFAULTS = {
     zebraMappingMode: "reflection",
 };
 /**
+ * Studio mode settings
+ */
+ViewerState.STUDIO_MODE_DEFAULTS = {
+    studioEnvironment: "studio",
+    studioEnvIntensity: 1.0,
+    studioBackground: "environment",
+    studioToneMapping: "neutral",
+    studioExposure: 1.0,
+    studio4kEnvMaps: false,
+    studioTextureMapping: "triplanar",
+    studioEnvRotation: 0,
+    studioShadowIntensity: 0.5,
+    studioShadowSoftness: 0.2,
+    studioAOIntensity: 0.5,
+};
+/**
  * Runtime state (not from options, changes during execution)
  */
 ViewerState.RUNTIME_DEFAULTS = {
@@ -104606,6 +104934,525 @@ ViewerState.RUNTIME_DEFAULTS = {
     highlightedButton: null,
     activeTab: "tree",
 };
+
+/**
+ * StudioManager — orchestrates Studio mode rendering.
+ *
+ * Extracted from viewer.ts to reduce its complexity. Owns the Studio-specific
+ * resources (composer, floor, shadow lights, environment manager) and handles
+ * all Studio subscriptions and mode enter/leave logic.
+ *
+ * Communicates with the Viewer via the StudioManagerContext interface to avoid
+ * a circular dependency.
+ */
+// ---------------------------------------------------------------------------
+// StudioManager
+// ---------------------------------------------------------------------------
+class StudioManager {
+    constructor(ctx) {
+        this._composer = null;
+        this._active = false;
+        this._savedClippingState = null;
+        this._savedViewState = null;
+        this._shadowLights = [];
+        // -------------------------------------------------------------------------
+        // Mode enter/leave
+        // -------------------------------------------------------------------------
+        this.enterStudioMode = async () => {
+            if (!this._ctx.isRendered())
+                return;
+            this._active = true;
+            const { renderer, state } = this._ctx;
+            try {
+                // 1. Save and disable clipping
+                const clipping = this._ctx.getClipping();
+                this._savedClippingState = clipping.saveState();
+                renderer.localClippingEnabled = false;
+                clipping.setVisible(false);
+                if (clipping.planeHelpers) {
+                    clipping.planeHelpers.visible = false;
+                }
+                // 2. Save view state (applied after env is loaded to avoid
+                //    subscriber side-effects before the texture is ready)
+                this._savedViewState = {
+                    ortho: state.get("ortho"),
+                    axes: state.get("axes"),
+                    grid: [...state.get("grid")],
+                };
+                // 3. Build/swap studio materials (async due to textures)
+                const nestedGroup = this._ctx.getNestedGroup();
+                const unresolvedTags = await nestedGroup.enterStudioMode(state.get("studioTextureMapping"));
+                if (!this._active)
+                    return;
+                // Surface unresolved material tags to the UI
+                if (unresolvedTags.length > 0) {
+                    this._ctx.dispatchEvent(new CustomEvent("tcv-material-warnings", { detail: unresolvedTags }));
+                }
+                // 4. Load environment map
+                const envName = state.get("studioEnvironment");
+                await this.envManager.loadEnvironment(envName, renderer);
+                if (!this._active)
+                    return;
+                // 5. Apply ALL rendering changes atomically
+                const scene = this._ctx.getScene();
+                const camera = this._ctx.getCamera();
+                this.envManager.apply(scene, state.get("studioEnvIntensity"), state.get("studioBackground"), state.get("up") === "Z", camera.ortho, state.get("studioEnvRotation"));
+                // 6. Override camera, axes, grid (after env is loaded so
+                //    ortho subscriber doesn't trigger reapplyEnv with null texture)
+                if (this._savedViewState?.ortho)
+                    this._ctx.setOrtho(false);
+                if (this._savedViewState?.axes)
+                    this._ctx.setAxes(false);
+                if (state.get("grid").some(Boolean))
+                    this._ctx.setGrids([false, false, false]);
+                // Lighting: disable CAD lights; environment IBL provides all illumination
+                this._ctx.getAmbientLight().intensity = 0;
+                this._ctx.getDirectLight().intensity = 0;
+                // Floor
+                this._configureFloor();
+                // Create composer (must be before shadows)
+                if (!this._composer) {
+                    this._composer = new StudioComposer(renderer, scene, camera.getCamera(), state.get("cadWidth"), state.get("height"));
+                }
+                // Shadows (requires composer)
+                if (state.get("studioShadowIntensity") > 0) {
+                    this._setShadowsEnabled(true);
+                }
+                // Tone mapping
+                this._composer.setToneMapping(state.get("studioToneMapping"), state.get("studioExposure"));
+                // Background protection
+                const bg = scene.background;
+                this._composer.setBackgroundProtect(bg instanceof Color ? bg : null);
+                // Ambient Occlusion
+                const aoIntensity = state.get("studioAOIntensity");
+                this._composer.setAOIntensity(aoIntensity);
+                this._composer.setAOEnabled(aoIntensity > 0);
+                // Edges are always hidden in Studio mode
+                nestedGroup.setStudioShowEdges(false);
+                this._ctx.update(true, false);
+            }
+            catch (err) {
+                if (this._composer) {
+                    this._composer.dispose();
+                    this._composer = null;
+                }
+                this._active = false;
+                logger.error("Unexpected error entering studio mode", err);
+            }
+        };
+        this.leaveStudioMode = () => {
+            if (!this._ctx.isRendered())
+                return;
+            const { renderer, state } = this._ctx;
+            const nestedGroup = this._ctx.getNestedGroup();
+            // 1. Restore materials
+            nestedGroup.leaveStudioMode();
+            // 2. Tear down composer
+            if (this._composer) {
+                this._composer.dispose();
+                this._composer = null;
+            }
+            // 3. Remove environment, disable shadows
+            this.envManager.remove(this._ctx.getScene());
+            this._setShadowsEnabled(false);
+            // 4. Restore lighting
+            this._ctx.getAmbientLight().intensity = scaleLight(state.get("ambientIntensity"));
+            this._ctx.getDirectLight().intensity = scaleLight(state.get("directIntensity"));
+            // 5. Disable tone mapping
+            renderer.toneMapping = NoToneMapping;
+            renderer.toneMappingExposure = 1.0;
+            // 6. Restore clipping state
+            if (this._savedClippingState) {
+                this._ctx.getClipping().restoreState(this._savedClippingState);
+                this._savedClippingState = null;
+            }
+            // 7. Clear active flag (before restoring view state, so subscribers don't re-apply studio)
+            this._active = false;
+            // 8. Restore camera, axes, grid
+            if (this._savedViewState) {
+                const { ortho, axes, grid } = this._savedViewState;
+                if (ortho)
+                    this._ctx.setOrtho(true);
+                if (axes)
+                    this._ctx.setAxes(true);
+                if (grid.some(Boolean))
+                    this._ctx.setGrids(grid);
+                this._savedViewState = null;
+            }
+            // 9. Edges restored by ObjectGroup.leaveStudioMode()
+            this._ctx.update(true, false);
+        };
+        this.resetStudio = () => {
+            const defaults = ViewerState.STUDIO_MODE_DEFAULTS;
+            const state = this._ctx.state;
+            state.set("studioEnvironment", defaults.studioEnvironment);
+            state.set("studioEnvIntensity", defaults.studioEnvIntensity);
+            state.set("studioBackground", defaults.studioBackground);
+            state.set("studioToneMapping", defaults.studioToneMapping);
+            state.set("studioExposure", defaults.studioExposure);
+            state.set("studio4kEnvMaps", defaults.studio4kEnvMaps);
+            state.set("studioTextureMapping", defaults.studioTextureMapping);
+            state.set("studioEnvRotation", defaults.studioEnvRotation);
+            state.set("studioShadowIntensity", defaults.studioShadowIntensity);
+            state.set("studioShadowSoftness", defaults.studioShadowSoftness);
+            state.set("studioAOIntensity", defaults.studioAOIntensity);
+        };
+        this._rebuildMaterials = async () => {
+            const nestedGroup = this._ctx.getNestedGroup();
+            nestedGroup.leaveStudioMode();
+            nestedGroup.clearStudioMaterialCache();
+            const unresolvedTags = await nestedGroup.enterStudioMode(this._ctx.state.get("studioTextureMapping"));
+            if (this._active) {
+                nestedGroup.setStudioShowEdges(false);
+                if (unresolvedTags.length > 0) {
+                    this._ctx.dispatchEvent(new CustomEvent("tcv-material-warnings", { detail: unresolvedTags }));
+                }
+                this._ctx.update(true, false);
+            }
+        };
+        this._ctx = ctx;
+        this.envManager = new EnvironmentManager();
+        this.floor = new StudioFloor();
+        this._setupSubscriptions();
+    }
+    // -------------------------------------------------------------------------
+    // Public API
+    // -------------------------------------------------------------------------
+    get isActive() {
+        return this._active && this._ctx.isRendered();
+    }
+    get hasComposer() {
+        return this._composer !== null;
+    }
+    /** Render via composer (call from Viewer.update / _animate). */
+    render() {
+        this._composer?.render();
+    }
+    /** Update composer camera (call from Viewer.switchCamera). */
+    setCamera(camera) {
+        this._composer?.setCamera(camera);
+    }
+    /** Resize composer (call from Viewer.resize). */
+    setSize(width, height) {
+        this._composer?.setSize(width, height);
+    }
+    /** Whether env background needs per-frame update. */
+    get isEnvBackgroundActive() {
+        return this.envManager.isEnvBackgroundActive;
+    }
+    /** Update env background (ortho workaround, call per frame). */
+    updateEnvBackground(renderer, camera) {
+        this.envManager.updateEnvBackground(renderer, camera);
+    }
+    /** Check if an environment name is a Poly Haven preset. */
+    isEnvPreset(name) {
+        return this.envManager.isPreset(name);
+    }
+    /**
+     * Get the ObjectGroup and path for the currently selected object.
+     * Returns null if nothing selected or Studio mode inactive.
+     */
+    getSelectedObjectGroup() {
+        if (!this._active || this._ctx.getLastBboxId() == null) {
+            return null;
+        }
+        const id = this._ctx.getLastBboxId();
+        const entry = this._ctx.getNestedGroup().groups[id];
+        if (!isObjectGroup(entry)) {
+            return null;
+        }
+        return { object: entry, path: id };
+    }
+    /**
+     * Dispose all Studio resources. Called from Viewer.dispose().
+     * Must be called BEFORE renderer.dispose().
+     */
+    dispose() {
+        if (this._composer) {
+            this._composer.dispose();
+            this._composer = null;
+        }
+        this._removeShadowLights();
+        this.envManager.dispose();
+        this.floor.dispose();
+        this._active = false;
+        this._savedClippingState = null;
+    }
+    // -------------------------------------------------------------------------
+    // Private — subscriptions
+    // -------------------------------------------------------------------------
+    _setupSubscriptions() {
+        const isActive = () => {
+            return this._active && this._ctx.isRendered();
+        };
+        const reapplyEnv = (orthoOverride) => {
+            this.envManager.apply(this._ctx.getScene(), this._ctx.state.get("studioEnvIntensity"), this._ctx.state.get("studioBackground"), this._ctx.state.get("up") === "Z", orthoOverride ?? this._ctx.getCamera().ortho, this._ctx.state.get("studioEnvRotation"));
+            if (this._composer) {
+                const bg = this._ctx.getScene().background;
+                this._composer.setBackgroundProtect(bg instanceof Color ? bg : null);
+            }
+        };
+        const state = this._ctx.state;
+        state.subscribe("studioEnvironment", (change) => {
+            if (!isActive())
+                return;
+            this.envManager.loadEnvironment(change.new, this._ctx.renderer).then(() => {
+                if (!isActive())
+                    return;
+                reapplyEnv();
+                if (state.get("studioShadowIntensity") > 0) {
+                    this._configureShadowLights();
+                }
+                this._ctx.update(true, false);
+                this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
+            }).catch((err) => {
+                logger.error("Unexpected error loading studio environment", err);
+                this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
+            });
+        });
+        state.subscribe("studioEnvIntensity", () => {
+            if (!isActive())
+                return;
+            reapplyEnv();
+            this._ctx.update(true, false);
+        });
+        state.subscribe("studioEnvRotation", () => {
+            if (!isActive())
+                return;
+            reapplyEnv();
+            if (state.get("studioShadowIntensity") > 0) {
+                this._configureShadowLights();
+            }
+            this._ctx.update(true, false);
+        });
+        state.subscribe("studioShadowIntensity", (change) => {
+            if (!isActive())
+                return;
+            const intensity = change.new;
+            const wasEnabled = change.old != null && change.old > 0;
+            const nowEnabled = intensity > 0;
+            if (nowEnabled && !wasEnabled) {
+                this._setShadowsEnabled(true);
+            }
+            else if (!nowEnabled && wasEnabled) {
+                this._setShadowsEnabled(false);
+            }
+            if (nowEnabled) {
+                for (const light of this._shadowLights) {
+                    light.shadow.intensity = intensity;
+                }
+                this.floor.setShadowIntensity(intensity);
+                if (this._composer) {
+                    this._composer.setShadowMaskIntensity(intensity * 0.75);
+                }
+            }
+            this._ctx.update(true, false);
+        });
+        state.subscribe("studioShadowSoftness", (change) => {
+            if (!isActive())
+                return;
+            if (state.get("studioShadowIntensity") <= 0)
+                return;
+            if (this._composer) {
+                this._composer.setShadowSoftness(change.new);
+            }
+            this._ctx.update(true, false);
+        });
+        state.subscribe("studioAOIntensity", (change) => {
+            if (!isActive())
+                return;
+            if (this._composer) {
+                const intensity = change.new;
+                this._composer.setAOEnabled(intensity > 0);
+                this._composer.setAOIntensity(intensity);
+            }
+            this._ctx.update(true, false);
+        });
+        state.subscribe("studioBackground", () => {
+            if (!isActive())
+                return;
+            reapplyEnv();
+            this._ctx.update(true, false);
+        });
+        state.subscribe("ortho", (change) => {
+            if (!isActive())
+                return;
+            reapplyEnv(change.new);
+            this._ctx.update(true, false);
+        });
+        state.subscribe("studioToneMapping", () => {
+            if (!isActive())
+                return;
+            this._applyToneMapping();
+            this._ctx.update(true, false);
+        });
+        state.subscribe("studioExposure", () => {
+            if (!isActive())
+                return;
+            this._applyToneMapping();
+            this._ctx.update(true, false);
+        });
+        state.subscribe("studio4kEnvMaps", (change) => {
+            if (!isActive())
+                return;
+            const envName = state.get("studioEnvironment");
+            this.envManager.setUse4kEnvMaps(change.new, envName, this._ctx.renderer).then(() => {
+                if (!isActive())
+                    return;
+                reapplyEnv();
+                if (state.get("studioShadowIntensity") > 0) {
+                    this._configureShadowLights();
+                }
+                this._ctx.update(true, false);
+                this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
+            });
+        });
+        state.subscribe("studioTextureMapping", () => {
+            if (!isActive())
+                return;
+            this._rebuildMaterials().finally(() => {
+                this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
+            });
+        });
+    }
+    // -------------------------------------------------------------------------
+    // Private — floor, shadows, tone mapping, material rebuild
+    // -------------------------------------------------------------------------
+    _configureFloor() {
+        const bbox = this._ctx.getBbox();
+        if (!bbox)
+            return;
+        const maxExtent = Math.max(bbox.max.x - bbox.min.x, bbox.max.y - bbox.min.y, bbox.max.z - bbox.min.z);
+        const zPosition = bbox.min.z - maxExtent * 0.001;
+        this.floor.configure(zPosition, maxExtent);
+    }
+    _configureShadowLights() {
+        this._removeShadowLights();
+        const bbox = this._ctx.getBbox();
+        if (!bbox || !this._ctx.isRendered())
+            return;
+        const state = this._ctx.state;
+        const envName = state.get("studioEnvironment");
+        const detection = this.envManager.getLightDetection(envName);
+        if (!detection || detection.lights.length === 0)
+            return;
+        const bboxCenter = new Vector3((bbox.min.x + bbox.max.x) / 2, (bbox.min.y + bbox.max.y) / 2, (bbox.min.z + bbox.max.z) / 2);
+        const maxExtent = Math.max(bbox.max.x - bbox.min.x, bbox.max.y - bbox.min.y, bbox.max.z - bbox.min.z);
+        const isZUp = state.get("up") === "Z";
+        const envRotationRad = (state.get("studioEnvRotation") * Math.PI) / 180;
+        this._ctx.renderer.shadowMap.enabled = true;
+        this._ctx.renderer.shadowMap.type = PCFShadowMap;
+        const scene = this._ctx.getScene();
+        for (const detected of detection.lights) {
+            let [dx, dy, dz] = detected.direction;
+            if (isZUp) {
+                const oy = dy;
+                const oz = dz;
+                dy = -oz;
+                dz = oy;
+            }
+            if (envRotationRad !== 0) {
+                if (isZUp) {
+                    const cosR = Math.cos(envRotationRad);
+                    const sinR = Math.sin(envRotationRad);
+                    const nx = dx * cosR - dy * sinR;
+                    const ny = dx * sinR + dy * cosR;
+                    dx = nx;
+                    dy = ny;
+                }
+                else {
+                    const cosR = Math.cos(envRotationRad);
+                    const sinR = Math.sin(envRotationRad);
+                    const nx = dx * cosR + dz * sinR;
+                    const nz = -dx * sinR + dz * cosR;
+                    dx = nx;
+                    dz = nz;
+                }
+            }
+            const dir = new Vector3(dx, dy, dz).normalize();
+            const light = new DirectionalLight(0xffffff, 0.01);
+            light.position.copy(bboxCenter).addScaledVector(dir, maxExtent * 3);
+            light.target.position.copy(bboxCenter);
+            light.castShadow = true;
+            const frustumSize = maxExtent * 4.0;
+            light.shadow.camera.left = -frustumSize;
+            light.shadow.camera.right = frustumSize;
+            light.shadow.camera.top = frustumSize;
+            light.shadow.camera.bottom = -frustumSize;
+            light.shadow.camera.near = maxExtent * 0.1;
+            light.shadow.camera.far = maxExtent * 7;
+            light.shadow.mapSize.set(4096, 4096);
+            light.shadow.bias = -1e-3;
+            light.shadow.intensity = state.get("studioShadowIntensity");
+            scene.add(light);
+            scene.add(light.target);
+            this._shadowLights.push(light);
+        }
+        if (this._composer) {
+            this._composer.setShadowMaskEnabled(true);
+            this._composer.setShadowSoftness(state.get("studioShadowSoftness"));
+            this._composer.setShadowMaskIntensity(state.get("studioShadowIntensity") * 0.75);
+        }
+    }
+    _removeShadowLights() {
+        if (this._ctx.isRendered()) {
+            const scene = this._ctx.getScene();
+            for (const light of this._shadowLights) {
+                scene.remove(light);
+                scene.remove(light.target);
+                light.shadow.map?.dispose();
+                light.dispose();
+            }
+        }
+        else {
+            for (const light of this._shadowLights) {
+                light.shadow.map?.dispose();
+                light.dispose();
+            }
+        }
+        this._shadowLights = [];
+        if (this._composer) {
+            this._composer.setShadowMaskEnabled(false);
+        }
+    }
+    _setShadowsEnabled(enabled) {
+        if (!this._ctx.isRendered())
+            return;
+        const nestedGroup = this._ctx.getNestedGroup();
+        if (enabled) {
+            this._configureShadowLights();
+            nestedGroup.rootGroup?.traverse((obj) => {
+                if (obj instanceof Mesh) {
+                    obj.castShadow = true;
+                }
+            });
+            this.floor.setShadowsEnabled(true);
+            this._ctx.getScene().traverse((obj) => {
+                if (obj instanceof Mesh && obj.material) {
+                    const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+                    for (const m of mats) {
+                        m.needsUpdate = true;
+                    }
+                }
+            });
+        }
+        else {
+            this._removeShadowLights();
+            this._ctx.renderer.shadowMap.enabled = false;
+            nestedGroup.rootGroup?.traverse((obj) => {
+                if (obj instanceof Mesh) {
+                    obj.castShadow = false;
+                }
+            });
+            this.floor.setShadowsEnabled(false);
+        }
+    }
+    _applyToneMapping() {
+        if (this._composer) {
+            this._composer.setToneMapping(this._ctx.state.get("studioToneMapping"), this._ctx.state.get("studioExposure"));
+        }
+    }
+}
 
 // =============================================================================
 // Decoding
@@ -104655,6 +105502,45 @@ function decodeInstance(inst) {
         shape.uvs = decodeBuffer(inst.uvs);
     }
     return shape;
+}
+/** Check if a value is an encoded buffer (inline base64 field). */
+function isEncodedBuffer(val) {
+    return (typeof val === "object" &&
+        val !== null &&
+        "buffer" in val &&
+        "dtype" in val &&
+        "codec" in val &&
+        val.codec === "b64");
+}
+/**
+ * Decode any inline encoded buffers on a shape object.
+ * Mutates the shape in place, replacing EncodedBuffer fields with TypedArrays.
+ */
+function decodeInlineShapeBuffers(shape) {
+    for (const key of Object.keys(shape)) {
+        if (isEncodedBuffer(shape[key])) {
+            shape[key] = decodeBuffer(shape[key]);
+        }
+    }
+}
+/**
+ * Walk the shapes tree and decode any inline encoded buffers found in
+ * part.shape objects. This handles edge/vertex-only objects that embed
+ * encoded buffers directly (not via instance refs).
+ */
+function decodeInlineBuffers(shapes) {
+    if (shapes.parts) {
+        for (const part of shapes.parts) {
+            if (part.shape != null &&
+                typeof part.shape === "object" &&
+                !isShapeRef(part.shape)) {
+                decodeInlineShapeBuffers(part.shape);
+            }
+            if (part.parts) {
+                decodeInlineBuffers(part);
+            }
+        }
+    }
 }
 /** Check if a shape field is an unresolved reference. */
 function isShapeRef(shape) {
@@ -104803,6 +105689,8 @@ class Viewer {
         }
         return this._rendered;
     }
+    /** Environment manager — proxied from StudioManager for display.ts access. */
+    get envManager() { return this._studioManager.envManager; }
     // ---------------------------------------------------------------------------
     // Constructor & Initialization
     // ---------------------------------------------------------------------------
@@ -104815,27 +105703,6 @@ class Viewer {
      * @param updateMarker - enforce to redraw orientation marker after every ui activity
      */
     constructor(display, options, notifyCallback, pinAsPngCallback = null, updateMarker = true) {
-        // Studio post-processing composer (created on enterStudioMode, disposed on leave)
-        this._studioComposer = null;
-        // Studio mode state
-        this._isStudioActive = false;
-        this._savedClippingState = null;
-        /** Shadow-casting DirectionalLights generated from HDR analysis. */
-        this._studioShadowLights = [];
-        /**
-         * Rebuild Studio materials after a mapping mode change.
-         * Leaves and re-enters studio mode with the current texture mapping setting.
-         * @internal
-         */
-        this._rebuildStudioMaterials = async () => {
-            this.nestedGroup.leaveStudioMode();
-            this.nestedGroup.clearStudioMaterialCache();
-            await this.nestedGroup.enterStudioMode(this.state.get("studioTextureMapping"));
-            if (this._isStudioActive) {
-                this.nestedGroup.setStudioShowEdges(false);
-                this.update(true, false);
-            }
-        };
         // ---------------------------------------------------------------------------
         // Render Loop & Scene Updates
         // ---------------------------------------------------------------------------
@@ -104891,7 +105758,7 @@ class Viewer {
             }
             // When the composer is active, its RenderPass handles clearing;
             // skip manual clear to avoid double-clear artifacts.
-            if (!this._studioComposer) {
+            if (!this._studioManager.hasComposer) {
                 this.renderer.clear();
             }
             if (this.raycaster &&
@@ -104901,14 +105768,14 @@ class Viewer {
             }
             this.rendered.gridHelper.update(this.rendered.camera.getZoom());
             this.renderer.setViewport(0, 0, this.state.get("cadWidth"), this.state.get("height"));
-            // Env background: render HDRI to 2D render target for ortho cameras
-            if (this.envManager.isEnvBackgroundActive) {
-                this.envManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
+            // Env background: render HDRI to 2D render target (fixed-FOV bgCamera)
+            if (this._studioManager.isEnvBackgroundActive) {
+                this._studioManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
             }
             // Render: use composer pipeline when available (AO + tone mapping + SMAA),
             // otherwise fall back to direct renderer.render().
-            if (this._studioComposer) {
-                this._studioComposer.render();
+            if (this._studioManager.hasComposer) {
+                this._studioManager.render();
             }
             else {
                 this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
@@ -105054,6 +105921,9 @@ class Viewer {
             if (group instanceof ObjectGroup) {
                 if (group.front) {
                     return "#" + group.front.material.color.getHexString();
+                }
+                if (group.originalColor) {
+                    return "#" + group.originalColor.getHexString();
                 }
             }
             return null;
@@ -105261,7 +106131,7 @@ class Viewer {
          * @param nodeType - node type
          * @param tree - whether from tree
          */
-        this.handlePick = (path, name, meta, shift, _alt, point, nodeType = "leaf", tree = false) => {
+        this.handlePick = (path, name, meta, shift, alt, point, nodeType = "leaf", tree = false) => {
             const id = `${path}/${name}`;
             const object = this.rendered.nestedGroup.groups[id];
             if (object == null) {
@@ -105298,7 +106168,8 @@ class Viewer {
                     this.removeLastBbox();
                     if (tree) {
                         this.rendered.treeview.hideAll();
-                        this.setState(id, [1, 1], nodeType ?? "leaf");
+                        const showEdges = this._studioManager.isActive ? 0 : 1;
+                        this.setState(id, [1, showEdges], nodeType ?? "leaf");
                     }
                     else {
                         const center = boundingBox.center();
@@ -105309,7 +106180,8 @@ class Viewer {
                 else if (shift) {
                     this.removeLastBbox();
                     this.rendered.treeview.hideAll();
-                    this.setState(id, [1, 1], nodeType ?? "leaf");
+                    const showEdges = this._studioManager.isActive ? 0 : 1;
+                    this.setState(id, [1, showEdges], nodeType ?? "leaf");
                     const center = boundingBox.center();
                     this.setCameraTarget(new Vector3(...center));
                     this.display.showCenterInfo(center);
@@ -105317,11 +106189,20 @@ class Viewer {
                 else if (meta) {
                     this.setState(id, [0, 0], nodeType ?? "leaf");
                 }
+                else if (alt) {
+                    // same as else branch to make typscript happy
+                    this.display.showBoundingBoxInfo(path, name, boundingBox);
+                    this.setBoundingBox(id);
+                    this.rendered.treeview.openPath(id);
+                }
                 else {
                     this.display.showBoundingBoxInfo(path, name, boundingBox);
                     this.setBoundingBox(id);
                     this.rendered.treeview.openPath(id);
                 }
+            }
+            if (this._studioManager.isActive) {
+                this.display.onSelectionChanged(this.lastBbox?.id ?? null);
             }
             this.update(true);
         };
@@ -105815,7 +106696,7 @@ class Viewer {
         };
         /**
          * Sets the tone mapping mode for Studio mode.
-         * @param value - The tone mapping mode ("neutral", "ACES", "AgX", or "none").
+         * @param value - The tone mapping mode ("neutral", "ACES", or "none").
          * @param notify - Whether to notify about the changes.
          * @public
          */
@@ -105840,6 +106721,48 @@ class Viewer {
          */
         this.setStudio4kEnvMaps = (value, notify = true) => {
             this.state.set("studio4kEnvMaps", value, notify);
+        };
+        /**
+         * Gets whether 4K environment maps are enabled.
+         * @returns True for 4K, false for 2K.
+         * @public
+         */
+        this.getStudio4kEnvMaps = () => {
+            return this.state.get("studio4kEnvMaps");
+        };
+        /**
+         * Sets the environment rotation for Studio mode.
+         * @param value - The rotation in degrees (0-360).
+         * @param notify - Whether to notify about the changes.
+         * @public
+         */
+        this.setStudioEnvRotation = (value, notify = true) => {
+            this.state.set("studioEnvRotation", value, notify);
+        };
+        /**
+         * Gets the current environment rotation for Studio mode.
+         * @returns The rotation in degrees (0-360).
+         * @public
+         */
+        this.getStudioEnvRotation = () => {
+            return this.state.get("studioEnvRotation");
+        };
+        /**
+         * Sets the texture mapping mode for Studio mode.
+         * @param value - The texture mapping mode ("triplanar" or "parametric").
+         * @param notify - Whether to notify about the changes.
+         * @public
+         */
+        this.setStudioTextureMapping = (value, notify = true) => {
+            this.state.set("studioTextureMapping", value, notify);
+        };
+        /**
+         * Gets the current texture mapping mode for Studio mode.
+         * @returns The texture mapping mode ("triplanar" or "parametric").
+         * @public
+         */
+        this.getStudioTextureMapping = () => {
+            return this.state.get("studioTextureMapping");
         };
         /**
          * Gets the current studio environment preset.
@@ -105867,7 +106790,7 @@ class Viewer {
         };
         /**
          * Gets the current tone mapping mode for Studio mode.
-         * @returns The tone mapping mode ("neutral", "ACES", "AgX", or "none").
+         * @returns The tone mapping mode ("neutral", "ACES", or "none").
          * @public
          */
         this.getStudioToneMapping = () => {
@@ -105937,142 +106860,12 @@ class Viewer {
         this.getStudioAOIntensity = () => {
             return this.state.get("studioAOIntensity");
         };
-        /**
-         * Enter Studio mode: load and apply the current environment map.
-         *
-         * Called by display.ts switchToTab() when switching TO the Studio tab.
-         * Orchestrates: clipping save/disable, material swap, environment load,
-         * 3-point lighting, tone mapping, and edge visibility.
-         *
-         * @internal
-         */
-        this.enterStudioMode = async () => {
-            if (!this._rendered)
-                return;
-            this._isStudioActive = true;
-            try {
-                // 1. Save and disable clipping
-                this._savedClippingState = this.clipping.saveState();
-                this.renderer.localClippingEnabled = false;
-                this.clipping.setVisible(false);
-                if (this.clipping.planeHelpers) {
-                    this.clipping.planeHelpers.visible = false;
-                }
-                // 2. Build/swap studio materials (async due to textures).
-                //    NestedGroup owns this.materialFactory, so no need to pass it.
-                await this.nestedGroup.enterStudioMode(this.state.get("studioTextureMapping"));
-                // Guard: user may have left studio during async material build
-                if (!this._isStudioActive)
-                    return;
-                // 3. Load environment map
-                const envName = this.state.get("studioEnvironment");
-                await this.envManager.loadEnvironment(envName, this.renderer);
-                if (!this._isStudioActive)
-                    return;
-                // 4. Apply ALL rendering changes atomically
-                this.envManager.apply(this.rendered.scene, this.state.get("studioEnvIntensity"), this.state.get("studioBackground"), this.state.get("up") === "Z", this.rendered.camera.ortho, this.state.get("studioEnvRotation"));
-                // Lighting: disable CAD lights; environment IBL provides all illumination
-                // (matching the Three.js car paint reference — pure IBL, no explicit lights).
-                this.rendered.ambientLight.intensity = 0;
-                this.rendered.directLight.intensity = 0;
-                // Floor — shadow plane only (no grid in Studio mode, like KeyShot/Fusion 360)
-                this._configureStudioFloor();
-                // Create composer (replaces direct renderer.render in Studio mode).
-                // The composer sets renderer.toneMapping = NoToneMapping and handles
-                // tone mapping via its own ToneMappingEffect.
-                // Must be created BEFORE shadows so _configureStudioShadowLights()
-                // can wire the shadow mask pipeline on the composer.
-                if (!this._studioComposer) {
-                    this._studioComposer = new StudioComposer(this.renderer, this.rendered.scene, this.rendered.camera.getCamera(), this.state.get("cadWidth"), this.state.get("height"));
-                }
-                // Shadows (requires composer to be created first)
-                if (this.state.get("studioShadowIntensity") > 0) {
-                    this._setStudioShadowsEnabled(true);
-                }
-                // Sync tone mapping mode and exposure to the composer
-                this._studioComposer.setToneMapping(this.state.get("studioToneMapping"), this.state.get("studioExposure"));
-                // Background protection: exclude solid colors from tone mapping
-                const bg = this.rendered.scene.background;
-                this._studioComposer.setBackgroundProtect(bg instanceof Color ? bg : null);
-                // Ambient Occlusion
-                const aoIntensity = this.state.get("studioAOIntensity");
-                this._studioComposer.setAOIntensity(aoIntensity);
-                this._studioComposer.setAOEnabled(aoIntensity > 0);
-                // Edges are always hidden in Studio mode
-                this.nestedGroup.setStudioShowEdges(false);
-                this.update(true, false);
-            }
-            catch (err) {
-                // Clean up composer on error to avoid GPU resource leaks
-                if (this._studioComposer) {
-                    this._studioComposer.dispose();
-                    this._studioComposer = null;
-                }
-                // Clear active flag so subscription callbacks don't think Studio is active
-                this._isStudioActive = false;
-                logger.error("Unexpected error entering studio mode", err);
-            }
-        };
-        /**
-         * Leave Studio mode: restore CAD materials, lighting, tone mapping, clipping.
-         *
-         * Called by display.ts switchToTab() when switching AWAY from the Studio tab.
-         * Does not dispose cached materials or environment (allows fast re-entry).
-         *
-         * @internal
-         */
-        this.leaveStudioMode = () => {
-            if (!this._rendered)
-                return;
-            // 1. Restore materials
-            this.nestedGroup.leaveStudioMode();
-            // 2. Tear down composer (restores direct renderer.render path)
-            if (this._studioComposer) {
-                this._studioComposer.dispose();
-                this._studioComposer = null;
-            }
-            // 3. Remove environment, disable shadows
-            this.envManager.remove(this.rendered.scene);
-            this._setStudioShadowsEnabled(false);
-            // 4. Restore lighting
-            this.rendered.ambientLight.intensity = scaleLight(this.state.get("ambientIntensity"));
-            this.rendered.directLight.intensity = scaleLight(this.state.get("directIntensity"));
-            // 5. Disable tone mapping
-            this.renderer.toneMapping = NoToneMapping;
-            this.renderer.toneMappingExposure = 1.0;
-            // 6. Restore clipping state.
-            //    Note: renderer.localClippingEnabled is NOT restored here. It is
-            //    restored by the caller's tab-switch flow (_updateVisibility ->
-            //    setLocalClipping), which runs after leaveStudioMode returns.
-            if (this._savedClippingState) {
-                this.clipping.restoreState(this._savedClippingState);
-                this._savedClippingState = null;
-            }
-            // 7. Edges restored by ObjectGroup.leaveStudioMode()
-            // 8. Clear active flag
-            this._isStudioActive = false;
-            this.update(true, false);
-        };
-        /**
-         * Resets the studio settings of the viewer to their default values.
-         * Resets environment, intensity, background, tone mapping, exposure, and edges
-         * based on the studio mode defaults from ViewerState.
-         * @public
-         */
-        this.resetStudio = () => {
-            const defaults = ViewerState.STUDIO_MODE_DEFAULTS;
-            this.state.set("studioEnvironment", defaults.studioEnvironment);
-            this.state.set("studioEnvIntensity", defaults.studioEnvIntensity);
-            this.state.set("studioBackground", defaults.studioBackground);
-            this.state.set("studioToneMapping", defaults.studioToneMapping);
-            this.state.set("studioExposure", defaults.studioExposure);
-            this.state.set("studio4kEnvMaps", defaults.studio4kEnvMaps);
-            this.state.set("studioTextureMapping", defaults.studioTextureMapping);
-            this.state.set("studioEnvRotation", defaults.studioEnvRotation);
-            this.state.set("studioShadowIntensity", defaults.studioShadowIntensity);
-            this.state.set("studioShadowSoftness", defaults.studioShadowSoftness);
-            this.state.set("studioAOIntensity", defaults.studioAOIntensity);
-        };
+        /** Enter Studio mode. Called by display.ts switchToTab(). @internal */
+        this.enterStudioMode = () => this._studioManager.enterStudioMode();
+        /** Leave Studio mode. Called by display.ts switchToTab(). @internal */
+        this.leaveStudioMode = () => this._studioManager.leaveStudioMode();
+        /** Reset Studio settings to defaults. @public */
+        this.resetStudio = () => this._studioManager.resetStudio();
         /**
          * Set states of treeview leaves.
          * @param states - states object mapping paths to visibility states.
@@ -106294,11 +107087,11 @@ class Viewer {
                 taskId,
                 render: () => {
                     this.renderer.setViewport(0, 0, this.state.get("cadWidth"), this.state.get("height"));
-                    if (this.envManager.isEnvBackgroundActive) {
-                        this.envManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
+                    if (this._studioManager.isEnvBackgroundActive) {
+                        this._studioManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
                     }
-                    if (this._studioComposer) {
-                        this._studioComposer.render();
+                    if (this._studioManager.hasComposer) {
+                        this._studioManager.render();
                     }
                     else {
                         this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
@@ -106522,9 +107315,7 @@ class Viewer {
         this.renderer.setSize(this.state.get("cadWidth"), this.state.get("height"));
         this.renderer.setClearColor(0xffffff, 0);
         this.renderer.autoClear = false;
-        // Create environment manager and floor (after renderer, before any rendering)
-        this.envManager = new EnvironmentManager();
-        this._studioFloor = new StudioFloor();
+        // Create studio manager (env, floor, composer created lazily inside)
         this.lastNotification = {};
         this.lastBbox = null;
         // measure supporting exploded shapes and compact shapes
@@ -106551,169 +107342,27 @@ class Viewer {
         this.setPickHandler(true);
         this.renderer.domElement.addEventListener("contextmenu", (e) => e.stopPropagation());
         this.display.setupUI(this, this.renderer.domElement);
-        // Wire studio state subscriptions (react to changes while studio tab is active)
-        this._setupStudioSubscriptions();
+        // Create studio manager (owns env, floor, composer, shadows, subscriptions)
+        this._studioManager = new StudioManager({
+            renderer: this.renderer,
+            state: this.state,
+            isRendered: () => this._rendered !== null,
+            getScene: () => this.rendered.scene,
+            getCamera: () => this.rendered.camera,
+            getAmbientLight: () => this.rendered.ambientLight,
+            getDirectLight: () => this.rendered.directLight,
+            getNestedGroup: () => this.rendered.nestedGroup,
+            getClipping: () => this.rendered.clipping,
+            getBbox: () => this.bbox,
+            getLastBboxId: () => this.lastBbox?.id ?? null,
+            setAxes: (flag, notify) => this.setAxes(flag, notify),
+            setGrids: (grids, notify) => this.setGrids(grids, notify),
+            setOrtho: (flag, notify) => this.setOrtho(flag, notify),
+            update: (updateMarker, notify) => this.update(updateMarker, notify),
+            dispatchEvent: (event) => this.display.container.dispatchEvent(event),
+            onSelectionChanged: (id) => this.display.onSelectionChanged(id),
+        });
         console.debug("three-cad-viewer: WebGL Renderer created");
-    }
-    /**
-     * Set up state subscriptions for Studio mode.
-     *
-     * These subscriptions only take effect when activeTab is "studio".
-     * When a studio-related state key changes while the studio tab is active,
-     * the environment/floor/rendering is updated accordingly.
-     *
-     * @internal
-     */
-    _setupStudioSubscriptions() {
-        const isStudioActive = () => {
-            return this._isStudioActive && this._rendered !== null;
-        };
-        // Helper to re-apply the current environment with current state values.
-        // Also syncs background protection on the composer: solid-color backgrounds
-        // are excluded from tone mapping via alpha compositing.
-        const reapplyEnv = (orthoOverride) => {
-            this.envManager.apply(this.rendered.scene, this.state.get("studioEnvIntensity"), this.state.get("studioBackground"), this.state.get("up") === "Z", orthoOverride ?? this.rendered.camera.ortho, this.state.get("studioEnvRotation"));
-            // Sync background protection: protect solid colors from tone mapping
-            if (this._studioComposer) {
-                const bg = this.rendered.scene.background;
-                this._studioComposer.setBackgroundProtect(bg instanceof Color ? bg : null);
-            }
-        };
-        // studioEnvironment changed -> re-load and re-apply
-        this.state.subscribe("studioEnvironment", (change) => {
-            if (!isStudioActive())
-                return;
-            this.envManager.loadEnvironment(change.new, this.renderer).then(() => {
-                if (!isStudioActive())
-                    return;
-                reapplyEnv();
-                // Rebuild shadow lights for the new environment
-                if (this.state.get("studioShadowIntensity") > 0) {
-                    this._configureStudioShadowLights();
-                }
-                this.update(true, false);
-            }).catch((err) => {
-                logger.error("Unexpected error loading studio environment", err);
-            });
-        });
-        // studioEnvIntensity changed -> re-apply (no reload needed)
-        this.state.subscribe("studioEnvIntensity", () => {
-            if (!isStudioActive())
-                return;
-            reapplyEnv();
-            this.update(true, false);
-        });
-        // studioEnvRotation changed -> re-apply rotation + rebuild shadow lights
-        this.state.subscribe("studioEnvRotation", () => {
-            if (!isStudioActive())
-                return;
-            reapplyEnv();
-            if (this.state.get("studioShadowIntensity") > 0) {
-                this._configureStudioShadowLights();
-            }
-            this.update(true, false);
-        });
-        // studioShadowIntensity changed -> enable/disable shadows and set darkness
-        this.state.subscribe("studioShadowIntensity", (change) => {
-            if (!isStudioActive())
-                return;
-            const intensity = change.new;
-            const wasEnabled = change.old != null && change.old > 0;
-            const nowEnabled = intensity > 0;
-            if (nowEnabled && !wasEnabled) {
-                this._setStudioShadowsEnabled(true);
-            }
-            else if (!nowEnabled && wasEnabled) {
-                this._setStudioShadowsEnabled(false);
-            }
-            // Update shadow darkness on the light, floor, and object mask
-            if (nowEnabled) {
-                for (const light of this._studioShadowLights) {
-                    light.shadow.intensity = intensity;
-                }
-                this._studioFloor.setShadowIntensity(intensity);
-                if (this._studioComposer) {
-                    this._studioComposer.setShadowMaskIntensity(intensity * 0.75);
-                }
-            }
-            this.update(true, false);
-        });
-        // studioShadowSoftness changed -> update screen-space blur kernel size
-        this.state.subscribe("studioShadowSoftness", (change) => {
-            if (!isStudioActive())
-                return;
-            if (this.state.get("studioShadowIntensity") <= 0)
-                return;
-            if (this._studioComposer) {
-                this._studioComposer.setShadowSoftness(change.new);
-            }
-            this.update(true, false);
-        });
-        // studioAOIntensity changed -> enable/disable AO and set strength via composer
-        this.state.subscribe("studioAOIntensity", (change) => {
-            if (!isStudioActive())
-                return;
-            if (this._studioComposer) {
-                const intensity = change.new;
-                this._studioComposer.setAOEnabled(intensity > 0);
-                this._studioComposer.setAOIntensity(intensity);
-            }
-            this.update(true, false);
-        });
-        // studioBackground changed -> re-apply environment
-        this.state.subscribe("studioBackground", () => {
-            if (!isStudioActive())
-                return;
-            reapplyEnv();
-            this.update(true, false);
-        });
-        // ortho changed while Studio active -> re-apply background (env map needs perspective)
-        this.state.subscribe("ortho", (change) => {
-            if (!isStudioActive())
-                return;
-            // Use change.new, not camera.ortho — the camera hasn't switched yet
-            // when this subscriber fires (state is set before camera.switchCamera).
-            reapplyEnv(change.new);
-            this.update(true, false);
-        });
-        // studioToneMapping changed -> re-apply tone mapping
-        this.state.subscribe("studioToneMapping", () => {
-            if (!isStudioActive())
-                return;
-            this._applyStudioToneMapping();
-            this.update(true, false);
-        });
-        // studioExposure changed -> re-apply exposure
-        this.state.subscribe("studioExposure", () => {
-            if (!isStudioActive())
-                return;
-            this._applyStudioToneMapping();
-            this.update(true, false);
-        });
-        // studio4kEnvMaps changed -> switch resolution and reload
-        this.state.subscribe("studio4kEnvMaps", (change) => {
-            if (!isStudioActive())
-                return;
-            const envName = this.state.get("studioEnvironment");
-            this.envManager.setUse4kEnvMaps(change.new, envName, this.renderer).then(() => {
-                if (!isStudioActive())
-                    return;
-                reapplyEnv();
-                // Rebuild shadow lights (detection re-ran on new HDR data)
-                if (this.state.get("studioShadowIntensity") > 0) {
-                    this._configureStudioShadowLights();
-                }
-                this.update(true, false);
-                // Signal UI that loading is complete
-                this.display.container.dispatchEvent(new Event("tcv-env-loaded"));
-            });
-        });
-        // studioTextureMapping changed -> rebuild materials with new mapping mode
-        this.state.subscribe("studioTextureMapping", () => {
-            if (!isStudioActive())
-                return;
-            this._rebuildStudioMaterials();
-        });
     }
     /**
      * Return three-cad-viewer version as semver string.
@@ -106932,17 +107581,8 @@ class Viewer {
      */
     dispose() {
         this.clear();
-        // dispose composer (must happen before renderer disposal)
-        if (this._studioComposer) {
-            this._studioComposer.dispose();
-            this._studioComposer = null;
-        }
-        // dispose environment manager, floor, and shadow lights
-        this._removeStudioShadowLights();
-        this.envManager.dispose();
-        this._studioFloor.dispose();
-        this._isStudioActive = false;
-        this._savedClippingState = null;
+        // dispose studio resources (composer, floor, env, shadows — must be before renderer)
+        this._studioManager.dispose();
         // dispose renderer
         this.renderer.renderLists.dispose();
         this.renderer.dispose();
@@ -107203,9 +107843,18 @@ class Viewer {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             shapes = decodeInstancedFormat(shapes);
         }
+        // Decode any remaining inline base64 buffers (e.g., edge/vertex-only objects)
+        decodeInlineBuffers(shapes);
         this.shapes = shapes;
         this.renderOptions = renderOptions;
         this.setViewerDefaults(viewerOptions);
+        // Backward compat: studioOptions on shapes root is deprecated
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (shapes.studioOptions) {
+            logger.warn("shapes.studioOptions is deprecated — pass studio settings in viewerOptions instead");
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            this.state.updateStudioState(shapes.studioOptions);
+        }
         this.animation.cleanBackup();
         const timer = new Timer$1("viewer", this.state.get("timeit"));
         const scene = new Scene();
@@ -107286,7 +107935,7 @@ class Viewer {
         }, this.state.get("theme"));
         scene.add(clipping);
         // Add studio floor group to scene (hidden by default, shown in enterStudioMode)
-        scene.add(this._studioFloor.group);
+        scene.add(this._studioManager.floor.group);
         // Theme is already resolved ("light" or "dark") by ViewerState constructor
         const theme = this.state.get("theme");
         //
@@ -107425,9 +108074,7 @@ class Viewer {
         this.rendered.controls.setCamera(this.rendered.camera.getCamera());
         // Update composer camera after the actual swap (not in the ortho
         // subscriber, which fires before the camera switches)
-        if (this._studioComposer) {
-            this._studioComposer.setCamera(this.rendered.camera.getCamera());
-        }
+        this._studioManager.setCamera(this.rendered.camera.getCamera());
         this.rendered.gridHelper.scaleLabels();
         this.rendered.gridHelper.update(this.rendered.camera.getZoom(), true);
         this.update(true);
@@ -107606,194 +108253,15 @@ class Viewer {
      * @public
      */
     get isStudioActive() {
-        return this._isStudioActive && this._rendered !== null;
+        return this._studioManager.isActive;
     }
     /**
-     * Configure the studio floor based on the current bounding box.
-     * Call when entering studio mode or when the bounding box changes.
-     * @internal
+     * Get the ObjectGroup and path for the currently selected object in Studio mode.
+     * Returns null if nothing is selected, Studio mode is inactive, or the
+     * selection is a CompoundGroup (assembly node) rather than a leaf object.
      */
-    _configureStudioFloor() {
-        if (!this.bbox)
-            return;
-        const maxExtent = Math.max(this.bbox.max.x - this.bbox.min.x, this.bbox.max.y - this.bbox.min.y, this.bbox.max.z - this.bbox.min.z);
-        // Position floor slightly below the bottom to avoid z-fighting
-        const zPosition = this.bbox.min.z - maxExtent * 0.001;
-        this._studioFloor.configure(zPosition, maxExtent);
-    }
-    /**
-     * Create shadow-casting DirectionalLights from HDR light detection results.
-     *
-     * Positions lights relative to the scene bounding box. Each light's
-     * shadow camera frustum is fitted to the scene extents.
-     *
-     * @internal
-     */
-    _configureStudioShadowLights() {
-        // Remove any existing shadow lights first
-        this._removeStudioShadowLights();
-        if (!this.bbox || !this._rendered)
-            return;
-        const envName = this.state.get("studioEnvironment");
-        const detection = this.envManager.getLightDetection(envName);
-        if (!detection || detection.lights.length === 0)
-            return;
-        const bboxCenter = new Vector3((this.bbox.min.x + this.bbox.max.x) / 2, (this.bbox.min.y + this.bbox.max.y) / 2, (this.bbox.min.z + this.bbox.max.z) / 2);
-        const maxExtent = Math.max(this.bbox.max.x - this.bbox.min.x, this.bbox.max.y - this.bbox.min.y, this.bbox.max.z - this.bbox.min.z);
-        const isZUp = this.state.get("up") === "Z";
-        const envRotationDeg = this.state.get("studioEnvRotation");
-        const envRotationRad = (envRotationDeg * Math.PI) / 180;
-        // Enable shadow mapping with PCFShadowMap (4-tap PCF eliminates stairstepping
-        // on the floor while still giving clean edges for the screen-space blur pipeline)
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = PCFShadowMap;
-        for (const detected of detection.lights) {
-            let [dx, dy, dz] = detected.direction;
-            // environmentRotation = Euler(PI/2, 0, rotY, 'XYZ')
-            // Extrinsic matrix: M = Rz(rotY) * Rx(PI/2)
-            // Env dir → scene dir: d_scene = Rz(rotY) * Rx(PI/2) * d_env
-            //
-            // Step 1: Rx(PI/2) — Y-up env coords → Z-up scene coords
-            // Step 2: Rz(rotY) — user env rotation in Z-up scene space
-            if (isZUp) {
-                // Rx(PI/2): x' = x, y' = -z, z' = y
-                const oy = dy;
-                const oz = dz;
-                dy = -oz;
-                dz = oy;
-            }
-            if (envRotationRad !== 0) {
-                if (isZUp) {
-                    // Rz(rotY) in Z-up scene space (horizontal rotation)
-                    const cosR = Math.cos(envRotationRad);
-                    const sinR = Math.sin(envRotationRad);
-                    const nx = dx * cosR - dy * sinR;
-                    const ny = dx * sinR + dy * cosR;
-                    dx = nx;
-                    dy = ny;
-                }
-                else {
-                    // Ry(rotY) in Y-up scene space
-                    const cosR = Math.cos(envRotationRad);
-                    const sinR = Math.sin(envRotationRad);
-                    const nx = dx * cosR + dz * sinR;
-                    const nz = -dx * sinR + dz * cosR;
-                    dx = nx;
-                    dz = nz;
-                }
-            }
-            const dir = new Vector3(dx, dy, dz).normalize();
-            // Near-zero intensity: shadow map generation only, no visible illumination.
-            // Floor ShadowMaterial reads the shadow map directly (independent of
-            // light intensity). N8AO handles object contact shadows.
-            const light = new DirectionalLight(0xffffff, 0.01);
-            // Position light along the detected direction, far from the scene
-            light.position.copy(bboxCenter).addScaledVector(dir, maxExtent * 3);
-            light.target.position.copy(bboxCenter);
-            // Shadow camera frustum covers both casters (objects) and the floor
-            // where shadows land. Floor extends 4× maxExtent; at oblique light
-            // angles shadows project far, so the frustum must be generous.
-            light.castShadow = true;
-            const frustumSize = maxExtent * 4.0;
-            light.shadow.camera.left = -frustumSize;
-            light.shadow.camera.right = frustumSize;
-            light.shadow.camera.top = frustumSize;
-            light.shadow.camera.bottom = -frustumSize;
-            light.shadow.camera.near = maxExtent * 0.1;
-            light.shadow.camera.far = maxExtent * 7;
-            light.shadow.mapSize.set(4096, 4096);
-            // PCFShadowMap bias — small negative value prevents shadow acne
-            light.shadow.bias = -1e-3;
-            // Shadow intensity controls darkness via Three.js's built-in mechanism.
-            light.shadow.intensity = this.state.get("studioShadowIntensity");
-            this.rendered.scene.add(light);
-            this.rendered.scene.add(light.target);
-            this._studioShadowLights.push(light);
-        }
-        // Wire up the screen-space shadow mask pipeline on the composer
-        if (this._studioComposer) {
-            this._studioComposer.setShadowMaskEnabled(true);
-            this._studioComposer.setShadowSoftness(this.state.get("studioShadowSoftness"));
-            this._studioComposer.setShadowMaskIntensity(this.state.get("studioShadowIntensity") * 0.75);
-        }
-    }
-    /**
-     * Remove all studio shadow lights from the scene and dispose their resources.
-     * @internal
-     */
-    _removeStudioShadowLights() {
-        for (const light of this._studioShadowLights) {
-            if (this._rendered) {
-                this.rendered.scene.remove(light);
-                this.rendered.scene.remove(light.target);
-            }
-            light.shadow.map?.dispose();
-            light.dispose();
-        }
-        this._studioShadowLights = [];
-        // Disable the screen-space shadow mask pipeline
-        if (this._studioComposer) {
-            this._studioComposer.setShadowMaskEnabled(false);
-        }
-    }
-    /**
-     * Enable or disable shadow rendering in Studio mode.
-     *
-     * When enabling: sets up shadow map on renderer, creates shadow lights,
-     * enables castShadow on shape meshes, and shows the floor shadow plane.
-     *
-     * When disabling: removes shadow lights, disables castShadow on meshes,
-     * disables shadow map, and hides the floor shadow plane.
-     *
-     * @param enabled - Whether to enable shadows
-     * @internal
-     */
-    _setStudioShadowsEnabled(enabled) {
-        if (!this._rendered)
-            return;
-        if (enabled) {
-            this._configureStudioShadowLights();
-            // Objects cast shadows; receiveShadow is toggled per-frame in the
-            // shadow mask pass (studio-composer), not permanently set here.
-            this.nestedGroup.rootGroup?.traverse((obj) => {
-                if (obj instanceof Mesh) {
-                    obj.castShadow = true;
-                }
-            });
-            this._studioFloor.setShadowsEnabled(true);
-            // Force shader recompilation: programs compiled without shadow support
-            // won't include shadow sampling code until materials are invalidated.
-            this.rendered.scene.traverse((obj) => {
-                if (obj instanceof Mesh && obj.material) {
-                    const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-                    for (const m of mats) {
-                        m.needsUpdate = true;
-                    }
-                }
-            });
-        }
-        else {
-            this._removeStudioShadowLights();
-            // Disable shadow map on renderer (saves GPU work)
-            this.renderer.shadowMap.enabled = false;
-            // Disable castShadow on all shape meshes
-            this.nestedGroup.rootGroup?.traverse((obj) => {
-                if (obj instanceof Mesh) {
-                    obj.castShadow = false;
-                }
-            });
-            this._studioFloor.setShadowsEnabled(false);
-        }
-    }
-    /**
-     * Apply current studio tone mapping settings via the composer.
-     * The composer owns tone mapping — renderer.toneMapping stays NoToneMapping.
-     * @internal
-     */
-    _applyStudioToneMapping() {
-        if (this._studioComposer) {
-            this._studioComposer.setToneMapping(this.state.get("studioToneMapping"), this.state.get("studioExposure"));
-        }
+    getSelectedObjectGroup() {
+        return this._studioManager.getSelectedObjectGroup();
     }
     // ---------------------------------------------------------------------------
     // Camera State Getters & Setters
@@ -108854,9 +109322,7 @@ class Viewer {
         this.rendered.camera.changeDimensions(this.bb_radius, cadWidth, height);
         this.controls.handleResize();
         // Resize the post-processing composer (render targets must match viewport)
-        if (this._studioComposer) {
-            this._studioComposer.setSize(cadWidth, height);
-        }
+        this._studioManager.setSize(cadWidth, height);
         // update the this
         this.update(true);
         // update the raycaster
@@ -109517,11 +109983,16 @@ class Display {
      * @public
      */
     constructor(container, options) {
-        this._studioLoadingEl = null;
+        this._spinnerEl = null;
+        this._warningBannerEl = null;
+        this._warningBannerTimer = null;
+        this._spinnerCount = 0;
         // Material editor state
         this._matEditorPath = null;
         this._matEditorClones = new Map();
+        this._savedMatEditorChanges = new Map();
         this._matEditorDragAbort = null;
+        this._matEditorInputAbort = null;
         this._animWasVisible = false;
         // ---------------------------------------------------------------------------
         // Toolbar Button Handlers: View Settings
@@ -109882,7 +110353,9 @@ class Display {
         this.handleStudioEnvironment = (e) => {
             if (!(e.target instanceof HTMLSelectElement))
                 return;
+            this._showSpinner();
             this.state.set("studioEnvironment", e.target.value);
+            this.container.addEventListener("tcv-studio-ready", () => this._hideSpinner(), { once: true });
         };
         /**
          * Handler for Studio env intensity slider change.
@@ -109927,7 +110400,9 @@ class Display {
                 return;
             const value = e.target.value;
             if (value === "triplanar" || value === "parametric") {
+                this._showSpinner();
                 this.state.set("studioTextureMapping", value);
+                this.container.addEventListener("tcv-studio-ready", () => this._hideSpinner(), { once: true });
             }
         };
         this.handleStudioExposure = (value) => {
@@ -109954,21 +110429,9 @@ class Display {
         this.handleStudio4kEnvMaps = (e) => {
             if (!(e.target instanceof HTMLInputElement))
                 return;
-            const use4k = e.target.checked;
-            const loadingEl = this.container.querySelector(".tcv_studio_4k_loading");
-            if (loadingEl)
-                loadingEl.style.display = "inline";
-            this.state.set("studio4kEnvMaps", use4k);
-            // The state subscriber in viewer.ts triggers the async reload via
-            // envManager.setUse4kEnvMaps(). Listen for the viewer to signal
-            // completion by dispatching a custom event on the container.
-            const hideLoading = () => {
-                if (loadingEl)
-                    loadingEl.style.display = "none";
-            };
-            this.container.addEventListener("tcv-env-loaded", hideLoading, { once: true });
-            // Safety timeout: hide after 30s regardless
-            setTimeout(hideLoading, 30000);
+            this._showSpinner();
+            this.state.set("studio4kEnvMaps", e.target.checked);
+            this.container.addEventListener("tcv-studio-ready", () => this._hideSpinner(), { once: true });
         };
         /**
          * Reset Studio tab values to defaults.
@@ -110271,7 +110734,11 @@ class Display {
         this.cadMaterial = this.getElement("tcv_cad_material_container");
         this.cadZebra = this.getElement("tcv_cad_zebra_container");
         this.cadStudio = this.getElement("tcv_cad_studio_container");
-        this._studioLoadingEl = this.getElement("tcv_studio_loading");
+        this._spinnerEl = this.container.querySelector(".tcv_studio_spinner");
+        this._warningBannerEl = this.container.querySelector(".tcv_warning_banner");
+        this.container.addEventListener("tcv-material-warnings", ((e) => {
+            this._showWarningBanner(`Unresolved material tag(s): ${e.detail.map(t => `"${t}"`).join(", ")}`);
+        }));
         this.tabTree = this.getElement("tcv_tab_tree");
         this.tabClip = this.getElement("tcv_tab_clip");
         this.tabZebra = this.getElement("tcv_tab_zebra");
@@ -110934,10 +111401,7 @@ class Display {
         });
         // Studio tab subscriptions
         sub("studioEnvironment", (change) => {
-            const el = this.container.querySelector(".tcv_studio_environment");
-            if (el instanceof HTMLSelectElement)
-                el.value = change.new;
-            // Disable 4K checkbox for non-preset environments (custom URLs, "studio")
+            this._syncEnvDropdown(change.new);
             this._update4kCheckboxEnabled(change.new);
         });
         sub("studioEnvIntensity", (change) => {
@@ -111184,8 +111648,10 @@ class Display {
         }
         if (oldTab === "studio" && newTab !== "studio") {
             this.closeMatEditor();
+            this._saveMatEditorChanges();
             this.disposeMatEditorClones();
             this.viewer.leaveStudioMode();
+            this._hideWarningBanner();
             // Restore tool button visibility based on feature flags
             this._restoreToolsAfterStudio();
         }
@@ -111239,9 +111705,12 @@ class Display {
             this.viewer.nestedGroup.setBackVisible(false);
             // Disable any active tool before entering Studio mode
             this._deactivateToolsForStudio();
-            this._showStudioLoading(true);
+            this._showSpinner();
             this.viewer.enterStudioMode().finally(() => {
-                this._showStudioLoading(false);
+                this._hideSpinner();
+                this._reapplyMatEditorChanges();
+                this.syncStudioSlidersFromState();
+                this.viewer.update(true, false);
             });
         }
         // Update tab styling
@@ -111271,21 +111740,37 @@ class Display {
             this.tabStudio.classList.remove("tcv_tab-unselected");
         }
     }
-    /**
-     * Show or hide the Studio loading indicator and enable/disable Studio controls.
-     * While loading, the loading text is shown and all Studio controls are disabled.
-     * When loading completes, the loading text is hidden and controls are re-enabled.
-     */
-    _showStudioLoading(show) {
-        // Show/hide loading text
-        if (this._studioLoadingEl) {
-            this._studioLoadingEl.style.display = show ? "block" : "none";
+    /** Show the toolbar spinner (ref-counted for overlapping async ops). */
+    _showSpinner() {
+        this._spinnerCount++;
+        if (this._spinnerEl)
+            this._spinnerEl.style.display = "block";
+    }
+    /** Hide the toolbar spinner (only when all pending ops complete). */
+    _hideSpinner() {
+        this._spinnerCount = Math.max(0, this._spinnerCount - 1);
+        if (this._spinnerCount === 0 && this._spinnerEl) {
+            this._spinnerEl.style.display = "none";
         }
-        // Disable/enable all interactive controls within the studio panel
-        const interactiveEls = this.cadStudio.querySelectorAll("select, input");
-        interactiveEls.forEach((el) => {
-            el.disabled = show;
-        });
+    }
+    /** Show a warning banner in the viewport. Auto-hides after 8 seconds. */
+    _showWarningBanner(message) {
+        if (!this._warningBannerEl)
+            return;
+        this._warningBannerEl.textContent = message;
+        this._warningBannerEl.style.display = "block";
+        if (this._warningBannerTimer)
+            clearTimeout(this._warningBannerTimer);
+        this._warningBannerTimer = setTimeout(() => this._hideWarningBanner(), 8000);
+    }
+    /** Hide the warning banner. */
+    _hideWarningBanner() {
+        if (this._warningBannerEl)
+            this._warningBannerEl.style.display = "none";
+        if (this._warningBannerTimer) {
+            clearTimeout(this._warningBannerTimer);
+            this._warningBannerTimer = null;
+        }
     }
     _showMatEditorHint(dialog) {
         const pathEl = dialog.querySelector(".tcv_mat_editor_path");
@@ -111348,7 +111833,9 @@ class Display {
         const toggleBtn = this.container.querySelector(".tcv_mat_editor_toggle");
         if (toggleBtn)
             toggleBtn.classList.add("tcv_active");
-        // Populate content
+        // Populate content — abort previous input listeners before rebuilding
+        this._matEditorInputAbort?.abort();
+        this._matEditorInputAbort = new AbortController();
         const content = dialog.querySelector(".tcv_mat_editor_content");
         if (!content)
             return;
@@ -111357,6 +111844,8 @@ class Display {
         dialog.style.display = "";
     }
     closeMatEditor() {
+        this._matEditorInputAbort?.abort();
+        this._matEditorInputAbort = null;
         const dialog = this.container.querySelector(".tcv_mat_editor");
         if (dialog) {
             const content = dialog.querySelector(".tcv_mat_editor_content");
@@ -111371,6 +111860,8 @@ class Display {
     }
     /** Dispose all cloned materials, restoring originals first (call on Studio mode exit) */
     disposeMatEditorClones() {
+        this._matEditorInputAbort?.abort();
+        this._matEditorInputAbort = null;
         let groups = null;
         try {
             groups = this.viewer.rendered.nestedGroup.groups;
@@ -111387,6 +111878,56 @@ class Display {
             clone.dispose();
         }
         this._matEditorClones.clear();
+    }
+    /** Save material editor property deltas so they survive a Studio mode leave/enter cycle. */
+    _saveMatEditorChanges() {
+        this._savedMatEditorChanges.clear();
+        for (const [path, { original, clone }] of this._matEditorClones.entries()) {
+            const changes = {};
+            for (const param of MAT_EDITOR_PARAMS) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const origVal = original[param.key];
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const cloneVal = clone[param.key];
+                if (origVal !== cloneVal) {
+                    changes[param.key] = cloneVal;
+                }
+            }
+            if (Object.keys(changes).length > 0) {
+                this._savedMatEditorChanges.set(path, changes);
+            }
+        }
+    }
+    /** Reapply saved material editor changes after re-entering Studio mode. */
+    _reapplyMatEditorChanges() {
+        if (this._savedMatEditorChanges.size === 0)
+            return;
+        let groups;
+        try {
+            groups = this.viewer.rendered.nestedGroup.groups;
+        }
+        catch {
+            return;
+        }
+        for (const [path, changes] of this._savedMatEditorChanges.entries()) {
+            const group = groups[path];
+            if (!group?.front?.material)
+                continue;
+            const currentMat = group.front.material;
+            if (!(currentMat instanceof MeshPhysicalMaterial))
+                continue;
+            const clone = currentMat.clone();
+            if (currentMat.customProgramCacheKey() === "triplanar" && group.shapeGeometry) {
+                applyTriplanarMapping(clone, group.shapeGeometry);
+            }
+            for (const [key, value] of Object.entries(changes)) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                clone[key] = value;
+            }
+            group.front.material = clone;
+            this._matEditorClones.set(path, { original: currentMat, clone });
+        }
+        this._savedMatEditorChanges.clear();
     }
     /**
      * Called by viewer.ts when the selected object changes.
@@ -111500,18 +112041,19 @@ class Display {
             if (!result?.object.front)
                 return;
             const mat = result.object.front.material;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             if (param.infinity && newValue >= param.max) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 mat[param.key] = Infinity;
                 valueDisplay.value = "\u221E";
             }
             else {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 mat[param.key] = newValue;
                 valueDisplay.value = _formatMatValue(newValue, param.step);
             }
             label.classList.toggle("tcv_mat_editor_changed", isChanged(newValue));
             this.viewer.update(true, false);
-        });
+        }, { signal: this._matEditorInputAbort.signal });
         sliderGroup.appendChild(slider);
         sliderGroup.appendChild(valueDisplay);
         row.appendChild(label);
@@ -111582,9 +112124,7 @@ class Display {
         this.studioShadowSoftnessSlider?.setValueFromState(state.get("studioShadowSoftness") * 100);
         this.studioAOIntensitySlider?.setValueFromState(state.get("studioAOIntensity") * 10);
         this.getInputElement("tcv_studio_4k_env_maps").checked = state.get("studio4kEnvMaps");
-        const envEl = this.container.querySelector(".tcv_studio_environment");
-        if (envEl instanceof HTMLSelectElement)
-            envEl.value = state.get("studioEnvironment");
+        this._syncEnvDropdown(state.get("studioEnvironment"));
         const bgEl = this.container.querySelector(".tcv_studio_background");
         if (bgEl instanceof HTMLSelectElement)
             bgEl.value = state.get("studioBackground");
@@ -111595,6 +112135,42 @@ class Display {
         if (txmEl instanceof HTMLSelectElement)
             txmEl.value = state.get("studioTextureMapping");
         this._update4kCheckboxEnabled(state.get("studioEnvironment"));
+    }
+    /**
+     * Ensure the environment dropdown can display a custom HDR URL.
+     * If envName isn't already an option, adds a "Custom HDR" entry.
+     * Removes stale custom entries when switching back to a built-in preset.
+     */
+    _syncEnvDropdown(envName) {
+        const el = this.container.querySelector(".tcv_studio_environment");
+        if (!(el instanceof HTMLSelectElement))
+            return;
+        // Check if the value matches a built-in option
+        const isBuiltin = Array.from(el.options).some((opt) => !opt.hasAttribute("data-custom") && opt.value === envName);
+        if (isBuiltin) {
+            el.value = envName;
+        }
+        else {
+            // Add or update a "Custom" optgroup with the custom HDR entry
+            const label = envName.split("/").pop()?.replace(/\.hdr$/i, "") || "Custom HDR";
+            let customGroup = el.querySelector("optgroup[data-custom]");
+            if (customGroup) {
+                const opt = customGroup.querySelector("option");
+                opt.value = envName;
+                opt.textContent = label;
+            }
+            else {
+                customGroup = document.createElement("optgroup");
+                customGroup.label = "Custom";
+                customGroup.setAttribute("data-custom", "true");
+                const opt = document.createElement("option");
+                opt.value = envName;
+                opt.textContent = label;
+                customGroup.appendChild(opt);
+                el.appendChild(customGroup);
+            }
+            el.value = envName;
+        }
     }
     /**
      * Enable/disable the 4K checkbox based on whether the current environment
@@ -111878,5 +112454,5 @@ class Display {
     }
 }
 
-export { CLIP_INDICES, CollapseState, Display, Timer$1 as Timer, Viewer, gpuTracker, hasSegmentsPerEdge, hasTrianglesPerFace, isClipIndex, isShapeBinaryFormat, logger, version };
+export { CLIP_INDICES, CollapseState, Display, EnvironmentManager, MATERIAL_PRESETS, MATERIAL_PRESET_NAMES, Timer$1 as Timer, Viewer, decodeInstancedFormat, gpuTracker, hasSegmentsPerEdge, hasTrianglesPerFace, isClipIndex, isInstancedFormat, isMaterialXMaterial, isShapeBinaryFormat, logger, version };
 //# sourceMappingURL=three-cad-viewer.esm.js.map

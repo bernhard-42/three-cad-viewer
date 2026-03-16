@@ -1,7 +1,7 @@
 var box1 = {
   version: 3,
   materials: {
-    acrylic: { preset: "acrylic-clear" },
+    acrylic: { builtin: "acrylic-clear" },
   },
   parts: [
     {

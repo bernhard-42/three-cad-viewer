@@ -1,7 +1,7 @@
 var orient_box = {
   version: 3,
   materials: {
-    "orange-glass": { preset: "glass-tinted", baseColor: [1.0, 0.5, 0.0, 1] },
+    "orange-glass": { builtin: "glass-tinted", color: [1.0, 0.5, 0.0, 1] },
   },
   parts: [
     {

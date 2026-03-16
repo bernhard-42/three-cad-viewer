@@ -1,7 +1,7 @@
 var drops = {
   version: 3,
   materials: {
-    "steel": { preset: "stainless-steel" },
+    "steel": { builtin: "stainless-steel" },
   },
   parts: [
     {

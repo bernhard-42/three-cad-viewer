@@ -1,7 +1,7 @@
 var linkage = {
   version: 3,
   materials: {
-    "link": { metallic: 0, roughness: 0.6 },
+    "link": { metalness: 0, roughness: 0.6 },
   },
   parts: [
     {

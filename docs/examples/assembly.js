@@ -1,11 +1,11 @@
 var assembly = {
   version: 3,
   materials: {
-    "blue-steel": { preset: "stainless-steel", baseColor: [0.3, 0.4, 0.65, 1] },
-    "glass": { preset: "glass-clear" },
-    "chrome": { preset: "chrome" },
-    "gold": { preset: "gold" },
-    "light-wood": { preset: "wood-light", baseColorTexture: "builtin:wood-dark" },
+    "blue-steel": { builtin: "stainless-steel", color: [0.3, 0.4, 0.65, 1] },
+    "glass": { builtin: "glass-clear" },
+    "chrome": { builtin: "chrome" },
+    "gold": { builtin: "gold" },
+    "light-wood": { builtin: "wood-light", map: "builtin:wood-dark" },
   },
   parts: [
     {
