@@ -1,5 +1,8 @@
 var hexapod = {
   version: 3,
+  materials: {
+    "body": { metallic: 0, roughness: 0.15 },
+  },
   parts: [
     {
       id: "/hexapod/bottom",
@@ -3950,6 +3953,7 @@ var hexapod = {
       renderback: false,
       accuracy: null,
       bb: null,
+      material: "body",
     },
     {
       id: "/hexapod/top",
@@ -7900,6 +7904,7 @@ var hexapod = {
       renderback: false,
       accuracy: null,
       bb: null,
+      material: "body",
     },
     {
       id: "/hexapod/front_stand",
@@ -8164,6 +8169,7 @@ var hexapod = {
       renderback: false,
       accuracy: null,
       bb: null,
+      material: "body",
     },
     {
       id: "/hexapod/back_stand",
@@ -8428,6 +8434,7 @@ var hexapod = {
       renderback: false,
       accuracy: null,
       bb: null,
+      material: "body",
     },
     {
       version: 3,
@@ -10207,6 +10214,7 @@ var hexapod = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "body",
         },
         {
           version: 3,
@@ -11753,6 +11761,7 @@ var hexapod = {
               renderback: false,
               accuracy: null,
               bb: null,
+              material: "body",
             },
           ],
           loc: [
@@ -13551,6 +13560,7 @@ var hexapod = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "body",
         },
         {
           version: 3,
@@ -15097,6 +15107,7 @@ var hexapod = {
               renderback: false,
               accuracy: null,
               bb: null,
+              material: "body",
             },
           ],
           loc: [
@@ -16895,6 +16906,7 @@ var hexapod = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "body",
         },
         {
           version: 3,
@@ -18441,6 +18453,7 @@ var hexapod = {
               renderback: false,
               accuracy: null,
               bb: null,
+              material: "body",
             },
           ],
           loc: [
@@ -20239,6 +20252,7 @@ var hexapod = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "body",
         },
         {
           version: 3,
@@ -21785,6 +21799,7 @@ var hexapod = {
               renderback: false,
               accuracy: null,
               bb: null,
+              material: "body",
             },
           ],
           loc: [
@@ -23583,6 +23598,7 @@ var hexapod = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "body",
         },
         {
           version: 3,
@@ -25129,6 +25145,7 @@ var hexapod = {
               renderback: false,
               accuracy: null,
               bb: null,
+              material: "body",
             },
           ],
           loc: [
@@ -26927,6 +26944,7 @@ var hexapod = {
           renderback: false,
           accuracy: null,
           bb: null,
+          material: "body",
         },
         {
           version: 3,
@@ -28473,6 +28491,7 @@ var hexapod = {
               renderback: false,
               accuracy: null,
               bb: null,
+              material: "body",
             },
           ],
           loc: [

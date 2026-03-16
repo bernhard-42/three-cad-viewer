@@ -29264,7 +29264,7 @@ var torusknot = {
         segments_per_edge: [177, 66, 66, 1, 63],
       },
       state: [1, 1],
-      color: "#852e00",
+      color: "#c0c0c0",
       alpha: 1.0,
       texture: null,
       loc: [
@@ -29274,6 +29274,7 @@ var torusknot = {
       renderback: false,
       accuracy: null,
       bb: null,
+      material: "polished-steel",
     },
   ],
   loc: [

@@ -1,5 +1,8 @@
 var box = {
   version: 3,
+  materials: {
+    "steel": { preset: "stainless-steel" },
+  },
   parts: [
     {
       id: "/Group/Workplane(Solid)",
@@ -836,7 +839,7 @@ var box = {
         ],
       },
       state: [1, 1],
-      color: "#e8b024",
+      color: "#e8e8eb",
       alpha: 1.0,
       texture: null,
       loc: [
@@ -846,6 +849,7 @@ var box = {
       renderback: false,
       accuracy: null,
       bb: null,
+      material: "steel",
     },
   ],
   loc: [

@@ -4,6 +4,7 @@
   --tcv-font-color: #333;
   --tcv-bg-color: #fff;
   --tcv-bg-overlay-color: rgba(255, 255, 255, 0.7);
+  --tcv-bg-overlay-rest-color: rgba(255, 255, 255, 0.14);
   --tcv-bg-highlight-color: #ddd;
   --tcv-bg-pressed-color: #eee;
   --tcv-bg-pressed-border-color: #bbb;
@@ -63,6 +64,7 @@
   --tcv-font-color: #ddd;
   --tcv-bg-color: #444;
   --tcv-bg-overlay-color: rgba(68, 68, 68, 0.7);
+  --tcv-bg-overlay-rest-color: rgba(68, 68, 68, 0.14);
   --tcv-bg-highlight-color: rgb(104, 104, 104);
   --tcv-bg-pressed-color: rgb(94, 94, 94);
   --tcv-bg-pressed-border-color: #999;
@@ -258,6 +260,7 @@ input[type="radio"] {
 
 
 .tcv_cad_viewer {
+  --tcv-ui-row-gap: 8px;
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -292,7 +295,7 @@ input[type="radio"] {
 
 .tcv_cad_tree_toggles {
   text-align: right;
-  margin-right: 0px;
+  padding: 0 4px;
   margin-bottom: 3px;
 }
 
@@ -310,6 +313,7 @@ input[type="radio"] {
 .tcv_cad_tree_glass {
   border: none !important;
   height: fit-content;
+  background-color: var(--tcv-bg-overlay-rest-color);
 }
 
 .tcv_cad_tree_glass:hover {
@@ -321,8 +325,6 @@ input[type="radio"] {
   height: 146px;
   font-family: sans-serif;
   font-size: 12px;
-  border-style: solid;
-  border-width: 1px;
   overflow: hidden;
   user-select:text;
 }
@@ -353,12 +355,38 @@ input[type="radio"] {
   font-weight: bold;
   margin-left: 4px;
   padding-bottom: 4px;
+}
+
+.tcv_toggle_tools {
+  vertical-align: middle;
+  display: inline-block;
+  width: 0.8rem;
+  cursor: pointer;
+}
+
+.tcv_toggle_tools_wrapper {
+  display: none;
+  margin-left: 4px;
+  cursor: pointer;
+}
+
+.tcv_tools_label {
+  font-size: 12px;
+  font-family: sans-serif;
+  font-weight: bold;
+  margin-left: 4px;
+  padding-bottom: 4px;
   vertical-align: middle;
   user-select: none;
 }
 
 .tcv_cad_info_glass {
   display: none;
+  border: none !important;
+  background: var(--tcv-bg-overlay-rest-color);
+}
+
+.tcv_cad_info_glass:hover {
   background: var(--tcv-bg-overlay-color);
 }
 
@@ -474,7 +502,7 @@ th {
 
 .tcv_cad_animation {
   height: 36px;
-  background-color: var(--tcv-bg-overlay-color);
+  background-color: var(--tcv-bg-overlay-rest-color);
   border: none;
   margin: 0;
   padding: 0px;
@@ -484,9 +512,13 @@ th {
   z-index: 100;
 }
 
+.tcv_cad_animation:hover {
+  background-color: var(--tcv-bg-overlay-color);
+}
+
 .tcv_cad_zscale {
   height: 36px;
-  background-color: var(--tcv-bg-overlay-color);
+  background-color: var(--tcv-bg-overlay-rest-color);
   border: none;
   margin: 0;
   padding: 0px;
@@ -495,6 +527,10 @@ th {
   bottom: 0px;
   z-index: 100;
   align-content: center;
+}
+
+.tcv_cad_zscale:hover {
+  background-color: var(--tcv-bg-overlay-color);
 }
 
 .tcv_cad_tools {
@@ -552,7 +588,7 @@ th {
 }
 
 .tcv_box_content {
-  overflow: scroll;
+  overflow: auto;
   height: 100%;
   /* margin: 0px 0px 0px 4px; */
   padding-top: 2px;
@@ -658,7 +694,10 @@ input[type="button"] {
   /* margin-bottom: 6px; */
   background-color: transparent;
   color: var(--tcv-font-color);
-  font-size: 14px;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tcv_tab:hover {
@@ -776,47 +815,60 @@ input[type="button"] {
 }
 
 .tcv_slider_group {
-  margin-bottom: 10px;
+  margin-bottom: var(--tcv-ui-row-gap);
+}
+
+.tcv_slider_group > div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tcv_slider_group > div:first-child {
+  align-items: flex-end;
+}
+
+.tcv_slider_group .tcv_label {
+  margin-bottom: 0;
 }
 
 .tcv_material_ambientlight {
   margin-top: 4px;
 }
 
-.tcv_cad_clip_container {
-  margin-top: 14px;
-  overflow: hidden;
+.tcv_cad_material_container .tcv_studio_slider_group {
+  width: 60%;
 }
 
-.tcv_cad_material_container {
+.tcv_cad_clip_container,
+.tcv_cad_material_container,
+.tcv_cad_zebra_container,
+.tcv_cad_studio_container {
   overflow: hidden;
+  padding: 0 4px;
 }
 
-.tcv_cad_zebra_container {
-  overflow: hidden;
+.tcv_cad_clip_container .tcv_label,
+.tcv_cad_material_container .tcv_label,
+.tcv_cad_zebra_container .tcv_label,
+.tcv_cad_studio_container .tcv_label {
+  margin-left: 0;
+  margin-right: 0;
 }
 
-.tcv_zebra_stripe_count {
-  margin-top: 20px;
-}
 
 .tcv_zebra_radio {
-  margin-top: 8px;
-  margin-bottom: 4px;
+  margin-bottom: var(--tcv-ui-row-gap);
   margin-left: -3px;
 }
 
-.tcv_zebra_mapping {
-  margin-top: 8px;
-  margin-bottom: 4px;
-}
-
 .tcv_clip_checks {
-  margin-top: 20px;
+  margin-top: var(--tcv-ui-row-gap);
 }
 
 .tcv_clip_input {
-  width: 25%;
+  width: 36px;
+  flex-shrink: 0;
   border: 1px solid #d3d3d3;
   background-color: var(--tcv-bg-overlay-color);
   color: var(--tcv-font-color);
@@ -825,10 +877,11 @@ input[type="button"] {
 .tcv_clip_slider {
   -webkit-appearance: none;
   appearance: none;
-  width: 60%;
+  flex: 1;
+  min-width: 0;
   height: 5px;
   border-radius: 2px;
-  background: #d3d3d3;
+  background: #a0a0a0;
   outline: none;
   opacity: 0.7;
   -webkit-transition: 0.2s;
@@ -860,7 +913,6 @@ input[type="button"] {
 }
 
 .tcv_lbl_norm_plane1 {
-  margin-top: 20px;
   color: var(--tcv-x-color);
 }
 
@@ -953,6 +1005,126 @@ input[type="button"] {
 
 .tcv_zebra_info {
   font-size: 12px;
+}
+
+.tcv_studio_select {
+  font-family: sans-serif;
+  font-size: 13px;
+  padding: 2px 4px;
+  border: 1px solid #d3d3d3;
+  border-radius: 3px;
+  background-color: var(--tcv-bg-overlay-color);
+  color: var(--tcv-font-color);
+  width: 55%;
+  flex-shrink: 0;
+  margin-left: auto;
+  outline: none;
+}
+
+.tcv_studio_texture_mapping {
+  width: auto;
+}
+
+.tcv_studio_select:hover {
+  opacity: 1;
+}
+
+.tcv_studio_select option {
+  background-color: var(--tcv-bg-color);
+  color: var(--tcv-font-color);
+}
+
+.tcv_studio_row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--tcv-ui-row-gap);
+}
+
+.tcv_studio_row > .tcv_label {
+  margin-left: 0;
+  padding-bottom: 0;
+  flex-shrink: 0;
+}
+
+.tcv_studio_slider_group {
+  display: flex;
+  align-items: center;
+  width: 55%;
+  flex-shrink: 0;
+  margin-left: auto;
+  gap: 4px;
+}
+
+.tcv_studio_slider_group > .tcv_clip_slider {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+
+.tcv_studio_slider_group > .tcv_clip_input {
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.tcv_studio_checks {
+  display: flex;
+  gap: 16px;
+  margin-top: var(--tcv-ui-row-gap);
+  margin-bottom: var(--tcv-ui-row-gap);
+}
+
+.tcv_studio_4k_row {
+  /* Align checkbox with the slider/dropdown column (45% label + 55% control) */
+  margin-left: 45%;
+  gap: 4px;
+}
+
+.tcv_studio_group_spacer {
+  height: calc(var(--tcv-ui-row-gap) * 0.6);
+}
+
+.tcv_studio_info {
+  font-size: 12px;
+  margin-top: 8px;
+  color: var(--tcv-font-color);
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.tcv_warning_banner {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: #e8a735;
+  color: #000;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 80%;
+  text-align: center;
+  pointer-events: auto;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.tcv_studio_spinner {
+  display: none;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--tcv-font-color);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: tcv_spin 0.7s linear infinite;
+  opacity: 0.6;
+  float: left;
+  margin-top: 5px;
+}
+
+@keyframes tcv_spin {
+  to { transform: rotate(360deg); }
 }
 
 .tcv_filter_menu {
@@ -1253,4 +1425,142 @@ input[type="button"] {
 
 .tcv_angle_val {
     text-align: right;
+}
+
+/* MATERIAL EDITOR PANEL */
+
+.tcv_mat_editor {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 250px;
+    max-height: calc(100% - 16px);
+    display: flex;
+    flex-direction: column;
+    background-color: var(--tcv-bg-overlay-rest-color);
+    border: 1px solid lightgray;
+    border-radius: 6px;
+    font-family: sans-serif;
+    font-size: 13px;
+    color: var(--tcv-font-color);
+    user-select: none;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tcv_mat_editor:hover {
+    background-color: var(--tcv-bg-overlay-color);
+}
+
+.tcv_mat_editor_titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px;
+    border-bottom: 1px solid lightgray;
+    background-color: var(--tcv-bg-overlay-color);
+    border-radius: 5px 5px 0 0;
+    flex-shrink: 0;
+    cursor: move;
+}
+
+.tcv_mat_editor_titlebar_btns {
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.tcv_mat_editor_title {
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.tcv_mat_editor_close {
+    cursor: pointer;
+}
+
+.tcv_mat_editor_path {
+    padding: 3px 6px;
+    font-size: 11px;
+    color: var(--tcv-font-color);
+    opacity: 0.7;
+    border-bottom: 1px solid lightgray;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+    user-select: text;
+}
+
+.tcv_mat_editor_content {
+    padding: 6px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+.tcv_mat_editor_section {
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tcv-font-color);
+    opacity: 0.6;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--tcv-bg-overlay-color);
+}
+
+.tcv_mat_editor_section:first-child {
+    margin-top: 0;
+}
+
+.tcv_mat_editor_row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.tcv_mat_editor_label {
+    font-size: 12px;
+    color: var(--tcv-font-color);
+    flex-shrink: 0;
+    max-width: 45%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Reuse tcv_studio_slider_group layout for slider + value */
+.tcv_mat_editor_slider_group {
+    display: flex;
+    align-items: center;
+    width: 52%;
+    flex-shrink: 0;
+    margin-left: auto;
+    gap: 4px;
+}
+
+/* Sliders reuse tcv_clip_slider class (set in JS) */
+.tcv_mat_editor_slider_group > .tcv_clip_slider {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+}
+
+/* Value inputs reuse tcv_clip_input class (set in JS) */
+.tcv_mat_editor_slider_group > .tcv_clip_input {
+    width: 36px;
+    flex-shrink: 0;
+}
+
+.tcv_mat_editor_changed {
+    color: #cc3333 !important;
+}
+
+.tcv_mat_editor_toggle.tcv_active {
+    background-color: var(--tcv-bg-overlay-color);
+    border-radius: 6px;
 }

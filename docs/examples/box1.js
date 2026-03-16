@@ -1,5 +1,8 @@
 var box1 = {
   version: 3,
+  materials: {
+    acrylic: { preset: "acrylic-clear" },
+  },
   parts: [
     {
       id: "/Group/Workplane(Solid)",
@@ -45,7 +48,7 @@ var box1 = {
         segments_per_edge: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       },
       state: [1, 1],
-      color: "#e8b024",
+      color: "#fedcba",
       alpha: 1.0,
       texture: null,
       loc: [
@@ -55,6 +58,7 @@ var box1 = {
       renderback: false,
       accuracy: null,
       bb: null,
+      material: "glass-tinted",
     },
   ],
   loc: [
