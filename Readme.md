@@ -257,7 +257,7 @@ After the initial `viewer.render()`, parts can be added, removed, or updated wit
 `addPart(parentPath, partData)` creates new Three.js objects (meshes, edges, clipping stencils) from the part data and inserts them into the scene graph and navigation tree. `removePart(path)` disposes the Three.js objects and removes the part from the scene.
 
 ```js
-viewer.addPart("/Group", partData);    // creates "/Group/PartName"
+viewer.addPart("/Group", partData); // creates "/Group/PartName"
 viewer.removePart("/Group/PartName");
 ```
 
@@ -296,9 +296,12 @@ Add, remove, and update calls can be freely mixed within a single batch.
 viewer.render(shapes, renderOptions, viewerOptions);
 
 viewer.ensureStencilSize({
-  xmin: -200, xmax: 200,
-  ymin: -200, ymax: 200,
-  zmin: 0,    zmax: 300,
+  xmin: -200,
+  xmax: 200,
+  ymin: -200,
+  ymax: 200,
+  zmin: 0,
+  zmax: 300,
 });
 
 // All updates within these bounds are now stencil-rebuild-free
@@ -340,7 +343,7 @@ Pass a partial keymap to override individual bindings — unspecified keys keep 
 
 ```javascript
 const displayOptions = {
-  keymap: { axes: "q", reset: "!" },  // only these two change
+  keymap: { axes: "q", reset: "!" }, // only these two change
 };
 ```
 
@@ -427,3 +430,7 @@ For the deployment, see [Release.md](./Release.md)
 # Changes
 
 see [Changes.md](./Changes.md)
+
+## Credit
+
+- The toycar example is downloaded from https://grabcad.com/library/toy-rider-car-1 and tessellated
