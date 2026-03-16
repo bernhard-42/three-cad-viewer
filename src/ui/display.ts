@@ -58,20 +58,20 @@ interface MatEditorParam {
 }
 
 const MAT_EDITOR_PARAMS: MatEditorParam[] = [
-  { key: "metalness",           label: "Metallic",            min: 0,   max: 1,    step: 0.01, group: "PBR Core" },
-  { key: "roughness",           label: "Roughness",           min: 0,   max: 1,    step: 0.01, group: "PBR Core" },
-  { key: "clearcoat",           label: "Clearcoat",           min: 0,   max: 1,    step: 0.01, group: "Clearcoat" },
-  { key: "clearcoatRoughness",  label: "Clearcoat Rough.",    min: 0,   max: 1,    step: 0.01, group: "Clearcoat" },
-  { key: "transmission",        label: "Transmission",        min: 0,   max: 1,    step: 0.01, group: "Transmission" },
-  { key: "ior",                 label: "IOR",                 min: 1.0, max: 2.5,  step: 0.01, group: "Transmission" },
-  { key: "thickness",           label: "Thickness",           min: 0,   max: 10,   step: 0.1,  group: "Transmission" },
-  { key: "attenuationDistance", label: "Atten. Distance",     min: 0,   max: 100,  step: 0.5,  group: "Transmission", infinity: true },
-  { key: "sheen",               label: "Sheen",               min: 0,   max: 1,    step: 0.01, group: "Sheen" },
-  { key: "sheenRoughness",      label: "Sheen Roughness",     min: 0,   max: 1,    step: 0.01, group: "Sheen" },
-  { key: "specularIntensity",   label: "Specular Intensity",  min: 0,   max: 2,    step: 0.01, group: "Specular" },
-  { key: "anisotropy",          label: "Anisotropy",          min: 0,   max: 1,    step: 0.01, group: "Anisotropy" },
-  { key: "anisotropyRotation",  label: "Anisotropy Rotation", min: 0,   max: 6.28, step: 0.01, group: "Anisotropy" },
-  { key: "emissiveIntensity",   label: "Emissive Intensity",  min: 0,   max: 5,    step: 0.1,  group: "Emissive" },
+  { key: "metalness", label: "Metallic", min: 0, max: 1, step: 0.01, group: "PBR Core" },
+  { key: "roughness", label: "Roughness", min: 0, max: 1, step: 0.01, group: "PBR Core" },
+  { key: "clearcoat", label: "Clearcoat", min: 0, max: 1, step: 0.01, group: "Clearcoat" },
+  { key: "clearcoatRoughness", label: "Clearcoat Rough.", min: 0, max: 1, step: 0.01, group: "Clearcoat" },
+  { key: "transmission", label: "Transmission", min: 0, max: 1, step: 0.01, group: "Transmission" },
+  { key: "ior", label: "IOR", min: 1.0, max: 2.5, step: 0.01, group: "Transmission" },
+  { key: "thickness", label: "Thickness", min: 0, max: 10, step: 0.1, group: "Transmission" },
+  { key: "attenuationDistance", label: "Atten. Distance", min: 0, max: 100, step: 0.5, group: "Transmission", infinity: true },
+  { key: "sheen", label: "Sheen", min: 0, max: 1, step: 0.01, group: "Sheen" },
+  { key: "sheenRoughness", label: "Sheen Roughness", min: 0, max: 1, step: 0.01, group: "Sheen" },
+  { key: "specularIntensity", label: "Specular Intensity", min: 0, max: 2, step: 0.01, group: "Specular" },
+  { key: "anisotropy", label: "Anisotropy", min: 0, max: 1, step: 0.01, group: "Anisotropy" },
+  { key: "anisotropyRotation", label: "Anisotropy Rotation", min: 0, max: 6.28, step: 0.01, group: "Anisotropy" },
+  { key: "emissiveIntensity", label: "Emissive Intensity", min: 0, max: 5, step: 0.1, group: "Emissive" },
 ];
 
 function _formatMatValue(value: number, step: number): string {
@@ -2561,7 +2561,7 @@ class Display {
       }
 
       let currentValue = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (material as any)[param.key] as number;
+        (material as any)[param.key] as number;
       const isInfinity = param.infinity === true && (currentValue === Infinity || currentValue == null);
       if (isInfinity) currentValue = param.max;
 
@@ -2584,7 +2584,7 @@ class Display {
 
     const isChanged = (v: number) => param.infinity
       ? (v >= param.max) !== (origValue === Infinity || origValue == null)
-        || (v < param.max && Math.abs(v - origValue) > param.step * 0.5)
+      || (v < param.max && Math.abs(v - origValue) > param.step * 0.5)
       : Math.abs(v - origValue) > param.step * 0.5;
 
     const label = document.createElement("label");
