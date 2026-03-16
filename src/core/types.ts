@@ -501,8 +501,8 @@ export interface MaterialAppearance {
 
   // -- Color --
 
-  /** sRGB RGBA base color, 0-1. Converted to linear by the material factory. */
-  baseColor?: RGBAColor;
+  /** sRGB base color. Accepts RGBA tuple [r,g,b,a] (0-1) or CSS hex string "#rrggbb". */
+  baseColor?: RGBAColor | string;
   /** Texture reference for base color */
   baseColorTexture?: string;
 
@@ -876,8 +876,9 @@ export interface Shapes {
    *  Values can be:
    *  - string: builtin preset reference (e.g., "builtin:car-paint")
    *  - MaterialXMaterial: threejs-materials format (detected by `properties` key)
+   *  - MaterialAppearance: preset with overrides (e.g., { preset: "acrylic-clear", baseColor: "#55a0e3" })
    */
-  materials?: Record<string, string | MaterialXMaterial> | undefined;
+  materials?: Record<string, string | MaterialXMaterial | MaterialAppearance> | undefined;
   /** Shared texture table for builtin preset materials (root node).
    *  threejs-materials carry their own textures inline. */
   textures?: Record<string, TextureEntry> | undefined;

@@ -173,7 +173,7 @@ class NestedGroup {
   clipPlanes: THREE.Plane[] | null;
   materialFactory: MaterialFactory;
   texturesTable: Record<string, TextureEntry> | null;
-  materialsTable: Record<string, string | MaterialXMaterial> | null;
+  materialsTable: Record<string, string | MaterialXMaterial | MaterialAppearance> | null;
   resolvedMaterials: Map<string, MaterialAppearance>;
   /** Cache for threejs-materials entries resolved from the materials table */
   resolvedMaterialX: Map<string, MaterialXMaterial>;
@@ -326,10 +326,26 @@ class NestedGroup {
         return null;
       }
 
-      // MaterialXMaterial entry: object with `params` key
+      // MaterialXMaterial entry: object with `properties` key
       if (isMaterialXMaterial(entry)) {
         this.resolvedMaterialX.set(tag, entry);
         return entry;
+      }
+
+      // MaterialAppearance entry: object with `preset` key (preset + overrides)
+      if (typeof entry === "object" && "preset" in entry) {
+        const appearance = entry as MaterialAppearance;
+        const presetName = appearance.preset!;
+        const preset = MATERIAL_PRESETS[presetName];
+        if (!preset) {
+          logger.warn(
+            `Unknown builtin preset '${presetName}' referenced by '${tag}' on '${objectPath}'`,
+          );
+          return null;
+        }
+        const resolved: MaterialAppearance = { ...preset, ...appearance };
+        this.resolvedMaterials.set(tag, resolved);
+        return resolved;
       }
 
       // Should not happen with current type, but guard anyway
@@ -1203,12 +1219,15 @@ class NestedGroup {
    * 3. Clone BackSide variant for renderback objects
    * 4. Auto-generate box-projected UVs when textured but geometry has no UVs
    */
-  async enterStudioMode(textureMapping: StudioTextureMapping = "triplanar"): Promise<void> {
+  async enterStudioMode(textureMapping: StudioTextureMapping = "triplanar"): Promise<string[]> {
     // Create TextureCache lazily
     if (!this._textureCache) {
       this._textureCache = new TextureCache();
     }
     this._textureCache.setTexturesTable(this.texturesTable ?? undefined);
+
+    // Track material tags that failed to resolve
+    const unresolvedTags = new Set<string>();
 
     // Iterate all ObjectGroups with front meshes
     for (const path in this.groups) {
@@ -1232,6 +1251,9 @@ class NestedGroup {
       if (!studioMaterial) {
         // Resolve the tag
         const resolved = tag ? this.resolveMaterialTag(tag, path) : null;
+        if (tag && !resolved) {
+          unresolvedTags.add(tag);
+        }
 
         // Per-object try/catch: a single failure should not abort the rest
         try {
@@ -1332,6 +1354,7 @@ class NestedGroup {
     }
 
     this._isStudioMode = true;
+    return [...unresolvedTags];
   }
 
   /**

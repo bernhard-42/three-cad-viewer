@@ -345,13 +345,18 @@ class MaterialFactory {
     let opacity: number;
 
     if (def.baseColor) {
-      // MaterialAppearance baseColor is sRGB [R, G, B, A?] (0-1).
-      // Convert to linear working space for Three.js.
-      baseColor = new THREE.Color().setRGB(
-        def.baseColor[0], def.baseColor[1], def.baseColor[2],
-        THREE.SRGBColorSpace,
-      );
-      opacity = def.baseColor[3] ?? 1.0;
+      if (typeof def.baseColor === "string") {
+        // CSS hex string (e.g. "#55a0e3") — THREE.Color parses as sRGB
+        baseColor = new THREE.Color(def.baseColor);
+        opacity = 1.0;
+      } else {
+        // sRGB RGBA tuple [R, G, B, A?] (0-1)
+        baseColor = new THREE.Color().setRGB(
+          def.baseColor[0], def.baseColor[1], def.baseColor[2],
+          THREE.SRGBColorSpace,
+        );
+        opacity = def.baseColor[3] ?? 1.0;
+      }
     } else {
       // Fall back to leaf node's CSS hex color + alpha.
       // THREE.Color constructor with a hex number or CSS string produces

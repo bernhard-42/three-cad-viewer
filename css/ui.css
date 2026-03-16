@@ -969,6 +969,24 @@ input[type="button"] {
   font-style: italic;
 }
 
+.tcv_warning_banner {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: #e8a735;
+  color: #000;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 80%;
+  text-align: center;
+  pointer-events: auto;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
 .tcv_studio_spinner {
   display: none;
   width: 8px;

@@ -349,18 +349,9 @@ class EnvironmentManager {
         break;
       case "environment":
         if (this._currentTexture) {
-          if (ortho) {
-            // Ortho: render-to-texture with camera tracking (Three.js can't
-            // do cubemap backgrounds with orthographic cameras)
-            this._setupEnvBackground(scene, this._currentTexture, upIsZ, rotY);
-          } else {
-            // Perspective: native cubemap background (world-space, rotates with orbit)
-            this._teardownEnvBackground();
-            scene.background = this._currentTexture;
-            scene.backgroundIntensity = 1.0;
-            scene.backgroundBlurriness = 0;
-            scene.backgroundRotation.copy(scene.environmentRotation);
-          }
+          // Always use render-to-texture with a fixed-FOV bgCamera so the
+          // background zoom level is identical in perspective and ortho modes.
+          this._setupEnvBackground(scene, this._currentTexture, upIsZ, rotY);
           this._deferredApply = null;
         } else {
           // No environment loaded — fall back to grey.

@@ -200,6 +200,8 @@ class Display {
   cadZebra!: HTMLElement;
   cadStudio!: HTMLElement;
   private _spinnerEl: HTMLElement | null = null;
+  private _warningBannerEl: HTMLElement | null = null;
+  private _warningBannerTimer: ReturnType<typeof setTimeout> | null = null;
   private _spinnerCount: number = 0;
   // Material editor state
   private _matEditorPath: string | null = null;
@@ -361,6 +363,12 @@ class Display {
     this.cadZebra = this.getElement("tcv_cad_zebra_container");
     this.cadStudio = this.getElement("tcv_cad_studio_container");
     this._spinnerEl = this.container.querySelector(".tcv_studio_spinner") as HTMLElement | null;
+    this._warningBannerEl = this.container.querySelector(".tcv_warning_banner") as HTMLElement | null;
+    this.container.addEventListener("tcv-material-warnings", ((e: CustomEvent<string[]>) => {
+      this._showWarningBanner(
+        `Unresolved material tag(s): ${e.detail.map(t => `"${t}"`).join(", ")}`,
+      );
+    }) as EventListener);
     this.tabTree = this.getElement("tcv_tab_tree");
     this.tabClip = this.getElement("tcv_tab_clip");
     this.tabZebra = this.getElement("tcv_tab_zebra");
@@ -1985,6 +1993,7 @@ class Display {
       this._saveMatEditorChanges();
       this.disposeMatEditorClones();
       this.viewer.leaveStudioMode();
+      this._hideWarningBanner();
       // Restore tool button visibility based on feature flags
       this._restoreToolsAfterStudio();
     }
@@ -2092,6 +2101,24 @@ class Display {
     this._spinnerCount = Math.max(0, this._spinnerCount - 1);
     if (this._spinnerCount === 0 && this._spinnerEl) {
       this._spinnerEl.style.display = "none";
+    }
+  }
+
+  /** Show a warning banner in the viewport. Auto-hides after 8 seconds. */
+  private _showWarningBanner(message: string): void {
+    if (!this._warningBannerEl) return;
+    this._warningBannerEl.textContent = message;
+    this._warningBannerEl.style.display = "block";
+    if (this._warningBannerTimer) clearTimeout(this._warningBannerTimer);
+    this._warningBannerTimer = setTimeout(() => this._hideWarningBanner(), 8000);
+  }
+
+  /** Hide the warning banner. */
+  private _hideWarningBanner(): void {
+    if (this._warningBannerEl) this._warningBannerEl.style.display = "none";
+    if (this._warningBannerTimer) {
+      clearTimeout(this._warningBannerTimer);
+      this._warningBannerTimer = null;
     }
   }
 

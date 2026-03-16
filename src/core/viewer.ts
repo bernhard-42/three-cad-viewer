@@ -532,6 +532,9 @@ class Viewer {
       getClipping: () => this.rendered.clipping,
       getBbox: () => this.bbox,
       getLastBboxId: () => this.lastBbox?.id ?? null,
+      setAxes: (flag, notify) => this.setAxes(flag, notify),
+      setGrids: (grids, notify) => this.setGrids(grids, notify),
+      setOrtho: (flag, notify) => this.setOrtho(flag, notify),
       update: (updateMarker, notify) => this.update(updateMarker, notify),
       dispatchEvent: (event) => this.display.container.dispatchEvent(event),
       onSelectionChanged: (id) => this.display.onSelectionChanged(id),
@@ -876,7 +879,7 @@ class Viewer {
       this.state.get("height"),
     );
 
-    // Env background: render HDRI to 2D render target for ortho cameras
+    // Env background: render HDRI to 2D render target (fixed-FOV bgCamera)
     if (this._studioManager.isEnvBackgroundActive) {
       this._studioManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
     }
