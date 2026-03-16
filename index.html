@@ -55,6 +55,9 @@
         // transpalet,
         assembly,
         linkage,
+        studio_mode,
+        "lazy:toycar",  // instanced/compressed format
+        "lazy:shader_ball",  // PBR shader ball
         box,
         image_face,
         orient_box,
@@ -75,9 +78,6 @@
         single_vertices,
         sky130,
         transceiver_mzi,
-        studio_mode,
-        "lazy:toycar",  // instanced/compressed format
-        "lazy:shader_ball",  // PBR shader ball
       ];
 
       // Lazy-load a large example by script injection.
@@ -429,10 +429,11 @@
         >
           <option value="hexapod">hexapod</option>
           <!-- <option value="transpalet">transpalet</option>         -->
-
           <option value="assembly">assembly</option>
-
           <option value="linkage">linkage</option>
+          <option value="studio_mode">objects (PBR)</option>
+          <option value="toycar">toycar (PBR)</option>
+          <option value="shader_ball">shader_ball (PBR)</option>
           <option value="box">box</option>
           <option value="image-face">image-face</option>
           <option value="orient-box">orient-box</option>
@@ -453,9 +454,6 @@
           <option value="single_vertices">single vertices</option>
           <option value="sky130">GDS:sky130</option>
           <option value="transceiver_mzi">GDS:transceiver_mzi</option>
-          <option value="studio_mode">studio_mode</option>
-          <option value="toycar">toycar</option>
-          <option value="shader_ball">shader_ball</option>
         </select>
       </span>
     </div>
