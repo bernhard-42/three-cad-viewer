@@ -2797,9 +2797,6 @@ class Display {
     const el = this.container.querySelector(".tcv_studio_environment");
     if (!(el instanceof HTMLSelectElement)) return;
 
-    // Remove any previously added custom option
-    const existing = el.querySelector("option[data-custom]");
-
     // Check if the value matches a built-in option
     const isBuiltin = Array.from(el.options).some(
       (opt) => !opt.hasAttribute("data-custom") && opt.value === envName,
