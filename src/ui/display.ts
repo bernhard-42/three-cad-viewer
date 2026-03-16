@@ -2615,11 +2615,12 @@ class Display {
       if (!result?.object.front) return;
       const mat = result.object.front.material;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (param.infinity && newValue >= param.max) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (mat as any)[param.key] = Infinity;
         valueDisplay.value = "\u221E";
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (mat as any)[param.key] = newValue;
         valueDisplay.value = _formatMatValue(newValue, param.step);
       }
