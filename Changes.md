@@ -2,7 +2,7 @@
 
 ## v4.2.0
 
-**Studio Mode** (new)
+**Studio Mode** (new, beta)
 
 A new **Studio** tab provides physically-based rendering with per-object materials, environment-based lighting, shadows, ambient occlusion, and tone mapping — turning the CAD viewer into a product visualization tool.
 
