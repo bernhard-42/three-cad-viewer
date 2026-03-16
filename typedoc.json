@@ -1,5 +1,16 @@
 {
   "validation": {
     "notExported": false
-  }
+  },
+  "externalSymbolLinkMappings": {
+    "@types/three": {
+      "Material.needsUpdate": "https://threejs.org/docs/#api/en/materials/Material.needsUpdate",
+      "WebGLRenderer": "https://threejs.org/docs/#api/en/renderers/WebGLRenderer",
+      "WebGLRenderer.localClippingEnabled": "https://threejs.org/docs/#api/en/renderers/WebGLRenderer.localClippingEnabled",
+      "Scene.overrideMaterial": "https://threejs.org/docs/#api/en/scenes/Scene.overrideMaterial",
+      "ObjectLoader#parse": "https://threejs.org/docs/#api/en/loaders/ObjectLoader.parse",
+      "Object3D#renderOder": "https://threejs.org/docs/#api/en/core/Object3D.renderOrder"
+    }
+  },
+  "suppressCommentWarningsInDeclarationFiles": true
 }
