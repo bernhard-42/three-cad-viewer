@@ -836,33 +836,7 @@ materials: {
 | Glass & Transparent | `acrylic-clear`, `glass-clear`, `glass-tinted`, `glass-frosted` |
 | Rubber & Elastomers | `rubber-black`, `rubber-gray`, `rubber-red` |
 | Painted Surfaces | `paint-matte`, `paint-glossy`, `paint-metallic`, `car-paint` |
-| Natural & Other | `wood-light`, `wood-dark`, `ceramic-white`, `carbon-fiber`, `concrete` |
-
-#### `textures` — Shared Texture Table
-
-Optional dictionary of shared textures referenced by `MaterialAppearance` fields.
-Material-db materials carry their own textures inline as data URIs, so this table
-is mainly used for builtin preset textures.
-
-```js
-textures: {
-  "wood-basecolor": {
-    data: "<base64-encoded image>",
-    format: "png"
-  },
-  "hdri-preview": {
-    url: "https://example.com/texture.jpg"
-  },
-}
-```
-
-| Field    | Type     | Description                                        |
-|----------|----------|----------------------------------------------------|
-| `data`   | `string` | Base64-encoded image data (for embedded textures). |
-| `format` | `string` | Image format: `"png"`, `"jpg"`, `"webp"`, etc.    |
-| `url`    | `string` | URL to load the texture from.                      |
-
-At least one of (`data` + `format`) or `url` must be provided.
+| Natural & Other | `ceramic-white`, `carbon-fiber`, `concrete` |
 
 ### MaterialX Material
 
@@ -898,8 +872,8 @@ A builtin preset reference with optional property overrides.
 Field names follow Three.js `MeshPhysicalMaterial` naming.
 
 All fields except `builtin` are optional. Only provided fields override the
-preset defaults. Texture string fields reference either a key in the root-level
-`textures` table, a data URI, or a URL resolved against the HTML page.
+preset defaults. Texture string fields are either a data URI or a URL resolved
+against the HTML page.
 
 #### Core Properties
 
