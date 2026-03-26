@@ -16,7 +16,6 @@ import type {
   ColoredMaterial,
   MaterialAppearance,
   MaterialXMaterial,
-  TextureEntry,
 } from "../core/types";
 import { isMaterialXMaterial } from "../core/types";
 import { MATERIAL_PRESETS } from "../rendering/material-presets.js";
@@ -172,7 +171,6 @@ class NestedGroup {
   groups!: GroupsMap; // Initialized to {} in constructor
   clipPlanes: THREE.Plane[] | null;
   materialFactory: MaterialFactory;
-  texturesTable: Record<string, TextureEntry> | null;
   materialsTable: Record<string, string | MaterialXMaterial | MaterialAppearance> | null;
   resolvedMaterials: Map<string, MaterialAppearance>;
   /** Cache for threejs-materials entries resolved from the materials table */
@@ -229,7 +227,6 @@ class NestedGroup {
 
     this.clipPlanes = null;
 
-    this.texturesTable = null;
     this.materialsTable = null;
     this.resolvedMaterials = new Map();
     this.resolvedMaterialX = new Map();
@@ -262,7 +259,6 @@ class NestedGroup {
     this._disposeStudioResources();
     this.resolvedMaterials.clear();
     this.resolvedMaterialX.clear();
-    this.texturesTable = null;
     this.materialsTable = null;
   }
 
@@ -997,7 +993,6 @@ class NestedGroup {
     if (this.shapes.format == "GDS") {
       this.instances = this.shapes.instances || null;
     }
-    this.texturesTable = this.shapes.textures || null;
     this.materialsTable = this.shapes.materials || null;
     this.resolvedMaterials.clear();
     this.resolvedMaterialX.clear();
@@ -1224,8 +1219,6 @@ class NestedGroup {
     if (!this._textureCache) {
       this._textureCache = new TextureCache();
     }
-    this._textureCache.setTexturesTable(this.texturesTable ?? undefined);
-
     // Track material tags that failed to resolve
     const unresolvedTags = new Set<string>();
 

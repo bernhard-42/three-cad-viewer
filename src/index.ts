@@ -133,7 +133,6 @@ export type { ColoredMaterial } from "./core/types.js";
 export type {
   MaterialAppearance,
   MaterialXMaterial,
-  TextureEntry,
   StudioOptions,
   StudioBackground,
   StudioModeOptions,

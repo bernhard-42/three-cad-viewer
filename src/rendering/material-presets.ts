@@ -253,20 +253,6 @@ export const MATERIAL_PRESETS: Record<string, MaterialAppearance> = {
   // Natural / Other
   // ---------------------------------------------------------------------------
 
-  "wood-light": {
-    name: "Wood (Light)",
-    color: [0.89, 0.8, 0.68, 1],
-    metalness: 0.0,
-    roughness: 0.6,
-  },
-
-  "wood-dark": {
-    name: "Wood (Dark)",
-    color: [0.63, 0.51, 0.38, 1],
-    metalness: 0.0,
-    roughness: 0.55,
-  },
-
   "ceramic-white": {
     name: "Ceramic (White)",
     color: [0.98, 0.98, 0.97, 1],

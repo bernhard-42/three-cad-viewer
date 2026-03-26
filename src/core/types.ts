@@ -490,8 +490,7 @@ export type StateKey = keyof ViewerStateShape;
  * which the shader skips at near-zero cost.
  *
  * This is a data-format interface (describes JSON input), not a Three.js material.
- * Texture string fields reference either a key in the root-level `textures` table,
- * a data URI, or a URL resolved against the HTML page.
+ * Texture string fields are either a data URI or a URL resolved against the HTML page.
  */
 export interface MaterialAppearance {
   /** Display name */
@@ -647,28 +646,6 @@ export interface MaterialXMaterial {
  */
 export function isMaterialXMaterial(m: unknown): m is MaterialXMaterial {
   return typeof m === "object" && m !== null && "properties" in m;
-}
-
-// =============================================================================
-// Texture Entry (Studio Mode)
-// =============================================================================
-
-/**
- * Entry in the root-level `textures` table.
- *
- * Each entry is either embedded (base64-encoded image data) or a URL reference
- * loaded on demand. At least one of `data`+`format` or `url` must be provided.
- * An empty TextureEntry is invalid and will be ignored at runtime.
- * Multiple builtin preset texture fields can reference the same key for
- * deduplication. threejs-materials carry their own textures as inline data URIs.
- */
-export interface TextureEntry {
-  /** Base64-encoded image data (for embedded textures) */
-  data?: string;
-  /** Image format, e.g., "png", "jpg", "webp" (required when data is provided) */
-  format?: string;
-  /** URL to load the texture from (for URL-referenced textures) */
-  url?: string;
 }
 
 // =============================================================================
@@ -881,9 +858,6 @@ export interface Shapes {
    *  - MaterialAppearance: preset with overrides (e.g., { builtin: "acrylic-clear", color: "#55a0e3" })
    */
   materials?: Record<string, string | MaterialXMaterial | MaterialAppearance> | undefined;
-  /** Shared texture table for builtin preset materials (root node).
-   *  threejs-materials carry their own textures inline. */
-  textures?: Record<string, TextureEntry> | undefined;
 }
 
 // =============================================================================
