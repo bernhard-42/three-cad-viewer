@@ -9,6 +9,5 @@ scratch
 .claude
 ANALYSIS
 coverage/
-examples/toycar.js
 working-docs
 .DS_Store
