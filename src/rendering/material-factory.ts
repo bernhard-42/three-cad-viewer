@@ -540,6 +540,8 @@ class MaterialFactory {
       if (COLOR_ARRAY_KEYS.has(key) && Array.isArray(prop.value)) {
         const [r, g, b] = prop.value as number[];
         matOptions[key] = new THREE.Color(r, g, b);
+      } else if ((key === "normalScale" || key === "clearcoatNormalScale") && Array.isArray(prop.value)) {
+        matOptions[key] = new THREE.Vector2(prop.value[0], prop.value[1]);
       } else if (key === "iridescenceThicknessRange" && Array.isArray(prop.value)) {
         matOptions[key] = prop.value;
       } else {
