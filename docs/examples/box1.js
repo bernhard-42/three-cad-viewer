@@ -1,8 +1,5 @@
 var box1 = {
   version: 3,
-  materials: {
-    acrylic: { builtin: "acrylic-clear" },
-  },
   parts: [
     {
       id: "/Group/Workplane(Solid)",
@@ -58,7 +55,6 @@ var box1 = {
       renderback: false,
       accuracy: null,
       bb: null,
-      material: "glass-tinted",
     },
   ],
   loc: [

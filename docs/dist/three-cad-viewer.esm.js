@@ -82545,19 +82545,6 @@ const _sphere = new Sphere();
 // =============================================================================
 // Constants
 // =============================================================================
-/** Size of procedurally generated builtin textures (pixels) */
-const BUILTIN_SIZE = 256;
-/** Names of all supported builtin procedural textures */
-const BUILTIN_NAMES = [
-    "brushed",
-    "knurled",
-    "sandblasted",
-    "hammered",
-    "checker",
-    "wood-dark",
-    "leather",
-    "fabric-weave",
-];
 /**
  * Texture fields that carry sRGB color data.
  *
@@ -82586,431 +82573,6 @@ const THREEJS_SRGB_MAPS = new Set([
     "specularColorMap",
 ]);
 // =============================================================================
-// Builtin Procedural Texture Generators
-// =============================================================================
-/**
- * Create a 2D canvas context of the given size.
- */
-function createCanvas(size) {
-    // Prefer OffscreenCanvas when available (Web Workers, modern browsers)
-    if (typeof OffscreenCanvas !== "undefined") {
-        const canvas = new OffscreenCanvas(size, size);
-        const ctx = canvas.getContext("2d");
-        return { canvas, ctx };
-    }
-    const canvas = document.createElement("canvas");
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext("2d");
-    return { canvas, ctx };
-}
-/**
- * Simple pseudo-random number generator (mulberry32) for deterministic output.
- * Ensures builtin textures look identical across sessions.
- */
-function mulberry32(seed) {
-    return () => {
-        seed |= 0;
-        seed = (seed + 0x6d2b79f5) | 0;
-        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-}
-/**
- * Generate a brushed-metal normal map.
- *
- * Creates horizontal noise streaks simulating directional brushing.
- * The streaks run along the X axis with slight vertical variation.
- */
-function generateBrushed(size) {
-    const { canvas, ctx } = createCanvas(size);
-    const imageData = ctx.createImageData(size, size);
-    const data = imageData.data;
-    const rng = mulberry32(42);
-    // Generate per-row intensity variation (horizontal streaks)
-    const rowIntensity = new Float32Array(size);
-    for (let y = 0; y < size; y++) {
-        rowIntensity[y] = 0.3 + rng() * 0.7;
-    }
-    for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
-            const idx = (y * size + x) * 4;
-            // High-frequency horizontal noise for brush lines
-            const noise = (rng() - 0.5) * 0.15 * rowIntensity[y];
-            // Slight vertical gradient perturbation
-            const yNoise = (rng() - 0.5) * 0.05;
-            // Normal map encoding: (0.5, 0.5, 1.0) = flat
-            data[idx] = Math.round((0.5 + noise) * 255); // R: tangent X
-            data[idx + 1] = Math.round((0.5 + yNoise) * 255); // G: tangent Y
-            data[idx + 2] = 255; // B: tangent Z (flat)
-            data[idx + 3] = 255; // A: opaque
-        }
-    }
-    ctx.putImageData(imageData, 0, 0);
-    return canvas;
-}
-/**
- * Generate a diamond knurl pattern normal map.
- *
- * Creates a repeating diamond grid pattern typical of knurled metal surfaces.
- */
-function generateKnurled(size) {
-    const { canvas, ctx } = createCanvas(size);
-    const imageData = ctx.createImageData(size, size);
-    const data = imageData.data;
-    const diamonds = 16; // Number of diamond repeats
-    const step = size / diamonds;
-    for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
-            const idx = (y * size + x) * 4;
-            // Diamond pattern using modular arithmetic
-            const dx = ((x % step) / step) * 2 - 1; // -1 to 1 within cell
-            const dy = ((y % step) / step) * 2 - 1;
-            // Diamond distance (L1 norm)
-            const dist = Math.abs(dx) + Math.abs(dy);
-            // Gradient direction for normal
-            const sx = dx > 0 ? 1 : -1;
-            const sy = dy > 0 ? 1 : -1;
-            // Smooth pyramid shape
-            const strength = 0.3;
-            const nx = dist < 1 ? sx * strength * (1 - dist) : 0;
-            const ny = dist < 1 ? sy * strength * (1 - dist) : 0;
-            data[idx] = Math.round((0.5 + nx) * 255);
-            data[idx + 1] = Math.round((0.5 + ny) * 255);
-            data[idx + 2] = 255;
-            data[idx + 3] = 255;
-        }
-    }
-    ctx.putImageData(imageData, 0, 0);
-    return canvas;
-}
-/**
- * Generate a sandblasted surface normal map.
- *
- * Creates fine random grain using layered noise at different frequencies,
- * simulating a sandblasted or bead-blasted metal surface.
- */
-function generateSandblasted(size) {
-    const { canvas, ctx } = createCanvas(size);
-    const imageData = ctx.createImageData(size, size);
-    const data = imageData.data;
-    const rng = mulberry32(137);
-    // Generate a height field with multi-octave noise
-    const heights = new Float32Array(size * size);
-    for (let i = 0; i < heights.length; i++) {
-        heights[i] = rng() * 0.5 + rng() * 0.3 + rng() * 0.2;
-    }
-    // Derive normals from height field via finite differences
-    const strength = 0.2;
-    for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
-            const idx = (y * size + x) * 4;
-            const xp = (x + 1) % size;
-            const xm = (x - 1 + size) % size;
-            const yp = (y + 1) % size;
-            const ym = (y - 1 + size) % size;
-            const dhdx = (heights[y * size + xp] - heights[y * size + xm]) * 0.5;
-            const dhdy = (heights[yp * size + x] - heights[ym * size + x]) * 0.5;
-            data[idx] = Math.round((0.5 - dhdx * strength) * 255);
-            data[idx + 1] = Math.round((0.5 - dhdy * strength) * 255);
-            data[idx + 2] = 255;
-            data[idx + 3] = 255;
-        }
-    }
-    ctx.putImageData(imageData, 0, 0);
-    return canvas;
-}
-/**
- * Generate a hammered/peened surface normal map.
- *
- * Creates random crater bumps simulating a hand-hammered metal surface.
- */
-function generateHammered(size) {
-    const { canvas, ctx } = createCanvas(size);
-    const imageData = ctx.createImageData(size, size);
-    const data = imageData.data;
-    const rng = mulberry32(314);
-    // Generate a height field with random circular craters
-    const heights = new Float32Array(size * size);
-    const craterCount = 80;
-    for (let c = 0; c < craterCount; c++) {
-        const cx = rng() * size;
-        const cy = rng() * size;
-        const radius = 8 + rng() * 16;
-        const depth = 0.3 + rng() * 0.7;
-        // Stamp crater (with wrapping for tileable texture)
-        const r2 = radius * radius;
-        for (let dy = -radius; dy <= radius; dy++) {
-            for (let dx = -radius; dx <= radius; dx++) {
-                const d2 = dx * dx + dy * dy;
-                if (d2 < r2) {
-                    const px = ((Math.round(cx + dx) % size) + size) % size;
-                    const py = ((Math.round(cy + dy) % size) + size) % size;
-                    // Smooth hemisphere shape
-                    const t = 1 - d2 / r2;
-                    heights[py * size + px] += depth * t * t;
-                }
-            }
-        }
-    }
-    // Derive normals from height field
-    const strength = 0.25;
-    for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
-            const idx = (y * size + x) * 4;
-            const xp = (x + 1) % size;
-            const xm = (x - 1 + size) % size;
-            const yp = (y + 1) % size;
-            const ym = (y - 1 + size) % size;
-            const dhdx = (heights[y * size + xp] - heights[y * size + xm]) * 0.5;
-            const dhdy = (heights[yp * size + x] - heights[ym * size + x]) * 0.5;
-            data[idx] = Math.round(Math.max(0, Math.min(255, (0.5 - dhdx * strength) * 255)));
-            data[idx + 1] = Math.round(Math.max(0, Math.min(255, (0.5 - dhdy * strength) * 255)));
-            data[idx + 2] = 255;
-            data[idx + 3] = 255;
-        }
-    }
-    ctx.putImageData(imageData, 0, 0);
-    return canvas;
-}
-/**
- * Generate a black/white checkerboard texture.
- *
- * Useful for UV debugging and as a base color texture for testing.
- */
-function generateChecker(size) {
-    const { canvas, ctx } = createCanvas(size);
-    const squares = 8; // 8x8 checkerboard
-    const step = size / squares;
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, size, size);
-    ctx.fillStyle = "#000000";
-    for (let row = 0; row < squares; row++) {
-        for (let col = 0; col < squares; col++) {
-            if ((row + col) % 2 === 0) {
-                ctx.fillRect(col * step, row * step, step, step);
-            }
-        }
-    }
-    return canvas;
-}
-/**
- * Generate a dark wood grain base color texture.
- *
- * Creates concentric growth rings with noise perturbation,
- * in warm walnut/mahogany tones. Intended as a baseColorTexture (sRGB).
- */
-function generateWoodDark(size) {
-    const { canvas, ctx } = createCanvas(size);
-    const imageData = ctx.createImageData(size, size);
-    const data = imageData.data;
-    const rng = mulberry32(73);
-    // Pre-generate a noise field for grain perturbation
-    const noise = new Float32Array(size * size);
-    for (let i = 0; i < noise.length; i++) {
-        noise[i] = rng();
-    }
-    // Smooth the noise (simple box blur, 2 passes)
-    const tmp = new Float32Array(size * size);
-    for (let pass = 0; pass < 2; pass++) {
-        const src = pass === 0 ? noise : tmp;
-        const dst = pass === 0 ? tmp : noise;
-        const k = 3;
-        for (let y = 0; y < size; y++) {
-            for (let x = 0; x < size; x++) {
-                let sum = 0;
-                let count = 0;
-                for (let dy = -k; dy <= k; dy++) {
-                    for (let dx = -k; dx <= k; dx++) {
-                        const px = (x + dx + size) % size;
-                        const py = (y + dy + size) % size;
-                        sum += src[py * size + px];
-                        count++;
-                    }
-                }
-                dst[y * size + x] = sum / count;
-            }
-        }
-    }
-    // Wood color palette (sRGB, will be decoded by Three.js)
-    // Dark grain lines: ~[80, 45, 22]  Light wood body: ~[145, 90, 48]
-    const darkR = 80, darkG = 45, darkB = 22;
-    const lightR = 145, lightG = 90, lightB = 48;
-    // Ring center (offset from image center for asymmetry)
-    const cx = size * 0.45;
-    const cy = size * 0.52;
-    const ringScale = 0.08; // Controls ring spacing
-    for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
-            const idx = (y * size + x) * 4;
-            // Distance from center with noise distortion
-            const n = noise[y * size + x];
-            const dx = x - cx + (n - 0.5) * 30;
-            const dy = y - cy + (n - 0.5) * 15;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            // Growth ring pattern (sinusoidal)
-            const ring = Math.sin(dist * ringScale * Math.PI * 2);
-            // Remap from [-1,1] to [0,1]
-            const t = ring * 0.5 + 0.5;
-            // sqrt biases toward light — dark lines stay thin, brown dominates
-            const ringFactor = Math.sqrt(t);
-            // Add fine-grain noise for fiber texture
-            const fineNoise = (rng() - 0.5) * 12;
-            // Interpolate between dark and light
-            const r = Math.round(darkR + (lightR - darkR) * ringFactor + fineNoise);
-            const g = Math.round(darkG + (lightG - darkG) * ringFactor + fineNoise * 0.6);
-            const b = Math.round(darkB + (lightB - darkB) * ringFactor + fineNoise * 0.3);
-            data[idx] = Math.max(0, Math.min(255, r));
-            data[idx + 1] = Math.max(0, Math.min(255, g));
-            data[idx + 2] = Math.max(0, Math.min(255, b));
-            data[idx + 3] = 255;
-        }
-    }
-    ctx.putImageData(imageData, 0, 0);
-    return canvas;
-}
-/**
- * Generate a leather pebble-grain normal map.
- *
- * Creates irregular rounded bumps (Voronoi-like cells) typical of
- * top-grain or pebbled leather. Each cell has a smooth dome shape
- * with slight creases between cells.
- */
-function generateLeather(size) {
-    const { canvas, ctx } = createCanvas(size);
-    const imageData = ctx.createImageData(size, size);
-    const data = imageData.data;
-    const rng = mulberry32(217);
-    // Scatter seed points for Voronoi cells (pebbles)
-    const cellCount = 180;
-    const seeds = [];
-    for (let i = 0; i < cellCount; i++) {
-        seeds.push({ x: rng() * size, y: rng() * size });
-    }
-    // Build a height field from Voronoi distance
-    const heights = new Float32Array(size * size);
-    for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
-            // Find distance to nearest seed (with wrapping for tileability)
-            let minDist = Infinity;
-            for (const s of seeds) {
-                let dx = Math.abs(x - s.x);
-                let dy = Math.abs(y - s.y);
-                if (dx > size / 2)
-                    dx = size - dx;
-                if (dy > size / 2)
-                    dy = size - dy;
-                const d = Math.sqrt(dx * dx + dy * dy);
-                if (d < minDist)
-                    minDist = d;
-            }
-            // Invert: closer to seed = higher (dome center)
-            // Normalize roughly by expected average cell radius
-            const avgRadius = size / Math.sqrt(cellCount);
-            const t = Math.min(minDist / avgRadius, 1.0);
-            // Smooth dome falloff: 1 at center, 0 at edge
-            heights[y * size + x] = (1 - t * t) * 0.8 + rng() * 0.05;
-        }
-    }
-    // Derive normals from height field via finite differences
-    const strength = 0.35;
-    for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
-            const idx = (y * size + x) * 4;
-            const xp = (x + 1) % size;
-            const xm = (x - 1 + size) % size;
-            const yp = (y + 1) % size;
-            const ym = (y - 1 + size) % size;
-            const dhdx = (heights[y * size + xp] - heights[y * size + xm]) * 0.5;
-            const dhdy = (heights[yp * size + x] - heights[ym * size + x]) * 0.5;
-            data[idx] = Math.round(Math.max(0, Math.min(255, (0.5 - dhdx * strength) * 255)));
-            data[idx + 1] = Math.round(Math.max(0, Math.min(255, (0.5 - dhdy * strength) * 255)));
-            data[idx + 2] = 255;
-            data[idx + 3] = 255;
-        }
-    }
-    ctx.putImageData(imageData, 0, 0);
-    return canvas;
-}
-/**
- * Generate a fabric twill-weave normal map.
- *
- * Creates a repeating over-under weave pattern with slightly raised
- * warp/weft threads and recessed gaps, typical of upholstery fabric.
- */
-function generateFabricWeave(size) {
-    const { canvas, ctx } = createCanvas(size);
-    const imageData = ctx.createImageData(size, size);
-    const data = imageData.data;
-    const rng = mulberry32(159);
-    // Thread parameters
-    const threadCount = 32; // threads per axis
-    const cellSize = size / threadCount;
-    // Build height field: each cell is either warp-over or weft-over
-    const heights = new Float32Array(size * size);
-    for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
-            const cx = Math.floor(x / cellSize);
-            const cy = Math.floor(y / cellSize);
-            // Position within the cell [0, 1]
-            const lx = (x % cellSize) / cellSize;
-            const ly = (y % cellSize) / cellSize;
-            // Twill pattern: diagonal shift (2/1 twill)
-            const isWarpOver = ((cx + cy) % 3) < 2;
-            // Thread profile: rounded bump across the thread width
-            // Warp threads run vertically (bump shape across x)
-            // Weft threads run horizontally (bump shape across y)
-            const warpProfile = Math.sin(lx * Math.PI);
-            const weftProfile = Math.sin(ly * Math.PI);
-            // Gap between threads (edges of cells are lower)
-            const edgeFalloff = Math.min(Math.sin(lx * Math.PI), Math.sin(ly * Math.PI));
-            let h;
-            if (isWarpOver) {
-                // Warp on top: height from warp profile
-                h = 0.5 + warpProfile * 0.4 * edgeFalloff;
-            }
-            else {
-                // Weft on top: height from weft profile
-                h = 0.5 + weftProfile * 0.4 * edgeFalloff;
-            }
-            // Add subtle noise for fabric irregularity
-            h += (rng() - 0.5) * 0.04;
-            heights[y * size + x] = h;
-        }
-    }
-    // Derive normals from height field
-    const strength = 0.3;
-    for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
-            const idx = (y * size + x) * 4;
-            const xp = (x + 1) % size;
-            const xm = (x - 1 + size) % size;
-            const yp = (y + 1) % size;
-            const ym = (y - 1 + size) % size;
-            const dhdx = (heights[y * size + xp] - heights[y * size + xm]) * 0.5;
-            const dhdy = (heights[yp * size + x] - heights[ym * size + x]) * 0.5;
-            data[idx] = Math.round(Math.max(0, Math.min(255, (0.5 - dhdx * strength) * 255)));
-            data[idx + 1] = Math.round(Math.max(0, Math.min(255, (0.5 - dhdy * strength) * 255)));
-            data[idx + 2] = 255;
-            data[idx + 3] = 255;
-        }
-    }
-    ctx.putImageData(imageData, 0, 0);
-    return canvas;
-}
-/** Map of builtin texture names to their generator functions */
-const BUILTIN_GENERATORS = {
-    brushed: generateBrushed,
-    knurled: generateKnurled,
-    sandblasted: generateSandblasted,
-    hammered: generateHammered,
-    checker: generateChecker,
-    "wood-dark": generateWoodDark,
-    leather: generateLeather,
-    "fabric-weave": generateFabricWeave,
-};
-// =============================================================================
 // TextureCache
 // =============================================================================
 /**
@@ -83021,28 +82583,20 @@ const BUILTIN_GENERATORS = {
  * Only TextureCache.dispose() / disposeFull() disposes GPU texture resources.
  *
  * Resolution order for texture reference strings:
- * 1. `builtin:` prefix -- procedural texture from the persistent builtin cache
- * 2. Key in the root-level `textures` table -- embedded data or URL
- * 3. `data:` prefix -- treat as data URI, load directly
- * 4. Otherwise -- treat as URL, resolve relative to HTML page
+ * 1. `data:` prefix -- treat as data URI, load directly
+ * 2. Otherwise -- treat as URL, resolve relative to HTML page
  *
  * Features:
- * - Two-tier caching: user textures (disposed on clear) + builtin textures
- *   (persistent, only disposed on viewer teardown)
  * - In-flight promise deduplication (no duplicate loads for the same key)
  * - Correct colorSpace assignment per texture semantic role
  * - GPU resource tracking via gpuTracker
  */
 class TextureCache {
     constructor() {
-        /** User textures cache (disposed on clear/dispose, rebuilt per shape data) */
+        /** Textures cache (disposed on clear/dispose, rebuilt per shape data) */
         this._cache = new Map();
-        /** Built-in procedural textures (persistent, only disposed via disposeFull) */
-        this._builtinCache = new Map();
         /** In-flight load promises keyed by cache key */
         this._inflight = new Map();
-        /** Root-level textures table from shape data */
-        this._texturesTable = {};
         /** THREE.TextureLoader instance (created lazily) */
         this._textureLoader = null;
         /** Whether this cache has been fully disposed */
@@ -83052,21 +82606,10 @@ class TextureCache {
     // Public API
     // ---------------------------------------------------------------------------
     /**
-     * Set or update the root-level textures table.
-     *
-     * Called when new shape data is loaded. The table maps string keys to
-     * TextureEntry objects (embedded base64 data or URL references).
-     *
-     * @param table - The textures table from root Shapes node, or undefined to clear
-     */
-    setTexturesTable(table) {
-        this._texturesTable = table ?? {};
-    }
-    /**
      * Resolve a texture reference string and return a cached or newly loaded
      * THREE.Texture with the correct colorSpace set.
      *
-     * @param ref - Texture reference string (builtin name, table key, data URI, or URL)
+     * @param ref - Texture reference string (table key, data URI, or URL)
      * @param textureRole - The texture role name (MaterialAppearance field name or proxy role)
      *   (e.g. "baseColorTexture", "normalTexture"). Used to determine colorSpace.
      * @returns The resolved THREE.Texture, or null if the reference is invalid
@@ -83084,146 +82627,39 @@ class TextureCache {
         const colorSpace = SRGB_TEXTURE_ROLES.has(textureRole)
             ? SRGBColorSpace
             : LinearSRGBColorSpace;
-        // 1. builtin: prefix
-        if (ref.startsWith("builtin:")) {
-            return this._getBuiltin(ref, colorSpace);
-        }
-        // 2. Look up in textures table
-        const tableEntry = this._texturesTable[ref];
-        if (tableEntry) {
-            return this._getFromTable(ref, tableEntry, colorSpace);
-        }
-        // 3. data: prefix (data URI)
+        // 1. data: prefix (data URI)
         if (ref.startsWith("data:")) {
             return this._getFromDataUri(ref, colorSpace);
         }
-        // 4. URL (relative to HTML page)
+        // 2. URL (relative to HTML page)
         return this._getFromUrl(ref, colorSpace);
     }
     /**
-     * Check whether a texture reference string would resolve to a builtin texture.
-     */
-    isBuiltin(ref) {
-        return ref.startsWith("builtin:");
-    }
-    /**
-     * Dispose user textures (called on viewer.clear() when shape data is replaced).
+     * Dispose textures (called on viewer.clear() when shape data is replaced).
      *
-     * Disposes all textures in the user cache and clears in-flight promises.
-     * The builtin procedural texture cache is preserved.
+     * Disposes all textures in the cache and clears in-flight promises.
      */
     dispose() {
-        // Dispose user textures
         for (const [key, texture] of this._cache) {
             gpuTracker.untrack("texture", texture);
             texture.dispose();
-            logger.debug(`Disposed user texture: ${key}`);
+            logger.debug(`Disposed texture: ${key}`);
         }
         this._cache.clear();
         // Clear in-flight promises (they may resolve but won't be used)
         this._inflight.clear();
-        // Clear the textures table (will be set again with new shape data)
-        this._texturesTable = {};
     }
     /**
-     * Dispose all textures including builtin procedural textures.
+     * Dispose all textures.
      *
      * Called on viewer.dispose() when the viewer is fully torn down.
      * After this call, the TextureCache cannot be used again.
      */
     disposeFull() {
         this._disposed = true;
-        // Dispose user textures first
         this.dispose();
-        // Dispose builtin textures
-        for (const [key, texture] of this._builtinCache) {
-            gpuTracker.untrack("texture", texture);
-            texture.dispose();
-            logger.debug(`Disposed builtin texture: ${key}`);
-        }
-        this._builtinCache.clear();
-        // Null the texture loader reference
         this._textureLoader = null;
         logger.debug("TextureCache fully disposed");
-    }
-    // ---------------------------------------------------------------------------
-    // Private: Builtin procedural textures
-    // ---------------------------------------------------------------------------
-    /**
-     * Get or generate a builtin procedural texture.
-     *
-     * Builtin textures are cached in the persistent `_builtinCache` and survive
-     * `dispose()` calls. They are only freed via `disposeFull()`.
-     */
-    _getBuiltin(ref, colorSpace) {
-        // Extract name after "builtin:" prefix
-        const name = ref.slice(8);
-        if (!BUILTIN_GENERATORS[name]) {
-            logger.warn(`Unknown builtin texture: "${ref}". Available: ${BUILTIN_NAMES.join(", ")}`);
-            return null;
-        }
-        // Check builtin cache
-        const cached = this._builtinCache.get(ref);
-        if (cached) {
-            // TODO: If the same builtin is used in different roles (sRGB vs Linear),
-            // mutating colorSpace in-place would affect other materials. This is
-            // unlikely for builtins (almost always normal maps) but could be fixed
-            // with a composite cache key (ref + colorSpace) if needed.
-            cached.colorSpace = colorSpace;
-            return cached;
-        }
-        // Generate the procedural texture
-        const canvas = BUILTIN_GENERATORS[name](BUILTIN_SIZE);
-        const texture = new CanvasTexture(canvas);
-        texture.wrapS = RepeatWrapping;
-        texture.wrapT = RepeatWrapping;
-        texture.colorSpace = colorSpace;
-        texture.needsUpdate = true;
-        // Cache in the persistent builtin cache
-        this._builtinCache.set(ref, texture);
-        gpuTracker.trackTexture(texture, `Builtin procedural texture: ${ref}`);
-        logger.debug(`Generated builtin texture: ${ref}`);
-        return texture;
-    }
-    // ---------------------------------------------------------------------------
-    // Private: Table entry loading
-    // ---------------------------------------------------------------------------
-    /**
-     * Load a texture from the root-level textures table entry.
-     *
-     * Handles both embedded (base64 data) and URL-referenced entries.
-     */
-    async _getFromTable(key, entry, colorSpace) {
-        // Check user cache
-        // TODO: If the same texture table entry is used in different roles
-        // (sRGB vs Linear), mutating colorSpace in-place would affect other
-        // materials. Could be fixed with a composite cache key (key + colorSpace).
-        const cached = this._cache.get(key);
-        if (cached) {
-            cached.colorSpace = colorSpace;
-            return cached;
-        }
-        // Check in-flight
-        const inflight = this._inflight.get(key);
-        if (inflight) {
-            const texture = await inflight;
-            texture.colorSpace = colorSpace;
-            return texture;
-        }
-        // Resolve table entry to a loadable source
-        if (entry.data && entry.format) {
-            // Embedded: construct data URI from base64 data
-            const mimeType = this._formatToMime(entry.format);
-            const dataUri = `data:${mimeType};base64,${entry.data}`;
-            return this._loadAndCache(key, dataUri, colorSpace);
-        }
-        if (entry.url) {
-            // URL reference
-            return this._loadAndCache(key, entry.url, colorSpace);
-        }
-        // Invalid entry (neither data nor url)
-        logger.warn(`Texture table entry "${key}" has neither data nor url, skipping`);
-        return null;
     }
     // ---------------------------------------------------------------------------
     // Private: Data URI loading
@@ -83347,24 +82783,6 @@ class TextureCache {
             logger.debug("Created TextureLoader");
         }
         return this._textureLoader;
-    }
-    /**
-     * Convert a format string (e.g. "png", "jpg", "webp") to a MIME type.
-     */
-    _formatToMime(format) {
-        switch (format.toLowerCase()) {
-            case "jpg":
-            case "jpeg":
-                return "image/jpeg";
-            case "png":
-                return "image/png";
-            case "webp":
-                return "image/webp";
-            default:
-                // Default to PNG for unknown formats
-                logger.warn(`Unknown texture format "${format}", defaulting to image/png`);
-                return "image/png";
-        }
     }
 }
 /**
@@ -83751,6 +83169,9 @@ class MaterialFactory {
             if (COLOR_ARRAY_KEYS.has(key) && Array.isArray(prop.value)) {
                 const [r, g, b] = prop.value;
                 matOptions[key] = new Color(r, g, b);
+            }
+            else if ((key === "normalScale" || key === "clearcoatNormalScale") && Array.isArray(prop.value)) {
+                matOptions[key] = new Vector2(prop.value[0], prop.value[1]);
             }
             else if (key === "iridescenceThicknessRange" && Array.isArray(prop.value)) {
                 matOptions[key] = prop.value;
@@ -84196,18 +83617,6 @@ const MATERIAL_PRESETS = {
     // ---------------------------------------------------------------------------
     // Natural / Other
     // ---------------------------------------------------------------------------
-    "wood-light": {
-        name: "Wood (Light)",
-        color: [0.89, 0.8, 0.68, 1],
-        metalness: 0.0,
-        roughness: 0.6,
-    },
-    "wood-dark": {
-        name: "Wood (Dark)",
-        color: [0.63, 0.51, 0.38, 1],
-        metalness: 0.0,
-        roughness: 0.55,
-    },
     "ceramic-white": {
         name: "Ceramic (White)",
         color: [0.98, 0.98, 0.97, 1],
@@ -84629,7 +84038,6 @@ class NestedGroup {
         this.bsphere = null;
         this.groups = {};
         this.clipPlanes = null;
-        this.texturesTable = null;
         this.materialsTable = null;
         this.resolvedMaterials = new Map();
         this.resolvedMaterialX = new Map();
@@ -84660,7 +84068,6 @@ class NestedGroup {
         this._disposeStudioResources();
         this.resolvedMaterials.clear();
         this.resolvedMaterialX.clear();
-        this.texturesTable = null;
         this.materialsTable = null;
     }
     /**
@@ -85115,7 +84522,6 @@ class NestedGroup {
         if (this.shapes.format == "GDS") {
             this.instances = this.shapes.instances || null;
         }
-        this.texturesTable = this.shapes.textures || null;
         this.materialsTable = this.shapes.materials || null;
         this.resolvedMaterials.clear();
         this.resolvedMaterialX.clear();
@@ -85317,7 +84723,6 @@ class NestedGroup {
         if (!this._textureCache) {
             this._textureCache = new TextureCache();
         }
-        this._textureCache.setTexturesTable(this.texturesTable ?? undefined);
         // Track material tags that failed to resolve
         const unresolvedTags = new Set();
         // Iterate all ObjectGroups with front meshes
@@ -94874,7 +94279,7 @@ class Tools {
     }
 }
 
-const version = "4.2.0";
+const version = "4.3.0";
 
 /**
  * Clean room environment for Studio mode PMREM generation.
@@ -104953,7 +104358,6 @@ class StudioManager {
         this._composer = null;
         this._active = false;
         this._savedClippingState = null;
-        this._savedViewState = null;
         this._shadowLights = [];
         // -------------------------------------------------------------------------
         // Mode enter/leave
@@ -104972,14 +104376,7 @@ class StudioManager {
                 if (clipping.planeHelpers) {
                     clipping.planeHelpers.visible = false;
                 }
-                // 2. Save view state (applied after env is loaded to avoid
-                //    subscriber side-effects before the texture is ready)
-                this._savedViewState = {
-                    ortho: state.get("ortho"),
-                    axes: state.get("axes"),
-                    grid: [...state.get("grid")],
-                };
-                // 3. Build/swap studio materials (async due to textures)
+                // 2. Build/swap studio materials (async due to textures)
                 const nestedGroup = this._ctx.getNestedGroup();
                 const unresolvedTags = await nestedGroup.enterStudioMode(state.get("studioTextureMapping"));
                 if (!this._active)
@@ -104988,23 +104385,15 @@ class StudioManager {
                 if (unresolvedTags.length > 0) {
                     this._ctx.dispatchEvent(new CustomEvent("tcv-material-warnings", { detail: unresolvedTags }));
                 }
-                // 4. Load environment map
+                // 3. Load environment map
                 const envName = state.get("studioEnvironment");
                 await this.envManager.loadEnvironment(envName, renderer);
                 if (!this._active)
                     return;
-                // 5. Apply ALL rendering changes atomically
+                // 4. Apply ALL rendering changes atomically
                 const scene = this._ctx.getScene();
                 const camera = this._ctx.getCamera();
                 this.envManager.apply(scene, state.get("studioEnvIntensity"), state.get("studioBackground"), state.get("up") === "Z", camera.ortho, state.get("studioEnvRotation"));
-                // 6. Override camera, axes, grid (after env is loaded so
-                //    ortho subscriber doesn't trigger reapplyEnv with null texture)
-                if (this._savedViewState?.ortho)
-                    this._ctx.setOrtho(false);
-                if (this._savedViewState?.axes)
-                    this._ctx.setAxes(false);
-                if (state.get("grid").some(Boolean))
-                    this._ctx.setGrids([false, false, false]);
                 // Lighting: disable CAD lights; environment IBL provides all illumination
                 this._ctx.getAmbientLight().intensity = 0;
                 this._ctx.getDirectLight().intensity = 0;
@@ -105066,20 +104455,8 @@ class StudioManager {
                 this._ctx.getClipping().restoreState(this._savedClippingState);
                 this._savedClippingState = null;
             }
-            // 7. Clear active flag (before restoring view state, so subscribers don't re-apply studio)
+            // 7. Clear active flag; edges restored by ObjectGroup.leaveStudioMode()
             this._active = false;
-            // 8. Restore camera, axes, grid
-            if (this._savedViewState) {
-                const { ortho, axes, grid } = this._savedViewState;
-                if (ortho)
-                    this._ctx.setOrtho(true);
-                if (axes)
-                    this._ctx.setAxes(true);
-                if (grid.some(Boolean))
-                    this._ctx.setGrids(grid);
-                this._savedViewState = null;
-            }
-            // 9. Edges restored by ObjectGroup.leaveStudioMode()
             this._ctx.update(true, false);
         };
         this.resetStudio = () => {

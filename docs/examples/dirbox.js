@@ -1,7 +1,7 @@
 var dirbox = {
   version: 3,
   materials: {
-    "wood": "builtin:wood-dark",
+    "stainless-steel": "builtin:stainless-steel",
   },
   parts: [
     {
@@ -2270,7 +2270,7 @@ var dirbox = {
         ],
       },
       state: [1, 1],
-      color: "#a18261",
+      color: "#bbb",
       alpha: 1.0,
       texture: null,
       loc: [
@@ -2280,7 +2280,7 @@ var dirbox = {
       renderback: false,
       accuracy: null,
       bb: null,
-      material: "wood",
+      material: "stainless-steel",
     },
   ],
   loc: [

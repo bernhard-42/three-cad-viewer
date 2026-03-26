@@ -2,10 +2,10 @@ var assembly = {
   version: 3,
   materials: {
     "blue-steel": { builtin: "stainless-steel", color: [0.3, 0.4, 0.65, 1] },
-    "glass": { builtin: "glass-clear" },
-    "chrome": { builtin: "chrome" },
-    "gold": { builtin: "gold" },
-    "light-wood": { builtin: "wood-light", map: "builtin:wood-dark" },
+    glass: { builtin: "glass-clear" },
+    chrome: { builtin: "chrome" },
+    gold: { builtin: "gold" },
+    brass: { builtin: "brass" },
   },
   parts: [
     {
@@ -2182,7 +2182,7 @@ var assembly = {
             segments_per_edge: [71, 1, 71],
           },
           state: [1, 1],
-          color: "#e3ccad",
+          color: "#cccccc",
           alpha: 1.0,
           texture: null,
           loc: [
@@ -2192,7 +2192,7 @@ var assembly = {
           renderback: false,
           accuracy: null,
           bb: null,
-          material: "light-wood",
+          material: "chrome",
         },
       ],
       loc: [
@@ -8611,7 +8611,7 @@ var assembly = {
           },
           state: [1, 1],
           color: "#ffffff",
-          alpha: 1.0,
+          alpha: 0.4,
           texture: null,
           loc: [
             [3.0, 3.0, -3.0],
@@ -21693,7 +21693,7 @@ var assembly = {
             segments_per_edge: [79, 63],
           },
           state: [1, 1],
-          color: "#fafafa",
+          color: "#e3ccad",
           alpha: 1.0,
           texture: null,
           loc: [
@@ -21703,7 +21703,7 @@ var assembly = {
           renderback: false,
           accuracy: null,
           bb: null,
-          material: "chrome",
+          material: "brass",
         },
       ],
       loc: [
