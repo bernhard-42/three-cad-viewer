@@ -69,11 +69,6 @@ class StudioManager {
   private _composer: StudioComposer | null = null;
   private _active: boolean = false;
   private _savedClippingState: ClippingState | null = null;
-  private _savedViewState: {
-    ortho: boolean;
-    axes: boolean;
-    grid: [boolean, boolean, boolean];
-  } | null = null;
   private _shadowLights: THREE.DirectionalLight[] = [];
   private _ctx: StudioManagerContext;
 
@@ -162,15 +157,7 @@ class StudioManager {
         clipping.planeHelpers.visible = false;
       }
 
-      // 2. Save view state (applied after env is loaded to avoid
-      //    subscriber side-effects before the texture is ready)
-      this._savedViewState = {
-        ortho: state.get("ortho"),
-        axes: state.get("axes"),
-        grid: [...state.get("grid")] as [boolean, boolean, boolean],
-      };
-
-      // 3. Build/swap studio materials (async due to textures)
+      // 2. Build/swap studio materials (async due to textures)
       const nestedGroup = this._ctx.getNestedGroup();
       const unresolvedTags = await nestedGroup.enterStudioMode(state.get("studioTextureMapping"));
       if (!this._active) return;
@@ -182,12 +169,12 @@ class StudioManager {
         );
       }
 
-      // 4. Load environment map
+      // 3. Load environment map
       const envName = state.get("studioEnvironment");
       await this.envManager.loadEnvironment(envName, renderer);
       if (!this._active) return;
 
-      // 5. Apply ALL rendering changes atomically
+      // 4. Apply ALL rendering changes atomically
       const scene = this._ctx.getScene();
       const camera = this._ctx.getCamera();
       this.envManager.apply(
@@ -198,12 +185,6 @@ class StudioManager {
         camera.ortho,
         state.get("studioEnvRotation"),
       );
-
-      // 6. Override camera, axes, grid (after env is loaded so
-      //    ortho subscriber doesn't trigger reapplyEnv with null texture)
-      if (this._savedViewState?.ortho) this._ctx.setOrtho(false);
-      if (this._savedViewState?.axes) this._ctx.setAxes(false);
-      if (state.get("grid").some(Boolean)) this._ctx.setGrids([false, false, false]);
 
       // Lighting: disable CAD lights; environment IBL provides all illumination
       this._ctx.getAmbientLight().intensity = 0;
@@ -292,19 +273,8 @@ class StudioManager {
       this._savedClippingState = null;
     }
 
-    // 7. Clear active flag (before restoring view state, so subscribers don't re-apply studio)
+    // 7. Clear active flag; edges restored by ObjectGroup.leaveStudioMode()
     this._active = false;
-
-    // 8. Restore camera, axes, grid
-    if (this._savedViewState) {
-      const { ortho, axes, grid } = this._savedViewState;
-      if (ortho) this._ctx.setOrtho(true);
-      if (axes) this._ctx.setAxes(true);
-      if (grid.some(Boolean)) this._ctx.setGrids(grid);
-      this._savedViewState = null;
-    }
-
-    // 9. Edges restored by ObjectGroup.leaveStudioMode()
 
     this._ctx.update(true, false);
   };
