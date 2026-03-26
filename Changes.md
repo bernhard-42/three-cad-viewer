@@ -1,5 +1,14 @@
 # Change log
 
+## v4.3.0
+
+- Fixed `normalScale` and `clearcoatNormalScale` handling in `createStudioMaterialFromMaterialX` — array values are now correctly converted to `THREE.Vector2`
+- Removed automatic save/restore of grid, axes, and ortho mode when entering/leaving Studio mode — these are now user-controlled
+- Removed procedural builtin textures (brushed, knurled, sandblasted, hammered, checker, wood-dark, leather, fabric-weave) and the `builtin:` texture resolution path
+- Removed shared `textures` table support (`TextureEntry` type, `setTexturesTable`, `textures` field on `Shapes`) — threejs-materials carry textures inline as data URIs
+- Removed `wood-light` and `wood-dark` material presets (29 presets, down from 31)
+- Fixed examples to use correct color value ranges and consistent material definitions
+
 ## v4.2.0
 
 **Studio Mode** (new, beta)
