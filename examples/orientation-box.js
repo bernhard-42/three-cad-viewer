@@ -1,8 +1,5 @@
 var orient_box = {
   version: 3,
-  materials: {
-    "orange-glass": { builtin: "glass-tinted", color: [1.0, 0.5, 0.0, 1] },
-  },
   parts: [
     {
       id: "/Group/Solid",
@@ -27738,7 +27735,6 @@ var orient_box = {
       renderback: false,
       accuracy: null,
       bb: null,
-      material: "orange-glass",
     },
   ],
   loc: [

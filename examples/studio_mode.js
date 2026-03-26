@@ -121,8 +121,6 @@ var studio_mode = {
     "car-paint-red": "builtin:car-paint",
   },
 
-  textures: {},
-
   // Studio mode rendering hints
 
   // =========================================================================
