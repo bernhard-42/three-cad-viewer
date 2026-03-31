@@ -1,6 +1,6 @@
 # Change log
 
-## v4.3.1
+## v4.3.1, 4.3.2
 
 - Disabled anisotropic reflections in Studio mode — CAD meshes lack tangent vectors, causing facet artifacts
 - Enabled 16x anisotropic texture filtering for sharper textures at oblique angles
