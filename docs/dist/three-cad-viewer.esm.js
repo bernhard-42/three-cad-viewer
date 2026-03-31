@@ -82601,6 +82601,9 @@ class TextureCache {
         this._textureLoader = null;
         /** Whether this cache has been fully disposed */
         this._disposed = false;
+        /** Max anisotropic filtering level.
+         *  Default 16 covers most GPUs; clamped by the driver if unsupported. */
+        this.maxAnisotropy = 16;
     }
     // ---------------------------------------------------------------------------
     // Public API
@@ -82762,6 +82765,7 @@ class TextureCache {
                 texture.colorSpace = colorSpace;
                 texture.wrapS = RepeatWrapping;
                 texture.wrapT = RepeatWrapping;
+                texture.anisotropy = this.maxAnisotropy;
                 resolve(texture);
             }, undefined, // onProgress (not used)
             (error) => {
@@ -83117,12 +83121,10 @@ class MaterialFactory {
             }
         }
         // --- Anisotropy (brushed metal) ---
-        if (def.anisotropy !== undefined) {
-            material.anisotropy = def.anisotropy;
-        }
-        if (def.anisotropyRotation !== undefined) {
-            material.anisotropyRotation = def.anisotropyRotation;
-        }
+        // Skipped: anisotropic reflections require tangent vectors on the mesh.
+        // CAD tessellation never provides tangents, so Three.js falls back to
+        // screen-space derivative tangents which produce visible diamond-shaped
+        // facet artifacts on coarse meshes.
         // --- Textures ---
         // Resolve all texture references via TextureCache.
         // The TextureCache determines colorSpace internally from the texture role name.
@@ -83164,6 +83166,9 @@ class MaterialFactory {
                 continue;
             // Skip displacement properties (not supported, would waste GPU memory)
             if (key === "displacement" || key === "displacementScale" || key === "displacementBias")
+                continue;
+            // Skip anisotropy — requires tangent vectors that CAD meshes don't have
+            if (key === "anisotropy" || key === "anisotropyRotation")
                 continue;
             // Color arrays → THREE.Color (already linear, no sRGB conversion)
             if (COLOR_ARRAY_KEYS.has(key) && Array.isArray(prop.value)) {
@@ -83335,9 +83340,9 @@ class MaterialFactory {
         const sheenRoughnessTex = await resolve(def.sheenRoughnessMap, "sheenRoughnessTexture");
         if (sheenRoughnessTex)
             material.sheenRoughnessMap = sheenRoughnessTex;
-        const anisotropyTex = await resolve(def.anisotropyMap, "anisotropyTexture");
-        if (anisotropyTex)
-            material.anisotropyMap = anisotropyTex;
+        // Anisotropy texture skipped — CAD meshes lack tangent vectors.
+        // const anisotropyTex = await resolve(def.anisotropyMap, "anisotropyTexture");
+        // if (anisotropyTex) material.anisotropyMap = anisotropyTex;
     }
     /**
      * Update global settings.
@@ -94279,7 +94284,7 @@ class Tools {
     }
 }
 
-const version = "4.3.0";
+const version = "4.3.1";
 
 /**
  * Clean room environment for Studio mode PMREM generation.
