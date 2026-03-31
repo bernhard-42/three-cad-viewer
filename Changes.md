@@ -1,5 +1,10 @@
 # Change log
 
+## v4.3.1
+
+- Disabled anisotropic reflections in Studio mode — CAD meshes lack tangent vectors, causing facet artifacts
+- Enabled 16x anisotropic texture filtering for sharper textures at oblique angles
+
 ## v4.3.0
 
 - Fixed `normalScale` and `clearcoatNormalScale` handling in `createStudioMaterialFromMaterialX` — array values are now correctly converted to `THREE.Vector2`
