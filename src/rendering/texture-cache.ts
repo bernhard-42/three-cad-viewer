@@ -68,6 +68,10 @@ class TextureCache {
   /** Whether this cache has been fully disposed */
   private _disposed = false;
 
+  /** Max anisotropic filtering level.
+   *  Default 16 covers most GPUs; clamped by the driver if unsupported. */
+  maxAnisotropy = 16;
+
   // ---------------------------------------------------------------------------
   // Public API
   // ---------------------------------------------------------------------------
@@ -272,6 +276,7 @@ class TextureCache {
           texture.colorSpace = colorSpace;
           texture.wrapS = THREE.RepeatWrapping;
           texture.wrapT = THREE.RepeatWrapping;
+          texture.anisotropy = this.maxAnisotropy;
           resolve(texture);
         },
         undefined, // onProgress (not used)
