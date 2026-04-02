@@ -83121,10 +83121,12 @@ class MaterialFactory {
             }
         }
         // --- Anisotropy (brushed metal) ---
-        // Skipped: anisotropic reflections require tangent vectors on the mesh.
-        // CAD tessellation never provides tangents, so Three.js falls back to
-        // screen-space derivative tangents which produce visible diamond-shaped
-        // facet artifacts on coarse meshes.
+        if (def.anisotropy !== undefined && def.anisotropy > 0) {
+            material.anisotropy = def.anisotropy;
+            if (def.anisotropyRotation !== undefined) {
+                material.anisotropyRotation = def.anisotropyRotation;
+            }
+        }
         // --- Textures ---
         // Resolve all texture references via TextureCache.
         // The TextureCache determines colorSpace internally from the texture role name.
@@ -83141,13 +83143,14 @@ class MaterialFactory {
      * "roughness", "normal") where each entry has an optional `value` (scalar or
      * [r,g,b] array in **linear RGB**) and/or `texture` (inline data URI).
      *
-     * @param properties - Material properties from threejs-materials
+     * @param values - Scalar PBR values from threejs-materials
+     * @param textures - Texture map references from threejs-materials
      * @param textureRepeat - Optional [u, v] texture tiling applied to all loaded textures
      * @param textureCache - TextureCache for resolving data URI textures
      * @param label - Optional label for GPU tracking
      * @returns Configured MeshPhysicalMaterial
      */
-    async createStudioMaterialFromMaterialX(properties, textureRepeat, textureCache, label) {
+    async createStudioMaterialFromMaterialX(values, textures, textureRepeat, textureCache, label) {
         // --- Build material options from scalar values ---
         const matOptions = {
             flatShading: false,
@@ -83158,37 +83161,32 @@ class MaterialFactory {
             depthTest: true,
         };
         // Warn once if displacement data is present (not supported in Studio)
-        if (properties.displacement?.texture || properties.displacementScale?.value !== undefined) {
+        if (textures.displacement || values.displacementScale !== undefined) {
             logger.warn("Displacement not supported by the Studio");
         }
-        for (const [key, prop] of Object.entries(properties)) {
-            if (prop.value === undefined)
-                continue;
+        for (const [key, value] of Object.entries(values)) {
             // Skip displacement properties (not supported, would waste GPU memory)
             if (key === "displacement" || key === "displacementScale" || key === "displacementBias")
                 continue;
-            // Skip anisotropy — requires tangent vectors that CAD meshes don't have
-            if (key === "anisotropy" || key === "anisotropyRotation")
-                continue;
             // Color arrays → THREE.Color (already linear, no sRGB conversion)
-            if (COLOR_ARRAY_KEYS.has(key) && Array.isArray(prop.value)) {
-                const [r, g, b] = prop.value;
+            if (COLOR_ARRAY_KEYS.has(key) && Array.isArray(value)) {
+                const [r, g, b] = value;
                 matOptions[key] = new Color(r, g, b);
             }
-            else if ((key === "normalScale" || key === "clearcoatNormalScale") && Array.isArray(prop.value)) {
-                matOptions[key] = new Vector2(prop.value[0], prop.value[1]);
+            else if ((key === "normalScale" || key === "clearcoatNormalScale") && Array.isArray(value)) {
+                matOptions[key] = new Vector2(value[0], value[1]);
             }
-            else if (key === "iridescenceThicknessRange" && Array.isArray(prop.value)) {
-                matOptions[key] = prop.value;
+            else if (key === "iridescenceThicknessRange" && Array.isArray(value)) {
+                matOptions[key] = value;
             }
             else {
-                matOptions[key] = prop.value;
+                matOptions[key] = value;
             }
         }
         // --- Handle transmission ---
-        const transmissionVal = properties.transmission?.value;
-        const opacityVal = properties.opacity?.value;
-        const transparentVal = properties.transparent?.value;
+        const transmissionVal = values.transmission;
+        const opacityVal = values.opacity;
+        const transparentVal = values.transparent;
         if (typeof transmissionVal === "number" && transmissionVal > 0) {
             matOptions.transparent = false;
             matOptions.opacity = 1.0;
@@ -83206,9 +83204,7 @@ class MaterialFactory {
         // --- Resolve textures ---
         let hasTextures = false;
         if (textureCache) {
-            for (const [key, prop] of Object.entries(properties)) {
-                if (!prop.texture)
-                    continue;
+            for (const [key, textureRef] of Object.entries(textures)) {
                 const mapName = PROPERTY_TO_MAP[key];
                 if (!mapName)
                     continue;
@@ -83219,7 +83215,7 @@ class MaterialFactory {
                 const roleForCache = colorSpace === SRGBColorSpace
                     ? "baseColorTexture"
                     : "normalTexture";
-                const tex = await textureCache.get(prop.texture, roleForCache);
+                const tex = await textureCache.get(textureRef, roleForCache);
                 if (tex) {
                     if (textureRepeat) {
                         tex.repeat.set(textureRepeat[0], textureRepeat[1]);
@@ -83340,9 +83336,9 @@ class MaterialFactory {
         const sheenRoughnessTex = await resolve(def.sheenRoughnessMap, "sheenRoughnessTexture");
         if (sheenRoughnessTex)
             material.sheenRoughnessMap = sheenRoughnessTex;
-        // Anisotropy texture skipped — CAD meshes lack tangent vectors.
-        // const anisotropyTex = await resolve(def.anisotropyMap, "anisotropyTexture");
-        // if (anisotropyTex) material.anisotropyMap = anisotropyTex;
+        const anisotropyTex = await resolve(def.anisotropyMap, "anisotropyTexture");
+        if (anisotropyTex)
+            material.anisotropyMap = anisotropyTex;
     }
     /**
      * Update global settings.
@@ -83380,10 +83376,10 @@ var CollapseState;
 })(CollapseState || (CollapseState = {}));
 /**
  * Type guard to check if a material entry is a threejs-materials format dict.
- * Detected by the presence of the `properties` key.
+ * Detected by the presence of the `values` key.
  */
 function isMaterialXMaterial(m) {
-    return typeof m === "object" && m !== null && "properties" in m;
+    return typeof m === "object" && m !== null && "values" in m;
 }
 /**
  * Check if shape uses binary format (has triangles_per_face).
@@ -84001,13 +83997,9 @@ function materialHasTexture(def) {
     }
     return false;
 }
-/** Check whether a threejs-materials entry has texture references in its properties. */
+/** Check whether a threejs-materials entry has texture references. */
 function materialXHasTextures(entry) {
-    for (const [, prop] of Object.entries(entry.properties)) {
-        if (prop.texture)
-            return true;
-    }
-    return false;
+    return Object.keys(entry.textures).length > 0;
 }
 class NestedGroup {
     /**
@@ -84125,7 +84117,7 @@ class NestedGroup {
                 logger.warn(`Invalid material string '${entry}' for tag '${tag}' (expected "builtin:" prefix)`);
                 return null;
             }
-            // MaterialXMaterial entry: object with `properties` key
+            // MaterialXMaterial entry: object with `values` key
             if (isMaterialXMaterial(entry)) {
                 this.resolvedMaterialX.set(tag, entry);
                 return entry;
@@ -84757,7 +84749,7 @@ class NestedGroup {
                 try {
                     if (resolved && isMaterialXMaterial(resolved)) {
                         // --- threejs-materials path ---
-                        studioMaterial = await this.materialFactory.createStudioMaterialFromMaterialX(resolved.properties, resolved.textureRepeat, this._textureCache);
+                        studioMaterial = await this.materialFactory.createStudioMaterialFromMaterialX(resolved.values, resolved.textures, resolved.textureRepeat, this._textureCache);
                         if (materialXHasTextures(resolved)) {
                             this._texturedMaterialKeys.add(sharingKey);
                         }
@@ -84833,6 +84825,18 @@ class NestedGroup {
                     this._studioMaterialCache.set(backKey, cachedBack);
                 }
                 studioBack = cachedBack;
+            }
+            // Compute tangents for anisotropic materials (required by Three.js)
+            if (studioMaterial instanceof MeshPhysicalMaterial &&
+                studioMaterial.anisotropy > 0 &&
+                obj.shapeGeometry?.getAttribute("uv") != null &&
+                obj.shapeGeometry.getAttribute("tangent") == null) {
+                try {
+                    obj.shapeGeometry.computeTangents();
+                }
+                catch {
+                    logger.debug(`Studio "${path}": tangent computation failed, anisotropy may have artifacts`);
+                }
             }
             // Apply to ObjectGroup
             obj.enterStudioMode(studioMaterial instanceof MeshPhysicalMaterial ? studioMaterial : null, studioBack);
@@ -94284,7 +94288,7 @@ class Tools {
     }
 }
 
-const version = "4.3.1";
+const version = "4.3.4";
 
 /**
  * Clean room environment for Studio mode PMREM generation.
@@ -95909,7 +95913,7 @@ class StudioFloor {
      * Create a shadow-receiving plane at the floor position.
      */
     _createShadowPlane(zPosition, sceneSize) {
-        const floorSize = sceneSize * 4;
+        const floorSize = sceneSize * 6;
         const geometry = new PlaneGeometry(floorSize, floorSize);
         const material = new ShadowMaterial({ opacity: 0.5, depthWrite: false });
         const plane = new Mesh(geometry, material);
@@ -104756,7 +104760,7 @@ class StudioManager {
             light.position.copy(bboxCenter).addScaledVector(dir, maxExtent * 3);
             light.target.position.copy(bboxCenter);
             light.castShadow = true;
-            const frustumSize = maxExtent * 4.0;
+            const frustumSize = maxExtent * 6.0;
             light.shadow.camera.left = -frustumSize;
             light.shadow.camera.right = frustumSize;
             light.shadow.camera.top = frustumSize;
