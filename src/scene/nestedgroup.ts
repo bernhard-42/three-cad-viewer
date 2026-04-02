@@ -142,12 +142,9 @@ function materialHasTexture(def: MaterialAppearance): boolean {
   return false;
 }
 
-/** Check whether a threejs-materials entry has texture references in its properties. */
+/** Check whether a threejs-materials entry has texture references. */
 function materialXHasTextures(entry: MaterialXMaterial): boolean {
-  for (const [, prop] of Object.entries(entry.properties)) {
-    if (prop.texture) return true;
-  }
-  return false;
+  return Object.keys(entry.textures).length > 0;
 }
 
 class NestedGroup {
@@ -322,7 +319,7 @@ class NestedGroup {
         return null;
       }
 
-      // MaterialXMaterial entry: object with `properties` key
+      // MaterialXMaterial entry: object with `values` key
       if (isMaterialXMaterial(entry)) {
         this.resolvedMaterialX.set(tag, entry);
         return entry;
@@ -1253,7 +1250,8 @@ class NestedGroup {
           if (resolved && isMaterialXMaterial(resolved)) {
             // --- threejs-materials path ---
             studioMaterial = await this.materialFactory.createStudioMaterialFromMaterialX(
-              resolved.properties,
+              resolved.values,
+              resolved.textures,
               resolved.textureRepeat,
               this._textureCache as TextureCacheInterface,
             );
@@ -1337,6 +1335,20 @@ class NestedGroup {
           this._studioMaterialCache.set(backKey, cachedBack);
         }
         studioBack = cachedBack as THREE.MeshPhysicalMaterial;
+      }
+
+      // Compute tangents for anisotropic materials (required by Three.js)
+      if (
+        studioMaterial instanceof THREE.MeshPhysicalMaterial &&
+        studioMaterial.anisotropy > 0 &&
+        obj.shapeGeometry?.getAttribute("uv") != null &&
+        obj.shapeGeometry.getAttribute("tangent") == null
+      ) {
+        try {
+          obj.shapeGeometry.computeTangents();
+        } catch {
+          logger.debug(`Studio "${path}": tangent computation failed, anisotropy may have artifacts`);
+        }
       }
 
       // Apply to ObjectGroup

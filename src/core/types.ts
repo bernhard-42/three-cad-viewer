@@ -625,27 +625,29 @@ export interface MaterialAppearance {
  *
  * This format is produced by the threejs-materials Python library, which catalogs
  * PBR materials from ambientCG, GPUOpen, PolyHaven, and PhysicallyBased.
- * The `properties` dict uses simplified property names (e.g., "color", "roughness",
- * "normal") where each entry has an optional `value` (scalar or color array in
- * linear RGB) and/or `texture` (inline data URI).
+ * `values` contains scalar properties (e.g., color as linear RGB array,
+ * roughness as float).  `textures` contains texture references (inline data URIs
+ * or file paths) keyed by property name.
  *
- * Detected by the presence of the `properties` key.
+ * Detected by the presence of the `values` key.
  * Extra keys from threejs-materials (id, name, source, url, license) pass through
  * harmlessly and are not part of this interface.
  */
 export interface MaterialXMaterial {
-  /** Material properties from threejs-materials. Each key maps to { value?, texture? } */
-  properties: Record<string, { value?: unknown; texture?: string }>;
+  /** Scalar PBR property values (e.g., color, metalness, roughness). */
+  values: Record<string, unknown>;
+  /** Texture map references keyed by property name (e.g., color, normal). */
+  textures: Record<string, string>;
   /** Optional texture tiling [u, v], default [1, 1]. Applied to all textures. */
   textureRepeat?: [number, number];
 }
 
 /**
  * Type guard to check if a material entry is a threejs-materials format dict.
- * Detected by the presence of the `properties` key.
+ * Detected by the presence of the `values` key.
  */
 export function isMaterialXMaterial(m: unknown): m is MaterialXMaterial {
-  return typeof m === "object" && m !== null && "properties" in m;
+  return typeof m === "object" && m !== null && "values" in m;
 }
 
 // =============================================================================
@@ -854,7 +856,7 @@ export interface Shapes {
   /** User-defined material library (root node).
    *  Values can be:
    *  - string: builtin preset reference (e.g., "builtin:car-paint")
-   *  - MaterialXMaterial: threejs-materials format (detected by `properties` key)
+   *  - MaterialXMaterial: threejs-materials format (detected by `values` key)
    *  - MaterialAppearance: preset with overrides (e.g., { builtin: "acrylic-clear", color: "#55a0e3" })
    */
   materials?: Record<string, string | MaterialXMaterial | MaterialAppearance> | undefined;
