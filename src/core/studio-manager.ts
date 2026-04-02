@@ -540,7 +540,7 @@ class StudioManager {
       light.target.position.copy(bboxCenter);
 
       light.castShadow = true;
-      const frustumSize = maxExtent * 4.0;
+      const frustumSize = maxExtent * 6.0;
       light.shadow.camera.left = -frustumSize;
       light.shadow.camera.right = frustumSize;
       light.shadow.camera.top = frustumSize;

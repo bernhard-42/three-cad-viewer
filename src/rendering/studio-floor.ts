@@ -77,7 +77,7 @@ class StudioFloor {
    * Create a shadow-receiving plane at the floor position.
    */
   private _createShadowPlane(zPosition: number, sceneSize: number): void {
-    const floorSize = sceneSize * 4;
+    const floorSize = sceneSize * 6;
 
     const geometry = new THREE.PlaneGeometry(floorSize, floorSize);
     const material = new THREE.ShadowMaterial({ opacity: 0.5, depthWrite: false });
