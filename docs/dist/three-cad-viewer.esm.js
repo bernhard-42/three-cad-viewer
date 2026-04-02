@@ -84131,11 +84131,15 @@ class NestedGroup {
                     logger.warn(`Unknown builtin preset '${presetName}' referenced by '${tag}' on '${objectPath}'`);
                     return null;
                 }
-                const resolved = { ...preset, ...appearance };
+                // Strip preset color unless the user explicitly provides one,
+                // so the leaf node's CAD color is used as fallback.
+                const { color: presetColor, ...presetRest } = preset;
+                const resolved = "color" in appearance
+                    ? { ...preset, ...appearance }
+                    : { ...presetRest, ...appearance };
                 this.resolvedMaterials.set(tag, resolved);
                 return resolved;
             }
-            // Should not happen with current type, but guard anyway
             logger.warn(`Unrecognised material entry for tag '${tag}' on '${objectPath}'`);
             return null;
         }
@@ -87473,6 +87477,15 @@ class CenteredPlane extends Plane {
         const c = this.distanceToPoint(new Vector3(...this.center));
         const z = this.distanceToPoint(new Vector3(0, 0, 0));
         this.constant = z - c + value;
+    }
+    /**
+     * Clone this CenteredPlane.
+     * Overrides THREE.Plane.clone() which calls `new this.constructor()` without
+     * arguments, causing `center` to be undefined during shadow map generation.
+     */
+    // @ts-expect-error -- THREE.Plane.clone() returns `this`, but we need a concrete CenteredPlane
+    clone() {
+        return new CenteredPlane(this.normal.clone(), this.centeredConstant, [...this.center]);
     }
 }
 // ============================================================================
@@ -94288,7 +94301,7 @@ class Tools {
     }
 }
 
-const version = "4.3.4";
+const version = "4.3.5";
 
 /**
  * Clean room environment for Studio mode PMREM generation.

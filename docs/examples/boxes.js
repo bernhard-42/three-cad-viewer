@@ -1,7 +1,7 @@
 var boxes = {
   version: 3,
   materials: {
-    "plastic": { metalness: 0, roughness: 0.6 },
+    "plastic": { builtin: "plastic-glossy", metalness: 0, roughness: 0.6 },
   },
   parts: [
     {
