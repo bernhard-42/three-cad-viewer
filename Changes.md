@@ -1,6 +1,13 @@
 # Change log
 
-## v4.3.1, 4.3.2
+## v4.3.3, v4.3.4
+
+- Re-enabled anisotropy support for both builtin and MaterialX materials — tangent vectors are now computed automatically for geometries with UVs
+- Refactored `MaterialXMaterial` interface: split `properties` dict into separate `values` and `textures` fields
+- Increased shadow camera frustum and floor plane size to prevent shadow clipping with low-angle IBL lights
+- Added `README.md` to published package files
+
+## v4.3.1, v4.3.2
 
 - Disabled anisotropic reflections in Studio mode — CAD meshes lack tangent vectors, causing facet artifacts
 - Enabled 16x anisotropic texture filtering for sharper textures at oblique angles
