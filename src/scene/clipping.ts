@@ -154,6 +154,16 @@ class CenteredPlane extends THREE.Plane {
     const z = this.distanceToPoint(new THREE.Vector3(0, 0, 0));
     this.constant = z - c + value;
   }
+
+  /**
+   * Clone this CenteredPlane.
+   * Overrides THREE.Plane.clone() which calls `new this.constructor()` without
+   * arguments, causing `center` to be undefined during shadow map generation.
+   */
+  // @ts-expect-error -- THREE.Plane.clone() returns `this`, but we need a concrete CenteredPlane
+  clone(): CenteredPlane {
+    return new CenteredPlane(this.normal.clone(), this.centeredConstant, [...this.center]);
+  }
 }
 
 // ============================================================================

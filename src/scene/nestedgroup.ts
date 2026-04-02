@@ -336,12 +336,16 @@ class NestedGroup {
           );
           return null;
         }
-        const resolved: MaterialAppearance = { ...preset, ...appearance };
+        // Strip preset color unless the user explicitly provides one,
+        // so the leaf node's CAD color is used as fallback.
+        const { color: presetColor, ...presetRest } = preset;
+        const resolved: MaterialAppearance = "color" in appearance
+          ? { ...preset, ...appearance }
+          : { ...presetRest, ...appearance };
         this.resolvedMaterials.set(tag, resolved);
         return resolved;
       }
 
-      // Should not happen with current type, but guard anyway
       logger.warn(`Unrecognised material entry for tag '${tag}' on '${objectPath}'`);
       return null;
     }
