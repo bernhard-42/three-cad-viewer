@@ -1,5 +1,10 @@
 # Change log
 
+## v4.3.6
+
+- Fixed `textureRepeat` being shared across materials using the same texture — textures are now cloned when repeat differs
+- Removed `src/` from published npm package (source maps are self-contained)
+
 ## v4.3.5
 
 - Fixed `CenteredPlane.clone()` crash during shadow map generation with clipping planes active
