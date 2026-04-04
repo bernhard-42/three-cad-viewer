@@ -581,9 +581,11 @@ class MaterialFactory {
         const roleForCache = colorSpace === THREE.SRGBColorSpace
           ? "baseColorTexture"
           : "normalTexture";
-        const tex = await textureCache.get(textureRef, roleForCache);
+        let tex = await textureCache.get(textureRef, roleForCache);
         if (tex) {
-          if (textureRepeat) {
+          if (textureRepeat && (textureRepeat[0] !== 1 || textureRepeat[1] !== 1)) {
+            // Clone to avoid mutating shared cached texture
+            tex = tex.clone();
             tex.repeat.set(textureRepeat[0], textureRepeat[1]);
           }
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
