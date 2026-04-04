@@ -83215,9 +83215,11 @@ class MaterialFactory {
                 const roleForCache = colorSpace === SRGBColorSpace
                     ? "baseColorTexture"
                     : "normalTexture";
-                const tex = await textureCache.get(textureRef, roleForCache);
+                let tex = await textureCache.get(textureRef, roleForCache);
                 if (tex) {
-                    if (textureRepeat) {
+                    if (textureRepeat && (textureRepeat[0] !== 1 || textureRepeat[1] !== 1)) {
+                        // Clone to avoid mutating shared cached texture
+                        tex = tex.clone();
                         tex.repeat.set(textureRepeat[0], textureRepeat[1]);
                     }
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94301,7 +94303,7 @@ class Tools {
     }
 }
 
-const version = "4.3.5";
+const version = "4.3.6";
 
 /**
  * Clean room environment for Studio mode PMREM generation.

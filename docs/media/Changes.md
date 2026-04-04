@@ -1,5 +1,11 @@
 # Change log
 
+## v4.3.5
+
+- Fixed `CenteredPlane.clone()` crash during shadow map generation with clipping planes active
+- Fixed builtin preset color override: leaf node CAD color is now used as fallback when no explicit color is provided
+- Updated examples (toycar, shader_ball, profile4040, boxes) to new material format
+
 ## v4.3.3, v4.3.4
 
 - Re-enabled anisotropy support for both builtin and MaterialX materials — tangent vectors are now computed automatically for geometries with UVs
