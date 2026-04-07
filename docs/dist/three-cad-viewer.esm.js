@@ -83908,8 +83908,9 @@ function applyTriplanarMapping(material, geometry) {
     // Uniform values (captured by closure, per-object)
     const offset = bb.min.clone();
     const scale = 1.0 / maxDim;
-    // Read texture repeat from the material's map (all textures share same repeat)
-    const repeat = material.map?.repeat?.clone() ?? new Vector2(1, 1);
+    // Read texture repeat from the first available texture map
+    const repeat = (material.map ?? material.roughnessMap ?? material.normalMap ??
+        material.metalnessMap ?? material.emissiveMap ?? material.aoMap)?.repeat?.clone() ?? new Vector2(1, 1);
     material.onBeforeCompile = (shader) => {
         // Custom uniforms
         shader.uniforms.triplanarOffset = { value: offset };
@@ -94303,7 +94304,7 @@ class Tools {
     }
 }
 
-const version = "4.3.6";
+const version = "4.3.7";
 
 /**
  * Clean room environment for Studio mode PMREM generation.
