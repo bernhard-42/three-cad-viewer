@@ -281,8 +281,11 @@ export function applyTriplanarMapping(
   const offset = bb.min.clone();
   const scale = 1.0 / maxDim;
 
-  // Read texture repeat from the material's map (all textures share same repeat)
-  const repeat = material.map?.repeat?.clone() ?? new THREE.Vector2(1, 1);
+  // Read texture repeat from the first available texture map
+  const repeat = (
+    material.map ?? material.roughnessMap ?? material.normalMap ??
+    material.metalnessMap ?? material.emissiveMap ?? material.aoMap
+  )?.repeat?.clone() ?? new THREE.Vector2(1, 1);
 
   material.onBeforeCompile = (shader) => {
     // Custom uniforms
