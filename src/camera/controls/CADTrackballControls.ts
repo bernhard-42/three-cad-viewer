@@ -295,20 +295,12 @@ class CADTrackballControls extends TrackballControls {
       this._holroydPointerUp &&
       this._holroydWheel
     ) {
-      this.domElement.removeEventListener(
-        "pointerdown",
-        this._holroydPointerDown,
-      );
-      this.domElement.removeEventListener(
-        "pointermove",
-        this._holroydPointerMove,
-      );
-      this.domElement.removeEventListener("pointerup", this._holroydPointerUp);
-      this.domElement.removeEventListener(
-        "pointercancel",
-        this._holroydPointerUp,
-      );
-      this.domElement.removeEventListener("wheel", this._holroydWheel);
+      const el = this.domElement as HTMLElement;
+      el.removeEventListener("pointerdown", this._holroydPointerDown);
+      el.removeEventListener("pointermove", this._holroydPointerMove);
+      el.removeEventListener("pointerup", this._holroydPointerUp);
+      el.removeEventListener("pointercancel", this._holroydPointerUp);
+      el.removeEventListener("wheel", this._holroydWheel);
     }
     super.dispose();
   }

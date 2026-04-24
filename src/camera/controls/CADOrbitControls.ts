@@ -100,9 +100,10 @@ class CADOrbitControls extends OrbitControls {
    */
   dispose(): void {
     if (this.domElement && this._onCADPointerDown && this._onCADPointerUp) {
-      this.domElement.removeEventListener("pointerdown", this._onCADPointerDown);
-      this.domElement.removeEventListener("pointerup", this._onCADPointerUp);
-      this.domElement.removeEventListener("pointercancel", this._onCADPointerUp);
+      const el = this.domElement as HTMLElement;
+      el.removeEventListener("pointerdown", this._onCADPointerDown);
+      el.removeEventListener("pointerup", this._onCADPointerUp);
+      el.removeEventListener("pointercancel", this._onCADPointerUp);
     }
     super.dispose();
   }
