@@ -143,6 +143,15 @@ class EnvironmentManager {
   /** Cached PMREM render targets keyed by environment name or URL */
   private _cache: Map<string, THREE.WebGLRenderTarget> = new Map();
 
+  /**
+   * Cached raw equirectangular HDR textures keyed by the same name/URL.
+   * Preserved (not disposed after PMREM generation) so `scene.background`
+   * can sample the original HDR at full source resolution instead of the
+   * 256² PMREM cubemap. Only populated by `_loadHdr` — procedural
+   * environments have no source HDR.
+   */
+  private _hdrCache: Map<string, THREE.Texture> = new Map();
+
   /** Cached light detection results keyed by environment name or URL */
   private _lightDetectionCache: Map<string, LightDetectionResult> = new Map();
 
@@ -166,6 +175,14 @@ class EnvironmentManager {
 
   /** The last loaded PMREM texture (stateful — used by apply() for IBL) */
   private _currentTexture: THREE.Texture | null = null;
+
+  /**
+   * Raw HDR texture corresponding to `_currentTexture`, used for
+   * `scene.background` to keep the backdrop at source resolution. Null when
+   * the current environment is procedural ("studio" RoomEnvironment) — in
+   * that case the background falls back to `_currentTexture` (the PMREM).
+   */
+  private _currentBackgroundTexture: THREE.Texture | null = null;
 
   /** Whether this manager has been disposed */
   private _disposed = false;
@@ -235,6 +252,7 @@ class EnvironmentManager {
 
     if (name === "none") {
       this._currentTexture = null;
+      this._currentBackgroundTexture = null;
       return null;
     }
 
@@ -244,6 +262,7 @@ class EnvironmentManager {
     if (cached) {
       logger.debug(`Environment "${cacheKey}" loaded from cache`);
       this._currentTexture = cached.texture;
+      this._currentBackgroundTexture = this._hdrCache.get(cacheKey) ?? null;
       return cached.texture;
     }
 
@@ -253,6 +272,7 @@ class EnvironmentManager {
       logger.debug(`Environment "${cacheKey}" already loading, reusing promise`);
       const texture = await inflight;
       this._currentTexture = texture;
+      this._currentBackgroundTexture = this._hdrCache.get(cacheKey) ?? null;
       return texture;
     }
 
@@ -263,6 +283,7 @@ class EnvironmentManager {
     try {
       const texture = await promise;
       this._currentTexture = texture;
+      this._currentBackgroundTexture = this._hdrCache.get(cacheKey) ?? null;
 
       // Self-healing: if apply() was called with "environment" background
       // while texture was null, re-apply now that the texture is ready.
@@ -349,9 +370,13 @@ class EnvironmentManager {
         break;
       case "environment":
         if (this._currentTexture) {
+          // Prefer the raw HDR for the background so the backdrop samples
+          // at source resolution (2K/4K) rather than the 256² PMREM cubemap.
+          // Falls back to PMREM for procedural "studio" (no source HDR).
+          const bgTex = this._currentBackgroundTexture ?? this._currentTexture;
           // Always use render-to-texture with a fixed-FOV bgCamera so the
           // background zoom level is identical in perspective and ortho modes.
-          this._setupEnvBackground(scene, this._currentTexture, upIsZ, rotY);
+          this._setupEnvBackground(scene, bgTex, upIsZ, rotY);
           this._deferredApply = null;
         } else {
           // No environment loaded — fall back to grey.
@@ -442,6 +467,12 @@ class EnvironmentManager {
         this._cache.delete(slug);
         this._lightDetectionCache.delete(slug);
         logger.debug(`Evicted cached environment "${slug}" for resolution switch`);
+      }
+      const cachedHdr = this._hdrCache.get(slug);
+      if (cachedHdr) {
+        gpuTracker.untrack("texture", cachedHdr);
+        cachedHdr.dispose();
+        this._hdrCache.delete(slug);
       }
     }
 
@@ -560,6 +591,7 @@ class EnvironmentManager {
   dispose(): void {
     this._disposed = true;
     this._currentTexture = null;
+    this._currentBackgroundTexture = null;
     this._deferredApply = null;
     this._teardownEnvBackground();
     this._bgScene = null;
@@ -576,6 +608,15 @@ class EnvironmentManager {
       logger.debug(`Disposed cached environment render target: ${key}`);
     }
     this._cache.clear();
+
+    // Dispose all cached raw HDR textures
+    for (const [key, hdrTexture] of this._hdrCache) {
+      gpuTracker.untrack("texture", hdrTexture);
+      hdrTexture.dispose();
+      logger.debug(`Disposed cached HDR background: ${key}`);
+    }
+    this._hdrCache.clear();
+
     this._lightDetectionCache.clear();
 
     // Clear in-flight promises (they'll resolve but won't be cached)
@@ -768,9 +809,10 @@ class EnvironmentManager {
    * Load an HDR file and generate a PMREM texture from it.
    *
    * Uses HDRLoader to fetch the .hdr file, then PMREMGenerator.fromEquirectangular()
-   * to create the PMREM cubemap. The source equirectangular texture is disposed
-   * after PMREM generation. The PMREM texture itself serves as both the IBL
-   * environment and the background (in "environment" mode).
+   * to create the PMREM cubemap for IBL. The source equirectangular HDR is
+   * preserved and cached separately (in `_hdrCache`) so that "environment"
+   * background mode can sample the full-resolution equirectangular texture
+   * instead of the 256² PMREM cubemap.
    *
    * @param url - URL of the .hdr file
    * @param cacheKey - Cache key for the resulting PMREM render target
@@ -816,12 +858,16 @@ class EnvironmentManager {
       this._lightDetectionCache.set(cacheKey, result);
     }
 
-    // Dispose the source equirectangular texture (PMREM is now in GPU memory).
-    hdrTexture.dispose();
+    // Preserve the equirectangular HDR for use as `scene.background` at
+    // source resolution. PMREM's base mip is a 256² cubemap — good for IBL
+    // (roughness-weighted prefilter) but visibly soft as a backdrop.
+    hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
 
-    // Cache render target and track its texture
+    // Cache render target and HDR; track both.
     this._cache.set(cacheKey, renderTarget);
+    this._hdrCache.set(cacheKey, hdrTexture);
     gpuTracker.trackTexture(renderTarget.texture, `PMREM environment: ${cacheKey}`);
+    gpuTracker.trackTexture(hdrTexture, `HDR background: ${cacheKey}`);
     logger.debug(
       `Loaded HDR environment from "${url}", cached as "${cacheKey}"`,
     );
