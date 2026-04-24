@@ -171,7 +171,18 @@ class StudioManager {
 
       // 3. Load environment map
       const envName = state.get("studioEnvironment");
-      await this.envManager.loadEnvironment(envName, renderer);
+
+      // Sync envManager's 4K setting with state. updateStudioState() writes
+      // studio4kEnvMaps silently (notify=false), so the subscription that
+      // normally forwards this to envManager never fires on initial load.
+      // Without this sync, envManager keeps its default (2K) and loads the
+      // wrong URL even though the checkbox reads "checked".
+      const want4k = state.get("studio4kEnvMaps");
+      if (want4k !== this.envManager.use4kEnvMaps) {
+        await this.envManager.setUse4kEnvMaps(want4k, envName, renderer);
+      } else {
+        await this.envManager.loadEnvironment(envName, renderer);
+      }
       if (!this._active) return;
 
       // 4. Apply ALL rendering changes atomically
