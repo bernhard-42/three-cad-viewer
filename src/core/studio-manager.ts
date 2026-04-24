@@ -604,8 +604,13 @@ class StudioManager {
     if (enabled) {
       this._configureShadowLights();
 
+      // Back-face meshes share geometry with front meshes but use a
+      // MeshBasicMaterial without alphaMap/alphaTest, so letting them cast
+      // shadows overrides the front mesh's alpha-tested silhouette with a
+      // solid one. The front material is DoubleSide when alphaMap is set,
+      // so its shadow pass already covers both sides of the geometry.
       nestedGroup.rootGroup?.traverse((obj) => {
-        if (obj instanceof THREE.Mesh) {
+        if (obj instanceof THREE.Mesh && obj.material.name !== "backMaterial") {
           obj.castShadow = true;
         }
       });
