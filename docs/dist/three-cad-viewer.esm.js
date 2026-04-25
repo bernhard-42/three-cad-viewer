@@ -107656,6 +107656,11 @@ class Viewer {
             // leaveStudioMode() runs here, while _rendered and scene are still valid.
             // Do NOT move this after deepDispose(scene).
             this.state.set("activeTab", "tree");
+            // Outer-cycle boundary: drop Material Editor deltas that were just
+            // saved by the switchToTab("tree", "studio") path above. Those deltas
+            // are meant to survive mid-cycle tab switches within one scene, not a
+            // full scene re-render. See Display.clearMaterialEditorSession.
+            this.display.clearMaterialEditorSession();
             // clear render canvas
             this.renderer.clear();
             // deselect measurement tools
@@ -111887,6 +111892,17 @@ class Display {
             clone.dispose();
         }
         this._matEditorClones.clear();
+    }
+    /**
+     * Outer-cycle boundary: discard saved Material Editor deltas so they don't
+     * replay on the next Studio entry in a new scene. Unlike viewer preferences
+     * (transparent, axes, grid) which persist across render cycles, Material
+     * Editor edits are per-scene PBR authoring and must reset on scene rebuild.
+     * Mid-cycle (Studio tab leave/enter) and inner-cycle (editor close/reopen)
+     * behavior is unaffected — this is only called from viewer.clear().
+     */
+    clearMaterialEditorSession() {
+        this._savedMatEditorChanges.clear();
     }
     /** Save material editor property deltas so they survive a Studio mode leave/enter cycle. */
     _saveMatEditorChanges() {
