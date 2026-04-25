@@ -1070,6 +1070,12 @@ class Viewer {
       // Do NOT move this after deepDispose(scene).
       this.state.set("activeTab", "tree");
 
+      // Outer-cycle boundary: drop Material Editor deltas that were just
+      // saved by the switchToTab("tree", "studio") path above. Those deltas
+      // are meant to survive mid-cycle tab switches within one scene, not a
+      // full scene re-render. See Display.clearMaterialEditorSession.
+      this.display.clearMaterialEditorSession();
+
       // clear render canvas
       this.renderer.clear();
 

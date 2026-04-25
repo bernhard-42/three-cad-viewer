@@ -2418,6 +2418,18 @@ class Display {
     this._matEditorClones.clear();
   }
 
+  /**
+   * Outer-cycle boundary: discard saved Material Editor deltas so they don't
+   * replay on the next Studio entry in a new scene. Unlike viewer preferences
+   * (transparent, axes, grid) which persist across render cycles, Material
+   * Editor edits are per-scene PBR authoring and must reset on scene rebuild.
+   * Mid-cycle (Studio tab leave/enter) and inner-cycle (editor close/reopen)
+   * behavior is unaffected — this is only called from viewer.clear().
+   */
+  clearMaterialEditorSession(): void {
+    this._savedMatEditorChanges.clear();
+  }
+
   /** Save material editor property deltas so they survive a Studio mode leave/enter cycle. */
   private _saveMatEditorChanges(): void {
     this._savedMatEditorChanges.clear();
