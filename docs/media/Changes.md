@@ -7,6 +7,7 @@
 - Bump some dev package versions, and remove ^ from versions (pinning version to minimize supply-chain-attacks)
 - Fix an inconsistency of studio's 4k env map checkbox with shown env map
 - Fix bug that restore material editor settings across viewing sessions
+- Fix a state bug between explode tool and measurement tools
 
 ## v4.3.7
 

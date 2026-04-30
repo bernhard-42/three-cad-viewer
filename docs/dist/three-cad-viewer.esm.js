@@ -109199,6 +109199,15 @@ class Viewer {
         if (flag === isExplodeActive)
             return;
         if (flag) {
+            // Mirror the UI button-group exclusivity: activating explode must
+            // deactivate any active measurement/selection tool. activateTool()
+            // already clears animationMode in the reverse direction; this makes
+            // the API path symmetric with a UI click. Goes through display.setTool
+            // so cadTools/raycaster/picker get fully cleaned up.
+            const currentTool = this.state.get("activeTool");
+            if (currentTool) {
+                this.display.setTool(currentTool, false);
+            }
             if (this.hasAnimation()) {
                 this.backupAnimation();
             }
@@ -109227,12 +109236,19 @@ class Viewer {
     activateTool(name, flag) {
         const currentTool = this.state.get("activeTool");
         if (flag) {
-            // Activating a tool
+            // Activating a tool implicitly turns off explode (animationMode → "none").
+            // Emit the explode=false notification so consumers don't keep a stale
+            // explode=true in their reported state — otherwise the next render that
+            // echoes back combined_config will set explode back on.
+            const wasExplode = this.state.get("animationMode") === "explode";
             this.state.set("animationMode", "none");
             if (this.hasAnimation()) {
                 this.backupAnimation();
             }
             this.state.set("activeTool", name);
+            if (wasExplode) {
+                this.checkChanges({ explode: false });
+            }
         }
         else {
             // Deactivating a tool
