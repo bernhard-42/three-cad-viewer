@@ -1,5 +1,14 @@
 # Change log
 
+## v4.3.8
+
+- Support 4K HDR env maps
+- Exclude backMaterial from casting shadow
+- Bump some dev package versions, and remove ^ from versions (pinning version to minimize supply-chain-attacks)
+- Fix an inconsistency of studio's 4k env map checkbox with shown env map
+- Fix bug that restore material editor settings across viewing sessions
+- Fix a state bug between explode tool and measurement tools
+
 ## v4.3.7
 
 - Fixed triplanar shader ignoring `textureRepeat` for materials without a color texture (e.g. roughness+normal only)
