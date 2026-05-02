@@ -71,6 +71,13 @@ class StudioManager {
   private _savedClippingState: ClippingState | null = null;
   private _shadowLights: THREE.DirectionalLight[] = [];
   private _ctx: StudioManagerContext;
+  /**
+   * Renderer pixel ratio saved on Studio entry, restored on leave.
+   * Studio mode bumps the pixel ratio to apply supersampling, which
+   * compensates for low DPR (e.g., VSCode webviews report DPR=1 even
+   * on Retina displays) and improves AA on shallow-angle edges.
+   */
+  private _savedPixelRatio: number | null = null;
 
   constructor(ctx: StudioManagerContext) {
     this._ctx = ctx;
@@ -204,6 +211,19 @@ class StudioManager {
       // Floor
       this._configureFloor();
 
+      // Studio-only supersampling. Bump pixel ratio so the renderer draws to
+      // a higher-resolution buffer; the browser downsamples to the canvas
+      // display size, giving smooth AA on shallow-angle silhouettes that
+      // MSAA alone leaves stair-stepped. Especially important in webview
+      // hosts (e.g., VSCode) where window.devicePixelRatio is reported as 1
+      // even on Retina displays. Restored in leaveStudioMode.
+      this._savedPixelRatio = renderer.getPixelRatio();
+      const targetPixelRatio = Math.max(2, window.devicePixelRatio);
+      if (targetPixelRatio !== this._savedPixelRatio) {
+        renderer.setPixelRatio(targetPixelRatio);
+        renderer.setSize(state.get("cadWidth"), state.get("height"));
+      }
+
       // Create composer (must be before shadows)
       if (!this._composer) {
         this._composer = new StudioComposer(
@@ -212,6 +232,14 @@ class StudioManager {
           camera.getCamera(),
           state.get("cadWidth"),
           state.get("height"),
+          () => {
+            // SMAA finished loading its async lookup textures. Re-render so
+            // the first visible frame has anti-aliasing — without this the
+            // user sees aliased edges until they interact with the scene.
+            if (this._active && this._ctx.isRendered()) {
+              this._ctx.update(true, false);
+            }
+          },
         );
       }
 
@@ -246,6 +274,12 @@ class StudioManager {
         this._composer.dispose();
         this._composer = null;
       }
+      // Restore pixel ratio if we bumped it before failure
+      if (this._savedPixelRatio !== null) {
+        renderer.setPixelRatio(this._savedPixelRatio);
+        renderer.setSize(state.get("cadWidth"), state.get("height"));
+        this._savedPixelRatio = null;
+      }
       this._active = false;
       logger.error("Unexpected error entering studio mode", err);
     }
@@ -264,6 +298,13 @@ class StudioManager {
     if (this._composer) {
       this._composer.dispose();
       this._composer = null;
+    }
+
+    // Restore the renderer's pixel ratio that was bumped on Studio entry.
+    if (this._savedPixelRatio !== null) {
+      renderer.setPixelRatio(this._savedPixelRatio);
+      renderer.setSize(state.get("cadWidth"), state.get("height"));
+      this._savedPixelRatio = null;
     }
 
     // 3. Remove environment, disable shadows
