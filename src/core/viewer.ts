@@ -4716,6 +4716,7 @@ class Viewer {
     glass: boolean = false,
   ): void {
     this.state.set("cadWidth", cadWidth);
+    this.state.set("treeWidth", treeWidth);
     this.state.set("height", height);
 
     // Adapt renderer dimensions
