@@ -853,6 +853,23 @@ class Viewer {
   update = (updateMarker: boolean, notify: boolean = true): void => {
     if (!this.ready) return;
 
+    // Skip painting while Studio mode is mid-async-load: composer hasn't
+    // been created yet, so a fall-through to renderer.render() would paint
+    // the scene with CAD materials (Studio's material swap is also async).
+    // Without this guard, any setter that calls update() — setCameraZoom,
+    // setView, setExplode, setTool, etc. — would paint a CAD-materials
+    // frame before Studio's first proper paint, which is visible as a
+    // 0.5–1 sec CAD render before Studio takes over. Studio's tab
+    // handler does its own update() at completion, which is when the
+    // first painted frame should appear. State changes still propagate
+    // synchronously and are picked up by that eventual paint.
+    if (
+      this.state.get("activeTab") === "studio" &&
+      !this._studioManager.hasComposer
+    ) {
+      return;
+    }
+
     if (this._externalGl) {
       this.renderer.resetState();
     }
@@ -1122,6 +1139,20 @@ class Viewer {
       deepDispose(this.compactNestedGroup);
       this.compactNestedGroup = null;
     }
+
+    // Reset scene-derived fields so the next render() recomputes them
+    // from the new geometry. Without this, reuse (clear() + render())
+    // re-uses stale values from the previous scene, producing wrong
+    // camera framing and stale bookkeeping.
+    this.bbox = null;
+    this.bb_max = 0;
+    this.bb_radius = 0;
+    this.lastBbox = null;
+    this.materialSettings = null;
+    this.renderOptions = null;
+    this.tree = null;
+    this.compactTree = null;
+    this.expandedTree = null;
   }
 
   // ---------------------------------------------------------------------------
@@ -1742,7 +1773,23 @@ class Viewer {
     }
     timer.split("notification done");
 
-    this.update(true, false);
+    // Initial paint and tab-landing logic.
+    //
+    // viewerOptions.tab can request a non-tree tab as the landing
+    // tab. To avoid a CAD-mode → target-tab flicker, we skip the default
+    // CAD update() in that case and let the activeTab subscription's
+    // switchToTab handler paint the right content (or, for studio, show
+    // the spinner over a blank canvas while async setup runs).
+    const targetTab = viewerOptions.tab ?? "tree";
+    if (targetTab === "tree") {
+      this.update(true, false);
+    } else {
+      // setActiveTab fires the subscription synchronously; switchToTab
+      // either paints (clip / zebra / material) or initiates Studio's
+      // async load (showing the spinner). The first painted frame the
+      // user sees is the target tab, not CAD.
+      this.setActiveTab(targetTab);
+    }
     treeview.update();
     this.display.setTheme(this.state.get("theme"));
 

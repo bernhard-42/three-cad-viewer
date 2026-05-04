@@ -554,8 +554,13 @@ class ViewerState {
    * Converts Vector3Tuple/QuaternionTuple to THREE objects.
    */
   updateViewerState(options: ViewerOptions, notify: boolean = true): void {
-    // Extract properties that need conversion to THREE objects
-    const { clipNormal0, clipNormal1, clipNormal2, position, quaternion, target, ...rest } = options;
+    // Extract properties that need conversion to THREE objects.
+    // `tab` is also extracted: it's not a state key directly (state uses
+    // `activeTab`), and setting activeTab here would trigger switchToTab
+    // before the scene is built. Viewer.render() applies it after
+    // scene-building completes (suppressing the CAD-mode paint when a
+    // non-default tab is the target).
+    const { tab: _tab, clipNormal0, clipNormal1, clipNormal2, position, quaternion, target, ...rest } = options;
 
     const converted: Partial<StateShape> = { ...rest };
 

@@ -334,6 +334,14 @@ export interface ViewerOptions extends StudioModeOptions {
   zoomSpeed?: number;
   /** Show timings in browser console (default: false) */
   timeit?: boolean;
+  /**
+   * Tab to land on after render (default: "tree", i.e. CAD mode).
+   * When set to a non-tree tab, the initial CAD paint is skipped so the
+   * user doesn't see a brief CAD-mode flicker before the target tab takes
+   * over. Especially noticeable for "studio" (async env-map load) and
+   * "zebra" (material swap).
+   */
+  tab?: ActiveTab;
 }
 
 /** Zebra tool options */
