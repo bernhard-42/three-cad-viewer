@@ -516,7 +516,12 @@ class ViewerState {
     studioToneMapping: "neutral",
     studioExposure: 1.0,
     studio4kEnvMaps: false,
-    studioTextureMapping: "triplanar",
+    // "parametric" is the right default when the tessellator emits UVs:
+    // each object's `nestedgroup.ts:applyTriplanarMapping` only kicks in
+    // when the chosen mode is "triplanar" OR the geometry has no `uv`
+    // attribute. So with the default "parametric", textured objects with
+    // UVs use them; objects without UVs auto-fall back to triplanar.
+    studioTextureMapping: "parametric",
     studioEnvRotation: 0,
     studioShadowIntensity: 0.5,
     studioShadowSoftness: 0.2,

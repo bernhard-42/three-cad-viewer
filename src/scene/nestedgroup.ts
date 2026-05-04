@@ -1234,7 +1234,7 @@ class NestedGroup {
    * 4. Auto-generate box-projected UVs when textured but geometry has no UVs
    */
   async enterStudioMode(
-    textureMapping: StudioTextureMapping = "triplanar",
+    textureMapping: StudioTextureMapping = "parametric",
   ): Promise<string[]> {
     // Create TextureCache lazily
     if (!this._textureCache) {
