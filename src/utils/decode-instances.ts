@@ -146,7 +146,9 @@ function decodeInlineBuffers(shapes: Shapes): void {
         typeof part.shape === "object" &&
         !isShapeRef(part.shape as unknown)
       ) {
-        decodeInlineShapeBuffers(part.shape as unknown as Record<string, unknown>);
+        decodeInlineShapeBuffers(
+          part.shape as unknown as Record<string, unknown>,
+        );
       }
       if (part.parts) {
         decodeInlineBuffers(part);

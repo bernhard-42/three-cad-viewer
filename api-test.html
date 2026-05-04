@@ -156,9 +156,11 @@
       function formatValue(val) {
         if (val === null || val === undefined) return String(val);
         if (Array.isArray(val)) return `[${val.map(formatValue).join(", ")}]`;
-        if (typeof val === "number") return Number.isInteger(val) ? String(val) : val.toFixed(4);
+        if (typeof val === "number")
+          return Number.isInteger(val) ? String(val) : val.toFixed(4);
         if (typeof val === "object") {
-          if (val.isVector3) return `Vector3(${val.x.toFixed(2)}, ${val.y.toFixed(2)}, ${val.z.toFixed(2)})`;
+          if (val.isVector3)
+            return `Vector3(${val.x.toFixed(2)}, ${val.y.toFixed(2)}, ${val.z.toFixed(2)})`;
           return JSON.stringify(val);
         }
         return String(val);
@@ -192,7 +194,8 @@
           getter: "getAxes0",
           setter: "setAxes0",
           testValue: true,
-          description: "Center axes/grid at origin (0,0,0) instead of bbox center",
+          description:
+            "Center axes/grid at origin (0,0,0) instead of bbox center",
           setup: (viewer) => viewer.setAxes(true),
           teardown: (viewer) => viewer.setAxes(false),
         },
@@ -369,7 +372,8 @@
           getter: "getHolroyd",
           setter: "setHolroyd",
           testValue: false,
-          description: "Disable Holroyd mode (tumbling trackball). Try rotating.",
+          description:
+            "Disable Holroyd mode (tumbling trackball). Try rotating.",
         },
 
         // ===== CLIPPING - BASIC =====
@@ -678,7 +682,10 @@
       log(`Viewer loaded with 'assembly' example`);
       log(`Total tests: ${apiTests.length}`);
       log("");
-      log("This test iterates through all public API getter/setter pairs.", "instruction");
+      log(
+        "This test iterates through all public API getter/setter pairs.",
+        "instruction",
+      );
       log("For each test:", "instruction");
       log("  1. Shows original value", "instruction");
       log("  2. Sets new value -> PAUSE to verify", "instruction");
@@ -768,7 +775,10 @@
           }
 
           log("");
-          log("Verify the CHANGE visually. Press ENTER/SPACE to continue, S to skip.", "instruction");
+          log(
+            "Verify the CHANGE visually. Press ENTER/SPACE to continue, S to skip.",
+            "instruction",
+          );
 
           // Wait for user input after setting new value
           let key = await waitForKey(["Enter", " ", "s", "S", "Escape"]);
@@ -824,7 +834,10 @@
           }
 
           log("");
-          log("Verify the RESET visually. Press ENTER/SPACE to continue.", "instruction");
+          log(
+            "Verify the RESET visually. Press ENTER/SPACE to continue.",
+            "instruction",
+          );
 
           // Wait for user input after reset
           key = await waitForKey(["Enter", " ", "Escape"]);

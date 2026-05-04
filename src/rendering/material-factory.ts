@@ -7,7 +7,11 @@ import { getColorSpaceForMap } from "./texture-cache.js";
 
 /** threejs-materials property keys that hold [r,g,b] color arrays (linear RGB). */
 const COLOR_ARRAY_KEYS = new Set([
-  "color", "specularColor", "sheenColor", "emissive", "attenuationColor",
+  "color",
+  "specularColor",
+  "sheenColor",
+  "emissive",
+  "attenuationColor",
 ]);
 
 /** Map from threejs-materials property names to Three.js texture map property names. */
@@ -186,7 +190,10 @@ class MaterialFactory {
   /**
    * Create a standard material for front faces with PBR properties.
    */
-  createFrontFaceMaterial({ color, alpha, visible = true }: FaceMaterialOptions, label?: string): THREE.MeshStandardMaterial {
+  createFrontFaceMaterial(
+    { color, alpha, visible = true }: FaceMaterialOptions,
+    label?: string,
+  ): THREE.MeshStandardMaterial {
     const material = new THREE.MeshStandardMaterial({
       ...this._createBaseProps(alpha),
       color: color,
@@ -196,7 +203,11 @@ class MaterialFactory {
       side: THREE.FrontSide,
       visible: visible,
     });
-    gpuTracker.track("material", material, label ?? "MeshStandardMaterial (front face)");
+    gpuTracker.track(
+      "material",
+      material,
+      label ?? "MeshStandardMaterial (front face)",
+    );
     return material;
   }
 
@@ -204,7 +215,15 @@ class MaterialFactory {
    * Create a standard material for back faces with PBR properties.
    * Used for polygon rendering where back faces need full shading.
    */
-  createBackFaceStandardMaterial({ color, alpha, polygonOffsetUnits = 2.0, visible = true }: BackFaceMaterialOptions, label?: string): THREE.MeshStandardMaterial {
+  createBackFaceStandardMaterial(
+    {
+      color,
+      alpha,
+      polygonOffsetUnits = 2.0,
+      visible = true,
+    }: BackFaceMaterialOptions,
+    label?: string,
+  ): THREE.MeshStandardMaterial {
     const material = new THREE.MeshStandardMaterial({
       ...this._createBaseProps(alpha),
       color: color,
@@ -215,7 +234,11 @@ class MaterialFactory {
       visible: visible,
     });
     material.polygonOffsetUnits = polygonOffsetUnits;
-    gpuTracker.track("material", material, label ?? "MeshStandardMaterial (back face)");
+    gpuTracker.track(
+      "material",
+      material,
+      label ?? "MeshStandardMaterial (back face)",
+    );
     return material;
   }
 
@@ -223,7 +246,15 @@ class MaterialFactory {
    * Create a basic material for back faces (no lighting/PBR).
    * Used for shape rendering where back faces are simple fills.
    */
-  createBackFaceBasicMaterial({ color, alpha, polygonOffsetUnits = 2.0, visible = true }: BackFaceMaterialOptions, label?: string): THREE.MeshBasicMaterial {
+  createBackFaceBasicMaterial(
+    {
+      color,
+      alpha,
+      polygonOffsetUnits = 2.0,
+      visible = true,
+    }: BackFaceMaterialOptions,
+    label?: string,
+  ): THREE.MeshBasicMaterial {
     const material = new THREE.MeshBasicMaterial({
       ...this._createBaseProps(alpha),
       color: color,
@@ -231,36 +262,56 @@ class MaterialFactory {
       visible: visible,
     });
     material.polygonOffsetUnits = polygonOffsetUnits;
-    gpuTracker.track("material", material, label ?? "MeshBasicMaterial (back face)");
+    gpuTracker.track(
+      "material",
+      material,
+      label ?? "MeshBasicMaterial (back face)",
+    );
     return material;
   }
 
   /**
    * Create a basic front face material (no PBR, for simple shapes).
    */
-  createBasicFaceMaterial({ color, alpha, visible = true }: FaceMaterialOptions, label?: string): THREE.MeshBasicMaterial {
+  createBasicFaceMaterial(
+    { color, alpha, visible = true }: FaceMaterialOptions,
+    label?: string,
+  ): THREE.MeshBasicMaterial {
     const material = new THREE.MeshBasicMaterial({
       ...this._createBaseProps(alpha),
       color: color,
       side: THREE.FrontSide,
       visible: visible,
     });
-    gpuTracker.track("material", material, label ?? "MeshBasicMaterial (front face)");
+    gpuTracker.track(
+      "material",
+      material,
+      label ?? "MeshBasicMaterial (front face)",
+    );
     return material;
   }
 
   /**
    * Create a fat line material (LineMaterial from Three.js examples).
    */
-  createEdgeMaterial({ lineWidth, color, vertexColors = false, visible = true, resolution }: EdgeMaterialOptions, label?: string): LineMaterial {
+  createEdgeMaterial(
+    {
+      lineWidth,
+      color,
+      vertexColors = false,
+      visible = true,
+      resolution,
+    }: EdgeMaterialOptions,
+    label?: string,
+  ): LineMaterial {
     const material = new LineMaterial({
       linewidth: lineWidth,
       transparent: true,
       depthWrite: !this.transparent,
       depthTest: !this.transparent,
       clipIntersection: false,
-      vertexColors: vertexColors,  // boolean, not string "VertexColors"
-      toneMapped: false,           // critical for correct vertex colors
+      vertexColors: vertexColors, // boolean, not string "VertexColors"
+      toneMapped: false, // critical for correct vertex colors
     });
 
     if (!vertexColors) {
@@ -279,21 +330,31 @@ class MaterialFactory {
   /**
    * Create a basic line material for simple edges (e.g., polygon outlines).
    */
-  createSimpleEdgeMaterial({ color, visible = true }: SimpleEdgeMaterialOptions, label?: string): THREE.LineBasicMaterial {
+  createSimpleEdgeMaterial(
+    { color, visible = true }: SimpleEdgeMaterialOptions,
+    label?: string,
+  ): THREE.LineBasicMaterial {
     const material = new THREE.LineBasicMaterial({
       color: color ?? this.edgeColor,
       depthWrite: !this.transparent,
       depthTest: !this.transparent,
       visible: visible,
     });
-    gpuTracker.track("material", material, label ?? "LineBasicMaterial (simple edges)");
+    gpuTracker.track(
+      "material",
+      material,
+      label ?? "LineBasicMaterial (simple edges)",
+    );
     return material;
   }
 
   /**
    * Create a point material for vertex rendering.
    */
-  createVertexMaterial({ size, color, visible = true }: VertexMaterialOptions, label?: string): THREE.PointsMaterial {
+  createVertexMaterial(
+    { size, color, visible = true }: VertexMaterialOptions,
+    label?: string,
+  ): THREE.PointsMaterial {
     const material = new THREE.PointsMaterial({
       color: color ?? this.edgeColor,
       sizeAttenuation: false,
@@ -302,21 +363,32 @@ class MaterialFactory {
       clipIntersection: false,
       visible: visible,
     });
-    gpuTracker.track("material", material, label ?? "PointsMaterial (vertices)");
+    gpuTracker.track(
+      "material",
+      material,
+      label ?? "PointsMaterial (vertices)",
+    );
     return material;
   }
 
   /**
    * Create a basic material for texture-mapped surfaces.
    */
-  createTextureMaterial({ texture, visible = true }: TextureMaterialOptions, label?: string): THREE.MeshBasicMaterial {
+  createTextureMaterial(
+    { texture, visible = true }: TextureMaterialOptions,
+    label?: string,
+  ): THREE.MeshBasicMaterial {
     const material = new THREE.MeshBasicMaterial({
       color: "#ffffff",
       map: texture,
       side: THREE.DoubleSide,
       visible: visible,
     });
-    gpuTracker.track("material", material, label ?? "MeshBasicMaterial (textured)");
+    gpuTracker.track(
+      "material",
+      material,
+      label ?? "MeshBasicMaterial (textured)",
+    );
     return material;
   }
 
@@ -334,7 +406,12 @@ class MaterialFactory {
    * @returns Configured MeshPhysicalMaterial (or MeshBasicMaterial if unlit)
    */
   async createStudioMaterial(
-    { materialDef, fallbackColor, fallbackAlpha, textureCache }: StudioMaterialOptions,
+    {
+      materialDef,
+      fallbackColor,
+      fallbackAlpha,
+      textureCache,
+    }: StudioMaterialOptions,
     label?: string,
   ): Promise<THREE.MeshPhysicalMaterial | THREE.MeshBasicMaterial> {
     const def = materialDef;
@@ -352,7 +429,9 @@ class MaterialFactory {
       } else {
         // sRGB RGBA tuple [R, G, B, A?] (0-1)
         baseColor = new THREE.Color().setRGB(
-          def.color[0], def.color[1], def.color[2],
+          def.color[0],
+          def.color[1],
+          def.color[2],
           THREE.SRGBColorSpace,
         );
         opacity = def.color[3] ?? 1.0;
@@ -379,7 +458,11 @@ class MaterialFactory {
         const tex = await textureCache.get(def.map, "baseColorTexture");
         if (tex) basicMat.map = tex;
       }
-      gpuTracker.track("material", basicMat, label ?? "MeshBasicMaterial (studio unlit)");
+      gpuTracker.track(
+        "material",
+        basicMat,
+        label ?? "MeshBasicMaterial (studio unlit)",
+      );
       return basicMat;
     }
 
@@ -387,7 +470,8 @@ class MaterialFactory {
     // Studio materials default to opaque (transparent: false). Unlike CAD
     // mode, Studio mode has no clipping and doesn't need the global
     // transparent:true flag. Only BLEND alpha mode enables transparency.
-    const isBlend = def.alphaMode === "BLEND" || (!def.alphaMode && opacity < 1.0);
+    const isBlend =
+      def.alphaMode === "BLEND" || (!def.alphaMode && opacity < 1.0);
     const material = new THREE.MeshPhysicalMaterial({
       color: baseColor,
       metalness: def.metalness ?? 0.0,
@@ -408,7 +492,11 @@ class MaterialFactory {
 
     // --- Emissive ---
     if (def.emissive) {
-      material.emissive = new THREE.Color(def.emissive[0], def.emissive[1], def.emissive[2]);
+      material.emissive = new THREE.Color(
+        def.emissive[0],
+        def.emissive[1],
+        def.emissive[2],
+      );
     }
     if (def.emissiveIntensity !== undefined) {
       material.emissiveIntensity = def.emissiveIntensity;
@@ -444,7 +532,9 @@ class MaterialFactory {
     }
     if (def.attenuationColor) {
       material.attenuationColor = new THREE.Color(
-        def.attenuationColor[0], def.attenuationColor[1], def.attenuationColor[2],
+        def.attenuationColor[0],
+        def.attenuationColor[1],
+        def.attenuationColor[2],
       );
     }
 
@@ -459,7 +549,9 @@ class MaterialFactory {
     }
     if (def.specularColor) {
       material.specularColor = new THREE.Color(
-        def.specularColor[0], def.specularColor[1], def.specularColor[2],
+        def.specularColor[0],
+        def.specularColor[1],
+        def.specularColor[2],
       );
     }
 
@@ -469,7 +561,9 @@ class MaterialFactory {
       material.sheen = def.sheen;
       if (def.sheenColor) {
         material.sheenColor = new THREE.Color(
-          def.sheenColor[0], def.sheenColor[1], def.sheenColor[2],
+          def.sheenColor[0],
+          def.sheenColor[1],
+          def.sheenColor[2],
         );
       }
       if (def.sheenRoughness !== undefined) {
@@ -492,7 +586,11 @@ class MaterialFactory {
       await this._applyStudioTextures(material, def, textureCache);
     }
 
-    gpuTracker.track("material", material, label ?? "MeshPhysicalMaterial (studio)");
+    gpuTracker.track(
+      "material",
+      material,
+      label ?? "MeshPhysicalMaterial (studio)",
+    );
     return material;
   }
 
@@ -534,13 +632,21 @@ class MaterialFactory {
 
     for (const [key, value] of Object.entries(values)) {
       // Skip displacement properties (not supported, would waste GPU memory)
-      if (key === "displacement" || key === "displacementScale" || key === "displacementBias") continue;
+      if (
+        key === "displacement" ||
+        key === "displacementScale" ||
+        key === "displacementBias"
+      )
+        continue;
 
       // Color arrays → THREE.Color (already linear, no sRGB conversion)
       if (COLOR_ARRAY_KEYS.has(key) && Array.isArray(value)) {
         const [r, g, b] = value as number[];
         matOptions[key] = new THREE.Color(r, g, b);
-      } else if ((key === "normalScale" || key === "clearcoatNormalScale") && Array.isArray(value)) {
+      } else if (
+        (key === "normalScale" || key === "clearcoatNormalScale") &&
+        Array.isArray(value)
+      ) {
         matOptions[key] = new THREE.Vector2(value[0], value[1]);
       } else if (key === "iridescenceThicknessRange" && Array.isArray(value)) {
         matOptions[key] = value;
@@ -557,7 +663,10 @@ class MaterialFactory {
       matOptions.transparent = false;
       matOptions.opacity = 1.0;
       matOptions.depthWrite = true;
-    } else if (transparentVal === true || (typeof opacityVal === "number" && opacityVal < 1.0)) {
+    } else if (
+      transparentVal === true ||
+      (typeof opacityVal === "number" && opacityVal < 1.0)
+    ) {
       matOptions.transparent = true;
       matOptions.depthWrite = false;
     } else {
@@ -578,12 +687,16 @@ class MaterialFactory {
         // TextureCache.get() expects a role name to decide colorSpace.
         // Bridge from Three.js map name → colorSpace → a proxy role name.
         const colorSpace = getColorSpaceForMap(mapName);
-        const roleForCache = colorSpace === THREE.SRGBColorSpace
-          ? "baseColorTexture"
-          : "normalTexture";
+        const roleForCache =
+          colorSpace === THREE.SRGBColorSpace
+            ? "baseColorTexture"
+            : "normalTexture";
         let tex = await textureCache.get(textureRef, roleForCache);
         if (tex) {
-          if (textureRepeat && (textureRepeat[0] !== 1 || textureRepeat[1] !== 1)) {
+          if (
+            textureRepeat &&
+            (textureRepeat[0] !== 1 || textureRepeat[1] !== 1)
+          ) {
             // Clone to avoid mutating shared cached texture
             tex = tex.clone();
             tex.repeat.set(textureRepeat[0], textureRepeat[1]);
@@ -606,7 +719,11 @@ class MaterialFactory {
       material.needsUpdate = true;
     }
 
-    gpuTracker.track("material", material, label ?? "MeshPhysicalMaterial (threejs-materials)");
+    gpuTracker.track(
+      "material",
+      material,
+      label ?? "MeshPhysicalMaterial (threejs-materials)",
+    );
     return material;
   }
 
@@ -665,7 +782,10 @@ class MaterialFactory {
     // Helper to resolve a texture reference. The TextureCache determines
     // colorSpace internally from the textureRole name (sRGB for color-data
     // textures like baseColorTexture, linear for non-color data like normalTexture).
-    const resolve = async (key: string | undefined, textureRole: string): Promise<THREE.Texture | null> => {
+    const resolve = async (
+      key: string | undefined,
+      textureRole: string,
+    ): Promise<THREE.Texture | null> => {
       if (!key) return null;
       return textureCache.get(key, textureRole);
     };
@@ -680,7 +800,10 @@ class MaterialFactory {
     const sheenColorTex = await resolve(def.sheenColorMap, "sheenColorTexture");
     if (sheenColorTex) material.sheenColorMap = sheenColorTex;
 
-    const specularColorTex = await resolve(def.specularColorMap, "specularColorTexture");
+    const specularColorTex = await resolve(
+      def.specularColorMap,
+      "specularColorTexture",
+    );
     if (specularColorTex) material.specularColorMap = specularColorTex;
 
     // --- Linear non-color data textures ---
@@ -690,13 +813,22 @@ class MaterialFactory {
     const occlusionTex = await resolve(def.aoMap, "occlusionTexture");
     if (occlusionTex) material.aoMap = occlusionTex;
 
-    const metalnessTex = await resolve(def.metalnessMap, "metallicRoughnessTexture");
+    const metalnessTex = await resolve(
+      def.metalnessMap,
+      "metallicRoughnessTexture",
+    );
     if (metalnessTex) material.metalnessMap = metalnessTex;
 
-    const roughnessTex = await resolve(def.roughnessMap, "metallicRoughnessTexture");
+    const roughnessTex = await resolve(
+      def.roughnessMap,
+      "metallicRoughnessTexture",
+    );
     if (roughnessTex) material.roughnessMap = roughnessTex;
 
-    const transmissionTex = await resolve(def.transmissionMap, "transmissionTexture");
+    const transmissionTex = await resolve(
+      def.transmissionMap,
+      "transmissionTexture",
+    );
     if (transmissionTex) material.transmissionMap = transmissionTex;
 
     const thicknessTex = await resolve(def.thicknessMap, "thicknessTexture");
@@ -705,16 +837,30 @@ class MaterialFactory {
     const clearcoatTex = await resolve(def.clearcoatMap, "clearcoatTexture");
     if (clearcoatTex) material.clearcoatMap = clearcoatTex;
 
-    const clearcoatRoughnessTex = await resolve(def.clearcoatRoughnessMap, "clearcoatRoughnessTexture");
-    if (clearcoatRoughnessTex) material.clearcoatRoughnessMap = clearcoatRoughnessTex;
+    const clearcoatRoughnessTex = await resolve(
+      def.clearcoatRoughnessMap,
+      "clearcoatRoughnessTexture",
+    );
+    if (clearcoatRoughnessTex)
+      material.clearcoatRoughnessMap = clearcoatRoughnessTex;
 
-    const clearcoatNormalTex = await resolve(def.clearcoatNormalMap, "clearcoatNormalTexture");
+    const clearcoatNormalTex = await resolve(
+      def.clearcoatNormalMap,
+      "clearcoatNormalTexture",
+    );
     if (clearcoatNormalTex) material.clearcoatNormalMap = clearcoatNormalTex;
 
-    const specularIntensityTex = await resolve(def.specularIntensityMap, "specularIntensityTexture");
-    if (specularIntensityTex) material.specularIntensityMap = specularIntensityTex;
+    const specularIntensityTex = await resolve(
+      def.specularIntensityMap,
+      "specularIntensityTexture",
+    );
+    if (specularIntensityTex)
+      material.specularIntensityMap = specularIntensityTex;
 
-    const sheenRoughnessTex = await resolve(def.sheenRoughnessMap, "sheenRoughnessTexture");
+    const sheenRoughnessTex = await resolve(
+      def.sheenRoughnessMap,
+      "sheenRoughnessTexture",
+    );
     if (sheenRoughnessTex) material.sheenRoughnessMap = sheenRoughnessTex;
 
     const anisotropyTex = await resolve(def.anisotropyMap, "anisotropyTexture");
@@ -727,11 +873,18 @@ class MaterialFactory {
   update(options: UpdateOptions): void {
     if (options.metalness !== undefined) this.metalness = options.metalness;
     if (options.roughness !== undefined) this.roughness = options.roughness;
-    if (options.transparent !== undefined) this.transparent = options.transparent;
-    if (options.defaultOpacity !== undefined) this.defaultOpacity = options.defaultOpacity;
+    if (options.transparent !== undefined)
+      this.transparent = options.transparent;
+    if (options.defaultOpacity !== undefined)
+      this.defaultOpacity = options.defaultOpacity;
     if (options.edgeColor !== undefined) this.edgeColor = options.edgeColor;
   }
 }
 
 export { MaterialFactory };
-export type { MaterialFactoryOptions, UpdateOptions, StudioMaterialOptions, TextureCacheInterface };
+export type {
+  MaterialFactoryOptions,
+  UpdateOptions,
+  StudioMaterialOptions,
+  TextureCacheInterface,
+};

@@ -17,7 +17,11 @@
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { MOUSE, Quaternion, Vector3, Camera } from "three";
-import { KeyMapper, isOrthographicCamera, isPerspectiveCamera } from "../../utils/utils.js";
+import {
+  KeyMapper,
+  isOrthographicCamera,
+  isPerspectiveCamera,
+} from "../../utils/utils.js";
 
 // State constants matching OrbitControls internal state
 const STATE = {

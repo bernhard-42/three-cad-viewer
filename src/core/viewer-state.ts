@@ -138,7 +138,12 @@ interface RuntimeDefaults {
 /**
  * Complete state shape
  */
-type StateShape = DisplayDefaults & RenderDefaults & ViewerDefaults & ZebraDefaults & StudioModeDefaults & RuntimeDefaults;
+type StateShape = DisplayDefaults &
+  RenderDefaults &
+  ViewerDefaults &
+  ZebraDefaults &
+  StudioModeDefaults &
+  RuntimeDefaults;
 
 /**
  * Keys of the state shape
@@ -149,7 +154,9 @@ type StateKey = keyof StateShape;
  * Options that can be passed to ViewerState constructor.
  * Accepts StateShape properties plus an index signature for runtime validation.
  */
-type ViewerStateOptions = Partial<StateShape> & { theme?: ThemeInput } & { [key: string]: unknown };
+type ViewerStateOptions = Partial<StateShape> & { theme?: ThemeInput } & {
+  [key: string]: unknown;
+};
 
 /**
  * External notification payload - single key/change pair
@@ -161,26 +168,86 @@ type ExternalNotification = { key: string; change: StateChange<unknown> };
  */
 const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
   // Display
-  "theme", "cadWidth", "treeWidth", "treeHeight", "height", "pinning", "glass", "tools",
-  "keymap", "newTreeBehavior", "measureTools", "selectTool", "explodeTool", "zscaleTool",
-  "zebraTool", "studioTool", "measurementDebug",
+  "theme",
+  "cadWidth",
+  "treeWidth",
+  "treeHeight",
+  "height",
+  "pinning",
+  "glass",
+  "tools",
+  "keymap",
+  "newTreeBehavior",
+  "measureTools",
+  "selectTool",
+  "explodeTool",
+  "zscaleTool",
+  "zebraTool",
+  "studioTool",
+  "measurementDebug",
   // Render
-  "ambientIntensity", "directIntensity", "metalness", "roughness", "defaultOpacity",
-  "edgeColor", "normalLen",
+  "ambientIntensity",
+  "directIntensity",
+  "metalness",
+  "roughness",
+  "defaultOpacity",
+  "edgeColor",
+  "normalLen",
   // Viewer
-  "axes", "axes0", "grid", "ortho", "transparent", "blackEdges", "collapse",
-  "clipIntersection", "clipPlaneHelpers", "clipObjectColors", "clipNormal0", "clipNormal1",
-  "clipNormal2", "clipSlider0", "clipSlider1", "clipSlider2", "control", "holroyd", "up",
-  "ticks", "gridFontSize", "centerGrid", "position", "quaternion", "target", "zoom",
-  "panSpeed", "rotateSpeed", "zoomSpeed", "timeit",
+  "axes",
+  "axes0",
+  "grid",
+  "ortho",
+  "transparent",
+  "blackEdges",
+  "collapse",
+  "clipIntersection",
+  "clipPlaneHelpers",
+  "clipObjectColors",
+  "clipNormal0",
+  "clipNormal1",
+  "clipNormal2",
+  "clipSlider0",
+  "clipSlider1",
+  "clipSlider2",
+  "control",
+  "holroyd",
+  "up",
+  "ticks",
+  "gridFontSize",
+  "centerGrid",
+  "position",
+  "quaternion",
+  "target",
+  "zoom",
+  "panSpeed",
+  "rotateSpeed",
+  "zoomSpeed",
+  "timeit",
   // Zebra
-  "zebraCount", "zebraOpacity", "zebraDirection", "zebraColorScheme", "zebraMappingMode",
+  "zebraCount",
+  "zebraOpacity",
+  "zebraDirection",
+  "zebraColorScheme",
+  "zebraMappingMode",
   // Studio
-  "studioEnvironment", "studioEnvIntensity", "studioBackground",
-  "studioToneMapping", "studioExposure", "studio4kEnvMaps", "studioTextureMapping",
-  "studioEnvRotation", "studioShadowIntensity", "studioShadowSoftness", "studioAOIntensity",
+  "studioEnvironment",
+  "studioEnvIntensity",
+  "studioBackground",
+  "studioToneMapping",
+  "studioExposure",
+  "studio4kEnvMaps",
+  "studioTextureMapping",
+  "studioEnvRotation",
+  "studioShadowIntensity",
+  "studioShadowSoftness",
+  "studioAOIntensity",
   // Runtime
-  "activeTool", "animationMode", "animationSliderValue", "zscaleActive", "highlightedButton",
+  "activeTool",
+  "animationMode",
+  "animationSliderValue",
+  "zscaleActive",
+  "highlightedButton",
   "activeTab",
 ]);
 
@@ -257,7 +324,9 @@ const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
  * Transform functions for notification values.
  * Converts internal state values to external notification format.
  */
-const STATE_NOTIFICATION_TRANSFORM: Partial<Record<StateKey, (v: unknown) => unknown>> = {
+const STATE_NOTIFICATION_TRANSFORM: Partial<
+  Record<StateKey, (v: unknown) => unknown>
+> = {
   // Slider stores 0-1000, but notifications should be 0-1
   animationSliderValue: (v) => (v as number) / 1000,
 };
@@ -333,12 +402,39 @@ class ViewerState {
     glass: false,
     tools: true,
     keymap: {
-      shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey", alt: "altKey",
-      axes: "a", axes0: "A", grid: "g", gridxy: "G", perspective: "p", transparent: "t", blackedges: "b",
-      reset: "R", resize: "r",
-      iso: "5", front: "1", rear: "3", top: "8", bottom: "2", left: "4", right: "6",
-      explode: "x", zscale: "L", distance: "D", properties: "P", select: "S", help: "h", play: " ", stop: "Escape",
-      tree: "T", clip: "C", material: "M", zebra: "Z", studio: "s",
+      shift: "shiftKey",
+      ctrl: "ctrlKey",
+      meta: "metaKey",
+      alt: "altKey",
+      axes: "a",
+      axes0: "A",
+      grid: "g",
+      gridxy: "G",
+      perspective: "p",
+      transparent: "t",
+      blackedges: "b",
+      reset: "R",
+      resize: "r",
+      iso: "5",
+      front: "1",
+      rear: "3",
+      top: "8",
+      bottom: "2",
+      left: "4",
+      right: "6",
+      explode: "x",
+      zscale: "L",
+      distance: "D",
+      properties: "P",
+      select: "S",
+      help: "h",
+      play: " ",
+      stop: "Escape",
+      tree: "T",
+      clip: "C",
+      material: "M",
+      zebra: "Z",
+      studio: "s",
     },
     newTreeBehavior: true,
     measureTools: true,
@@ -442,9 +538,9 @@ class ViewerState {
   private _state: StateShape;
   private _listeners: Map<StateKey, StateSubscriber<unknown>[]>;
   private _globalListeners: GlobalStateSubscriber[];
-  private _externalNotifyCallback: ((
-    input: ExternalNotification | ExternalNotification[]
-  ) => void) | null = null;
+  private _externalNotifyCallback:
+    | ((input: ExternalNotification | ExternalNotification[]) => void)
+    | null = null;
 
   /**
    * Create a ViewerState instance
@@ -501,7 +597,11 @@ class ViewerState {
   /**
    * Set a state value and notify listeners
    */
-  set<K extends StateKey>(key: K, value: StateShape[K], notify: boolean = true): void {
+  set<K extends StateKey>(
+    key: K,
+    value: StateShape[K],
+    notify: boolean = true,
+  ): void {
     const oldValue = this._state[key];
 
     // Skip if value hasn't changed
@@ -525,7 +625,11 @@ class ViewerState {
       const value = updates[key];
       // Skip undefined/null, except for keys where null is a valid value (reset to default)
       const KEYS_WITH_VALID_NULL = ["position", "quaternion", "target"];
-      if (value === undefined || (value === null && !KEYS_WITH_VALID_NULL.includes(key))) continue;
+      if (
+        value === undefined ||
+        (value === null && !KEYS_WITH_VALID_NULL.includes(key))
+      )
+        continue;
 
       const oldValue = this._state[key];
       if (!valuesEqual(oldValue, value)) {
@@ -560,7 +664,16 @@ class ViewerState {
     // before the scene is built. Viewer.render() applies it after
     // scene-building completes (suppressing the CAD-mode paint when a
     // non-default tab is the target).
-    const { tab: _tab, clipNormal0, clipNormal1, clipNormal2, position, quaternion, target, ...rest } = options;
+    const {
+      tab: _tab,
+      clipNormal0,
+      clipNormal1,
+      clipNormal2,
+      position,
+      quaternion,
+      target,
+      ...rest
+    } = options;
 
     const converted: Partial<StateShape> = { ...rest };
 
@@ -578,7 +691,9 @@ class ViewerState {
       converted.position = position ? new THREE.Vector3(...position) : null;
     }
     if (quaternion !== undefined) {
-      converted.quaternion = quaternion ? new THREE.Quaternion(...quaternion) : null;
+      converted.quaternion = quaternion
+        ? new THREE.Quaternion(...quaternion)
+        : null;
     }
     if (target !== undefined) {
       converted.target = target ? new THREE.Vector3(...target) : null;
@@ -593,17 +708,28 @@ class ViewerState {
    */
   updateStudioState(options: StudioOptions): void {
     const map: Partial<StateShape> = {};
-    if (options.environment !== undefined) map.studioEnvironment = options.environment;
-    if (options.envIntensity !== undefined) map.studioEnvIntensity = options.envIntensity;
-    if (options.background !== undefined) map.studioBackground = options.background;
-    if (options.toneMapping !== undefined) map.studioToneMapping = options.toneMapping;
-    if (options.toneMappingExposure !== undefined) map.studioExposure = options.toneMappingExposure;
-    if (options.use4kEnvMaps !== undefined) map.studio4kEnvMaps = options.use4kEnvMaps;
-    if (options.textureMapping !== undefined) map.studioTextureMapping = options.textureMapping;
-    if (options.envRotation !== undefined) map.studioEnvRotation = options.envRotation;
-    if (options.shadowIntensity !== undefined) map.studioShadowIntensity = options.shadowIntensity;
-    if (options.shadowSoftness !== undefined) map.studioShadowSoftness = options.shadowSoftness;
-    if (options.aoIntensity !== undefined) map.studioAOIntensity = options.aoIntensity;
+    if (options.environment !== undefined)
+      map.studioEnvironment = options.environment;
+    if (options.envIntensity !== undefined)
+      map.studioEnvIntensity = options.envIntensity;
+    if (options.background !== undefined)
+      map.studioBackground = options.background;
+    if (options.toneMapping !== undefined)
+      map.studioToneMapping = options.toneMapping;
+    if (options.toneMappingExposure !== undefined)
+      map.studioExposure = options.toneMappingExposure;
+    if (options.use4kEnvMaps !== undefined)
+      map.studio4kEnvMaps = options.use4kEnvMaps;
+    if (options.textureMapping !== undefined)
+      map.studioTextureMapping = options.textureMapping;
+    if (options.envRotation !== undefined)
+      map.studioEnvRotation = options.envRotation;
+    if (options.shadowIntensity !== undefined)
+      map.studioShadowIntensity = options.shadowIntensity;
+    if (options.shadowSoftness !== undefined)
+      map.studioShadowSoftness = options.shadowSoftness;
+    if (options.aoIntensity !== undefined)
+      map.studioAOIntensity = options.aoIntensity;
     this._update(map, false);
   }
 
@@ -620,7 +746,7 @@ class ViewerState {
   subscribe<K extends StateKey>(
     key: K,
     listener: StateSubscriber<StateShape[K]>,
-    options: SubscribeOptions = {}
+    options: SubscribeOptions = {},
   ): () => void {
     if (!this._listeners.has(key)) {
       this._listeners.set(key, []);
@@ -664,7 +790,9 @@ class ViewerState {
    * The callback receives the notification key (snake_case) and the change object.
    */
   setExternalNotifyCallback(
-    callback: ((input: ExternalNotification | ExternalNotification[]) => void) | null
+    callback:
+      | ((input: ExternalNotification | ExternalNotification[]) => void)
+      | null,
   ): void {
     this._externalNotifyCallback = callback;
   }
@@ -676,7 +804,9 @@ class ViewerState {
    */
   getAllNotifiable(): Record<string, StateChange<unknown>> {
     const result: Record<string, StateChange<unknown>> = {};
-    for (const [stateKey, notifyKey] of Object.entries(STATE_TO_NOTIFICATION_KEY)) {
+    for (const [stateKey, notifyKey] of Object.entries(
+      STATE_TO_NOTIFICATION_KEY,
+    )) {
       const value = this._state[stateKey as StateKey];
       const transform = STATE_NOTIFICATION_TRANSFORM[stateKey as StateKey];
       const transformedValue = transform
@@ -710,9 +840,15 @@ class ViewerState {
         // Apply transform if defined (e.g., slider 0-1000 → relative 0-1)
         const transform = STATE_NOTIFICATION_TRANSFORM[key];
         const notifyChange = transform
-          ? { old: change.old != null ? transform(change.old) : null, new: transform(change.new) }
+          ? {
+              old: change.old != null ? transform(change.old) : null,
+              new: transform(change.new),
+            }
           : change;
-        this._externalNotifyCallback({ key: notificationKey, change: notifyChange });
+        this._externalNotifyCallback({
+          key: notificationKey,
+          change: notifyChange,
+        });
       }
     }
   }

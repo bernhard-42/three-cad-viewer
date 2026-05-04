@@ -1,8 +1,8 @@
-import { describe, test, expect, afterEach } from 'vitest';
-import { setupViewer, cleanup } from '../helpers/setup.js';
-import { loadExample, captureSceneState } from '../helpers/snapshot.js';
+import { describe, test, expect, afterEach } from "vitest";
+import { setupViewer, cleanup } from "../helpers/setup.js";
+import { loadExample, captureSceneState } from "../helpers/snapshot.js";
 
-describe('Viewer - Rendering Modes', () => {
+describe("Viewer - Rendering Modes", () => {
   let testContext;
 
   afterEach(() => {
@@ -22,12 +22,12 @@ describe('Viewer - Rendering Modes', () => {
    * These tests verify both modes work correctly and produce different scene structures
    */
 
-  test('compact mode (exploded=false) - renders solids as unified objects', async () => {
+  test("compact mode (exploded=false) - renders solids as unified objects", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
     // Load example
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
 
     // Render in compact mode (exploded = false)
     // This is the default mode used by viewer.render()
@@ -49,7 +49,7 @@ describe('Viewer - Rendering Modes', () => {
     const compactMeshCount = snapshot.scene.counts.meshes;
 
     // Compact mode snapshot
-    expect(snapshot).toMatchSnapshot('box1-compact-mode');
+    expect(snapshot).toMatchSnapshot("box1-compact-mode");
 
     // Save counts for next test comparison
     testContext.compactCounts = {
@@ -58,12 +58,12 @@ describe('Viewer - Rendering Modes', () => {
     };
   });
 
-  test('expanded mode (exploded=true) - renders individual faces/edges/vertices', async () => {
+  test("expanded mode (exploded=true) - renders individual faces/edges/vertices", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions } = testContext;
 
     // Load example
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
 
     // Initialize material settings before calling renderTessellatedShapes
     viewer.setRenderDefaults(renderOptions);
@@ -74,8 +74,8 @@ describe('Viewer - Rendering Modes', () => {
     const result = viewer.renderTessellatedShapes(true, box1Data);
 
     expect(result).toBeDefined();
-    expect(result).toHaveProperty('group');
-    expect(result).toHaveProperty('tree');
+    expect(result).toHaveProperty("group");
+    expect(result).toHaveProperty("tree");
 
     // In expanded mode, parts are decomposed into individual faces/edges/vertices
     // This means more THREE.Group objects in the scene hierarchy
@@ -86,13 +86,13 @@ describe('Viewer - Rendering Modes', () => {
     // Expanded mode should create decomposed structure
     expect(result.tree).toBeDefined();
     // Tree is an object with shape names as keys
-    expect(typeof result.tree).toBe('object');
+    expect(typeof result.tree).toBe("object");
 
     // Snapshot for expanded mode
-    expect(result.tree).toMatchSnapshot('box1-expanded-tree');
+    expect(result.tree).toMatchSnapshot("box1-expanded-tree");
   });
 
-  test('compact vs expanded - structural differences', async () => {
+  test("compact vs expanded - structural differences", async () => {
     // Test both modes in sequence to compare results
     testContext = setupViewer();
     const { viewer, renderOptions } = testContext;
@@ -100,13 +100,13 @@ describe('Viewer - Rendering Modes', () => {
     // Initialize material settings
     viewer.setRenderDefaults(renderOptions);
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
 
     // Render compact
     const compactResult = viewer.renderTessellatedShapes(false, box1Data);
 
     // Render expanded (need fresh data due to structuredClone in method)
-    const box1DataCopy = await loadExample('box1');
+    const box1DataCopy = await loadExample("box1");
     const expandedResult = viewer.renderTessellatedShapes(true, box1DataCopy);
 
     // Both should succeed
@@ -126,15 +126,15 @@ describe('Viewer - Rendering Modes', () => {
     expect(expandedResult.group).toBeDefined();
 
     // Verify tree structures exist (trees are objects with shape names as keys)
-    expect(typeof compactResult.tree).toBe('object');
-    expect(typeof expandedResult.tree).toBe('object');
+    expect(typeof compactResult.tree).toBe("object");
+    expect(typeof expandedResult.tree).toBe("object");
 
     // Log for debugging
-    console.log('Compact tree keys:', Object.keys(compactResult.tree));
-    console.log('Expanded tree keys:', Object.keys(expandedResult.tree));
+    console.log("Compact tree keys:", Object.keys(compactResult.tree));
+    console.log("Expanded tree keys:", Object.keys(expandedResult.tree));
   });
 
-  test('compact mode with different example shapes', async () => {
+  test("compact mode with different example shapes", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions } = testContext;
 
@@ -142,7 +142,7 @@ describe('Viewer - Rendering Modes', () => {
     viewer.setRenderDefaults(renderOptions);
 
     // Test with a more complex example (edges)
-    const edgesData = await loadExample('edges');
+    const edgesData = await loadExample("edges");
 
     const result = viewer.renderTessellatedShapes(false, edgesData);
 
@@ -151,11 +151,11 @@ describe('Viewer - Rendering Modes', () => {
     expect(result.tree).toBeDefined();
 
     // Edges example should have content in the tree
-    expect(typeof result.tree).toBe('object');
+    expect(typeof result.tree).toBe("object");
     expect(Object.keys(result.tree).length).toBeGreaterThan(0);
   });
 
-  test('expanded mode with different example shapes', async () => {
+  test("expanded mode with different example shapes", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions } = testContext;
 
@@ -163,7 +163,7 @@ describe('Viewer - Rendering Modes', () => {
     viewer.setRenderDefaults(renderOptions);
 
     // Test with vertices example in expanded mode
-    const verticesData = await loadExample('vertices');
+    const verticesData = await loadExample("vertices");
 
     const result = viewer.renderTessellatedShapes(true, verticesData);
 
@@ -172,7 +172,7 @@ describe('Viewer - Rendering Modes', () => {
     expect(result.tree).toBeDefined();
 
     // Vertices example in expanded mode should decompose into individual vertex points
-    expect(typeof result.tree).toBe('object');
+    expect(typeof result.tree).toBe("object");
     expect(Object.keys(result.tree).length).toBeGreaterThan(0);
   });
 });

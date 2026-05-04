@@ -48,7 +48,14 @@ export type StudioEnvironment = string;
 export type StudioToneMapping = "neutral" | "ACES" | "none";
 
 /** Studio background mode */
-export type StudioBackground = "grey" | "darkgrey" | "white" | "gradient" | "gradient-dark" | "environment" | "transparent";
+export type StudioBackground =
+  | "grey"
+  | "darkgrey"
+  | "white"
+  | "gradient"
+  | "gradient-dark"
+  | "environment"
+  | "transparent";
 
 /** Studio texture mapping mode */
 export type StudioTextureMapping = "triplanar" | "parametric";
@@ -75,10 +82,10 @@ export function isClipIndex(n: number): n is ClipIndex {
 
 /** Tree collapse state */
 export enum CollapseState {
-  LEAVES = -1,    // Button "1" - smart expand (openLevel -1)
-  COLLAPSED = 0,  // Button "C" - all nodes collapsed
-  ROOT = 1,       // Button "R" - only root expanded
-  EXPANDED = 2,   // Button "E" - all nodes expanded (maxLevel)
+  LEAVES = -1, // Button "1" - smart expand (openLevel -1)
+  COLLAPSED = 0, // Button "C" - all nodes collapsed
+  ROOT = 1, // Button "R" - only root expanded
+  EXPANDED = 2, // Button "E" - all nodes expanded (maxLevel)
 }
 
 /** Color value that THREE.Color accepts - hex number or CSS string */
@@ -110,7 +117,10 @@ export interface StateChange<T> {
 export type StateSubscriber<T> = (change: StateChange<T>) => void;
 
 /** Callback for global state subscriptions */
-export type GlobalStateSubscriber = (key: string, change: StateChange<unknown>) => void;
+export type GlobalStateSubscriber = (
+  key: string,
+  change: StateChange<unknown>,
+) => void;
 
 // =============================================================================
 // Bounding Box & Sphere
@@ -200,17 +210,47 @@ export type NotificationCallback = (change: ChangeNotification) => void;
 
 /** Action shortcut names for toolbar buttons and tabs */
 export type ActionShortcutName =
-  | "axes" | "axes0" | "grid" | "gridxy" | "perspective" | "transparent" | "blackedges" | "zscale"
-  | "reset" | "resize" | "iso" | "front" | "rear" | "top" | "bottom" | "left" | "right"
-  | "explode" | "distance" | "properties" | "select" | "help"
-  | "play" | "stop"
-  | "tree" | "clip" | "material" | "zebra" | "studio";
+  | "axes"
+  | "axes0"
+  | "grid"
+  | "gridxy"
+  | "perspective"
+  | "transparent"
+  | "blackedges"
+  | "zscale"
+  | "reset"
+  | "resize"
+  | "iso"
+  | "front"
+  | "rear"
+  | "top"
+  | "bottom"
+  | "left"
+  | "right"
+  | "explode"
+  | "distance"
+  | "properties"
+  | "select"
+  | "help"
+  | "play"
+  | "stop"
+  | "tree"
+  | "clip"
+  | "material"
+  | "zebra"
+  | "studio";
 
 /** Action keymap: action name → key character */
 export type ActionKeymap = Partial<Record<ActionShortcutName, string>>;
 
 /** Combined keymap: modifier keys + action shortcuts */
-export type Keymap = Partial<{ shift: string; ctrl: string; meta: string; alt: string }> & ActionKeymap;
+export type Keymap = Partial<{
+  shift: string;
+  ctrl: string;
+  meta: string;
+  alt: string;
+}> &
+  ActionKeymap;
 
 /** Display options */
 export interface DisplayOptions {
@@ -385,7 +425,11 @@ export interface StudioModeOptions {
 }
 
 /** Combined options for initialization */
-export type CombinedOptions = DisplayOptions & RenderOptions & ViewerOptions & ZebraOptions & StudioModeOptions;
+export type CombinedOptions = DisplayOptions &
+  RenderOptions &
+  ViewerOptions &
+  ZebraOptions &
+  StudioModeOptions;
 
 // =============================================================================
 // Viewer State Shape
@@ -778,7 +822,9 @@ export interface ShapeRef {
 /**
  * Check if shape uses binary format (has triangles_per_face).
  */
-export function isShapeBinaryFormat(shape: Shape): shape is Shape & { triangles_per_face: Uint32Array | number[] } {
+export function isShapeBinaryFormat(
+  shape: Shape,
+): shape is Shape & { triangles_per_face: Uint32Array | number[] } {
   return shape.triangles_per_face !== undefined;
 }
 
@@ -867,7 +913,9 @@ export interface Shapes {
    *  - MaterialXMaterial: threejs-materials format (detected by `values` key)
    *  - MaterialAppearance: preset with overrides (e.g., { builtin: "acrylic-clear", color: "#55a0e3" })
    */
-  materials?: Record<string, string | MaterialXMaterial | MaterialAppearance> | undefined;
+  materials?:
+    | Record<string, string | MaterialXMaterial | MaterialAppearance>
+    | undefined;
 }
 
 // =============================================================================

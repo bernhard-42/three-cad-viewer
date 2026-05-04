@@ -5,7 +5,11 @@ import type { DisplayLike } from "./tools.js";
  * Type guard to check if a value is a number array of specific length.
  */
 function isNumberArray(value: unknown, length: number): value is number[] {
-  return Array.isArray(value) && value.length === length && value.every((v) => typeof v === "number");
+  return (
+    Array.isArray(value) &&
+    value.length === length &&
+    value.every((v) => typeof v === "number")
+  );
 }
 
 /**
@@ -85,7 +89,11 @@ function createStringRow(key: string, value: string): HTMLTableRowElement {
   return tr;
 }
 
-function createValueRow(key: string, value: number, qualifier: string | null = null): HTMLTableRowElement {
+function createValueRow(
+  key: string,
+  value: number,
+  qualifier: string | null = null,
+): HTMLTableRowElement {
   const tr = document.createElement("tr");
   const th = document.createElement("th");
   const td = document.createElement("td");
@@ -192,9 +200,17 @@ abstract class Panel {
  * Skip list for technical fields that should not be rendered in panels.
  */
 const SKIP_KEYS = [
-  "type", "tool_type", "subtype", "info",
-  "refpoint", "refpoint1", "refpoint2",
-  "shape_type", "geom_type", "groups", "result",
+  "type",
+  "tool_type",
+  "subtype",
+  "info",
+  "refpoint",
+  "refpoint1",
+  "refpoint2",
+  "shape_type",
+  "geom_type",
+  "groups",
+  "result",
 ];
 
 /**
@@ -227,7 +243,8 @@ function renderGroup(
       tr = createVectorRow(key, value);
     } else if (typeof value === "number") {
       if (key.toLowerCase() === "distance") {
-        const info = typeof group["info"] === "string" ? group["info"] : undefined;
+        const info =
+          typeof group["info"] === "string" ? group["info"] : undefined;
         tr = createValueRow(key, value, info ?? null);
       } else {
         tr = createValueRow(key, value);
@@ -375,7 +392,9 @@ class FilterByDropDownMenu {
     if (ev != null) {
       ev.stopPropagation();
     }
-    if (this.elements.dropdown.classList.contains("tcv_filter_dropdown_active")) {
+    if (
+      this.elements.dropdown.classList.contains("tcv_filter_dropdown_active")
+    ) {
       this.elements.dropdown.classList.remove("tcv_filter_dropdown_active");
       this.elements.icon.innerText = "⏶";
     } else {
@@ -385,7 +404,9 @@ class FilterByDropDownMenu {
   };
 
   private closeDropdown = (ev: Event): void => {
-    if (this.elements.dropdown.classList.contains("tcv_filter_dropdown_active")) {
+    if (
+      this.elements.dropdown.classList.contains("tcv_filter_dropdown_active")
+    ) {
       this.toggleDropdown(ev);
     }
   };
@@ -427,7 +448,10 @@ class FilterByDropDownMenu {
       document.addEventListener("keydown", this.keybindSelect as EventListener);
       this.display.container.addEventListener("click", this.closeDropdown);
 
-      this.elements.content.addEventListener("click", this.toggleDropdown as EventListener);
+      this.elements.content.addEventListener(
+        "click",
+        this.toggleDropdown as EventListener,
+      );
 
       for (const el of this.getOptionElements()) {
         el.addEventListener("click", this.handleSelection);
@@ -439,7 +463,10 @@ class FilterByDropDownMenu {
       );
       this.display.container.removeEventListener("click", this.closeDropdown);
 
-      this.elements.content.removeEventListener("click", this.toggleDropdown as EventListener);
+      this.elements.content.removeEventListener(
+        "click",
+        this.toggleDropdown as EventListener,
+      );
 
       for (const el of this.getOptionElements()) {
         el.removeEventListener("click", this.handleSelection);

@@ -16,7 +16,9 @@ type SliderHandler = (indexOrValue: number, value?: any) => void;
 interface SliderOptions {
   handler: SliderHandler;
   percentage?: boolean;
-  notifyCallback?: ((change: Record<string, number>, notify: boolean) => void) | null;
+  notifyCallback?:
+    | ((change: Record<string, number>, notify: boolean) => void)
+    | null;
   isReadyCheck?: (() => boolean) | null;
   onSetSlider?: ((index: number, value: string) => void) | null;
 }
@@ -29,7 +31,9 @@ class Slider {
   type: string;
   handler: SliderHandler;
   percentage: boolean;
-  notifyCallback: ((change: Record<string, number>, notify: boolean) => void) | null;
+  notifyCallback:
+    | ((change: Record<string, number>, notify: boolean) => void)
+    | null;
   isReadyCheck: (() => boolean) | null;
   onSetSlider: ((index: number, value: string) => void) | null;
   slider: HTMLInputElement;
@@ -48,7 +52,7 @@ class Slider {
     min: number,
     max: number,
     container: HTMLElement,
-    options: SliderOptions
+    options: SliderOptions,
   ) {
     if (index.startsWith("plane")) {
       this.index = parseInt(index.substring(5));
@@ -64,10 +68,17 @@ class Slider {
     this.isReadyCheck = options.isReadyCheck || null;
     this.onSetSlider = options.onSetSlider || null;
 
-    const sliderEl = container.getElementsByClassName(`tcv_sld_value_${index}`)[0];
-    const inputEl = container.getElementsByClassName(`tcv_inp_value_${index}`)[0];
+    const sliderEl = container.getElementsByClassName(
+      `tcv_sld_value_${index}`,
+    )[0];
+    const inputEl = container.getElementsByClassName(
+      `tcv_inp_value_${index}`,
+    )[0];
 
-    if (!(sliderEl instanceof HTMLInputElement) || !(inputEl instanceof HTMLInputElement)) {
+    if (
+      !(sliderEl instanceof HTMLInputElement) ||
+      !(inputEl instanceof HTMLInputElement)
+    ) {
       throw new Error(
         `Slider elements not found for index "${index}" in container`,
       );
@@ -89,7 +100,11 @@ class Slider {
    * @param notify - Whether to trigger the notification
    */
   private _notify = (value: number | string, notify: boolean = true): void => {
-    if (this.type == "plane" && this.notifyCallback && this.index !== undefined) {
+    if (
+      this.type == "plane" &&
+      this.notifyCallback &&
+      this.index !== undefined
+    ) {
       const change: Record<string, number> = {};
       change[`clip_slider_${this.index - 1}`] = parseFloat(String(value));
       this.notifyCallback(change, notify);
@@ -102,7 +117,11 @@ class Slider {
    * @param index - Plane index (for plane-type sliders)
    * @param value - The input value as string
    */
-  private _handle(type: string, index: number | undefined, value: string): void {
+  private _handle(
+    type: string,
+    index: number | undefined,
+    value: string,
+  ): void {
     if (type == "plane" && index !== undefined) {
       this.handler(index, value);
     } else {

@@ -3,18 +3,18 @@
  * Target: 90%+ coverage
  */
 
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import * as THREE from 'three';
-import { Controls } from '../../src/camera/controls.js';
-import { CADTrackballControls } from '../../src/camera/controls/CADTrackballControls.js';
-import { CADOrbitControls } from '../../src/camera/controls/CADOrbitControls.js';
-import { KeyMapper } from '../../src/utils/utils.js';
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+import * as THREE from "three";
+import { Controls } from "../../src/camera/controls.js";
+import { CADTrackballControls } from "../../src/camera/controls/CADTrackballControls.js";
+import { CADOrbitControls } from "../../src/camera/controls/CADOrbitControls.js";
+import { KeyMapper } from "../../src/utils/utils.js";
 
 // Helper to create a mock DOM element with pointer capture support
 function createMockDomElement() {
-  const element = document.createElement('div');
-  element.style.width = '800px';
-  element.style.height = '600px';
+  const element = document.createElement("div");
+  element.style.width = "800px";
+  element.style.height = "600px";
   element.getBoundingClientRect = () => ({
     left: 0,
     top: 0,
@@ -40,7 +40,7 @@ function cleanupElement(element) {
 // CADTrackballControls Tests
 // =============================================================================
 
-describe('CADTrackballControls', () => {
+describe("CADTrackballControls", () => {
   let camera;
   let domElement;
   let controls;
@@ -59,8 +59,8 @@ describe('CADTrackballControls', () => {
     cleanupElement(domElement);
   });
 
-  describe('constructor', () => {
-    test('creates controls with default holroyd enabled', () => {
+  describe("constructor", () => {
+    test("creates controls with default holroyd enabled", () => {
       controls = new CADTrackballControls(camera, domElement);
 
       expect(controls.holroyd).toBe(true);
@@ -68,7 +68,7 @@ describe('CADTrackballControls', () => {
       expect(controls.quaternion0).toBeInstanceOf(THREE.Quaternion);
     });
 
-    test('saves initial quaternion in quaternion0', () => {
+    test("saves initial quaternion in quaternion0", () => {
       camera.quaternion.set(0.1, 0.2, 0.3, 0.9).normalize();
       controls = new CADTrackballControls(camera, domElement);
 
@@ -78,7 +78,7 @@ describe('CADTrackballControls', () => {
       expect(controls.quaternion0.w).toBeCloseTo(camera.quaternion.w);
     });
 
-    test('initializes holroyd tracking state', () => {
+    test("initializes holroyd tracking state", () => {
       controls = new CADTrackballControls(camera, domElement);
 
       expect(controls._holroydStart).toBeInstanceOf(THREE.Vector2);
@@ -88,7 +88,7 @@ describe('CADTrackballControls', () => {
       expect(controls._verticalRotate).toBe(true);
     });
 
-    test('creates controls without domElement', () => {
+    test("creates controls without domElement", () => {
       const controlsWithoutDom = new CADTrackballControls(camera, null);
 
       expect(controlsWithoutDom.holroyd).toBe(true);
@@ -97,21 +97,21 @@ describe('CADTrackballControls', () => {
     });
   });
 
-  describe('holroyd mode', () => {
-    test('can be disabled', () => {
+  describe("holroyd mode", () => {
+    test("can be disabled", () => {
       controls = new CADTrackballControls(camera, domElement);
       controls.holroyd = false;
 
       expect(controls.holroyd).toBe(false);
     });
 
-    test('holroyd pointer down activates tracking for button 0', () => {
+    test("holroyd pointer down activates tracking for button 0", () => {
       controls = new CADTrackballControls(camera, domElement);
 
       // Create event and manually set pageX/pageY (happy-dom doesn't support these in constructor)
-      const event = new PointerEvent('pointerdown', { button: 0 });
-      Object.defineProperty(event, 'pageX', { value: 100 });
-      Object.defineProperty(event, 'pageY', { value: 100 });
+      const event = new PointerEvent("pointerdown", { button: 0 });
+      Object.defineProperty(event, "pageX", { value: 100 });
+      Object.defineProperty(event, "pageY", { value: 100 });
       domElement.dispatchEvent(event);
 
       expect(controls._holroydActive).toBe(true);
@@ -119,108 +119,108 @@ describe('CADTrackballControls', () => {
       expect(controls._holroydStart.y).toBe(100);
     });
 
-    test('holroyd pointer down ignores non-zero buttons', () => {
+    test("holroyd pointer down ignores non-zero buttons", () => {
       controls = new CADTrackballControls(camera, domElement);
 
-      const event = new PointerEvent('pointerdown', { button: 2 });
-      Object.defineProperty(event, 'pageX', { value: 100 });
-      Object.defineProperty(event, 'pageY', { value: 100 });
+      const event = new PointerEvent("pointerdown", { button: 2 });
+      Object.defineProperty(event, "pageX", { value: 100 });
+      Object.defineProperty(event, "pageY", { value: 100 });
       domElement.dispatchEvent(event);
 
       expect(controls._holroydActive).toBe(false);
     });
 
-    test('holroyd pointer down ignores shift key (pan)', () => {
+    test("holroyd pointer down ignores shift key (pan)", () => {
       controls = new CADTrackballControls(camera, domElement);
 
       // KeyMapper default: shift maps to ctrlKey
-      const event = new PointerEvent('pointerdown', {
+      const event = new PointerEvent("pointerdown", {
         button: 0,
         ctrlKey: true, // This is "shift" in KeyMapper default
       });
-      Object.defineProperty(event, 'pageX', { value: 100 });
-      Object.defineProperty(event, 'pageY', { value: 100 });
+      Object.defineProperty(event, "pageX", { value: 100 });
+      Object.defineProperty(event, "pageY", { value: 100 });
       domElement.dispatchEvent(event);
 
       expect(controls._holroydActive).toBe(false);
     });
 
-    test('holroyd pointer move updates end position when active', () => {
+    test("holroyd pointer move updates end position when active", () => {
       controls = new CADTrackballControls(camera, domElement);
       controls._holroydActive = true;
 
-      const event = new PointerEvent('pointermove', {});
-      Object.defineProperty(event, 'pageX', { value: 200 });
-      Object.defineProperty(event, 'pageY', { value: 150 });
+      const event = new PointerEvent("pointermove", {});
+      Object.defineProperty(event, "pageX", { value: 200 });
+      Object.defineProperty(event, "pageY", { value: 150 });
       domElement.dispatchEvent(event);
 
       expect(controls._holroydEnd.x).toBe(200);
       expect(controls._holroydEnd.y).toBe(150);
     });
 
-    test('holroyd pointer move ignored when not active', () => {
+    test("holroyd pointer move ignored when not active", () => {
       controls = new CADTrackballControls(camera, domElement);
       controls._holroydEnd.set(0, 0);
 
-      const event = new PointerEvent('pointermove', {});
-      Object.defineProperty(event, 'pageX', { value: 200 });
-      Object.defineProperty(event, 'pageY', { value: 150 });
+      const event = new PointerEvent("pointermove", {});
+      Object.defineProperty(event, "pageX", { value: 200 });
+      Object.defineProperty(event, "pageY", { value: 150 });
       domElement.dispatchEvent(event);
 
       expect(controls._holroydEnd.x).toBe(0);
       expect(controls._holroydEnd.y).toBe(0);
     });
 
-    test('holroyd pointer up resets active state', () => {
+    test("holroyd pointer up resets active state", () => {
       controls = new CADTrackballControls(camera, domElement);
       controls._holroydActive = true;
       controls._horizontalRotate = false;
       controls._verticalRotate = false;
 
-      domElement.dispatchEvent(new PointerEvent('pointerup'));
+      domElement.dispatchEvent(new PointerEvent("pointerup"));
 
       expect(controls._holroydActive).toBe(false);
       expect(controls._horizontalRotate).toBe(true);
       expect(controls._verticalRotate).toBe(true);
     });
 
-    test('pointercancel also resets state', () => {
+    test("pointercancel also resets state", () => {
       controls = new CADTrackballControls(camera, domElement);
       controls._holroydActive = true;
 
-      domElement.dispatchEvent(new PointerEvent('pointercancel'));
+      domElement.dispatchEvent(new PointerEvent("pointercancel"));
 
       expect(controls._holroydActive).toBe(false);
     });
   });
 
-  describe('modifier key rotation restrictions', () => {
-    test('ctrl key restricts to vertical rotation only', () => {
+  describe("modifier key rotation restrictions", () => {
+    test("ctrl key restricts to vertical rotation only", () => {
       controls = new CADTrackballControls(camera, domElement);
 
       // KeyMapper default: ctrl maps to shiftKey
-      const event = new PointerEvent('pointerdown', {
+      const event = new PointerEvent("pointerdown", {
         button: 0,
         shiftKey: true, // This is "ctrl" in KeyMapper default
       });
-      Object.defineProperty(event, 'pageX', { value: 100 });
-      Object.defineProperty(event, 'pageY', { value: 100 });
+      Object.defineProperty(event, "pageX", { value: 100 });
+      Object.defineProperty(event, "pageY", { value: 100 });
       domElement.dispatchEvent(event);
 
       expect(controls._horizontalRotate).toBe(false);
       expect(controls._verticalRotate).toBe(true);
     });
 
-    test('meta key restricts to horizontal rotation only', () => {
+    test("meta key restricts to horizontal rotation only", () => {
       controls = new CADTrackballControls(camera, domElement);
 
       // KeyMapper default: meta maps to altKey
-      const event = new PointerEvent('pointerdown', {
+      const event = new PointerEvent("pointerdown", {
         button: 0,
         altKey: true, // This is "meta" in KeyMapper default
       });
-      Object.defineProperty(event, 'pageX', { value: 100 });
-      Object.defineProperty(event, 'pageY', { value: 100 });
+      Object.defineProperty(event, "pageX", { value: 100 });
+      Object.defineProperty(event, "pageY", { value: 100 });
       domElement.dispatchEvent(event);
 
       expect(controls._horizontalRotate).toBe(true);
@@ -228,8 +228,8 @@ describe('CADTrackballControls', () => {
     });
   });
 
-  describe('saveState and reset', () => {
-    test('saveState saves quaternion', () => {
+  describe("saveState and reset", () => {
+    test("saveState saves quaternion", () => {
       controls = new CADTrackballControls(camera, domElement);
 
       // Change camera quaternion
@@ -242,7 +242,7 @@ describe('CADTrackballControls', () => {
       expect(controls.quaternion0.w).toBeCloseTo(camera.quaternion.w);
     });
 
-    test('reset restores quaternion', () => {
+    test("reset restores quaternion", () => {
       controls = new CADTrackballControls(camera, domElement);
       const originalQ = camera.quaternion.clone();
       controls.saveState();
@@ -260,8 +260,8 @@ describe('CADTrackballControls', () => {
     });
   });
 
-  describe('saved state getters', () => {
-    test('target0 returns saved target', () => {
+  describe("saved state getters", () => {
+    test("target0 returns saved target", () => {
       controls = new CADTrackballControls(camera, domElement);
       controls.target.set(1, 2, 3);
       controls.saveState();
@@ -271,14 +271,14 @@ describe('CADTrackballControls', () => {
       expect(controls.target0.z).toBe(3);
     });
 
-    test('position0 returns saved position', () => {
+    test("position0 returns saved position", () => {
       controls = new CADTrackballControls(camera, domElement);
       controls.saveState();
 
       expect(controls.position0).toEqual(camera.position);
     });
 
-    test('zoom0 returns saved zoom', () => {
+    test("zoom0 returns saved zoom", () => {
       controls = new CADTrackballControls(camera, domElement);
       camera.zoom = 2.5;
       controls.saveState();
@@ -287,8 +287,8 @@ describe('CADTrackballControls', () => {
     });
   });
 
-  describe('rotateX/Y/Z', () => {
-    test('rotateX rotates around world X axis', () => {
+  describe("rotateX/Y/Z", () => {
+    test("rotateX rotates around world X axis", () => {
       controls = new CADTrackballControls(camera, domElement);
       const originalQ = camera.quaternion.clone();
 
@@ -297,7 +297,7 @@ describe('CADTrackballControls', () => {
       expect(camera.quaternion.equals(originalQ)).toBe(false);
     });
 
-    test('rotateY rotates around world Y axis', () => {
+    test("rotateY rotates around world Y axis", () => {
       controls = new CADTrackballControls(camera, domElement);
       const originalQ = camera.quaternion.clone();
 
@@ -306,7 +306,7 @@ describe('CADTrackballControls', () => {
       expect(camera.quaternion.equals(originalQ)).toBe(false);
     });
 
-    test('rotateZ rotates around world Z axis', () => {
+    test("rotateZ rotates around world Z axis", () => {
       controls = new CADTrackballControls(camera, domElement);
       const originalQ = camera.quaternion.clone();
 
@@ -316,8 +316,8 @@ describe('CADTrackballControls', () => {
     });
   });
 
-  describe('update', () => {
-    test('update with holroyd=false calls parent update', () => {
+  describe("update", () => {
+    test("update with holroyd=false calls parent update", () => {
       controls = new CADTrackballControls(camera, domElement);
       controls.holroyd = false;
 
@@ -325,7 +325,7 @@ describe('CADTrackballControls', () => {
       controls.update();
     });
 
-    test('update with holroyd=true skips lookAt', () => {
+    test("update with holroyd=true skips lookAt", () => {
       controls = new CADTrackballControls(camera, domElement);
       const originalQ = camera.quaternion.clone();
 
@@ -339,8 +339,8 @@ describe('CADTrackballControls', () => {
     });
   });
 
-  describe('_rotateCamera', () => {
-    test('delegates to parent when holroyd=false', () => {
+  describe("_rotateCamera", () => {
+    test("delegates to parent when holroyd=false", () => {
       controls = new CADTrackballControls(camera, domElement);
       controls.holroyd = false;
 
@@ -348,7 +348,7 @@ describe('CADTrackballControls', () => {
       controls._rotateCamera();
     });
 
-    test('no rotation when start equals end', () => {
+    test("no rotation when start equals end", () => {
       controls = new CADTrackballControls(camera, domElement);
       controls._holroydStart.set(100, 100);
       controls._holroydEnd.set(100, 100);
@@ -363,8 +363,8 @@ describe('CADTrackballControls', () => {
     });
   });
 
-  describe('_panCamera', () => {
-    test('delegates to parent when holroyd=false', () => {
+  describe("_panCamera", () => {
+    test("delegates to parent when holroyd=false", () => {
       controls = new CADTrackballControls(camera, domElement);
       controls.holroyd = false;
 
@@ -372,7 +372,7 @@ describe('CADTrackballControls', () => {
       controls._panCamera();
     });
 
-    test('no pan when start equals end', () => {
+    test("no pan when start equals end", () => {
       controls = new CADTrackballControls(camera, domElement);
       controls._panStart.set(100, 100);
       controls._panEnd.set(100, 100);
@@ -386,17 +386,32 @@ describe('CADTrackballControls', () => {
     });
   });
 
-  describe('dispose', () => {
-    test('removes event listeners', () => {
+  describe("dispose", () => {
+    test("removes event listeners", () => {
       controls = new CADTrackballControls(camera, domElement);
-      const removeEventListenerSpy = vi.spyOn(domElement, 'removeEventListener');
+      const removeEventListenerSpy = vi.spyOn(
+        domElement,
+        "removeEventListener",
+      );
 
       controls.dispose();
 
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('pointerdown', controls._holroydPointerDown);
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('pointermove', controls._holroydPointerMove);
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('pointerup', controls._holroydPointerUp);
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('pointercancel', controls._holroydPointerUp);
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        "pointerdown",
+        controls._holroydPointerDown,
+      );
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        "pointermove",
+        controls._holroydPointerMove,
+      );
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        "pointerup",
+        controls._holroydPointerUp,
+      );
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        "pointercancel",
+        controls._holroydPointerUp,
+      );
     });
   });
 });
@@ -405,7 +420,7 @@ describe('CADTrackballControls', () => {
 // CADOrbitControls Tests
 // =============================================================================
 
-describe('CADOrbitControls', () => {
+describe("CADOrbitControls", () => {
   let camera;
   let domElement;
   let controls;
@@ -424,14 +439,14 @@ describe('CADOrbitControls', () => {
     cleanupElement(domElement);
   });
 
-  describe('constructor', () => {
-    test('creates controls with quaternion0', () => {
+  describe("constructor", () => {
+    test("creates controls with quaternion0", () => {
       controls = new CADOrbitControls(camera, domElement);
 
       expect(controls.quaternion0).toBeInstanceOf(THREE.Quaternion);
     });
 
-    test('saves initial quaternion', () => {
+    test("saves initial quaternion", () => {
       camera.quaternion.set(0.1, 0.2, 0.3, 0.9).normalize();
       controls = new CADOrbitControls(camera, domElement);
 
@@ -441,7 +456,7 @@ describe('CADOrbitControls', () => {
       expect(controls.quaternion0.w).toBeCloseTo(camera.quaternion.w);
     });
 
-    test('initializes rotation restriction flags', () => {
+    test("initializes rotation restriction flags", () => {
       controls = new CADOrbitControls(camera, domElement);
 
       expect(controls._horizontalRotate).toBe(true);
@@ -449,12 +464,12 @@ describe('CADOrbitControls', () => {
     });
   });
 
-  describe('modifier key rotation restrictions', () => {
-    test('ctrl key restricts to vertical rotation only', () => {
+  describe("modifier key rotation restrictions", () => {
+    test("ctrl key restricts to vertical rotation only", () => {
       controls = new CADOrbitControls(camera, domElement);
 
       // KeyMapper default: ctrl maps to shiftKey
-      const event = new PointerEvent('pointerdown', {
+      const event = new PointerEvent("pointerdown", {
         button: 0,
         shiftKey: true, // This is "ctrl" in KeyMapper default
       });
@@ -464,11 +479,11 @@ describe('CADOrbitControls', () => {
       expect(controls._verticalRotate).toBe(true);
     });
 
-    test('meta key restricts to horizontal rotation only', () => {
+    test("meta key restricts to horizontal rotation only", () => {
       controls = new CADOrbitControls(camera, domElement);
 
       // KeyMapper default: meta maps to altKey
-      const event = new PointerEvent('pointerdown', {
+      const event = new PointerEvent("pointerdown", {
         button: 0,
         altKey: true, // This is "meta" in KeyMapper default
       });
@@ -478,29 +493,29 @@ describe('CADOrbitControls', () => {
       expect(controls._verticalRotate).toBe(false);
     });
 
-    test('pointer up resets rotation restrictions', () => {
+    test("pointer up resets rotation restrictions", () => {
       controls = new CADOrbitControls(camera, domElement);
       controls._horizontalRotate = false;
       controls._verticalRotate = false;
 
-      domElement.dispatchEvent(new PointerEvent('pointerup'));
+      domElement.dispatchEvent(new PointerEvent("pointerup"));
 
       expect(controls._horizontalRotate).toBe(true);
       expect(controls._verticalRotate).toBe(true);
     });
 
-    test('pointercancel resets restrictions', () => {
+    test("pointercancel resets restrictions", () => {
       controls = new CADOrbitControls(camera, domElement);
       controls._horizontalRotate = false;
 
-      domElement.dispatchEvent(new PointerEvent('pointercancel'));
+      domElement.dispatchEvent(new PointerEvent("pointercancel"));
 
       expect(controls._horizontalRotate).toBe(true);
     });
   });
 
-  describe('_rotateLeft and _rotateUp', () => {
-    test('_rotateLeft respects horizontal restriction', () => {
+  describe("_rotateLeft and _rotateUp", () => {
+    test("_rotateLeft respects horizontal restriction", () => {
       controls = new CADOrbitControls(camera, domElement);
       controls._horizontalRotate = false;
       const originalTheta = controls._sphericalDelta.theta;
@@ -510,7 +525,7 @@ describe('CADOrbitControls', () => {
       expect(controls._sphericalDelta.theta).toBe(originalTheta);
     });
 
-    test('_rotateLeft works when not restricted', () => {
+    test("_rotateLeft works when not restricted", () => {
       controls = new CADOrbitControls(camera, domElement);
       controls._horizontalRotate = true;
       const originalTheta = controls._sphericalDelta.theta;
@@ -520,7 +535,7 @@ describe('CADOrbitControls', () => {
       expect(controls._sphericalDelta.theta).toBe(originalTheta - 0.5);
     });
 
-    test('_rotateUp respects vertical restriction', () => {
+    test("_rotateUp respects vertical restriction", () => {
       controls = new CADOrbitControls(camera, domElement);
       controls._verticalRotate = false;
       const originalPhi = controls._sphericalDelta.phi;
@@ -530,7 +545,7 @@ describe('CADOrbitControls', () => {
       expect(controls._sphericalDelta.phi).toBe(originalPhi);
     });
 
-    test('_rotateUp works when not restricted', () => {
+    test("_rotateUp works when not restricted", () => {
       controls = new CADOrbitControls(camera, domElement);
       controls._verticalRotate = true;
       const originalPhi = controls._sphericalDelta.phi;
@@ -541,8 +556,8 @@ describe('CADOrbitControls', () => {
     });
   });
 
-  describe('public rotateLeft and rotateUp', () => {
-    test('rotateLeft bypasses restriction', () => {
+  describe("public rotateLeft and rotateUp", () => {
+    test("rotateLeft bypasses restriction", () => {
       controls = new CADOrbitControls(camera, domElement);
       controls._horizontalRotate = false;
       const originalTheta = controls._sphericalDelta.theta;
@@ -552,7 +567,7 @@ describe('CADOrbitControls', () => {
       expect(controls._sphericalDelta.theta).toBe(originalTheta - 0.5);
     });
 
-    test('rotateUp bypasses restriction', () => {
+    test("rotateUp bypasses restriction", () => {
       controls = new CADOrbitControls(camera, domElement);
       controls._verticalRotate = false;
       const originalPhi = controls._sphericalDelta.phi;
@@ -563,8 +578,8 @@ describe('CADOrbitControls', () => {
     });
   });
 
-  describe('saveState and reset', () => {
-    test('saveState saves quaternion', () => {
+  describe("saveState and reset", () => {
+    test("saveState saves quaternion", () => {
       controls = new CADOrbitControls(camera, domElement);
 
       camera.quaternion.set(0.5, 0.5, 0.5, 0.5).normalize();
@@ -573,7 +588,7 @@ describe('CADOrbitControls', () => {
       expect(controls.quaternion0.x).toBeCloseTo(camera.quaternion.x);
     });
 
-    test('reset restores quaternion', () => {
+    test("reset restores quaternion", () => {
       controls = new CADOrbitControls(camera, domElement);
       const originalQ = camera.quaternion.clone();
       controls.saveState();
@@ -587,12 +602,12 @@ describe('CADOrbitControls', () => {
       expect(camera.quaternion.w).toBeCloseTo(originalQ.w);
     });
 
-    test('reset dispatches change event', () => {
+    test("reset dispatches change event", () => {
       controls = new CADOrbitControls(camera, domElement);
       controls.saveState();
 
       const changeSpy = vi.fn();
-      controls.addEventListener('change', changeSpy);
+      controls.addEventListener("change", changeSpy);
 
       controls.reset();
 
@@ -600,16 +615,28 @@ describe('CADOrbitControls', () => {
     });
   });
 
-  describe('dispose', () => {
-    test('removes event listeners', () => {
+  describe("dispose", () => {
+    test("removes event listeners", () => {
       controls = new CADOrbitControls(camera, domElement);
-      const removeEventListenerSpy = vi.spyOn(domElement, 'removeEventListener');
+      const removeEventListenerSpy = vi.spyOn(
+        domElement,
+        "removeEventListener",
+      );
 
       controls.dispose();
 
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('pointerdown', controls._onCADPointerDown);
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('pointerup', controls._onCADPointerUp);
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('pointercancel', controls._onCADPointerUp);
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        "pointerdown",
+        controls._onCADPointerDown,
+      );
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        "pointerup",
+        controls._onCADPointerUp,
+      );
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        "pointercancel",
+        controls._onCADPointerUp,
+      );
     });
   });
 });
@@ -618,7 +645,7 @@ describe('CADOrbitControls', () => {
 // Controls Wrapper Tests
 // =============================================================================
 
-describe('Controls', () => {
+describe("Controls", () => {
   let camera;
   let domElement;
   let controls;
@@ -637,56 +664,91 @@ describe('Controls', () => {
     cleanupElement(domElement);
   });
 
-  describe('constructor', () => {
-    test('creates trackball controls', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
+  describe("constructor", () => {
+    test("creates trackball controls", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
 
-      expect(controls.type).toBe('trackball');
+      expect(controls.type).toBe("trackball");
       expect(controls.controls).toBeInstanceOf(CADTrackballControls);
     });
 
-    test('creates orbit controls', () => {
-      controls = new Controls('orbit', camera, new THREE.Vector3(), domElement);
+    test("creates orbit controls", () => {
+      controls = new Controls("orbit", camera, new THREE.Vector3(), domElement);
 
-      expect(controls.type).toBe('orbit');
+      expect(controls.type).toBe("orbit");
       expect(controls.controls).toBeInstanceOf(CADOrbitControls);
     });
 
-    test('applies speed parameters', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement, 2.0, 3.0, 4.0);
+    test("applies speed parameters", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+        2.0,
+        3.0,
+        4.0,
+      );
 
       expect(controls.rotateSpeed).toBe(2.0);
       expect(controls.zoomSpeed).toBe(3.0);
       expect(controls.panSpeed).toBe(4.0);
     });
 
-    test('passes holroyd parameter to trackball', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement, 1, 1, 1, false);
+    test("passes holroyd parameter to trackball", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+        1,
+        1,
+        1,
+        false,
+      );
 
       expect(controls.holroyd).toBe(false);
       expect(controls.controls.holroyd).toBe(false);
     });
 
-    test('sets target from array', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(1, 2, 3), domElement);
+    test("sets target from array", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(1, 2, 3),
+        domElement,
+      );
 
       expect(controls.controls.target.x).toBe(1);
       expect(controls.controls.target.y).toBe(2);
       expect(controls.controls.target.z).toBe(3);
     });
 
-    test('stores target0 copy', () => {
+    test("stores target0 copy", () => {
       const target = new THREE.Vector3(1, 2, 3);
-      controls = new Controls('trackball', camera, target, domElement);
+      controls = new Controls("trackball", camera, target, domElement);
 
       expect(controls.target0).toEqual(new THREE.Vector3(1, 2, 3));
       expect(controls.target0).not.toBe(target); // Should be a copy
     });
   });
 
-  describe('speed normalization', () => {
-    test('trackball applies speed factors', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement, 1.0, 1.0, 1.0);
+  describe("speed normalization", () => {
+    test("trackball applies speed factors", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+        1.0,
+        1.0,
+        1.0,
+      );
 
       // Trackball factors: pan: 0.22, rotate: 1.0, zoom: 2.0
       expect(controls.controls.rotateSpeed).toBe(1.0);
@@ -694,8 +756,16 @@ describe('Controls', () => {
       expect(controls.controls.panSpeed).toBe(0.22);
     });
 
-    test('orbit applies speed factors', () => {
-      controls = new Controls('orbit', camera, new THREE.Vector3(), domElement, 1.0, 1.0, 1.0);
+    test("orbit applies speed factors", () => {
+      controls = new Controls(
+        "orbit",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+        1.0,
+        1.0,
+        1.0,
+      );
 
       // Orbit factors: pan: 1.0, rotate: 1.0, zoom: 1.0
       expect(controls.controls.rotateSpeed).toBe(1.0);
@@ -704,9 +774,14 @@ describe('Controls', () => {
     });
   });
 
-  describe('setZoomSpeed', () => {
-    test('updates zoom speed with factor', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
+  describe("setZoomSpeed", () => {
+    test("updates zoom speed with factor", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
 
       controls.setZoomSpeed(2.0);
 
@@ -715,9 +790,14 @@ describe('Controls', () => {
     });
   });
 
-  describe('setPanSpeed', () => {
-    test('updates pan speed with factor', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
+  describe("setPanSpeed", () => {
+    test("updates pan speed with factor", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
 
       controls.setPanSpeed(2.0);
 
@@ -726,9 +806,14 @@ describe('Controls', () => {
     });
   });
 
-  describe('setRotateSpeed', () => {
-    test('updates rotate speed with factor', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
+  describe("setRotateSpeed", () => {
+    test("updates rotate speed with factor", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
 
       controls.setRotateSpeed(2.0);
 
@@ -737,9 +822,14 @@ describe('Controls', () => {
     });
   });
 
-  describe('setHolroydTrackball', () => {
-    test('updates holroyd flag on trackball controls', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
+  describe("setHolroydTrackball", () => {
+    test("updates holroyd flag on trackball controls", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
 
       controls.setHolroydTrackball(false);
 
@@ -747,9 +837,14 @@ describe('Controls', () => {
     });
   });
 
-  describe('getTarget and setTarget', () => {
-    test('getTarget returns current target', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(1, 2, 3), domElement);
+  describe("getTarget and setTarget", () => {
+    test("getTarget returns current target", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(1, 2, 3),
+        domElement,
+      );
 
       const target = controls.getTarget();
 
@@ -758,8 +853,13 @@ describe('Controls', () => {
       expect(target.z).toBe(3);
     });
 
-    test('setTarget updates target', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
+    test("setTarget updates target", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
       const newTarget = new THREE.Vector3(5, 6, 7);
 
       controls.setTarget(newTarget);
@@ -770,9 +870,14 @@ describe('Controls', () => {
     });
   });
 
-  describe('getZoom0', () => {
-    test('returns initial zoom value', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
+  describe("getZoom0", () => {
+    test("returns initial zoom value", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
       camera.zoom = 2.0;
       controls.saveState();
 
@@ -780,9 +885,14 @@ describe('Controls', () => {
     });
   });
 
-  describe('getResetLocation and setResetLocation', () => {
-    test('getResetLocation returns saved state', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
+  describe("getResetLocation and setResetLocation", () => {
+    test("getResetLocation returns saved state", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
       controls.controls.target.set(1, 2, 3);
       camera.position.set(4, 5, 6);
       camera.zoom = 2.0;
@@ -796,9 +906,9 @@ describe('Controls', () => {
       expect(location.quaternion0).toBeInstanceOf(THREE.Quaternion);
     });
 
-    test('setResetLocation updates saved state (orbit)', () => {
+    test("setResetLocation updates saved state (orbit)", () => {
       // Use orbit controls as they support zoom0 setter
-      controls = new Controls('orbit', camera, new THREE.Vector3(), domElement);
+      controls = new Controls("orbit", camera, new THREE.Vector3(), domElement);
 
       const target = new THREE.Vector3(10, 20, 30);
       const position = new THREE.Vector3(40, 50, 60);
@@ -814,9 +924,14 @@ describe('Controls', () => {
     });
   });
 
-  describe('addChangeListener and removeChangeListener', () => {
-    test('addChangeListener registers callback', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
+  describe("addChangeListener and removeChangeListener", () => {
+    test("addChangeListener registers callback", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
       const callback = vi.fn();
 
       controls.addChangeListener(callback);
@@ -824,8 +939,13 @@ describe('Controls', () => {
       expect(controls.currentUpdateCallback).toBe(callback);
     });
 
-    test('addChangeListener ignores second callback', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
+    test("addChangeListener ignores second callback", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
       const callback1 = vi.fn();
       const callback2 = vi.fn();
 
@@ -835,8 +955,13 @@ describe('Controls', () => {
       expect(controls.currentUpdateCallback).toBe(callback1);
     });
 
-    test('removeChangeListener clears callback', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
+    test("removeChangeListener clears callback", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
       const callback = vi.fn();
 
       controls.addChangeListener(callback);
@@ -846,19 +971,19 @@ describe('Controls', () => {
     });
   });
 
-  describe('rotateUp and rotateLeft (orbit)', () => {
-    test('rotateUp converts degrees to radians', () => {
-      controls = new Controls('orbit', camera, new THREE.Vector3(), domElement);
-      const rotateSpy = vi.spyOn(controls.controls, 'rotateUp');
+  describe("rotateUp and rotateLeft (orbit)", () => {
+    test("rotateUp converts degrees to radians", () => {
+      controls = new Controls("orbit", camera, new THREE.Vector3(), domElement);
+      const rotateSpy = vi.spyOn(controls.controls, "rotateUp");
 
       controls.rotateUp(90);
 
       expect(rotateSpy).toHaveBeenCalledWith(-Math.PI / 2);
     });
 
-    test('rotateLeft converts degrees to radians', () => {
-      controls = new Controls('orbit', camera, new THREE.Vector3(), domElement);
-      const rotateSpy = vi.spyOn(controls.controls, 'rotateLeft');
+    test("rotateLeft converts degrees to radians", () => {
+      controls = new Controls("orbit", camera, new THREE.Vector3(), domElement);
+      const rotateSpy = vi.spyOn(controls.controls, "rotateLeft");
 
       controls.rotateLeft(90);
 
@@ -866,28 +991,43 @@ describe('Controls', () => {
     });
   });
 
-  describe('rotateX/Y/Z (trackball)', () => {
-    test('rotateX converts degrees to radians', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
-      const rotateSpy = vi.spyOn(controls.controls, 'rotateX');
+  describe("rotateX/Y/Z (trackball)", () => {
+    test("rotateX converts degrees to radians", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
+      const rotateSpy = vi.spyOn(controls.controls, "rotateX");
 
       controls.rotateX(90);
 
       expect(rotateSpy).toHaveBeenCalledWith(Math.PI / 2);
     });
 
-    test('rotateY converts degrees to radians', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
-      const rotateSpy = vi.spyOn(controls.controls, 'rotateY');
+    test("rotateY converts degrees to radians", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
+      const rotateSpy = vi.spyOn(controls.controls, "rotateY");
 
       controls.rotateY(90);
 
       expect(rotateSpy).toHaveBeenCalledWith(Math.PI / 2);
     });
 
-    test('rotateZ converts degrees to radians', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
-      const rotateSpy = vi.spyOn(controls.controls, 'rotateZ');
+    test("rotateZ converts degrees to radians", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
+      const rotateSpy = vi.spyOn(controls.controls, "rotateZ");
 
       controls.rotateZ(90);
 
@@ -895,19 +1035,29 @@ describe('Controls', () => {
     });
   });
 
-  describe('update and reset', () => {
-    test('update calls controls.update', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
-      const updateSpy = vi.spyOn(controls.controls, 'update');
+  describe("update and reset", () => {
+    test("update calls controls.update", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
+      const updateSpy = vi.spyOn(controls.controls, "update");
 
       controls.update();
 
       expect(updateSpy).toHaveBeenCalled();
     });
 
-    test('reset calls controls.reset', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
-      const resetSpy = vi.spyOn(controls.controls, 'reset');
+    test("reset calls controls.reset", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
+      const resetSpy = vi.spyOn(controls.controls, "reset");
 
       controls.reset();
 
@@ -915,18 +1065,28 @@ describe('Controls', () => {
     });
   });
 
-  describe('dispose', () => {
-    test('disposes controls', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
-      const disposeSpy = vi.spyOn(controls.controls, 'dispose');
+  describe("dispose", () => {
+    test("disposes controls", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
+      const disposeSpy = vi.spyOn(controls.controls, "dispose");
 
       controls.dispose();
 
       expect(disposeSpy).toHaveBeenCalled();
     });
 
-    test('handles double dispose', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
+    test("handles double dispose", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
       controls.dispose();
 
       // Should not throw (dispose can be called multiple times)
@@ -934,9 +1094,14 @@ describe('Controls', () => {
     });
   });
 
-  describe('setCamera', () => {
-    test('updates controls object', () => {
-      controls = new Controls('trackball', camera, new THREE.Vector3(), domElement);
+  describe("setCamera", () => {
+    test("updates controls object", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
       const newCamera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
 
       controls.setCamera(newCamera);

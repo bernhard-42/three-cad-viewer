@@ -11,7 +11,12 @@ declare global {
   }
 }
 
-import { NestedGroup, ObjectGroup, isObjectGroup, isCompoundGroup } from "../scene/nestedgroup.js";
+import {
+  NestedGroup,
+  ObjectGroup,
+  isObjectGroup,
+  isCompoundGroup,
+} from "../scene/nestedgroup.js";
 import { Grid } from "../scene/grid.js";
 import { AxesHelper } from "../scene/axes.js";
 import { OrientationMarker } from "../scene/orientation.js";
@@ -43,7 +48,11 @@ import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
 import { StudioManager } from "./studio-manager.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
-import { isInstancedFormat, decodeInstancedFormat, decodeInlineBuffers } from "../utils/decode-instances.js";
+import {
+  isInstancedFormat,
+  decodeInstancedFormat,
+  decodeInlineBuffers,
+} from "../utils/decode-instances.js";
 import type { Display } from "../ui/display.js";
 import type { Vector3Tuple, QuaternionTuple } from "three";
 import {
@@ -122,7 +131,9 @@ function isVisibilityState(
 /**
  * Type guard to check if a tree node is a branch (ShapeTreeData)
  */
-function isShapeTreeData(node: ShapeTreeData | VisibilityState): node is ShapeTreeData {
+function isShapeTreeData(
+  node: ShapeTreeData | VisibilityState,
+): node is ShapeTreeData {
   return !Array.isArray(node);
 }
 
@@ -160,7 +171,9 @@ interface ClippableMaterial extends THREE.Material {
 /**
  * Type guard to check if a material has clippingPlanes.
  */
-function isClippableMaterial(mat: THREE.Material | THREE.Material[]): mat is ClippableMaterial {
+function isClippableMaterial(
+  mat: THREE.Material | THREE.Material[],
+): mat is ClippableMaterial {
   return !Array.isArray(mat) && "clippingPlanes" in mat;
 }
 
@@ -326,7 +339,7 @@ class Viewer {
   private _pendingDisposal: THREE.Object3D[];
   shapes: Shapes | null;
   gridSize!: number;
-  
+
   // Grid size from the previous render, used to decide whether the new
   // geometry is "the same model" for clip-slider preservation.
   // Survives clear() so reused viewers remember the previous geometry.
@@ -370,7 +383,9 @@ class Viewer {
   private _studioManager!: StudioManager;
 
   /** Environment manager — proxied from StudioManager for display.ts access. */
-  get envManager() { return this._studioManager.envManager; }
+  get envManager() {
+    return this._studioManager.envManager;
+  }
   // Z-scale
   zScale!: number;
 
@@ -410,9 +425,10 @@ class Viewer {
       const changes: Record<string, unknown> = {};
       for (const { key, change } of notifications) {
         // Convert THREE.Vector3 to array for external notification
-        const value = change.new instanceof THREE.Vector3
-          ? change.new.toArray()
-          : change.new;
+        const value =
+          change.new instanceof THREE.Vector3
+            ? change.new.toArray()
+            : change.new;
         changes[key] = value;
       }
       this.checkChanges(changes, true);
@@ -428,7 +444,10 @@ class Viewer {
     this.display = display;
 
     if (options.keymap) {
-      this.setKeyMap({ ...ViewerState.DISPLAY_DEFAULTS.keymap, ...options.keymap });
+      this.setKeyMap({
+        ...ViewerState.DISPLAY_DEFAULTS.keymap,
+        ...options.keymap,
+      });
     } else {
       this.setKeyMap(ViewerState.DISPLAY_DEFAULTS.keymap);
     }
@@ -547,7 +566,6 @@ class Viewer {
 
     console.debug("three-cad-viewer: WebGL Renderer created");
   }
-
 
   /**
    * Return three-cad-viewer version as semver string.
@@ -903,7 +921,10 @@ class Viewer {
 
     // Env background: render HDRI to 2D render target (fixed-FOV bgCamera)
     if (this._studioManager.isEnvBackgroundActive) {
-      this._studioManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
+      this._studioManager.updateEnvBackground(
+        this.renderer,
+        this.rendered.camera.getCamera(),
+      );
     }
 
     // Render: use composer pipeline when available (AO + tone mapping + SMAA),
@@ -911,11 +932,16 @@ class Viewer {
     if (this._studioManager.hasComposer) {
       this._studioManager.render();
     } else {
-      this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
+      this.renderer.render(
+        this.rendered.scene,
+        this.rendered.camera.getCamera(),
+      );
     }
     this.cadTools.update();
 
-    this.rendered.directLight.position.copy(this.rendered.camera.getCamera().position);
+    this.rendered.directLight.position.copy(
+      this.rendered.camera.getCamera().position,
+    );
 
     if (
       this.lastBbox != null &&
@@ -930,7 +956,10 @@ class Viewer {
       this.renderer.clearDepth(); // ensure orientation Marker is at the top
 
       this.rendered.orientationMarker.update(
-        this.rendered.camera.getPosition().clone().sub(this.rendered.controls.getTarget()),
+        this.rendered.camera
+          .getPosition()
+          .clone()
+          .sub(this.rendered.controls.getTarget()),
         this.rendered.camera.getQuaternion(),
       );
       this.rendered.orientationMarker.render(this.renderer);
@@ -1022,7 +1051,10 @@ class Viewer {
     this.renderer.renderLists.dispose();
     this.renderer.dispose();
     // Skip context loss for externally provided WebGL contexts
-    if (!this._externalGl && typeof this.renderer.forceContextLoss === "function") {
+    if (
+      !this._externalGl &&
+      typeof this.renderer.forceContextLoss === "function"
+    ) {
       this.renderer.forceContextLoss();
     }
     console.debug("three-cad-viewer: WebGL context disposed");
@@ -1486,7 +1518,9 @@ class Viewer {
     // Backward compat: studioOptions on shapes root is deprecated
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((shapes as any).studioOptions) {
-      logger.warn("shapes.studioOptions is deprecated — pass studio settings in viewerOptions instead");
+      logger.warn(
+        "shapes.studioOptions is deprecated — pass studio settings in viewerOptions instead",
+      );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this.state.updateStudioState((shapes as any).studioOptions);
     }
@@ -1583,9 +1617,9 @@ class Viewer {
       maxAnisotropy: this.renderer.capabilities.getMaxAnisotropy(),
       ...(this.state.get("tools")
         ? {
-          tickValueElement: this.display.tickValueElement,
-          tickInfoElement: this.display.tickInfoElement,
-        }
+            tickValueElement: this.display.tickValueElement,
+            tickInfoElement: this.display.tickInfoElement,
+          }
         : {}),
       getCamera: () => this._rendered?.camera.getCamera() ?? null,
       getAxes0: () => this.state?.get("axes0") ?? false,
@@ -1724,9 +1758,18 @@ class Viewer {
       if (!gridSizeChanged && stateValue !== -1) return stateValue;
       return this.gridSize / 2;
     };
-    const clipSlider0 = resolveSlider(viewerOptions.clipSlider0, this.state.get("clipSlider0"));
-    const clipSlider1 = resolveSlider(viewerOptions.clipSlider1, this.state.get("clipSlider1"));
-    const clipSlider2 = resolveSlider(viewerOptions.clipSlider2, this.state.get("clipSlider2"));
+    const clipSlider0 = resolveSlider(
+      viewerOptions.clipSlider0,
+      this.state.get("clipSlider0"),
+    );
+    const clipSlider1 = resolveSlider(
+      viewerOptions.clipSlider1,
+      this.state.get("clipSlider1"),
+    );
+    const clipSlider2 = resolveSlider(
+      viewerOptions.clipSlider2,
+      this.state.get("clipSlider2"),
+    );
 
     nestedGroup.setClipPlanes(clipping.clipPlanes);
 
@@ -1777,9 +1820,21 @@ class Viewer {
       if (!gridSizeChanged) return [stateValue.x, stateValue.y, stateValue.z];
       return defaultTuple;
     };
-    const clipNormal0 = resolveNormal(viewerOptions.clipNormal0, this.state.get("clipNormal0"), [-1, 0, 0]);
-    const clipNormal1 = resolveNormal(viewerOptions.clipNormal1, this.state.get("clipNormal1"), [0, -1, 0]);
-    const clipNormal2 = resolveNormal(viewerOptions.clipNormal2, this.state.get("clipNormal2"), [0, 0, -1]);
+    const clipNormal0 = resolveNormal(
+      viewerOptions.clipNormal0,
+      this.state.get("clipNormal0"),
+      [-1, 0, 0],
+    );
+    const clipNormal1 = resolveNormal(
+      viewerOptions.clipNormal1,
+      this.state.get("clipNormal1"),
+      [0, -1, 0],
+    );
+    const clipNormal2 = resolveNormal(
+      viewerOptions.clipNormal2,
+      this.state.get("clipNormal2"),
+      [0, 0, -1],
+    );
     this.setClipNormal(0, clipNormal0, clipSlider0, true);
     this.setClipNormal(1, clipNormal1, clipSlider1, true);
     this.setClipNormal(2, clipNormal2, clipSlider2, true);
@@ -1796,8 +1851,14 @@ class Viewer {
         // Computed values from controls/camera
         target: { old: null, new: toVector3Tuple(controls.target.toArray()) },
         target0: { old: null, new: toVector3Tuple(controls.target0.toArray()) },
-        position: { old: null, new: this.rendered.camera.getPosition().toArray() },
-        quaternion: { old: null, new: this.rendered.camera.getQuaternion().toArray() },
+        position: {
+          old: null,
+          new: this.rendered.camera.getPosition().toArray(),
+        },
+        quaternion: {
+          old: null,
+          new: this.rendered.camera.getQuaternion().toArray(),
+        },
         zoom: { old: null, new: this.rendered.camera.getZoom() },
         // All config values from state
         ...this.state.getAllNotifiable(),
@@ -2303,7 +2364,7 @@ class Viewer {
       this.state.get("height"),
       this.bb_max / 30,
       this.rendered.scene.children[0],
-      () => { },
+      () => {},
     );
     raycaster.init();
     raycaster.onPointerMove(e);
@@ -2336,9 +2397,9 @@ class Viewer {
       boundingBox:
         shapesFormat === "GDS"
           ? new THREE.Box3(
-            point.clone().subScalar(10),
-            point.clone().addScalar(10),
-          )
+              point.clone().subScalar(10),
+              point.clone().addScalar(10),
+            )
           : nearestMesh.geometry.boundingBox,
       boundingSphere:
         shapesFormat === "GDS"
@@ -2970,7 +3031,10 @@ class Viewer {
    * @param notify - Whether to notify about the changes.
    * @public
    */
-  setStudioBackground = (value: StudioBackground, notify: boolean = true): void => {
+  setStudioBackground = (
+    value: StudioBackground,
+    notify: boolean = true,
+  ): void => {
     this.state.set("studioBackground", value, notify);
   };
 
@@ -2980,7 +3044,10 @@ class Viewer {
    * @param notify - Whether to notify about the changes.
    * @public
    */
-  setStudioToneMapping = (value: StudioToneMapping, notify: boolean = true): void => {
+  setStudioToneMapping = (
+    value: StudioToneMapping,
+    notify: boolean = true,
+  ): void => {
     this.state.set("studioToneMapping", value, notify);
   };
 
@@ -3039,7 +3106,10 @@ class Viewer {
    * @param notify - Whether to notify about the changes.
    * @public
    */
-  setStudioTextureMapping = (value: StudioTextureMapping, notify: boolean = true): void => {
+  setStudioTextureMapping = (
+    value: StudioTextureMapping,
+    notify: boolean = true,
+  ): void => {
     this.state.set("studioTextureMapping", value, notify);
   };
 
@@ -3387,7 +3457,10 @@ class Viewer {
    * @param notify - whether to send notification or not.
    * @public
    */
-  setCameraTarget(target: THREE.Vector3 | Vector3Tuple, notify: boolean = true): void {
+  setCameraTarget(
+    target: THREE.Vector3 | Vector3Tuple,
+    notify: boolean = true,
+  ): void {
     // Convert tuple to Vector3 if needed
     const targetVec = Array.isArray(target)
       ? new THREE.Vector3(...target)
@@ -3397,7 +3470,9 @@ class Viewer {
     const camera = this.rendered.camera.getCamera();
     const zoom = camera.zoom; // For orthographic cameras
 
-    const offset = camera.position.clone().sub(this.rendered.controls.getTarget());
+    const offset = camera.position
+      .clone()
+      .sub(this.rendered.controls.getTarget());
 
     // Update position and target
     camera.position.copy(targetVec.clone().add(offset));
@@ -3685,7 +3760,10 @@ class Viewer {
         version: partData.version,
         id: wrapperId,
         name: "__addPart_tmp__",
-        loc: [[0, 0, 0], [0, 0, 0, 1]],
+        loc: [
+          [0, 0, 0],
+          [0, 0, 0, 1],
+        ],
         parts: [partData],
       };
       const wrapperGroup = nestedGroup.renderLoop(wrapper);
@@ -3901,8 +3979,7 @@ class Viewer {
           "position",
         ) as THREE.BufferAttribute | null;
         sameEdges =
-          edgePosAttr != null &&
-          edgePosAttr.count === flatLen(shape.edges) / 3;
+          edgePosAttr != null && edgePosAttr.count === flatLen(shape.edges) / 3;
       }
     }
 
@@ -3932,9 +4009,7 @@ class Viewer {
       }
       return new Float32Array(data as number[]);
     };
-    const toU32 = (
-      data: number[] | number[][] | Uint32Array,
-    ): Uint32Array => {
+    const toU32 = (data: number[] | number[][] | Uint32Array): Uint32Array => {
       if (data instanceof Uint32Array) return data;
       if (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) {
         return new Uint32Array((data as number[][]).flat());
@@ -4057,10 +4132,12 @@ class Viewer {
     // Only rebuild stencils if geometry grew beyond the region that stencils
     // were last built for.  Shrinking geometry still fits within existing
     // stencils, so skip the expensive rebuild in that case.
-    const newCSize = 1.1 * Math.max(
-      Math.abs(this.bbox.min.length()),
-      Math.abs(this.bbox.max.length()),
-    );
+    const newCSize =
+      1.1 *
+      Math.max(
+        Math.abs(this.bbox.min.length()),
+        Math.abs(this.bbox.max.length()),
+      );
     if (newCSize > this._stencilCSize + 1e-6) {
       this._stencilCSize = newCSize;
       const clipping = this.rendered.clipping;
@@ -4114,9 +4191,7 @@ class Viewer {
 
     const min = new THREE.Vector3(bb.xmin, bb.ymin, bb.zmin);
     const max = new THREE.Vector3(bb.xmax, bb.ymax, bb.zmax);
-    const center = new THREE.Vector3()
-      .addVectors(min, max)
-      .multiplyScalar(0.5);
+    const center = new THREE.Vector3().addVectors(min, max).multiplyScalar(0.5);
 
     const requiredCSize =
       1.1 * Math.max(Math.abs(min.length()), Math.abs(max.length()));
@@ -4355,7 +4430,10 @@ class Viewer {
    * @param index - index of the normal: 0, 1 ,2
    * @param notify - whether to send notification or not.
    */
-  setClipNormalFromPosition = (index: ClipIndex, notify: boolean = true): void => {
+  setClipNormalFromPosition = (
+    index: ClipIndex,
+    notify: boolean = true,
+  ): void => {
     if (!this.ready) return;
     const cameraPosition = this.rendered.camera.getPosition().clone();
     const normal = toVector3Tuple(
@@ -4363,7 +4441,7 @@ class Viewer {
         .sub(this.rendered.controls.getTarget())
         .normalize()
         .negate()
-        .toArray()
+        .toArray(),
     );
     this.setClipNormal(index, normal, null, notify);
   };
@@ -4472,12 +4550,18 @@ class Viewer {
           this.state.get("height"),
         );
         if (this._studioManager.isEnvBackgroundActive) {
-          this._studioManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
+          this._studioManager.updateEnvBackground(
+            this.renderer,
+            this.rendered.camera.getCamera(),
+          );
         }
         if (this._studioManager.hasComposer) {
           this._studioManager.render();
         } else {
-          this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
+          this.renderer.render(
+            this.rendered.scene,
+            this.rendered.camera.getCamera(),
+          );
         }
       },
       onComplete: () => {
@@ -4520,7 +4604,9 @@ class Viewer {
     let scaledLocalDirection: THREE.Vector3 | null = null;
 
     if (!use_origin) {
-      const bb = new THREE.Box3().setFromObject(this.rendered.nestedGroup.rootGroup!);
+      const bb = new THREE.Box3().setFromObject(
+        this.rendered.nestedGroup.rootGroup!,
+      );
       bb.getCenter(worldCenterOrOrigin);
     }
     for (const id in this.rendered.nestedGroup.groups) {
@@ -4648,7 +4734,8 @@ class Viewer {
     for (const [key, value] of Object.entries(config)) {
       if (value === undefined) continue;
       if (modifierKeys.has(key)) {
-        modifiers[key as keyof KeyMappingConfig] = value as KeyMappingConfig[keyof KeyMappingConfig];
+        modifiers[key as keyof KeyMappingConfig] =
+          value as KeyMappingConfig[keyof KeyMappingConfig];
       } else {
         actions[key] = value;
       }

@@ -1,8 +1,8 @@
-import { describe, test, expect, afterEach } from 'vitest';
-import { setupViewer, cleanup } from '../helpers/setup.js';
-import { loadExample, captureCompleteRendering } from '../helpers/snapshot.js';
+import { describe, test, expect, afterEach } from "vitest";
+import { setupViewer, cleanup } from "../helpers/setup.js";
+import { loadExample, captureCompleteRendering } from "../helpers/snapshot.js";
 
-describe('Complete Rendering Snapshots', () => {
+describe("Complete Rendering Snapshots", () => {
   let testContext;
 
   afterEach(() => {
@@ -20,20 +20,20 @@ describe('Complete Rendering Snapshots', () => {
 
   // Small examples for complete rendering snapshots
   const smallExamples = [
-    'box1',
-    'box',
-    'vertices',
-    'single-vertices',
-    'single-edges',
-    'single-faces',
-    'faces',
-    'objs1d',
-    'edges',
+    "box1",
+    "box",
+    "vertices",
+    "single-vertices",
+    "single-edges",
+    "single-faces",
+    "faces",
+    "objs1d",
+    "edges",
   ];
 
   // Test compact mode (exploded=false) - renders solids as unified objects
   test.each(smallExamples)(
-    'complete rendering snapshot for %s (compact mode)',
+    "complete rendering snapshot for %s (compact mode)",
     async (exampleName) => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
@@ -52,12 +52,12 @@ describe('Complete Rendering Snapshots', () => {
       // Use almostEqual comparison for floating-point tolerance
       // This will create a snapshot on first run, then compare with tolerance on subsequent runs
       expect(snapshot).toMatchSnapshot(`${exampleName}-compact-complete`);
-    }
+    },
   );
 
   // Test expanded mode (exploded=true) - renders individual faces/edges/vertices
   test.each(smallExamples)(
-    'complete rendering snapshot for %s (expanded mode)',
+    "complete rendering snapshot for %s (expanded mode)",
     async (exampleName) => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
@@ -75,62 +75,62 @@ describe('Complete Rendering Snapshots', () => {
 
       // Use almostEqual comparison for floating-point tolerance
       expect(snapshot).toMatchSnapshot(`${exampleName}-expanded-complete`);
-    }
+    },
   );
 
   // Individual detailed test for box1 to verify capture quality
-  test('box1 complete rendering has expected structure', async () => {
+  test("box1 complete rendering has expected structure", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const snapshot = captureCompleteRendering(viewer);
 
     // Verify structure
-    expect(snapshot).toHaveProperty('objects');
-    expect(snapshot).toHaveProperty('objectCount');
+    expect(snapshot).toHaveProperty("objects");
+    expect(snapshot).toHaveProperty("objectCount");
     expect(snapshot.objects.length).toBeGreaterThan(0);
 
     // Find a mesh object with geometry
     const meshes = snapshot.objects.filter(
-      obj => obj.type === 'Mesh' && obj.geometry
+      (obj) => obj.type === "Mesh" && obj.geometry,
     );
     expect(meshes.length).toBeGreaterThan(0);
 
     // Verify first mesh has expected data
     const firstMesh = meshes[0];
-    expect(firstMesh.geometry).toHaveProperty('type');
-    expect(firstMesh.geometry).toHaveProperty('attributes');
-    expect(firstMesh.geometry.attributes).toHaveProperty('position');
+    expect(firstMesh.geometry).toHaveProperty("type");
+    expect(firstMesh.geometry).toHaveProperty("attributes");
+    expect(firstMesh.geometry.attributes).toHaveProperty("position");
 
     // Verify position data
     const posAttr = firstMesh.geometry.attributes.position;
-    expect(posAttr).toHaveProperty('itemSize');
-    expect(posAttr).toHaveProperty('count');
-    expect(posAttr).toHaveProperty('array');
+    expect(posAttr).toHaveProperty("itemSize");
+    expect(posAttr).toHaveProperty("count");
+    expect(posAttr).toHaveProperty("array");
     expect(posAttr.itemSize).toBe(3); // x, y, z
     expect(Array.isArray(posAttr.array)).toBe(true);
     expect(posAttr.array.length).toBe(posAttr.count * posAttr.itemSize);
 
     // Verify material data if present
     if (firstMesh.material) {
-      expect(firstMesh.material).toHaveProperty('type');
+      expect(firstMesh.material).toHaveProperty("type");
     }
 
     // Verify transform data
-    expect(firstMesh).toHaveProperty('position');
-    expect(firstMesh).toHaveProperty('rotation');
-    expect(firstMesh).toHaveProperty('scale');
+    expect(firstMesh).toHaveProperty("position");
+    expect(firstMesh).toHaveProperty("rotation");
+    expect(firstMesh).toHaveProperty("scale");
   });
 
   // Test to verify almostEqual works for geometry
-  test('almostEqual comparison works for rendering snapshots', async () => {
+  test("almostEqual comparison works for rendering snapshots", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Capture twice
@@ -156,17 +156,19 @@ describe('Complete Rendering Snapshots', () => {
   });
 
   // Test that verifies we capture vertex positions
-  test('vertex positions are captured correctly', async () => {
+  test("vertex positions are captured correctly", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const snapshot = captureCompleteRendering(viewer);
 
     // Find objects with geometry
-    const withGeometry = snapshot.objects.filter(obj => obj.geometry?.attributes?.position);
+    const withGeometry = snapshot.objects.filter(
+      (obj) => obj.geometry?.attributes?.position,
+    );
 
     expect(withGeometry.length).toBeGreaterThan(0);
 
@@ -183,24 +185,26 @@ describe('Complete Rendering Snapshots', () => {
 
       // All vertex coordinates should be numbers
       for (const coord of pos.array) {
-        expect(typeof coord).toBe('number');
+        expect(typeof coord).toBe("number");
         expect(Number.isFinite(coord)).toBe(true);
       }
     }
   });
 
   // Test that verifies we capture normals
-  test('normals are captured when present', async () => {
+  test("normals are captured when present", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const snapshot = captureCompleteRendering(viewer);
 
     // Find objects with normals
-    const withNormals = snapshot.objects.filter(obj => obj.geometry?.attributes?.normal);
+    const withNormals = snapshot.objects.filter(
+      (obj) => obj.geometry?.attributes?.normal,
+    );
 
     // Box should have normals
     expect(withNormals.length).toBeGreaterThan(0);
@@ -228,17 +232,17 @@ describe('Complete Rendering Snapshots', () => {
   });
 
   // Test that verifies we capture material properties
-  test('material properties are captured correctly', async () => {
+  test("material properties are captured correctly", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const snapshot = captureCompleteRendering(viewer);
 
     // Find objects with materials
-    const withMaterials = snapshot.objects.filter(obj => obj.material);
+    const withMaterials = snapshot.objects.filter((obj) => obj.material);
 
     expect(withMaterials.length).toBeGreaterThan(0);
 
@@ -247,34 +251,34 @@ describe('Complete Rendering Snapshots', () => {
 
       // Should have type
       expect(mat.type).toBeDefined();
-      expect(typeof mat.type).toBe('string');
+      expect(typeof mat.type).toBe("string");
 
       // Note: mat.id is intentionally not captured - it's an unstable Three.js internal ID
 
       // If it has color, should be a hex number
       if (mat.color !== undefined) {
-        expect(typeof mat.color).toBe('number');
+        expect(typeof mat.color).toBe("number");
         expect(mat.color).toBeGreaterThanOrEqual(0);
         expect(mat.color).toBeLessThanOrEqual(0xffffff);
       }
 
       // If it has opacity, should be 0-1
       if (mat.opacity !== undefined) {
-        expect(typeof mat.opacity).toBe('number');
+        expect(typeof mat.opacity).toBe("number");
         expect(mat.opacity).toBeGreaterThanOrEqual(0);
         expect(mat.opacity).toBeLessThanOrEqual(1);
       }
 
       // If it has metalness, should be 0-1
       if (mat.metalness !== undefined) {
-        expect(typeof mat.metalness).toBe('number');
+        expect(typeof mat.metalness).toBe("number");
         expect(mat.metalness).toBeGreaterThanOrEqual(0);
         expect(mat.metalness).toBeLessThanOrEqual(1);
       }
 
       // If it has roughness, should be 0-1
       if (mat.roughness !== undefined) {
-        expect(typeof mat.roughness).toBe('number');
+        expect(typeof mat.roughness).toBe("number");
         expect(mat.roughness).toBeGreaterThanOrEqual(0);
         expect(mat.roughness).toBeLessThanOrEqual(1);
       }
@@ -282,11 +286,11 @@ describe('Complete Rendering Snapshots', () => {
   });
 
   // Test that verifies transforms are captured
-  test('object transforms are captured correctly', async () => {
+  test("object transforms are captured correctly", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const snapshot = captureCompleteRendering(viewer);
@@ -295,30 +299,30 @@ describe('Complete Rendering Snapshots', () => {
     for (const obj of snapshot.objects) {
       // Position
       expect(obj.position).toBeDefined();
-      expect(obj.position).toHaveProperty('x');
-      expect(obj.position).toHaveProperty('y');
-      expect(obj.position).toHaveProperty('z');
-      expect(typeof obj.position.x).toBe('number');
-      expect(typeof obj.position.y).toBe('number');
-      expect(typeof obj.position.z).toBe('number');
+      expect(obj.position).toHaveProperty("x");
+      expect(obj.position).toHaveProperty("y");
+      expect(obj.position).toHaveProperty("z");
+      expect(typeof obj.position.x).toBe("number");
+      expect(typeof obj.position.y).toBe("number");
+      expect(typeof obj.position.z).toBe("number");
 
       // Rotation
       expect(obj.rotation).toBeDefined();
-      expect(obj.rotation).toHaveProperty('x');
-      expect(obj.rotation).toHaveProperty('y');
-      expect(obj.rotation).toHaveProperty('z');
-      expect(typeof obj.rotation.x).toBe('number');
-      expect(typeof obj.rotation.y).toBe('number');
-      expect(typeof obj.rotation.z).toBe('number');
+      expect(obj.rotation).toHaveProperty("x");
+      expect(obj.rotation).toHaveProperty("y");
+      expect(obj.rotation).toHaveProperty("z");
+      expect(typeof obj.rotation.x).toBe("number");
+      expect(typeof obj.rotation.y).toBe("number");
+      expect(typeof obj.rotation.z).toBe("number");
 
       // Scale
       expect(obj.scale).toBeDefined();
-      expect(obj.scale).toHaveProperty('x');
-      expect(obj.scale).toHaveProperty('y');
-      expect(obj.scale).toHaveProperty('z');
-      expect(typeof obj.scale.x).toBe('number');
-      expect(typeof obj.scale.y).toBe('number');
-      expect(typeof obj.scale.z).toBe('number');
+      expect(obj.scale).toHaveProperty("x");
+      expect(obj.scale).toHaveProperty("y");
+      expect(obj.scale).toHaveProperty("z");
+      expect(typeof obj.scale.x).toBe("number");
+      expect(typeof obj.scale.y).toBe("number");
+      expect(typeof obj.scale.z).toBe("number");
     }
   });
 });

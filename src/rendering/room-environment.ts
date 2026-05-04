@@ -44,11 +44,15 @@ class CleanRoomEnvironment extends Scene {
     // Eliminates the sharp 90° corner visible in reflections.
     //
     // Room bounds (inner faces of BackSide box):
-    const cx = -0.757, cy = 13.219, cz = 0.717;
-    const hx = 31.713 / 2, hy = 28.305 / 2, hz = 28.591 / 2;
-    const floorY = cy - hy;       // ≈ -0.93
-    const wallMinX = cx - hx;     // ≈ -16.61
-    const wallMinZ = cz - hz;     // ≈ -13.58
+    const cx = -0.757,
+      cy = 13.219,
+      cz = 0.717;
+    const hx = 31.713 / 2,
+      hy = 28.305 / 2,
+      hz = 28.591 / 2;
+    const floorY = cy - hy; // ≈ -0.93
+    const wallMinX = cx - hx; // ≈ -16.61
+    const wallMinZ = cz - hz; // ≈ -13.58
     const R = 6;
 
     // Single infinity cove on the -z wall (faces default camera after 45° rotation).
@@ -124,7 +128,9 @@ class CleanRoomEnvironment extends Scene {
  * Winding is set so BackSide material renders the concave interior.
  */
 function createCove(
-  length: number, radius: number, segments: number,
+  length: number,
+  radius: number,
+  segments: number,
   wall: "-x" | "+x" | "-z" | "+z",
 ): BufferGeometry {
   const positions: number[] = [];
@@ -137,11 +143,11 @@ function createCove(
   const sign = wall === "-x" || wall === "-z" ? -1 : 1;
 
   for (let i = 0; i <= segments; i++) {
-    const angle = (i / segments) * Math.PI / 2;
-    const h = sign * radius * Math.sin(angle);  // horizontal offset toward wall
-    const y = radius * (1 - Math.cos(angle));    // vertical offset above floor
-    const nh = sign * Math.sin(angle);           // normal toward wall
-    const ny = -Math.cos(angle);                 // normal downward
+    const angle = ((i / segments) * Math.PI) / 2;
+    const h = sign * radius * Math.sin(angle); // horizontal offset toward wall
+    const y = radius * (1 - Math.cos(angle)); // vertical offset above floor
+    const nh = sign * Math.sin(angle); // normal toward wall
+    const ny = -Math.cos(angle); // normal downward
 
     if (axis === 0) {
       // Arc in XY, extruded along Z (for ±x walls)
@@ -166,7 +172,7 @@ function createCove(
     // Winding: front face must point toward corner for BackSide to show
     // concave interior. Extruding along X (axis=1) flips the cross product
     // vs extruding along Z (axis=0), so we XOR the conditions.
-    const flip = (sign > 0) !== (axis === 1);
+    const flip = sign > 0 !== (axis === 1);
     if (flip) {
       indices.push(a, c, b, b, c, d);
     } else {

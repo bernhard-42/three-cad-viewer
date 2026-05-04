@@ -3,9 +3,9 @@
  * Target: 90%+ coverage
  */
 
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { TreeView, States } from '../../src/ui/treeview.js';
-import { logger } from '../../src/utils/logger.js';
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+import { TreeView, States } from "../../src/ui/treeview.js";
+import { logger } from "../../src/utils/logger.js";
 
 // Helper to create a simple tree structure
 function createSimpleTree() {
@@ -22,9 +22,9 @@ function createSimpleTree() {
 
 // Helper to create a mock scroll container
 function createScrollContainer() {
-  const container = document.createElement('div');
-  container.style.height = '300px';
-  container.style.overflow = 'auto';
+  const container = document.createElement("div");
+  container.style.height = "300px";
+  container.style.overflow = "auto";
   document.body.appendChild(container);
   return container;
 }
@@ -36,7 +36,7 @@ function cleanupContainer(container) {
   }
 }
 
-describe('TreeView - Constructor', () => {
+describe("TreeView - Constructor", () => {
   let scrollContainer;
 
   beforeEach(() => {
@@ -47,7 +47,7 @@ describe('TreeView - Constructor', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('creates TreeView with all parameters', () => {
+  test("creates TreeView with all parameters", () => {
     const tree = createSimpleTree();
     const objectHandler = vi.fn();
     const pickHandler = vi.fn();
@@ -63,9 +63,9 @@ describe('TreeView - Constructor', () => {
       updateHandler,
       notificationHandler,
       colorGetter,
-      'light',
+      "light",
       true,
-      false
+      false,
     );
 
     expect(treeView.tree).toBe(tree);
@@ -75,13 +75,13 @@ describe('TreeView - Constructor', () => {
     expect(treeView.updateHandler).toBe(updateHandler);
     expect(treeView.notificationHandler).toBe(notificationHandler);
     expect(treeView.colorGetter).toBe(colorGetter);
-    expect(treeView.theme).toBe('light');
+    expect(treeView.theme).toBe("light");
     expect(treeView.linkIcons).toBe(true);
     expect(treeView.debug).toBe(false);
   });
 });
 
-describe('TreeView - create', () => {
+describe("TreeView - create", () => {
   let scrollContainer;
   let treeView;
 
@@ -96,7 +96,7 @@ describe('TreeView - create', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('creates model and container', () => {
+  test("creates model and container", () => {
     const tree = createSimpleTree();
     treeView = new TreeView(
       tree,
@@ -106,9 +106,9 @@ describe('TreeView - create', () => {
       vi.fn(),
       vi.fn(),
       vi.fn(),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
 
     const container = treeView.create();
@@ -116,11 +116,11 @@ describe('TreeView - create', () => {
     expect(container).toBeDefined();
     expect(treeView.model).toBeDefined();
     expect(treeView.container).toBe(container);
-    expect(container.classList.contains('tcv_toplevel')).toBe(true);
+    expect(container.classList.contains("tcv_toplevel")).toBe(true);
   });
 });
 
-describe('TreeView - render', () => {
+describe("TreeView - render", () => {
   let scrollContainer;
   let treeView;
 
@@ -135,9 +135,9 @@ describe('TreeView - render', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
   });
@@ -149,14 +149,14 @@ describe('TreeView - render', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('renders the tree', () => {
+  test("renders the tree", () => {
     treeView.render();
 
-    expect(treeView.container.innerHTML).not.toBe('');
+    expect(treeView.container.innerHTML).not.toBe("");
   });
 });
 
-describe('TreeView - update', () => {
+describe("TreeView - update", () => {
   let scrollContainer;
   let treeView;
 
@@ -171,9 +171,9 @@ describe('TreeView - update', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -186,23 +186,23 @@ describe('TreeView - update', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('update renders visible elements', () => {
+  test("update renders visible elements", () => {
     treeView.update();
 
     // Should have rendered elements
-    const nodes = treeView.container.querySelectorAll('.tv-tree-node');
+    const nodes = treeView.container.querySelectorAll(".tv-tree-node");
     expect(nodes.length).toBeGreaterThan(0);
   });
 
-  test('update with prefix filters elements', () => {
-    treeView.update('/Root');
+  test("update with prefix filters elements", () => {
+    treeView.update("/Root");
 
     // Should work without error
     expect(treeView.container).toBeDefined();
   });
 });
 
-describe('TreeView - handleScroll', () => {
+describe("TreeView - handleScroll", () => {
   let scrollContainer;
   let treeView;
 
@@ -217,9 +217,9 @@ describe('TreeView - handleScroll', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -232,13 +232,13 @@ describe('TreeView - handleScroll', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('handleScroll updates view', () => {
+  test("handleScroll updates view", () => {
     treeView.handleScroll();
 
     expect(treeView.lastScrollTop).toBeDefined();
   });
 
-  test('handleScroll returns early if no scrollContainer', () => {
+  test("handleScroll returns early if no scrollContainer", () => {
     // Store original for cleanup
     const originalContainer = treeView.scrollContainer;
     treeView.scrollContainer = null;
@@ -251,7 +251,7 @@ describe('TreeView - handleScroll', () => {
   });
 });
 
-describe('TreeView - handleNavigationClick', () => {
+describe("TreeView - handleNavigationClick", () => {
   let scrollContainer;
   let treeView;
 
@@ -266,9 +266,9 @@ describe('TreeView - handleNavigationClick', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -281,7 +281,7 @@ describe('TreeView - handleNavigationClick', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('handleNavigationClick toggles expansion', () => {
+  test("handleNavigationClick toggles expansion", () => {
     const node = treeView.root;
     const initialExpanded = node.expanded;
 
@@ -294,7 +294,7 @@ describe('TreeView - handleNavigationClick', () => {
   });
 });
 
-describe('TreeView - handleIconClick', () => {
+describe("TreeView - handleIconClick", () => {
   let scrollContainer;
   let treeView;
 
@@ -309,9 +309,9 @@ describe('TreeView - handleIconClick', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -324,9 +324,9 @@ describe('TreeView - handleIconClick', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('handleIconClick toggles icon state', () => {
+  test("handleIconClick toggles icon state", () => {
     // Find a leaf node
-    const node = treeView.findNodeByPath('/Root/Part1');
+    const node = treeView.findNodeByPath("/Root/Part1");
     expect(node).toBeDefined();
 
     const mockEvent = { stopPropagation: vi.fn() };
@@ -337,7 +337,7 @@ describe('TreeView - handleIconClick', () => {
   });
 });
 
-describe('TreeView - handleLabelClick', () => {
+describe("TreeView - handleLabelClick", () => {
   let scrollContainer;
   let treeView;
   let pickHandler;
@@ -354,9 +354,9 @@ describe('TreeView - handleLabelClick', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -369,8 +369,8 @@ describe('TreeView - handleLabelClick', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('handleLabelClick calls pickHandler', () => {
-    const node = treeView.findNodeByPath('/Root/Part1');
+  test("handleLabelClick calls pickHandler", () => {
+    const node = treeView.findNodeByPath("/Root/Part1");
     const mockEvent = {
       metaKey: false,
       shiftKey: false,
@@ -383,7 +383,7 @@ describe('TreeView - handleLabelClick', () => {
   });
 });
 
-describe('TreeView - state management', () => {
+describe("TreeView - state management", () => {
   let scrollContainer;
   let treeView;
   let objectHandler;
@@ -404,9 +404,9 @@ describe('TreeView - state management', () => {
       updateHandler,
       notificationHandler,
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -419,56 +419,56 @@ describe('TreeView - state management', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('hideAll hides all nodes', () => {
+  test("hideAll hides all nodes", () => {
     treeView.hideAll();
 
     expect(updateHandler).toHaveBeenCalled();
     expect(notificationHandler).toHaveBeenCalled();
   });
 
-  test('showAll shows all nodes', () => {
+  test("showAll shows all nodes", () => {
     treeView.showAll();
 
     expect(updateHandler).toHaveBeenCalled();
     expect(notificationHandler).toHaveBeenCalled();
   });
 
-  test('show shows specific path', () => {
-    treeView.show('/Root/Part1');
+  test("show shows specific path", () => {
+    treeView.show("/Root/Part1");
 
     expect(updateHandler).toHaveBeenCalled();
   });
 
-  test('hide hides specific path', () => {
-    treeView.hide('/Root/Part1');
+  test("hide hides specific path", () => {
+    treeView.hide("/Root/Part1");
 
     expect(updateHandler).toHaveBeenCalled();
   });
 
-  test('getState returns node state', () => {
-    const state = treeView.getState('/Root/Part1');
+  test("getState returns node state", () => {
+    const state = treeView.getState("/Root/Part1");
 
     expect(state).toBeDefined();
     expect(Array.isArray(state)).toBe(true);
   });
 
-  test('getStates returns all leaf states', () => {
+  test("getStates returns all leaf states", () => {
     const states = treeView.getStates();
 
     expect(states).toBeDefined();
-    expect(typeof states).toBe('object');
+    expect(typeof states).toBe("object");
   });
 
-  test('setState sets node state', () => {
-    treeView.setState('/Root/Part1', [0, 0]);
+  test("setState sets node state", () => {
+    treeView.setState("/Root/Part1", [0, 0]);
 
     expect(updateHandler).toHaveBeenCalled();
   });
 
-  test('setStates sets multiple node states', () => {
+  test("setStates sets multiple node states", () => {
     const states = {
-      '/Root/Part1': [0, 0],
-      '/Root/Part2/SubPart1': [1, 0],
+      "/Root/Part1": [0, 0],
+      "/Root/Part2/SubPart1": [1, 0],
     };
 
     treeView.setStates(states);
@@ -477,7 +477,7 @@ describe('TreeView - state management', () => {
   });
 });
 
-describe('TreeView - tree navigation', () => {
+describe("TreeView - tree navigation", () => {
   let scrollContainer;
   let treeView;
 
@@ -492,9 +492,9 @@ describe('TreeView - tree navigation', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -507,48 +507,48 @@ describe('TreeView - tree navigation', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('openPath opens nodes along path', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  test("openPath opens nodes along path", () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    treeView.openPath('/Root/Part2/SubPart1');
+    treeView.openPath("/Root/Part2/SubPart1");
 
     // Should have expanded intermediate nodes
-    const part2Node = treeView.findNodeByPath('/Root/Part2');
+    const part2Node = treeView.findNodeByPath("/Root/Part2");
     expect(part2Node.expanded).toBe(true);
 
     consoleSpy.mockRestore();
   });
 
-  test('closePath closes a path', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  test("closePath closes a path", () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    treeView.openPath('/Root/Part2');
-    treeView.closePath('/Root/Part2');
+    treeView.openPath("/Root/Part2");
+    treeView.closePath("/Root/Part2");
 
-    const part2Node = treeView.findNodeByPath('/Root/Part2');
+    const part2Node = treeView.findNodeByPath("/Root/Part2");
     expect(part2Node.expanded).toBe(false);
 
     consoleSpy.mockRestore();
   });
 
-  test('closePath handles non-existent path', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  test("closePath handles non-existent path", () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    treeView.closePath('/NonExistent/Path');
+    treeView.closePath("/NonExistent/Path");
 
     expect(consoleSpy).toHaveBeenCalled();
 
     consoleSpy.mockRestore();
   });
 
-  test('openLevel opens to specified level', () => {
+  test("openLevel opens to specified level", () => {
     treeView.openLevel(1);
 
     // Root should be expanded
     expect(treeView.root.expanded).toBe(true);
   });
 
-  test('collapseAll collapses all nodes', () => {
+  test("collapseAll collapses all nodes", () => {
     treeView.expandAll();
     treeView.collapseAll();
 
@@ -557,7 +557,7 @@ describe('TreeView - tree navigation', () => {
     expect(treeView.root).toBeDefined();
   });
 
-  test('expandAll expands all nodes', () => {
+  test("expandAll expands all nodes", () => {
     treeView.expandAll();
 
     // Root should be expanded
@@ -565,7 +565,7 @@ describe('TreeView - tree navigation', () => {
   });
 });
 
-describe('TreeView - delegated properties', () => {
+describe("TreeView - delegated properties", () => {
   let scrollContainer;
   let treeView;
 
@@ -580,9 +580,9 @@ describe('TreeView - delegated properties', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -595,28 +595,28 @@ describe('TreeView - delegated properties', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('root returns model root', () => {
+  test("root returns model root", () => {
     expect(treeView.root).toBeDefined();
     expect(treeView.root).toBe(treeView.model.root);
   });
 
-  test('maxLevel returns model maxLevel', () => {
+  test("maxLevel returns model maxLevel", () => {
     expect(treeView.maxLevel).toBeGreaterThan(0);
     expect(treeView.maxLevel).toBe(treeView.model.maxLevel);
   });
 
-  test('root returns null when model is null', () => {
+  test("root returns null when model is null", () => {
     treeView.model = null;
     expect(treeView.root).toBeNull();
   });
 
-  test('maxLevel returns 0 when model is null', () => {
+  test("maxLevel returns 0 when model is null", () => {
     treeView.model = null;
     expect(treeView.maxLevel).toBe(0);
   });
 });
 
-describe('TreeView - traverse and path functions', () => {
+describe("TreeView - traverse and path functions", () => {
   let scrollContainer;
   let treeView;
 
@@ -631,9 +631,9 @@ describe('TreeView - traverse and path functions', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -646,42 +646,42 @@ describe('TreeView - traverse and path functions', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('traverse calls callback for each node', () => {
+  test("traverse calls callback for each node", () => {
     const callback = vi.fn();
     treeView.traverse(treeView.root, callback);
 
     expect(callback).toHaveBeenCalled();
   });
 
-  test('isLeaf returns true for leaf nodes', () => {
-    const leafNode = treeView.findNodeByPath('/Root/Part1');
+  test("isLeaf returns true for leaf nodes", () => {
+    const leafNode = treeView.findNodeByPath("/Root/Part1");
     expect(treeView.isLeaf(leafNode)).toBe(true);
 
-    const branchNode = treeView.findNodeByPath('/Root/Part2');
+    const branchNode = treeView.findNodeByPath("/Root/Part2");
     expect(treeView.isLeaf(branchNode)).toBe(false);
   });
 
-  test('getNodePath returns correct path', () => {
-    const node = treeView.findNodeByPath('/Root/Part1');
-    expect(treeView.getNodePath(node)).toBe('/Root/Part1');
+  test("getNodePath returns correct path", () => {
+    const node = treeView.findNodeByPath("/Root/Part1");
+    expect(treeView.getNodePath(node)).toBe("/Root/Part1");
   });
 
-  test('findNodeByPath finds nodes', () => {
-    const node = treeView.findNodeByPath('/Root/Part1');
+  test("findNodeByPath finds nodes", () => {
+    const node = treeView.findNodeByPath("/Root/Part1");
     expect(node).toBeDefined();
-    expect(node.name).toBe('Part1');
+    expect(node.name).toBe("Part1");
   });
 
-  test('getParent returns parent node', () => {
-    const childNode = treeView.findNodeByPath('/Root/Part1');
+  test("getParent returns parent node", () => {
+    const childNode = treeView.findNodeByPath("/Root/Part1");
     const parentNode = treeView.getParent(childNode);
 
     expect(parentNode).toBeDefined();
-    expect(parentNode.name).toBe('Root');
+    expect(parentNode.name).toBe("Root");
   });
 });
 
-describe('TreeView - toggleIcon', () => {
+describe("TreeView - toggleIcon", () => {
   let scrollContainer;
   let treeView;
   let objectHandler;
@@ -702,9 +702,9 @@ describe('TreeView - toggleIcon', () => {
       updateHandler,
       notificationHandler,
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -717,8 +717,8 @@ describe('TreeView - toggleIcon', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('toggleIcon toggles node state', () => {
-    const node = treeView.findNodeByPath('/Root/Part1');
+  test("toggleIcon toggles node state", () => {
+    const node = treeView.findNodeByPath("/Root/Part1");
 
     treeView.toggleIcon(node, 0);
 
@@ -726,8 +726,8 @@ describe('TreeView - toggleIcon', () => {
     expect(notificationHandler).toHaveBeenCalled();
   });
 
-  test('toggleIcon with force parameter', () => {
-    const node = treeView.findNodeByPath('/Root/Part1');
+  test("toggleIcon with force parameter", () => {
+    const node = treeView.findNodeByPath("/Root/Part1");
 
     treeView.toggleIcon(node, 0, true);
 
@@ -735,7 +735,7 @@ describe('TreeView - toggleIcon', () => {
   });
 });
 
-describe('TreeView - toggleLabelColor', () => {
+describe("TreeView - toggleLabelColor", () => {
   let scrollContainer;
   let treeView;
 
@@ -750,9 +750,9 @@ describe('TreeView - toggleLabelColor', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -768,8 +768,8 @@ describe('TreeView - toggleLabelColor', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('toggleLabelColor highlights label', () => {
-    const node = treeView.findNodeByPath('/Root/Part1');
+  test("toggleLabelColor highlights label", () => {
+    const node = treeView.findNodeByPath("/Root/Part1");
 
     treeView.toggleLabelColor(node);
 
@@ -777,15 +777,15 @@ describe('TreeView - toggleLabelColor', () => {
     expect(treeView.lastLabel).toBeDefined();
   });
 
-  test('toggleLabelColor with path parameter', () => {
-    treeView.toggleLabelColor(null, '/Root/Part1');
+  test("toggleLabelColor with path parameter", () => {
+    treeView.toggleLabelColor(null, "/Root/Part1");
 
     // Should still work with path
   });
 
-  test('toggleLabelColor removes previous highlight', () => {
-    const node1 = treeView.findNodeByPath('/Root/Part1');
-    const node2 = treeView.findNodeByPath('/Root/Part2');
+  test("toggleLabelColor removes previous highlight", () => {
+    const node1 = treeView.findNodeByPath("/Root/Part1");
+    const node2 = treeView.findNodeByPath("/Root/Part2");
 
     treeView.toggleLabelColor(node1);
     const firstLabel = treeView.lastLabel;
@@ -801,7 +801,7 @@ describe('TreeView - toggleLabelColor', () => {
   });
 });
 
-describe('TreeView - scrollCentered', () => {
+describe("TreeView - scrollCentered", () => {
   let scrollContainer;
   let treeView;
 
@@ -816,9 +816,9 @@ describe('TreeView - scrollCentered', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -831,20 +831,20 @@ describe('TreeView - scrollCentered', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('scrollCentered scrolls to element', () => {
-    const element = treeView.container.querySelector('.tv-tree-node');
+  test("scrollCentered scrolls to element", () => {
+    const element = treeView.container.querySelector(".tv-tree-node");
 
     // Should not throw
     expect(() => treeView.scrollCentered(element)).not.toThrow();
   });
 
-  test('scrollCentered handles null element', () => {
+  test("scrollCentered handles null element", () => {
     // Should not throw
     expect(() => treeView.scrollCentered(null)).not.toThrow();
   });
 });
 
-describe('TreeView - getDomNode', () => {
+describe("TreeView - getDomNode", () => {
   let scrollContainer;
   let treeView;
 
@@ -859,9 +859,9 @@ describe('TreeView - getDomNode', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -874,21 +874,21 @@ describe('TreeView - getDomNode', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('getDomNode returns element for path', () => {
-    const element = treeView.getDomNode('/Root');
+  test("getDomNode returns element for path", () => {
+    const element = treeView.getDomNode("/Root");
 
     expect(element).toBeDefined();
-    expect(element.dataset.path).toBe('/Root');
+    expect(element.dataset.path).toBe("/Root");
   });
 
-  test('getDomNode returns null for non-existent path', () => {
-    const element = treeView.getDomNode('/NonExistent');
+  test("getDomNode returns null for non-existent path", () => {
+    const element = treeView.getDomNode("/NonExistent");
 
     expect(element).toBeNull();
   });
 });
 
-describe('TreeView - getVisibleElements', () => {
+describe("TreeView - getVisibleElements", () => {
   let scrollContainer;
   let treeView;
 
@@ -903,9 +903,9 @@ describe('TreeView - getVisibleElements', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -918,16 +918,16 @@ describe('TreeView - getVisibleElements', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('getVisibleElements returns array', () => {
+  test("getVisibleElements returns array", () => {
     const elements = treeView.getVisibleElements();
 
     expect(Array.isArray(elements)).toBe(true);
   });
 
-  test('getVisibleElements logs in debug mode', () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+  test("getVisibleElements logs in debug mode", () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const originalLevel = logger.getLevel();
-    logger.setLevel('debug');
+    logger.setLevel("debug");
     treeView.debug = true;
 
     treeView.getVisibleElements();
@@ -939,7 +939,7 @@ describe('TreeView - getVisibleElements', () => {
   });
 });
 
-describe('TreeView - debug mode', () => {
+describe("TreeView - debug mode", () => {
   let scrollContainer;
   let treeView;
 
@@ -954,9 +954,9 @@ describe('TreeView - debug mode', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      true // debug = true
+      true, // debug = true
     );
     treeView.create();
     treeView.render();
@@ -969,39 +969,46 @@ describe('TreeView - debug mode', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('closePath logs in debug mode', () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  test("closePath logs in debug mode", () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const originalLevel = logger.getLevel();
-    logger.setLevel('debug');
+    logger.setLevel("debug");
 
-    treeView.openPath('/Root/Part2');
+    treeView.openPath("/Root/Part2");
     consoleSpy.mockClear();
 
-    treeView.closePath('/Root/Part2');
+    treeView.closePath("/Root/Part2");
 
-    expect(consoleSpy).toHaveBeenCalledWith('[three-cad-viewer]', 'update => collapsePath');
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "[three-cad-viewer]",
+      "update => collapsePath",
+    );
 
     logger.setLevel(originalLevel);
     consoleSpy.mockRestore();
     errorSpy.mockRestore();
   });
 
-  test('openLevel logs in debug mode', () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+  test("openLevel logs in debug mode", () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const originalLevel = logger.getLevel();
-    logger.setLevel('debug');
+    logger.setLevel("debug");
 
     treeView.openLevel(1);
 
-    expect(consoleSpy).toHaveBeenCalledWith('[three-cad-viewer]', 'update => openLevel', expect.any(Number));
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "[three-cad-viewer]",
+      "update => openLevel",
+      expect.any(Number),
+    );
 
     logger.setLevel(originalLevel);
     consoleSpy.mockRestore();
   });
 });
 
-describe('TreeView - dispose', () => {
+describe("TreeView - dispose", () => {
   let scrollContainer;
 
   beforeEach(() => {
@@ -1012,7 +1019,7 @@ describe('TreeView - dispose', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('dispose cleans up resources', () => {
+  test("dispose cleans up resources", () => {
     const tree = createSimpleTree();
     const treeView = new TreeView(
       tree,
@@ -1022,9 +1029,9 @@ describe('TreeView - dispose', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -1037,7 +1044,7 @@ describe('TreeView - dispose', () => {
   });
 });
 
-describe('TreeView - _handleStateChange', () => {
+describe("TreeView - _handleStateChange", () => {
   let scrollContainer;
   let treeView;
   let objectHandler;
@@ -1054,9 +1061,9 @@ describe('TreeView - _handleStateChange', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -1069,8 +1076,8 @@ describe('TreeView - _handleStateChange', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('_handleStateChange calls objectHandler', () => {
-    const node = treeView.findNodeByPath('/Root/Part1');
+  test("_handleStateChange calls objectHandler", () => {
+    const node = treeView.findNodeByPath("/Root/Part1");
 
     treeView._handleStateChange(node, 0);
 
@@ -1078,9 +1085,9 @@ describe('TreeView - _handleStateChange', () => {
     expect(objectHandler).toHaveBeenCalled();
   });
 
-  test('_handleStateChange with linkIcons=false', () => {
+  test("_handleStateChange with linkIcons=false", () => {
     treeView.linkIcons = false;
-    const node = treeView.findNodeByPath('/Root/Part1');
+    const node = treeView.findNodeByPath("/Root/Part1");
 
     treeView._handleStateChange(node, 1);
 
@@ -1089,8 +1096,8 @@ describe('TreeView - _handleStateChange', () => {
   });
 });
 
-describe('TreeView - States export', () => {
-  test('States enum is exported', () => {
+describe("TreeView - States export", () => {
+  test("States enum is exported", () => {
     expect(States).toBeDefined();
     expect(States.unselected).toBeDefined();
     expect(States.selected).toBeDefined();
@@ -1099,7 +1106,7 @@ describe('TreeView - States export', () => {
   });
 });
 
-describe('TreeView - _ensureNodeRendered', () => {
+describe("TreeView - _ensureNodeRendered", () => {
   let scrollContainer;
   let treeView;
 
@@ -1114,9 +1121,9 @@ describe('TreeView - _ensureNodeRendered', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -1129,19 +1136,19 @@ describe('TreeView - _ensureNodeRendered', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('_ensureNodeRendered renders node when element exists', () => {
-    const node = treeView.findNodeByPath('/Root');
+  test("_ensureNodeRendered renders node when element exists", () => {
+    const node = treeView.findNodeByPath("/Root");
 
     // Should not throw
     expect(() => treeView._ensureNodeRendered(node)).not.toThrow();
   });
 
-  test('_ensureNodeRendered handles non-rendered child', () => {
+  test("_ensureNodeRendered handles non-rendered child", () => {
     // First collapse all to reset render state
     treeView.collapseAll();
 
     // Get a deep child node
-    const childNode = treeView.findNodeByPath('/Root/Part2/SubPart1');
+    const childNode = treeView.findNodeByPath("/Root/Part2/SubPart1");
 
     // Clear the DOM element to simulate non-rendered state
     childNode.rendered = false;
@@ -1150,18 +1157,18 @@ describe('TreeView - _ensureNodeRendered', () => {
     expect(() => treeView._ensureNodeRendered(childNode)).not.toThrow();
   });
 
-  test('_ensureNodeRendered creates placeholder when needed', () => {
+  test("_ensureNodeRendered creates placeholder when needed", () => {
     // Collapse everything first
     treeView.collapseAll();
 
     // Find a deeply nested node
-    const deepNode = treeView.findNodeByPath('/Root/Part2/SubPart1');
+    const deepNode = treeView.findNodeByPath("/Root/Part2/SubPart1");
 
     // Mark as not rendered
     deepNode.rendered = false;
 
     // Ensure parent is rendered but children container is empty
-    const parentNode = treeView.findNodeByPath('/Root/Part2');
+    const parentNode = treeView.findNodeByPath("/Root/Part2");
     if (parentNode) {
       parentNode.expanded = false;
     }
@@ -1170,16 +1177,16 @@ describe('TreeView - _ensureNodeRendered', () => {
     expect(() => treeView._ensureNodeRendered(deepNode)).not.toThrow();
   });
 
-  test('_ensureNodeRendered handles root node', () => {
+  test("_ensureNodeRendered handles root node", () => {
     const rootNode = treeView.root;
 
     expect(() => treeView._ensureNodeRendered(rootNode)).not.toThrow();
   });
 
-  test('_ensureNodeRendered with unrendered parent creates children container', () => {
+  test("_ensureNodeRendered with unrendered parent creates children container", () => {
     // Get parent and child
-    const parentNode = treeView.findNodeByPath('/Root/Part2');
-    const childNode = treeView.findNodeByPath('/Root/Part2/SubPart1');
+    const parentNode = treeView.findNodeByPath("/Root/Part2");
+    const childNode = treeView.findNodeByPath("/Root/Part2/SubPart1");
 
     // Mark parent as not rendered
     if (parentNode) {
@@ -1191,7 +1198,7 @@ describe('TreeView - _ensureNodeRendered', () => {
   });
 });
 
-describe('TreeView - renderNode edge cases', () => {
+describe("TreeView - renderNode edge cases", () => {
   let scrollContainer;
   let treeView;
 
@@ -1206,9 +1213,9 @@ describe('TreeView - renderNode edge cases', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -1221,9 +1228,9 @@ describe('TreeView - renderNode edge cases', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('renderPlaceholder creates placeholder element', () => {
-    const node = treeView.findNodeByPath('/Root/Part1');
-    const container = document.createElement('div');
+  test("renderPlaceholder creates placeholder element", () => {
+    const node = treeView.findNodeByPath("/Root/Part1");
+    const container = document.createElement("div");
 
     expect(() => treeView.renderPlaceholder(node, container)).not.toThrow();
 
@@ -1231,11 +1238,11 @@ describe('TreeView - renderNode edge cases', () => {
     expect(container.children.length).toBeGreaterThan(0);
   });
 
-  test('renderNode renders expanded node with children', () => {
-    const node = treeView.findNodeByPath('/Root/Part2');
+  test("renderNode renders expanded node with children", () => {
+    const node = treeView.findNodeByPath("/Root/Part2");
     node.expanded = true;
 
-    const element = treeView.getDomNode('/Root/Part2');
+    const element = treeView.getDomNode("/Root/Part2");
     if (element) {
       node.rendered = false;
       expect(() => treeView.renderNode(node, element)).not.toThrow();
@@ -1243,7 +1250,7 @@ describe('TreeView - renderNode edge cases', () => {
   });
 });
 
-describe('TreeView - handleNavigationClick edge cases', () => {
+describe("TreeView - handleNavigationClick edge cases", () => {
   let scrollContainer;
   let treeView;
 
@@ -1258,9 +1265,9 @@ describe('TreeView - handleNavigationClick edge cases', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -1273,14 +1280,14 @@ describe('TreeView - handleNavigationClick edge cases', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('handleNavigationClick on non-leaf node toggles expansion', () => {
+  test("handleNavigationClick on non-leaf node toggles expansion", () => {
     treeView.expandAll();
-    const parentNode = treeView.findNodeByPath('/Root/Part2');
+    const parentNode = treeView.findNodeByPath("/Root/Part2");
     const wasExpanded = parentNode.expanded;
 
     // Create mock event
-    const element = treeView.getDomNode('/Root/Part2');
-    const navIcon = element?.querySelector('.tv-nav');
+    const element = treeView.getDomNode("/Root/Part2");
+    const navIcon = element?.querySelector(".tv-nav");
 
     if (navIcon) {
       navIcon.click();
@@ -1290,15 +1297,15 @@ describe('TreeView - handleNavigationClick edge cases', () => {
     }
   });
 
-  test('handleNavigationClick on leaf node does nothing', () => {
-    const leafNode = treeView.findNodeByPath('/Root/Part1');
+  test("handleNavigationClick on leaf node does nothing", () => {
+    const leafNode = treeView.findNodeByPath("/Root/Part1");
 
     // Leaf nodes don't have navigation icons, so this should not change anything
     expect(treeView.isLeaf(leafNode)).toBe(true);
   });
 });
 
-describe('TreeView - handleScroll', () => {
+describe("TreeView - handleScroll", () => {
   let scrollContainer;
   let treeView;
 
@@ -1313,9 +1320,9 @@ describe('TreeView - handleScroll', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -1328,18 +1335,18 @@ describe('TreeView - handleScroll', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('handleScroll triggers update on scroll', () => {
-    const updateSpy = vi.spyOn(treeView, 'update');
+  test("handleScroll triggers update on scroll", () => {
+    const updateSpy = vi.spyOn(treeView, "update");
 
     // Simulate scroll event
-    scrollContainer.dispatchEvent(new Event('scroll'));
+    scrollContainer.dispatchEvent(new Event("scroll"));
 
     // Update should be called (possibly debounced)
     expect(updateSpy).toHaveBeenCalled();
   });
 });
 
-describe('TreeView - theme', () => {
+describe("TreeView - theme", () => {
   let scrollContainer;
 
   beforeEach(() => {
@@ -1350,7 +1357,7 @@ describe('TreeView - theme', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('creates treeview with light theme', () => {
+  test("creates treeview with light theme", () => {
     const tree = createSimpleTree();
     const treeView = new TreeView(
       tree,
@@ -1360,19 +1367,19 @@ describe('TreeView - theme', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
 
-    expect(treeView.theme).toBe('light');
+    expect(treeView.theme).toBe("light");
 
     treeView.dispose();
   });
 
-  test('creates treeview with dark theme', () => {
+  test("creates treeview with dark theme", () => {
     const tree = createSimpleTree();
     const treeView = new TreeView(
       tree,
@@ -1382,20 +1389,20 @@ describe('TreeView - theme', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'dark',
+      "dark",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
 
-    expect(treeView.theme).toBe('dark');
+    expect(treeView.theme).toBe("dark");
 
     treeView.dispose();
   });
 });
 
-describe('TreeView - multiple selection', () => {
+describe("TreeView - multiple selection", () => {
   let scrollContainer;
   let treeView;
   let pickHandler;
@@ -1412,9 +1419,9 @@ describe('TreeView - multiple selection', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -1427,15 +1434,15 @@ describe('TreeView - multiple selection', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('handleLabelClick calls pickHandler', () => {
+  test("handleLabelClick calls pickHandler", () => {
     treeView.expandAll();
     treeView.update();
 
-    const node = treeView.findNodeByPath('/Root/Part1');
-    const element = treeView.getDomNode('/Root/Part1');
+    const node = treeView.findNodeByPath("/Root/Part1");
+    const element = treeView.getDomNode("/Root/Part1");
 
     if (element) {
-      const label = element.querySelector('.tv-label');
+      const label = element.querySelector(".tv-label");
       if (label) {
         label.click();
         expect(pickHandler).toHaveBeenCalled();
@@ -1444,7 +1451,7 @@ describe('TreeView - multiple selection', () => {
   });
 });
 
-describe('TreeView - toggleLabelColor edge cases', () => {
+describe("TreeView - toggleLabelColor edge cases", () => {
   let scrollContainer;
   let treeView;
 
@@ -1459,9 +1466,9 @@ describe('TreeView - toggleLabelColor edge cases', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -1476,16 +1483,16 @@ describe('TreeView - toggleLabelColor edge cases', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('toggleLabelColor clears highlight when same label clicked twice', () => {
-    const node = treeView.findNodeByPath('/Root/Part1');
-    const nodeElement = treeView.getDomNode('/Root/Part1');
+  test("toggleLabelColor clears highlight when same label clicked twice", () => {
+    const node = treeView.findNodeByPath("/Root/Part1");
+    const nodeElement = treeView.getDomNode("/Root/Part1");
 
     // First call - should set lastLabel
     treeView.toggleLabelColor(node);
 
     // Check that label was found and lastLabel was set
     if (nodeElement) {
-      const label = nodeElement.querySelector('.tv-node-label');
+      const label = nodeElement.querySelector(".tv-node-label");
       if (label && treeView.lastLabel === label) {
         // Second call on same node - should clear lastLabel (line 503)
         treeView.toggleLabelColor(node);
@@ -1494,7 +1501,7 @@ describe('TreeView - toggleLabelColor edge cases', () => {
     }
   });
 
-  test('toggleLabelColor sets lastLabel when label exists', () => {
+  test("toggleLabelColor sets lastLabel when label exists", () => {
     // Ensure nodes are fully rendered
     const rootNode = treeView.root;
     treeView._ensureNodeRendered(rootNode);
@@ -1503,9 +1510,9 @@ describe('TreeView - toggleLabelColor edge cases', () => {
     treeView.toggleLabelColor(rootNode);
 
     // If label was found, lastLabel should be set
-    const rootElement = treeView.getDomNode('/Root');
+    const rootElement = treeView.getDomNode("/Root");
     if (rootElement) {
-      const label = rootElement.querySelector('.tv-node-label');
+      const label = rootElement.querySelector(".tv-node-label");
       if (label) {
         expect(treeView.lastLabel).toBe(label);
 
@@ -1517,7 +1524,7 @@ describe('TreeView - toggleLabelColor edge cases', () => {
   });
 });
 
-describe('TreeView - updateIconInDOM', () => {
+describe("TreeView - updateIconInDOM", () => {
   let scrollContainer;
   let treeView;
 
@@ -1532,9 +1539,9 @@ describe('TreeView - updateIconInDOM', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -1549,17 +1556,17 @@ describe('TreeView - updateIconInDOM', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('updateIconInDOM updates icon classes', () => {
-    const node = treeView.findNodeByPath('/Root/Part1');
+  test("updateIconInDOM updates icon classes", () => {
+    const node = treeView.findNodeByPath("/Root/Part1");
 
     // Ensure node is fully rendered
     treeView._ensureNodeRendered(node);
 
-    const nodeElement = treeView.getDomNode('/Root/Part1');
+    const nodeElement = treeView.getDomNode("/Root/Part1");
     expect(nodeElement).not.toBeNull();
 
     // Check if icon0 exists
-    const icon0 = nodeElement.querySelector('.tv-icon0');
+    const icon0 = nodeElement.querySelector(".tv-icon0");
     if (icon0) {
       // Call updateIconInDOM to update icon 0
       treeView.updateIconInDOM(node, 0);
@@ -1573,14 +1580,14 @@ describe('TreeView - updateIconInDOM', () => {
     }
   });
 
-  test('updateIconInDOM handles icon 1', () => {
-    const node = treeView.findNodeByPath('/Root/Part1');
+  test("updateIconInDOM handles icon 1", () => {
+    const node = treeView.findNodeByPath("/Root/Part1");
     treeView._ensureNodeRendered(node);
 
-    const nodeElement = treeView.getDomNode('/Root/Part1');
+    const nodeElement = treeView.getDomNode("/Root/Part1");
     expect(nodeElement).not.toBeNull();
 
-    const icon1 = nodeElement.querySelector('.tv-icon1');
+    const icon1 = nodeElement.querySelector(".tv-icon1");
     if (icon1) {
       treeView.updateIconInDOM(node, 1);
       expect(nodeElement.dataset.state1).toBeDefined();
@@ -1590,22 +1597,22 @@ describe('TreeView - updateIconInDOM', () => {
     }
   });
 
-  test('updateIconInDOM handles non-existent node gracefully', () => {
-    const node = { path: '/NonExistent', state: [0, 0] };
+  test("updateIconInDOM handles non-existent node gracefully", () => {
+    const node = { path: "/NonExistent", state: [0, 0] };
 
     // Should not throw
     expect(() => treeView.updateIconInDOM(node, 0)).not.toThrow();
   });
 
-  test('updateIconInDOM with actual icons updates classes', () => {
+  test("updateIconInDOM with actual icons updates classes", () => {
     // Get a node that we know should have icons
-    const node = treeView.findNodeByPath('/Root');
+    const node = treeView.findNodeByPath("/Root");
     treeView._ensureNodeRendered(node);
 
-    const nodeElement = treeView.getDomNode('/Root');
+    const nodeElement = treeView.getDomNode("/Root");
     if (nodeElement) {
       // Get initial icon state
-      const icon = nodeElement.querySelector('.tv-icon0');
+      const icon = nodeElement.querySelector(".tv-icon0");
       if (icon) {
         const initialClasses = [...icon.classList];
 
@@ -1620,7 +1627,7 @@ describe('TreeView - updateIconInDOM', () => {
   });
 });
 
-describe('TreeView - _ensureNodeRendered complex paths', () => {
+describe("TreeView - _ensureNodeRendered complex paths", () => {
   let scrollContainer;
   let treeView;
 
@@ -1635,9 +1642,9 @@ describe('TreeView - _ensureNodeRendered complex paths', () => {
       vi.fn(),
       vi.fn(),
       vi.fn().mockReturnValue(null),
-      'light',
+      "light",
       true,
-      false
+      false,
     );
     treeView.create();
     treeView.render();
@@ -1650,21 +1657,21 @@ describe('TreeView - _ensureNodeRendered complex paths', () => {
     cleanupContainer(scrollContainer);
   });
 
-  test('_ensureNodeRendered renders parent when children container missing', () => {
+  test("_ensureNodeRendered renders parent when children container missing", () => {
     // Collapse all first
     treeView.collapseAll();
 
     // Get parent and child
-    const parentNode = treeView.findNodeByPath('/Root/Part2');
-    const childNode = treeView.findNodeByPath('/Root/Part2/SubPart1');
+    const parentNode = treeView.findNodeByPath("/Root/Part2");
+    const childNode = treeView.findNodeByPath("/Root/Part2/SubPart1");
 
     if (parentNode && childNode) {
       // Get the parent element
-      const parentEl = treeView.getDomNode('/Root/Part2');
+      const parentEl = treeView.getDomNode("/Root/Part2");
 
       if (parentEl) {
         // Remove children container if it exists
-        const childrenContainer = parentEl.querySelector('.tv-children');
+        const childrenContainer = parentEl.querySelector(".tv-children");
         if (childrenContainer) {
           childrenContainer.remove();
         }
@@ -1679,12 +1686,12 @@ describe('TreeView - _ensureNodeRendered complex paths', () => {
     }
   });
 
-  test('_ensureNodeRendered handles case when parent element exists but not rendered', () => {
+  test("_ensureNodeRendered handles case when parent element exists but not rendered", () => {
     // Expand to render Part2
-    treeView.openPath('/Root/Part2');
+    treeView.openPath("/Root/Part2");
 
-    const parentNode = treeView.findNodeByPath('/Root/Part2');
-    const childNode = treeView.findNodeByPath('/Root/Part2/SubPart1');
+    const parentNode = treeView.findNodeByPath("/Root/Part2");
+    const childNode = treeView.findNodeByPath("/Root/Part2/SubPart1");
 
     if (parentNode && childNode) {
       // Mark nodes as not rendered
@@ -1692,9 +1699,9 @@ describe('TreeView - _ensureNodeRendered complex paths', () => {
       childNode.rendered = false;
 
       // Remove children container from parent element
-      const parentEl = treeView.getDomNode('/Root/Part2');
+      const parentEl = treeView.getDomNode("/Root/Part2");
       if (parentEl) {
-        const childrenContainer = parentEl.querySelector('.tv-children');
+        const childrenContainer = parentEl.querySelector(".tv-children");
         if (childrenContainer) {
           childrenContainer.remove();
         }

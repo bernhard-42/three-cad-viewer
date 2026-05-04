@@ -3,7 +3,7 @@
  * Captures scene state for characterization testing
  */
 
-import * as THREE from 'three';
+import * as THREE from "three";
 
 /**
  * Capture the current scene state from a viewer instance
@@ -31,7 +31,9 @@ export function captureSceneState(viewer) {
     scene: isReady ? captureSceneTree(viewer.scene) : null,
 
     // CAD objects from nestedGroup (for testing state propagation)
-    cadObjects: isReady ? captureNestedGroupMaterials(viewer.nestedGroup) : null,
+    cadObjects: isReady
+      ? captureNestedGroupMaterials(viewer.nestedGroup)
+      : null,
 
     // Animation state
     animation: {
@@ -70,7 +72,7 @@ function captureNestedGroupMaterials(nestedGroup) {
     const type = obj.constructor.name;
 
     // Capture visibility state for all objects with names
-    if (obj.name && obj.name.length > 0 && !obj.name.startsWith('clipping')) {
+    if (obj.name && obj.name.length > 0 && !obj.name.startsWith("clipping")) {
       visibilityState.push({
         name: obj.name,
         type: type,
@@ -81,9 +83,14 @@ function captureNestedGroupMaterials(nestedGroup) {
 
     // Capture mesh materials (front and back)
     // Exclude clipping planes, caps, and other system geometry
-    if (type.includes('Mesh') && !type.includes('Sprite') && !type.includes('Plane') && obj.material) {
+    if (
+      type.includes("Mesh") &&
+      !type.includes("Sprite") &&
+      !type.includes("Plane") &&
+      obj.material
+    ) {
       // Skip clipping planes
-      if (obj.name.startsWith('clipping')) {
+      if (obj.name.startsWith("clipping")) {
         return;
       }
 
@@ -105,7 +112,7 @@ function captureNestedGroupMaterials(nestedGroup) {
     }
 
     // Capture edge materials
-    if (type.includes('Line') && obj.material) {
+    if (type.includes("Line") && obj.material) {
       const mat = obj.material;
       allEdgeMaterials.push({
         objectType: type,
@@ -199,20 +206,24 @@ function captureSceneTree(scene) {
   scene.traverse((obj) => {
     // Count object types
     const type = obj.constructor.name;
-    if (type.includes('Mesh')) counts.meshes++;
-    else if (type.includes('Line')) counts.lines++;
-    else if (type.includes('Points')) counts.points++;
-    else if (type.includes('Light')) counts.lights++;
-    else if (type.includes('Group')) counts.groups++;
-    else if (type.includes('Helper')) counts.helpers++;
-    else if (type !== 'Scene') counts.other++;
+    if (type.includes("Mesh")) counts.meshes++;
+    else if (type.includes("Line")) counts.lines++;
+    else if (type.includes("Points")) counts.points++;
+    else if (type.includes("Light")) counts.lights++;
+    else if (type.includes("Group")) counts.groups++;
+    else if (type.includes("Helper")) counts.helpers++;
+    else if (type !== "Scene") counts.other++;
 
     // Track material types
     if (obj.material) {
       materials.add(obj.material.constructor.name);
 
       // Capture first MeshStandardMaterial as sample (has metalness/roughness)
-      if (!sampleMaterial && type.includes('Mesh') && obj.material.metalness !== undefined) {
+      if (
+        !sampleMaterial &&
+        type.includes("Mesh") &&
+        obj.material.metalness !== undefined
+      ) {
         const mat = obj.material;
         sampleMaterial = {
           type: mat.constructor.name,
@@ -228,7 +239,7 @@ function captureSceneTree(scene) {
 
       // Capture ALL mesh materials (for nested group testing)
       // Exclude helpers, sprites, and system objects - only include CAD meshes
-      if (type.includes('Mesh') && !type.includes('Sprite')) {
+      if (type.includes("Mesh") && !type.includes("Sprite")) {
         const mat = obj.material;
         // Only include materials that are PBR materials (have metalness/roughness)
         if (mat.metalness !== undefined && mat.roughness !== undefined) {
@@ -246,7 +257,7 @@ function captureSceneTree(scene) {
       }
 
       // Capture first line material as sample (for black edges testing)
-      if (!sampleEdgeMaterial && type.includes('Line')) {
+      if (!sampleEdgeMaterial && type.includes("Line")) {
         const mat = obj.material;
         sampleEdgeMaterial = {
           type: mat.constructor.name,
@@ -258,7 +269,11 @@ function captureSceneTree(scene) {
 
       // Capture ALL edge materials (for nested group testing)
       // Exclude grid lines and helper lines - only include CAD edges
-      if (type.includes('Line') && !obj.name.includes('grid') && !obj.name.includes('axis')) {
+      if (
+        type.includes("Line") &&
+        !obj.name.includes("grid") &&
+        !obj.name.includes("axis")
+      ) {
         const mat = obj.material;
         allEdgeMaterials.push({
           type: mat.constructor.name,
@@ -280,11 +295,13 @@ function captureSceneTree(scene) {
         type: type,
         intensity: obj.intensity,
         color: obj.color?.getHex?.(),
-        position: obj.position ? {
-          x: obj.position.x,
-          y: obj.position.y,
-          z: obj.position.z,
-        } : null,
+        position: obj.position
+          ? {
+              x: obj.position.x,
+              y: obj.position.y,
+              z: obj.position.z,
+            }
+          : null,
       });
     }
   });
@@ -318,21 +335,25 @@ export function captureCADState(viewer) {
     visible: obj.visible,
 
     // Geometry stats
-    geometry: obj.geometry ? {
-      type: obj.geometry.constructor.name,
-      vertexCount: obj.geometry.attributes?.position?.count,
-      hasNormals: !!obj.geometry.attributes?.normal,
-      hasColors: !!obj.geometry.attributes?.color,
-      hasUVs: !!obj.geometry.attributes?.uv,
-    } : null,
+    geometry: obj.geometry
+      ? {
+          type: obj.geometry.constructor.name,
+          vertexCount: obj.geometry.attributes?.position?.count,
+          hasNormals: !!obj.geometry.attributes?.normal,
+          hasColors: !!obj.geometry.attributes?.color,
+          hasUVs: !!obj.geometry.attributes?.uv,
+        }
+      : null,
 
     // Material info
-    material: obj.material ? {
-      type: obj.material.constructor.name,
-      opacity: obj.material.opacity,
-      transparent: obj.material.transparent,
-      color: obj.material.color?.getHex?.(),
-    } : null,
+    material: obj.material
+      ? {
+          type: obj.material.constructor.name,
+          opacity: obj.material.opacity,
+          transparent: obj.material.transparent,
+          color: obj.material.color?.getHex?.(),
+        }
+      : null,
 
     // Transform
     position: {
@@ -375,7 +396,7 @@ export async function loadExample(exampleName) {
 
     // Execute the code in a sandboxed context
     // The variable name matches the filename (with hyphens converted to underscores)
-    const varName = exampleName.replace(/-/g, '_');
+    const varName = exampleName.replace(/-/g, "_");
 
     // Create a function that executes the code and returns the variable
     const fn = new Function(code + `\nreturn ${varName};`);
@@ -423,7 +444,7 @@ export function captureCompleteRendering(viewer) {
     };
 
     // Check if this is a Sprite (which has extra buffer capacity in THREE.js)
-    const isSprite = obj.constructor.name === 'Sprite';
+    const isSprite = obj.constructor.name === "Sprite";
 
     // Capture transform
     if (obj.position) {
@@ -468,7 +489,9 @@ export function captureCompleteRendering(viewer) {
             itemSize: pos.itemSize,
             count: pos.count,
             // Sprites have extra buffer capacity in THREE.js - slice to used portion only
-            array: isSprite ? posArray.slice(0, pos.count * pos.itemSize) : posArray,
+            array: isSprite
+              ? posArray.slice(0, pos.count * pos.itemSize)
+              : posArray,
           };
         }
 
@@ -480,7 +503,9 @@ export function captureCompleteRendering(viewer) {
             itemSize: normal.itemSize,
             count: normal.count,
             // Sprites have extra buffer capacity - slice to used portion only
-            array: isSprite ? normalArray.slice(0, normal.count * normal.itemSize) : normalArray,
+            array: isSprite
+              ? normalArray.slice(0, normal.count * normal.itemSize)
+              : normalArray,
           };
         }
 
@@ -492,7 +517,9 @@ export function captureCompleteRendering(viewer) {
             itemSize: color.itemSize,
             count: color.count,
             // Sprites have extra buffer capacity - slice to used portion only
-            array: isSprite ? colorArray.slice(0, color.count * color.itemSize) : colorArray,
+            array: isSprite
+              ? colorArray.slice(0, color.count * color.itemSize)
+              : colorArray,
           };
         }
 
@@ -504,7 +531,9 @@ export function captureCompleteRendering(viewer) {
             itemSize: uv.itemSize,
             count: uv.count,
             // Sprites have extra buffer capacity - slice to used portion only
-            array: isSprite ? uvArray.slice(0, uv.count * uv.itemSize) : uvArray,
+            array: isSprite
+              ? uvArray.slice(0, uv.count * uv.itemSize)
+              : uvArray,
           };
         }
       }

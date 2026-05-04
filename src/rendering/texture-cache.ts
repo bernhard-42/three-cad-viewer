@@ -86,10 +86,7 @@ class TextureCache {
    * @returns The resolved THREE.Texture, or null if the reference is invalid
    *   or loading fails
    */
-  async get(
-    ref: string,
-    textureRole: string,
-  ): Promise<THREE.Texture | null> {
+  async get(ref: string, textureRole: string): Promise<THREE.Texture | null> {
     if (this._disposed) {
       logger.warn("TextureCache.get() called after dispose");
       return null;
@@ -305,7 +302,6 @@ class TextureCache {
     }
     return this._textureLoader;
   }
-
 }
 
 /**
@@ -318,7 +314,9 @@ class TextureCache {
  * @returns THREE.SRGBColorSpace or THREE.LinearSRGBColorSpace
  */
 function getColorSpaceForMap(mapName: string): THREE.ColorSpace {
-  return THREEJS_SRGB_MAPS.has(mapName) ? THREE.SRGBColorSpace : THREE.LinearSRGBColorSpace;
+  return THREEJS_SRGB_MAPS.has(mapName)
+    ? THREE.SRGBColorSpace
+    : THREE.LinearSRGBColorSpace;
 }
 
 export { TextureCache, SRGB_TEXTURE_ROLES, getColorSpaceForMap };

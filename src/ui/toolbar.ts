@@ -227,7 +227,7 @@ class Button extends BaseButton {
     theme: string,
     svg: string,
     tooltip: string,
-    action: (name: string, shift: boolean) => void
+    action: (name: string, shift: boolean) => void,
   ) {
     super(theme, svg, tooltip);
     this.action = action;

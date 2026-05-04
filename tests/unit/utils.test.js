@@ -3,7 +3,7 @@
  * Target: 90%+ coverage for KeyMapper and EventListenerManager
  */
 
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   KeyMapper,
   EventListenerManager,
@@ -12,14 +12,14 @@ import {
   scaleLight,
   deepDispose,
   disposeGeometry,
-} from '../../src/utils/utils.js';
-import * as THREE from 'three';
+} from "../../src/utils/utils.js";
+import * as THREE from "three";
 
 // =============================================================================
 // KeyMapper Tests
 // =============================================================================
 
-describe('KeyMapper', () => {
+describe("KeyMapper", () => {
   // Store original mapping to restore after tests
   let originalMapping;
 
@@ -32,86 +32,121 @@ describe('KeyMapper', () => {
     KeyMapper.set(originalMapping);
   });
 
-  describe('default configuration', () => {
-    test('has default key mappings', () => {
+  describe("default configuration", () => {
+    test("has default key mappings", () => {
       const config = KeyMapper.get_config();
 
-      expect(config.shift).toBe('ctrlKey');
-      expect(config.ctrl).toBe('shiftKey');
-      expect(config.meta).toBe('altKey');
-      expect(config.alt).toBe('metaKey');
+      expect(config.shift).toBe("ctrlKey");
+      expect(config.ctrl).toBe("shiftKey");
+      expect(config.meta).toBe("altKey");
+      expect(config.alt).toBe("metaKey");
     });
   });
 
-  describe('get', () => {
-    test('gets shift key from event using mapping', () => {
-      const event = { ctrlKey: true, shiftKey: false, altKey: false, metaKey: false };
+  describe("get", () => {
+    test("gets shift key from event using mapping", () => {
+      const event = {
+        ctrlKey: true,
+        shiftKey: false,
+        altKey: false,
+        metaKey: false,
+      };
 
       // Default: shift maps to ctrlKey
-      expect(KeyMapper.get(event, 'shift')).toBe(true);
+      expect(KeyMapper.get(event, "shift")).toBe(true);
     });
 
-    test('gets ctrl key from event using mapping', () => {
-      const event = { ctrlKey: false, shiftKey: true, altKey: false, metaKey: false };
+    test("gets ctrl key from event using mapping", () => {
+      const event = {
+        ctrlKey: false,
+        shiftKey: true,
+        altKey: false,
+        metaKey: false,
+      };
 
       // Default: ctrl maps to shiftKey
-      expect(KeyMapper.get(event, 'ctrl')).toBe(true);
+      expect(KeyMapper.get(event, "ctrl")).toBe(true);
     });
 
-    test('gets meta key from event using mapping', () => {
-      const event = { ctrlKey: false, shiftKey: false, altKey: true, metaKey: false };
+    test("gets meta key from event using mapping", () => {
+      const event = {
+        ctrlKey: false,
+        shiftKey: false,
+        altKey: true,
+        metaKey: false,
+      };
 
       // Default: meta maps to altKey
-      expect(KeyMapper.get(event, 'meta')).toBe(true);
+      expect(KeyMapper.get(event, "meta")).toBe(true);
     });
 
-    test('gets alt key from event using mapping', () => {
-      const event = { ctrlKey: false, shiftKey: false, altKey: false, metaKey: true };
+    test("gets alt key from event using mapping", () => {
+      const event = {
+        ctrlKey: false,
+        shiftKey: false,
+        altKey: false,
+        metaKey: true,
+      };
 
       // Default: alt maps to metaKey
-      expect(KeyMapper.get(event, 'alt')).toBe(true);
+      expect(KeyMapper.get(event, "alt")).toBe(true);
     });
 
-    test('returns false when key not pressed', () => {
-      const event = { ctrlKey: false, shiftKey: false, altKey: false, metaKey: false };
+    test("returns false when key not pressed", () => {
+      const event = {
+        ctrlKey: false,
+        shiftKey: false,
+        altKey: false,
+        metaKey: false,
+      };
 
-      expect(KeyMapper.get(event, 'shift')).toBe(false);
-      expect(KeyMapper.get(event, 'ctrl')).toBe(false);
-      expect(KeyMapper.get(event, 'meta')).toBe(false);
-      expect(KeyMapper.get(event, 'alt')).toBe(false);
+      expect(KeyMapper.get(event, "shift")).toBe(false);
+      expect(KeyMapper.get(event, "ctrl")).toBe(false);
+      expect(KeyMapper.get(event, "meta")).toBe(false);
+      expect(KeyMapper.get(event, "alt")).toBe(false);
     });
   });
 
-  describe('set', () => {
-    test('updates single key mapping', () => {
-      KeyMapper.set({ shift: 'metaKey' });
+  describe("set", () => {
+    test("updates single key mapping", () => {
+      KeyMapper.set({ shift: "metaKey" });
 
-      const event = { ctrlKey: false, shiftKey: false, altKey: false, metaKey: true };
-      expect(KeyMapper.get(event, 'shift')).toBe(true);
+      const event = {
+        ctrlKey: false,
+        shiftKey: false,
+        altKey: false,
+        metaKey: true,
+      };
+      expect(KeyMapper.get(event, "shift")).toBe(true);
     });
 
-    test('updates multiple key mappings', () => {
+    test("updates multiple key mappings", () => {
       KeyMapper.set({
-        shift: 'shiftKey',
-        ctrl: 'ctrlKey',
+        shift: "shiftKey",
+        ctrl: "ctrlKey",
       });
 
-      const event = { ctrlKey: true, shiftKey: true, altKey: false, metaKey: false };
-      expect(KeyMapper.get(event, 'shift')).toBe(true);
-      expect(KeyMapper.get(event, 'ctrl')).toBe(true);
+      const event = {
+        ctrlKey: true,
+        shiftKey: true,
+        altKey: false,
+        metaKey: false,
+      };
+      expect(KeyMapper.get(event, "shift")).toBe(true);
+      expect(KeyMapper.get(event, "ctrl")).toBe(true);
     });
 
-    test('preserves unmapped keys', () => {
+    test("preserves unmapped keys", () => {
       const originalMeta = KeyMapper.get_config().meta;
 
-      KeyMapper.set({ shift: 'shiftKey' });
+      KeyMapper.set({ shift: "shiftKey" });
 
       expect(KeyMapper.get_config().meta).toBe(originalMeta);
     });
   });
 
-  describe('get_config', () => {
-    test('returns copy of current config', () => {
+  describe("get_config", () => {
+    test("returns copy of current config", () => {
       const config1 = KeyMapper.get_config();
       const config2 = KeyMapper.get_config();
 
@@ -120,12 +155,12 @@ describe('KeyMapper', () => {
     });
   });
 
-  describe('getshortcuts', () => {
+  describe("getshortcuts", () => {
     test('returns key name without "Key" suffix', () => {
-      expect(KeyMapper.getshortcuts('shift')).toBe('ctrl');
-      expect(KeyMapper.getshortcuts('ctrl')).toBe('shift');
-      expect(KeyMapper.getshortcuts('meta')).toBe('alt');
-      expect(KeyMapper.getshortcuts('alt')).toBe('meta');
+      expect(KeyMapper.getshortcuts("shift")).toBe("ctrl");
+      expect(KeyMapper.getshortcuts("ctrl")).toBe("shift");
+      expect(KeyMapper.getshortcuts("meta")).toBe("alt");
+      expect(KeyMapper.getshortcuts("alt")).toBe("meta");
     });
   });
 });
@@ -134,13 +169,13 @@ describe('KeyMapper', () => {
 // EventListenerManager Tests
 // =============================================================================
 
-describe('EventListenerManager', () => {
+describe("EventListenerManager", () => {
   let manager;
   let element;
 
   beforeEach(() => {
     manager = new EventListenerManager();
-    element = document.createElement('div');
+    element = document.createElement("div");
     document.body.appendChild(element);
   });
 
@@ -151,101 +186,101 @@ describe('EventListenerManager', () => {
     }
   });
 
-  describe('constructor', () => {
-    test('initializes empty listeners array', () => {
+  describe("constructor", () => {
+    test("initializes empty listeners array", () => {
       expect(manager.listeners).toEqual([]);
     });
   });
 
-  describe('add', () => {
-    test('adds event listener to target', () => {
+  describe("add", () => {
+    test("adds event listener to target", () => {
       const handler = vi.fn();
-      const addEventListenerSpy = vi.spyOn(element, 'addEventListener');
+      const addEventListenerSpy = vi.spyOn(element, "addEventListener");
 
-      manager.add(element, 'click', handler);
+      manager.add(element, "click", handler);
 
-      expect(addEventListenerSpy).toHaveBeenCalledWith('click', handler, false);
+      expect(addEventListenerSpy).toHaveBeenCalledWith("click", handler, false);
     });
 
-    test('stores listener info', () => {
+    test("stores listener info", () => {
       const handler = vi.fn();
 
-      manager.add(element, 'click', handler);
+      manager.add(element, "click", handler);
 
       expect(manager.listeners).toHaveLength(1);
       expect(manager.listeners[0]).toEqual({
         target: element,
-        event: 'click',
+        event: "click",
         handler: handler,
         options: false,
       });
     });
 
-    test('accepts options parameter', () => {
+    test("accepts options parameter", () => {
       const handler = vi.fn();
       const options = { capture: true, passive: true };
 
-      manager.add(element, 'scroll', handler, options);
+      manager.add(element, "scroll", handler, options);
 
       expect(manager.listeners[0].options).toEqual(options);
     });
 
-    test('listener actually fires', () => {
+    test("listener actually fires", () => {
       const handler = vi.fn();
 
-      manager.add(element, 'click', handler);
-      element.dispatchEvent(new MouseEvent('click'));
+      manager.add(element, "click", handler);
+      element.dispatchEvent(new MouseEvent("click"));
 
       expect(handler).toHaveBeenCalled();
     });
 
-    test('can add multiple listeners', () => {
+    test("can add multiple listeners", () => {
       const handler1 = vi.fn();
       const handler2 = vi.fn();
 
-      manager.add(element, 'click', handler1);
-      manager.add(element, 'mousedown', handler2);
+      manager.add(element, "click", handler1);
+      manager.add(element, "mousedown", handler2);
 
       expect(manager.listeners).toHaveLength(2);
     });
   });
 
-  describe('dispose', () => {
-    test('removes all event listeners', () => {
+  describe("dispose", () => {
+    test("removes all event listeners", () => {
       const handler1 = vi.fn();
       const handler2 = vi.fn();
-      const removeEventListenerSpy = vi.spyOn(element, 'removeEventListener');
+      const removeEventListenerSpy = vi.spyOn(element, "removeEventListener");
 
-      manager.add(element, 'click', handler1);
-      manager.add(element, 'mousedown', handler2);
+      manager.add(element, "click", handler1);
+      manager.add(element, "mousedown", handler2);
       manager.dispose();
 
       expect(removeEventListenerSpy).toHaveBeenCalledTimes(2);
     });
 
-    test('clears listeners array', () => {
+    test("clears listeners array", () => {
       const handler = vi.fn();
 
-      manager.add(element, 'click', handler);
+      manager.add(element, "click", handler);
       manager.dispose();
 
       expect(manager.listeners).toEqual([]);
     });
 
-    test('removed listeners no longer fire', () => {
+    test("removed listeners no longer fire", () => {
       const handler = vi.fn();
 
-      manager.add(element, 'click', handler);
+      manager.add(element, "click", handler);
       manager.dispose();
-      element.dispatchEvent(new MouseEvent('click'));
+      element.dispatchEvent(new MouseEvent("click"));
 
       expect(handler).not.toHaveBeenCalled();
     });
 
-    test('handles multiple dispose calls', () => {
+    test("handles multiple dispose calls", () => {
       const handler = vi.fn();
 
-      manager.add(element, 'click', handler);
+      manager.add(element, "click", handler);
       manager.dispose();
       manager.dispose();
 
@@ -258,39 +293,39 @@ describe('EventListenerManager', () => {
 // isEqual Tests
 // =============================================================================
 
-describe('isEqual', () => {
-  test('compares equal primitives', () => {
+describe("isEqual", () => {
+  test("compares equal primitives", () => {
     expect(isEqual(1, 1)).toBe(true);
-    expect(isEqual('a', 'a')).toBe(true);
+    expect(isEqual("a", "a")).toBe(true);
     expect(isEqual(true, true)).toBe(true);
   });
 
-  test('compares unequal primitives', () => {
+  test("compares unequal primitives", () => {
     expect(isEqual(1, 2)).toBe(false);
-    expect(isEqual('a', 'b')).toBe(false);
+    expect(isEqual("a", "b")).toBe(false);
     expect(isEqual(true, false)).toBe(false);
   });
 
-  test('compares equal objects', () => {
+  test("compares equal objects", () => {
     expect(isEqual({ a: 1 }, { a: 1 })).toBe(true);
     expect(isEqual({ a: { b: 2 } }, { a: { b: 2 } })).toBe(true);
   });
 
-  test('compares unequal objects', () => {
+  test("compares unequal objects", () => {
     expect(isEqual({ a: 1 }, { a: 2 })).toBe(false);
     expect(isEqual({ a: 1 }, { b: 1 })).toBe(false);
   });
 
-  test('compares equal arrays', () => {
+  test("compares equal arrays", () => {
     expect(isEqual([1, 2, 3], [1, 2, 3])).toBe(true);
   });
 
-  test('compares unequal arrays', () => {
+  test("compares unequal arrays", () => {
     expect(isEqual([1, 2, 3], [1, 2, 4])).toBe(false);
     expect(isEqual([1, 2], [1, 2, 3])).toBe(false);
   });
 
-  test('handles nested null values in objects', () => {
+  test("handles nested null values in objects", () => {
     // Note: isEqual doesn't handle top-level null/undefined (throws)
     // But it can handle null as a property value - skip that test since null === null returns true before recursion
     // This tests that the function works for non-null objects
@@ -302,17 +337,22 @@ describe('isEqual', () => {
 // flatten Tests
 // =============================================================================
 
-describe('flatten', () => {
-  test('flattens nested array', () => {
-    expect(flatten([[1, 2], [3, 4]])).toEqual([1, 2, 3, 4]);
+describe("flatten", () => {
+  test("flattens nested array", () => {
+    expect(
+      flatten([
+        [1, 2],
+        [3, 4],
+      ]),
+    ).toEqual([1, 2, 3, 4]);
   });
 
-  test('handles empty arrays', () => {
+  test("handles empty arrays", () => {
     expect(flatten([])).toEqual([]);
     expect(flatten([[]])).toEqual([]);
   });
 
-  test('handles single level array', () => {
+  test("handles single level array", () => {
     expect(flatten([[1, 2, 3]])).toEqual([1, 2, 3]);
   });
 });
@@ -321,17 +361,17 @@ describe('flatten', () => {
 // scaleLight Tests
 // =============================================================================
 
-describe('scaleLight', () => {
-  test('scales intensity by PI', () => {
+describe("scaleLight", () => {
+  test("scales intensity by PI", () => {
     expect(scaleLight(1)).toBe(Math.round(Math.PI));
     expect(scaleLight(2)).toBe(Math.round(2 * Math.PI));
   });
 
-  test('handles fractional values', () => {
+  test("handles fractional values", () => {
     expect(scaleLight(0.5)).toBe(Math.round(0.5 * Math.PI));
   });
 
-  test('handles zero', () => {
+  test("handles zero", () => {
     expect(scaleLight(0)).toBe(0);
   });
 });
@@ -340,17 +380,17 @@ describe('scaleLight', () => {
 // Disposal Functions Tests
 // =============================================================================
 
-describe('disposeGeometry', () => {
-  test('disposes geometry', () => {
+describe("disposeGeometry", () => {
+  test("disposes geometry", () => {
     const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const disposeSpy = vi.spyOn(geometry, 'dispose');
+    const disposeSpy = vi.spyOn(geometry, "dispose");
 
     disposeGeometry(geometry);
 
     expect(disposeSpy).toHaveBeenCalled();
   });
 
-  test('handles null geometry', () => {
+  test("handles null geometry", () => {
     // Should not throw
     disposeGeometry(null);
   });
@@ -358,14 +398,14 @@ describe('disposeGeometry', () => {
 
 // Note: disposeMaterial is not exported from utils.js, but deepDispose covers its functionality
 
-describe('deepDispose', () => {
-  test('disposes mesh with geometry and material', () => {
+describe("deepDispose", () => {
+  test("disposes mesh with geometry and material", () => {
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshStandardMaterial();
     const mesh = new THREE.Mesh(geometry, material);
 
-    const geoDisposeSpy = vi.spyOn(geometry, 'dispose');
-    const matDisposeSpy = vi.spyOn(material, 'dispose');
+    const geoDisposeSpy = vi.spyOn(geometry, "dispose");
+    const matDisposeSpy = vi.spyOn(material, "dispose");
 
     deepDispose(mesh);
 
@@ -373,14 +413,14 @@ describe('deepDispose', () => {
     expect(matDisposeSpy).toHaveBeenCalled();
   });
 
-  test('disposes mesh with material array', () => {
+  test("disposes mesh with material array", () => {
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material1 = new THREE.MeshStandardMaterial();
     const material2 = new THREE.MeshStandardMaterial();
     const mesh = new THREE.Mesh(geometry, [material1, material2]);
 
-    const mat1DisposeSpy = vi.spyOn(material1, 'dispose');
-    const mat2DisposeSpy = vi.spyOn(material2, 'dispose');
+    const mat1DisposeSpy = vi.spyOn(material1, "dispose");
+    const mat2DisposeSpy = vi.spyOn(material2, "dispose");
 
     deepDispose(mesh);
 
@@ -388,21 +428,21 @@ describe('deepDispose', () => {
     expect(mat2DisposeSpy).toHaveBeenCalled();
   });
 
-  test('recursively disposes children', () => {
+  test("recursively disposes children", () => {
     const parent = new THREE.Group();
     const childGeometry = new THREE.BoxGeometry(1, 1, 1);
     const childMaterial = new THREE.MeshStandardMaterial();
     const child = new THREE.Mesh(childGeometry, childMaterial);
     parent.add(child);
 
-    const geoDisposeSpy = vi.spyOn(childGeometry, 'dispose');
+    const geoDisposeSpy = vi.spyOn(childGeometry, "dispose");
 
     deepDispose(parent);
 
     expect(geoDisposeSpy).toHaveBeenCalled();
   });
 
-  test('handles object with dispose method', () => {
+  test("handles object with dispose method", () => {
     const obj = {
       dispose: vi.fn(),
     };
@@ -412,7 +452,7 @@ describe('deepDispose', () => {
     expect(obj.dispose).toHaveBeenCalled();
   });
 
-  test('handles array of objects', () => {
+  test("handles array of objects", () => {
     const obj1 = { dispose: vi.fn() };
     const obj2 = { dispose: vi.fn() };
 
@@ -422,19 +462,19 @@ describe('deepDispose', () => {
     expect(obj2.dispose).toHaveBeenCalled();
   });
 
-  test('handles null and undefined', () => {
+  test("handles null and undefined", () => {
     // Should not throw
     deepDispose(null);
     deepDispose(undefined);
   });
 
-  test('disposes Line objects', () => {
+  test("disposes Line objects", () => {
     const geometry = new THREE.BufferGeometry();
     const material = new THREE.LineBasicMaterial();
     const line = new THREE.Line(geometry, material);
 
-    const geoDisposeSpy = vi.spyOn(geometry, 'dispose');
-    const matDisposeSpy = vi.spyOn(material, 'dispose');
+    const geoDisposeSpy = vi.spyOn(geometry, "dispose");
+    const matDisposeSpy = vi.spyOn(material, "dispose");
 
     deepDispose(line);
 
@@ -442,13 +482,13 @@ describe('deepDispose', () => {
     expect(matDisposeSpy).toHaveBeenCalled();
   });
 
-  test('disposes Points objects', () => {
+  test("disposes Points objects", () => {
     const geometry = new THREE.BufferGeometry();
     const material = new THREE.PointsMaterial();
     const points = new THREE.Points(geometry, material);
 
-    const geoDisposeSpy = vi.spyOn(geometry, 'dispose');
-    const matDisposeSpy = vi.spyOn(material, 'dispose');
+    const geoDisposeSpy = vi.spyOn(geometry, "dispose");
+    const matDisposeSpy = vi.spyOn(material, "dispose");
 
     deepDispose(points);
 

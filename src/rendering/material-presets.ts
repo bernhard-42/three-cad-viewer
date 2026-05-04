@@ -33,7 +33,7 @@ export const MATERIAL_PRESETS: Record<string, MaterialAppearance> = {
   // Metals -- Polished
   // ---------------------------------------------------------------------------
 
-  "chrome": {
+  chrome: {
     name: "Chrome",
     color: [0.98, 0.98, 0.98, 1],
     metalness: 1.0,
@@ -54,21 +54,21 @@ export const MATERIAL_PRESETS: Record<string, MaterialAppearance> = {
     roughness: 0.1,
   },
 
-  "gold": {
+  gold: {
     name: "Gold",
     color: [1, 0.93, 0, 1],
     metalness: 1.0,
     roughness: 0.1,
   },
 
-  "copper": {
+  copper: {
     name: "Copper",
     color: [0.98, 0.82, 0.76, 1],
     metalness: 1.0,
     roughness: 0.15,
   },
 
-  "brass": {
+  brass: {
     name: "Brass",
     color: [0.95, 0.9, 0.7, 1],
     metalness: 1.0,
@@ -101,14 +101,14 @@ export const MATERIAL_PRESETS: Record<string, MaterialAppearance> = {
     roughness: 0.7,
   },
 
-  "titanium": {
+  titanium: {
     name: "Titanium",
     color: [0.81, 0.79, 0.77, 1],
     metalness: 1.0,
     roughness: 0.45,
   },
 
-  "galvanized": {
+  galvanized: {
     name: "Galvanized",
     color: [0.88, 0.88, 0.9, 1],
     metalness: 0.8,
@@ -140,7 +140,7 @@ export const MATERIAL_PRESETS: Record<string, MaterialAppearance> = {
     roughness: 0.4,
   },
 
-  "nylon": {
+  nylon: {
     name: "Nylon",
     color: [0.95, 0.94, 0.92, 1],
     metalness: 0.0,
@@ -268,7 +268,7 @@ export const MATERIAL_PRESETS: Record<string, MaterialAppearance> = {
     anisotropy: 0.3,
   },
 
-  "concrete": {
+  concrete: {
     name: "Concrete",
     color: [0.83, 0.82, 0.8, 1],
     metalness: 0.0,
@@ -286,4 +286,5 @@ export const MATERIAL_PRESETS: Record<string, MaterialAppearance> = {
  * Useful for UI dropdowns, validation, and programmatic enumeration.
  * Derived from MATERIAL_PRESETS keys at module load time.
  */
-export const MATERIAL_PRESET_NAMES: string[] = Object.keys(MATERIAL_PRESETS).sort();
+export const MATERIAL_PRESET_NAMES: string[] =
+  Object.keys(MATERIAL_PRESETS).sort();

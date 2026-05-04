@@ -13,7 +13,7 @@ export const ToolTypes = {
   SELECT: "SelectObjects",
 } as const;
 
-export type ToolType = typeof ToolTypes[keyof typeof ToolTypes];
+export type ToolType = (typeof ToolTypes)[keyof typeof ToolTypes];
 
 /**
  * UI elements for measurement panels.
@@ -165,7 +165,11 @@ export class Tools {
   /**
    * Handle selected object from raycaster.
    */
-  handleSelectedObj(selectedObj: PickedObject, isNewObject: boolean, shift: boolean): void {
+  handleSelectedObj(
+    selectedObj: PickedObject,
+    isNewObject: boolean,
+    shift: boolean,
+  ): void {
     if (this.distanceMeasurement.contextEnabled) {
       if (isNewObject) {
         this.distanceMeasurement.removeLastSelectedObj();

@@ -1,9 +1,9 @@
 // Global test setup file
 // This runs before all tests
 
-import { vi, expect } from 'vitest';
-import * as THREE from 'three';
-import { toAlmostEqual } from './helpers/almostEqual.js';
+import { vi, expect } from "vitest";
+import * as THREE from "three";
+import { toAlmostEqual } from "./helpers/almostEqual.js";
 
 // Register custom matchers
 expect.extend({
@@ -14,11 +14,11 @@ expect.extend({
 // These spies preserve the original behavior (output still visible)
 // but allow us to assert on console calls later
 export const consoleSpy = {
-  debug: vi.spyOn(console, 'debug'),
-  log: vi.spyOn(console, 'log'),
-  warn: vi.spyOn(console, 'warn'),
-  error: vi.spyOn(console, 'error'),
-  info: vi.spyOn(console, 'info'),
+  debug: vi.spyOn(console, "debug"),
+  log: vi.spyOn(console, "log"),
+  warn: vi.spyOn(console, "warn"),
+  error: vi.spyOn(console, "error"),
+  info: vi.spyOn(console, "info"),
 };
 
 // After each test, check for unexpected errors/warnings
@@ -26,34 +26,40 @@ export const consoleSpy = {
 afterEach(() => {
   // Log summary if there were errors or warnings
   if (consoleSpy.error.mock.calls.length > 0) {
-    console.log('\n⚠️  Console errors detected:', consoleSpy.error.mock.calls.length);
+    console.log(
+      "\n⚠️  Console errors detected:",
+      consoleSpy.error.mock.calls.length,
+    );
     consoleSpy.error.mock.calls.forEach((call, i) => {
       console.log(`  ${i + 1}.`, ...call);
     });
   }
 
   if (consoleSpy.warn.mock.calls.length > 0) {
-    console.log('\n⚠️  Console warnings detected:', consoleSpy.warn.mock.calls.length);
+    console.log(
+      "\n⚠️  Console warnings detected:",
+      consoleSpy.warn.mock.calls.length,
+    );
     consoleSpy.warn.mock.calls.forEach((call, i) => {
       console.log(`  ${i + 1}.`, ...call);
     });
   }
 
   // Clear mocks for next test
-  Object.values(consoleSpy).forEach(spy => spy.mockClear());
+  Object.values(consoleSpy).forEach((spy) => spy.mockClear());
 });
 
 // Mock Canvas 2D Context for zebra tool and other texture generation
 const mockCanvas2DContext = {
-  fillStyle: '',
-  strokeStyle: '',
+  fillStyle: "",
+  strokeStyle: "",
   lineWidth: 1,
-  lineCap: 'butt',
-  lineJoin: 'miter',
+  lineCap: "butt",
+  lineJoin: "miter",
   miterLimit: 10,
-  font: '10px sans-serif',
-  textAlign: 'start',
-  textBaseline: 'alphabetic',
+  font: "10px sans-serif",
+  textAlign: "start",
+  textBaseline: "alphabetic",
   fillRect: vi.fn(),
   strokeRect: vi.fn(),
   clearRect: vi.fn(),
@@ -98,10 +104,10 @@ const mockCanvas2DContext = {
 };
 
 // Patch HTMLCanvasElement.prototype.getContext to support 2d context
-if (typeof HTMLCanvasElement !== 'undefined') {
+if (typeof HTMLCanvasElement !== "undefined") {
   const originalGetContext = HTMLCanvasElement.prototype.getContext;
   HTMLCanvasElement.prototype.getContext = function (contextType, ...args) {
-    if (contextType === '2d') {
+    if (contextType === "2d") {
       const ctx = { ...mockCanvas2DContext };
       ctx.canvas = this;
       return ctx;
@@ -114,7 +120,7 @@ if (typeof HTMLCanvasElement !== 'undefined') {
 // This prevents shared state issues when tests run in parallel
 function createMockRenderer() {
   return {
-    domElement: document.createElement('canvas'),
+    domElement: document.createElement("canvas"),
     setPixelRatio: vi.fn(),
     setSize: vi.fn(),
     setViewport: vi.fn(),
@@ -148,8 +154,8 @@ function createMockRenderer() {
     toneMappingExposure: 1,
     capabilities: {
       getMaxAnisotropy: vi.fn(() => 16),
-      getMaxPrecision: vi.fn(() => 'highp'),
-      precision: 'highp',
+      getMaxPrecision: vi.fn(() => "highp"),
+      precision: "highp",
       logarithmicDepthBuffer: false,
       maxTextures: 16,
       maxVertexTextures: 16,
@@ -168,8 +174,8 @@ function createMockRenderer() {
 
 // Mock THREE.WebGLRenderer before tests run
 // Each instantiation gets a fresh mock to prevent shared state issues
-vi.mock('three', async () => {
-  const actual = await vi.importActual('three');
+vi.mock("three", async () => {
+  const actual = await vi.importActual("three");
   return {
     ...actual,
     WebGLRenderer: vi.fn(() => createMockRenderer()),

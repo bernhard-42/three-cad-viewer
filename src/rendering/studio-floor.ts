@@ -60,7 +60,8 @@ class StudioFloor {
    */
   setShadowIntensity(intensity: number): void {
     if (this._shadowPlane) {
-      (this._shadowPlane.material as THREE.ShadowMaterial).opacity = intensity * 1.0;
+      (this._shadowPlane.material as THREE.ShadowMaterial).opacity =
+        intensity * 1.0;
     }
   }
 
@@ -80,7 +81,10 @@ class StudioFloor {
     const floorSize = sceneSize * 6;
 
     const geometry = new THREE.PlaneGeometry(floorSize, floorSize);
-    const material = new THREE.ShadowMaterial({ opacity: 0.5, depthWrite: false });
+    const material = new THREE.ShadowMaterial({
+      opacity: 0.5,
+      depthWrite: false,
+    });
 
     const plane = new THREE.Mesh(geometry, material);
     plane.position.z = zPosition;

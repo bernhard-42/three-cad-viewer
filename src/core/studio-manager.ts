@@ -119,7 +119,10 @@ class StudioManager {
   }
 
   /** Update env background (ortho workaround, call per frame). */
-  updateEnvBackground(renderer: THREE.WebGLRenderer, camera: THREE.Camera): void {
+  updateEnvBackground(
+    renderer: THREE.WebGLRenderer,
+    camera: THREE.Camera,
+  ): void {
     this.envManager.updateEnvBackground(renderer, camera);
   }
 
@@ -166,7 +169,9 @@ class StudioManager {
 
       // 2. Build/swap studio materials (async due to textures)
       const nestedGroup = this._ctx.getNestedGroup();
-      const unresolvedTags = await nestedGroup.enterStudioMode(state.get("studioTextureMapping"));
+      const unresolvedTags = await nestedGroup.enterStudioMode(
+        state.get("studioTextureMapping"),
+      );
       if (!this._active) return;
 
       // Surface unresolved material tags to the UI
@@ -312,8 +317,12 @@ class StudioManager {
     this._setShadowsEnabled(false);
 
     // 4. Restore lighting
-    this._ctx.getAmbientLight().intensity = scaleLight(state.get("ambientIntensity"));
-    this._ctx.getDirectLight().intensity = scaleLight(state.get("directIntensity"));
+    this._ctx.getAmbientLight().intensity = scaleLight(
+      state.get("ambientIntensity"),
+    );
+    this._ctx.getDirectLight().intensity = scaleLight(
+      state.get("directIntensity"),
+    );
 
     // 5. Disable tone mapping
     renderer.toneMapping = THREE.NoToneMapping;
@@ -393,18 +402,21 @@ class StudioManager {
 
     state.subscribe("studioEnvironment", (change) => {
       if (!isActive()) return;
-      this.envManager.loadEnvironment(change.new, this._ctx.renderer).then(() => {
-        if (!isActive()) return;
-        reapplyEnv();
-        if (state.get("studioShadowIntensity") > 0) {
-          this._configureShadowLights();
-        }
-        this._ctx.update(true, false);
-        this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
-      }).catch((err) => {
-        logger.error("Unexpected error loading studio environment", err);
-        this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
-      });
+      this.envManager
+        .loadEnvironment(change.new, this._ctx.renderer)
+        .then(() => {
+          if (!isActive()) return;
+          reapplyEnv();
+          if (state.get("studioShadowIntensity") > 0) {
+            this._configureShadowLights();
+          }
+          this._ctx.update(true, false);
+          this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
+        })
+        .catch((err) => {
+          logger.error("Unexpected error loading studio environment", err);
+          this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
+        });
     });
 
     state.subscribe("studioEnvIntensity", () => {
@@ -492,15 +504,17 @@ class StudioManager {
     state.subscribe("studio4kEnvMaps", (change) => {
       if (!isActive()) return;
       const envName = state.get("studioEnvironment");
-      this.envManager.setUse4kEnvMaps(change.new, envName, this._ctx.renderer).then(() => {
-        if (!isActive()) return;
-        reapplyEnv();
-        if (state.get("studioShadowIntensity") > 0) {
-          this._configureShadowLights();
-        }
-        this._ctx.update(true, false);
-        this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
-      });
+      this.envManager
+        .setUse4kEnvMaps(change.new, envName, this._ctx.renderer)
+        .then(() => {
+          if (!isActive()) return;
+          reapplyEnv();
+          if (state.get("studioShadowIntensity") > 0) {
+            this._configureShadowLights();
+          }
+          this._ctx.update(true, false);
+          this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
+        });
     });
 
     state.subscribe("studioTextureMapping", () => {
@@ -611,7 +625,9 @@ class StudioManager {
     if (this._composer) {
       this._composer.setShadowMaskEnabled(true);
       this._composer.setShadowSoftness(state.get("studioShadowSoftness"));
-      this._composer.setShadowMaskIntensity(state.get("studioShadowIntensity") * 0.75);
+      this._composer.setShadowMaskIntensity(
+        state.get("studioShadowIntensity") * 0.75,
+      );
     }
   }
 
@@ -660,7 +676,9 @@ class StudioManager {
 
       this._ctx.getScene().traverse((obj) => {
         if (obj instanceof THREE.Mesh && obj.material) {
-          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+          const mats = Array.isArray(obj.material)
+            ? obj.material
+            : [obj.material];
           for (const m of mats) {
             m.needsUpdate = true;
           }
@@ -693,7 +711,9 @@ class StudioManager {
     const nestedGroup = this._ctx.getNestedGroup();
     nestedGroup.leaveStudioMode();
     nestedGroup.clearStudioMaterialCache();
-    const unresolvedTags = await nestedGroup.enterStudioMode(this._ctx.state.get("studioTextureMapping"));
+    const unresolvedTags = await nestedGroup.enterStudioMode(
+      this._ctx.state.get("studioTextureMapping"),
+    );
     if (this._active) {
       nestedGroup.setStudioShowEdges(false);
       if (unresolvedTags.length > 0) {

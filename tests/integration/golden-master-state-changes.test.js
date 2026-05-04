@@ -1,8 +1,8 @@
-import { describe, test, expect, afterEach } from 'vitest';
-import { setupViewer, cleanup } from '../helpers/setup.js';
-import { loadExample, captureSceneState } from '../helpers/snapshot.js';
+import { describe, test, expect, afterEach } from "vitest";
+import { setupViewer, cleanup } from "../helpers/setup.js";
+import { loadExample, captureSceneState } from "../helpers/snapshot.js";
 
-describe('Golden Master - State Changes', () => {
+describe("Golden Master - State Changes", () => {
   let testContext;
 
   afterEach(() => {
@@ -17,12 +17,12 @@ describe('Golden Master - State Changes', () => {
    * These capture before/after states to ensure refactoring doesn't break state transitions
    */
 
-  describe('Material property state changes', () => {
-    test('changing metalness updates material properties', async () => {
+  describe("Material property state changes", () => {
+    test("changing metalness updates material properties", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -34,17 +34,19 @@ describe('Golden Master - State Changes', () => {
 
       // Material metalness should be updated
       expect(finalState.scene.sampleMaterial.metalness).toBe(0.8);
-      expect(finalState.scene.sampleMaterial.metalness).not.toBe(initialState.scene.sampleMaterial.metalness);
+      expect(finalState.scene.sampleMaterial.metalness).not.toBe(
+        initialState.scene.sampleMaterial.metalness,
+      );
 
       // Scene structure unchanged
       expect(finalState.scene.counts).toEqual(initialState.scene.counts);
     });
 
-    test('changing roughness updates material properties', async () => {
+    test("changing roughness updates material properties", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -54,15 +56,17 @@ describe('Golden Master - State Changes', () => {
       const finalState = captureSceneState(viewer);
 
       expect(finalState.scene.sampleMaterial.roughness).toBe(0.2);
-      expect(finalState.scene.sampleMaterial.roughness).not.toBe(initialState.scene.sampleMaterial.roughness);
+      expect(finalState.scene.sampleMaterial.roughness).not.toBe(
+        initialState.scene.sampleMaterial.roughness,
+      );
       expect(finalState.scene.counts).toEqual(initialState.scene.counts);
     });
 
-    test('toggling transparency updates material opacity', async () => {
+    test("toggling transparency updates material opacity", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -75,16 +79,18 @@ describe('Golden Master - State Changes', () => {
       const transparentState = captureSceneState(viewer);
 
       // Check opacity values changed
-      expect(opaqueState.scene.sampleMaterial.opacity).toBeGreaterThan(transparentState.scene.sampleMaterial.opacity);
+      expect(opaqueState.scene.sampleMaterial.opacity).toBeGreaterThan(
+        transparentState.scene.sampleMaterial.opacity,
+      );
       expect(transparentState.scene.sampleMaterial.opacity).toBeLessThan(1.0);
       expect(transparentState.scene.counts).toEqual(initialState.scene.counts);
     });
 
-    test('toggling black edges updates edge material', async () => {
+    test("toggling black edges updates edge material", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -96,17 +102,19 @@ describe('Golden Master - State Changes', () => {
       // Black edges changes edge line color to black (0x000000)
       expect(finalState.scene.sampleEdgeMaterial).toBeDefined();
       expect(finalState.scene.sampleEdgeMaterial.color).toBe(0x000000);
-      expect(finalState.scene.sampleEdgeMaterial.color).not.toBe(initialState.scene.sampleEdgeMaterial?.color);
+      expect(finalState.scene.sampleEdgeMaterial.color).not.toBe(
+        initialState.scene.sampleEdgeMaterial?.color,
+      );
       expect(finalState.scene.counts).toEqual(initialState.scene.counts);
     });
   });
 
-  describe('Lighting state changes', () => {
-    test('changing ambient intensity updates lights', async () => {
+  describe("Lighting state changes", () => {
+    test("changing ambient intensity updates lights", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -116,19 +124,23 @@ describe('Golden Master - State Changes', () => {
       const finalState = captureSceneState(viewer);
 
       // Find ambient light and check intensity
-      const ambientLight = finalState.scene.lights.find(l => l.type === 'AmbientLight');
-      const initialAmbientLight = initialState.scene.lights.find(l => l.type === 'AmbientLight');
+      const ambientLight = finalState.scene.lights.find(
+        (l) => l.type === "AmbientLight",
+      );
+      const initialAmbientLight = initialState.scene.lights.find(
+        (l) => l.type === "AmbientLight",
+      );
 
       expect(ambientLight).toBeDefined();
       expect(ambientLight.intensity).not.toBe(initialAmbientLight.intensity);
       expect(finalState.scene.counts).toEqual(initialState.scene.counts);
     });
 
-    test('changing direct intensity updates lights', async () => {
+    test("changing direct intensity updates lights", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -137,8 +149,12 @@ describe('Golden Master - State Changes', () => {
 
       const finalState = captureSceneState(viewer);
 
-      const directLight = finalState.scene.lights.find(l => l.type === 'DirectionalLight');
-      const initialDirectLight = initialState.scene.lights.find(l => l.type === 'DirectionalLight');
+      const directLight = finalState.scene.lights.find(
+        (l) => l.type === "DirectionalLight",
+      );
+      const initialDirectLight = initialState.scene.lights.find(
+        (l) => l.type === "DirectionalLight",
+      );
 
       expect(directLight).toBeDefined();
       expect(directLight.intensity).not.toBe(initialDirectLight.intensity);
@@ -146,19 +162,20 @@ describe('Golden Master - State Changes', () => {
     });
   });
 
-  describe('Object visibility state changes', () => {
-    test('hiding object using setObject', async () => {
+  describe("Object visibility state changes", () => {
+    test("hiding object using setObject", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
 
       // Find an ObjectGroup (not just a Group)
       const paths = Object.keys(viewer.nestedGroup.groups).filter(
-        path => viewer.nestedGroup.groups[path].constructor.name === 'ObjectGroup'
+        (path) =>
+          viewer.nestedGroup.groups[path].constructor.name === "ObjectGroup",
       );
 
       if (paths.length > 0) {
@@ -173,16 +190,17 @@ describe('Golden Master - State Changes', () => {
       }
     });
 
-    test('showing object restores visibility', async () => {
+    test("showing object restores visibility", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       // Find an ObjectGroup (not just a Group)
       const paths = Object.keys(viewer.nestedGroup.groups).filter(
-        path => viewer.nestedGroup.groups[path].constructor.name === 'ObjectGroup'
+        (path) =>
+          viewer.nestedGroup.groups[path].constructor.name === "ObjectGroup",
       );
 
       if (paths.length > 0) {
@@ -199,12 +217,12 @@ describe('Golden Master - State Changes', () => {
     });
   });
 
-  describe('Camera state changes', () => {
-    test('changing zoom with setCameraZoom', async () => {
+  describe("Camera state changes", () => {
+    test("changing zoom with setCameraZoom", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -217,29 +235,31 @@ describe('Golden Master - State Changes', () => {
       expect(finalState.scene.counts).toEqual(initialState.scene.counts);
     });
 
-    test('preset camera changes position', async () => {
+    test("preset camera changes position", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
 
-      viewer.presetCamera('front', viewer.zoom);
+      viewer.presetCamera("front", viewer.zoom);
 
       const finalState = captureSceneState(viewer);
 
       // Preset camera changes the camera position, not the target
-      expect(initialState.camera.position).not.toEqual(finalState.camera.position);
+      expect(initialState.camera.position).not.toEqual(
+        finalState.camera.position,
+      );
       expect(finalState.scene.counts).toEqual(initialState.scene.counts);
     });
 
-    test('switching ortho/perspective with setOrtho', async () => {
+    test("switching ortho/perspective with setOrtho", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -254,12 +274,12 @@ describe('Golden Master - State Changes', () => {
     });
   });
 
-  describe('Display state changes', () => {
-    test('toggling axes with setAxes', async () => {
+  describe("Display state changes", () => {
+    test("toggling axes with setAxes", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -271,14 +291,16 @@ describe('Golden Master - State Changes', () => {
       // Axes state should change (setAxes hides rather than removes)
       expect(initialState.display.axes).toBe(true);
       expect(finalState.display.axes).toBe(false);
-      expect(finalState.scene.counts.helpers).toBe(initialState.scene.counts.helpers);
+      expect(finalState.scene.counts.helpers).toBe(
+        initialState.scene.counts.helpers,
+      );
     });
 
-    test('toggling grid with setGrid', async () => {
+    test("toggling grid with setGrid", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -294,14 +316,16 @@ describe('Golden Master - State Changes', () => {
       // Grid state should toggle
       expect(gridOnState.display.grid).toEqual([true, true, true]);
       expect(gridOffState.display.grid).toEqual([false, false, false]);
-      expect(gridOffState.scene.totalChildren).toBe(gridOnState.scene.totalChildren);
+      expect(gridOffState.scene.totalChildren).toBe(
+        gridOnState.scene.totalChildren,
+      );
     });
 
-    test('toggling grid individual planes', async () => {
+    test("toggling grid individual planes", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       // Turn all grids ON first
@@ -315,16 +339,18 @@ describe('Golden Master - State Changes', () => {
       // Individual grid planes can be toggled
       expect(allOnState.display.grid).toEqual([true, true, true]);
       expect(onePlaneOffState.display.grid).toEqual([true, false, true]);
-      expect(onePlaneOffState.scene.totalChildren).toBe(allOnState.scene.totalChildren);
+      expect(onePlaneOffState.scene.totalChildren).toBe(
+        allOnState.scene.totalChildren,
+      );
     });
   });
 
-  describe('State consistency checks', () => {
-    test('multiple state changes are cumulative', async () => {
+  describe("State consistency checks", () => {
+    test("multiple state changes are cumulative", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -345,11 +371,11 @@ describe('Golden Master - State Changes', () => {
       expect(finalState.scene.counts).toEqual(initialState.scene.counts);
     });
 
-    test('state changes are reversible', async () => {
+    test("state changes are reversible", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -363,36 +389,39 @@ describe('Golden Master - State Changes', () => {
       // Should be approximately equal
       expect(revertedState.scene.sampleMaterial.metalness).toAlmostEqual(
         initialState.scene.sampleMaterial.metalness,
-        1e-6
+        1e-6,
       );
     });
 
-    test('re-rendering with clear() resets state', async () => {
+    test("re-rendering with clear() resets state", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data1 = await loadExample('box1');
+      const box1Data1 = await loadExample("box1");
       viewer.render(box1Data1, renderOptions, viewerOptions);
       const state1 = captureSceneState(viewer);
 
       // Clear and re-render
       viewer.clear();
-      const box1Data2 = await loadExample('box1');
+      const box1Data2 = await loadExample("box1");
       viewer.render(box1Data2, renderOptions, viewerOptions);
       const state2 = captureSceneState(viewer);
 
       // States should be similar after clear+render (scene might have different object IDs)
       expect(state2.scene.counts).toEqual(state1.scene.counts);
-      expect(state2.scene.sampleMaterial).toAlmostEqual(state1.scene.sampleMaterial, 1e-6);
+      expect(state2.scene.sampleMaterial).toAlmostEqual(
+        state1.scene.sampleMaterial,
+        1e-6,
+      );
     });
   });
 
-  describe('Animation state', () => {
-    test('animation state is captured', async () => {
+  describe("Animation state", () => {
+    test("animation state is captured", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const linkageData = await loadExample('linkage');
+      const linkageData = await loadExample("linkage");
       viewer.render(linkageData, renderOptions, viewerOptions);
 
       const state = captureSceneState(viewer);
@@ -403,12 +432,12 @@ describe('Golden Master - State Changes', () => {
     });
   });
 
-  describe('Nested groups (assembly)', () => {
-    test('changing metalness propagates to all nested materials', async () => {
+  describe("Nested groups (assembly)", () => {
+    test("changing metalness propagates to all nested materials", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const assemblyData = await loadExample('assembly');
+      const assemblyData = await loadExample("assembly");
       viewer.render(assemblyData, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -421,16 +450,26 @@ describe('Golden Master - State Changes', () => {
       expect(finalState.cadObjects.meshMaterials.length).toBeGreaterThan(0);
 
       // Find materials with wrong metalness values
-      const wrongMaterials = finalState.cadObjects.meshMaterials.filter(m => m.metalness !== 0.9);
+      const wrongMaterials = finalState.cadObjects.meshMaterials.filter(
+        (m) => m.metalness !== 0.9,
+      );
       if (wrongMaterials.length > 0) {
-        console.log('\n=== Materials with wrong metalness ===');
-        console.log('Count:', wrongMaterials.length, '/', finalState.cadObjects.meshMaterials.length);
-        console.log('Sample:', wrongMaterials.slice(0, 3).map(m => ({
-          objectType: m.objectType,
-          objectName: m.objectName,
-          materialType: m.type,
-          metalness: m.metalness,
-        })));
+        console.log("\n=== Materials with wrong metalness ===");
+        console.log(
+          "Count:",
+          wrongMaterials.length,
+          "/",
+          finalState.cadObjects.meshMaterials.length,
+        );
+        console.log(
+          "Sample:",
+          wrongMaterials.slice(0, 3).map((m) => ({
+            objectType: m.objectType,
+            objectName: m.objectName,
+            materialType: m.type,
+            metalness: m.metalness,
+          })),
+        );
       }
 
       for (const material of finalState.cadObjects.meshMaterials) {
@@ -438,15 +477,17 @@ describe('Golden Master - State Changes', () => {
       }
 
       // Initial materials should NOT all be 0.9
-      const initialWithNewValue = initialState.cadObjects.meshMaterials.filter(m => m.metalness === 0.9).length;
+      const initialWithNewValue = initialState.cadObjects.meshMaterials.filter(
+        (m) => m.metalness === 0.9,
+      ).length;
       expect(initialWithNewValue).toBe(0);
     });
 
-    test('changing roughness propagates to all nested materials', async () => {
+    test("changing roughness propagates to all nested materials", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const assemblyData = await loadExample('assembly');
+      const assemblyData = await loadExample("assembly");
       viewer.render(assemblyData, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -463,15 +504,17 @@ describe('Golden Master - State Changes', () => {
       }
 
       // Initial materials should NOT all be 0.15
-      const initialWithNewValue = initialState.cadObjects.meshMaterials.filter(m => m.roughness === 0.15).length;
+      const initialWithNewValue = initialState.cadObjects.meshMaterials.filter(
+        (m) => m.roughness === 0.15,
+      ).length;
       expect(initialWithNewValue).toBe(0);
     });
 
-    test('toggling black edges propagates to all edge materials', async () => {
+    test("toggling black edges propagates to all edge materials", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const assemblyData = await loadExample('assembly');
+      const assemblyData = await loadExample("assembly");
       viewer.render(assemblyData, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -488,15 +531,17 @@ describe('Golden Master - State Changes', () => {
       }
 
       // Initial edge materials should not all be black
-      const initialBlackCount = initialState.cadObjects.edgeMaterials.filter(m => m.color === 0x000000).length;
+      const initialBlackCount = initialState.cadObjects.edgeMaterials.filter(
+        (m) => m.color === 0x000000,
+      ).length;
       expect(initialBlackCount).toBe(0);
     });
 
-    test('toggling transparency propagates to all nested materials', async () => {
+    test("toggling transparency propagates to all nested materials", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const assemblyData = await loadExample('assembly');
+      const assemblyData = await loadExample("assembly");
       viewer.render(assemblyData, renderOptions, viewerOptions);
 
       const initialState = captureSceneState(viewer);
@@ -522,8 +567,8 @@ describe('Golden Master - State Changes', () => {
     });
   });
 
-  describe('Edge cases', () => {
-    test('state changes without scene throw errors', async () => {
+  describe("Edge cases", () => {
+    test("state changes without scene throw errors", async () => {
       testContext = setupViewer();
       const { viewer } = testContext;
 
@@ -537,11 +582,11 @@ describe('Golden Master - State Changes', () => {
       }).toThrow();
     });
 
-    test('extreme material values are handled', async () => {
+    test("extreme material values are handled", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       // Set extreme values
@@ -555,12 +600,12 @@ describe('Golden Master - State Changes', () => {
     });
   });
 
-  describe('Material value clamping', () => {
-    test('setRoughness clamps values to 0-1 range', async () => {
+  describe("Material value clamping", () => {
+    test("setRoughness clamps values to 0-1 range", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       // Test clamping above max
@@ -576,11 +621,11 @@ describe('Golden Master - State Changes', () => {
       expect(viewer.getRoughness()).toBe(0.5);
     });
 
-    test('setMetalness clamps values to 0-1 range', async () => {
+    test("setMetalness clamps values to 0-1 range", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       // Test clamping above max
@@ -596,11 +641,11 @@ describe('Golden Master - State Changes', () => {
       expect(viewer.getMetalness()).toBe(0.3);
     });
 
-    test('setAmbientLight clamps values to 0-4 range', async () => {
+    test("setAmbientLight clamps values to 0-4 range", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       // Test clamping above max
@@ -616,11 +661,11 @@ describe('Golden Master - State Changes', () => {
       expect(viewer.getAmbientLight()).toBe(2.5);
     });
 
-    test('setDirectLight clamps values to 0-4 range', async () => {
+    test("setDirectLight clamps values to 0-4 range", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions, viewerOptions } = testContext;
 
-      const box1Data = await loadExample('box1');
+      const box1Data = await loadExample("box1");
       viewer.render(box1Data, renderOptions, viewerOptions);
 
       // Test clamping above max

@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { vi } from 'vitest';
+import * as THREE from "three";
+import { vi } from "vitest";
 
 /**
  * Mock WebGLRenderer for testing (happy-dom doesn't support WebGL)
@@ -7,7 +7,7 @@ import { vi } from 'vitest';
  */
 export function mockWebGLRenderer() {
   const mockRenderer = {
-    domElement: document.createElement('canvas'),
+    domElement: document.createElement("canvas"),
     setPixelRatio: vi.fn(),
     setSize: vi.fn(),
     setClearColor: vi.fn(),
@@ -23,7 +23,7 @@ export function mockWebGLRenderer() {
   };
 
   // Mock the THREE.WebGLRenderer constructor
-  vi.spyOn(THREE, 'WebGLRenderer').mockImplementation(() => mockRenderer);
+  vi.spyOn(THREE, "WebGLRenderer").mockImplementation(() => mockRenderer);
 
   return mockRenderer;
 }

@@ -8,7 +8,7 @@ const States = {
   disabled: 3,
 } as const;
 
-type StateValue = typeof States[keyof typeof States];
+type StateValue = (typeof States)[keyof typeof States];
 
 /** Icon index: 0 for shapes, 1 for edges */
 type IconIndex = 0 | 1;
@@ -36,14 +36,18 @@ interface TreeData {
 /**
  * Type guard to check if a tree data value is a leaf state array.
  */
-function isLeafState(value: [StateValue, StateValue] | TreeData): value is [StateValue, StateValue] {
+function isLeafState(
+  value: [StateValue, StateValue] | TreeData,
+): value is [StateValue, StateValue] {
   return Array.isArray(value) && value.length === 2;
 }
 
 /**
  * Type guard to check if a tree data value is a nested TreeData object.
  */
-function isTreeData(value: [StateValue, StateValue] | TreeData): value is TreeData {
+function isTreeData(
+  value: [StateValue, StateValue] | TreeData,
+): value is TreeData {
   return typeof value === "object" && !Array.isArray(value);
 }
 
@@ -87,12 +91,20 @@ class TreeModel {
     const build = (
       data: TreeData,
       path: string | null,
-      level: number
+      level: number,
     ): [Record<string, TreeNode>, [StateValue, StateValue]] => {
-      const result: [StateValue, StateValue] = [States.unselected, States.unselected];
+      const result: [StateValue, StateValue] = [
+        States.unselected,
+        States.unselected,
+      ];
 
       const calcState = (
-        states: [[boolean, boolean], [boolean, boolean], [boolean, boolean], [boolean, boolean]]
+        states: [
+          [boolean, boolean],
+          [boolean, boolean],
+          [boolean, boolean],
+          [boolean, boolean],
+        ],
       ): [StateValue, StateValue] => {
         for (const s of [0, 1] as const) {
           if (
@@ -117,7 +129,12 @@ class TreeModel {
         this.maxLevel = level;
       }
 
-      const trackStates: [[boolean, boolean], [boolean, boolean], [boolean, boolean], [boolean, boolean]] = [
+      const trackStates: [
+        [boolean, boolean],
+        [boolean, boolean],
+        [boolean, boolean],
+        [boolean, boolean],
+      ] = [
         [false, false],
         [false, false],
         [false, false],
@@ -319,14 +336,19 @@ class TreeModel {
    * @param force - Force to specific state (true=selected, false=unselected, null=toggle).
    * @returns True if state was changed.
    */
-  toggleNodeState(node: TreeNode, iconNumber: IconIndex, force: boolean | null = null): boolean {
+  toggleNodeState(
+    node: TreeNode,
+    iconNumber: IconIndex,
+    force: boolean | null = null,
+  ): boolean {
     const currentState = node.state[iconNumber];
     if (currentState === States.disabled) {
       return false;
     }
 
     // Determine which icons to update (linked mode affects icon 0)
-    const icons: IconIndex[] = iconNumber === 0 ? (this.linkIcons ? [0, 1] : [0]) : [1];
+    const icons: IconIndex[] =
+      iconNumber === 0 ? (this.linkIcons ? [0, 1] : [0]) : [1];
 
     for (const i of icons) {
       if (node.state[i] !== States.disabled) {
@@ -365,12 +387,12 @@ class TreeModel {
       const allSelected = children.every(
         (child) =>
           child.state[iconNumber] === States.selected ||
-          child.state[iconNumber] === States.disabled
+          child.state[iconNumber] === States.disabled,
       );
       const allUnselected = children.every(
         (child) =>
           child.state[iconNumber] === States.unselected ||
-          child.state[iconNumber] === States.disabled
+          child.state[iconNumber] === States.disabled,
       );
 
       const newState: StateValue = allSelected

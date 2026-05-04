@@ -61,9 +61,9 @@ import { logger } from "../utils/logger.js";
 // ---------------------------------------------------------------------------
 
 const TONE_MAP_MODE: Record<StudioToneMapping, THREE.ToneMapping> = {
-  "neutral": THREE.NeutralToneMapping,
-  "ACES": THREE.ACESFilmicToneMapping,
-  "none": THREE.LinearToneMapping,
+  neutral: THREE.NeutralToneMapping,
+  ACES: THREE.ACESFilmicToneMapping,
+  none: THREE.LinearToneMapping,
 };
 
 // Scratch color to avoid per-frame allocation
@@ -217,8 +217,9 @@ class StudioComposer {
     if (onSmaaReady) {
       // postprocessing's TS types only declare "change"; SMAA dispatches
       // "load" at runtime when the lookup textures finish decoding.
-      (smaaEffect as unknown as THREE.EventDispatcher<{ load: object }>)
-        .addEventListener("load", () => onSmaaReady());
+      (
+        smaaEffect as unknown as THREE.EventDispatcher<{ load: object }>
+      ).addEventListener("load", () => onSmaaReady());
     }
     this._shadowMaskEffect = new ShadowMaskEffect();
     this._effectPass = new EffectPass(
@@ -292,7 +293,9 @@ class StudioComposer {
   setToneMapping(mode: StudioToneMapping, exposure: number): void {
     const mapped = TONE_MAP_MODE[mode];
     if (mapped === undefined) {
-      logger.warn(`StudioComposer: unknown tone mapping mode "${mode}", falling back to Neutral`);
+      logger.warn(
+        `StudioComposer: unknown tone mapping mode "${mode}", falling back to Neutral`,
+      );
       this._renderer.toneMapping = THREE.NeutralToneMapping;
     } else {
       this._renderer.toneMapping = mapped;
@@ -409,7 +412,11 @@ class StudioComposer {
     this._n8aoPass.setSize(width, height);
 
     // Resize shadow mask RTs at half resolution
-    if (this._shadowMaskRT && this._blurredObjectMaskRT && this._blurredFloorMaskRT) {
+    if (
+      this._shadowMaskRT &&
+      this._blurredObjectMaskRT &&
+      this._blurredFloorMaskRT
+    ) {
       const halfW = Math.max(1, Math.floor(width / 2));
       const halfH = Math.max(1, Math.floor(height / 2));
       this._shadowMaskRT.setSize(halfW, halfH);
@@ -438,23 +445,38 @@ class StudioComposer {
   render(deltaTime?: number): void {
     // Two-pass shadow mask: objects and floor are blurred separately to
     // avoid depth-discontinuity halos at their boundary.
-    if (this._shadowMaskEnabled && this._shadowMaskRT && this._blurPass
-        && this._blurredObjectMaskRT && this._blurredFloorMaskRT) {
+    if (
+      this._shadowMaskEnabled &&
+      this._shadowMaskRT &&
+      this._blurPass &&
+      this._blurredObjectMaskRT &&
+      this._blurredFloorMaskRT
+    ) {
       this._renderer.shadowMap.autoUpdate = false;
       this._renderer.shadowMap.needsUpdate = true;
 
       // Pass 1: object shadow mask (floor hidden, generates shadow map)
       this._renderShadowMask("objects");
-      this._blurPass.render(this._renderer, this._shadowMaskRT, this._blurredObjectMaskRT);
+      this._blurPass.render(
+        this._renderer,
+        this._shadowMaskRT,
+        this._blurredObjectMaskRT,
+      );
 
       // Pass 2: floor shadow mask (objects hidden, reuses shadow map)
       this._renderer.shadowMap.needsUpdate = false;
       this._renderShadowMask("floor");
-      this._blurPass.render(this._renderer, this._shadowMaskRT, this._blurredFloorMaskRT);
+      this._blurPass.render(
+        this._renderer,
+        this._shadowMaskRT,
+        this._blurredFloorMaskRT,
+      );
 
       // Feed both blurred masks to the compositing effect
-      this._shadowMaskEffect.uniforms.get("shadowMaskObjects")!.value = this._blurredObjectMaskRT.texture;
-      this._shadowMaskEffect.uniforms.get("shadowMaskFloor")!.value = this._blurredFloorMaskRT.texture;
+      this._shadowMaskEffect.uniforms.get("shadowMaskObjects")!.value =
+        this._blurredObjectMaskRT.texture;
+      this._shadowMaskEffect.uniforms.get("shadowMaskFloor")!.value =
+        this._blurredFloorMaskRT.texture;
 
       this._renderer.shadowMap.autoUpdate = true;
     }

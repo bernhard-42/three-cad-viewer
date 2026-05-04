@@ -3,59 +3,66 @@
  * Target: 80%+ coverage for tools.js, measure.js, select.js, ui.js
  */
 
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import * as THREE from 'three';
-import { Tools, ToolTypes } from '../../src/tools/cad_tools/tools.js';
-import { DistanceMeasurement, PropertiesMeasurement } from '../../src/tools/cad_tools/measure.js';
-import { SelectObject } from '../../src/tools/cad_tools/select.js';
-import { FilterByDropDownMenu, DistancePanel, PropertiesPanel } from '../../src/tools/cad_tools/ui.js';
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+import * as THREE from "three";
+import { Tools, ToolTypes } from "../../src/tools/cad_tools/tools.js";
+import {
+  DistanceMeasurement,
+  PropertiesMeasurement,
+} from "../../src/tools/cad_tools/measure.js";
+import { SelectObject } from "../../src/tools/cad_tools/select.js";
+import {
+  FilterByDropDownMenu,
+  DistancePanel,
+  PropertiesPanel,
+} from "../../src/tools/cad_tools/ui.js";
 
 // =============================================================================
 // MOCK HELPERS
 // =============================================================================
 
 function createMockDisplay() {
-  const container = document.createElement('div');
+  const container = document.createElement("div");
 
   // Create mock panels
-  const distancePanel = document.createElement('div');
-  distancePanel.id = 'tcv_distance_measurement_panel';
-  distancePanel.style.display = 'none';
+  const distancePanel = document.createElement("div");
+  distancePanel.id = "tcv_distance_measurement_panel";
+  distancePanel.style.display = "none";
   container.appendChild(distancePanel);
 
-  const propertiesPanel = document.createElement('div');
-  propertiesPanel.id = 'tcv_properties_measurement_panel';
-  const subheader = document.createElement('div');
-  subheader.className = 'tcv_measure_subheader';
+  const propertiesPanel = document.createElement("div");
+  propertiesPanel.id = "tcv_properties_measurement_panel";
+  const subheader = document.createElement("div");
+  subheader.className = "tcv_measure_subheader";
   propertiesPanel.appendChild(subheader);
-  propertiesPanel.style.display = 'none';
+  propertiesPanel.style.display = "none";
   container.appendChild(propertiesPanel);
 
   // Create filter elements
-  const filterSelect = document.createElement('div');
-  filterSelect.id = 'tcv_shape_filter';
+  const filterSelect = document.createElement("div");
+  filterSelect.id = "tcv_shape_filter";
   container.appendChild(filterSelect);
 
-  const filterDropdown = document.createElement('div');
-  filterDropdown.id = 'tcv_filter_dropdown';
+  const filterDropdown = document.createElement("div");
+  filterDropdown.id = "tcv_filter_dropdown";
   container.appendChild(filterDropdown);
 
-  const filterIcon = document.createElement('div');
-  filterIcon.id = 'tcv_filter_icon';
+  const filterIcon = document.createElement("div");
+  filterIcon.id = "tcv_filter_icon";
   container.appendChild(filterIcon);
 
-  const filterValue = document.createElement('div');
-  filterValue.id = 'tcv_filter_value';
+  const filterValue = document.createElement("div");
+  filterValue.id = "tcv_filter_value";
   container.appendChild(filterValue);
 
-  const filterContent = document.createElement('div');
-  filterContent.id = 'tcv_filter_content';
+  const filterContent = document.createElement("div");
+  filterContent.id = "tcv_filter_content";
   container.appendChild(filterContent);
 
   // Create filter options
-  const options = ['none', 'vertex', 'edge', 'face', 'solid'];
+  const options = ["none", "vertex", "edge", "face", "solid"];
   for (const opt of options) {
-    const el = document.createElement('div');
+    const el = document.createElement("div");
     el.id = `tvc_filter_${opt}`;
     el.innerText = opt.charAt(0).toUpperCase() + opt.slice(1);
     container.appendChild(el);
@@ -82,11 +89,11 @@ function createMockDisplay() {
       value: filterValue,
       content: filterContent,
       options: {
-        none: document.getElementById('tvc_filter_none'),
-        vertex: document.getElementById('tvc_filter_vertex'),
-        edge: document.getElementById('tvc_filter_edge'),
-        face: document.getElementById('tvc_filter_face'),
-        solid: document.getElementById('tvc_filter_solid'),
+        none: document.getElementById("tvc_filter_none"),
+        vertex: document.getElementById("tvc_filter_vertex"),
+        edge: document.getElementById("tvc_filter_edge"),
+        face: document.getElementById("tvc_filter_face"),
+        solid: document.getElementById("tvc_filter_solid"),
       },
     },
     cleanup: () => {
@@ -102,8 +109,8 @@ function createMockViewer(display) {
     display,
     state: {
       get: vi.fn((key) => {
-        if (key === 'cadWidth') return 800;
-        if (key === 'height') return 600;
+        if (key === "cadWidth") return 800;
+        if (key === "height") return 600;
         return null;
       }),
     },
@@ -112,7 +119,7 @@ function createMockViewer(display) {
       getZoom: () => 1,
     },
     renderer: {
-      domElement: document.createElement('canvas'),
+      domElement: document.createElement("canvas"),
       clearDepth: vi.fn(),
       render: vi.fn(),
     },
@@ -122,18 +129,20 @@ function createMockViewer(display) {
   };
 }
 
-function createMockObjectGroup(name = 'test|path') {
+function createMockObjectGroup(name = "test|path") {
   const group = new THREE.Group();
   group.name = name;
   group.isSelected = false;
   group.clearHighlights = vi.fn();
-  group.children = [{
-    geometry: {
-      boundingSphere: {
-        center: new THREE.Vector3(0, 0, 0),
+  group.children = [
+    {
+      geometry: {
+        boundingSphere: {
+          center: new THREE.Vector3(0, 0, 0),
+        },
       },
     },
-  }];
+  ];
   group.localToWorld = (v) => v;
 
   return {
@@ -147,12 +156,12 @@ function createMockObjectGroup(name = 'test|path') {
 // TOOL TYPES TESTS
 // =============================================================================
 
-describe('ToolTypes', () => {
-  test('exports correct tool type constants', () => {
-    expect(ToolTypes.NONE).toBe('None');
-    expect(ToolTypes.DISTANCE).toBe('DistanceMeasurement');
-    expect(ToolTypes.PROPERTIES).toBe('PropertiesMeasurement');
-    expect(ToolTypes.SELECT).toBe('SelectObjects');
+describe("ToolTypes", () => {
+  test("exports correct tool type constants", () => {
+    expect(ToolTypes.NONE).toBe("None");
+    expect(ToolTypes.DISTANCE).toBe("DistanceMeasurement");
+    expect(ToolTypes.PROPERTIES).toBe("PropertiesMeasurement");
+    expect(ToolTypes.SELECT).toBe("SelectObjects");
   });
 });
 
@@ -160,7 +169,7 @@ describe('ToolTypes', () => {
 // TOOLS CLASS TESTS
 // =============================================================================
 
-describe('Tools', () => {
+describe("Tools", () => {
   let display;
   let viewer;
   let tools;
@@ -178,8 +187,8 @@ describe('Tools', () => {
     display.cleanup();
   });
 
-  describe('constructor', () => {
-    test('creates tools with all measurement types', () => {
+  describe("constructor", () => {
+    test("creates tools with all measurement types", () => {
       expect(tools.viewer).toBe(viewer);
       expect(tools.distanceMeasurement).toBeInstanceOf(DistanceMeasurement);
       expect(tools.propertiesMeasurement).toBeInstanceOf(PropertiesMeasurement);
@@ -188,33 +197,35 @@ describe('Tools', () => {
     });
   });
 
-  describe('enable', () => {
-    test('enables distance measurement tool', () => {
+  describe("enable", () => {
+    test("enables distance measurement tool", () => {
       tools.enable(ToolTypes.DISTANCE);
 
       expect(tools.enabledTool).toBe(ToolTypes.DISTANCE);
       expect(tools.distanceMeasurement.contextEnabled).toBe(true);
     });
 
-    test('enables properties measurement tool', () => {
+    test("enables properties measurement tool", () => {
       tools.enable(ToolTypes.PROPERTIES);
 
       expect(tools.enabledTool).toBe(ToolTypes.PROPERTIES);
       expect(tools.propertiesMeasurement.contextEnabled).toBe(true);
     });
 
-    test('enables select tool', () => {
+    test("enables select tool", () => {
       tools.enable(ToolTypes.SELECT);
 
       expect(tools.enabledTool).toBe(ToolTypes.SELECT);
       expect(tools.selectObject.contextEnabled).toBe(true);
     });
 
-    test('throws error for unknown tool type', () => {
-      expect(() => tools.enable('UnknownTool')).toThrow('Unknown tool type: UnknownTool');
+    test("throws error for unknown tool type", () => {
+      expect(() => tools.enable("UnknownTool")).toThrow(
+        "Unknown tool type: UnknownTool",
+      );
     });
 
-    test('disables previous tool when enabling new one', () => {
+    test("disables previous tool when enabling new one", () => {
       tools.enable(ToolTypes.DISTANCE);
       expect(tools.distanceMeasurement.contextEnabled).toBe(true);
 
@@ -224,8 +235,8 @@ describe('Tools', () => {
     });
   });
 
-  describe('disable', () => {
-    test('disables currently enabled tool', () => {
+  describe("disable", () => {
+    test("disables currently enabled tool", () => {
       tools.enable(ToolTypes.DISTANCE);
       tools.disable();
 
@@ -233,12 +244,12 @@ describe('Tools', () => {
       expect(tools.distanceMeasurement.contextEnabled).toBe(false);
     });
 
-    test('does nothing when no tool is enabled', () => {
+    test("does nothing when no tool is enabled", () => {
       expect(() => tools.disable()).not.toThrow();
       expect(tools.enabledTool).toBeNull();
     });
 
-    test('resets filter dropdown', () => {
+    test("resets filter dropdown", () => {
       tools.enable(ToolTypes.DISTANCE);
       tools.disable();
 
@@ -246,45 +257,50 @@ describe('Tools', () => {
     });
   });
 
-  describe('_disable', () => {
-    test('throws for unknown tool type when enabled tool is corrupted', () => {
-      tools.enabledTool = 'CorruptedToolType';
+  describe("_disable", () => {
+    test("throws for unknown tool type when enabled tool is corrupted", () => {
+      tools.enabledTool = "CorruptedToolType";
 
-      expect(() => tools._disable()).toThrow('Unknown tool type: CorruptedToolType');
+      expect(() => tools._disable()).toThrow(
+        "Unknown tool type: CorruptedToolType",
+      );
     });
   });
 
-  describe('handleRemoveLastSelection', () => {
-    test('handles distance measurement context', () => {
+  describe("handleRemoveLastSelection", () => {
+    test("handles distance measurement context", () => {
       tools.enable(ToolTypes.DISTANCE);
-      const spy = vi.spyOn(tools.distanceMeasurement, 'removeLastSelectedObj');
+      const spy = vi.spyOn(tools.distanceMeasurement, "removeLastSelectedObj");
 
       tools.handleRemoveLastSelection();
 
       expect(spy).toHaveBeenCalledWith(false);
     });
 
-    test('handles properties measurement context', () => {
+    test("handles properties measurement context", () => {
       tools.enable(ToolTypes.PROPERTIES);
-      const spy = vi.spyOn(tools.propertiesMeasurement, 'removeLastSelectedObj');
+      const spy = vi.spyOn(
+        tools.propertiesMeasurement,
+        "removeLastSelectedObj",
+      );
 
       tools.handleRemoveLastSelection();
 
       expect(spy).toHaveBeenCalledWith(false);
     });
 
-    test('handles select context', () => {
+    test("handles select context", () => {
       tools.enable(ToolTypes.SELECT);
-      const spy = vi.spyOn(tools.selectObject, 'removeLastSelectedObj');
+      const spy = vi.spyOn(tools.selectObject, "removeLastSelectedObj");
 
       tools.handleRemoveLastSelection();
 
       expect(spy).toHaveBeenCalledWith(false);
     });
 
-    test('handles force parameter', () => {
+    test("handles force parameter", () => {
       tools.enable(ToolTypes.DISTANCE);
-      const spy = vi.spyOn(tools.distanceMeasurement, 'removeLastSelectedObj');
+      const spy = vi.spyOn(tools.distanceMeasurement, "removeLastSelectedObj");
 
       tools.handleRemoveLastSelection(true);
 
@@ -292,10 +308,10 @@ describe('Tools', () => {
     });
   });
 
-  describe('handleSelectedObj', () => {
-    test('handles distance measurement selection', () => {
+  describe("handleSelectedObj", () => {
+    test("handles distance measurement selection", () => {
       tools.enable(ToolTypes.DISTANCE);
-      const spy = vi.spyOn(tools.distanceMeasurement, 'handleSelection');
+      const spy = vi.spyOn(tools.distanceMeasurement, "handleSelection");
       const mockObj = createMockObjectGroup();
 
       tools.handleSelectedObj(mockObj, false, false);
@@ -303,9 +319,9 @@ describe('Tools', () => {
       expect(spy).toHaveBeenCalledWith(mockObj, false);
     });
 
-    test('handles properties measurement selection', () => {
+    test("handles properties measurement selection", () => {
       tools.enable(ToolTypes.PROPERTIES);
-      const spy = vi.spyOn(tools.propertiesMeasurement, 'handleSelection');
+      const spy = vi.spyOn(tools.propertiesMeasurement, "handleSelection");
       const mockObj = createMockObjectGroup();
 
       tools.handleSelectedObj(mockObj, false, false);
@@ -313,9 +329,9 @@ describe('Tools', () => {
       expect(spy).toHaveBeenCalledWith(mockObj);
     });
 
-    test('handles select tool selection', () => {
+    test("handles select tool selection", () => {
       tools.enable(ToolTypes.SELECT);
-      const spy = vi.spyOn(tools.selectObject, 'handleSelection');
+      const spy = vi.spyOn(tools.selectObject, "handleSelection");
       const mockObj = createMockObjectGroup();
 
       tools.handleSelectedObj(mockObj, false, false);
@@ -323,9 +339,12 @@ describe('Tools', () => {
       expect(spy).toHaveBeenCalledWith(mockObj);
     });
 
-    test('removes last selected on new object for distance', () => {
+    test("removes last selected on new object for distance", () => {
       tools.enable(ToolTypes.DISTANCE);
-      const removeSpy = vi.spyOn(tools.distanceMeasurement, 'removeLastSelectedObj');
+      const removeSpy = vi.spyOn(
+        tools.distanceMeasurement,
+        "removeLastSelectedObj",
+      );
       const mockObj = createMockObjectGroup();
 
       tools.handleSelectedObj(mockObj, true, false);
@@ -334,10 +353,10 @@ describe('Tools', () => {
     });
   });
 
-  describe('handleResetSelection', () => {
-    test('resets distance measurement selection', () => {
+  describe("handleResetSelection", () => {
+    test("resets distance measurement selection", () => {
       tools.enable(ToolTypes.DISTANCE);
-      const spy = vi.spyOn(tools.distanceMeasurement, 'removeLastSelectedObj');
+      const spy = vi.spyOn(tools.distanceMeasurement, "removeLastSelectedObj");
 
       tools.handleResetSelection();
 
@@ -345,18 +364,21 @@ describe('Tools', () => {
       expect(spy).toHaveBeenCalledTimes(2);
     });
 
-    test('resets properties measurement selection', () => {
+    test("resets properties measurement selection", () => {
       tools.enable(ToolTypes.PROPERTIES);
-      const spy = vi.spyOn(tools.propertiesMeasurement, 'removeLastSelectedObj');
+      const spy = vi.spyOn(
+        tools.propertiesMeasurement,
+        "removeLastSelectedObj",
+      );
 
       tools.handleResetSelection();
 
       expect(spy).toHaveBeenCalledWith(true);
     });
 
-    test('resets select tool selection', () => {
+    test("resets select tool selection", () => {
       tools.enable(ToolTypes.SELECT);
-      const spy = vi.spyOn(tools.selectObject, 'removeLastSelectedObj');
+      const spy = vi.spyOn(tools.selectObject, "removeLastSelectedObj");
 
       tools.handleResetSelection();
 
@@ -364,9 +386,9 @@ describe('Tools', () => {
     });
   });
 
-  describe('handleResponse', () => {
-    test('routes distance response', () => {
-      const spy = vi.spyOn(tools.distanceMeasurement, 'handleResponse');
+  describe("handleResponse", () => {
+    test("routes distance response", () => {
+      const spy = vi.spyOn(tools.distanceMeasurement, "handleResponse");
 
       // Provide valid response data
       tools.handleResponse({
@@ -379,21 +401,21 @@ describe('Tools', () => {
       expect(spy).toHaveBeenCalled();
     });
 
-    test('routes properties response', () => {
-      const spy = vi.spyOn(tools.propertiesMeasurement, 'handleResponse');
+    test("routes properties response", () => {
+      const spy = vi.spyOn(tools.propertiesMeasurement, "handleResponse");
 
       // Provide valid response data
       tools.handleResponse({
         tool_type: ToolTypes.PROPERTIES,
         refpoint: [0, 0, 0],
-        shape_type: 'Edge',
-        geom_type: 'Line',
+        shape_type: "Edge",
+        geom_type: "Line",
       });
 
       expect(spy).toHaveBeenCalled();
     });
 
-    test('routes select response', () => {
+    test("routes select response", () => {
       // SelectObject doesn't have handleResponse by default but the router still calls it
       tools.selectObject.handleResponse = vi.fn();
 
@@ -403,46 +425,46 @@ describe('Tools', () => {
     });
   });
 
-  describe('update', () => {
-    test('updates distance measurement when enabled', () => {
+  describe("update", () => {
+    test("updates distance measurement when enabled", () => {
       tools.enable(ToolTypes.DISTANCE);
-      const spy = vi.spyOn(tools.distanceMeasurement, 'update');
+      const spy = vi.spyOn(tools.distanceMeasurement, "update");
 
       tools.update();
 
       expect(spy).toHaveBeenCalled();
     });
 
-    test('updates properties measurement when enabled', () => {
+    test("updates properties measurement when enabled", () => {
       tools.enable(ToolTypes.PROPERTIES);
-      const spy = vi.spyOn(tools.propertiesMeasurement, 'update');
+      const spy = vi.spyOn(tools.propertiesMeasurement, "update");
 
       tools.update();
 
       expect(spy).toHaveBeenCalled();
     });
 
-    test('updates select tool when enabled', () => {
+    test("updates select tool when enabled", () => {
       tools.enable(ToolTypes.SELECT);
-      const spy = vi.spyOn(tools.selectObject, 'update');
+      const spy = vi.spyOn(tools.selectObject, "update");
 
       tools.update();
 
       expect(spy).toHaveBeenCalled();
     });
 
-    test('does nothing when no tool enabled', () => {
+    test("does nothing when no tool enabled", () => {
       expect(() => tools.update()).not.toThrow();
     });
   });
 
-  describe('dispose', () => {
-    test('disposes all tools', () => {
+  describe("dispose", () => {
+    test("disposes all tools", () => {
       // Create fresh tools instance for this test
       const freshTools = new Tools(viewer, false);
-      const distSpy = vi.spyOn(freshTools.distanceMeasurement, 'dispose');
-      const propSpy = vi.spyOn(freshTools.propertiesMeasurement, 'dispose');
-      const selSpy = vi.spyOn(freshTools.selectObject, 'dispose');
+      const distSpy = vi.spyOn(freshTools.distanceMeasurement, "dispose");
+      const propSpy = vi.spyOn(freshTools.propertiesMeasurement, "dispose");
+      const selSpy = vi.spyOn(freshTools.selectObject, "dispose");
 
       freshTools.dispose();
 
@@ -457,7 +479,7 @@ describe('Tools', () => {
 // SELECT OBJECT TESTS
 // =============================================================================
 
-describe('SelectObject', () => {
+describe("SelectObject", () => {
   let viewer;
   let display;
   let selectObject;
@@ -473,23 +495,23 @@ describe('SelectObject', () => {
     display.cleanup();
   });
 
-  describe('constructor', () => {
-    test('initializes with empty state', () => {
+  describe("constructor", () => {
+    test("initializes with empty state", () => {
       expect(selectObject.viewer).toBe(viewer);
       expect(selectObject.selectedShapes).toEqual([]);
       expect(selectObject.contextEnabled).toBe(false);
     });
   });
 
-  describe('enableContext', () => {
-    test('enables context', () => {
+  describe("enableContext", () => {
+    test("enables context", () => {
       selectObject.enableContext();
       expect(selectObject.contextEnabled).toBe(true);
     });
   });
 
-  describe('disableContext', () => {
-    test('disables context and clears selection', () => {
+  describe("disableContext", () => {
+    test("disables context and clears selection", () => {
       const mockObj = createMockObjectGroup();
       selectObject.selectedShapes.push(mockObj);
       selectObject.contextEnabled = true;
@@ -502,43 +524,46 @@ describe('SelectObject', () => {
     });
   });
 
-  describe('_getMaxObjSelected', () => {
-    test('returns null (unlimited)', () => {
+  describe("_getMaxObjSelected", () => {
+    test("returns null (unlimited)", () => {
       expect(selectObject._getMaxObjSelected()).toBeNull();
     });
   });
 
-  describe('_getIndex', () => {
-    test('extracts index from path', () => {
-      expect(selectObject._getIndex('root|path|name_123')).toBe('123');
-      expect(selectObject._getIndex('simple_0')).toBe('0');
+  describe("_getIndex", () => {
+    test("extracts index from path", () => {
+      expect(selectObject._getIndex("root|path|name_123")).toBe("123");
+      expect(selectObject._getIndex("simple_0")).toBe("0");
     });
   });
 
-  describe('_includes', () => {
-    test('returns true if path is selected', () => {
-      const mockObj = createMockObjectGroup('test|path');
+  describe("_includes", () => {
+    test("returns true if path is selected", () => {
+      const mockObj = createMockObjectGroup("test|path");
       selectObject.selectedShapes.push(mockObj);
 
-      expect(selectObject._includes('test|path')).toBe(true);
-      expect(selectObject._includes('other|path')).toBe(false);
+      expect(selectObject._includes("test|path")).toBe(true);
+      expect(selectObject._includes("other|path")).toBe(false);
     });
   });
 
-  describe('notify', () => {
-    test('calls checkChanges with selected indices', () => {
-      const mockObj = createMockObjectGroup('root|part_5');
+  describe("notify", () => {
+    test("calls checkChanges with selected indices", () => {
+      const mockObj = createMockObjectGroup("root|part_5");
       selectObject.selectedShapes.push(mockObj);
 
       selectObject.notify();
 
-      expect(viewer.checkChanges).toHaveBeenCalledWith({ selected: ['5'] }, true);
+      expect(viewer.checkChanges).toHaveBeenCalledWith(
+        { selected: ["5"] },
+        true,
+      );
     });
   });
 
-  describe('handleSelection', () => {
-    test('adds new selection', () => {
-      const mockObj = createMockObjectGroup('test|path_1');
+  describe("handleSelection", () => {
+    test("adds new selection", () => {
+      const mockObj = createMockObjectGroup("test|path_1");
 
       selectObject.handleSelection(mockObj);
 
@@ -546,8 +571,8 @@ describe('SelectObject', () => {
       expect(viewer.checkChanges).toHaveBeenCalled();
     });
 
-    test('removes existing selection', () => {
-      const mockObj = createMockObjectGroup('test|path_1');
+    test("removes existing selection", () => {
+      const mockObj = createMockObjectGroup("test|path_1");
       selectObject.selectedShapes.push(mockObj);
 
       selectObject.handleSelection(mockObj);
@@ -555,15 +580,15 @@ describe('SelectObject', () => {
       expect(selectObject.selectedShapes).not.toContain(mockObj);
     });
 
-    test('handles null selection', () => {
+    test("handles null selection", () => {
       expect(() => selectObject.handleSelection(null)).not.toThrow();
     });
   });
 
-  describe('removeLastSelectedObj', () => {
-    test('removes last selection when not forced', () => {
-      const mockObj1 = createMockObjectGroup('path_1');
-      const mockObj2 = createMockObjectGroup('path_2');
+  describe("removeLastSelectedObj", () => {
+    test("removes last selection when not forced", () => {
+      const mockObj1 = createMockObjectGroup("path_1");
+      const mockObj2 = createMockObjectGroup("path_2");
       selectObject.selectedShapes.push(mockObj1, mockObj2);
 
       selectObject.removeLastSelectedObj(false);
@@ -571,9 +596,9 @@ describe('SelectObject', () => {
       expect(selectObject.selectedShapes).toEqual([mockObj1]);
     });
 
-    test('removes all selections when forced', () => {
-      const mockObj1 = createMockObjectGroup('path_1');
-      const mockObj2 = createMockObjectGroup('path_2');
+    test("removes all selections when forced", () => {
+      const mockObj1 = createMockObjectGroup("path_1");
+      const mockObj2 = createMockObjectGroup("path_2");
       selectObject.selectedShapes.push(mockObj1, mockObj2);
 
       selectObject.removeLastSelectedObj(true);
@@ -582,15 +607,15 @@ describe('SelectObject', () => {
     });
   });
 
-  describe('update', () => {
-    test('is callable (no-op)', () => {
+  describe("update", () => {
+    test("is callable (no-op)", () => {
       expect(() => selectObject.update()).not.toThrow();
     });
   });
 
-  describe('dispose', () => {
-    test('calls disableContext', () => {
-      const spy = vi.spyOn(selectObject, 'disableContext');
+  describe("dispose", () => {
+    test("calls disableContext", () => {
+      const spy = vi.spyOn(selectObject, "disableContext");
 
       selectObject.dispose();
 
@@ -603,7 +628,7 @@ describe('SelectObject', () => {
 // MEASUREMENT TESTS
 // =============================================================================
 
-describe('DistanceMeasurement', () => {
+describe("DistanceMeasurement", () => {
   let viewer;
   let display;
   let measurement;
@@ -619,8 +644,8 @@ describe('DistanceMeasurement', () => {
     display.cleanup();
   });
 
-  describe('constructor', () => {
-    test('initializes measurement', () => {
+  describe("constructor", () => {
+    test("initializes measurement", () => {
       expect(measurement.viewer).toBe(viewer);
       expect(measurement.selectedShapes).toEqual([]);
       expect(measurement.contextEnabled).toBe(false);
@@ -629,8 +654,8 @@ describe('DistanceMeasurement', () => {
     });
   });
 
-  describe('enableContext', () => {
-    test('enables context and sets up event listeners', () => {
+  describe("enableContext", () => {
+    test("enables context and sets up event listeners", () => {
       measurement.enableContext();
 
       expect(measurement.contextEnabled).toBe(true);
@@ -638,8 +663,8 @@ describe('DistanceMeasurement', () => {
     });
   });
 
-  describe('disableContext', () => {
-    test('disables context and cleans up', () => {
+  describe("disableContext", () => {
+    test("disables context and cleans up", () => {
       measurement.enableContext();
       const mockObj = createMockObjectGroup();
       measurement.selectedShapes.push(mockObj);
@@ -648,18 +673,20 @@ describe('DistanceMeasurement', () => {
 
       expect(measurement.contextEnabled).toBe(false);
       expect(measurement.selectedShapes).toEqual([]);
-      expect(viewer.checkChanges).toHaveBeenCalledWith({ selectedShapeIDs: [] });
+      expect(viewer.checkChanges).toHaveBeenCalledWith({
+        selectedShapeIDs: [],
+      });
     });
   });
 
-  describe('_getMaxObjSelected', () => {
-    test('returns 2 for distance measurement', () => {
+  describe("_getMaxObjSelected", () => {
+    test("returns 2 for distance measurement", () => {
       expect(measurement._getMaxObjSelected()).toBe(2);
     });
   });
 
-  describe('handleResponse', () => {
-    test('stores response data and extracts points', () => {
+  describe("handleResponse", () => {
+    test("stores response data and extracts points", () => {
       const response = {
         refpoint1: [1, 2, 3],
         refpoint2: [4, 5, 6],
@@ -674,8 +701,8 @@ describe('DistanceMeasurement', () => {
     });
   });
 
-  describe('handleSelection', () => {
-    test('adds new selection', () => {
+  describe("handleSelection", () => {
+    test("adds new selection", () => {
       measurement.enableContext();
       const mockObj = createMockObjectGroup();
 
@@ -684,9 +711,9 @@ describe('DistanceMeasurement', () => {
       expect(measurement.selectedShapes).toContain(mockObj);
     });
 
-    test('toggles existing selection', () => {
+    test("toggles existing selection", () => {
       measurement.enableContext();
-      const mockObj = createMockObjectGroup('same|path');
+      const mockObj = createMockObjectGroup("same|path");
       measurement.selectedShapes.push(mockObj);
 
       measurement.handleSelection(mockObj, false);
@@ -695,10 +722,10 @@ describe('DistanceMeasurement', () => {
     });
   });
 
-  describe('removeLastSelectedObj', () => {
-    test('removes last when at max', () => {
-      const mockObj1 = createMockObjectGroup('path1');
-      const mockObj2 = createMockObjectGroup('path2');
+  describe("removeLastSelectedObj", () => {
+    test("removes last when at max", () => {
+      const mockObj1 = createMockObjectGroup("path1");
+      const mockObj2 = createMockObjectGroup("path2");
       measurement.selectedShapes.push(mockObj1, mockObj2);
 
       measurement.removeLastSelectedObj(false);
@@ -706,7 +733,7 @@ describe('DistanceMeasurement', () => {
       expect(measurement.selectedShapes.length).toBe(1);
     });
 
-    test('removes when forced', () => {
+    test("removes when forced", () => {
       const mockObj = createMockObjectGroup();
       measurement.selectedShapes.push(mockObj);
 
@@ -716,16 +743,16 @@ describe('DistanceMeasurement', () => {
     });
   });
 
-  describe('update', () => {
-    test('updates without throwing', () => {
+  describe("update", () => {
+    test("updates without throwing", () => {
       measurement.enableContext();
 
       expect(() => measurement.update()).not.toThrow();
     });
   });
 
-  describe('dispose', () => {
-    test('disposes resources', () => {
+  describe("dispose", () => {
+    test("disposes resources", () => {
       // Create fresh measurement for this test
       const freshMeasurement = new DistanceMeasurement(viewer, false);
 
@@ -737,8 +764,8 @@ describe('DistanceMeasurement', () => {
     });
   });
 
-  describe('disposeArrows', () => {
-    test('clears scene', () => {
+  describe("disposeArrows", () => {
+    test("clears scene", () => {
       // Create fresh measurement for this test
       const freshMeasurement = new DistanceMeasurement(viewer, false);
 
@@ -751,7 +778,7 @@ describe('DistanceMeasurement', () => {
   });
 });
 
-describe('PropertiesMeasurement', () => {
+describe("PropertiesMeasurement", () => {
   let viewer;
   let display;
   let measurement;
@@ -767,18 +794,18 @@ describe('PropertiesMeasurement', () => {
     display.cleanup();
   });
 
-  describe('_getMaxObjSelected', () => {
-    test('returns 1 for properties measurement', () => {
+  describe("_getMaxObjSelected", () => {
+    test("returns 1 for properties measurement", () => {
       expect(measurement._getMaxObjSelected()).toBe(1);
     });
   });
 
-  describe('handleResponse', () => {
-    test('stores response data and extracts point', () => {
+  describe("handleResponse", () => {
+    test("stores response data and extracts point", () => {
       const response = {
         refpoint: [1, 2, 3],
-        shape_type: 'Edge',
-        geom_type: 'Line',
+        shape_type: "Edge",
+        geom_type: "Line",
       };
 
       measurement.handleResponse(response);
@@ -793,7 +820,7 @@ describe('PropertiesMeasurement', () => {
 // MEASUREMENT - ADDITIONAL TESTS
 // =============================================================================
 
-describe('Measurement - Base Class Methods', () => {
+describe("Measurement - Base Class Methods", () => {
   let viewer;
   let display;
   let measurement;
@@ -809,8 +836,8 @@ describe('Measurement - Base Class Methods', () => {
     display.cleanup();
   });
 
-  describe('_hideMeasurement', () => {
-    test('hides panel and clears scene', () => {
+  describe("_hideMeasurement", () => {
+    test("hides panel and clears scene", () => {
       measurement._hideMeasurement();
 
       expect(measurement.panel.isVisible()).toBe(false);
@@ -818,8 +845,8 @@ describe('Measurement - Base Class Methods', () => {
     });
   });
 
-  describe('panel drag', () => {
-    test('panel drag mousedown sets drag data', () => {
+  describe("panel drag", () => {
+    test("panel drag mousedown sets drag data", () => {
       const mockEvent = {
         clientX: 100,
         clientY: 200,
@@ -827,18 +854,20 @@ describe('Measurement - Base Class Methods', () => {
       };
 
       // Trigger the mousedown callback registered in constructor
-      measurement.panel.html.dispatchEvent(new MouseEvent('mousedown', {
-        clientX: 100,
-        clientY: 200,
-      }));
+      measurement.panel.html.dispatchEvent(
+        new MouseEvent("mousedown", {
+          clientX: 100,
+          clientY: 200,
+        }),
+      );
 
       // The drag data should be set (though we can't easily verify internal state)
       expect(measurement.panelDragData).toBeDefined();
     });
   });
 
-  describe('_mouseup', () => {
-    test('resets drag click state', () => {
+  describe("_mouseup", () => {
+    test("resets drag click state", () => {
       measurement.panelDragData.clicked = true;
 
       const mockEvent = { stopPropagation: vi.fn() };
@@ -849,14 +878,14 @@ describe('Measurement - Base Class Methods', () => {
     });
   });
 
-  describe('_movePanel', () => {
-    test('does nothing when panel not visible', () => {
+  describe("_movePanel", () => {
+    test("does nothing when panel not visible", () => {
       measurement.panel.show(false);
 
       expect(() => measurement._movePanel()).not.toThrow();
     });
 
-    test('updates panel position when visible', () => {
+    test("updates panel position when visible", () => {
       measurement.enableContext();
       measurement.panel.show(true);
       measurement.middlePoint = new THREE.Vector3(0, 0, 0);
@@ -867,8 +896,8 @@ describe('Measurement - Base Class Methods', () => {
     });
   });
 
-  describe('_dragPanel', () => {
-    test('does nothing when not clicked', () => {
+  describe("_dragPanel", () => {
+    test("does nothing when not clicked", () => {
       measurement.panelDragData.clicked = false;
 
       const mockEvent = { clientX: 100, clientY: 100 };
@@ -877,7 +906,7 @@ describe('Measurement - Base Class Methods', () => {
       // Should not throw
     });
 
-    test('updates position when dragging', () => {
+    test("updates position when dragging", () => {
       measurement.enableContext();
       measurement.panel.show(true);
       measurement.panelDragData.clicked = true;
@@ -901,8 +930,8 @@ describe('Measurement - Base Class Methods', () => {
     });
   });
 
-  describe('_adjustArrowsScaleFactor', () => {
-    test('scales DistanceLineArrow children', () => {
+  describe("_adjustArrowsScaleFactor", () => {
+    test("scales DistanceLineArrow children", () => {
       // Create a real DistanceLineArrow by making lines in a measurement
       // This tests the actual integration, not mocked behavior
       const distMeasurement = new DistanceMeasurement(viewer, false);
@@ -921,21 +950,21 @@ describe('Measurement - Base Class Methods', () => {
       distMeasurement.dispose();
     });
 
-    test('does nothing if scene is null', () => {
+    test("does nothing if scene is null", () => {
       measurement.scene = null;
       // Should not throw
       expect(() => measurement._adjustArrowsScaleFactor(2)).not.toThrow();
     });
   });
 
-  describe('debug mode', () => {
-    test('debug mode creates measurement with debug flag', () => {
+  describe("debug mode", () => {
+    test("debug mode creates measurement with debug flag", () => {
       const debugMeasurement = new DistanceMeasurement(viewer, true);
       expect(debugMeasurement.debug).toBe(true);
       debugMeasurement.dispose();
     });
 
-    test('debug mode enables context', () => {
+    test("debug mode enables context", () => {
       const debugMeasurement = new DistanceMeasurement(viewer, true);
       debugMeasurement.enableContext();
       expect(debugMeasurement.contextEnabled).toBe(true);
@@ -944,7 +973,7 @@ describe('Measurement - Base Class Methods', () => {
   });
 });
 
-describe('DistanceMeasurement - Line Creation', () => {
+describe("DistanceMeasurement - Line Creation", () => {
   let viewer;
   let display;
   let measurement;
@@ -960,8 +989,8 @@ describe('DistanceMeasurement - Line Creation', () => {
     display.cleanup();
   });
 
-  describe('_makeLines', () => {
-    test('creates lines when scene is empty', () => {
+  describe("_makeLines", () => {
+    test("creates lines when scene is empty", () => {
       measurement.enableContext();
       measurement.point1 = new THREE.Vector3(0, 0, 0);
       measurement.point2 = new THREE.Vector3(1, 1, 1);
@@ -974,7 +1003,7 @@ describe('DistanceMeasurement - Line Creation', () => {
       expect(measurement.middlePoint).toBeDefined();
     });
 
-    test('skips if lines already exist', () => {
+    test("skips if lines already exist", () => {
       measurement.enableContext();
       measurement.point1 = new THREE.Vector3(0, 0, 0);
       measurement.point2 = new THREE.Vector3(1, 1, 1);
@@ -990,8 +1019,8 @@ describe('DistanceMeasurement - Line Creation', () => {
     });
   });
 
-  describe('_updateConnectionLine', () => {
-    test('updates connection line geometry', () => {
+  describe("_updateConnectionLine", () => {
+    test("updates connection line geometry", () => {
       measurement.enableContext();
       measurement.point1 = new THREE.Vector3(0, 0, 0);
       measurement.point2 = new THREE.Vector3(1, 1, 1);
@@ -1006,8 +1035,8 @@ describe('DistanceMeasurement - Line Creation', () => {
     });
   });
 
-  describe('_getPoints', () => {
-    test('extracts points from response data', () => {
+  describe("_getPoints", () => {
+    test("extracts points from response data", () => {
       measurement.responseData = {
         refpoint1: [1, 2, 3],
         refpoint2: [4, 5, 6],
@@ -1021,7 +1050,7 @@ describe('DistanceMeasurement - Line Creation', () => {
   });
 });
 
-describe('PropertiesMeasurement - Line Creation', () => {
+describe("PropertiesMeasurement - Line Creation", () => {
   let viewer;
   let display;
   let measurement;
@@ -1037,8 +1066,8 @@ describe('PropertiesMeasurement - Line Creation', () => {
     display.cleanup();
   });
 
-  describe('_makeLines', () => {
-    test('creates connecting line when scene is empty', () => {
+  describe("_makeLines", () => {
+    test("creates connecting line when scene is empty", () => {
       measurement.enableContext();
       measurement.point1 = new THREE.Vector3(0, 0, 0);
       measurement.panelCenter = new THREE.Vector3(0.5, 0.5, 0.5);
@@ -1051,8 +1080,8 @@ describe('PropertiesMeasurement - Line Creation', () => {
     });
   });
 
-  describe('_updateConnectionLine', () => {
-    test('updates connection line geometry', () => {
+  describe("_updateConnectionLine", () => {
+    test("updates connection line geometry", () => {
       measurement.enableContext();
       measurement.point1 = new THREE.Vector3(0, 0, 0);
       measurement.panelCenter = new THREE.Vector3(0.5, 0.5, 0.5);
@@ -1066,8 +1095,8 @@ describe('PropertiesMeasurement - Line Creation', () => {
     });
   });
 
-  describe('_getPoint', () => {
-    test('extracts point from response data', () => {
+  describe("_getPoint", () => {
+    test("extracts point from response data", () => {
       measurement.responseData = {
         refpoint: [1, 2, 3],
       };
@@ -1083,7 +1112,7 @@ describe('PropertiesMeasurement - Line Creation', () => {
 // UI TESTS
 // =============================================================================
 
-describe('Panel', () => {
+describe("Panel", () => {
   let display;
   let panel;
 
@@ -1098,26 +1127,26 @@ describe('Panel', () => {
     display.cleanup();
   });
 
-  describe('DistancePanel', () => {
+  describe("DistancePanel", () => {
     beforeEach(() => {
       panel = new DistancePanel(display);
     });
 
-    test('creates panel with display reference', () => {
+    test("creates panel with display reference", () => {
       expect(panel.display).toBe(display);
       expect(panel.html).toBeDefined();
       expect(panel.finished).toBe(false);
     });
 
-    test('show shows/hides panel', () => {
+    test("show shows/hides panel", () => {
       panel.show(true);
-      expect(panel.html.style.display).toBe('inline-block');
+      expect(panel.html.style.display).toBe("inline-block");
 
       panel.show(false);
-      expect(panel.html.style.display).toBe('none');
+      expect(panel.html.style.display).toBe("none");
     });
 
-    test('isVisible returns visibility state', () => {
+    test("isVisible returns visibility state", () => {
       panel.show(false);
       expect(panel.isVisible()).toBe(false);
 
@@ -1125,53 +1154,53 @@ describe('Panel', () => {
       expect(panel.isVisible()).toBe(true);
     });
 
-    test('relocate sets position', () => {
+    test("relocate sets position", () => {
       panel.relocate(100, 200);
 
-      expect(panel.html.style.left).toBe('100px');
-      expect(panel.html.style.top).toBe('200px');
+      expect(panel.html.style.left).toBe("100px");
+      expect(panel.html.style.top).toBe("200px");
     });
 
-    test('registerCallback adds event listener', () => {
+    test("registerCallback adds event listener", () => {
       const callback = vi.fn();
-      panel.registerCallback('click', callback);
+      panel.registerCallback("click", callback);
 
       expect(panel.callbacks.length).toBe(1);
     });
 
-    test('createTable creates distance table', () => {
+    test("createTable creates distance table", () => {
       const properties = {
         Distance: 5.0,
-        info: 'center',
+        info: "center",
         Angle: 45.0,
-        info1: 'Plane',
-        info2: 'Plane',
+        info1: "Plane",
+        info2: "Plane",
       };
 
       panel.createTable(properties);
 
       expect(panel.finished).toBe(true);
-      const table = panel.html.querySelector('table');
+      const table = panel.html.querySelector("table");
       expect(table).toBeDefined();
     });
 
-    test('createTable skips if already finished', () => {
+    test("createTable skips if already finished", () => {
       // First create a table
       panel.createTable({ Distance: 5 });
       expect(panel.finished).toBe(true);
 
       // Try to create another table - should be skipped
-      const tablesBefore = panel.html.querySelectorAll('table').length;
+      const tablesBefore = panel.html.querySelectorAll("table").length;
       panel.createTable({ Distance: 999 });
-      const tablesAfter = panel.html.querySelectorAll('table').length;
+      const tablesAfter = panel.html.querySelectorAll("table").length;
 
       // Should not create another table
       expect(tablesAfter).toBe(tablesBefore);
     });
 
-    test('creating new table removes existing table', () => {
+    test("creating new table removes existing table", () => {
       panel.createTable({ Distance: 1 });
-      expect(panel.html.querySelector('table')).not.toBeNull();
+      expect(panel.html.querySelector("table")).not.toBeNull();
 
       // Reset finished flag to allow another createTable
       panel.finished = false;
@@ -1180,23 +1209,23 @@ describe('Panel', () => {
       panel.createTable({ Distance: 2 });
 
       // Should only have one table
-      expect(panel.html.querySelectorAll('table').length).toBe(1);
+      expect(panel.html.querySelectorAll("table").length).toBe(1);
     });
   });
 
-  describe('PropertiesPanel', () => {
+  describe("PropertiesPanel", () => {
     beforeEach(() => {
       panel = new PropertiesPanel(display);
     });
 
-    test('creates properties panel', () => {
+    test("creates properties panel", () => {
       expect(panel.display).toBe(display);
     });
 
-    test('createTable creates properties table', () => {
+    test("createTable creates properties table", () => {
       const properties = {
-        shape_type: 'Edge',
-        geom_type: 'Line',
+        shape_type: "Edge",
+        geom_type: "Line",
         Length: 10.5,
         Start: [0, 0, 0],
         End: [10, 0, 0],
@@ -1213,22 +1242,22 @@ describe('Panel', () => {
       expect(panel.finished).toBe(true);
     });
 
-    test('createTable sets subheader text from properties', () => {
+    test("createTable sets subheader text from properties", () => {
       const properties = {
-        shape_type: 'Edge',
-        geom_type: 'Line',
+        shape_type: "Edge",
+        geom_type: "Line",
         Length: 10.5,
       };
 
       panel.createTable(properties);
 
-      const subheader = panel.html.querySelector('.tcv_measure_subheader');
-      expect(subheader.textContent).toBe('Edge / Line');
+      const subheader = panel.html.querySelector(".tcv_measure_subheader");
+      expect(subheader.textContent).toBe("Edge / Line");
     });
   });
 });
 
-describe('FilterByDropDownMenu', () => {
+describe("FilterByDropDownMenu", () => {
   let display;
   let filter;
 
@@ -1241,59 +1270,59 @@ describe('FilterByDropDownMenu', () => {
     display.cleanup();
   });
 
-  describe('constructor', () => {
-    test('initializes with filter hidden', () => {
+  describe("constructor", () => {
+    test("initializes with filter hidden", () => {
       // Filter container should be hidden by default
-      expect(display.filterDropdown.container.style.display).toBe('none');
+      expect(display.filterDropdown.container.style.display).toBe("none");
     });
   });
 
-  describe('setRaycaster', () => {
-    test('allows setting raycaster reference', () => {
+  describe("setRaycaster", () => {
+    test("allows setting raycaster reference", () => {
       const mockRaycaster = { filters: { topoFilter: [] } };
       // Should not throw
       expect(() => filter.setRaycaster(mockRaycaster)).not.toThrow();
     });
   });
 
-  describe('reset', () => {
-    test('resets filter value to None', () => {
+  describe("reset", () => {
+    test("resets filter value to None", () => {
       const mockRaycaster = { filters: { topoFilter: [] } };
       filter.setRaycaster(mockRaycaster);
 
       filter.reset();
 
-      expect(display.filterDropdown.value.innerText).toBe('None');
+      expect(display.filterDropdown.value.innerText).toBe("None");
     });
   });
 
-  describe('show', () => {
-    test('shows filter container', () => {
+  describe("show", () => {
+    test("shows filter container", () => {
       filter.show(true);
 
-      expect(display.filterDropdown.container.style.display).toBe('block');
+      expect(display.filterDropdown.container.style.display).toBe("block");
     });
 
-    test('hides filter container', () => {
+    test("hides filter container", () => {
       filter.show(true);
       filter.show(false);
 
-      expect(display.filterDropdown.container.style.display).toBe('none');
+      expect(display.filterDropdown.container.style.display).toBe("none");
     });
 
-    test('adds keyboard event listener when shown', () => {
+    test("adds keyboard event listener when shown", () => {
       const mockRaycaster = { filters: { topoFilter: [] } };
       filter.setRaycaster(mockRaycaster);
       filter.show(true);
 
       // Simulate keyboard event (now on document, not container)
-      const event = new KeyboardEvent('keydown', { key: 'v' });
+      const event = new KeyboardEvent("keydown", { key: "v" });
       document.dispatchEvent(event);
 
-      expect(display.filterDropdown.value.innerText).toBe('Vertex');
+      expect(display.filterDropdown.value.innerText).toBe("Vertex");
     });
 
-    test('removes keyboard event listener when hidden', () => {
+    test("removes keyboard event listener when hidden", () => {
       const mockRaycaster = { filters: { topoFilter: [] } };
       filter.setRaycaster(mockRaycaster);
       filter.show(true);
@@ -1303,89 +1332,97 @@ describe('FilterByDropDownMenu', () => {
       filter.reset();
 
       // Simulate keyboard event - should not change value since listener removed
-      const event = new KeyboardEvent('keydown', { key: 'e' });
+      const event = new KeyboardEvent("keydown", { key: "e" });
       document.dispatchEvent(event);
 
-      expect(display.filterDropdown.value.innerText).toBe('None');
+      expect(display.filterDropdown.value.innerText).toBe("None");
     });
   });
 
-  describe('keyboard shortcuts', () => {
+  describe("keyboard shortcuts", () => {
     beforeEach(() => {
       const mockRaycaster = { filters: { topoFilter: [] } };
       filter.setRaycaster(mockRaycaster);
       filter.show(true);
     });
 
-    test('v key sets Vertex', () => {
-      const event = new KeyboardEvent('keydown', { key: 'v' });
+    test("v key sets Vertex", () => {
+      const event = new KeyboardEvent("keydown", { key: "v" });
       document.dispatchEvent(event);
-      expect(display.filterDropdown.value.innerText).toBe('Vertex');
+      expect(display.filterDropdown.value.innerText).toBe("Vertex");
     });
 
-    test('e key sets Edge', () => {
-      const event = new KeyboardEvent('keydown', { key: 'e' });
+    test("e key sets Edge", () => {
+      const event = new KeyboardEvent("keydown", { key: "e" });
       document.dispatchEvent(event);
-      expect(display.filterDropdown.value.innerText).toBe('Edge');
+      expect(display.filterDropdown.value.innerText).toBe("Edge");
     });
 
-    test('f key sets Face', () => {
-      const event = new KeyboardEvent('keydown', { key: 'f' });
+    test("f key sets Face", () => {
+      const event = new KeyboardEvent("keydown", { key: "f" });
       document.dispatchEvent(event);
-      expect(display.filterDropdown.value.innerText).toBe('Face');
+      expect(display.filterDropdown.value.innerText).toBe("Face");
     });
 
-    test('s key sets Solid', () => {
-      const event = new KeyboardEvent('keydown', { key: 's' });
+    test("s key sets Solid", () => {
+      const event = new KeyboardEvent("keydown", { key: "s" });
       document.dispatchEvent(event);
-      expect(display.filterDropdown.value.innerText).toBe('Solid');
+      expect(display.filterDropdown.value.innerText).toBe("Solid");
     });
 
-    test('n key sets None', () => {
+    test("n key sets None", () => {
       // First set to something else
-      const event1 = new KeyboardEvent('keydown', { key: 'v' });
+      const event1 = new KeyboardEvent("keydown", { key: "v" });
       document.dispatchEvent(event1);
 
-      const event2 = new KeyboardEvent('keydown', { key: 'n' });
+      const event2 = new KeyboardEvent("keydown", { key: "n" });
       document.dispatchEvent(event2);
-      expect(display.filterDropdown.value.innerText).toBe('None');
+      expect(display.filterDropdown.value.innerText).toBe("None");
     });
 
-    test('invalid key does not change value', () => {
-      const event1 = new KeyboardEvent('keydown', { key: 'v' });
+    test("invalid key does not change value", () => {
+      const event1 = new KeyboardEvent("keydown", { key: "v" });
       document.dispatchEvent(event1);
 
-      const event2 = new KeyboardEvent('keydown', { key: 'x' });
+      const event2 = new KeyboardEvent("keydown", { key: "x" });
       document.dispatchEvent(event2);
 
-      expect(display.filterDropdown.value.innerText).toBe('Vertex');
+      expect(display.filterDropdown.value.innerText).toBe("Vertex");
     });
   });
 
-  describe('dropdown toggle', () => {
+  describe("dropdown toggle", () => {
     beforeEach(() => {
       filter.show(true);
     });
 
-    test('clicking content toggles dropdown active class', () => {
+    test("clicking content toggles dropdown active class", () => {
       display.filterDropdown.content.click();
-      expect(display.filterDropdown.dropdown.classList.contains('tcv_filter_dropdown_active')).toBe(true);
+      expect(
+        display.filterDropdown.dropdown.classList.contains(
+          "tcv_filter_dropdown_active",
+        ),
+      ).toBe(true);
 
       display.filterDropdown.content.click();
-      expect(display.filterDropdown.dropdown.classList.contains('tcv_filter_dropdown_active')).toBe(false);
+      expect(
+        display.filterDropdown.dropdown.classList.contains(
+          "tcv_filter_dropdown_active",
+        ),
+      ).toBe(false);
     });
   });
 
-  describe('option selection', () => {
+  describe("option selection", () => {
     beforeEach(() => {
       const mockRaycaster = { filters: { topoFilter: [] } };
       filter.setRaycaster(mockRaycaster);
       filter.show(true);
     });
 
-    test('clicking option sets value', () => {
+    test("clicking option sets value", () => {
       display.filterDropdown.options.edge.click();
-      expect(display.filterDropdown.value.innerText).toBe('Edge');
+      expect(display.filterDropdown.value.innerText).toBe("Edge");
     });
   });
 });
@@ -1394,7 +1431,7 @@ describe('FilterByDropDownMenu', () => {
 // UI HELPER FUNCTION TESTS (through Panel usage)
 // =============================================================================
 
-describe('UI Helper Functions', () => {
+describe("UI Helper Functions", () => {
   let display;
   let panel;
 
@@ -1408,39 +1445,39 @@ describe('UI Helper Functions', () => {
     display.cleanup();
   });
 
-  test('createVectorRow creates row with 3 values', () => {
+  test("createVectorRow creates row with 3 values", () => {
     const properties = {
       Start: [1.5, 2.5, 3.5],
     };
 
     panel.createTable(properties);
 
-    const cells = panel.html.querySelectorAll('.tcv_measure_val');
+    const cells = panel.html.querySelectorAll(".tcv_measure_val");
     // Should have 3 cells for x, y, z
     expect(cells.length).toBeGreaterThanOrEqual(3);
   });
 
-  test('createValueRow creates single value row', () => {
+  test("createValueRow creates single value row", () => {
     const properties = {
       Distance: 10.123,
     };
 
     panel.createTable(properties);
 
-    const cells = panel.html.querySelectorAll('.tcv_measure_val');
+    const cells = panel.html.querySelectorAll(".tcv_measure_val");
     expect(cells.length).toBeGreaterThan(0);
   });
 
-  test('createValueRow with qualifier', () => {
+  test("createValueRow with qualifier", () => {
     const properties = {
       Distance: 10.123,
-      info: 'center',
+      info: "center",
     };
 
     panel.createTable(properties);
 
     // The table should be created with the qualifier
-    const table = panel.html.querySelector('table');
+    const table = panel.html.querySelector("table");
     expect(table).not.toBeNull();
   });
 });

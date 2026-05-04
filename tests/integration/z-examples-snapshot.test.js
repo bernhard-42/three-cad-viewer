@@ -1,8 +1,12 @@
-import { describe, test, expect, afterEach } from 'vitest';
-import { setupViewer, cleanup } from '../helpers/setup.js';
-import { captureSceneState, captureMinimalSnapshot, loadExample } from '../helpers/snapshot.js';
+import { describe, test, expect, afterEach } from "vitest";
+import { setupViewer, cleanup } from "../helpers/setup.js";
+import {
+  captureSceneState,
+  captureMinimalSnapshot,
+  loadExample,
+} from "../helpers/snapshot.js";
 
-describe('Examples - Snapshot Tests', () => {
+describe("Examples - Snapshot Tests", () => {
   let testContext;
 
   afterEach(() => {
@@ -14,50 +18,50 @@ describe('Examples - Snapshot Tests', () => {
 
   // Small examples for snapshot testing (avoiding huge files like transpalet 80MB)
   const smallExamples = [
-    'box1',
-    'box',
-    'vertices',
-    'single-vertices',
-    'single-edges',
-    'single-faces',
-    'faces',
-    'objs1d',
-    'edges',
+    "box1",
+    "box",
+    "vertices",
+    "single-vertices",
+    "single-edges",
+    "single-faces",
+    "faces",
+    "objs1d",
+    "edges",
   ];
 
   // Important examples for comprehensive testing
   const importantExamples = [
-    'assembly',              // 1.6MB - nested groups
-    'boxes',                 // 150KB - nested groups
-    'hexapod',               // 2.0MB - nested groups
-    'box_uncentered_feet',   // 310KB - unit testing (feet)
-    'box_uncentered_mm',     // 312KB - unit testing (mm)
-    'linkage',               // 1.0MB - animation/assembly
+    "assembly", // 1.6MB - nested groups
+    "boxes", // 150KB - nested groups
+    "hexapod", // 2.0MB - nested groups
+    "box_uncentered_feet", // 310KB - unit testing (feet)
+    "box_uncentered_mm", // 312KB - unit testing (mm)
+    "linkage", // 1.0MB - animation/assembly
     // Note: linkage-tracks.js is animation data, not renderable shapes
   ];
 
   // Very large/slow examples that use special rendering paths
   const specialExamples = [
-    'transceiver_mzi',       // 3.4MB - uses renderPolygons() special path
+    "transceiver_mzi", // 3.4MB - uses renderPolygons() special path
   ];
 
   // Smoke test: Can load small example files
-  test.each(smallExamples)('can load example: %s', async (exampleName) => {
+  test.each(smallExamples)("can load example: %s", async (exampleName) => {
     const data = await loadExample(exampleName);
 
     expect(data).toBeDefined();
-    expect(data).toHaveProperty('version');
-    expect(data).toHaveProperty('parts');
+    expect(data).toHaveProperty("version");
+    expect(data).toHaveProperty("parts");
     expect(Array.isArray(data.parts)).toBe(true);
   });
 
   // Basic rendering test for simple example
-  test('can render box1 example', async () => {
+  test("can render box1 example", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
     // Load example
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
 
     // Render (this will add objects to the scene)
     viewer.render(box1Data, renderOptions, viewerOptions);
@@ -72,21 +76,21 @@ describe('Examples - Snapshot Tests', () => {
   });
 
   // Full snapshot test for box1
-  test('box1 scene state snapshot', async () => {
+  test("box1 scene state snapshot", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const snapshot = captureSceneState(viewer);
 
     // Validate snapshot structure
-    expect(snapshot).toHaveProperty('renderer');
-    expect(snapshot).toHaveProperty('camera');
-    expect(snapshot).toHaveProperty('scene');
-    expect(snapshot).toHaveProperty('animation');
-    expect(snapshot).toHaveProperty('display');
+    expect(snapshot).toHaveProperty("renderer");
+    expect(snapshot).toHaveProperty("camera");
+    expect(snapshot).toHaveProperty("scene");
+    expect(snapshot).toHaveProperty("animation");
+    expect(snapshot).toHaveProperty("display");
 
     // Check scene has content
     expect(snapshot.scene.totalChildren).toBeGreaterThan(0);
@@ -96,7 +100,7 @@ describe('Examples - Snapshot Tests', () => {
   });
 
   // Snapshot test for all small examples
-  test.each(smallExamples)('scene snapshot for %s', async (exampleName) => {
+  test.each(smallExamples)("scene snapshot for %s", async (exampleName) => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
@@ -117,7 +121,7 @@ describe('Examples - Snapshot Tests', () => {
 
   // Snapshot test for important examples (nested groups, unit testing, complex geometry)
   test.each(importantExamples)(
-    'important snapshot for %s',
+    "important snapshot for %s",
     { timeout: 10000 }, // 10 seconds for large examples
     async (exampleName) => {
       testContext = setupViewer();
@@ -136,13 +140,13 @@ describe('Examples - Snapshot Tests', () => {
 
       // Create named snapshot for this example
       expect(snapshot).toMatchSnapshot(`${exampleName}-scene`);
-    }
+    },
   );
 
   // Snapshot test for special examples that use unique rendering paths
   // Slow tests (22+ seconds) - skip by default, run with: RUN_SLOW_TESTS=true yarn test
   test.skipIf(!process.env.RUN_SLOW_TESTS).each(specialExamples)(
-    'special rendering snapshot for %s',
+    "special rendering snapshot for %s",
     { timeout: 120000 }, // 120 seconds for very large/slow examples (transceiver_mzi is 3.4MB)
     async (exampleName) => {
       testContext = setupViewer();
@@ -161,6 +165,6 @@ describe('Examples - Snapshot Tests', () => {
 
       // Create named snapshot for this example
       expect(snapshot).toMatchSnapshot(`${exampleName}-scene`);
-    }
+    },
   );
 });

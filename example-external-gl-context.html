@@ -8,7 +8,13 @@
     <style>
       body {
         margin: 0;
-        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          sans-serif;
         background: #444444;
         color: #e5e7eb;
       }
@@ -51,14 +57,19 @@
   </head>
   <body>
     <div class="page">
-      <h1>Shared WebGL context demo: <code>three-cad-viewer</code> + <code>pixi.js</code></h1>
+      <h1>
+        Shared WebGL context demo: <code>three-cad-viewer</code> +
+        <code>pixi.js</code>
+      </h1>
       <p>
-        This page creates one canvas/context, injects it into <code>three-cad-viewer</code>, and renders
-        a Pixi overlay in <code>viewer.onAfterRender</code>.
+        This page creates one canvas/context, injects it into
+        <code>three-cad-viewer</code>, and renders a Pixi overlay in
+        <code>viewer.onAfterRender</code>.
       </p>
       <div id="cad_view"></div>
       <div class="hint">
-        Move the CAD model with the mouse: the yellow Pixi panel is rendered on top using the same GL context.
+        Move the CAD model with the mouse: the yellow Pixi panel is rendered on
+        top using the same GL context.
       </div>
     </div>
 
@@ -67,227 +78,298 @@
       const { Container, Graphics, Text, WebGLRenderer } = PIXI;
 
       (async () => {
+        const totalWidth = Math.min(1300, window.innerWidth - 32);
+        const cadWidth = Math.max(640, totalWidth - 260);
+        const treeWidth = totalWidth - cadWidth;
+        const cadHeight = 620;
 
-      const totalWidth = Math.min(1300, window.innerWidth - 32);
-      const cadWidth = Math.max(640, totalWidth - 260);
-      const treeWidth = totalWidth - cadWidth;
-      const cadHeight = 620;
-
-      // 1) Create and own the WebGL context ourselves.
-      const sharedCanvas = document.createElement("canvas");
-      const gl =
-        sharedCanvas.getContext("webgl2", {
-          alpha: true,
-          antialias: true,
-          stencil: true,
-          preserveDrawingBuffer: false,
-        }) ||
-        sharedCanvas.getContext("webgl", {
-          alpha: true,
-          antialias: true,
-          stencil: true,
-          preserveDrawingBuffer: false,
-        });
-
-      if (!gl) {
-        throw new Error("WebGL is not available in this browser.");
-      }
-
-      const displayOptions = {
-        cadWidth,
-        height: cadHeight,
-        treeWidth,
-        treeHeight: Math.floor(cadHeight * 0.72),
-        theme: "browser",
-        pinning: false,
-        glass: false,
-        tools: false,
-        measureTools: false,
-        measurementDebug: false,
-        selectTool: true,
-        explodeTool: true,
-        zscaleTool: false,
-        zebraTool: true,
-        keymap: {
-          shift: "shiftKey",
-          ctrl: "ctrlKey",
-          meta: "metaKey",
-          alt: "altKey",
-        },
-        // 2) Inject shared canvas + context into three-cad-viewer.
-        canvas: sharedCanvas,
-        gl,
-      };
-
-      const renderOptions = {
-        ambientIntensity: 1.0,
-        directIntensity: 1.1,
-        metalness: 0.25,
-        roughness: 0.65,
-        edgeColor: 0x707070,
-        defaultOpacity: 0.5,
-        normalLen: 0,
-      };
-
-      const viewerOptions = {
-        control: "orbit",
-        up: "Z",
-        ortho: true,
-        ticks: 5,
-      };
-
-      const container = document.getElementById("cad_view");
-      const display = new Display(container, displayOptions);
-      const viewer = new Viewer(display, displayOptions, () => {});
-
-      const shapes = {
-        version: 3,
-        name: "Scene",
-        id: "/Scene",
-        loc: [[0, 0, 0], [0, 0, 0, 1]],
-        bb: { xmin: -0.8, xmax: 0.8, ymin: -0.8, ymax: 0.8, zmin: -0.8, zmax: 0.8 },
-        parts: [
-          {
-            version: 3,
-            id: "/Scene/Box",
-            name: "Box",
-            type: "shapes",
-            subtype: "solid",
-            shape: makeBox(0, 0, 0, 1.6, 1.6, 1.6),
-            state: [1, 1],
-            color: "#5b9bd5",
-            alpha: 1,
-            texture: null,
-            loc: [[0, 0, 0], [0, 0, 0, 1]],
-            renderback: false,
-            accuracy: null,
-            bb: null,
-          },
-        ],
-      };
-
-      viewer.render(shapes, renderOptions, viewerOptions);
-      viewer.setView("iso", true);
-
-      // 3) Pixi renderer uses the very same WebGL context.
-      const pixiRenderer = new WebGLRenderer();
-      await pixiRenderer.init({
-        context: gl,
-        width: cadWidth,
-        height: cadHeight,
-        clearBeforeRender: false,
-      });
-
-      const stage = new Container();
-      const uiCard = new Graphics().roundRect(16, 16, 360, 64, 10).fill(0xffd84d);
-      const text = new Text({
-        text: "Pixi overlay (shared context)",
-        style: {
-          fill: "#0f172a",
-          fontFamily: "Arial",
-          fontSize: 20,
-          fontWeight: "700",
-        },
-      });
-      text.x = 28;
-      text.y = 36;
-      stage.addChild(uiCard);
-      stage.addChild(text);
-
-      // 4) Draw Pixi after each CAD render pass.
-      viewer.onAfterRender = () => {
-        uiCard.x = 16 + Math.sin(performance.now() * 0.0012) * 10;
-        text.x = 28 + Math.sin(performance.now() * 0.0012) * 10;
-
-        pixiRenderer.resetState();
-        pixiRenderer.render({ container: stage, clear: false });
-      };
-
-      // Keep frames flowing so the Pixi overlay animation is visible.
-      viewer.toggleAnimationLoop(true);
-
-      window.addEventListener("resize", () => {
-        const width = Math.min(1300, window.innerWidth - 32);
-        const nextCadWidth = Math.max(640, width - 260);
-        const nextTreeWidth = width - nextCadWidth;
-
-        viewer.resizeCadView(nextCadWidth, nextTreeWidth, cadHeight, false);
-        pixiRenderer.resize(nextCadWidth, cadHeight);
-      });
-
-      window.addEventListener("beforeunload", () => {
-        viewer.toggleAnimationLoop(false);
-        viewer.dispose();
-      });
-
-      function makeBox(cx, cy, cz, w, h, d) {
-        const hw = w / 2;
-        const hh = h / 2;
-        const hd = d / 2;
-
-        const faces = [
-          { n: [-1, 0, 0], v: [[cx - hw, cy - hh, cz - hd], [cx - hw, cy + hh, cz - hd], [cx - hw, cy + hh, cz + hd], [cx - hw, cy - hh, cz + hd]] },
-          { n: [1, 0, 0], v: [[cx + hw, cy - hh, cz - hd], [cx + hw, cy - hh, cz + hd], [cx + hw, cy + hh, cz + hd], [cx + hw, cy + hh, cz - hd]] },
-          { n: [0, -1, 0], v: [[cx - hw, cy - hh, cz - hd], [cx - hw, cy - hh, cz + hd], [cx + hw, cy - hh, cz + hd], [cx + hw, cy - hh, cz - hd]] },
-          { n: [0, 1, 0], v: [[cx - hw, cy + hh, cz - hd], [cx + hw, cy + hh, cz - hd], [cx + hw, cy + hh, cz + hd], [cx - hw, cy + hh, cz + hd]] },
-          { n: [0, 0, -1], v: [[cx - hw, cy - hh, cz - hd], [cx + hw, cy - hh, cz - hd], [cx + hw, cy + hh, cz - hd], [cx - hw, cy + hh, cz - hd]] },
-          { n: [0, 0, 1], v: [[cx - hw, cy - hh, cz + hd], [cx - hw, cy + hh, cz + hd], [cx + hw, cy + hh, cz + hd], [cx + hw, cy - hh, cz + hd]] },
-        ];
-
-        const vertices = [];
-        const normals = [];
-        const triangles = [];
-        const face_types = [];
-        const triangles_per_face = [];
-
-        faces.forEach((face, i) => {
-          const base = i * 4;
-          face.v.forEach((point) => {
-            vertices.push(...point);
-            normals.push(...face.n);
+        // 1) Create and own the WebGL context ourselves.
+        const sharedCanvas = document.createElement("canvas");
+        const gl =
+          sharedCanvas.getContext("webgl2", {
+            alpha: true,
+            antialias: true,
+            stencil: true,
+            preserveDrawingBuffer: false,
+          }) ||
+          sharedCanvas.getContext("webgl", {
+            alpha: true,
+            antialias: true,
+            stencil: true,
+            preserveDrawingBuffer: false,
           });
-          triangles.push(base, base + 1, base + 2, base, base + 2, base + 3);
-          face_types.push(0);
-          triangles_per_face.push(2);
-        });
 
-        const corners = [];
-        for (const sx of [-1, 1]) {
-          for (const sy of [-1, 1]) {
-            for (const sz of [-1, 1]) {
-              corners.push([cx + sx * hw, cy + sy * hh, cz + sz * hd]);
-            }
-          }
+        if (!gl) {
+          throw new Error("WebGL is not available in this browser.");
         }
 
-        const edgePairs = [
-          [0, 1], [2, 3], [4, 5], [6, 7],
-          [0, 2], [1, 3], [4, 6], [5, 7],
-          [0, 4], [1, 5], [2, 6], [3, 7],
-        ];
+        const displayOptions = {
+          cadWidth,
+          height: cadHeight,
+          treeWidth,
+          treeHeight: Math.floor(cadHeight * 0.72),
+          theme: "browser",
+          pinning: false,
+          glass: false,
+          tools: false,
+          measureTools: false,
+          measurementDebug: false,
+          selectTool: true,
+          explodeTool: true,
+          zscaleTool: false,
+          zebraTool: true,
+          keymap: {
+            shift: "shiftKey",
+            ctrl: "ctrlKey",
+            meta: "metaKey",
+            alt: "altKey",
+          },
+          // 2) Inject shared canvas + context into three-cad-viewer.
+          canvas: sharedCanvas,
+          gl,
+        };
 
-        const edges = [];
-        const edge_types = [];
-        const segments_per_edge = [];
+        const renderOptions = {
+          ambientIntensity: 1.0,
+          directIntensity: 1.1,
+          metalness: 0.25,
+          roughness: 0.65,
+          edgeColor: 0x707070,
+          defaultOpacity: 0.5,
+          normalLen: 0,
+        };
 
-        edgePairs.forEach(([a, b]) => {
-          edges.push(...corners[a], ...corners[b]);
-          edge_types.push(0);
-          segments_per_edge.push(1);
+        const viewerOptions = {
+          control: "orbit",
+          up: "Z",
+          ortho: true,
+          ticks: 5,
+        };
+
+        const container = document.getElementById("cad_view");
+        const display = new Display(container, displayOptions);
+        const viewer = new Viewer(display, displayOptions, () => {});
+
+        const shapes = {
+          version: 3,
+          name: "Scene",
+          id: "/Scene",
+          loc: [
+            [0, 0, 0],
+            [0, 0, 0, 1],
+          ],
+          bb: {
+            xmin: -0.8,
+            xmax: 0.8,
+            ymin: -0.8,
+            ymax: 0.8,
+            zmin: -0.8,
+            zmax: 0.8,
+          },
+          parts: [
+            {
+              version: 3,
+              id: "/Scene/Box",
+              name: "Box",
+              type: "shapes",
+              subtype: "solid",
+              shape: makeBox(0, 0, 0, 1.6, 1.6, 1.6),
+              state: [1, 1],
+              color: "#5b9bd5",
+              alpha: 1,
+              texture: null,
+              loc: [
+                [0, 0, 0],
+                [0, 0, 0, 1],
+              ],
+              renderback: false,
+              accuracy: null,
+              bb: null,
+            },
+          ],
+        };
+
+        viewer.render(shapes, renderOptions, viewerOptions);
+        viewer.setView("iso", true);
+
+        // 3) Pixi renderer uses the very same WebGL context.
+        const pixiRenderer = new WebGLRenderer();
+        await pixiRenderer.init({
+          context: gl,
+          width: cadWidth,
+          height: cadHeight,
+          clearBeforeRender: false,
         });
 
-        return {
-          vertices,
-          triangles,
-          normals,
-          edges,
-          obj_vertices: corners.flat(),
-          face_types,
-          edge_types,
-          triangles_per_face,
-          segments_per_edge,
+        const stage = new Container();
+        const uiCard = new Graphics()
+          .roundRect(16, 16, 360, 64, 10)
+          .fill(0xffd84d);
+        const text = new Text({
+          text: "Pixi overlay (shared context)",
+          style: {
+            fill: "#0f172a",
+            fontFamily: "Arial",
+            fontSize: 20,
+            fontWeight: "700",
+          },
+        });
+        text.x = 28;
+        text.y = 36;
+        stage.addChild(uiCard);
+        stage.addChild(text);
+
+        // 4) Draw Pixi after each CAD render pass.
+        viewer.onAfterRender = () => {
+          uiCard.x = 16 + Math.sin(performance.now() * 0.0012) * 10;
+          text.x = 28 + Math.sin(performance.now() * 0.0012) * 10;
+
+          pixiRenderer.resetState();
+          pixiRenderer.render({ container: stage, clear: false });
         };
-      }
+
+        // Keep frames flowing so the Pixi overlay animation is visible.
+        viewer.toggleAnimationLoop(true);
+
+        window.addEventListener("resize", () => {
+          const width = Math.min(1300, window.innerWidth - 32);
+          const nextCadWidth = Math.max(640, width - 260);
+          const nextTreeWidth = width - nextCadWidth;
+
+          viewer.resizeCadView(nextCadWidth, nextTreeWidth, cadHeight, false);
+          pixiRenderer.resize(nextCadWidth, cadHeight);
+        });
+
+        window.addEventListener("beforeunload", () => {
+          viewer.toggleAnimationLoop(false);
+          viewer.dispose();
+        });
+
+        function makeBox(cx, cy, cz, w, h, d) {
+          const hw = w / 2;
+          const hh = h / 2;
+          const hd = d / 2;
+
+          const faces = [
+            {
+              n: [-1, 0, 0],
+              v: [
+                [cx - hw, cy - hh, cz - hd],
+                [cx - hw, cy + hh, cz - hd],
+                [cx - hw, cy + hh, cz + hd],
+                [cx - hw, cy - hh, cz + hd],
+              ],
+            },
+            {
+              n: [1, 0, 0],
+              v: [
+                [cx + hw, cy - hh, cz - hd],
+                [cx + hw, cy - hh, cz + hd],
+                [cx + hw, cy + hh, cz + hd],
+                [cx + hw, cy + hh, cz - hd],
+              ],
+            },
+            {
+              n: [0, -1, 0],
+              v: [
+                [cx - hw, cy - hh, cz - hd],
+                [cx - hw, cy - hh, cz + hd],
+                [cx + hw, cy - hh, cz + hd],
+                [cx + hw, cy - hh, cz - hd],
+              ],
+            },
+            {
+              n: [0, 1, 0],
+              v: [
+                [cx - hw, cy + hh, cz - hd],
+                [cx + hw, cy + hh, cz - hd],
+                [cx + hw, cy + hh, cz + hd],
+                [cx - hw, cy + hh, cz + hd],
+              ],
+            },
+            {
+              n: [0, 0, -1],
+              v: [
+                [cx - hw, cy - hh, cz - hd],
+                [cx + hw, cy - hh, cz - hd],
+                [cx + hw, cy + hh, cz - hd],
+                [cx - hw, cy + hh, cz - hd],
+              ],
+            },
+            {
+              n: [0, 0, 1],
+              v: [
+                [cx - hw, cy - hh, cz + hd],
+                [cx - hw, cy + hh, cz + hd],
+                [cx + hw, cy + hh, cz + hd],
+                [cx + hw, cy - hh, cz + hd],
+              ],
+            },
+          ];
+
+          const vertices = [];
+          const normals = [];
+          const triangles = [];
+          const face_types = [];
+          const triangles_per_face = [];
+
+          faces.forEach((face, i) => {
+            const base = i * 4;
+            face.v.forEach((point) => {
+              vertices.push(...point);
+              normals.push(...face.n);
+            });
+            triangles.push(base, base + 1, base + 2, base, base + 2, base + 3);
+            face_types.push(0);
+            triangles_per_face.push(2);
+          });
+
+          const corners = [];
+          for (const sx of [-1, 1]) {
+            for (const sy of [-1, 1]) {
+              for (const sz of [-1, 1]) {
+                corners.push([cx + sx * hw, cy + sy * hh, cz + sz * hd]);
+              }
+            }
+          }
+
+          const edgePairs = [
+            [0, 1],
+            [2, 3],
+            [4, 5],
+            [6, 7],
+            [0, 2],
+            [1, 3],
+            [4, 6],
+            [5, 7],
+            [0, 4],
+            [1, 5],
+            [2, 6],
+            [3, 7],
+          ];
+
+          const edges = [];
+          const edge_types = [];
+          const segments_per_edge = [];
+
+          edgePairs.forEach(([a, b]) => {
+            edges.push(...corners[a], ...corners[b]);
+            edge_types.push(0);
+            segments_per_edge.push(1);
+          });
+
+          return {
+            vertices,
+            triangles,
+            normals,
+            edges,
+            obj_vertices: corners.flat(),
+            face_types,
+            edge_types,
+            triangles_per_face,
+            segments_per_edge,
+          };
+        }
       })().catch((error) => {
         console.error("Failed to initialize shared-context demo:", error);
       });

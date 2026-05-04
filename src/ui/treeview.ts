@@ -2,7 +2,12 @@ import * as THREE from "three";
 import { KeyMapper } from "../utils/utils.js";
 import { logger } from "../utils/logger.js";
 import { TreeModel, States } from "../rendering/tree-model.js";
-import type { TreeNode, TreeData, StateValue, IconIndex } from "../rendering/tree-model.js";
+import type {
+  TreeNode,
+  TreeData,
+  StateValue,
+  IconIndex,
+} from "../rendering/tree-model.js";
 
 /** Navigation icons for expand/collapse */
 const NAV_ICONS = {
@@ -30,7 +35,7 @@ type ObjectHandler = (
   state: StateValue,
   iconNumber: number,
   propagate: boolean,
-  notify: boolean
+  notify: boolean,
 ) => void;
 
 type PickHandler = (
@@ -41,7 +46,7 @@ type PickHandler = (
   alt: boolean,
   extra: THREE.Vector3 | null,
   nodeType: "leaf" | "node" | string | null,
-  fromTree: boolean
+  fromTree: boolean,
 ) => void;
 
 type UpdateHandler = (flag: boolean) => void;
@@ -118,7 +123,8 @@ class TreeView {
     // Create the data model
     this.model = new TreeModel(this.tree!, {
       linkIcons: this.linkIcons,
-      onStateChange: (node, iconNumber) => this._handleStateChange(node, iconNumber),
+      onStateChange: (node, iconNumber) =>
+        this._handleStateChange(node, iconNumber),
     });
 
     // Create DOM container
@@ -136,7 +142,8 @@ class TreeView {
    * @param iconNumber - Which icon changed (0 or 1).
    */
   private _handleStateChange(node: TreeNode, iconNumber: IconIndex): void {
-    const icons: IconIndex[] = iconNumber === 0 && this.linkIcons ? [0, 1] : [iconNumber];
+    const icons: IconIndex[] =
+      iconNumber === 0 && this.linkIcons ? [0, 1] : [iconNumber];
     for (const i of icons) {
       this.objectHandler(this.getNodePath(node), node.state[i], i, true, false);
     }
@@ -290,8 +297,10 @@ class TreeView {
   update = (prefix: string | null = null): void => {
     if (!this.container || !this.model) return;
 
-    const visibleElements = this.getVisibleElements().filter((p): p is HTMLElement =>
-      p instanceof HTMLElement && (prefix == null || (p.dataset.path || "").startsWith(prefix)),
+    const visibleElements = this.getVisibleElements().filter(
+      (p): p is HTMLElement =>
+        p instanceof HTMLElement &&
+        (prefix == null || (p.dataset.path || "").startsWith(prefix)),
     );
     for (const el of visibleElements) {
       const path = el.dataset.path || "";
@@ -359,7 +368,11 @@ class TreeView {
    * @param container - The container element to append the rendered node to.
    * @param openPath - The path of the node to be opened, or null if no node should be opened.
    */
-  renderPlaceholder(node: TreeNode, container: HTMLElement, openPath: string | null = null): void {
+  renderPlaceholder(
+    node: TreeNode,
+    container: HTMLElement,
+    openPath: string | null = null,
+  ): void {
     if (this.debug) {
       logger.debug("renderPlaceholder", node.path, node.level);
     }
@@ -385,7 +398,10 @@ class TreeView {
    * @param parentElement - The parent element to append the rendered node to.
    * @returns The container element for the node's children, if any.
    */
-  renderNode(node: TreeNode, parentElement: HTMLElement): HTMLDivElement | null {
+  renderNode(
+    node: TreeNode,
+    parentElement: HTMLElement,
+  ): HTMLDivElement | null {
     if (this.debug) {
       logger.debug("renderNode", node.path, node.level);
     }
@@ -518,16 +534,22 @@ class TreeView {
     if (!this.container) return;
 
     const nodePath = this.getNodePath(node);
-    const nodeElement = this.container.querySelector(`[data-path="${nodePath}"]`);
+    const nodeElement = this.container.querySelector(
+      `[data-path="${nodePath}"]`,
+    );
     if (nodeElement instanceof HTMLElement) {
       const icon = nodeElement.querySelector(`.tv-icon${iconNumber}`);
       if (icon) {
         for (const b of VIEW_ICONS[iconNumber]) {
           icon.classList.remove(`tcv_button_${b}`);
         }
-        icon.classList.add(`tcv_button_${VIEW_ICONS[iconNumber][node.state[iconNumber]]}`);
+        icon.classList.add(
+          `tcv_button_${VIEW_ICONS[iconNumber][node.state[iconNumber]]}`,
+        );
       }
-      nodeElement.dataset[`state${iconNumber}`] = String(node.state[iconNumber]);
+      nodeElement.dataset[`state${iconNumber}`] = String(
+        node.state[iconNumber],
+      );
     }
   }
 
@@ -542,7 +564,9 @@ class TreeView {
     const nodePath = path == null && node ? this.getNodePath(node) : path;
     if (!nodePath) return;
 
-    const nodeElement = this.container.querySelector(`[data-path="${nodePath}"]`);
+    const nodeElement = this.container.querySelector(
+      `[data-path="${nodePath}"]`,
+    );
     if (this.lastLabel) {
       this.lastLabel.classList.remove("tv-node-label-highlight");
     }
@@ -620,7 +644,11 @@ class TreeView {
    * @param iconNumber - Which icon (0 or 1).
    * @param force - Force state (true=selected, false=unselected, null=toggle).
    */
-  toggleIcon(node: TreeNode, iconNumber: IconIndex, force: boolean | null = null): void {
+  toggleIcon(
+    node: TreeNode,
+    iconNumber: IconIndex,
+    force: boolean | null = null,
+  ): void {
     if (!this.model) return;
 
     const changed = this.model.toggleNodeState(node, iconNumber, force);
@@ -878,7 +906,8 @@ class TreeView {
       this.showChildContainer(node);
       const el = this.getDomNode(path);
       if (el != null) {
-        this.scrollContainer.scrollTop = el.offsetTop - this.scrollContainer.offsetTop;
+        this.scrollContainer.scrollTop =
+          el.offsetTop - this.scrollContainer.offsetTop;
       }
       if (this.debug) {
         logger.debug("update => collapsePath");
@@ -900,7 +929,8 @@ class TreeView {
 
     const el = this.getDomNode(this.getNodePath(this.root));
     if (el != null) {
-      this.scrollContainer.scrollTop = el.offsetTop - this.scrollContainer.offsetTop;
+      this.scrollContainer.scrollTop =
+        el.offsetTop - this.scrollContainer.offsetTop;
     }
 
     // Multiple updates to ensure all levels are rendered

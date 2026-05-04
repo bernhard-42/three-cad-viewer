@@ -1,4 +1,4 @@
-import { describe, test, expect, afterEach, beforeEach } from 'vitest';
+import { describe, test, expect, afterEach, beforeEach } from "vitest";
 import {
   setupTreeView,
   cleanupTreeView,
@@ -12,9 +12,9 @@ import {
   isPathExpanded,
   pathExistsInDOM,
   getVisiblePaths,
-} from '../helpers/treeview-setup.js';
+} from "../helpers/treeview-setup.js";
 
-describe('TreeView - Basic Functionality', () => {
+describe("TreeView - Basic Functionality", () => {
   let testContext;
 
   afterEach(() => {
@@ -24,7 +24,7 @@ describe('TreeView - Basic Functionality', () => {
     }
   });
 
-  test('can create TreeView instance', () => {
+  test("can create TreeView instance", () => {
     testContext = setupTreeView();
     const { treeView } = testContext;
 
@@ -32,18 +32,18 @@ describe('TreeView - Basic Functionality', () => {
     expect(treeView.root).toBeDefined();
   });
 
-  test('builds tree structure correctly', () => {
+  test("builds tree structure correctly", () => {
     const tree = createSimpleTree(3);
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
 
     expect(treeView.root).toBeDefined();
-    expect(treeView.root.name).toBe('root');
+    expect(treeView.root.name).toBe("root");
     expect(treeView.root.children).toBeDefined();
     expect(Object.keys(treeView.root.children)).toHaveLength(3);
   });
 
-  test('correctly identifies leaf nodes', () => {
+  test("correctly identifies leaf nodes", () => {
     const tree = createNestedTree(2, 2);
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
@@ -57,46 +57,46 @@ describe('TreeView - Basic Functionality', () => {
     expect(treeView.isLeaf(grandChild)).toBe(true);
   });
 
-  test('findNodeByPath returns correct node', () => {
+  test("findNodeByPath returns correct node", () => {
     const tree = createSimpleTree(3);
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
 
-    const node = treeView.findNodeByPath('/root/leaf1');
+    const node = treeView.findNodeByPath("/root/leaf1");
     expect(node).toBeDefined();
-    expect(node.name).toBe('leaf1');
+    expect(node.name).toBe("leaf1");
   });
 
-  test('findNodeByPath returns null for invalid path', () => {
+  test("findNodeByPath returns null for invalid path", () => {
     testContext = setupTreeView();
     const { treeView } = testContext;
 
-    const node = treeView.findNodeByPath('/root/nonexistent');
+    const node = treeView.findNodeByPath("/root/nonexistent");
     expect(node).toBeNull();
   });
 
-  test('getParent returns correct parent node', () => {
+  test("getParent returns correct parent node", () => {
     const tree = createNestedTree(2, 2);
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
 
-    const leaf = treeView.findNodeByPath('/root/node_2_1/node_2_1_1_1');
+    const leaf = treeView.findNodeByPath("/root/node_2_1/node_2_1_1_1");
     const parent = treeView.getParent(leaf);
 
     expect(parent).toBeDefined();
-    expect(parent.name).toBe('node_2_1');
+    expect(parent.name).toBe("node_2_1");
   });
 
-  test('getNodePath returns correct path format', () => {
+  test("getNodePath returns correct path format", () => {
     testContext = setupTreeView();
     const { treeView } = testContext;
 
     const path = treeView.getNodePath(treeView.root);
-    expect(path).toBe('/root');
+    expect(path).toBe("/root");
   });
 });
 
-describe('TreeView - Rendering', () => {
+describe("TreeView - Rendering", () => {
   let testContext;
 
   afterEach(() => {
@@ -106,16 +106,16 @@ describe('TreeView - Rendering', () => {
     }
   });
 
-  test('renders root node placeholder', () => {
+  test("renders root node placeholder", () => {
     testContext = setupTreeView();
     const { container } = testContext;
 
     // At minimum, root should exist in DOM (might be placeholder or rendered)
     expect(countRenderedNodes(container)).toBeGreaterThan(0);
-    expect(pathExistsInDOM(container, '/root')).toBe(true);
+    expect(pathExistsInDOM(container, "/root")).toBe(true);
   });
 
-  test('root becomes fully rendered after update cycle', () => {
+  test("root becomes fully rendered after update cycle", () => {
     const tree = createSimpleTree(5);
     testContext = setupTreeView(tree);
     const { container, treeView } = testContext;
@@ -124,10 +124,10 @@ describe('TreeView - Rendering', () => {
     treeView.update();
 
     // Root should be fully rendered now
-    expect(pathExistsInDOM(container, '/root')).toBe(true);
+    expect(pathExistsInDOM(container, "/root")).toBe(true);
   });
 
-  test('renders icons with correct states when node is rendered', () => {
+  test("renders icons with correct states when node is rendered", () => {
     testContext = setupTreeView();
     const { container, treeView } = testContext;
 
@@ -135,12 +135,12 @@ describe('TreeView - Rendering', () => {
     treeView.update();
 
     // Check for icons (might be 0 if root is a leaf in simple tree)
-    const nodeContent = container.querySelector('.tv-node-content');
+    const nodeContent = container.querySelector(".tv-node-content");
     expect(nodeContent).not.toBeNull();
   });
 });
 
-describe('TreeView - Lazy Rendering', () => {
+describe("TreeView - Lazy Rendering", () => {
   let testContext;
 
   afterEach(() => {
@@ -150,7 +150,7 @@ describe('TreeView - Lazy Rendering', () => {
     }
   });
 
-  test('does not render all nodes of large tree immediately', () => {
+  test("does not render all nodes of large tree immediately", () => {
     const tree = createLargeTree();
     testContext = setupTreeView(tree);
     const { container, treeView } = testContext;
@@ -162,7 +162,7 @@ describe('TreeView - Lazy Rendering', () => {
     expect(renderedCount).toBeLessThan(100);
   });
 
-  test('renders more nodes when tree is expanded', () => {
+  test("renders more nodes when tree is expanded", () => {
     const tree = createNestedTree(3, 3);
     testContext = setupTreeView(tree);
     const { container, treeView } = testContext;
@@ -170,22 +170,22 @@ describe('TreeView - Lazy Rendering', () => {
     const initialCount = countFullyRenderedNodes(container);
 
     // Expand root
-    treeView.openPath('/root');
+    treeView.openPath("/root");
 
     const afterExpand = countFullyRenderedNodes(container);
     expect(afterExpand).toBeGreaterThanOrEqual(initialCount);
   });
 
-  test('lazy renders children when parent is expanded', () => {
+  test("lazy renders children when parent is expanded", () => {
     const tree = createNestedTree(3, 3);
     testContext = setupTreeView(tree);
     const { treeView, container } = testContext;
 
     // Initially children should not be rendered
-    const childPath = '/root/node_3_1';
+    const childPath = "/root/node_3_1";
 
     // Expand to see children
-    treeView.openPath('/root');
+    treeView.openPath("/root");
 
     // Now children should be visible (at least as placeholders)
     const childNode = container.querySelector(`[data-path="${childPath}"]`);
@@ -193,7 +193,7 @@ describe('TreeView - Lazy Rendering', () => {
   });
 });
 
-describe('TreeView - Expanding in Middle of Unexpanded Tree', () => {
+describe("TreeView - Expanding in Middle of Unexpanded Tree", () => {
   let testContext;
 
   afterEach(() => {
@@ -203,86 +203,90 @@ describe('TreeView - Expanding in Middle of Unexpanded Tree', () => {
     }
   });
 
-  test('can expand a deeply nested path when parents are not expanded', () => {
+  test("can expand a deeply nested path when parents are not expanded", () => {
     const tree = createLargeTree();
     testContext = setupTreeView(tree);
     const { treeView, container } = testContext;
 
     // Try to open a deeply nested path
-    const deepPath = '/root/branch_5/node_5_5/leaf_5_5_5';
+    const deepPath = "/root/branch_5/node_5_5/leaf_5_5_5";
 
     // This should expand all parents along the way
     treeView.openPath(deepPath);
 
     // All parent paths should now exist in DOM and be expanded
-    expect(pathExistsInDOM(container, '/root')).toBe(true);
-    expect(pathExistsInDOM(container, '/root/branch_5')).toBe(true);
-    expect(pathExistsInDOM(container, '/root/branch_5/node_5_5')).toBe(true);
+    expect(pathExistsInDOM(container, "/root")).toBe(true);
+    expect(pathExistsInDOM(container, "/root/branch_5")).toBe(true);
+    expect(pathExistsInDOM(container, "/root/branch_5/node_5_5")).toBe(true);
 
     // And they should be expanded (not null = node exists, true = expanded)
-    expect(isPathExpanded(container, '/root')).toBe(true);
-    expect(isPathExpanded(container, '/root/branch_5')).toBe(true);
+    expect(isPathExpanded(container, "/root")).toBe(true);
+    expect(isPathExpanded(container, "/root/branch_5")).toBe(true);
     // node_5_5 contains leaf_5_5_5, so it should be expanded
-    expect(isPathExpanded(container, '/root/branch_5/node_5_5')).toBe(true);
+    expect(isPathExpanded(container, "/root/branch_5/node_5_5")).toBe(true);
   });
 
-  test('expanding middle node renders its children correctly', () => {
+  test("expanding middle node renders its children correctly", () => {
     const tree = createLargeTree();
     testContext = setupTreeView(tree);
     const { treeView, container } = testContext;
 
     // Expand to a middle level - this should render the path
-    treeView.openPath('/root/branch_3/node_3_5');
+    treeView.openPath("/root/branch_3/node_3_5");
 
     // The children of node_3_5 should be visible
-    const childPath = '/root/branch_3/node_3_5/leaf_3_5_1';
+    const childPath = "/root/branch_3/node_3_5/leaf_3_5_1";
     expect(pathExistsInDOM(container, childPath)).toBe(true);
   });
 
-  test('expanding multiple non-contiguous branches works correctly', () => {
+  test("expanding multiple non-contiguous branches works correctly", () => {
     const tree = createLargeTree();
     testContext = setupTreeView(tree);
     const { treeView, container } = testContext;
 
     // Expand first branch deeply
-    treeView.openPath('/root/branch_1/node_1_1');
+    treeView.openPath("/root/branch_1/node_1_1");
 
     // Expand a different branch (not adjacent)
-    treeView.openPath('/root/branch_8/node_8_8');
+    treeView.openPath("/root/branch_8/node_8_8");
 
     // Both branches should exist in DOM
-    expect(pathExistsInDOM(container, '/root/branch_1/node_1_1')).toBe(true);
-    expect(pathExistsInDOM(container, '/root/branch_8/node_8_8')).toBe(true);
+    expect(pathExistsInDOM(container, "/root/branch_1/node_1_1")).toBe(true);
+    expect(pathExistsInDOM(container, "/root/branch_8/node_8_8")).toBe(true);
 
     // Check that leaves are rendered
-    expect(pathExistsInDOM(container, '/root/branch_1/node_1_1/leaf_1_1_1')).toBe(true);
-    expect(pathExistsInDOM(container, '/root/branch_8/node_8_8/leaf_8_8_1')).toBe(true);
+    expect(
+      pathExistsInDOM(container, "/root/branch_1/node_1_1/leaf_1_1_1"),
+    ).toBe(true);
+    expect(
+      pathExistsInDOM(container, "/root/branch_8/node_8_8/leaf_8_8_1"),
+    ).toBe(true);
   });
 
-  test('collapsing and re-expanding preserves state', () => {
+  test("collapsing and re-expanding preserves state", () => {
     const tree = createNestedTree(3, 3);
     testContext = setupTreeView(tree);
     const { treeView, container } = testContext;
 
     // Expand a path
-    treeView.openPath('/root/node_3_1/node_3_1_2_1');
+    treeView.openPath("/root/node_3_1/node_3_1_2_1");
 
     // Verify it's expanded
-    expect(isPathExpanded(container, '/root/node_3_1')).toBe(true);
+    expect(isPathExpanded(container, "/root/node_3_1")).toBe(true);
 
     // Collapse it
-    treeView.closePath('/root/node_3_1');
-    expect(isPathExpanded(container, '/root/node_3_1')).toBe(false);
+    treeView.closePath("/root/node_3_1");
+    expect(isPathExpanded(container, "/root/node_3_1")).toBe(false);
 
     // Re-expand
-    treeView.openPath('/root/node_3_1');
+    treeView.openPath("/root/node_3_1");
 
     // Should be expanded again
-    expect(isPathExpanded(container, '/root/node_3_1')).toBe(true);
+    expect(isPathExpanded(container, "/root/node_3_1")).toBe(true);
   });
 });
 
-describe('TreeView - State Management', () => {
+describe("TreeView - State Management", () => {
   let testContext;
 
   afterEach(() => {
@@ -292,11 +296,11 @@ describe('TreeView - State Management', () => {
     }
   });
 
-  test('toggleIcon changes node state', () => {
+  test("toggleIcon changes node state", () => {
     testContext = setupTreeView();
     const { treeView, calls } = testContext;
 
-    const node = treeView.findNodeByPath('/root/leaf1');
+    const node = treeView.findNodeByPath("/root/leaf1");
     const initialState = node.state[0];
 
     treeView.toggleIcon(node, 0);
@@ -307,7 +311,7 @@ describe('TreeView - State Management', () => {
     expect(calls.objectHandler.length).toBeGreaterThan(0);
   });
 
-  test('hideAll sets all states to unselected', () => {
+  test("hideAll sets all states to unselected", () => {
     testContext = setupTreeView();
     const { treeView } = testContext;
 
@@ -317,7 +321,7 @@ describe('TreeView - State Management', () => {
     expect(treeView.root.state[0]).toBeLessThanOrEqual(2); // 0, 1, or 2
   });
 
-  test('showAll sets all states to selected', () => {
+  test("showAll sets all states to selected", () => {
     testContext = setupTreeView();
     const { treeView } = testContext;
 
@@ -331,33 +335,35 @@ describe('TreeView - State Management', () => {
     expect(treeView.root.state[0]).toBeGreaterThanOrEqual(1);
   });
 
-  test('parent state updates when child state changes', () => {
+  test("parent state updates when child state changes", () => {
     const tree = createMixedStateTree();
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
 
     // Get the mixed_branch node
-    const mixedBranch = treeView.findNodeByPath('/root/mixed_branch');
+    const mixedBranch = treeView.findNodeByPath("/root/mixed_branch");
 
     // It should have mixed state (2) since children have different states
     expect(mixedBranch.state[0]).toBe(2);
   });
 
-  test('child states update when parent state changes', () => {
+  test("child states update when parent state changes", () => {
     const tree = createMixedStateTree();
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
 
     // Get visible_branch and toggle it off
-    const visibleBranch = treeView.findNodeByPath('/root/visible_branch');
+    const visibleBranch = treeView.findNodeByPath("/root/visible_branch");
     treeView.toggleIcon(visibleBranch, 0, false);
 
     // Children should now be unselected
-    const child1 = treeView.findNodeByPath('/root/visible_branch/visible_leaf1');
+    const child1 = treeView.findNodeByPath(
+      "/root/visible_branch/visible_leaf1",
+    );
     expect(child1.state[0]).toBe(0);
   });
 
-  test('getStates returns all leaf states', () => {
+  test("getStates returns all leaf states", () => {
     const tree = createSimpleTree(3);
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
@@ -365,12 +371,12 @@ describe('TreeView - State Management', () => {
     const states = treeView.getStates();
 
     expect(Object.keys(states)).toHaveLength(3);
-    expect(states['/root/leaf1']).toBeDefined();
-    expect(states['/root/leaf2']).toBeDefined();
-    expect(states['/root/leaf3']).toBeDefined();
+    expect(states["/root/leaf1"]).toBeDefined();
+    expect(states["/root/leaf2"]).toBeDefined();
+    expect(states["/root/leaf3"]).toBeDefined();
   });
 
-  test('setStates restores states correctly', () => {
+  test("setStates restores states correctly", () => {
     const tree = createSimpleTree(3);
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
@@ -389,12 +395,14 @@ describe('TreeView - State Management', () => {
     expect(restoredStates).toEqual(originalStates);
   });
 
-  test('disabled nodes cannot be toggled', () => {
+  test("disabled nodes cannot be toggled", () => {
     const tree = createMixedStateTree();
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
 
-    const disabledLeaf = treeView.findNodeByPath('/root/disabled_branch/disabled_leaf');
+    const disabledLeaf = treeView.findNodeByPath(
+      "/root/disabled_branch/disabled_leaf",
+    );
     const initialState = disabledLeaf.state[0];
 
     treeView.toggleIcon(disabledLeaf, 0);
@@ -404,7 +412,7 @@ describe('TreeView - State Management', () => {
   });
 });
 
-describe('TreeView - Navigation', () => {
+describe("TreeView - Navigation", () => {
   let testContext;
 
   afterEach(() => {
@@ -414,40 +422,40 @@ describe('TreeView - Navigation', () => {
     }
   });
 
-  test('openPath expands to the specified path', () => {
+  test("openPath expands to the specified path", () => {
     const tree = createNestedTree(3, 2);
     testContext = setupTreeView(tree);
     const { treeView, container } = testContext;
 
-    treeView.openPath('/root/node_3_1/node_3_1_2_1');
+    treeView.openPath("/root/node_3_1/node_3_1_2_1");
 
     // All parents should exist in DOM
-    expect(pathExistsInDOM(container, '/root')).toBe(true);
-    expect(pathExistsInDOM(container, '/root/node_3_1')).toBe(true);
+    expect(pathExistsInDOM(container, "/root")).toBe(true);
+    expect(pathExistsInDOM(container, "/root/node_3_1")).toBe(true);
 
     // And be expanded (data model)
     expect(treeView.root.expanded).toBe(true);
-    const node31 = treeView.findNodeByPath('/root/node_3_1');
+    const node31 = treeView.findNodeByPath("/root/node_3_1");
     expect(node31.expanded).toBe(true);
   });
 
-  test('closePath collapses the specified path', () => {
+  test("closePath collapses the specified path", () => {
     const tree = createNestedTree(2, 2);
     testContext = setupTreeView(tree);
     const { treeView, container } = testContext;
 
     // First expand
-    treeView.openPath('/root/node_2_1');
+    treeView.openPath("/root/node_2_1");
 
-    const node21 = treeView.findNodeByPath('/root/node_2_1');
+    const node21 = treeView.findNodeByPath("/root/node_2_1");
     expect(node21.expanded).toBe(true);
 
     // Then collapse
-    treeView.closePath('/root/node_2_1');
+    treeView.closePath("/root/node_2_1");
     expect(node21.expanded).toBe(false);
   });
 
-  test('openLevel expands all nodes to specified level', () => {
+  test("openLevel expands all nodes to specified level", () => {
     const tree = createNestedTree(3, 2);
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
@@ -458,7 +466,7 @@ describe('TreeView - Navigation', () => {
     expect(treeView.root.expanded).toBe(true);
   });
 
-  test('collapseAll collapses entire tree', () => {
+  test("collapseAll collapses entire tree", () => {
     const tree = createNestedTree(2, 2);
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
@@ -473,7 +481,7 @@ describe('TreeView - Navigation', () => {
     expect(treeView.root.expanded).toBe(false);
   });
 
-  test('expandAll expands entire tree', () => {
+  test("expandAll expands entire tree", () => {
     const tree = createNestedTree(2, 2);
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
@@ -492,7 +500,7 @@ describe('TreeView - Navigation', () => {
   });
 });
 
-describe('TreeView - Event Handling', () => {
+describe("TreeView - Event Handling", () => {
   let testContext;
 
   afterEach(() => {
@@ -502,41 +510,41 @@ describe('TreeView - Event Handling', () => {
     }
   });
 
-  test('icon click triggers objectHandler', () => {
+  test("icon click triggers objectHandler", () => {
     testContext = setupTreeView();
     const { treeView, calls } = testContext;
 
-    const node = treeView.findNodeByPath('/root/leaf1');
+    const node = treeView.findNodeByPath("/root/leaf1");
     treeView.toggleIcon(node, 0);
 
     expect(calls.objectHandler.length).toBeGreaterThan(0);
   });
 
-  test('toggle triggers updateHandler', () => {
+  test("toggle triggers updateHandler", () => {
     testContext = setupTreeView();
     const { treeView, calls } = testContext;
 
-    const node = treeView.findNodeByPath('/root/leaf1');
+    const node = treeView.findNodeByPath("/root/leaf1");
     treeView.toggleIcon(node, 0);
 
     expect(calls.updateHandler.length).toBeGreaterThan(0);
   });
 
-  test('toggle triggers notificationHandler', () => {
+  test("toggle triggers notificationHandler", () => {
     testContext = setupTreeView();
     const { treeView, calls } = testContext;
 
-    const node = treeView.findNodeByPath('/root/leaf1');
+    const node = treeView.findNodeByPath("/root/leaf1");
     treeView.toggleIcon(node, 0);
 
     expect(calls.notificationHandler.length).toBeGreaterThan(0);
   });
 
-  test('linkIcons mode toggles both icons together', () => {
+  test("linkIcons mode toggles both icons together", () => {
     testContext = setupTreeView(null, { linkIcons: true });
     const { treeView, calls } = testContext;
 
-    const node = treeView.findNodeByPath('/root/leaf1');
+    const node = treeView.findNodeByPath("/root/leaf1");
     const initialState0 = node.state[0];
     const initialState1 = node.state[1];
 
@@ -548,7 +556,7 @@ describe('TreeView - Event Handling', () => {
   });
 });
 
-describe('TreeView - Traversal', () => {
+describe("TreeView - Traversal", () => {
   let testContext;
 
   afterEach(() => {
@@ -558,7 +566,7 @@ describe('TreeView - Traversal', () => {
     }
   });
 
-  test('traverse visits all nodes', () => {
+  test("traverse visits all nodes", () => {
     const tree = createNestedTree(2, 2);
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
@@ -572,7 +580,7 @@ describe('TreeView - Traversal', () => {
     expect(visitedPaths.length).toBe(7);
   });
 
-  test('traverse visits nodes in correct order (parent before children)', () => {
+  test("traverse visits nodes in correct order (parent before children)", () => {
     const tree = createNestedTree(2, 2);
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
@@ -583,11 +591,11 @@ describe('TreeView - Traversal', () => {
     });
 
     // Root should be first
-    expect(visitedPaths[0]).toBe('root');
+    expect(visitedPaths[0]).toBe("root");
   });
 });
 
-describe('TreeView - Edge Cases', () => {
+describe("TreeView - Edge Cases", () => {
   let testContext;
 
   afterEach(() => {
@@ -597,20 +605,20 @@ describe('TreeView - Edge Cases', () => {
     }
   });
 
-  test('handles empty subtree gracefully', () => {
+  test("handles empty subtree gracefully", () => {
     // Empty subtrees should be treated as disabled leaves
     const tree = { root: { emptyChild: {} } };
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
 
     expect(treeView.root).toBeDefined();
-    const emptyChild = treeView.findNodeByPath('/root/emptyChild');
+    const emptyChild = treeView.findNodeByPath("/root/emptyChild");
     expect(emptyChild).toBeDefined();
     // Empty objects are treated as disabled leaves
     expect(emptyChild.state[0]).toBe(3); // disabled
   });
 
-  test('handles single node tree', () => {
+  test("handles single node tree", () => {
     const tree = { root: [1, 1] };
     testContext = setupTreeView(tree);
     const { treeView } = testContext;
@@ -619,34 +627,34 @@ describe('TreeView - Edge Cases', () => {
     expect(treeView.isLeaf(treeView.root)).toBe(true);
   });
 
-  test('openPath handles invalid path gracefully', () => {
+  test("openPath handles invalid path gracefully", () => {
     testContext = setupTreeView();
     const { treeView } = testContext;
 
     // Should not throw
     expect(() => {
-      treeView.openPath('/root/nonexistent/path');
+      treeView.openPath("/root/nonexistent/path");
     }).not.toThrow();
   });
 
-  test('closePath handles invalid path gracefully', () => {
+  test("closePath handles invalid path gracefully", () => {
     testContext = setupTreeView();
     const { treeView } = testContext;
 
     // Should not throw
     expect(() => {
-      treeView.closePath('/root/nonexistent');
+      treeView.closePath("/root/nonexistent");
     }).not.toThrow();
   });
 
-  test('show/hide handle invalid paths gracefully', () => {
+  test("show/hide handle invalid paths gracefully", () => {
     testContext = setupTreeView();
     const { treeView } = testContext;
 
     // Should not throw
     expect(() => {
-      treeView.show('/nonexistent');
-      treeView.hide('/nonexistent');
+      treeView.show("/nonexistent");
+      treeView.hide("/nonexistent");
     }).not.toThrow();
   });
 });

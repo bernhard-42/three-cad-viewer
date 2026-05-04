@@ -2,8 +2,12 @@ import * as THREE from "three";
 import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { deepDispose, disposeGeometry, isMesh } from "../utils/utils.js";
 import { ZebraTool } from "../tools/cad_tools/zebra.js";
-import type { ZebraColorScheme, ZebraMappingMode, ColorValue, ColoredMaterial } from "../core/types";
-
+import type {
+  ZebraColorScheme,
+  ZebraMappingMode,
+  ColorValue,
+  ColoredMaterial,
+} from "../core/types";
 
 /** Highlight color when object is selected */
 const HIGHLIGHT_COLOR_SELECTED = 0x53a0e3;
@@ -31,7 +35,11 @@ interface EdgeMaterial extends THREE.Material {
  * Type guard to check if a material has color and linewidth properties.
  * Parameter is THREE.Material or LineMaterial (which has incompatible vertexColors type).
  */
-function isEdgeMaterial(mat: THREE.Material | import("three/examples/jsm/lines/LineMaterial.js").LineMaterial): mat is EdgeMaterial {
+function isEdgeMaterial(
+  mat:
+    | THREE.Material
+    | import("three/examples/jsm/lines/LineMaterial.js").LineMaterial,
+): mat is EdgeMaterial {
   return "color" in mat && "linewidth" in mat;
 }
 
@@ -88,7 +96,7 @@ class ObjectGroup extends THREE.Group {
   front: FaceMesh | null;
   back: FaceMesh | null;
   edges: Edges | null;
-  edgeMaterial: EdgeMaterial | null;  // Stored separately for type safety
+  edgeMaterial: EdgeMaterial | null; // Stored separately for type safety
   vertices: VertexPoints | null;
   clipping: Map<number, THREE.Group>;
 
@@ -351,8 +359,13 @@ class ObjectGroup extends THREE.Group {
    * Iterate over face materials that are MeshStandardMaterial (have PBR properties).
    * Skips MeshBasicMaterial and other non-PBR materials.
    */
-  private _forEachStandardMaterial(callback: (material: THREE.MeshStandardMaterial) => void): void {
-    if (this.front && this.front.material instanceof THREE.MeshStandardMaterial) {
+  private _forEachStandardMaterial(
+    callback: (material: THREE.MeshStandardMaterial) => void,
+  ): void {
+    if (
+      this.front &&
+      this.front.material instanceof THREE.MeshStandardMaterial
+    ) {
       callback(this.front.material);
     }
     // back can also be MeshStandardMaterial (e.g., for polygon rendering)
@@ -370,13 +383,14 @@ class ObjectGroup extends THREE.Group {
 
     // Find primary material (front face, vertices, or edges)
     const primaryMaterial =
-      this.front?.material ||
-      this.vertices?.material ||
-      this.edgeMaterial;
+      this.front?.material || this.vertices?.material || this.edgeMaterial;
 
     if (primaryMaterial) {
       this.widen(flag);
-      this._applyColorToMaterial(primaryMaterial, flag ? hColor : this.originalColor!);
+      this._applyColorToMaterial(
+        primaryMaterial,
+        flag ? hColor : this.originalColor!,
+      );
     }
 
     // Handle back face separately (uses originalBackColor)
@@ -766,11 +780,17 @@ class ObjectGroup extends THREE.Group {
       this._cadBackMaterial = this.back.material;
     }
     // Save original colors used by highlight/unhighlight
-    this._cadOriginalColor = this.originalColor ? this.originalColor.clone() : null;
-    this._cadOriginalBackColor = this.originalBackColor ? this.originalBackColor.clone() : null;
+    this._cadOriginalColor = this.originalColor
+      ? this.originalColor.clone()
+      : null;
+    this._cadOriginalBackColor = this.originalBackColor
+      ? this.originalBackColor.clone()
+      : null;
 
     // Save edge visibility state
-    this._cadEdgesVisible = this.edgeMaterial ? this.edgeMaterial.visible : null;
+    this._cadEdgesVisible = this.edgeMaterial
+      ? this.edgeMaterial.visible
+      : null;
 
     // --- Swap front material ---
     if (this.front && studioFront) {

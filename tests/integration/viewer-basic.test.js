@@ -1,7 +1,7 @@
-import { describe, test, expect, afterEach, beforeEach } from 'vitest';
-import { setupViewer, cleanup, createContainer } from '../helpers/setup.js';
+import { describe, test, expect, afterEach, beforeEach } from "vitest";
+import { setupViewer, cleanup, createContainer } from "../helpers/setup.js";
 
-describe('Viewer - Basic Integration', () => {
+describe("Viewer - Basic Integration", () => {
   let testContext;
 
   afterEach(() => {
@@ -11,7 +11,7 @@ describe('Viewer - Basic Integration', () => {
     }
   });
 
-  test('can create Viewer instance', () => {
+  test("can create Viewer instance", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -20,7 +20,7 @@ describe('Viewer - Basic Integration', () => {
     expect(viewer.display).toBe(display);
   });
 
-  test('Viewer has required properties', () => {
+  test("Viewer has required properties", () => {
     testContext = setupViewer();
     const { viewer } = testContext;
 
@@ -30,7 +30,7 @@ describe('Viewer - Basic Integration', () => {
     expect(viewer.animation).toBeDefined();
   });
 
-  test('Display has required DOM elements', () => {
+  test("Display has required DOM elements", () => {
     testContext = setupViewer();
     const { display, container } = testContext;
 
@@ -39,7 +39,7 @@ describe('Viewer - Basic Integration', () => {
     expect(display.cadTool).toBeDefined();
   });
 
-  test('Feature flags are enabled', () => {
+  test("Feature flags are enabled", () => {
     testContext = setupViewer();
     const { displayOptions, renderOptions, viewerOptions } = testContext;
 

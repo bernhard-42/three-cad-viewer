@@ -2,8 +2,19 @@ import * as THREE from "three";
 import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
-import { DistancePanel, PropertiesPanel, DistanceResponseData, PropertiesResponseData } from "./ui.js";
-import { deepDispose, isMesh, isLineSegments2, isPerspectiveCamera, isOrthographicCamera } from "../../utils/utils.js";
+import {
+  DistancePanel,
+  PropertiesPanel,
+  DistanceResponseData,
+  PropertiesResponseData,
+} from "./ui.js";
+import {
+  deepDispose,
+  isMesh,
+  isLineSegments2,
+  isPerspectiveCamera,
+  isOrthographicCamera,
+} from "../../utils/utils.js";
 import type { PickedObject } from "../../rendering/raycast.js";
 import type { ViewerLike } from "./tools.js";
 
@@ -102,7 +113,11 @@ class DistanceLineArrow extends THREE.Group {
     geom.setPositions([...start.toArray(), ...end.toArray()]);
     const line = new LineSegments2(geom, material);
 
-    const coneGeom = new THREE.ConeGeometry(coneLength / 4, coneLength * 0.6, 10);
+    const coneGeom = new THREE.ConeGeometry(
+      coneLength / 4,
+      coneLength * 0.6,
+      10,
+    );
     const coneMaterial = new THREE.MeshBasicMaterial({ color: this.color });
     const startCone = new THREE.Mesh(coneGeom, coneMaterial);
     const endCone = new THREE.Mesh(coneGeom, coneMaterial);
@@ -327,7 +342,9 @@ class Measurement {
   /**
    * Response handler for the measure context
    */
-  handleResponse(_response?: DistanceResponseData | PropertiesResponseData): void {}
+  handleResponse(
+    _response?: DistanceResponseData | PropertiesResponseData,
+  ): void {}
 
   _createPanel(): void {
     throw new Error("Subclass needs to override this method");
@@ -351,7 +368,10 @@ class Measurement {
   /**
    * Wait for the backend to send the data needed to display the real BREP measurement.
    */
-  _waitResponse(resolve: (data: DistanceResponseData | PropertiesResponseData) => void, _reject: (reason?: Error) => void): void {
+  _waitResponse(
+    resolve: (data: DistanceResponseData | PropertiesResponseData) => void,
+    _reject: (reason?: Error) => void,
+  ): void {
     if (this.responseData) {
       resolve(this.responseData);
     } else {
@@ -386,7 +406,9 @@ class Measurement {
         if (this.selectedShapes.length == 0) return;
 
         // Helper to get bounding sphere center from first mesh child
-        const getBoundingSphereCenter = (obj: THREE.Object3D): THREE.Vector3 | null => {
+        const getBoundingSphereCenter = (
+          obj: THREE.Object3D,
+        ): THREE.Vector3 | null => {
           const firstChild = obj.children[0];
           if (firstChild && isMesh(firstChild)) {
             firstChild.geometry.computeBoundingSphere();
@@ -408,8 +430,15 @@ class Measurement {
           responseData = {
             groups: [
               { distance: 2.345, info: "center" },
-              { "point 1": this.point1.toArray(), "point 2": this.point2.toArray() },
-              { angle: 43.21, "reference 1": "Plane (Face)", "reference 2": "Plane (Face)" },
+              {
+                "point 1": this.point1.toArray(),
+                "point 2": this.point2.toArray(),
+              },
+              {
+                angle: 43.21,
+                "reference 1": "Plane (Face)",
+                "reference 2": "Plane (Face)",
+              },
             ],
             type: "backend_response",
             refpoint1: this.point1.toArray(),
@@ -426,10 +455,21 @@ class Measurement {
             geom_type: "EllipseArc",
             refpoint: this.point1.toArray(),
             groups: [
-              { center: this.point1.toArray(), "major radius": 0.4, "minor radius": 0.2 },
+              {
+                center: this.point1.toArray(),
+                "major radius": 0.4,
+                "minor radius": 0.2,
+              },
               { start: [2.4, -1.0, 0.0], end: [1.8, -0.8267949192431111, 0.0] },
               { length: 0.6868592404716374 },
-              { bb: { min: [1.8, -1.0, 0.0], center: [2.1, -0.9, 0.0], max: [2.4, -0.8, 0.0], size: [0.56, 0.2, 0.0] } },
+              {
+                bb: {
+                  min: [1.8, -1.0, 0.0],
+                  center: [2.1, -0.9, 0.0],
+                  max: [2.4, -0.8, 0.0],
+                  size: [0.56, 0.2, 0.0],
+                },
+              },
             ],
           };
         } else {
@@ -448,9 +488,11 @@ class Measurement {
       return;
     }
 
-    const p = new Promise<DistanceResponseData | PropertiesResponseData>((resolve, reject) => {
-      this._waitResponse(resolve, reject);
-    });
+    const p = new Promise<DistanceResponseData | PropertiesResponseData>(
+      (resolve, reject) => {
+        this._waitResponse(resolve, reject);
+      },
+    );
     p.then((_data) => {
       this._createPanel();
       this._makeLines();
@@ -462,7 +504,10 @@ class Measurement {
   /**
    * React to each new selected element in the viewer.
    */
-  handleSelection = (selectedObj: PickedObject, shift: boolean = false): void => {
+  handleSelection = (
+    selectedObj: PickedObject,
+    shift: boolean = false,
+  ): void => {
     this.shift = shift;
 
     if (
@@ -485,7 +530,13 @@ class Measurement {
   };
 
   _movePanel = (): void => {
-    if (!this.panel || !this.viewer || !this.viewer.camera || !this.panel.isVisible()) return;
+    if (
+      !this.panel ||
+      !this.viewer ||
+      !this.viewer.camera ||
+      !this.panel.isVisible()
+    )
+      return;
 
     const canvasRect = this.viewer.renderer.domElement.getBoundingClientRect();
     const panelRect = this.panel.html.getBoundingClientRect();
@@ -641,22 +692,30 @@ class Measurement {
 }
 
 /** Type guard for DistancePanel */
-function isDistancePanel(panel: DistancePanel | PropertiesPanel | null): panel is DistancePanel {
+function isDistancePanel(
+  panel: DistancePanel | PropertiesPanel | null,
+): panel is DistancePanel {
   return panel instanceof DistancePanel;
 }
 
 /** Type guard for PropertiesPanel */
-function isPropertiesPanel(panel: DistancePanel | PropertiesPanel | null): panel is PropertiesPanel {
+function isPropertiesPanel(
+  panel: DistancePanel | PropertiesPanel | null,
+): panel is PropertiesPanel {
   return panel instanceof PropertiesPanel;
 }
 
 /** Type guard for DistanceResponseData */
-function isDistanceResponseData(data: DistanceResponseData | PropertiesResponseData | null): data is DistanceResponseData {
+function isDistanceResponseData(
+  data: DistanceResponseData | PropertiesResponseData | null,
+): data is DistanceResponseData {
   return data !== null && "refpoint1" in data && "refpoint2" in data;
 }
 
 /** Type guard for PropertiesResponseData */
-function isPropertiesResponseData(data: DistanceResponseData | PropertiesResponseData | null): data is PropertiesResponseData {
+function isPropertiesResponseData(
+  data: DistanceResponseData | PropertiesResponseData | null,
+): data is PropertiesResponseData {
   return data !== null && "refpoint" in data;
 }
 
@@ -672,7 +731,10 @@ class DistanceMeasurement extends Measurement {
   }
 
   override _createPanel(): void {
-    if (isDistancePanel(this.panel) && isDistanceResponseData(this.responseData)) {
+    if (
+      isDistancePanel(this.panel) &&
+      isDistanceResponseData(this.responseData)
+    ) {
       this.panel.createTable(this.responseData);
     }
   }
@@ -694,7 +756,8 @@ class DistanceMeasurement extends Measurement {
 
   override _makeLines(): void {
     if (!this.scene || this.scene.children.length !== 0) return;
-    if (!this.coneLength || !this.point1 || !this.point2 || !this.panelCenter) return;
+    if (!this.coneLength || !this.point1 || !this.point2 || !this.panelCenter)
+      return;
 
     const lineWidth = 1.5;
     const distanceLine = new DistanceLineArrow(
@@ -753,7 +816,10 @@ class PropertiesMeasurement extends Measurement {
   }
 
   override _createPanel(): void {
-    if (isPropertiesPanel(this.panel) && isPropertiesResponseData(this.responseData)) {
+    if (
+      isPropertiesPanel(this.panel) &&
+      isPropertiesResponseData(this.responseData)
+    ) {
       this.panel.createTable(this.responseData);
     }
   }
@@ -763,7 +829,10 @@ class PropertiesMeasurement extends Measurement {
   }
 
   _getPoint(): void {
-    if (isPropertiesResponseData(this.responseData) && this.responseData.refpoint) {
+    if (
+      isPropertiesResponseData(this.responseData) &&
+      this.responseData.refpoint
+    ) {
       this.point1 = new THREE.Vector3(...this.responseData.refpoint);
     }
   }

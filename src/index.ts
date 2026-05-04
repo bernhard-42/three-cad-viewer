@@ -23,16 +23,31 @@ import { logger } from "./utils/logger.js";
 import { gpuTracker } from "./utils/gpu-tracker.js";
 import { version } from "./_version.js";
 
-export { Viewer, Display, EnvironmentManager, Timer, logger, gpuTracker, version };
+export {
+  Viewer,
+  Display,
+  EnvironmentManager,
+  Timer,
+  logger,
+  gpuTracker,
+  version,
+};
 
 // Material presets
-export { MATERIAL_PRESETS, MATERIAL_PRESET_NAMES } from "./rendering/material-presets.js";
+export {
+  MATERIAL_PRESETS,
+  MATERIAL_PRESET_NAMES,
+} from "./rendering/material-presets.js";
 
 // Logger type export
 export type { LogLevel } from "./utils/logger.js";
 
 // GPU tracker type exports
-export type { ResourceType, TrackedResource, ResourceSummary } from "./utils/gpu-tracker.js";
+export type {
+  ResourceType,
+  TrackedResource,
+  ResourceSummary,
+} from "./utils/gpu-tracker.js";
 
 // =============================================================================
 // Type Exports
@@ -99,10 +114,7 @@ export type {
 } from "./core/types.js";
 
 // Viewer state shape
-export type {
-  ViewerStateShape,
-  StateKey,
-} from "./core/types.js";
+export type { ViewerStateShape, StateKey } from "./core/types.js";
 
 // Shape and texture types - for working with CAD data
 export type {
@@ -145,7 +157,10 @@ export type {
 export { isMaterialXMaterial } from "./core/types.js";
 
 // Instanced/compressed format decoding
-export { isInstancedFormat, decodeInstancedFormat } from "./utils/decode-instances.js";
+export {
+  isInstancedFormat,
+  decodeInstancedFormat,
+} from "./utils/decode-instances.js";
 
 // Subscription options
 export type { SubscribeOptions } from "./core/types.js";

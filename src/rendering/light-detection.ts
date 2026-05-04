@@ -67,7 +67,7 @@ function halfToFloat(h: number): number {
   }
   if (exponent === 31) {
     // Infinity or NaN
-    return mantissa ? NaN : (sign ? -Infinity : Infinity);
+    return mantissa ? NaN : sign ? -Infinity : Infinity;
   }
   return (sign ? -1 : 1) * Math.pow(2, exponent - 15) * (1 + mantissa / 1024);
 }
@@ -106,7 +106,7 @@ export function detectDominantLights(
   for (let sy = 0; sy < height; sy++) {
     const gy = Math.min(Math.floor((sy / height) * GRID_H), GRID_H - 1);
     // cos(latitude) weighting: equator has more area than poles
-    const phi = ((0.5 - sy / height)) * Math.PI;
+    const phi = (0.5 - sy / height) * Math.PI;
     const cosWeight = Math.cos(phi);
 
     for (let sx = 0; sx < width; sx++) {
@@ -151,7 +151,9 @@ export function detectDominantLights(
   }
 
   // 2. Compute median luminance and threshold
-  const sorted = Array.from(grid).filter(v => v > 0).sort((a, b) => a - b);
+  const sorted = Array.from(grid)
+    .filter((v) => v > 0)
+    .sort((a, b) => a - b);
   if (sorted.length === 0) {
     return { lights: [], wasAnalyzed: true };
   }
@@ -270,9 +272,9 @@ export function detectDominantLights(
     let color: [number, number, number];
     if (colorTotal > 0) {
       color = [
-        c.totalR / colorTotal * 3,
-        c.totalG / colorTotal * 3,
-        c.totalB / colorTotal * 3,
+        (c.totalR / colorTotal) * 3,
+        (c.totalG / colorTotal) * 3,
+        (c.totalB / colorTotal) * 3,
       ];
       // Clamp to 0-1
       color = [

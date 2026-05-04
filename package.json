@@ -40,6 +40,8 @@
     "docs": "./scripts/build_docs.sh",
     "release": "./scripts/release.sh",
     "lint": "eslint src/",
+    "format": "prettier --write \"src/**/*.{ts,js,css}\" \"tests/**/*.{ts,js}\" \"*.{html,md,json}\" \".prettierrc\" \".vscode/*.json\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,css}\" \"tests/**/*.{ts,js}\" \"*.{html,md,json}\" \".prettierrc\" \".vscode/*.json\"",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",

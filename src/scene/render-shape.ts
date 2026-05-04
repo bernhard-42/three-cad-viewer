@@ -160,10 +160,14 @@ class ShapeRenderer {
       let triangles: Uint32Array | number[];
       // _convertArrays must be called before _decompose to ensure TypedArrays
       if (!(shape.vertices instanceof Float32Array)) {
-        throw new Error("_decompose requires shape.vertices to be Float32Array (call _convertArrays first)");
+        throw new Error(
+          "_decompose requires shape.vertices to be Float32Array (call _convertArrays first)",
+        );
       }
       if (!(shape.normals instanceof Float32Array)) {
-        throw new Error("_decompose requires shape.normals to be Float32Array (call _convertArrays first)");
+        throw new Error(
+          "_decompose requires shape.normals to be Float32Array (call _convertArrays first)",
+        );
       }
       const vertices = shape.vertices;
       const normals = shape.normals;
@@ -173,7 +177,9 @@ class ShapeRenderer {
       if (hasTrianglesPerFace(shape)) {
         // Binary format: flat Uint32Array with per-face counts
         if (!(shape.triangles instanceof Uint32Array)) {
-          throw new Error("Expected Uint32Array for triangles in binary format");
+          throw new Error(
+            "Expected Uint32Array for triangles in binary format",
+          );
         }
         const trianglesArray = shape.triangles;
         const perFace = shape.triangles_per_face;
@@ -243,8 +249,13 @@ class ShapeRenderer {
         }
       } else {
         // Non-binary format: nested number[][] arrays
-        if (!Array.isArray(shape.triangles) || !Array.isArray(shape.triangles[0])) {
-          throw new Error("Expected nested array for triangles in non-binary format");
+        if (
+          !Array.isArray(shape.triangles) ||
+          !Array.isArray(shape.triangles[0])
+        ) {
+          throw new Error(
+            "Expected nested array for triangles in non-binary format",
+          );
         }
         // After validation, we know shape.triangles is number[][] (TypeScript can't infer this)
         const trianglesNested = shape.triangles as number[][];
@@ -375,8 +386,13 @@ class ShapeRenderer {
       } else {
         // Non-binary format: nested number[][] arrays
         const edgesRaw = shape.edges;
-        if (!Array.isArray(edgesRaw) || (edgesRaw.length > 0 && !Array.isArray(edgesRaw[0]))) {
-          throw new Error("Expected nested array for edges in non-binary format");
+        if (
+          !Array.isArray(edgesRaw) ||
+          (edgesRaw.length > 0 && !Array.isArray(edgesRaw[0]))
+        ) {
+          throw new Error(
+            "Expected nested array for edges in non-binary format",
+          );
         }
         // After validation, we know this is number[][] (TypeScript can't infer from the check)
         const edgesNested = edgesRaw as number[][];

@@ -1,6 +1,6 @@
-import * as THREE from 'three';
-import { Clipping } from '../../src/scene/clipping.js';
-import { ObjectGroup } from '../../src/scene/objectgroup.js';
+import * as THREE from "three";
+import { Clipping } from "../../src/scene/clipping.js";
+import { ObjectGroup } from "../../src/scene/objectgroup.js";
 
 /**
  * Create a mock ObjectGroup with shape geometry for clipping tests.
@@ -8,11 +8,11 @@ import { ObjectGroup } from '../../src/scene/objectgroup.js';
  * @param {string} subtype - The subtype ('solid', 'edges', etc.).
  * @returns {ObjectGroup} A mock ObjectGroup.
  */
-export function createMockObjectGroup(path, subtype = 'solid') {
+export function createMockObjectGroup(path, subtype = "solid") {
   const group = new ObjectGroup(1.0, 1.0, 0x707070, {}, subtype, false);
   group.name = path;
 
-  if (subtype === 'solid') {
+  if (subtype === "solid") {
     // Create a simple box geometry for stencil testing
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     group.shapeGeometry = geometry;
@@ -22,9 +22,9 @@ export function createMockObjectGroup(path, subtype = 'solid') {
     const backMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
     const frontMesh = new THREE.Mesh(geometry, frontMaterial);
-    frontMesh.name = 'front';
+    frontMesh.name = "front";
     const backMesh = new THREE.Mesh(geometry, backMaterial);
-    backMesh.name = 'back';
+    backMesh.name = "back";
 
     group.setFront(frontMesh);
     group.setBack(backMesh);
@@ -41,19 +41,19 @@ export function createMockObjectGroup(path, subtype = 'solid') {
 export function createMockNestedGroup(numSolids = 2) {
   const groups = {};
   const rootGroup = new THREE.Group();
-  rootGroup.name = 'rootGroup';
+  rootGroup.name = "rootGroup";
 
   // Create solid object groups
   for (let i = 0; i < numSolids; i++) {
     const path = `/root/solid_${i}`;
-    const objectGroup = createMockObjectGroup(path, 'solid');
+    const objectGroup = createMockObjectGroup(path, "solid");
     groups[path] = objectGroup;
     rootGroup.add(objectGroup);
   }
 
   // Create an edge-only group (should be skipped by clipping)
-  const edgePath = '/root/edges_only';
-  const edgeGroup = createMockObjectGroup(edgePath, 'edges');
+  const edgePath = "/root/edges_only";
+  const edgeGroup = createMockObjectGroup(edgePath, "edges");
   groups[edgePath] = edgeGroup;
   rootGroup.add(edgeGroup);
 
@@ -93,7 +93,7 @@ export function setupClipping(options = {}) {
   const center = options.center || new THREE.Vector3(0, 0, 0);
   const size = options.size || 10;
   const numSolids = options.numSolids !== undefined ? options.numSolids : 2;
-  const theme = options.theme || 'light';
+  const theme = options.theme || "light";
 
   const nestedGroup = createMockNestedGroup(numSolids);
   const display = createMockDisplay();
@@ -136,7 +136,7 @@ export function cleanupClipping(context) {
  */
 export function getPlaneMeshes(nestedGroup) {
   for (const child of nestedGroup.rootGroup.children) {
-    if (child.name === 'PlaneMeshes') {
+    if (child.name === "PlaneMeshes") {
       return child.children;
     }
   }

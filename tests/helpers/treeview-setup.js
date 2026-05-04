@@ -1,15 +1,15 @@
-import { TreeView } from '../../src/ui/treeview.js';
+import { TreeView } from "../../src/ui/treeview.js";
 
 /**
  * Create a mock scroll container for TreeView testing
  */
 export function createScrollContainer() {
-  const container = document.createElement('div');
-  container.id = 'tree-scroll-container';
-  container.style.width = '250px';
-  container.style.height = '400px';
-  container.style.overflow = 'auto';
-  container.style.position = 'relative';
+  const container = document.createElement("div");
+  container.id = "tree-scroll-container";
+  container.style.width = "250px";
+  container.style.height = "400px";
+  container.style.overflow = "auto";
+  container.style.position = "relative";
   document.body.appendChild(container);
   return container;
 }
@@ -32,7 +32,7 @@ export function createSimpleTree(numLeaves = 5) {
  * @param {number} breadth - How many children per node
  */
 export function createNestedTree(depth = 3, breadth = 3) {
-  const buildLevel = (currentDepth, prefix = 'node') => {
+  const buildLevel = (currentDepth, prefix = "node") => {
     if (currentDepth === 0) {
       // Leaf level
       return [1, 1]; // visible state
@@ -115,7 +115,16 @@ export function createMockHandlers() {
       calls.objectHandler.push({ path, state, iconNumber, flag1, flag2 });
     },
     pickHandler: (parentPath, name, meta, shift, alt, extra, type, flag) => {
-      calls.pickHandler.push({ parentPath, name, meta, shift, alt, extra, type, flag });
+      calls.pickHandler.push({
+        parentPath,
+        name,
+        meta,
+        shift,
+        alt,
+        extra,
+        type,
+        flag,
+      });
     },
     updateHandler: (flag) => {
       calls.updateHandler.push({ flag });
@@ -148,7 +157,7 @@ export function setupTreeView(tree = null, options = {}) {
     handlers.updateHandler,
     handlers.notificationHandler,
     handlers.colorGetter,
-    options.theme || 'light',
+    options.theme || "light",
     options.linkIcons !== undefined ? options.linkIcons : true,
     options.debug || false,
   );
@@ -183,14 +192,14 @@ export function cleanupTreeView({ treeView, scrollContainer }) {
  * Helper to count rendered nodes in the DOM
  */
 export function countRenderedNodes(container) {
-  return container.querySelectorAll('.tv-tree-node').length;
+  return container.querySelectorAll(".tv-tree-node").length;
 }
 
 /**
  * Helper to count fully rendered nodes (not just placeholders)
  */
 export function countFullyRenderedNodes(container) {
-  return container.querySelectorAll('.tv-node-label').length;
+  return container.querySelectorAll(".tv-node-label").length;
 }
 
 /**
@@ -200,7 +209,7 @@ export function isPathRendered(container, path) {
   const node = container.querySelector(`[data-path="${path}"]`);
   if (!node) return false;
   // Check if it has actual content (label) vs just being a placeholder
-  const label = node.querySelector('.tv-node-label');
+  const label = node.querySelector(".tv-node-label");
   return label !== null;
 }
 
@@ -217,9 +226,9 @@ export function pathExistsInDOM(container, path) {
 export function isPathExpanded(container, path) {
   const node = container.querySelector(`[data-path="${path}"]`);
   if (!node) return null; // Return null if node doesn't exist (vs false for not expanded)
-  const children = node.querySelector('.tv-children');
+  const children = node.querySelector(".tv-children");
   if (!children) return false; // No children container means it's a leaf or not rendered
-  return children.style.display !== 'none';
+  return children.style.display !== "none";
 }
 
 /**
@@ -228,7 +237,7 @@ export function isPathExpanded(container, path) {
 export function scrollToTop(scrollContainer) {
   scrollContainer.scrollTop = 0;
   // Trigger scroll event
-  scrollContainer.dispatchEvent(new Event('scroll'));
+  scrollContainer.dispatchEvent(new Event("scroll"));
 }
 
 /**
@@ -236,13 +245,13 @@ export function scrollToTop(scrollContainer) {
  */
 export function scrollToBottom(scrollContainer) {
   scrollContainer.scrollTop = scrollContainer.scrollHeight;
-  scrollContainer.dispatchEvent(new Event('scroll'));
+  scrollContainer.dispatchEvent(new Event("scroll"));
 }
 
 /**
  * Helper to get all visible paths in the DOM
  */
 export function getVisiblePaths(container) {
-  const nodes = container.querySelectorAll('.tv-tree-node');
-  return Array.from(nodes).map(node => node.dataset.path);
+  const nodes = container.querySelectorAll(".tv-tree-node");
+  return Array.from(nodes).map((node) => node.dataset.path);
 }

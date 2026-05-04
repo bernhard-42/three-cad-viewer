@@ -3,15 +3,20 @@
  * Target: 80%+ coverage for TypeScript migration safety
  */
 
-import { describe, test, expect, afterEach, beforeEach, vi } from 'vitest';
-import { setupViewer, cleanup, createContainer, getDisplayOptions } from '../helpers/setup.js';
-import { loadExample } from '../helpers/snapshot.js';
+import { describe, test, expect, afterEach, beforeEach, vi } from "vitest";
+import {
+  setupViewer,
+  cleanup,
+  createContainer,
+  getDisplayOptions,
+} from "../helpers/setup.js";
+import { loadExample } from "../helpers/snapshot.js";
 
 // =============================================================================
 // VIEWER STATE MANAGEMENT TESTS
 // =============================================================================
 
-describe('Viewer - State Management', () => {
+describe("Viewer - State Management", () => {
   let testContext;
 
   afterEach(() => {
@@ -21,26 +26,26 @@ describe('Viewer - State Management', () => {
     }
   });
 
-  test('version() returns semver string', () => {
+  test("version() returns semver string", () => {
     testContext = setupViewer();
     const { viewer } = testContext;
 
     const v = viewer.version();
     expect(v).toBeDefined();
-    expect(typeof v).toBe('string');
+    expect(typeof v).toBe("string");
     expect(v).toMatch(/^\d+\.\d+\.\d+/);
   });
 
-  test('state is initialized from options', () => {
+  test("state is initialized from options", () => {
     testContext = setupViewer();
     const { viewer } = testContext;
 
     expect(viewer.state).toBeDefined();
-    expect(viewer.state.get('cadWidth')).toBe(800);
-    expect(viewer.state.get('height')).toBe(600);
+    expect(viewer.state.get("cadWidth")).toBe(800);
+    expect(viewer.state.get("height")).toBe(600);
   });
 
-  test('checkChanges calls notify callback', () => {
+  test("checkChanges calls notify callback", () => {
     testContext = setupViewer();
     const { viewer } = testContext;
 
@@ -52,7 +57,7 @@ describe('Viewer - State Management', () => {
     expect(mockCallback).toHaveBeenCalled();
   });
 
-  test('checkChanges skips notification when notify is false', () => {
+  test("checkChanges skips notification when notify is false", () => {
     testContext = setupViewer();
     const { viewer } = testContext;
 
@@ -65,12 +70,12 @@ describe('Viewer - State Management', () => {
     expect(mockCallback).not.toHaveBeenCalled();
   });
 
-  test('notifyStates calls notify callback', async () => {
+  test("notifyStates calls notify callback", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
     // Need to render first to have proper state
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const mockCallback = vi.fn();
@@ -87,7 +92,7 @@ describe('Viewer - State Management', () => {
 // VIEWER AXES/GRID TESTS
 // =============================================================================
 
-describe('Viewer - Axes & Grid', () => {
+describe("Viewer - Axes & Grid", () => {
   let testContext;
 
   afterEach(() => {
@@ -97,75 +102,75 @@ describe('Viewer - Axes & Grid', () => {
     }
   });
 
-  test('setAxes updates state', async () => {
+  test("setAxes updates state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
     // Load and render to initialize axes
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setAxes(false, false);
-    expect(viewer.state.get('axes')).toBe(false);
+    expect(viewer.state.get("axes")).toBe(false);
 
     viewer.setAxes(true, false);
-    expect(viewer.state.get('axes')).toBe(true);
+    expect(viewer.state.get("axes")).toBe(true);
   });
 
-  test('setAxes0 updates state', async () => {
+  test("setAxes0 updates state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setAxes0(false, false);
-    expect(viewer.state.get('axes0')).toBe(false);
+    expect(viewer.state.get("axes0")).toBe(false);
 
     viewer.setAxes0(true, false);
-    expect(viewer.state.get('axes0')).toBe(true);
+    expect(viewer.state.get("axes0")).toBe(true);
   });
 
-  test('setGrid can be called for each plane', async () => {
+  test("setGrid can be called for each plane", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Test that setGrid can be called without throwing
     // The grid state is managed by gridHelper which updates asynchronously
-    viewer.setGrid('xy', true, false);
-    viewer.setGrid('xz', true, false);
-    viewer.setGrid('yz', true, false);
+    viewer.setGrid("xy", true, false);
+    viewer.setGrid("xz", true, false);
+    viewer.setGrid("yz", true, false);
 
     // Verify grid state exists
-    const grid = viewer.state.get('grid');
+    const grid = viewer.state.get("grid");
     expect(grid).toBeDefined();
     expect(Array.isArray(grid)).toBe(true);
     expect(grid.length).toBe(3);
   });
 
-  test('setGrids updates all grids at once', async () => {
+  test("setGrids updates all grids at once", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setGrids([false, true, false], false);
 
-    const grid = viewer.state.get('grid');
+    const grid = viewer.state.get("grid");
     expect(grid[0]).toBe(false);
     expect(grid[1]).toBe(true);
     expect(grid[2]).toBe(false);
   });
 
-  test('setGridCenter updates state', async () => {
+  test("setGridCenter updates state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setGridCenter([1, 2, 3], false);
@@ -178,7 +183,7 @@ describe('Viewer - Axes & Grid', () => {
 // VIEWER CAMERA TESTS
 // =============================================================================
 
-describe('Viewer - Camera', () => {
+describe("Viewer - Camera", () => {
   let testContext;
 
   afterEach(() => {
@@ -188,31 +193,31 @@ describe('Viewer - Camera', () => {
     }
   });
 
-  test('switchCamera toggles between ortho and perspective', async () => {
+  test("switchCamera toggles between ortho and perspective", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
-    const initialOrtho = viewer.state.get('ortho');
+    const initialOrtho = viewer.state.get("ortho");
 
     viewer.switchCamera(!initialOrtho, false);
-    expect(viewer.state.get('ortho')).toBe(!initialOrtho);
+    expect(viewer.state.get("ortho")).toBe(!initialOrtho);
 
     viewer.switchCamera(initialOrtho, false);
-    expect(viewer.state.get('ortho')).toBe(initialOrtho);
+    expect(viewer.state.get("ortho")).toBe(initialOrtho);
   });
 
-  test('presetCamera sets camera to preset position', async () => {
+  test("presetCamera sets camera to preset position", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Test preset views
-    const presets = ['iso', 'front', 'rear', 'top', 'bottom', 'left', 'right'];
+    const presets = ["iso", "front", "rear", "top", "bottom", "left", "right"];
 
     for (const preset of presets) {
       viewer.presetCamera(preset, null, false);
@@ -220,11 +225,11 @@ describe('Viewer - Camera', () => {
     }
   });
 
-  test('getResetLocation returns location object', async () => {
+  test("getResetLocation returns location object", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const location = viewer.getResetLocation();
@@ -237,11 +242,11 @@ describe('Viewer - Camera', () => {
     expect(location.zoom0).toBeDefined();
   });
 
-  test('setResetLocation updates reset state', async () => {
+  test("setResetLocation updates reset state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const target = [0, 0, 0];
@@ -255,15 +260,15 @@ describe('Viewer - Camera', () => {
     expect(location.zoom0).toBe(zoom);
   });
 
-  test('reset restores camera to reset location', async () => {
+  test("reset restores camera to reset location", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Move camera
-    viewer.presetCamera('top', null, false);
+    viewer.presetCamera("top", null, false);
 
     // Reset
     viewer.reset();
@@ -272,11 +277,11 @@ describe('Viewer - Camera', () => {
     expect(viewer.camera).toBeDefined();
   });
 
-  test('resize updates renderer size', async () => {
+  test("resize updates renderer size", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Should not throw
@@ -290,7 +295,7 @@ describe('Viewer - Camera', () => {
 // VIEWER MATERIAL TESTS
 // =============================================================================
 
-describe('Viewer - Materials', () => {
+describe("Viewer - Materials", () => {
   let testContext;
 
   afterEach(() => {
@@ -300,127 +305,127 @@ describe('Viewer - Materials', () => {
     }
   });
 
-  test('setTransparent updates state', async () => {
+  test("setTransparent updates state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setTransparent(true, false);
-    expect(viewer.state.get('transparent')).toBe(true);
+    expect(viewer.state.get("transparent")).toBe(true);
 
     viewer.setTransparent(false, false);
-    expect(viewer.state.get('transparent')).toBe(false);
+    expect(viewer.state.get("transparent")).toBe(false);
   });
 
-  test('setBlackEdges updates state', async () => {
+  test("setBlackEdges updates state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setBlackEdges(true, false);
-    expect(viewer.state.get('blackEdges')).toBe(true);
+    expect(viewer.state.get("blackEdges")).toBe(true);
 
     viewer.setBlackEdges(false, false);
-    expect(viewer.state.get('blackEdges')).toBe(false);
+    expect(viewer.state.get("blackEdges")).toBe(false);
   });
 
-  test('setEdgeColor updates edge colors', async () => {
+  test("setEdgeColor updates edge colors", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setEdgeColor(0xff0000, false);
-    expect(viewer.state.get('edgeColor')).toBe(0xff0000);
+    expect(viewer.state.get("edgeColor")).toBe(0xff0000);
   });
 
-  test('setOpacity updates default opacity', async () => {
+  test("setOpacity updates default opacity", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setOpacity(0.5, false);
-    expect(viewer.state.get('defaultOpacity')).toBe(0.5);
+    expect(viewer.state.get("defaultOpacity")).toBe(0.5);
   });
 
-  test('setAmbientLight updates ambient intensity', async () => {
+  test("setAmbientLight updates ambient intensity", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setAmbientLight(1.5, false);
-    expect(viewer.state.get('ambientIntensity')).toBe(1.5);
+    expect(viewer.state.get("ambientIntensity")).toBe(1.5);
   });
 
-  test('setDirectLight updates directional intensity', async () => {
+  test("setDirectLight updates directional intensity", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setDirectLight(1.2, false);
-    expect(viewer.state.get('directIntensity')).toBe(1.2);
+    expect(viewer.state.get("directIntensity")).toBe(1.2);
   });
 
-  test('getMetalness returns current metalness', async () => {
+  test("getMetalness returns current metalness", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const metalness = viewer.getMetalness();
-    expect(typeof metalness).toBe('number');
+    expect(typeof metalness).toBe("number");
   });
 
-  test('setMetalness updates metalness', async () => {
+  test("setMetalness updates metalness", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setMetalness(0.8, false);
-    expect(viewer.state.get('metalness')).toBe(0.8);
+    expect(viewer.state.get("metalness")).toBe(0.8);
   });
 
-  test('getRoughness returns current roughness', async () => {
+  test("getRoughness returns current roughness", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const roughness = viewer.getRoughness();
-    expect(typeof roughness).toBe('number');
+    expect(typeof roughness).toBe("number");
   });
 
-  test('setRoughness updates roughness', async () => {
+  test("setRoughness updates roughness", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setRoughness(0.3, false);
-    expect(viewer.state.get('roughness')).toBe(0.3);
+    expect(viewer.state.get("roughness")).toBe(0.3);
   });
 
-  test('resetMaterial restores default material settings', async () => {
+  test("resetMaterial restores default material settings", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Change settings
@@ -440,7 +445,7 @@ describe('Viewer - Materials', () => {
 // VIEWER CONTROL SPEED TESTS
 // =============================================================================
 
-describe('Viewer - Control Speeds', () => {
+describe("Viewer - Control Speeds", () => {
   let testContext;
 
   afterEach(() => {
@@ -450,37 +455,37 @@ describe('Viewer - Control Speeds', () => {
     }
   });
 
-  test('setZoomSpeed updates zoom speed', async () => {
+  test("setZoomSpeed updates zoom speed", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setZoomSpeed(1.0, false);
-    expect(viewer.state.get('zoomSpeed')).toBe(1.0);
+    expect(viewer.state.get("zoomSpeed")).toBe(1.0);
   });
 
-  test('setPanSpeed updates pan speed', async () => {
+  test("setPanSpeed updates pan speed", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setPanSpeed(1.0, false);
-    expect(viewer.state.get('panSpeed')).toBe(1.0);
+    expect(viewer.state.get("panSpeed")).toBe(1.0);
   });
 
-  test('setRotateSpeed updates rotate speed', async () => {
+  test("setRotateSpeed updates rotate speed", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setRotateSpeed(1.5, false);
-    expect(viewer.state.get('rotateSpeed')).toBe(1.5);
+    expect(viewer.state.get("rotateSpeed")).toBe(1.5);
   });
 });
 
@@ -488,7 +493,7 @@ describe('Viewer - Control Speeds', () => {
 // VIEWER CLIPPING TESTS
 // =============================================================================
 
-describe('Viewer - Clipping', () => {
+describe("Viewer - Clipping", () => {
   let testContext;
 
   afterEach(() => {
@@ -498,61 +503,61 @@ describe('Viewer - Clipping', () => {
     }
   });
 
-  test('setClipIntersection updates state', async () => {
+  test("setClipIntersection updates state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setClipIntersection(true, false);
-    expect(viewer.state.get('clipIntersection')).toBe(true);
+    expect(viewer.state.get("clipIntersection")).toBe(true);
 
     viewer.setClipIntersection(false, false);
-    expect(viewer.state.get('clipIntersection')).toBe(false);
+    expect(viewer.state.get("clipIntersection")).toBe(false);
   });
 
-  test('getObjectColorCaps returns boolean', async () => {
+  test("getObjectColorCaps returns boolean", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const result = viewer.getObjectColorCaps();
-    expect(typeof result).toBe('boolean');
+    expect(typeof result).toBe("boolean");
   });
 
-  test('setClipObjectColorCaps updates state', async () => {
+  test("setClipObjectColorCaps updates state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setClipObjectColorCaps(true, false);
-    expect(viewer.state.get('clipObjectColors')).toBe(true);
+    expect(viewer.state.get("clipObjectColors")).toBe(true);
   });
 
-  test('setClipPlaneHelpers updates state', async () => {
+  test("setClipPlaneHelpers updates state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setClipPlaneHelpers(true, false);
-    expect(viewer.state.get('clipPlaneHelpers')).toBe(true);
+    expect(viewer.state.get("clipPlaneHelpers")).toBe(true);
 
     viewer.setClipPlaneHelpers(false, false);
-    expect(viewer.state.get('clipPlaneHelpers')).toBe(false);
+    expect(viewer.state.get("clipPlaneHelpers")).toBe(false);
   });
 
-  test('setClipNormalFromPosition updates clip normal', async () => {
+  test("setClipNormalFromPosition updates clip normal", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Should not throw
@@ -561,33 +566,33 @@ describe('Viewer - Clipping', () => {
     viewer.setClipNormalFromPosition(2, false);
   });
 
-  test('getClipSlider returns slider value', async () => {
+  test("getClipSlider returns slider value", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const value = viewer.getClipSlider(0);
-    expect(typeof value).toBe('number');
+    expect(typeof value).toBe("number");
   });
 
-  test('setClipSlider updates slider value', async () => {
+  test("setClipSlider updates slider value", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setClipSlider(0, 25, false);
-    expect(viewer.state.get('clipSlider0')).toBe(25);
+    expect(viewer.state.get("clipSlider0")).toBe(25);
   });
 
-  test('refreshPlane updates clipping plane', async () => {
+  test("refreshPlane updates clipping plane", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Should not throw
@@ -599,7 +604,7 @@ describe('Viewer - Clipping', () => {
 // VIEWER ZEBRA TOOL TESTS
 // =============================================================================
 
-describe('Viewer - Zebra Tool', () => {
+describe("Viewer - Zebra Tool", () => {
   let testContext;
 
   afterEach(() => {
@@ -609,11 +614,11 @@ describe('Viewer - Zebra Tool', () => {
     }
   });
 
-  test('enableZebraTool enables/disables zebra mode', async () => {
+  test("enableZebraTool enables/disables zebra mode", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.enableZebraTool(true);
@@ -623,59 +628,59 @@ describe('Viewer - Zebra Tool', () => {
     // Should not throw
   });
 
-  test('setZebraCount updates zebra count', async () => {
+  test("setZebraCount updates zebra count", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setZebraCount(30);
-    expect(viewer.state.get('zebraCount')).toBe(30);
+    expect(viewer.state.get("zebraCount")).toBe(30);
   });
 
-  test('setZebraOpacity updates zebra opacity', async () => {
+  test("setZebraOpacity updates zebra opacity", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setZebraOpacity(0.7);
-    expect(viewer.state.get('zebraOpacity')).toBe(0.7);
+    expect(viewer.state.get("zebraOpacity")).toBe(0.7);
   });
 
-  test('setZebraDirection updates zebra direction', async () => {
+  test("setZebraDirection updates zebra direction", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setZebraDirection(90);
-    expect(viewer.state.get('zebraDirection')).toBe(90);
+    expect(viewer.state.get("zebraDirection")).toBe(90);
   });
 
-  test('setZebraColorScheme updates zebra color scheme', async () => {
+  test("setZebraColorScheme updates zebra color scheme", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
-    viewer.setZebraColorScheme('colorful');
-    expect(viewer.state.get('zebraColorScheme')).toBe('colorful');
+    viewer.setZebraColorScheme("colorful");
+    expect(viewer.state.get("zebraColorScheme")).toBe("colorful");
   });
 
-  test('setZebraMappingMode updates zebra mapping mode', async () => {
+  test("setZebraMappingMode updates zebra mapping mode", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
-    viewer.setZebraMappingMode('normal');
-    expect(viewer.state.get('zebraMappingMode')).toBe('normal');
+    viewer.setZebraMappingMode("normal");
+    expect(viewer.state.get("zebraMappingMode")).toBe("normal");
   });
 });
 
@@ -683,7 +688,7 @@ describe('Viewer - Zebra Tool', () => {
 // VIEWER SELECTION TESTS
 // =============================================================================
 
-describe('Viewer - Selection', () => {
+describe("Viewer - Selection", () => {
   let testContext;
 
   afterEach(() => {
@@ -693,11 +698,11 @@ describe('Viewer - Selection', () => {
     }
   });
 
-  test('clearSelection clears last selection', async () => {
+  test("clearSelection clears last selection", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.clearSelection();
@@ -706,11 +711,11 @@ describe('Viewer - Selection', () => {
     expect(viewer.lastObject).toBeNull();
   });
 
-  test('setObject updates object state', async () => {
+  test("setObject updates object state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Get a valid path from the tree
@@ -721,26 +726,26 @@ describe('Viewer - Selection', () => {
     }
   });
 
-  test('setState updates state for path', async () => {
+  test("setState updates state for path", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Get a valid path from the tree
     const paths = Object.keys(viewer.tree);
     if (paths.length > 0) {
-      viewer.setState(paths[0], [true, true], 'leaf', false);
+      viewer.setState(paths[0], [true, true], "leaf", false);
       // Should not throw
     }
   });
 
-  test('setStates updates multiple states', async () => {
+  test("setStates updates multiple states", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const paths = Object.keys(viewer.tree);
@@ -753,11 +758,11 @@ describe('Viewer - Selection', () => {
     }
   });
 
-  test('setBoundingBox updates bounding box display', async () => {
+  test("setBoundingBox updates bounding box display", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const paths = Object.keys(viewer.tree);
@@ -775,7 +780,7 @@ describe('Viewer - Selection', () => {
 // VIEWER DISPLAY TESTS
 // =============================================================================
 
-describe('Viewer - Display Options', () => {
+describe("Viewer - Display Options", () => {
   let testContext;
 
   afterEach(() => {
@@ -785,46 +790,46 @@ describe('Viewer - Display Options', () => {
     }
   });
 
-  test('setTools updates tools visibility state', async () => {
+  test("setTools updates tools visibility state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setTools(false, false);
-    expect(viewer.state.get('tools')).toBe(false);
+    expect(viewer.state.get("tools")).toBe(false);
 
     viewer.setTools(true, false);
-    expect(viewer.state.get('tools')).toBe(true);
+    expect(viewer.state.get("tools")).toBe(true);
   });
 
-  test('setGlass updates glass mode state', async () => {
+  test("setGlass updates glass mode state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setGlass(true, false);
-    expect(viewer.state.get('glass')).toBe(true);
+    expect(viewer.state.get("glass")).toBe(true);
 
     viewer.setGlass(false, false);
-    expect(viewer.state.get('glass')).toBe(false);
+    expect(viewer.state.get("glass")).toBe(false);
   });
 
-  test('showTools shows/hides toolbar', async () => {
+  test("showTools shows/hides toolbar", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.showTools(false, false);
-    expect(viewer.state.get('tools')).toBe(false);
+    expect(viewer.state.get("tools")).toBe(false);
 
     viewer.showTools(true, false);
-    expect(viewer.state.get('tools')).toBe(true);
+    expect(viewer.state.get("tools")).toBe(true);
   });
 });
 
@@ -832,7 +837,7 @@ describe('Viewer - Display Options', () => {
 // VIEWER ANIMATION TESTS
 // =============================================================================
 
-describe('Viewer - Animation', () => {
+describe("Viewer - Animation", () => {
   let testContext;
 
   afterEach(() => {
@@ -842,36 +847,36 @@ describe('Viewer - Animation', () => {
     }
   });
 
-  test('setExplode toggles explode mode', async () => {
+  test("setExplode toggles explode mode", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Enable explode
     viewer.setExplode(true);
-    expect(viewer.state.get('animationMode')).toBe('explode');
+    expect(viewer.state.get("animationMode")).toBe("explode");
 
     // Disable explode
     viewer.setExplode(false);
-    expect(viewer.state.get('animationMode')).toBe('none');
+    expect(viewer.state.get("animationMode")).toBe("none");
   });
 
-  test('controlAnimation handles play/pause/stop', async () => {
+  test("controlAnimation handles play/pause/stop", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Enable explode first to have animation
     viewer.setExplode(true);
 
     // Test control commands
-    viewer.controlAnimation('play');
-    viewer.controlAnimation('pause');
-    viewer.controlAnimation('stop');
+    viewer.controlAnimation("play");
+    viewer.controlAnimation("pause");
+    viewer.controlAnimation("stop");
     // Should not throw
   });
 });
@@ -880,7 +885,7 @@ describe('Viewer - Animation', () => {
 // VIEWER UPDATE/RENDER TESTS
 // =============================================================================
 
-describe('Viewer - Update & Render', () => {
+describe("Viewer - Update & Render", () => {
   let testContext;
 
   afterEach(() => {
@@ -890,22 +895,22 @@ describe('Viewer - Update & Render', () => {
     }
   });
 
-  test('update triggers render', async () => {
+  test("update triggers render", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Should not throw
     viewer.update(true, false);
   });
 
-  test('toggleAnimationLoop starts/stops animation loop', async () => {
+  test("toggleAnimationLoop starts/stops animation loop", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Enable animation loop
@@ -917,21 +922,21 @@ describe('Viewer - Update & Render', () => {
     expect(viewer.hasAnimationLoop).toBe(false);
   });
 
-  test('getImage returns promise with data URL', async () => {
+  test("getImage returns promise with data URL", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
-    const result = await viewer.getImage('test-task');
+    const result = await viewer.getImage("test-task");
 
     expect(result).toBeDefined();
-    expect(result.task).toBe('test-task');
+    expect(result.task).toBe("test-task");
     expect(result.dataUrl).toBeDefined();
     // In test environment, canvas may return different MIME type
-    expect(result.dataUrl).toContain('data:');
-    expect(result.dataUrl).toContain('base64');
+    expect(result.dataUrl).toContain("data:");
+    expect(result.dataUrl).toContain("base64");
   });
 });
 
@@ -939,7 +944,7 @@ describe('Viewer - Update & Render', () => {
 // VIEWER KEY MAPPING TESTS
 // =============================================================================
 
-describe('Viewer - Key Mapping', () => {
+describe("Viewer - Key Mapping", () => {
   let testContext;
 
   afterEach(() => {
@@ -949,25 +954,25 @@ describe('Viewer - Key Mapping', () => {
     }
   });
 
-  test('setKeyMap updates key mappings', () => {
+  test("setKeyMap updates key mappings", () => {
     testContext = setupViewer();
     const { viewer } = testContext;
 
     const newKeymap = {
-      shift: 'altKey',
-      ctrl: 'metaKey',
-      meta: 'ctrlKey',
+      shift: "altKey",
+      ctrl: "metaKey",
+      meta: "ctrlKey",
     };
 
     viewer.setKeyMap(newKeymap);
     // Should not throw
   });
 
-  test('setPickHandler enables/disables pick handler', async () => {
+  test("setPickHandler enables/disables pick handler", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setPickHandler(false);
@@ -982,7 +987,7 @@ describe('Viewer - Key Mapping', () => {
 // VIEWER TREEVIEW TESTS
 // =============================================================================
 
-describe('Viewer - TreeView Integration', () => {
+describe("Viewer - TreeView Integration", () => {
   let testContext;
 
   afterEach(() => {
@@ -992,11 +997,11 @@ describe('Viewer - TreeView Integration', () => {
     }
   });
 
-  test('getNodeColor returns color array for path', async () => {
+  test("getNodeColor returns color array for path", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const paths = Object.keys(viewer.tree);
@@ -1014,7 +1019,7 @@ describe('Viewer - TreeView Integration', () => {
 // VIEWER CAMERA METHODS (Additional Tests for Coverage)
 // =============================================================================
 
-describe('Viewer - Camera Methods (Extended)', () => {
+describe("Viewer - Camera Methods (Extended)", () => {
   let testContext;
 
   afterEach(() => {
@@ -1024,23 +1029,23 @@ describe('Viewer - Camera Methods (Extended)', () => {
     }
   });
 
-  test('getCameraType returns camera type string', async () => {
+  test("getCameraType returns camera type string", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const type = viewer.getCameraType();
     expect(type).toBeDefined();
-    expect(['ortho', 'perspective']).toContain(type);
+    expect(["ortho", "perspective"]).toContain(type);
   });
 
-  test('getCameraPosition returns position array', async () => {
+  test("getCameraPosition returns position array", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const pos = viewer.getCameraPosition();
@@ -1049,11 +1054,11 @@ describe('Viewer - Camera Methods (Extended)', () => {
     expect(pos.length).toBe(3);
   });
 
-  test('setCameraPosition updates camera position', async () => {
+  test("setCameraPosition updates camera position", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setCameraPosition([10, 20, 30]);
@@ -1064,11 +1069,11 @@ describe('Viewer - Camera Methods (Extended)', () => {
     expect(pos[2]).toBeCloseTo(30, 1);
   });
 
-  test('getCameraQuaternion returns quaternion array', async () => {
+  test("getCameraQuaternion returns quaternion array", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const quat = viewer.getCameraQuaternion();
@@ -1077,22 +1082,22 @@ describe('Viewer - Camera Methods (Extended)', () => {
     expect(quat.length).toBe(4);
   });
 
-  test('setCameraQuaternion updates camera quaternion', async () => {
+  test("setCameraQuaternion updates camera quaternion", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Set to identity quaternion - should not throw
     viewer.setCameraQuaternion([0, 0, 0, 1]);
   });
 
-  test('getCameraTarget returns target array', async () => {
+  test("getCameraTarget returns target array", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const target = viewer.getCameraTarget();
@@ -1101,24 +1106,24 @@ describe('Viewer - Camera Methods (Extended)', () => {
     expect(target.length).toBe(3);
   });
 
-  test('setCameraTarget can be called', async () => {
+  test("setCameraTarget can be called", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // setCameraTarget expects a Vector3, not an array
-    const target = new (await import('three')).Vector3(5, 5, 5);
+    const target = new (await import("three")).Vector3(5, 5, 5);
     viewer.setCameraTarget(target);
     // Should not throw
   });
 
-  test('getCameraLocationSettings returns complete settings', async () => {
+  test("getCameraLocationSettings returns complete settings", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const settings = viewer.getCameraLocationSettings();
@@ -1130,11 +1135,11 @@ describe('Viewer - Camera Methods (Extended)', () => {
     expect(settings.zoom).toBeDefined();
   });
 
-  test('setCameraLocationSettings restores camera state', async () => {
+  test("setCameraLocationSettings restores camera state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Get current settings
@@ -1148,7 +1153,7 @@ describe('Viewer - Camera Methods (Extended)', () => {
       originalSettings.position,
       originalSettings.quaternion,
       originalSettings.target,
-      originalSettings.zoom
+      originalSettings.zoom,
     );
 
     // Should be restored
@@ -1156,11 +1161,11 @@ describe('Viewer - Camera Methods (Extended)', () => {
     expect(restoredPos[0]).toBeCloseTo(originalSettings.position[0], 0);
   });
 
-  test('recenterCamera recenters view on visible objects', async () => {
+  test("recenterCamera recenters view on visible objects", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.recenterCamera();
@@ -1172,7 +1177,7 @@ describe('Viewer - Camera Methods (Extended)', () => {
 // VIEWER CONTROL SPEED GETTERS
 // =============================================================================
 
-describe('Viewer - Control Speed Getters', () => {
+describe("Viewer - Control Speed Getters", () => {
   let testContext;
 
   afterEach(() => {
@@ -1182,40 +1187,40 @@ describe('Viewer - Control Speed Getters', () => {
     }
   });
 
-  test('getZoomSpeed returns zoom speed value', async () => {
+  test("getZoomSpeed returns zoom speed value", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const speed = viewer.getZoomSpeed();
     expect(speed).toBeDefined();
-    expect(typeof speed).toBe('number');
+    expect(typeof speed).toBe("number");
   });
 
-  test('getPanSpeed returns pan speed value', async () => {
+  test("getPanSpeed returns pan speed value", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const speed = viewer.getPanSpeed();
     expect(speed).toBeDefined();
-    expect(typeof speed).toBe('number');
+    expect(typeof speed).toBe("number");
   });
 
-  test('getRotateSpeed returns rotate speed value', async () => {
+  test("getRotateSpeed returns rotate speed value", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const speed = viewer.getRotateSpeed();
     expect(speed).toBeDefined();
-    expect(typeof speed).toBe('number');
+    expect(typeof speed).toBe("number");
   });
 });
 
@@ -1223,7 +1228,7 @@ describe('Viewer - Control Speed Getters', () => {
 // VIEWER MATERIAL GETTERS
 // =============================================================================
 
-describe('Viewer - Material Getters', () => {
+describe("Viewer - Material Getters", () => {
   let testContext;
 
   afterEach(() => {
@@ -1233,72 +1238,72 @@ describe('Viewer - Material Getters', () => {
     }
   });
 
-  test('getTransparent returns transparency state', async () => {
+  test("getTransparent returns transparency state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const transparent = viewer.getTransparent();
-    expect(typeof transparent).toBe('boolean');
+    expect(typeof transparent).toBe("boolean");
   });
 
-  test('getBlackEdges returns black edges state', async () => {
+  test("getBlackEdges returns black edges state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const blackEdges = viewer.getBlackEdges();
-    expect(typeof blackEdges).toBe('boolean');
+    expect(typeof blackEdges).toBe("boolean");
   });
 
-  test('getEdgeColor returns edge color value', async () => {
+  test("getEdgeColor returns edge color value", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const color = viewer.getEdgeColor();
-    expect(typeof color).toBe('number');
+    expect(typeof color).toBe("number");
   });
 
-  test('getOpacity returns opacity value', async () => {
+  test("getOpacity returns opacity value", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const opacity = viewer.getOpacity();
-    expect(typeof opacity).toBe('number');
+    expect(typeof opacity).toBe("number");
     expect(opacity).toBeGreaterThanOrEqual(0);
     expect(opacity).toBeLessThanOrEqual(1);
   });
 
-  test('getOrtho returns ortho camera state', async () => {
+  test("getOrtho returns ortho camera state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const ortho = viewer.getOrtho();
-    expect(typeof ortho).toBe('boolean');
+    expect(typeof ortho).toBe("boolean");
   });
 
-  test('getTools returns tools state', async () => {
+  test("getTools returns tools state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const tools = viewer.getTools();
-    expect(typeof tools).toBe('boolean');
+    expect(typeof tools).toBe("boolean");
   });
 });
 
@@ -1306,7 +1311,7 @@ describe('Viewer - Material Getters', () => {
 // VIEWER CLIPPING GETTERS
 // =============================================================================
 
-describe('Viewer - Clipping Getters', () => {
+describe("Viewer - Clipping Getters", () => {
   let testContext;
 
   afterEach(() => {
@@ -1316,33 +1321,33 @@ describe('Viewer - Clipping Getters', () => {
     }
   });
 
-  test('getClipIntersection returns intersection state', async () => {
+  test("getClipIntersection returns intersection state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const intersection = viewer.getClipIntersection();
-    expect(typeof intersection).toBe('boolean');
+    expect(typeof intersection).toBe("boolean");
   });
 
-  test('getClipPlaneHelpers returns helper visibility state', async () => {
+  test("getClipPlaneHelpers returns helper visibility state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const helpers = viewer.getClipPlaneHelpers();
-    expect(typeof helpers).toBe('boolean');
+    expect(typeof helpers).toBe("boolean");
   });
 
-  test('getClipNormal returns normal array for axis', async () => {
+  test("getClipNormal returns normal array for axis", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const normal = viewer.getClipNormal(0);
@@ -1358,7 +1363,7 @@ describe('Viewer - Clipping Getters', () => {
 // VIEWER UTILITY METHODS
 // =============================================================================
 
-describe('Viewer - Utility Methods', () => {
+describe("Viewer - Utility Methods", () => {
   let testContext;
 
   afterEach(() => {
@@ -1368,33 +1373,33 @@ describe('Viewer - Utility Methods', () => {
     }
   });
 
-  test('setDisplayDefaults is callable (deprecated)', async () => {
+  test("setDisplayDefaults is callable (deprecated)", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Should not throw - it's a no-op for backwards compatibility
     viewer.setDisplayDefaults();
   });
 
-  test('dumpOptions calls state.dump', async () => {
+  test("dumpOptions calls state.dump", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Mock console.log to capture output
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
     viewer.dumpOptions();
 
     consoleSpy.mockRestore();
   });
 
-  test('vector3 creates THREE.Vector3', async () => {
+  test("vector3 creates THREE.Vector3", async () => {
     testContext = setupViewer();
     const { viewer } = testContext;
 
@@ -1405,7 +1410,7 @@ describe('Viewer - Utility Methods', () => {
     expect(v.z).toBe(3);
   });
 
-  test('quaternion creates THREE.Quaternion', async () => {
+  test("quaternion creates THREE.Quaternion", async () => {
     testContext = setupViewer();
     const { viewer } = testContext;
 
@@ -1417,11 +1422,11 @@ describe('Viewer - Utility Methods', () => {
     expect(q.w).toBe(1);
   });
 
-  test('dispose is callable and clears CAD resources', async () => {
+  test("dispose is callable and clears CAD resources", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Mock renderer.renderLists which may not exist in test env
@@ -1429,7 +1434,7 @@ describe('Viewer - Utility Methods', () => {
       viewer.renderer.renderLists = { dispose: vi.fn() };
       // Also mock getContext to avoid errors
       viewer.renderer.getContext = vi.fn().mockReturnValue({
-        getExtension: vi.fn().mockReturnValue({ loseContext: vi.fn() })
+        getExtension: vi.fn().mockReturnValue({ loseContext: vi.fn() }),
       });
     }
 
@@ -1444,7 +1449,7 @@ describe('Viewer - Utility Methods', () => {
 // VIEWER ANIMATION METHODS
 // =============================================================================
 
-describe('Viewer - Animation Methods (Extended)', () => {
+describe("Viewer - Animation Methods (Extended)", () => {
   let testContext;
 
   afterEach(() => {
@@ -1454,11 +1459,11 @@ describe('Viewer - Animation Methods (Extended)', () => {
     }
   });
 
-  test('backupAnimation stores animation state', async () => {
+  test("backupAnimation stores animation state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // This calls animation.backup()
@@ -1466,11 +1471,11 @@ describe('Viewer - Animation Methods (Extended)', () => {
     // Should not throw
   });
 
-  test('setZscaleValue updates z scale', async () => {
+  test("setZscaleValue updates z scale", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // setZscaleValue calls nestedGroup.setZScale internally
@@ -1483,7 +1488,7 @@ describe('Viewer - Animation Methods (Extended)', () => {
 // VIEWER RAYCAST METHODS
 // =============================================================================
 
-describe('Viewer - Raycast Methods', () => {
+describe("Viewer - Raycast Methods", () => {
   let testContext;
 
   afterEach(() => {
@@ -1493,11 +1498,11 @@ describe('Viewer - Raycast Methods', () => {
     }
   });
 
-  test('setRaycastMode enables/disables raycast', async () => {
+  test("setRaycastMode enables/disables raycast", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // setRaycastMode takes boolean, not string
@@ -1510,11 +1515,11 @@ describe('Viewer - Raycast Methods', () => {
     expect(viewer.raycaster).toBeNull();
   });
 
-  test('pick triggers raycast at position', async () => {
+  test("pick triggers raycast at position", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // This should trigger raycast - won't find anything but shouldn't throw
@@ -1527,7 +1532,7 @@ describe('Viewer - Raycast Methods', () => {
 // VIEWER RESIZE & PIN
 // =============================================================================
 
-describe('Viewer - Resize & Pin', () => {
+describe("Viewer - Resize & Pin", () => {
   let testContext;
 
   afterEach(() => {
@@ -1537,11 +1542,11 @@ describe('Viewer - Resize & Pin', () => {
     }
   });
 
-  test('resizeCadView updates dimensions', async () => {
+  test("resizeCadView updates dimensions", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // resizeCadView updates renderer and camera, not state directly
@@ -1554,7 +1559,7 @@ describe('Viewer - Resize & Pin', () => {
 // VIEWER HANDLERAYCAST & RAYCAST EVENT TESTS
 // =============================================================================
 
-describe('Viewer - Raycast Handling', () => {
+describe("Viewer - Raycast Handling", () => {
   let testContext;
 
   afterEach(() => {
@@ -1564,11 +1569,11 @@ describe('Viewer - Raycast Handling', () => {
     }
   });
 
-  test('handleRaycast is callable when raycaster enabled', async () => {
+  test("handleRaycast is callable when raycaster enabled", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Enable raycasting first
@@ -1578,86 +1583,88 @@ describe('Viewer - Raycast Handling', () => {
     expect(() => viewer.handleRaycast()).not.toThrow();
   });
 
-  test('handleRaycastEvent handles Escape key', async () => {
+  test("handleRaycastEvent handles Escape key", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setRaycastMode(true);
 
     // Simulate Escape key event
-    viewer.handleRaycastEvent({ key: 'Escape' });
+    viewer.handleRaycastEvent({ key: "Escape" });
 
     // clearSelection should have been called
     expect(viewer.lastSelection).toBeNull();
   });
 
-  test('handleRaycastEvent handles Backspace key', async () => {
+  test("handleRaycastEvent handles Backspace key", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setRaycastMode(true);
 
     // Simulate Backspace key event - should not throw
-    expect(() => viewer.handleRaycastEvent({ key: 'Backspace' })).not.toThrow();
+    expect(() => viewer.handleRaycastEvent({ key: "Backspace" })).not.toThrow();
   });
 
-  test('handleRaycastEvent handles unknown key', async () => {
+  test("handleRaycastEvent handles unknown key", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setRaycastMode(true);
 
     // Should handle gracefully
-    expect(() => viewer.handleRaycastEvent({ key: 'SomeOtherKey' })).not.toThrow();
+    expect(() =>
+      viewer.handleRaycastEvent({ key: "SomeOtherKey" }),
+    ).not.toThrow();
   });
 
-  test('handleRaycastEvent handles left mouse click with no lastObject', async () => {
+  test("handleRaycastEvent handles left mouse click with no lastObject", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setRaycastMode(true);
     viewer.lastObject = null;
 
     // Should handle gracefully
-    expect(() => viewer.handleRaycastEvent({ mouse: 'left' })).not.toThrow();
+    expect(() => viewer.handleRaycastEvent({ mouse: "left" })).not.toThrow();
   });
 
-  test('handleRaycastEvent handles right mouse click', async () => {
+  test("handleRaycastEvent handles right mouse click", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setRaycastMode(true);
 
     // Should handle gracefully
-    expect(() => viewer.handleRaycastEvent({ mouse: 'right' })).not.toThrow();
+    expect(() => viewer.handleRaycastEvent({ mouse: "right" })).not.toThrow();
   });
 
-  test('handleRaycastEvent handles unknown mouse button', async () => {
+  test("handleRaycastEvent handles unknown mouse button", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     viewer.setRaycastMode(true);
 
     // Should handle gracefully
-    expect(() => viewer.handleRaycastEvent({ mouse: 'middle' })).not.toThrow();
+    expect(() => viewer.handleRaycastEvent({ mouse: "middle" })).not.toThrow();
   });
 });
 
@@ -1665,7 +1672,7 @@ describe('Viewer - Raycast Handling', () => {
 // VIEWER CENTER VISIBLE OBJECTS TESTS
 // =============================================================================
 
-describe('Viewer - Center Visible Objects', () => {
+describe("Viewer - Center Visible Objects", () => {
   let testContext;
 
   afterEach(() => {
@@ -1675,15 +1682,15 @@ describe('Viewer - Center Visible Objects', () => {
     }
   });
 
-  test('centerVisibleObjects centers camera on visible objects', async () => {
+  test("centerVisibleObjects centers camera on visible objects", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Mock console.log to suppress debug output
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
     // centerVisibleObjects should work
     expect(() => viewer.centerVisibleObjects()).not.toThrow();
@@ -1691,14 +1698,14 @@ describe('Viewer - Center Visible Objects', () => {
     consoleSpy.mockRestore();
   });
 
-  test('centerVisibleObjects with notify=false', async () => {
+  test("centerVisibleObjects with notify=false", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const mockCallback = vi.fn();
     viewer.notifyCallback = mockCallback;
 
@@ -1712,7 +1719,7 @@ describe('Viewer - Center Visible Objects', () => {
 // VIEWER SYNC TREE STATES TESTS
 // =============================================================================
 
-describe('Viewer - Sync Tree States', () => {
+describe("Viewer - Sync Tree States", () => {
   let testContext;
 
   afterEach(() => {
@@ -1722,11 +1729,11 @@ describe('Viewer - Sync Tree States', () => {
     }
   });
 
-  test('toggleGroup to exploded mode creates expanded tree', async () => {
+  test("toggleGroup to exploded mode creates expanded tree", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Toggle to exploded mode
@@ -1736,11 +1743,11 @@ describe('Viewer - Sync Tree States', () => {
     expect(viewer.expandedTree).toBeDefined();
   });
 
-  test('toggleGroup to compact mode uses compact tree', async () => {
+  test("toggleGroup to compact mode uses compact tree", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Toggle to exploded first, then back to compact
@@ -1751,24 +1758,24 @@ describe('Viewer - Sync Tree States', () => {
     expect(viewer.compactTree).toBeDefined();
   });
 
-  test('toggleTab handles collapse options', async () => {
+  test("toggleTab handles collapse options", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Test different collapse modes
-    viewer.state.set('collapse', 0);
+    viewer.state.set("collapse", 0);
     expect(() => viewer.toggleTab(false)).not.toThrow();
 
-    viewer.state.set('collapse', 1);
+    viewer.state.set("collapse", 1);
     expect(() => viewer.toggleTab(false)).not.toThrow();
 
-    viewer.state.set('collapse', 2);
+    viewer.state.set("collapse", 2);
     expect(() => viewer.toggleTab(false)).not.toThrow();
 
-    viewer.state.set('collapse', 3);
+    viewer.state.set("collapse", 3);
     expect(() => viewer.toggleTab(false)).not.toThrow();
   });
 });
@@ -1777,7 +1784,7 @@ describe('Viewer - Sync Tree States', () => {
 // VIEWER BACKEND RESPONSE TESTS
 // =============================================================================
 
-describe('Viewer - Backend Response', () => {
+describe("Viewer - Backend Response", () => {
   let testContext;
 
   afterEach(() => {
@@ -1787,32 +1794,36 @@ describe('Viewer - Backend Response', () => {
     }
   });
 
-  test('handleBackendResponse handles tool_response subtype', async () => {
+  test("handleBackendResponse handles tool_response subtype", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Mock cadTools.handleResponse
     viewer.cadTools.handleResponse = vi.fn();
 
-    viewer.handleBackendResponse({ subtype: 'tool_response', tool_type: 'DistanceMeasurement', data: {} });
+    viewer.handleBackendResponse({
+      subtype: "tool_response",
+      tool_type: "DistanceMeasurement",
+      data: {},
+    });
 
     expect(viewer.cadTools.handleResponse).toHaveBeenCalled();
   });
 
-  test('handleBackendResponse ignores other subtypes', async () => {
+  test("handleBackendResponse ignores other subtypes", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     // Mock cadTools.handleResponse
     viewer.cadTools.handleResponse = vi.fn();
 
-    viewer.handleBackendResponse({ subtype: 'other' });
+    viewer.handleBackendResponse({ subtype: "other" });
 
     expect(viewer.cadTools.handleResponse).not.toHaveBeenCalled();
   });
@@ -1822,7 +1833,7 @@ describe('Viewer - Backend Response', () => {
 // VIEWER GETTERS TESTS
 // =============================================================================
 
-describe('Viewer - Additional Getters', () => {
+describe("Viewer - Additional Getters", () => {
   let testContext;
 
   afterEach(() => {
@@ -1832,33 +1843,33 @@ describe('Viewer - Additional Getters', () => {
     }
   });
 
-  test('getAxes returns axes state', async () => {
+  test("getAxes returns axes state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const axes = viewer.getAxes();
-    expect(typeof axes).toBe('boolean');
+    expect(typeof axes).toBe("boolean");
   });
 
-  test('getAxes0 returns axes0 state', async () => {
+  test("getAxes0 returns axes0 state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const axes0 = viewer.getAxes0();
-    expect(typeof axes0).toBe('boolean');
+    expect(typeof axes0).toBe("boolean");
   });
 
-  test('getGrids returns grid state', async () => {
+  test("getGrids returns grid state", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const grids = viewer.getGrids();
@@ -1866,16 +1877,16 @@ describe('Viewer - Additional Getters', () => {
     expect(grids.length).toBe(3);
   });
 
-  test('getStates returns tree states', async () => {
+  test("getStates returns tree states", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const states = viewer.getStates();
     expect(states).toBeDefined();
-    expect(typeof states).toBe('object');
+    expect(typeof states).toBe("object");
   });
 });
 
@@ -1883,7 +1894,7 @@ describe('Viewer - Additional Getters', () => {
 // VIEWER CLEAR TESTS
 // =============================================================================
 
-describe('Viewer - Clear', () => {
+describe("Viewer - Clear", () => {
   let testContext;
 
   afterEach(() => {
@@ -1893,11 +1904,11 @@ describe('Viewer - Clear', () => {
     }
   });
 
-  test('clear removes nested group', async () => {
+  test("clear removes nested group", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
 
-    const box1Data = await loadExample('box1');
+    const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     expect(viewer.ready).toBe(true);

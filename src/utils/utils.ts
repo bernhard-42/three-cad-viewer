@@ -24,7 +24,10 @@ export const AXIS_VECTORS: Readonly<Record<Axis, THREE.Vector3>> = {
  * The cast is necessary because TypeScript's flat() return type
  * is a complex union that doesn't simplify to number[].
  */
-function flatten(arr: number[][] | number[][][] | number[][][][], depth: number = 1): number[] {
+function flatten(
+  arr: number[][] | number[][][] | number[][][][],
+  depth: number = 1,
+): number[] {
   return arr.flat(depth) as number[];
 }
 
@@ -34,7 +37,9 @@ function flatten(arr: number[][] | number[][][] | number[][][][], depth: number 
  */
 function toVector3Tuple(arr: number[]): Vector3Tuple {
   if (!Array.isArray(arr) || arr.length !== 3) {
-    throw new Error(`Expected array of length 3, got ${Array.isArray(arr) ? arr.length : typeof arr}`);
+    throw new Error(
+      `Expected array of length 3, got ${Array.isArray(arr) ? arr.length : typeof arr}`,
+    );
   }
   return arr as Vector3Tuple;
 }
@@ -45,7 +50,9 @@ function toVector3Tuple(arr: number[]): Vector3Tuple {
  */
 function toQuaternionTuple(arr: number[]): QuaternionTuple {
   if (!Array.isArray(arr) || arr.length !== 4) {
-    throw new Error(`Expected array of length 4, got ${Array.isArray(arr) ? arr.length : typeof arr}`);
+    throw new Error(
+      `Expected array of length 4, got ${Array.isArray(arr) ? arr.length : typeof arr}`,
+    );
   }
   return arr as QuaternionTuple;
 }
@@ -53,9 +60,15 @@ function toQuaternionTuple(arr: number[]): QuaternionTuple {
 function isEqual(obj1: unknown, obj2: unknown, tol: number = 1e-9): boolean {
   if (Array.isArray(obj1) && Array.isArray(obj2)) {
     return (
-      obj1.length === obj2.length && obj1.every((v, i) => isEqual(v, obj2[i], tol))
+      obj1.length === obj2.length &&
+      obj1.every((v, i) => isEqual(v, obj2[i], tol))
     );
-  } else if (obj1 !== null && obj2 !== null && typeof obj1 === "object" && typeof obj2 === "object") {
+  } else if (
+    obj1 !== null &&
+    obj2 !== null &&
+    typeof obj1 === "object" &&
+    typeof obj2 === "object"
+  ) {
     const rec1 = obj1 as Record<string, unknown>;
     const rec2 = obj2 as Record<string, unknown>;
     const keys1 = Object.keys(rec1);
@@ -77,7 +90,10 @@ function isEqual(obj1: unknown, obj2: unknown, tol: number = 1e-9): boolean {
   }
 }
 
-function sceneTraverse(obj: THREE.Object3D | null | undefined, fn: (obj: THREE.Object3D) => void): void {
+function sceneTraverse(
+  obj: THREE.Object3D | null | undefined,
+  fn: (obj: THREE.Object3D) => void,
+): void {
   if (!obj) return;
 
   fn(obj);
@@ -99,7 +115,12 @@ function disposeGeometry(geometry: GeometryLike | null | undefined): void {
     gpuTracker.untrack("geometry", geometry);
     geometry.dispose();
     for (const attr of Object.values(geometry.attributes)) {
-      if (attr && typeof attr === "object" && "dispose" in attr && typeof attr.dispose === "function") {
+      if (
+        attr &&
+        typeof attr === "object" &&
+        "dispose" in attr &&
+        typeof attr.dispose === "function"
+      ) {
         attr.dispose();
       }
     }
@@ -135,15 +156,29 @@ interface MaterialLike {
 }
 
 /** All texture map property names on MaterialLike (for iteration) */
-const MATERIAL_TEXTURE_KEYS: readonly (keyof Omit<MaterialLike, "dispose">)[] = [
-  // MeshStandardMaterial
-  "map", "normalMap", "roughnessMap", "metalnessMap",
-  "aoMap", "emissiveMap", "alphaMap", "bumpMap",
-  // MeshPhysicalMaterial
-  "transmissionMap", "clearcoatMap", "clearcoatRoughnessMap", "clearcoatNormalMap",
-  "thicknessMap", "specularIntensityMap", "specularColorMap",
-  "sheenColorMap", "sheenRoughnessMap", "anisotropyMap",
-];
+const MATERIAL_TEXTURE_KEYS: readonly (keyof Omit<MaterialLike, "dispose">)[] =
+  [
+    // MeshStandardMaterial
+    "map",
+    "normalMap",
+    "roughnessMap",
+    "metalnessMap",
+    "aoMap",
+    "emissiveMap",
+    "alphaMap",
+    "bumpMap",
+    // MeshPhysicalMaterial
+    "transmissionMap",
+    "clearcoatMap",
+    "clearcoatRoughnessMap",
+    "clearcoatNormalMap",
+    "thicknessMap",
+    "specularIntensityMap",
+    "specularColorMap",
+    "sheenColorMap",
+    "sheenRoughnessMap",
+    "anisotropyMap",
+  ];
 
 /**
  * Dispose a material and detach its texture references.
@@ -194,7 +229,9 @@ interface DisposableTree extends MeshLike {
   dispose?: () => void;
 }
 
-function deepDispose(tree: DisposableTree | DisposableTree[] | null | undefined): void {
+function deepDispose(
+  tree: DisposableTree | DisposableTree[] | null | undefined,
+): void {
   if (!tree) {
     return;
   }
@@ -336,16 +373,26 @@ function isPoints(obj: THREE.Object3D): obj is THREE.Points {
  * Type guard to check if an object is an OrthographicCamera.
  * Accepts Object3D to allow use in controls where camera type is broader.
  */
-function isOrthographicCamera(obj: THREE.Object3D): obj is THREE.OrthographicCamera {
-  return "isOrthographicCamera" in obj && (obj as THREE.OrthographicCamera).isOrthographicCamera === true;
+function isOrthographicCamera(
+  obj: THREE.Object3D,
+): obj is THREE.OrthographicCamera {
+  return (
+    "isOrthographicCamera" in obj &&
+    (obj as THREE.OrthographicCamera).isOrthographicCamera === true
+  );
 }
 
 /**
  * Type guard to check if an object is a PerspectiveCamera.
  * Accepts Object3D to allow use in controls where camera type is broader.
  */
-function isPerspectiveCamera(obj: THREE.Object3D): obj is THREE.PerspectiveCamera {
-  return "isPerspectiveCamera" in obj && (obj as THREE.PerspectiveCamera).isPerspectiveCamera === true;
+function isPerspectiveCamera(
+  obj: THREE.Object3D,
+): obj is THREE.PerspectiveCamera {
+  return (
+    "isPerspectiveCamera" in obj &&
+    (obj as THREE.PerspectiveCamera).isPerspectiveCamera === true
+  );
 }
 
 /**
@@ -358,22 +405,31 @@ function isLineSegments2(obj: THREE.Object3D): obj is LineSegments2 {
 /**
  * Type guard to check if a material has a color property.
  */
-function hasColor(material: THREE.Material): material is THREE.Material & { color: THREE.Color } {
+function hasColor(
+  material: THREE.Material,
+): material is THREE.Material & { color: THREE.Color } {
   return "color" in material;
 }
 
 /**
  * Type guard to check if a material has emissive property.
  */
-function hasEmissive(material: THREE.Material): material is THREE.Material & { emissive: THREE.Color } {
+function hasEmissive(
+  material: THREE.Material,
+): material is THREE.Material & { emissive: THREE.Color } {
   return "emissive" in material;
 }
 
 /**
  * Type guard to check if a material is a MeshStandardMaterial.
  */
-function isMeshStandardMaterial(material: THREE.Material): material is THREE.MeshStandardMaterial {
-  return "isMeshStandardMaterial" in material && material.isMeshStandardMaterial === true;
+function isMeshStandardMaterial(
+  material: THREE.Material,
+): material is THREE.MeshStandardMaterial {
+  return (
+    "isMeshStandardMaterial" in material &&
+    material.isMeshStandardMaterial === true
+  );
 }
 
 const KeyMapper = new _KeyMapper();
@@ -396,7 +452,7 @@ class EventListenerManager {
     target: EventTarget,
     event: string,
     handler: EventListenerOrEventListenerObject,
-    options: boolean | AddEventListenerOptions = false
+    options: boolean | AddEventListenerOptions = false,
   ): void => {
     target.addEventListener(event, handler, options);
     this.listeners.push({
@@ -439,8 +495,4 @@ export {
   toQuaternionTuple,
 };
 
-export type {
-  KeyEventKey,
-  KeyMappingConfig,
-  DisposableTree,
-};
+export type { KeyEventKey, KeyMappingConfig, DisposableTree };

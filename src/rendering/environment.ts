@@ -30,7 +30,10 @@ const STUDIO_BACKGROUND_WHITE = new THREE.Color(1.0, 1.0, 1.0);
  * Create a radial vignette gradient texture (512×512 canvas).
  * Light center fading to darker edges.
  */
-function _createGradientTexture(centerColor: string, edgeColor: string): THREE.Texture {
+function _createGradientTexture(
+  centerColor: string,
+  edgeColor: string,
+): THREE.Texture {
   const size = 512;
   const canvas = document.createElement("canvas");
   canvas.width = size;
@@ -59,12 +62,14 @@ let _gradientTexture: THREE.Texture | null = null;
 let _gradientDarkTexture: THREE.Texture | null = null;
 
 function _getGradientTexture(): THREE.Texture {
-  if (!_gradientTexture) _gradientTexture = _createGradientTexture("#f0f0f0", "#c8c8c8");
+  if (!_gradientTexture)
+    _gradientTexture = _createGradientTexture("#f0f0f0", "#c8c8c8");
   return _gradientTexture;
 }
 
 function _getGradientDarkTexture(): THREE.Texture {
-  if (!_gradientDarkTexture) _gradientDarkTexture = _createGradientTexture("#808080", "#606060");
+  if (!_gradientDarkTexture)
+    _gradientDarkTexture = _createGradientTexture("#808080", "#606060");
   return _gradientDarkTexture;
 }
 
@@ -201,7 +206,8 @@ class EnvironmentManager {
   } | null = null;
 
   constructor(options: EnvironmentManagerOptions = {}) {
-    this._userOverrides = (options.presetUrls as Record<string, string> | undefined) ?? {};
+    this._userOverrides =
+      (options.presetUrls as Record<string, string> | undefined) ?? {};
     this._presetUrls = {
       ..._buildPresetUrls(false),
       ...this._userOverrides,
@@ -250,7 +256,9 @@ class EnvironmentManager {
     // Check in-flight promise — await and set _currentTexture
     const inflight = this._inflight.get(cacheKey);
     if (inflight) {
-      logger.debug(`Environment "${cacheKey}" already loading, reusing promise`);
+      logger.debug(
+        `Environment "${cacheKey}" already loading, reusing promise`,
+      );
       const texture = await inflight;
       this._currentTexture = texture;
       return texture;
@@ -393,7 +401,6 @@ class EnvironmentManager {
         this._teardownEnvBackground();
         break;
     }
-
   }
 
   /**
@@ -451,12 +458,18 @@ class EnvironmentManager {
         cached.dispose();
         this._cache.delete(slug);
         this._lightDetectionCache.delete(slug);
-        logger.debug(`Evicted cached environment "${slug}" for resolution switch`);
+        logger.debug(
+          `Evicted cached environment "${slug}" for resolution switch`,
+        );
       }
     }
 
     // Reload the current environment at the new resolution
-    if (currentEnvName && currentEnvName !== "none" && currentEnvName !== "studio") {
+    if (
+      currentEnvName &&
+      currentEnvName !== "none" &&
+      currentEnvName !== "studio"
+    ) {
       return this.loadEnvironment(currentEnvName, renderer);
     }
 
@@ -527,7 +540,11 @@ class EnvironmentManager {
     const w = size.x;
     const h = size.y;
 
-    if (!this._bgRenderTarget || this._bgRenderTarget.width !== w || this._bgRenderTarget.height !== h) {
+    if (
+      !this._bgRenderTarget ||
+      this._bgRenderTarget.width !== w ||
+      this._bgRenderTarget.height !== h
+    ) {
       this._bgRenderTarget?.dispose();
       this._bgRenderTarget = new THREE.WebGLRenderTarget(w, h);
     }
@@ -765,7 +782,10 @@ class EnvironmentManager {
 
     // Cache render target and track its texture
     this._cache.set(cacheKey, renderTarget);
-    gpuTracker.trackTexture(renderTarget.texture, `PMREM environment: ${cacheKey}`);
+    gpuTracker.trackTexture(
+      renderTarget.texture,
+      `PMREM environment: ${cacheKey}`,
+    );
 
     // Cache default light detection for procedural environment
     this._lightDetectionCache.set(cacheKey, getDefaultLights());
@@ -803,7 +823,10 @@ class EnvironmentManager {
     const hdrTexture = await Promise.race([
       loader.loadAsync(url),
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error(`HDR load timed out after 30 s: ${url}`)), 30_000),
+        setTimeout(
+          () => reject(new Error(`HDR load timed out after 30 s: ${url}`)),
+          30_000,
+        ),
       ),
     ]);
 
@@ -818,7 +841,11 @@ class EnvironmentManager {
 
     // Analyze HDR pixel data for dominant light sources BEFORE disposing.
     // hdrTexture.image.data is Uint16Array (HalfFloatType) from HDRLoader.
-    if (hdrTexture.image?.data && hdrTexture.image.width && hdrTexture.image.height) {
+    if (
+      hdrTexture.image?.data &&
+      hdrTexture.image.width &&
+      hdrTexture.image.height
+    ) {
       const result = detectDominantLights(
         hdrTexture.image.data as Uint16Array,
         hdrTexture.image.width as number,
@@ -836,7 +863,10 @@ class EnvironmentManager {
 
     // Cache render target and track its texture
     this._cache.set(cacheKey, renderTarget);
-    gpuTracker.trackTexture(renderTarget.texture, `PMREM environment: ${cacheKey}`);
+    gpuTracker.trackTexture(
+      renderTarget.texture,
+      `PMREM environment: ${cacheKey}`,
+    );
     logger.debug(
       `Loaded HDR environment from "${url}", cached as "${cacheKey}"`,
     );
@@ -847,8 +877,14 @@ class EnvironmentManager {
 
 /** Dispose lazy-cached gradient textures (called from EnvironmentManager.dispose). */
 function disposeGradientTextures(): void {
-  if (_gradientTexture) { _gradientTexture.dispose(); _gradientTexture = null; }
-  if (_gradientDarkTexture) { _gradientDarkTexture.dispose(); _gradientDarkTexture = null; }
+  if (_gradientTexture) {
+    _gradientTexture.dispose();
+    _gradientTexture = null;
+  }
+  if (_gradientDarkTexture) {
+    _gradientDarkTexture.dispose();
+    _gradientDarkTexture = null;
+  }
 }
 
 export { EnvironmentManager, disposeGradientTextures };

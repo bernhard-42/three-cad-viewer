@@ -157,7 +157,9 @@ export const gpuTracker = {
    */
   getResources(): TrackedResource[] {
     if (!debugMode) {
-      logger.warn("GPU tracker: getResources() requires debug mode - call enableDebug() first");
+      logger.warn(
+        "GPU tracker: getResources() requires debug mode - call enableDebug() first",
+      );
       return [];
     }
     return Array.from(tracked.values());
@@ -202,7 +204,9 @@ export const gpuTracker = {
         console.log(`    Stack:\n${resource.stack}`);
       });
     } else {
-      console.log("\nFor detailed resource info, enable debug mode before creating resources:");
+      console.log(
+        "\nFor detailed resource info, enable debug mode before creating resources:",
+      );
       console.log("  gpuTracker.enableDebug()");
     }
   },

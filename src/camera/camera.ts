@@ -3,7 +3,14 @@ import type { Vector3Tuple, QuaternionTuple } from "three";
 import type { UpDirection } from "../core/types";
 import { logger } from "../utils/logger.js";
 
-type CameraDirection = "iso" | "front" | "rear" | "left" | "right" | "top" | "bottom";
+type CameraDirection =
+  | "iso"
+  | "front"
+  | "rear"
+  | "left"
+  | "right"
+  | "top"
+  | "bottom";
 
 interface DirectionConfig {
   pos: THREE.Vector3;
@@ -32,8 +39,14 @@ const defaultDirections: Record<UpMode, DirectionMap> = {
     rear: { pos: new THREE.Vector3(0, 1, 0), quat: null },
     left: { pos: new THREE.Vector3(-1, 0, 0), quat: null },
     right: { pos: new THREE.Vector3(1, 0, 0), quat: null },
-    top: { pos: new THREE.Vector3(0, 0, 1), quat: new THREE.Quaternion(0, 0, 0, 1) },
-    bottom: { pos: new THREE.Vector3(0, 0, -1), quat: new THREE.Quaternion(1, 0, 0, 0) },
+    top: {
+      pos: new THREE.Vector3(0, 0, 1),
+      quat: new THREE.Quaternion(0, 0, 0, 1),
+    },
+    bottom: {
+      pos: new THREE.Vector3(0, 0, -1),
+      quat: new THREE.Quaternion(1, 0, 0, 0),
+    },
   },
   legacy: {
     // legacy Z up
@@ -114,7 +127,7 @@ class Camera {
     distance: number,
     target: Vector3Tuple,
     ortho: boolean,
-    up: UpDirection
+    up: UpDirection,
   ) {
     const mapping: Record<string, UpMode> = {
       Y: "y_up",
@@ -267,7 +280,7 @@ class Camera {
     relative: boolean,
     position: THREE.Vector3 | null = null,
     quaternion: THREE.Quaternion | null = null,
-    zoom: number | null = null
+    zoom: number | null = null,
   ): void {
     if (position != null) {
       const cameraPosition = relative
@@ -401,8 +414,10 @@ class Camera {
    */
   getVisibleArea(): { width: number; height: number } {
     if (this.ortho && this.oCamera) {
-      const height = (this.oCamera.top - this.oCamera.bottom) / this.oCamera.zoom;
-      const width = (this.oCamera.right - this.oCamera.left) / this.oCamera.zoom;
+      const height =
+        (this.oCamera.top - this.oCamera.bottom) / this.oCamera.zoom;
+      const width =
+        (this.oCamera.right - this.oCamera.left) / this.oCamera.zoom;
       return { width, height };
     } else if (this.pCamera) {
       const distance = this.pCamera.position.distanceTo(this.target);

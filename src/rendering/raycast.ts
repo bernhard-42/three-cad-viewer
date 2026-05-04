@@ -20,7 +20,7 @@ export const TopoFilter: {
   solid: "solid",
 };
 
-export type TopoFilterType = typeof TopoFilter[keyof typeof TopoFilter];
+export type TopoFilterType = (typeof TopoFilter)[keyof typeof TopoFilter];
 
 interface RaycastFilters {
   topoFilter: TopoFilterType[];
@@ -114,7 +114,7 @@ class Raycaster {
     height: number,
     threshold: number,
     group: THREE.Object3D,
-    callback: RaycastCallback
+    callback: RaycastCallback,
   ) {
     this.camera = camera;
     this.group = group;
@@ -181,7 +181,12 @@ class Raycaster {
       const object = obj.object;
       // Accept Mesh (faces), Points (vertices), and Line (edges)
       const isValidType = isMesh(object) || isPoints(object) || isLine(object);
-      if (isValidType && object.visible && !Array.isArray(object.material) && object.material.visible) {
+      if (
+        isValidType &&
+        object.visible &&
+        !Array.isArray(object.material) &&
+        object.material.visible
+      ) {
         validObjs.push(obj);
       }
     }
@@ -202,7 +207,12 @@ class Raycaster {
         // Accept Mesh (faces), Points (vertices), and Line (edges)
         const isValidType = isMesh(obj) || isPoints(obj) || isLine(obj);
         if (!isValidType) continue;
-        if (!obj.visible || Array.isArray(obj.material) || !obj.material.visible) continue;
+        if (
+          !obj.visible ||
+          Array.isArray(obj.material) ||
+          !obj.material.visible
+        )
+          continue;
 
         const objectGroup = object.object.parent;
         if (!isObjectGroup(objectGroup)) continue;
@@ -218,7 +228,7 @@ class Raycaster {
 
         // topo is a string from shapeInfo, check if it matches any filter
         const topoMatchesFilter = this.filters.topoFilter.some(
-          (filter) => filter === topo
+          (filter) => filter === topo,
         );
         const valid =
           isSubShapeOfSolid ||

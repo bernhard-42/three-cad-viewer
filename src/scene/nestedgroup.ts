@@ -127,11 +127,22 @@ class CompoundGroup extends THREE.Group {
 
 /** Texture field names on MaterialAppearance that require UV coordinates. */
 const TEXTURE_FIELDS = [
-  "map", "normalMap", "aoMap",
-  "metalnessMap", "roughnessMap", "emissiveMap", "transmissionMap",
-  "clearcoatMap", "clearcoatRoughnessMap", "clearcoatNormalMap",
-  "thicknessMap", "specularIntensityMap", "specularColorMap",
-  "sheenColorMap", "sheenRoughnessMap", "anisotropyMap",
+  "map",
+  "normalMap",
+  "aoMap",
+  "metalnessMap",
+  "roughnessMap",
+  "emissiveMap",
+  "transmissionMap",
+  "clearcoatMap",
+  "clearcoatRoughnessMap",
+  "clearcoatNormalMap",
+  "thicknessMap",
+  "specularIntensityMap",
+  "specularColorMap",
+  "sheenColorMap",
+  "sheenRoughnessMap",
+  "anisotropyMap",
 ] as const;
 
 /** Check whether a resolved MaterialAppearance references any texture. */
@@ -168,12 +179,18 @@ class NestedGroup {
   groups!: GroupsMap; // Initialized to {} in constructor
   clipPlanes: THREE.Plane[] | null;
   materialFactory: MaterialFactory;
-  materialsTable: Record<string, string | MaterialXMaterial | MaterialAppearance> | null;
+  materialsTable: Record<
+    string,
+    string | MaterialXMaterial | MaterialAppearance
+  > | null;
   resolvedMaterials: Map<string, MaterialAppearance>;
   /** Cache for threejs-materials entries resolved from the materials table */
   resolvedMaterialX: Map<string, MaterialXMaterial>;
   private _textureCache: TextureCache | null;
-  private _studioMaterialCache: Map<string, THREE.MeshPhysicalMaterial | THREE.MeshBasicMaterial>;
+  private _studioMaterialCache: Map<
+    string,
+    THREE.MeshPhysicalMaterial | THREE.MeshBasicMaterial
+  >;
   /** Sharing keys of materials that have textures (for UV generation on cache hits) */
   private _texturedMaterialKeys: Set<string>;
   private _isStudioMode: boolean;
@@ -339,14 +356,17 @@ class NestedGroup {
         // Strip preset color unless the user explicitly provides one,
         // so the leaf node's CAD color is used as fallback.
         const { color: presetColor, ...presetRest } = preset;
-        const resolved: MaterialAppearance = "color" in appearance
-          ? { ...preset, ...appearance }
-          : { ...presetRest, ...appearance };
+        const resolved: MaterialAppearance =
+          "color" in appearance
+            ? { ...preset, ...appearance }
+            : { ...presetRest, ...appearance };
         this.resolvedMaterials.set(tag, resolved);
         return resolved;
       }
 
-      logger.warn(`Unrecognised material entry for tag '${tag}' on '${objectPath}'`);
+      logger.warn(
+        `Unrecognised material entry for tag '${tag}' on '${objectPath}'`,
+      );
       return null;
     }
 
@@ -629,13 +649,11 @@ class NestedGroup {
       );
       shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
       if (shape.uvs && shape.uvs.length > 0) {
-        const uvArray = shape.uvs instanceof Float32Array
-          ? shape.uvs
-          : new Float32Array(shape.uvs);
-        shapeGeometry.setAttribute(
-          "uv",
-          new THREE.BufferAttribute(uvArray, 2),
-        );
+        const uvArray =
+          shape.uvs instanceof Float32Array
+            ? shape.uvs
+            : new Float32Array(shape.uvs);
+        shapeGeometry.setAttribute("uv", new THREE.BufferAttribute(uvArray, 2));
       }
       group.shapeGeometry = shapeGeometry;
 
@@ -1215,7 +1233,9 @@ class NestedGroup {
    * 3. Clone BackSide variant for renderback objects
    * 4. Auto-generate box-projected UVs when textured but geometry has no UVs
    */
-  async enterStudioMode(textureMapping: StudioTextureMapping = "triplanar"): Promise<string[]> {
+  async enterStudioMode(
+    textureMapping: StudioTextureMapping = "triplanar",
+  ): Promise<string[]> {
     // Create TextureCache lazily
     if (!this._textureCache) {
       this._textureCache = new TextureCache();
@@ -1253,12 +1273,13 @@ class NestedGroup {
         try {
           if (resolved && isMaterialXMaterial(resolved)) {
             // --- threejs-materials path ---
-            studioMaterial = await this.materialFactory.createStudioMaterialFromMaterialX(
-              resolved.values,
-              resolved.textures,
-              resolved.textureRepeat,
-              this._textureCache as TextureCacheInterface,
-            );
+            studioMaterial =
+              await this.materialFactory.createStudioMaterialFromMaterialX(
+                resolved.values,
+                resolved.textures,
+                resolved.textureRepeat,
+                this._textureCache as TextureCacheInterface,
+              );
             if (materialXHasTextures(resolved)) {
               this._texturedMaterialKeys.add(sharingKey);
             }
@@ -1270,11 +1291,13 @@ class NestedGroup {
             } else if (leafAlpha < 1) {
               // Fallback for transparent objects: acrylic-clear with
               // transmission matching the CAD alpha, tinted with CAD color
-              const { color: _, ...acrylicClear } = MATERIAL_PRESETS["acrylic-clear"];
+              const { color: _, ...acrylicClear } =
+                MATERIAL_PRESETS["acrylic-clear"];
               materialDef = { ...acrylicClear, transmission: 1 - leafAlpha };
             } else {
               // Fallback: plastic-glossy tinted with CAD color
-              const { color: _, ...plasticGlossy } = MATERIAL_PRESETS["plastic-glossy"];
+              const { color: _, ...plasticGlossy } =
+                MATERIAL_PRESETS["plastic-glossy"];
               materialDef = plasticGlossy;
             }
             studioMaterial = await this.materialFactory.createStudioMaterial({
@@ -1309,15 +1332,23 @@ class NestedGroup {
         (textureMapping === "triplanar" || !hasUVs);
 
       if (textured) {
-        logger.debug(`Studio "${path}": ${needsTriplanar ? "using triplanar" : "using parametric UVs"}`);
+        logger.debug(
+          `Studio "${path}": ${needsTriplanar ? "using triplanar" : "using parametric UVs"}`,
+        );
       }
 
-      if (needsTriplanar && studioMaterial instanceof THREE.MeshPhysicalMaterial) {
+      if (
+        needsTriplanar &&
+        studioMaterial instanceof THREE.MeshPhysicalMaterial
+      ) {
         const triKey = `${sharingKey}:tri:${path}`;
         let triMat = this._studioMaterialCache.get(triKey);
         if (!triMat) {
           triMat = studioMaterial.clone();
-          applyTriplanarMapping(triMat as THREE.MeshPhysicalMaterial, obj.shapeGeometry!);
+          applyTriplanarMapping(
+            triMat as THREE.MeshPhysicalMaterial,
+            obj.shapeGeometry!,
+          );
           this._studioMaterialCache.set(triKey, triMat);
         }
         studioMaterial = triMat;
@@ -1325,7 +1356,10 @@ class NestedGroup {
 
       // Build back-face variant if needed
       let studioBack: THREE.MeshPhysicalMaterial | null = null;
-      if (obj.renderback && studioMaterial instanceof THREE.MeshPhysicalMaterial) {
+      if (
+        obj.renderback &&
+        studioMaterial instanceof THREE.MeshPhysicalMaterial
+      ) {
         const backKey = needsTriplanar
           ? `${sharingKey}:tri:${path}:back`
           : `${sharingKey}:back`;
@@ -1334,7 +1368,10 @@ class NestedGroup {
           cachedBack = studioMaterial.clone();
           cachedBack.side = THREE.BackSide;
           if (needsTriplanar && obj.shapeGeometry) {
-            applyTriplanarMapping(cachedBack as THREE.MeshPhysicalMaterial, obj.shapeGeometry);
+            applyTriplanarMapping(
+              cachedBack as THREE.MeshPhysicalMaterial,
+              obj.shapeGeometry,
+            );
           }
           this._studioMaterialCache.set(backKey, cachedBack);
         }
@@ -1351,13 +1388,17 @@ class NestedGroup {
         try {
           obj.shapeGeometry.computeTangents();
         } catch {
-          logger.debug(`Studio "${path}": tangent computation failed, anisotropy may have artifacts`);
+          logger.debug(
+            `Studio "${path}": tangent computation failed, anisotropy may have artifacts`,
+          );
         }
       }
 
       // Apply to ObjectGroup
       obj.enterStudioMode(
-        studioMaterial instanceof THREE.MeshPhysicalMaterial ? studioMaterial : null,
+        studioMaterial instanceof THREE.MeshPhysicalMaterial
+          ? studioMaterial
+          : null,
         studioBack,
       );
     }

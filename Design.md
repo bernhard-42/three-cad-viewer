@@ -795,17 +795,17 @@ These tools have their own state management via `activeTool` and specialized sub
 #### STUDIO_MODE_DEFAULTS (studio environment)
 
 ```javascript
-(studioEnvironment,      // "studio" (procedural, zero-network)
-  studioEnvIntensity,     // 1.0
-  studioBackground,       // "environment"
-  studioToneMapping,      // "neutral" (PBR Neutral)
-  studioExposure,         // 1.0
-  studio4kEnvMaps,        // false
-  studioTextureMapping,   // "triplanar"
-  studioEnvRotation,      // 0
-  studioShadowIntensity,  // 0.5
-  studioShadowSoftness,   // 0.2
-  studioAOIntensity);     // 0.5
+(studioEnvironment, // "studio" (procedural, zero-network)
+  studioEnvIntensity, // 1.0
+  studioBackground, // "environment"
+  studioToneMapping, // "neutral" (PBR Neutral)
+  studioExposure, // 1.0
+  studio4kEnvMaps, // false
+  studioTextureMapping, // "triplanar"
+  studioEnvRotation, // 0
+  studioShadowIntensity, // 0.5
+  studioShadowSoftness, // 0.2
+  studioAOIntensity); // 0.5
 ```
 
 #### RUNTIME_DEFAULTS (current session state)

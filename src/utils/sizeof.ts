@@ -6,7 +6,10 @@ interface MemorySizeOptions {
   visited?: WeakSet<object>;
 }
 
-function calculateObjectSize(obj: unknown, options: MemorySizeOptions = {}): number {
+function calculateObjectSize(
+  obj: unknown,
+  options: MemorySizeOptions = {},
+): number {
   const {
     excludeAttributes = ["parent", "context", "_parent", "__parent"],
     visited = new WeakSet(),
@@ -19,7 +22,9 @@ function calculateObjectSize(obj: unknown, options: MemorySizeOptions = {}): num
   if (
     ["number", "string", "boolean", "symbol", "bigint"].includes(typeof obj)
   ) {
-    return estimatePrimitiveSize(obj as string | number | boolean | symbol | bigint);
+    return estimatePrimitiveSize(
+      obj as string | number | boolean | symbol | bigint,
+    );
   }
 
   // Prevent circular references
@@ -64,10 +69,13 @@ function calculateObjectSize(obj: unknown, options: MemorySizeOptions = {}): num
         !excludeAttributes.includes(key)
       ) {
         objectSize += calculateObjectSize(key, { excludeAttributes, visited });
-        objectSize += calculateObjectSize((obj as Record<string, unknown>)[key], {
-          excludeAttributes,
-          visited,
-        });
+        objectSize += calculateObjectSize(
+          (obj as Record<string, unknown>)[key],
+          {
+            excludeAttributes,
+            visited,
+          },
+        );
       }
     }
     return objectSize;
@@ -77,7 +85,9 @@ function calculateObjectSize(obj: unknown, options: MemorySizeOptions = {}): num
   return 0;
 }
 
-function estimatePrimitiveSize(primitive: string | number | boolean | symbol | bigint | null | undefined): number {
+function estimatePrimitiveSize(
+  primitive: string | number | boolean | symbol | bigint | null | undefined,
+): number {
   if (primitive === null || primitive === undefined) return 0;
   switch (typeof primitive) {
     case "number":

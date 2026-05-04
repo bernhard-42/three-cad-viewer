@@ -97,7 +97,10 @@ class ClippingMaterials {
    * @param clippingPlanes - Other clipping planes to apply.
    * @returns The stencil plane material.
    */
-  static createStencilPlaneMaterial(color: number, clippingPlanes: THREE.Plane[]): THREE.MeshStandardMaterial {
+  static createStencilPlaneMaterial(
+    color: number,
+    clippingPlanes: THREE.Plane[],
+  ): THREE.MeshStandardMaterial {
     const material = new THREE.MeshStandardMaterial({
       color: new THREE.Color(color),
       metalness: 0.3,
@@ -162,7 +165,9 @@ class CenteredPlane extends THREE.Plane {
    */
   // @ts-expect-error -- THREE.Plane.clone() returns `this`, but we need a concrete CenteredPlane
   clone(): CenteredPlane {
-    return new CenteredPlane(this.normal.clone(), this.centeredConstant, [...this.center]);
+    return new CenteredPlane(this.normal.clone(), this.centeredConstant, [
+      ...this.center,
+    ]);
   }
 }
 
@@ -209,7 +214,7 @@ class PlaneMesh extends THREE.Mesh {
     size: number,
     material: THREE.MeshBasicMaterial | THREE.MeshStandardMaterial,
     color: number,
-    type: string
+    type: string,
   ) {
     const meshGeometry = new THREE.PlaneGeometry(2, 2);
     meshGeometry.computeBoundingSphere();
@@ -261,7 +266,7 @@ function createStencil(
   name: string,
   material: THREE.MeshBasicMaterial,
   geometry: THREE.BufferGeometry,
-  plane: THREE.Plane
+  plane: THREE.Plane,
 ): THREE.Mesh {
   material.clippingPlanes = [plane];
   const mesh = new THREE.Mesh(geometry, material);
@@ -302,7 +307,9 @@ interface ClippingState {
 class Clipping extends THREE.Group {
   center: number[] | null;
   distance: number;
-  onNormalChange: ((index: ClipIndex, normalArray: Vector3Tuple) => void) | null;
+  onNormalChange:
+    | ((index: ClipIndex, normalArray: Vector3Tuple) => void)
+    | null;
   theme: Theme;
   nestedGroup!: NestedGroupLike;
   size: number;
@@ -326,7 +333,7 @@ class Clipping extends THREE.Group {
     size: number,
     nestedGroup: NestedGroupLike,
     options: ClippingOptions,
-    theme: Theme
+    theme: Theme,
   ) {
     super();
     this.center = center;
@@ -357,7 +364,11 @@ class Clipping extends THREE.Group {
    */
   private _createClipPlanes(center: number[]): void {
     for (const i of CLIP_INDICES) {
-      const plane = new CenteredPlane(DEFAULT_NORMALS[i], this.distance, center);
+      const plane = new CenteredPlane(
+        DEFAULT_NORMALS[i],
+        this.distance,
+        center,
+      );
       this.clipPlanes.push(plane);
 
       const reversePlane = new CenteredPlane(
@@ -379,7 +390,11 @@ class Clipping extends THREE.Group {
    * @param size - The size of the plane helpers.
    * @param theme - The UI theme.
    */
-  private _createPlaneHelpers(center: number[], size: number, theme: Theme): void {
+  private _createPlaneHelpers(
+    center: number[],
+    size: number,
+    theme: Theme,
+  ): void {
     this.planeHelpers = new PlaneMeshGroup();
     this.planeHelpers.name = "PlaneHelpers";
 
@@ -427,7 +442,11 @@ class Clipping extends THREE.Group {
       for (const path in this.nestedGroup.groups) {
         const group = this.nestedGroup.groups[path];
 
-        if (group instanceof ObjectGroup && group.subtype === "solid" && group.front) {
+        if (
+          group instanceof ObjectGroup &&
+          group.subtype === "solid" &&
+          group.front
+        ) {
           // Store color for each plane-solid combination (mirrors _planeMeshGroup order)
           const frontMesh = group.front;
           const material = frontMesh.material;

@@ -58,20 +58,112 @@ interface MatEditorParam {
 }
 
 const MAT_EDITOR_PARAMS: MatEditorParam[] = [
-  { key: "metalness", label: "Metallic", min: 0, max: 1, step: 0.01, group: "PBR Core" },
-  { key: "roughness", label: "Roughness", min: 0, max: 1, step: 0.01, group: "PBR Core" },
-  { key: "clearcoat", label: "Clearcoat", min: 0, max: 1, step: 0.01, group: "Clearcoat" },
-  { key: "clearcoatRoughness", label: "Clearcoat Rough.", min: 0, max: 1, step: 0.01, group: "Clearcoat" },
-  { key: "transmission", label: "Transmission", min: 0, max: 1, step: 0.01, group: "Transmission" },
-  { key: "ior", label: "IOR", min: 1.0, max: 2.5, step: 0.01, group: "Transmission" },
-  { key: "thickness", label: "Thickness", min: 0, max: 10, step: 0.1, group: "Transmission" },
-  { key: "attenuationDistance", label: "Atten. Distance", min: 0, max: 100, step: 0.5, group: "Transmission", infinity: true },
+  {
+    key: "metalness",
+    label: "Metallic",
+    min: 0,
+    max: 1,
+    step: 0.01,
+    group: "PBR Core",
+  },
+  {
+    key: "roughness",
+    label: "Roughness",
+    min: 0,
+    max: 1,
+    step: 0.01,
+    group: "PBR Core",
+  },
+  {
+    key: "clearcoat",
+    label: "Clearcoat",
+    min: 0,
+    max: 1,
+    step: 0.01,
+    group: "Clearcoat",
+  },
+  {
+    key: "clearcoatRoughness",
+    label: "Clearcoat Rough.",
+    min: 0,
+    max: 1,
+    step: 0.01,
+    group: "Clearcoat",
+  },
+  {
+    key: "transmission",
+    label: "Transmission",
+    min: 0,
+    max: 1,
+    step: 0.01,
+    group: "Transmission",
+  },
+  {
+    key: "ior",
+    label: "IOR",
+    min: 1.0,
+    max: 2.5,
+    step: 0.01,
+    group: "Transmission",
+  },
+  {
+    key: "thickness",
+    label: "Thickness",
+    min: 0,
+    max: 10,
+    step: 0.1,
+    group: "Transmission",
+  },
+  {
+    key: "attenuationDistance",
+    label: "Atten. Distance",
+    min: 0,
+    max: 100,
+    step: 0.5,
+    group: "Transmission",
+    infinity: true,
+  },
   { key: "sheen", label: "Sheen", min: 0, max: 1, step: 0.01, group: "Sheen" },
-  { key: "sheenRoughness", label: "Sheen Roughness", min: 0, max: 1, step: 0.01, group: "Sheen" },
-  { key: "specularIntensity", label: "Specular Intensity", min: 0, max: 2, step: 0.01, group: "Specular" },
-  { key: "anisotropy", label: "Anisotropy", min: 0, max: 1, step: 0.01, group: "Anisotropy" },
-  { key: "anisotropyRotation", label: "Anisotropy Rotation", min: 0, max: 6.28, step: 0.01, group: "Anisotropy" },
-  { key: "emissiveIntensity", label: "Emissive Intensity", min: 0, max: 5, step: 0.1, group: "Emissive" },
+  {
+    key: "sheenRoughness",
+    label: "Sheen Roughness",
+    min: 0,
+    max: 1,
+    step: 0.01,
+    group: "Sheen",
+  },
+  {
+    key: "specularIntensity",
+    label: "Specular Intensity",
+    min: 0,
+    max: 2,
+    step: 0.01,
+    group: "Specular",
+  },
+  {
+    key: "anisotropy",
+    label: "Anisotropy",
+    min: 0,
+    max: 1,
+    step: 0.01,
+    group: "Anisotropy",
+  },
+  {
+    key: "anisotropyRotation",
+    label: "Anisotropy Rotation",
+    min: 0,
+    max: 6.28,
+    step: 0.01,
+    group: "Anisotropy",
+  },
+  {
+    key: "emissiveIntensity",
+    label: "Emissive Intensity",
+    min: 0,
+    max: 5,
+    step: 0.1,
+    group: "Emissive",
+  },
 ];
 
 function _formatMatValue(value: number, step: number): string {
@@ -205,8 +297,12 @@ class Display {
   private _spinnerCount: number = 0;
   // Material editor state
   private _matEditorPath: string | null = null;
-  private _matEditorClones: Map<string, { original: THREE.MeshPhysicalMaterial; clone: THREE.MeshPhysicalMaterial }> = new Map();
-  private _savedMatEditorChanges: Map<string, Record<string, number>> = new Map();
+  private _matEditorClones: Map<
+    string,
+    { original: THREE.MeshPhysicalMaterial; clone: THREE.MeshPhysicalMaterial }
+  > = new Map();
+  private _savedMatEditorChanges: Map<string, Record<string, number>> =
+    new Map();
   private _matEditorDragAbort: AbortController | null = null;
   private _matEditorInputAbort: AbortController | null = null;
   cadInfo!: HTMLElement;
@@ -362,11 +458,17 @@ class Display {
     this.cadMaterial = this.getElement("tcv_cad_material_container");
     this.cadZebra = this.getElement("tcv_cad_zebra_container");
     this.cadStudio = this.getElement("tcv_cad_studio_container");
-    this._spinnerEl = this.container.querySelector(".tcv_studio_spinner") as HTMLElement | null;
-    this._warningBannerEl = this.container.querySelector(".tcv_warning_banner") as HTMLElement | null;
-    this.container.addEventListener("tcv-material-warnings", ((e: CustomEvent<string[]>) => {
+    this._spinnerEl = this.container.querySelector(
+      ".tcv_studio_spinner",
+    ) as HTMLElement | null;
+    this._warningBannerEl = this.container.querySelector(
+      ".tcv_warning_banner",
+    ) as HTMLElement | null;
+    this.container.addEventListener("tcv-material-warnings", ((
+      e: CustomEvent<string[]>,
+    ) => {
       this._showWarningBanner(
-        `Unresolved material tag(s): ${e.detail.map(t => `"${t}"`).join(", ")}`,
+        `Unresolved material tag(s): ${e.detail.map((t) => `"${t}"`).join(", ")}`,
       );
     }) as EventListener);
     this.tabTree = this.getElement("tcv_tab_tree");
@@ -1159,10 +1261,7 @@ class Display {
       "tcv_studio_environment",
       this.handleStudioEnvironment,
     );
-    this.setupSelectEvent(
-      "tcv_studio_background",
-      this.handleStudioBackground,
-    );
+    this.setupSelectEvent("tcv_studio_background", this.handleStudioBackground);
     this.setupSelectEvent(
       "tcv_studio_tone_mapping",
       this.handleStudioToneMapping,
@@ -1560,7 +1659,10 @@ class Display {
   private attachCanvas(canvasElement: HTMLCanvasElement): void {
     // If the canvas is already attached elsewhere
     // do not re-parent it into this display.
-    if (canvasElement.parentElement && canvasElement.parentElement !== this.cadView) {
+    if (
+      canvasElement.parentElement &&
+      canvasElement.parentElement !== this.cadView
+    ) {
       listeners.add(canvasElement, "click", () => {
         if (this.help_shown) {
           this.showHelp(false);
@@ -1827,7 +1929,10 @@ class Display {
   private _deactivateToolsForStudio(): void {
     // If a tool is currently active, deactivate it cleanly
     const activeTool = this.state.get("activeTool");
-    if (activeTool && ["distance", "properties", "angle", "select"].includes(activeTool)) {
+    if (
+      activeTool &&
+      ["distance", "properties", "angle", "select"].includes(activeTool)
+    ) {
       this.clickButtons[activeTool]?.set(false);
       this.setTool(activeTool, false);
       // setTool→toggleTab(false) silently sets activeTab to "tree" (no notification).
@@ -2064,12 +2169,16 @@ class Display {
     }
 
     // Update tab styling
-    [this.tabTree, this.tabClip, this.tabZebra, this.tabMaterial, this.tabStudio].forEach(
-      (tabEl) => {
-        tabEl.classList.add("tcv_tab-unselected");
-        tabEl.classList.remove("tcv_tab-selected");
-      },
-    );
+    [
+      this.tabTree,
+      this.tabClip,
+      this.tabZebra,
+      this.tabMaterial,
+      this.tabStudio,
+    ].forEach((tabEl) => {
+      tabEl.classList.add("tcv_tab-unselected");
+      tabEl.classList.remove("tcv_tab-selected");
+    });
 
     this.viewer.checkChanges({ tab: newTab });
     if (newTab === "tree") {
@@ -2110,7 +2219,10 @@ class Display {
     this._warningBannerEl.textContent = message;
     this._warningBannerEl.style.display = "block";
     if (this._warningBannerTimer) clearTimeout(this._warningBannerTimer);
-    this._warningBannerTimer = setTimeout(() => this._hideWarningBanner(), 8000);
+    this._warningBannerTimer = setTimeout(
+      () => this._hideWarningBanner(),
+      8000,
+    );
   }
 
   /** Hide the warning banner. */
@@ -2193,7 +2305,11 @@ class Display {
     if (!(e.target instanceof HTMLSelectElement)) return;
     this._showSpinner();
     this.state.set("studioEnvironment", e.target.value);
-    this.container.addEventListener("tcv-studio-ready", () => this._hideSpinner(), { once: true });
+    this.container.addEventListener(
+      "tcv-studio-ready",
+      () => this._hideSpinner(),
+      { once: true },
+    );
   };
 
   /**
@@ -2215,7 +2331,15 @@ class Display {
   handleStudioBackground = (e: Event): void => {
     if (!(e.target instanceof HTMLSelectElement)) return;
     const value = e.target.value;
-    if (value === "grey" || value === "darkgrey" || value === "white" || value === "gradient" || value === "gradient-dark" || value === "environment" || value === "transparent") {
+    if (
+      value === "grey" ||
+      value === "darkgrey" ||
+      value === "white" ||
+      value === "gradient" ||
+      value === "gradient-dark" ||
+      value === "environment" ||
+      value === "transparent"
+    ) {
       this.state.set("studioBackground", value);
     }
   };
@@ -2242,7 +2366,11 @@ class Display {
     if (value === "triplanar" || value === "parametric") {
       this._showSpinner();
       this.state.set("studioTextureMapping", value);
-      this.container.addEventListener("tcv-studio-ready", () => this._hideSpinner(), { once: true });
+      this.container.addEventListener(
+        "tcv-studio-ready",
+        () => this._hideSpinner(),
+        { once: true },
+      );
     }
   };
 
@@ -2275,7 +2403,11 @@ class Display {
     if (!(e.target instanceof HTMLInputElement)) return;
     this._showSpinner();
     this.state.set("studio4kEnvMaps", e.target.checked);
-    this.container.addEventListener("tcv-studio-ready", () => this._hideSpinner(), { once: true });
+    this.container.addEventListener(
+      "tcv-studio-ready",
+      () => this._hideSpinner(),
+      { once: true },
+    );
   };
 
   /**
@@ -2291,7 +2423,9 @@ class Display {
   // ---------------------------------------------------------------------------
 
   handleMatEditorToggle = (_e: Event): void => {
-    const dialog = this.container.querySelector(".tcv_mat_editor") as HTMLElement;
+    const dialog = this.container.querySelector(
+      ".tcv_mat_editor",
+    ) as HTMLElement;
     if (!dialog) return;
 
     // Toggle off if visible
@@ -2312,9 +2446,13 @@ class Display {
   private _showMatEditorHint(dialog: HTMLElement): void {
     const pathEl = dialog.querySelector(".tcv_mat_editor_path") as HTMLElement;
     if (pathEl) pathEl.style.display = "none";
-    const resetBtn = dialog.querySelector(".tcv_mat_editor_reset") as HTMLElement;
+    const resetBtn = dialog.querySelector(
+      ".tcv_mat_editor_reset",
+    ) as HTMLElement;
     if (resetBtn) resetBtn.style.display = "none";
-    const content = dialog.querySelector(".tcv_mat_editor_content") as HTMLElement;
+    const content = dialog.querySelector(
+      ".tcv_mat_editor_content",
+    ) as HTMLElement;
     if (content) {
       content.innerHTML = "";
       const hint = document.createElement("div");
@@ -2328,7 +2466,9 @@ class Display {
   }
 
   private openMatEditor(object: ObjectGroup, objectPath: string): void {
-    const dialog = this.container.querySelector(".tcv_mat_editor") as HTMLElement;
+    const dialog = this.container.querySelector(
+      ".tcv_mat_editor",
+    ) as HTMLElement;
     if (!dialog || !object.front) return;
 
     this._matEditorPath = objectPath;
@@ -2346,15 +2486,23 @@ class Display {
       originalMat = currentMat;
       mat = currentMat.clone();
       // Preserve triplanar mapping if the original material uses it
-      if (currentMat.customProgramCacheKey() === "triplanar" && object.shapeGeometry) {
+      if (
+        currentMat.customProgramCacheKey() === "triplanar" &&
+        object.shapeGeometry
+      ) {
         applyTriplanarMapping(mat, object.shapeGeometry);
       }
       object.front.material = mat;
-      this._matEditorClones.set(objectPath, { original: originalMat, clone: mat });
+      this._matEditorClones.set(objectPath, {
+        original: originalMat,
+        clone: mat,
+      });
     }
 
     // Restore elements that _showMatEditorHint may have hidden
-    const resetBtn = dialog.querySelector(".tcv_mat_editor_reset") as HTMLElement;
+    const resetBtn = dialog.querySelector(
+      ".tcv_mat_editor_reset",
+    ) as HTMLElement;
     if (resetBtn) resetBtn.style.display = "";
 
     // Update path display
@@ -2367,14 +2515,18 @@ class Display {
     }
 
     // Mark toggle active
-    const toggleBtn = this.container.querySelector(".tcv_mat_editor_toggle") as HTMLElement;
+    const toggleBtn = this.container.querySelector(
+      ".tcv_mat_editor_toggle",
+    ) as HTMLElement;
     if (toggleBtn) toggleBtn.classList.add("tcv_active");
 
     // Populate content — abort previous input listeners before rebuilding
     this._matEditorInputAbort?.abort();
     this._matEditorInputAbort = new AbortController();
 
-    const content = dialog.querySelector(".tcv_mat_editor_content") as HTMLElement;
+    const content = dialog.querySelector(
+      ".tcv_mat_editor_content",
+    ) as HTMLElement;
     if (!content) return;
     content.innerHTML = "";
     this._buildMatEditorContent(content, mat, originalMat);
@@ -2386,13 +2538,19 @@ class Display {
     this._matEditorInputAbort?.abort();
     this._matEditorInputAbort = null;
 
-    const dialog = this.container.querySelector(".tcv_mat_editor") as HTMLElement;
+    const dialog = this.container.querySelector(
+      ".tcv_mat_editor",
+    ) as HTMLElement;
     if (dialog) {
-      const content = dialog.querySelector(".tcv_mat_editor_content") as HTMLElement;
+      const content = dialog.querySelector(
+        ".tcv_mat_editor_content",
+      ) as HTMLElement;
       if (content) content.innerHTML = "";
       dialog.style.display = "none";
     }
-    const toggleBtn = this.container.querySelector(".tcv_mat_editor_toggle") as HTMLElement;
+    const toggleBtn = this.container.querySelector(
+      ".tcv_mat_editor_toggle",
+    ) as HTMLElement;
     if (toggleBtn) toggleBtn.classList.remove("tcv_active");
     this._matEditorPath = null;
   }
@@ -2403,7 +2561,11 @@ class Display {
     this._matEditorInputAbort = null;
 
     let groups: Record<string, THREE.Object3D> | null = null;
-    try { groups = this.viewer.rendered.nestedGroup.groups; } catch { /* not rendered */ }
+    try {
+      groups = this.viewer.rendered.nestedGroup.groups;
+    } catch {
+      /* not rendered */
+    }
 
     for (const [path, { original, clone }] of this._matEditorClones.entries()) {
       // Restore original material on mesh before disposing the clone
@@ -2454,7 +2616,11 @@ class Display {
   private _reapplyMatEditorChanges(): void {
     if (this._savedMatEditorChanges.size === 0) return;
     let groups: Record<string, THREE.Object3D>;
-    try { groups = this.viewer.rendered.nestedGroup.groups; } catch { return; }
+    try {
+      groups = this.viewer.rendered.nestedGroup.groups;
+    } catch {
+      return;
+    }
 
     for (const [path, changes] of this._savedMatEditorChanges.entries()) {
       const group = groups[path] as ObjectGroup | undefined;
@@ -2463,7 +2629,10 @@ class Display {
       if (!(currentMat instanceof THREE.MeshPhysicalMaterial)) continue;
 
       const clone = currentMat.clone();
-      if (currentMat.customProgramCacheKey() === "triplanar" && group.shapeGeometry) {
+      if (
+        currentMat.customProgramCacheKey() === "triplanar" &&
+        group.shapeGeometry
+      ) {
         applyTriplanarMapping(clone, group.shapeGeometry);
       }
       for (const [key, value] of Object.entries(changes)) {
@@ -2471,7 +2640,10 @@ class Display {
         (clone as any)[key] = value;
       }
       group.front.material = clone;
-      this._matEditorClones.set(path, { original: currentMat as THREE.MeshPhysicalMaterial, clone });
+      this._matEditorClones.set(path, {
+        original: currentMat as THREE.MeshPhysicalMaterial,
+        clone,
+      });
     }
     this._savedMatEditorChanges.clear();
   }
@@ -2514,8 +2686,12 @@ class Display {
 
   /** Make the material editor dialog draggable by its titlebar */
   private _initMatEditorDrag(): void {
-    const dialog = this.container.querySelector(".tcv_mat_editor") as HTMLElement;
-    const titlebar = this.container.querySelector(".tcv_mat_editor_titlebar") as HTMLElement;
+    const dialog = this.container.querySelector(
+      ".tcv_mat_editor",
+    ) as HTMLElement;
+    const titlebar = this.container.querySelector(
+      ".tcv_mat_editor_titlebar",
+    ) as HTMLElement;
     if (!dialog || !titlebar) return;
 
     this._matEditorDragAbort = new AbortController();
@@ -2527,34 +2703,49 @@ class Display {
     let origLeft = 0;
     let origTop = 0;
 
-    titlebar.addEventListener("mousedown", (e: MouseEvent) => {
-      // Don't drag if clicking buttons
-      if ((e.target as HTMLElement).tagName === "INPUT") return;
-      dragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      const rect = dialog.getBoundingClientRect();
-      const parentRect = dialog.offsetParent?.getBoundingClientRect() ?? { left: 0, top: 0 };
-      origLeft = rect.left - parentRect.left;
-      origTop = rect.top - parentRect.top;
-      // Switch from right-positioning to left-positioning for drag
-      dialog.style.right = "auto";
-      dialog.style.left = origLeft + "px";
-      dialog.style.top = origTop + "px";
-      e.preventDefault();
-    }, { signal });
+    titlebar.addEventListener(
+      "mousedown",
+      (e: MouseEvent) => {
+        // Don't drag if clicking buttons
+        if ((e.target as HTMLElement).tagName === "INPUT") return;
+        dragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = dialog.getBoundingClientRect();
+        const parentRect = dialog.offsetParent?.getBoundingClientRect() ?? {
+          left: 0,
+          top: 0,
+        };
+        origLeft = rect.left - parentRect.left;
+        origTop = rect.top - parentRect.top;
+        // Switch from right-positioning to left-positioning for drag
+        dialog.style.right = "auto";
+        dialog.style.left = origLeft + "px";
+        dialog.style.top = origTop + "px";
+        e.preventDefault();
+      },
+      { signal },
+    );
 
-    document.addEventListener("mousemove", (e: MouseEvent) => {
-      if (!dragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      dialog.style.left = (origLeft + dx) + "px";
-      dialog.style.top = (origTop + dy) + "px";
-    }, { signal });
+    document.addEventListener(
+      "mousemove",
+      (e: MouseEvent) => {
+        if (!dragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        dialog.style.left = origLeft + dx + "px";
+        dialog.style.top = origTop + dy + "px";
+      },
+      { signal },
+    );
 
-    document.addEventListener("mouseup", () => {
-      dragging = false;
-    }, { signal });
+    document.addEventListener(
+      "mouseup",
+      () => {
+        dragging = false;
+      },
+      { signal },
+    );
   }
 
   private _buildMatEditorContent(
@@ -2574,10 +2765,18 @@ class Display {
 
       let currentValue = // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (material as any)[param.key] as number;
-      const isInfinity = param.infinity === true && (currentValue === Infinity || currentValue == null);
+      const isInfinity =
+        param.infinity === true &&
+        (currentValue === Infinity || currentValue == null);
       if (isInfinity) currentValue = param.max;
 
-      this._buildMatEditorRow(content, param, currentValue ?? 0, isInfinity, originalMat);
+      this._buildMatEditorRow(
+        content,
+        param,
+        currentValue ?? 0,
+        isInfinity,
+        originalMat,
+      );
     }
   }
 
@@ -2594,10 +2793,11 @@ class Display {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const origValue = (originalMat as any)[param.key] as number;
 
-    const isChanged = (v: number) => param.infinity
-      ? (v >= param.max) !== (origValue === Infinity || origValue == null)
-      || (v < param.max && Math.abs(v - origValue) > param.step * 0.5)
-      : Math.abs(v - origValue) > param.step * 0.5;
+    const isChanged = (v: number) =>
+      param.infinity
+        ? v >= param.max !== (origValue === Infinity || origValue == null) ||
+          (v < param.max && Math.abs(v - origValue) > param.step * 0.5)
+        : Math.abs(v - origValue) > param.step * 0.5;
 
     const label = document.createElement("label");
     label.className = "tcv_mat_editor_label";
@@ -2619,28 +2819,34 @@ class Display {
     const valueDisplay = document.createElement("input");
     valueDisplay.className = "tcv_clip_input";
     valueDisplay.readOnly = true;
-    valueDisplay.value = isInfinity ? "\u221E" : _formatMatValue(value, param.step);
+    valueDisplay.value = isInfinity
+      ? "\u221E"
+      : _formatMatValue(value, param.step);
 
-    slider.addEventListener("input", () => {
-      const newValue = parseFloat(slider.value);
-      const result = this.viewer.getSelectedObjectGroup();
-      if (!result?.object.front) return;
-      const mat = result.object.front.material;
+    slider.addEventListener(
+      "input",
+      () => {
+        const newValue = parseFloat(slider.value);
+        const result = this.viewer.getSelectedObjectGroup();
+        if (!result?.object.front) return;
+        const mat = result.object.front.material;
 
-      if (param.infinity && newValue >= param.max) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (mat as any)[param.key] = Infinity;
-        valueDisplay.value = "\u221E";
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (mat as any)[param.key] = newValue;
-        valueDisplay.value = _formatMatValue(newValue, param.step);
-      }
+        if (param.infinity && newValue >= param.max) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (mat as any)[param.key] = Infinity;
+          valueDisplay.value = "\u221E";
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (mat as any)[param.key] = newValue;
+          valueDisplay.value = _formatMatValue(newValue, param.step);
+        }
 
-      label.classList.toggle("tcv_mat_editor_changed", isChanged(newValue));
+        label.classList.toggle("tcv_mat_editor_changed", isChanged(newValue));
 
-      this.viewer.update(true, false);
-    }, { signal: this._matEditorInputAbort!.signal });
+        this.viewer.update(true, false);
+      },
+      { signal: this._matEditorInputAbort!.signal },
+    );
 
     sliderGroup.appendChild(slider);
     sliderGroup.appendChild(valueDisplay);
@@ -2760,8 +2966,12 @@ class Display {
    */
   syncMaterialSlidersFromState(): void {
     const state = this.viewer.state;
-    this.ambientlightSlider?.setValueFromState(state.get("ambientIntensity") * 100);
-    this.directionallightSlider?.setValueFromState(state.get("directIntensity") * 100);
+    this.ambientlightSlider?.setValueFromState(
+      state.get("ambientIntensity") * 100,
+    );
+    this.directionallightSlider?.setValueFromState(
+      state.get("directIntensity") * 100,
+    );
     this.metalnessSlider?.setValueFromState(state.get("metalness") * 100);
     this.roughnessSlider?.setValueFromState(state.get("roughness") * 100);
   }
@@ -2784,20 +2994,36 @@ class Display {
    */
   syncStudioSlidersFromState(): void {
     const state = this.viewer.state;
-    this.studioEnvIntensitySlider?.setValueFromState(state.get("studioEnvIntensity") * 100);
-    this.studioExposureSlider?.setValueFromState(state.get("studioExposure") * 100);
-    this.studioEnvRotationSlider?.setValueFromState(state.get("studioEnvRotation"));
-    this.studioShadowIntensitySlider?.setValueFromState(state.get("studioShadowIntensity") * 100);
-    this.studioShadowSoftnessSlider?.setValueFromState(state.get("studioShadowSoftness") * 100);
-    this.studioAOIntensitySlider?.setValueFromState(state.get("studioAOIntensity") * 10);
-    this.getInputElement("tcv_studio_4k_env_maps").checked = state.get("studio4kEnvMaps");
+    this.studioEnvIntensitySlider?.setValueFromState(
+      state.get("studioEnvIntensity") * 100,
+    );
+    this.studioExposureSlider?.setValueFromState(
+      state.get("studioExposure") * 100,
+    );
+    this.studioEnvRotationSlider?.setValueFromState(
+      state.get("studioEnvRotation"),
+    );
+    this.studioShadowIntensitySlider?.setValueFromState(
+      state.get("studioShadowIntensity") * 100,
+    );
+    this.studioShadowSoftnessSlider?.setValueFromState(
+      state.get("studioShadowSoftness") * 100,
+    );
+    this.studioAOIntensitySlider?.setValueFromState(
+      state.get("studioAOIntensity") * 10,
+    );
+    this.getInputElement("tcv_studio_4k_env_maps").checked =
+      state.get("studio4kEnvMaps");
     this._syncEnvDropdown(state.get("studioEnvironment"));
     const bgEl = this.container.querySelector(".tcv_studio_background");
-    if (bgEl instanceof HTMLSelectElement) bgEl.value = state.get("studioBackground");
+    if (bgEl instanceof HTMLSelectElement)
+      bgEl.value = state.get("studioBackground");
     const tmEl = this.container.querySelector(".tcv_studio_tone_mapping");
-    if (tmEl instanceof HTMLSelectElement) tmEl.value = state.get("studioToneMapping");
+    if (tmEl instanceof HTMLSelectElement)
+      tmEl.value = state.get("studioToneMapping");
     const txmEl = this.container.querySelector(".tcv_studio_texture_mapping");
-    if (txmEl instanceof HTMLSelectElement) txmEl.value = state.get("studioTextureMapping");
+    if (txmEl instanceof HTMLSelectElement)
+      txmEl.value = state.get("studioTextureMapping");
     this._update4kCheckboxEnabled(state.get("studioEnvironment"));
   }
 
@@ -2819,8 +3045,14 @@ class Display {
       el.value = envName;
     } else {
       // Add or update a "Custom" optgroup with the custom HDR entry
-      const label = envName.split("/").pop()?.replace(/\.hdr$/i, "") || "Custom HDR";
-      let customGroup = el.querySelector("optgroup[data-custom]") as HTMLOptGroupElement | null;
+      const label =
+        envName
+          .split("/")
+          .pop()
+          ?.replace(/\.hdr$/i, "") || "Custom HDR";
+      let customGroup = el.querySelector(
+        "optgroup[data-custom]",
+      ) as HTMLOptGroupElement | null;
       if (customGroup) {
         const opt = customGroup.querySelector("option")!;
         opt.value = envName;
@@ -2844,12 +3076,15 @@ class Display {
    * is a Poly Haven preset (resolution-switchable) or a custom URL / "studio".
    */
   private _update4kCheckboxEnabled(envName: string): void {
-    const cb = this.container.querySelector(".tcv_studio_4k_env_maps") as HTMLInputElement | null;
+    const cb = this.container.querySelector(
+      ".tcv_studio_4k_env_maps",
+    ) as HTMLInputElement | null;
     if (!cb) return;
     const isPreset = this.viewer.envManager.isPreset(envName);
     cb.disabled = !isPreset;
     if (!isPreset) {
-      cb.title = "4K switching is only available for built-in Poly Haven presets";
+      cb.title =
+        "4K switching is only available for built-in Poly Haven presets";
     } else {
       cb.title = "";
     }
@@ -2916,7 +3151,9 @@ class Display {
 
     // ESC closes the material editor (works regardless of focus target)
     if (e.key === "Escape") {
-      const matDialog = this.container.querySelector(".tcv_mat_editor") as HTMLElement;
+      const matDialog = this.container.querySelector(
+        ".tcv_mat_editor",
+      ) as HTMLElement;
       if (matDialog && matDialog.style.display !== "none") {
         e.preventDefault();
         this.closeMatEditor();
@@ -2931,7 +3168,8 @@ class Display {
     const target = e.target;
     if (
       (target instanceof HTMLInputElement &&
-        target.type !== "button" && target.type !== "checkbox") ||
+        target.type !== "button" &&
+        target.type !== "checkbox") ||
       target instanceof HTMLTextAreaElement ||
       target instanceof HTMLSelectElement
     ) {
@@ -2955,8 +3193,17 @@ class Display {
   private _dispatchAction(action: string): string | void {
     // Toggle buttons
     const toggleActions = [
-      "axes", "axes0", "grid", "perspective", "transparent", "blackedges",
-      "explode", "zscale", "distance", "properties", "select",
+      "axes",
+      "axes0",
+      "grid",
+      "perspective",
+      "transparent",
+      "blackedges",
+      "explode",
+      "zscale",
+      "distance",
+      "properties",
+      "select",
     ];
     if (toggleActions.includes(action)) {
       this._toggleClickButton(action);
@@ -3068,7 +3315,10 @@ class Display {
     }
 
     // Update tab titles
-    const tabMap: Record<string, { el: HTMLElement | undefined; label: string }> = {
+    const tabMap: Record<
+      string,
+      { el: HTMLElement | undefined; label: string }
+    > = {
       tree: { el: this.tabTree, label: "Navigation Tree" },
       clip: { el: this.tabClip, label: "Clipping Tool" },
       zebra: { el: this.tabZebra, label: "Zebra Tool" },
@@ -3078,7 +3328,10 @@ class Display {
     for (const [action, key] of Object.entries(shortcuts)) {
       const entry = tabMap[action];
       if (entry?.el?.parentElement) {
-        entry.el.parentElement.setAttribute("data-tooltip", `${entry.label} › ${key}`);
+        entry.el.parentElement.setAttribute(
+          "data-tooltip",
+          `${entry.label} › ${key}`,
+        );
       }
     }
   }

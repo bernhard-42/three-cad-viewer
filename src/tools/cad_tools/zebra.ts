@@ -239,7 +239,9 @@ export class ZebraTool {
     if (mesh.userData.excludeFromZebra) return;
 
     // Store original material (handle array case by taking first)
-    const currentMaterial = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
+    const currentMaterial = Array.isArray(mesh.material)
+      ? mesh.material[0]
+      : mesh.material;
     if (!this.originalMaterials.has(mesh.uuid)) {
       this.originalMaterials.set(mesh.uuid, currentMaterial);
     }
@@ -253,7 +255,10 @@ export class ZebraTool {
 
       if (hasColor(currentMaterial)) {
         baseColor = currentMaterial.color.clone();
-      } else if (isMeshStandardMaterial(currentMaterial) && currentMaterial.map) {
+      } else if (
+        isMeshStandardMaterial(currentMaterial) &&
+        currentMaterial.map
+      ) {
         // If there's a texture but no color, use white as base
         baseColor = new THREE.Color(1, 1, 1);
       }

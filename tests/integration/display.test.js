@@ -3,9 +3,16 @@
  * Target: 80%+ coverage for TypeScript migration safety
  */
 
-import { describe, test, expect, afterEach, beforeEach, vi } from 'vitest';
-import { setupViewer, setupDisplay, cleanup, cleanupContainer, createContainer, getDisplayOptions } from '../helpers/setup.js';
-import { Display } from '../../src/ui/display.js';
+import { describe, test, expect, afterEach, beforeEach, vi } from "vitest";
+import {
+  setupViewer,
+  setupDisplay,
+  cleanup,
+  cleanupContainer,
+  createContainer,
+  getDisplayOptions,
+} from "../helpers/setup.js";
+import { Display } from "../../src/ui/display.js";
 
 // =============================================================================
 // MOCK EVENT HELPERS
@@ -15,8 +22,8 @@ import { Display } from '../../src/ui/display.js';
  * Create a mock checkbox event with a real HTMLInputElement target
  */
 function createCheckboxEvent(checked) {
-  const input = document.createElement('input');
-  input.type = 'checkbox';
+  const input = document.createElement("input");
+  input.type = "checkbox";
   input.checked = checked;
   return { target: input };
 }
@@ -26,8 +33,8 @@ function createCheckboxEvent(checked) {
  * Note: The UI uses <input type="button"> elements, not <button> elements
  */
 function createButtonEvent(value) {
-  const button = document.createElement('input');
-  button.type = 'button';
+  const button = document.createElement("input");
+  button.type = "button";
   button.value = value;
   return { target: button };
 }
@@ -36,7 +43,7 @@ function createButtonEvent(value) {
  * Create a mock element event with a real HTMLElement target
  */
 function createElementEvent(className) {
-  const element = document.createElement('div');
+  const element = document.createElement("div");
   element.className = className;
   return { target: element };
 }
@@ -45,10 +52,10 @@ function createElementEvent(className) {
  * Create a mock input event with a real HTMLInputElement target
  */
 function createInputEvent(value, valueAsNumber = undefined) {
-  const input = document.createElement('input');
+  const input = document.createElement("input");
   input.value = String(value);
   if (valueAsNumber !== undefined) {
-    Object.defineProperty(input, 'valueAsNumber', { value: valueAsNumber });
+    Object.defineProperty(input, "valueAsNumber", { value: valueAsNumber });
   }
   return { target: input };
 }
@@ -57,7 +64,7 @@ function createInputEvent(value, valueAsNumber = undefined) {
 // DISPLAY STANDALONE TESTS (No Viewer Required)
 // =============================================================================
 
-describe('Display - Constructor & Initialization', () => {
+describe("Display - Constructor & Initialization", () => {
   let container;
   let display;
 
@@ -70,7 +77,7 @@ describe('Display - Constructor & Initialization', () => {
     container = null;
   });
 
-  test('creates Display with default options', () => {
+  test("creates Display with default options", () => {
     container = createContainer();
     const options = getDisplayOptions();
     display = new Display(container, options);
@@ -82,7 +89,7 @@ describe('Display - Constructor & Initialization', () => {
     expect(display.treeWidth).toBe(250);
   });
 
-  test('initializes DOM elements', () => {
+  test("initializes DOM elements", () => {
     container = createContainer();
     const options = getDisplayOptions();
     display = new Display(container, options);
@@ -98,77 +105,82 @@ describe('Display - Constructor & Initialization', () => {
     expect(display.cadHelp).toBeDefined();
   });
 
-  test('creates toolbar with buttons', () => {
+  test("creates toolbar with buttons", () => {
     container = createContainer();
     const options = getDisplayOptions();
     display = new Display(container, options);
 
     expect(display.cadTool).toBeDefined();
     expect(display.clickButtons).toBeDefined();
-    expect(display.clickButtons['axes']).toBeDefined();
-    expect(display.clickButtons['axes0']).toBeDefined();
-    expect(display.clickButtons['grid']).toBeDefined();
-    expect(display.clickButtons['perspective']).toBeDefined();
-    expect(display.clickButtons['transparent']).toBeDefined();
-    expect(display.clickButtons['blackedges']).toBeDefined();
-    expect(display.buttons['reset']).toBeDefined();
-    expect(display.buttons['resize']).toBeDefined();
+    expect(display.clickButtons["axes"]).toBeDefined();
+    expect(display.clickButtons["axes0"]).toBeDefined();
+    expect(display.clickButtons["grid"]).toBeDefined();
+    expect(display.clickButtons["perspective"]).toBeDefined();
+    expect(display.clickButtons["transparent"]).toBeDefined();
+    expect(display.clickButtons["blackedges"]).toBeDefined();
+    expect(display.buttons["reset"]).toBeDefined();
+    expect(display.buttons["resize"]).toBeDefined();
   });
 
-  test('creates view buttons', () => {
+  test("creates view buttons", () => {
     container = createContainer();
     const options = getDisplayOptions();
     display = new Display(container, options);
 
-    expect(display.buttons['iso']).toBeDefined();
-    expect(display.buttons['front']).toBeDefined();
-    expect(display.buttons['rear']).toBeDefined();
-    expect(display.buttons['top']).toBeDefined();
-    expect(display.buttons['bottom']).toBeDefined();
-    expect(display.buttons['left']).toBeDefined();
-    expect(display.buttons['right']).toBeDefined();
+    expect(display.buttons["iso"]).toBeDefined();
+    expect(display.buttons["front"]).toBeDefined();
+    expect(display.buttons["rear"]).toBeDefined();
+    expect(display.buttons["top"]).toBeDefined();
+    expect(display.buttons["bottom"]).toBeDefined();
+    expect(display.buttons["left"]).toBeDefined();
+    expect(display.buttons["right"]).toBeDefined();
   });
 
-  test('creates tool buttons when enabled', () => {
+  test("creates tool buttons when enabled", () => {
     container = createContainer();
-    const options = { ...getDisplayOptions(), measureTools: true, selectTool: true, explodeTool: true };
+    const options = {
+      ...getDisplayOptions(),
+      measureTools: true,
+      selectTool: true,
+      explodeTool: true,
+    };
     display = new Display(container, options);
 
-    expect(display.clickButtons['distance']).toBeDefined();
-    expect(display.clickButtons['properties']).toBeDefined();
-    expect(display.clickButtons['select']).toBeDefined();
-    expect(display.clickButtons['explode']).toBeDefined();
+    expect(display.clickButtons["distance"]).toBeDefined();
+    expect(display.clickButtons["properties"]).toBeDefined();
+    expect(display.clickButtons["select"]).toBeDefined();
+    expect(display.clickButtons["explode"]).toBeDefined();
   });
 
-  test('creates help and pin buttons', () => {
-    container = createContainer();
-    const options = getDisplayOptions();
-    display = new Display(container, options);
-
-    expect(display.buttons['help']).toBeDefined();
-    expect(display.buttons['pin']).toBeDefined();
-  });
-
-  test('sets initial tab visibility', () => {
+  test("creates help and pin buttons", () => {
     container = createContainer();
     const options = getDisplayOptions();
     display = new Display(container, options);
 
-    expect(display.cadTree.style.display).toBe('block');
-    expect(display.cadClip.style.display).toBe('none');
-    expect(display.cadMaterial.style.display).toBe('none');
-    expect(display.cadZebra.style.display).toBe('none');
+    expect(display.buttons["help"]).toBeDefined();
+    expect(display.buttons["pin"]).toBeDefined();
   });
 
-  test('hides zebra tab when zebraTool is false', () => {
+  test("sets initial tab visibility", () => {
+    container = createContainer();
+    const options = getDisplayOptions();
+    display = new Display(container, options);
+
+    expect(display.cadTree.style.display).toBe("block");
+    expect(display.cadClip.style.display).toBe("none");
+    expect(display.cadMaterial.style.display).toBe("none");
+    expect(display.cadZebra.style.display).toBe("none");
+  });
+
+  test("hides zebra tab when zebraTool is false", () => {
     container = createContainer();
     const options = { ...getDisplayOptions(), zebraTool: false };
     display = new Display(container, options);
 
-    expect(display.tabZebra.style.display).toBe('none');
+    expect(display.tabZebra.style.display).toBe("none");
   });
 
-  test('stores feature flags', () => {
+  test("stores feature flags", () => {
     container = createContainer();
     const options = getDisplayOptions();
     display = new Display(container, options);
@@ -179,15 +191,15 @@ describe('Display - Constructor & Initialization', () => {
     expect(display.zscaleTool).toBe(true);
   });
 
-  test('stores theme', () => {
+  test("stores theme", () => {
     container = createContainer();
-    const options = { ...getDisplayOptions(), theme: 'dark' };
+    const options = { ...getDisplayOptions(), theme: "dark" };
     display = new Display(container, options);
 
-    expect(display.theme).toBe('dark');
+    expect(display.theme).toBe("dark");
   });
 
-  test('stores glass mode', () => {
+  test("stores glass mode", () => {
     container = createContainer();
     const options = { ...getDisplayOptions(), glass: true };
     display = new Display(container, options);
@@ -196,7 +208,7 @@ describe('Display - Constructor & Initialization', () => {
   });
 });
 
-describe('Display - setSizes', () => {
+describe("Display - setSizes", () => {
   let container;
   let display;
 
@@ -206,25 +218,25 @@ describe('Display - setSizes', () => {
     container = null;
   });
 
-  test('sets cadWidth', () => {
+  test("sets cadWidth", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
     display.setSizes({ cadWidth: 1000 });
     expect(display.cadWidth).toBe(1000);
-    expect(display.cadView.style.width).toBe('1000px');
+    expect(display.cadView.style.width).toBe("1000px");
   });
 
-  test('sets height', () => {
+  test("sets height", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
     display.setSizes({ height: 700 });
     expect(display.height).toBe(700);
-    expect(display.cadView.style.height).toBe('700px');
+    expect(display.cadView.style.height).toBe("700px");
   });
 
-  test('sets treeWidth', () => {
+  test("sets treeWidth", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
@@ -232,28 +244,33 @@ describe('Display - setSizes', () => {
     expect(display.treeWidth).toBe(300);
   });
 
-  test('sets toolbar width with tools enabled', () => {
+  test("sets toolbar width with tools enabled", () => {
     container = createContainer();
     const options = { ...getDisplayOptions(), tools: true, glass: false };
     display = new Display(container, options);
 
-    display.setSizes({ cadWidth: 800, treeWidth: 250, tools: true, glass: false });
+    display.setSizes({
+      cadWidth: 800,
+      treeWidth: 250,
+      tools: true,
+      glass: false,
+    });
     // treeWidth + cadWidth + 4
-    expect(display.cadBody.style.width).toBe('1054px');
+    expect(display.cadBody.style.width).toBe("1054px");
   });
 
-  test('sets toolbar width with glass mode', () => {
+  test("sets toolbar width with glass mode", () => {
     container = createContainer();
     const options = { ...getDisplayOptions(), tools: true, glass: true };
     display = new Display(container, options);
 
     display.setSizes({ cadWidth: 800, tools: true, glass: true });
     // cadWidth + 2
-    expect(display.cadBody.style.width).toBe('802px');
+    expect(display.cadBody.style.width).toBe("802px");
   });
 });
 
-describe('Display - Helper Methods', () => {
+describe("Display - Helper Methods", () => {
   let container;
   let display;
 
@@ -263,40 +280,42 @@ describe('Display - Helper Methods', () => {
     container = null;
   });
 
-  test('cadView property returns correct DOM element', () => {
+  test("cadView property returns correct DOM element", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
-    const element = display.container.getElementsByClassName('tcv_cad_view')[0];
+    const element = display.container.getElementsByClassName("tcv_cad_view")[0];
     expect(element).toBeDefined();
     expect(element).toBe(display.cadView);
   });
 
-  test('checkElement sets checkbox state', () => {
+  test("checkElement sets checkbox state", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
-    display.checkElement('tcv_clip_plane_helpers', true);
-    const el = display.container.getElementsByClassName('tcv_clip_plane_helpers')[0];
+    display.checkElement("tcv_clip_plane_helpers", true);
+    const el = display.container.getElementsByClassName(
+      "tcv_clip_plane_helpers",
+    )[0];
     expect(el.checked).toBe(true);
 
-    display.checkElement('tcv_clip_plane_helpers', false);
+    display.checkElement("tcv_clip_plane_helpers", false);
     expect(el.checked).toBe(false);
   });
 
-  test('setButtonBackground adds CSS classes', () => {
+  test("setButtonBackground adds CSS classes", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
     // Buttons should have tcv_button_* classes
-    const playButtons = container.getElementsByClassName('tcv_play');
+    const playButtons = container.getElementsByClassName("tcv_play");
     for (const btn of playButtons) {
-      expect(btn.classList.contains('tcv_button_play')).toBe(true);
+      expect(btn.classList.contains("tcv_button_play")).toBe(true);
     }
   });
 });
 
-describe('Display - Show/Hide Methods', () => {
+describe("Display - Show/Hide Methods", () => {
   let container;
   let display;
 
@@ -306,20 +325,20 @@ describe('Display - Show/Hide Methods', () => {
     container = null;
   });
 
-  test('showHelp shows/hides help dialog', () => {
+  test("showHelp shows/hides help dialog", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
     display.showHelp(true);
-    expect(display.cadHelp.style.display).toBe('block');
+    expect(display.cadHelp.style.display).toBe("block");
     expect(display.help_shown).toBe(true);
 
     display.showHelp(false);
-    expect(display.cadHelp.style.display).toBe('none');
+    expect(display.cadHelp.style.display).toBe("none");
     expect(display.help_shown).toBe(false);
   });
 
-  test('toggleHelp toggles help visibility', () => {
+  test("toggleHelp toggles help visibility", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
@@ -333,47 +352,48 @@ describe('Display - Show/Hide Methods', () => {
     expect(display.help_shown).toBe(false);
   });
 
-  test('showDistancePanel shows/hides distance panel', () => {
+  test("showDistancePanel shows/hides distance panel", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
     display.showDistancePanel(true);
-    expect(display.distanceMeasurementPanel.style.display).toBe('block');
+    expect(display.distanceMeasurementPanel.style.display).toBe("block");
 
     display.showDistancePanel(false);
-    expect(display.distanceMeasurementPanel.style.display).toBe('none');
+    expect(display.distanceMeasurementPanel.style.display).toBe("none");
   });
 
-  test('showPropertiesPanel shows/hides properties panel', () => {
+  test("showPropertiesPanel shows/hides properties panel", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
     display.showPropertiesPanel(true);
-    expect(display.propertiesMeasurementPanel.style.display).toBe('block');
+    expect(display.propertiesMeasurementPanel.style.display).toBe("block");
 
     display.showPropertiesPanel(false);
-    expect(display.propertiesMeasurementPanel.style.display).toBe('none');
+    expect(display.propertiesMeasurementPanel.style.display).toBe("none");
   });
 
-  test('showTools shows/hides toolbar', () => {
+  test("showTools shows/hides toolbar", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
     display.showTools(false);
-    const toolbar = display.container.getElementsByClassName('tcv_cad_toolbar')[0];
-    expect(toolbar.style.display).toBe('none');
+    const toolbar =
+      display.container.getElementsByClassName("tcv_cad_toolbar")[0];
+    expect(toolbar.style.display).toBe("none");
 
     display.showTools(true);
-    expect(toolbar.style.display).toBe('flex');
+    expect(toolbar.style.display).toBe("flex");
   });
 
-  test('showMeasureTools shows/hides measure buttons', () => {
+  test("showMeasureTools shows/hides measure buttons", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
     // Spy on button show methods
-    const distanceSpy = vi.spyOn(display.clickButtons['distance'], 'show');
-    const propertiesSpy = vi.spyOn(display.clickButtons['properties'], 'show');
+    const distanceSpy = vi.spyOn(display.clickButtons["distance"], "show");
+    const propertiesSpy = vi.spyOn(display.clickButtons["properties"], "show");
 
     display.showMeasureTools(false);
     expect(distanceSpy).toHaveBeenCalledWith(false);
@@ -384,11 +404,11 @@ describe('Display - Show/Hide Methods', () => {
     expect(propertiesSpy).toHaveBeenCalledWith(true);
   });
 
-  test('showSelectTool shows/hides select button', () => {
+  test("showSelectTool shows/hides select button", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
-    const spy = vi.spyOn(display.clickButtons['select'], 'show');
+    const spy = vi.spyOn(display.clickButtons["select"], "show");
 
     display.showSelectTool(false);
     expect(spy).toHaveBeenCalledWith(false);
@@ -397,11 +417,11 @@ describe('Display - Show/Hide Methods', () => {
     expect(spy).toHaveBeenCalledWith(true);
   });
 
-  test('showExplodeTool shows/hides explode button', () => {
+  test("showExplodeTool shows/hides explode button", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
-    const spy = vi.spyOn(display.clickButtons['explode'], 'show');
+    const spy = vi.spyOn(display.clickButtons["explode"], "show");
 
     display.showExplodeTool(false);
     expect(spy).toHaveBeenCalledWith(false);
@@ -410,11 +430,11 @@ describe('Display - Show/Hide Methods', () => {
     expect(spy).toHaveBeenCalledWith(true);
   });
 
-  test('showPinning shows/hides pin button', () => {
+  test("showPinning shows/hides pin button", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
-    const spy = vi.spyOn(display.buttons['pin'], 'show');
+    const spy = vi.spyOn(display.buttons["pin"], "show");
 
     display.showPinning(false);
     expect(spy).toHaveBeenCalledWith(false);
@@ -423,18 +443,19 @@ describe('Display - Show/Hide Methods', () => {
     expect(spy).toHaveBeenCalledWith(true);
   });
 
-  test('showExplode shows/hides explode widget', () => {
+  test("showExplode shows/hides explode widget", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
-    const el = display.container.getElementsByClassName('tcv_explode_widget')[0];
+    const el =
+      display.container.getElementsByClassName("tcv_explode_widget")[0];
     // Element may not exist in minimal test DOM
     if (el) {
       display.showExplode(true);
-      expect(el.style.display).toBe('inline-block');
+      expect(el.style.display).toBe("inline-block");
 
       display.showExplode(false);
-      expect(el.style.display).toBe('none');
+      expect(el.style.display).toBe("none");
     } else {
       // Element not present in test DOM - this is expected for some configurations
       // The method tries to access el.style which would throw, so skip
@@ -442,20 +463,20 @@ describe('Display - Show/Hide Methods', () => {
     }
   });
 
-  test('showZScale shows/hides zscale slider', () => {
+  test("showZScale shows/hides zscale slider", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
     display.showZScale(true);
-    const el = display.container.getElementsByClassName('tcv_cad_zscale')[0];
-    expect(el.style.display).toBe('inline-block');
+    const el = display.container.getElementsByClassName("tcv_cad_zscale")[0];
+    expect(el.style.display).toBe("inline-block");
 
     display.showZScale(false);
-    expect(el.style.display).toBe('none');
+    expect(el.style.display).toBe("none");
   });
 });
 
-describe('Display - Clipping UI', () => {
+describe("Display - Clipping UI", () => {
   let container;
   let display;
 
@@ -465,21 +486,21 @@ describe('Display - Clipping UI', () => {
     container = null;
   });
 
-  test('setNormalLabel updates plane label', () => {
+  test("setNormalLabel updates plane label", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
     display.setNormalLabel(0, [1.0, 0.0, 0.0]);
-    expect(display.planeLabels[0].innerHTML).toBe('N=(1.00, 0.00, 0.00)');
+    expect(display.planeLabels[0].innerHTML).toBe("N=(1.00, 0.00, 0.00)");
 
     display.setNormalLabel(1, [0.0, 1.0, 0.0]);
-    expect(display.planeLabels[1].innerHTML).toBe('N=(0.00, 1.00, 0.00)');
+    expect(display.planeLabels[1].innerHTML).toBe("N=(0.00, 1.00, 0.00)");
 
     display.setNormalLabel(2, [0.5, 0.5, 0.707]);
-    expect(display.planeLabels[2].innerHTML).toBe('N=(0.50, 0.50, 0.71)');
+    expect(display.planeLabels[2].innerHTML).toBe("N=(0.50, 0.50, 0.71)");
   });
 
-  test('setSliderLimits sets limits on all clip sliders', () => {
+  test("setSliderLimits sets limits on all clip sliders", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
@@ -498,7 +519,7 @@ describe('Display - Clipping UI', () => {
   });
 });
 
-describe('Display - Tree Management', () => {
+describe("Display - Tree Management", () => {
   let container;
   let display;
 
@@ -508,24 +529,24 @@ describe('Display - Tree Management', () => {
     container = null;
   });
 
-  test('clearCadTree clears tree content', () => {
+  test("clearCadTree clears tree content", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
     // Add some content
-    display.cadTree.innerHTML = '<div>Test content</div>';
-    expect(display.cadTree.innerHTML).not.toBe('');
+    display.cadTree.innerHTML = "<div>Test content</div>";
+    expect(display.cadTree.innerHTML).not.toBe("");
 
     display.clearCadTree();
-    expect(display.cadTree.innerHTML).toBe('');
+    expect(display.cadTree.innerHTML).toBe("");
   });
 
-  test('addCadTree appends element to tree', () => {
+  test("addCadTree appends element to tree", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
-    const treeElement = document.createElement('div');
-    treeElement.id = 'test-tree';
+    const treeElement = document.createElement("div");
+    treeElement.id = "test-tree";
 
     display.addCadTree(treeElement);
 
@@ -533,7 +554,7 @@ describe('Display - Tree Management', () => {
   });
 });
 
-describe('Display - replaceWithImage', () => {
+describe("Display - replaceWithImage", () => {
   let container;
   let display;
 
@@ -543,12 +564,12 @@ describe('Display - replaceWithImage', () => {
     container = null;
   });
 
-  test('replaces container content with image', () => {
+  test("replaces container content with image", () => {
     container = createContainer();
     display = new Display(container, getDisplayOptions());
 
-    const image = document.createElement('img');
-    image.src = 'data:image/png;base64,test';
+    const image = document.createElement("img");
+    image.src = "data:image/png;base64,test";
 
     display.replaceWithImage(image);
 
@@ -561,7 +582,7 @@ describe('Display - replaceWithImage', () => {
 // DISPLAY WITH VIEWER TESTS (Full Integration)
 // =============================================================================
 
-describe('Display - With Viewer Integration', () => {
+describe("Display - With Viewer Integration", () => {
   let testContext;
 
   afterEach(() => {
@@ -571,16 +592,16 @@ describe('Display - With Viewer Integration', () => {
     }
   });
 
-  test('setupUI attaches canvas', () => {
+  test("setupUI attaches canvas", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
     const canvas = display.getCanvas();
     expect(canvas).toBeDefined();
-    expect(canvas.tagName.toLowerCase()).toBe('canvas');
+    expect(canvas.tagName.toLowerCase()).toBe("canvas");
   });
 
-  test('getCanvas returns canvas element', () => {
+  test("getCanvas returns canvas element", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
@@ -588,7 +609,7 @@ describe('Display - With Viewer Integration', () => {
     expect(canvas).toBeDefined();
   });
 
-  test('dispose cleans up resources', () => {
+  test("dispose cleans up resources", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
@@ -596,48 +617,48 @@ describe('Display - With Viewer Integration', () => {
     expect(() => display.dispose()).not.toThrow();
   });
 
-  test('updateUI syncs toolbar buttons with state', () => {
+  test("updateUI syncs toolbar buttons with state", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
     // Set some state values
-    viewer.state.set('axes', true);
-    viewer.state.set('axes0', false);
-    viewer.state.set('ortho', true);
+    viewer.state.set("axes", true);
+    viewer.state.set("axes0", false);
+    viewer.state.set("ortho", true);
 
     display.updateUI();
 
     // Buttons should be synced (can't easily check internal state, but method should not throw)
-    expect(display.clickButtons['axes']).toBeDefined();
+    expect(display.clickButtons["axes"]).toBeDefined();
   });
 
-  test('_widthThreshold calculates threshold based on features', () => {
+  test("_widthThreshold calculates threshold based on features", () => {
     testContext = setupViewer();
     const { display, viewer } = testContext;
 
     // With all features enabled
-    viewer.state.set('pinning', true);
-    viewer.state.set('selectTool', true);
-    viewer.state.set('explodeTool', true);
+    viewer.state.set("pinning", true);
+    viewer.state.set("selectTool", true);
+    viewer.state.set("explodeTool", true);
 
     const threshold = display._widthThreshold();
     expect(threshold).toBe(770);
 
     // With pinning disabled
-    viewer.state.set('pinning', false);
+    viewer.state.set("pinning", false);
     expect(display._widthThreshold()).toBe(740);
 
     // With selectTool disabled too
-    viewer.state.set('selectTool', false);
+    viewer.state.set("selectTool", false);
     expect(display._widthThreshold()).toBe(710);
   });
 
-  test('updateToolbarCollapse maximizes when width sufficient', () => {
+  test("updateToolbarCollapse maximizes when width sufficient", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
-    const maximizeSpy = vi.spyOn(display.cadTool, 'maximize');
-    const minimizeSpy = vi.spyOn(display.cadTool, 'minimize');
+    const maximizeSpy = vi.spyOn(display.cadTool, "maximize");
+    const minimizeSpy = vi.spyOn(display.cadTool, "minimize");
 
     display.updateToolbarCollapse(1000);
     expect(maximizeSpy).toHaveBeenCalled();
@@ -647,7 +668,7 @@ describe('Display - With Viewer Integration', () => {
   });
 });
 
-describe('Display - State Subscriptions', () => {
+describe("Display - State Subscriptions", () => {
   let testContext;
 
   afterEach(() => {
@@ -657,147 +678,169 @@ describe('Display - State Subscriptions', () => {
     }
   });
 
-  test('subscribes to axes state changes', () => {
+  test("subscribes to axes state changes", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    const spy = vi.spyOn(display.clickButtons['axes'], 'set');
+    const spy = vi.spyOn(display.clickButtons["axes"], "set");
 
-    viewer.state.set('axes', true);
+    viewer.state.set("axes", true);
     expect(spy).toHaveBeenCalledWith(true);
 
-    viewer.state.set('axes', false);
+    viewer.state.set("axes", false);
     expect(spy).toHaveBeenCalledWith(false);
   });
 
-  test('subscribes to ortho state changes', () => {
+  test("subscribes to ortho state changes", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    const spy = vi.spyOn(display.clickButtons['perspective'], 'set');
+    const spy = vi.spyOn(display.clickButtons["perspective"], "set");
 
     // Test that the perspective button's set method is called with correct value
     // This tests the subscription callback logic: perspective = !ortho
-    display.clickButtons['perspective'].set(false); // ortho = true
+    display.clickButtons["perspective"].set(false); // ortho = true
     expect(spy).toHaveBeenCalledWith(false);
 
-    display.clickButtons['perspective'].set(true); // ortho = false
+    display.clickButtons["perspective"].set(true); // ortho = false
     expect(spy).toHaveBeenCalledWith(true);
   });
 
-  test('subscribes to transparent state changes', () => {
+  test("subscribes to transparent state changes", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    const spy = vi.spyOn(display.clickButtons['transparent'], 'set');
+    const spy = vi.spyOn(display.clickButtons["transparent"], "set");
 
-    viewer.state.set('transparent', true);
+    viewer.state.set("transparent", true);
     expect(spy).toHaveBeenCalledWith(true);
 
-    viewer.state.set('transparent', false);
+    viewer.state.set("transparent", false);
     expect(spy).toHaveBeenCalledWith(false);
   });
 
-  test('subscribes to blackEdges state changes', () => {
+  test("subscribes to blackEdges state changes", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    const spy = vi.spyOn(display.clickButtons['blackedges'], 'set');
+    const spy = vi.spyOn(display.clickButtons["blackedges"], "set");
 
-    viewer.state.set('blackEdges', true);
+    viewer.state.set("blackEdges", true);
     expect(spy).toHaveBeenCalledWith(true);
 
-    viewer.state.set('blackEdges', false);
+    viewer.state.set("blackEdges", false);
     expect(spy).toHaveBeenCalledWith(false);
   });
 
-  test('subscribes to animationMode state changes', () => {
+  test("subscribes to animationMode state changes", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    viewer.state.set('animationMode', 'explode');
-    expect(display.cadAnim.style.display).toBe('block');
-    expect(display.container.getElementsByClassName('tcv_animation_label')[0].innerHTML).toBe('E');
+    viewer.state.set("animationMode", "explode");
+    expect(display.cadAnim.style.display).toBe("block");
+    expect(
+      display.container.getElementsByClassName("tcv_animation_label")[0]
+        .innerHTML,
+    ).toBe("E");
 
-    viewer.state.set('animationMode', 'animation');
-    expect(display.cadAnim.style.display).toBe('block');
-    expect(display.container.getElementsByClassName('tcv_animation_label')[0].innerHTML).toBe('A');
+    viewer.state.set("animationMode", "animation");
+    expect(display.cadAnim.style.display).toBe("block");
+    expect(
+      display.container.getElementsByClassName("tcv_animation_label")[0]
+        .innerHTML,
+    ).toBe("A");
 
-    viewer.state.set('animationMode', 'none');
-    expect(display.cadAnim.style.display).toBe('none');
+    viewer.state.set("animationMode", "none");
+    expect(display.cadAnim.style.display).toBe("none");
   });
 
-  test('subscribes to clipPlaneHelpers state changes', () => {
+  test("subscribes to clipPlaneHelpers state changes", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    viewer.state.set('clipPlaneHelpers', true);
-    expect(display.container.getElementsByClassName('tcv_clip_plane_helpers')[0].checked).toBe(true);
+    viewer.state.set("clipPlaneHelpers", true);
+    expect(
+      display.container.getElementsByClassName("tcv_clip_plane_helpers")[0]
+        .checked,
+    ).toBe(true);
 
-    viewer.state.set('clipPlaneHelpers', false);
-    expect(display.container.getElementsByClassName('tcv_clip_plane_helpers')[0].checked).toBe(false);
+    viewer.state.set("clipPlaneHelpers", false);
+    expect(
+      display.container.getElementsByClassName("tcv_clip_plane_helpers")[0]
+        .checked,
+    ).toBe(false);
   });
 
-  test('subscribes to clipIntersection state changes', () => {
+  test("subscribes to clipIntersection state changes", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    viewer.state.set('clipIntersection', true);
-    expect(display.container.getElementsByClassName('tcv_clip_intersection')[0].checked).toBe(true);
+    viewer.state.set("clipIntersection", true);
+    expect(
+      display.container.getElementsByClassName("tcv_clip_intersection")[0]
+        .checked,
+    ).toBe(true);
 
-    viewer.state.set('clipIntersection', false);
-    expect(display.container.getElementsByClassName('tcv_clip_intersection')[0].checked).toBe(false);
+    viewer.state.set("clipIntersection", false);
+    expect(
+      display.container.getElementsByClassName("tcv_clip_intersection")[0]
+        .checked,
+    ).toBe(false);
   });
 
-  test('subscribes to clipObjectColors state changes', () => {
+  test("subscribes to clipObjectColors state changes", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    viewer.state.set('clipObjectColors', true);
-    expect(display.container.getElementsByClassName('tcv_clip_caps')[0].checked).toBe(true);
+    viewer.state.set("clipObjectColors", true);
+    expect(
+      display.container.getElementsByClassName("tcv_clip_caps")[0].checked,
+    ).toBe(true);
 
-    viewer.state.set('clipObjectColors', false);
-    expect(display.container.getElementsByClassName('tcv_clip_caps')[0].checked).toBe(false);
+    viewer.state.set("clipObjectColors", false);
+    expect(
+      display.container.getElementsByClassName("tcv_clip_caps")[0].checked,
+    ).toBe(false);
   });
 
-  test('subscribes to highlightedButton state changes', () => {
+  test("subscribes to highlightedButton state changes", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    const frontSpy = vi.spyOn(display.buttons['front'], 'highlight');
-    const topSpy = vi.spyOn(display.buttons['top'], 'highlight');
+    const frontSpy = vi.spyOn(display.buttons["front"], "highlight");
+    const topSpy = vi.spyOn(display.buttons["top"], "highlight");
 
-    viewer.state.set('highlightedButton', 'front');
+    viewer.state.set("highlightedButton", "front");
     expect(frontSpy).toHaveBeenCalledWith(true);
 
-    viewer.state.set('highlightedButton', 'top');
+    viewer.state.set("highlightedButton", "top");
     expect(frontSpy).toHaveBeenCalledWith(false);
     expect(topSpy).toHaveBeenCalledWith(true);
 
-    viewer.state.set('highlightedButton', null);
+    viewer.state.set("highlightedButton", null);
     expect(topSpy).toHaveBeenCalledWith(false);
   });
 
-  test('subscribes to activeTool state changes', () => {
+  test("subscribes to activeTool state changes", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
-    const distanceSpy = vi.spyOn(display.clickButtons['distance'], 'set');
-    const propertiesSpy = vi.spyOn(display.clickButtons['properties'], 'set');
+    const distanceSpy = vi.spyOn(display.clickButtons["distance"], "set");
+    const propertiesSpy = vi.spyOn(display.clickButtons["properties"], "set");
 
-    viewer.state.set('activeTool', 'distance');
+    viewer.state.set("activeTool", "distance");
     expect(distanceSpy).toHaveBeenCalledWith(true);
 
-    viewer.state.set('activeTool', 'properties');
+    viewer.state.set("activeTool", "properties");
     expect(distanceSpy).toHaveBeenCalledWith(false);
     expect(propertiesSpy).toHaveBeenCalledWith(true);
 
-    viewer.state.set('activeTool', null);
+    viewer.state.set("activeTool", null);
     expect(propertiesSpy).toHaveBeenCalledWith(false);
   });
 });
 
-describe('Display - Tab Navigation', () => {
+describe("Display - Tab Navigation", () => {
   let testContext;
 
   afterEach(() => {
@@ -807,14 +850,18 @@ describe('Display - Tab Navigation', () => {
     }
   });
 
-  test('selectTab updates activeTab state', () => {
+  test("selectTab updates activeTab state", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
     // Mock all dependencies for tab switching
     viewer._rendered = {
       clipping: { setVisible: vi.fn() },
-      nestedGroup: { setBackVisible: vi.fn(), setClipIntersection: vi.fn(), rootGroup: { children: [] } },
+      nestedGroup: {
+        setBackVisible: vi.fn(),
+        setClipIntersection: vi.fn(),
+        rootGroup: { children: [] },
+      },
     };
     viewer.setLocalClipping = vi.fn();
     viewer.setClipPlaneHelpers = vi.fn();
@@ -823,11 +870,11 @@ describe('Display - Tab Navigation', () => {
     viewer.update = vi.fn();
 
     // Create mock event with target class
-    display.selectTab(createElementEvent('tcv_tab_clip tcv_tab-unselected'));
-    expect(viewer.state.get('activeTab')).toBe('clip');
+    display.selectTab(createElementEvent("tcv_tab_clip tcv_tab-unselected"));
+    expect(viewer.state.get("activeTab")).toBe("clip");
   });
 
-  test('switching to tree tab shows correct containers', () => {
+  test("switching to tree tab shows correct containers", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -840,15 +887,15 @@ describe('Display - Tab Navigation', () => {
     viewer.setClipPlaneHelpers = vi.fn();
     viewer.checkChanges = vi.fn();
 
-    viewer.setActiveTab('tree');
+    viewer.setActiveTab("tree");
 
-    expect(display.cadTree.style.display).toBe('block');
-    expect(display.cadClip.style.display).toBe('none');
-    expect(display.cadMaterial.style.display).toBe('none');
-    expect(display.cadZebra.style.display).toBe('none');
+    expect(display.cadTree.style.display).toBe("block");
+    expect(display.cadClip.style.display).toBe("none");
+    expect(display.cadMaterial.style.display).toBe("none");
+    expect(display.cadZebra.style.display).toBe("none");
   });
 
-  test('switching to clip tab shows correct containers', () => {
+  test("switching to clip tab shows correct containers", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -863,15 +910,15 @@ describe('Display - Tab Navigation', () => {
     viewer.checkChanges = vi.fn();
     viewer.update = vi.fn();
 
-    viewer.setActiveTab('clip');
+    viewer.setActiveTab("clip");
 
-    expect(display.cadTree.style.display).toBe('none');
-    expect(display.cadClip.style.display).toBe('block');
-    expect(display.cadMaterial.style.display).toBe('none');
-    expect(display.cadZebra.style.display).toBe('none');
+    expect(display.cadTree.style.display).toBe("none");
+    expect(display.cadClip.style.display).toBe("block");
+    expect(display.cadMaterial.style.display).toBe("none");
+    expect(display.cadZebra.style.display).toBe("none");
   });
 
-  test('switching to material tab shows correct containers', () => {
+  test("switching to material tab shows correct containers", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -884,15 +931,15 @@ describe('Display - Tab Navigation', () => {
     viewer.setClipPlaneHelpers = vi.fn();
     viewer.checkChanges = vi.fn();
 
-    viewer.setActiveTab('material');
+    viewer.setActiveTab("material");
 
-    expect(display.cadTree.style.display).toBe('none');
-    expect(display.cadClip.style.display).toBe('none');
-    expect(display.cadMaterial.style.display).toBe('block');
-    expect(display.cadZebra.style.display).toBe('none');
+    expect(display.cadTree.style.display).toBe("none");
+    expect(display.cadClip.style.display).toBe("none");
+    expect(display.cadMaterial.style.display).toBe("block");
+    expect(display.cadZebra.style.display).toBe("none");
   });
 
-  test('switching to zebra tab shows correct containers', () => {
+  test("switching to zebra tab shows correct containers", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -906,15 +953,15 @@ describe('Display - Tab Navigation', () => {
     viewer.enableZebraTool = vi.fn();
     viewer.checkChanges = vi.fn();
 
-    viewer.setActiveTab('zebra');
+    viewer.setActiveTab("zebra");
 
-    expect(display.cadTree.style.display).toBe('none');
-    expect(display.cadClip.style.display).toBe('none');
-    expect(display.cadMaterial.style.display).toBe('none');
-    expect(display.cadZebra.style.display).toBe('block');
+    expect(display.cadTree.style.display).toBe("none");
+    expect(display.cadClip.style.display).toBe("none");
+    expect(display.cadMaterial.style.display).toBe("none");
+    expect(display.cadZebra.style.display).toBe("block");
   });
 
-  test('switching tabs updates tab styling', () => {
+  test("switching tabs updates tab styling", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -929,34 +976,34 @@ describe('Display - Tab Navigation', () => {
     viewer.checkChanges = vi.fn();
     viewer.update = vi.fn();
 
-    viewer.setActiveTab('clip');
+    viewer.setActiveTab("clip");
 
-    expect(display.tabClip.classList.contains('tcv_tab-selected')).toBe(true);
-    expect(display.tabTree.classList.contains('tcv_tab-unselected')).toBe(true);
+    expect(display.tabClip.classList.contains("tcv_tab-selected")).toBe(true);
+    expect(display.tabTree.classList.contains("tcv_tab-unselected")).toBe(true);
   });
 
-  test('setting invalid tab name does not crash', () => {
+  test("setting invalid tab name does not crash", () => {
     testContext = setupViewer();
     const { viewer } = testContext;
 
     // Should not throw - state will just not change
-    expect(() => viewer.state.set('activeTab', 'invalid')).not.toThrow();
+    expect(() => viewer.state.set("activeTab", "invalid")).not.toThrow();
   });
 
-  test('toggleClippingTab enables/disables clip tab', () => {
+  test("toggleClippingTab enables/disables clip tab", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
     display.toggleClippingTab(false);
-    expect(display.tabClip.getAttribute('disabled')).toBe('true');
-    expect(display.tabClip.classList.contains('tcv_tab-disabled')).toBe(true);
+    expect(display.tabClip.getAttribute("disabled")).toBe("true");
+    expect(display.tabClip.classList.contains("tcv_tab-disabled")).toBe(true);
 
     display.toggleClippingTab(true);
-    expect(display.tabClip.getAttribute('disabled')).toBeNull();
-    expect(display.tabClip.classList.contains('tcv_tab-disabled')).toBe(false);
+    expect(display.tabClip.getAttribute("disabled")).toBeNull();
+    expect(display.tabClip.classList.contains("tcv_tab-disabled")).toBe(false);
   });
 
-  test('collapseNodes calls treeview methods', () => {
+  test("collapseNodes calls treeview methods", () => {
     testContext = setupViewer();
     const { viewer } = testContext;
 
@@ -986,7 +1033,7 @@ describe('Display - Tab Navigation', () => {
     expect(viewer.treeview.expandAll).toHaveBeenCalled();
   });
 
-  test('handleCollapseNodes gets value from event target', () => {
+  test("handleCollapseNodes gets value from event target", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -997,13 +1044,13 @@ describe('Display - Tab Navigation', () => {
       },
     };
 
-    display.handleCollapseNodes(createButtonEvent('C'));
+    display.handleCollapseNodes(createButtonEvent("C"));
 
     expect(viewer.treeview.collapseAll).toHaveBeenCalled();
   });
 });
 
-describe('Display - Toolbar Handlers', () => {
+describe("Display - Toolbar Handlers", () => {
   let testContext;
 
   afterEach(() => {
@@ -1013,82 +1060,82 @@ describe('Display - Toolbar Handlers', () => {
     }
   });
 
-  test('setAxes calls viewer.setAxes', () => {
+  test("setAxes calls viewer.setAxes", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
     // Mock to avoid nestedGroup dependency
     viewer.setAxes = vi.fn();
 
-    display.setAxes('axes', true);
+    display.setAxes("axes", true);
     expect(viewer.setAxes).toHaveBeenCalledWith(true);
 
-    display.setAxes('axes', false);
+    display.setAxes("axes", false);
     expect(viewer.setAxes).toHaveBeenCalledWith(false);
   });
 
-  test('setAxes0 calls viewer.setAxes0', () => {
+  test("setAxes0 calls viewer.setAxes0", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
     // Mock to avoid nestedGroup dependency
     viewer.setAxes0 = vi.fn();
 
-    display.setAxes0('axes0', true);
+    display.setAxes0("axes0", true);
     expect(viewer.setAxes0).toHaveBeenCalledWith(true);
   });
 
-  test('setGrid calls viewer.setGrid', () => {
+  test("setGrid calls viewer.setGrid", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
     // Mock to avoid gridHelper dependency
     viewer.setGrid = vi.fn();
 
-    display.setGrid('xy', true);
-    expect(viewer.setGrid).toHaveBeenCalledWith('xy', true);
+    display.setGrid("xy", true);
+    expect(viewer.setGrid).toHaveBeenCalledWith("xy", true);
 
-    display.setGrid('xz', false);
-    expect(viewer.setGrid).toHaveBeenCalledWith('xz', false);
+    display.setGrid("xz", false);
+    expect(viewer.setGrid).toHaveBeenCalledWith("xz", false);
   });
 
-  test('setOrtho calls viewer.switchCamera', () => {
+  test("setOrtho calls viewer.switchCamera", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
     // Mock to avoid camera dependency
     viewer.switchCamera = vi.fn();
 
-    display.setOrtho('perspective', true);
+    display.setOrtho("perspective", true);
     expect(viewer.switchCamera).toHaveBeenCalledWith(false); // !flag
 
-    display.setOrtho('perspective', false);
+    display.setOrtho("perspective", false);
     expect(viewer.switchCamera).toHaveBeenCalledWith(true);
   });
 
-  test('setTransparent calls viewer.setTransparent', () => {
+  test("setTransparent calls viewer.setTransparent", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
     // Mock to avoid nestedGroup dependency
     viewer.setTransparent = vi.fn();
 
-    display.setTransparent('transparent', true);
+    display.setTransparent("transparent", true);
     expect(viewer.setTransparent).toHaveBeenCalledWith(true);
   });
 
-  test('setBlackEdges calls viewer.setBlackEdges', () => {
+  test("setBlackEdges calls viewer.setBlackEdges", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
     // Mock to avoid nestedGroup dependency
     viewer.setBlackEdges = vi.fn();
 
-    display.setBlackEdges('blackedges', true);
+    display.setBlackEdges("blackedges", true);
     expect(viewer.setBlackEdges).toHaveBeenCalledWith(true);
   });
 
-  test('reset calls viewer.reset', () => {
+  test("reset calls viewer.reset", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -1099,7 +1146,7 @@ describe('Display - Toolbar Handlers', () => {
     expect(viewer.reset).toHaveBeenCalled();
   });
 
-  test('resize calls viewer.resize', () => {
+  test("resize calls viewer.resize", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -1110,7 +1157,7 @@ describe('Display - Toolbar Handlers', () => {
     expect(viewer.resize).toHaveBeenCalled();
   });
 
-  test('setView calls viewer.presetCamera and updates state', () => {
+  test("setView calls viewer.presetCamera and updates state", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -1118,14 +1165,14 @@ describe('Display - Toolbar Handlers', () => {
     viewer.presetCamera = vi.fn();
     viewer.update = vi.fn();
 
-    display.setView('front');
+    display.setView("front");
 
-    expect(viewer.presetCamera).toHaveBeenCalledWith('front');
-    expect(viewer.state.get('highlightedButton')).toBe('front');
+    expect(viewer.presetCamera).toHaveBeenCalledWith("front");
+    expect(viewer.state.get("highlightedButton")).toBe("front");
     expect(viewer.update).toHaveBeenCalled();
   });
 
-  test('setView with focus calls centerVisibleObjects', () => {
+  test("setView with focus calls centerVisibleObjects", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -1134,12 +1181,12 @@ describe('Display - Toolbar Handlers', () => {
     viewer.centerVisibleObjects = vi.fn();
     viewer.update = vi.fn();
 
-    display.setView('top', true);
+    display.setView("top", true);
 
     expect(viewer.centerVisibleObjects).toHaveBeenCalled();
   });
 
-  test('pinAsPng calls viewer.pinAsPng', () => {
+  test("pinAsPng calls viewer.pinAsPng", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -1150,19 +1197,19 @@ describe('Display - Toolbar Handlers', () => {
     expect(viewer.pinAsPng).toHaveBeenCalled();
   });
 
-  test('setExplode calls viewer.setExplode', () => {
+  test("setExplode calls viewer.setExplode", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
     // Mock to avoid controls/animation dependency
     viewer.setExplode = vi.fn();
 
-    display.setExplode('explode', true);
+    display.setExplode("explode", true);
     expect(viewer.setExplode).toHaveBeenCalledWith(true);
   });
 });
 
-describe('Display - Clipping Handlers', () => {
+describe("Display - Clipping Handlers", () => {
   let testContext;
 
   afterEach(() => {
@@ -1172,7 +1219,7 @@ describe('Display - Clipping Handlers', () => {
     }
   });
 
-  test('setClipPlaneHelpers updates lastPlaneState and calls viewer', () => {
+  test("setClipPlaneHelpers updates lastPlaneState and calls viewer", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -1185,7 +1232,7 @@ describe('Display - Clipping Handlers', () => {
     expect(viewer.setClipPlaneHelpers).toHaveBeenCalledWith(true);
   });
 
-  test('setClipIntersection calls viewer.setClipIntersection', () => {
+  test("setClipIntersection calls viewer.setClipIntersection", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -1197,7 +1244,7 @@ describe('Display - Clipping Handlers', () => {
     expect(viewer.setClipIntersection).toHaveBeenCalledWith(true);
   });
 
-  test('setObjectColorCaps calls viewer.setClipObjectColorCaps', () => {
+  test("setObjectColorCaps calls viewer.setClipObjectColorCaps", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -1209,32 +1256,34 @@ describe('Display - Clipping Handlers', () => {
     expect(viewer.setClipObjectColorCaps).toHaveBeenCalledWith(true);
   });
 
-  test('setClipNormalFromPosition extracts index from class and calls viewer', () => {
+  test("setClipNormalFromPosition extracts index from class and calls viewer", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
     // Mock to avoid camera/controls dependency
     viewer.setClipNormalFromPosition = vi.fn();
 
-    display.setClipNormalFromPosition(createElementEvent('tcv_btn_norm_plane2'));
+    display.setClipNormalFromPosition(
+      createElementEvent("tcv_btn_norm_plane2"),
+    );
 
     expect(viewer.setClipNormalFromPosition).toHaveBeenCalledWith(1); // index - 1
   });
 
-  test('refreshPlane calls viewer.refreshPlane', () => {
+  test("refreshPlane calls viewer.refreshPlane", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
     // Mock to avoid clipping dependency
     viewer.refreshPlane = vi.fn();
 
-    display.refreshPlane(1, '25.5');
+    display.refreshPlane(1, "25.5");
 
     expect(viewer.refreshPlane).toHaveBeenCalledWith(0, 25.5); // index - 1, parsed float
   });
 });
 
-describe('Display - Material Handlers', () => {
+describe("Display - Material Handlers", () => {
   let testContext;
 
   afterEach(() => {
@@ -1244,7 +1293,7 @@ describe('Display - Material Handlers', () => {
     }
   });
 
-  test('handleMaterialReset calls viewer.resetMaterial', () => {
+  test("handleMaterialReset calls viewer.resetMaterial", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -1257,7 +1306,7 @@ describe('Display - Material Handlers', () => {
   });
 });
 
-describe('Display - Zebra Handlers', () => {
+describe("Display - Zebra Handlers", () => {
   let testContext;
 
   afterEach(() => {
@@ -1267,82 +1316,86 @@ describe('Display - Zebra Handlers', () => {
     }
   });
 
-  test('setZebraCount calls slider setValue', () => {
+  test("setZebraCount calls slider setValue", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
-    const spy = vi.spyOn(display.zebraCountSlider, 'setValue');
+    const spy = vi.spyOn(display.zebraCountSlider, "setValue");
 
     display.setZebraCount(25);
     expect(spy).toHaveBeenCalledWith(25);
   });
 
-  test('setZebraOpacity calls slider setValue', () => {
+  test("setZebraOpacity calls slider setValue", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
-    const spy = vi.spyOn(display.zebraOpacitySlider, 'setValue');
+    const spy = vi.spyOn(display.zebraOpacitySlider, "setValue");
 
     display.setZebraOpacity(0.5);
     expect(spy).toHaveBeenCalledWith(0.5);
   });
 
-  test('setZebraDirection calls slider setValue', () => {
+  test("setZebraDirection calls slider setValue", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
-    const spy = vi.spyOn(display.zebraDirectionSlider, 'setValue');
+    const spy = vi.spyOn(display.zebraDirectionSlider, "setValue");
 
     display.setZebraDirection(45);
     expect(spy).toHaveBeenCalledWith(45);
   });
 
-  test('setZebraColorScheme calls viewer and updates UI', () => {
+  test("setZebraColorScheme calls viewer and updates UI", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
     // Mock to avoid nestedGroup dependency
     viewer.setZebraColorScheme = vi.fn();
 
-    display.setZebraColorScheme(createInputEvent('colorful'));
+    display.setZebraColorScheme(createInputEvent("colorful"));
 
-    expect(viewer.setZebraColorScheme).toHaveBeenCalledWith('colorful');
+    expect(viewer.setZebraColorScheme).toHaveBeenCalledWith("colorful");
   });
 
-  test('setZebraColorSchemeSelect updates radio button', () => {
+  test("setZebraColorSchemeSelect updates radio button", () => {
     testContext = setupViewer();
     const { display, container } = testContext;
 
-    display.setZebraColorSchemeSelect('colorful');
+    display.setZebraColorSchemeSelect("colorful");
 
-    const el = container.querySelector('input[name="zebra_color_group"][value="colorful"]');
+    const el = container.querySelector(
+      'input[name="zebra_color_group"][value="colorful"]',
+    );
     expect(el?.checked).toBe(true);
   });
 
-  test('setZebraMappingMode calls viewer and updates UI', () => {
+  test("setZebraMappingMode calls viewer and updates UI", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
     // Mock to avoid nestedGroup dependency
     viewer.setZebraMappingMode = vi.fn();
 
-    display.setZebraMappingMode(createInputEvent('normal'));
+    display.setZebraMappingMode(createInputEvent("normal"));
 
-    expect(viewer.setZebraMappingMode).toHaveBeenCalledWith('normal');
+    expect(viewer.setZebraMappingMode).toHaveBeenCalledWith("normal");
   });
 
-  test('setZebraMappingModeSelect updates radio button', () => {
+  test("setZebraMappingModeSelect updates radio button", () => {
     testContext = setupViewer();
     const { display, container } = testContext;
 
-    display.setZebraMappingModeSelect('normal');
+    display.setZebraMappingModeSelect("normal");
 
-    const el = container.querySelector('input[name="zebra_mapping_group"][value="normal"]');
+    const el = container.querySelector(
+      'input[name="zebra_mapping_group"][value="normal"]',
+    );
     expect(el?.checked).toBe(true);
   });
 });
 
-describe('Display - Animation Controls', () => {
+describe("Display - Animation Controls", () => {
   let testContext;
 
   afterEach(() => {
@@ -1352,7 +1405,7 @@ describe('Display - Animation Controls', () => {
     }
   });
 
-  test('controlAnimationByName calls viewer.controlAnimation', () => {
+  test("controlAnimationByName calls viewer.controlAnimation", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -1362,13 +1415,13 @@ describe('Display - Animation Controls', () => {
     };
     viewer.controlAnimation = vi.fn();
 
-    display.controlAnimationByName('play');
+    display.controlAnimationByName("play");
 
-    expect(viewer.controlAnimation).toHaveBeenCalledWith('play');
+    expect(viewer.controlAnimation).toHaveBeenCalledWith("play");
     expect(viewer.bboxNeedsUpdate).toBe(true);
   });
 
-  test('controlAnimationByName handles stop', () => {
+  test("controlAnimationByName handles stop", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -1378,13 +1431,13 @@ describe('Display - Animation Controls', () => {
     viewer.lastBbox = { needsUpdate: false };
     viewer.controlAnimation = vi.fn();
 
-    display.controlAnimationByName('stop');
+    display.controlAnimationByName("stop");
 
     expect(viewer.bboxNeedsUpdate).toBe(false);
     expect(viewer.lastBbox.needsUpdate).toBe(true);
   });
 
-  test('controlAnimation extracts button name from event', () => {
+  test("controlAnimation extracts button name from event", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -1393,12 +1446,12 @@ describe('Display - Animation Controls', () => {
     };
     viewer.controlAnimation = vi.fn();
 
-    display.controlAnimation(createElementEvent('tcv_pause some-other-class'));
+    display.controlAnimation(createElementEvent("tcv_pause some-other-class"));
 
-    expect(viewer.controlAnimation).toHaveBeenCalledWith('pause');
+    expect(viewer.controlAnimation).toHaveBeenCalledWith("pause");
   });
 
-  test('animationChange sets relative time', () => {
+  test("animationChange sets relative time", () => {
     testContext = setupViewer();
     const { viewer, display } = testContext;
 
@@ -1407,14 +1460,14 @@ describe('Display - Animation Controls', () => {
     };
     viewer.lastBbox = { needsUpdate: false };
 
-    display.animationChange(createInputEvent('500', 500));
+    display.animationChange(createInputEvent("500", 500));
 
     expect(viewer.animation.setRelativeTime).toHaveBeenCalledWith(0.5);
     expect(viewer.lastBbox.needsUpdate).toBe(true);
   });
 });
 
-describe('Display - Info Panel Methods', () => {
+describe("Display - Info Panel Methods", () => {
   let testContext;
 
   afterEach(() => {
@@ -1424,7 +1477,7 @@ describe('Display - Info Panel Methods', () => {
     }
   });
 
-  test('showInfo shows/hides info panel', () => {
+  test("showInfo shows/hides info panel", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
@@ -1435,7 +1488,7 @@ describe('Display - Info Panel Methods', () => {
     expect(display.info_shown).toBe(false);
   });
 
-  test('toggleInfo toggles info visibility', () => {
+  test("toggleInfo toggles info visibility", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
@@ -1447,37 +1500,37 @@ describe('Display - Info Panel Methods', () => {
     expect(display.info_shown).toBe(false);
   });
 
-  test('addInfoHtml delegates to info object', () => {
+  test("addInfoHtml delegates to info object", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
-    const spy = vi.spyOn(display._info, 'addHtml');
+    const spy = vi.spyOn(display._info, "addHtml");
 
-    display.addInfoHtml('<p>Test</p>');
-    expect(spy).toHaveBeenCalledWith('<p>Test</p>');
+    display.addInfoHtml("<p>Test</p>");
+    expect(spy).toHaveBeenCalledWith("<p>Test</p>");
   });
 
-  test('showReadyMessage delegates to info object', () => {
+  test("showReadyMessage delegates to info object", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
-    const spy = vi.spyOn(display._info, 'readyMsg');
+    const spy = vi.spyOn(display._info, "readyMsg");
 
-    display.showReadyMessage('1.0.0', 'orbit');
-    expect(spy).toHaveBeenCalledWith('1.0.0', 'orbit');
+    display.showReadyMessage("1.0.0", "orbit");
+    expect(spy).toHaveBeenCalledWith("1.0.0", "orbit");
   });
 
-  test('showCenterInfo delegates to info object', () => {
+  test("showCenterInfo delegates to info object", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
-    const spy = vi.spyOn(display._info, 'centerInfo');
+    const spy = vi.spyOn(display._info, "centerInfo");
 
     display.showCenterInfo([1, 2, 3]);
     expect(spy).toHaveBeenCalledWith([1, 2, 3]);
   });
 
-  test('showBoundingBoxInfo delegates to info object', () => {
+  test("showBoundingBoxInfo delegates to info object", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
@@ -1486,12 +1539,12 @@ describe('Display - Info Panel Methods', () => {
 
     const mockBB = { min: { x: 0, y: 0, z: 0 }, max: { x: 1, y: 1, z: 1 } };
 
-    display.showBoundingBoxInfo('/path', 'name', mockBB);
-    expect(display._info.bbInfo).toHaveBeenCalledWith('/path', 'name', mockBB);
+    display.showBoundingBoxInfo("/path", "name", mockBB);
+    expect(display._info.bbInfo).toHaveBeenCalledWith("/path", "name", mockBB);
   });
 });
 
-describe('Display - Theme & Glass Mode', () => {
+describe("Display - Theme & Glass Mode", () => {
   let testContext;
 
   afterEach(() => {
@@ -1501,38 +1554,46 @@ describe('Display - Theme & Glass Mode', () => {
     }
   });
 
-  test('setTheme applies dark theme', () => {
+  test("setTheme applies dark theme", () => {
     testContext = setupViewer();
     const { display, container } = testContext;
 
-    const result = display.setTheme('dark');
+    const result = display.setTheme("dark");
 
-    expect(result).toBe('dark');
-    expect(container.getAttribute('data-theme')).toBe('dark');
+    expect(result).toBe("dark");
+    expect(container.getAttribute("data-theme")).toBe("dark");
   });
 
-  test('setTheme applies light theme', () => {
+  test("setTheme applies light theme", () => {
     testContext = setupViewer();
     const { display, container } = testContext;
 
-    const result = display.setTheme('light');
+    const result = display.setTheme("light");
 
-    expect(result).toBe('light');
-    expect(container.getAttribute('data-theme')).toBe('light');
+    expect(result).toBe("light");
+    expect(container.getAttribute("data-theme")).toBe("light");
   });
 
-  test('glassMode enables glass mode', () => {
+  test("glassMode enables glass mode", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
     display.glassMode(true);
 
     expect(display.glass).toBe(true);
-    expect(display.container.getElementsByClassName('tcv_cad_tree')[0].classList.contains('tcv_cad_tree_glass')).toBe(true);
-    expect(display.container.getElementsByClassName('tcv_cad_info')[0].classList.contains('tcv_cad_info_glass')).toBe(true);
+    expect(
+      display.container
+        .getElementsByClassName("tcv_cad_tree")[0]
+        .classList.contains("tcv_cad_tree_glass"),
+    ).toBe(true);
+    expect(
+      display.container
+        .getElementsByClassName("tcv_cad_info")[0]
+        .classList.contains("tcv_cad_info_glass"),
+    ).toBe(true);
   });
 
-  test('glassMode disables glass mode', () => {
+  test("glassMode disables glass mode", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
@@ -1540,10 +1601,14 @@ describe('Display - Theme & Glass Mode', () => {
     display.glassMode(false);
 
     expect(display.glass).toBe(false);
-    expect(display.container.getElementsByClassName('tcv_cad_tree')[0].classList.contains('tcv_cad_tree_glass')).toBe(false);
+    expect(
+      display.container
+        .getElementsByClassName("tcv_cad_tree")[0]
+        .classList.contains("tcv_cad_tree_glass"),
+    ).toBe(false);
   });
 
-  test('autoCollapse collapses tree in small glass mode', () => {
+  test("autoCollapse collapses tree in small glass mode", () => {
     testContext = setupViewer({ glass: true, cadWidth: 500 });
     const { viewer, display } = testContext;
 
@@ -1554,7 +1619,7 @@ describe('Display - Theme & Glass Mode', () => {
       },
     };
 
-    const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, "info").mockImplementation(() => {});
 
     display.autoCollapse();
 
@@ -1562,19 +1627,19 @@ describe('Display - Theme & Glass Mode', () => {
     consoleSpy.mockRestore();
   });
 
-  test('updateHelp replaces key mappings in help text', () => {
+  test("updateHelp replaces key mappings in help text", () => {
     testContext = setupViewer();
     const { display } = testContext;
 
-    const before = { shift: 'shiftKey', ctrl: 'ctrlKey' };
-    const after = { shift: 'altKey', ctrl: 'metaKey' };
+    const before = { shift: "shiftKey", ctrl: "ctrlKey" };
+    const after = { shift: "altKey", ctrl: "metaKey" };
 
     // This should not throw - help text manipulation
     display.updateHelp(before, after);
   });
 });
 
-describe('Display - Canvas Capture', () => {
+describe("Display - Canvas Capture", () => {
   let testContext;
 
   afterEach(() => {
@@ -1584,7 +1649,7 @@ describe('Display - Canvas Capture', () => {
     }
   });
 
-  test('captureCanvas returns promise with data URL', async () => {
+  test("captureCanvas returns promise with data URL", async () => {
     testContext = setupViewer();
     const { display } = testContext;
 
@@ -1592,13 +1657,13 @@ describe('Display - Canvas Capture', () => {
     const mockOnComplete = vi.fn();
 
     const result = await display.captureCanvas({
-      taskId: 'test-task',
+      taskId: "test-task",
       render: mockRender,
       onComplete: mockOnComplete,
     });
 
     expect(mockRender).toHaveBeenCalled();
-    expect(result.task).toBe('test-task');
+    expect(result.task).toBe("test-task");
     expect(result.dataUrl).toBeDefined();
     expect(mockOnComplete).toHaveBeenCalled();
   });

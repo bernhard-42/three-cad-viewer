@@ -1,14 +1,14 @@
-import { Display } from '../../src/ui/display.js';
-import { Viewer } from '../../src/core/viewer.js';
+import { Display } from "../../src/ui/display.js";
+import { Viewer } from "../../src/core/viewer.js";
 
 /**
  * Create a minimal DOM container for testing
  */
-export function createContainer(id = 'test-container') {
-  const container = document.createElement('div');
+export function createContainer(id = "test-container") {
+  const container = document.createElement("div");
   container.id = id;
-  container.style.width = '800px';
-  container.style.height = '600px';
+  container.style.width = "800px";
+  container.style.height = "600px";
   document.body.appendChild(container);
   return container;
 }
@@ -32,18 +32,18 @@ export function getDisplayOptions() {
     cadWidth: 800,
     height: 600,
     treeWidth: 250,
-    theme: 'light',
+    theme: "light",
     pinning: false,
     glass: false,
     tools: true,
-    keymap: { shift: 'shiftKey', ctrl: 'ctrlKey', meta: 'metaKey' },
+    keymap: { shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey" },
     newTreeBehavior: true,
     // Feature flags - ALL TRUE for testing all code paths
     measureTools: true,
     selectTool: true,
-    explodeTool: true,      // Enable for testing
-    zscaleTool: true,       // Enable for testing
-    zebraTool: true,        // Enable for testing (used by Display)
+    explodeTool: true, // Enable for testing
+    zscaleTool: true, // Enable for testing
+    zebraTool: true, // Enable for testing (used by Display)
     measurementDebug: true, // Enable to mock Python backend
   };
 }
@@ -71,13 +71,13 @@ export function getRenderOptions() {
 export function getViewerOptions() {
   return {
     ortho: true,
-    up: 'Z',           // Camera up direction: 'Y', 'Z', or 'L' (legacy)
+    up: "Z", // Camera up direction: 'Y', 'Z', or 'L' (legacy)
     ticks: 5,
     transparent: false,
     blackEdges: false,
-    axes: true,        // Enable for testing
-    axes0: true,       // Enable for testing
-    grid: [true, true, true],  // Enable for testing
+    axes: true, // Enable for testing
+    axes0: true, // Enable for testing
+    grid: [true, true, true], // Enable for testing
     timeit: false,
     clipIntersection: false,
     clipPlaneHelpers: false,
@@ -108,10 +108,19 @@ export function setupDisplay(displayOptions = {}) {
  * @param renderOptions - Render options
  * @param viewerOptions - Viewer options
  */
-export function setupViewer(displayOptions = {}, renderOptions = {}, viewerOptions = {}) {
+export function setupViewer(
+  displayOptions = {},
+  renderOptions = {},
+  viewerOptions = {},
+) {
   // Extract notifyCallback from displayOptions if provided
-  const { notifyCallback: customNotifyCallback, ...restDisplayOptions } = displayOptions;
-  const { display, container, displayOptions: displayOpts } = setupDisplay(restDisplayOptions);
+  const { notifyCallback: customNotifyCallback, ...restDisplayOptions } =
+    displayOptions;
+  const {
+    display,
+    container,
+    displayOptions: displayOpts,
+  } = setupDisplay(restDisplayOptions);
 
   // Use custom callback if provided, otherwise use empty function
   const notifyCallback = customNotifyCallback || (() => {});
@@ -156,7 +165,7 @@ export function cleanup({ viewer, display, container }) {
       }
       if (!viewer.renderer.getContext) {
         viewer.renderer.getContext = () => ({
-          getExtension: () => ({ loseContext: () => {} })
+          getExtension: () => ({ loseContext: () => {} }),
         });
       }
     }

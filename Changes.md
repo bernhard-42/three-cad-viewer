@@ -1,5 +1,12 @@
 # Change log
 
+## v4.3.9
+
+- Implement policy to keep/reset clip slider and normal values in three-cad-viewer, based on bbox/gridsize
+- Properly support viewer reuse and direct-to-tab rendering without CAD flash
+- Fix env rotation in Z-up scenes (use ZYX Euler order) which was changed by three.js r184
+- Fix to keep state.theme in sync with the DOM
+
 ## v4.3.8
 
 - Support 4K HDR env maps

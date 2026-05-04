@@ -38,7 +38,12 @@ class OrientationMarker {
    * @param camera - The main CAD camera to sync orientation with.
    * @param theme - Color theme ("dark" or "light").
    */
-  constructor(width: number, height: number, camera: THREE.Camera, theme: Theme) {
+  constructor(
+    width: number,
+    height: number,
+    camera: THREE.Camera,
+    theme: Theme,
+  ) {
     this.width = width;
     this.height = height;
     this.cad_camera = camera;

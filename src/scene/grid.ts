@@ -13,7 +13,13 @@ import type { BoundingBox } from "./bbox.js";
  * @param x - Input value to interpolate
  * @returns Interpolated value, capped at py1 or py2 if outside range
  */
-function cappedLinear(px1: number, py1: number, px2: number, py2: number, x: number): number {
+function cappedLinear(
+  px1: number,
+  py1: number,
+  px2: number,
+  py2: number,
+  x: number,
+): number {
   const m = (py2 - py1) / (px2 - px1);
   return x < px1 ? py1 : x > px2 ? py2 : m * (x - px1) + py1;
 }
@@ -50,7 +56,7 @@ class GridHelper extends THREE.Object3D {
     divisions: number,
     colorX: number | string,
     colorY: number | string,
-    colorGrid: number | string
+    colorGrid: number | string,
   ) {
     super();
 
@@ -202,7 +208,9 @@ class Grid extends THREE.Group {
   info: HTMLElement | null;
   getCamera: () => THREE.OrthographicCamera | THREE.PerspectiveCamera | null;
   getAxes0: () => boolean;
-  onGridChange: ((allGrid: boolean, grids: [boolean, boolean, boolean]) => void) | null;
+  onGridChange:
+    | ((allGrid: boolean, grids: [boolean, boolean, boolean]) => void)
+    | null;
   minFontIndex: number;
   minZoomIndex: number;
   zoomMaxIndex: number;
@@ -390,7 +398,11 @@ class Grid extends THREE.Group {
    * @param force - Force update regardless of zoom change
    * @param theme - Optional new theme to apply
    */
-  async update(zoom: number, force: boolean = false, theme: Theme | null = null): Promise<void> {
+  async update(
+    zoom: number,
+    force: boolean = false,
+    theme: Theme | null = null,
+  ): Promise<void> {
     if (!this.getVisible()) return;
 
     // We got called from the change theme handler
@@ -594,7 +606,12 @@ class Grid extends THREE.Group {
   /**
    * Create a label sprite for grid axis
    */
-  private createLabel(tick: string, x: number, i: number, horizontal: boolean): THREE.Sprite {
+  private createLabel(
+    tick: string,
+    x: number,
+    i: number,
+    horizontal: boolean,
+  ): THREE.Sprite {
     const key = `${tick}_${i}_${horizontal}`;
     if (this.labelCache[key]) {
       const cached = this.labelCache[key];
@@ -675,7 +692,11 @@ class Grid extends THREE.Group {
   /**
    * Calculate nice symmetric grid bounds centered at zero
    */
-  private niceBounds(axisStart: number, axisEnd: number, numTicks: number): [number, number, number] {
+  private niceBounds(
+    axisStart: number,
+    axisEnd: number,
+    numTicks: number,
+  ): [number, number, number] {
     if (!numTicks) {
       numTicks = 8;
     }

@@ -3,26 +3,36 @@
  * Target: 90%+ coverage
  */
 
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-import * as THREE from 'three';
-import { ObjectGroup } from '../../src/scene/nestedgroup.js';
+import { describe, test, expect, beforeEach, vi } from "vitest";
+import * as THREE from "three";
+import { ObjectGroup } from "../../src/scene/nestedgroup.js";
 
 // Helper to create a basic ObjectGroup with mock mesh
 function createObjectGroupWithMesh() {
-  const group = new ObjectGroup(0.5, 1.0, 0x707070, { topo: 'face' }, 'solid', false);
+  const group = new ObjectGroup(
+    0.5,
+    1.0,
+    0x707070,
+    { topo: "face" },
+    "solid",
+    false,
+  );
 
   // Create mock front mesh
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]), 3));
+  geometry.setAttribute(
+    "position",
+    new THREE.BufferAttribute(new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]), 3),
+  );
   const frontMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
   const frontMesh = new THREE.Mesh(geometry, frontMaterial);
-  frontMesh.name = 'frontMaterial';
+  frontMesh.name = "frontMaterial";
   group.setFront(frontMesh);
 
   // Create mock back mesh
   const backMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
   const backMesh = new THREE.Mesh(geometry, backMaterial);
-  backMesh.name = 'backMaterial';
+  backMesh.name = "backMaterial";
   group.setBack(backMesh);
 
   return group;
@@ -30,11 +40,24 @@ function createObjectGroupWithMesh() {
 
 // Helper to create ObjectGroup with edges only
 function createObjectGroupWithEdges() {
-  const group = new ObjectGroup(0.5, 1.0, 0x707070, { topo: 'edge' }, 'edges', false);
+  const group = new ObjectGroup(
+    0.5,
+    1.0,
+    0x707070,
+    { topo: "edge" },
+    "edges",
+    false,
+  );
 
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0, 1, 0, 0]), 3));
-  const material = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 });
+  geometry.setAttribute(
+    "position",
+    new THREE.BufferAttribute(new Float32Array([0, 0, 0, 1, 0, 0]), 3),
+  );
+  const material = new THREE.LineBasicMaterial({
+    color: 0x000000,
+    linewidth: 1,
+  });
   const line = new THREE.LineSegments(geometry, material);
   group.setEdges(line);
 
@@ -43,10 +66,20 @@ function createObjectGroupWithEdges() {
 
 // Helper to create ObjectGroup with vertices only
 function createObjectGroupWithVertices() {
-  const group = new ObjectGroup(0.5, 1.0, 0x707070, { topo: 'vertex' }, 'vertices', false);
+  const group = new ObjectGroup(
+    0.5,
+    1.0,
+    0x707070,
+    { topo: "vertex" },
+    "vertices",
+    false,
+  );
 
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0, 1, 1, 1]), 3));
+  geometry.setAttribute(
+    "position",
+    new THREE.BufferAttribute(new Float32Array([0, 0, 0, 1, 1, 1]), 3),
+  );
   const material = new THREE.PointsMaterial({ color: 0x0000ff, size: 5 });
   const points = new THREE.Points(geometry, material);
   group.setVertices(points);
@@ -54,15 +87,22 @@ function createObjectGroupWithVertices() {
   return group;
 }
 
-describe('ObjectGroup - Constructor', () => {
-  test('creates ObjectGroup with all parameters', () => {
-    const group = new ObjectGroup(0.5, 0.8, 0x707070, { topo: 'face' }, 'solid', true);
+describe("ObjectGroup - Constructor", () => {
+  test("creates ObjectGroup with all parameters", () => {
+    const group = new ObjectGroup(
+      0.5,
+      0.8,
+      0x707070,
+      { topo: "face" },
+      "solid",
+      true,
+    );
 
     expect(group.opacity).toBe(0.5);
     expect(group.alpha).toBe(0.8);
     expect(group.edge_color).toBe(0x707070);
-    expect(group.shapeInfo).toEqual({ topo: 'face' });
-    expect(group.subtype).toBe('solid');
+    expect(group.shapeInfo).toEqual({ topo: "face" });
+    expect(group.subtype).toBe("solid");
     expect(group.renderback).toBe(true);
     expect(group.isSelected).toBe(false);
     expect(group.front).toBeNull();
@@ -71,14 +111,14 @@ describe('ObjectGroup - Constructor', () => {
     expect(group.vertices).toBeNull();
   });
 
-  test('handles null alpha (defaults to 1.0)', () => {
+  test("handles null alpha (defaults to 1.0)", () => {
     const group = new ObjectGroup(0.5, null, 0x707070, null, null, false);
     expect(group.alpha).toBe(1.0);
   });
 });
 
-describe('ObjectGroup - setFront/setBack/setEdges/setVertices', () => {
-  test('adds front mesh and stores original color', () => {
+describe("ObjectGroup - setFront/setBack/setEdges/setVertices", () => {
+  test("adds front mesh and stores original color", () => {
     const group = new ObjectGroup(0.5, 1.0, 0x707070, null, null, false);
 
     const geometry = new THREE.BufferGeometry();
@@ -92,7 +132,7 @@ describe('ObjectGroup - setFront/setBack/setEdges/setVertices', () => {
     expect(group.originalColor.getHex()).toBe(0xff0000);
   });
 
-  test('adds back mesh and stores original back color', () => {
+  test("adds back mesh and stores original back color", () => {
     const group = new ObjectGroup(0.5, 1.0, 0x707070, null, null, false);
 
     const geometry = new THREE.BufferGeometry();
@@ -106,7 +146,7 @@ describe('ObjectGroup - setFront/setBack/setEdges/setVertices', () => {
     expect(group.originalBackColor.getHex()).toBe(0x00ff00);
   });
 
-  test('adds vertices and stores original size', () => {
+  test("adds vertices and stores original size", () => {
     const group = new ObjectGroup(0.5, 1.0, 0x707070, null, null, false);
 
     const geometry = new THREE.BufferGeometry();
@@ -120,11 +160,14 @@ describe('ObjectGroup - setFront/setBack/setEdges/setVertices', () => {
     expect(group.originalWidth).toBe(5);
   });
 
-  test('adds edges (without front) and stores original linewidth', () => {
+  test("adds edges (without front) and stores original linewidth", () => {
     const group = new ObjectGroup(0.5, 1.0, 0x707070, null, null, false);
 
     const geometry = new THREE.BufferGeometry();
-    const material = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+    const material = new THREE.LineBasicMaterial({
+      color: 0x000000,
+      linewidth: 2,
+    });
     const line = new THREE.LineSegments(geometry, material);
 
     group.setEdges(line);
@@ -135,8 +178,8 @@ describe('ObjectGroup - setFront/setBack/setEdges/setVertices', () => {
   });
 });
 
-describe('ObjectGroup - setTransparent', () => {
-  test('sets transparent mode on front and back', () => {
+describe("ObjectGroup - setTransparent", () => {
+  test("sets transparent mode on front and back", () => {
     const group = createObjectGroupWithMesh();
 
     group.setTransparent(true);
@@ -145,7 +188,7 @@ describe('ObjectGroup - setTransparent', () => {
     expect(group.back.material.depthWrite).toBe(false);
   });
 
-  test('disables transparent mode', () => {
+  test("disables transparent mode", () => {
     const group = createObjectGroupWithMesh();
 
     group.setTransparent(true);
@@ -155,7 +198,7 @@ describe('ObjectGroup - setTransparent', () => {
     expect(group.back.material.depthWrite).toBe(true);
   });
 
-  test('handles alpha < 1 (always depthWrite off)', () => {
+  test("handles alpha < 1 (always depthWrite off)", () => {
     const group = new ObjectGroup(0.5, 0.5, 0x707070, null, null, false);
 
     const geometry = new THREE.BufferGeometry();
@@ -170,8 +213,8 @@ describe('ObjectGroup - setTransparent', () => {
   });
 });
 
-describe('ObjectGroup - setBlackEdges', () => {
-  test('sets edges to black', () => {
+describe("ObjectGroup - setBlackEdges", () => {
+  test("sets edges to black", () => {
     const group = createObjectGroupWithMesh();
 
     // Add edges
@@ -187,7 +230,7 @@ describe('ObjectGroup - setBlackEdges', () => {
     expect(group.originalColor.getHex()).toBe(0xff0000);
   });
 
-  test('restores original edge color', () => {
+  test("restores original edge color", () => {
     const group = createObjectGroupWithMesh();
     group.edge_color = 0x707070;
 
@@ -202,7 +245,7 @@ describe('ObjectGroup - setBlackEdges', () => {
     expect(group.edges.material.color.getHex()).toBe(0x707070);
   });
 
-  test('does nothing when no edges', () => {
+  test("does nothing when no edges", () => {
     const group = createObjectGroupWithMesh();
 
     // Should not throw
@@ -210,8 +253,8 @@ describe('ObjectGroup - setBlackEdges', () => {
   });
 });
 
-describe('ObjectGroup - setEdgeColor', () => {
-  test('sets edge color', () => {
+describe("ObjectGroup - setEdgeColor", () => {
+  test("sets edge color", () => {
     const group = createObjectGroupWithEdges();
 
     group.setEdgeColor(0xff0000);
@@ -220,15 +263,15 @@ describe('ObjectGroup - setEdgeColor', () => {
     expect(group.edges.material.color.getHex()).toBe(0xff0000);
   });
 
-  test('does nothing when no edges', () => {
+  test("does nothing when no edges", () => {
     const group = createObjectGroupWithMesh();
 
     expect(() => group.setEdgeColor(0xff0000)).not.toThrow();
   });
 });
 
-describe('ObjectGroup - setOpacity', () => {
-  test('stores opacity value', () => {
+describe("ObjectGroup - setOpacity", () => {
+  test("stores opacity value", () => {
     const group = createObjectGroupWithMesh();
 
     group.setOpacity(0.7);
@@ -239,7 +282,7 @@ describe('ObjectGroup - setOpacity', () => {
     expect(group.back.material.opacity).toBe(1);
   });
 
-  test('applies opacity when transparent mode is enabled', () => {
+  test("applies opacity when transparent mode is enabled", () => {
     const group = createObjectGroupWithMesh();
 
     group.setTransparent(true);
@@ -251,7 +294,7 @@ describe('ObjectGroup - setOpacity', () => {
     expect(group.back.material.opacity).toBe(0.7);
   });
 
-  test('does not apply opacity when transparent mode is off', () => {
+  test("does not apply opacity when transparent mode is off", () => {
     const group = createObjectGroupWithMesh();
 
     group.setOpacity(0.5);
@@ -263,7 +306,7 @@ describe('ObjectGroup - setOpacity', () => {
     expect(group.front.material.opacity).toBe(0.5);
   });
 
-  test('handles missing front/back', () => {
+  test("handles missing front/back", () => {
     const group = createObjectGroupWithEdges();
 
     expect(() => group.setOpacity(0.5)).not.toThrow();
@@ -271,8 +314,8 @@ describe('ObjectGroup - setOpacity', () => {
   });
 });
 
-describe('ObjectGroup - setShapeVisible', () => {
-  test('shows/hides front face', () => {
+describe("ObjectGroup - setShapeVisible", () => {
+  test("shows/hides front face", () => {
     const group = createObjectGroupWithMesh();
 
     group.setShapeVisible(false);
@@ -282,11 +325,14 @@ describe('ObjectGroup - setShapeVisible', () => {
     expect(group.front.material.visible).toBe(true);
   });
 
-  test('shows/hides back face when renderback is true', () => {
+  test("shows/hides back face when renderback is true", () => {
     const group = new ObjectGroup(0.5, 1.0, 0x707070, null, null, true);
 
     const geometry = new THREE.BufferGeometry();
-    const frontMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
+    const frontMesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshStandardMaterial(),
+    );
     const backMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
     group.setFront(frontMesh);
     group.setBack(backMesh);
@@ -295,14 +341,20 @@ describe('ObjectGroup - setShapeVisible', () => {
     expect(group.back.material.visible).toBe(false);
   });
 
-  test('handles clipping planes', () => {
+  test("handles clipping planes", () => {
     const group = createObjectGroupWithMesh();
 
     // Add mock clipping group
     const clippingGroup = new THREE.Group();
-    clippingGroup.name = 'clipping-0';
-    const child1 = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshStandardMaterial());
-    const child2 = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshStandardMaterial());
+    clippingGroup.name = "clipping-0";
+    const child1 = new THREE.Mesh(
+      new THREE.BufferGeometry(),
+      new THREE.MeshStandardMaterial(),
+    );
+    const child2 = new THREE.Mesh(
+      new THREE.BufferGeometry(),
+      new THREE.MeshStandardMaterial(),
+    );
     clippingGroup.add(child1, child2);
     group.addClipping(clippingGroup, 0);
 
@@ -312,8 +364,8 @@ describe('ObjectGroup - setShapeVisible', () => {
   });
 });
 
-describe('ObjectGroup - setEdgesVisible', () => {
-  test('shows/hides edges', () => {
+describe("ObjectGroup - setEdgesVisible", () => {
+  test("shows/hides edges", () => {
     const group = createObjectGroupWithEdges();
 
     group.setEdgesVisible(false);
@@ -323,7 +375,7 @@ describe('ObjectGroup - setEdgesVisible', () => {
     expect(group.edges.material.visible).toBe(true);
   });
 
-  test('shows/hides vertices', () => {
+  test("shows/hides vertices", () => {
     const group = createObjectGroupWithVertices();
 
     group.setEdgesVisible(false);
@@ -334,8 +386,8 @@ describe('ObjectGroup - setEdgesVisible', () => {
   });
 });
 
-describe('ObjectGroup - setBackVisible', () => {
-  test('shows back when front is visible', () => {
+describe("ObjectGroup - setBackVisible", () => {
+  test("shows back when front is visible", () => {
     const group = createObjectGroupWithMesh();
     group.front.material.visible = true;
 
@@ -343,7 +395,7 @@ describe('ObjectGroup - setBackVisible', () => {
     expect(group.back.material.visible).toBe(true);
   });
 
-  test('does not show back when front is not visible', () => {
+  test("does not show back when front is not visible", () => {
     const group = createObjectGroupWithMesh();
     group.front.material.visible = false;
 
@@ -355,18 +407,21 @@ describe('ObjectGroup - setBackVisible', () => {
     expect(group).toBeDefined();
   });
 
-  test('handles missing back', () => {
+  test("handles missing back", () => {
     const group = new ObjectGroup(0.5, 1.0, 0x707070, null, null, false);
     const geometry = new THREE.BufferGeometry();
-    const frontMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
+    const frontMesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshStandardMaterial(),
+    );
     group.setFront(frontMesh);
 
     expect(() => group.setBackVisible(true)).not.toThrow();
   });
 });
 
-describe('ObjectGroup - getVisibility', () => {
-  test('returns front visibility when front exists', () => {
+describe("ObjectGroup - getVisibility", () => {
+  test("returns front visibility when front exists", () => {
     const group = createObjectGroupWithMesh();
     group.front.material.visible = true;
 
@@ -376,11 +431,14 @@ describe('ObjectGroup - getVisibility', () => {
     expect(group.getVisibility()).toBe(false);
   });
 
-  test('returns combined visibility with edges', () => {
+  test("returns combined visibility with edges", () => {
     const group = createObjectGroupWithMesh();
 
     const edgeGeometry = new THREE.BufferGeometry();
-    const edges = new THREE.LineSegments(edgeGeometry, new THREE.LineBasicMaterial());
+    const edges = new THREE.LineSegments(
+      edgeGeometry,
+      new THREE.LineBasicMaterial(),
+    );
     group.setEdges(edges);
 
     group.front.material.visible = false;
@@ -389,29 +447,29 @@ describe('ObjectGroup - getVisibility', () => {
     expect(group.getVisibility()).toBe(true);
   });
 
-  test('returns edge visibility when no front', () => {
+  test("returns edge visibility when no front", () => {
     const group = createObjectGroupWithEdges();
     group.edges.material.visible = true;
 
     expect(group.getVisibility()).toBe(true);
   });
 
-  test('returns vertex visibility when only vertices', () => {
+  test("returns vertex visibility when only vertices", () => {
     const group = createObjectGroupWithVertices();
     group.vertices.material.visible = true;
 
     expect(group.getVisibility()).toBe(true);
   });
 
-  test('returns false when nothing exists', () => {
+  test("returns false when nothing exists", () => {
     const group = new ObjectGroup(0.5, 1.0, 0x707070, null, null, false);
 
     expect(group.getVisibility()).toBe(false);
   });
 });
 
-describe('ObjectGroup - setClipIntersection', () => {
-  test('sets clip intersection on all materials', () => {
+describe("ObjectGroup - setClipIntersection", () => {
+  test("sets clip intersection on all materials", () => {
     const group = createObjectGroupWithMesh();
 
     group.setClipIntersection(true);
@@ -421,8 +479,8 @@ describe('ObjectGroup - setClipIntersection', () => {
   });
 });
 
-describe('ObjectGroup - setClipPlanes', () => {
-  test('sets clip planes on all types', () => {
+describe("ObjectGroup - setClipPlanes", () => {
+  test("sets clip planes on all types", () => {
     const group = createObjectGroupWithMesh();
 
     const planes = [new THREE.Plane(new THREE.Vector3(1, 0, 0), 0)];
@@ -432,7 +490,7 @@ describe('ObjectGroup - setClipPlanes', () => {
     expect(group.back.material.clippingPlanes).toBe(planes);
   });
 
-  test('sets clip planes on edges', () => {
+  test("sets clip planes on edges", () => {
     const group = createObjectGroupWithEdges();
 
     const planes = [new THREE.Plane(new THREE.Vector3(1, 0, 0), 0)];
@@ -441,7 +499,7 @@ describe('ObjectGroup - setClipPlanes', () => {
     expect(group.edges.material.clippingPlanes).toBe(planes);
   });
 
-  test('sets clip planes on vertices', () => {
+  test("sets clip planes on vertices", () => {
     const group = createObjectGroupWithVertices();
 
     const planes = [new THREE.Plane(new THREE.Vector3(1, 0, 0), 0)];
@@ -451,8 +509,8 @@ describe('ObjectGroup - setClipPlanes', () => {
   });
 });
 
-describe('ObjectGroup - setPolygonOffset', () => {
-  test('sets polygon offset on back material', () => {
+describe("ObjectGroup - setPolygonOffset", () => {
+  test("sets polygon offset on back material", () => {
     const group = createObjectGroupWithMesh();
 
     group.setPolygonOffset(5);
@@ -460,15 +518,15 @@ describe('ObjectGroup - setPolygonOffset', () => {
     expect(group.back.material.polygonOffsetUnits).toBe(5);
   });
 
-  test('handles missing back', () => {
+  test("handles missing back", () => {
     const group = createObjectGroupWithEdges();
 
     expect(() => group.setPolygonOffset(5)).not.toThrow();
   });
 });
 
-describe('ObjectGroup - setZScale', () => {
-  test('sets z scale on meshes', () => {
+describe("ObjectGroup - setZScale", () => {
+  test("sets z scale on meshes", () => {
     const group = createObjectGroupWithMesh();
     group.minZ = 0;
     group.height = 10;
@@ -479,15 +537,15 @@ describe('ObjectGroup - setZScale', () => {
     expect(group.back.scale.z).toBe(2.0);
   });
 
-  test('does nothing when no front/back/edges', () => {
+  test("does nothing when no front/back/edges", () => {
     const group = createObjectGroupWithVertices();
 
     expect(() => group.setZScale(2.0)).not.toThrow();
   });
 });
 
-describe('ObjectGroup - updateMaterials', () => {
-  test('marks all materials as needing update', () => {
+describe("ObjectGroup - updateMaterials", () => {
+  test("marks all materials as needing update", () => {
     const group = createObjectGroupWithMesh();
 
     // updateMaterials sets needsUpdate on materials
@@ -496,25 +554,28 @@ describe('ObjectGroup - updateMaterials', () => {
     expect(() => group.updateMaterials(true)).not.toThrow();
   });
 
-  test('handles edges and vertices', () => {
+  test("handles edges and vertices", () => {
     const group = createObjectGroupWithMesh();
 
     const edgeGeometry = new THREE.BufferGeometry();
-    const edges = new THREE.LineSegments(edgeGeometry, new THREE.LineBasicMaterial());
+    const edges = new THREE.LineSegments(
+      edgeGeometry,
+      new THREE.LineBasicMaterial(),
+    );
     group.setEdges(edges);
 
     expect(() => group.updateMaterials(true)).not.toThrow();
   });
 
-  test('handles vertices type', () => {
+  test("handles vertices type", () => {
     const group = createObjectGroupWithVertices();
 
     expect(() => group.updateMaterials(true)).not.toThrow();
   });
 });
 
-describe('ObjectGroup - setMetalness', () => {
-  test('sets metalness on front face material', () => {
+describe("ObjectGroup - setMetalness", () => {
+  test("sets metalness on front face material", () => {
     const group = createObjectGroupWithMesh();
 
     group.setMetalness(0.8);
@@ -524,8 +585,8 @@ describe('ObjectGroup - setMetalness', () => {
   });
 });
 
-describe('ObjectGroup - setRoughness', () => {
-  test('sets roughness on front face material', () => {
+describe("ObjectGroup - setRoughness", () => {
+  test("sets roughness on front face material", () => {
     const group = createObjectGroupWithMesh();
 
     group.setRoughness(0.3);
@@ -535,18 +596,20 @@ describe('ObjectGroup - setRoughness', () => {
   });
 });
 
-describe('ObjectGroup - highlight', () => {
-  test('highlights front mesh', () => {
+describe("ObjectGroup - highlight", () => {
+  test("highlights front mesh", () => {
     const group = createObjectGroupWithMesh();
     const originalColor = group.originalColor.clone();
 
     group.highlight(true);
 
     // Color should have changed
-    expect(group.front.material.color.getHex()).not.toBe(originalColor.getHex());
+    expect(group.front.material.color.getHex()).not.toBe(
+      originalColor.getHex(),
+    );
   });
 
-  test('removes highlight', () => {
+  test("removes highlight", () => {
     const group = createObjectGroupWithMesh();
     const originalColor = group.originalColor.clone();
 
@@ -556,7 +619,7 @@ describe('ObjectGroup - highlight', () => {
     expect(group.front.material.color.getHex()).toBe(originalColor.getHex());
   });
 
-  test('highlights back mesh', () => {
+  test("highlights back mesh", () => {
     const group = createObjectGroupWithMesh();
     // originalBackColor may be null if front was added first (takes priority)
     const backColorBefore = group.back.material.color.getHex();
@@ -567,7 +630,7 @@ describe('ObjectGroup - highlight', () => {
     expect(group.back.material.color.getHex()).not.toBe(backColorBefore);
   });
 
-  test('highlights vertices with size change', () => {
+  test("highlights vertices with size change", () => {
     const group = createObjectGroupWithVertices();
     const originalSize = group.originalWidth;
 
@@ -576,7 +639,7 @@ describe('ObjectGroup - highlight', () => {
     expect(group.vertices.material.size).toBe(group.vertexFocusSize);
   });
 
-  test('highlights edges with linewidth change', () => {
+  test("highlights edges with linewidth change", () => {
     const group = createObjectGroupWithEdges();
 
     group.highlight(true);
@@ -585,8 +648,8 @@ describe('ObjectGroup - highlight', () => {
   });
 });
 
-describe('ObjectGroup - widen', () => {
-  test('widens vertices', () => {
+describe("ObjectGroup - widen", () => {
+  test("widens vertices", () => {
     const group = createObjectGroupWithVertices();
 
     group.widen(true);
@@ -596,7 +659,7 @@ describe('ObjectGroup - widen', () => {
     expect(group.vertices.material.size).toBe(group.originalWidth);
   });
 
-  test('widens edges', () => {
+  test("widens edges", () => {
     const group = createObjectGroupWithEdges();
 
     group.widen(true);
@@ -606,7 +669,7 @@ describe('ObjectGroup - widen', () => {
     expect(group.edges.material.linewidth).toBe(group.originalWidth);
   });
 
-  test('uses selected width when selected', () => {
+  test("uses selected width when selected", () => {
     const group = createObjectGroupWithVertices();
     group.isSelected = true;
 
@@ -617,8 +680,8 @@ describe('ObjectGroup - widen', () => {
   });
 });
 
-describe('ObjectGroup - toggleSelection', () => {
-  test('toggles selection state', () => {
+describe("ObjectGroup - toggleSelection", () => {
+  test("toggles selection state", () => {
     const group = createObjectGroupWithMesh();
 
     expect(group.isSelected).toBe(false);
@@ -631,8 +694,8 @@ describe('ObjectGroup - toggleSelection', () => {
   });
 });
 
-describe('ObjectGroup - unhighlight', () => {
-  test('removes highlight and selection', () => {
+describe("ObjectGroup - unhighlight", () => {
+  test("removes highlight and selection", () => {
     const group = createObjectGroupWithMesh();
     group.isSelected = true;
     group.highlight(true);
@@ -642,7 +705,7 @@ describe('ObjectGroup - unhighlight', () => {
     expect(group.isSelected).toBe(false);
   });
 
-  test('keeps selection when keepSelection is true', () => {
+  test("keeps selection when keepSelection is true", () => {
     const group = createObjectGroupWithMesh();
     group.isSelected = true;
     group.highlight(true);
@@ -653,8 +716,8 @@ describe('ObjectGroup - unhighlight', () => {
   });
 });
 
-describe('ObjectGroup - clearHighlights', () => {
-  test('clears all highlights and selection', () => {
+describe("ObjectGroup - clearHighlights", () => {
+  test("clears all highlights and selection", () => {
     const group = createObjectGroupWithMesh();
     group.isSelected = true;
     group.highlight(true);
@@ -665,32 +728,32 @@ describe('ObjectGroup - clearHighlights', () => {
   });
 });
 
-describe('ObjectGroup - metrics', () => {
-  test('returns face metrics for front mesh', () => {
+describe("ObjectGroup - metrics", () => {
+  test("returns face metrics for front mesh", () => {
     const group = createObjectGroupWithMesh();
 
     const metrics = group.metrics();
 
-    expect(metrics).toEqual({ name: 'face', value: 0 });
+    expect(metrics).toEqual({ name: "face", value: 0 });
   });
 
-  test('returns vertex metrics for vertices', () => {
+  test("returns vertex metrics for vertices", () => {
     const group = createObjectGroupWithVertices();
 
     const metrics = group.metrics();
 
-    expect(metrics).toEqual({ name: 'vertex', value: 0 });
+    expect(metrics).toEqual({ name: "vertex", value: 0 });
   });
 
-  test('returns edge metrics for edges', () => {
+  test("returns edge metrics for edges", () => {
     const group = createObjectGroupWithEdges();
 
     const metrics = group.metrics();
 
-    expect(metrics).toEqual({ name: 'edge', value: 0 });
+    expect(metrics).toEqual({ name: "edge", value: 0 });
   });
 
-  test('returns null when no types', () => {
+  test("returns null when no types", () => {
     const group = new ObjectGroup(0.5, 1.0, 0x707070, null, null, false);
 
     const metrics = group.metrics();
@@ -699,8 +762,8 @@ describe('ObjectGroup - metrics', () => {
   });
 });
 
-describe('ObjectGroup - zebra lazy getter', () => {
-  test('creates zebra tool on first access', () => {
+describe("ObjectGroup - zebra lazy getter", () => {
+  test("creates zebra tool on first access", () => {
     const group = createObjectGroupWithMesh();
 
     expect(group._zebra).toBeNull();
@@ -711,7 +774,7 @@ describe('ObjectGroup - zebra lazy getter', () => {
     expect(group._zebra).toBe(zebra);
   });
 
-  test('returns same instance on subsequent access', () => {
+  test("returns same instance on subsequent access", () => {
     const group = createObjectGroupWithMesh();
 
     const zebra1 = group.zebra;
@@ -721,62 +784,62 @@ describe('ObjectGroup - zebra lazy getter', () => {
   });
 });
 
-describe('ObjectGroup - setZebra', () => {
-  test('enables zebra on front mesh', () => {
+describe("ObjectGroup - setZebra", () => {
+  test("enables zebra on front mesh", () => {
     const group = createObjectGroupWithMesh();
 
     // Should not throw
     expect(() => group.setZebra(true)).not.toThrow();
   });
 
-  test('disables zebra on front mesh', () => {
+  test("disables zebra on front mesh", () => {
     const group = createObjectGroupWithMesh();
 
     group.setZebra(true);
     expect(() => group.setZebra(false)).not.toThrow();
   });
 
-  test('does nothing when no front mesh', () => {
+  test("does nothing when no front mesh", () => {
     const group = createObjectGroupWithEdges();
 
     expect(() => group.setZebra(true)).not.toThrow();
   });
 });
 
-describe('ObjectGroup - zebra settings', () => {
-  test('setZebraCount calls zebra tool', () => {
+describe("ObjectGroup - zebra settings", () => {
+  test("setZebraCount calls zebra tool", () => {
     const group = createObjectGroupWithMesh();
 
     expect(() => group.setZebraCount(20)).not.toThrow();
   });
 
-  test('setZebraOpacity calls zebra tool', () => {
+  test("setZebraOpacity calls zebra tool", () => {
     const group = createObjectGroupWithMesh();
 
     expect(() => group.setZebraOpacity(0.5)).not.toThrow();
   });
 
-  test('setZebraDirection calls zebra tool', () => {
+  test("setZebraDirection calls zebra tool", () => {
     const group = createObjectGroupWithMesh();
 
     expect(() => group.setZebraDirection(45)).not.toThrow();
   });
 
-  test('setZebraColorScheme calls zebra tool', () => {
+  test("setZebraColorScheme calls zebra tool", () => {
     const group = createObjectGroupWithMesh();
 
-    expect(() => group.setZebraColorScheme('colorful')).not.toThrow();
+    expect(() => group.setZebraColorScheme("colorful")).not.toThrow();
   });
 
-  test('setZebraMappingMode calls zebra tool', () => {
+  test("setZebraMappingMode calls zebra tool", () => {
     const group = createObjectGroupWithMesh();
 
-    expect(() => group.setZebraMappingMode('normal')).not.toThrow();
+    expect(() => group.setZebraMappingMode("normal")).not.toThrow();
   });
 });
 
-describe('ObjectGroup - dispose', () => {
-  test('disposes all resources', () => {
+describe("ObjectGroup - dispose", () => {
+  test("disposes all resources", () => {
     const group = createObjectGroupWithMesh();
 
     // Initialize zebra
@@ -788,16 +851,16 @@ describe('ObjectGroup - dispose', () => {
     // shapeGeometry is set to null by dispose if it existed
   });
 
-  test('handles dispose when zebra not initialized', () => {
+  test("handles dispose when zebra not initialized", () => {
     const group = createObjectGroupWithMesh();
 
     expect(() => group.dispose()).not.toThrow();
   });
 
-  test('disposes shapeGeometry when it exists', () => {
+  test("disposes shapeGeometry when it exists", () => {
     const group = createObjectGroupWithMesh();
     // Manually set shapeGeometry
-    group.shapeGeometry = new (require('three').BufferGeometry)();
+    group.shapeGeometry = new (require("three").BufferGeometry)();
 
     group.dispose();
 
@@ -805,16 +868,16 @@ describe('ObjectGroup - dispose', () => {
   });
 });
 
-describe('ObjectGroup - _forEachMaterial', () => {
-  test('skips clipping plane materials', () => {
+describe("ObjectGroup - _forEachMaterial", () => {
+  test("skips clipping plane materials", () => {
     const group = createObjectGroupWithMesh();
 
     // Add a clipping child
     const clippingChild = new THREE.Mesh(
       new THREE.BufferGeometry(),
-      new THREE.MeshStandardMaterial()
+      new THREE.MeshStandardMaterial(),
     );
-    clippingChild.name = 'clipping-0';
+    clippingChild.name = "clipping-0";
     group.add(clippingChild);
 
     const materials = [];
@@ -825,15 +888,20 @@ describe('ObjectGroup - _forEachMaterial', () => {
   });
 });
 
-describe('ObjectGroup - clearClipping', () => {
-  test('removes all clipping groups', () => {
+describe("ObjectGroup - clearClipping", () => {
+  test("removes all clipping groups", () => {
     const group = createObjectGroupWithMesh();
 
     // Add clipping groups for 3 planes
     for (let i = 0; i < 3; i++) {
       const clippingGroup = new THREE.Group();
       clippingGroup.name = `clipping-${i}`;
-      clippingGroup.add(new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial()));
+      clippingGroup.add(
+        new THREE.Mesh(
+          new THREE.BufferGeometry(),
+          new THREE.MeshBasicMaterial(),
+        ),
+      );
       group.addClipping(clippingGroup, i);
     }
 
@@ -846,7 +914,7 @@ describe('ObjectGroup - clearClipping', () => {
     expect(group.children.length).toBe(childCountBefore - 3);
   });
 
-  test('is safe to call with no clipping groups', () => {
+  test("is safe to call with no clipping groups", () => {
     const group = createObjectGroupWithMesh();
     expect(group.clipping.size).toBe(0);
 
@@ -854,7 +922,7 @@ describe('ObjectGroup - clearClipping', () => {
     expect(group.clipping.size).toBe(0);
   });
 
-  test('is safe to call twice', () => {
+  test("is safe to call twice", () => {
     const group = createObjectGroupWithMesh();
     const clippingGroup = new THREE.Group();
     group.addClipping(clippingGroup, 0);

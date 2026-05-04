@@ -1,5 +1,5 @@
-import { describe, test, expect, afterEach } from 'vitest';
-import * as THREE from 'three';
+import { describe, test, expect, afterEach } from "vitest";
+import * as THREE from "three";
 import {
   setupClipping,
   cleanupClipping,
@@ -9,9 +9,9 @@ import {
   countStencilGroups,
   getPlaneConstant,
   getPlaneNormal,
-} from '../helpers/clipping-setup.js';
+} from "../helpers/clipping-setup.js";
 
-describe('Clipping - Basic Setup', () => {
+describe("Clipping - Basic Setup", () => {
   let testContext;
 
   afterEach(() => {
@@ -21,7 +21,7 @@ describe('Clipping - Basic Setup', () => {
     }
   });
 
-  test('can create Clipping instance', () => {
+  test("can create Clipping instance", () => {
     testContext = setupClipping();
     const { clipping } = testContext;
 
@@ -30,7 +30,7 @@ describe('Clipping - Basic Setup', () => {
     expect(clipping.reverseClipPlanes).toHaveLength(3);
   });
 
-  test('creates three clip planes with correct normals', () => {
+  test("creates three clip planes with correct normals", () => {
     testContext = setupClipping();
     const { clipping } = testContext;
 
@@ -50,7 +50,7 @@ describe('Clipping - Basic Setup', () => {
     expect(clipping.clipPlanes[2].normal.z).toBe(-1);
   });
 
-  test('creates reverse clip planes with negated normals', () => {
+  test("creates reverse clip planes with negated normals", () => {
     testContext = setupClipping();
     const { clipping } = testContext;
 
@@ -64,7 +64,7 @@ describe('Clipping - Basic Setup', () => {
     }
   });
 
-  test('creates plane helpers (initially hidden)', () => {
+  test("creates plane helpers (initially hidden)", () => {
     testContext = setupClipping();
     const { clipping } = testContext;
 
@@ -73,7 +73,7 @@ describe('Clipping - Basic Setup', () => {
     expect(clipping.planeHelpers.visible).toBe(false);
   });
 
-  test('calls display.setNormalLabel for each plane', () => {
+  test("calls display.setNormalLabel for each plane", () => {
     testContext = setupClipping();
     const { calls } = testContext;
 
@@ -83,7 +83,7 @@ describe('Clipping - Basic Setup', () => {
     expect(calls.setNormalLabel[2].index).toBe(2);
   });
 
-  test('respects center parameter', () => {
+  test("respects center parameter", () => {
     const center = new THREE.Vector3(5, 10, 15);
     testContext = setupClipping({ center });
     const { clipping } = testContext;
@@ -91,7 +91,7 @@ describe('Clipping - Basic Setup', () => {
     expect(clipping.center).toEqual([5, 10, 15]);
   });
 
-  test('respects size parameter', () => {
+  test("respects size parameter", () => {
     testContext = setupClipping({ size: 20 });
     const { clipping } = testContext;
 
@@ -99,7 +99,7 @@ describe('Clipping - Basic Setup', () => {
   });
 });
 
-describe('Clipping - Stencil Setup', () => {
+describe("Clipping - Stencil Setup", () => {
   let testContext;
 
   afterEach(() => {
@@ -109,7 +109,7 @@ describe('Clipping - Stencil Setup', () => {
     }
   });
 
-  test('creates stencil groups for solid objects only', () => {
+  test("creates stencil groups for solid objects only", () => {
     testContext = setupClipping({ numSolids: 2 });
     const { nestedGroup } = testContext;
 
@@ -118,7 +118,7 @@ describe('Clipping - Stencil Setup', () => {
     expect(count).toBe(6);
   });
 
-  test('creates PlaneMeshes group in rootGroup', () => {
+  test("creates PlaneMeshes group in rootGroup", () => {
     testContext = setupClipping({ numSolids: 2 });
     const { nestedGroup } = testContext;
 
@@ -126,7 +126,7 @@ describe('Clipping - Stencil Setup', () => {
     expect(planeMeshes.length).toBeGreaterThan(0);
   });
 
-  test('creates correct number of plane meshes', () => {
+  test("creates correct number of plane meshes", () => {
     testContext = setupClipping({ numSolids: 3 });
     const { nestedGroup } = testContext;
 
@@ -135,7 +135,7 @@ describe('Clipping - Stencil Setup', () => {
     expect(planeMeshes).toHaveLength(9);
   });
 
-  test('stores object colors for color caps feature', () => {
+  test("stores object colors for color caps feature", () => {
     testContext = setupClipping({ numSolids: 2 });
     const { clipping } = testContext;
 
@@ -143,7 +143,7 @@ describe('Clipping - Stencil Setup', () => {
     expect(clipping.objectColors).toHaveLength(6);
   });
 
-  test('skips non-solid objects for stencil creation', () => {
+  test("skips non-solid objects for stencil creation", () => {
     testContext = setupClipping({ numSolids: 1 });
     const { nestedGroup } = testContext;
 
@@ -154,7 +154,7 @@ describe('Clipping - Stencil Setup', () => {
   });
 });
 
-describe('Clipping - Constant Setting', () => {
+describe("Clipping - Constant Setting", () => {
   let testContext;
 
   afterEach(() => {
@@ -164,7 +164,7 @@ describe('Clipping - Constant Setting', () => {
     }
   });
 
-  test('setConstant updates clip plane constant', () => {
+  test("setConstant updates clip plane constant", () => {
     testContext = setupClipping({ size: 10 });
     const { clipping } = testContext;
 
@@ -176,7 +176,7 @@ describe('Clipping - Constant Setting', () => {
     expect(getPlaneConstant(clipping, 0)).not.toBe(initialConstant);
   });
 
-  test('setConstant updates reverse plane with negated value', () => {
+  test("setConstant updates reverse plane with negated value", () => {
     testContext = setupClipping({ size: 10 });
     const { clipping } = testContext;
 
@@ -186,7 +186,7 @@ describe('Clipping - Constant Setting', () => {
     expect(clipping.reverseClipPlanes[0].centeredConstant).toBe(-3.0);
   });
 
-  test('setConstant works for all three planes', () => {
+  test("setConstant works for all three planes", () => {
     testContext = setupClipping({ size: 10 });
     const { clipping } = testContext;
 
@@ -200,7 +200,7 @@ describe('Clipping - Constant Setting', () => {
   });
 });
 
-describe('Clipping - Normal Setting', () => {
+describe("Clipping - Normal Setting", () => {
   let testContext;
 
   afterEach(() => {
@@ -210,7 +210,7 @@ describe('Clipping - Normal Setting', () => {
     }
   });
 
-  test('setNormal updates clip plane normal', () => {
+  test("setNormal updates clip plane normal", () => {
     testContext = setupClipping();
     const { clipping } = testContext;
 
@@ -223,7 +223,7 @@ describe('Clipping - Normal Setting', () => {
     expect(normal.z).toBe(0);
   });
 
-  test('setNormal updates reverse plane with negated normal', () => {
+  test("setNormal updates reverse plane with negated normal", () => {
     testContext = setupClipping();
     const { clipping } = testContext;
 
@@ -236,7 +236,7 @@ describe('Clipping - Normal Setting', () => {
     expect(reverseNormal.z).toBe(-0.1);
   });
 
-  test('setNormal calls display.setNormalLabel', () => {
+  test("setNormal calls display.setNormalLabel", () => {
     testContext = setupClipping();
     const { clipping, calls } = testContext;
 
@@ -251,7 +251,7 @@ describe('Clipping - Normal Setting', () => {
     expect(calls.setNormalLabel[0].normal).toEqual([0, 1, 0]);
   });
 
-  test('setNormal resets constant to distance', () => {
+  test("setNormal resets constant to distance", () => {
     testContext = setupClipping({ size: 10 });
     const { clipping } = testContext;
 
@@ -265,7 +265,7 @@ describe('Clipping - Normal Setting', () => {
   });
 });
 
-describe('Clipping - Visibility', () => {
+describe("Clipping - Visibility", () => {
   let testContext;
 
   afterEach(() => {
@@ -275,7 +275,7 @@ describe('Clipping - Visibility', () => {
     }
   });
 
-  test('setVisible shows/hides plane meshes', () => {
+  test("setVisible shows/hides plane meshes", () => {
     testContext = setupClipping({ numSolids: 2 });
     const { clipping, nestedGroup } = testContext;
 
@@ -295,7 +295,7 @@ describe('Clipping - Visibility', () => {
     expect(planeMeshes[0].material.visible).toBe(true);
   });
 
-  test('setVisible affects all plane meshes', () => {
+  test("setVisible affects all plane meshes", () => {
     testContext = setupClipping({ numSolids: 2 });
     const { clipping, nestedGroup } = testContext;
 
@@ -308,7 +308,7 @@ describe('Clipping - Visibility', () => {
   });
 });
 
-describe('Clipping - Object Color Caps', () => {
+describe("Clipping - Object Color Caps", () => {
   let testContext;
 
   afterEach(() => {
@@ -318,14 +318,14 @@ describe('Clipping - Object Color Caps', () => {
     }
   });
 
-  test('getObjectColorCaps returns initial state', () => {
+  test("getObjectColorCaps returns initial state", () => {
     testContext = setupClipping();
     const { clipping } = testContext;
 
     expect(clipping.getObjectColorCaps()).toBe(false);
   });
 
-  test('setObjectColorCaps toggles color mode', () => {
+  test("setObjectColorCaps toggles color mode", () => {
     testContext = setupClipping({ numSolids: 2 });
     const { clipping } = testContext;
 
@@ -336,7 +336,7 @@ describe('Clipping - Object Color Caps', () => {
     expect(clipping.getObjectColorCaps()).toBe(false);
   });
 
-  test('setObjectColorCaps changes plane mesh colors', () => {
+  test("setObjectColorCaps changes plane mesh colors", () => {
     testContext = setupClipping({ numSolids: 1 });
     const { clipping, nestedGroup } = testContext;
 
@@ -359,7 +359,7 @@ describe('Clipping - Object Color Caps', () => {
   });
 });
 
-describe('Clipping - Theme Support', () => {
+describe("Clipping - Theme Support", () => {
   let testContext;
 
   afterEach(() => {
@@ -369,8 +369,8 @@ describe('Clipping - Theme Support', () => {
     }
   });
 
-  test('light theme uses correct plane colors', () => {
-    testContext = setupClipping({ theme: 'light', numSolids: 1 });
+  test("light theme uses correct plane colors", () => {
+    testContext = setupClipping({ theme: "light", numSolids: 1 });
     const { clipping } = testContext;
 
     const helpers = getPlaneHelpers(clipping);
@@ -381,8 +381,8 @@ describe('Clipping - Theme Support', () => {
     expect(helpers[2].material.color.getHex()).toBe(0x0000ff);
   });
 
-  test('dark theme uses correct plane colors', () => {
-    testContext = setupClipping({ theme: 'dark', numSolids: 1 });
+  test("dark theme uses correct plane colors", () => {
+    testContext = setupClipping({ theme: "dark", numSolids: 1 });
     const { clipping } = testContext;
 
     const helpers = getPlaneHelpers(clipping);
@@ -393,16 +393,16 @@ describe('Clipping - Theme Support', () => {
     expect(helpers[2].material.color.getHex()).toBe(0x3b9eff);
   });
 
-  test('dark theme uses higher opacity for plane helpers', () => {
-    testContext = setupClipping({ theme: 'dark', numSolids: 1 });
+  test("dark theme uses higher opacity for plane helpers", () => {
+    testContext = setupClipping({ theme: "dark", numSolids: 1 });
     const { clipping } = testContext;
 
     const helpers = getPlaneHelpers(clipping);
     expect(helpers[0].material.opacity).toBe(0.2);
   });
 
-  test('light theme uses lower opacity for plane helpers', () => {
-    testContext = setupClipping({ theme: 'light', numSolids: 1 });
+  test("light theme uses lower opacity for plane helpers", () => {
+    testContext = setupClipping({ theme: "light", numSolids: 1 });
     const { clipping } = testContext;
 
     const helpers = getPlaneHelpers(clipping);
@@ -410,7 +410,7 @@ describe('Clipping - Theme Support', () => {
   });
 });
 
-describe('Clipping - Dispose', () => {
+describe("Clipping - Dispose", () => {
   let testContext;
 
   afterEach(() => {
@@ -420,7 +420,7 @@ describe('Clipping - Dispose', () => {
     }
   });
 
-  test('dispose cleans up references', () => {
+  test("dispose cleans up references", () => {
     testContext = setupClipping();
     const { clipping } = testContext;
 
@@ -435,7 +435,7 @@ describe('Clipping - Dispose', () => {
     // are not nulled out - GC handles cleanup when Clipping object is collected
   });
 
-  test('dispose can be called multiple times without error', () => {
+  test("dispose can be called multiple times without error", () => {
     testContext = setupClipping();
     const { clipping } = testContext;
 
@@ -446,7 +446,7 @@ describe('Clipping - Dispose', () => {
   });
 });
 
-describe('Clipping - CenteredPlane', () => {
+describe("Clipping - CenteredPlane", () => {
   let testContext;
 
   afterEach(() => {
@@ -456,14 +456,14 @@ describe('Clipping - CenteredPlane', () => {
     }
   });
 
-  test('CenteredPlane stores center reference', () => {
+  test("CenteredPlane stores center reference", () => {
     testContext = setupClipping({ center: new THREE.Vector3(1, 2, 3) });
     const { clipping } = testContext;
 
     expect(clipping.clipPlanes[0].center).toEqual([1, 2, 3]);
   });
 
-  test('CenteredPlane adjusts constant based on center', () => {
+  test("CenteredPlane adjusts constant based on center", () => {
     // With center at origin, constant should equal centeredConstant
     testContext = setupClipping({
       center: new THREE.Vector3(0, 0, 0),
@@ -478,7 +478,7 @@ describe('Clipping - CenteredPlane', () => {
   });
 });
 
-describe('Clipping - Edge Cases', () => {
+describe("Clipping - Edge Cases", () => {
   let testContext;
 
   afterEach(() => {
@@ -488,7 +488,7 @@ describe('Clipping - Edge Cases', () => {
     }
   });
 
-  test('handles zero solids gracefully', () => {
+  test("handles zero solids gracefully", () => {
     testContext = setupClipping({ numSolids: 0 });
     const { clipping, nestedGroup } = testContext;
 
@@ -499,7 +499,7 @@ describe('Clipping - Edge Cases', () => {
     expect(planeMeshes).toHaveLength(0);
   });
 
-  test('handles large number of solids', () => {
+  test("handles large number of solids", () => {
     testContext = setupClipping({ numSolids: 10 });
     const { nestedGroup } = testContext;
 
@@ -511,7 +511,7 @@ describe('Clipping - Edge Cases', () => {
     expect(planeMeshes).toHaveLength(30);
   });
 
-  test('handles negative constant values', () => {
+  test("handles negative constant values", () => {
     testContext = setupClipping({ size: 10 });
     const { clipping } = testContext;
 
@@ -519,7 +519,7 @@ describe('Clipping - Edge Cases', () => {
     expect(getPlaneConstant(clipping, 0)).toBe(-5.0);
   });
 
-  test('handles non-unit normal vectors', () => {
+  test("handles non-unit normal vectors", () => {
     testContext = setupClipping();
     const { clipping } = testContext;
 
@@ -532,7 +532,7 @@ describe('Clipping - Edge Cases', () => {
   });
 });
 
-describe('Clipping - rebuildStencils', () => {
+describe("Clipping - rebuildStencils", () => {
   let testContext;
 
   afterEach(() => {
@@ -542,7 +542,7 @@ describe('Clipping - rebuildStencils', () => {
     }
   });
 
-  test('rebuilds stencils with same configuration', () => {
+  test("rebuilds stencils with same configuration", () => {
     testContext = setupClipping({ numSolids: 2 });
     const { clipping, nestedGroup } = testContext;
 
@@ -559,7 +559,7 @@ describe('Clipping - rebuildStencils', () => {
     expect(planeMeshesAfter).toBe(planeMeshesBefore);
   });
 
-  test('clears old stencils from ObjectGroups before rebuilding', () => {
+  test("clears old stencils from ObjectGroups before rebuilding", () => {
     testContext = setupClipping({ numSolids: 2 });
     const { clipping, nestedGroup } = testContext;
 
@@ -572,7 +572,7 @@ describe('Clipping - rebuildStencils', () => {
     expect(countStencilGroups(nestedGroup)).toBe(6);
   });
 
-  test('updates size and distance', () => {
+  test("updates size and distance", () => {
     testContext = setupClipping({ size: 10 });
     const { clipping } = testContext;
 
@@ -585,7 +585,7 @@ describe('Clipping - rebuildStencils', () => {
     expect(clipping.distance).toBe(10);
   });
 
-  test('updates center', () => {
+  test("updates center", () => {
     testContext = setupClipping();
     const { clipping } = testContext;
 
@@ -594,7 +594,7 @@ describe('Clipping - rebuildStencils', () => {
     expect(clipping.center).toEqual([5, 5, 5]);
   });
 
-  test('handles rebuild after adding an object to nestedGroup', () => {
+  test("handles rebuild after adding an object to nestedGroup", () => {
     testContext = setupClipping({ numSolids: 1 });
     const { clipping, nestedGroup } = testContext;
 
@@ -602,8 +602,8 @@ describe('Clipping - rebuildStencils', () => {
     expect(countStencilGroups(nestedGroup)).toBe(3);
 
     // Add a new solid to the groups map
-    const newObj = createMockObjectGroup('/root/solid_new', 'solid');
-    nestedGroup.groups['/root/solid_new'] = newObj;
+    const newObj = createMockObjectGroup("/root/solid_new", "solid");
+    nestedGroup.groups["/root/solid_new"] = newObj;
     nestedGroup.rootGroup.add(newObj);
 
     clipping.rebuildStencils([0, 0, 0], 10);
@@ -612,7 +612,7 @@ describe('Clipping - rebuildStencils', () => {
     expect(countStencilGroups(nestedGroup)).toBe(6);
   });
 
-  test('handles rebuild after removing an object from nestedGroup', () => {
+  test("handles rebuild after removing an object from nestedGroup", () => {
     testContext = setupClipping({ numSolids: 2 });
     const { clipping, nestedGroup } = testContext;
 
@@ -620,9 +620,9 @@ describe('Clipping - rebuildStencils', () => {
     expect(countStencilGroups(nestedGroup)).toBe(6);
 
     // Remove one solid from the groups map
-    const removedGroup = nestedGroup.groups['/root/solid_0'];
+    const removedGroup = nestedGroup.groups["/root/solid_0"];
     nestedGroup.rootGroup.remove(removedGroup);
-    delete nestedGroup.groups['/root/solid_0'];
+    delete nestedGroup.groups["/root/solid_0"];
 
     clipping.rebuildStencils([0, 0, 0], 10);
 
@@ -630,7 +630,7 @@ describe('Clipping - rebuildStencils', () => {
     expect(countStencilGroups(nestedGroup)).toBe(3);
   });
 
-  test('reapplies object color caps after rebuild', () => {
+  test("reapplies object color caps after rebuild", () => {
     testContext = setupClipping({ numSolids: 1 });
     const { clipping, nestedGroup } = testContext;
 

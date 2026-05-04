@@ -34,36 +34,37 @@ The top-level object and every node in the tree share the same `Shapes` interfac
 
 ### Required Fields
 
-| Field     | Type     | Description                                       |
-|-----------|----------|---------------------------------------------------|
-| `version` | `number` | Protocol version. Must be `2` or `3`.             |
-| `name`    | `string` | Display name shown in the navigation tree.        |
+| Field     | Type     | Description                                        |
+| --------- | -------- | -------------------------------------------------- |
+| `version` | `number` | Protocol version. Must be `2` or `3`.              |
+| `name`    | `string` | Display name shown in the navigation tree.         |
 | `id`      | `string` | Unique slash-separated path, e.g. `"/Group/Part"`. |
 
 ### Tree Structure Fields
 
-| Field   | Type       | Description                                                    |
-|---------|------------|----------------------------------------------------------------|
+| Field   | Type       | Description                                                     |
+| ------- | ---------- | --------------------------------------------------------------- |
 | `parts` | `Shapes[]` | Child nodes (mix of leaves and groups). Present on group nodes. |
-| `shape` | `Shape`    | Tessellated geometry. Present on leaf nodes. |
+| `shape` | `Shape`    | Tessellated geometry. Present on leaf nodes.                    |
 
 A node has either `parts` (group) or `shape` (leaf), never both.
 
 ### Transformation
 
-| Field | Type                                    | Description                   |
-|-------|-----------------------------------------|-------------------------------|
+| Field | Type                            | Description                                                                                                                            |
+| ----- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `loc` | `[[x, y, z], [qx, qy, qz, qw]]` | Position as a 3D vector and orientation as a quaternion. Applied hierarchically from root to leaf. Set to `null` or omit for identity. |
 
 Example:
+
 ```json
 "loc": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]]
 ```
 
 ### Bounding Box
 
-| Field | Type | Description |
-|-------|------|-------------|
+| Field | Type                      | Description                                                                         |
+| ----- | ------------------------- | ----------------------------------------------------------------------------------- |
 | `bb`  | `BoundingBoxFlat \| null` | Axis-aligned bounding box of the entire model. Typically set on the root node only. |
 
 ```json
@@ -72,27 +73,27 @@ Example:
 
 ### Appearance (Leaf Nodes)
 
-| Field        | Type                 | Default | Description                          |
-|--------------|----------------------|---------|--------------------------------------|
-| `color`      | `string \| string[]` | -       | CSS hex color (`"#e8b024"`) or array of hex colors for multi-colored edges. |
-| `alpha`      | `number`             | `1.0`   | Opacity, `0` (transparent) to `1` (opaque). |
-| `renderback` | `boolean`            | `false` | Whether to render the back face of triangles. |
-| `texture`    | `Texture \| null`    | `null`  | Optional encoded texture (see [Texture](#texture)). |
+| Field        | Type                 | Default | Description                                                                                                                                                                  |
+| ------------ | -------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `color`      | `string \| string[]` | -       | CSS hex color (`"#e8b024"`) or array of hex colors for multi-colored edges.                                                                                                  |
+| `alpha`      | `number`             | `1.0`   | Opacity, `0` (transparent) to `1` (opaque).                                                                                                                                  |
+| `renderback` | `boolean`            | `false` | Whether to render the back face of triangles.                                                                                                                                |
+| `texture`    | `Texture \| null`    | `null`  | Optional encoded texture (see [Texture](#texture)).                                                                                                                          |
 | `material`   | `string`             | -       | Optional tag for Studio mode material lookup. References a key in the root-level `materials` table or a builtin preset name (e.g. `"stainless-steel"`). Ignored in CAD mode. |
 
 ### Visibility State (Leaf Nodes)
 
-| Field   | Type                     | Description                            |
-|---------|--------------------------|----------------------------------------|
+| Field   | Type                                 | Description                             |
+| ------- | ------------------------------------ | --------------------------------------- |
 | `state` | `[VisibilityValue, VisibilityValue]` | Initial visibility as `[faces, edges]`. |
 
 `VisibilityValue` is one of:
 
-| Value | Meaning  |
-|-------|----------|
-| `0`   | Hidden   |
-| `1`   | Shown    |
-| `2`   | Mixed (some children shown, some hidden) |
+| Value | Meaning                                             |
+| ----- | --------------------------------------------------- |
+| `0`   | Hidden                                              |
+| `1`   | Shown                                               |
+| `2`   | Mixed (some children shown, some hidden)            |
 | `3`   | Not applicable (e.g. edges on a vertex-only object) |
 
 Common combinations:
@@ -103,18 +104,18 @@ Common combinations:
 
 ### Type Classification (Leaf Nodes)
 
-| Field     | Type                                   | Description                  |
-|-----------|----------------------------------------|------------------------------|
-| `type`    | `"shapes"` \| `"edges"` \| `"vertices"` \| `"polygon"` | Kind of geometry this leaf carries. |
-| `subtype` | `"solid"` \| `"faces"` \| `"face"`    | Distinguishes closed solids from open faces. Only meaningful when `type` is `"shapes"`. |
+| Field     | Type                                                   | Description                                                                             |
+| --------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| `type`    | `"shapes"` \| `"edges"` \| `"vertices"` \| `"polygon"` | Kind of geometry this leaf carries.                                                     |
+| `subtype` | `"solid"` \| `"faces"` \| `"face"`                     | Distinguishes closed solids from open faces. Only meaningful when `type` is `"shapes"`. |
 
 ### Additional Leaf Fields
 
-| Field        | Type             | Description                                    |
-|--------------|------------------|------------------------------------------------|
-| `accuracy`   | `number \| null` | Tessellation accuracy of the CAD kernel.       |
-| `normal_len` | `number`         | Length of normal helper vectors. `0` to hide.  |
-| `width`      | `number`         | Edge line width in pixels (for `"edges"` type). |
+| Field        | Type             | Description                                          |
+| ------------ | ---------------- | ---------------------------------------------------- |
+| `accuracy`   | `number \| null` | Tessellation accuracy of the CAD kernel.             |
+| `normal_len` | `number`         | Length of normal helper vectors. `0` to hide.        |
+| `width`      | `number`         | Edge line width in pixels (for `"edges"` type).      |
 | `size`       | `number`         | Vertex point size in pixels (for `"vertices"` type). |
 
 ---
@@ -128,18 +129,18 @@ geometry variants depending on the `type` of the leaf node.
 
 Contains triangulated surface mesh plus edges and vertices:
 
-| Field               | Type                                     | Description                          |
-|---------------------|------------------------------------------|--------------------------------------|
-| `vertices`          | `number[]` \| `Float32Array`             | Flat array of 3D vertex positions: `[x0, y0, z0, x1, y1, z1, ...]`. |
-| `normals`           | `number[]` \| `number[][]` \| `Float32Array` | Per-vertex normals, same length as `vertices`. Can be flat or nested per-face. |
-| `triangles`         | `number[]` \| `number[][]` \| `Uint32Array`  | Triangle indices into `vertices`. See [Serialization Formats](#serialization-formats). |
-| `edges`             | `number[]` \| `number[][]` \| `Float32Array` | Edge line segments as coordinate pairs. See [Serialization Formats](#serialization-formats). |
-| `obj_vertices`      | `number[]` \| `Float32Array`             | Original CAD topology vertices: `[x0, y0, z0, ...]`. Used for vertex display. |
-| `face_types`        | `number[]` \| `Uint32Array`              | One integer per face classifying the OCP face type. |
-| `edge_types`        | `number[]` \| `Uint8Array` \| `Uint32Array` | One integer per edge classifying the OCP edge type. |
-| `triangles_per_face`| `number[]` \| `Uint32Array`              | **Required when `triangles` is flat.** Number of triangles belonging to each face. Not needed when `triangles` is nested (`number[][]`). |
-| `segments_per_edge` | `number[]` \| `Uint32Array`              | **Required when `edges` is flat.** Number of line segments belonging to each edge. Not needed when `edges` is nested (`number[][]`). |
-| `uvs`               | `number[]` \| `Float32Array`             | Optional per-vertex UV coordinates: `[u0, v0, u1, v1, ...]`. Same vertex count as `vertices`. Used for texture mapping in Studio mode. When absent, the viewer uses triplanar or box projection as fallback. |
+| Field                | Type                                         | Description                                                                                                                                                                                                  |
+| -------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `vertices`           | `number[]` \| `Float32Array`                 | Flat array of 3D vertex positions: `[x0, y0, z0, x1, y1, z1, ...]`.                                                                                                                                          |
+| `normals`            | `number[]` \| `number[][]` \| `Float32Array` | Per-vertex normals, same length as `vertices`. Can be flat or nested per-face.                                                                                                                               |
+| `triangles`          | `number[]` \| `number[][]` \| `Uint32Array`  | Triangle indices into `vertices`. See [Serialization Formats](#serialization-formats).                                                                                                                       |
+| `edges`              | `number[]` \| `number[][]` \| `Float32Array` | Edge line segments as coordinate pairs. See [Serialization Formats](#serialization-formats).                                                                                                                 |
+| `obj_vertices`       | `number[]` \| `Float32Array`                 | Original CAD topology vertices: `[x0, y0, z0, ...]`. Used for vertex display.                                                                                                                                |
+| `face_types`         | `number[]` \| `Uint32Array`                  | One integer per face classifying the OCP face type.                                                                                                                                                          |
+| `edge_types`         | `number[]` \| `Uint8Array` \| `Uint32Array`  | One integer per edge classifying the OCP edge type.                                                                                                                                                          |
+| `triangles_per_face` | `number[]` \| `Uint32Array`                  | **Required when `triangles` is flat.** Number of triangles belonging to each face. Not needed when `triangles` is nested (`number[][]`).                                                                     |
+| `segments_per_edge`  | `number[]` \| `Uint32Array`                  | **Required when `edges` is flat.** Number of line segments belonging to each edge. Not needed when `edges` is nested (`number[][]`).                                                                         |
+| `uvs`                | `number[]` \| `Float32Array`                 | Optional per-vertex UV coordinates: `[u0, v0, u1, v1, ...]`. Same vertex count as `vertices`. Used for texture mapping in Studio mode. When absent, the viewer uses triplanar or box projection as fallback. |
 
 ### Edge-only Geometry (`type: "edges"`)
 
@@ -204,11 +205,13 @@ shape: {
 ### How the Counts Work
 
 Given `triangles_per_face = [2, 3]`:
+
 - Face 0 owns the first `2 * 3 = 6` indices in `triangles` (2 triangles, 3 indices each).
 - Face 1 owns the next `3 * 3 = 9` indices (3 triangles).
 
 Given `segments_per_edge = [1, 4]`:
-- Edge 0 owns the first `1 * 6 = 6` floats in `edges` (1 segment = 2 endpoints * 3 coords).
+
+- Edge 0 owns the first `1 * 6 = 6` floats in `edges` (1 segment = 2 endpoints \* 3 coords).
 - Edge 1 owns the next `4 * 6 = 24` floats (4 segments).
 
 ---
@@ -239,19 +242,19 @@ representation using extruded 2D polygons instead of tessellated meshes.
 
 Set on the root `Shapes` node:
 
-| Field       | Type                          | Description                          |
-|-------------|-------------------------------|--------------------------------------|
-| `format`    | `"GDS"`                       | Enables polygon rendering mode.      |
+| Field       | Type                                       | Description                                                                                                                                        |
+| ----------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `format`    | `"GDS"`                                    | Enables polygon rendering mode.                                                                                                                    |
 | `instances` | `Record<string, number[]>` \| `number[][]` | Shared polygon vertex data. Keys (or indices) are referenced by leaf nodes. Each value is a flat array of 2D coordinates: `[x0, y0, x1, y1, ...]`. |
 
 ### Polygon Leaf Nodes
 
 Leaf nodes with `type: "polygon"` use a `PolygonShape` instead of a `Shape`:
 
-| Field      | Type       | Description                                           |
-|------------|------------|-------------------------------------------------------|
-| `refs`     | `number[]` | Indices into the root-level `instances` table.        |
-| `height`   | `number`   | Extrusion height for the 2D polygon.                  |
+| Field      | Type       | Description                                                                                                                             |
+| ---------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `refs`     | `number[]` | Indices into the root-level `instances` table.                                                                                          |
+| `height`   | `number`   | Extrusion height for the 2D polygon.                                                                                                    |
 | `matrices` | `number[]` | Optional affine transformation matrices (6 values per matrix: `[a, b, c, d, tx, ty, ...]`). When empty, the identity transform is used. |
 
 The polygon vertices from `instances[ref]` are transformed by the matrix, converted
@@ -667,96 +670,96 @@ This section documents all three levels.
 Passed as the second argument to `new Display(container, options)`. Controls UI layout and
 tool visibility.
 
-| Field              | Type                             | Default   | Description                                    |
-|--------------------|----------------------------------|-----------|------------------------------------------------|
-| `cadWidth`         | `number`                         | `800`     | Width of CAD canvas in pixels.                 |
-| `height`           | `number`                         | `600`     | Height of CAD canvas in pixels.                |
-| `treeWidth`        | `number`                         | `260`     | Width of tree navigation panel in pixels.      |
-| `treeHeight`       | `number`                         | `400`     | Height of tree navigation panel in pixels.     |
-| `theme`            | `"light" \| "dark" \| "browser"` | `"light"` | UI theme. `"browser"` follows system setting.  |
-| `pinning`          | `boolean`                        | `false`   | Enable pin-as-PNG button.                      |
-| `glass`            | `boolean`                        | `false`   | Enable glass mode (compact overlay UI).        |
-| `tools`            | `boolean`                        | `true`    | Show/hide all toolbar tools.                   |
-| `keymap`           | `Keymap`                         | See below | Custom keyboard shortcuts.                     |
-| `newTreeBehavior`  | `boolean`                        | `true`    | Use new tree navigation behavior.              |
-| `measureTools`     | `boolean`                        | `true`    | Show measurement tools in toolbar.             |
-| `selectTool`       | `boolean`                        | `true`    | Show select tool in toolbar.                   |
-| `explodeTool`      | `boolean`                        | `true`    | Show explode/animation tool in toolbar.        |
-| `zscaleTool`       | `boolean`                        | `false`   | Show z-scale tool in toolbar.                  |
-| `zebraTool`        | `boolean`                        | `true`    | Show zebra tool in toolbar.                    |
-| `studioTool`       | `boolean`                        | `true`    | Show Studio mode tool in toolbar.              |
-| `measurementDebug` | `boolean`                        | `false`   | Log measurement debug info to console.         |
-| `canvas`           | `HTMLCanvasElement`              | —         | External canvas for shared WebGL context.      |
-| `gl`               | `WebGLRenderingContext`          | —         | External WebGL context (use with `canvas`).    |
+| Field              | Type                             | Default   | Description                                   |
+| ------------------ | -------------------------------- | --------- | --------------------------------------------- |
+| `cadWidth`         | `number`                         | `800`     | Width of CAD canvas in pixels.                |
+| `height`           | `number`                         | `600`     | Height of CAD canvas in pixels.               |
+| `treeWidth`        | `number`                         | `260`     | Width of tree navigation panel in pixels.     |
+| `treeHeight`       | `number`                         | `400`     | Height of tree navigation panel in pixels.    |
+| `theme`            | `"light" \| "dark" \| "browser"` | `"light"` | UI theme. `"browser"` follows system setting. |
+| `pinning`          | `boolean`                        | `false`   | Enable pin-as-PNG button.                     |
+| `glass`            | `boolean`                        | `false`   | Enable glass mode (compact overlay UI).       |
+| `tools`            | `boolean`                        | `true`    | Show/hide all toolbar tools.                  |
+| `keymap`           | `Keymap`                         | See below | Custom keyboard shortcuts.                    |
+| `newTreeBehavior`  | `boolean`                        | `true`    | Use new tree navigation behavior.             |
+| `measureTools`     | `boolean`                        | `true`    | Show measurement tools in toolbar.            |
+| `selectTool`       | `boolean`                        | `true`    | Show select tool in toolbar.                  |
+| `explodeTool`      | `boolean`                        | `true`    | Show explode/animation tool in toolbar.       |
+| `zscaleTool`       | `boolean`                        | `false`   | Show z-scale tool in toolbar.                 |
+| `zebraTool`        | `boolean`                        | `true`    | Show zebra tool in toolbar.                   |
+| `studioTool`       | `boolean`                        | `true`    | Show Studio mode tool in toolbar.             |
+| `measurementDebug` | `boolean`                        | `false`   | Log measurement debug info to console.        |
+| `canvas`           | `HTMLCanvasElement`              | —         | External canvas for shared WebGL context.     |
+| `gl`               | `WebGLRenderingContext`          | —         | External WebGL context (use with `canvas`).   |
 
 ### Render Options
 
 Passed as the second argument to `viewer.render(shapes, renderOptions, viewerOptions)`.
 Controls CAD mode material appearance and lighting.
 
-| Field              | Type     | Default    | Description                                     |
-|--------------------|----------|------------|-------------------------------------------------|
-| `edgeColor`        | `number` | `0x707070` | Default edge color (hex).                       |
-| `ambientIntensity` | `number` | `1.0`      | Ambient light intensity.                        |
-| `directIntensity`  | `number` | `1.1`      | Directional light intensity.                    |
-| `metalness`        | `number` | `0.3`      | Default metalness factor (0--1).                |
-| `roughness`        | `number` | `0.65`     | Default roughness factor (0--1).                |
-| `defaultOpacity`   | `number` | `0.5`      | Opacity level when transparency is enabled.     |
-| `normalLen`        | `number` | `0`        | Length of normal display vectors. `0` to hide.  |
+| Field              | Type     | Default    | Description                                    |
+| ------------------ | -------- | ---------- | ---------------------------------------------- |
+| `edgeColor`        | `number` | `0x707070` | Default edge color (hex).                      |
+| `ambientIntensity` | `number` | `1.0`      | Ambient light intensity.                       |
+| `directIntensity`  | `number` | `1.1`      | Directional light intensity.                   |
+| `metalness`        | `number` | `0.3`      | Default metalness factor (0--1).               |
+| `roughness`        | `number` | `0.65`     | Default roughness factor (0--1).               |
+| `defaultOpacity`   | `number` | `0.5`      | Opacity level when transparency is enabled.    |
+| `normalLen`        | `number` | `0`        | Length of normal display vectors. `0` to hide. |
 
 ### Viewer Options
 
 Passed as the third argument to `viewer.render(shapes, renderOptions, viewerOptions)`.
 Controls camera, grid, clipping, and controls.
 
-| Field              | Type                                 | Default                 | Description                                       |
-|--------------------|--------------------------------------|-------------------------|---------------------------------------------------|
-| `control`          | `"orbit" \| "trackball"`             | `"orbit"`               | Camera control type.                              |
-| `axes`             | `boolean`                            | `false`                 | Show X/Y/Z axes.                                  |
-| `axes0`            | `boolean`                            | `false`                 | Show axes at origin instead of object center.     |
-| `grid`             | `[boolean, boolean, boolean]`        | `[false, false, false]` | Show grid planes [XY, XZ, YZ].                   |
-| `ortho`            | `boolean`                            | `true`                  | Use orthographic camera (`false` = perspective).  |
-| `transparent`      | `boolean`                            | `false`                 | Render object as transparent.                     |
-| `blackEdges`       | `boolean`                            | `false`                 | Render edges in black.                            |
-| `collapse`         | `number`                             | `0`                     | Tree collapse level (0=collapsed, 1=root, 2=all, -1=smart). |
-| `clipIntersection` | `boolean`                            | `false`                 | Use intersection clipping mode.                   |
-| `clipPlaneHelpers` | `boolean`                            | `false`                 | Show clipping plane helpers.                      |
-| `clipObjectColors` | `boolean`                            | `false`                 | Use object colors for clipping caps.              |
-| `clipNormal0`      | `[number, number, number]`           | `[-1, 0, 0]`           | Clipping plane 0 normal direction.                |
-| `clipNormal1`      | `[number, number, number]`           | `[0, -1, 0]`           | Clipping plane 1 normal direction.                |
-| `clipNormal2`      | `[number, number, number]`           | `[0, 0, -1]`           | Clipping plane 2 normal direction.                |
-| `clipSlider0`      | `number`                             | `-1`                    | Clipping plane 0 slider position.                 |
-| `clipSlider1`      | `number`                             | `-1`                    | Clipping plane 1 slider position.                 |
-| `clipSlider2`      | `number`                             | `-1`                    | Clipping plane 2 slider position.                 |
-| `holroyd`          | `boolean`                            | `true`                  | Holroyd non-tumbling rotation for trackball.      |
-| `up`               | `"Z" \| "Y" \| "legacy"`            | `"Z"`                   | World up direction.                               |
-| `ticks`            | `number`                             | `10`                    | Grid tick count hint.                             |
-| `gridFontSize`     | `number`                             | `10`                    | Font size for grid labels.                        |
-| `centerGrid`       | `boolean`                            | `false`                 | Center grid on object instead of origin.          |
-| `position`         | `[number, number, number] \| null`   | `null`                  | Camera position.                                  |
-| `quaternion`       | `[number, number, number, number] \| null` | `null`            | Camera rotation quaternion [x, y, z, w].          |
-| `target`           | `[number, number, number] \| null`   | `null`                  | Camera look-at target.                            |
-| `zoom`             | `number`                             | `1.0`                   | Camera zoom level.                                |
-| `panSpeed`         | `number`                             | `1.0`                   | Pan speed multiplier.                             |
-| `rotateSpeed`      | `number`                             | `1.0`                   | Rotation speed multiplier.                        |
-| `zoomSpeed`        | `number`                             | `1.0`                   | Zoom speed multiplier.                            |
-| `timeit`           | `boolean`                            | `false`                 | Log render timings to console.                    |
-| `zebraCount`       | `number`                                   | `9`             | Number of zebra stripes.                          |
-| `zebraOpacity`     | `number`                                   | `1.0`           | Zebra stripe opacity (0--1).                      |
-| `zebraDirection`   | `number`                                   | `0`             | Stripe direction (0--360 degrees).                |
-| `zebraColorScheme` | `"blackwhite" \| "colorful" \| "grayscale"` | `"blackwhite"` | Zebra color scheme.                               |
-| `zebraMappingMode` | `"reflection" \| "normal"`                 | `"reflection"`  | Zebra mapping mode.                               |
-| `studioEnvironment` | `string`                                  | `"studio"`      | Studio environment preset or custom HDR URL. See [Environment Presets](#environment-presets). |
-| `studioEnvIntensity` | `number`                                 | `1.0`           | Studio environment map intensity (0--3).          |
-| `studioBackground` | `StudioBackground`                          | `"environment"` | Studio background mode.                         |
-| `studioToneMapping` | `"neutral" \| "ACES" \| "none"`            | `"neutral"`     | Studio tone mapping algorithm.                    |
-| `studioExposure`   | `number`                                    | `1.0`           | Studio tone mapping exposure (0--2).              |
-| `studio4kEnvMaps`  | `boolean`                                   | `false`         | Use 4K environment maps.                          |
-| `studioTextureMapping` | `"triplanar" \| "parametric"`           | `"triplanar"`   | Studio texture mapping mode.                      |
-| `studioEnvRotation` | `number`                                   | `0`             | Studio environment rotation (0--360 degrees).     |
-| `studioShadowIntensity` | `number`                               | `0.5`           | Studio shadow intensity (0--1). `0` = off.        |
-| `studioShadowSoftness` | `number`                                | `0.2`           | Studio shadow softness (0--1).                    |
-| `studioAOIntensity` | `number`                                   | `0.5`           | Studio ambient occlusion intensity (0--3). `0` = off. |
+| Field                   | Type                                        | Default                 | Description                                                                                   |
+| ----------------------- | ------------------------------------------- | ----------------------- | --------------------------------------------------------------------------------------------- |
+| `control`               | `"orbit" \| "trackball"`                    | `"orbit"`               | Camera control type.                                                                          |
+| `axes`                  | `boolean`                                   | `false`                 | Show X/Y/Z axes.                                                                              |
+| `axes0`                 | `boolean`                                   | `false`                 | Show axes at origin instead of object center.                                                 |
+| `grid`                  | `[boolean, boolean, boolean]`               | `[false, false, false]` | Show grid planes [XY, XZ, YZ].                                                                |
+| `ortho`                 | `boolean`                                   | `true`                  | Use orthographic camera (`false` = perspective).                                              |
+| `transparent`           | `boolean`                                   | `false`                 | Render object as transparent.                                                                 |
+| `blackEdges`            | `boolean`                                   | `false`                 | Render edges in black.                                                                        |
+| `collapse`              | `number`                                    | `0`                     | Tree collapse level (0=collapsed, 1=root, 2=all, -1=smart).                                   |
+| `clipIntersection`      | `boolean`                                   | `false`                 | Use intersection clipping mode.                                                               |
+| `clipPlaneHelpers`      | `boolean`                                   | `false`                 | Show clipping plane helpers.                                                                  |
+| `clipObjectColors`      | `boolean`                                   | `false`                 | Use object colors for clipping caps.                                                          |
+| `clipNormal0`           | `[number, number, number]`                  | `[-1, 0, 0]`            | Clipping plane 0 normal direction.                                                            |
+| `clipNormal1`           | `[number, number, number]`                  | `[0, -1, 0]`            | Clipping plane 1 normal direction.                                                            |
+| `clipNormal2`           | `[number, number, number]`                  | `[0, 0, -1]`            | Clipping plane 2 normal direction.                                                            |
+| `clipSlider0`           | `number`                                    | `-1`                    | Clipping plane 0 slider position.                                                             |
+| `clipSlider1`           | `number`                                    | `-1`                    | Clipping plane 1 slider position.                                                             |
+| `clipSlider2`           | `number`                                    | `-1`                    | Clipping plane 2 slider position.                                                             |
+| `holroyd`               | `boolean`                                   | `true`                  | Holroyd non-tumbling rotation for trackball.                                                  |
+| `up`                    | `"Z" \| "Y" \| "legacy"`                    | `"Z"`                   | World up direction.                                                                           |
+| `ticks`                 | `number`                                    | `10`                    | Grid tick count hint.                                                                         |
+| `gridFontSize`          | `number`                                    | `10`                    | Font size for grid labels.                                                                    |
+| `centerGrid`            | `boolean`                                   | `false`                 | Center grid on object instead of origin.                                                      |
+| `position`              | `[number, number, number] \| null`          | `null`                  | Camera position.                                                                              |
+| `quaternion`            | `[number, number, number, number] \| null`  | `null`                  | Camera rotation quaternion [x, y, z, w].                                                      |
+| `target`                | `[number, number, number] \| null`          | `null`                  | Camera look-at target.                                                                        |
+| `zoom`                  | `number`                                    | `1.0`                   | Camera zoom level.                                                                            |
+| `panSpeed`              | `number`                                    | `1.0`                   | Pan speed multiplier.                                                                         |
+| `rotateSpeed`           | `number`                                    | `1.0`                   | Rotation speed multiplier.                                                                    |
+| `zoomSpeed`             | `number`                                    | `1.0`                   | Zoom speed multiplier.                                                                        |
+| `timeit`                | `boolean`                                   | `false`                 | Log render timings to console.                                                                |
+| `zebraCount`            | `number`                                    | `9`                     | Number of zebra stripes.                                                                      |
+| `zebraOpacity`          | `number`                                    | `1.0`                   | Zebra stripe opacity (0--1).                                                                  |
+| `zebraDirection`        | `number`                                    | `0`                     | Stripe direction (0--360 degrees).                                                            |
+| `zebraColorScheme`      | `"blackwhite" \| "colorful" \| "grayscale"` | `"blackwhite"`          | Zebra color scheme.                                                                           |
+| `zebraMappingMode`      | `"reflection" \| "normal"`                  | `"reflection"`          | Zebra mapping mode.                                                                           |
+| `studioEnvironment`     | `string`                                    | `"studio"`              | Studio environment preset or custom HDR URL. See [Environment Presets](#environment-presets). |
+| `studioEnvIntensity`    | `number`                                    | `1.0`                   | Studio environment map intensity (0--3).                                                      |
+| `studioBackground`      | `StudioBackground`                          | `"environment"`         | Studio background mode.                                                                       |
+| `studioToneMapping`     | `"neutral" \| "ACES" \| "none"`             | `"neutral"`             | Studio tone mapping algorithm.                                                                |
+| `studioExposure`        | `number`                                    | `1.0`                   | Studio tone mapping exposure (0--2).                                                          |
+| `studio4kEnvMaps`       | `boolean`                                   | `false`                 | Use 4K environment maps.                                                                      |
+| `studioTextureMapping`  | `"triplanar" \| "parametric"`               | `"triplanar"`           | Studio texture mapping mode.                                                                  |
+| `studioEnvRotation`     | `number`                                    | `0`                     | Studio environment rotation (0--360 degrees).                                                 |
+| `studioShadowIntensity` | `number`                                    | `0.5`                   | Studio shadow intensity (0--1). `0` = off.                                                    |
+| `studioShadowSoftness`  | `number`                                    | `0.2`                   | Studio shadow softness (0--1).                                                                |
+| `studioAOIntensity`     | `number`                                    | `0.5`                   | Studio ambient occlusion intensity (0--3). `0` = off.                                         |
 
 > **Conceptual split:** Viewer Options describe the _studio_ (lighting, backdrop, camera
 > processing) — things independent of the objects being viewed. Shape data describes the
@@ -766,22 +769,22 @@ Controls camera, grid, clipping, and controls.
 
 The `studioEnvironment` field accepts these values:
 
-| Value | UI Label | Description |
-|-------|----------|-------------|
-| `"studio"` | Procedural Studio | Built-in procedural studio (no network required). |
-| `"studio_small_08"` | Soft Light | Soft light, neutral, backlight. |
-| `"studio_small_03"` | High Contrast Studio | High-contrast, softbox + ceiling lamp. |
-| `"white_studio_05"` | Bright Neutral | White, product, bright, neutral lighting. |
-| `"white_studio_03"` | Clean Softbox | White, softbox, reflection, clean. |
-| `"photo_studio_01"` | Spotlit Setup | Lighting setup, spotlights. |
-| `"studio_small_09"` | Controlled Light | Product lighting, controlled, soft reflections. |
-| `"cyclorama_hard_light"` | Hard Contrast Light | Cyclorama, hard light, contrast. |
-| `"canary_wharf"` | Urban Overcast | Urban, city, overcast. |
-| `"kiara_1_dawn"` | Outdoor Warm | Dawn, warm, nature, sunrise. |
-| `"empty_warehouse_01"` | Neutral Industrial | Warehouse, neutral, big space. |
-| `"san_giuseppe_bridge"` | San Giuseppe Bridge | Bridge, outdoor. |
-| `"none"` | — | No environment map. |
-| Custom URL | — | Any `.hdr` file URL (loaded via HDRLoader). |
+| Value                    | UI Label             | Description                                       |
+| ------------------------ | -------------------- | ------------------------------------------------- |
+| `"studio"`               | Procedural Studio    | Built-in procedural studio (no network required). |
+| `"studio_small_08"`      | Soft Light           | Soft light, neutral, backlight.                   |
+| `"studio_small_03"`      | High Contrast Studio | High-contrast, softbox + ceiling lamp.            |
+| `"white_studio_05"`      | Bright Neutral       | White, product, bright, neutral lighting.         |
+| `"white_studio_03"`      | Clean Softbox        | White, softbox, reflection, clean.                |
+| `"photo_studio_01"`      | Spotlit Setup        | Lighting setup, spotlights.                       |
+| `"studio_small_09"`      | Controlled Light     | Product lighting, controlled, soft reflections.   |
+| `"cyclorama_hard_light"` | Hard Contrast Light  | Cyclorama, hard light, contrast.                  |
+| `"canary_wharf"`         | Urban Overcast       | Urban, city, overcast.                            |
+| `"kiara_1_dawn"`         | Outdoor Warm         | Dawn, warm, nature, sunrise.                      |
+| `"empty_warehouse_01"`   | Neutral Industrial   | Warehouse, neutral, big space.                    |
+| `"san_giuseppe_bridge"`  | San Giuseppe Bridge  | Bridge, outdoor.                                  |
+| `"none"`                 | —                    | No environment map.                               |
+| Custom URL               | —                    | Any `.hdr` file URL (loaded via HDRLoader).       |
 
 ### Data-Level Configuration (Root Node)
 
@@ -819,24 +822,24 @@ materials: {
 
 **Value types:**
 
-| Value Form | Description |
-|------------|-------------|
+| Value Form                  | Description                                                                                                                |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `MaterialAppearance` object | Builtin preset with optional overrides (detected by `builtin` key). See [Material Appearance](#material-appearance) below. |
-| `MaterialXMaterial` object | threejs-materials format (detected by `properties` key). See [MaterialX Material](#materialx-material) below. |
+| `MaterialXMaterial` object  | threejs-materials format (detected by `properties` key). See [MaterialX Material](#materialx-material) below.              |
 
 ##### Built-in Presets
 
 31 presets organized by category:
 
-| Category | Presets |
-|----------|---------|
-| Polished Metals | `chrome`, `polished-steel`, `polished-aluminum`, `gold`, `copper`, `brass` |
+| Category             | Presets                                                                      |
+| -------------------- | ---------------------------------------------------------------------------- |
+| Polished Metals      | `chrome`, `polished-steel`, `polished-aluminum`, `gold`, `copper`, `brass`   |
 | Matte/Brushed Metals | `stainless-steel`, `brushed-aluminum`, `cast-iron`, `titanium`, `galvanized` |
-| Plastics | `plastic-glossy`, `plastic-matte`, `abs-black`, `nylon` |
-| Glass & Transparent | `acrylic-clear`, `glass-clear`, `glass-tinted`, `glass-frosted` |
-| Rubber & Elastomers | `rubber-black`, `rubber-gray`, `rubber-red` |
-| Painted Surfaces | `paint-matte`, `paint-glossy`, `paint-metallic`, `car-paint` |
-| Natural & Other | `ceramic-white`, `carbon-fiber`, `concrete` |
+| Plastics             | `plastic-glossy`, `plastic-matte`, `abs-black`, `nylon`                      |
+| Glass & Transparent  | `acrylic-clear`, `glass-clear`, `glass-tinted`, `glass-frosted`              |
+| Rubber & Elastomers  | `rubber-black`, `rubber-gray`, `rubber-red`                                  |
+| Painted Surfaces     | `paint-matte`, `paint-glossy`, `paint-metallic`, `car-paint`                 |
+| Natural & Other      | `ceramic-white`, `carbon-fiber`, `concrete`                                  |
 
 ### MaterialX Material
 
@@ -861,10 +864,10 @@ which catalogs PBR materials from GPUOpen, ambientCG, PolyHaven, and PhysicallyB
 Detected by the presence of the `properties` key. Extra keys from threejs-materials
 (`id`, `name`, `source`, `url`, `license`) pass through harmlessly.
 
-| Field           | Type                                                    | Default  | Description                                                      |
-|-----------------|---------------------------------------------------------|----------|------------------------------------------------------------------|
+| Field           | Type                                                    | Default  | Description                                                                                                                                                                      |
+| --------------- | ------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `properties`    | `Record<string, { value?: unknown; texture?: string }>` | required | Property dict. Keys are simplified names (`"color"`, `"roughness"`, `"normal"`, etc.). Each entry has optional `value` (scalar or linear RGB array) and/or `texture` (data URI). |
-| `textureRepeat` | `[number, number]`                                      | `[1, 1]` | Texture tiling factor `[u, v]`, applied to all textures.         |
+| `textureRepeat` | `[number, number]`                                      | `[1, 1]` | Texture tiling factor `[u, v]`, applied to all textures.                                                                                                                         |
 
 ### Material Appearance
 
@@ -877,79 +880,79 @@ against the HTML page.
 
 #### Core Properties
 
-| Field              | Type                           | Default | Description                                     |
-|--------------------|--------------------------------|---------|-------------------------------------------------|
-| `name`             | `string`                       | —       | Display name.                                   |
-| `builtin`          | `string`                       | —       | Built-in preset reference (e.g., `"stainless-steel"`). |
-| `color`            | `[r, g, b, a]` or `"#rrggbb"` | —       | sRGB base color. RGBA tuple (0--1) or CSS hex.  |
-| `map`              | `string`                       | —       | Base color texture reference.                   |
-| `metalness`        | `number`                       | `0.0`   | Metalness factor (0--1).                        |
-| `roughness`        | `number`                       | `0.5`   | Roughness factor (0--1).                        |
-| `metalnessMap`     | `string`                       | —       | Metalness map texture reference.                |
-| `roughnessMap`     | `string`                       | —       | Roughness map texture reference.                |
-| `normalMap`        | `string`                       | —       | Normal map texture reference.                   |
-| `aoMap`            | `string`                       | —       | Ambient occlusion texture reference.            |
+| Field          | Type                          | Default | Description                                            |
+| -------------- | ----------------------------- | ------- | ------------------------------------------------------ |
+| `name`         | `string`                      | —       | Display name.                                          |
+| `builtin`      | `string`                      | —       | Built-in preset reference (e.g., `"stainless-steel"`). |
+| `color`        | `[r, g, b, a]` or `"#rrggbb"` | —       | sRGB base color. RGBA tuple (0--1) or CSS hex.         |
+| `map`          | `string`                      | —       | Base color texture reference.                          |
+| `metalness`    | `number`                      | `0.0`   | Metalness factor (0--1).                               |
+| `roughness`    | `number`                      | `0.5`   | Roughness factor (0--1).                               |
+| `metalnessMap` | `string`                      | —       | Metalness map texture reference.                       |
+| `roughnessMap` | `string`                      | —       | Roughness map texture reference.                       |
+| `normalMap`    | `string`                      | —       | Normal map texture reference.                          |
+| `aoMap`        | `string`                      | —       | Ambient occlusion texture reference.                   |
 
 #### Emissive
 
-| Field              | Type        | Default | Description                   |
-|--------------------|-------------|---------|-------------------------------|
-| `emissive`         | `[r, g, b]` | —       | Emissive color (linear RGB). |
-| `emissiveMap`      | `string`    | —       | Emissive map texture.        |
-| `emissiveIntensity`| `number`    | `1.0`   | Emissive intensity.          |
+| Field               | Type        | Default | Description                  |
+| ------------------- | ----------- | ------- | ---------------------------- |
+| `emissive`          | `[r, g, b]` | —       | Emissive color (linear RGB). |
+| `emissiveMap`       | `string`    | —       | Emissive map texture.        |
+| `emissiveIntensity` | `number`    | `1.0`   | Emissive intensity.          |
 
 #### Transmission (glass, water)
 
-| Field              | Type     | Default | Description                  |
-|--------------------|----------|---------|------------------------------|
-| `transmission`     | `number` | —       | Transmission factor (0--1). |
-| `transmissionMap`  | `string` | —       | Transmission map texture.   |
+| Field             | Type     | Default | Description                 |
+| ----------------- | -------- | ------- | --------------------------- |
+| `transmission`    | `number` | —       | Transmission factor (0--1). |
+| `transmissionMap` | `string` | —       | Transmission map texture.   |
 
 #### Clearcoat (car paint, varnish)
 
-| Field                    | Type     | Default | Description                       |
-|--------------------------|----------|---------|-----------------------------------|
-| `clearcoat`              | `number` | —       | Clearcoat intensity (0--1).      |
-| `clearcoatRoughness`     | `number` | —       | Clearcoat roughness.             |
-| `clearcoatMap`           | `string` | —       | Clearcoat intensity texture.     |
-| `clearcoatRoughnessMap`  | `string` | —       | Clearcoat roughness texture.     |
-| `clearcoatNormalMap`     | `string` | —       | Clearcoat normal map texture.    |
+| Field                   | Type     | Default | Description                   |
+| ----------------------- | -------- | ------- | ----------------------------- |
+| `clearcoat`             | `number` | —       | Clearcoat intensity (0--1).   |
+| `clearcoatRoughness`    | `number` | —       | Clearcoat roughness.          |
+| `clearcoatMap`          | `string` | —       | Clearcoat intensity texture.  |
+| `clearcoatRoughnessMap` | `string` | —       | Clearcoat roughness texture.  |
+| `clearcoatNormalMap`    | `string` | —       | Clearcoat normal map texture. |
 
 #### Volume (subsurface: jade, wax, skin)
 
-| Field                | Type        | Default | Description                    |
-|----------------------|-------------|---------|--------------------------------|
-| `thickness`          | `number`    | —       | Thickness for volume effects. |
-| `thicknessMap`       | `string`    | —       | Thickness map texture.        |
-| `attenuationDistance` | `number`   | —       | Attenuation distance.         |
-| `attenuationColor`   | `[r, g, b]` | —      | Attenuation color (linear RGB). |
+| Field                 | Type        | Default | Description                     |
+| --------------------- | ----------- | ------- | ------------------------------- |
+| `thickness`           | `number`    | —       | Thickness for volume effects.   |
+| `thicknessMap`        | `string`    | —       | Thickness map texture.          |
+| `attenuationDistance` | `number`    | —       | Attenuation distance.           |
+| `attenuationColor`    | `[r, g, b]` | —       | Attenuation color (linear RGB). |
 
 #### IOR, Specular, Sheen, Anisotropy
 
-| Field                  | Type        | Default | Description                               |
-|------------------------|-------------|---------|-------------------------------------------|
-| `ior`                  | `number`    | `1.5`   | Index of refraction.                      |
-| `specularIntensity`    | `number`    | —       | Specular intensity (0--1).                |
-| `specularColor`        | `[r, g, b]` | —      | Specular tint color (linear RGB).         |
-| `specularIntensityMap` | `string`    | —       | Specular intensity texture.               |
-| `specularColorMap`     | `string`    | —       | Specular color texture.                   |
-| `sheen`                | `number`    | —       | Sheen intensity (0--1).                   |
-| `sheenColor`           | `[r, g, b]` | —      | Sheen tint color (linear RGB).            |
-| `sheenRoughness`       | `number`    | —       | Sheen roughness.                          |
-| `sheenColorMap`        | `string`    | —       | Sheen color texture.                      |
-| `sheenRoughnessMap`    | `string`    | —       | Sheen roughness texture.                  |
-| `anisotropy`           | `number`    | —       | Anisotropy strength (0--1).               |
-| `anisotropyRotation`   | `number`    | —       | Anisotropy rotation (radians).            |
-| `anisotropyMap`        | `string`    | —       | Anisotropy direction texture.             |
+| Field                  | Type        | Default | Description                       |
+| ---------------------- | ----------- | ------- | --------------------------------- |
+| `ior`                  | `number`    | `1.5`   | Index of refraction.              |
+| `specularIntensity`    | `number`    | —       | Specular intensity (0--1).        |
+| `specularColor`        | `[r, g, b]` | —       | Specular tint color (linear RGB). |
+| `specularIntensityMap` | `string`    | —       | Specular intensity texture.       |
+| `specularColorMap`     | `string`    | —       | Specular color texture.           |
+| `sheen`                | `number`    | —       | Sheen intensity (0--1).           |
+| `sheenColor`           | `[r, g, b]` | —       | Sheen tint color (linear RGB).    |
+| `sheenRoughness`       | `number`    | —       | Sheen roughness.                  |
+| `sheenColorMap`        | `string`    | —       | Sheen color texture.              |
+| `sheenRoughnessMap`    | `string`    | —       | Sheen roughness texture.          |
+| `anisotropy`           | `number`    | —       | Anisotropy strength (0--1).       |
+| `anisotropyRotation`   | `number`    | —       | Anisotropy rotation (radians).    |
+| `anisotropyMap`        | `string`    | —       | Anisotropy direction texture.     |
 
 #### Alpha & Misc
 
-| Field         | Type                              | Default | Description                           |
-|---------------|-----------------------------------|---------|---------------------------------------|
-| `alphaMode`   | `"OPAQUE" \| "MASK" \| "BLEND"`  | —       | Alpha blending mode.                  |
-| `alphaCutoff` | `number`                          | `0.5`   | Alpha cutoff for `MASK` mode.         |
-| `unlit`       | `boolean`                         | —       | Use unlit material (no shading).      |
-| `doubleSided` | `boolean`                         | —       | Render both sides of faces.           |
+| Field         | Type                            | Default | Description                      |
+| ------------- | ------------------------------- | ------- | -------------------------------- |
+| `alphaMode`   | `"OPAQUE" \| "MASK" \| "BLEND"` | —       | Alpha blending mode.             |
+| `alphaCutoff` | `number`                        | `0.5`   | Alpha cutoff for `MASK` mode.    |
+| `unlit`       | `boolean`                       | —       | Use unlit material (no shading). |
+| `doubleSided` | `boolean`                       | —       | Render both sides of faces.      |
 
 ### Studio Materials Example
 
