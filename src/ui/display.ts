@@ -3268,6 +3268,7 @@ class Display {
    * @public
    */
   setTheme(theme: ThemeInput): string {
+    let resolved: "dark" | "light";
     if (
       theme === "dark" ||
       (theme === "browser" &&
@@ -3285,7 +3286,7 @@ class Display {
         );
       }
       this.viewer.update(true);
-      return "dark";
+      resolved = "dark";
     } else {
       this.container.setAttribute("data-theme", "light");
       document.body.setAttribute("data-theme", "light");
@@ -3299,8 +3300,14 @@ class Display {
         );
       }
       this.viewer.update(true);
-      return "light";
+      resolved = "light";
     }
+    // Keep state.theme in sync with the DOM. Without this, paths that call
+    // setTheme directly (matchMedia listener, viewer.setTheme, MutationObserver
+    // bridges) would update the DOM while leaving state.theme stale, and the
+    // next viewer.render() would re-apply the stale state value
+    this.viewer.state.set("theme", resolved, false);
+    return resolved;
   }
 }
 
