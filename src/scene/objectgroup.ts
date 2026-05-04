@@ -543,11 +543,26 @@ class ObjectGroup extends THREE.Group {
         child1.material.visible = flag;
       }
     }
-    if (this.back && this.renderback) {
-      if (this._isStudioMode) {
-        this.back.visible = flag;
-      } else {
-        this.back.material.visible = flag;
+    if (this.back) {
+      // Hide-path: always hide the back when the shape is hidden, even
+      // when !renderback. Otherwise a back face left visible by a prior
+      // setBackVisible(true) (clip tab) would remain visible after the
+      // front goes hidden, appearing as a ghost.
+      // Show-path: only flip back to visible when renderback is set;
+      // when !renderback, leave back.visible alone — the clip-tab's
+      // setBackVisible() owns it.
+      if (!flag) {
+        if (this._isStudioMode) {
+          this.back.visible = false;
+        } else {
+          this.back.material.visible = false;
+        }
+      } else if (this.renderback) {
+        if (this._isStudioMode) {
+          this.back.visible = true;
+        } else {
+          this.back.material.visible = true;
+        }
       }
     }
   }

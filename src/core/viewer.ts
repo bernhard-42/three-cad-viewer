@@ -1231,6 +1231,11 @@ class Viewer {
             if (!isObjectGroup(objectGroup)) continue;
 
             objectGroup.setShapeVisible(compactTree[0] === 1);
+            // Re-apply clip-mode back visibility when re-showing — see
+            // matching comment in setObject().
+            if (compactTree[0] === 1 && this.expandedNestedGroup!.backVisible) {
+              objectGroup.setBackVisible(true);
+            }
             objectGroup.setEdgesVisible(compactTree[1] === 1);
 
             // Sync state (unless disabled = 3)
@@ -1260,6 +1265,11 @@ class Viewer {
         }
 
         objectGroup.setShapeVisible(shapeVisible);
+        // Re-apply clip-mode back visibility when re-showing — see
+        // matching comment in setObject().
+        if (shapeVisible && this.compactNestedGroup!.backVisible) {
+          objectGroup.setBackVisible(true);
+        }
         objectGroup.setEdgesVisible(edgeVisible);
 
         // Sync compact state (unless disabled = 3)
@@ -2116,6 +2126,14 @@ class Viewer {
     if (objectGroup != null && objectGroup instanceof ObjectGroup) {
       if (iconNumber === 0) {
         objectGroup.setShapeVisible(state === 1);
+        // When re-showing while clip-tab is active, re-apply the clip-mode
+        // back-visibility for this object. setShapeVisible's show-path
+        // doesn't touch back when !renderback (clip-tab owns it), so a
+        // previously-hidden object would otherwise come back with front
+        // visible but back still hidden — looking hollow under clipping.
+        if (state === 1 && this.rendered.nestedGroup.backVisible) {
+          objectGroup.setBackVisible(true);
+        }
       } else {
         objectGroup.setEdgesVisible(state === 1);
       }
