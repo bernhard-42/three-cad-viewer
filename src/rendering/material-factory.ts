@@ -604,6 +604,8 @@ class MaterialFactory {
    * @param values - Scalar PBR values from threejs-materials
    * @param textures - Texture map references from threejs-materials
    * @param textureRepeat - Optional [u, v] texture tiling applied to all loaded textures
+   * @param textureRotation - Optional texture rotation in radians (counterclockwise),
+   *                          pivoting around the texture center (0.5, 0.5)
    * @param textureCache - TextureCache for resolving data URI textures
    * @param label - Optional label for GPU tracking
    * @returns Configured MeshPhysicalMaterial
@@ -612,6 +614,7 @@ class MaterialFactory {
     values: Record<string, unknown>,
     textures: Record<string, string>,
     textureRepeat: [number, number] | undefined,
+    textureRotation: number | undefined,
     textureCache: TextureCacheInterface | null,
     label?: string,
   ): Promise<THREE.MeshPhysicalMaterial> {
@@ -693,13 +696,20 @@ class MaterialFactory {
             : "normalTexture";
         let tex = await textureCache.get(textureRef, roleForCache);
         if (tex) {
-          if (
+          const needsRepeat =
             textureRepeat &&
-            (textureRepeat[0] !== 1 || textureRepeat[1] !== 1)
-          ) {
+            (textureRepeat[0] !== 1 || textureRepeat[1] !== 1);
+          const needsRotation = !!textureRotation;
+          if (needsRepeat || needsRotation) {
             // Clone to avoid mutating shared cached texture
             tex = tex.clone();
-            tex.repeat.set(textureRepeat[0], textureRepeat[1]);
+            if (needsRepeat) {
+              tex.repeat.set(textureRepeat![0], textureRepeat![1]);
+            }
+            if (needsRotation) {
+              tex.center.set(0.5, 0.5); // pivot around texture center
+              tex.rotation = textureRotation!;
+            }
           }
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (material as any)[mapName] = tex;

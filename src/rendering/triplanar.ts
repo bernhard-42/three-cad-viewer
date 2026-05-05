@@ -39,6 +39,7 @@ varying vec3 vTriplanarNormal;
 uniform vec3 triplanarOffset;
 uniform float triplanarScale;
 uniform vec2 triplanarRepeat;
+uniform float triplanarRotation;
 
 // normalMatrix is only declared in the fragment shader for object-space
 // normal maps. We need it for triplanar tangent-space normal mapping too.
@@ -61,6 +62,20 @@ void initTriplanarUVs() {
   tri_uvX = p.yz * r;
   tri_uvY = p.xz * r;
   tri_uvZ = p.xy * r;
+
+  // Apply rotation (counterclockwise, radians) if non-zero. The texture
+  // coords are unbounded in triplanar (derived from world-space position),
+  // so the pivot for rotation is the UV origin — for a tiled/repeating
+  // texture this is visually equivalent to any other pivot modulo tile
+  // wrapping, and is the simplest choice.
+  if (triplanarRotation != 0.0) {
+    float c = cos(triplanarRotation);
+    float s = sin(triplanarRotation);
+    mat2 rot = mat2(c, -s, s, c);
+    tri_uvX = rot * tri_uvX;
+    tri_uvY = rot * tri_uvY;
+    tri_uvZ = rot * tri_uvZ;
+  }
 }
 
 // Sample a texture using the global triplanar UVs and blend weights.
@@ -281,22 +296,26 @@ export function applyTriplanarMapping(
   const offset = bb.min.clone();
   const scale = 1.0 / maxDim;
 
-  // Read texture repeat from the first available texture map
-  const repeat =
-    (
-      material.map ??
-      material.roughnessMap ??
-      material.normalMap ??
-      material.metalnessMap ??
-      material.emissiveMap ??
-      material.aoMap
-    )?.repeat?.clone() ?? new THREE.Vector2(1, 1);
+  // Read texture repeat and rotation from the first available texture map.
+  // texture.rotation is set by the MaterialX path when textureRotation is
+  // provided; for triplanar sampling we read it back and apply via uniform
+  // since the triplanar shader bypasses three.js's texture-matrix transform.
+  const firstMap =
+    material.map ??
+    material.roughnessMap ??
+    material.normalMap ??
+    material.metalnessMap ??
+    material.emissiveMap ??
+    material.aoMap;
+  const repeat = firstMap?.repeat?.clone() ?? new THREE.Vector2(1, 1);
+  const rotation = firstMap?.rotation ?? 0;
 
   material.onBeforeCompile = (shader) => {
     // Custom uniforms
     shader.uniforms.triplanarOffset = { value: offset };
     shader.uniforms.triplanarScale = { value: scale };
     shader.uniforms.triplanarRepeat = { value: repeat };
+    shader.uniforms.triplanarRotation = { value: rotation };
 
     // --- Vertex shader ---
     // Declare varyings

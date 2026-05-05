@@ -1278,6 +1278,7 @@ class NestedGroup {
                 resolved.values,
                 resolved.textures,
                 resolved.textureRepeat,
+                resolved.textureRotation,
                 this._textureCache as TextureCacheInterface,
               );
             if (materialXHasTextures(resolved)) {

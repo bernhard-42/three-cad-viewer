@@ -692,6 +692,9 @@ export interface MaterialXMaterial {
   textures: Record<string, string>;
   /** Optional texture tiling [u, v], default [1, 1]. Applied to all textures. */
   textureRepeat?: [number, number];
+  /** Optional texture rotation in **radians**, counterclockwise. Pivot is
+   *  the texture center (0.5, 0.5). Applied to all textures. */
+  textureRotation?: number;
 }
 
 /**
