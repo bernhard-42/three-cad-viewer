@@ -34,6 +34,8 @@ import {
   EffectPass,
   SMAAEffect,
   SMAAPreset,
+  ToneMappingEffect,
+  ToneMappingMode,
   KawaseBlurPass,
   KernelSize,
   Effect,
@@ -45,25 +47,17 @@ import * as THREE from "three";
 import type { StudioToneMapping } from "../core/types.js";
 import { logger } from "../utils/logger.js";
 
-// ---------------------------------------------------------------------------
-// Tone-mapping: maps viewer strings to Three.js renderer.toneMapping constants.
-//
-// Tone mapping is applied per-fragment in the main render pass (via
-// renderer.toneMapping) rather than as a post-process effect. This is
-// critical for AA quality: with HDR + post-process tone mapping, MSAA
-// resolves in linear HDR space, then the tone curve compresses high-contrast
-// pixels non-linearly, producing visible aliasing on bright specular edges.
-// Per-fragment tone mapping puts the resolve in tone-mapped (LDR) space so
-// edges blend smoothly. The postprocessing library's docs say it expects
-// renderer.toneMapping=NoToneMapping, but that's for HDR pipelines with
-// bloom or other linear-space effects — we only have shadow compositing
-// and SMAA, both of which are happy in tone-mapped space.
-// ---------------------------------------------------------------------------
-
-const TONE_MAP_MODE: Record<StudioToneMapping, THREE.ToneMapping> = {
-  neutral: THREE.NeutralToneMapping,
-  ACES: THREE.ACESFilmicToneMapping,
-  none: THREE.LinearToneMapping,
+// Tone mapping runs as a post-process effect in the EffectPass, before SMAA,
+// so SMAA's edge detection sees LDR luma in its calibrated [0,1] range.
+// Per-fragment tone mapping in the main RenderPass would be a no-op:
+// three.js forces NoToneMapping when rendering to a non-canvas render target
+// (see WebGLPrograms.getParameters), and the composer's input is a HalfFloat
+// HDR FBO. Exposure is read from renderer.toneMappingExposure by three.js's
+// shared <tonemapping_pars_fragment> chunk that ToneMappingEffect includes.
+const TONE_MAP_MODE: Record<StudioToneMapping, ToneMappingMode> = {
+  neutral: ToneMappingMode.NEUTRAL,
+  ACES: ToneMappingMode.ACES_FILMIC,
+  none: ToneMappingMode.LINEAR,
 };
 
 // Scratch color to avoid per-frame allocation
@@ -124,6 +118,7 @@ class StudioComposer {
   // so EffectComposer.addPass() needs an `any` cast.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _n8aoPass: any;
+  private _toneMappingEffect: ToneMappingEffect;
   private _effectPass: EffectPass;
   private _renderer: THREE.WebGLRenderer;
   private _scene: THREE.Scene;
@@ -171,10 +166,10 @@ class StudioComposer {
     this._width = width;
     this._height = height;
 
-    // Tone mapping is applied per-fragment in the main RenderPass via
-    // renderer.toneMapping (see TONE_MAP_MODE comment for rationale).
-    // setToneMapping() is called by StudioManager right after construction
-    // to set the user-selected mode + exposure.
+    // ToneMappingEffect handles the tone curve in the EffectPass. The
+    // postprocessing library requires renderer.toneMapping = NoToneMapping
+    // so the renderer doesn't try to apply it as well.
+    this._renderer.toneMapping = THREE.NoToneMapping;
 
     // HDR pipeline with HalfFloat framebuffer.
     // multisampling = 4: WebGL2 MSAA on the composer's input RT. Most GPUs
@@ -204,9 +199,12 @@ class StudioComposer {
     this._n8aoPass.enabled = false; // off by default
     this._composer.addPass(this._n8aoPass);
 
-    // --- Pass 3: shadow mask compositing + SMAA ---
-    // Tone mapping is no longer in this pass — it's done per-fragment in the
-    // main RenderPass to avoid HDR-resolve aliasing on high-contrast edges.
+    // --- Pass 3: shadow mask compositing + tone mapping + SMAA ---
+    // ShadowMask runs first in linear HDR (where shadow math is correct).
+    // ToneMapping next so SMAA sees LDR luma in its calibrated [0,1] range.
+    this._toneMappingEffect = new ToneMappingEffect({
+      mode: ToneMappingMode.NEUTRAL,
+    });
     const smaaEffect = new SMAAEffect({ preset: SMAAPreset.ULTRA });
     // SMAA loads its lookup textures (search/area) asynchronously via
     // `new Image(); image.src = "data:..."`. Even though the source is a
@@ -225,6 +223,7 @@ class StudioComposer {
     this._effectPass = new EffectPass(
       camera,
       this._shadowMaskEffect,
+      this._toneMappingEffect,
       smaaEffect,
     );
     this._composer.addPass(this._effectPass);
@@ -296,10 +295,13 @@ class StudioComposer {
       logger.warn(
         `StudioComposer: unknown tone mapping mode "${mode}", falling back to Neutral`,
       );
-      this._renderer.toneMapping = THREE.NeutralToneMapping;
+      this._toneMappingEffect.mode = ToneMappingMode.NEUTRAL;
     } else {
-      this._renderer.toneMapping = mapped;
+      this._toneMappingEffect.mode = mapped;
     }
+    // ToneMappingEffect's GLSL reads toneMappingExposure from the
+    // <tonemapping_pars_fragment> chunk, which three.js auto-populates
+    // from this renderer property each frame.
     this._renderer.toneMappingExposure = exposure;
   }
 
