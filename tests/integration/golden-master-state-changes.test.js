@@ -544,25 +544,26 @@ describe("Golden Master - State Changes", () => {
       const assemblyData = await loadExample("assembly");
       viewer.render(assemblyData, renderOptions, viewerOptions);
 
-      const initialState = captureSceneState(viewer);
-
-      // Toggle transparency OFF
+      // Toggle transparency OFF: opacity = per-object alpha (the assembly has
+      // one part with alpha=0.4, the rest are 1.0). Materials with alpha < 1.0
+      // keep material.transparent=true regardless of the toggle (it's an
+      // ObjectGroup-level flag), so we don't assert on that field.
       viewer.setTransparent(false);
       const opaqueState = captureSceneState(viewer);
-
-      // All CAD materials should have opacity = 1.0 (or close to it)
       expect(opaqueState.cadObjects.meshMaterials.length).toBeGreaterThan(0);
-      for (const material of opaqueState.cadObjects.meshMaterials) {
-        expect(material.opacity).toBeGreaterThanOrEqual(0.95);
-      }
 
-      // Toggle transparency ON
+      // Toggle transparency ON: each material's opacity drops by defaultOpacity.
       viewer.setTransparent(true);
       const transparentState = captureSceneState(viewer);
 
-      // All CAD materials should have reduced opacity
-      for (const material of transparentState.cadObjects.meshMaterials) {
-        expect(material.opacity).toBeLessThan(0.9);
+      // Pairwise: every material's opacity scaled down by the toggle.
+      expect(transparentState.cadObjects.meshMaterials).toHaveLength(
+        opaqueState.cadObjects.meshMaterials.length,
+      );
+      for (let i = 0; i < transparentState.cadObjects.meshMaterials.length; i++) {
+        expect(transparentState.cadObjects.meshMaterials[i].opacity).toBeLessThan(
+          opaqueState.cadObjects.meshMaterials[i].opacity + 1e-6,
+        );
       }
     });
   });

@@ -348,8 +348,8 @@ describe("Studio mode switching", () => {
 
 describe("Material type guards", () => {
   test("isMaterialXMaterial detects MaterialXMaterial objects", () => {
-    expect(isMaterialXMaterial({ properties: { roughness: 0.5 } })).toBe(true);
-    expect(isMaterialXMaterial({ properties: {} })).toBe(true);
+    expect(isMaterialXMaterial({ values: { roughness: 0.5 } })).toBe(true);
+    expect(isMaterialXMaterial({ values: {} })).toBe(true);
   });
 
   test("isMaterialXMaterial rejects non-MaterialXMaterial values", () => {
@@ -357,7 +357,7 @@ describe("Material type guards", () => {
     expect(isMaterialXMaterial(undefined)).toBe(false);
     expect(isMaterialXMaterial("builtin:plastic")).toBe(false);
     expect(isMaterialXMaterial(42)).toBe(false);
-    expect(isMaterialXMaterial({ roughness: 0.5 })).toBe(false); // no 'properties' key
+    expect(isMaterialXMaterial({ roughness: 0.5 })).toBe(false); // no 'values' key
   });
 
   test("isInstancedFormat rejects partial objects", () => {

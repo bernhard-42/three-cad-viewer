@@ -29,13 +29,13 @@ describe("StudioFloor", () => {
     expect(plane.visible).toBe(false); // shadows not enabled yet
   });
 
-  test("configure sizes floor to 4x scene size", () => {
+  test("configure sizes floor to 6x scene size", () => {
     floor.configure(0, 5);
 
     const plane = floor.group.children[0];
     const params = plane.geometry.parameters;
-    expect(params.width).toBe(20); // 5 * 4
-    expect(params.height).toBe(20);
+    expect(params.width).toBe(30); // 5 * 6
+    expect(params.height).toBe(30);
   });
 
   test("reconfigure replaces the previous plane", () => {

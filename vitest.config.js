@@ -31,6 +31,11 @@ export default defineConfig({
     // Snapshot configuration
     snapshotFormat: {
       printBasicPrototype: false,
+      // vitest 4 introduced a per-depth output budget (default 1MB); once any
+      // depth exceeds it the serializer truncates everything else as [Object].
+      // Our complete-rendering snapshots embed full geometry buffers and
+      // routinely exceed this — bump it so they serialize fully.
+      maxOutputLength: 100_000_000,
     },
   },
 

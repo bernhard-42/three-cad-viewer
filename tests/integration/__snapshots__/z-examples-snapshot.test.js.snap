@@ -395,7 +395,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 14929069,
+        "color": 13421772,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "cylinder",
@@ -412,14 +412,14 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "metalness": 0.3,
         "objectName": "sphere",
         "objectType": "Mesh",
-        "opacity": 1,
+        "opacity": 0.4,
         "roughness": 0.65,
         "side": 0,
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 16448250,
+        "color": 14929069,
         "emissive": 0,
         "metalness": 0.3,
         "objectName": "torus",
@@ -911,7 +911,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 14929069,
+        "color": 13421772,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -924,14 +924,14 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "color": 16777215,
         "emissive": 0,
         "metalness": 0.3,
-        "opacity": 1,
+        "opacity": 0.4,
         "roughness": 0.65,
         "side": 0,
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
       {
-        "color": 16448250,
+        "color": 14929069,
         "emissive": 0,
         "metalness": 0.3,
         "opacity": 1,
@@ -46367,7 +46367,7 @@ exports[`Examples - Snapshot Tests > special rendering snapshot for transceiver_
   },
   "camera": {
     "far": 558462.62711237,
-    "near": 0.1,
+    "near": 55.846262711236996,
     "ortho": true,
     "position": {
       "x": 15696.802404783619,
@@ -69317,7 +69317,7 @@ exports[`Examples - Snapshot Tests > special rendering snapshot for transceiver_
       },
     ],
     "counts": {
-      "groups": 2111,
+      "groups": 2112,
       "helpers": 4,
       "lights": 2,
       "lines": 417,
@@ -69377,7 +69377,7 @@ exports[`Examples - Snapshot Tests > special rendering snapshot for transceiver_
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 6,
+    "totalChildren": 7,
   },
 }
 `;

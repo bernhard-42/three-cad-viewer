@@ -178,6 +178,8 @@ vi.mock("three", async () => {
   const actual = await vi.importActual("three");
   return {
     ...actual,
-    WebGLRenderer: vi.fn(() => createMockRenderer()),
+    WebGLRenderer: vi.fn(function () {
+      return createMockRenderer();
+    }),
   };
 });

@@ -138,8 +138,12 @@ describe("Render Initial Notification", () => {
     const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
+    // Target the bulk initial notification (contains all three clip_normals).
+    // Setting each clip normal also fires a one-key notification of its own,
+    // so a predicate checking only clip_normal_0 would match the first one.
     const notification = collector.notifications.find(
-      (n) => "clip_normal_0" in n,
+      (n) =>
+        "clip_normal_0" in n && "clip_normal_1" in n && "clip_normal_2" in n,
     );
 
     // This was the bug we fixed - values should NOT be null
@@ -164,7 +168,8 @@ describe("Render Initial Notification", () => {
     viewer.render(box1Data, renderOptions, viewerOptions);
 
     const notification = collector.notifications.find(
-      (n) => "clip_normal_0" in n,
+      (n) =>
+        "clip_normal_0" in n && "clip_normal_1" in n && "clip_normal_2" in n,
     );
 
     // Default clip normals are along negative axes

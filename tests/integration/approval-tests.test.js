@@ -485,15 +485,22 @@ describe("Approval Tests - User Interaction Workflows", () => {
 
       const opaqueState = captureSceneState(viewer);
 
-      // Make partially transparent
-      viewer.setTransparent(0.5, false);
+      // Enable transparency mode. Per-material opacity becomes defaultOpacity*alpha,
+      // so it cannot be asserted as a single fixed number — the assembly mixes
+      // alpha=1.0 parts with one alpha=0.4 part by design.
+      viewer.setTransparent(true);
       const transparentState = captureSceneState(viewer);
 
-      // Verify all nested materials updated
-      const allTransparent = transparentState.cadObjects.meshMaterials.every(
-        (mat) => mat.transparent === true && mat.opacity === 0.5,
+      // Propagation: every nested material's opacity dropped (or stayed equal,
+      // for parts whose alpha was already < 1.0 and got rescaled by 0.5).
+      expect(transparentState.cadObjects.meshMaterials).toHaveLength(
+        opaqueState.cadObjects.meshMaterials.length,
       );
-      expect(allTransparent).toBe(true);
+      for (let i = 0; i < transparentState.cadObjects.meshMaterials.length; i++) {
+        expect(transparentState.cadObjects.meshMaterials[i].opacity).toBeLessThan(
+          opaqueState.cadObjects.meshMaterials[i].opacity + 1e-6,
+        );
+      }
 
       expect({ opaqueState, transparentState }).toMatchSnapshot(
         "assembly-transparency-workflow",

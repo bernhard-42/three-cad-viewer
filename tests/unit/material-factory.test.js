@@ -217,14 +217,16 @@ describe("MaterialFactory — MaterialX materials", () => {
   });
 
   test("createStudioMaterialFromMaterialX sets properties from dict", async () => {
-    const properties = {
-      color: { value: [0.8, 0.5, 0.3] },
-      metalness: { value: 0.9 },
-      roughness: { value: 0.3 },
-      clearcoat: { value: 0.5 },
+    const values = {
+      color: [0.8, 0.5, 0.3],
+      metalness: 0.9,
+      roughness: 0.3,
+      clearcoat: 0.5,
     };
     const mat = await factory.createStudioMaterialFromMaterialX(
-      properties,
+      values,
+      {},
+      undefined,
       undefined,
       null,
     );
@@ -236,13 +238,18 @@ describe("MaterialFactory — MaterialX materials", () => {
 
   test("createStudioMaterialFromMaterialX handles texture references", async () => {
     const cache = mockTextureCache();
-    const properties = {
-      color: { value: [1, 1, 1], texture: "data:image/png;base64,abc" },
-      metalness: { value: 0.5 },
-      roughness: { value: 0.5 },
+    const values = {
+      color: [1, 1, 1],
+      metalness: 0.5,
+      roughness: 0.5,
+    };
+    const textures = {
+      color: "data:image/png;base64,abc",
     };
     await factory.createStudioMaterialFromMaterialX(
-      properties,
+      values,
+      textures,
+      undefined,
       undefined,
       cache,
     );
@@ -250,14 +257,16 @@ describe("MaterialFactory — MaterialX materials", () => {
   });
 
   test("createStudioMaterialFromMaterialX with textureRepeat", async () => {
-    const properties = {
-      color: 0xffffff,
+    const values = {
+      color: [1, 1, 1],
       metalness: 0,
       roughness: 0.5,
     };
     const mat = await factory.createStudioMaterialFromMaterialX(
-      properties,
+      values,
+      {},
       [2, 3],
+      undefined,
       null,
     );
     expect(mat).toBeInstanceOf(THREE.MeshPhysicalMaterial);
