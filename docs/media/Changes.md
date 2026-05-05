@@ -1,5 +1,13 @@
 # Change log
 
+## v4.3.9
+
+- Support texture rotation for triplanar and parametric uv texture mapping
+- Properly support viewer reuse and direct-to-tab rendering without CAD flash
+- Implement policy to keep/reset clip slider and normal values in three-cad-viewer, based on bbox/gridsize
+- Fix env rotation in Z-up scenes (use ZYX Euler order) which was changed by three.js r184
+- Fix to keep state.theme in sync with the DOM
+
 ## v4.3.8
 
 - Support 4K HDR env maps

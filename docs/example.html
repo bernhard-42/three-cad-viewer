@@ -56,8 +56,8 @@
         assembly,
         linkage,
         studio_mode,
-        "lazy:toycar",  // instanced/compressed format
-        "lazy:shader_ball",  // PBR shader ball
+        "lazy:toycar", // instanced/compressed format
+        "lazy:shader_ball", // PBR shader ball
         box,
         image_face,
         orient_box,
@@ -84,12 +84,18 @@
       // Returns a promise that resolves to the shape data.
       function lazyLoadExample(name) {
         return new Promise((resolve, reject) => {
-          if (window[name]) { resolve(window[name]); return; }
+          if (window[name]) {
+            resolve(window[name]);
+            return;
+          }
           const script = document.createElement("script");
           script.src = `./examples/${name}.js`;
           script.onload = () => {
             if (window[name]) resolve(window[name]);
-            else reject(new Error(`${name}.js loaded but window.${name} not found`));
+            else
+              reject(
+                new Error(`${name}.js loaded but window.${name} not found`),
+              );
           };
           script.onerror = () => reject(new Error(`Failed to load ${name}.js`));
           document.head.appendChild(script);
@@ -331,16 +337,18 @@
         viewerOptions.up = control_up[1][0];
 
         const exampleData = examples[window.selectedIndex];
-        if (typeof exampleData === "string" && exampleData.startsWith("lazy:")) {
+        if (
+          typeof exampleData === "string" &&
+          exampleData.startsWith("lazy:")
+        ) {
           const lazyName = exampleData.slice(5);
-          lazyLoadExample(lazyName).then((data) => {
-            render(window.selectedExample, structuredClone(data));
-          }).catch((err) => console.error(err));
+          lazyLoadExample(lazyName)
+            .then((data) => {
+              render(window.selectedExample, structuredClone(data));
+            })
+            .catch((err) => console.error(err));
         } else {
-          render(
-            window.selectedExample,
-            structuredClone(exampleData),
-          );
+          render(window.selectedExample, structuredClone(exampleData));
         }
         // viewer.presetCamera("top");
         timer.stop();
@@ -398,7 +406,13 @@
         UI
         <select
           class="select"
-          onchange="window.showViewer(window.controlMode, this.options.item(this.selectedIndex).text, 'cad_view_001');"
+          onchange="
+            window.showViewer(
+              window.controlMode,
+              this.options.item(this.selectedIndex).text,
+              'cad_view_001',
+            )
+          "
         >
           <option value="glass">glass</option>
           <option value="default">default</option>
@@ -410,7 +424,13 @@
         Control
         <select
           class="select"
-          onchange="window.showViewer(this.options.item(this.selectedIndex).text, window.viewerMode, 'cad_view_001');"
+          onchange="
+            window.showViewer(
+              this.options.item(this.selectedIndex).text,
+              window.viewerMode,
+              'cad_view_001',
+            )
+          "
         >
           <option value="trackball">trackball/Z up</option>
           <option value="trackball">trackball/Y up</option>
@@ -425,7 +445,11 @@
         Examples
         <select
           class="select"
-          onchange="window.selectedExample=this.options.item(this.selectedIndex).text; window.selectedIndex=this.selectedIndex; showViewer(window.controlMode, window.viewerMode, 'cad_view_001')"
+          onchange="
+            window.selectedExample = this.options.item(this.selectedIndex).text;
+            window.selectedIndex = this.selectedIndex;
+            showViewer(window.controlMode, window.viewerMode, 'cad_view_001');
+          "
         >
           <option value="hexapod">hexapod</option>
           <!-- <option value="transpalet">transpalet</option>         -->

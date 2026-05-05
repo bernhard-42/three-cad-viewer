@@ -81590,9 +81590,13 @@ function toQuaternionTuple(arr) {
 }
 function isEqual(obj1, obj2, tol = 1e-9) {
     if (Array.isArray(obj1) && Array.isArray(obj2)) {
-        return (obj1.length === obj2.length && obj1.every((v, i) => isEqual(v, obj2[i], tol)));
+        return (obj1.length === obj2.length &&
+            obj1.every((v, i) => isEqual(v, obj2[i], tol)));
     }
-    else if (obj1 !== null && obj2 !== null && typeof obj1 === "object" && typeof obj2 === "object") {
+    else if (obj1 !== null &&
+        obj2 !== null &&
+        typeof obj1 === "object" &&
+        typeof obj2 === "object") {
         const rec1 = obj1;
         const rec2 = obj2;
         const keys1 = Object.keys(rec1);
@@ -81627,7 +81631,10 @@ function disposeGeometry(geometry) {
         gpuTracker.untrack("geometry", geometry);
         geometry.dispose();
         for (const attr of Object.values(geometry.attributes)) {
-            if (attr && typeof attr === "object" && "dispose" in attr && typeof attr.dispose === "function") {
+            if (attr &&
+                typeof attr === "object" &&
+                "dispose" in attr &&
+                typeof attr.dispose === "function") {
                 attr.dispose();
             }
         }
@@ -81636,12 +81643,25 @@ function disposeGeometry(geometry) {
 /** All texture map property names on MaterialLike (for iteration) */
 const MATERIAL_TEXTURE_KEYS = [
     // MeshStandardMaterial
-    "map", "normalMap", "roughnessMap", "metalnessMap",
-    "aoMap", "emissiveMap", "alphaMap", "bumpMap",
+    "map",
+    "normalMap",
+    "roughnessMap",
+    "metalnessMap",
+    "aoMap",
+    "emissiveMap",
+    "alphaMap",
+    "bumpMap",
     // MeshPhysicalMaterial
-    "transmissionMap", "clearcoatMap", "clearcoatRoughnessMap", "clearcoatNormalMap",
-    "thicknessMap", "specularIntensityMap", "specularColorMap",
-    "sheenColorMap", "sheenRoughnessMap", "anisotropyMap",
+    "transmissionMap",
+    "clearcoatMap",
+    "clearcoatRoughnessMap",
+    "clearcoatNormalMap",
+    "thicknessMap",
+    "specularIntensityMap",
+    "specularColorMap",
+    "sheenColorMap",
+    "sheenRoughnessMap",
+    "anisotropyMap",
 ];
 /**
  * Dispose a material and detach its texture references.
@@ -81770,14 +81790,16 @@ function isPoints(obj) {
  * Accepts Object3D to allow use in controls where camera type is broader.
  */
 function isOrthographicCamera(obj) {
-    return "isOrthographicCamera" in obj && obj.isOrthographicCamera === true;
+    return ("isOrthographicCamera" in obj &&
+        obj.isOrthographicCamera === true);
 }
 /**
  * Type guard to check if an object is a PerspectiveCamera.
  * Accepts Object3D to allow use in controls where camera type is broader.
  */
 function isPerspectiveCamera(obj) {
-    return "isPerspectiveCamera" in obj && obj.isPerspectiveCamera === true;
+    return ("isPerspectiveCamera" in obj &&
+        obj.isPerspectiveCamera === true);
 }
 /**
  * Type guard to check if an Object3D is a LineSegments2 (fat line).
@@ -81795,7 +81817,8 @@ function hasColor(material) {
  * Type guard to check if a material is a MeshStandardMaterial.
  */
 function isMeshStandardMaterial(material) {
-    return "isMeshStandardMaterial" in material && material.isMeshStandardMaterial === true;
+    return ("isMeshStandardMaterial" in material &&
+        material.isMeshStandardMaterial === true);
 }
 const KeyMapper = new _KeyMapper();
 class EventListenerManager {
@@ -82021,7 +82044,9 @@ class ZebraTool {
         if (mesh.userData.excludeFromZebra)
             return;
         // Store original material (handle array case by taking first)
-        const currentMaterial = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
+        const currentMaterial = Array.isArray(mesh.material)
+            ? mesh.material[0]
+            : mesh.material;
         if (!this.originalMaterials.has(mesh.uuid)) {
             this.originalMaterials.set(mesh.uuid, currentMaterial);
         }
@@ -82033,7 +82058,8 @@ class ZebraTool {
             if (hasColor(currentMaterial)) {
                 baseColor = currentMaterial.color.clone();
             }
-            else if (isMeshStandardMaterial(currentMaterial) && currentMaterial.map) {
+            else if (isMeshStandardMaterial(currentMaterial) &&
+                currentMaterial.map) {
                 // If there's a texture but no color, use white as base
                 baseColor = new Color(1, 1, 1);
             }
@@ -82386,7 +82412,8 @@ class ObjectGroup extends Group {
      * Skips MeshBasicMaterial and other non-PBR materials.
      */
     _forEachStandardMaterial(callback) {
-        if (this.front && this.front.material instanceof MeshStandardMaterial) {
+        if (this.front &&
+            this.front.material instanceof MeshStandardMaterial) {
             callback(this.front.material);
         }
         // back can also be MeshStandardMaterial (e.g., for polygon rendering)
@@ -82401,9 +82428,7 @@ class ObjectGroup extends Group {
     highlight(flag) {
         const hColor = this._getHighlightColor();
         // Find primary material (front face, vertices, or edges)
-        const primaryMaterial = this.front?.material ||
-            this.vertices?.material ||
-            this.edgeMaterial;
+        const primaryMaterial = this.front?.material || this.vertices?.material || this.edgeMaterial;
         if (primaryMaterial) {
             this.widen(flag);
             this._applyColorToMaterial(primaryMaterial, flag ? hColor : this.originalColor);
@@ -82549,12 +82574,29 @@ class ObjectGroup extends Group {
                 child1.material.visible = flag;
             }
         }
-        if (this.back && this.renderback) {
-            if (this._isStudioMode) {
-                this.back.visible = flag;
+        if (this.back) {
+            // Hide-path: always hide the back when the shape is hidden, even
+            // when !renderback. Otherwise a back face left visible by a prior
+            // setBackVisible(true) (clip tab) would remain visible after the
+            // front goes hidden, appearing as a ghost.
+            // Show-path: only flip back to visible when renderback is set;
+            // when !renderback, leave back.visible alone — the clip-tab's
+            // setBackVisible() owns it.
+            if (!flag) {
+                if (this._isStudioMode) {
+                    this.back.visible = false;
+                }
+                else {
+                    this.back.material.visible = false;
+                }
             }
-            else {
-                this.back.material.visible = flag;
+            else if (this.renderback) {
+                if (this._isStudioMode) {
+                    this.back.visible = true;
+                }
+                else {
+                    this.back.material.visible = true;
+                }
             }
         }
     }
@@ -82768,10 +82810,16 @@ class ObjectGroup extends Group {
             this._cadBackMaterial = this.back.material;
         }
         // Save original colors used by highlight/unhighlight
-        this._cadOriginalColor = this.originalColor ? this.originalColor.clone() : null;
-        this._cadOriginalBackColor = this.originalBackColor ? this.originalBackColor.clone() : null;
+        this._cadOriginalColor = this.originalColor
+            ? this.originalColor.clone()
+            : null;
+        this._cadOriginalBackColor = this.originalBackColor
+            ? this.originalBackColor.clone()
+            : null;
         // Save edge visibility state
-        this._cadEdgesVisible = this.edgeMaterial ? this.edgeMaterial.visible : null;
+        this._cadEdgesVisible = this.edgeMaterial
+            ? this.edgeMaterial.visible
+            : null;
         // --- Swap front material ---
         if (this.front && studioFront) {
             // Transfer per-object visibility to mesh.visible (NOT material.visible)
@@ -83288,12 +83336,18 @@ class TextureCache {
  * @returns THREE.SRGBColorSpace or THREE.LinearSRGBColorSpace
  */
 function getColorSpaceForMap(mapName) {
-    return THREEJS_SRGB_MAPS.has(mapName) ? SRGBColorSpace : LinearSRGBColorSpace;
+    return THREEJS_SRGB_MAPS.has(mapName)
+        ? SRGBColorSpace
+        : LinearSRGBColorSpace;
 }
 
 /** threejs-materials property keys that hold [r,g,b] color arrays (linear RGB). */
 const COLOR_ARRAY_KEYS = new Set([
-    "color", "specularColor", "sheenColor", "emissive", "attenuationColor",
+    "color",
+    "specularColor",
+    "sheenColor",
+    "emissive",
+    "attenuationColor",
 ]);
 /** Map from threejs-materials property names to Three.js texture map property names. */
 const PROPERTY_TO_MAP = {
@@ -83368,7 +83422,7 @@ class MaterialFactory {
      * Create a standard material for back faces with PBR properties.
      * Used for polygon rendering where back faces need full shading.
      */
-    createBackFaceStandardMaterial({ color, alpha, polygonOffsetUnits = 2.0, visible = true }, label) {
+    createBackFaceStandardMaterial({ color, alpha, polygonOffsetUnits = 2.0, visible = true, }, label) {
         const material = new MeshStandardMaterial({
             ...this._createBaseProps(alpha),
             color: color,
@@ -83386,7 +83440,7 @@ class MaterialFactory {
      * Create a basic material for back faces (no lighting/PBR).
      * Used for shape rendering where back faces are simple fills.
      */
-    createBackFaceBasicMaterial({ color, alpha, polygonOffsetUnits = 2.0, visible = true }, label) {
+    createBackFaceBasicMaterial({ color, alpha, polygonOffsetUnits = 2.0, visible = true, }, label) {
         const material = new MeshBasicMaterial({
             ...this._createBaseProps(alpha),
             color: color,
@@ -83413,7 +83467,7 @@ class MaterialFactory {
     /**
      * Create a fat line material (LineMaterial from Three.js examples).
      */
-    createEdgeMaterial({ lineWidth, color, vertexColors = false, visible = true, resolution }, label) {
+    createEdgeMaterial({ lineWidth, color, vertexColors = false, visible = true, resolution, }, label) {
         const material = new LineMaterial({
             linewidth: lineWidth,
             transparent: true,
@@ -83487,7 +83541,7 @@ class MaterialFactory {
      * @param label - Optional label for GPU tracking
      * @returns Configured MeshPhysicalMaterial (or MeshBasicMaterial if unlit)
      */
-    async createStudioMaterial({ materialDef, fallbackColor, fallbackAlpha, textureCache }, label) {
+    async createStudioMaterial({ materialDef, fallbackColor, fallbackAlpha, textureCache, }, label) {
         const def = materialDef;
         const side = def.doubleSided ? DoubleSide : FrontSide;
         // --- Resolve base color and opacity ---
@@ -83635,11 +83689,13 @@ class MaterialFactory {
      * @param values - Scalar PBR values from threejs-materials
      * @param textures - Texture map references from threejs-materials
      * @param textureRepeat - Optional [u, v] texture tiling applied to all loaded textures
+     * @param textureRotation - Optional texture rotation in radians (counterclockwise),
+     *                          pivoting around the texture center (0.5, 0.5)
      * @param textureCache - TextureCache for resolving data URI textures
      * @param label - Optional label for GPU tracking
      * @returns Configured MeshPhysicalMaterial
      */
-    async createStudioMaterialFromMaterialX(values, textures, textureRepeat, textureCache, label) {
+    async createStudioMaterialFromMaterialX(values, textures, textureRepeat, textureRotation, textureCache, label) {
         // --- Build material options from scalar values ---
         const matOptions = {
             flatShading: false,
@@ -83655,14 +83711,17 @@ class MaterialFactory {
         }
         for (const [key, value] of Object.entries(values)) {
             // Skip displacement properties (not supported, would waste GPU memory)
-            if (key === "displacement" || key === "displacementScale" || key === "displacementBias")
+            if (key === "displacement" ||
+                key === "displacementScale" ||
+                key === "displacementBias")
                 continue;
             // Color arrays → THREE.Color (already linear, no sRGB conversion)
             if (COLOR_ARRAY_KEYS.has(key) && Array.isArray(value)) {
                 const [r, g, b] = value;
                 matOptions[key] = new Color(r, g, b);
             }
-            else if ((key === "normalScale" || key === "clearcoatNormalScale") && Array.isArray(value)) {
+            else if ((key === "normalScale" || key === "clearcoatNormalScale") &&
+                Array.isArray(value)) {
                 matOptions[key] = new Vector2(value[0], value[1]);
             }
             else if (key === "iridescenceThicknessRange" && Array.isArray(value)) {
@@ -83681,7 +83740,8 @@ class MaterialFactory {
             matOptions.opacity = 1.0;
             matOptions.depthWrite = true;
         }
-        else if (transparentVal === true || (typeof opacityVal === "number" && opacityVal < 1.0)) {
+        else if (transparentVal === true ||
+            (typeof opacityVal === "number" && opacityVal < 1.0)) {
             matOptions.transparent = true;
             matOptions.depthWrite = false;
         }
@@ -83706,10 +83766,19 @@ class MaterialFactory {
                     : "normalTexture";
                 let tex = await textureCache.get(textureRef, roleForCache);
                 if (tex) {
-                    if (textureRepeat && (textureRepeat[0] !== 1 || textureRepeat[1] !== 1)) {
+                    const needsRepeat = textureRepeat &&
+                        (textureRepeat[0] !== 1 || textureRepeat[1] !== 1);
+                    const needsRotation = !!textureRotation;
+                    if (needsRepeat || needsRotation) {
                         // Clone to avoid mutating shared cached texture
                         tex = tex.clone();
-                        tex.repeat.set(textureRepeat[0], textureRepeat[1]);
+                        if (needsRepeat) {
+                            tex.repeat.set(textureRepeat[0], textureRepeat[1]);
+                        }
+                        if (needsRotation) {
+                            tex.center.set(0.5, 0.5); // pivot around texture center
+                            tex.rotation = textureRotation;
+                        }
                     }
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     material[mapName] = tex;
@@ -83921,7 +83990,7 @@ const MATERIAL_PRESETS = {
     // ---------------------------------------------------------------------------
     // Metals -- Polished
     // ---------------------------------------------------------------------------
-    "chrome": {
+    chrome: {
         name: "Chrome",
         color: [0.98, 0.98, 0.98, 1],
         metalness: 1.0,
@@ -83939,19 +84008,19 @@ const MATERIAL_PRESETS = {
         metalness: 1.0,
         roughness: 0.1,
     },
-    "gold": {
+    gold: {
         name: "Gold",
         color: [1, 0.93, 0, 1],
         metalness: 1.0,
         roughness: 0.1,
     },
-    "copper": {
+    copper: {
         name: "Copper",
         color: [0.98, 0.82, 0.76, 1],
         metalness: 1.0,
         roughness: 0.15,
     },
-    "brass": {
+    brass: {
         name: "Brass",
         color: [0.95, 0.9, 0.7, 1],
         metalness: 1.0,
@@ -83979,13 +84048,13 @@ const MATERIAL_PRESETS = {
         metalness: 0.9,
         roughness: 0.7,
     },
-    "titanium": {
+    titanium: {
         name: "Titanium",
         color: [0.81, 0.79, 0.77, 1],
         metalness: 1.0,
         roughness: 0.45,
     },
-    "galvanized": {
+    galvanized: {
         name: "Galvanized",
         color: [0.88, 0.88, 0.9, 1],
         metalness: 0.8,
@@ -84012,7 +84081,7 @@ const MATERIAL_PRESETS = {
         metalness: 0.0,
         roughness: 0.4,
     },
-    "nylon": {
+    nylon: {
         name: "Nylon",
         color: [0.95, 0.94, 0.92, 1],
         metalness: 0.0,
@@ -84122,7 +84191,7 @@ const MATERIAL_PRESETS = {
         roughness: 0.35,
         anisotropy: 0.3,
     },
-    "concrete": {
+    concrete: {
         name: "Concrete",
         color: [0.83, 0.82, 0.8, 1],
         metalness: 0.0,
@@ -84175,6 +84244,7 @@ varying vec3 vTriplanarNormal;
 uniform vec3 triplanarOffset;
 uniform float triplanarScale;
 uniform vec2 triplanarRepeat;
+uniform float triplanarRotation;
 
 // normalMatrix is only declared in the fragment shader for object-space
 // normal maps. We need it for triplanar tangent-space normal mapping too.
@@ -84197,6 +84267,20 @@ void initTriplanarUVs() {
   tri_uvX = p.yz * r;
   tri_uvY = p.xz * r;
   tri_uvZ = p.xy * r;
+
+  // Apply rotation (counterclockwise, radians) if non-zero. The texture
+  // coords are unbounded in triplanar (derived from world-space position),
+  // so the pivot for rotation is the UV origin — for a tiled/repeating
+  // texture this is visually equivalent to any other pivot modulo tile
+  // wrapping, and is the simplest choice.
+  if (triplanarRotation != 0.0) {
+    float c = cos(triplanarRotation);
+    float s = sin(triplanarRotation);
+    mat2 rot = mat2(c, -s, s, c);
+    tri_uvX = rot * tri_uvX;
+    tri_uvY = rot * tri_uvY;
+    tri_uvZ = rot * tri_uvZ;
+  }
 }
 
 // Sample a texture using the global triplanar UVs and blend weights.
@@ -84397,14 +84481,24 @@ function applyTriplanarMapping(material, geometry) {
     // Uniform values (captured by closure, per-object)
     const offset = bb.min.clone();
     const scale = 1.0 / maxDim;
-    // Read texture repeat from the first available texture map
-    const repeat = (material.map ?? material.roughnessMap ?? material.normalMap ??
-        material.metalnessMap ?? material.emissiveMap ?? material.aoMap)?.repeat?.clone() ?? new Vector2(1, 1);
+    // Read texture repeat and rotation from the first available texture map.
+    // texture.rotation is set by the MaterialX path when textureRotation is
+    // provided; for triplanar sampling we read it back and apply via uniform
+    // since the triplanar shader bypasses three.js's texture-matrix transform.
+    const firstMap = material.map ??
+        material.roughnessMap ??
+        material.normalMap ??
+        material.metalnessMap ??
+        material.emissiveMap ??
+        material.aoMap;
+    const repeat = firstMap?.repeat?.clone() ?? new Vector2(1, 1);
+    const rotation = firstMap?.rotation ?? 0;
     material.onBeforeCompile = (shader) => {
         // Custom uniforms
         shader.uniforms.triplanarOffset = { value: offset };
         shader.uniforms.triplanarScale = { value: scale };
         shader.uniforms.triplanarRepeat = { value: repeat };
+        shader.uniforms.triplanarRotation = { value: rotation };
         // --- Vertex shader ---
         // Declare varyings
         shader.vertexShader = shader.vertexShader.replace("#include <common>", `#include <common>\n${TRIPLANAR_VARYINGS}`);
@@ -84475,11 +84569,22 @@ class CompoundGroup extends Group {
  */
 /** Texture field names on MaterialAppearance that require UV coordinates. */
 const TEXTURE_FIELDS = [
-    "map", "normalMap", "aoMap",
-    "metalnessMap", "roughnessMap", "emissiveMap", "transmissionMap",
-    "clearcoatMap", "clearcoatRoughnessMap", "clearcoatNormalMap",
-    "thicknessMap", "specularIntensityMap", "specularColorMap",
-    "sheenColorMap", "sheenRoughnessMap", "anisotropyMap",
+    "map",
+    "normalMap",
+    "aoMap",
+    "metalnessMap",
+    "roughnessMap",
+    "emissiveMap",
+    "transmissionMap",
+    "clearcoatMap",
+    "clearcoatRoughnessMap",
+    "clearcoatNormalMap",
+    "thicknessMap",
+    "specularIntensityMap",
+    "specularColorMap",
+    "sheenColorMap",
+    "sheenRoughnessMap",
+    "anisotropyMap",
 ];
 /** Check whether a resolved MaterialAppearance references any texture. */
 function materialHasTexture(def) {
@@ -85211,7 +85316,7 @@ class NestedGroup {
      * 3. Clone BackSide variant for renderback objects
      * 4. Auto-generate box-projected UVs when textured but geometry has no UVs
      */
-    async enterStudioMode(textureMapping = "triplanar") {
+    async enterStudioMode(textureMapping = "parametric") {
         // Create TextureCache lazily
         if (!this._textureCache) {
             this._textureCache = new TextureCache();
@@ -85245,7 +85350,8 @@ class NestedGroup {
                 try {
                     if (resolved && isMaterialXMaterial(resolved)) {
                         // --- threejs-materials path ---
-                        studioMaterial = await this.materialFactory.createStudioMaterialFromMaterialX(resolved.values, resolved.textures, resolved.textureRepeat, this._textureCache);
+                        studioMaterial =
+                            await this.materialFactory.createStudioMaterialFromMaterialX(resolved.values, resolved.textures, resolved.textureRepeat, resolved.textureRotation, this._textureCache);
                         if (materialXHasTextures(resolved)) {
                             this._texturedMaterialKeys.add(sharingKey);
                         }
@@ -85295,7 +85401,8 @@ class NestedGroup {
             if (textured) {
                 logger.debug(`Studio "${path}": ${needsTriplanar ? "using triplanar" : "using parametric UVs"}`);
             }
-            if (needsTriplanar && studioMaterial instanceof MeshPhysicalMaterial) {
+            if (needsTriplanar &&
+                studioMaterial instanceof MeshPhysicalMaterial) {
                 const triKey = `${sharingKey}:tri:${path}`;
                 let triMat = this._studioMaterialCache.get(triKey);
                 if (!triMat) {
@@ -85307,7 +85414,8 @@ class NestedGroup {
             }
             // Build back-face variant if needed
             let studioBack = null;
-            if (obj.renderback && studioMaterial instanceof MeshPhysicalMaterial) {
+            if (obj.renderback &&
+                studioMaterial instanceof MeshPhysicalMaterial) {
                 const backKey = needsTriplanar
                     ? `${sharingKey}:tri:${path}:back`
                     : `${sharingKey}:back`;
@@ -85335,7 +85443,9 @@ class NestedGroup {
                 }
             }
             // Apply to ObjectGroup
-            obj.enterStudioMode(studioMaterial instanceof MeshPhysicalMaterial ? studioMaterial : null, studioBack);
+            obj.enterStudioMode(studioMaterial instanceof MeshPhysicalMaterial
+                ? studioMaterial
+                : null, studioBack);
         }
         this._isStudioMode = true;
         return [...unresolvedTags];
@@ -86598,7 +86708,10 @@ class TreeModel {
      */
     _buildTreeStructure(data) {
         const build = (data, path, level) => {
-            const result = [States.unselected, States.unselected];
+            const result = [
+                States.unselected,
+                States.unselected,
+            ];
             const calcState = (states) => {
                 for (const s of [0, 1]) {
                     if (states[States.mixed][s] ||
@@ -87087,7 +87200,8 @@ class TreeView {
         this.update = (prefix = null) => {
             if (!this.container || !this.model)
                 return;
-            const visibleElements = this.getVisibleElements().filter((p) => p instanceof HTMLElement && (prefix == null || (p.dataset.path || "").startsWith(prefix)));
+            const visibleElements = this.getVisibleElements().filter((p) => p instanceof HTMLElement &&
+                (prefix == null || (p.dataset.path || "").startsWith(prefix)));
             for (const el of visibleElements) {
                 const path = el.dataset.path || "";
                 const node = this.findNodeByPath(path);
@@ -87723,7 +87837,8 @@ class TreeView {
             this.showChildContainer(node);
             const el = this.getDomNode(path);
             if (el != null) {
-                this.scrollContainer.scrollTop = el.offsetTop - this.scrollContainer.offsetTop;
+                this.scrollContainer.scrollTop =
+                    el.offsetTop - this.scrollContainer.offsetTop;
             }
             if (this.debug) {
                 logger.debug("update => collapsePath");
@@ -87744,7 +87859,8 @@ class TreeView {
         this.model.setExpandedLevel(level);
         const el = this.getDomNode(this.getNodePath(this.root));
         if (el != null) {
-            this.scrollContainer.scrollTop = el.offsetTop - this.scrollContainer.offsetTop;
+            this.scrollContainer.scrollTop =
+                el.offsetTop - this.scrollContainer.offsetTop;
         }
         // Multiple updates to ensure all levels are rendered
         const maxIterations = level === -1 ? this.maxLevel : level;
@@ -87977,7 +88093,9 @@ class CenteredPlane extends Plane {
      */
     // @ts-expect-error -- THREE.Plane.clone() returns `this`, but we need a concrete CenteredPlane
     clone() {
-        return new CenteredPlane(this.normal.clone(), this.centeredConstant, [...this.center]);
+        return new CenteredPlane(this.normal.clone(), this.centeredConstant, [
+            ...this.center,
+        ]);
     }
 }
 // ============================================================================
@@ -88187,7 +88305,9 @@ class Clipping extends Group {
             let j = 0;
             for (const path in this.nestedGroup.groups) {
                 const group = this.nestedGroup.groups[path];
-                if (group instanceof ObjectGroup && group.subtype === "solid" && group.front) {
+                if (group instanceof ObjectGroup &&
+                    group.subtype === "solid" &&
+                    group.front) {
                     // Store color for each plane-solid combination (mirrors _planeMeshGroup order)
                     const frontMesh = group.front;
                     const material = frontMesh.material;
@@ -88707,7 +88827,8 @@ class ShapeRenderer {
             }
             else {
                 // Non-binary format: nested number[][] arrays
-                if (!Array.isArray(shape.triangles) || !Array.isArray(shape.triangles[0])) {
+                if (!Array.isArray(shape.triangles) ||
+                    !Array.isArray(shape.triangles[0])) {
                     throw new Error("Expected nested array for triangles in non-binary format");
                 }
                 // After validation, we know shape.triangles is number[][] (TypeScript can't infer this)
@@ -88835,7 +88956,8 @@ class ShapeRenderer {
             else {
                 // Non-binary format: nested number[][] arrays
                 const edgesRaw = shape.edges;
-                if (!Array.isArray(edgesRaw) || (edgesRaw.length > 0 && !Array.isArray(edgesRaw[0]))) {
+                if (!Array.isArray(edgesRaw) ||
+                    (edgesRaw.length > 0 && !Array.isArray(edgesRaw[0]))) {
                     throw new Error("Expected nested array for edges in non-binary format");
                 }
                 // After validation, we know this is number[][] (TypeScript can't infer from the check)
@@ -92980,8 +93102,14 @@ const defaultDirections = {
         rear: { pos: new Vector3(0, 1, 0), quat: null },
         left: { pos: new Vector3(-1, 0, 0), quat: null },
         right: { pos: new Vector3(1, 0, 0), quat: null },
-        top: { pos: new Vector3(0, 0, 1), quat: new Quaternion(0, 0, 0, 1) },
-        bottom: { pos: new Vector3(0, 0, -1), quat: new Quaternion(1, 0, 0, 0) },
+        top: {
+            pos: new Vector3(0, 0, 1),
+            quat: new Quaternion(0, 0, 0, 1),
+        },
+        bottom: {
+            pos: new Vector3(0, 0, -1),
+            quat: new Quaternion(1, 0, 0, 0),
+        },
     },
     legacy: {
         // legacy Z up
@@ -93505,7 +93633,10 @@ class Raycaster {
             const object = obj.object;
             // Accept Mesh (faces), Points (vertices), and Line (edges)
             const isValidType = isMesh(object) || isPoints(object) || isLine(object);
-            if (isValidType && object.visible && !Array.isArray(object.material) && object.material.visible) {
+            if (isValidType &&
+                object.visible &&
+                !Array.isArray(object.material) &&
+                object.material.visible) {
                 validObjs.push(obj);
             }
         }
@@ -93525,7 +93656,9 @@ class Raycaster {
                 const isValidType = isMesh(obj) || isPoints(obj) || isLine(obj);
                 if (!isValidType)
                     continue;
-                if (!obj.visible || Array.isArray(obj.material) || !obj.material.visible)
+                if (!obj.visible ||
+                    Array.isArray(obj.material) ||
+                    !obj.material.visible)
                     continue;
                 const objectGroup = object.object.parent;
                 if (!isObjectGroup(objectGroup))
@@ -93554,7 +93687,9 @@ class Raycaster {
  * Type guard to check if a value is a number array of specific length.
  */
 function isNumberArray(value, length) {
-    return Array.isArray(value) && value.length === length && value.every((v) => typeof v === "number");
+    return (Array.isArray(value) &&
+        value.length === length &&
+        value.every((v) => typeof v === "number"));
 }
 /**
  * Type guard to check if a value is a Record<string, number[]> (bounding box data).
@@ -93705,9 +93840,17 @@ class Panel {
  * Skip list for technical fields that should not be rendered in panels.
  */
 const SKIP_KEYS = [
-    "type", "tool_type", "subtype", "info",
-    "refpoint", "refpoint1", "refpoint2",
-    "shape_type", "geom_type", "groups", "result",
+    "type",
+    "tool_type",
+    "subtype",
+    "info",
+    "refpoint",
+    "refpoint1",
+    "refpoint2",
+    "shape_type",
+    "geom_type",
+    "groups",
+    "result",
 ];
 /**
  * Render entries from a group object into a tbody.
@@ -94125,7 +94268,10 @@ class Measurement {
             e.stopPropagation();
         };
         this._movePanel = () => {
-            if (!this.panel || !this.viewer || !this.viewer.camera || !this.panel.isVisible())
+            if (!this.panel ||
+                !this.viewer ||
+                !this.viewer.camera ||
+                !this.panel.isVisible())
                 return;
             const canvasRect = this.viewer.renderer.domElement.getBoundingClientRect();
             const panelRect = this.panel.html.getBoundingClientRect();
@@ -94325,8 +94471,15 @@ class Measurement {
                     responseData = {
                         groups: [
                             { distance: 2.345, info: "center" },
-                            { "point 1": this.point1.toArray(), "point 2": this.point2.toArray() },
-                            { angle: 43.21, "reference 1": "Plane (Face)", "reference 2": "Plane (Face)" },
+                            {
+                                "point 1": this.point1.toArray(),
+                                "point 2": this.point2.toArray(),
+                            },
+                            {
+                                angle: 43.21,
+                                "reference 1": "Plane (Face)",
+                                "reference 2": "Plane (Face)",
+                            },
                         ],
                         type: "backend_response",
                         refpoint1: this.point1.toArray(),
@@ -94345,10 +94498,21 @@ class Measurement {
                         geom_type: "EllipseArc",
                         refpoint: this.point1.toArray(),
                         groups: [
-                            { center: this.point1.toArray(), "major radius": 0.4, "minor radius": 0.2 },
+                            {
+                                center: this.point1.toArray(),
+                                "major radius": 0.4,
+                                "minor radius": 0.2,
+                            },
                             { start: [2.4, -1, 0.0], end: [1.8, -0.8267949192431111, 0.0] },
                             { length: 0.6868592404716374 },
-                            { bb: { min: [1.8, -1, 0.0], center: [2.1, -0.9, 0.0], max: [2.4, -0.8, 0.0], size: [0.56, 0.2, 0.0] } },
+                            {
+                                bb: {
+                                    min: [1.8, -1, 0.0],
+                                    center: [2.1, -0.9, 0.0],
+                                    max: [2.4, -0.8, 0.0],
+                                    size: [0.56, 0.2, 0.0],
+                                },
+                            },
                         ],
                     };
                 }
@@ -94460,7 +94624,8 @@ class DistanceMeasurement extends Measurement {
         this.debug = debug;
     }
     _createPanel() {
-        if (isDistancePanel(this.panel) && isDistanceResponseData(this.responseData)) {
+        if (isDistancePanel(this.panel) &&
+            isDistanceResponseData(this.responseData)) {
             this.panel.createTable(this.responseData);
         }
     }
@@ -94520,7 +94685,8 @@ class PropertiesMeasurement extends Measurement {
         this.debug = debug;
     }
     _createPanel() {
-        if (isPropertiesPanel(this.panel) && isPropertiesResponseData(this.responseData)) {
+        if (isPropertiesPanel(this.panel) &&
+            isPropertiesResponseData(this.responseData)) {
             this.panel.createTable(this.responseData);
         }
     }
@@ -94528,7 +94694,8 @@ class PropertiesMeasurement extends Measurement {
         return 1;
     }
     _getPoint() {
-        if (isPropertiesResponseData(this.responseData) && this.responseData.refpoint) {
+        if (isPropertiesResponseData(this.responseData) &&
+            this.responseData.refpoint) {
             this.point1 = new Vector3(...this.responseData.refpoint);
         }
     }
@@ -94795,7 +94962,7 @@ class Tools {
     }
 }
 
-const version = "4.3.8";
+const version = "4.3.9";
 
 /**
  * Clean room environment for Studio mode PMREM generation.
@@ -94900,7 +95067,7 @@ function createCove(length, radius, segments, wall) {
     const indices = [];
     const sign = -1 ;
     for (let i = 0; i <= segments; i++) {
-        const angle = (i / segments) * Math.PI / 2;
+        const angle = ((i / segments) * Math.PI) / 2;
         const h = sign * radius * Math.sin(angle); // horizontal offset toward wall
         const y = radius * (1 - Math.cos(angle)); // vertical offset above floor
         const nh = sign * Math.sin(angle); // normal toward wall
@@ -95449,7 +95616,7 @@ function halfToFloat(h) {
     }
     if (exponent === 31) {
         // Infinity or NaN
-        return mantissa ? NaN : (sign ? -Infinity : Infinity);
+        return mantissa ? NaN : sign ? -Infinity : Infinity;
     }
     return (sign ? -1 : 1) * Math.pow(2, exponent - 15) * (1 + mantissa / 1024);
 }
@@ -95480,7 +95647,7 @@ function detectDominantLights(data, width, height) {
     for (let sy = 0; sy < height; sy++) {
         const gy = Math.min(Math.floor((sy / height) * GRID_H), GRID_H - 1);
         // cos(latitude) weighting: equator has more area than poles
-        const phi = ((0.5 - sy / height)) * Math.PI;
+        const phi = (0.5 - sy / height) * Math.PI;
         const cosWeight = Math.cos(phi);
         for (let sx = 0; sx < width; sx++) {
             const gx = Math.min(Math.floor((sx / width) * GRID_W), GRID_W - 1);
@@ -95519,7 +95686,9 @@ function detectDominantLights(data, width, height) {
         }
     }
     // 2. Compute median luminance and threshold
-    const sorted = Array.from(grid).filter(v => v > 0).sort((a, b) => a - b);
+    const sorted = Array.from(grid)
+        .filter((v) => v > 0)
+        .sort((a, b) => a - b);
     if (sorted.length === 0) {
         return { lights: [], wasAnalyzed: true };
     }
@@ -95615,9 +95784,9 @@ function detectDominantLights(data, width, height) {
         let color;
         if (colorTotal > 0) {
             color = [
-                c.totalR / colorTotal * 3,
-                c.totalG / colorTotal * 3,
-                c.totalB / colorTotal * 3,
+                (c.totalR / colorTotal) * 3,
+                (c.totalG / colorTotal) * 3,
+                (c.totalB / colorTotal) * 3,
             ];
             // Clamp to 0-1
             color = [
@@ -95778,14 +95947,6 @@ class EnvironmentManager {
     constructor(options = {}) {
         /** Cached PMREM render targets keyed by environment name or URL */
         this._cache = new Map();
-        /**
-         * Cached raw equirectangular HDR textures keyed by the same name/URL.
-         * Preserved (not disposed after PMREM generation) so `scene.background`
-         * can sample the original HDR at full source resolution instead of the
-         * 256² PMREM cubemap. Only populated by `_loadHdr` — procedural
-         * environments have no source HDR.
-         */
-        this._hdrCache = new Map();
         /** Cached light detection results keyed by environment name or URL */
         this._lightDetectionCache = new Map();
         /** In-flight load promises keyed by environment name or URL */
@@ -95800,13 +95961,6 @@ class EnvironmentManager {
         this._hdrLoader = null;
         /** The last loaded PMREM texture (stateful — used by apply() for IBL) */
         this._currentTexture = null;
-        /**
-         * Raw HDR texture corresponding to `_currentTexture`, used for
-         * `scene.background` to keep the backdrop at source resolution. Null when
-         * the current environment is procedural ("studio" RoomEnvironment) — in
-         * that case the background falls back to `_currentTexture` (the PMREM).
-         */
-        this._currentBackgroundTexture = null;
         /** Whether this manager has been disposed */
         this._disposed = false;
         /**
@@ -95831,7 +95985,8 @@ class EnvironmentManager {
          * re-apply once the texture is ready.
          */
         this._deferredApply = null;
-        this._userOverrides = options.presetUrls ?? {};
+        this._userOverrides =
+            options.presetUrls ?? {};
         this._presetUrls = {
             ..._buildPresetUrls(false),
             ...this._userOverrides,
@@ -95860,7 +96015,6 @@ class EnvironmentManager {
         }
         if (name === "none") {
             this._currentTexture = null;
-            this._currentBackgroundTexture = null;
             return null;
         }
         // Check cache first (name is the cache key for presets; URL string for custom)
@@ -95869,7 +96023,6 @@ class EnvironmentManager {
         if (cached) {
             logger.debug(`Environment "${cacheKey}" loaded from cache`);
             this._currentTexture = cached.texture;
-            this._currentBackgroundTexture = this._hdrCache.get(cacheKey) ?? null;
             return cached.texture;
         }
         // Check in-flight promise — await and set _currentTexture
@@ -95878,7 +96031,6 @@ class EnvironmentManager {
             logger.debug(`Environment "${cacheKey}" already loading, reusing promise`);
             const texture = await inflight;
             this._currentTexture = texture;
-            this._currentBackgroundTexture = this._hdrCache.get(cacheKey) ?? null;
             return texture;
         }
         // Start new load
@@ -95887,7 +96039,6 @@ class EnvironmentManager {
         try {
             const texture = await promise;
             this._currentTexture = texture;
-            this._currentBackgroundTexture = this._hdrCache.get(cacheKey) ?? null;
             // Self-healing: if apply() was called with "environment" background
             // while texture was null, re-apply now that the texture is ready.
             if (this._deferredApply) {
@@ -95927,8 +96078,13 @@ class EnvironmentManager {
             scene.environmentIntensity = envIntensity;
             // HDR maps assume Y-up; rotate 90° around X to align with Z-up scenes.
             // Additional rotation for user-controlled azimuthal rotation.
+            // Note: Z-up branch uses "ZYX" Euler order so the matrix is
+            // Rz(rotY) · Rx(PI/2). With the default "XYZ" order, the rotation
+            // would land on the wrong axis (around World -Y, the depth axis,
+            // instead of World Z, the vertical axis) because of how matrix
+            // multiplication composes the X-tilt with the user rotation.
             if (upIsZ) {
-                scene.environmentRotation.set(Math.PI / 2, 0, rotY);
+                scene.environmentRotation.set(Math.PI / 2, 0, rotY, "ZYX");
             }
             else {
                 scene.environmentRotation.set(0, rotY, 0);
@@ -95965,13 +96121,14 @@ class EnvironmentManager {
                 break;
             case "environment":
                 if (this._currentTexture) {
-                    // Prefer the raw HDR for the background so the backdrop samples
-                    // at source resolution (2K/4K) rather than the 256² PMREM cubemap.
-                    // Falls back to PMREM for procedural "studio" (no source HDR).
-                    const bgTex = this._currentBackgroundTexture ?? this._currentTexture;
+                    // Use PMREM (CubeUVReflectionMapping) for the background. Raw
+                    // equirectangular HDR can't be used here: three.js's WebGLBackground
+                    // routes non-cubemap textures through a flat planeMesh path that
+                    // ignores scene.backgroundRotation, so env-rotation breaks. PMREM
+                    // takes the cubemap path and rotation works correctly.
                     // Always use render-to-texture with a fixed-FOV bgCamera so the
                     // background zoom level is identical in perspective and ortho modes.
-                    this._setupEnvBackground(scene, bgTex, upIsZ, rotY);
+                    this._setupEnvBackground(scene, this._currentTexture, upIsZ, rotY);
                     this._deferredApply = null;
                 }
                 else {
@@ -96056,15 +96213,11 @@ class EnvironmentManager {
                 this._lightDetectionCache.delete(slug);
                 logger.debug(`Evicted cached environment "${slug}" for resolution switch`);
             }
-            const cachedHdr = this._hdrCache.get(slug);
-            if (cachedHdr) {
-                gpuTracker.untrack("texture", cachedHdr);
-                cachedHdr.dispose();
-                this._hdrCache.delete(slug);
-            }
         }
         // Reload the current environment at the new resolution
-        if (currentEnvName && currentEnvName !== "none" && currentEnvName !== "studio") {
+        if (currentEnvName &&
+            currentEnvName !== "none" &&
+            currentEnvName !== "studio") {
             return this.loadEnvironment(currentEnvName, renderer);
         }
         return this._currentTexture;
@@ -96122,7 +96275,9 @@ class EnvironmentManager {
         const size = renderer.getDrawingBufferSize(_bgSizeVec);
         const w = size.x;
         const h = size.y;
-        if (!this._bgRenderTarget || this._bgRenderTarget.width !== w || this._bgRenderTarget.height !== h) {
+        if (!this._bgRenderTarget ||
+            this._bgRenderTarget.width !== w ||
+            this._bgRenderTarget.height !== h) {
             this._bgRenderTarget?.dispose();
             this._bgRenderTarget = new WebGLRenderTarget(w, h);
         }
@@ -96160,7 +96315,6 @@ class EnvironmentManager {
     dispose() {
         this._disposed = true;
         this._currentTexture = null;
-        this._currentBackgroundTexture = null;
         this._deferredApply = null;
         this._teardownEnvBackground();
         this._bgScene = null;
@@ -96176,13 +96330,6 @@ class EnvironmentManager {
             logger.debug(`Disposed cached environment render target: ${key}`);
         }
         this._cache.clear();
-        // Dispose all cached raw HDR textures
-        for (const [key, hdrTexture] of this._hdrCache) {
-            gpuTracker.untrack("texture", hdrTexture);
-            hdrTexture.dispose();
-            logger.debug(`Disposed cached HDR background: ${key}`);
-        }
-        this._hdrCache.clear();
         this._lightDetectionCache.clear();
         // Clear in-flight promises (they'll resolve but won't be cached)
         this._inflight.clear();
@@ -96218,8 +96365,9 @@ class EnvironmentManager {
         this._bgScene.background = texture;
         this._bgScene.backgroundIntensity = 1.0;
         this._bgScene.backgroundBlurriness = 0;
+        // See apply() for the "ZYX" rationale.
         if (upIsZ) {
-            this._bgScene.backgroundRotation.set(Math.PI / 2, 0, rotY);
+            this._bgScene.backgroundRotation.set(Math.PI / 2, 0, rotY, "ZYX");
         }
         else {
             this._bgScene.backgroundRotation.set(0, rotY, 0);
@@ -96337,10 +96485,9 @@ class EnvironmentManager {
      * Load an HDR file and generate a PMREM texture from it.
      *
      * Uses HDRLoader to fetch the .hdr file, then PMREMGenerator.fromEquirectangular()
-     * to create the PMREM cubemap for IBL. The source equirectangular HDR is
-     * preserved and cached separately (in `_hdrCache`) so that "environment"
-     * background mode can sample the full-resolution equirectangular texture
-     * instead of the 256² PMREM cubemap.
+     * to create the PMREM cubemap. The source equirectangular HDR is disposed
+     * after PMREM generation. The PMREM texture itself serves as both the IBL
+     * environment and the background (in "environment" mode).
      *
      * @param url - URL of the .hdr file
      * @param cacheKey - Cache key for the resulting PMREM render target
@@ -96366,19 +96513,21 @@ class EnvironmentManager {
         const renderTarget = pmremGenerator.fromEquirectangular(hdrTexture);
         // Analyze HDR pixel data for dominant light sources BEFORE disposing.
         // hdrTexture.image.data is Uint16Array (HalfFloatType) from HDRLoader.
-        if (hdrTexture.image?.data && hdrTexture.image.width && hdrTexture.image.height) {
+        if (hdrTexture.image?.data &&
+            hdrTexture.image.width &&
+            hdrTexture.image.height) {
             const result = detectDominantLights(hdrTexture.image.data, hdrTexture.image.width, hdrTexture.image.height);
             this._lightDetectionCache.set(cacheKey, result);
         }
-        // Preserve the equirectangular HDR for use as `scene.background` at
-        // source resolution. PMREM's base mip is a 256² cubemap — good for IBL
-        // (roughness-weighted prefilter) but visibly soft as a backdrop.
-        hdrTexture.mapping = EquirectangularReflectionMapping;
-        // Cache render target and HDR; track both.
+        // Dispose the source equirectangular texture (PMREM is now in GPU memory).
+        // Note: we cannot use the raw HDR for scene.background because three.js's
+        // WebGLBackground routes non-cubemap textures through a flat planeMesh
+        // path that ignores backgroundRotation; PMREM (CubeUVReflectionMapping)
+        // takes the cubemap path which respects rotation.
+        hdrTexture.dispose();
+        // Cache render target and track its texture
         this._cache.set(cacheKey, renderTarget);
-        this._hdrCache.set(cacheKey, hdrTexture);
         gpuTracker.trackTexture(renderTarget.texture, `PMREM environment: ${cacheKey}`);
-        gpuTracker.trackTexture(hdrTexture, `HDR background: ${cacheKey}`);
         logger.debug(`Loaded HDR environment from "${url}", cached as "${cacheKey}"`);
         return renderTarget.texture;
     }
@@ -96448,7 +96597,8 @@ class StudioFloor {
      */
     setShadowIntensity(intensity) {
         if (this._shadowPlane) {
-            this._shadowPlane.material.opacity = intensity * 1.0;
+            this._shadowPlane.material.opacity =
+                intensity * 1.0;
         }
     }
     /** Dispose all GPU resources. */
@@ -96464,7 +96614,10 @@ class StudioFloor {
     _createShadowPlane(zPosition, sceneSize) {
         const floorSize = sceneSize * 6;
         const geometry = new PlaneGeometry(floorSize, floorSize);
-        const material = new ShadowMaterial({ opacity: 0.5, depthWrite: false });
+        const material = new ShadowMaterial({
+            opacity: 0.5,
+            depthWrite: false,
+        });
         const plane = new Mesh(geometry, material);
         plane.position.z = zPosition;
         plane.receiveShadow = true;
@@ -103925,13 +104078,17 @@ const $05f6997e4b65da14$export$ed4ee5d1e55474a5 = {
  * Only instantiated when Studio mode is active. Non-Studio rendering
  * bypasses this entirely and uses direct `renderer.render()`.
  */
-// ---------------------------------------------------------------------------
-// Tone-mapping: maps viewer strings to postprocessing ToneMappingMode
-// ---------------------------------------------------------------------------
+// Tone mapping runs as a post-process effect in the EffectPass, before SMAA,
+// so SMAA's edge detection sees LDR luma in its calibrated [0,1] range.
+// Per-fragment tone mapping in the main RenderPass would be a no-op:
+// three.js forces NoToneMapping when rendering to a non-canvas render target
+// (see WebGLPrograms.getParameters), and the composer's input is a HalfFloat
+// HDR FBO. Exposure is read from renderer.toneMappingExposure by three.js's
+// shared <tonemapping_pars_fragment> chunk that ToneMappingEffect includes.
 const TONE_MAP_MODE = {
-    "neutral": ToneMappingMode.NEUTRAL,
-    "ACES": ToneMappingMode.ACES_FILMIC,
-    "none": ToneMappingMode.LINEAR,
+    neutral: ToneMappingMode.NEUTRAL,
+    ACES: ToneMappingMode.ACES_FILMIC,
+    none: ToneMappingMode.LINEAR,
 };
 // Scratch color to avoid per-frame allocation
 const _savedClearColor = new Color();
@@ -103989,7 +104146,7 @@ class StudioComposer {
      * @param width    - Canvas width in pixels
      * @param height   - Canvas height in pixels
      */
-    constructor(renderer, scene, camera, width, height) {
+    constructor(renderer, scene, camera, width, height, onSmaaReady) {
         /** Solid background color to protect from tone mapping, or null. */
         this._bgProtectColor = null;
         // Shadow mask pipeline — two separate masks to avoid depth-discontinuity halos
@@ -104010,15 +104167,17 @@ class StudioComposer {
         this._camera = camera;
         this._width = width;
         this._height = height;
-        // Postprocessing library requires renderer.toneMapping = NoToneMapping.
-        // Tone mapping is handled by ToneMappingEffect in the pipeline.
+        // ToneMappingEffect handles the tone curve in the EffectPass. The
+        // postprocessing library requires renderer.toneMapping = NoToneMapping
+        // so the renderer doesn't try to apply it as well.
         this._renderer.toneMapping = NoToneMapping;
         // HDR pipeline with HalfFloat framebuffer.
-        // multisampling = 0: MSAA conflicts with depth-based AO passes;
-        // antialiasing is handled by SMAAEffect instead.
+        // multisampling = 4: WebGL2 MSAA on the composer's input RT. Most GPUs
+        // clamp half-float MSAA to 4 samples anyway, and Studio mode applies
+        // additional supersampling via renderer.setPixelRatio to compensate.
         this._composer = new EffectComposer(renderer, {
             frameBufferType: HalfFloatType,
-            multisampling: 0,
+            multisampling: 4,
         });
         // --- Pass 1: scene render ---
         this._renderPass = new RenderPass(scene, camera);
@@ -104038,11 +104197,23 @@ class StudioComposer {
         this._n8aoPass.enabled = false; // off by default
         this._composer.addPass(this._n8aoPass);
         // --- Pass 3: shadow mask compositing + tone mapping + SMAA ---
+        // ShadowMask runs first in linear HDR (where shadow math is correct).
+        // ToneMapping next so SMAA sees LDR luma in its calibrated [0,1] range.
         this._toneMappingEffect = new ToneMappingEffect({
             mode: ToneMappingMode.NEUTRAL,
         });
-        const smaaEffect = new SMAAEffect({ preset: SMAAPreset.HIGH });
-        // ShadowMaskEffect is first so it runs in linear space before tone mapping
+        const smaaEffect = new SMAAEffect({ preset: SMAAPreset.ULTRA });
+        // SMAA loads its lookup textures (search/area) asynchronously via
+        // `new Image(); image.src = "data:..."`. Even though the source is a
+        // data URL, the `load` event fires in a microtask — so the very first
+        // render after composer construction has no SMAA textures attached and
+        // produces aliased edges. We notify on `load` so the caller can trigger
+        // another render and the user sees AA without having to interact.
+        if (onSmaaReady) {
+            // postprocessing's TS types only declare "change"; SMAA dispatches
+            // "load" at runtime when the lookup textures finish decoding.
+            smaaEffect.addEventListener("load", () => onSmaaReady());
+        }
         this._shadowMaskEffect = new ShadowMaskEffect();
         this._effectPass = new EffectPass(camera, this._shadowMaskEffect, this._toneMappingEffect, smaaEffect);
         this._composer.addPass(this._effectPass);
@@ -104110,6 +104281,9 @@ class StudioComposer {
         else {
             this._toneMappingEffect.mode = mapped;
         }
+        // ToneMappingEffect's GLSL reads toneMappingExposure from the
+        // <tonemapping_pars_fragment> chunk, which three.js auto-populates
+        // from this renderer property each frame.
         this._renderer.toneMappingExposure = exposure;
     }
     // -----------------------------------------------------------------------
@@ -104209,7 +104383,9 @@ class StudioComposer {
         this._composer.setSize(width, height, false);
         this._n8aoPass.setSize(width, height);
         // Resize shadow mask RTs at half resolution
-        if (this._shadowMaskRT && this._blurredObjectMaskRT && this._blurredFloorMaskRT) {
+        if (this._shadowMaskRT &&
+            this._blurredObjectMaskRT &&
+            this._blurredFloorMaskRT) {
             const halfW = Math.max(1, Math.floor(width / 2));
             const halfH = Math.max(1, Math.floor(height / 2));
             this._shadowMaskRT.setSize(halfW, halfH);
@@ -104236,8 +104412,11 @@ class StudioComposer {
     render(deltaTime) {
         // Two-pass shadow mask: objects and floor are blurred separately to
         // avoid depth-discontinuity halos at their boundary.
-        if (this._shadowMaskEnabled && this._shadowMaskRT && this._blurPass
-            && this._blurredObjectMaskRT && this._blurredFloorMaskRT) {
+        if (this._shadowMaskEnabled &&
+            this._shadowMaskRT &&
+            this._blurPass &&
+            this._blurredObjectMaskRT &&
+            this._blurredFloorMaskRT) {
             this._renderer.shadowMap.autoUpdate = false;
             this._renderer.shadowMap.needsUpdate = true;
             // Pass 1: object shadow mask (floor hidden, generates shadow map)
@@ -104248,8 +104427,10 @@ class StudioComposer {
             this._renderShadowMask("floor");
             this._blurPass.render(this._renderer, this._shadowMaskRT, this._blurredFloorMaskRT);
             // Feed both blurred masks to the compositing effect
-            this._shadowMaskEffect.uniforms.get("shadowMaskObjects").value = this._blurredObjectMaskRT.texture;
-            this._shadowMaskEffect.uniforms.get("shadowMaskFloor").value = this._blurredFloorMaskRT.texture;
+            this._shadowMaskEffect.uniforms.get("shadowMaskObjects").value =
+                this._blurredObjectMaskRT.texture;
+            this._shadowMaskEffect.uniforms.get("shadowMaskFloor").value =
+                this._blurredFloorMaskRT.texture;
             this._renderer.shadowMap.autoUpdate = true;
         }
         // Hide floor during main render — blurred shadow mask provides floor shadow
@@ -104382,26 +104563,86 @@ class StudioComposer {
  */
 const STATE_KEYS = new Set([
     // Display
-    "theme", "cadWidth", "treeWidth", "treeHeight", "height", "pinning", "glass", "tools",
-    "keymap", "newTreeBehavior", "measureTools", "selectTool", "explodeTool", "zscaleTool",
-    "zebraTool", "studioTool", "measurementDebug",
+    "theme",
+    "cadWidth",
+    "treeWidth",
+    "treeHeight",
+    "height",
+    "pinning",
+    "glass",
+    "tools",
+    "keymap",
+    "newTreeBehavior",
+    "measureTools",
+    "selectTool",
+    "explodeTool",
+    "zscaleTool",
+    "zebraTool",
+    "studioTool",
+    "measurementDebug",
     // Render
-    "ambientIntensity", "directIntensity", "metalness", "roughness", "defaultOpacity",
-    "edgeColor", "normalLen",
+    "ambientIntensity",
+    "directIntensity",
+    "metalness",
+    "roughness",
+    "defaultOpacity",
+    "edgeColor",
+    "normalLen",
     // Viewer
-    "axes", "axes0", "grid", "ortho", "transparent", "blackEdges", "collapse",
-    "clipIntersection", "clipPlaneHelpers", "clipObjectColors", "clipNormal0", "clipNormal1",
-    "clipNormal2", "clipSlider0", "clipSlider1", "clipSlider2", "control", "holroyd", "up",
-    "ticks", "gridFontSize", "centerGrid", "position", "quaternion", "target", "zoom",
-    "panSpeed", "rotateSpeed", "zoomSpeed", "timeit",
+    "axes",
+    "axes0",
+    "grid",
+    "ortho",
+    "transparent",
+    "blackEdges",
+    "collapse",
+    "clipIntersection",
+    "clipPlaneHelpers",
+    "clipObjectColors",
+    "clipNormal0",
+    "clipNormal1",
+    "clipNormal2",
+    "clipSlider0",
+    "clipSlider1",
+    "clipSlider2",
+    "control",
+    "holroyd",
+    "up",
+    "ticks",
+    "gridFontSize",
+    "centerGrid",
+    "position",
+    "quaternion",
+    "target",
+    "zoom",
+    "panSpeed",
+    "rotateSpeed",
+    "zoomSpeed",
+    "timeit",
     // Zebra
-    "zebraCount", "zebraOpacity", "zebraDirection", "zebraColorScheme", "zebraMappingMode",
+    "zebraCount",
+    "zebraOpacity",
+    "zebraDirection",
+    "zebraColorScheme",
+    "zebraMappingMode",
     // Studio
-    "studioEnvironment", "studioEnvIntensity", "studioBackground",
-    "studioToneMapping", "studioExposure", "studio4kEnvMaps", "studioTextureMapping",
-    "studioEnvRotation", "studioShadowIntensity", "studioShadowSoftness", "studioAOIntensity",
+    "studioEnvironment",
+    "studioEnvIntensity",
+    "studioBackground",
+    "studioToneMapping",
+    "studioExposure",
+    "studio4kEnvMaps",
+    "studioTextureMapping",
+    "studioEnvRotation",
+    "studioShadowIntensity",
+    "studioShadowSoftness",
+    "studioAOIntensity",
     // Runtime
-    "activeTool", "animationMode", "animationSliderValue", "zscaleActive", "highlightedButton",
+    "activeTool",
+    "animationMode",
+    "animationSliderValue",
+    "zscaleActive",
+    "highlightedButton",
     "activeTab",
 ]);
 /**
@@ -104608,7 +104849,8 @@ class ViewerState {
             const value = updates[key];
             // Skip undefined/null, except for keys where null is a valid value (reset to default)
             const KEYS_WITH_VALID_NULL = ["position", "quaternion", "target"];
-            if (value === undefined || (value === null && !KEYS_WITH_VALID_NULL.includes(key)))
+            if (value === undefined ||
+                (value === null && !KEYS_WITH_VALID_NULL.includes(key)))
                 continue;
             const oldValue = this._state[key];
             if (!valuesEqual(oldValue, value)) {
@@ -104634,8 +104876,13 @@ class ViewerState {
      * Converts Vector3Tuple/QuaternionTuple to THREE objects.
      */
     updateViewerState(options, notify = true) {
-        // Extract properties that need conversion to THREE objects
-        const { clipNormal0, clipNormal1, clipNormal2, position, quaternion, target, ...rest } = options;
+        // Extract properties that need conversion to THREE objects.
+        // `tab` is also extracted: it's not a state key directly (state uses
+        // `activeTab`), and setting activeTab here would trigger switchToTab
+        // before the scene is built. Viewer.render() applies it after
+        // scene-building completes (suppressing the CAD-mode paint when a
+        // non-default tab is the target).
+        const { tab: _tab, clipNormal0, clipNormal1, clipNormal2, position, quaternion, target, ...rest } = options;
         const converted = { ...rest };
         // Convert tuple values to THREE objects
         if (clipNormal0 !== undefined) {
@@ -104651,7 +104898,9 @@ class ViewerState {
             converted.position = position ? new Vector3(...position) : null;
         }
         if (quaternion !== undefined) {
-            converted.quaternion = quaternion ? new Quaternion(...quaternion) : null;
+            converted.quaternion = quaternion
+                ? new Quaternion(...quaternion)
+                : null;
         }
         if (target !== undefined) {
             converted.target = target ? new Vector3(...target) : null;
@@ -104775,9 +105024,15 @@ class ViewerState {
                 // Apply transform if defined (e.g., slider 0-1000 → relative 0-1)
                 const transform = STATE_NOTIFICATION_TRANSFORM[key];
                 const notifyChange = transform
-                    ? { old: change.old != null ? transform(change.old) : null, new: transform(change.new) }
+                    ? {
+                        old: change.old != null ? transform(change.old) : null,
+                        new: transform(change.new),
+                    }
                     : change;
-                this._externalNotifyCallback({ key: notificationKey, change: notifyChange });
+                this._externalNotifyCallback({
+                    key: notificationKey,
+                    change: notifyChange,
+                });
             }
         }
     }
@@ -104855,12 +105110,39 @@ ViewerState.DISPLAY_DEFAULTS = {
     glass: false,
     tools: true,
     keymap: {
-        shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey", alt: "altKey",
-        axes: "a", axes0: "A", grid: "g", gridxy: "G", perspective: "p", transparent: "t", blackedges: "b",
-        reset: "R", resize: "r",
-        iso: "5", front: "1", rear: "3", top: "8", bottom: "2", left: "4", right: "6",
-        explode: "x", zscale: "L", distance: "D", properties: "P", select: "S", help: "h", play: " ", stop: "Escape",
-        tree: "T", clip: "C", material: "M", zebra: "Z", studio: "s",
+        shift: "shiftKey",
+        ctrl: "ctrlKey",
+        meta: "metaKey",
+        alt: "altKey",
+        axes: "a",
+        axes0: "A",
+        grid: "g",
+        gridxy: "G",
+        perspective: "p",
+        transparent: "t",
+        blackedges: "b",
+        reset: "R",
+        resize: "r",
+        iso: "5",
+        front: "1",
+        rear: "3",
+        top: "8",
+        bottom: "2",
+        left: "4",
+        right: "6",
+        explode: "x",
+        zscale: "L",
+        distance: "D",
+        properties: "P",
+        select: "S",
+        help: "h",
+        play: " ",
+        stop: "Escape",
+        tree: "T",
+        clip: "C",
+        material: "M",
+        zebra: "Z",
+        studio: "s",
     },
     newTreeBehavior: true,
     measureTools: true,
@@ -104938,7 +105220,12 @@ ViewerState.STUDIO_MODE_DEFAULTS = {
     studioToneMapping: "neutral",
     studioExposure: 1.0,
     studio4kEnvMaps: false,
-    studioTextureMapping: "triplanar",
+    // "parametric" is the right default when the tessellator emits UVs:
+    // each object's `nestedgroup.ts:applyTriplanarMapping` only kicks in
+    // when the chosen mode is "triplanar" OR the geometry has no `uv`
+    // attribute. So with the default "parametric", textured objects with
+    // UVs use them; objects without UVs auto-fall back to triplanar.
+    studioTextureMapping: "parametric",
     studioEnvRotation: 0,
     studioShadowIntensity: 0.5,
     studioShadowSoftness: 0.2,
@@ -104975,6 +105262,13 @@ class StudioManager {
         this._active = false;
         this._savedClippingState = null;
         this._shadowLights = [];
+        /**
+         * Renderer pixel ratio saved on Studio entry, restored on leave.
+         * Studio mode bumps the pixel ratio to apply supersampling, which
+         * compensates for low DPR (e.g., VSCode webviews report DPR=1 even
+         * on Retina displays) and improves AA on shallow-angle edges.
+         */
+        this._savedPixelRatio = null;
         // -------------------------------------------------------------------------
         // Mode enter/leave
         // -------------------------------------------------------------------------
@@ -105026,9 +105320,28 @@ class StudioManager {
                 this._ctx.getDirectLight().intensity = 0;
                 // Floor
                 this._configureFloor();
+                // Studio-only supersampling. Bump pixel ratio so the renderer draws to
+                // a higher-resolution buffer; the browser downsamples to the canvas
+                // display size, giving smooth AA on shallow-angle silhouettes that
+                // MSAA alone leaves stair-stepped. Especially important in webview
+                // hosts (e.g., VSCode) where window.devicePixelRatio is reported as 1
+                // even on Retina displays. Restored in leaveStudioMode.
+                this._savedPixelRatio = renderer.getPixelRatio();
+                const targetPixelRatio = Math.max(2, window.devicePixelRatio);
+                if (targetPixelRatio !== this._savedPixelRatio) {
+                    renderer.setPixelRatio(targetPixelRatio);
+                    renderer.setSize(state.get("cadWidth"), state.get("height"));
+                }
                 // Create composer (must be before shadows)
                 if (!this._composer) {
-                    this._composer = new StudioComposer(renderer, scene, camera.getCamera(), state.get("cadWidth"), state.get("height"));
+                    this._composer = new StudioComposer(renderer, scene, camera.getCamera(), state.get("cadWidth"), state.get("height"), () => {
+                        // SMAA finished loading its async lookup textures. Re-render so
+                        // the first visible frame has anti-aliasing — without this the
+                        // user sees aliased edges until they interact with the scene.
+                        if (this._active && this._ctx.isRendered()) {
+                            this._ctx.update(true, false);
+                        }
+                    });
                 }
                 // Shadows (requires composer)
                 if (state.get("studioShadowIntensity") > 0) {
@@ -105052,6 +105365,12 @@ class StudioManager {
                     this._composer.dispose();
                     this._composer = null;
                 }
+                // Restore pixel ratio if we bumped it before failure
+                if (this._savedPixelRatio !== null) {
+                    renderer.setPixelRatio(this._savedPixelRatio);
+                    renderer.setSize(state.get("cadWidth"), state.get("height"));
+                    this._savedPixelRatio = null;
+                }
                 this._active = false;
                 logger.error("Unexpected error entering studio mode", err);
             }
@@ -105067,6 +105386,12 @@ class StudioManager {
             if (this._composer) {
                 this._composer.dispose();
                 this._composer = null;
+            }
+            // Restore the renderer's pixel ratio that was bumped on Studio entry.
+            if (this._savedPixelRatio !== null) {
+                renderer.setPixelRatio(this._savedPixelRatio);
+                renderer.setSize(state.get("cadWidth"), state.get("height"));
+                this._savedPixelRatio = null;
             }
             // 3. Remove environment, disable shadows
             this.envManager.remove(this._ctx.getScene());
@@ -105200,7 +105525,9 @@ class StudioManager {
         state.subscribe("studioEnvironment", (change) => {
             if (!isActive())
                 return;
-            this.envManager.loadEnvironment(change.new, this._ctx.renderer).then(() => {
+            this.envManager
+                .loadEnvironment(change.new, this._ctx.renderer)
+                .then(() => {
                 if (!isActive())
                     return;
                 reapplyEnv();
@@ -105209,7 +105536,8 @@ class StudioManager {
                 }
                 this._ctx.update(true, false);
                 this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
-            }).catch((err) => {
+            })
+                .catch((err) => {
                 logger.error("Unexpected error loading studio environment", err);
                 this._ctx.dispatchEvent(new Event("tcv-studio-ready"));
             });
@@ -105300,7 +105628,9 @@ class StudioManager {
             if (!isActive())
                 return;
             const envName = state.get("studioEnvironment");
-            this.envManager.setUse4kEnvMaps(change.new, envName, this._ctx.renderer).then(() => {
+            this.envManager
+                .setUse4kEnvMaps(change.new, envName, this._ctx.renderer)
+                .then(() => {
                 if (!isActive())
                     return;
                 reapplyEnv();
@@ -105438,7 +105768,9 @@ class StudioManager {
             this.floor.setShadowsEnabled(true);
             this._ctx.getScene().traverse((obj) => {
                 if (obj instanceof Mesh && obj.material) {
-                    const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+                    const mats = Array.isArray(obj.material)
+                        ? obj.material
+                        : [obj.material];
                     for (const m of mats) {
                         m.needsUpdate = true;
                     }
@@ -105699,7 +106031,9 @@ class Viewer {
         return this._rendered;
     }
     /** Environment manager — proxied from StudioManager for display.ts access. */
-    get envManager() { return this._studioManager.envManager; }
+    get envManager() {
+        return this._studioManager.envManager;
+    }
     // ---------------------------------------------------------------------------
     // Constructor & Initialization
     // ---------------------------------------------------------------------------
@@ -105712,6 +106046,10 @@ class Viewer {
      * @param updateMarker - enforce to redraw orientation marker after every ui activity
      */
     constructor(display, options, notifyCallback, pinAsPngCallback = null, updateMarker = true) {
+        // Grid size from the previous render, used to decide whether the new
+        // geometry is "the same model" for clip-slider preservation.
+        // Survives clear() so reused viewers remember the previous geometry.
+        this._previousGridSize = 0;
         // ---------------------------------------------------------------------------
         // Render Loop & Scene Updates
         // ---------------------------------------------------------------------------
@@ -105762,6 +106100,20 @@ class Viewer {
         this.update = (updateMarker, notify = true) => {
             if (!this.ready)
                 return;
+            // Skip painting while Studio mode is mid-async-load: composer hasn't
+            // been created yet, so a fall-through to renderer.render() would paint
+            // the scene with CAD materials (Studio's material swap is also async).
+            // Without this guard, any setter that calls update() — setCameraZoom,
+            // setView, setExplode, setTool, etc. — would paint a CAD-materials
+            // frame before Studio's first proper paint, which is visible as a
+            // 0.5–1 sec CAD render before Studio takes over. Studio's tab
+            // handler does its own update() at completion, which is when the
+            // first painted frame should appear. State changes still propagate
+            // synchronously and are picked up by that eventual paint.
+            if (this.state.get("activeTab") === "studio" &&
+                !this._studioManager.hasComposer) {
+                return;
+            }
             if (this._externalGl) {
                 this.renderer.resetState();
             }
@@ -105799,7 +106151,10 @@ class Viewer {
             }
             if (updateMarker) {
                 this.renderer.clearDepth(); // ensure orientation Marker is at the top
-                this.rendered.orientationMarker.update(this.rendered.camera.getPosition().clone().sub(this.rendered.controls.getTarget()), this.rendered.camera.getQuaternion());
+                this.rendered.orientationMarker.update(this.rendered.camera
+                    .getPosition()
+                    .clone()
+                    .sub(this.rendered.controls.getTarget()), this.rendered.camera.getQuaternion());
                 this.rendered.orientationMarker.render(this.renderer);
             }
             if (this.animation) {
@@ -105866,6 +106221,11 @@ class Viewer {
                             if (!isObjectGroup(objectGroup))
                                 continue;
                             objectGroup.setShapeVisible(compactTree[0] === 1);
+                            // Re-apply clip-mode back visibility when re-showing — see
+                            // matching comment in setObject().
+                            if (compactTree[0] === 1 && this.expandedNestedGroup.backVisible) {
+                                objectGroup.setBackVisible(true);
+                            }
                             objectGroup.setEdgesVisible(compactTree[1] === 1);
                             // Sync state (unless disabled = 3)
                             if (leafState[0] !== 3)
@@ -105897,6 +106257,11 @@ class Viewer {
                         }
                     }
                     objectGroup.setShapeVisible(shapeVisible);
+                    // Re-apply clip-mode back visibility when re-showing — see
+                    // matching comment in setObject().
+                    if (shapeVisible && this.compactNestedGroup.backVisible) {
+                        objectGroup.setBackVisible(true);
+                    }
                     objectGroup.setEdgesVisible(edgeVisible);
                     // Sync compact state (unless disabled = 3)
                     if (compactTree[0] !== 3)
@@ -106038,6 +106403,14 @@ class Viewer {
             if (objectGroup != null && objectGroup instanceof ObjectGroup) {
                 if (iconNumber === 0) {
                     objectGroup.setShapeVisible(state === 1);
+                    // When re-showing while clip-tab is active, re-apply the clip-mode
+                    // back-visibility for this object. setShapeVisible's show-path
+                    // doesn't touch back when !renderback (clip-tab owns it), so a
+                    // previously-hidden object would otherwise come back with front
+                    // visible but back still hidden — looking hollow under clipping.
+                    if (state === 1 && this.rendered.nestedGroup.backVisible) {
+                        objectGroup.setBackVisible(true);
+                    }
                 }
                 else {
                     objectGroup.setEdgesVisible(state === 1);
@@ -107275,7 +107648,10 @@ class Viewer {
         this.hasAnimationLoop = false;
         this.display = display;
         if (options.keymap) {
-            this.setKeyMap({ ...ViewerState.DISPLAY_DEFAULTS.keymap, ...options.keymap });
+            this.setKeyMap({
+                ...ViewerState.DISPLAY_DEFAULTS.keymap,
+                ...options.keymap,
+            });
         }
         else {
             this.setKeyMap(ViewerState.DISPLAY_DEFAULTS.keymap);
@@ -107596,7 +107972,8 @@ class Viewer {
         this.renderer.renderLists.dispose();
         this.renderer.dispose();
         // Skip context loss for externally provided WebGL contexts
-        if (!this._externalGl && typeof this.renderer.forceContextLoss === "function") {
+        if (!this._externalGl &&
+            typeof this.renderer.forceContextLoss === "function") {
             this.renderer.forceContextLoss();
         }
         console.debug("three-cad-viewer: WebGL context disposed");
@@ -107699,6 +108076,19 @@ class Viewer {
             deepDispose(this.compactNestedGroup);
             this.compactNestedGroup = null;
         }
+        // Reset scene-derived fields so the next render() recomputes them
+        // from the new geometry. Without this, reuse (clear() + render())
+        // re-uses stale values from the previous scene, producing wrong
+        // camera framing and stale bookkeeping.
+        this.bbox = null;
+        this.bb_max = 0;
+        this.bb_radius = 0;
+        this.lastBbox = null;
+        this.materialSettings = null;
+        this.renderOptions = null;
+        this.tree = null;
+        this.compactTree = null;
+        this.expandedTree = null;
     }
     /**
      * Build nestedGroup and treeview for initial render.
@@ -107997,16 +108387,28 @@ class Viewer {
         this.setDirectLight(this.state.get("directIntensity"));
         this.display.setSliderLimits(this.gridSize / 2);
         this.display.syncClipSlidersFromState();
-        // Compute clip slider values (used later after ready=true)
-        const clipSlider0 = viewerOptions.clipSlider0 != null
-            ? viewerOptions.clipSlider0
-            : this.gridSize / 2;
-        const clipSlider1 = viewerOptions.clipSlider1 != null
-            ? viewerOptions.clipSlider1
-            : this.gridSize / 2;
-        const clipSlider2 = viewerOptions.clipSlider2 != null
-            ? viewerOptions.clipSlider2
-            : this.gridSize / 2;
+        // Compute clip slider values (used later after ready=true).
+        //
+        // Three-tier policy:
+        //   1. Caller passed a value (viewerOptions.clipSliderN != null) → use
+        //      it. Caller intent always wins.
+        //   2. Same geometry as last render (gridSize unchanged) AND state has
+        //      a real value (≠ -1, the default sentinel) → reuse state. This
+        //      preserves the user's slider drag when re-rendering the same
+        //      model.
+        //   3. New geometry (or first render) → default to gridSize/2.
+        const gridSizeChanged = this._previousGridSize !== this.gridSize;
+        this._previousGridSize = this.gridSize;
+        const resolveSlider = (passed, stateValue) => {
+            if (passed != null)
+                return passed;
+            if (!gridSizeChanged && stateValue !== -1)
+                return stateValue;
+            return this.gridSize / 2;
+        };
+        const clipSlider0 = resolveSlider(viewerOptions.clipSlider0, this.state.get("clipSlider0"));
+        const clipSlider1 = resolveSlider(viewerOptions.clipSlider1, this.state.get("clipSlider1"));
+        const clipSlider2 = resolveSlider(viewerOptions.clipSlider2, this.state.get("clipSlider2"));
         nestedGroup.setClipPlanes(clipping.clipPlanes);
         this.setLocalClipping(false); // only allow clipping when Clipping tab is selected
         clipping.setVisible(false);
@@ -108027,15 +108429,29 @@ class Viewer {
             this.display.showToolsPanel(false);
             this.rendered.orientationMarker.setVisible(false);
         }
-        // Apply clip settings AFTER ready=true (clip setters check this.ready)
-        // Set normals first (if provided), passing slider values to avoid reset to gridSize/2
-        this.setClipNormal(0, viewerOptions.clipNormal0 ?? null, clipSlider0, true);
-        this.setClipNormal(1, viewerOptions.clipNormal1 ?? null, clipSlider1, true);
-        this.setClipNormal(2, viewerOptions.clipNormal2 ?? null, clipSlider2, true);
-        // Set sliders for any planes without custom normals (setClipNormal returns early if normal is null)
-        this.setClipSlider(0, clipSlider0, true);
-        this.setClipSlider(1, clipSlider1, true);
-        this.setClipSlider(2, clipSlider2, true);
+        // Apply clip settings AFTER ready=true (clip setters check this.ready).
+        //
+        // Same three-tier policy as clipSlider above (caller wins → reuse state
+        // on same geometry → reset on new geometry). The default normals are
+        // the axis-aligned planes that match the Clipping subsystem's own
+        // DEFAULT_NORMALS.
+        //
+        // Always passing a non-null normal means setClipNormal also handles the
+        // slider write (it calls setClipSlider internally), so no separate
+        // setClipSlider follow-up is needed here.
+        const resolveNormal = (passed, stateValue, defaultTuple) => {
+            if (passed != null)
+                return passed;
+            if (!gridSizeChanged)
+                return [stateValue.x, stateValue.y, stateValue.z];
+            return defaultTuple;
+        };
+        const clipNormal0 = resolveNormal(viewerOptions.clipNormal0, this.state.get("clipNormal0"), [-1, 0, 0]);
+        const clipNormal1 = resolveNormal(viewerOptions.clipNormal1, this.state.get("clipNormal1"), [0, -1, 0]);
+        const clipNormal2 = resolveNormal(viewerOptions.clipNormal2, this.state.get("clipNormal2"), [0, 0, -1]);
+        this.setClipNormal(0, clipNormal0, clipSlider0, true);
+        this.setClipNormal(1, clipNormal1, clipSlider1, true);
+        this.setClipNormal(2, clipNormal2, clipSlider2, true);
         this.setClipIntersection(viewerOptions.clipIntersection ?? false, true);
         this.setClipObjectColorCaps(viewerOptions.clipObjectColors ?? false, true);
         this.setClipPlaneHelpers(viewerOptions.clipPlaneHelpers ?? false, true);
@@ -108047,15 +108463,38 @@ class Viewer {
                 // Computed values from controls/camera
                 target: { old: null, new: toVector3Tuple(controls.target.toArray()) },
                 target0: { old: null, new: toVector3Tuple(controls.target0.toArray()) },
-                position: { old: null, new: this.rendered.camera.getPosition().toArray() },
-                quaternion: { old: null, new: this.rendered.camera.getQuaternion().toArray() },
+                position: {
+                    old: null,
+                    new: this.rendered.camera.getPosition().toArray(),
+                },
+                quaternion: {
+                    old: null,
+                    new: this.rendered.camera.getQuaternion().toArray(),
+                },
                 zoom: { old: null, new: this.rendered.camera.getZoom() },
                 // All config values from state
                 ...this.state.getAllNotifiable(),
             });
         }
         timer.split("notification done");
-        this.update(true, false);
+        // Initial paint and tab-landing logic.
+        //
+        // viewerOptions.tab can request a non-tree tab as the landing
+        // tab. To avoid a CAD-mode → target-tab flicker, we skip the default
+        // CAD update() in that case and let the activeTab subscription's
+        // switchToTab handler paint the right content (or, for studio, show
+        // the spinner over a blank canvas while async setup runs).
+        const targetTab = viewerOptions.tab ?? "tree";
+        if (targetTab === "tree") {
+            this.update(true, false);
+        }
+        else {
+            // setActiveTab fires the subscription synchronously; switchToTab
+            // either paints (clip / zebra / material) or initiates Studio's
+            // async load (showing the spinner). The first painted frame the
+            // user sees is the target tab, not CAD.
+            this.setActiveTab(targetTab);
+        }
         treeview.update();
         this.display.setTheme(this.state.get("theme"));
         this.setZebraCount(this.state.get("zebraCount"));
@@ -108456,7 +108895,9 @@ class Viewer {
         // Store current state
         const camera = this.rendered.camera.getCamera();
         const zoom = camera.zoom; // For orthographic cameras
-        const offset = camera.position.clone().sub(this.rendered.controls.getTarget());
+        const offset = camera.position
+            .clone()
+            .sub(this.rendered.controls.getTarget());
         // Update position and target
         camera.position.copy(targetVec.clone().add(offset));
         camera.updateWorldMatrix(true, false);
@@ -108691,7 +109132,10 @@ class Viewer {
                 version: partData.version,
                 id: wrapperId,
                 name: "__addPart_tmp__",
-                loc: [[0, 0, 0], [0, 0, 0, 1]],
+                loc: [
+                    [0, 0, 0],
+                    [0, 0, 0, 1],
+                ],
                 parts: [partData],
             };
             const wrapperGroup = nestedGroup.renderLoop(wrapper);
@@ -108871,8 +109315,7 @@ class Viewer {
             else {
                 const edgePosAttr = group.edges.geometry.getAttribute("position");
                 sameEdges =
-                    edgePosAttr != null &&
-                        edgePosAttr.count === flatLen(shape.edges) / 3;
+                    edgePosAttr != null && edgePosAttr.count === flatLen(shape.edges) / 3;
             }
         }
         if (!sameVertices || !sameTriangles || !sameEdges) {
@@ -109003,7 +109446,8 @@ class Viewer {
         // Only rebuild stencils if geometry grew beyond the region that stencils
         // were last built for.  Shrinking geometry still fits within existing
         // stencils, so skip the expensive rebuild in that case.
-        const newCSize = 1.1 * Math.max(Math.abs(this.bbox.min.length()), Math.abs(this.bbox.max.length()));
+        const newCSize = 1.1 *
+            Math.max(Math.abs(this.bbox.min.length()), Math.abs(this.bbox.max.length()));
         if (newCSize > this._stencilCSize + 1e-6) {
             this._stencilCSize = newCSize;
             const clipping = this.rendered.clipping;
@@ -109049,9 +109493,7 @@ class Viewer {
         }
         const min = new Vector3(bb.xmin, bb.ymin, bb.zmin);
         const max = new Vector3(bb.xmax, bb.ymax, bb.zmax);
-        const center = new Vector3()
-            .addVectors(min, max)
-            .multiplyScalar(0.5);
+        const center = new Vector3().addVectors(min, max).multiplyScalar(0.5);
         const requiredCSize = 1.1 * Math.max(Math.abs(min.length()), Math.abs(max.length()));
         if (requiredCSize > this._stencilCSize + 1e-6) {
             this._stencilCSize = requiredCSize;
@@ -109278,7 +109720,8 @@ class Viewer {
             if (value === undefined)
                 continue;
             if (modifierKeys.has(key)) {
-                modifiers[key] = value;
+                modifiers[key] =
+                    value;
             }
             else {
                 actions[key] = value;
@@ -109334,6 +109777,7 @@ class Viewer {
      */
     resizeCadView(cadWidth, treeWidth, height, glass = false) {
         this.state.set("cadWidth", cadWidth);
+        this.state.set("treeWidth", treeWidth);
         this.state.set("height", height);
         // Adapt renderer dimensions
         this.renderer.setSize(cadWidth, height);
@@ -109391,7 +109835,9 @@ class Slider {
          * @param notify - Whether to trigger the notification
          */
         this._notify = (value, notify = true) => {
-            if (this.type == "plane" && this.notifyCallback && this.index !== undefined) {
+            if (this.type == "plane" &&
+                this.notifyCallback &&
+                this.index !== undefined) {
                 const change = {};
                 change[`clip_slider_${this.index - 1}`] = parseFloat(String(value));
                 this.notifyCallback(change, notify);
@@ -109435,7 +109881,8 @@ class Slider {
         this.onSetSlider = options.onSetSlider || null;
         const sliderEl = container.getElementsByClassName(`tcv_sld_value_${index}`)[0];
         const inputEl = container.getElementsByClassName(`tcv_inp_value_${index}`)[0];
-        if (!(sliderEl instanceof HTMLInputElement) || !(inputEl instanceof HTMLInputElement)) {
+        if (!(sliderEl instanceof HTMLInputElement) ||
+            !(inputEl instanceof HTMLInputElement)) {
             throw new Error(`Slider elements not found for index "${index}" in container`);
         }
         this.slider = sliderEl;
@@ -109943,20 +110390,112 @@ function px(val) {
     return `${val}px`;
 }
 const MAT_EDITOR_PARAMS = [
-    { key: "metalness", label: "Metallic", min: 0, max: 1, step: 0.01, group: "PBR Core" },
-    { key: "roughness", label: "Roughness", min: 0, max: 1, step: 0.01, group: "PBR Core" },
-    { key: "clearcoat", label: "Clearcoat", min: 0, max: 1, step: 0.01, group: "Clearcoat" },
-    { key: "clearcoatRoughness", label: "Clearcoat Rough.", min: 0, max: 1, step: 0.01, group: "Clearcoat" },
-    { key: "transmission", label: "Transmission", min: 0, max: 1, step: 0.01, group: "Transmission" },
-    { key: "ior", label: "IOR", min: 1.0, max: 2.5, step: 0.01, group: "Transmission" },
-    { key: "thickness", label: "Thickness", min: 0, max: 10, step: 0.1, group: "Transmission" },
-    { key: "attenuationDistance", label: "Atten. Distance", min: 0, max: 100, step: 0.5, group: "Transmission", infinity: true },
+    {
+        key: "metalness",
+        label: "Metallic",
+        min: 0,
+        max: 1,
+        step: 0.01,
+        group: "PBR Core",
+    },
+    {
+        key: "roughness",
+        label: "Roughness",
+        min: 0,
+        max: 1,
+        step: 0.01,
+        group: "PBR Core",
+    },
+    {
+        key: "clearcoat",
+        label: "Clearcoat",
+        min: 0,
+        max: 1,
+        step: 0.01,
+        group: "Clearcoat",
+    },
+    {
+        key: "clearcoatRoughness",
+        label: "Clearcoat Rough.",
+        min: 0,
+        max: 1,
+        step: 0.01,
+        group: "Clearcoat",
+    },
+    {
+        key: "transmission",
+        label: "Transmission",
+        min: 0,
+        max: 1,
+        step: 0.01,
+        group: "Transmission",
+    },
+    {
+        key: "ior",
+        label: "IOR",
+        min: 1.0,
+        max: 2.5,
+        step: 0.01,
+        group: "Transmission",
+    },
+    {
+        key: "thickness",
+        label: "Thickness",
+        min: 0,
+        max: 10,
+        step: 0.1,
+        group: "Transmission",
+    },
+    {
+        key: "attenuationDistance",
+        label: "Atten. Distance",
+        min: 0,
+        max: 100,
+        step: 0.5,
+        group: "Transmission",
+        infinity: true,
+    },
     { key: "sheen", label: "Sheen", min: 0, max: 1, step: 0.01, group: "Sheen" },
-    { key: "sheenRoughness", label: "Sheen Roughness", min: 0, max: 1, step: 0.01, group: "Sheen" },
-    { key: "specularIntensity", label: "Specular Intensity", min: 0, max: 2, step: 0.01, group: "Specular" },
-    { key: "anisotropy", label: "Anisotropy", min: 0, max: 1, step: 0.01, group: "Anisotropy" },
-    { key: "anisotropyRotation", label: "Anisotropy Rotation", min: 0, max: 6.28, step: 0.01, group: "Anisotropy" },
-    { key: "emissiveIntensity", label: "Emissive Intensity", min: 0, max: 5, step: 0.1, group: "Emissive" },
+    {
+        key: "sheenRoughness",
+        label: "Sheen Roughness",
+        min: 0,
+        max: 1,
+        step: 0.01,
+        group: "Sheen",
+    },
+    {
+        key: "specularIntensity",
+        label: "Specular Intensity",
+        min: 0,
+        max: 2,
+        step: 0.01,
+        group: "Specular",
+    },
+    {
+        key: "anisotropy",
+        label: "Anisotropy",
+        min: 0,
+        max: 1,
+        step: 0.01,
+        group: "Anisotropy",
+    },
+    {
+        key: "anisotropyRotation",
+        label: "Anisotropy Rotation",
+        min: 0,
+        max: 6.28,
+        step: 0.01,
+        group: "Anisotropy",
+    },
+    {
+        key: "emissiveIntensity",
+        label: "Emissive Intensity",
+        min: 0,
+        max: 5,
+        step: 0.1,
+        group: "Emissive",
+    },
 ];
 function _formatMatValue(value, step) {
     const decimals = step < 0.1 ? 2 : 1;
@@ -110405,7 +110944,13 @@ class Display {
             if (!(e.target instanceof HTMLSelectElement))
                 return;
             const value = e.target.value;
-            if (value === "grey" || value === "darkgrey" || value === "white" || value === "gradient" || value === "gradient-dark" || value === "environment" || value === "transparent") {
+            if (value === "grey" ||
+                value === "darkgrey" ||
+                value === "white" ||
+                value === "gradient" ||
+                value === "gradient-dark" ||
+                value === "environment" ||
+                value === "transparent") {
                 this.state.set("studioBackground", value);
             }
         };
@@ -110623,7 +111168,8 @@ class Display {
             // Skip if target is a text-entry input element (but allow buttons/checkboxes)
             const target = e.target;
             if ((target instanceof HTMLInputElement &&
-                target.type !== "button" && target.type !== "checkbox") ||
+                target.type !== "button" &&
+                target.type !== "checkbox") ||
                 target instanceof HTMLTextAreaElement ||
                 target instanceof HTMLSelectElement) {
                 return;
@@ -110767,7 +111313,7 @@ class Display {
         this._spinnerEl = this.container.querySelector(".tcv_studio_spinner");
         this._warningBannerEl = this.container.querySelector(".tcv_warning_banner");
         this.container.addEventListener("tcv-material-warnings", ((e) => {
-            this._showWarningBanner(`Unresolved material tag(s): ${e.detail.map(t => `"${t}"`).join(", ")}`);
+            this._showWarningBanner(`Unresolved material tag(s): ${e.detail.map((t) => `"${t}"`).join(", ")}`);
         }));
         this.tabTree = this.getElement("tcv_tab_tree");
         this.tabClip = this.getElement("tcv_tab_clip");
@@ -111585,7 +112131,8 @@ class Display {
     attachCanvas(canvasElement) {
         // If the canvas is already attached elsewhere
         // do not re-parent it into this display.
-        if (canvasElement.parentElement && canvasElement.parentElement !== this.cadView) {
+        if (canvasElement.parentElement &&
+            canvasElement.parentElement !== this.cadView) {
             listeners.add(canvasElement, "click", () => {
                 if (this.help_shown) {
                     this.showHelp(false);
@@ -111636,7 +112183,8 @@ class Display {
     _deactivateToolsForStudio() {
         // If a tool is currently active, deactivate it cleanly
         const activeTool = this.state.get("activeTool");
-        if (activeTool && ["distance", "properties", "angle", "select"].includes(activeTool)) {
+        if (activeTool &&
+            ["distance", "properties", "angle", "select"].includes(activeTool)) {
             this.clickButtons[activeTool]?.set(false);
             this.setTool(activeTool, false);
             // setTool→toggleTab(false) silently sets activeTab to "tree" (no notification).
@@ -111744,7 +112292,13 @@ class Display {
             });
         }
         // Update tab styling
-        [this.tabTree, this.tabClip, this.tabZebra, this.tabMaterial, this.tabStudio].forEach((tabEl) => {
+        [
+            this.tabTree,
+            this.tabClip,
+            this.tabZebra,
+            this.tabMaterial,
+            this.tabStudio,
+        ].forEach((tabEl) => {
             tabEl.classList.add("tcv_tab-unselected");
             tabEl.classList.remove("tcv_tab-selected");
         });
@@ -111841,11 +112395,15 @@ class Display {
             originalMat = currentMat;
             mat = currentMat.clone();
             // Preserve triplanar mapping if the original material uses it
-            if (currentMat.customProgramCacheKey() === "triplanar" && object.shapeGeometry) {
+            if (currentMat.customProgramCacheKey() === "triplanar" &&
+                object.shapeGeometry) {
                 applyTriplanarMapping(mat, object.shapeGeometry);
             }
             object.front.material = mat;
-            this._matEditorClones.set(objectPath, { original: originalMat, clone: mat });
+            this._matEditorClones.set(objectPath, {
+                original: originalMat,
+                clone: mat,
+            });
         }
         // Restore elements that _showMatEditorHint may have hidden
         const resetBtn = dialog.querySelector(".tcv_mat_editor_reset");
@@ -111896,7 +112454,9 @@ class Display {
         try {
             groups = this.viewer.rendered.nestedGroup.groups;
         }
-        catch { /* not rendered */ }
+        catch {
+            /* not rendered */
+        }
         for (const [path, { original, clone }] of this._matEditorClones.entries()) {
             // Restore original material on mesh before disposing the clone
             if (groups) {
@@ -111958,7 +112518,8 @@ class Display {
             if (!(currentMat instanceof MeshPhysicalMaterial))
                 continue;
             const clone = currentMat.clone();
-            if (currentMat.customProgramCacheKey() === "triplanar" && group.shapeGeometry) {
+            if (currentMat.customProgramCacheKey() === "triplanar" &&
+                group.shapeGeometry) {
                 applyTriplanarMapping(clone, group.shapeGeometry);
             }
             for (const [key, value] of Object.entries(changes)) {
@@ -111966,7 +112527,10 @@ class Display {
                 clone[key] = value;
             }
             group.front.material = clone;
-            this._matEditorClones.set(path, { original: currentMat, clone });
+            this._matEditorClones.set(path, {
+                original: currentMat,
+                clone,
+            });
         }
         this._savedMatEditorChanges.clear();
     }
@@ -112009,7 +112573,10 @@ class Display {
             startX = e.clientX;
             startY = e.clientY;
             const rect = dialog.getBoundingClientRect();
-            const parentRect = dialog.offsetParent?.getBoundingClientRect() ?? { left: 0, top: 0 };
+            const parentRect = dialog.offsetParent?.getBoundingClientRect() ?? {
+                left: 0,
+                top: 0,
+            };
             origLeft = rect.left - parentRect.left;
             origTop = rect.top - parentRect.top;
             // Switch from right-positioning to left-positioning for drag
@@ -112023,8 +112590,8 @@ class Display {
                 return;
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
-            dialog.style.left = (origLeft + dx) + "px";
-            dialog.style.top = (origTop + dy) + "px";
+            dialog.style.left = origLeft + dx + "px";
+            dialog.style.top = origTop + dy + "px";
         }, { signal });
         document.addEventListener("mouseup", () => {
             dragging = false;
@@ -112042,7 +112609,8 @@ class Display {
             }
             let currentValue = // eslint-disable-next-line @typescript-eslint/no-explicit-any
              material[param.key];
-            const isInfinity = param.infinity === true && (currentValue === Infinity || currentValue == null);
+            const isInfinity = param.infinity === true &&
+                (currentValue === Infinity || currentValue == null);
             if (isInfinity)
                 currentValue = param.max;
             this._buildMatEditorRow(content, param, currentValue ?? 0, isInfinity, originalMat);
@@ -112054,8 +112622,8 @@ class Display {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const origValue = originalMat[param.key];
         const isChanged = (v) => param.infinity
-            ? (v >= param.max) !== (origValue === Infinity || origValue == null)
-                || (v < param.max && Math.abs(v - origValue) > param.step * 0.5)
+            ? v >= param.max !== (origValue === Infinity || origValue == null) ||
+                (v < param.max && Math.abs(v - origValue) > param.step * 0.5)
             : Math.abs(v - origValue) > param.step * 0.5;
         const label = document.createElement("label");
         label.className = "tcv_mat_editor_label";
@@ -112075,7 +112643,9 @@ class Display {
         const valueDisplay = document.createElement("input");
         valueDisplay.className = "tcv_clip_input";
         valueDisplay.readOnly = true;
-        valueDisplay.value = isInfinity ? "\u221E" : _formatMatValue(value, param.step);
+        valueDisplay.value = isInfinity
+            ? "\u221E"
+            : _formatMatValue(value, param.step);
         slider.addEventListener("input", () => {
             const newValue = parseFloat(slider.value);
             const result = this.viewer.getSelectedObjectGroup();
@@ -112164,7 +112734,8 @@ class Display {
         this.studioShadowIntensitySlider?.setValueFromState(state.get("studioShadowIntensity") * 100);
         this.studioShadowSoftnessSlider?.setValueFromState(state.get("studioShadowSoftness") * 100);
         this.studioAOIntensitySlider?.setValueFromState(state.get("studioAOIntensity") * 10);
-        this.getInputElement("tcv_studio_4k_env_maps").checked = state.get("studio4kEnvMaps");
+        this.getInputElement("tcv_studio_4k_env_maps").checked =
+            state.get("studio4kEnvMaps");
         this._syncEnvDropdown(state.get("studioEnvironment"));
         const bgEl = this.container.querySelector(".tcv_studio_background");
         if (bgEl instanceof HTMLSelectElement)
@@ -112193,7 +112764,10 @@ class Display {
         }
         else {
             // Add or update a "Custom" optgroup with the custom HDR entry
-            const label = envName.split("/").pop()?.replace(/\.hdr$/i, "") || "Custom HDR";
+            const label = envName
+                .split("/")
+                .pop()
+                ?.replace(/\.hdr$/i, "") || "Custom HDR";
             let customGroup = el.querySelector("optgroup[data-custom]");
             if (customGroup) {
                 const opt = customGroup.querySelector("option");
@@ -112224,7 +112798,8 @@ class Display {
         const isPreset = this.viewer.envManager.isPreset(envName);
         cb.disabled = !isPreset;
         if (!isPreset) {
-            cb.title = "4K switching is only available for built-in Poly Haven presets";
+            cb.title =
+                "4K switching is only available for built-in Poly Haven presets";
         }
         else {
             cb.title = "";
@@ -112257,8 +112832,17 @@ class Display {
     _dispatchAction(action) {
         // Toggle buttons
         const toggleActions = [
-            "axes", "axes0", "grid", "perspective", "transparent", "blackedges",
-            "explode", "zscale", "distance", "properties", "select",
+            "axes",
+            "axes0",
+            "grid",
+            "perspective",
+            "transparent",
+            "blackedges",
+            "explode",
+            "zscale",
+            "distance",
+            "properties",
+            "select",
         ];
         if (toggleActions.includes(action)) {
             this._toggleClickButton(action);
@@ -112468,6 +113052,7 @@ class Display {
      * @public
      */
     setTheme(theme) {
+        let resolved;
         if (theme === "dark" ||
             (theme === "browser" &&
                 window.matchMedia("(prefers-color-scheme: dark)").matches)) {
@@ -112479,7 +113064,7 @@ class Display {
                 this.viewer.gridHelper.update(this.viewer.getCameraZoom(), true, "dark");
             }
             this.viewer.update(true);
-            return "dark";
+            resolved = "dark";
         }
         else {
             this.container.setAttribute("data-theme", "light");
@@ -112490,8 +113075,14 @@ class Display {
                 this.viewer.gridHelper.update(this.viewer.getCameraZoom(), true, "light");
             }
             this.viewer.update(true);
-            return "light";
+            resolved = "light";
         }
+        // Keep state.theme in sync with the DOM. Without this, paths that call
+        // setTheme directly (matchMedia listener, viewer.setTheme, MutationObserver
+        // bridges) would update the DOM while leaving state.theme stale, and the
+        // next viewer.render() would re-apply the stale state value
+        this.viewer.state.set("theme", resolved, false);
+        return resolved;
     }
 }
 
