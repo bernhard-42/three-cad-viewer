@@ -7,6 +7,11 @@ import { ObjectGroup, isObjectGroup } from "./objectgroup.js";
 import { MaterialFactory } from "../rendering/material-factory.js";
 import { deepDispose, flatten } from "../utils/utils.js";
 import { gpuTracker } from "../utils/gpu-tracker.js";
+import {
+  ComponentRegistry,
+  buildFaceComponentIds,
+  buildEdgeComponentIds,
+} from "../rendering/id-picking.js";
 import type {
   ZebraColorScheme,
   ZebraMappingMode,
@@ -30,10 +35,14 @@ interface ShapeData {
   triangles: Uint32Array | number[][];
   edges?: Float32Array | number[][];
   uvs?: Float32Array | number[];
+  // Present in compact format; needed to assign per-face/per-edge component ids.
+  triangles_per_face?: number[] | Uint32Array;
+  segments_per_edge?: number[] | Uint32Array;
 }
 
 interface EdgeData {
   edges: Float32Array | number[][];
+  segments_per_edge?: number[] | Uint32Array;
 }
 
 interface VertexData {
@@ -177,6 +186,14 @@ class NestedGroup {
   bbox: BoundingBox | null;
   bsphere: THREE.Sphere | null;
   groups!: GroupsMap; // Initialized to {} in constructor
+  /**
+   * id-based-picking component registry (Migration-ID-Picking.md). Populated for
+   * the compact group only (`assignIds === true`); the exploded group leaves it
+   * empty and it is removed in Phase 6.
+   */
+  registry: ComponentRegistry;
+  /** Whether to assign component ids while rendering (compact group only). */
+  assignIds: boolean;
   clipPlanes: THREE.Plane[] | null;
   materialFactory: MaterialFactory;
   materialsTable: Record<
@@ -238,6 +255,8 @@ class NestedGroup {
     this.bbox = null;
     this.bsphere = null;
     this.groups = {};
+    this.registry = new ComponentRegistry();
+    this.assignIds = false;
 
     this.clipPlanes = null;
 
@@ -273,6 +292,7 @@ class NestedGroup {
     this._disposeStudioResources();
     this.resolvedMaterials.clear();
     this.resolvedMaterialX.clear();
+    this.registry.clear();
     this.materialsTable = null;
   }
 
@@ -655,6 +675,31 @@ class NestedGroup {
             : new Float32Array(shape.uvs);
         shapeGeometry.setAttribute("uv", new THREE.BufferAttribute(uvArray, 2));
       }
+
+      // Phase 1 (id-based picking): tag each vertex with its face component id
+      // on the existing indexed geometry. Compact group only (assignIds); textured
+      // faces use PlaneGeometry above and are skipped by construction.
+      if (this.assignIds) {
+        const { componentId, collisions } = buildFaceComponentIds(
+          positions.length / 3,
+          shape.triangles,
+          shape.triangles_per_face,
+          path,
+          subtype,
+          this.registry,
+        );
+        shapeGeometry.setAttribute(
+          "componentId",
+          new THREE.Uint32BufferAttribute(componentId, 1),
+        );
+        if (collisions > 0) {
+          logger.warn(
+            `componentId: ${collisions} cross-face shared vertices in ${path} ` +
+              "(face picking ok; de-index needed only if this solid must split)",
+          );
+        }
+      }
+
       group.shapeGeometry = shapeGeometry;
 
       frontMaterial = this.materialFactory.createFrontFaceMaterial(
@@ -718,6 +763,22 @@ class NestedGroup {
       const edges = this._renderEdges(edgeList, 1, null, states[1], path);
       edges.name = name;
       group.setEdges(edges);
+
+      // Phase 1 (id-based picking): tag each line segment with its edge component
+      // id (per-segment instanced attribute on the fat-line geometry). Compact only.
+      if (this.assignIds) {
+        const { componentId } = buildEdgeComponentIds(
+          edgeList,
+          shape.segments_per_edge,
+          path,
+          subtype,
+          this.registry,
+        );
+        edges.geometry.setAttribute(
+          "componentId",
+          new THREE.InstancedBufferAttribute(componentId, 1),
+        );
+      }
     }
 
     return group;

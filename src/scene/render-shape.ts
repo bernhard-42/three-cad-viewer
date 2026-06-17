@@ -90,7 +90,10 @@ class ShapeRenderer {
    * @param shapes - The Shapes object representing the tessellated CAD object.
    * @returns A nested THREE.Group object.
    */
-  private _renderTessellatedShapes(shapes: Shapes): NestedGroup {
+  private _renderTessellatedShapes(
+    shapes: Shapes,
+    assignIds: boolean = false,
+  ): NestedGroup {
     const nestedGroup = new NestedGroup(
       shapes,
       this.config.cadWidth,
@@ -102,6 +105,9 @@ class ShapeRenderer {
       this.config.roughness,
       this.config.normalLen,
     );
+    // id-based picking: only the compact group assigns component ids
+    // (the exploded group is removed in Phase 6). See Migration-ID-Picking.md.
+    nestedGroup.assignIds = assignIds;
     if (shapes.bb) {
       this._bbox = new BoundingBox(
         new THREE.Vector3(shapes.bb.xmin, shapes.bb.ymin, shapes.bb.zmin),
@@ -639,7 +645,7 @@ class ShapeRenderer {
     } else {
       processedShapes = structuredClone(shapes);
     }
-    const group = this._renderTessellatedShapes(processedShapes);
+    const group = this._renderTessellatedShapes(processedShapes, !exploded);
     const tree = this._getTree(processedShapes);
 
     return { group, tree };

@@ -45,6 +45,7 @@ import { BoundingBox, BoxHelper } from "../scene/bbox.js";
 import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
 import { version } from "../_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
+import type { PickingMode } from "../rendering/id-picking.js";
 import { StudioManager } from "./studio-manager.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
@@ -378,6 +379,11 @@ class Viewer {
 
   // Raycaster
   raycaster: Raycaster | null;
+
+  // Picking strategy. Transient migration flag (see Migration-ID-Picking.md):
+  // "raycast" = current CPU raycaster; "idbuffer" = GPU id-based picking.
+  // Not plumbed into ViewerState yet — promote only if a UI toggle is wanted.
+  _pickingMode: PickingMode = "raycast";
 
   // Studio mode orchestration (owns composer, floor, shadow lights, env manager)
   private _studioManager!: StudioManager;

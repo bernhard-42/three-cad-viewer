@@ -1549,3 +1549,55 @@ describe("NestedGroup - _createEdgesFromPolygons", () => {
     expect(geometry.index).not.toBeNull();
   });
 });
+
+describe("NestedGroup - id-based picking (Phase 1)", () => {
+  function makeNG(shapes) {
+    return new NestedGroup(
+      shapes,
+      800,
+      600,
+      0x707070,
+      false,
+      0.5,
+      0.3,
+      0.65,
+      0,
+      100,
+    );
+  }
+
+  test("compact group (assignIds=true) populates the registry; exploded does not", () => {
+    const ngCompact = makeNG(createShapeWithMesh());
+    ngCompact.assignIds = true;
+    ngCompact.render();
+    expect(ngCompact.registry.size).toBeGreaterThan(0);
+
+    const ngExploded = makeNG(createShapeWithMesh());
+    // assignIds defaults to false (exploded group)
+    ngExploded.render();
+    expect(ngExploded.registry.size).toBe(0);
+  });
+
+  test("face componentId attribute is attached on the compact mesh geometry", () => {
+    const ng = makeNG(createShapeWithMesh());
+    ng.assignIds = true;
+    ng.render();
+    const geom = ng.groups["part1"].shapeGeometry;
+    const attr = geom.getAttribute("componentId");
+    expect(attr).toBeDefined();
+    expect(attr.count).toBe(geom.getAttribute("position").count);
+    // every registry entry resolves to the backend path scheme
+    const info = ng.registry.get(attr.array[0]);
+    expect(info.topo).toBe("face");
+    expect(info.path).toMatch(/\/faces\/faces_\d+$/);
+  });
+
+  test("dispose clears the registry", () => {
+    const ng = makeNG(createShapeWithMesh());
+    ng.assignIds = true;
+    ng.render();
+    expect(ng.registry.size).toBeGreaterThan(0);
+    ng.dispose();
+    expect(ng.registry.size).toBe(0);
+  });
+});
