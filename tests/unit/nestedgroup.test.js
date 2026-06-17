@@ -6,6 +6,7 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 import * as THREE from "three";
 import { NestedGroup, ObjectGroup } from "../../src/scene/nestedgroup.js";
+import { PICK_LAYER } from "../../src/rendering/id-picking.js";
 
 // Helper to create minimal shape data for testing
 function createMinimalShapeData() {
@@ -1599,5 +1600,121 @@ describe("NestedGroup - id-based picking (Phase 1)", () => {
     expect(ng.registry.size).toBeGreaterThan(0);
     ng.dispose();
     expect(ng.registry.size).toBe(0);
+  });
+
+  // Phase 2a geometry: the pick shader reads componentId as an integer attribute
+  // and renders faces-only via a pick layer.
+  test("componentId attribute is bound as an integer (gpuType = IntType)", () => {
+    const ng = makeNG(createShapeWithMesh());
+    ng.assignIds = true;
+    ng.render();
+    const attr = ng.groups["part1"].shapeGeometry.getAttribute("componentId");
+    expect(attr.gpuType).toBe(THREE.IntType);
+  });
+
+  test("front face mesh is on the FACE pick layer AND the visual layer 0", () => {
+    const ng = makeNG(createShapeWithMesh());
+    ng.assignIds = true;
+    ng.render();
+    const front = ng.groups["part1"].front;
+    expect(front.layers.isEnabled(PICK_LAYER.FACE)).toBe(true);
+    expect(front.layers.isEnabled(0)).toBe(true); // visual pass still sees it
+  });
+
+  test("exploded group (assignIds=false) does not add the FACE pick layer", () => {
+    const ng = makeNG(createShapeWithMesh());
+    ng.render(); // assignIds defaults to false
+    const front = ng.groups["part1"].front;
+    expect(front.layers.isEnabled(PICK_LAYER.FACE)).toBe(false);
+  });
+
+  // Phase 2b: a solid's obj_vertices become a pick-only Points cloud on the
+  // VERTEX layer (not the visual layer 0).
+  function meshWithObjVertices() {
+    const shapes = createShapeWithMesh();
+    shapes.parts[0].shape.obj_vertices = new Float32Array([
+      0, 0, 0, 1, 0, 0, 0, 1, 0,
+    ]);
+    return shapes;
+  }
+
+  function findPickPoints(group) {
+    let found = null;
+    group.traverse((o) => {
+      if (o.isPoints && o.layers.isEnabled(PICK_LAYER.VERTEX)) found = o;
+    });
+    return found;
+  }
+
+  test("solid obj_vertices → pick Points on the VERTEX layer only (off visual 0)", () => {
+    const ng = makeNG(meshWithObjVertices());
+    ng.assignIds = true;
+    ng.render();
+    const pts = findPickPoints(ng.groups["part1"]);
+    expect(pts).not.toBeNull();
+    expect(pts.layers.isEnabled(PICK_LAYER.VERTEX)).toBe(true);
+    expect(pts.layers.isEnabled(0)).toBe(false); // visual camera never draws it
+    expect(pts.material.visible).toBe(true); // else three drops it before override
+    // componentId is an integer attribute matching the point count
+    const cid = pts.geometry.getAttribute("componentId");
+    expect(cid.gpuType).toBe(THREE.IntType);
+    expect(cid.count).toBe(3);
+    // registry carries the 3 vertex components under the backend path scheme
+    const info = ng.registry.get(cid.array[0]);
+    expect(info.topo).toBe("vertex");
+    expect(info.path).toMatch(/\/vertices\/vertices_\d+$/);
+  });
+
+  test("exploded group (assignIds=false) builds no pick Points", () => {
+    const ng = makeNG(meshWithObjVertices());
+    ng.render(); // assignIds defaults to false
+    expect(findPickPoints(ng.groups["part1"])).toBeNull();
+  });
+
+  // Phase 2b-3: edges get an integer instanced componentId + the EDGE pick layer.
+  function findEdges(group) {
+    let found = null;
+    group.traverse((o) => {
+      if (
+        o.geometry?.getAttribute?.("componentId") != null &&
+        o.layers.isEnabled(PICK_LAYER.EDGE)
+      )
+        found = o;
+    });
+    return found;
+  }
+
+  test("standalone edges → EDGE pick layer + integer componentId + registry", () => {
+    const ng = makeNG(createShapeWithEdges());
+    ng.assignIds = true;
+    ng.render();
+    const edges = findEdges(ng.groups["edges1"]);
+    expect(edges).not.toBeNull();
+    expect(edges.layers.isEnabled(PICK_LAYER.EDGE)).toBe(true);
+    expect(edges.layers.isEnabled(0)).toBe(true); // standalone edges are visual
+    const cid = edges.geometry.getAttribute("componentId");
+    expect(cid.gpuType).toBe(THREE.IntType);
+    expect(cid.isInstancedBufferAttribute).toBe(true);
+    const info = ng.registry.get(cid.array[0]);
+    expect(info.topo).toBe("edge");
+    expect(info.path).toMatch(/\/edges\/edges_\d+$/);
+    expect(info.solidPath).toBeNull(); // standalone
+  });
+
+  test("solid edges get the EDGE pick layer (additive) + integer componentId", () => {
+    const shapes = meshWithObjVertices();
+    shapes.parts[0].shape.edges = [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0];
+    const ng = makeNG(shapes);
+    ng.assignIds = true;
+    ng.render();
+    const edges = findEdges(ng.groups["part1"]);
+    expect(edges).not.toBeNull();
+    expect(edges.layers.isEnabled(PICK_LAYER.EDGE)).toBe(true);
+    expect(edges.layers.isEnabled(0)).toBe(true);
+    expect(edges.geometry.getAttribute("componentId").gpuType).toBe(THREE.IntType);
+    const info = ng.registry.get(edges.geometry.getAttribute("componentId").array[0]);
+    expect(info.topo).toBe("edge");
+    expect(info.solidPath).not.toBeNull(); // belongs to the solid
+    expect(info.path.startsWith(info.solidPath)).toBe(true);
   });
 });

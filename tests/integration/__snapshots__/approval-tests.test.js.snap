@@ -65,6 +65,12 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -263,7 +269,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -298,6 +304,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -378,6 +385,12 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -580,7 +593,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -615,6 +628,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -695,6 +709,12 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -897,7 +917,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -932,6 +952,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -1012,6 +1033,12 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -1214,7 +1241,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -1249,6 +1276,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -1338,6 +1366,12 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -1536,7 +1570,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -1571,6 +1605,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -1655,6 +1690,12 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -1853,7 +1894,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -1888,6 +1929,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -1968,6 +2010,12 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -2170,7 +2218,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -2205,6 +2253,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -2285,6 +2334,12 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -2487,7 +2542,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -2522,6 +2577,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -2607,6 +2663,12 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -2809,7 +2871,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -2844,6 +2906,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -2924,6 +2987,12 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -3126,7 +3195,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -3161,6 +3230,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -3241,6 +3311,12 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -3443,7 +3519,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -3478,6 +3554,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -3647,6 +3724,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -3713,6 +3796,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -3769,6 +3858,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -3839,6 +3934,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -3895,6 +3996,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -4281,7 +4388,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 0,
+        "points": 5,
       },
       "geometries": [
         "BufferGeometry",
@@ -4316,6 +4423,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -4480,6 +4588,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -4546,6 +4660,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -4602,6 +4722,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -4672,6 +4798,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -4728,6 +4860,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -5114,7 +5252,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 0,
+        "points": 5,
       },
       "geometries": [
         "BufferGeometry",
@@ -5149,6 +5287,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -5313,6 +5452,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -5379,6 +5524,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -5435,6 +5586,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -5505,6 +5662,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -5561,6 +5724,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -5947,7 +6116,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 0,
+        "points": 5,
       },
       "geometries": [
         "BufferGeometry",
@@ -5982,6 +6151,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -6146,6 +6316,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -6212,6 +6388,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -6268,6 +6450,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -6338,6 +6526,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -6394,6 +6588,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -6780,7 +6980,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 0,
+        "points": 5,
       },
       "geometries": [
         "BufferGeometry",
@@ -6815,6 +7015,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -6979,6 +7180,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -7045,6 +7252,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -7101,6 +7314,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -7171,6 +7390,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -7227,6 +7452,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -7613,7 +7844,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 0,
+        "points": 5,
       },
       "geometries": [
         "BufferGeometry",
@@ -7648,6 +7879,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -7737,6 +7969,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -7935,7 +8173,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -7970,6 +8208,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -8050,6 +8289,12 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -8252,7 +8497,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -8287,6 +8532,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -8372,6 +8618,12 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -8574,7 +8826,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -8609,6 +8861,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -8693,6 +8946,12 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -8891,7 +9150,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -8926,6 +9185,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -9010,6 +9270,12 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -9208,7 +9474,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -9243,6 +9509,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -9332,6 +9599,12 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -9530,7 +9803,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -9565,6 +9838,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -9649,6 +9923,12 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -9847,7 +10127,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -9882,6 +10162,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -9966,6 +10247,12 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -10164,7 +10451,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -10199,6 +10486,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -10283,6 +10571,12 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -10481,7 +10775,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -10516,6 +10810,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -10600,6 +10895,12 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -10798,7 +11099,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -10833,6 +11134,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -10917,6 +11219,12 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "materialVisible": true,
         "name": "Workplane(Solid)",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "Workplane(Solid)",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -11119,7 +11427,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       "lines": 10,
       "meshes": 16,
       "other": 32,
-      "points": 0,
+      "points": 1,
     },
     "geometries": [
       "BufferGeometry",
@@ -11154,6 +11462,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       "LineMaterial",
       "MeshBasicMaterial",
       "MeshStandardMaterial",
+      "PointsMaterial",
       "SpriteMaterial",
     ],
     "sampleEdgeMaterial": {
@@ -11242,6 +11551,12 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -11440,7 +11755,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -11475,6 +11790,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -11559,6 +11875,12 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -11757,7 +12079,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -11792,6 +12114,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -11876,6 +12199,12 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -12074,7 +12403,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -12109,6 +12438,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -12198,6 +12528,12 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -12396,7 +12732,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -12431,6 +12767,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -12515,6 +12852,12 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -12713,7 +13056,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -12748,6 +13091,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -12832,6 +13176,12 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -13030,7 +13380,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -13065,6 +13415,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -13149,6 +13500,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "materialVisible": true,
         "name": "Workplane(Solid)",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "Workplane(Solid)",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -13351,7 +13708,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "lines": 10,
       "meshes": 16,
       "other": 32,
-      "points": 0,
+      "points": 1,
     },
     "geometries": [
       "BufferGeometry",
@@ -13386,6 +13743,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "LineMaterial",
       "MeshBasicMaterial",
       "MeshStandardMaterial",
+      "PointsMaterial",
       "SpriteMaterial",
     ],
     "sampleEdgeMaterial": {
@@ -13553,6 +13911,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
       {
         "materialVisible": true,
+        "name": "box",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-0",
         "type": "Mesh",
         "visible": true,
@@ -13619,6 +13983,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
       {
         "materialVisible": true,
+        "name": "cone",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-1",
         "type": "Mesh",
         "visible": true,
@@ -13675,6 +14045,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "materialVisible": true,
         "name": "cylinder",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "cylinder",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -13745,6 +14121,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
       {
         "materialVisible": true,
+        "name": "sphere",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-3",
         "type": "Mesh",
         "visible": true,
@@ -13801,6 +14183,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "materialVisible": true,
         "name": "torus",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "torus",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -14187,7 +14575,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "lines": 14,
       "meshes": 60,
       "other": 50,
-      "points": 0,
+      "points": 5,
     },
     "geometries": [
       "BufferGeometry",
@@ -14222,6 +14610,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "LineMaterial",
       "MeshBasicMaterial",
       "MeshStandardMaterial",
+      "PointsMaterial",
       "SpriteMaterial",
     ],
     "sampleEdgeMaterial": {
@@ -14389,6 +14778,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
       {
         "materialVisible": true,
+        "name": "box",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-0",
         "type": "Mesh",
         "visible": true,
@@ -14455,6 +14850,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
       {
         "materialVisible": true,
+        "name": "cone",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-1",
         "type": "Mesh",
         "visible": true,
@@ -14511,6 +14912,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "materialVisible": true,
         "name": "cylinder",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "cylinder",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -14581,6 +14988,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
       {
         "materialVisible": true,
+        "name": "sphere",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-3",
         "type": "Mesh",
         "visible": true,
@@ -14637,6 +15050,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "materialVisible": true,
         "name": "torus",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "torus",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -15023,7 +15442,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "lines": 14,
       "meshes": 60,
       "other": 50,
-      "points": 0,
+      "points": 5,
     },
     "geometries": [
       "BufferGeometry",
@@ -15058,6 +15477,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "LineMaterial",
       "MeshBasicMaterial",
       "MeshStandardMaterial",
+      "PointsMaterial",
       "SpriteMaterial",
     ],
     "sampleEdgeMaterial": {
@@ -15161,6 +15581,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "materialVisible": true,
         "name": "box",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "box",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -15369,7 +15795,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "lines": 11,
       "meshes": 16,
       "other": 50,
-      "points": 0,
+      "points": 1,
     },
     "geometries": [
       "BufferGeometry",
@@ -15404,6 +15830,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "LineMaterial",
       "MeshBasicMaterial",
       "MeshStandardMaterial",
+      "PointsMaterial",
       "SpriteMaterial",
     ],
     "sampleEdgeMaterial": {
@@ -15499,6 +15926,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "materialVisible": true,
         "name": "box",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "box",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -15701,7 +16134,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "lines": 10,
       "meshes": 16,
       "other": 50,
-      "points": 1,
+      "points": 2,
     },
     "geometries": [
       "BufferGeometry",
@@ -15836,6 +16269,12 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
       {
         "materialVisible": true,
+        "name": "box",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-0",
         "type": "Mesh",
         "visible": true,
@@ -16034,7 +16473,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "lines": 10,
       "meshes": 16,
       "other": 50,
-      "points": 1,
+      "points": 2,
     },
     "geometries": [
       "BufferGeometry",
@@ -16158,6 +16597,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -16356,7 +16801,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -16391,6 +16836,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -16475,6 +16921,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -16673,7 +17125,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -16708,6 +17160,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -16792,6 +17245,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -16990,7 +17449,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -17025,6 +17484,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -17109,6 +17569,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -17307,7 +17773,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -17342,6 +17808,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -17422,6 +17889,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -17624,7 +18097,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -17659,6 +18132,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -17748,6 +18222,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -17946,7 +18426,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -17981,6 +18461,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -18065,6 +18546,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -18263,7 +18750,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -18298,6 +18785,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -18382,6 +18870,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -18580,7 +19074,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -18615,6 +19109,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -18699,6 +19194,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -18897,7 +19398,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -18932,6 +19433,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -19012,6 +19514,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -19214,7 +19722,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -19249,6 +19757,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -19338,6 +19847,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -19536,7 +20051,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -19571,6 +20086,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -19651,6 +20167,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -19853,7 +20375,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -19888,6 +20410,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -19977,6 +20500,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -20175,7 +20704,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -20210,6 +20739,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -20294,6 +20824,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -20492,7 +21028,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -20527,6 +21063,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -20607,6 +21144,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -20809,7 +21352,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -20844,6 +21387,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -21013,6 +21557,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -21079,6 +21629,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -21135,6 +21691,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -21205,6 +21767,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -21261,6 +21829,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -21647,7 +22221,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 0,
+        "points": 5,
       },
       "geometries": [
         "BufferGeometry",
@@ -21682,6 +22256,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -21846,6 +22421,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -21912,6 +22493,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -21968,6 +22555,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -22038,6 +22631,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -22094,6 +22693,12 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -22480,7 +23085,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 0,
+        "points": 5,
       },
       "geometries": [
         "BufferGeometry",
@@ -22515,6 +23120,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -22683,6 +23289,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "visible": true,
         },
         {
+          "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
           "materialVisible": false,
           "name": "frontStencil-0-0",
           "type": "Mesh",
@@ -22750,6 +23362,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -22806,6 +23424,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -22876,6 +23500,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -22932,6 +23562,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -23318,7 +23954,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 0,
+        "points": 5,
       },
       "geometries": [
         "BufferGeometry",
@@ -23353,6 +23989,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -23516,6 +24153,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "visible": true,
         },
         {
+          "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
           "materialVisible": false,
           "name": "frontStencil-0-0",
           "type": "Mesh",
@@ -23582,6 +24225,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "visible": true,
         },
         {
+          "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
           "materialVisible": false,
           "name": "frontStencil-0-1",
           "type": "Mesh",
@@ -23639,6 +24288,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -23709,6 +24364,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -23765,6 +24426,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -24151,7 +24818,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 0,
+        "points": 5,
       },
       "geometries": [
         "BufferGeometry",
@@ -24186,6 +24853,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -24350,6 +25018,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -24416,6 +25090,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -24472,6 +25152,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -24542,6 +25228,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -24598,6 +25290,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -24984,7 +25682,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 0,
+        "points": 5,
       },
       "geometries": [
         "BufferGeometry",
@@ -25019,6 +25717,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -25107,6 +25806,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
           "visible": true,
         },
         {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
           "materialVisible": false,
           "name": "frontStencil-0-0",
           "type": "Mesh",
@@ -25306,7 +26011,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -25341,6 +26046,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -25425,6 +26131,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -25623,7 +26335,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -25658,6 +26370,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {
@@ -25742,6 +26455,12 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -25940,7 +26659,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 0,
+        "points": 1,
       },
       "geometries": [
         "BufferGeometry",
@@ -25975,6 +26694,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "LineMaterial",
         "MeshBasicMaterial",
         "MeshStandardMaterial",
+        "PointsMaterial",
         "SpriteMaterial",
       ],
       "sampleEdgeMaterial": {

@@ -11,6 +11,9 @@ import {
   ComponentRegistry,
   buildFaceComponentIds,
   buildEdgeComponentIds,
+  buildVertexComponentIds,
+  PICK_LAYER,
+  COMPONENT_ID_ATTRIBUTE,
 } from "../rendering/id-picking.js";
 import type {
   ZebraColorScheme,
@@ -38,6 +41,9 @@ interface ShapeData {
   // Present in compact format; needed to assign per-face/per-edge component ids.
   triangles_per_face?: number[] | Uint32Array;
   segments_per_edge?: number[] | Uint32Array;
+  // Real B-rep corner vertices (the selectable ones); used to build the pick-only
+  // vertex Points cloud for id-based picking (Phase 2b).
+  obj_vertices?: Float32Array | number[];
 }
 
 interface EdgeData {
@@ -524,6 +530,24 @@ class NestedGroup {
     if (name) {
       edges.name = name;
     }
+
+    // Phase 2b-3 (id-based picking): tag a standalone edge node so it is pickable
+    // (per-segment instanced integer componentId + the EDGE pick layer, additive —
+    // standalone edges are visual, so layer 0 stays). Compact only.
+    if (this.assignIds) {
+      const { componentId } = buildEdgeComponentIds(
+        edgeData.edges,
+        edgeData.segments_per_edge,
+        path,
+        null, // standalone edge node — not part of a solid
+        this.registry,
+      );
+      const edgeCompId = new THREE.InstancedBufferAttribute(componentId, 1);
+      edgeCompId.gpuType = THREE.IntType;
+      edges.geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, edgeCompId);
+      edges.layers.enable(PICK_LAYER.EDGE);
+    }
+
     group.setEdges(edges);
 
     this.groups[path] = group;
@@ -576,6 +600,22 @@ class NestedGroup {
     if (name) {
       points.name = name;
     }
+
+    // Phase 2b (id-based picking): tag a standalone vertex node so it is pickable.
+    // These ARE visual (kept on layer 0); add the VERTEX pick layer additively.
+    if (this.assignIds) {
+      const { componentId } = buildVertexComponentIds(
+        vertexData.obj_vertices,
+        path,
+        null, // standalone vertex node — not part of a solid
+        this.registry,
+      );
+      const vCompId = new THREE.Uint32BufferAttribute(componentId, 1);
+      vCompId.gpuType = THREE.IntType;
+      geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, vCompId);
+      points.layers.enable(PICK_LAYER.VERTEX);
+    }
+
     group.setVertices(points);
 
     this.groups[path] = group;
@@ -688,10 +728,12 @@ class NestedGroup {
           subtype,
           this.registry,
         );
-        shapeGeometry.setAttribute(
-          "componentId",
-          new THREE.Uint32BufferAttribute(componentId, 1),
-        );
+        const componentIdAttr = new THREE.Uint32BufferAttribute(componentId, 1);
+        // Read as an integer vertex attribute by the GLSL3 pick shader
+        // (`in uint componentId`); without IntType three uploads it as float and
+        // the bits are wrong (decision D-C).
+        componentIdAttr.gpuType = THREE.IntType;
+        shapeGeometry.setAttribute(COMPONENT_ID_ATTRIBUTE, componentIdAttr);
         if (collisions > 0) {
           logger.warn(
             `componentId: ${collisions} cross-face shared vertices in ${path} ` +
@@ -736,6 +778,14 @@ class NestedGroup {
     const front = new THREE.Mesh(shapeGeometry, frontMaterial);
     front.name = name;
 
+    // Id-based picking: put only the FRONT (FrontSide) mesh on the face pick
+    // layer so the pick pass can render faces-only via
+    // `camera.layers.set(PICK_LAYER.FACE)`. `.enable()` is additive, so visual
+    // layer 0 stays enabled and the main render pass is unaffected.
+    if (this.assignIds) {
+      front.layers.enable(PICK_LAYER.FACE);
+    }
+
     // ensure, transparent objects will be rendered at the end
     if (alpha < 1.0) {
       back.renderOrder = 999;
@@ -764,8 +814,11 @@ class NestedGroup {
       edges.name = name;
       group.setEdges(edges);
 
-      // Phase 1 (id-based picking): tag each line segment with its edge component
-      // id (per-segment instanced attribute on the fat-line geometry). Compact only.
+      // Id-based picking: tag each line segment with its edge component id
+      // (per-segment instanced attribute on the fat-line geometry) and put the
+      // solid's edges on the EDGE pick layer (additive; visual layer 0 kept).
+      // Bind as an integer attribute (Phase 2b-3 edge pick shader reads `in uint`).
+      // Compact only.
       if (this.assignIds) {
         const { componentId } = buildEdgeComponentIds(
           edgeList,
@@ -774,11 +827,50 @@ class NestedGroup {
           subtype,
           this.registry,
         );
-        edges.geometry.setAttribute(
-          "componentId",
-          new THREE.InstancedBufferAttribute(componentId, 1),
-        );
+        const edgeCompId = new THREE.InstancedBufferAttribute(componentId, 1);
+        edgeCompId.gpuType = THREE.IntType;
+        edges.geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, edgeCompId);
+        edges.layers.enable(PICK_LAYER.EDGE);
       }
+    }
+
+    // Phase 2b (id-based picking): build a pick-only `obj_vertices` Points cloud so
+    // the solid's B-rep corners are selectable. Assigned to the VERTEX pick layer
+    // ONLY (NOT visual layer 0) so the visual camera never draws it; the material
+    // stays `visible:true` because three drops `material.visible===false` objects
+    // before `overrideMaterial` applies. Compact group only (`assignIds`).
+    if (
+      this.assignIds &&
+      shape.obj_vertices != null &&
+      shape.obj_vertices.length > 0
+    ) {
+      const vpositions = this._toFloat32Array(shape.obj_vertices);
+      const { componentId } = buildVertexComponentIds(
+        shape.obj_vertices,
+        path,
+        subtype,
+        this.registry,
+      );
+      const vGeometry = gpuTracker.trackGeometry(
+        new THREE.BufferGeometry(),
+        `BufferGeometry (pick vertices) for ${path}`,
+      );
+      vGeometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(vpositions, 3),
+      );
+      const vCompId = new THREE.Uint32BufferAttribute(componentId, 1);
+      vCompId.gpuType = THREE.IntType;
+      vGeometry.setAttribute(COMPONENT_ID_ATTRIBUTE, vCompId);
+
+      const pickMaterial = this.materialFactory.createVertexMaterial(
+        { size: 1, color: null, visible: true },
+        `PointsMaterial (pick vertices) for ${path}`,
+      );
+      const pickPoints = new THREE.Points(vGeometry, pickMaterial);
+      pickPoints.name = name;
+      pickPoints.layers.set(PICK_LAYER.VERTEX); // pick layer only (off visual 0)
+      group.add(pickPoints);
     }
 
     return group;

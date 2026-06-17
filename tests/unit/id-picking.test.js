@@ -1,4 +1,5 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
+import * as THREE from "three";
 import {
   ComponentRegistry,
   BACKGROUND_ID,
@@ -6,6 +7,9 @@ import {
   unpackId,
   buildFaceComponentIds,
   buildEdgeComponentIds,
+  buildVertexComponentIds,
+  IdPicker,
+  PICK_LAYER,
 } from "../../src/rendering/id-picking.js";
 
 describe("id-picking: ComponentRegistry", () => {
@@ -189,6 +193,335 @@ describe("id-picking: buildEdgeComponentIds", () => {
     );
     expect(Array.from(componentId)).toEqual([1, 2, 2]);
     expect(reg.get(2).path).toBe("/obj/edges/edges_1");
+  });
+});
+
+describe("id-picking: IdPicker.pickAt", () => {
+  // Mock renderer: pickAt's GPU calls are stubbed; readRenderTargetPixels writes
+  // the bytes we choose, so we test the readback -> unpack -> registry path and
+  // the coordinate transform / dirty cadence without a real GL context.
+  function makeRenderer(pixel, opts = {}) {
+    const calls = { read: [], render: 0 };
+    const pos = opts.pos ?? [0, 0, 0, 0];
+    return {
+      calls,
+      autoClear: true,
+      getPixelRatio: () => opts.dpr ?? 2,
+      getClearColor: (c) => c,
+      getClearAlpha: () => 0,
+      getViewport: (v) => v,
+      setViewport: () => {},
+      getRenderTarget: () => null,
+      setRenderTarget: () => {},
+      setClearColor: () => {},
+      clear: () => {},
+      render: () => {
+        calls.render += 1;
+      },
+      // MRT: attachment 0 (default textureIndex) = packed id bytes; attachment 1 =
+      // RGBA32F world position. textureIndex is the 8th arg (after activeCubeFace).
+      // Fills the WHOLE w*h block (the N×N id window) with the same value.
+      readRenderTargetPixels: (target, x, y, w, h, buf, _cube, textureIndex = 0) => {
+        calls.read.push([x, y, w, h, textureIndex]);
+        const src = textureIndex === 1 ? pos : pixel;
+        for (let i = 0; i < w * h; i++) {
+          buf[i * 4] = src[0];
+          buf[i * 4 + 1] = src[1];
+          buf[i * 4 + 2] = src[2];
+          buf[i * 4 + 3] = src[3];
+        }
+      },
+    };
+  }
+
+  // Camera wrapper stand-in: pickAt only needs getCamera() -> a THREE camera
+  // (for .layers manipulation).
+  const fakeCamera = () => ({ getCamera: () => new THREE.PerspectiveCamera() });
+
+  function registerFace(reg) {
+    return reg.register({
+      path: "/obj/faces/faces_0",
+      name: "faces_0",
+      topo: "face",
+      subtype: "solid",
+      solidPath: "/obj",
+    });
+  }
+
+  test("returns null before attach (no scene/camera)", () => {
+    const reg = new ComponentRegistry();
+    const picker = new IdPicker(makeRenderer([0, 0, 0, 0]), reg);
+    expect(picker.pickAt(10, 10)).toBeNull();
+  });
+
+  test("returns null when the canvas size is unset (target < 1px)", () => {
+    const reg = new ComponentRegistry();
+    const picker = new IdPicker(makeRenderer([1, 0, 0, 0]), reg);
+    picker.attach(new THREE.Scene(), fakeCamera());
+    expect(picker.pickAt(10, 10)).toBeNull(); // setSize never called
+  });
+
+  test("resolves a registered id to its ComponentInfo (point null in 2a)", () => {
+    const reg = new ComponentRegistry();
+    const id = registerFace(reg);
+    const picker = new IdPicker(makeRenderer(packId(id)), reg);
+    picker.attach(new THREE.Scene(), fakeCamera());
+    picker.setSize(200, 100);
+    const result = picker.pickAt(50, 20);
+    expect(result).not.toBeNull();
+    expect(result.id).toBe(id);
+    expect(result.info.path).toBe("/obj/faces/faces_0");
+    expect(result.point).toBeNull();
+  });
+
+  test("returns null for the background id (0)", () => {
+    const reg = new ComponentRegistry();
+    registerFace(reg);
+    const picker = new IdPicker(makeRenderer([0, 0, 0, 0]), reg);
+    picker.attach(new THREE.Scene(), fakeCamera());
+    picker.setSize(200, 100);
+    expect(picker.pickAt(50, 20)).toBeNull();
+  });
+
+  test("returns null for an id not in the registry", () => {
+    const reg = new ComponentRegistry();
+    registerFace(reg); // id 1
+    const picker = new IdPicker(makeRenderer(packId(999)), reg);
+    picker.attach(new THREE.Scene(), fakeCamera());
+    picker.setSize(200, 100);
+    expect(picker.pickAt(50, 20)).toBeNull();
+  });
+
+  test("coordinate transform: canvas px -> x dpr x 0.5 -> Y-flip", () => {
+    const reg = new ComponentRegistry();
+    const id = registerFace(reg);
+    const renderer = makeRenderer(packId(id), { dpr: 2 });
+    const picker = new IdPicker(renderer, reg);
+    picker.attach(new THREE.Scene(), fakeCamera());
+    picker.setSize(200, 100); // -> target 200x100
+    picker.pickAt(50, 20);
+    // tx = floor(50*2*0.5)=50; tyTop = floor(20*2*0.5)=20; ty = 100-1-20 = 79.
+    // Read 1: N×N id window (default 2) clamped around (50,79) -> origin (49,78).
+    // Read 2: position at the chosen pixel (center (50,79), the window being uniform).
+    expect(renderer.calls.read[0]).toEqual([49, 78, 2, 2, 0]); // id window
+    expect(renderer.calls.read.at(-1)).toEqual([50, 79, 1, 1, 1]); // position
+  });
+
+  test("returns the world-space hit point from the position attachment", () => {
+    const reg = new ComponentRegistry();
+    const id = registerFace(reg);
+    // attachment 1 = RGBA32F world position; w != 0 marks a written texel.
+    const picker = new IdPicker(
+      makeRenderer(packId(id), { pos: [1.5, -2.0, 3.25, 1] }),
+      reg,
+    );
+    picker.attach(new THREE.Scene(), fakeCamera());
+    picker.setSize(200, 100);
+    const result = picker.pickAt(50, 20);
+    expect(result.point).not.toBeNull();
+    expect(result.point.toArray()).toEqual([1.5, -2.0, 3.25]);
+  });
+
+  test("point is null when the position texel is unwritten (w = 0)", () => {
+    const reg = new ComponentRegistry();
+    const id = registerFace(reg);
+    const picker = new IdPicker(
+      makeRenderer(packId(id), { pos: [9, 9, 9, 0] }),
+      reg,
+    );
+    picker.attach(new THREE.Scene(), fakeCamera());
+    picker.setSize(200, 100);
+    expect(picker.pickAt(50, 20).point).toBeNull();
+  });
+
+  test("dirty cadence: re-renders only when dirty, reuses the buffer otherwise", () => {
+    const reg = new ComponentRegistry();
+    const id = registerFace(reg);
+    const renderer = makeRenderer(packId(id));
+    const picker = new IdPicker(renderer, reg);
+    picker.attach(new THREE.Scene(), fakeCamera());
+    picker.setSize(200, 100);
+
+    // Each buffer render does 3 passes (FACE + EDGE + VERTEX).
+    picker.pickAt(50, 20);
+    expect(renderer.calls.render).toBe(3); // first read renders (3 passes)
+    picker.pickAt(60, 30);
+    expect(renderer.calls.render).toBe(3); // no view change -> no re-render
+    picker.setDirty();
+    picker.pickAt(60, 30);
+    expect(renderer.calls.render).toBe(6); // dirtied -> re-render (3 passes)
+  });
+
+  test("setClippingPlanes recompiles the material only on plane-count change", () => {
+    const reg = new ComponentRegistry();
+    registerFace(reg);
+    const picker = new IdPicker(makeRenderer([0, 0, 0, 0]), reg);
+    picker.attach(new THREE.Scene(), fakeCamera());
+    picker.setSize(200, 100);
+    picker.pickAt(50, 20); // lazily creates the pick materials (0 planes)
+
+    // THREE.Material.needsUpdate is write-only (the setter bumps `version`);
+    // assert recompile via the version counter (on the face material).
+    const mat = picker.faceMaterial;
+    const v0 = mat.version;
+    const three = [new THREE.Plane(), new THREE.Plane(), new THREE.Plane()];
+    picker.setClippingPlanes(three); // 0 -> 3: recompile
+    expect(mat.version).toBe(v0 + 1);
+    expect(mat.clippingPlanes).toBe(three);
+
+    const v1 = mat.version;
+    const three2 = [new THREE.Plane(), new THREE.Plane(), new THREE.Plane()];
+    picker.setClippingPlanes(three2); // 3 -> 3, union -> union: value-only
+    expect(mat.version).toBe(v1);
+    expect(mat.clippingPlanes).toBe(three2);
+
+    const v2 = mat.version;
+    picker.setClippingPlanes(three2, true); // union -> intersection: recompile
+    expect(mat.version).toBe(v2 + 1);
+    expect(mat.clipIntersection).toBe(true);
+  });
+
+  test("dispose releases GPU resources and detaches", () => {
+    const reg = new ComponentRegistry();
+    const id = registerFace(reg);
+    const picker = new IdPicker(makeRenderer(packId(id)), reg);
+    picker.attach(new THREE.Scene(), fakeCamera());
+    picker.setSize(200, 100);
+    picker.pickAt(50, 20);
+
+    const target = picker.pickTarget;
+    const faceMat = picker.faceMaterial;
+    const vertexMat = picker.vertexMaterial;
+    const targetSpy = vi.spyOn(target, "dispose");
+    const faceSpy = vi.spyOn(faceMat, "dispose");
+    const vertexSpy = vi.spyOn(vertexMat, "dispose");
+    picker.dispose();
+    expect(targetSpy).toHaveBeenCalled();
+    expect(faceSpy).toHaveBeenCalled();
+    expect(vertexSpy).toHaveBeenCalled();
+    expect(picker.pickAt(50, 20)).toBeNull(); // detached
+  });
+
+  test("per-topo passes select FACE, EDGE, VERTEX layers, restored afterwards", () => {
+    const reg = new ComponentRegistry();
+    const id = registerFace(reg);
+    const renderer = makeRenderer(packId(id));
+    const masks = [];
+    const cam = new THREE.PerspectiveCamera();
+    const wrapper = { getCamera: () => cam };
+    renderer.render = () => masks.push(cam.layers.mask);
+    const picker = new IdPicker(renderer, reg);
+    picker.attach(new THREE.Scene(), wrapper);
+    picker.setSize(200, 100);
+    const savedBefore = cam.layers.mask;
+    picker.pickAt(50, 20);
+    const layerMask = (n) => {
+      const l = new THREE.Layers();
+      l.set(n);
+      return l.mask;
+    };
+    expect(masks).toEqual([
+      layerMask(PICK_LAYER.FACE),
+      layerMask(PICK_LAYER.EDGE),
+      layerMask(PICK_LAYER.VERTEX),
+    ]);
+    expect(cam.layers.mask).toBe(savedBefore); // restored afterwards
+  });
+
+  test("priority: a vertex in the window beats a face, even off-center", () => {
+    const reg = new ComponentRegistry();
+    const faceId = reg.register({ path: "/o/faces/faces_0", name: "faces_0", topo: "face", subtype: "solid", solidPath: "/o" });
+    const vertId = reg.register({ path: "/o/vertices/vertices_0", name: "vertices_0", topo: "vertex", subtype: "solid", solidPath: "/o" });
+    // Window full of the face id except one corner pixel = the vertex id.
+    const fb = packId(faceId), vb = packId(vertId);
+    const renderer = makeRenderer(fb, { pos: [0, 0, 0, 1] });
+    renderer.readRenderTargetPixels = (t, x, y, w, h, buf, _c, ti = 0) => {
+      renderer.calls.read.push([x, y, w, h, ti]);
+      const src = ti === 1 ? [0, 0, 0, 1] : fb;
+      for (let i = 0; i < w * h; i++) {
+        buf[i * 4] = src[0]; buf[i * 4 + 1] = src[1];
+        buf[i * 4 + 2] = src[2]; buf[i * 4 + 3] = src[3];
+      }
+      if (ti === 0) { buf[0] = vb[0]; buf[1] = vb[1]; buf[2] = vb[2]; buf[3] = vb[3]; }
+    };
+    const picker = new IdPicker(renderer, reg);
+    picker.attach(new THREE.Scene(), fakeCamera());
+    picker.setSize(200, 100);
+
+    expect(picker.pickAt(50, 20).id).toBe(vertId); // vertex wins (priority)
+    // topoFilter restricts eligibility:
+    expect(picker.pickAt(50, 20, { topoFilter: ["face"] }).id).toBe(faceId);
+    expect(picker.pickAt(50, 20, { topoFilter: ["vertex"] }).id).toBe(vertId);
+  });
+
+  test("priority full ordering: vertex > edge > face, topoFilter selects each", () => {
+    const reg = new ComponentRegistry();
+    const faceId = reg.register({ path: "/o/faces/faces_0", name: "faces_0", topo: "face", subtype: "solid", solidPath: "/o" });
+    const edgeId = reg.register({ path: "/o/edges/edges_0", name: "edges_0", topo: "edge", subtype: "solid", solidPath: "/o" });
+    const vertId = reg.register({ path: "/o/vertices/vertices_0", name: "vertices_0", topo: "vertex", subtype: "solid", solidPath: "/o" });
+    const fb = packId(faceId), eb = packId(edgeId), vb = packId(vertId);
+    // Window: face everywhere, edge at pixel 1, vertex at pixel 0.
+    const renderer = makeRenderer(fb, { pos: [0, 0, 0, 1] });
+    renderer.readRenderTargetPixels = (t, x, y, w, h, buf, _c, ti = 0) => {
+      renderer.calls.read.push([x, y, w, h, ti]);
+      const src = ti === 1 ? [0, 0, 0, 1] : fb;
+      for (let i = 0; i < w * h; i++) {
+        buf[i * 4] = src[0]; buf[i * 4 + 1] = src[1];
+        buf[i * 4 + 2] = src[2]; buf[i * 4 + 3] = src[3];
+      }
+      if (ti === 0) {
+        buf[0] = vb[0]; buf[1] = vb[1]; buf[2] = vb[2]; buf[3] = vb[3]; // pixel 0 = vertex
+        buf[4] = eb[0]; buf[5] = eb[1]; buf[6] = eb[2]; buf[7] = eb[3]; // pixel 1 = edge
+      }
+    };
+    const picker = new IdPicker(renderer, reg);
+    picker.attach(new THREE.Scene(), fakeCamera());
+    picker.setSize(200, 100);
+    expect(picker.pickAt(50, 20).id).toBe(vertId); // vertex > edge > face
+    expect(picker.pickAt(50, 20, { topoFilter: ["edge"] }).id).toBe(edgeId);
+    expect(picker.pickAt(50, 20, { topoFilter: ["face"] }).id).toBe(faceId);
+    // solid filter resolves via faces (caller maps to solidPath)
+    const solid = picker.pickAt(50, 20, { topoFilter: ["solid"] });
+    expect(solid.id).toBe(faceId);
+    expect(solid.info.solidPath).toBe("/o");
+  });
+});
+
+describe("id-picking: buildVertexComponentIds", () => {
+  test("one id per obj_vertices point + backend-contract paths (solid)", () => {
+    const reg = new ComponentRegistry();
+    // 3 corners (9 floats)
+    const { componentId } = buildVertexComponentIds(
+      [0, 0, 0, 1, 0, 0, 0, 1, 0],
+      "/obj",
+      "solid",
+      reg,
+    );
+    expect(Array.from(componentId)).toEqual([1, 2, 3]);
+    expect(reg.get(1)).toMatchObject({
+      path: "/obj/vertices/vertices_0",
+      name: "vertices_0",
+      topo: "vertex",
+      solidPath: "/obj",
+    });
+    expect(reg.get(3).path).toBe("/obj/vertices/vertices_2");
+  });
+
+  test("standalone (non-solid) vertex → solidPath null", () => {
+    const reg = new ComponentRegistry();
+    buildVertexComponentIds([0, 0, 0], "/vtx", null, reg);
+    expect(reg.get(1).solidPath).toBeNull();
+  });
+
+  test("accepts a Float32Array and ignores a trailing partial point", () => {
+    const reg = new ComponentRegistry();
+    const { componentId } = buildVertexComponentIds(
+      new Float32Array([0, 0, 0, 1, 1, 1]),
+      "/obj",
+      "solid",
+      reg,
+    );
+    expect(componentId.length).toBe(2);
   });
 });
 

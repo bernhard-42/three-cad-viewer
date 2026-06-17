@@ -45,7 +45,7 @@ import { BoundingBox, BoxHelper } from "../scene/bbox.js";
 import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
 import { version } from "../_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
-import type { PickingMode } from "../rendering/id-picking.js";
+import { IdPicker, type PickingMode } from "../rendering/id-picking.js";
 import { StudioManager } from "./studio-manager.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
@@ -384,6 +384,10 @@ class Viewer {
   // "raycast" = current CPU raycaster; "idbuffer" = GPU id-based picking.
   // Not plumbed into ViewerState yet — promote only if a UI toggle is wanted.
   _pickingMode: PickingMode = "raycast";
+
+  // GPU id-based picker (Phase 2a: faces). Created/attached per render() once the
+  // scene + compact registry exist; not yet routed into selection (Phase 4).
+  idPicker: IdPicker | null = null;
 
   // Studio mode orchestration (owns composer, floor, shadow lights, env manager)
   private _studioManager!: StudioManager;
@@ -918,6 +922,19 @@ class Viewer {
 
     this.rendered.gridHelper.update(this.rendered.camera.getZoom());
 
+    // Keep the id picker's clip state in sync with the visual pass and mark its
+    // buffer stale (the view may have changed). Re-render happens lazily on the
+    // next pickAt(). Pass the live clip planes only when local clipping is on, so
+    // the pick material matches what is visually clipped (else no clipping).
+    if (this.idPicker !== null) {
+      this.idPicker.setClippingPlanes(
+        this.renderer.localClippingEnabled
+          ? this.rendered.clipping.clipPlanes
+          : null,
+        this.state.get("clipIntersection"),
+      );
+    }
+
     this.renderer.setViewport(
       0,
       0,
@@ -1164,6 +1181,11 @@ class Viewer {
 
       // clear info
       deepDispose(this.info);
+
+      if (this.idPicker !== null) {
+        this.idPicker.dispose();
+        this.idPicker = null;
+      }
 
       this._rendered = null;
       this.ready = false;
@@ -1719,6 +1741,16 @@ class Viewer {
       ambientLight,
       directLight,
     };
+
+    // GPU id-based picker over the compact registry (Phase 2a: faces). Attached
+    // to the live scene + camera; sized to the canvas. Re-rendered lazily and
+    // clip-synced in update(). Not yet routed into selection (Phase 4).
+    this.idPicker = new IdPicker(this.renderer, nestedGroup.registry);
+    this.idPicker.attach(scene, camera);
+    this.idPicker.setSize(
+      this.state.get("cadWidth"),
+      this.state.get("height"),
+    );
 
     // Now that rendered state exists, configure camera position
     if (viewerOptions.position == null && viewerOptions.quaternion == null) {
@@ -4828,6 +4860,9 @@ class Viewer {
 
     // Adapt renderer dimensions
     this.renderer.setSize(cadWidth, height);
+
+    // Resize the id pick target to match the canvas
+    this.idPicker?.setSize(cadWidth, height);
 
     // Adapt display dimensions
     this.display.setSizes({
