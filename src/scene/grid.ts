@@ -629,7 +629,7 @@ class Grid extends THREE.Group {
     // Determine rotation based on plane and axis
     // All labels should be perpendicular to their axis to prevent overlap
     // Ensure consistent rotation for each physical axis across all planes
-    let rotation = 0;
+    let rotation: number;
     if (i === 0) {
       // XY plane: X-axis (horizontal) = 0°, Y-axis (vertical) = 0° for perpendicular
       rotation = 0;

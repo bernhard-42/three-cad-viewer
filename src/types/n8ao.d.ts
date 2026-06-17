@@ -8,7 +8,6 @@
 declare module "n8ao" {
   import type { Scene, Camera } from "three";
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   export class N8AOPostPass {
     enabled: boolean;
     camera: Camera;

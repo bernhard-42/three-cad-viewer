@@ -142,7 +142,7 @@ class TreeModel {
       ];
 
       for (const key in data) {
-        let currentPath = "";
+        let currentPath: string;
 
         if (path == null) {
           currentPath = key;

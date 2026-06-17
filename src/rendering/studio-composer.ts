@@ -248,18 +248,24 @@ class StudioComposer {
    */
   setBackgroundProtect(color: THREE.Color | null): void {
     this._bgProtectColor = color;
+    // postprocessing's ClearPass supports clear overrides at runtime; the shipped
+    // types are stricter than the runtime, so narrow to the fields we set.
+    const clearPass = this._renderPass.clearPass as unknown as {
+      overrideClearColor: THREE.Color | null;
+      overrideClearAlpha: number;
+    };
     if (color) {
       this._renderPass.ignoreBackground = true;
       // Force the ClearPass to clear the FBO with transparent black
-      this._renderPass.clearPass.overrideClearColor = new THREE.Color(0, 0, 0);
-      (this._renderPass.clearPass as any).overrideClearAlpha = 0;
+      clearPass.overrideClearColor = new THREE.Color(0, 0, 0);
+      clearPass.overrideClearAlpha = 0;
       // Alpha-blend the final output onto the pre-cleared canvas
       this._effectPass.fullscreenMaterial.blending = THREE.NormalBlending;
       this._effectPass.fullscreenMaterial.transparent = true;
     } else {
       this._renderPass.ignoreBackground = false;
-      (this._renderPass.clearPass as any).overrideClearColor = null;
-      (this._renderPass.clearPass as any).overrideClearAlpha = -1;
+      clearPass.overrideClearColor = null;
+      clearPass.overrideClearAlpha = -1;
       // Opaque overwrite (default postprocessing behavior)
       this._effectPass.fullscreenMaterial.blending = THREE.NoBlending;
       this._effectPass.fullscreenMaterial.transparent = false;

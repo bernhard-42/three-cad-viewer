@@ -4617,10 +4617,6 @@ class Viewer {
     const worldCenterOrOrigin = new THREE.Vector3();
     const worldObjectCenter = new THREE.Vector3();
 
-    let worldDirection: THREE.Vector3 | null = null;
-    let localDirection: THREE.Vector3 | null = null;
-    let scaledLocalDirection: THREE.Vector3 | null = null;
-
     if (!use_origin) {
       const bb = new THREE.Box3().setFromObject(
         this.rendered.nestedGroup.rootGroup!,
@@ -4640,11 +4636,11 @@ class Viewer {
       }
       b.getCenter(worldObjectCenter);
       // Explode around global center or origin
-      worldDirection = worldObjectCenter.sub(worldCenterOrOrigin);
-      localDirection = group.parent!.worldToLocal(worldDirection.clone());
+      const worldDirection = worldObjectCenter.sub(worldCenterOrOrigin);
+      const localDirection = group.parent!.worldToLocal(worldDirection.clone());
 
       // Use the parent to calculate the local directions
-      scaledLocalDirection = group.parent!.worldToLocal(
+      const scaledLocalDirection = group.parent!.worldToLocal(
         worldDirection.clone().multiplyScalar(multiplier),
       );
       // and ensure to shift objects at its center and not at its position
