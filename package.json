@@ -58,6 +58,7 @@
   "devDependencies": {
     "@babel/core": "7.29.0",
     "@babel/eslint-parser": "7.28.6",
+    "@eslint/js": "10.0.1",
     "@rollup/plugin-image": "3.0.3",
     "@rollup/plugin-node-resolve": "16.0.3",
     "@rollup/plugin-terser": "1.0.0",
