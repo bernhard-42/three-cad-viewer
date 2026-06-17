@@ -15,6 +15,10 @@ import {
   PICK_LAYER,
   COMPONENT_ID_ATTRIBUTE,
 } from "../rendering/id-picking.js";
+import {
+  HighlightController,
+  VERTEX_FOCUS_SIZE,
+} from "../rendering/highlight.js";
 import type {
   ZebraColorScheme,
   ZebraMappingMode,
@@ -200,6 +204,12 @@ class NestedGroup {
   registry: ComponentRegistry;
   /** Whether to assign component ids while rendering (compact group only). */
   assignIds: boolean;
+  /**
+   * Component-level shader highlight (Phase 3). Created for the compact group only
+   * (`assignIds`); patches visual materials to tint/widen by `componentId`. `null`
+   * for the exploded group (which keeps the old `ObjectGroup.highlight()`).
+   */
+  highlight: HighlightController | null;
   clipPlanes: THREE.Plane[] | null;
   materialFactory: MaterialFactory;
   materialsTable: Record<
@@ -263,6 +273,7 @@ class NestedGroup {
     this.groups = {};
     this.registry = new ComponentRegistry();
     this.assignIds = false;
+    this.highlight = null;
 
     this.clipPlanes = null;
 
@@ -299,6 +310,10 @@ class NestedGroup {
     this.resolvedMaterials.clear();
     this.resolvedMaterialX.clear();
     this.registry.clear();
+    if (this.highlight) {
+      this.highlight.dispose();
+      this.highlight = null;
+    }
     this.materialsTable = null;
   }
 
@@ -546,6 +561,8 @@ class NestedGroup {
       edgeCompId.gpuType = THREE.IntType;
       edges.geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, edgeCompId);
       edges.layers.enable(PICK_LAYER.EDGE);
+      // Phase 3: widen + recolor the flagged segment in-shader (Option A).
+      this.highlight?.patchEdgeMaterial(edges.material);
     }
 
     group.setEdges(edges);
@@ -614,6 +631,9 @@ class NestedGroup {
       vCompId.gpuType = THREE.IntType;
       geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, vCompId);
       points.layers.enable(PICK_LAYER.VERTEX);
+      // Phase 3: standalone vertices are visible — keep authored size/color when
+      // unflagged, widen + recolor when flagged (no cull).
+      this.highlight?.patchVertexMaterial(material);
     }
 
     group.setVertices(points);
@@ -753,6 +773,8 @@ class NestedGroup {
         `MeshStandardMaterial (front) for ${path}`,
       );
       frontMaterial.name = "frontMaterial";
+      // Phase 3: tint by componentId in-shader (compact group only).
+      this.highlight?.patchFaceMaterial(frontMaterial);
     }
 
     const backColor =
@@ -831,6 +853,8 @@ class NestedGroup {
         edgeCompId.gpuType = THREE.IntType;
         edges.geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, edgeCompId);
         edges.layers.enable(PICK_LAYER.EDGE);
+        // Phase 3: widen + recolor the flagged segment in-shader (Option A).
+        this.highlight?.patchEdgeMaterial(edges.material);
       }
     }
 
@@ -871,6 +895,30 @@ class NestedGroup {
       pickPoints.name = name;
       pickPoints.layers.set(PICK_LAYER.VERTEX); // pick layer only (off visual 0)
       group.add(pickPoints);
+
+      // Phase 3: a SEPARATE visual-highlight Points on visual layer 0 (NOT the pick
+      // layer), sharing the same geometry. Non-flagged points are culled
+      // (`gl_PointSize=0` + fragment discard), so a solid's corner shows fat only
+      // while highlighted — matching the old visible-vertex look without a CPU walk.
+      const highlightMaterial = this.materialFactory.createVertexMaterial(
+        { size: VERTEX_FOCUS_SIZE, color: null, visible: true },
+        `PointsMaterial (highlight vertices) for ${path}`,
+      );
+      // Selection-marker points must render ON TOP. A solid's B-rep corners are
+      // coincident with the faces meeting there, so a depth-tested point loses the
+      // z-fight against its own faces and never shows — even silhouette corners
+      // against the background (verified via the WebGL parity harness; a plain
+      // depthTest:true marker rendered 0 visible points on an opaque solid). This
+      // is the standard always-visible selection-dot behaviour.
+      highlightMaterial.depthTest = false;
+      highlightMaterial.depthWrite = false;
+      this.highlight?.patchVertexMaterial(highlightMaterial, {
+        cullUnhighlighted: true,
+      });
+      const highlightPoints = new THREE.Points(vGeometry, highlightMaterial);
+      highlightPoints.name = name;
+      highlightPoints.renderOrder = 1000; // after faces/edges
+      group.add(highlightPoints); // visual layer 0 only (default)
     }
 
     return group;
@@ -1168,7 +1216,14 @@ class NestedGroup {
     this.materialsTable = this.shapes.materials || null;
     this.resolvedMaterials.clear();
     this.resolvedMaterialX.clear();
+    // Phase 3: the highlight controller must exist before renderLoop so each
+    // visual material is patched as it is created. Compact group only.
+    if (this.assignIds) {
+      this.highlight = new HighlightController(this.registry);
+    }
     this.rootGroup = this.renderLoop(this.shapes);
+    // Grow the state texture to cover every component registered during the walk.
+    this.highlight?.resize(this.registry.maxId);
     return this.rootGroup;
   }
 
@@ -1224,6 +1279,8 @@ class NestedGroup {
     for (const object of this.selection()) {
       object.clearHighlights();
     }
+    // Phase 3: compact group highlight is shader-driven, not per-ObjectGroup.
+    this.highlight?.clear();
   }
 
   /**

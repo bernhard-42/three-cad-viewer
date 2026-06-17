@@ -70,6 +70,12 @@ exports[`Viewer - Rendering Modes > compact mode (exploded=false) - renders soli
       },
       {
         "materialVisible": true,
+        "name": "Workplane(Solid)",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-0",
         "type": "Mesh",
         "visible": true,
@@ -268,7 +274,7 @@ exports[`Viewer - Rendering Modes > compact mode (exploded=false) - renders soli
       "lines": 10,
       "meshes": 16,
       "other": 32,
-      "points": 1,
+      "points": 2,
     },
     "geometries": [
       "BufferGeometry",

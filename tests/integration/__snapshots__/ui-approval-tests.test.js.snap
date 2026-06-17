@@ -71,6 +71,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -269,7 +275,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -385,6 +391,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -593,7 +605,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -709,6 +721,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -917,7 +935,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -1033,6 +1051,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -1241,7 +1265,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -1357,6 +1381,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -1565,7 +1595,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -1681,6 +1711,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -1889,7 +1925,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -2005,6 +2041,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -2213,7 +2255,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -2334,6 +2376,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -2542,7 +2590,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -2658,6 +2706,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -2866,7 +2920,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -2982,6 +3036,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -3190,7 +3250,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -3311,6 +3371,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -3519,7 +3585,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -3635,6 +3701,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -3843,7 +3915,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -3959,6 +4031,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -4167,7 +4245,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -4378,6 +4456,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -4450,6 +4534,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -4506,6 +4596,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -4588,6 +4684,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -4644,6 +4746,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -5036,7 +5144,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 5,
+        "points": 10,
       },
       "geometries": [
         "BufferGeometry",
@@ -5242,6 +5350,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -5314,6 +5428,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -5370,6 +5490,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -5452,6 +5578,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -5508,6 +5640,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -5900,7 +6038,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 5,
+        "points": 10,
       },
       "geometries": [
         "BufferGeometry",
@@ -6106,6 +6244,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -6178,6 +6322,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -6234,6 +6384,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -6316,6 +6472,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -6372,6 +6534,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -6764,7 +6932,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 5,
+        "points": 10,
       },
       "geometries": [
         "BufferGeometry",
@@ -6970,6 +7138,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -7042,6 +7216,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -7098,6 +7278,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -7180,6 +7366,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -7236,6 +7428,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -7628,7 +7826,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 5,
+        "points": 10,
       },
       "geometries": [
         "BufferGeometry",
@@ -7834,6 +8032,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -7906,6 +8110,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -7962,6 +8172,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -8044,6 +8260,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -8100,6 +8322,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -8492,7 +8720,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 5,
+        "points": 10,
       },
       "geometries": [
         "BufferGeometry",
@@ -8612,6 +8840,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "materialVisible": true,
         "name": "Workplane(Solid)",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "Workplane(Solid)",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -8820,7 +9054,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       "lines": 10,
       "meshes": 16,
       "other": 32,
-      "points": 1,
+      "points": 2,
     },
     "geometries": [
       "BufferGeometry",
@@ -8940,6 +9174,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -9148,7 +9388,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -9274,6 +9514,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -9472,7 +9718,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -9588,6 +9834,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -9796,7 +10048,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -9927,6 +10179,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -10125,7 +10383,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -10241,6 +10499,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -10449,7 +10713,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -10580,6 +10844,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -10778,7 +11048,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -10904,6 +11174,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -11102,7 +11378,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -11218,6 +11494,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -11426,7 +11708,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -11557,6 +11839,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -11755,7 +12043,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -11871,6 +12159,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -12079,7 +12373,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -12211,6 +12505,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           },
           {
             "materialVisible": true,
+            "name": "Workplane(Solid)",
+            "type": "Points",
+            "visible": true,
+          },
+          {
+            "materialVisible": true,
             "name": "frontStencil-0-0",
             "type": "Mesh",
             "visible": true,
@@ -12409,7 +12709,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "lines": 10,
           "meshes": 16,
           "other": 32,
-          "points": 1,
+          "points": 2,
         },
         "geometries": [
           "BufferGeometry",
@@ -12529,6 +12829,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
             "materialVisible": true,
             "name": "Workplane(Solid)",
             "type": "LineSegments2",
+            "visible": true,
+          },
+          {
+            "materialVisible": true,
+            "name": "Workplane(Solid)",
+            "type": "Points",
             "visible": true,
           },
           {
@@ -12737,7 +13043,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "lines": 10,
           "meshes": 16,
           "other": 32,
-          "points": 1,
+          "points": 2,
         },
         "geometries": [
           "BufferGeometry",
@@ -12857,6 +13163,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
             "materialVisible": true,
             "name": "Workplane(Solid)",
             "type": "LineSegments2",
+            "visible": true,
+          },
+          {
+            "materialVisible": true,
+            "name": "Workplane(Solid)",
+            "type": "Points",
             "visible": true,
           },
           {
@@ -13065,7 +13377,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "lines": 10,
           "meshes": 16,
           "other": 32,
-          "points": 1,
+          "points": 2,
         },
         "geometries": [
           "BufferGeometry",
@@ -13185,6 +13497,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
             "materialVisible": true,
             "name": "Workplane(Solid)",
             "type": "LineSegments2",
+            "visible": true,
+          },
+          {
+            "materialVisible": true,
+            "name": "Workplane(Solid)",
+            "type": "Points",
             "visible": true,
           },
           {
@@ -13393,7 +13711,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "lines": 10,
           "meshes": 16,
           "other": 32,
-          "points": 1,
+          "points": 2,
         },
         "geometries": [
           "BufferGeometry",
@@ -13527,6 +13845,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -13725,7 +14049,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -13851,6 +14175,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -14049,7 +14379,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -14165,6 +14495,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -14373,7 +14709,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -14504,6 +14840,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -14702,7 +15044,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -14828,6 +15170,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -15026,7 +15374,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -15142,6 +15490,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -15350,7 +15704,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -15481,6 +15835,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -15679,7 +16039,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -15795,6 +16155,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -16003,7 +16369,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -16134,6 +16500,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -16332,7 +16704,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -16448,6 +16820,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -16656,7 +17034,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -16787,6 +17165,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -16985,7 +17369,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -17101,6 +17485,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -17309,7 +17699,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -17440,6 +17830,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
         {
           "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -17638,7 +18034,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -17754,6 +18150,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
           "materialVisible": true,
           "name": "Workplane(Solid)",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "Workplane(Solid)",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -17962,7 +18364,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "lines": 10,
         "meshes": 16,
         "other": 32,
-        "points": 1,
+        "points": 2,
       },
       "geometries": [
         "BufferGeometry",
@@ -18173,6 +18575,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -18245,6 +18653,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -18301,6 +18715,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -18383,6 +18803,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -18439,6 +18865,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -18831,7 +19263,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 5,
+        "points": 10,
       },
       "geometries": [
         "BufferGeometry",
@@ -19037,6 +19469,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         },
         {
           "materialVisible": true,
+          "name": "box",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-0",
           "type": "Mesh",
           "visible": true,
@@ -19109,6 +19547,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         },
         {
           "materialVisible": true,
+          "name": "cone",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-1",
           "type": "Mesh",
           "visible": true,
@@ -19165,6 +19609,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "materialVisible": true,
           "name": "cylinder",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "cylinder",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -19247,6 +19697,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         },
         {
           "materialVisible": true,
+          "name": "sphere",
+          "type": "Points",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
           "name": "frontStencil-0-3",
           "type": "Mesh",
           "visible": true,
@@ -19303,6 +19759,12 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
           "materialVisible": true,
           "name": "torus",
           "type": "LineSegments2",
+          "visible": true,
+        },
+        {
+          "materialVisible": true,
+          "name": "torus",
+          "type": "Points",
           "visible": true,
         },
         {
@@ -19695,7 +20157,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         "lines": 14,
         "meshes": 60,
         "other": 50,
-        "points": 5,
+        "points": 10,
       },
       "geometries": [
         "BufferGeometry",

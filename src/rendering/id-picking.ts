@@ -96,6 +96,24 @@ export class ComponentRegistry {
     return this.byId.get(id);
   }
 
+  /**
+   * Iterate every registered component in registration (id-ascending) order.
+   * Used by the highlight controller to resolve solid selection (all components
+   * sharing a `solidPath`) without a scene-graph walk.
+   */
+  entries(): IterableIterator<ComponentInfo> {
+    return this.byId.values();
+  }
+
+  /**
+   * Largest allocated id so far (0 when empty). Ids are contiguous from 1 with no
+   * deletions, so this equals {@link size}; exposed separately as the explicit
+   * upper bound for sizing the highlight-state texture.
+   */
+  get maxId(): number {
+    return this.nextId - 1;
+  }
+
   /** Number of registered components. */
   get size(): number {
     return this.byId.size;

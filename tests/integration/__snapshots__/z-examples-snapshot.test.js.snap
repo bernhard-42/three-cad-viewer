@@ -70,6 +70,12 @@ exports[`Examples - Snapshot Tests > box1 scene state snapshot 1`] = `
       },
       {
         "materialVisible": true,
+        "name": "Workplane(Solid)",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-0",
         "type": "Mesh",
         "visible": true,
@@ -268,7 +274,7 @@ exports[`Examples - Snapshot Tests > box1 scene state snapshot 1`] = `
       "lines": 10,
       "meshes": 16,
       "other": 32,
-      "points": 1,
+      "points": 2,
     },
     "geometries": [
       "BufferGeometry",
@@ -477,6 +483,12 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
       },
       {
         "materialVisible": true,
+        "name": "box",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-0",
         "type": "Mesh",
         "visible": true,
@@ -549,6 +561,12 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
       },
       {
         "materialVisible": true,
+        "name": "cone",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-1",
         "type": "Mesh",
         "visible": true,
@@ -605,6 +623,12 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "materialVisible": true,
         "name": "cylinder",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "cylinder",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -687,6 +711,12 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
       },
       {
         "materialVisible": true,
+        "name": "sphere",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-3",
         "type": "Mesh",
         "visible": true,
@@ -743,6 +773,12 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
         "materialVisible": true,
         "name": "torus",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "torus",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -1135,7 +1171,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
       "lines": 14,
       "meshes": 60,
       "other": 50,
-      "points": 5,
+      "points": 10,
     },
     "geometries": [
       "BufferGeometry",
@@ -1254,6 +1290,12 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_feet 
         "materialVisible": true,
         "name": "Solid",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "Solid",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -1462,7 +1504,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_feet 
       "lines": 10,
       "meshes": 16,
       "other": 50,
-      "points": 1,
+      "points": 2,
     },
     "geometries": [
       "BufferGeometry",
@@ -1581,6 +1623,12 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_mm > 
         "materialVisible": true,
         "name": "Solid",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "Solid",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -1789,7 +1837,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_mm > 
       "lines": 10,
       "meshes": 16,
       "other": 50,
-      "points": 1,
+      "points": 2,
     },
     "geometries": [
       "BufferGeometry",
@@ -1964,6 +2012,12 @@ exports[`Examples - Snapshot Tests > important snapshot for boxes > boxes-scene 
       },
       {
         "materialVisible": true,
+        "name": "red box",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-0",
         "type": "Mesh",
         "visible": true,
@@ -2036,6 +2090,12 @@ exports[`Examples - Snapshot Tests > important snapshot for boxes > boxes-scene 
       },
       {
         "materialVisible": true,
+        "name": "green box",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-1",
         "type": "Mesh",
         "visible": true,
@@ -2098,6 +2158,12 @@ exports[`Examples - Snapshot Tests > important snapshot for boxes > boxes-scene 
         "materialVisible": true,
         "name": "blue box",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "blue box",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -2398,7 +2464,7 @@ exports[`Examples - Snapshot Tests > important snapshot for boxes > boxes-scene 
       "lines": 12,
       "meshes": 38,
       "other": 38,
-      "points": 3,
+      "points": 6,
     },
     "geometries": [
       "BufferGeometry",
@@ -2827,6 +2893,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       },
       {
         "materialVisible": true,
+        "name": "bottom",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-0",
         "type": "Mesh",
         "visible": true,
@@ -2883,6 +2955,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
         "materialVisible": true,
         "name": "top",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "top",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -2959,6 +3037,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       },
       {
         "materialVisible": true,
+        "name": "front_stand",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-2",
         "type": "Mesh",
         "visible": true,
@@ -3015,6 +3099,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
         "materialVisible": true,
         "name": "back_stand",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "back_stand",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -3097,6 +3187,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       },
       {
         "materialVisible": true,
+        "name": "upper_leg",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-4",
         "type": "Mesh",
         "visible": true,
@@ -3159,6 +3255,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
         "materialVisible": true,
         "name": "lower_leg",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "lower_leg",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -3241,6 +3343,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       },
       {
         "materialVisible": true,
+        "name": "upper_leg",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-6",
         "type": "Mesh",
         "visible": true,
@@ -3303,6 +3411,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
         "materialVisible": true,
         "name": "lower_leg",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "lower_leg",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -3385,6 +3499,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       },
       {
         "materialVisible": true,
+        "name": "upper_leg",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-8",
         "type": "Mesh",
         "visible": true,
@@ -3447,6 +3567,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
         "materialVisible": true,
         "name": "lower_leg",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "lower_leg",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -3529,6 +3655,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       },
       {
         "materialVisible": true,
+        "name": "upper_leg",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-10",
         "type": "Mesh",
         "visible": true,
@@ -3591,6 +3723,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
         "materialVisible": true,
         "name": "lower_leg",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "lower_leg",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -3673,6 +3811,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       },
       {
         "materialVisible": true,
+        "name": "upper_leg",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-12",
         "type": "Mesh",
         "visible": true,
@@ -3735,6 +3879,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
         "materialVisible": true,
         "name": "lower_leg",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "lower_leg",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -3817,6 +3967,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       },
       {
         "materialVisible": true,
+        "name": "upper_leg",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-14",
         "type": "Mesh",
         "visible": true,
@@ -3879,6 +4035,12 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
         "materialVisible": true,
         "name": "lower_leg",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "lower_leg",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -4777,7 +4939,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       "lines": 25,
       "meshes": 181,
       "other": 50,
-      "points": 16,
+      "points": 32,
     },
     "geometries": [
       "BufferGeometry",
@@ -5032,6 +5194,12 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       },
       {
         "materialVisible": true,
+        "name": "link(0, 3, 4)",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-0",
         "type": "Mesh",
         "visible": true,
@@ -5094,6 +5262,12 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
         "materialVisible": true,
         "name": "link(5, 6, 7)",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "link(5, 6, 7)",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -5176,6 +5350,12 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       },
       {
         "materialVisible": true,
+        "name": "link(1, 2)",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-2",
         "type": "Mesh",
         "visible": true,
@@ -5238,6 +5418,12 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
         "materialVisible": true,
         "name": "link(2, 3)",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "link(2, 3)",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -5320,6 +5506,12 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       },
       {
         "materialVisible": true,
+        "name": "link(2, 5)",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-4",
         "type": "Mesh",
         "visible": true,
@@ -5392,6 +5584,12 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       },
       {
         "materialVisible": true,
+        "name": "link(4, 6)",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-5",
         "type": "Mesh",
         "visible": true,
@@ -5454,6 +5652,12 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
         "materialVisible": true,
         "name": "link(0, 5)",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "link(0, 5)",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -5938,7 +6142,7 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       "lines": 16,
       "meshes": 82,
       "other": 62,
-      "points": 7,
+      "points": 14,
     },
     "geometries": [
       "BufferGeometry",
@@ -6057,6 +6261,12 @@ exports[`Examples - Snapshot Tests > scene snapshot for box > box-scene 1`] = `
         "materialVisible": true,
         "name": "Workplane(Solid)",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "Workplane(Solid)",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -6265,7 +6475,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box > box-scene 1`] = `
       "lines": 10,
       "meshes": 16,
       "other": 50,
-      "points": 1,
+      "points": 2,
     },
     "geometries": [
       "BufferGeometry",
@@ -6384,6 +6594,12 @@ exports[`Examples - Snapshot Tests > scene snapshot for box1 > box1-scene 1`] = 
         "materialVisible": true,
         "name": "Workplane(Solid)",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "Workplane(Solid)",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -6592,7 +6808,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box1 > box1-scene 1`] = 
       "lines": 10,
       "meshes": 16,
       "other": 32,
-      "points": 1,
+      "points": 2,
     },
     "geometries": [
       "BufferGeometry",
@@ -6731,6 +6947,12 @@ exports[`Examples - Snapshot Tests > scene snapshot for edges > edges-scene 1`] 
         "materialVisible": true,
         "name": "box",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "box",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -6945,7 +7167,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for edges > edges-scene 1`] 
       "lines": 11,
       "meshes": 16,
       "other": 50,
-      "points": 1,
+      "points": 2,
     },
     "geometries": [
       "BufferGeometry",
@@ -7093,6 +7315,12 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
         "visible": true,
       },
       {
+        "materialVisible": true,
+        "name": "faces",
+        "type": "Points",
+        "visible": true,
+      },
+      {
         "materialVisible": undefined,
         "name": "|Group|box",
         "type": "ObjectGroup",
@@ -7114,6 +7342,12 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
         "materialVisible": true,
         "name": "box",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "box",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -7338,7 +7572,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
       "lines": 11,
       "meshes": 18,
       "other": 50,
-      "points": 2,
+      "points": 4,
     },
     "geometries": [
       "BufferGeometry",
@@ -7934,6 +8168,12 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-faces > single-fa
         "visible": true,
       },
       {
+        "materialVisible": true,
+        "name": "ShapeList(Face)",
+        "type": "Points",
+        "visible": true,
+      },
+      {
         "materialVisible": undefined,
         "name": "PlaneMeshes",
         "type": "PlaneMeshGroup",
@@ -8067,7 +8307,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-faces > single-fa
       "lines": 10,
       "meshes": 7,
       "other": 50,
-      "points": 1,
+      "points": 2,
     },
     "geometries": [
       "BufferGeometry",
@@ -8402,6 +8642,12 @@ exports[`Examples - Snapshot Tests > scene snapshot for vertices > vertices-scen
       },
       {
         "materialVisible": true,
+        "name": "box",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
         "name": "frontStencil-0-0",
         "type": "Mesh",
         "visible": true,
@@ -8600,7 +8846,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for vertices > vertices-scen
       "lines": 10,
       "meshes": 16,
       "other": 50,
-      "points": 2,
+      "points": 3,
     },
     "geometries": [
       "BufferGeometry",

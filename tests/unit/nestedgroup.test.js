@@ -1718,3 +1718,100 @@ describe("NestedGroup - id-based picking (Phase 1)", () => {
     expect(info.path.startsWith(info.solidPath)).toBe(true);
   });
 });
+
+describe("NestedGroup - component highlight (Phase 3)", () => {
+  function makeNG(shapes) {
+    return new NestedGroup(
+      shapes,
+      800,
+      600,
+      0x707070,
+      false,
+      0.5,
+      0.3,
+      0.65,
+      0,
+      100,
+    );
+  }
+  function meshWithObjVertices() {
+    const shapes = createShapeWithMesh();
+    shapes.parts[0].shape.obj_vertices = new Float32Array([
+      0, 0, 0, 1, 0, 0, 0, 1, 0,
+    ]);
+    return shapes;
+  }
+  const isPatched = (mat) => mat?.userData?.highlightPatched === true;
+
+  test("compact group creates a HighlightController; exploded does not", () => {
+    const compact = makeNG(createShapeWithMesh());
+    compact.assignIds = true;
+    compact.render();
+    expect(compact.highlight).not.toBeNull();
+
+    const exploded = makeNG(createShapeWithMesh());
+    exploded.render(); // assignIds defaults to false
+    expect(exploded.highlight).toBeNull();
+  });
+
+  test("dispose tears down the controller", () => {
+    const ng = makeNG(createShapeWithMesh());
+    ng.assignIds = true;
+    ng.render();
+    ng.dispose();
+    expect(ng.highlight).toBeNull();
+  });
+
+  test("front face material is patched on compact, not on exploded", () => {
+    const compact = makeNG(createShapeWithMesh());
+    compact.assignIds = true;
+    compact.render();
+    expect(isPatched(compact.groups["part1"].front.material)).toBe(true);
+
+    const exploded = makeNG(createShapeWithMesh());
+    exploded.render();
+    expect(isPatched(exploded.groups["part1"].front.material)).toBe(false);
+  });
+
+  test("standalone edge material is patched (compact)", () => {
+    const ng = makeNG(createShapeWithEdges());
+    ng.assignIds = true;
+    ng.render();
+    expect(isPatched(ng.groups["edges1"].edgeMaterial)).toBe(true);
+  });
+
+  test("standalone vertex material is patched (compact, visible — no cull)", () => {
+    const ng = makeNG(createShapeWithVertices());
+    ng.assignIds = true;
+    ng.render();
+    expect(isPatched(ng.groups["vertices1"].vertices.material)).toBe(true);
+  });
+
+  test("solid obj_vertices add a visual-highlight Points (layer 0) sharing the pick geometry", () => {
+    const ng = makeNG(meshWithObjVertices());
+    ng.assignIds = true;
+    ng.render();
+    let pick = null;
+    let vis = null;
+    ng.groups["part1"].traverse((o) => {
+      if (!o.isPoints) return;
+      if (o.layers.isEnabled(PICK_LAYER.VERTEX) && !o.layers.isEnabled(0)) {
+        pick = o; // pick-only Points
+      } else if (o.layers.isEnabled(0) && !o.layers.isEnabled(PICK_LAYER.VERTEX)) {
+        vis = o; // visual-highlight Points
+      }
+    });
+    expect(pick).not.toBeNull();
+    expect(vis).not.toBeNull();
+    expect(isPatched(vis.material)).toBe(true);
+    expect(vis.geometry).toBe(pick.geometry); // shared — no duplicate vertex data
+  });
+
+  test("state texture covers every registered component (resize after render)", () => {
+    const ng = makeNG(meshWithObjVertices());
+    ng.assignIds = true;
+    ng.render();
+    const data = ng.highlight.stateTexture.image.data;
+    expect(data.length).toBeGreaterThanOrEqual(ng.registry.maxId + 1);
+  });
+});
