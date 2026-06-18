@@ -1132,7 +1132,7 @@ class Viewer {
       `(${f2(a[o])}, ${f2(a[o + 1])}, ${f2(a[o + 2])})`;
     if (info.topo === "vertex") {
       const p = geom?.positions;
-      return p && p.length >= 3 ? pt(p, 0) : "";
+      return p && p.length >= 3 ? `vertex: ${pt(p, 0)}` : "";
     }
     const gt = geom != null ? displayGeomType(info.topo, geom.geomType) : "";
     if (info.topo === "edge") {

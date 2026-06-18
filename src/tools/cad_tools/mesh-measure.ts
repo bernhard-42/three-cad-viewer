@@ -165,22 +165,42 @@ export function buildFeatures(geom: MeshComponentGeometry): MeshFeatures {
     return { points, tris, segs };
   }
 
-  // face / solid: vertex pool + triangle indices
+  // face / solid: triangle indices into the shared vertex pool. Build `verts` for
+  // indexing (no `points.push(...verts)` spread — it overflows the argument limit on
+  // big faces, RangeError). CRITICAL: collect `points` from ONLY the vertices this
+  // component's triangles reference. A face is a SUBSET of its solid's shared pool, so
+  // using the whole pool would let a vertex OUTSIDE the face win the closest-point
+  // search → wrong distance / arrow on the wrong spot. For a solid the indices cover
+  // every used vertex, so this is the same set (minus unreferenced pool vertices).
   const verts: THREE.Vector3[] = [];
   for (let i = 0; i + 2 < p.length; i += 3) {
     verts.push(new THREE.Vector3(p[i], p[i + 1], p[i + 2]));
   }
-  points.push(...verts);
   const idx = geom.indices;
-  if (idx !== undefined) {
-    for (let t = 0; t + 2 < idx.length; t += 3) {
-      const a = verts[idx[t]];
-      const b = verts[idx[t + 1]];
-      const c = verts[idx[t + 2]];
-      if (a === undefined || b === undefined || c === undefined) continue;
-      tris.push([a, b, c]);
-      segs.push([a, b], [b, c], [c, a]);
+  if (idx === undefined) {
+    for (const v of verts) points.push(v);
+    return { points, tris, segs };
+  }
+  const seen = new Set<number>();
+  const addPoint = (vi: number): void => {
+    if (!seen.has(vi)) {
+      seen.add(vi);
+      points.push(verts[vi]);
     }
+  };
+  for (let t = 0; t + 2 < idx.length; t += 3) {
+    const ia = idx[t];
+    const ib = idx[t + 1];
+    const ic = idx[t + 2];
+    const a = verts[ia];
+    const b = verts[ib];
+    const c = verts[ic];
+    if (a === undefined || b === undefined || c === undefined) continue;
+    tris.push([a, b, c]);
+    segs.push([a, b], [b, c], [c, a]);
+    addPoint(ia);
+    addPoint(ib);
+    addPoint(ic);
   }
   return { points, tris, segs };
 }
@@ -387,7 +407,11 @@ export function closestPointOnTriangle(
   const va = d3 * d6 - d5 * d4;
   if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) {
     const w = (d4 - d3) / (d4 - d3 + (d5 - d6));
-    return out.copy(b).addScaledVector(_cpA.subVectors(c, b), w);
+    // NOTE: a fresh vector, NOT the module scratch `_cpA` — `minDistance` passes
+    // `_cpA` as `out`, so reusing it here aliases the output mid-expression and
+    // returns garbage (~origin) whenever the closest point lands on edge BC.
+    const bc = new THREE.Vector3().subVectors(c, b);
+    return out.copy(b).addScaledVector(bc, w);
   }
 
   const denom = 1 / (va + vb + vc);
@@ -730,20 +754,26 @@ export class MeshGeometrySource implements MeshGeometryProvider {
   private _edgeSegments(shape: RawNodeShape, edge: number): Float32Array | null {
     const edges = shape.edges;
     if (edges === undefined) return null;
+    const spe = shape.segments_per_edge;
+    if (spe !== undefined) {
+      // segments_per_edge is authoritative: `edges` is one flat point stream
+      // (2 points / 6 floats per segment) and `spe` partitions it. `toF32` flattens
+      // BOTH a flat array and a nested array — note some tessellations (e.g. rc.js)
+      // store `edges` as a nested list of individual [x,y,z] points, NOT one array
+      // per edge, so the old `nested[edge]` returned a single point. Slice by `spe`.
+      if (edge >= spe.length) return null;
+      const flat = toF32(edges);
+      let start = 0;
+      for (let e = 0; e < edge; e++) start += spe[e] * 6;
+      return flat.slice(start, start + spe[edge] * 6);
+    }
+    // No counts: a nested array is one edge's flat points per entry; a flat array is
+    // a single edge.
     if (Array.isArray(edges) && Array.isArray(edges[0])) {
       const nested = edges as number[][];
       return edge < nested.length ? Float32Array.from(nested[edge]) : null;
     }
-    const flat = toF32(edges as number[] | Float32Array);
-    const spe = shape.segments_per_edge;
-    if (spe === undefined) {
-      return edge === 0 ? flat : null; // single edge
-    }
-    if (edge >= spe.length) return null;
-    let start = 0;
-    for (let e = 0; e < edge; e++) start += spe[e] * 6;
-    const count = spe[edge] * 6;
-    return flat.slice(start, start + count);
+    return edge === 0 ? toF32(edges) : null;
   }
 }
 
