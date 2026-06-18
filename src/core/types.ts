@@ -292,6 +292,12 @@ export interface DisplayOptions {
    * measurements locally — so measure works without a backend connection.
    */
   externalMeasurementBackend?: boolean;
+  /**
+   * Picking strategy (default: "raycast"). "idbuffer" routes tool hover through the
+   * GPU id picker on the compact graph; "raycast" uses the legacy CPU raycaster.
+   * Transient migration flag.
+   */
+  pickingMode?: "raycast" | "idbuffer";
   /** External canvas element to use for the WebGL renderer, enabling shared WebGL context scenarios (default: undefined — renderer creates its own canvas) */
   canvas?: HTMLCanvasElement;
   /** External WebGL context to use for the renderer. When provided together with `canvas`, the renderer will use this context instead of creating a new one. Useful for sharing a context with other renderers like PixiJS. (default: undefined) */

@@ -52,8 +52,17 @@ import {
   type MeasureResponse,
 } from "../tools/cad_tools/mesh-measure.js";
 import { version } from "../_version.js";
-import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
-import { IdPicker, type PickingMode } from "../rendering/id-picking.js";
+import {
+  PickedObject,
+  Raycaster,
+  TopoFilter,
+  type TopoFilterType,
+} from "../rendering/raycast.js";
+import {
+  IdPicker,
+  type PickingMode,
+  type TopoType,
+} from "../rendering/id-picking.js";
 import { StudioManager } from "./studio-manager.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
@@ -226,6 +235,7 @@ function isToolResponse(
 interface DisplayOptionsInternal {
   measureTools?: boolean;
   externalMeasurementBackend?: boolean;
+  pickingMode?: PickingMode;
   selectTool?: boolean;
   explodeTool?: boolean;
   zscaleTool?: boolean;
@@ -399,6 +409,19 @@ class Viewer {
   // Not plumbed into ViewerState yet — promote only if a UI toggle is wanted.
   _pickingMode: PickingMode = "raycast";
 
+  // Phase 4a idbuffer hover: cursor position (client px) from an independent
+  // pointermove listener (no raycaster coupling — survives Phase 6), plus snapshots
+  // used to mark the pick buffer stale only on an actual view/clip change.
+  private _idHoverClientX = 0;
+  private _idHoverClientY = 0;
+  private _idHoverInside = false;
+  // float64 snapshot of the camera world matrix (NOT Float32Array — storing the
+  // float64 `matrixWorld.elements` into a Float32Array truncates, making every
+  // next-frame comparison unequal and dirtying the pick buffer every frame).
+  private _lastPickCam: number[] | null = null;
+  private _lastPickProj: number[] | null = null;
+  private _lastClipSig = "";
+
   // GPU id-based picker (Phase 2a: faces). Created/attached per render() once the
   // scene + compact registry exist; not yet routed into selection (Phase 4).
   idPicker: IdPicker | null = null;
@@ -491,6 +514,8 @@ class Viewer {
     this.meshBackend = new MeshMeasureBackend(
       () => this.compactNestedGroup?.meshGeometry ?? null,
     );
+    this._pickingMode =
+      options.pickingMode === "idbuffer" ? "idbuffer" : "raycast";
 
     this.ready = false;
     this.mixer = null;
@@ -566,6 +591,18 @@ class Viewer {
 
     this.renderer.domElement.addEventListener("contextmenu", (e: Event) =>
       e.stopPropagation(),
+    );
+
+    // Independent cursor tracking for idbuffer hover (Phase 4a) — no raycaster
+    // coupling, so it survives the Phase 6 raycaster removal. Cheap (records coords);
+    // only consulted in idbuffer mode.
+    this.renderer.domElement.addEventListener(
+      "pointermove",
+      this._onIdHoverMove,
+    );
+    this.renderer.domElement.addEventListener(
+      "pointerleave",
+      this._onIdHoverLeave,
     );
 
     this.display.setupUI(this, this.renderer.domElement);
@@ -921,6 +958,86 @@ class Viewer {
     }
   }
 
+  // --- Phase 4a: GPU id-buffer hover (idbuffer mode) ---
+
+  /** Record the cursor position over the canvas (independent of the raycaster). */
+  private _onIdHoverMove = (e: PointerEvent): void => {
+    this._idHoverClientX = e.clientX;
+    this._idHoverClientY = e.clientY;
+    this._idHoverInside = true;
+  };
+
+  /** Cursor left the canvas → clear any hover highlight. */
+  private _onIdHoverLeave = (): void => {
+    this._idHoverInside = false;
+    this.rendered?.nestedGroup?.highlight?.setHover(null);
+  };
+
+  /** Map the dropdown's topo filter to the picker's `TopoType[]` (none/[null] → all). */
+  private _pickerTopoFilter(
+    filter: TopoFilterType[],
+  ): TopoType[] | undefined {
+    const mapped = filter.filter((t): t is TopoType => t !== null);
+    return mapped.length === 0 ? undefined : mapped;
+  }
+
+  /**
+   * Phase 4a hover via the GPU id picker on the compact graph: resolve the component
+   * under the cursor and drive the shader `HighlightController`. Hover-only — NO
+   * selection commit (that is Phase 4b; a left-click is a no-op under idbuffer because
+   * `handleRaycast` early-returns, so `lastObject` stays null). Cursor coords come from
+   * the independent pointermove listener; the topo filter from the dropdown.
+   */
+  private _handleIdHover(): void {
+    const highlight = this.rendered?.nestedGroup?.highlight ?? null;
+    if (this.idPicker === null || highlight === null) return;
+    if (!this._idHoverInside) {
+      highlight.setHover(null);
+      return;
+    }
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    const x = this._idHoverClientX - rect.left;
+    const y = this._idHoverClientY - rect.top;
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
+      highlight.setHover(null);
+      return;
+    }
+    const filter = this.display.shapeFilterDropDownMenu.currentFilter;
+    const fromSolid = filter.includes(TopoFilter.solid);
+    const topoFilter = this._pickerTopoFilter(filter);
+    const hit = this.idPicker.pickAt(
+      x,
+      y,
+      topoFilter === undefined ? {} : { topoFilter },
+    );
+    if (hit === null) {
+      highlight.setHover(null);
+      return;
+    }
+    // NOTE (Phase 4a limitation): a hidden solid's pick geometry stays pickable here —
+    // visibility lives on the mesh material, not the pick layer — so hover can highlight
+    // a hidden component. Harmless for hover-only; the visibility gate lands in Phase 4b
+    // when clicks commit selection.
+    if (fromSolid && hit.info.solidPath !== null) {
+      highlight.setHoverSolid(hit.info.solidPath);
+    } else {
+      highlight.setHover(hit.id);
+    }
+  }
+
+  /** Signature of the live clip state, to detect actual clip changes for the picker. */
+  private _clipSignature(
+    planes: THREE.Plane[] | null,
+    intersection: boolean,
+  ): string {
+    if (planes === null) return "off";
+    let s = intersection ? "i" : "u";
+    for (const p of planes) {
+      s += `|${p.normal.x},${p.normal.y},${p.normal.z},${p.constant}`;
+    }
+    return s;
+  }
+
   /**
    * Notifies the states by checking for changes and passing the states to the checkChanges method.
    */
@@ -968,22 +1085,61 @@ class Viewer {
       this.raycaster.raycastMode &&
       !this.rendered.controls.isInteracting()
     ) {
-      this.handleRaycast();
+      // idbuffer: hover via the GPU id picker (compact graph). raycast: legacy CPU path.
+      // NOTE: this branch currently rides the raycaster guard above (raycastMode is set
+      // by setTool). Phase 4b/6 must re-gate the idbuffer hover on the active tool
+      // independently of `this.raycaster`, since Phase 6 deletes the raycaster.
+      if (this._pickingMode === "idbuffer") {
+        this._handleIdHover();
+      } else {
+        this.handleRaycast();
+      }
     }
 
     this.rendered.gridHelper.update(this.rendered.camera.getZoom());
 
-    // Keep the id picker's clip state in sync with the visual pass and mark its
-    // buffer stale (the view may have changed). Re-render happens lazily on the
-    // next pickAt(). Pass the live clip planes only when local clipping is on, so
-    // the pick material matches what is visually clipped (else no clipping).
+    // Keep the id picker's clip state in sync, and mark its buffer stale ONLY on an
+    // actual view/clip change — NOT every frame — so a still model under a moving
+    // cursor triggers zero id-buffer re-renders (the hover read still happens each
+    // move, but reuses the cached buffer). The pick material matches what is visually
+    // clipped (live planes only when local clipping is on).
     if (this.idPicker !== null) {
-      this.idPicker.setClippingPlanes(
-        this.renderer.localClippingEnabled
-          ? this.rendered.clipping.clipPlanes
-          : null,
-        this.state.get("clipIntersection"),
-      );
+      const cam = this.rendered.camera.getCamera();
+      cam.updateMatrixWorld();
+      // Detect any view change that moves where geometry projects on screen: both the
+      // world matrix (move/rotate/pan, perspective dolly) AND the projection matrix —
+      // the latter is essential because ORTHOGRAPHIC zoom (the default camera) changes
+      // only `camera.zoom`/projectionMatrix, leaving matrixWorld untouched. Missing it
+      // would leave the pick buffer stale at the pre-zoom scale.
+      const e = cam.matrixWorld.elements;
+      const pe = cam.projectionMatrix.elements;
+      let camChanged = this._lastPickCam === null || this._lastPickProj === null;
+      if (!camChanged) {
+        for (let i = 0; i < 16; i++) {
+          if (
+            this._lastPickCam![i] !== e[i] ||
+            this._lastPickProj![i] !== pe[i]
+          ) {
+            camChanged = true;
+            break;
+          }
+        }
+      }
+      this._lastPickCam = e.slice();
+      this._lastPickProj = pe.slice();
+
+      const planes = this.renderer.localClippingEnabled
+        ? this.rendered.clipping.clipPlanes
+        : null;
+      const intersection = this.state.get("clipIntersection") === true;
+      const clipSig = this._clipSignature(planes, intersection);
+      if (clipSig !== this._lastClipSig) {
+        // clip changed → re-sync the pick material (also marks the buffer stale)
+        this.idPicker.setClippingPlanes(planes, intersection);
+        this._lastClipSig = clipSig;
+      } else if (camChanged) {
+        this.idPicker.setDirty();
+      }
     }
 
     this.renderer.setViewport(
@@ -1118,6 +1274,18 @@ class Viewer {
    */
   dispose(): void {
     this.clear();
+
+    // Remove the idbuffer-hover listeners (they hold a strong ref to this Viewer via
+    // the arrow-field handlers; in external-canvas mode the caller owns the canvas, so
+    // not removing them would leak the disposed Viewer).
+    this.renderer.domElement.removeEventListener(
+      "pointermove",
+      this._onIdHoverMove,
+    );
+    this.renderer.domElement.removeEventListener(
+      "pointerleave",
+      this._onIdHoverLeave,
+    );
 
     // dispose studio resources (composer, floor, env, shadows — must be before renderer)
     this._studioManager.dispose();
@@ -1454,13 +1622,30 @@ class Viewer {
   }
 
   /**
+   * Switch the picking strategy at runtime. `"idbuffer"` routes tool hover through the
+   * GPU id picker on the compact graph (Phase 4a); `"raycast"` uses the legacy CPU
+   * raycaster + exploded graph. Marks the id buffer stale so the next pick re-renders.
+   */
+  setPickingMode(mode: PickingMode): void {
+    this._pickingMode = mode;
+    this.idPicker?.setDirty();
+  }
+
+  /**
    * Toggle the two version of the NestedGroup.
    * Must only be called after render() has completed.
    * @param expanded - whether to render the exploded or compact version
+   *
+   * No-op under `_pickingMode === "idbuffer"`: id-based picking + shader highlight work
+   * on the COMPACT graph only, so tools (and the explode toggle) keep the compact graph
+   * rather than building the exploded decomposition. (Phase 6 removes the exploded path.)
    */
   toggleGroup(expanded: boolean): void {
     if (!this.rendered) {
       throw new Error("toggleGroup called before render()");
+    }
+    if (this._pickingMode === "idbuffer") {
+      return;
     }
 
     const timer = new Timer("toggleGroup", this.state.get("timeit"));
@@ -2226,6 +2411,11 @@ class Viewer {
       } else {
         objectGroup.setEdgesVisible(state === 1);
       }
+      // A visibility change alters what the pick pass would draw (three drops
+      // material.visible===false objects before overrideMaterial), so the id buffer
+      // must be re-rendered on the next pickAt — the camera/clip cadence check won't
+      // catch it.
+      this.idPicker?.setDirty();
       if (notify) {
         const stateObj: Record<string, VisibilityState> = {};
         const state_ = this.getState(path);
@@ -2587,6 +2777,10 @@ class Viewer {
   }
 
   handleRaycast = (): void => {
+    // idbuffer mode drives hover through the GPU picker (_handleIdHover); the CPU
+    // raycaster path is inert. This also keeps a left-click a no-op under idbuffer:
+    // lastObject is never set, so handleRaycastEvent's `if (lastObject != null)` skips.
+    if (this._pickingMode === "idbuffer") return;
     const objects = this.raycaster!.getValidIntersectedObjs();
     if (objects.length > 0) {
       // highlight hovered object(s)

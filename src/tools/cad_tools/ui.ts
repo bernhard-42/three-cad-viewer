@@ -1,4 +1,8 @@
-import { TopoFilter, Raycaster } from "../../rendering/raycast.js";
+import {
+  TopoFilter,
+  Raycaster,
+  type TopoFilterType,
+} from "../../rendering/raycast.js";
 import type { DisplayLike } from "./tools.js";
 
 /**
@@ -356,6 +360,12 @@ class FilterByDropDownMenu {
   private display: DisplayLike;
   private elements: DisplayLike["filterDropdown"];
   private raycaster: Raycaster | null;
+  /**
+   * The current topo filter, kept independently of the raycaster so the GPU id picker
+   * (Phase 4a) can read it without depending on the legacy raycaster (which Phase 6
+   * deletes). `[TopoFilter.none]` means "no filter" (all topos eligible).
+   */
+  currentFilter: TopoFilterType[];
 
   /**
    * Initialize a new filter drop down menu, it needs the raycast to update interactively the filter mode
@@ -365,6 +375,7 @@ class FilterByDropDownMenu {
     this.elements = display.filterDropdown;
     this.elements.container.style.display = "none";
     this.raycaster = null;
+    this.currentFilter = [TopoFilter.none];
   }
 
   /**
@@ -375,16 +386,19 @@ class FilterByDropDownMenu {
   }
 
   private setValue = (topoType: string): void => {
+    this.elements.value.innerText = topoType;
+    const key = topoType.toLowerCase();
+    let filter: TopoFilterType[] | null = null;
+    if (key === "none") {
+      filter = [TopoFilter.none];
+    } else if (key in TopoFilter) {
+      filter = [TopoFilter[key as keyof typeof TopoFilter]];
+    }
+    if (filter === null) return;
+    // Keep both the raycaster (legacy path) and the picker-readable field in sync.
+    this.currentFilter = filter;
     if (this.raycaster != null) {
-      this.elements.value.innerText = topoType;
-      const key = topoType.toLowerCase();
-      if (key === "none") {
-        this.raycaster.filters.topoFilter = [TopoFilter.none];
-      } else if (key in TopoFilter) {
-        this.raycaster.filters.topoFilter = [
-          TopoFilter[key as keyof typeof TopoFilter],
-        ];
-      }
+      this.raycaster.filters.topoFilter = filter;
     }
   };
 
