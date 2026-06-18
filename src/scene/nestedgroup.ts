@@ -1097,6 +1097,33 @@ class NestedGroup {
     const front = new THREE.Mesh(polyGeometry, frontMaterial);
     front.name = name;
 
+    // Id-based picking (GDS faces) — DOUBLE-CLICK IDENTIFY ONLY. GDS is dense, stacked,
+    // instance-unrolled layout data: the B-rep interaction stack does not fit it (hover
+    // preselect flickers, "area ≈" is meaningless on a node's merged 3D surface, and the
+    // mesh-measure index materialization OOMs huge nodes like transceiver_mzi). So tag a
+    // GDS node as ONE face component — JUST enough for `pickAt` to identify it on
+    // double-click — with NO highlight patch (no hover/select tint) and NO mesh-measure
+    // registration. The hover pump itself is gated off for GDS in the viewer. Compact
+    // group only (`assignIds`).
+    if (this.assignIds) {
+      const solidPath = subtype === "solid" ? path : null;
+      const faceId = this.registry.register({
+        path: `${path}/faces/faces_0`,
+        name: "faces_0",
+        topo: "face",
+        subtype,
+        solidPath,
+      });
+      const posAttr = polyGeometry.getAttribute("position");
+      const componentIdAttr = new THREE.Uint32BufferAttribute(
+        new Uint32Array(posAttr.count).fill(faceId),
+        1,
+      );
+      componentIdAttr.gpuType = THREE.IntType; // GLSL3 pick shader reads `in uint`
+      polyGeometry.setAttribute(COMPONENT_ID_ATTRIBUTE, componentIdAttr);
+      front.layers.enable(PICK_LAYER.FACE);
+    }
+
     // Edges
     const edgeGeom = gpuTracker.trackGeometry(
       this._createEdgesFromPolygons(polygons, shape.height),

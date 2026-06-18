@@ -987,7 +987,7 @@ class Viewer {
     // preselection. Drive a render here, throttled to one per frame. During a tool the
     // RAF loop already pumps update(), so skip then.
     if (
-      this._pickingMode === "idbuffer" &&
+      this._hoverPreselectActive() &&
       this.ready &&
       !this.hasAnimationLoop &&
       !this._idHoverRenderQueued &&
@@ -1009,6 +1009,17 @@ class Viewer {
     this._idHoverInside = false;
     this.rendered?.nestedGroup?.highlight?.setHover(null);
   };
+
+  /**
+   * Whether hover preselection (highlight + status line) is active. Requires idbuffer
+   * mode AND a non-GDS model: GDS is dense, stacked, instance-unrolled layout data where
+   * per-pixel hover flickers endlessly and the B-rep readout ("area ≈ …") is meaningless,
+   * so GDS is double-click-identify only. Double-click `pick()` is independent of this —
+   * it calls `pickAt` directly — so GDS stays pickable with hover off.
+   */
+  private _hoverPreselectActive(): boolean {
+    return this._pickingMode === "idbuffer" && this.shapes?.format !== "GDS";
+  }
 
   /** Map the dropdown's topo filter to the picker's `TopoType[]` (none/[null] → all). */
   private _pickerTopoFilter(
@@ -1237,11 +1248,12 @@ class Viewer {
       this.renderer.clear();
     }
 
-    if (this._pickingMode === "idbuffer") {
-      // idbuffer hover is ALWAYS-ON (Phase 4d) — independent of the raycaster/raycastMode
-      // (a tool is not required for hover-preselection + the status line; clicks still
-      // need a tool, delivered via the raycaster until Phase 6). Coords come from the
-      // independent pointermove listener, the topo filter from the dropdown.
+    if (this._hoverPreselectActive()) {
+      // idbuffer hover is ALWAYS-ON (Phase 4d) for non-GDS models — independent of the
+      // raycaster/raycastMode (a tool is not required for hover-preselection + the status
+      // line; clicks still need a tool, delivered via the raycaster until Phase 6). Coords
+      // come from the independent pointermove listener, the topo filter from the dropdown.
+      // GDS is excluded (double-click-identify only — see `_hoverPreselectActive`).
       if (!this.rendered.controls.isInteracting()) {
         this._handleIdHover();
       }
