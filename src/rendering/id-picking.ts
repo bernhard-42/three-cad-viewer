@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import type { Camera } from "../camera/camera.js";
 import { gpuTracker } from "../utils/gpu-tracker.js";
+import { logger } from "../utils/logger.js";
 
 /**
  * Topology type of a pickable component. Mirrors the values of `TopoFilter` in
@@ -596,13 +597,20 @@ export const PICK_POS_ATTACHMENT = 1;
  *
  * Plain factory: the caller ({@link IdPicker.pickAt}) owns sizing/resize/disposal.
  * `width`/`height` are already the pick-buffer pixel size (caller applies half-DPR).
+ *
+ * @param withPosition - allocate the RGBA32F world-position attachment. Requires
+ *   `EXT_color_buffer_float` (probed by {@link IdPicker}); when `false` the target
+ *   carries the id attachment only and `pickAt` returns `point = null` (the fat
+ *   `out` at location 1 in the pick shaders is simply dropped — writing to an
+ *   unbound draw buffer is well-defined and discarded in WebGL2).
  */
 export function createPickTargets(
   width: number,
   height: number,
+  withPosition: boolean = true,
 ): THREE.WebGLRenderTarget {
   const target = new THREE.WebGLRenderTarget(width, height, {
-    count: 2,
+    count: withPosition ? 2 : 1,
     minFilter: THREE.NearestFilter,
     magFilter: THREE.NearestFilter,
     format: THREE.RGBAFormat,
@@ -612,9 +620,11 @@ export function createPickTargets(
   const idTex = target.textures[PICK_ID_ATTACHMENT];
   idTex.type = THREE.UnsignedByteType;
   idTex.colorSpace = THREE.NoColorSpace;
-  const posTex = target.textures[PICK_POS_ATTACHMENT];
-  posTex.type = THREE.FloatType; // world position needs full float range
-  posTex.colorSpace = THREE.NoColorSpace;
+  if (withPosition) {
+    const posTex = target.textures[PICK_POS_ATTACHMENT];
+    posTex.type = THREE.FloatType; // world position needs full float range
+    posTex.colorSpace = THREE.NoColorSpace;
+  }
   return target;
 }
 
@@ -691,10 +701,27 @@ export class IdPicker {
   private readonly posPixel: Float32Array;
   /** Scratch readback buffer for the N×N id window (grown as needed). */
   private idWindow: Uint8Array;
+  /**
+   * Whether the GPU can render to a float color attachment (`EXT_color_buffer_float`,
+   * probed at construction). When `false`, the pick target carries the id attachment
+   * only and {@link pickAt} returns `point = null` — id picking still works, just
+   * without the world-space hit point (degrades hover coords / Phase 5 pivot to the
+   * bbox-center fallback). Universal in real WebGL2; the probe guards exotic contexts.
+   */
+  readonly positionSupported: boolean;
 
   constructor(renderer: THREE.WebGLRenderer, registry: ComponentRegistry) {
     this.renderer = renderer;
     this.registry = registry;
+    this.positionSupported = IdPicker._probeFloatColor(renderer);
+    if (!this.positionSupported) {
+      // Dev-facing only (debug, not warn): a missing extension degrades gracefully
+      // to `point = null` and id picking is unaffected; real WebGL2 has it.
+      logger.debug(
+        "IdPicker: EXT_color_buffer_float unavailable — pick world-position " +
+          "disabled (point = null); id picking unaffected.",
+      );
+    }
     this.windowSize = 2;
     this.scene = null;
     this.camera = null;
@@ -713,6 +740,25 @@ export class IdPicker {
     this.savedViewport = new THREE.Vector4();
     this.posPixel = new Float32Array(4);
     this.idWindow = new Uint8Array(this.windowSize * this.windowSize * 4);
+  }
+
+  /**
+   * Probe `EXT_color_buffer_float` — the capability needed to *render into* the
+   * RGBA32F world-position attachment (D-B). Getting the extension is the canonical
+   * feature test (no side effects) and is WebGL2-only: it does not exist on WebGL1
+   * (whose float-color extension is `WEBGL_color_buffer_float`), so a non-null result
+   * already implies a WebGL2 context. Near-universal on WebGL2 but spec-optional.
+   */
+  private static _probeFloatColor(renderer: THREE.WebGLRenderer): boolean {
+    // Guard the probe: mocked test renderers (happy-dom) may expose no `getContext`,
+    // and an exotic context may lack `getExtension`.
+    if (typeof renderer.getContext !== "function") return false;
+    const gl = renderer.getContext();
+    return (
+      gl != null &&
+      typeof gl.getExtension === "function" &&
+      gl.getExtension("EXT_color_buffer_float") !== null
+    );
   }
 
   /**
@@ -864,27 +910,34 @@ export class IdPicker {
     const info = this.registry.get(bestId)!;
 
     // World-space hit point from the position attachment (w marks a written texel).
-    this.renderer.readRenderTargetPixels(
-      this.pickTarget!,
-      bestX,
-      bestY,
-      1,
-      1,
-      this.posPixel,
-      undefined,
-      PICK_POS_ATTACHMENT,
-    );
-    const point =
-      this.posPixel[3] !== 0
-        ? new THREE.Vector3(this.posPixel[0], this.posPixel[1], this.posPixel[2])
-        : null;
+    // Skipped when the float attachment is unavailable (probe failed) → point = null.
+    let point: THREE.Vector3 | null = null;
+    if (this.positionSupported) {
+      this.renderer.readRenderTargetPixels(
+        this.pickTarget!,
+        bestX,
+        bestY,
+        1,
+        1,
+        this.posPixel,
+        undefined,
+        PICK_POS_ATTACHMENT,
+      );
+      if (this.posPixel[3] !== 0) {
+        point = new THREE.Vector3(
+          this.posPixel[0],
+          this.posPixel[1],
+          this.posPixel[2],
+        );
+      }
+    }
     return { id: bestId, info, point };
   }
 
   /** Lazily allocate / resize the MRT target and the per-topo pick materials. */
   private _ensureResources(tw: number, th: number): void {
     if (this.pickTarget === null) {
-      this.pickTarget = createPickTargets(tw, th);
+      this.pickTarget = createPickTargets(tw, th, this.positionSupported);
       this.dirty = true;
     } else if (this.pickTarget.width !== tw || this.pickTarget.height !== th) {
       this.pickTarget.setSize(tw, th);

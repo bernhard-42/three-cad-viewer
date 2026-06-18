@@ -206,6 +206,15 @@ describe("id-picking: IdPicker.pickAt", () => {
     return {
       calls,
       autoClear: true,
+      // Float-color capability probe (IdPicker._probeFloatColor): report support so
+      // the RGBA32F world-position readback path is exercised. Pass
+      // `{ floatColor: false }` to simulate a context lacking the extension.
+      getContext: () => ({
+        getExtension: (name) =>
+          name === "EXT_color_buffer_float" && opts.floatColor !== false
+            ? {}
+            : null,
+      }),
       getPixelRatio: () => opts.dpr ?? 2,
       getClearColor: (c) => c,
       getClearAlpha: () => 0,
@@ -320,6 +329,25 @@ describe("id-picking: IdPicker.pickAt", () => {
     const result = picker.pickAt(50, 20);
     expect(result.point).not.toBeNull();
     expect(result.point.toArray()).toEqual([1.5, -2.0, 3.25]);
+  });
+
+  test("no EXT_color_buffer_float: positionSupported false, point always null, id still resolves", () => {
+    const reg = new ComponentRegistry();
+    const id = registerFace(reg);
+    // Probe reports the float-color extension as unavailable.
+    const renderer = makeRenderer(packId(id), {
+      pos: [1.5, -2.0, 3.25, 1],
+      floatColor: false,
+    });
+    const picker = new IdPicker(renderer, reg);
+    expect(picker.positionSupported).toBe(false);
+    picker.attach(new THREE.Scene(), fakeCamera());
+    picker.setSize(200, 100);
+    const result = picker.pickAt(50, 20);
+    expect(result.id).toBe(id); // id picking unaffected
+    expect(result.point).toBeNull(); // position readback skipped
+    // The position attachment is never read back (only the id window).
+    expect(renderer.calls.read.every((c) => c[4] === 0)).toBe(true);
   });
 
   test("point is null when the position texel is unwritten (w = 0)", () => {

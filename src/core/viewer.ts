@@ -1146,10 +1146,22 @@ class Viewer {
    * of hidden geometry (F10). Visibility is the owning group's material `visible` flag
    * (faces for solids/standalone faces; edge/vertex materials for standalone leaves).
    */
+  /**
+   * Resolve a picked component to its owning tree-leaf node path (a `groups` key):
+   * the `solidPath` for a face/edge/vertex inside a solid, else the standalone node
+   * path (the component path with its trailing `/<faces|edges|vertices>/<name>`
+   * stripped). This is the leaf the double-click `pick()` and the F10 visibility
+   * gate operate on.
+   */
+  private _leafPath(info: ComponentInfo): string {
+    return (
+      info.solidPath ?? info.path.replace(/\/(faces|edges|vertices)\/[^/]+$/, "")
+    );
+  }
+
   private _pickVisible(info: ComponentInfo): boolean {
     const ng = this.rendered.nestedGroup;
-    const ownerPath =
-      info.solidPath ?? info.path.replace(/\/(faces|edges|vertices)\/[^/]+$/, "");
+    const ownerPath = this._leafPath(info);
     const g = ng.groups[ownerPath];
     if (!(g instanceof ObjectGroup)) return true; // unknown owner → don't block
     const vis = (
@@ -2824,6 +2836,10 @@ class Viewer {
    * @param e - a DOM PointerEvent or MouseEvent
    */
   pick = (e: PointerEvent | MouseEvent): void => {
+    if (this._pickingMode === "idbuffer") {
+      this._pickId(e);
+      return;
+    }
     const raycaster = new Raycaster(
       this.rendered.camera,
       this.renderer.domElement,
@@ -2886,6 +2902,40 @@ class Viewer {
     );
     raycaster.dispose();
   };
+
+  /**
+   * Phase 5: double-click pick via the GPU id picker (idbuffer mode). Replaces the
+   * ephemeral CPU raycaster — `idPicker.pickAt` resolves the component under the
+   * cursor on the compact graph, the registry gives its owning tree-leaf path
+   * (`_leafPath`, replacing the old `nearestMesh.parent.parent.name` munging), and
+   * the readback world-space `point` feeds `handlePick` (the `shift && meta` camera
+   * target, with a bbox-center fallback when `point` is null). No topo filter: a
+   * double-click selects whatever is under the cursor and resolves it to its leaf.
+   */
+  private _pickId(e: PointerEvent | MouseEvent): void {
+    if (this.idPicker === null) return;
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+    const hit = this.idPicker.pickAt(x, y);
+    // F10: a hidden solid's edge/vertex pick layers stay active — gate on visibility
+    // so a hidden component cannot be double-click picked (matches hover/select).
+    if (hit === null || !this._pickVisible(hit.info)) return;
+    const leaf = this._leafPath(hit.info);
+    const slash = leaf.lastIndexOf("/");
+    if (slash < 0) return;
+    this.handlePick(
+      leaf.slice(0, slash),
+      leaf.slice(slash + 1),
+      KeyMapper.get(e, "meta"),
+      KeyMapper.get(e, "shift"),
+      KeyMapper.get(e, "alt"),
+      hit.point,
+      null,
+      false,
+    );
+  }
 
   // ---------------------------------------------------------------------------
   // CAD Tools & Raycasting
