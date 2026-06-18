@@ -161,6 +161,12 @@ abstract class Panel {
     this.removeTable();
   }
 
+  /** Set the panel title (e.g. "Distance" or "Distance (mesh based)"). */
+  protected setHeader(text: string): void {
+    const el = this.html.getElementsByClassName("tcv_measure_header")[0];
+    if (el) el.textContent = text;
+  }
+
   protected abstract getHtmlElement(): HTMLElement;
 
   /**
@@ -304,6 +310,9 @@ class DistancePanel extends Panel {
     if (this.finished) return;
 
     this.resetTable();
+    this.setHeader(
+      properties.meshBased === true ? "Distance (mesh based)" : "Distance",
+    );
 
     const table = document.createElement("table");
     table.classList.add("tcv_properties_table");
@@ -342,6 +351,9 @@ class PropertiesPanel extends Panel {
     if (this.finished) return;
 
     this.resetTable();
+    this.setHeader(
+      properties.meshBased === true ? "Properties (mesh based)" : "Properties",
+    );
 
     this.setSubHeader(
       `${properties["shape_type"] ?? ""} / ${properties["geom_type"] ?? ""}`,

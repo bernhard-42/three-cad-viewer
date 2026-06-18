@@ -959,7 +959,8 @@ class Viewer {
         String(payload[1]),
         payload[2] === true,
       );
-    } else if (tool === ToolTypes.PROPERTIES && payload.length >= 1) {
+    } else if (tool === ToolTypes.PROPERTIES && payload.length === 2) {
+      // payload = [path, shift]
       response = this.meshBackend.properties(String(payload[0]));
     }
     if (response !== null) {
@@ -1182,11 +1183,14 @@ class Viewer {
         : null;
       const intersection = this.state.get("clipIntersection") === true;
       const clipSig = this._clipSignature(planes, intersection);
+      // A running animation/explode moves object transforms every frame (the cadence
+      // diffs the camera only), so re-render the pick buffer while it plays.
+      const animating = this.animation.clipAction?.isRunning() === true;
       if (clipSig !== this._lastClipSig) {
         // clip changed → re-sync the pick material (also marks the buffer stale)
         this.idPicker.setClippingPlanes(planes, intersection);
         this._lastClipSig = clipSig;
-      } else if (camChanged) {
+      } else if (camChanged || animating) {
         this.idPicker.setDirty();
       }
     }
@@ -1682,6 +1686,16 @@ class Viewer {
    * raycaster + exploded graph. Marks the id buffer stale so the next pick re-renders.
    */
   setPickingMode(mode: PickingMode): void {
+    if (mode === this._pickingMode) return;
+    // Switching mid-tool is incoherent: idbuffer→raycast never builds the exploded
+    // graph the CPU raycaster needs (toggleGroup was a no-op under idbuffer), and a
+    // switch would strand the other path's residual highlight. Require no active tool.
+    if (this.cadTools.enabledTool !== null) {
+      logger.warn(
+        "setPickingMode ignored while a tool is active — disable the tool first",
+      );
+      return;
+    }
     this._pickingMode = mode;
     this.idPicker?.setDirty();
   }
@@ -2779,6 +2793,8 @@ class Viewer {
   clearSelection = (): void => {
     this.rendered.nestedGroup.clearSelection();
     this.cadTools.handleResetSelection();
+    this.lastObject = null;
+    this.lastSelection = null;
   };
 
   _releaseLastSelected = (): void => {
@@ -3709,6 +3725,9 @@ class Viewer {
   setZscaleValue(value: number): void {
     this.rendered.nestedGroup.setZScale(value);
     this.zScale = value;
+    // z-scale changes object transforms → geometry projects to different pixels; the
+    // cadence in update() only diffs the camera, so invalidate the pick buffer here.
+    this.idPicker?.setDirty();
     this.update(true);
   }
 
