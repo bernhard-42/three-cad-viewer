@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { DistanceMeasurement, PropertiesMeasurement } from "./measure.js";
 import { SelectObject } from "./select.js";
-import type { PickedObject } from "../../rendering/raycast.js";
+import type { PickedComponent } from "../../rendering/picked.js";
 
 /**
  * Enum representing tool types.
@@ -166,7 +166,7 @@ export class Tools {
    * Handle selected object from raycaster.
    */
   handleSelectedObj(
-    selectedObj: PickedObject,
+    selectedObj: PickedComponent,
     isNewObject: boolean,
     shift: boolean,
   ): void {

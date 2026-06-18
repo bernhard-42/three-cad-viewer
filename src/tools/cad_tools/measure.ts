@@ -15,7 +15,7 @@ import {
   isPerspectiveCamera,
   isOrthographicCamera,
 } from "../../utils/utils.js";
-import type { PickedObject } from "../../rendering/raycast.js";
+import type { PickedComponent } from "../../rendering/picked.js";
 import type { ViewerLike } from "./tools.js";
 
 interface PanelDragData {
@@ -260,7 +260,7 @@ class DistanceLineArrow extends THREE.Group {
 }
 
 class Measurement {
-  selectedShapes: PickedObject[];
+  selectedShapes: PickedComponent[];
   point1: THREE.Vector3 | null;
   point2: THREE.Vector3 | null;
   middlePoint: THREE.Vector3 | null;
@@ -323,8 +323,8 @@ class Measurement {
     this.contextEnabled = false;
     this.responseData = null;
 
-    for (const group of this.selectedShapes) {
-      group.obj.clearHighlights();
+    for (const shape of this.selectedShapes) {
+      shape.clearHighlights();
     }
     this.selectedShapes = [];
 
@@ -392,18 +392,7 @@ class Measurement {
    * ask the backend for the real measurement data and display it.
    */
   _updateMeasurement(): void {
-    const getId = (shape: PickedObject): string => {
-      if (shape.fromSolid) {
-        const solidId = shape.obj.name
-          .replace(/\|faces.*$/, "")
-          .replace(/\|edges.*$/, "")
-          .replace(/\|vertices.*$/, "");
-        return solidId.replaceAll("|", "/");
-      } else {
-        return shape.obj.name.replaceAll("|", "/");
-      }
-    };
-    const ids = this.selectedShapes.map(getId);
+    const ids = this.selectedShapes.map((shape) => shape.backendId);
 
     this.responseData = null;
     // New request generation — invalidates any in-flight `_waitResponse` poll.
@@ -437,16 +426,15 @@ class Measurement {
    * React to each new selected element in the viewer.
    */
   handleSelection = (
-    selectedObj: PickedObject,
+    selectedObj: PickedComponent,
     shift: boolean = false,
   ): void => {
     this.shift = shift;
 
-    if (
-      this.selectedShapes.find((o) => o.obj.name === selectedObj.obj.name) !==
-      undefined
-    )
-      this.selectedShapes.splice(this.selectedShapes.indexOf(selectedObj), 1);
+    const existing = this.selectedShapes.findIndex((o) =>
+      o.equals(selectedObj),
+    );
+    if (existing !== -1) this.selectedShapes.splice(existing, 1);
     else this.selectedShapes.push(selectedObj);
 
     if (this.panel) {
@@ -566,10 +554,7 @@ class Measurement {
     if (force || this.selectedShapes.length == this._getMaxObjSelected()) {
       const lastItem = this.selectedShapes.pop();
       if (lastItem) {
-        const objs = lastItem.objs();
-        for (const obj of objs) {
-          obj.clearHighlights();
-        }
+        lastItem.clearHighlights();
       }
       this._updateMeasurement();
     }

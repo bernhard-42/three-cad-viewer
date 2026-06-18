@@ -1,9 +1,9 @@
-import type { PickedObject } from "../../rendering/raycast.js";
+import type { PickedComponent } from "../../rendering/picked.js";
 import type { ViewerLike } from "./tools.js";
 
 class SelectObject {
   viewer: ViewerLike;
-  selectedShapes: PickedObject[];
+  selectedShapes: PickedComponent[];
   contextEnabled: boolean;
 
   constructor(viewer: ViewerLike) {
@@ -18,8 +18,8 @@ class SelectObject {
 
   disableContext(): void {
     this.contextEnabled = false;
-    for (const group of this.selectedShapes) {
-      group.obj.clearHighlights();
+    for (const shape of this.selectedShapes) {
+      shape.clearHighlights();
     }
     this.selectedShapes = [];
   }
@@ -28,36 +28,25 @@ class SelectObject {
     return null;
   }
 
-  private _getIndex(path: string): string {
-    const object = path.split("|");
-    const name = object[object.length - 1];
+  /** Numeric sub-index from a leaf name like "faces_3" → "3". */
+  private _getIndex(name: string): string {
     return name.split("_")[1];
   }
 
-  private _includes(path: string): boolean {
-    for (const shape of this.selectedShapes) {
-      if (path === shape.obj.name) {
-        return true;
-      }
-    }
-    return false;
+  private _includes(shape: PickedComponent): boolean {
+    return this.selectedShapes.some((s) => s.equals(shape));
   }
 
   notify(): void {
-    const indices: string[] = [];
-    for (const shape of this.selectedShapes) {
-      const path = shape.obj.name;
-      indices.push(this._getIndex(path));
-    }
+    const indices = this.selectedShapes.map((s) => this._getIndex(s.name));
     this.viewer.checkChanges({ selected: indices }, true);
   }
 
-  handleSelection(selectedObj: PickedObject | null): void {
+  handleSelection(selectedObj: PickedComponent | null): void {
     if (!selectedObj) return;
-    const path = selectedObj.obj.name;
-    if (this._includes(path)) {
+    if (this._includes(selectedObj)) {
       this.selectedShapes = this.selectedShapes.filter(
-        (p) => p.obj.name !== path,
+        (s) => !s.equals(selectedObj),
       );
     } else {
       this.selectedShapes.push(selectedObj);
@@ -65,12 +54,9 @@ class SelectObject {
     this.notify();
   }
 
-  private _removeLastSelectedObj(shape: PickedObject | undefined): void {
+  private _removeLastSelectedObj(shape: PickedComponent | undefined): void {
     if (shape) {
-      const objs = shape.objs();
-      for (const obj of objs) {
-        obj.clearHighlights();
-      }
+      shape.clearHighlights();
     }
     this.notify();
   }

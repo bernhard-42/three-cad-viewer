@@ -352,6 +352,29 @@ export class HighlightController {
     this._setBit(id, HighlightFlag.SELECTED, flag);
   }
 
+  /** Whether a component currently carries the SELECTED flag. */
+  isSelected(id: number): boolean {
+    if (id <= 0 || id >= this.capacity) return false;
+    return (this.data[id] & HighlightFlag.SELECTED) !== 0;
+  }
+
+  /**
+   * Whether a solid is selected — every one of its faces carries SELECTED (false if it
+   * has no faces). Used for solid toggle, so a solid that is only partially selected
+   * (e.g. one face previously single-selected) is treated as not-selected and a click
+   * selects the whole solid rather than clearing it.
+   */
+  isSolidSelected(solidPath: string): boolean {
+    let any = false;
+    for (const info of this.registry.entries()) {
+      if (info.solidPath === solidPath && info.topo === "face") {
+        any = true;
+        if ((this.data[info.id] & HighlightFlag.SELECTED) === 0) return false;
+      }
+    }
+    return any;
+  }
+
   /**
    * Set or clear SELECTED for a whole solid. Flags only the solid's **faces**
    * (`topo === "face"`), matching the legacy `_getSolidObjectGroups` scene-walk

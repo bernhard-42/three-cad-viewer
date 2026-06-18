@@ -62,7 +62,13 @@ import {
   IdPicker,
   type PickingMode,
   type TopoType,
+  type ComponentInfo,
 } from "../rendering/id-picking.js";
+import {
+  RaycastPicked,
+  IdPicked,
+  type PickedComponent,
+} from "../rendering/picked.js";
 import { StudioManager } from "./studio-manager.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
@@ -389,8 +395,8 @@ class Viewer {
   // Selection tracking
   lastNotification: Record<string, unknown>;
   lastBbox: LastBboxInfo | null;
-  lastObject: PickedObject | null;
-  lastSelection: PickedObject | null;
+  lastObject: PickedComponent | null;
+  lastSelection: PickedComponent | null;
   lastPosition: THREE.Vector3 | null;
   bboxNeedsUpdate: boolean;
   keepHighlight: boolean;
@@ -991,15 +997,20 @@ class Viewer {
   private _handleIdHover(): void {
     const highlight = this.rendered?.nestedGroup?.highlight ?? null;
     if (this.idPicker === null || highlight === null) return;
+    // Clear hover (keeping any selection) and forget the hover target.
+    const release = (): void => {
+      this._releaseLastSelected();
+      this.lastObject = null;
+    };
     if (!this._idHoverInside) {
-      highlight.setHover(null);
+      release();
       return;
     }
     const rect = this.renderer.domElement.getBoundingClientRect();
     const x = this._idHoverClientX - rect.left;
     const y = this._idHoverClientY - rect.top;
     if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
-      highlight.setHover(null);
+      release();
       return;
     }
     const filter = this.display.shapeFilterDropDownMenu.currentFilter;
@@ -1010,19 +1021,54 @@ class Viewer {
       y,
       topoFilter === undefined ? {} : { topoFilter },
     );
-    if (hit === null) {
-      highlight.setHover(null);
+    // F10: the vertex/edge pick layers stay active even when the owning solid is
+    // hidden (visibility lives on the mesh material, not the pick layer), so gate the
+    // pick on visibility — otherwise a hidden component could be hovered AND selected.
+    if (hit === null || !this._pickVisible(hit.info)) {
+      release();
       return;
     }
-    // NOTE (Phase 4a limitation): a hidden solid's pick geometry stays pickable here —
-    // visibility lives on the mesh material, not the pick layer — so hover can highlight
-    // a hidden component. Harmless for hover-only; the visibility gate lands in Phase 4b
-    // when clicks commit selection.
-    if (fromSolid && hit.info.solidPath !== null) {
-      highlight.setHoverSolid(hit.info.solidPath);
-    } else {
-      highlight.setHover(hit.id);
+    const picked: PickedComponent = new IdPicked(
+      hit.info,
+      fromSolid,
+      hit.point,
+      highlight,
+    );
+    if (!picked.equals(this.lastObject)) {
+      this._releaseLastSelected();
+      picked.highlight(true);
+      // committed on click in handleRaycastEvent (left → toggleSelection)
+      this.lastObject = picked;
     }
+  }
+
+  /**
+   * Whether the component a pick resolved to is currently visible — used to drop picks
+   * of hidden geometry (F10). Visibility is the owning group's material `visible` flag
+   * (faces for solids/standalone faces; edge/vertex materials for standalone leaves).
+   */
+  private _pickVisible(info: ComponentInfo): boolean {
+    const ng = this.rendered.nestedGroup;
+    const ownerPath =
+      info.solidPath ?? info.path.replace(/\/(faces|edges|vertices)\/[^/]+$/, "");
+    const g = ng.groups[ownerPath];
+    if (!(g instanceof ObjectGroup)) return true; // unknown owner → don't block
+    const vis = (
+      m: THREE.Material | THREE.Material[] | null | undefined,
+    ): boolean =>
+      m == null ? false : Array.isArray(m) ? m.some((x) => x.visible) : m.visible;
+    if (info.topo === "vertex") {
+      // a solid's vertices are pick-only (no visual) → follow the solid's faces/edges;
+      // a standalone vertex node has its own material.
+      if (info.solidPath !== null) {
+        return vis(g.front?.material) || vis(g.edgeMaterial);
+      }
+      return vis(g.vertices?.material);
+    }
+    if (info.topo === "edge") {
+      return vis(g.edgeMaterial) || vis(g.front?.material);
+    }
+    return vis(g.front?.material);
   }
 
   /** Signature of the live clip state, to detect actual clip changes for the picker. */
@@ -1339,6 +1385,12 @@ class Viewer {
    */
   clear(): void {
     if (this._rendered) {
+      // Drop selection state — its PickedComponent may hold a HighlightController /
+      // ObjectGroup that this clear() disposes; a stale hover-release would otherwise
+      // touch a disposed controller on the next pick.
+      this.lastObject = null;
+      this.lastSelection = null;
+
       // stop animation
       this.hasAnimationLoop = false;
       this.continueAnimation = false;
@@ -2728,23 +2780,14 @@ class Viewer {
 
   _releaseLastSelected = (): void => {
     if (this.lastObject != null) {
-      const objs = this.lastObject.objs();
-      for (const obj of objs) {
-        obj.unhighlight(true);
-      }
+      this.lastObject.unhighlight(true);
     }
   };
 
   _removeLastSelected = (): void => {
     if (this.lastSelection != null) {
-      const objs = this.lastSelection.objs();
-      for (const obj of objs) {
-        obj.unhighlight(false);
-        this.rendered.treeview.toggleLabelColor(
-          null,
-          obj.name.replaceAll(this.rendered.nestedGroup.delim, "/"),
-        );
-      }
+      this.lastSelection.unhighlight(false);
+      this.rendered.treeview.toggleLabelColor(null, this.lastSelection.backendId);
       this.lastSelection = null;
       this.lastObject = null;
     }
@@ -2778,8 +2821,7 @@ class Viewer {
 
   handleRaycast = (): void => {
     // idbuffer mode drives hover through the GPU picker (_handleIdHover); the CPU
-    // raycaster path is inert. This also keeps a left-click a no-op under idbuffer:
-    // lastObject is never set, so handleRaycastEvent's `if (lastObject != null)` skips.
+    // raycaster path is inert under idbuffer.
     if (this._pickingMode === "idbuffer") return;
     const objects = this.raycaster!.getValidIntersectedObjs();
     if (objects.length > 0) {
@@ -2788,21 +2830,19 @@ class Viewer {
         {
           const objectGroup = object.object.parent;
           if (!isObjectGroup(objectGroup)) break;
-          const name = objectGroup.name;
-          const last_name = this.lastObject ? this.lastObject.obj.name : null;
-          if (name !== last_name) {
+          const fromSolid = this.raycaster!.filters.topoFilter.includes(
+            TopoFilter.solid,
+          );
+          // one object for a selected vertex, edge and face and multiple faces for a solid
+          const picked: PickedComponent = new RaycastPicked(
+            new PickedObject(objectGroup, fromSolid),
+            this.rendered.nestedGroup.delim,
+          );
+          if (!picked.equals(this.lastObject)) {
             this._releaseLastSelected();
-            const fromSolid = this.raycaster!.filters.topoFilter.includes(
-              TopoFilter.solid,
-            );
-
-            // one object for a selected vertex, edge and face and multiple faces for a solid
-            const pickedObj = new PickedObject(objectGroup, fromSolid);
-            for (const obj of pickedObj.objs()) {
-              obj.highlight(true);
-            }
+            picked.highlight(true);
             // this object will be handled in handleRaycastEvent after a mouse event
-            this.lastObject = pickedObj;
+            this.lastObject = picked;
           }
           break;
         }
@@ -2832,14 +2872,11 @@ class Viewer {
       switch (event.mouse) {
         case "left":
           if (this.lastObject != null) {
-            const objs = this.lastObject.objs();
             // one object for a selected vertex, edge and face and multiple faces for a solid
-            for (const obj of objs) {
-              obj.toggleSelection();
-            }
+            this.lastObject.toggleSelection();
             this.cadTools.handleSelectedObj(
               this.lastObject,
-              this.lastSelection?.obj.name !== this.lastObject.obj.name,
+              !this.lastObject.equals(this.lastSelection),
               event.shift ?? false,
             );
             this.lastSelection = this.lastObject;

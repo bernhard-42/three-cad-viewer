@@ -129,11 +129,17 @@ function createMockViewer(display) {
   };
 }
 
+// Returns a hybrid mock: the legacy PickedObject shape ({obj, fromSolid, objs}) PLUS
+// the PickedComponent surface the tools/viewer now consume (delegating to the mock
+// ObjectGroup), so existing `.obj.*` assertions and the new interface both work.
 function createMockObjectGroup(name = "test|path") {
   const group = new THREE.Group();
   group.name = name;
   group.isSelected = false;
   group.clearHighlights = vi.fn();
+  group.highlight = vi.fn();
+  group.unhighlight = vi.fn();
+  group.toggleSelection = vi.fn();
   group.children = [
     {
       geometry: {
@@ -149,6 +155,18 @@ function createMockObjectGroup(name = "test|path") {
     obj: group,
     fromSolid: false,
     objs: () => [group],
+    // PickedComponent surface
+    backendId: name.replaceAll("|", "/"),
+    name: name.split("|").pop(),
+    topo: "face",
+    point: null,
+    highlight: (h) => group.highlight(h),
+    unhighlight: (k) => group.unhighlight(k),
+    toggleSelection: () => group.toggleSelection(),
+    clearHighlights: () => group.clearHighlights(),
+    equals(other) {
+      return other != null && other.obj === group;
+    },
   };
 }
 
@@ -538,12 +556,14 @@ describe("SelectObject", () => {
   });
 
   describe("_includes", () => {
-    test("returns true if path is selected", () => {
+    test("returns true if the component is selected", () => {
       const mockObj = createMockObjectGroup("test|path");
       selectObject.selectedShapes.push(mockObj);
 
-      expect(selectObject._includes("test|path")).toBe(true);
-      expect(selectObject._includes("other|path")).toBe(false);
+      expect(selectObject._includes(mockObj)).toBe(true);
+      expect(selectObject._includes(createMockObjectGroup("other|path"))).toBe(
+        false,
+      );
     });
   });
 
