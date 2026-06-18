@@ -948,7 +948,10 @@ class Viewer {
    */
   private _answerMeasurement(payload: unknown): void {
     if (!Array.isArray(payload)) return;
-    const tool = this.state.get("activeTool");
+    // NOTE: dispatch on cadTools.enabledTool (a ToolType, set by Tools.enable), NOT
+    // state.get("activeTool") — the latter holds the lowercase button name ("distance")
+    // which never equals ToolTypes.DISTANCE ("DistanceMeasurement").
+    const tool = this.cadTools.enabledTool;
     let response: MeasureResponse | null = null;
     if (tool === ToolTypes.DISTANCE && payload.length === 3) {
       response = this.meshBackend.distance(
