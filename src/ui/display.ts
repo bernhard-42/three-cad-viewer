@@ -280,6 +280,7 @@ class Display {
   container!: HTMLElement;
   cadBody!: HTMLElement;
   cadView!: HTMLElement;
+  statusLine!: HTMLElement;
   cadTree!: HTMLElement;
   cadTreeScrollContainer!: HTMLElement;
   cadTreeToggles!: HTMLElement;
@@ -420,6 +421,7 @@ class Display {
       },
     );
     this.cadView = this.getElement("tcv_cad_view");
+    this.statusLine = this.getElement("tcv_status_line");
     this.distanceMeasurementPanel = this.getElement(
       "tcv_distance_measurement_panel",
     );
@@ -932,6 +934,14 @@ class Display {
    */
   showCenterInfo(center: Vector3Tuple): void {
     this._info.centerInfo(center);
+  }
+
+  /**
+   * Set the hover status line (Phase 4d preselection readout). Empty string clears it.
+   * Transparent overlay at the bottom of the canvas, right of the orientation marker.
+   */
+  setStatusLine(text: string): void {
+    this.statusLine.textContent = text;
   }
 
   /**

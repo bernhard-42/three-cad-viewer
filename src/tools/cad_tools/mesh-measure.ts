@@ -81,6 +81,16 @@ export function edgeGeomType(code: number): string {
   return CURVE_TYPE_NAMES[code] ?? "Other";
 }
 
+/**
+ * Short, lowercase geom_type for a status-line readout (drops the `Curve`/`Surface`
+ * suffix): e.g. `BSplineSurface`/`BSplineCurve` → `bspline`, `Plane` → `plane`,
+ * `Line` → `line`. Topo selects the surface vs curve table.
+ */
+export function displayGeomType(topo: TopoType, code: number): string {
+  const name = topo === "edge" ? edgeGeomType(code) : faceGeomType(code);
+  return name.replace(/(Curve|Surface)$/, "").toLowerCase();
+}
+
 // ---------------------------------------------------------------------------
 // Provider contract
 // ---------------------------------------------------------------------------
@@ -614,6 +624,19 @@ export class MeshGeometrySource implements MeshGeometryProvider {
   /** Drop all entries (called from `NestedGroup.clear`/`dispose`). */
   clear(): void {
     this.nodes.clear();
+  }
+
+  /**
+   * Static face/edge counts of a node from its tessellation type arrays
+   * (`len(face_types)` / `len(edge_types)`). For a solid node these are the solid's
+   * total face/edge counts. `null` for an unknown node.
+   */
+  nodeCounts(path: string): { faces: number; edges: number } | null {
+    const entry = this.nodes.get(path);
+    if (entry === undefined) return null;
+    const ft = entry.shape.face_types;
+    const et = entry.shape.edge_types;
+    return { faces: ft?.length ?? 0, edges: et?.length ?? 0 };
   }
 
   resolve(path: string): MeshComponentGeometry | null {

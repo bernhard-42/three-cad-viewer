@@ -165,6 +165,31 @@ input[type="radio"] {
   margin: 2px;
 }
 
+/* Hover preselection readout: transparent strip along the bottom of the canvas,
+   starting to the right of the orientation marker. Font a bit smaller than the
+   tree (14px). Pure overlay — never intercepts pointer events.
+   NOTE: left:84px clears the 80px orientation marker — keep in sync with the marker
+   size (OrientationMarker(80,80) in viewer.ts and .tcv_cad_inset width). */
+.tcv_status_line {
+  position: absolute;
+  bottom: 2px;
+  left: 84px;
+  right: 4px;
+  font-size: 12px;
+  font-family: sans-serif;
+  color: var(--tcv-font-color);
+  /* subtle outline so the transparent text stays readable over any 3D background */
+  text-shadow:
+    0 0 2px var(--tcv-bg-color),
+    0 0 2px var(--tcv-bg-color);
+  background: transparent;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 10;
+}
+
 .tcv_cad_view_glass {
   position: absolute !important;
   left: 4px;

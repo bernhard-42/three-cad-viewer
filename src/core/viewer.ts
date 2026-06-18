@@ -49,6 +49,10 @@ import {
 } from "../tools/cad_tools/tools.js";
 import {
   MeshMeasureBackend,
+  displayGeomType,
+  triangulatedArea,
+  polylineLength,
+  meshVolume,
   type MeasureResponse,
 } from "../tools/cad_tools/mesh-measure.js";
 import { version } from "../_version.js";
@@ -421,6 +425,9 @@ class Viewer {
   private _idHoverClientX = 0;
   private _idHoverClientY = 0;
   private _idHoverInside = false;
+  private _idHoverRenderQueued = false;
+  /** Per-component hover status text (fixed per mesh; cleared on reload / z-scale). */
+  private _hoverStatusCache = new Map<string, string>();
   // float64 snapshot of the camera world matrix (NOT Float32Array — storing the
   // float64 `matrixWorld.elements` into a Float32Array truncates, making every
   // next-frame comparison unequal and dirtying the pick buffer every frame).
@@ -975,6 +982,26 @@ class Viewer {
     this._idHoverClientX = e.clientX;
     this._idHoverClientY = e.clientY;
     this._idHoverInside = true;
+    // Always-on hover (Phase 4d): with no animation loop running (no active tool), the
+    // viewer only re-renders on camera change, so a bare mouse-move wouldn't update the
+    // preselection. Drive a render here, throttled to one per frame. During a tool the
+    // RAF loop already pumps update(), so skip then.
+    if (
+      this._pickingMode === "idbuffer" &&
+      this.ready &&
+      !this.hasAnimationLoop &&
+      !this._idHoverRenderQueued &&
+      !this.rendered.controls.isInteracting() // during a drag the controls listener renders
+    ) {
+      this._idHoverRenderQueued = true;
+      requestAnimationFrame(() => {
+        this._idHoverRenderQueued = false;
+        // updateMarker=true: every render clears the frame, so the orientation marker
+        // must be redrawn or it vanishes on the first hover render. notify=false: a
+        // hover changes no state.
+        if (this.ready && !this.hasAnimationLoop) this.update(true, false);
+      });
+    }
   };
 
   /** Cursor left the canvas → clear any hover highlight. */
@@ -1001,10 +1028,11 @@ class Viewer {
   private _handleIdHover(): void {
     const highlight = this.rendered?.nestedGroup?.highlight ?? null;
     if (this.idPicker === null || highlight === null) return;
-    // Clear hover (keeping any selection) and forget the hover target.
+    // Clear hover (keeping any selection), the status line, and the hover target.
     const release = (): void => {
       this._releaseLastSelected();
       this.lastObject = null;
+      this.display.setStatusLine("");
     };
     if (!this._idHoverInside) {
       release();
@@ -1043,7 +1071,74 @@ class Viewer {
       picked.highlight(true);
       // committed on click in handleRaycastEvent (left → toggleSelection)
       this.lastObject = picked;
+      // Cache only the COORD-FREE texts (face `area`, solid `counts`+`vol`): these are
+      // invariant under rigid motion (explode/animation), so they never go stale from a
+      // part moving — only z-scale (changes area/volume) + model reload clear the cache.
+      // Edge/vertex texts carry WORLD-space coords, so recompute them live each time the
+      // hovered component changes (correct after explode/animation without invalidation).
+      const cacheable = fromSolid || hit.info.topo === "face";
+      let text: string;
+      if (cacheable) {
+        const key =
+          fromSolid && hit.info.solidPath !== null
+            ? `S:${hit.info.solidPath}`
+            : hit.info.path;
+        const cached = this._hoverStatusCache.get(key);
+        if (cached !== undefined) {
+          text = cached;
+        } else {
+          text = this._hoverStatusText(hit.info, fromSolid);
+          this._hoverStatusCache.set(key, text);
+        }
+      } else {
+        text = this._hoverStatusText(hit.info, fromSolid);
+      }
+      this.display.setStatusLine(text);
     }
+  }
+
+  /**
+   * Phase 4d status-line text for a hovered component — FIXED attributes only, no
+   * backend, no live cursor coord, NO path (the object is identified via the tree on
+   * double-click). Mesh-estimated length/area/volume are shown with `≈` (BRep-grade
+   * values come from the measurement tool). face: `geom: area ≈ A`; edge:
+   * `geom: len ≈ L, start/end`; vertex: coords; solid: `SOLID: N faces, M edges, vol ≈ V`.
+   */
+  private _hoverStatusText(info: ComponentInfo, fromSolid: boolean): string {
+    const provider = this.rendered.nestedGroup.meshGeometry;
+    const f2 = (n: number): string => n.toFixed(2);
+    if (fromSolid && info.solidPath !== null) {
+      // Solid face/edge totals from the tessellation type arrays (len(face_types) /
+      // len(edge_types)). Per-face edge counts are NOT derivable (no face→edge map).
+      const c = provider.nodeCounts(info.solidPath);
+      if (c === null) return "solid";
+      const g = provider.resolve(info.solidPath);
+      const vol = g !== null ? `, vol ≈ ${f2(meshVolume(g))}` : "";
+      return `solid: ${c.faces} faces, ${c.edges} edges${vol}`;
+    }
+    const geom = provider.resolve(info.path);
+    const pt = (a: Float32Array, o: number): string =>
+      `(${f2(a[o])}, ${f2(a[o + 1])}, ${f2(a[o + 2])})`;
+    if (info.topo === "vertex") {
+      const p = geom?.positions;
+      return p && p.length >= 3 ? pt(p, 0) : "";
+    }
+    const gt = geom != null ? displayGeomType(info.topo, geom.geomType) : "";
+    if (info.topo === "edge") {
+      const p = geom?.positions;
+      if (geom != null && p != null && p.length >= 6) {
+        const len = f2(polylineLength(geom));
+        const start = pt(p, 0);
+        const end = pt(p, p.length - 3);
+        // closed edge (e.g. circle): start === end → show one point
+        return start === end
+          ? `${gt}: len ≈ ${len}, at=${start}`
+          : `${gt}: len ≈ ${len}, start=${start}, end=${end}`;
+      }
+      return gt;
+    }
+    // face
+    return geom != null ? `${gt}: area ≈ ${f2(triangulatedArea(geom))}` : gt;
   }
 
   /**
@@ -1130,20 +1225,20 @@ class Viewer {
       this.renderer.clear();
     }
 
-    if (
+    if (this._pickingMode === "idbuffer") {
+      // idbuffer hover is ALWAYS-ON (Phase 4d) — independent of the raycaster/raycastMode
+      // (a tool is not required for hover-preselection + the status line; clicks still
+      // need a tool, delivered via the raycaster until Phase 6). Coords come from the
+      // independent pointermove listener, the topo filter from the dropdown.
+      if (!this.rendered.controls.isInteracting()) {
+        this._handleIdHover();
+      }
+    } else if (
       this.raycaster &&
       this.raycaster.raycastMode &&
       !this.rendered.controls.isInteracting()
     ) {
-      // idbuffer: hover via the GPU id picker (compact graph). raycast: legacy CPU path.
-      // NOTE: this branch currently rides the raycaster guard above (raycastMode is set
-      // by setTool). Phase 4b/6 must re-gate the idbuffer hover on the active tool
-      // independently of `this.raycaster`, since Phase 6 deletes the raycaster.
-      if (this._pickingMode === "idbuffer") {
-        this._handleIdHover();
-      } else {
-        this.handleRaycast();
-      }
+      this.handleRaycast();
     }
 
     this.rendered.gridHelper.update(this.rendered.camera.getZoom());
@@ -1397,6 +1492,8 @@ class Viewer {
       // touch a disposed controller on the next pick.
       this.lastObject = null;
       this.lastSelection = null;
+      this._hoverStatusCache.clear();
+      this.display.setStatusLine(""); // don't leave stale hover text on reload
 
       // stop animation
       this.hasAnimationLoop = false;
@@ -1698,6 +1795,10 @@ class Viewer {
     }
     this._pickingMode = mode;
     this.idPicker?.setDirty();
+    if (mode !== "idbuffer") {
+      // leaving idbuffer: the hover pump won't run again to clear it
+      this.display.setStatusLine("");
+    }
   }
 
   /**
@@ -3728,6 +3829,8 @@ class Viewer {
     // z-scale changes object transforms → geometry projects to different pixels; the
     // cadence in update() only diffs the camera, so invalidate the pick buffer here.
     this.idPicker?.setDirty();
+    // world-space lengths/areas/coords change with z-scale → drop the hover cache.
+    this._hoverStatusCache.clear();
     this.update(true);
   }
 
