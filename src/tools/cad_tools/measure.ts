@@ -278,7 +278,8 @@ class Measurement {
   coneLength: number | undefined;
   panelDragData: PanelDragData;
   shift: boolean;
-  debug: boolean;
+  /** Monotonic request id; invalidates stale `_waitResponse` polls (see `_waitResponse`). */
+  _responseGen: number;
 
   constructor(viewer: ViewerLike, panel: DistancePanel | PropertiesPanel) {
     this.selectedShapes = [];
@@ -297,7 +298,7 @@ class Measurement {
     this.measurementLineColor = 0x000000;
     this.connectingLineColor = 0x800080;
     this.coneLength = undefined;
-    this.debug = false;
+    this._responseGen = 0;
 
     this.panelDragData = { x: null, y: null, clicked: false };
     this.panel.registerCallback("mousedown", ((e: MouseEvent) => {
@@ -371,12 +372,17 @@ class Measurement {
   _waitResponse(
     resolve: (data: DistanceResponseData | PropertiesResponseData) => void,
     _reject: (reason?: Error) => void,
+    gen: number,
   ): void {
+    // Abort if a newer measurement request superseded this one (e.g. panel drag
+    // re-runs `_updateMeasurement`); otherwise a deduped/unanswered request would
+    // leave this 100ms poll running forever and each drag-move would leak another.
+    if (gen !== this._responseGen) return;
     if (this.responseData) {
       resolve(this.responseData);
     } else {
       setTimeout(() => {
-        this._waitResponse(resolve, _reject);
+        this._waitResponse(resolve, _reject, gen);
       }, 100);
     }
   }
@@ -400,88 +406,14 @@ class Measurement {
     const ids = this.selectedShapes.map(getId);
 
     this.responseData = null;
-    if (this.debug) {
-      const delay = 50 + Math.floor(Math.random() * 200);
-      setTimeout(() => {
-        if (this.selectedShapes.length == 0) return;
-
-        // Helper to get bounding sphere center from first mesh child
-        const getBoundingSphereCenter = (
-          obj: THREE.Object3D,
-        ): THREE.Vector3 | null => {
-          const firstChild = obj.children[0];
-          if (firstChild && isMesh(firstChild)) {
-            firstChild.geometry.computeBoundingSphere();
-            return firstChild.geometry.boundingSphere?.center.clone() ?? null;
-          }
-          return null;
-        };
-
-        let responseData: DistanceResponseData | PropertiesResponseData;
-        if (this instanceof DistanceMeasurement) {
-          if (this.selectedShapes.length < 2) return;
-          const obj1 = this.selectedShapes[0].obj;
-          const obj2 = this.selectedShapes[1].obj;
-          const center1 = getBoundingSphereCenter(obj1);
-          const center2 = getBoundingSphereCenter(obj2);
-          if (!center1 || !center2) return;
-          this.point1 = obj1.localToWorld(center1);
-          this.point2 = obj2.localToWorld(center2);
-          responseData = {
-            groups: [
-              { distance: 2.345, info: "center" },
-              {
-                "point 1": this.point1.toArray(),
-                "point 2": this.point2.toArray(),
-              },
-              {
-                angle: 43.21,
-                "reference 1": "Plane (Face)",
-                "reference 2": "Plane (Face)",
-              },
-            ],
-            type: "backend_response",
-            refpoint1: this.point1.toArray(),
-            refpoint2: this.point2.toArray(),
-          };
-        } else if (this instanceof PropertiesMeasurement) {
-          const obj = this.selectedShapes[0].obj;
-          const center = getBoundingSphereCenter(obj);
-          if (!center) return;
-          this.point1 = obj.localToWorld(center);
-          responseData = {
-            type: "backend_response",
-            shape_type: "Edge",
-            geom_type: "EllipseArc",
-            refpoint: this.point1.toArray(),
-            groups: [
-              {
-                center: this.point1.toArray(),
-                "major radius": 0.4,
-                "minor radius": 0.2,
-              },
-              { start: [2.4, -1.0, 0.0], end: [1.8, -0.8267949192431111, 0.0] },
-              { length: 0.6868592404716374 },
-              {
-                bb: {
-                  min: [1.8, -1.0, 0.0],
-                  center: [2.1, -0.9, 0.0],
-                  max: [2.4, -0.8, 0.0],
-                  size: [0.56, 0.2, 0.0],
-                },
-              },
-            ],
-          };
-        } else {
-          return;
-        }
-        this.handleResponse(responseData);
-      }, delay);
-    } else {
-      this.viewer?.checkChanges({
-        selectedShapeIDs: [...ids, this.shift],
-      });
-    }
+    // New request generation — invalidates any in-flight `_waitResponse` poll.
+    const gen = ++this._responseGen;
+    // Send the selected component ids. The viewer routes them to either the external
+    // (Python) backend via notifyCallback or the internal mesh backend, depending on
+    // `externalMeasurementBackend`; the response returns via `handleResponse`.
+    this.viewer?.checkChanges({
+      selectedShapeIDs: [...ids, this.shift],
+    });
 
     if (this.selectedShapes.length != this._getMaxObjSelected()) {
       this._hideMeasurement();
@@ -490,7 +422,7 @@ class Measurement {
 
     const p = new Promise<DistanceResponseData | PropertiesResponseData>(
       (resolve, reject) => {
-        this._waitResponse(resolve, reject);
+        this._waitResponse(resolve, reject, gen);
       },
     );
     p.then((_data) => {
@@ -720,14 +652,11 @@ function isPropertiesResponseData(
 }
 
 class DistanceMeasurement extends Measurement {
-  override debug: boolean;
-
-  constructor(viewer: ViewerLike, debug: boolean) {
+  constructor(viewer: ViewerLike) {
     super(viewer, new DistancePanel(viewer.display));
     this.point1 = null;
     this.point2 = null;
     this.middlePoint = null;
-    this.debug = debug;
   }
 
   override _createPanel(): void {
@@ -807,12 +736,9 @@ class DistanceMeasurement extends Measurement {
 }
 
 class PropertiesMeasurement extends Measurement {
-  override debug: boolean;
-
-  constructor(viewer: ViewerLike, debug: boolean) {
+  constructor(viewer: ViewerLike) {
     super(viewer, new PropertiesPanel(viewer.display));
     this.middlePoint = null;
-    this.debug = debug;
   }
 
   override _createPanel(): void {

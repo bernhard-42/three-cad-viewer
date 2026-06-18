@@ -177,7 +177,7 @@ describe("Tools", () => {
   beforeEach(() => {
     display = createMockDisplay();
     viewer = createMockViewer(display);
-    tools = new Tools(viewer, false);
+    tools = new Tools(viewer);
   });
 
   afterEach(() => {
@@ -461,7 +461,7 @@ describe("Tools", () => {
   describe("dispose", () => {
     test("disposes all tools", () => {
       // Create fresh tools instance for this test
-      const freshTools = new Tools(viewer, false);
+      const freshTools = new Tools(viewer);
       const distSpy = vi.spyOn(freshTools.distanceMeasurement, "dispose");
       const propSpy = vi.spyOn(freshTools.propertiesMeasurement, "dispose");
       const selSpy = vi.spyOn(freshTools.selectObject, "dispose");
@@ -636,7 +636,7 @@ describe("DistanceMeasurement", () => {
   beforeEach(() => {
     display = createMockDisplay();
     viewer = createMockViewer(display);
-    measurement = new DistanceMeasurement(viewer, false);
+    measurement = new DistanceMeasurement(viewer);
   });
 
   afterEach(() => {
@@ -754,7 +754,7 @@ describe("DistanceMeasurement", () => {
   describe("dispose", () => {
     test("disposes resources", () => {
       // Create fresh measurement for this test
-      const freshMeasurement = new DistanceMeasurement(viewer, false);
+      const freshMeasurement = new DistanceMeasurement(viewer);
 
       freshMeasurement.dispose();
 
@@ -767,7 +767,7 @@ describe("DistanceMeasurement", () => {
   describe("disposeArrows", () => {
     test("clears scene", () => {
       // Create fresh measurement for this test
-      const freshMeasurement = new DistanceMeasurement(viewer, false);
+      const freshMeasurement = new DistanceMeasurement(viewer);
 
       freshMeasurement.disposeArrows();
 
@@ -786,7 +786,7 @@ describe("PropertiesMeasurement", () => {
   beforeEach(() => {
     display = createMockDisplay();
     viewer = createMockViewer(display);
-    measurement = new PropertiesMeasurement(viewer, false);
+    measurement = new PropertiesMeasurement(viewer);
   });
 
   afterEach(() => {
@@ -828,7 +828,7 @@ describe("Measurement - Base Class Methods", () => {
   beforeEach(() => {
     display = createMockDisplay();
     viewer = createMockViewer(display);
-    measurement = new DistanceMeasurement(viewer, false);
+    measurement = new DistanceMeasurement(viewer);
   });
 
   afterEach(() => {
@@ -934,7 +934,7 @@ describe("Measurement - Base Class Methods", () => {
     test("scales DistanceLineArrow children", () => {
       // Create a real DistanceLineArrow by making lines in a measurement
       // This tests the actual integration, not mocked behavior
-      const distMeasurement = new DistanceMeasurement(viewer, false);
+      const distMeasurement = new DistanceMeasurement(viewer);
       distMeasurement.coneLength = 1;
       distMeasurement.point1 = new THREE.Vector3(0, 0, 0);
       distMeasurement.point2 = new THREE.Vector3(1, 1, 1);
@@ -957,18 +957,12 @@ describe("Measurement - Base Class Methods", () => {
     });
   });
 
-  describe("debug mode", () => {
-    test("debug mode creates measurement with debug flag", () => {
-      const debugMeasurement = new DistanceMeasurement(viewer, true);
-      expect(debugMeasurement.debug).toBe(true);
-      debugMeasurement.dispose();
-    });
-
-    test("debug mode enables context", () => {
-      const debugMeasurement = new DistanceMeasurement(viewer, true);
-      debugMeasurement.enableContext();
-      expect(debugMeasurement.contextEnabled).toBe(true);
-      debugMeasurement.dispose();
+  describe("context", () => {
+    test("enables context", () => {
+      const m = new DistanceMeasurement(viewer);
+      m.enableContext();
+      expect(m.contextEnabled).toBe(true);
+      m.dispose();
     });
   });
 });
@@ -981,7 +975,7 @@ describe("DistanceMeasurement - Line Creation", () => {
   beforeEach(() => {
     display = createMockDisplay();
     viewer = createMockViewer(display);
-    measurement = new DistanceMeasurement(viewer, false);
+    measurement = new DistanceMeasurement(viewer);
   });
 
   afterEach(() => {
@@ -1058,7 +1052,7 @@ describe("PropertiesMeasurement - Line Creation", () => {
   beforeEach(() => {
     display = createMockDisplay();
     viewer = createMockViewer(display);
-    measurement = new PropertiesMeasurement(viewer, false);
+    measurement = new PropertiesMeasurement(viewer);
   });
 
   afterEach(() => {

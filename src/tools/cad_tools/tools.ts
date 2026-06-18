@@ -86,10 +86,10 @@ export class Tools {
   selectObject: SelectObject;
   enabledTool: ToolType | null;
 
-  constructor(viewer: ViewerLike, debug: boolean) {
+  constructor(viewer: ViewerLike) {
     this.viewer = viewer;
-    this.distanceMeasurement = new DistanceMeasurement(viewer, debug);
-    this.propertiesMeasurement = new PropertiesMeasurement(viewer, debug);
+    this.distanceMeasurement = new DistanceMeasurement(viewer);
+    this.propertiesMeasurement = new PropertiesMeasurement(viewer);
     this.selectObject = new SelectObject(viewer);
     this.enabledTool = null;
   }

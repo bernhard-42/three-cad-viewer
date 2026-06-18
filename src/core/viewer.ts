@@ -42,7 +42,15 @@ import type { KeyMappingConfig } from "../utils/utils.js";
 import { Controls } from "../camera/controls.js";
 import { Camera, type CameraDirection } from "../camera/camera.js";
 import { BoundingBox, BoxHelper } from "../scene/bbox.js";
-import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
+import {
+  Tools,
+  ToolTypes,
+  type ToolResponse,
+} from "../tools/cad_tools/tools.js";
+import {
+  MeshMeasureBackend,
+  type MeasureResponse,
+} from "../tools/cad_tools/mesh-measure.js";
 import { version } from "../_version.js";
 import { PickedObject, Raycaster, TopoFilter } from "../rendering/raycast.js";
 import { IdPicker, type PickingMode } from "../rendering/id-picking.js";
@@ -217,7 +225,7 @@ function isToolResponse(
  */
 interface DisplayOptionsInternal {
   measureTools?: boolean;
-  measurementDebug?: boolean;
+  externalMeasurementBackend?: boolean;
   selectTool?: boolean;
   explodeTool?: boolean;
   zscaleTool?: boolean;
@@ -314,6 +322,12 @@ class Viewer {
   onAfterRender: (() => void) | null;
   mouse!: THREE.Vector2;
   cadTools!: Tools;
+  /**
+   * Internal mesh-based measurement backend, used when
+   * `externalMeasurementBackend === false` (the default). Resolves component paths
+   * against the compact group's {@link MeshGeometrySource}.
+   */
+  meshBackend!: MeshMeasureBackend;
   animation!: Animation;
   clipNormals!: [THREE.Vector3, THREE.Vector3, THREE.Vector3];
 
@@ -473,7 +487,10 @@ class Viewer {
     this._stencilCSize = 0;
     this._treeNeedsRebuild = false;
     this._pendingDisposal = [];
-    this.cadTools = new Tools(this, options.measurementDebug ?? false);
+    this.cadTools = new Tools(this);
+    this.meshBackend = new MeshMeasureBackend(
+      () => this.compactNestedGroup?.meshGeometry ?? null,
+    );
 
     this.ready = false;
     this.mixer = null;
@@ -868,7 +885,41 @@ class Viewer {
     if (notify && this.notifyCallback && Object.keys(changed).length) {
       this.notifyCallback(changed);
     }
+
+    // Internal measurement backend: when not using an external (Python) backend,
+    // answer a measurement selection locally from the mesh — mirroring the response
+    // the Python backend would send via `handleBackendResponse`.
+    if (
+      Object.prototype.hasOwnProperty.call(changed, "selectedShapeIDs") &&
+      this.state.get("externalMeasurementBackend") !== true
+    ) {
+      this._answerMeasurement(changes["selectedShapeIDs"]);
+    }
   };
+
+  /**
+   * Compute and dispatch a measurement response from the internal mesh backend for the
+   * active measure tool. `payload` is `[...selectedPaths, shift]` (the same array
+   * measure sends to the Python backend): Distance = 2 paths + shift, Properties = 1
+   * path + shift. No-op for any other tool / shape count.
+   */
+  private _answerMeasurement(payload: unknown): void {
+    if (!Array.isArray(payload)) return;
+    const tool = this.state.get("activeTool");
+    let response: MeasureResponse | null = null;
+    if (tool === ToolTypes.DISTANCE && payload.length === 3) {
+      response = this.meshBackend.distance(
+        String(payload[0]),
+        String(payload[1]),
+        payload[2] === true,
+      );
+    } else if (tool === ToolTypes.PROPERTIES && payload.length >= 1) {
+      response = this.meshBackend.properties(String(payload[0]));
+    }
+    if (response !== null) {
+      this.handleBackendResponse(response);
+    }
+  }
 
   /**
    * Notifies the states by checking for changes and passing the states to the checkChanges method.

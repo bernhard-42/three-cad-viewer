@@ -43,7 +43,7 @@ interface DisplayDefaults {
   zscaleTool: boolean;
   zebraTool: boolean;
   studioTool: boolean;
-  measurementDebug: boolean;
+  externalMeasurementBackend: boolean;
 }
 
 /**
@@ -184,7 +184,7 @@ const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
   "zscaleTool",
   "zebraTool",
   "studioTool",
-  "measurementDebug",
+  "externalMeasurementBackend",
   // Render
   "ambientIntensity",
   "directIntensity",
@@ -443,7 +443,7 @@ class ViewerState {
     zscaleTool: false,
     zebraTool: true,
     studioTool: true,
-    measurementDebug: false,
+    externalMeasurementBackend: false,
   };
 
   /**

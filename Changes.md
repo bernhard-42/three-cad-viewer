@@ -1,5 +1,18 @@
 # Change log
 
+## Unreleased
+
+- Add a built-in TypeScript mesh-based measurement backend so the measure tools
+  (distance / properties) work without the external Python (`ocp_vscode`) backend,
+  computing real values (area, length, volume, bounding box, min/center distance,
+  angle) from the tessellated mesh; `shape_type`/`geom_type` are exact (from the
+  tessellation `face_types`/`edge_types`)
+- Rename the `measurementDebug` option to `externalMeasurementBackend` (default
+  `false`) and invert its meaning: the previous default routed to the external
+  backend, the new default uses the internal mesh backend. **Breaking:** embedders
+  that rely on the Python backend (e.g. `ocp_vscode`) must now set
+  `externalMeasurementBackend: true`. The old dummy debug-measurement path is removed.
+
 ## v4.3.9
 
 - Support texture rotation for triplanar and parametric uv texture mapping

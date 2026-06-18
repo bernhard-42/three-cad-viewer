@@ -19,6 +19,7 @@ import {
   HighlightController,
   VERTEX_FOCUS_SIZE,
 } from "../rendering/highlight.js";
+import { MeshGeometrySource } from "../tools/cad_tools/mesh-measure.js";
 import type {
   ZebraColorScheme,
   ZebraMappingMode,
@@ -48,6 +49,10 @@ interface ShapeData {
   // Real B-rep corner vertices (the selectable ones); used to build the pick-only
   // vertex Points cloud for id-based picking (Phase 2b).
   obj_vertices?: Float32Array | number[];
+  // Per-component OCP geom types (normalized to Uint32Array in render-shape.ts);
+  // used by the internal measurement backend for exact geom_type.
+  face_types?: number[] | Uint32Array;
+  edge_types?: number[] | Uint8Array | Uint32Array;
 }
 
 interface EdgeData {
@@ -210,6 +215,12 @@ class NestedGroup {
    * for the exploded group (which keeps the old `ObjectGroup.highlight()`).
    */
   highlight: HighlightController | null;
+  /**
+   * Per-node mesh geometry for the internal (TypeScript) measurement backend.
+   * Populated for the compact group only (`assignIds`), keyed by node path like the
+   * {@link registry}; lets measurements be computed without the Python backend.
+   */
+  meshGeometry: MeshGeometrySource;
   clipPlanes: THREE.Plane[] | null;
   materialFactory: MaterialFactory;
   materialsTable: Record<
@@ -274,6 +285,7 @@ class NestedGroup {
     this.registry = new ComponentRegistry();
     this.assignIds = false;
     this.highlight = null;
+    this.meshGeometry = new MeshGeometrySource();
 
     this.clipPlanes = null;
 
@@ -310,6 +322,7 @@ class NestedGroup {
     this.resolvedMaterials.clear();
     this.resolvedMaterialX.clear();
     this.registry.clear();
+    this.meshGeometry.clear();
     if (this.highlight) {
       this.highlight.dispose();
       this.highlight = null;
@@ -563,6 +576,13 @@ class NestedGroup {
       edges.layers.enable(PICK_LAYER.EDGE);
       // Phase 3: widen + recolor the flagged segment in-shader (Option A).
       this.highlight?.patchEdgeMaterial(edges.material);
+      // Internal measurement backend: record the standalone edge node's geometry.
+      this.meshGeometry.register(
+        path,
+        { edges: edgeData.edges, segments_per_edge: edgeData.segments_per_edge },
+        group,
+        null,
+      );
     }
 
     group.setEdges(edges);
@@ -634,6 +654,13 @@ class NestedGroup {
       // Phase 3: standalone vertices are visible — keep authored size/color when
       // unflagged, widen + recolor when flagged (no cull).
       this.highlight?.patchVertexMaterial(material);
+      // Internal measurement backend: record the standalone vertex node's geometry.
+      this.meshGeometry.register(
+        path,
+        { obj_vertices: vertexData.obj_vertices },
+        group,
+        null,
+      );
     }
 
     group.setVertices(points);
@@ -919,6 +946,12 @@ class NestedGroup {
       highlightPoints.name = name;
       highlightPoints.renderOrder = 1000; // after faces/edges
       group.add(highlightPoints); // visual layer 0 only (default)
+    }
+
+    // Record the node's raw geometry for the internal measurement backend (compact
+    // group only — paths match the registry). `group.matrixWorld` maps local → world.
+    if (this.assignIds) {
+      this.meshGeometry.register(path, shape, group, subtype);
     }
 
     return group;

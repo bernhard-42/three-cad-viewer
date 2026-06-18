@@ -688,7 +688,7 @@ tool visibility.
 | `zscaleTool`       | `boolean`                        | `false`   | Show z-scale tool in toolbar.                 |
 | `zebraTool`        | `boolean`                        | `true`    | Show zebra tool in toolbar.                   |
 | `studioTool`       | `boolean`                        | `true`    | Show Studio mode tool in toolbar.             |
-| `measurementDebug` | `boolean`                        | `false`   | Log measurement debug info to console.        |
+| `externalMeasurementBackend` | `boolean`              | `false`   | Use an external (Python/`ocp_vscode`) measurement backend. When `false`, the built-in TypeScript mesh-based backend computes measurements locally. |
 | `canvas`           | `HTMLCanvasElement`              | —         | External canvas for shared WebGL context.     |
 | `gl`               | `WebGLRenderingContext`          | —         | External WebGL context (use with `canvas`).   |
 

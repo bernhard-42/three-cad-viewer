@@ -184,7 +184,7 @@ const listeners = new EventListenerManager();
  */
 export interface DisplayOptions {
   measureTools: boolean;
-  measurementDebug: boolean;
+  externalMeasurementBackend: boolean;
   selectTool: boolean;
   explodeTool: boolean;
   zscaleTool: boolean;
@@ -351,7 +351,7 @@ class Display {
   viewer!: Viewer;
   state!: ViewerState;
   measureTools: boolean;
-  measurementDebug: boolean;
+  externalMeasurementBackend: boolean;
   selectTool: boolean;
   explodeTool: boolean;
   zscaleTool: boolean;
@@ -399,7 +399,7 @@ class Display {
     this.cadBody = this.getElement("tcv_cad_body");
 
     this.measureTools = options.measureTools;
-    this.measurementDebug = options.measurementDebug;
+    this.externalMeasurementBackend = options.externalMeasurementBackend;
     this.selectTool = options.selectTool;
     this.explodeTool = options.explodeTool;
     this.zscaleTool = options.zscaleTool;

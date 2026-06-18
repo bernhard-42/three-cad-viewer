@@ -286,8 +286,12 @@ export interface DisplayOptions {
   zebraTool?: boolean;
   /** Show studio tool (default: true) */
   studioTool?: boolean;
-  /** Enable measurement debug mode (default: false) */
-  measurementDebug?: boolean;
+  /**
+   * Use an external (Python/`ocp_vscode`) measurement backend (default: false).
+   * When false, the built-in TypeScript mesh-based measurement backend answers
+   * measurements locally — so measure works without a backend connection.
+   */
+  externalMeasurementBackend?: boolean;
   /** External canvas element to use for the WebGL renderer, enabling shared WebGL context scenarios (default: undefined — renderer creates its own canvas) */
   canvas?: HTMLCanvasElement;
   /** External WebGL context to use for the renderer. When provided together with `canvas`, the renderer will use this context instead of creating a new one. Useful for sharing a context with other renderers like PixiJS. (default: undefined) */
@@ -454,7 +458,7 @@ export interface ViewerStateShape {
   zscaleTool: boolean;
   zebraTool: boolean;
   studioTool: boolean;
-  measurementDebug: boolean;
+  externalMeasurementBackend: boolean;
 
   // Render
   ambientIntensity: number;
