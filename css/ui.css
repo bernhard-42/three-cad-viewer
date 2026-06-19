@@ -135,7 +135,6 @@ input[type="radio"] {
   background-image: var(--tcv-icon-nav_closed);
 } */
 
-
 .tcv_cad_viewer {
   --tcv-ui-row-gap: 8px;
   margin: 0;
@@ -228,7 +227,7 @@ input[type="radio"] {
   font-family: sans-serif;
   font-size: 12px;
   overflow: hidden;
-  user-select:text;
+  user-select: text;
 }
 
 .tcv_cad_info_wrapper {
@@ -320,7 +319,7 @@ input[type="radio"] {
   line-height: 14px;
 }
 
-.tcv_small_table_row>td,
+.tcv_small_table_row > td,
 th {
   padding-left: 6px;
 }
@@ -758,7 +757,6 @@ input[type="button"] {
   margin-right: 0;
 }
 
-
 .tcv_zebra_radio {
   margin-bottom: var(--tcv-ui-row-gap);
   margin-left: -3px;
@@ -1009,7 +1007,7 @@ input[type="button"] {
   max-width: 80%;
   text-align: center;
   pointer-events: auto;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .tcv_studio_spinner {
@@ -1026,7 +1024,9 @@ input[type="button"] {
 }
 
 @keyframes tcv_spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .tcv_filter_menu {
@@ -1046,10 +1046,13 @@ input[type="button"] {
   color: var(--tcv-font-color);
   font-size: 13px;
   border: none;
-  float: right;
   position: absolute;
-  right: 0px;
-  width: auto;
+  right: -4px;
+  top: -3px;
+  /* Fixed width so the trigger pill and the option list share one right-anchored
+     box — their right borders coincide (and line up with the panel edge). Wide
+     enough for the longest option ("Vertex"). */
+  width: 5em;
 }
 
 .tcv_shape_filter:hover {
@@ -1063,9 +1066,9 @@ input[type="button"] {
 }
 
 .tcv_filter_value {
-  width: 3em;
+  flex: 1;
+  text-align: left;
   padding-left: 3px;
-  display: inline-block;
 }
 
 .tcv_filter_dropdown_active {
@@ -1082,20 +1085,23 @@ input[type="button"] {
 }
 
 .tcv_filter_content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background-color: var(--tcv-bg-overlay-color);
 }
 
-.tcv_tick_size{
+.tcv_tick_size {
   background-color: var(--tcv-bg-overlay-color);
   border-radius: 4px;
-  padding:2px;
-  width:fit-content;
+  padding: 2px;
+  width: fit-content;
   font-size: 12px;
-  margin-left:100px;
+  margin-left: 100px;
   margin-top: -24px;
   z-index: 1000;
 }
 
-.tcv_tick_size_value{
-  padding:3px;
+.tcv_tick_size_value {
+  padding: 3px;
 }

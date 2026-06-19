@@ -130,7 +130,9 @@ export class Tools {
 
   disable(): void {
     if (this.enabledTool) {
-      this.viewer.display.shapeFilterDropDownMenu.reset();
+      // NOTE: the topo filter is NOT reset here — it is a tool-independent control
+      // (hover preselection is always-on for B-rep), so a user's choice persists
+      // across tool toggles. It resets to "All" only on a new model (render()).
       this._disable();
     }
   }

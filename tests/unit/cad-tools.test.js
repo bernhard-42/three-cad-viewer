@@ -266,11 +266,12 @@ describe("Tools", () => {
       expect(tools.enabledTool).toBeNull();
     });
 
-    test("resets filter dropdown", () => {
+    test("does not reset the topo filter (it persists across tool toggles)", () => {
       tools.enable(ToolTypes.DISTANCE);
       tools.disable();
 
-      expect(display.shapeFilterDropDownMenu.reset).toHaveBeenCalled();
+      // The topo filter is a tool-independent control now; only render() resets it.
+      expect(display.shapeFilterDropDownMenu.reset).not.toHaveBeenCalled();
     });
   });
 
@@ -1291,10 +1292,10 @@ describe("FilterByDropDownMenu", () => {
   });
 
   describe("reset", () => {
-    test("resets filter value to None", () => {
+    test("resets filter value to All", () => {
       filter.reset();
 
-      expect(display.filterDropdown.value.innerText).toBe("None");
+      expect(display.filterDropdown.value.innerText).toBe("All");
     });
   });
 
@@ -1333,7 +1334,7 @@ describe("FilterByDropDownMenu", () => {
       const event = new KeyboardEvent("keydown", { key: "e" });
       document.dispatchEvent(event);
 
-      expect(display.filterDropdown.value.innerText).toBe("None");
+      expect(display.filterDropdown.value.innerText).toBe("All");
     });
   });
 
@@ -1366,14 +1367,14 @@ describe("FilterByDropDownMenu", () => {
       expect(display.filterDropdown.value.innerText).toBe("Solid");
     });
 
-    test("n key sets None", () => {
+    test("a key sets All", () => {
       // First set to something else
       const event1 = new KeyboardEvent("keydown", { key: "v" });
       document.dispatchEvent(event1);
 
-      const event2 = new KeyboardEvent("keydown", { key: "n" });
+      const event2 = new KeyboardEvent("keydown", { key: "a" });
       document.dispatchEvent(event2);
-      expect(display.filterDropdown.value.innerText).toBe("None");
+      expect(display.filterDropdown.value.innerText).toBe("All");
     });
 
     test("invalid key does not change value", () => {

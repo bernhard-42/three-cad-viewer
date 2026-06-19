@@ -1141,6 +1141,8 @@ class Viewer {
       // a HighlightController / ObjectGroup that this clear() disposes; a stale
       // hover-release would otherwise touch a disposed controller on the next pick.
       this.pickingController.reset();
+      // Hide the topo filter (+ detach its shortcuts) for a clean cleared canvas.
+      this.display.shapeFilterDropDownMenu.show(false);
 
       // stop animation
       this.hasAnimationLoop = false;
@@ -1376,6 +1378,21 @@ class Viewer {
     renderOptions: RenderOptions,
     viewerOptions: ViewerOptions,
   ): void {
+    // A new model invalidates any active tool + its selection (they reference the
+    // outgoing scene), so disable it as the first step — independent of whether the
+    // client called clear() first. Idempotent: a no-op when no tool is active (e.g.
+    // clear() already ran → cadTools.disable() no-ops on a null enabledTool, and the
+    // activeTool guard skips setTool). The incremental addPart/updatePart/removePart
+    // API does NOT go through render(), so incremental edits keep their active tool.
+    if (this.cadTools) {
+      this.cadTools.disable();
+      const currentTool = this.state.get("activeTool");
+      if (currentTool != null) {
+        this.state.set("activeTool", null);
+        this.display.setTool(currentTool, false);
+      }
+    }
+
     // Decode instanced/compressed format if detected
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (isInstancedFormat(shapes as any)) {
@@ -1682,6 +1699,12 @@ class Viewer {
       this.display.showToolsPanel(false);
       this.rendered.orientationMarker.setVisible(false);
     }
+
+    // New model: reset the topo filter to "All" and show it for B-rep. The filter is
+    // independent of the active tool (hover preselection is always-on for B-rep);
+    // updateShapeFilter gates visibility on the tools panel being open + non-GDS.
+    this.display.shapeFilterDropDownMenu.reset();
+    this.display.updateShapeFilter();
 
     // Apply clip settings AFTER ready=true (clip setters check this.ready).
     //

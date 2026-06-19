@@ -1856,7 +1856,6 @@ class Display {
       this.viewer.setSelectionInput(flag);
     }
     this.viewer.setPickHandler(!flag);
-    this.shapeFilterDropDownMenu.show(flag);
   };
 
   /**
@@ -1894,6 +1893,7 @@ class Display {
         tickInfo.style.display = "none";
       }
     }
+    this.updateShapeFilter();
   };
 
   /**
@@ -3409,11 +3409,27 @@ class Display {
    * Show or hide tools panel (tabs + content) in glass mode.
    * Also toggles the orientation marker and animation/explode slider.
    */
+  /**
+   * Show the shape-filter dropdown only for a B-rep model with the tools panel open:
+   * `tools` enabled AND not collapsed AND a non-GDS model is rendered. Hidden otherwise
+   * (clean canvas; also detaches the a/v/e/f/s keyboard shortcuts). Hover preselection
+   * is always-on for B-rep, so the filter is independent of which tool (if any) is active.
+   */
+  updateShapeFilter = (): void => {
+    const visible =
+      this.tools &&
+      this.tools_shown &&
+      this.viewer?.ready === true &&
+      this.viewer.shapes?.format !== "GDS";
+    this.shapeFilterDropDownMenu.show(visible);
+  };
+
   showToolsPanel = (flag: boolean): void => {
     const cadTree = this.getElement("tcv_cad_tree");
     cadTree.style.display = flag ? "" : "none";
     this.getElement("tcv_toggle_tools").innerHTML = flag ? "\u25BE" : "\u25B8";
     this.tools_shown = flag;
+    this.updateShapeFilter();
 
     // Toggle orientation marker
     if (this.viewer.ready) {

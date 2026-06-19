@@ -390,7 +390,8 @@ class FilterByDropDownMenu {
     this.elements.value.innerText = topoType;
     const key = topoType.toLowerCase();
     let filter: TopoFilterType[] | null = null;
-    if (key === "none") {
+    if (key === "all" || key === "none") {
+      // "All" (label) = no filter → every topo eligible (vertex>edge>face priority).
       filter = [TopoFilter.none];
     } else if (key in TopoFilter) {
       filter = [TopoFilter[key as keyof typeof TopoFilter]];
@@ -408,10 +409,10 @@ class FilterByDropDownMenu {
       this.elements.dropdown.classList.contains("tcv_filter_dropdown_active")
     ) {
       this.elements.dropdown.classList.remove("tcv_filter_dropdown_active");
-      this.elements.icon.innerText = "⏶";
+      this.elements.icon.innerText = "▾"; // ▾ closed (down-caret = expand)
     } else {
       this.elements.dropdown.classList.add("tcv_filter_dropdown_active");
-      this.elements.icon.innerText = "⏷";
+      this.elements.icon.innerText = "▴"; // ▴ open
     }
   };
 
@@ -432,13 +433,13 @@ class FilterByDropDownMenu {
   };
 
   reset = (): void => {
-    this.setValue("None");
+    this.setValue("All");
   };
 
   private keybindSelect = (e: KeyboardEvent): void => {
-    const validKeys = ["n", "v", "e", "f", "s", "Escape"];
+    const validKeys = ["a", "v", "e", "f", "s", "Escape"];
     if (validKeys.indexOf(e.key) === -1) return;
-    if (e.key == "n") this.setValue("None");
+    if (e.key == "a") this.setValue("All");
     else if (e.key == "v") this.setValue("Vertex");
     else if (e.key == "e") this.setValue("Edge");
     else if (e.key == "f") this.setValue("Face");

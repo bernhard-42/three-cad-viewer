@@ -32,7 +32,7 @@ export const HIGHLIGHT_COLOR_HOVER = 0x89b9e3;
  * HighlightFlag} bits: `HOVER → base`, `SELECTED && !HOVER → base − 2`, else the
  * material's authored size.
  */
-export const VERTEX_FOCUS_SIZE = 8;
+export const VERTEX_FOCUS_SIZE = 6;
 export const EDGE_FOCUS_WIDTH = 5;
 
 /**
