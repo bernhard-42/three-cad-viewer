@@ -583,9 +583,14 @@ export function closestSegmentSegment(
 export function minDistance(
   ga: MeshComponentGeometry,
   gb: MeshComponentGeometry,
+  // PHASE-7 BASELINE (temporary): when true, log feature/loop timings + problem
+  // size (the brute-force O(Ta·Tb) cost the BVH must beat). Remove after Phase 7.
+  timeit: boolean = false,
 ): { distance: number; point1: THREE.Vector3; point2: THREE.Vector3 } {
+  const _t0 = timeit ? performance.now() : 0;
   const fa = buildFeatures(ga);
   const fb = buildFeatures(gb);
+  const _t1 = timeit ? performance.now() : 0;
   let best = Infinity;
   const p1 = new THREE.Vector3();
   const p2 = new THREE.Vector3();
@@ -640,6 +645,23 @@ export function minDistance(
     for (const pa of fa.points) {
       for (const pb of fb.points) consider(pa.distanceToSquared(pb), pa, pb);
     }
+  }
+
+  // PHASE-7 BASELINE (temporary): the headline numbers for the BVH crossover —
+  // triangle/segment counts (the work) and feature-extraction vs loop time.
+  if (timeit) {
+    const features = _t1 - _t0;
+    const loop = performance.now() - _t1;
+    const triPairs = fa.tris.length * fb.tris.length;
+    const segPairs = fa.segs.length * fb.segs.length;
+    console.info(
+      `three-cad-viewer: minDistance [${ga.topo} vs ${gb.topo}] ` +
+        `tris ${fa.tris.length}×${fb.tris.length}=${triPairs}, ` +
+        `segs ${fa.segs.length}×${fb.segs.length}=${segPairs}: ` +
+        `buildFeatures ${features.toFixed(1)} ms + ` +
+        `brute-force loop ${loop.toFixed(1)} ms = ` +
+        `${(features + loop).toFixed(1)} ms`,
+    );
   }
 
   return {
@@ -923,7 +945,11 @@ function directionOf(
  * can't be resolved (caller leaves the panel unanswered, same as a backend timeout).
  */
 export class MeshMeasureBackend {
-  constructor(private getProvider: () => MeshGeometryProvider | null) {}
+  constructor(
+    private getProvider: () => MeshGeometryProvider | null,
+    // PHASE-7 BASELINE (temporary): gates minDistance timing logs. Remove after Phase 7.
+    private getTimeit: () => boolean = () => false,
+  ) {}
 
   /** PropertiesMeasurement response for a single component. */
   properties(path: string): MeasureResponse | null {
@@ -982,7 +1008,7 @@ export class MeshMeasureBackend {
       p2 = centroid(g2);
       distance = p1.distanceTo(p2);
     } else {
-      const r = minDistance(g1, g2);
+      const r = minDistance(g1, g2, this.getTimeit());
       p1 = r.point1;
       p2 = r.point2;
       distance = r.distance;

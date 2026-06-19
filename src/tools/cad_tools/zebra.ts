@@ -27,13 +27,17 @@ export class ZebraTool {
     this.originalMaterials = new Map();
     this.zebraMaterials = new Map();
 
-    // Default settings
+    // Default settings — MUST match the viewer-state defaults (viewer-state.ts:502:
+    // zebraCount=9, zebraDirection=0, zebraColorScheme="blackwhite", zebraOpacity=1.0,
+    // zebraMappingMode="reflection"). Same defaults from two sources; keep in sync.
+    // enableZebraTool also pushes the current state values here on activation, so
+    // non-default settings (viewerOptions/API) are honored.
     this.settings = {
-      stripeCount: 15,
+      stripeCount: 9,
       stripeDirection: 0, // angle in degrees
       colorScheme: "blackwhite", // 'blackwhite', 'colorful', 'grayscale'
       opacity: 1.0, // 0.0 = fully transparent (see original), 1.0 = fully opaque (only zebra)
-      mappingMode: "normal", // 'reflection' (Onshape-like) or 'normal' (Fusion360/Shapr3D-like)
+      mappingMode: "reflection", // 'reflection' (Onshape-like) or 'normal' (Fusion360/Shapr3D-like)
     };
 
     this.zebraTexture = null;

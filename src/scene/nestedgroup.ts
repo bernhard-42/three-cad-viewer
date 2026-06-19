@@ -219,6 +219,13 @@ class NestedGroup {
    * {@link registry}; lets measurements be computed without the Python backend.
    */
   meshGeometry: MeshGeometrySource;
+  /**
+   * PHASE-7 BASELINE (temporary, gated on `timeit`): when true, `render()`
+   * accumulates per-category id-picking build time and logs one summary line.
+   * REMOVE the timing instrumentation once Phase 7 perf work lands.
+   */
+  timeit: boolean;
+  private _buildTimings: Record<string, number> = {};
   clipPlanes: THREE.Plane[] | null;
   materialFactory: MaterialFactory;
   materialsTable: Record<
@@ -282,6 +289,7 @@ class NestedGroup {
     this.groups = {};
     this.registry = new ComponentRegistry();
     this.assignIds = false;
+    this.timeit = false;
     this.highlight = null;
     this.meshGeometry = new MeshGeometrySource();
 
@@ -561,6 +569,7 @@ class NestedGroup {
     // (per-segment instanced integer componentId + the EDGE pick layer, additive —
     // standalone edges are visual, so layer 0 stays). Compact only.
     if (this.assignIds) {
+      const _t0 = this.timeit ? performance.now() : 0;
       const { componentId } = buildEdgeComponentIds(
         edgeData.edges,
         edgeData.segments_per_edge,
@@ -572,13 +581,16 @@ class NestedGroup {
       enablePickLayer(edges, "edge");
       // widen + recolor the flagged segment in-shader (Option A).
       this.highlight?.patchEdgeMaterial(edges.material);
+      if (this.timeit) this._accum("componentIds", _t0);
       // Internal measurement backend: record the standalone edge node's geometry.
+      const _t1 = this.timeit ? performance.now() : 0;
       this.meshGeometry.register(
         path,
         { edges: edgeData.edges, segments_per_edge: edgeData.segments_per_edge },
         group,
         null,
       );
+      if (this.timeit) this._accum("register", _t1);
     }
 
     group.setEdges(edges);
@@ -637,6 +649,7 @@ class NestedGroup {
     // id-based picking: tag a standalone vertex node so it is pickable.
     // These ARE visual (kept on layer 0); add the VERTEX pick layer additively.
     if (this.assignIds) {
+      const _t0 = this.timeit ? performance.now() : 0;
       const { componentId } = buildVertexComponentIds(
         vertexData.obj_vertices,
         path,
@@ -648,13 +661,16 @@ class NestedGroup {
       // standalone vertices are visible — keep authored size/color when
       // unflagged, widen + recolor when flagged (no cull).
       this.highlight?.patchVertexMaterial(material);
+      if (this.timeit) this._accum("componentIds", _t0);
       // Internal measurement backend: record the standalone vertex node's geometry.
+      const _t1 = this.timeit ? performance.now() : 0;
       this.meshGeometry.register(
         path,
         { obj_vertices: vertexData.obj_vertices },
         group,
         null,
       );
+      if (this.timeit) this._accum("register", _t1);
     }
 
     group.setVertices(points);
@@ -760,6 +776,7 @@ class NestedGroup {
       // on the existing indexed geometry. Compact group only (assignIds); textured
       // faces use PlaneGeometry above and are skipped by construction.
       if (this.assignIds) {
+        const _t0 = this.timeit ? performance.now() : 0;
         const { componentId, collisions } = buildFaceComponentIds(
           positions.length / 3,
           shape.triangles,
@@ -775,6 +792,7 @@ class NestedGroup {
               "(face picking ok; de-index needed only if this solid must split)",
           );
         }
+        if (this.timeit) this._accum("componentIds", _t0);
       }
 
       group.shapeGeometry = shapeGeometry;
@@ -856,6 +874,7 @@ class NestedGroup {
       // Bind as an integer attribute (edge pick shader reads `in uint`).
       // Compact only.
       if (this.assignIds) {
+        const _t0 = this.timeit ? performance.now() : 0;
         const { componentId } = buildEdgeComponentIds(
           edgeList,
           shape.segments_per_edge,
@@ -867,6 +886,7 @@ class NestedGroup {
         enablePickLayer(edges, "edge");
         // widen + recolor the flagged segment in-shader (Option A).
         this.highlight?.patchEdgeMaterial(edges.material);
+        if (this.timeit) this._accum("componentIds", _t0);
       }
     }
 
@@ -880,6 +900,7 @@ class NestedGroup {
       shape.obj_vertices != null &&
       shape.obj_vertices.length > 0
     ) {
+      const _t0 = this.timeit ? performance.now() : 0;
       const vpositions = this._toFloat32Array(shape.obj_vertices);
       const { componentId } = buildVertexComponentIds(
         shape.obj_vertices,
@@ -929,12 +950,15 @@ class NestedGroup {
       highlightPoints.name = name;
       highlightPoints.renderOrder = 1000; // after faces/edges
       group.add(highlightPoints); // visual layer 0 only (default)
+      if (this.timeit) this._accum("vertexCloud", _t0);
     }
 
     // Record the node's raw geometry for the internal measurement backend (compact
     // group only — paths match the registry). `group.matrixWorld` maps local → world.
     if (this.assignIds) {
+      const _t0 = this.timeit ? performance.now() : 0;
       this.meshGeometry.register(path, shape, group, subtype);
+      if (this.timeit) this._accum("register", _t0);
     }
 
     return group;
@@ -1247,6 +1271,15 @@ class NestedGroup {
   /**
    * Main entry point to render all shapes.
    */
+  /**
+   * PHASE-7 BASELINE (temporary): add `performance.now() - start` to a build-time
+   * category bucket. Only called while `timeit` is true. Remove after Phase 7.
+   */
+  private _accum(category: string, start: number): void {
+    this._buildTimings[category] =
+      (this._buildTimings[category] ?? 0) + (performance.now() - start);
+  }
+
   render(): THREE.Group {
     if (this.shapes.format == "GDS") {
       this.instances = this.shapes.instances || null;
@@ -1254,14 +1287,37 @@ class NestedGroup {
     this.materialsTable = this.shapes.materials || null;
     this.resolvedMaterials.clear();
     this.resolvedMaterialX.clear();
+    // PHASE-7 BASELINE (temporary, gated on timeit): reset + total clock.
+    this._buildTimings = {};
+    const _tTotal = this.timeit ? performance.now() : 0;
     // the highlight controller must exist before renderLoop so each
     // visual material is patched as it is created. Compact group only.
     if (this.assignIds) {
+      const _tH = this.timeit ? performance.now() : 0;
       this.highlight = new HighlightController(this.registry);
+      if (this.timeit) this._accum("highlight", _tH);
     }
     this.rootGroup = this.renderLoop(this.shapes);
     // Grow the state texture to cover every component registered during the walk.
+    const _tR = this.timeit ? performance.now() : 0;
     this.highlight?.resize(this.registry.maxId);
+    if (this.timeit) this._accum("highlight", _tR);
+    // PHASE-7 BASELINE (temporary): one-line breakdown of id-picking build cost.
+    if (this.timeit) {
+      const total = performance.now() - _tTotal;
+      const t = this._buildTimings;
+      const sum = Object.values(t).reduce((a, b) => a + b, 0);
+      console.info(
+        "three-cad-viewer: NestedGroup.render id-picking build breakdown " +
+          `[assignIds=${this.assignIds}, maxId=${this.registry.maxId}]: ` +
+          `total ${total.toFixed(1)} ms = ` +
+          `componentIds ${(t["componentIds"] ?? 0).toFixed(1)} + ` +
+          `vertexCloud ${(t["vertexCloud"] ?? 0).toFixed(1)} + ` +
+          `register ${(t["register"] ?? 0).toFixed(1)} + ` +
+          `highlight ${(t["highlight"] ?? 0).toFixed(1)} + ` +
+          `tessellation/rest ${(total - sum).toFixed(1)} ms`,
+      );
+    }
     return this.rootGroup;
   }
 

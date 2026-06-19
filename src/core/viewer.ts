@@ -361,6 +361,12 @@ class Viewer {
   private _lastPickCam: number[] | null = null;
   private _lastPickProj: number[] | null = null;
   private _lastClipSig = "";
+  // When true, update() is a no-op. Used to batch a run of state setters in render()
+  // (e.g. the clip-plane init) into a single paint instead of one paint per setter.
+  private _suppressUpdate = false;
+  // Zebra settings are pushed to the lazily-created ZebraTools ONCE per model load (on
+  // first activation), not on every tree↔zebra toggle. Reset to false in render().
+  private _zebraSettingsApplied = false;
 
   // GPU id-based picker. Created/attached per render() once the scene + compact
   // registry exist; drives hover, selection, measure and double-click pick.
@@ -456,6 +462,7 @@ class Viewer {
     this.cadTools = new Tools(this);
     this.meshBackend = new MeshMeasureBackend(
       () => this.compactNestedGroup?.meshGeometry ?? null,
+      () => this.state.get("timeit"),
     );
 
     this.ready = false;
@@ -621,6 +628,7 @@ class Viewer {
       metalness: this.state.get("metalness"),
       roughness: this.state.get("roughness"),
       normalLen: this.state.get("normalLen"),
+      timeit: this.state.get("timeit"),
     };
 
     if (!this.shapeRenderer) {
@@ -871,6 +879,9 @@ class Viewer {
    */
   update = (updateMarker: boolean, notify: boolean = true): void => {
     if (!this.ready) return;
+    // Batching guard: a run of state setters in render() suppresses their individual
+    // paints; the single paint that follows the batch renders the final state once.
+    if (this._suppressUpdate) return;
 
     // Skip painting while Studio mode is mid-async-load: composer hasn't
     // been created yet, so a fall-through to renderer.render() would paint
@@ -1393,6 +1404,15 @@ class Viewer {
       }
     }
 
+    // New model: the old ObjectGroups (and their ZebraTools) are gone, so the
+    // once-per-model zebra settings push must run again on the next activation.
+    this._zebraSettingsApplied = false;
+
+    // PHASE-7 BASELINE (temporary): time the encoded-buffer decode. It runs before
+    // state.timeit is applied (setViewerDefaults, below), so read the flag from
+    // viewerOptions directly here. Remove after Phase 7.
+    const _timeit = viewerOptions.timeit ?? this.state.get("timeit");
+    const _tDecode = _timeit === true ? performance.now() : 0;
     // Decode instanced/compressed format if detected
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (isInstancedFormat(shapes as any)) {
@@ -1401,6 +1421,13 @@ class Viewer {
     }
     // Decode any remaining inline base64 buffers (e.g., edge/vertex-only objects)
     decodeInlineBuffers(shapes);
+    if (_timeit === true) {
+      console.info(
+        `three-cad-viewer: render decode buffers ${(
+          performance.now() - _tDecode
+        ).toFixed(1)} ms`,
+      );
+    }
     this.shapes = shapes;
     this.renderOptions = renderOptions;
     this.setViewerDefaults(viewerOptions);
@@ -1740,12 +1767,22 @@ class Viewer {
       this.state.get("clipNormal2"),
       [0, 0, -1],
     );
-    this.setClipNormal(0, clipNormal0, clipSlider0, true);
-    this.setClipNormal(1, clipNormal1, clipSlider1, true);
-    this.setClipNormal(2, clipNormal2, clipSlider2, true);
-    this.setClipIntersection(viewerOptions.clipIntersection ?? false, true);
-    this.setClipObjectColorCaps(viewerOptions.clipObjectColors ?? false, true);
-    this.setClipPlaneHelpers(viewerOptions.clipPlaneHelpers ?? false, true);
+    // Tier-1 clip-init batch: each of these setters assigns clip planes to ~5k
+    // materials (setting needsUpdate) and then paints. Suppress their individual
+    // paints — the state they set is identical regardless of paint count, and the
+    // initial paint below renders the final state once (processing needsUpdate a
+    // single time instead of ~6). Behavior-identical; only redundant paints removed.
+    this._suppressUpdate = true;
+    try {
+      this.setClipNormal(0, clipNormal0, clipSlider0, true);
+      this.setClipNormal(1, clipNormal1, clipSlider1, true);
+      this.setClipNormal(2, clipNormal2, clipSlider2, true);
+      this.setClipIntersection(viewerOptions.clipIntersection ?? false, true);
+      this.setClipObjectColorCaps(viewerOptions.clipObjectColors ?? false, true);
+      this.setClipPlaneHelpers(viewerOptions.clipPlaneHelpers ?? false, true);
+    } finally {
+      this._suppressUpdate = false;
+    }
 
     this.display.showReadyMessage(version, this.state.get("control"));
     timer.split("show done");
@@ -1778,6 +1815,13 @@ class Viewer {
     // CAD update() in that case and let the activeTab subscription's
     // switchToTab handler paint the right content (or, for studio, show
     // the spinner over a blank canvas while async setup runs).
+    // PHASE-7 BASELINE (temporary): count compiled shader programs around the first
+    // paint. A big jump here = the `update done` cost is shader COMPILATION (which the
+    // id-picking pick/highlight material variants inflate → the customProgramCacheKey
+    // ticket); a small jump with a big time = geometry upload / draw cost instead.
+    const _timeit2 = this.state.get("timeit") === true;
+    const _progBefore = _timeit2 ? (this.renderer.info.programs?.length ?? 0) : 0;
+
     const targetTab = viewerOptions.tab ?? "tree";
     if (targetTab === "tree") {
       this.update(true, false);
@@ -1788,16 +1832,32 @@ class Viewer {
       // user sees is the target tab, not CAD.
       this.setActiveTab(targetTab);
     }
+    timer.split("initial paint (this.update)");
     treeview.update();
     this.display.setTheme(this.state.get("theme"));
+    timer.split("treeview + theme");
 
-    this.setZebraCount(this.state.get("zebraCount"));
-    this.setZebraDirection(this.state.get("zebraDirection"));
-    this.setZebraOpacity(this.state.get("zebraOpacity"));
-    this.setZebraColorScheme(this.state.get("zebraColorScheme"));
-    this.setZebraMappingMode(this.state.get("zebraMappingMode"));
+    // Zebra init is DEFERRED to first activation (enableZebraTool). Applying the
+    // settings here forced a ZebraTool + CanvasTexture to be built for every
+    // ObjectGroup at load — hundreds of ms on large models — even though zebra mode
+    // is off and no zebra material is applied until the tool is entered. The values
+    // already live in state; enableZebraTool(true) pushes them to the (lazily
+    // created) ZebraTools before applying, so non-default settings are preserved.
 
     timer.split("update done");
+    // PHASE-7 BASELINE (temporary): GPU stats after the first paint. `programs`
+    // compiled = _progAfter - _progBefore (the smoking gun for compile-bound paint);
+    // draw calls/triangles/geometries are reset per frame (last frame's counts).
+    if (_timeit2) {
+      const info = this.renderer.info;
+      const progAfter = info.programs?.length ?? 0;
+      console.info(
+        "three-cad-viewer: renderer.info after first paint: " +
+          `programs ${progAfter} (+${progAfter - _progBefore} compiled this paint), ` +
+          `draw calls ${info.render.calls}, triangles ${info.render.triangles}, ` +
+          `geometries ${info.memory.geometries}, textures ${info.memory.textures}`,
+      );
+    }
     timer.stop();
   }
 
@@ -2620,6 +2680,21 @@ class Viewer {
   // ---------------------------------------------------------------------------
 
   enableZebraTool = (flag: boolean): void => {
+    if (flag && !this._zebraSettingsApplied) {
+      // Zebra init is deferred from render() to the FIRST activation per model (avoids
+      // building a ZebraTool + CanvasTexture per ObjectGroup at load, when zebra is
+      // off). Push the current state settings to the lazily-created ZebraTools so any
+      // non-default settings (viewerOptions/API) are honored; their built-in defaults
+      // already match the state defaults. The live setZebra* setters keep them in sync
+      // afterwards, so this runs ONCE per model — not on every tree↔zebra toggle.
+      const ng = this.rendered.nestedGroup;
+      ng.setZebraCount(this.state.get("zebraCount"));
+      ng.setZebraOpacity(this.state.get("zebraOpacity"));
+      ng.setZebraDirection(this.state.get("zebraDirection"));
+      ng.setZebraColorScheme(this.state.get("zebraColorScheme"));
+      ng.setZebraMappingMode(this.state.get("zebraMappingMode"));
+      this._zebraSettingsApplied = true;
+    }
     this.rendered.nestedGroup.setZebra(flag);
     this.update(true, true);
     this.rendered.treeview.update();
