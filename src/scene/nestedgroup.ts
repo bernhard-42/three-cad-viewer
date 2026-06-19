@@ -12,8 +12,9 @@ import {
   buildFaceComponentIds,
   buildEdgeComponentIds,
   buildVertexComponentIds,
-  PICK_LAYER,
-  COMPONENT_ID_ATTRIBUTE,
+  applyComponentIds,
+  enablePickLayer,
+  setPickLayerExclusive,
 } from "../rendering/id-picking.js";
 import {
   HighlightController,
@@ -567,10 +568,8 @@ class NestedGroup {
         null, // standalone edge node — not part of a solid
         this.registry,
       );
-      const edgeCompId = new THREE.InstancedBufferAttribute(componentId, 1);
-      edgeCompId.gpuType = THREE.IntType;
-      edges.geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, edgeCompId);
-      edges.layers.enable(PICK_LAYER.EDGE);
+      applyComponentIds(edges.geometry, componentId, true);
+      enablePickLayer(edges, "edge");
       // widen + recolor the flagged segment in-shader (Option A).
       this.highlight?.patchEdgeMaterial(edges.material);
       // Internal measurement backend: record the standalone edge node's geometry.
@@ -644,10 +643,8 @@ class NestedGroup {
         null, // standalone vertex node — not part of a solid
         this.registry,
       );
-      const vCompId = new THREE.Uint32BufferAttribute(componentId, 1);
-      vCompId.gpuType = THREE.IntType;
-      geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, vCompId);
-      points.layers.enable(PICK_LAYER.VERTEX);
+      applyComponentIds(geometry, componentId);
+      enablePickLayer(points, "vertex");
       // standalone vertices are visible — keep authored size/color when
       // unflagged, widen + recolor when flagged (no cull).
       this.highlight?.patchVertexMaterial(material);
@@ -771,12 +768,7 @@ class NestedGroup {
           subtype,
           this.registry,
         );
-        const componentIdAttr = new THREE.Uint32BufferAttribute(componentId, 1);
-        // Read as an integer vertex attribute by the GLSL3 pick shader
-        // (`in uint componentId`); without IntType three uploads it as float and
-        // the bits are wrong.
-        componentIdAttr.gpuType = THREE.IntType;
-        shapeGeometry.setAttribute(COMPONENT_ID_ATTRIBUTE, componentIdAttr);
+        applyComponentIds(shapeGeometry, componentId);
         if (collisions > 0) {
           logger.warn(
             `componentId: ${collisions} cross-face shared vertices in ${path} ` +
@@ -823,12 +815,11 @@ class NestedGroup {
     const front = new THREE.Mesh(shapeGeometry, frontMaterial);
     front.name = name;
 
-    // Id-based picking: put only the FRONT (FrontSide) mesh on the face pick
-    // layer so the pick pass can render faces-only via
-    // `camera.layers.set(PICK_LAYER.FACE)`. `.enable()` is additive, so visual
-    // layer 0 stays enabled and the main render pass is unaffected.
+    // Id-based picking: put only the FRONT (FrontSide) mesh on the face pick layer so
+    // the pick pass can render faces-only. Additive — visual layer 0 stays enabled and
+    // the main render pass is unaffected.
     if (this.assignIds) {
-      front.layers.enable(PICK_LAYER.FACE);
+      enablePickLayer(front, "face");
     }
 
     // ensure, transparent objects will be rendered at the end
@@ -872,10 +863,8 @@ class NestedGroup {
           subtype,
           this.registry,
         );
-        const edgeCompId = new THREE.InstancedBufferAttribute(componentId, 1);
-        edgeCompId.gpuType = THREE.IntType;
-        edges.geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, edgeCompId);
-        edges.layers.enable(PICK_LAYER.EDGE);
+        applyComponentIds(edges.geometry, componentId, true);
+        enablePickLayer(edges, "edge");
         // widen + recolor the flagged segment in-shader (Option A).
         this.highlight?.patchEdgeMaterial(edges.material);
       }
@@ -906,9 +895,7 @@ class NestedGroup {
         "position",
         new THREE.Float32BufferAttribute(vpositions, 3),
       );
-      const vCompId = new THREE.Uint32BufferAttribute(componentId, 1);
-      vCompId.gpuType = THREE.IntType;
-      vGeometry.setAttribute(COMPONENT_ID_ATTRIBUTE, vCompId);
+      applyComponentIds(vGeometry, componentId);
 
       const pickMaterial = this.materialFactory.createVertexMaterial(
         { size: 1, color: null, visible: true },
@@ -916,7 +903,7 @@ class NestedGroup {
       );
       const pickPoints = new THREE.Points(vGeometry, pickMaterial);
       pickPoints.name = name;
-      pickPoints.layers.set(PICK_LAYER.VERTEX); // pick layer only (off visual 0)
+      setPickLayerExclusive(pickPoints, "vertex"); // pick layer only (off visual 0)
       group.add(pickPoints);
 
       // a SEPARATE visual-highlight Points on visual layer 0 (NOT the pick
@@ -1110,13 +1097,11 @@ class NestedGroup {
         solidPath,
       });
       const posAttr = polyGeometry.getAttribute("position");
-      const componentIdAttr = new THREE.Uint32BufferAttribute(
+      applyComponentIds(
+        polyGeometry,
         new Uint32Array(posAttr.count).fill(faceId),
-        1,
       );
-      componentIdAttr.gpuType = THREE.IntType; // GLSL3 pick shader reads `in uint`
-      polyGeometry.setAttribute(COMPONENT_ID_ATTRIBUTE, componentIdAttr);
-      front.layers.enable(PICK_LAYER.FACE);
+      enablePickLayer(front, "face");
     }
 
     // Edges

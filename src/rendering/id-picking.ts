@@ -59,6 +59,52 @@ export const PICK_LAYER = {
 
 export type PickLayer = (typeof PICK_LAYER)[keyof typeof PICK_LAYER];
 
+const PICK_LAYER_BY_TOPO: Record<"face" | "edge" | "vertex", PickLayer> = {
+  face: PICK_LAYER.FACE,
+  edge: PICK_LAYER.EDGE,
+  vertex: PICK_LAYER.VERTEX,
+};
+
+/**
+ * Attach the per-vertex `componentId` integer attribute to a pickable geometry: the
+ * canonical way to bind {@link COMPONENT_ID_ATTRIBUTE} so the GLSL3 pick shader reads
+ * it as `in uint` (`gpuType = IntType` — without it three uploads floats and the bits
+ * are wrong). Use `instanced` for fat-line (per-segment) edge geometry.
+ */
+export function applyComponentIds(
+  geometry: THREE.BufferGeometry,
+  componentId: Uint32Array,
+  instanced = false,
+): void {
+  const attr = instanced
+    ? new THREE.InstancedBufferAttribute(componentId, 1)
+    : new THREE.Uint32BufferAttribute(componentId, 1);
+  attr.gpuType = THREE.IntType;
+  geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, attr);
+}
+
+/**
+ * Add `object` to its topo's pick layer additively — it stays on visual layer 0 (the
+ * main render pass) AND becomes pickable. For face/edge geometry and visible vertices.
+ */
+export function enablePickLayer(
+  object: THREE.Object3D,
+  topo: "face" | "edge" | "vertex",
+): void {
+  object.layers.enable(PICK_LAYER_BY_TOPO[topo]);
+}
+
+/**
+ * Put `object` on its topo's pick layer ONLY (off visual layer 0), so the main camera
+ * never draws it — for the pick-only `obj_vertices` Points cloud.
+ */
+export function setPickLayerExclusive(
+  object: THREE.Object3D,
+  topo: "face" | "edge" | "vertex",
+): void {
+  object.layers.set(PICK_LAYER_BY_TOPO[topo]);
+}
+
 /**
  * Metadata for one pickable component (face, edge, vertex, or solid). The id-buffer
  * pass reads back an id, and this is what it resolves to.
