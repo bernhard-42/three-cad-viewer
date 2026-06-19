@@ -19,6 +19,7 @@ import {
   minDistance,
   angleBetween,
   angleToXY,
+  circleFromPolyline,
   MeshMeasureBackend,
 } from "../../src/tools/cad_tools/mesh-measure.js";
 
@@ -325,5 +326,66 @@ describe("mesh-measure: MeshMeasureBackend responses", () => {
   test("returns null when a component can't be resolved", () => {
     expect(backend.properties("/missing")).toBeNull();
     expect(backend.distance("/v0", "/missing", false)).toBeNull();
+  });
+});
+
+describe("mesh-measure: circleFromPolyline", () => {
+  // Sample a circle (center c, radius r) in the plane spanned by orthonormal u,v,
+  // emitted as segment-endpoint pairs [P0,P1, P1,P2, ...] like edge tessellations.
+  function circlePolyline(c, r, u, v, segments = 24, arc = 2 * Math.PI) {
+    const pts = [];
+    for (let i = 0; i <= segments; i++) {
+      const t = (arc * i) / segments;
+      const cs = Math.cos(t) * r;
+      const sn = Math.sin(t) * r;
+      pts.push([
+        c[0] + cs * u[0] + sn * v[0],
+        c[1] + cs * u[1] + sn * v[1],
+        c[2] + cs * u[2] + sn * v[2],
+      ]);
+    }
+    const flat = [];
+    for (let i = 0; i < segments; i++) flat.push(...pts[i], ...pts[i + 1]);
+    return new Float32Array(flat);
+  }
+
+  test("recovers center + radius of an axis-aligned circle", () => {
+    const res = circleFromPolyline(
+      circlePolyline([1, 2, 3], 5, [1, 0, 0], [0, 1, 0]),
+    );
+    expect(res).not.toBeNull();
+    expect(res.radius).toBeCloseTo(5, 3);
+    expect(res.center[0]).toBeCloseTo(1, 3);
+    expect(res.center[1]).toBeCloseTo(2, 3);
+    expect(res.center[2]).toBeCloseTo(3, 3);
+  });
+
+  test("recovers a tilted circle in an arbitrary plane", () => {
+    const u = new THREE.Vector3(1, 1, 0).normalize();
+    const v = new THREE.Vector3(0, 1, 1);
+    v.addScaledVector(u, -v.dot(u)).normalize(); // orthonormalize against u
+    const res = circleFromPolyline(
+      circlePolyline([-2, 0.5, 4], 3, u.toArray(), v.toArray()),
+    );
+    expect(res.radius).toBeCloseTo(3, 3);
+    expect(res.center[0]).toBeCloseTo(-2, 3);
+    expect(res.center[1]).toBeCloseTo(0.5, 3);
+    expect(res.center[2]).toBeCloseTo(4, 3);
+  });
+
+  test("works on an arc (partial sweep)", () => {
+    const res = circleFromPolyline(
+      circlePolyline([0, 0, 0], 2, [1, 0, 0], [0, 1, 0], 12, Math.PI / 2),
+    );
+    expect(res.radius).toBeCloseTo(2, 3);
+    expect(res.center[0]).toBeCloseTo(0, 3);
+    expect(res.center[1]).toBeCloseTo(0, 3);
+  });
+
+  test("returns null for collinear / too few points", () => {
+    const line = [];
+    for (let i = 0; i < 6; i++) line.push(i, 0, 0, i + 1, 0, 0);
+    expect(circleFromPolyline(new Float32Array(line))).toBeNull();
+    expect(circleFromPolyline(new Float32Array([0, 0, 0]))).toBeNull();
   });
 });

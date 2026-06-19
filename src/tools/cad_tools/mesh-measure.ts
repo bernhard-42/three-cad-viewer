@@ -244,6 +244,46 @@ export function meshVolume(geom: MeshComponentGeometry): number {
   return Math.abs(v6) / 6;
 }
 
+const _ccA = new THREE.Vector3();
+const _ccB = new THREE.Vector3();
+const _ccC = new THREE.Vector3();
+const _ccAC = new THREE.Vector3();
+const _ccBC = new THREE.Vector3();
+const _ccN = new THREE.Vector3();
+const _ccTmp = new THREE.Vector3();
+
+/**
+ * Exact circle (center + radius) through three well-separated points of a circular
+ * edge's tessellation polyline. The tessellation vertices lie ON the true curve, so
+ * the circumcircle of any three is exact (up to float precision). `positions` is the
+ * flat segment-endpoint list (works for both arcs and closed circles). Returns `null`
+ * if the three points are degenerate/collinear.
+ */
+export function circleFromPolyline(
+  positions: Float32Array,
+): { center: number[]; radius: number } | null {
+  const n = Math.floor(positions.length / 3);
+  if (n < 3) return null;
+  const at = (i: number, out: THREE.Vector3): THREE.Vector3 =>
+    out.set(positions[3 * i], positions[3 * i + 1], positions[3 * i + 2]);
+  const a = at(0, _ccA);
+  const b = at(Math.floor(n / 3), _ccB);
+  const c = at(Math.floor((2 * n) / 3), _ccC);
+  // Circumcenter (3D): O = C + ((|ac|² b' - |bc|² a') × N) / (2|N|²),
+  // with a' = A-C, b' = B-C, N = a' × b'.
+  const ac = _ccAC.subVectors(a, c);
+  const bc = _ccBC.subVectors(b, c);
+  const nrm = _ccN.crossVectors(ac, bc);
+  const denom = 2 * nrm.lengthSq();
+  if (denom < 1e-20) return null; // collinear / coincident
+  const tmp = _ccTmp
+    .copy(bc)
+    .multiplyScalar(ac.lengthSq())
+    .addScaledVector(ac, -bc.lengthSq()); // |ac|² b' - |bc|² a'
+  tmp.cross(nrm).divideScalar(denom).add(c); // → center
+  return { center: [tmp.x, tmp.y, tmp.z], radius: tmp.distanceTo(a) };
+}
+
 /**
  * Status-line text for a hovered component — FIXED attributes only, no backend, no
  * live cursor coord, NO path (the object is identified via the tree on double-click).
@@ -280,6 +320,19 @@ export function hoverStatusText(
       const len = f2(polylineLength(geom));
       const start = pt(p, 0);
       const end = pt(p, p.length - 3);
+      const curve = edgeGeomType(geom.geomType);
+      if (curve === "Circle") {
+        const circ = circleFromPolyline(p);
+        if (circ !== null) {
+          const r = f2(circ.radius);
+          const c = `(${f2(circ.center[0])}, ${f2(circ.center[1])}, ${f2(circ.center[2])})`;
+          // full circle (start === end): center + radius say it all; an arc keeps
+          // its start/end too. Mesh-derived, so ≈.
+          return start === end
+            ? `${gt}: r ≈ ${r}, c ≈ ${c}, len ≈ ${len}`
+            : `${gt}: r ≈ ${r}, c ≈ ${c}, len ≈ ${len}, start=${start}, end=${end}`;
+        }
+      }
       // closed edge (e.g. circle): start === end → show one point
       return start === end
         ? `${gt}: len ≈ ${len}, at=${start}`
