@@ -1,17 +1,17 @@
 # Change log
 
-## Unreleased
+## v5.0.0
 
-- Add a built-in TypeScript mesh-based measurement backend so the measure tools
-  (distance / properties) work without the external Python (`ocp_vscode`) backend,
-  computing real values (area, length, volume, bounding box, min/center distance,
-  angle) from the tessellated mesh; `shape_type`/`geom_type` are exact (from the
-  tessellation `face_types`/`edge_types`)
-- Rename the `measurementDebug` option to `externalMeasurementBackend` (default
-  `false`) and invert its meaning: the previous default routed to the external
-  backend, the new default uses the internal mesh backend. **Breaking:** embedders
-  that rely on the Python backend (e.g. `ocp_vscode`) must now set
-  `externalMeasurementBackend: true`. The old dummy debug-measurement path is removed.
+Major release — the picking/selection architecture has been rewritten internally.
+
+- Replace the CPU `THREE.Raycaster` and the duplicated "exploded" scene graph with GPU **id-based picking** over a single compact scene graph (one merged face mesh + edges + points per solid). Hover, selection, measurement and double-click identify resolve the component under the cursor from an offscreen id buffer; highlighting is shader-driven (no per-pick material/geometry swaps). Selection behavior is unchanged, with much better scaling to large models. **Breaking:** the raycaster/exploded-graph API is removed — `Viewer.raycaster`, `setRaycastMode`, `handleRaycast`, `handleRaycastEvent`, `toggleGroup` and `syncTreeStates` no longer exist (selection and measurement still flow through `handlePick` and the `checkChanges` notifications).
+- Always-on hover preselection (B-rep models): hovering a component (no active tool required) highlights it and shows a status line with its fixed attributes — geom type, mesh-estimated length/area/volume, and for circular edges (holes, fillets) the center and radius (`r ≈ …, c ≈ …`); edge start/end are the exact B-rep vertices. Not enabled for GDS (dense, stacked layout data).
+- The topology filter (All / Vertex / Edge / Face / Solid) is always available for B-rep models (previously only while a select/measure tool was active), enabling whole-solid hover highlighting without a tool. Renamed the "None" option to "All"; restyled the dropdown as a standard select.
+- Add a built-in TypeScript mesh-based measurement backend so the measure tools (distance / properties) work without the external Python (`ocp_vscode`) backend, computing real values (area, length, volume, bounding box, min/center distance, angle) from the tessellated mesh; `shape_type`/`geom_type` are exact (from the tessellation `face_types`/`edge_types`).
+- Rename the `measurementDebug` option to `externalMeasurementBackend` (default `false`) and invert its meaning: the previous default routed to the external backend, the new default uses the internal mesh backend. **Breaking:** embedders that rely on the Python backend (e.g. `ocp_vscode`) must now set `externalMeasurementBackend: true`. The old dummy debug-measurement path is removed.
+- **Breaking (keymap):** default action shortcuts changed so the lowercase keys drive the always-on topology filter (`a` = All, `v`/`e`/`f`, `s` = Solid): Copy-IDs (select tool) `S` → `I`, Studio `s` → `S`, Axes `a` → `A`, axes-at-origin `A` → `0`. Button and tab tooltips reflect the configured keymap.
+- A new model now disables any active tool as the first step of `render()` (independent of `clear()`); the incremental `addPart`/`updatePart`/`removePart` API keeps the tool.
+- Internal: extract all pointer-driven picking into a `PickingController`; move the pickable-tagging recipe and the pure pick helpers into the id-picking module (behavior-preserving).
 
 ## v4.3.9
 
