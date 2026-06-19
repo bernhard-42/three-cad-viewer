@@ -49,22 +49,12 @@ import {
 } from "../tools/cad_tools/tools.js";
 import {
   MeshMeasureBackend,
-  displayGeomType,
-  triangulatedArea,
-  polylineLength,
-  meshVolume,
   type MeasureResponse,
 } from "../tools/cad_tools/mesh-measure.js";
 import { version } from "../_version.js";
-import {
-  IdPicker,
-  TopoFilter,
-  pickerTopoFilter,
-  leafPath,
-  clipSignature,
-  type ComponentInfo,
-} from "../rendering/id-picking.js";
-import { IdPicked, type PickedComponent } from "../rendering/picked.js";
+import { IdPicker, clipSignature } from "../rendering/id-picking.js";
+import { type PickedComponent } from "../rendering/picked.js";
+import { PickingController } from "./picking-controller.js";
 import { StudioManager } from "./studio-manager.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
@@ -226,7 +216,7 @@ interface DisplayOptionsInternal {
  * State that exists only after render() and before clear().
  * Groups all resources that are created together during rendering.
  */
-interface RenderedState {
+export interface RenderedState {
   // Core THREE.js objects
   scene: THREE.Scene;
   ambientLight: THREE.AmbientLight;
@@ -363,8 +353,6 @@ class Viewer {
   // Selection tracking
   lastNotification: Record<string, unknown>;
   lastBbox: LastBboxInfo | null;
-  lastObject: PickedComponent | null;
-  lastSelection: PickedComponent | null;
   lastPosition: THREE.Vector3 | null;
   bboxNeedsUpdate: boolean;
   keepHighlight: boolean;
@@ -373,15 +361,7 @@ class Viewer {
   compactTree: ShapeTreeData | null;
   compactNestedGroup: NestedGroup | null;
 
-  // idbuffer hover: cursor position (client px) from an independent pointermove
-  // listener, plus snapshots used to mark the pick buffer stale only on an actual
-  // view/clip change.
-  private _idHoverClientX = 0;
-  private _idHoverClientY = 0;
-  private _idHoverInside = false;
-  private _idHoverRenderQueued = false;
-  /** Per-component hover status text (fixed per mesh; cleared on reload / z-scale). */
-  private _hoverStatusCache = new Map<string, string>();
+  // Snapshots used to mark the pick buffer stale only on an actual view/clip change.
   // float64 snapshot of the camera world matrix (NOT Float32Array — storing the
   // float64 `matrixWorld.elements` into a Float32Array truncates, making every
   // next-frame comparison unequal and dirtying the pick buffer every frame).
@@ -393,13 +373,8 @@ class Viewer {
   // registry exist; drives hover, selection, measure and double-click pick.
   idPicker: IdPicker | null = null;
 
-  // idbuffer click/key selection. Tool-scoped listeners (added on tool enable via
-  // setSelectionInput, removed on disable) that deliver clicks/keys. The hover path
-  // maintains the hovered `lastObject`; a click commits it. `_selectDownPosition` is
-  // the camera position at mousedown, distinguishing a click from an orbit drag (fire
-  // only if the camera did not move between down and up).
-  private _selectionInputActive = false;
-  private _selectDownPosition: THREE.Vector3 | null = null;
+  // All pointer-driven picking (hover/select/double-click + selection state).
+  pickingController: PickingController;
 
   // Studio mode orchestration (owns composer, floor, shadow lights, env manager)
   private _studioManager!: StudioManager;
@@ -537,11 +512,6 @@ class Viewer {
     this.compactTree = null;
     this.compactNestedGroup = null;
 
-    // If fromSolid is true, this means the selected object is from the solid
-    // This is the obj that has been picked but the actual selected obj is the solid
-    // Since we cannot directly pick a solid this is the solution
-    this.lastObject = null;
-    this.lastSelection = null;
     this.lastPosition = null;
     this.bboxNeedsUpdate = false;
 
@@ -556,21 +526,13 @@ class Viewer {
     this.keymap = null;
     this.info = null;
 
-    this.setPickHandler(true);
+    // All pointer-driven picking. Its constructor attaches the always-on hover
+    // listeners; double-click pick is on by default (off while a tool is active).
+    this.pickingController = new PickingController(this);
+    this.pickingController.setPickHandler(true);
 
     this.renderer.domElement.addEventListener("contextmenu", (e: Event) =>
       e.stopPropagation(),
-    );
-
-    // Independent cursor tracking for idbuffer hover. Cheap (records coords);
-    // consulted by the hover pump.
-    this.renderer.domElement.addEventListener(
-      "pointermove",
-      this._onIdHoverMove,
-    );
-    this.renderer.domElement.addEventListener(
-      "pointerleave",
-      this._onIdHoverLeave,
     );
 
     this.display.setupUI(this, this.renderer.domElement);
@@ -929,202 +891,6 @@ class Viewer {
     }
   }
 
-  // --- GPU id-buffer hover ---
-
-  /** Record the cursor position over the canvas. */
-  private _onIdHoverMove = (e: PointerEvent): void => {
-    this._idHoverClientX = e.clientX;
-    this._idHoverClientY = e.clientY;
-    this._idHoverInside = true;
-    // Always-on hover: with no animation loop running (no active tool), the
-    // viewer only re-renders on camera change, so a bare mouse-move wouldn't update the
-    // preselection. Drive a render here, throttled to one per frame. During a tool the
-    // RAF loop already pumps update(), so skip then.
-    if (
-      this._hoverPreselectActive() &&
-      this.ready &&
-      !this.hasAnimationLoop &&
-      !this._idHoverRenderQueued &&
-      !this.rendered.controls.isInteracting() // during a drag the controls listener renders
-    ) {
-      this._idHoverRenderQueued = true;
-      requestAnimationFrame(() => {
-        this._idHoverRenderQueued = false;
-        // updateMarker=true: every render clears the frame, so the orientation marker
-        // must be redrawn or it vanishes on the first hover render. notify=false: a
-        // hover changes no state.
-        if (this.ready && !this.hasAnimationLoop) this.update(true, false);
-      });
-    }
-  };
-
-  /** Cursor left the canvas → clear any hover highlight. */
-  private _onIdHoverLeave = (): void => {
-    this._idHoverInside = false;
-    this.rendered?.nestedGroup?.highlight?.setHover(null);
-  };
-
-  /**
-   * Whether hover preselection (highlight + status line) is active. Disabled for GDS:
-   * dense, stacked, instance-unrolled layout data where per-pixel hover flickers
-   * endlessly and the B-rep readout ("area ≈ …") is meaningless, so GDS is
-   * double-click-identify only. Double-click `pick()` is independent of this — it calls
-   * `pickAt` directly — so GDS stays pickable with hover off.
-   */
-  private _hoverPreselectActive(): boolean {
-    return this.shapes?.format !== "GDS";
-  }
-
-  /**
-   * Hover via the GPU id picker on the compact graph: resolve the component under the
-   * cursor and drive the shader `HighlightController`. Sets `lastObject` (committed on
-   * left-click by `_commitSelection` when a tool is active). Cursor coords come from the
-   * independent pointermove listener; the topo filter from the dropdown.
-   */
-  private _handleIdHover(): void {
-    const highlight = this.rendered?.nestedGroup?.highlight ?? null;
-    if (this.idPicker === null || highlight === null) return;
-    // Clear hover (keeping any selection), the status line, and the hover target.
-    const release = (): void => {
-      this._releaseLastSelected();
-      this.lastObject = null;
-      this.display.setStatusLine("");
-    };
-    if (!this._idHoverInside) {
-      release();
-      return;
-    }
-    const rect = this.renderer.domElement.getBoundingClientRect();
-    const x = this._idHoverClientX - rect.left;
-    const y = this._idHoverClientY - rect.top;
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
-      release();
-      return;
-    }
-    const filter = this.display.shapeFilterDropDownMenu.currentFilter;
-    const fromSolid = filter.includes(TopoFilter.solid);
-    const topoFilter = pickerTopoFilter(filter);
-    const hit = this.idPicker.pickAt(
-      x,
-      y,
-      topoFilter === undefined ? {} : { topoFilter },
-    );
-    // F10: the vertex/edge pick layers stay active even when the owning solid is
-    // hidden (visibility lives on the mesh material, not the pick layer), so gate the
-    // pick on visibility — otherwise a hidden component could be hovered AND selected.
-    if (hit === null || !this._pickVisible(hit.info)) {
-      release();
-      return;
-    }
-    const picked: PickedComponent = new IdPicked(
-      hit.info,
-      fromSolid,
-      hit.point,
-      highlight,
-    );
-    if (!picked.equals(this.lastObject)) {
-      this._releaseLastSelected();
-      picked.highlight(true);
-      // committed on left-click by _commitSelection (toggleSelection)
-      this.lastObject = picked;
-      // Cache only the COORD-FREE texts (face `area`, solid `counts`+`vol`): these are
-      // invariant under rigid motion (explode/animation), so they never go stale from a
-      // part moving — only z-scale (changes area/volume) + model reload clear the cache.
-      // Edge/vertex texts carry WORLD-space coords, so recompute them live each time the
-      // hovered component changes (correct after explode/animation without invalidation).
-      const cacheable = fromSolid || hit.info.topo === "face";
-      let text: string;
-      if (cacheable) {
-        const key =
-          fromSolid && hit.info.solidPath !== null
-            ? `S:${hit.info.solidPath}`
-            : hit.info.path;
-        const cached = this._hoverStatusCache.get(key);
-        if (cached !== undefined) {
-          text = cached;
-        } else {
-          text = this._hoverStatusText(hit.info, fromSolid);
-          this._hoverStatusCache.set(key, text);
-        }
-      } else {
-        text = this._hoverStatusText(hit.info, fromSolid);
-      }
-      this.display.setStatusLine(text);
-    }
-  }
-
-  /**
-   * Status-line text for a hovered component — FIXED attributes only, no
-   * backend, no live cursor coord, NO path (the object is identified via the tree on
-   * double-click). Mesh-estimated length/area/volume are shown with `≈` (BRep-grade
-   * values come from the measurement tool). face: `geom: area ≈ A`; edge:
-   * `geom: len ≈ L, start/end`; vertex: coords; solid: `SOLID: N faces, M edges, vol ≈ V`.
-   */
-  private _hoverStatusText(info: ComponentInfo, fromSolid: boolean): string {
-    const provider = this.rendered.nestedGroup.meshGeometry;
-    const f2 = (n: number): string => n.toFixed(2);
-    if (fromSolid && info.solidPath !== null) {
-      // Solid face/edge totals from the tessellation type arrays (len(face_types) /
-      // len(edge_types)). Per-face edge counts are NOT derivable (no face→edge map).
-      const c = provider.nodeCounts(info.solidPath);
-      if (c === null) return "solid";
-      const g = provider.resolve(info.solidPath);
-      const vol = g !== null ? `, vol ≈ ${f2(meshVolume(g))}` : "";
-      return `solid: ${c.faces} faces, ${c.edges} edges${vol}`;
-    }
-    const geom = provider.resolve(info.path);
-    const pt = (a: Float32Array, o: number): string =>
-      `(${f2(a[o])}, ${f2(a[o + 1])}, ${f2(a[o + 2])})`;
-    if (info.topo === "vertex") {
-      const p = geom?.positions;
-      return p && p.length >= 3 ? `vertex: ${pt(p, 0)}` : "";
-    }
-    const gt = geom != null ? displayGeomType(info.topo, geom.geomType) : "";
-    if (info.topo === "edge") {
-      const p = geom?.positions;
-      if (geom != null && p != null && p.length >= 6) {
-        const len = f2(polylineLength(geom));
-        const start = pt(p, 0);
-        const end = pt(p, p.length - 3);
-        // closed edge (e.g. circle): start === end → show one point
-        return start === end
-          ? `${gt}: len ≈ ${len}, at=${start}`
-          : `${gt}: len ≈ ${len}, start=${start}, end=${end}`;
-      }
-      return gt;
-    }
-    // face
-    return geom != null ? `${gt}: area ≈ ${f2(triangulatedArea(geom))}` : gt;
-  }
-
-  /**
-   * Whether the component a pick resolved to is currently visible — used to drop picks
-   * of hidden geometry. Visibility is the owning group's material `visible` flag
-   * (faces for solids/standalone faces; edge/vertex materials for standalone leaves).
-   */
-  private _pickVisible(info: ComponentInfo): boolean {
-    const ng = this.rendered.nestedGroup;
-    const ownerPath = leafPath(info);
-    const g = ng.groups[ownerPath];
-    if (!(g instanceof ObjectGroup)) return true; // unknown owner → don't block
-    const vis = (
-      m: THREE.Material | THREE.Material[] | null | undefined,
-    ): boolean =>
-      m == null ? false : Array.isArray(m) ? m.some((x) => x.visible) : m.visible;
-    if (info.topo === "vertex") {
-      // a solid's vertices are pick-only (no visual) → follow the solid's faces/edges;
-      // a standalone vertex node has its own material.
-      if (info.solidPath !== null) {
-        return vis(g.front?.material) || vis(g.edgeMaterial);
-      }
-      return vis(g.vertices?.material);
-    }
-    if (info.topo === "edge") {
-      return vis(g.edgeMaterial) || vis(g.front?.material);
-    }
-    return vis(g.front?.material);
-  }
-
   /**
    * Notifies the states by checking for changes and passing the states to the checkChanges method.
    */
@@ -1167,15 +933,9 @@ class Viewer {
       this.renderer.clear();
     }
 
-    if (this._hoverPreselectActive()) {
-      // Hover preselection is always-on for non-GDS models (a tool is not required for
-      // hover-preselection + the status line). Coords come from the independent
-      // pointermove listener, the topo filter from the dropdown. GDS is excluded
-      // (double-click-identify only — see `_hoverPreselectActive`).
-      if (!this.rendered.controls.isInteracting()) {
-        this._handleIdHover();
-      }
-    }
+    // Hover preselection (always-on for non-GDS models; gated internally on the
+    // active drag and the GDS format).
+    this.pickingController.handleHover();
 
     this.rendered.gridHelper.update(this.rendered.camera.getZoom());
 
@@ -1359,21 +1119,10 @@ class Viewer {
   dispose(): void {
     this.clear();
 
-    // Remove the idbuffer-hover listeners (they hold a strong ref to this Viewer via
-    // the arrow-field handlers; in external-canvas mode the caller owns the canvas, so
-    // not removing them would leak the disposed Viewer).
-    this.renderer.domElement.removeEventListener(
-      "pointermove",
-      this._onIdHoverMove,
-    );
-    this.renderer.domElement.removeEventListener(
-      "pointerleave",
-      this._onIdHoverLeave,
-    );
-
-    // remove the idbuffer-native selection listeners if a tool was active when
-    // disposed (no-op if already inactive — setSelectionInput is guarded).
-    this.setSelectionInput(false);
+    // Remove all picking listeners (they hold a strong ref to this Viewer via the
+    // controller's arrow-field handlers; in external-canvas mode the caller owns the
+    // canvas, so not removing them would leak the disposed Viewer).
+    this.pickingController.dispose();
 
     // dispose studio resources (composer, floor, env, shadows — must be before renderer)
     this._studioManager.dispose();
@@ -1423,13 +1172,10 @@ class Viewer {
    */
   clear(): void {
     if (this._rendered) {
-      // Drop selection state — its PickedComponent may hold a HighlightController /
-      // ObjectGroup that this clear() disposes; a stale hover-release would otherwise
-      // touch a disposed controller on the next pick.
-      this.lastObject = null;
-      this.lastSelection = null;
-      this._hoverStatusCache.clear();
-      this.display.setStatusLine(""); // don't leave stale hover text on reload
+      // Drop selection state + hover cache + status line — a PickedComponent may hold
+      // a HighlightController / ObjectGroup that this clear() disposes; a stale
+      // hover-release would otherwise touch a disposed controller on the next pick.
+      this.pickingController.reset();
 
       // stop animation
       this.hasAnimationLoop = false;
@@ -2521,180 +2267,33 @@ class Viewer {
   };
 
   // ---------------------------------------------------------------------------
-  // Object Picking & Selection
+  // Object Picking & Selection (delegated to PickingController)
   // ---------------------------------------------------------------------------
 
+  /** Component under the cursor (hover); committed on left-click. */
+  get lastObject(): PickedComponent | null {
+    return this.pickingController.lastObject;
+  }
+
+  /** Last committed selection. */
+  get lastSelection(): PickedComponent | null {
+    return this.pickingController.lastSelection;
+  }
+
+  /** Enable/disable the double-click pick handler (on when no tool is active). */
   setPickHandler(flag: boolean): void {
-    if (flag) {
-      this.renderer.domElement.addEventListener("dblclick", this.pick, false);
-    } else {
-      this.renderer.domElement.removeEventListener(
-        "dblclick",
-        this.pick,
-        false,
-      );
-    }
+    this.pickingController.setPickHandler(flag);
   }
 
-  /**
-   * Find the shape that was double clicked and send notification
-   * @param e - a DOM PointerEvent or MouseEvent
-   */
-  pick = (e: PointerEvent | MouseEvent): void => {
-    this._pickId(e);
-  };
-
-  /**
-   * Double-click pick via the GPU id picker: `idPicker.pickAt` resolves the component
-   * under the cursor on the compact graph, the registry gives its owning tree-leaf path
-   * (`leafPath`), and the readback world-space `point` feeds `handlePick` (the
-   * `shift && meta` camera target, with a bbox-center fallback when `point` is null).
-   * No topo filter: a double-click selects whatever is under the cursor and resolves it
-   * to its leaf.
-   */
-  private _pickId(e: PointerEvent | MouseEvent): void {
-    if (this.idPicker === null) return;
-    const rect = this.renderer.domElement.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
-    const hit = this.idPicker.pickAt(x, y);
-    // F10: a hidden solid's edge/vertex pick layers stay active — gate on visibility
-    // so a hidden component cannot be double-click picked (matches hover/select).
-    if (hit === null || !this._pickVisible(hit.info)) return;
-    const leaf = leafPath(hit.info);
-    const slash = leaf.lastIndexOf("/");
-    if (slash < 0) return;
-    this.handlePick(
-      leaf.slice(0, slash),
-      leaf.slice(slash + 1),
-      KeyMapper.get(e, "meta"),
-      KeyMapper.get(e, "shift"),
-      KeyMapper.get(e, "alt"),
-      hit.point,
-      null,
-      false,
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // CAD Tools & Selection
-  // ---------------------------------------------------------------------------
-
-  clearSelection = (): void => {
-    this.rendered.nestedGroup.clearSelection();
-    this.cadTools.handleResetSelection();
-    this.lastObject = null;
-    this.lastSelection = null;
-  };
-
-  _releaseLastSelected = (): void => {
-    if (this.lastObject != null) {
-      this.lastObject.unhighlight(true);
-    }
-  };
-
-  _removeLastSelected = (): void => {
-    if (this.lastSelection != null) {
-      this.lastSelection.unhighlight(false);
-      this.rendered.treeview.toggleLabelColor(null, this.lastSelection.backendId);
-      this.lastSelection = null;
-      this.lastObject = null;
-    }
-    this.cadTools.handleRemoveLastSelection(true);
-  };
-
-  /**
-   * idbuffer click/key selection. Adds/removes the canvas mousedown+mouseup and
-   * document keydown listeners (idempotent, guarded on `_selectionInputActive`). The
-   * hover path (`_handleIdHover`) maintains `this.lastObject`; these handlers commit it
-   * on left-click and handle the key + right-click actions.
-   * @param flag - turn selection input on or off
-   */
+  /** Enable/disable click+key selection input (on while a select/measure tool is active). */
   setSelectionInput(flag: boolean): void {
-    if (flag === this._selectionInputActive) return;
-    if (flag) {
-      this.renderer.domElement.addEventListener(
-        "mousedown",
-        this._onSelectMouseDown,
-        false,
-      );
-      this.renderer.domElement.addEventListener(
-        "mouseup",
-        this._onSelectMouseUp,
-        false,
-      );
-      // Keyboard listener is on document (canvas doesn't receive focus).
-      document.addEventListener("keydown", this._onSelectKeyDown, false);
-      this._selectionInputActive = true;
-    } else {
-      this.renderer.domElement.removeEventListener(
-        "mousedown",
-        this._onSelectMouseDown,
-      );
-      this.renderer.domElement.removeEventListener(
-        "mouseup",
-        this._onSelectMouseUp,
-      );
-      document.removeEventListener("keydown", this._onSelectKeyDown);
-      this._selectDownPosition = null;
-      this._selectionInputActive = false;
-    }
+    this.pickingController.setSelectionInput(flag);
   }
 
-  // Record the camera position at mousedown for LEFT/RIGHT (used at mouseup to
-  // distinguish a click from an orbit drag).
-  private _onSelectMouseDown = (e: MouseEvent): void => {
-    if (e.button === THREE.MOUSE.LEFT || e.button === THREE.MOUSE.RIGHT) {
-      this._selectDownPosition = this.rendered.camera.getPosition().clone();
-    }
+  /** Clear the current selection (and reset the select tool). */
+  clearSelection = (): void => {
+    this.pickingController.clearSelection();
   };
-
-  // On mouseup, fire only if the camera did not move (a click, not an orbit drag).
-  // LEFT → commit the hovered object; RIGHT → remove the last selection.
-  private _onSelectMouseUp = (e: MouseEvent): void => {
-    if (this._selectDownPosition == null) return;
-    if (e.button === THREE.MOUSE.LEFT) {
-      if (
-        this._selectDownPosition.distanceTo(
-          this.rendered.camera.getPosition(),
-        ) < 1e-6
-      ) {
-        this._commitSelection(KeyMapper.get(e, "shift"));
-      }
-    } else if (e.button === THREE.MOUSE.RIGHT) {
-      if (
-        this._selectDownPosition.distanceTo(
-          this.rendered.camera.getPosition(),
-        ) < 1e-6
-      ) {
-        this._removeLastSelected();
-      }
-    }
-  };
-
-  // Escape → clear selection; Backspace → remove last selection.
-  private _onSelectKeyDown = (e: KeyboardEvent): void => {
-    if (e.key === "Escape") {
-      this.clearSelection();
-    } else if (e.key === "Backspace") {
-      this._removeLastSelected();
-    }
-  };
-
-  // Commit the currently-hovered object as a selection. `this.lastObject` is
-  // maintained by the idbuffer hover path (_handleIdHover).
-  private _commitSelection(shift: boolean): void {
-    if (this.lastObject == null) return;
-    // one object for a selected vertex, edge and face and multiple faces for a solid
-    this.lastObject.toggleSelection();
-    this.cadTools.handleSelectedObj(
-      this.lastObject,
-      !this.lastObject.equals(this.lastSelection),
-      shift,
-    );
-    this.lastSelection = this.lastObject;
-  }
 
   /**
    * Handle a backend response sent by the backend
@@ -3515,7 +3114,7 @@ class Viewer {
     // cadence in update() only diffs the camera, so invalidate the pick buffer here.
     this.idPicker?.setDirty();
     // world-space lengths/areas/coords change with z-scale → drop the hover cache.
-    this._hoverStatusCache.clear();
+    this.pickingController.invalidateHoverCache();
     this.update(true);
   }
 

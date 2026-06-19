@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import type { TopoType } from "../../rendering/id-picking.js";
+import type { TopoType, ComponentInfo } from "../../rendering/id-picking.js";
 import type { ToolType } from "./tools.js";
 
 /**
@@ -242,6 +242,53 @@ export function meshVolume(geom: MeshComponentGeometry): number {
     v6 += a.dot(_cross.crossVectors(b, c));
   }
   return Math.abs(v6) / 6;
+}
+
+/**
+ * Status-line text for a hovered component — FIXED attributes only, no backend, no
+ * live cursor coord, NO path (the object is identified via the tree on double-click).
+ * Mesh-estimated length/area/volume are shown with `≈` (BRep-grade values come from
+ * the measurement tool). face: `geom: area ≈ A`; edge: `geom: len ≈ L, start/end`;
+ * vertex: coords; solid: `solid: N faces, M edges, vol ≈ V`.
+ */
+export function hoverStatusText(
+  info: ComponentInfo,
+  fromSolid: boolean,
+  provider: MeshGeometrySource,
+): string {
+  const f2 = (n: number): string => n.toFixed(2);
+  if (fromSolid && info.solidPath !== null) {
+    // Solid face/edge totals from the tessellation type arrays (len(face_types) /
+    // len(edge_types)). Per-face edge counts are NOT derivable (no face→edge map).
+    const c = provider.nodeCounts(info.solidPath);
+    if (c === null) return "solid";
+    const g = provider.resolve(info.solidPath);
+    const vol = g !== null ? `, vol ≈ ${f2(meshVolume(g))}` : "";
+    return `solid: ${c.faces} faces, ${c.edges} edges${vol}`;
+  }
+  const geom = provider.resolve(info.path);
+  const pt = (a: Float32Array, o: number): string =>
+    `(${f2(a[o])}, ${f2(a[o + 1])}, ${f2(a[o + 2])})`;
+  if (info.topo === "vertex") {
+    const p = geom?.positions;
+    return p && p.length >= 3 ? `vertex: ${pt(p, 0)}` : "";
+  }
+  const gt = geom != null ? displayGeomType(info.topo, geom.geomType) : "";
+  if (info.topo === "edge") {
+    const p = geom?.positions;
+    if (geom != null && p != null && p.length >= 6) {
+      const len = f2(polylineLength(geom));
+      const start = pt(p, 0);
+      const end = pt(p, p.length - 3);
+      // closed edge (e.g. circle): start === end → show one point
+      return start === end
+        ? `${gt}: len ≈ ${len}, at=${start}`
+        : `${gt}: len ≈ ${len}, start=${start}, end=${end}`;
+    }
+    return gt;
+  }
+  // face
+  return geom != null ? `${gt}: area ≈ ${f2(triangulatedArea(geom))}` : gt;
 }
 
 /** Axis-aligned bounding box of a component's vertices. */
