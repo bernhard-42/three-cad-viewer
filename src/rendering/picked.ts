@@ -1,18 +1,12 @@
 import type * as THREE from "three";
-import type { PickedObject } from "./raycast.js";
 import type { ComponentInfo, TopoType } from "./id-picking.js";
 import type { HighlightController } from "./highlight.js";
 
 /**
- * A picked component, abstracted over the two picking backends so the viewer's
- * selection state and the measure/select tools consume ONE interface:
- * - {@link RaycastPicked} wraps the legacy `PickedObject`/`ObjectGroup` (the dormant
- *   `"raycast"` fallback);
- * - {@link IdPicked} wraps a registry `ComponentInfo` + the shader `HighlightController`
- *   (the compact-graph `"idbuffer"` path) — NO dependency on the exploded scene graph.
- *
- * Replaces the consumers' previous reach into `PickedObject.objs()` → per-component
- * `ObjectGroup` (highlight/unhighlight/toggleSelection/clearHighlights) + `.obj.name`.
+ * A picked component, so the viewer's selection state and the measure/select
+ * tools consume ONE interface. {@link IdPicked} wraps a registry `ComponentInfo`
+ * + the shader `HighlightController` (the GPU id-pick path) — NO dependency on the
+ * exploded scene graph.
  */
 export interface PickedComponent {
   /** Canonical "/"-path sent to the backend (component path, or solid path when
@@ -36,70 +30,6 @@ export interface PickedComponent {
   clearHighlights(): void;
   /** Identity equality (same component / same solid), for hover + isNewObject dedup. */
   equals(other: PickedComponent | null): boolean;
-}
-
-/**
- * `PickedComponent` over the legacy raycaster result. Forwards to the per-component
- * `ObjectGroup` methods on the exploded graph, preserving the exact pre-migration
- * behavior (identity by `ObjectGroup.name`).
- */
-export class RaycastPicked implements PickedComponent {
-  constructor(
-    private readonly picked: PickedObject,
-    private readonly delim: string,
-  ) {}
-
-  get backendId(): string {
-    const name = this.picked.obj.name;
-    if (this.picked.fromSolid) {
-      const solid = name
-        .replace(/\|faces.*$/, "")
-        .replace(/\|edges.*$/, "")
-        .replace(/\|vertices.*$/, "");
-      return solid.replaceAll(this.delim, "/");
-    }
-    return name.replaceAll(this.delim, "/");
-  }
-
-  get name(): string {
-    const parts = this.picked.obj.name.split(this.delim);
-    return parts[parts.length - 1];
-  }
-
-  get topo(): TopoType {
-    return (this.picked.obj.shapeInfo?.topo ?? "face") as TopoType;
-  }
-
-  get fromSolid(): boolean {
-    return this.picked.fromSolid;
-  }
-
-  get point(): THREE.Vector3 | null {
-    return null; // the CPU raycaster path does not carry the hit point here
-  }
-
-  highlight(asHover: boolean): void {
-    for (const o of this.picked.objs()) o.highlight(asHover);
-  }
-
-  unhighlight(keepSelected: boolean): void {
-    for (const o of this.picked.objs()) o.unhighlight(keepSelected);
-  }
-
-  toggleSelection(): void {
-    for (const o of this.picked.objs()) o.toggleSelection();
-  }
-
-  clearHighlights(): void {
-    for (const o of this.picked.objs()) o.clearHighlights();
-  }
-
-  equals(other: PickedComponent | null): boolean {
-    return (
-      other instanceof RaycastPicked &&
-      other.picked.obj.name === this.picked.obj.name
-    );
-  }
 }
 
 /**

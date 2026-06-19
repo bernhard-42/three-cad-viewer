@@ -47,7 +47,7 @@ interface ShapeData {
   triangles_per_face?: number[] | Uint32Array;
   segments_per_edge?: number[] | Uint32Array;
   // Real B-rep corner vertices (the selectable ones); used to build the pick-only
-  // vertex Points cloud for id-based picking (Phase 2b).
+  // vertex Points cloud for id-based picking.
   obj_vertices?: Float32Array | number[];
   // Per-component OCP geom types (normalized to Uint32Array in render-shape.ts);
   // used by the internal measurement backend for exact geom_type.
@@ -87,7 +87,6 @@ interface ShapeEntry {
   state: number[];
   loc?: [[number, number, number], [number, number, number, number]];
   renderback?: boolean;
-  exploded?: boolean;
   geomtype?: number | null;
   subtype?: string | null;
   texture?: { image: TextureData; width: number; height: number };
@@ -202,17 +201,15 @@ class NestedGroup {
   bsphere: THREE.Sphere | null;
   groups!: GroupsMap; // Initialized to {} in constructor
   /**
-   * id-based-picking component registry (Migration-ID-Picking.md). Populated for
-   * the compact group only (`assignIds === true`); the exploded group leaves it
-   * empty and it is removed in Phase 6.
+   * id-based-picking component registry: maps each per-vertex `componentId` to its
+   * `ComponentInfo` for the GPU picker (populated when `assignIds === true`).
    */
   registry: ComponentRegistry;
-  /** Whether to assign component ids while rendering (compact group only). */
+  /** Whether to assign component ids while rendering. */
   assignIds: boolean;
   /**
-   * Component-level shader highlight (Phase 3). Created for the compact group only
-   * (`assignIds`); patches visual materials to tint/widen by `componentId`. `null`
-   * for the exploded group (which keeps the old `ObjectGroup.highlight()`).
+   * Component-level shader highlight: patches visual materials to tint/widen by
+   * `componentId` (created when `assignIds`).
    */
   highlight: HighlightController | null;
   /**
@@ -559,7 +556,7 @@ class NestedGroup {
       edges.name = name;
     }
 
-    // Phase 2b-3 (id-based picking): tag a standalone edge node so it is pickable
+    // id-based picking: tag a standalone edge node so it is pickable
     // (per-segment instanced integer componentId + the EDGE pick layer, additive —
     // standalone edges are visual, so layer 0 stays). Compact only.
     if (this.assignIds) {
@@ -574,7 +571,7 @@ class NestedGroup {
       edgeCompId.gpuType = THREE.IntType;
       edges.geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, edgeCompId);
       edges.layers.enable(PICK_LAYER.EDGE);
-      // Phase 3: widen + recolor the flagged segment in-shader (Option A).
+      // widen + recolor the flagged segment in-shader (Option A).
       this.highlight?.patchEdgeMaterial(edges.material);
       // Internal measurement backend: record the standalone edge node's geometry.
       this.meshGeometry.register(
@@ -638,7 +635,7 @@ class NestedGroup {
       points.name = name;
     }
 
-    // Phase 2b (id-based picking): tag a standalone vertex node so it is pickable.
+    // id-based picking: tag a standalone vertex node so it is pickable.
     // These ARE visual (kept on layer 0); add the VERTEX pick layer additively.
     if (this.assignIds) {
       const { componentId } = buildVertexComponentIds(
@@ -651,7 +648,7 @@ class NestedGroup {
       vCompId.gpuType = THREE.IntType;
       geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, vCompId);
       points.layers.enable(PICK_LAYER.VERTEX);
-      // Phase 3: standalone vertices are visible — keep authored size/color when
+      // standalone vertices are visible — keep authored size/color when
       // unflagged, widen + recolor when flagged (no cull).
       this.highlight?.patchVertexMaterial(material);
       // Internal measurement backend: record the standalone vertex node's geometry.
@@ -679,7 +676,6 @@ class NestedGroup {
     color: ColorValue,
     alpha: number | null,
     renderback: boolean,
-    exploded: boolean,
     path: string,
     name: string,
     states: number[],
@@ -763,7 +759,7 @@ class NestedGroup {
         shapeGeometry.setAttribute("uv", new THREE.BufferAttribute(uvArray, 2));
       }
 
-      // Phase 1 (id-based picking): tag each vertex with its face component id
+      // id-based picking: tag each vertex with its face component id
       // on the existing indexed geometry. Compact group only (assignIds); textured
       // faces use PlaneGeometry above and are skipped by construction.
       if (this.assignIds) {
@@ -778,7 +774,7 @@ class NestedGroup {
         const componentIdAttr = new THREE.Uint32BufferAttribute(componentId, 1);
         // Read as an integer vertex attribute by the GLSL3 pick shader
         // (`in uint componentId`); without IntType three uploads it as float and
-        // the bits are wrong (decision D-C).
+        // the bits are wrong.
         componentIdAttr.gpuType = THREE.IntType;
         shapeGeometry.setAttribute(COMPONENT_ID_ATTRIBUTE, componentIdAttr);
         if (collisions > 0) {
@@ -800,12 +796,12 @@ class NestedGroup {
         `MeshStandardMaterial (front) for ${path}`,
       );
       frontMaterial.name = "frontMaterial";
-      // Phase 3: tint by componentId in-shader (compact group only).
+      // tint by componentId in-shader (compact group only).
       this.highlight?.patchFaceMaterial(frontMaterial);
     }
 
     const backColor =
-      group.subtype === "solid" && !exploded
+      group.subtype === "solid"
         ? color
         : new THREE.Color(this.edgeColor)
             .lerp(new THREE.Color(1, 1, 1), 0.15)
@@ -866,7 +862,7 @@ class NestedGroup {
       // Id-based picking: tag each line segment with its edge component id
       // (per-segment instanced attribute on the fat-line geometry) and put the
       // solid's edges on the EDGE pick layer (additive; visual layer 0 kept).
-      // Bind as an integer attribute (Phase 2b-3 edge pick shader reads `in uint`).
+      // Bind as an integer attribute (edge pick shader reads `in uint`).
       // Compact only.
       if (this.assignIds) {
         const { componentId } = buildEdgeComponentIds(
@@ -880,12 +876,12 @@ class NestedGroup {
         edgeCompId.gpuType = THREE.IntType;
         edges.geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, edgeCompId);
         edges.layers.enable(PICK_LAYER.EDGE);
-        // Phase 3: widen + recolor the flagged segment in-shader (Option A).
+        // widen + recolor the flagged segment in-shader (Option A).
         this.highlight?.patchEdgeMaterial(edges.material);
       }
     }
 
-    // Phase 2b (id-based picking): build a pick-only `obj_vertices` Points cloud so
+    // id-based picking: build a pick-only `obj_vertices` Points cloud so
     // the solid's B-rep corners are selectable. Assigned to the VERTEX pick layer
     // ONLY (NOT visual layer 0) so the visual camera never draws it; the material
     // stays `visible:true` because three drops `material.visible===false` objects
@@ -923,7 +919,7 @@ class NestedGroup {
       pickPoints.layers.set(PICK_LAYER.VERTEX); // pick layer only (off visual 0)
       group.add(pickPoints);
 
-      // Phase 3: a SEPARATE visual-highlight Points on visual layer 0 (NOT the pick
+      // a SEPARATE visual-highlight Points on visual layer 0 (NOT the pick
       // layer), sharing the same geometry. Non-flagged points are culled
       // (`gl_PointSize=0` + fragment discard), so a solid's corner shows fat only
       // while highlighted — matching the old visible-vertex look without a CPU walk.
@@ -1012,7 +1008,6 @@ class NestedGroup {
     color: ColorValue,
     alpha: number,
     renderback: boolean,
-    _exploded: boolean,
     path: string,
     name: string,
     states: number[],
@@ -1148,7 +1143,7 @@ class NestedGroup {
   /**
    * Recursively render all shapes in the shape tree.
    * Note: The shapes parameter uses the public Shapes type but internally
-   * contains ShapeEntry/ShapeTree data after decomposition by viewer._decompose()
+   * contains ShapeEntry/ShapeTree data.
    */
   renderLoop(shapes: Shapes): THREE.Group {
     const _render = (
@@ -1188,7 +1183,6 @@ class NestedGroup {
             (shape.color as ColorValue) ?? this.edgeColor,
             1.0,
             shape.renderback == null ? false : shape.renderback,
-            false, //exploded
             shape.id,
             shape.name,
             shape.state,
@@ -1206,7 +1200,6 @@ class NestedGroup {
             shapeColor ?? this.edgeColor,
             shape.alpha ?? null,
             shape.renderback == null ? false : shape.renderback,
-            shape.exploded ?? false,
             shape.id,
             shape.name,
             shape.state,
@@ -1239,7 +1232,7 @@ class NestedGroup {
     this.groups[shapes.id] = group;
     group.name = shapes.id.replaceAll("/", "|");
 
-    // shapes.parts contains ShapeEntry | ShapeTree after viewer._decompose()
+    // shapes.parts contains ShapeEntry | ShapeTree
     for (const shape of shapes.parts!) {
       if (isShapeTree(shape)) {
         group.add(this.renderLoop(shape));
@@ -1276,7 +1269,7 @@ class NestedGroup {
     this.materialsTable = this.shapes.materials || null;
     this.resolvedMaterials.clear();
     this.resolvedMaterialX.clear();
-    // Phase 3: the highlight controller must exist before renderLoop so each
+    // the highlight controller must exist before renderLoop so each
     // visual material is patched as it is created. Compact group only.
     if (this.assignIds) {
       this.highlight = new HighlightController(this.registry);
@@ -1339,7 +1332,7 @@ class NestedGroup {
     for (const object of this.selection()) {
       object.clearHighlights();
     }
-    // Phase 3: compact group highlight is shader-driven, not per-ObjectGroup.
+    // compact group highlight is shader-driven, not per-ObjectGroup.
     this.highlight?.clear();
   }
 

@@ -57,22 +57,13 @@ import {
 } from "../tools/cad_tools/mesh-measure.js";
 import { version } from "../_version.js";
 import {
-  PickedObject,
-  Raycaster,
+  IdPicker,
   TopoFilter,
   type TopoFilterType,
-} from "../rendering/raycast.js";
-import {
-  IdPicker,
-  type PickingMode,
   type TopoType,
   type ComponentInfo,
 } from "../rendering/id-picking.js";
-import {
-  RaycastPicked,
-  IdPicked,
-  type PickedComponent,
-} from "../rendering/picked.js";
+import { IdPicked, type PickedComponent } from "../rendering/picked.js";
 import { StudioManager } from "./studio-manager.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
@@ -148,24 +139,6 @@ interface ResetLocation {
 }
 
 /**
- * Type guard to check if a tree node is a leaf (VisibilityState)
- */
-function isVisibilityState(
-  node: ShapeTreeData | VisibilityState,
-): node is VisibilityState {
-  return Array.isArray(node);
-}
-
-/**
- * Type guard to check if a tree node is a branch (ShapeTreeData)
- */
-function isShapeTreeData(
-  node: ShapeTreeData | VisibilityState,
-): node is ShapeTreeData {
-  return !Array.isArray(node);
-}
-
-/**
  * Keymap configuration - re-export from utils for API compatibility.
  */
 type KeymapConfig = Partial<KeyMappingConfig>;
@@ -214,15 +187,6 @@ interface ImageResult {
 }
 
 /**
- * Raycast event from keyboard or mouse.
- */
-interface RaycastEvent {
-  key?: string;
-  mouse?: "left" | "right";
-  shift?: boolean;
-}
-
-/**
  * Backend response structure.
  */
 interface BackendResponse {
@@ -245,7 +209,6 @@ function isToolResponse(
 interface DisplayOptionsInternal {
   measureTools?: boolean;
   externalMeasurementBackend?: boolean;
-  pickingMode?: PickingMode;
   selectTool?: boolean;
   explodeTool?: boolean;
   zscaleTool?: boolean;
@@ -278,7 +241,7 @@ interface RenderedState {
   clipping: Clipping;
   orientationMarker: OrientationMarker;
 
-  // These can change during lifetime (via toggleGroup)
+  // Reassigned on each render() / reload
   nestedGroup: NestedGroup;
   treeview: TreeView;
 }
@@ -405,23 +368,13 @@ class Viewer {
   bboxNeedsUpdate: boolean;
   keepHighlight: boolean;
 
-  // Tree structures for expanded/compact views
-  expandedTree: ShapeTreeData | null;
+  // Compact-graph tree + nested group (rebuilt on each render / reload)
   compactTree: ShapeTreeData | null;
-  expandedNestedGroup: NestedGroup | null;
   compactNestedGroup: NestedGroup | null;
 
-  // Raycaster
-  raycaster: Raycaster | null;
-
-  // Picking strategy. Transient migration flag (see Migration-ID-Picking.md):
-  // "raycast" = current CPU raycaster; "idbuffer" = GPU id-based picking.
-  // Not plumbed into ViewerState yet — promote only if a UI toggle is wanted.
-  _pickingMode: PickingMode = "raycast";
-
-  // Phase 4a idbuffer hover: cursor position (client px) from an independent
-  // pointermove listener (no raycaster coupling — survives Phase 6), plus snapshots
-  // used to mark the pick buffer stale only on an actual view/clip change.
+  // idbuffer hover: cursor position (client px) from an independent pointermove
+  // listener, plus snapshots used to mark the pick buffer stale only on an actual
+  // view/clip change.
   private _idHoverClientX = 0;
   private _idHoverClientY = 0;
   private _idHoverInside = false;
@@ -435,9 +388,17 @@ class Viewer {
   private _lastPickProj: number[] | null = null;
   private _lastClipSig = "";
 
-  // GPU id-based picker (Phase 2a: faces). Created/attached per render() once the
-  // scene + compact registry exist; not yet routed into selection (Phase 4).
+  // GPU id-based picker. Created/attached per render() once the scene + compact
+  // registry exist; drives hover, selection, measure and double-click pick.
   idPicker: IdPicker | null = null;
+
+  // idbuffer click/key selection. Tool-scoped listeners (added on tool enable via
+  // setSelectionInput, removed on disable) that deliver clicks/keys. The hover path
+  // maintains the hovered `lastObject`; a click commits it. `_selectDownPosition` is
+  // the camera position at mousedown, distinguishing a click from an orbit drag (fire
+  // only if the camera did not move between down and up).
+  private _selectionInputActive = false;
+  private _selectDownPosition: THREE.Vector3 | null = null;
 
   // Studio mode orchestration (owns composer, floor, shadow lights, env manager)
   private _studioManager!: StudioManager;
@@ -527,8 +488,6 @@ class Viewer {
     this.meshBackend = new MeshMeasureBackend(
       () => this.compactNestedGroup?.meshGeometry ?? null,
     );
-    this._pickingMode =
-      options.pickingMode === "idbuffer" ? "idbuffer" : "raycast";
 
     this.ready = false;
     this.mixer = null;
@@ -574,10 +533,7 @@ class Viewer {
     this.lastNotification = {};
     this.lastBbox = null;
 
-    // measure supporting exploded shapes and compact shapes
-    this.expandedTree = null;
     this.compactTree = null;
-    this.expandedNestedGroup = null;
     this.compactNestedGroup = null;
 
     // If fromSolid is true, this means the selected object is from the solid
@@ -591,7 +547,6 @@ class Viewer {
     this.keepHighlight = false;
 
     this.shapes = null;
-    this.raycaster = null;
 
     // Deprecated properties
     this.clipNormal0 = null;
@@ -606,9 +561,8 @@ class Viewer {
       e.stopPropagation(),
     );
 
-    // Independent cursor tracking for idbuffer hover (Phase 4a) — no raycaster
-    // coupling, so it survives the Phase 6 raycaster removal. Cheap (records coords);
-    // only consulted in idbuffer mode.
+    // Independent cursor tracking for idbuffer hover. Cheap (records coords);
+    // consulted by the hover pump.
     this.renderer.domElement.addEventListener(
       "pointermove",
       this._onIdHoverMove,
@@ -724,13 +678,12 @@ class Viewer {
 
   /**
    * Render the shapes of the CAD object.
-   * @param exploded - Whether to render the compact or exploded version
    * @param shapes - The Shapes object.
    * @returns A nested THREE.Group object and navigation tree.
    */
-  renderTessellatedShapes(exploded: boolean, shapes: Shapes): RenderResult {
+  renderTessellatedShapes(shapes: Shapes): RenderResult {
     const renderer = this.getShapeRenderer();
-    const result = renderer.render(exploded, shapes);
+    const result = renderer.render(shapes);
 
     // Update bbox if the renderer computed one
     if (renderer.bbox) {
@@ -975,14 +928,14 @@ class Viewer {
     }
   }
 
-  // --- Phase 4a: GPU id-buffer hover (idbuffer mode) ---
+  // --- GPU id-buffer hover ---
 
-  /** Record the cursor position over the canvas (independent of the raycaster). */
+  /** Record the cursor position over the canvas. */
   private _onIdHoverMove = (e: PointerEvent): void => {
     this._idHoverClientX = e.clientX;
     this._idHoverClientY = e.clientY;
     this._idHoverInside = true;
-    // Always-on hover (Phase 4d): with no animation loop running (no active tool), the
+    // Always-on hover: with no animation loop running (no active tool), the
     // viewer only re-renders on camera change, so a bare mouse-move wouldn't update the
     // preselection. Drive a render here, throttled to one per frame. During a tool the
     // RAF loop already pumps update(), so skip then.
@@ -1011,14 +964,14 @@ class Viewer {
   };
 
   /**
-   * Whether hover preselection (highlight + status line) is active. Requires idbuffer
-   * mode AND a non-GDS model: GDS is dense, stacked, instance-unrolled layout data where
-   * per-pixel hover flickers endlessly and the B-rep readout ("area ≈ …") is meaningless,
-   * so GDS is double-click-identify only. Double-click `pick()` is independent of this —
-   * it calls `pickAt` directly — so GDS stays pickable with hover off.
+   * Whether hover preselection (highlight + status line) is active. Disabled for GDS:
+   * dense, stacked, instance-unrolled layout data where per-pixel hover flickers
+   * endlessly and the B-rep readout ("area ≈ …") is meaningless, so GDS is
+   * double-click-identify only. Double-click `pick()` is independent of this — it calls
+   * `pickAt` directly — so GDS stays pickable with hover off.
    */
   private _hoverPreselectActive(): boolean {
-    return this._pickingMode === "idbuffer" && this.shapes?.format !== "GDS";
+    return this.shapes?.format !== "GDS";
   }
 
   /** Map the dropdown's topo filter to the picker's `TopoType[]` (none/[null] → all). */
@@ -1030,11 +983,10 @@ class Viewer {
   }
 
   /**
-   * Phase 4a hover via the GPU id picker on the compact graph: resolve the component
-   * under the cursor and drive the shader `HighlightController`. Hover-only — NO
-   * selection commit (that is Phase 4b; a left-click is a no-op under idbuffer because
-   * `handleRaycast` early-returns, so `lastObject` stays null). Cursor coords come from
-   * the independent pointermove listener; the topo filter from the dropdown.
+   * Hover via the GPU id picker on the compact graph: resolve the component under the
+   * cursor and drive the shader `HighlightController`. Sets `lastObject` (committed on
+   * left-click by `_commitSelection` when a tool is active). Cursor coords come from the
+   * independent pointermove listener; the topo filter from the dropdown.
    */
   private _handleIdHover(): void {
     const highlight = this.rendered?.nestedGroup?.highlight ?? null;
@@ -1080,7 +1032,7 @@ class Viewer {
     if (!picked.equals(this.lastObject)) {
       this._releaseLastSelected();
       picked.highlight(true);
-      // committed on click in handleRaycastEvent (left → toggleSelection)
+      // committed on left-click by _commitSelection (toggleSelection)
       this.lastObject = picked;
       // Cache only the COORD-FREE texts (face `area`, solid `counts`+`vol`): these are
       // invariant under rigid motion (explode/animation), so they never go stale from a
@@ -1109,7 +1061,7 @@ class Viewer {
   }
 
   /**
-   * Phase 4d status-line text for a hovered component — FIXED attributes only, no
+   * Status-line text for a hovered component — FIXED attributes only, no
    * backend, no live cursor coord, NO path (the object is identified via the tree on
    * double-click). Mesh-estimated length/area/volume are shown with `≈` (BRep-grade
    * values come from the measurement tool). face: `geom: area ≈ A`; edge:
@@ -1249,20 +1201,13 @@ class Viewer {
     }
 
     if (this._hoverPreselectActive()) {
-      // idbuffer hover is ALWAYS-ON (Phase 4d) for non-GDS models — independent of the
-      // raycaster/raycastMode (a tool is not required for hover-preselection + the status
-      // line; clicks still need a tool, delivered via the raycaster until Phase 6). Coords
-      // come from the independent pointermove listener, the topo filter from the dropdown.
-      // GDS is excluded (double-click-identify only — see `_hoverPreselectActive`).
+      // Hover preselection is always-on for non-GDS models (a tool is not required for
+      // hover-preselection + the status line). Coords come from the independent
+      // pointermove listener, the topo filter from the dropdown. GDS is excluded
+      // (double-click-identify only — see `_hoverPreselectActive`).
       if (!this.rendered.controls.isInteracting()) {
         this._handleIdHover();
       }
-    } else if (
-      this.raycaster &&
-      this.raycaster.raycastMode &&
-      !this.rendered.controls.isInteracting()
-    ) {
-      this.handleRaycast();
     }
 
     this.rendered.gridHelper.update(this.rendered.camera.getZoom());
@@ -1438,7 +1383,7 @@ class Viewer {
    * - WebGL renderer and context
    * - All Three.js objects (geometries, materials, textures)
    * - Event listeners
-   * - CAD tools and raycaster
+   * - CAD tools and id picker
    *
    * After calling dispose(), the viewer instance should not be used.
    *
@@ -1458,6 +1403,10 @@ class Viewer {
       "pointerleave",
       this._onIdHoverLeave,
     );
+
+    // remove the idbuffer-native selection listeners if a tool was active when
+    // disposed (no-op if already inactive — setSelectionInput is guarded).
+    this.setSelectionInput(false);
 
     // dispose studio resources (composer, floor, env, shadows — must be before renderer)
     this._studioManager.dispose();
@@ -1495,10 +1444,6 @@ class Viewer {
     this._pendingDisposal = [];
 
     this.keymap = null;
-    if (this.raycaster) {
-      this.raycaster.dispose();
-      this.raycaster = null;
-    }
   }
 
   /**
@@ -1595,10 +1540,6 @@ class Viewer {
       this.shapes = null;
     }
 
-    if (this.expandedNestedGroup != null) {
-      deepDispose(this.expandedNestedGroup);
-      this.expandedNestedGroup = null;
-    }
     if (this.compactNestedGroup != null) {
       deepDispose(this.compactNestedGroup);
       this.compactNestedGroup = null;
@@ -1616,103 +1557,11 @@ class Viewer {
     this.renderOptions = null;
     this.tree = null;
     this.compactTree = null;
-    this.expandedTree = null;
   }
 
   // ---------------------------------------------------------------------------
   // Scene Rendering & Tree Management
   // ---------------------------------------------------------------------------
-
-  /**
-   * Synchronizes the states of two tree structures recursively.
-   *
-   * @param compactTree - The compact tree structure.
-   * @param expandedTree - The expanded tree structure.
-   * @param exploded - Whether rendering in exploded mode.
-   * @param path - The current path in the tree structure.
-   */
-  syncTreeStates = (
-    compactTree: ShapeTreeData | VisibilityState,
-    expandedTree: ShapeTreeData | VisibilityState,
-    exploded: boolean,
-    path: string,
-  ): void => {
-    // Leaf case: compactTree is a VisibilityState, expandedTree has type/label structure
-    if (isVisibilityState(compactTree)) {
-      // expandedTree must be ShapeTreeData at this point (type level: shapes/edges/vertices)
-      if (!isShapeTreeData(expandedTree)) return;
-      const expandedData = expandedTree;
-
-      if (exploded) {
-        // Apply compact state to all expanded children
-        for (const typeKey in expandedData) {
-          const typeNode = expandedData[typeKey];
-          if (!isShapeTreeData(typeNode)) continue;
-
-          for (const labelKey in typeNode) {
-            const leafState = typeNode[labelKey];
-            if (!isVisibilityState(leafState)) continue;
-
-            const id = `${path}/${typeKey}/${labelKey}`;
-            const objectGroup = this.expandedNestedGroup!.groups[id];
-            if (!isObjectGroup(objectGroup)) continue;
-
-            objectGroup.setShapeVisible(compactTree[0] === 1);
-            // Re-apply clip-mode back visibility when re-showing — see
-            // matching comment in setObject().
-            if (compactTree[0] === 1 && this.expandedNestedGroup!.backVisible) {
-              objectGroup.setBackVisible(true);
-            }
-            objectGroup.setEdgesVisible(compactTree[1] === 1);
-
-            // Sync state (unless disabled = 3)
-            if (leafState[0] !== 3) leafState[0] = compactTree[0];
-            if (leafState[1] !== 3) leafState[1] = compactTree[1];
-          }
-        }
-      } else {
-        // Compute visibility from expanded children
-        const objectGroup = this.compactNestedGroup!.groups[path];
-        if (!isObjectGroup(objectGroup)) return;
-
-        let shapeVisible = false;
-        let edgeVisible = false;
-
-        for (const typeKey in expandedData) {
-          const typeNode = expandedData[typeKey];
-          if (!isShapeTreeData(typeNode)) continue;
-
-          for (const labelKey in typeNode) {
-            const leafState = typeNode[labelKey];
-            if (!isVisibilityState(leafState)) continue;
-
-            if (leafState[0] === 1) shapeVisible = true;
-            if (leafState[1] === 1) edgeVisible = true;
-          }
-        }
-
-        objectGroup.setShapeVisible(shapeVisible);
-        // Re-apply clip-mode back visibility when re-showing — see
-        // matching comment in setObject().
-        if (shapeVisible && this.compactNestedGroup!.backVisible) {
-          objectGroup.setBackVisible(true);
-        }
-        objectGroup.setEdgesVisible(edgeVisible);
-
-        // Sync compact state (unless disabled = 3)
-        if (compactTree[0] !== 3) compactTree[0] = shapeVisible ? 1 : 0;
-        if (compactTree[1] !== 3) compactTree[1] = edgeVisible ? 1 : 0;
-      }
-    } else {
-      // Branch case: recurse into children
-      if (!isShapeTreeData(expandedTree)) return;
-      const expandedData = expandedTree;
-      for (const key in compactTree) {
-        const id = `${path}/${key}`;
-        this.syncTreeStates(compactTree[key], expandedData[key], exploded, id);
-      }
-    }
-  };
 
   /**
    * Get the color of a node from its path
@@ -1739,26 +1588,20 @@ class Viewer {
   /**
    * Build nestedGroup and treeview for initial render.
    * @param scene - The scene to add the group to
-   * @param expanded - whether to render the exploded or compact version
    * @returns The nestedGroup and treeview
    */
-  private buildInitialGroup(
-    scene: THREE.Scene,
-    expanded: boolean,
-  ): { nestedGroup: NestedGroup; treeview: TreeView } {
+  private buildInitialGroup(scene: THREE.Scene): {
+    nestedGroup: NestedGroup;
+    treeview: TreeView;
+  } {
     const timer = new Timer("buildInitialGroup", this.state.get("timeit"));
 
     this.setRenderDefaults(this.renderOptions!);
-    const result = this.renderTessellatedShapes(expanded, this.shapes!);
+    const result = this.renderTessellatedShapes(this.shapes!);
     const nestedGroup = result.group;
 
-    if (expanded) {
-      this.expandedNestedGroup = result.group;
-      this.expandedTree = result.tree;
-    } else {
-      this.compactNestedGroup = result.group;
-      this.compactTree = result.tree;
-    }
+    this.compactNestedGroup = result.group;
+    this.compactTree = result.tree;
 
     // Configure the nested group
     nestedGroup.setTransparent(this.state.get("transparent"));
@@ -1767,9 +1610,9 @@ class Viewer {
     nestedGroup.setRoughness(this.state.get("roughness"));
     nestedGroup.setPolygonOffset(2);
 
-    timer.split(`rendered${expanded ? " exploded" : " compact"} shapes`);
+    timer.split("rendered compact shapes");
 
-    this.tree = expanded ? this.expandedTree : this.compactTree;
+    this.tree = this.compactTree;
     scene.children[0] = nestedGroup.rootGroup!;
     timer.split("added shapes to scene");
 
@@ -1799,122 +1642,6 @@ class Viewer {
     timer.stop();
 
     return { nestedGroup, treeview };
-  }
-
-  /**
-   * Switch the picking strategy at runtime. `"idbuffer"` routes tool hover through the
-   * GPU id picker on the compact graph (Phase 4a); `"raycast"` uses the legacy CPU
-   * raycaster + exploded graph. Marks the id buffer stale so the next pick re-renders.
-   */
-  setPickingMode(mode: PickingMode): void {
-    if (mode === this._pickingMode) return;
-    // Switching mid-tool is incoherent: idbuffer→raycast never builds the exploded
-    // graph the CPU raycaster needs (toggleGroup was a no-op under idbuffer), and a
-    // switch would strand the other path's residual highlight. Require no active tool.
-    if (this.cadTools.enabledTool !== null) {
-      logger.warn(
-        "setPickingMode ignored while a tool is active — disable the tool first",
-      );
-      return;
-    }
-    this._pickingMode = mode;
-    this.idPicker?.setDirty();
-    if (mode !== "idbuffer") {
-      // leaving idbuffer: the hover pump won't run again to clear it
-      this.display.setStatusLine("");
-    }
-  }
-
-  /**
-   * Toggle the two version of the NestedGroup.
-   * Must only be called after render() has completed.
-   * @param expanded - whether to render the exploded or compact version
-   *
-   * No-op under `_pickingMode === "idbuffer"`: id-based picking + shader highlight work
-   * on the COMPACT graph only, so tools (and the explode toggle) keep the compact graph
-   * rather than building the exploded decomposition. (Phase 6 removes the exploded path.)
-   */
-  toggleGroup(expanded: boolean): void {
-    if (!this.rendered) {
-      throw new Error("toggleGroup called before render()");
-    }
-    if (this._pickingMode === "idbuffer") {
-      return;
-    }
-
-    const timer = new Timer("toggleGroup", this.state.get("timeit"));
-
-    const _config = (group: NestedGroup): void => {
-      group.setTransparent(this.state.get("transparent"));
-      group.setBlackEdges(this.state.get("blackEdges"));
-      group.setMetalness(this.state.get("metalness"));
-      group.setRoughness(this.state.get("roughness"));
-      group.setPolygonOffset(2);
-    };
-
-    let nestedGroup: NestedGroup;
-
-    if (
-      (this.compactNestedGroup == null && !expanded) ||
-      (this.expandedNestedGroup == null && expanded)
-    ) {
-      this.setRenderDefaults(this.renderOptions!);
-      const result = this.renderTessellatedShapes(expanded, this.shapes!);
-      nestedGroup = result.group;
-
-      if (expanded) {
-        this.expandedNestedGroup = result.group;
-        this.expandedTree = result.tree;
-      } else {
-        this.compactNestedGroup = result.group;
-        this.compactTree = result.tree;
-      }
-      _config(nestedGroup);
-      timer.split(`rendered${expanded ? " exploded" : " compact"} shapes`);
-    } else {
-      nestedGroup = expanded
-        ? this.expandedNestedGroup!
-        : this.compactNestedGroup!;
-      _config(nestedGroup);
-    }
-
-    // only sync if both trees exist
-    if (this.expandedTree) {
-      this.syncTreeStates(this.compactTree!, this.expandedTree, expanded, "");
-    }
-    timer.split("synched tree states");
-
-    this.tree = expanded ? this.expandedTree : this.compactTree;
-    this.rendered.scene.children[0] = nestedGroup.rootGroup!;
-    this.rendered.nestedGroup = nestedGroup;
-    timer.split("added shapes to scene");
-
-    deepDispose(this.rendered.treeview);
-    if (!this.tree) {
-      throw new Error("Tree not initialized");
-    }
-    const treeview = new TreeView(
-      this.tree,
-      this.display.cadTreeScrollContainer,
-      this.setObject,
-      this.handlePick,
-      this.update,
-      this.notifyStates,
-      this.getNodeColor,
-      this.state.get("theme"),
-      this.state.get("newTreeBehavior"),
-      false,
-    );
-    this.rendered.treeview = treeview;
-
-    this.display.clearCadTree();
-    const t = treeview.create();
-    timer.split("created tree");
-
-    this.display.addCadTree(t);
-    treeview.render();
-    timer.split("rendered tree");
-    timer.stop();
   }
 
   /**
@@ -2003,7 +1730,7 @@ class Viewer {
     // add shapes and cad tree
     //
 
-    const { nestedGroup, treeview } = this.buildInitialGroup(scene, false);
+    const { nestedGroup, treeview } = this.buildInitialGroup(scene);
     timer.split("scene and tree done");
 
     if (!this.bbox) {
@@ -2172,9 +1899,8 @@ class Viewer {
       directLight,
     };
 
-    // GPU id-based picker over the compact registry (Phase 2a: faces). Attached
-    // to the live scene + camera; sized to the canvas. Re-rendered lazily and
-    // clip-synced in update(). Not yet routed into selection (Phase 4).
+    // GPU id-based picker over the compact registry. Attached to the live scene +
+    // camera; sized to the canvas. Re-rendered lazily and clip-synced in update().
     this.idPicker = new IdPicker(this.renderer, nestedGroup.registry);
     this.idPicker.attach(scene, camera);
     this.idPicker.setSize(
@@ -2848,81 +2574,16 @@ class Viewer {
    * @param e - a DOM PointerEvent or MouseEvent
    */
   pick = (e: PointerEvent | MouseEvent): void => {
-    if (this._pickingMode === "idbuffer") {
-      this._pickId(e);
-      return;
-    }
-    const raycaster = new Raycaster(
-      this.rendered.camera,
-      this.renderer.domElement,
-      this.state.get("cadWidth"),
-      this.state.get("height"),
-      this.bb_max / 30,
-      this.rendered.scene.children[0],
-      () => {},
-    );
-    raycaster.init();
-    raycaster.onPointerMove(e);
-
-    const validObjs = raycaster.getIntersectedObjs();
-    if (validObjs.length === 0) {
-      return;
-    }
-
-    // Find first mesh intersection
-    let nearestMesh: THREE.Mesh | null = null;
-    let nearestIntersection: THREE.Intersection | null = null;
-    for (const obj of validObjs) {
-      if (obj.object instanceof THREE.Mesh) {
-        nearestMesh = obj.object;
-        nearestIntersection = obj;
-        break;
-      }
-    }
-    if (nearestMesh == null || nearestIntersection == null) {
-      return;
-    }
-
-    const point = nearestIntersection.point;
-    const shapesFormat = this.shapes?.format;
-    const grandparent = nearestMesh.parent?.parent;
-    const nearest = {
-      path: grandparent ? grandparent.name.replaceAll("|", "/") : "",
-      name: nearestMesh.name,
-      boundingBox:
-        shapesFormat === "GDS"
-          ? new THREE.Box3(
-              point.clone().subScalar(10),
-              point.clone().addScalar(10),
-            )
-          : nearestMesh.geometry.boundingBox,
-      boundingSphere:
-        shapesFormat === "GDS"
-          ? new THREE.Sphere(point, 1)
-          : nearestMesh.geometry.boundingSphere,
-      objectGroup: nearestMesh.parent,
-    };
-    this.handlePick(
-      nearest.path,
-      nearest.name,
-      KeyMapper.get(e, "meta"),
-      KeyMapper.get(e, "shift"),
-      KeyMapper.get(e, "alt"),
-      nearestIntersection.point,
-      null,
-      false,
-    );
-    raycaster.dispose();
+    this._pickId(e);
   };
 
   /**
-   * Phase 5: double-click pick via the GPU id picker (idbuffer mode). Replaces the
-   * ephemeral CPU raycaster — `idPicker.pickAt` resolves the component under the
-   * cursor on the compact graph, the registry gives its owning tree-leaf path
-   * (`_leafPath`, replacing the old `nearestMesh.parent.parent.name` munging), and
-   * the readback world-space `point` feeds `handlePick` (the `shift && meta` camera
-   * target, with a bbox-center fallback when `point` is null). No topo filter: a
-   * double-click selects whatever is under the cursor and resolves it to its leaf.
+   * Double-click pick via the GPU id picker: `idPicker.pickAt` resolves the component
+   * under the cursor on the compact graph, the registry gives its owning tree-leaf path
+   * (`_leafPath`), and the readback world-space `point` feeds `handlePick` (the
+   * `shift && meta` camera target, with a bbox-center fallback when `point` is null).
+   * No topo filter: a double-click selects whatever is under the cursor and resolves it
+   * to its leaf.
    */
   private _pickId(e: PointerEvent | MouseEvent): void {
     if (this.idPicker === null) return;
@@ -2950,7 +2611,7 @@ class Viewer {
   }
 
   // ---------------------------------------------------------------------------
-  // CAD Tools & Raycasting
+  // CAD Tools & Selection
   // ---------------------------------------------------------------------------
 
   clearSelection = (): void => {
@@ -2977,101 +2638,96 @@ class Viewer {
   };
 
   /**
-   * Set raycast mode
-   * @param flag - turn raycast mode on or off
+   * idbuffer click/key selection. Adds/removes the canvas mousedown+mouseup and
+   * document keydown listeners (idempotent, guarded on `_selectionInputActive`). The
+   * hover path (`_handleIdHover`) maintains `this.lastObject`; these handlers commit it
+   * on left-click and handle the key + right-click actions.
+   * @param flag - turn selection input on or off
    */
-  setRaycastMode(flag: boolean): void {
+  setSelectionInput(flag: boolean): void {
+    if (flag === this._selectionInputActive) return;
     if (flag) {
-      // initiate raycasting
-      this.raycaster = new Raycaster(
-        this.rendered.camera,
-        this.renderer.domElement,
-        this.state.get("cadWidth"),
-        this.state.get("height"),
-        this.bb_max / 30,
-        this.rendered.scene.children[0],
-        this.handleRaycastEvent,
+      this.renderer.domElement.addEventListener(
+        "mousedown",
+        this._onSelectMouseDown,
+        false,
       );
-      this.raycaster.init();
+      this.renderer.domElement.addEventListener(
+        "mouseup",
+        this._onSelectMouseUp,
+        false,
+      );
+      // Keyboard listener is on document (canvas doesn't receive focus).
+      document.addEventListener("keydown", this._onSelectKeyDown, false);
+      this._selectionInputActive = true;
     } else {
-      if (this.raycaster) {
-        this.raycaster.dispose();
-      }
-      this.raycaster = null;
+      this.renderer.domElement.removeEventListener(
+        "mousedown",
+        this._onSelectMouseDown,
+      );
+      this.renderer.domElement.removeEventListener(
+        "mouseup",
+        this._onSelectMouseUp,
+      );
+      document.removeEventListener("keydown", this._onSelectKeyDown);
+      this._selectDownPosition = null;
+      this._selectionInputActive = false;
     }
   }
 
-  handleRaycast = (): void => {
-    // idbuffer mode drives hover through the GPU picker (_handleIdHover); the CPU
-    // raycaster path is inert under idbuffer.
-    if (this._pickingMode === "idbuffer") return;
-    const objects = this.raycaster!.getValidIntersectedObjs();
-    if (objects.length > 0) {
-      // highlight hovered object(s)
-      for (const object of objects) {
-        {
-          const objectGroup = object.object.parent;
-          if (!isObjectGroup(objectGroup)) break;
-          const fromSolid = this.raycaster!.filters.topoFilter.includes(
-            TopoFilter.solid,
-          );
-          // one object for a selected vertex, edge and face and multiple faces for a solid
-          const picked: PickedComponent = new RaycastPicked(
-            new PickedObject(objectGroup, fromSolid),
-            this.rendered.nestedGroup.delim,
-          );
-          if (!picked.equals(this.lastObject)) {
-            this._releaseLastSelected();
-            picked.highlight(true);
-            // this object will be handled in handleRaycastEvent after a mouse event
-            this.lastObject = picked;
-          }
-          break;
-        }
+  // Record the camera position at mousedown for LEFT/RIGHT (used at mouseup to
+  // distinguish a click from an orbit drag).
+  private _onSelectMouseDown = (e: MouseEvent): void => {
+    if (e.button === THREE.MOUSE.LEFT || e.button === THREE.MOUSE.RIGHT) {
+      this._selectDownPosition = this.rendered.camera.getPosition().clone();
+    }
+  };
+
+  // On mouseup, fire only if the camera did not move (a click, not an orbit drag).
+  // LEFT → commit the hovered object; RIGHT → remove the last selection.
+  private _onSelectMouseUp = (e: MouseEvent): void => {
+    if (this._selectDownPosition == null) return;
+    if (e.button === THREE.MOUSE.LEFT) {
+      if (
+        this._selectDownPosition.distanceTo(
+          this.rendered.camera.getPosition(),
+        ) < 1e-6
+      ) {
+        this._commitSelection(KeyMapper.get(e, "shift"));
       }
-    } else {
-      // unhighlight hovered object(s)
-      if (this.lastObject != null) {
-        this._releaseLastSelected();
-        this.lastObject = null;
+    } else if (e.button === THREE.MOUSE.RIGHT) {
+      if (
+        this._selectDownPosition.distanceTo(
+          this.rendered.camera.getPosition(),
+        ) < 1e-6
+      ) {
+        this._removeLastSelected();
       }
     }
   };
 
-  handleRaycastEvent = (event: RaycastEvent): void => {
-    if (event.key) {
-      switch (event.key) {
-        case "Escape":
-          this.clearSelection();
-          break;
-        case "Backspace":
-          this._removeLastSelected();
-          break;
-        default:
-          break;
-      }
-    } else {
-      switch (event.mouse) {
-        case "left":
-          if (this.lastObject != null) {
-            // one object for a selected vertex, edge and face and multiple faces for a solid
-            this.lastObject.toggleSelection();
-            this.cadTools.handleSelectedObj(
-              this.lastObject,
-              !this.lastObject.equals(this.lastSelection),
-              event.shift ?? false,
-            );
-            this.lastSelection = this.lastObject;
-          }
-          break;
-        case "right":
-          this._removeLastSelected();
-          break;
-        default:
-          break;
-      }
+  // Escape → clear selection; Backspace → remove last selection.
+  private _onSelectKeyDown = (e: KeyboardEvent): void => {
+    if (e.key === "Escape") {
+      this.clearSelection();
+    } else if (e.key === "Backspace") {
+      this._removeLastSelected();
     }
   };
+
+  // Commit the currently-hovered object as a selection. `this.lastObject` is
+  // maintained by the idbuffer hover path (_handleIdHover).
+  private _commitSelection(shift: boolean): void {
+    if (this.lastObject == null) return;
+    // one object for a selected vertex, edge and face and multiple faces for a solid
+    this.lastObject.toggleSelection();
+    this.cadTools.handleSelectedObj(
+      this.lastObject,
+      !this.lastObject.equals(this.lastSelection),
+      shift,
+    );
+    this.lastSelection = this.lastObject;
+  }
 
   /**
    * Handle a backend response sent by the backend
@@ -4306,12 +3962,6 @@ class Viewer {
     );
     this._applyCurrentSettings(newPaths);
 
-    // Invalidate explode cache
-    if (this.expandedNestedGroup != null) {
-      deepDispose(this.expandedNestedGroup);
-      this.expandedNestedGroup = null;
-      this.expandedTree = null;
-    }
 
     if (options.skipBounds) {
       this._treeNeedsRebuild = true;
@@ -4382,12 +4032,6 @@ class Viewer {
       parentShapes.parts = parentShapes.parts.filter((p) => p.name !== name);
     }
 
-    // Invalidate explode cache
-    if (this.expandedNestedGroup != null) {
-      deepDispose(this.expandedNestedGroup);
-      this.expandedNestedGroup = null;
-      this.expandedTree = null;
-    }
 
     if (options.skipBounds) {
       // Defer disposal: keep materials alive so WebGL shader programs stay
@@ -4671,12 +4315,6 @@ class Viewer {
       this.display.setSliderLimits(newCSize);
     }
 
-    // Invalidate explode cache
-    if (this.expandedNestedGroup != null) {
-      deepDispose(this.expandedNestedGroup);
-      this.expandedNestedGroup = null;
-      this.expandedTree = null;
-    }
 
     // Rebuild treeview if parts were added or removed in this batch
     if (this._treeNeedsRebuild) {
@@ -5178,7 +4816,7 @@ class Viewer {
       // deactivate any active measurement/selection tool. activateTool()
       // already clears animationMode in the reverse direction; this makes
       // the API path symmetric with a UI click. Goes through display.setTool
-      // so cadTools/raycaster/picker get fully cleaned up.
+      // so cadTools/picker get fully cleaned up.
       const currentTool = this.state.get("activeTool");
       if (currentTool) {
         this.display.setTool(currentTool, false);
@@ -5355,12 +4993,6 @@ class Viewer {
 
     // update the this
     this.update(true);
-
-    // update the raycaster
-    if (this.raycaster) {
-      this.raycaster.width = cadWidth;
-      this.raycaster.height = height;
-    }
   }
 
   // ---------------------------------------------------------------------------

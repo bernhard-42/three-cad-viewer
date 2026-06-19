@@ -163,7 +163,7 @@ export class Tools {
   }
 
   /**
-   * Handle selected object from raycaster.
+   * Handle a selected object from the picker.
    */
   handleSelectedObj(
     selectedObj: PickedComponent,

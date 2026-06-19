@@ -4,35 +4,52 @@ import { gpuTracker } from "../utils/gpu-tracker.js";
 import { logger } from "../utils/logger.js";
 
 /**
- * Topology type of a pickable component. Mirrors the values of `TopoFilter` in
- * `raycast.ts` (minus the `none` sentinel).
+ * Topology type of a pickable component. Mirrors the values of `TopoFilter`
+ * below (minus the `none` sentinel).
  */
 export type TopoType = "face" | "edge" | "vertex" | "solid";
 
-/** Picking strategy. The migration flag selects between these. */
-export type PickingMode = "raycast" | "idbuffer";
+/**
+ * Filter types for topology-based picking. `none` is the "no filter" sentinel
+ * (all topos eligible).
+ */
+export const TopoFilter: {
+  none: null;
+  vertex: "vertex";
+  edge: "edge";
+  face: "face";
+  solid: "solid";
+} = {
+  none: null,
+  vertex: "vertex",
+  edge: "edge",
+  face: "face",
+  solid: "solid",
+};
+
+export type TopoFilterType = (typeof TopoFilter)[keyof typeof TopoFilter];
 
 /** Reserved component id meaning "nothing under the cursor". */
 export const BACKGROUND_ID = 0;
 
 /**
  * Name of the per-vertex integer buffer attribute carrying the component id on
- * every pickable geometry (faces in Phase 2a; edges/vertices in 2b). Phase 1
- * already attaches a `Uint32BufferAttribute` under this name; the pick pass reads
- * it as an **integer** attribute (`gpuType = THREE.IntType`, GLSL3 `in uint`) so
- * ids stay exact past 2^24 (decision D-C). The geometry side must set
- * `gpuType = THREE.IntType` on the attribute for the pick shader to read it.
+ * every pickable geometry (faces, edges and vertices). The geometry attaches a
+ * `Uint32BufferAttribute` under this name; the pick pass reads it as an **integer**
+ * attribute (`gpuType = THREE.IntType`, GLSL3 `in uint`) so ids stay exact past
+ * 2^24. The geometry side must set `gpuType = THREE.IntType` on the attribute for
+ * the pick shader to read it.
  */
 export const COMPONENT_ID_ATTRIBUTE = "componentId";
 
 /**
- * three.js camera/object layers reserved for the pick passes (decision D-layers).
+ * three.js camera/object layers reserved for the pick passes.
  *
  * A pickable object lives on visual layer 0 (so the main camera draws it) **and**
  * its topo's pick layer. The pick pass sets the (reused) main camera to a single
  * pick layer so `overrideMaterial` only touches one topo at a time — a mesh shader
  * can't render lines/points. `obj_vertices` points live on `VERTEX` *only* (off the
- * visual pass). Phase 2a uses `FACE`; `EDGE`/`VERTEX` are reserved for 2b.
+ * visual pass).
  */
 export const PICK_LAYER = {
   FACE: 1,
@@ -43,10 +60,8 @@ export const PICK_LAYER = {
 export type PickLayer = (typeof PICK_LAYER)[keyof typeof PICK_LAYER];
 
 /**
- * Metadata for one pickable component (face, edge, vertex, or solid).
- *
- * Replaces the per-component `ObjectGroup.shapeInfo` lookup the CPU raycaster
- * relies on: the id-buffer pass reads back an id, and this is what it resolves to.
+ * Metadata for one pickable component (face, edge, vertex, or solid). The id-buffer
+ * pass reads back an id, and this is what it resolves to.
  */
 export interface ComponentInfo {
   /** Unique id within the current model; encoded into the pick buffer. Never 0. */
@@ -61,8 +76,8 @@ export interface ComponentInfo {
   subtype: string | null;
   /**
    * Path of the owning solid when this component is a face/edge/vertex *inside* a
-   * solid — pick-only, no tree node (see Migration-ID-Picking.md, D1/D2). `null`
-   * for standalone faces/edges/vertices that are tree leaves in their own right.
+   * solid — pick-only, no tree node. `null` for standalone faces/edges/vertices
+   * that are tree leaves in their own right.
    */
   solidPath: string | null;
 }
@@ -304,8 +319,8 @@ export interface PickResult {
   /** Registry metadata for the picked component. */
   info: ComponentInfo;
   /**
-   * World-space hit point. Sourced from the position-MRT attachment (decision
-   * D-B). `null` in Phase 2a — the MRT lands in 2b; faces resolve id only.
+   * World-space hit point, sourced from the position-MRT attachment. `null` when
+   * the RGBA32F position attachment is unsupported (id-only pick).
    */
   point: THREE.Vector3 | null;
 }
@@ -588,7 +603,7 @@ export const PICK_POS_ATTACHMENT = 1;
  * attachments —
  *  - {@link PICK_ID_ATTACHMENT} (0): RGBA8/UnsignedByte packed `componentId`
  *    (`packId`, low byte in R), and
- *  - {@link PICK_POS_ATTACHMENT} (1): RGBA32F world-space hit position (D-B),
+ *  - {@link PICK_POS_ATTACHMENT} (1): RGBA32F world-space hit position,
  *    `xyz` = point, `w = 1` where a fragment was written (0 = background).
  *
  * `NearestFilter` on both — interpolated ids/positions are meaningless. A depth
@@ -656,11 +671,10 @@ function topoEligible(topo: TopoType, filter: TopoType[] | undefined): boolean {
  *    rebuild) so the pick buffer is re-rendered lazily on the next {@link pickAt},
  *  - {@link pickAt} on hover/click to resolve the component under the cursor.
  *
- * Phase 2b-2: **faces + vertices**. Per-topo passes (FACE, then fat VERTEX points)
- * accumulate into one MRT target; `pickAt` reads an N×N window and resolves
- * **vertex > edge > face** priority via the registry's topo, honoring `topoFilter`,
- * then reads the position attachment → `point`. Edges + `LineMaterial`-derived fat
- * edge pass land in 2b-3.
+ * Per-topo passes (FACE, then fat EDGE lines, then fat VERTEX points) accumulate
+ * into one MRT target; `pickAt` reads an N×N window and resolves **vertex > edge >
+ * face** priority via the registry's topo, honoring `topoFilter`, then reads the
+ * position attachment → `point`.
  */
 export class IdPicker {
   readonly registry: ComponentRegistry;
@@ -681,7 +695,7 @@ export class IdPicker {
   private height: number;
   /** Intersection clipping mode mirrored onto the pick materials. */
   private clipIntersection: boolean;
-  /** Whether the pick buffer must be re-rendered before the next read (D4 cadence). */
+  /** Whether the pick buffer must be re-rendered before the next read. */
   private dirty: boolean;
   /** MRT pick target (id + world-position attachments). Allocated lazily in `pickAt`. */
   private pickTarget: THREE.WebGLRenderTarget | null;
@@ -705,8 +719,9 @@ export class IdPicker {
    * Whether the GPU can render to a float color attachment (`EXT_color_buffer_float`,
    * probed at construction). When `false`, the pick target carries the id attachment
    * only and {@link pickAt} returns `point = null` — id picking still works, just
-   * without the world-space hit point (degrades hover coords / Phase 5 pivot to the
-   * bbox-center fallback). Universal in real WebGL2; the probe guards exotic contexts.
+   * without the world-space hit point (degrades hover coords / double-click pivot to
+   * the bbox-center fallback). Universal in real WebGL2; the probe guards exotic
+   * contexts.
    */
   readonly positionSupported: boolean;
 
@@ -744,7 +759,7 @@ export class IdPicker {
 
   /**
    * Probe `EXT_color_buffer_float` — the capability needed to *render into* the
-   * RGBA32F world-position attachment (D-B). Getting the extension is the canonical
+   * RGBA32F world-position attachment. Getting the extension is the canonical
    * feature test (no side effects) and is WebGL2-only: it does not exist on WebGL1
    * (whose float-color extension is `WEBGL_color_buffer_float`), so a non-null result
    * already implies a WebGL2 context. Near-universal on WebGL2 but spec-optional.
@@ -773,7 +788,7 @@ export class IdPicker {
 
   /**
    * Mark the pick buffer stale so the next {@link pickAt} re-renders it. Call on any
-   * view change (camera move/zoom, geometry rebuild) — NOT on mouse-move (D4).
+   * view change (camera move/zoom, geometry rebuild) — NOT on mouse-move.
    */
   setDirty(): void {
     this.dirty = true;
@@ -845,7 +860,7 @@ export class IdPicker {
 
     this._ensureResources(tw, th);
 
-    // Re-render the pick target only when the view/geometry changed (D4).
+    // Re-render the pick target only when the view/geometry changed.
     if (this.dirty) {
       this._renderPickBuffer(this.camera.getCamera(), this.pickTarget!);
       this.dirty = false;
@@ -965,8 +980,8 @@ export class IdPicker {
   }
 
   /**
-   * Render the per-topo pick passes into the MRT target, reusing the main camera
-   * (D-D). Clears once, then accumulates **FACE → EDGE → VERTEX** (each drawn fat
+   * Render the per-topo pick passes into the MRT target, reusing the main camera.
+   * Clears once, then accumulates **FACE → EDGE → VERTEX** (each drawn fat
    * and later, so higher-priority topos overwrite at coincident pixels). All
    * renderer state touched here is saved and restored.
    */

@@ -465,7 +465,6 @@ describe("NestedGroup - renderShape", () => {
       0xff0000, // color
       0.5, // alpha < 1
       false, // renderback
-      false, // exploded
       "test/path",
       "TestShape",
       [1, 1],
@@ -503,7 +502,6 @@ describe("NestedGroup - renderShape", () => {
       0xff0000,
       null, // null alpha
       false,
-      false,
       "test/path",
       "TestShape",
       [1, 1],
@@ -540,7 +538,6 @@ describe("NestedGroup - renderShape", () => {
       shape,
       0xff0000,
       1.0,
-      false,
       false,
       "test/path",
       "TestShape",
@@ -581,7 +578,6 @@ describe("NestedGroup - renderShape", () => {
       shape,
       0xff0000,
       1.0,
-      false,
       false,
       "test/path",
       "TestShape",
@@ -873,7 +869,6 @@ describe("NestedGroup - renderPolygons", () => {
       0x00ff00,
       1.0,
       false,
-      false,
       "poly/path",
       "TestPoly",
       [1, 1],
@@ -914,7 +909,6 @@ describe("NestedGroup - renderPolygons", () => {
       5,
       0x00ff00,
       1.0,
-      false,
       false,
       "poly/path2",
       "TestPoly2",

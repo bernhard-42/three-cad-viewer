@@ -937,7 +937,7 @@ class Display {
   }
 
   /**
-   * Set the hover status line (Phase 4d preselection readout). Empty string clears it.
+   * Set the hover status line (preselection readout). Empty string clears it.
    * Transparent overlay at the bottom of the canvas, right of the orientation marker.
    */
   setStatusLine(text: string): void {
@@ -1822,11 +1822,9 @@ class Display {
         ["distance", "properties", "angle", "select"].includes(name) &&
         !["distance", "properties", "angle", "select"].includes(currentTool)
       ) {
-        this.viewer.toggleGroup(true);
         this.viewer.toggleTab(true);
       }
-      this.viewer.setRaycastMode(flag);
-      this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster!);
+      this.viewer.setSelectionInput(flag);
 
       if (name === "distance") {
         this.viewer.cadTools.enable(ToolTypes.DISTANCE);
@@ -1840,7 +1838,6 @@ class Display {
       }
     } else {
       if (currentTool === name || name === "explode") {
-        this.viewer.toggleGroup(false);
         this.viewer.toggleTab(false);
       }
       if (name === "distance") {
@@ -1856,7 +1853,7 @@ class Display {
       // Delegate state mutations to Viewer
       this.viewer.activateTool(name, false);
 
-      this.viewer.setRaycastMode(flag);
+      this.viewer.setSelectionInput(flag);
     }
     this.viewer.setPickHandler(!flag);
     this.shapeFilterDropDownMenu.show(flag);
@@ -3271,7 +3268,7 @@ class Display {
           this.container.focus();
           return;
         }
-        // When a tool is active, let ESC propagate to the raycaster
+        // When a tool is active, let ESC propagate to the picker
         // for shape deselection
         if (this.state.get("activeTool")) return "propagate";
         const stopMode = this.state.get("animationMode");

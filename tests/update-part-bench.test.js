@@ -403,18 +403,6 @@ describe("Viewer.updatePart – correctness", () => {
     expect(ctx.viewer.bb_max).toBeGreaterThan(bbMaxBefore);
   });
 
-  test("invalidates explode cache", async () => {
-    ctx = setupViewer();
-    const data = await loadExample("box1");
-    ctx.viewer.render(data, ctx.renderOptions, ctx.viewerOptions);
-
-    const path = ctx.viewer.addPart("/Group", createBox("U5", 2, 1));
-    ctx.viewer.updatePart(path, createBox("U5", 2, 3));
-
-    expect(ctx.viewer.expandedNestedGroup).toBeNull();
-    expect(ctx.viewer.expandedTree).toBeNull();
-  });
-
   test("multiple sequential updates work", async () => {
     ctx = setupViewer();
     const data = await loadExample("box1");

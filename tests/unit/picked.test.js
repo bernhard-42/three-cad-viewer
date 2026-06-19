@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { ComponentRegistry } from "../../src/rendering/id-picking.js";
 import { HighlightController, HighlightFlag } from "../../src/rendering/highlight.js";
-import { IdPicked, RaycastPicked } from "../../src/rendering/picked.js";
+import { IdPicked } from "../../src/rendering/picked.js";
 
 // Two faces + one edge of solid "/s", one standalone face, one standalone vertex.
 function makeRegistry() {
@@ -115,72 +115,5 @@ describe("IdPicked", () => {
     // a solid pick and a face pick of the same face are NOT equal (asSolid differs)
     const faceOfSolid = new IdPicked(reg.get(ids.f0), false, null, ctl);
     expect(s0.equals(faceOfSolid)).toBe(false);
-  });
-});
-
-describe("RaycastPicked", () => {
-  function mockObjectGroup(name, topo) {
-    return {
-      name,
-      shapeInfo: { topo },
-      highlight: vi.fn(),
-      unhighlight: vi.fn(),
-      toggleSelection: vi.fn(),
-      clearHighlights: vi.fn(),
-    };
-  }
-  function mockPicked(name, fromSolid, topo, solidFaces) {
-    const og = mockObjectGroup(name, topo);
-    const all = solidFaces ?? [og];
-    return { picked: { obj: og, fromSolid, objs: () => all }, og, all };
-  }
-
-  it("backendId: delimiter→'/' (non-solid) and solid-suffix strip (fromSolid)", () => {
-    const { picked: nonSolid } = mockPicked("/a/b|faces|faces_3", false, "face");
-    expect(new RaycastPicked(nonSolid, "|").backendId).toBe("/a/b/faces/faces_3");
-    const { picked: solid } = mockPicked("/a/b|faces|faces_3", true, "face");
-    expect(new RaycastPicked(solid, "|").backendId).toBe("/a/b");
-  });
-
-  it("name is the last delimiter segment; topo from shapeInfo", () => {
-    const { picked } = mockPicked("/a|edges|edges_7", false, "edge");
-    const rp = new RaycastPicked(picked, "|");
-    expect(rp.name).toBe("edges_7");
-    expect(rp.topo).toBe("edge");
-  });
-
-  it("forwards highlight/unhighlight/toggleSelection/clearHighlights to every objs()", () => {
-    const extra = mockObjectGroup("/s|faces|faces_1", "face");
-    const { picked, og } = mockPicked("/s|faces|faces_0", true, "face", [
-      // first is the picked face; include a second solid face
-    ]);
-    picked.objs = () => [og, extra];
-    const rp = new RaycastPicked(picked, "|");
-    rp.highlight(true);
-    rp.toggleSelection();
-    rp.clearHighlights();
-    for (const o of [og, extra]) {
-      expect(o.highlight).toHaveBeenCalledWith(true);
-      expect(o.toggleSelection).toHaveBeenCalled();
-      expect(o.clearHighlights).toHaveBeenCalled();
-    }
-  });
-
-  it("equals by ObjectGroup name; false vs different name and vs IdPicked", () => {
-    const { picked: p1 } = mockPicked("/s|faces|faces_0", false, "face");
-    const p1b = { obj: { name: "/s|faces|faces_0", shapeInfo: { topo: "face" } }, fromSolid: false, objs: () => [] };
-    const { picked: p2 } = mockPicked("/s|faces|faces_9", false, "face");
-    const rp1 = new RaycastPicked(p1, "|");
-    expect(rp1.equals(new RaycastPicked(p1b, "|"))).toBe(true);
-    expect(rp1.equals(new RaycastPicked(p2, "|"))).toBe(false);
-
-    const { reg, ids } = makeRegistry();
-    const ctl = new HighlightController(reg);
-    expect(rp1.equals(new IdPicked(reg.get(ids.sf), false, null, ctl))).toBe(false);
-  });
-
-  it("point is null (raycast path carries no hit point)", () => {
-    const { picked } = mockPicked("/s|faces|faces_0", false, "face");
-    expect(new RaycastPicked(picked, "|").point).toBeNull();
   });
 });

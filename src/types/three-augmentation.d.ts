@@ -5,21 +5,6 @@
 
 import "three";
 
-declare module "three" {
-  /**
-   * Raycaster.params includes Line2 threshold for fat line picking,
-   * but this is not in the default type definitions.
-   */
-  interface Raycaster {
-    params: {
-      Line2?: { threshold: number };
-      Line?: { threshold: number };
-      Points?: { threshold: number };
-      Mesh?: Record<string, unknown>;
-    };
-  }
-}
-
 declare module "three/examples/jsm/controls/OrbitControls.js" {
   interface OrbitControls {
     /**

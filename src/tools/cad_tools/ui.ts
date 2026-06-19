@@ -1,8 +1,7 @@
 import {
   TopoFilter,
-  Raycaster,
   type TopoFilterType,
-} from "../../rendering/raycast.js";
+} from "../../rendering/id-picking.js";
 import type { DisplayLike } from "./tools.js";
 
 /**
@@ -371,30 +370,20 @@ class PropertiesPanel extends Panel {
 class FilterByDropDownMenu {
   private display: DisplayLike;
   private elements: DisplayLike["filterDropdown"];
-  private raycaster: Raycaster | null;
   /**
-   * The current topo filter, kept independently of the raycaster so the GPU id picker
-   * (Phase 4a) can read it without depending on the legacy raycaster (which Phase 6
-   * deletes). `[TopoFilter.none]` means "no filter" (all topos eligible).
+   * The current topo filter the GPU id picker reads. `[TopoFilter.none]` means
+   * "no filter" (all topos eligible).
    */
   currentFilter: TopoFilterType[];
 
   /**
-   * Initialize a new filter drop down menu, it needs the raycast to update interactively the filter mode
+   * Initialize a new filter drop down menu.
    */
   constructor(display: DisplayLike) {
     this.display = display;
     this.elements = display.filterDropdown;
     this.elements.container.style.display = "none";
-    this.raycaster = null;
     this.currentFilter = [TopoFilter.none];
-  }
-
-  /**
-   * Set the raycaster to update the filter mode
-   */
-  setRaycaster(raycaster: Raycaster): void {
-    this.raycaster = raycaster;
   }
 
   private setValue = (topoType: string): void => {
@@ -407,11 +396,8 @@ class FilterByDropDownMenu {
       filter = [TopoFilter[key as keyof typeof TopoFilter]];
     }
     if (filter === null) return;
-    // Keep both the raycaster (legacy path) and the picker-readable field in sync.
+    // The picker-readable filter source.
     this.currentFilter = filter;
-    if (this.raycaster != null) {
-      this.raycaster.filters.topoFilter = filter;
-    }
   };
 
   private toggleDropdown = (ev: Event | null): void => {

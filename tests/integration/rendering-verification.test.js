@@ -329,53 +329,15 @@ describe("Rendering Verification", () => {
     });
   });
 
-  describe("Expanded vs compact rendering", () => {
-    test("expanded mode creates more objects than compact", async () => {
+  describe("Tessellated rendering", () => {
+    test("produces valid rendering", async () => {
       testContext = setupViewer();
       const { viewer, renderOptions } = testContext;
 
       viewer.setRenderDefaults(renderOptions);
 
       const box1Data = await loadExample("box1");
-
-      // Render in compact mode
-      const compactResult = viewer.renderTessellatedShapes(false, box1Data);
-      const compactObjectCount = Object.keys(compactResult.tree).length;
-
-      // Render in expanded mode (with fresh data)
-      const box1DataCopy = await loadExample("box1");
-      const expandedResult = viewer.renderTessellatedShapes(true, box1DataCopy);
-      const expandedObjectCount = Object.keys(expandedResult.tree).length;
-
-      // Expanded mode should create more objects (individual faces/edges/vertices)
-      expect(expandedObjectCount).toBeGreaterThanOrEqual(compactObjectCount);
-    });
-
-    test("compact mode produces valid rendering", async () => {
-      testContext = setupViewer();
-      const { viewer, renderOptions } = testContext;
-
-      viewer.setRenderDefaults(renderOptions);
-
-      const box1Data = await loadExample("box1");
-      const result = viewer.renderTessellatedShapes(false, box1Data);
-
-      // Should return group and tree
-      expect(result).toHaveProperty("tree");
-      expect(result).toHaveProperty("group");
-      expect(typeof result.tree).toBe("object");
-      expect(result.group).toBeDefined();
-      expect(result.group.rootGroup).toBeDefined();
-    });
-
-    test("expanded mode produces valid rendering", async () => {
-      testContext = setupViewer();
-      const { viewer, renderOptions } = testContext;
-
-      viewer.setRenderDefaults(renderOptions);
-
-      const box1Data = await loadExample("box1");
-      const result = viewer.renderTessellatedShapes(true, box1Data);
+      const result = viewer.renderTessellatedShapes(box1Data);
 
       // Should return group and tree
       expect(result).toHaveProperty("tree");

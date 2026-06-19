@@ -4,24 +4,17 @@ import { COMPONENT_ID_ATTRIBUTE, BACKGROUND_ID } from "./id-picking.js";
 import type { ComponentRegistry } from "./id-picking.js";
 
 /**
- * Phase 3 — shader-based component highlight (compact graph).
+ * Shader-based component highlight (compact graph).
  *
- * Shared names/types/data-layout (frozen contract, per APPROACH.md "contracts-
- * first"): the highlight-state texture format, the bit-flag encoding, the GLSL
- * uniform names, and the `HighlightController` public surface.
- *
- * Design (see PHASE.md):
+ * Design:
  * - Per-component highlight state lives in ONE `R8UI` data texture indexed by
  *   `componentId` (the attribute already on the compact geometry). The texture is
  *   shared by every compact visual material via `onBeforeCompile`, so a state
  *   write is reflected by all materials with no recompile.
- * - State is BIT FLAGS ({@link HighlightFlag}); SELECTED wins over HOVER (matches
- *   the old `ObjectGroup._getHighlightColor`).
- * - `selectSolid` sets the flag for every registry component sharing a `solidPath`
- *   — this REPLACES the `_getSolidObjectGroups` scene-walk (`raycast.ts:54`).
+ * - State is BIT FLAGS ({@link HighlightFlag}); SELECTED wins over HOVER.
+ * - `selectSolid` sets the flag for every registry component sharing a `solidPath`.
  *
- * NOT wired into the live event loop in Phase 3 — driven directly by tests / the
- * WebGL harness. Phase 4 routes `IdPicker.pickAt → registry → controller`.
+ * Driven by the live event loop via `IdPicker.pickAt → registry → controller`.
  */
 
 /** Highlight color for a selected component (was `ObjectGroup.HIGHLIGHT_COLOR_SELECTED`). */
@@ -377,10 +370,8 @@ export class HighlightController {
 
   /**
    * Set or clear SELECTED for a whole solid. Flags only the solid's **faces**
-   * (`topo === "face"`), matching the legacy `_getSolidObjectGroups` scene-walk
-   * (`raycast.ts:54`, which returns the `|faces` group only) — the body tints while
-   * edges keep their colour and corners stay hidden. Iterates
-   * {@link ComponentRegistry.entries}.
+   * (`topo === "face"`) — the body tints while edges keep their colour and corners
+   * stay hidden. Iterates {@link ComponentRegistry.entries}.
    */
   selectSolid(solidPath: string, flag: boolean): void {
     for (const info of this.registry.entries()) {

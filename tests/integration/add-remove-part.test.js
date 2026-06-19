@@ -284,19 +284,6 @@ describe("Viewer - addPart", () => {
     expect(subtree.parts[1].id).toBe("/Group/Shelf/Right");
   });
 
-  test("invalidates explode cache after adding", async () => {
-    testContext = setupViewer();
-    const { viewer, renderOptions, viewerOptions } = testContext;
-    const data = await loadExample("box1");
-    viewer.render(data, renderOptions, viewerOptions);
-
-    // Access expandedNestedGroup to populate it (may be null by default)
-    // After addPart it should be null regardless
-    viewer.addPart("/Group", createTestPart("NewBox"));
-
-    expect(viewer.expandedNestedGroup).toBeNull();
-    expect(viewer.expandedTree).toBeNull();
-  });
 });
 
 describe("Viewer - removePart", () => {
@@ -392,19 +379,6 @@ describe("Viewer - removePart", () => {
     viewer.removePart("/Group/FarBox");
 
     expect(viewer.bb_max).toBeLessThan(bbMaxWithFar);
-  });
-
-  test("invalidates explode cache after removing", async () => {
-    testContext = setupViewer();
-    const { viewer, renderOptions, viewerOptions } = testContext;
-    const data = await loadExample("box1");
-    viewer.render(data, renderOptions, viewerOptions);
-
-    viewer.addPart("/Group", createTestPart("Temp"));
-    viewer.removePart("/Group/Temp");
-
-    expect(viewer.expandedNestedGroup).toBeNull();
-    expect(viewer.expandedTree).toBeNull();
   });
 });
 

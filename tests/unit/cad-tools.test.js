@@ -75,7 +75,6 @@ function createMockDisplay() {
     shapeFilterDropDownMenu: {
       reset: vi.fn(),
       show: vi.fn(),
-      setRaycaster: vi.fn(),
     },
     // New interface properties
     measurementPanels: {
@@ -1291,19 +1290,8 @@ describe("FilterByDropDownMenu", () => {
     });
   });
 
-  describe("setRaycaster", () => {
-    test("allows setting raycaster reference", () => {
-      const mockRaycaster = { filters: { topoFilter: [] } };
-      // Should not throw
-      expect(() => filter.setRaycaster(mockRaycaster)).not.toThrow();
-    });
-  });
-
   describe("reset", () => {
     test("resets filter value to None", () => {
-      const mockRaycaster = { filters: { topoFilter: [] } };
-      filter.setRaycaster(mockRaycaster);
-
       filter.reset();
 
       expect(display.filterDropdown.value.innerText).toBe("None");
@@ -1325,8 +1313,6 @@ describe("FilterByDropDownMenu", () => {
     });
 
     test("adds keyboard event listener when shown", () => {
-      const mockRaycaster = { filters: { topoFilter: [] } };
-      filter.setRaycaster(mockRaycaster);
       filter.show(true);
 
       // Simulate keyboard event (now on document, not container)
@@ -1337,8 +1323,6 @@ describe("FilterByDropDownMenu", () => {
     });
 
     test("removes keyboard event listener when hidden", () => {
-      const mockRaycaster = { filters: { topoFilter: [] } };
-      filter.setRaycaster(mockRaycaster);
       filter.show(true);
       filter.show(false);
 
@@ -1355,8 +1339,6 @@ describe("FilterByDropDownMenu", () => {
 
   describe("keyboard shortcuts", () => {
     beforeEach(() => {
-      const mockRaycaster = { filters: { topoFilter: [] } };
-      filter.setRaycaster(mockRaycaster);
       filter.show(true);
     });
 
@@ -1429,8 +1411,6 @@ describe("FilterByDropDownMenu", () => {
 
   describe("option selection", () => {
     beforeEach(() => {
-      const mockRaycaster = { filters: { topoFilter: [] } };
-      filter.setRaycaster(mockRaycaster);
       filter.show(true);
     });
 

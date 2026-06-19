@@ -1,6 +1,17 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Viewer - Rendering Modes > compact mode (exploded=false) - renders solids as unified objects > box1-compact-mode 1`] = `
+exports[`Viewer - Rendering > renderTessellatedShapes returns a group + tree > box1-tree 1`] = `
+{
+  "Group": {
+    "Workplane(Solid)": [
+      1,
+      1,
+    ],
+  },
+}
+`;
+
+exports[`Viewer - Rendering > renders solids as unified objects > box1-render 1`] = `
 {
   "animation": {
     "frameCount": 0,
@@ -329,125 +340,6 @@ exports[`Viewer - Rendering Modes > compact mode (exploded=false) - renders soli
       "type": "MeshStandardMaterial",
     },
     "totalChildren": 7,
-  },
-}
-`;
-
-exports[`Viewer - Rendering Modes > expanded mode (exploded=true) - renders individual faces/edges/vertices > box1-expanded-tree 1`] = `
-{
-  "Group": {
-    "Workplane(Solid)": {
-      "edges": {
-        "edges_0": [
-          3,
-          1,
-        ],
-        "edges_1": [
-          3,
-          1,
-        ],
-        "edges_10": [
-          3,
-          1,
-        ],
-        "edges_11": [
-          3,
-          1,
-        ],
-        "edges_2": [
-          3,
-          1,
-        ],
-        "edges_3": [
-          3,
-          1,
-        ],
-        "edges_4": [
-          3,
-          1,
-        ],
-        "edges_5": [
-          3,
-          1,
-        ],
-        "edges_6": [
-          3,
-          1,
-        ],
-        "edges_7": [
-          3,
-          1,
-        ],
-        "edges_8": [
-          3,
-          1,
-        ],
-        "edges_9": [
-          3,
-          1,
-        ],
-      },
-      "faces": {
-        "faces_0": [
-          1,
-          3,
-        ],
-        "faces_1": [
-          1,
-          3,
-        ],
-        "faces_2": [
-          1,
-          3,
-        ],
-        "faces_3": [
-          1,
-          3,
-        ],
-        "faces_4": [
-          1,
-          3,
-        ],
-        "faces_5": [
-          1,
-          3,
-        ],
-      },
-      "vertices": {
-        "vertices_0": [
-          3,
-          1,
-        ],
-        "vertices_1": [
-          3,
-          1,
-        ],
-        "vertices_2": [
-          3,
-          1,
-        ],
-        "vertices_3": [
-          3,
-          1,
-        ],
-        "vertices_4": [
-          3,
-          1,
-        ],
-        "vertices_5": [
-          3,
-          1,
-        ],
-        "vertices_6": [
-          3,
-          1,
-        ],
-        "vertices_7": [
-          3,
-          1,
-        ],
-      },
-    },
   },
 }
 `;
