@@ -83,6 +83,44 @@ export interface ComponentInfo {
 }
 
 /**
+ * Map a dropdown topo filter to the picker's `TopoType[]`. `none`/`[null]` (the
+ * "no filter" sentinel) → `undefined` (all topos eligible).
+ */
+export function pickerTopoFilter(
+  filter: TopoFilterType[],
+): TopoType[] | undefined {
+  const mapped = filter.filter((t): t is TopoType => t !== null);
+  return mapped.length === 0 ? undefined : mapped;
+}
+
+/**
+ * Tree-leaf path that owns a picked component: the owning solid's path for a
+ * sub-component, else the component's own path with the topo suffix stripped. This
+ * is the leaf the double-click pick and the visibility gate operate on.
+ */
+export function leafPath(info: ComponentInfo): string {
+  return (
+    info.solidPath ?? info.path.replace(/\/(faces|edges|vertices)\/[^/]+$/, "")
+  );
+}
+
+/**
+ * Signature of the live clip state, to detect actual clip changes for the picker
+ * (used by the render loop's dirty cadence).
+ */
+export function clipSignature(
+  planes: THREE.Plane[] | null,
+  intersection: boolean,
+): string {
+  if (planes === null) return "off";
+  let s = intersection ? "i" : "u";
+  for (const p of planes) {
+    s += `|${p.normal.x},${p.normal.y},${p.normal.z},${p.constant}`;
+  }
+  return s;
+}
+
+/**
  * Flat `id -> ComponentInfo` registry. Replaces the `NestedGroup.groups[id]`
  * explosion for pick lookups. Ids are allocated monotonically starting at 1;
  * id 0 ({@link BACKGROUND_ID}) means "nothing".

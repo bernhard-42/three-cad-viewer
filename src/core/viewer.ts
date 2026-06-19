@@ -59,8 +59,9 @@ import { version } from "../_version.js";
 import {
   IdPicker,
   TopoFilter,
-  type TopoFilterType,
-  type TopoType,
+  pickerTopoFilter,
+  leafPath,
+  clipSignature,
   type ComponentInfo,
 } from "../rendering/id-picking.js";
 import { IdPicked, type PickedComponent } from "../rendering/picked.js";
@@ -974,14 +975,6 @@ class Viewer {
     return this.shapes?.format !== "GDS";
   }
 
-  /** Map the dropdown's topo filter to the picker's `TopoType[]` (none/[null] → all). */
-  private _pickerTopoFilter(
-    filter: TopoFilterType[],
-  ): TopoType[] | undefined {
-    const mapped = filter.filter((t): t is TopoType => t !== null);
-    return mapped.length === 0 ? undefined : mapped;
-  }
-
   /**
    * Hover via the GPU id picker on the compact graph: resolve the component under the
    * cursor and drive the shader `HighlightController`. Sets `lastObject` (committed on
@@ -1010,7 +1003,7 @@ class Viewer {
     }
     const filter = this.display.shapeFilterDropDownMenu.currentFilter;
     const fromSolid = filter.includes(TopoFilter.solid);
-    const topoFilter = this._pickerTopoFilter(filter);
+    const topoFilter = pickerTopoFilter(filter);
     const hit = this.idPicker.pickAt(
       x,
       y,
@@ -1106,25 +1099,12 @@ class Viewer {
 
   /**
    * Whether the component a pick resolved to is currently visible — used to drop picks
-   * of hidden geometry (F10). Visibility is the owning group's material `visible` flag
+   * of hidden geometry. Visibility is the owning group's material `visible` flag
    * (faces for solids/standalone faces; edge/vertex materials for standalone leaves).
    */
-  /**
-   * Resolve a picked component to its owning tree-leaf node path (a `groups` key):
-   * the `solidPath` for a face/edge/vertex inside a solid, else the standalone node
-   * path (the component path with its trailing `/<faces|edges|vertices>/<name>`
-   * stripped). This is the leaf the double-click `pick()` and the F10 visibility
-   * gate operate on.
-   */
-  private _leafPath(info: ComponentInfo): string {
-    return (
-      info.solidPath ?? info.path.replace(/\/(faces|edges|vertices)\/[^/]+$/, "")
-    );
-  }
-
   private _pickVisible(info: ComponentInfo): boolean {
     const ng = this.rendered.nestedGroup;
-    const ownerPath = this._leafPath(info);
+    const ownerPath = leafPath(info);
     const g = ng.groups[ownerPath];
     if (!(g instanceof ObjectGroup)) return true; // unknown owner → don't block
     const vis = (
@@ -1143,19 +1123,6 @@ class Viewer {
       return vis(g.edgeMaterial) || vis(g.front?.material);
     }
     return vis(g.front?.material);
-  }
-
-  /** Signature of the live clip state, to detect actual clip changes for the picker. */
-  private _clipSignature(
-    planes: THREE.Plane[] | null,
-    intersection: boolean,
-  ): string {
-    if (planes === null) return "off";
-    let s = intersection ? "i" : "u";
-    for (const p of planes) {
-      s += `|${p.normal.x},${p.normal.y},${p.normal.z},${p.constant}`;
-    }
-    return s;
   }
 
   /**
@@ -1246,7 +1213,7 @@ class Viewer {
         ? this.rendered.clipping.clipPlanes
         : null;
       const intersection = this.state.get("clipIntersection") === true;
-      const clipSig = this._clipSignature(planes, intersection);
+      const clipSig = clipSignature(planes, intersection);
       // A running animation/explode moves object transforms every frame (the cadence
       // diffs the camera only), so re-render the pick buffer while it plays.
       const animating = this.animation.clipAction?.isRunning() === true;
@@ -2580,7 +2547,7 @@ class Viewer {
   /**
    * Double-click pick via the GPU id picker: `idPicker.pickAt` resolves the component
    * under the cursor on the compact graph, the registry gives its owning tree-leaf path
-   * (`_leafPath`), and the readback world-space `point` feeds `handlePick` (the
+   * (`leafPath`), and the readback world-space `point` feeds `handlePick` (the
    * `shift && meta` camera target, with a bbox-center fallback when `point` is null).
    * No topo filter: a double-click selects whatever is under the cursor and resolves it
    * to its leaf.
@@ -2595,7 +2562,7 @@ class Viewer {
     // F10: a hidden solid's edge/vertex pick layers stay active — gate on visibility
     // so a hidden component cannot be double-click picked (matches hover/select).
     if (hit === null || !this._pickVisible(hit.info)) return;
-    const leaf = this._leafPath(hit.info);
+    const leaf = leafPath(hit.info);
     const slash = leaf.lastIndexOf("/");
     if (slash < 0) return;
     this.handlePick(
