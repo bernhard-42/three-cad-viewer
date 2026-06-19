@@ -42,15 +42,8 @@ import type { KeyMappingConfig } from "../utils/utils.js";
 import { Controls } from "../camera/controls.js";
 import { Camera, type CameraDirection } from "../camera/camera.js";
 import { BoundingBox, BoxHelper } from "../scene/bbox.js";
-import {
-  Tools,
-  ToolTypes,
-  type ToolResponse,
-} from "../tools/cad_tools/tools.js";
-import {
-  MeshMeasureBackend,
-  type MeasureResponse,
-} from "../tools/cad_tools/mesh-measure.js";
+import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
+import { MeshMeasureBackend } from "../tools/cad_tools/mesh-measure.js";
 import { version } from "../_version.js";
 import { IdPicker, clipSignature } from "../rendering/id-picking.js";
 import { type PickedComponent } from "../rendering/picked.js";
@@ -859,37 +852,9 @@ class Viewer {
       Object.prototype.hasOwnProperty.call(changed, "selectedShapeIDs") &&
       this.state.get("externalMeasurementBackend") !== true
     ) {
-      this._answerMeasurement(changes["selectedShapeIDs"]);
+      this.cadTools.answerMeasurement(changes["selectedShapeIDs"]);
     }
   };
-
-  /**
-   * Compute and dispatch a measurement response from the internal mesh backend for the
-   * active measure tool. `payload` is `[...selectedPaths, shift]` (the same array
-   * measure sends to the Python backend): Distance = 2 paths + shift, Properties = 1
-   * path + shift. No-op for any other tool / shape count.
-   */
-  private _answerMeasurement(payload: unknown): void {
-    if (!Array.isArray(payload)) return;
-    // NOTE: dispatch on cadTools.enabledTool (a ToolType, set by Tools.enable), NOT
-    // state.get("activeTool") — the latter holds the lowercase button name ("distance")
-    // which never equals ToolTypes.DISTANCE ("DistanceMeasurement").
-    const tool = this.cadTools.enabledTool;
-    let response: MeasureResponse | null = null;
-    if (tool === ToolTypes.DISTANCE && payload.length === 3) {
-      response = this.meshBackend.distance(
-        String(payload[0]),
-        String(payload[1]),
-        payload[2] === true,
-      );
-    } else if (tool === ToolTypes.PROPERTIES && payload.length === 2) {
-      // payload = [path, shift]
-      response = this.meshBackend.properties(String(payload[0]));
-    }
-    if (response !== null) {
-      this.handleBackendResponse(response);
-    }
-  }
 
   /**
    * Notifies the states by checking for changes and passing the states to the checkChanges method.

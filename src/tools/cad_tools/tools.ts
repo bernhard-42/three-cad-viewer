@@ -2,6 +2,10 @@ import * as THREE from "three";
 import { DistanceMeasurement, PropertiesMeasurement } from "./measure.js";
 import { SelectObject } from "./select.js";
 import type { PickedComponent } from "../../rendering/picked.js";
+import type {
+  MeshMeasureBackend,
+  MeasureResponse,
+} from "./mesh-measure.js";
 
 /**
  * Enum representing tool types.
@@ -72,6 +76,10 @@ export interface ViewerLike {
   ortho: boolean;
   bb_radius: number;
   checkChanges(changes: Record<string, unknown>, notify?: boolean): void;
+  /** Internal mesh measurement backend (answers when no external/Python backend). */
+  meshBackend: MeshMeasureBackend;
+  /** Dispatch a (mesh or backend) measurement response to the tools. */
+  handleBackendResponse(response: MeasureResponse): void;
 }
 
 export interface ToolResponse {
@@ -193,6 +201,33 @@ export class Tools {
       this.propertiesMeasurement.removeLastSelectedObj(true);
     } else if (this.selectObject.contextEnabled) {
       this.selectObject.removeLastSelectedObj(true);
+    }
+  }
+
+  /**
+   * Compute and dispatch a measurement response from the internal mesh backend for the
+   * active measure tool. `payload` is `[...selectedPaths, shift]` (the same array
+   * measure sends to the Python backend): Distance = 2 paths + shift, Properties = 1
+   * path + shift. No-op for any other tool / shape count.
+   */
+  answerMeasurement(payload: unknown): void {
+    if (!Array.isArray(payload)) return;
+    let response: MeasureResponse | null = null;
+    if (this.enabledTool === ToolTypes.DISTANCE && payload.length === 3) {
+      response = this.viewer.meshBackend.distance(
+        String(payload[0]),
+        String(payload[1]),
+        payload[2] === true,
+      );
+    } else if (
+      this.enabledTool === ToolTypes.PROPERTIES &&
+      payload.length === 2
+    ) {
+      // payload = [path, shift]
+      response = this.viewer.meshBackend.properties(String(payload[0]));
+    }
+    if (response !== null) {
+      this.viewer.handleBackendResponse(response);
     }
   }
 
