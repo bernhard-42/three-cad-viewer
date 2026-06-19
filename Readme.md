@@ -314,7 +314,7 @@ The keymap serves two purposes:
 - **Modifier keys** (`shift`, `ctrl`, `meta`, `alt`) remap which physical modifier key is used for mouse interactions (e.g. shift-click to isolate, ctrl-rotate). Values are DOM event properties like `"shiftKey"`, `"ctrlKey"`, `"metaKey"`, `"altKey"`.
 - **Action shortcuts** map single keys (with or without Shift) to toolbar buttons, camera presets, tab switches, and animation control. Only plain keys are supported — Ctrl/Alt/Meta combinations are reserved for modifier-based mouse interactions.
 
-Click on the viewer to give it focus, then press shortcut keys to trigger actions. Button tooltips show `[key]` suffixes when shortcuts are configured.
+Click on the viewer to give it focus, then press shortcut keys to trigger actions. Button and tab tooltips show a `› key` suffix when shortcuts are configured.
 
 The default keymap:
 
@@ -323,19 +323,19 @@ keymap: {
   // Modifier keys (remap physical keys for mouse interactions)
   shift: "shiftKey", ctrl: "ctrlKey", meta: "metaKey", alt: "altKey",
   // Toggle buttons
-  axes: "a", axes0: "A", grid: "g", gridxy: "G",
+  axes: "A", axes0: "0", grid: "g", gridxy: "G",
   perspective: "p", transparent: "t", blackedges: "b",
   explode: "x", zscale: "L",
-  distance: "D", properties: "P", select: "S",
+  distance: "D", properties: "P", select: "I",
   // Execute buttons
   reset: "R", resize: "r",
-  iso: "0", front: "1", rear: "2", top: "3", bottom: "4", left: "5", right: "6",
+  iso: "5", front: "1", rear: "3", top: "8", bottom: "2", left: "4", right: "6",
   // Help
   help: "h",
   // Animation
   play: " ", stop: "Escape",
   // Tab selection
-  tree: "T", clip: "C", material: "M", zebra: "Z",
+  tree: "T", clip: "C", material: "M", zebra: "Z", studio: "S",
 }
 ```
 
@@ -346,6 +346,8 @@ const displayOptions = {
   keymap: { axes: "q", reset: "!" }, // only these two change
 };
 ```
+
+**Topo filter shortcuts.** When the shape filter is visible (B-rep models), the lowercase keys `a` (All), `v` (Vertex), `e` (Edge), `f` (Face), `s` (Solid) set the picking filter. These are fixed (not part of the configurable keymap) — which is why `axes` and `studio` default to the uppercase `A`/`S`.
 
 ## Examples
 
