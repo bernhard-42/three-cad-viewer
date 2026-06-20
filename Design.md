@@ -6,12 +6,15 @@ This document describes the architecture, patterns, and key concepts of the thre
 
 1. [Architecture Overview](#architecture-overview)
 2. [Core Classes](#core-classes)
-3. [Design Patterns](#design-patterns)
-4. [UI Interaction Flows](#ui-interaction-flows)
-5. [Memory Management](#memory-management)
-6. [File Structure](#file-structure)
-7. [Studio Rendering Pipeline](#studio-rendering-pipeline)
-8. [TypeScript Configuration](#typescript-configuration)
+3. [Picking & Measurement](#picking--measurement)
+4. [State Management](#state-management)
+5. [Design Patterns](#design-patterns)
+6. [Events](#events)
+7. [UI Interaction Flows](#ui-interaction-flows)
+8. [Memory Management](#memory-management)
+9. [File Structure](#file-structure)
+10. [Studio Rendering Pipeline](#studio-rendering-pipeline)
+11. [TypeScript Configuration](#typescript-configuration)
 
 ---
 
@@ -41,6 +44,11 @@ Three-cad-viewer is a WebGL-based CAD viewer built on Three.js. The architecture
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────────────────┐  │
 │  │  Camera  │  │ Controls │  │ Clipping │  │ Scene (NestedGroup) │  │
 │  └──────────┘  └──────────┘  └──────────┘  └─────────────────────┘  │
+│  ┌─────────────────────┐  ┌──────────────────────┐  ┌─────────────┐ │
+│  │ Picking: IdPicker + │  │ CAD Tools: Measure / │  │ Studio mode │ │
+│  │ Highlight (GPU ids) │  │ Select / Zebra (mesh-│  │ env, AO,    │ │
+│  │                     │  │ measure backend)     │  │ shadows     │ │
+│  └─────────────────────┘  └──────────────────────┘  └─────────────┘ │
 │                       │                                             │
 │                       ▼                                             │
 │              ┌─────────────────┐                                    │
@@ -86,7 +94,7 @@ The Viewer class organizes its methods into logical sections:
 | **Clipping Planes**      | `setClipSlider()`, `setClipNormal()`, `setClipIntersection()`, `setClipPlaneHelpers()`         | Clipping controls             |
 | **Object Visibility**    | `setState()`, `setVisible()`, `getState()`                                                     | Object visibility             |
 | **Scene Mutation**       | `addPart(parentPath, partData)`, `removePart(path)`                                            | Add/remove parts after render |
-| **Object Picking**       | `pick()`, `getPickInfo()`                                                                      | Mouse-based selection         |
+| **Object Picking**       | `handlePick()` (GPU id-picking; see [Picking & Measurement](#picking--measurement))            | Hover / select / identify     |
 | **Image Export**         | `getImage()`, `pinAsPng()`                                                                     | Screenshot/export             |
 | **Explode Animation**    | `setExplode()`                                                                                 | Explode view                  |
 | **View Layout**          | `resizeCadView()`                                                                              | Viewport sizing               |
@@ -204,11 +212,11 @@ These work with all pointer types including touchscreens (e.g., laptop with touc
 | Class                 | File                         | Purpose                                              |
 | --------------------- | ---------------------------- | ---------------------------------------------------- |
 | **CadTool**           | `tools/cad_tools/tools.ts`   | Tool manager for measurement, selection, properties. |
-| **Raycaster**         | `rendering/raycast.ts`       | Mouse-based object picking with topology filtering.  |
-| **PickedObject**      | `rendering/raycast.ts`       | Represents a picked object (shape or solid).         |
 | **DistanceLineArrow** | `tools/cad_tools/measure.ts` | Measurement visualization.                           |
 | **Zebra**             | `tools/cad_tools/zebra.ts`   | Zebra stripe surface analysis tool.                  |
 | **Select**            | `tools/cad_tools/select.ts`  | Object selection tool.                               |
+
+> Picking, highlighting and the measurement backends have their own section: [Picking & Measurement](#picking--measurement).
 
 ### Animation
 
@@ -228,30 +236,79 @@ These work with all pointer types including touchscreens (e.g., laptop with touc
 
 ---
 
-## Design Patterns
+## Picking & Measurement
 
-### 1. ViewerState Observable Pattern
+Since v5.0.0 the viewer resolves "what is under the cursor" entirely on the GPU, replacing the former CPU `THREE.Raycaster` and its duplicated "exploded" scene graph. The **same** path drives hover preselection, click selection, double-click identify, and measurement.
 
-ViewerState is the single source of truth for all configuration. It uses an observable pattern where:
+| Class                                     | File                            | Role                                                       |
+| ----------------------------------------- | ------------------------------- | ---------------------------------------------------------- |
+| **ComponentRegistry**                     | `rendering/id-picking.ts`       | id ↔ `ComponentInfo` (`path` / `topo` / `solidPath`)       |
+| **IdPicker**                              | `rendering/id-picking.ts`       | offscreen MRT pick pass (id + world-position attachments)  |
+| **HighlightController**                   | `rendering/highlight.ts`        | shader-driven hover/select state texture                   |
+| **PickingController**                     | `core/picking-controller.ts`    | hover / click / double-click orchestration                 |
+| **PickedComponent** / **IdPicked**        | `rendering/picked.ts`           | the currency between the picker and the tools              |
+| **MeshMeasureBackend** / **MeshGeometrySource** | `tools/cad_tools/mesh-measure.ts` | internal mesh measurements + BVH minimum distance    |
 
-1. **Viewer owns mutations**: Only Viewer methods call `state.set()`
-2. **Display is read-only**: Display subscribes to state and reads via `state.get()`, but never writes directly
-3. **Subscriptions update UI only**: Callbacks update visual state, never trigger new state changes
+### The compact scene graph
+
+`NestedGroup` builds **one** scene graph (no exploded duplicate). Each solid is an `ObjectGroup` holding a single merged **face mesh** (all faces in one indexed `BufferGeometry`), an instanced **edge** line, and a pick-only **vertex `Points` cloud** (the solid's B-rep corners) plus a separate visual highlight `Points`. When `assignIds` is set (the live/compact path) every primitive gets a per-component integer `componentId` vertex attribute and is registered. The helpers `applyComponentIds` / `enablePickLayer` / `setPickLayerExclusive` (in `id-picking.ts`) encapsulate the attribute + pick-layer setup; faces carry the id per triangle-vertex, edges per instanced segment, vertices per point.
+
+### ComponentRegistry — id ↔ component
+
+`ComponentRegistry` maps each `componentId` to a `ComponentInfo`: the canonical `path` (`/Assembly/Part/faces/faces_3` — the key the backend uses), the `topo` (`face`/`edge`/`vertex`), and the owning `solidPath` (for whole-solid selection). Ids are allocated densely during the render walk; `maxId` sizes the highlight state texture.
+
+### IdPicker — the offscreen pick pass
+
+`IdPicker` renders the compact graph into an offscreen **MRT** target with two attachments: an integer **id** attachment (the `componentId` per fragment) and an optional **world-position** attachment (`RGBA32F`, gated on `EXT_color_buffer_float`) that yields the exact hit point for the measurement arrow / camera pivot — `point` is `null` when the float attachment is unavailable.
+
+`pickAt(x, y, {topoFilter, windowSize})`:
+
+1. maps CSS px → target px. The pick target is rendered at **half device-pixel-ratio** (a memory/fill tradeoff), so a DPR-1 display picks at half resolution.
+2. reads back an **N×N window** (a "touch radius" so thin edges / small vertices stay grabbable) from the id attachment.
+3. resolves the winner by **priority vertex > edge > face**, nearest-to-center as tie-break, honoring `topoFilter` (the topology dropdown). Returns `{id, info, point}` or `null`.
+
+The pick buffer is **lazy + dirty-gated**: it re-renders only when the view (camera world/projection matrix), clipping, or object visibility/transform changed — `setObject`, z-scale and running animations call `setDirty()`. A still model never re-renders on mouse-move. The camera cadence compares `number[]` matrix snapshots (a `Float32Array` would truncate float64 → a false change every frame) and diffs both the world **and** projection matrix (ortho zoom changes only the latter).
+
+### HighlightController — shader-driven highlight
+
+`HighlightController` holds an `R8UI` **state texture** indexed by `componentId`. Each visual material is patched (`onBeforeCompile`) to read its own component's state and tint / widen accordingly. So hover and selection flip **one texel** — never a material or geometry swap: `setHover` / `setHoverSolid` / `setSelected` / `selectSolid` / `isSelected` / `isSolidSelected` / `clear` (solid variants act on all faces of a solid).
+
+### PickingController — pointer orchestration
+
+`PickingController` owns all pointer-driven picking through a narrow `PickHost` interface onto the Viewer (so it stays decoupled and unit-testable):
+
+- **Hover** (always-on, B-rep only — GDS is identify-only): each render calls `pickAt`, drives `setHover`, fills the status line, and sets `lastObject` (the component under the cursor).
+- **Selection** (tool-scoped): canvas mousedown/mouseup commit `lastObject` on a left-click (click-vs-drag = camera-position delta < ε); right-click / Backspace remove the last; Escape clears. The commit toggles the component and calls `cadTools.handleSelectedObj`.
+- **Double-click**: `pickAt` → the owning tree-leaf path → `handlePick` (identify / hide / isolate / recenter, by modifier — keymap-configurable).
+
+A `pickVisible` gate drops picks of hidden components (visibility lives on the visual material, not the pick layer). The pick-only vertex cloud's visibility is kept in sync with its solid's (`ObjectGroup.setPickVertices` / `_syncPickVertices`), so a hidden solid stops contributing corner ids to the pick buffer — otherwise its corners win the vertex>face priority over a visible face behind them and the highlight flickers.
+
+`PickedComponent` (implemented by `IdPicked`) is the currency handed to the tools: `backendId` (the `/`-path sent to the backend), `name`, `topo`, `fromSolid`, the world-space `point`, plus `highlight` / `toggleSelection` / `equals`.
+
+### Measurement backends
+
+A measurement sends `selectedShapeIDs` to a backend that returns refpoints/values, routed back through `viewer.handleBackendResponse`. Two backends exist, chosen by the `externalMeasurementBackend` option:
+
+- **External Python** (`ocp_vscode`) — set `externalMeasurementBackend: true`.
+- **Internal mesh** (the default) — `MeshMeasureBackend` computes area, length, volume, bounding box, centroid, min/center distance and angle directly from the tessellated mesh, so the measure tools work standalone. `MeshGeometrySource` resolves a path to that component's **world-space** geometry (it applies the node transform). `shape_type` / `geom_type` are **exact** — decoded from the tessellation's `face_types` / `edge_types` (OCCT `GeomAbs` enum tables), not heuristic.
+
+#### BVH minimum distance
+
+The minimum distance between two components reduces each to primitives (face/solid → triangles, edge → segments, vertex → point), builds an **AABB tree** per component (spatial-median split over an index permutation — no per-node sort or allocation), then runs a **branch-and-bound** between the two trees: descend node-pairs ordered by box-box distance, prune any pair already farther than the best found, and evaluate the primitive×primitive distance only at the leaves. Exact and sub-quadratic — large or finely-tessellated faces (spheres, helices) that took many seconds under the former brute-force O(n·m) scan now resolve in milliseconds. `minDistanceBrute` is retained as the property-test oracle and the small-input fast path.
+
+---
+
+## State Management
+
+`ViewerState` (`core/viewer-state.ts`) is the single source of truth for all configuration. The design is a strictly one-way observable:
+
+- **Viewer owns mutations.** Only `Viewer` methods call `state.set(key, value)`.
+- **Display is read-only.** `Display` and the UI widgets `subscribe` to keys and read via `state.get(key)`, but never write state directly.
+- **Subscriptions update the UI only.** A subscription callback repaints a button / slider / panel — it must not call back into a `Viewer` mutator, so there is no feedback loop.
 
 ```javascript
-// ViewerState usage
 class ViewerState {
-  static VIEWER_DEFAULTS = {
-    axes: false,
-    grid: [false, false, false],
-    ortho: true,
-    // ... more defaults
-  };
-
-  constructor(options = {}) {
-    this._state = { ...ViewerState.VIEWER_DEFAULTS };
-    this._listeners = new Map();
-  }
+  static VIEWER_DEFAULTS = { axes: false, grid: [false, false, false], ortho: true /* … */ };
 
   get(key) {
     return this._state[key];
@@ -259,24 +316,56 @@ class ViewerState {
 
   set(key, value, notify = true) {
     const oldValue = this._state[key];
-    if (oldValue === value) return; // Change detection prevents infinite loops
+    if (oldValue === value) return; // change detection — no notify on a no-op write
     this._state[key] = value;
     if (notify) this._notify(key, { old: oldValue, new: value });
   }
 
+  // options.immediate: true → fire the listener once with the current value
   subscribe(key, listener, options = {}) {
-    // ... adds listener, returns unsubscribe function
-    // options.immediate: true fires immediately with current value
+    /* … registers the listener, returns an unsubscribe fn */
   }
 }
 ```
 
-**Why no infinite loops?**
+**Why there are no infinite loops:** subscription handlers only touch the UI (never a `Viewer` mutator), and `set()` has change detection — identical old/new values emit no notification.
 
-1. Subscription handlers only update UI - they don't call Viewer methods
-2. `ViewerState.set()` has change detection: if old and new values are identical, no notification
+### Notifications to the embedder
 
-### 2. TreeModel/TreeView Separation
+State changes are also forwarded to the embedding application through the `notifyCallback`. `STATE_TO_NOTIFICATION_KEY` maps internal `ViewerState` keys to the stable external notification names:
+
+```typescript
+export const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
+  axes: "axes",
+  grid: "grid",
+  ortho: "ortho",
+  transparent: "transparent",
+  blackEdges: "black_edges",
+  defaultOpacity: "default_opacity",
+  defaultEdgeColor: "default_edgecolor",
+  // … one entry per externally-visible key (renaming camelCase → snake_case)
+};
+```
+
+### Syncing UI widgets back from state
+
+Subscriptions registered with `immediate: true` fire during `setupUI()` — before `render()` applies the model's config — and `setRenderDefaults()` writes with `notify=false`, so those subscriptions do **not** re-fire afterwards. To reconcile, `Display.updateUI()` calls explicit sync methods **after** render completes, pushing the resolved state values into the sliders / selects:
+
+```typescript
+syncMaterialSlidersFromState(): void {
+  const state = this.viewer.state;
+  this.ambientlightSlider?.setValueFromState(state.get("ambientIntensity") * 100);
+  this.metalnessSlider?.setValueFromState(state.get("metalness") * 100);
+  // … directIntensity, roughness
+}
+// syncZebraSlidersFromState() and syncClipSlidersFromState() follow the same shape
+```
+
+---
+
+## Design Patterns
+
+### 1. TreeModel/TreeView Separation
 
 The tree navigation is split into two classes:
 
@@ -305,7 +394,7 @@ handleIconClick(node, iconNumber) {
 }
 ```
 
-### 3. MaterialFactory Pattern
+### 2. MaterialFactory Pattern
 
 Materials are created through `MaterialFactory` for consistency:
 
@@ -339,7 +428,7 @@ class MaterialFactory {
 
 Similarly, `ClippingMaterials` provides static methods for stencil-related materials.
 
-### 4. deepDispose Pattern
+### 3. deepDispose Pattern
 
 Three.js requires explicit cleanup of geometries, materials, and textures. The `deepDispose` function handles this recursively:
 
@@ -394,7 +483,7 @@ function disposeMaterial(material) {
 }
 ```
 
-### 5. EventListenerManager Pattern
+### 4. EventListenerManager Pattern
 
 DOM event listeners must be tracked for proper cleanup. `EventListenerManager` centralizes this:
 
@@ -427,6 +516,35 @@ listeners.dispose();
 ```
 
 UI components (Toolbar, Slider, Button) also implement `dispose()` methods that remove their event listeners.
+
+---
+
+## Events
+
+Most interaction flows go through the [state subscriptions](#state-management) above; the remaining direct DOM events are pointer and keyboard input.
+
+### Pointer input
+
+Canvas pointer events drive picking and are owned by `PickingController` (see [Picking & Measurement](#picking--measurement)): an always-on `pointermove` for hover, tool-scoped `mousedown`/`mouseup` for the selection commit (click vs. orbit-drag is decided by the camera-position delta), and `dblclick` for identify. Camera orbit / zoom / pan is handled separately by the controls (`camera/controls/`).
+
+### Keyboard input
+
+Keyboard listeners are attached at the **document** level, not on the canvas/`div`. Those elements don't receive keyboard focus without a `tabindex`, so an element-level `keydown` is unreliable:
+
+```typescript
+// Unreliable — the element isn't focused
+this.domElement.addEventListener("keydown", this.onKeyDown);
+
+// Reliable
+document.addEventListener("keydown", this.onKeyDown);
+```
+
+Handlers:
+
+- `src/core/picking-controller.ts` — Escape (clear selection) / Backspace (remove last) while a selection tool is active.
+- `src/tools/cad_tools/ui.ts` — the topology-filter shortcuts (`a`/`v`/`e`/`f`/`s`).
+
+Topology selection (faces / edges / vertices / solids) is no longer a raycaster object-type filter — since v5.0.0 it is resolved on the GPU id buffer with vertex > edge > face priority, honoring the topology dropdown.
 
 ---
 
@@ -840,7 +958,7 @@ Use `immediate: true` for UI elements that need initial value sync (sliders, che
 ```
 Display.dispose()
 ├── listeners.dispose()              // EventListenerManager
-├── cadTool.dispose()                // CadTool (raycaster, measurement)
+├── cadTool.dispose()                // CadTool (measurement tools)
 ├── clipSliders[].dispose()          // Slider instances
 ├── ambientlightSlider.dispose()     // Material sliders
 ├── treeView.dispose()               // TreeView (DOM, TreeModel)
@@ -851,7 +969,9 @@ Display.dispose()
     ├── bbox?.dispose()              // Bounding box
     ├── info?.dispose()              // Info overlay
     ├── animation?.dispose()         // Animation mixer
-    ├── nestedGroup.dispose()        // Scene graph
+    ├── pickingController.dispose()  // Hover/select/dblclick listeners
+    ├── idPicker?.dispose()          // Offscreen pick target + materials
+    ├── nestedGroup.dispose()        // Scene graph (incl. HighlightController)
     │   └── deepDispose(rootGroup)   // All meshes, geometries, materials
     ├── clipping?.dispose()          // Clipping planes
     └── renderer.dispose()           // WebGL context
@@ -878,6 +998,7 @@ src/
 │
 ├── core/                    # Application foundation
 │   ├── viewer.ts            # Main Viewer class (public API, rendering, camera)
+│   ├── picking-controller.ts # Hover/click/double-click picking orchestration
 │   ├── studio-manager.ts    # Studio mode orchestration (env, shadows, floor, subscriptions)
 │   ├── viewer-state.ts      # ViewerState (centralized state)
 │   ├── types.ts             # Shared type definitions
@@ -897,7 +1018,9 @@ src/
 │
 ├── rendering/               # Rendering pipeline
 │   ├── material-factory.ts  # Factory for Three.js materials
-│   ├── raycast.ts           # Mouse-based object picking
+│   ├── id-picking.ts        # GPU id-pick pass + ComponentRegistry + pick-layer helpers
+│   ├── highlight.ts         # HighlightController (shader-driven hover/select state texture)
+│   ├── picked.ts            # PickedComponent / IdPicked (picker↔tools currency)
 │   ├── tree-model.ts        # Tree data structure for visibility
 │   ├── studio-composer.ts   # Postprocessing pipeline (tone mapping, shadows, AO, SMAA)
 │   ├── studio-floor.ts      # ShadowMaterial ground plane for Studio mode
@@ -924,6 +1047,7 @@ src/
 │   └── cad_tools/
 │       ├── tools.ts         # Tool manager
 │       ├── measure.ts       # Distance/properties measurement
+│       ├── mesh-measure.ts  # Internal mesh measurement backend + BVH minimum distance
 │       ├── select.ts        # Object selection
 │       ├── zebra.ts         # Zebra stripe surface analysis
 │       └── ui.ts            # Tool UI helpers (panels, dropdowns)
@@ -957,7 +1081,7 @@ tests/
 | -------------- | ------------------------------------------------------------------------- |
 | **core/**      | Application foundation: main Viewer class, state management, shared types |
 | **scene/**     | 3D scene graph management: object groups, helpers, clipping, animation    |
-| **rendering/** | Rendering mechanics: materials, raycasting, visibility trees              |
+| **rendering/** | Rendering mechanics: materials, GPU id-picking, highlighting, visibility trees |
 | **camera/**    | Camera management and user interaction controls                           |
 | **ui/**        | DOM-based UI components: toolbar, tree view, sliders                      |
 | **tools/**     | CAD-specific tools: measurement, selection, zebra analysis                |
@@ -1395,134 +1519,21 @@ Type declarations are generated to `dist/index.d.ts` during build.
 
 ---
 
-## Version 4.0 Migration Reference
+## Version 5.0 Migration Reference
 
-This section documents breaking changes and migration patterns for upgrading from v3.x to v4.0.
+This section documents the breaking changes when upgrading from v4.x to v5.0 — the GPU picking / measurement rewrite. (Earlier v3.x → v4.0 migration notes were dropped; see the change log for the full history.)
 
 ### Breaking Changes Summary
 
-| Old (v3.x)                               | New (v4.0)                              | Notes                                                         |
-| ---------------------------------------- | --------------------------------------- | ------------------------------------------------------------- |
-| `viewer.collapse = 0/1/2/-1`             | `viewer.collapseNodes(CollapseState.*)` | Use `CollapseState` enum                                      |
-| `display.collapseNodes("R"/"C"/"E"/"1")` | `viewer.collapseNodes(CollapseState.*)` | Method moved to Viewer                                        |
-| Direct property access                   | State-based getters/setters             | e.g., `viewer.axes` → `viewer.getAxes()` / `viewer.setAxes()` |
-| `viewer.ambientIntensity`                | `viewer.state.get("ambientIntensity")`  | Properties moved to ViewerState                               |
-| `viewer.cadWidth` property               | `viewer.getCadWidth()` getter           | Use dimension getters                                         |
-| `edge_color` notification                | `default_edgecolor` notification        | Key renamed for consistency                                   |
-
-### CollapseState Enum
-
-Replaced magic numbers with named constants:
-
-```typescript
-export enum CollapseState {
-  LEAVES = -1, // Show only leaf nodes
-  COLLAPSED = 0, // All nodes collapsed
-  ROOT = 1, // Only root expanded
-  EXPANDED = 2, // All nodes expanded
-}
-
-// Usage
-import { CollapseState } from "three-cad-viewer";
-viewer.collapseNodes(CollapseState.EXPANDED);
-```
-
-### STATE_TO_NOTIFICATION_KEY Mapping
-
-Centralized mapping from ViewerState keys to notification callback keys:
-
-```typescript
-export const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
-  axes: "axes",
-  grid: "grid",
-  ortho: "ortho",
-  transparent: "transparent",
-  blackEdges: "black_edges",
-  defaultOpacity: "default_opacity",
-  defaultEdgeColor: "default_edgecolor",
-  ambientIntensity: "ambient_intensity",
-  directIntensity: "direct_intensity",
-  metalness: "metalness",
-  roughness: "roughness",
-  tools: "tools",
-  measureTools: "measureTools",
-  clipIntersection: "clip_intersection",
-  clipPlaneHelpers: "clip_plane_helpers",
-  clipObjectColors: "clip_object_colors",
-  clipNormal0: "clip_normal_0",
-  // ... additional mappings
-};
-```
-
-### UI Slider Synchronization Pattern
-
-Three sync methods ensure UI sliders reflect state values after `render()` applies config:
-
-```typescript
-// Called from Display.updateUI() after render completes
-syncMaterialSlidersFromState(): void {
-  const state = this.viewer.state;
-  this.ambientlightSlider?.setValueFromState(state.get("ambientIntensity") * 100);
-  this.directionallightSlider?.setValueFromState(state.get("directIntensity") * 100);
-  this.metalnessSlider?.setValueFromState(state.get("metalness") * 100);
-  this.roughnessSlider?.setValueFromState(state.get("roughness") * 100);
-}
-
-syncZebraSlidersFromState(): void {
-  const state = this.viewer.state;
-  this.zebraCountSlider?.setValueFromState(state.get("zebraCount"));
-  this.zebraOpacitySlider?.setValueFromState(state.get("zebraOpacity"));
-  this.zebraDirectionSlider?.setValueFromState(state.get("zebraDirection"));
-  this.setZebraColorSchemeSelect(state.get("zebraColorScheme"));
-  this.setZebraMappingModeSelect(state.get("zebraMappingMode"));
-}
-
-syncClipSlidersFromState(): void {
-  // Similar pattern for clipping sliders
-}
-```
-
-**Why this pattern exists:** State subscriptions with `immediate: true` fire during `setupUI()` before `render()` applies config values. Since `setRenderDefaults()` uses `notify=false`, subscriptions don't re-fire. These sync methods are called from `updateUI()` after render completes.
-
-### Event Listener Changes
-
-Keyboard event listeners moved from element-level to document-level:
-
-**Problem:** Canvas and div elements don't receive keyboard focus by default. Attaching `keydown` listeners to these elements requires `tabindex` attribute.
-
-**Solution:** Use document-level listeners for keyboard events:
-
-```typescript
-// Before (v3.x) - broken without tabindex
-this.domElement.addEventListener("keydown", this.onKeyDown);
-
-// After (v4.0) - works reliably
-document.addEventListener("keydown", this.onKeyDown);
-```
-
-Affected files:
-
-- `src/rendering/raycast.ts` - ESC/Backspace handling
-- `src/tools/cad_tools/ui.ts` - Filter keyboard shortcuts (v/e/f/s)
-
-### Raycaster Object Type Support
-
-Extended raycaster to support all topology types:
-
-```typescript
-// Before (v3.x) - only meshes
-if (isMesh(object) && object.material.visible) {
-  validObjs.push(obj);
-}
-
-// After (v4.0) - meshes, points, and lines
-const isValidType = isMesh(object) || isPoints(object) || isLine(object);
-if (isValidType && !Array.isArray(object.material) && object.material.visible) {
-  validObjs.push(obj);
-}
-```
+| Old (v4.x)                                                                  | New (v5.0)                          | Notes                                                                                                                                  |
+| --------------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `Viewer.raycaster`, `setRaycastMode`, `handleRaycast`, `handleRaycastEvent` | removed                             | Picking is GPU id-based now; selection and measurement still flow through `handlePick` and the `checkChanges` notifications            |
+| `toggleGroup`, `syncTreeStates`                                             | removed                             | The duplicated "exploded" scene graph is gone — there is one compact graph (see [Picking & Measurement](#picking--measurement))        |
+| `measurementDebug: true`                                                    | `externalMeasurementBackend: true`  | Renamed **and meaning inverted**: the default is now the internal mesh backend; embedders using the Python (`ocp_vscode`) backend must set `externalMeasurementBackend: true` |
+| dummy debug-measurement path                                                | internal `MeshMeasureBackend`       | Removed — real values are computed from the tessellated mesh                                                                          |
+| keymap: `S` Copy-IDs · `s` Studio · `a` Axes · `A` axes-at-origin           | `I` · `S` · `A` · `0`               | Lowercase `a`/`v`/`e`/`f`/`s` now drive the always-on topology filter, so the colliding action shortcuts moved to case-distinct keys   |
 
 ---
 
-**Document Version:** 1.4
-**Last Updated:** March 12, 2026
+**Document Version:** 1.5
+**Last Updated:** June 20, 2026
