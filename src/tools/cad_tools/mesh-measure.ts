@@ -573,24 +573,23 @@ export function closestSegmentSegment(
 }
 
 /**
- * Minimum distance between two components and the realizing points. Evaluates every
- * closest-feature pair, in BOTH argument orders, over the feature sets:
+ * Brute-force minimum distance between two components and the realizing points.
+ * Evaluates every closest-feature pair, in BOTH argument orders, over the feature sets:
  * point-vs-triangle, point-vs-segment, segment-vs-segment, and point-vs-point. This is
  * the complete set of closest-feature pairs for triangle meshes and their lower-dim
  * degenerations (edges = segments, vertices = points), so the result is exact for the
  * mesh and independent of which component is passed first.
+ *
+ * O(Ta·Tb) — quadratic. {@link minDistance} is the production entry: it uses this
+ * directly for small components and the BVH branch-and-bound above the pair threshold.
+ * Kept exported as the reference oracle the BVH path is property-tested against.
  */
-export function minDistance(
+export function minDistanceBrute(
   ga: MeshComponentGeometry,
   gb: MeshComponentGeometry,
-  // PHASE-7 BASELINE (temporary): when true, log feature/loop timings + problem
-  // size (the brute-force O(Ta·Tb) cost the BVH must beat). Remove after Phase 7.
-  timeit: boolean = false,
 ): { distance: number; point1: THREE.Vector3; point2: THREE.Vector3 } {
-  const _t0 = timeit ? performance.now() : 0;
   const fa = buildFeatures(ga);
   const fb = buildFeatures(gb);
-  const _t1 = timeit ? performance.now() : 0;
   let best = Infinity;
   const p1 = new THREE.Vector3();
   const p2 = new THREE.Vector3();
@@ -617,7 +616,6 @@ export function minDistance(
       consider(_cpA.distanceToSquared(pt), _cpA, pt);
     }
   }
-
   // point (ga) vs segment (gb), and the mirror — covers vertex-vs-edge-interior in
   // both orders (the case the previous guard-based version missed when ga was the edge)
   for (const pt of fa.points) {
@@ -632,7 +630,6 @@ export function minDistance(
       consider(_cpA.distanceToSquared(pt), _cpA, pt);
     }
   }
-
   // segment vs segment (edge-edge, and triangle-edge pairs for faces)
   for (const [a1, b1] of fa.segs) {
     for (const [a2, b2] of fb.segs) {
@@ -647,27 +644,537 @@ export function minDistance(
     }
   }
 
-  // PHASE-7 BASELINE (temporary): the headline numbers for the BVH crossover —
-  // triangle/segment counts (the work) and feature-extraction vs loop time.
-  if (timeit) {
-    const features = _t1 - _t0;
-    const loop = performance.now() - _t1;
-    const triPairs = fa.tris.length * fb.tris.length;
-    const segPairs = fa.segs.length * fb.segs.length;
-    console.info(
-      `three-cad-viewer: minDistance [${ga.topo} vs ${gb.topo}] ` +
-        `tris ${fa.tris.length}×${fb.tris.length}=${triPairs}, ` +
-        `segs ${fa.segs.length}×${fb.segs.length}=${segPairs}: ` +
-        `buildFeatures ${features.toFixed(1)} ms + ` +
-        `brute-force loop ${loop.toFixed(1)} ms = ` +
-        `${(features + loop).toFixed(1)} ms`,
-    );
-  }
-
   return {
     distance: Number.isFinite(best) ? Math.sqrt(best) : 0,
     point1: p1,
     point2: p2,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// BVH-accelerated minimum distance
+//
+// The brute force above is O(Ta·Tb): sphere-vs-sphere faces (5008 triangles each →
+// 25M tri-pairs, 226M seg-pairs) freeze the viewer for >8 s on a click; a helix face
+// for >1 min. This replaces it with an exact, sub-quadratic AABB-tree branch-and-bound.
+//
+// Each component reduces to a flat list of primitives — a face/solid to its triangles
+// (a triangle-vs-triangle distance subsumes vertex-face AND edge-edge contact, so the
+// separate segment loops vanish), an edge to its segments, a vertex to one point. One
+// generic traversal dispatches a primitive×primitive distance by type, so every topo
+// combination (face×face, face×edge, edge×edge, vertex×*) runs through the same pruned
+// search; small components fall back to the proven brute oracle below the threshold.
+// ---------------------------------------------------------------------------
+
+const PRIM_TRI = 0;
+const PRIM_SEG = 1;
+const PRIM_PT = 2;
+type PrimKind = typeof PRIM_TRI | typeof PRIM_SEG | typeof PRIM_PT;
+
+/** Leaf primitive: a triangle (a,b,c), segment (a,b) or point (a), + its centroid. */
+interface Prim {
+  kind: PrimKind;
+  a: THREE.Vector3;
+  b: THREE.Vector3 | null;
+  c: THREE.Vector3 | null;
+  cx: number;
+  cy: number;
+  cz: number;
+}
+
+/** AABB tree node: a leaf carries `prims`, an internal node carries `left`/`right`. */
+interface BVHNode {
+  minx: number;
+  miny: number;
+  minz: number;
+  maxx: number;
+  maxy: number;
+  maxz: number;
+  left: BVHNode | null;
+  right: BVHNode | null;
+  prims: Prim[] | null;
+}
+
+/** Primitives per leaf; small enough that leaf-leaf brute is cheap, big enough to keep
+ *  the tree shallow. */
+const BVH_LEAF_SIZE = 8;
+/** Below this many primitive pairs, skip the tree (build overhead > savings) and use the
+ *  brute oracle directly. ≈ a few leaves per side (BVH_LEAF_SIZE² = 64 is one leaf-leaf);
+ *  a one-shot click query, so the bar to bother building a tree is low. */
+const BVH_BRUTE_PAIR_THRESHOLD = 8192;
+
+function makeTri(a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3): Prim {
+  return {
+    kind: PRIM_TRI,
+    a,
+    b,
+    c,
+    cx: (a.x + b.x + c.x) / 3,
+    cy: (a.y + b.y + c.y) / 3,
+    cz: (a.z + b.z + c.z) / 3,
+  };
+}
+
+function makeSeg(a: THREE.Vector3, b: THREE.Vector3): Prim {
+  return {
+    kind: PRIM_SEG,
+    a,
+    b,
+    c: null,
+    cx: (a.x + b.x) / 2,
+    cy: (a.y + b.y) / 2,
+    cz: (a.z + b.z) / 2,
+  };
+}
+
+function makePt(a: THREE.Vector3): Prim {
+  return { kind: PRIM_PT, a, b: null, c: null, cx: a.x, cy: a.y, cz: a.z };
+}
+
+/**
+ * Reduce a component to its distance primitives, extracted DIRECTLY from the geometry
+ * (face/solid → triangles, edge → segments, vertex → point; a face with no indices
+ * degrades to a point cloud). NOT via {@link buildFeatures}: the BVH face path needs
+ * only the triangles, but buildFeatures also materializes the 3-per-triangle segment
+ * list and a deduped point set — ~3× the allocation, all discarded here. That waste is
+ * invisible on small models but dominates at the ~100k-triangle helix scale, so this
+ * builds only the primitives the tree consumes.
+ */
+function primReduce(geom: MeshComponentGeometry): Prim[] {
+  const p = geom.positions;
+  const prims: Prim[] = [];
+  if (geom.topo === "edge") {
+    // 6 floats per segment (endpoint pair)
+    for (let i = 0; i + 5 < p.length; i += 6) {
+      prims.push(
+        makeSeg(
+          new THREE.Vector3(p[i], p[i + 1], p[i + 2]),
+          new THREE.Vector3(p[i + 3], p[i + 4], p[i + 5]),
+        ),
+      );
+    }
+    return prims;
+  }
+  if (geom.topo === "vertex") {
+    prims.push(makePt(new THREE.Vector3(p[0], p[1], p[2])));
+    return prims;
+  }
+  // face / solid → triangles only
+  const idx = geom.indices;
+  if (idx === undefined) {
+    for (let i = 0; i + 2 < p.length; i += 3) {
+      prims.push(makePt(new THREE.Vector3(p[i], p[i + 1], p[i + 2])));
+    }
+    return prims;
+  }
+  // shared vertex pool; triangles index into it (vertices reused across triangles)
+  const verts: THREE.Vector3[] = [];
+  for (let i = 0; i + 2 < p.length; i += 3) {
+    verts.push(new THREE.Vector3(p[i], p[i + 1], p[i + 2]));
+  }
+  for (let t = 0; t + 2 < idx.length; t += 3) {
+    const a = verts[idx[t]];
+    const b = verts[idx[t + 1]];
+    const c = verts[idx[t + 2]];
+    if (a === undefined || b === undefined || c === undefined) continue;
+    prims.push(makeTri(a, b, c));
+  }
+  return prims;
+}
+
+/** Centroid coordinate of `p` on axis 0=x / 1=y / 2=z (branch, not dynamic key lookup —
+ *  this is the quickselect comparison hot path). */
+function centroidOnAxis(p: Prim, axis: number): number {
+  return axis === 0 ? p.cx : axis === 1 ? p.cy : p.cz;
+}
+
+// Split threshold on the chosen axis, produced by boundRange and consumed by buildRange
+// (single-threaded build → read immediately after boundRange, before any recursion).
+let _bvhSplit = 0;
+
+/**
+ * Bound the primitives `order[lo..hi)` index into `prims`: set `node`'s vertex AABB and
+ * return the longest centroid axis (0/1/2) for the split — both in ONE pass. Also stashes
+ * the spatial-median split threshold for that axis into `_bvhSplit`.
+ */
+function boundRange(
+  node: BVHNode,
+  prims: Prim[],
+  order: Uint32Array,
+  lo: number,
+  hi: number,
+): number {
+  let minx = Infinity;
+  let miny = Infinity;
+  let minz = Infinity;
+  let maxx = -Infinity;
+  let maxy = -Infinity;
+  let maxz = -Infinity;
+  let cminx = Infinity;
+  let cminy = Infinity;
+  let cminz = Infinity;
+  let cmaxx = -Infinity;
+  let cmaxy = -Infinity;
+  let cmaxz = -Infinity;
+  const grow = (v: THREE.Vector3): void => {
+    if (v.x < minx) minx = v.x;
+    if (v.y < miny) miny = v.y;
+    if (v.z < minz) minz = v.z;
+    if (v.x > maxx) maxx = v.x;
+    if (v.y > maxy) maxy = v.y;
+    if (v.z > maxz) maxz = v.z;
+  };
+  for (let i = lo; i < hi; i++) {
+    const p = prims[order[i]];
+    if (p.cx < cminx) cminx = p.cx;
+    if (p.cy < cminy) cminy = p.cy;
+    if (p.cz < cminz) cminz = p.cz;
+    if (p.cx > cmaxx) cmaxx = p.cx;
+    if (p.cy > cmaxy) cmaxy = p.cy;
+    if (p.cz > cmaxz) cmaxz = p.cz;
+    grow(p.a);
+    if (p.b !== null) grow(p.b);
+    if (p.c !== null) grow(p.c);
+  }
+  node.minx = minx;
+  node.miny = miny;
+  node.minz = minz;
+  node.maxx = maxx;
+  node.maxy = maxy;
+  node.maxz = maxz;
+  const ex = cmaxx - cminx;
+  const ey = cmaxy - cminy;
+  const ez = cmaxz - cminz;
+  const axis = ex >= ey && ex >= ez ? 0 : ey >= ez ? 1 : 2;
+  // split threshold = midpoint of the centroid extent on the chosen axis (the spatial
+  // median). Stashed for buildRange to read before any recursion overwrites it.
+  _bvhSplit =
+    axis === 0
+      ? (cminx + cmaxx) / 2
+      : axis === 1
+        ? (cminy + cmaxy) / 2
+        : (cminz + cmaxz) / 2;
+  return axis;
+}
+
+/** Build a subtree over the primitives `order[lo..hi)` index into `prims`. */
+function buildRange(
+  prims: Prim[],
+  order: Uint32Array,
+  lo: number,
+  hi: number,
+): BVHNode {
+  const node: BVHNode = {
+    minx: 0,
+    miny: 0,
+    minz: 0,
+    maxx: 0,
+    maxy: 0,
+    maxz: 0,
+    left: null,
+    right: null,
+    prims: null,
+  };
+  const axis = boundRange(node, prims, order, lo, hi);
+  if (hi - lo <= BVH_LEAF_SIZE) {
+    // materialize just this leaf's ≤ BVH_LEAF_SIZE primitives
+    const leaf: Prim[] = [];
+    for (let i = lo; i < hi; i++) leaf.push(prims[order[i]]);
+    node.prims = leaf;
+    return node;
+  }
+  // Partition order[lo..hi) in place around the spatial-median threshold on `axis`:
+  // centroids below it move left, the rest stay right. A single O(n) pass with a FIXED
+  // threshold — no sort, and no data-dependent pivot that could scan past the range.
+  const split = _bvhSplit;
+  let m = lo;
+  for (let i = lo; i < hi; i++) {
+    if (centroidOnAxis(prims[order[i]], axis) < split) {
+      const t = order[m];
+      order[m] = order[i];
+      order[i] = t;
+      m++;
+    }
+  }
+  // Degenerate cluster (everything on one side of the midpoint, incl. zero centroid
+  // extent) → split by count so the range still shrinks → recursion always terminates.
+  if (m === lo || m === hi) m = (lo + hi) >> 1;
+  node.left = buildRange(prims, order, lo, m);
+  node.right = buildRange(prims, order, m, hi);
+  return node;
+}
+
+/** Build an AABB tree over `prims` (spatial-median split on the longest centroid axis).
+ *  Works over an index permutation so internal nodes neither sort nor allocate. */
+function buildBVH(prims: Prim[]): BVHNode {
+  const order = new Uint32Array(prims.length);
+  for (let i = 0; i < order.length; i++) order[i] = i;
+  return buildRange(prims, order, 0, prims.length);
+}
+
+/** Squared distance between two AABBs (0 if they overlap). */
+function boxBoxDistSq(n: BVHNode, m: BVHNode): number {
+  let s = 0;
+  let d = m.minx - n.maxx;
+  if (d > 0) s += d * d;
+  else {
+    d = n.minx - m.maxx;
+    if (d > 0) s += d * d;
+  }
+  d = m.miny - n.maxy;
+  if (d > 0) s += d * d;
+  else {
+    d = n.miny - m.maxy;
+    if (d > 0) s += d * d;
+  }
+  d = m.minz - n.maxz;
+  if (d > 0) s += d * d;
+  else {
+    d = n.minz - m.maxz;
+    if (d > 0) s += d * d;
+  }
+  return s;
+}
+
+/** Squared length of an AABB's diagonal (used to pick which node to descend). */
+function boxDiagSq(n: BVHNode): number {
+  const dx = n.maxx - n.minx;
+  const dy = n.maxy - n.miny;
+  const dz = n.maxz - n.minz;
+  return dx * dx + dy * dy + dz * dz;
+}
+
+// Scratch for the primitive×primitive helpers — DISTINCT from `_cpA`/`_cpB` (which the
+// traversal passes as the out buffers), so an inner helper never clobbers the output.
+const _pdA = new THREE.Vector3();
+const _pdB = new THREE.Vector3();
+
+/**
+ * Minimum squared distance between triangle (ta,tb,tc) and segment (sa,sb), with the
+ * realizing points (on the triangle → `outTri`, on the segment → `outSeg`). Complete
+ * set: each segment endpoint vs the triangle (covers face interior + edges + vertices)
+ * and each triangle edge vs the segment.
+ */
+export function triSegDistance(
+  ta: THREE.Vector3,
+  tb: THREE.Vector3,
+  tc: THREE.Vector3,
+  sa: THREE.Vector3,
+  sb: THREE.Vector3,
+  outTri: THREE.Vector3,
+  outSeg: THREE.Vector3,
+): number {
+  let best = Infinity;
+  closestPointOnTriangle(sa, ta, tb, tc, _pdA);
+  let d = _pdA.distanceToSquared(sa);
+  if (d < best) {
+    best = d;
+    outTri.copy(_pdA);
+    outSeg.copy(sa);
+  }
+  closestPointOnTriangle(sb, ta, tb, tc, _pdA);
+  d = _pdA.distanceToSquared(sb);
+  if (d < best) {
+    best = d;
+    outTri.copy(_pdA);
+    outSeg.copy(sb);
+  }
+  const edges: [THREE.Vector3, THREE.Vector3][] = [
+    [ta, tb],
+    [tb, tc],
+    [tc, ta],
+  ];
+  for (const [e0, e1] of edges) {
+    d = closestSegmentSegment(e0, e1, sa, sb, _pdA, _pdB);
+    if (d < best) {
+      best = d;
+      outTri.copy(_pdA);
+      outSeg.copy(_pdB);
+    }
+  }
+  return best;
+}
+
+/**
+ * Minimum squared distance between triangles (a0,a1,a2) and (b0,b1,b2), with the
+ * realizing points (`outA` on the first, `outB` on the second). Complete set for
+ * disjoint triangles: each vertex vs the other triangle, plus all 9 edge-edge pairs.
+ * (Interpenetrating triangles can report a small positive value rather than 0 — the
+ * same limitation the brute oracle has, and irrelevant for distance between surfaces.)
+ */
+export function triTriDistance(
+  a0: THREE.Vector3,
+  a1: THREE.Vector3,
+  a2: THREE.Vector3,
+  b0: THREE.Vector3,
+  b1: THREE.Vector3,
+  b2: THREE.Vector3,
+  outA: THREE.Vector3,
+  outB: THREE.Vector3,
+): number {
+  let best = Infinity;
+  const va: [THREE.Vector3, THREE.Vector3, THREE.Vector3] = [a0, a1, a2];
+  const vb: [THREE.Vector3, THREE.Vector3, THREE.Vector3] = [b0, b1, b2];
+  for (const v of va) {
+    closestPointOnTriangle(v, b0, b1, b2, _pdA);
+    const d = v.distanceToSquared(_pdA);
+    if (d < best) {
+      best = d;
+      outA.copy(v);
+      outB.copy(_pdA);
+    }
+  }
+  for (const v of vb) {
+    closestPointOnTriangle(v, a0, a1, a2, _pdA);
+    const d = v.distanceToSquared(_pdA);
+    if (d < best) {
+      best = d;
+      outA.copy(_pdA);
+      outB.copy(v);
+    }
+  }
+  for (let i = 0; i < 3; i++) {
+    const p0 = va[i];
+    const p1 = va[(i + 1) % 3];
+    for (let j = 0; j < 3; j++) {
+      const d = closestSegmentSegment(p0, p1, vb[j], vb[(j + 1) % 3], _pdA, _pdB);
+      if (d < best) {
+        best = d;
+        outA.copy(_pdA);
+        outB.copy(_pdB);
+      }
+    }
+  }
+  return best;
+}
+
+/** Minimum squared distance between two primitives, dispatched by kind; closest points
+ *  written to `outA` (on `pa`) / `outB` (on `pb`). */
+function primDistance(
+  pa: Prim,
+  pb: Prim,
+  outA: THREE.Vector3,
+  outB: THREE.Vector3,
+): number {
+  if (pa.kind === PRIM_TRI) {
+    if (pb.kind === PRIM_TRI) {
+      return triTriDistance(pa.a, pa.b!, pa.c!, pb.a, pb.b!, pb.c!, outA, outB);
+    }
+    if (pb.kind === PRIM_SEG) {
+      return triSegDistance(pa.a, pa.b!, pa.c!, pb.a, pb.b!, outA, outB);
+    }
+    closestPointOnTriangle(pb.a, pa.a, pa.b!, pa.c!, outA);
+    outB.copy(pb.a);
+    return outA.distanceToSquared(pb.a);
+  }
+  if (pa.kind === PRIM_SEG) {
+    if (pb.kind === PRIM_TRI) {
+      // triangle is pb → its realizing point is outB, the segment's is outA
+      return triSegDistance(pb.a, pb.b!, pb.c!, pa.a, pa.b!, outB, outA);
+    }
+    if (pb.kind === PRIM_SEG) {
+      return closestSegmentSegment(pa.a, pa.b!, pb.a, pb.b!, outA, outB);
+    }
+    closestPointOnSegment(pb.a, pa.a, pa.b!, outA);
+    outB.copy(pb.a);
+    return outA.distanceToSquared(pb.a);
+  }
+  // pa is a point
+  if (pb.kind === PRIM_TRI) {
+    closestPointOnTriangle(pa.a, pb.a, pb.b!, pb.c!, outB);
+    outA.copy(pa.a);
+    return outB.distanceToSquared(pa.a);
+  }
+  if (pb.kind === PRIM_SEG) {
+    closestPointOnSegment(pa.a, pb.a, pb.b!, outB);
+    outA.copy(pa.a);
+    return outB.distanceToSquared(pa.a);
+  }
+  outA.copy(pa.a);
+  outB.copy(pb.a);
+  return pa.a.distanceToSquared(pb.a);
+}
+
+/** Mutable best-so-far carried through the branch-and-bound recursion. */
+interface BVHBest {
+  d2: number;
+  p1: THREE.Vector3;
+  p2: THREE.Vector3;
+}
+
+/** Branch-and-bound descent over node pairs: prune any pair whose box-box distance is
+ *  already ≥ the best found, and visit the closer child first so `best` tightens early. */
+function bvhTraverse(na: BVHNode, nb: BVHNode, best: BVHBest): void {
+  if (boxBoxDistSq(na, nb) >= best.d2) return;
+  if (na.prims !== null && nb.prims !== null) {
+    for (const pa of na.prims) {
+      for (const pb of nb.prims) {
+        const d = primDistance(pa, pb, _cpA, _cpB);
+        if (d < best.d2) {
+          best.d2 = d;
+          best.p1.copy(_cpA);
+          best.p2.copy(_cpB);
+        }
+      }
+    }
+    return;
+  }
+  let splitA: boolean;
+  if (na.prims !== null) splitA = false;
+  else if (nb.prims !== null) splitA = true;
+  else splitA = boxDiagSq(na) >= boxDiagSq(nb);
+  if (splitA) {
+    const l = na.left!;
+    const r = na.right!;
+    if (boxBoxDistSq(l, nb) <= boxBoxDistSq(r, nb)) {
+      bvhTraverse(l, nb, best);
+      bvhTraverse(r, nb, best);
+    } else {
+      bvhTraverse(r, nb, best);
+      bvhTraverse(l, nb, best);
+    }
+  } else {
+    const l = nb.left!;
+    const r = nb.right!;
+    if (boxBoxDistSq(na, l) <= boxBoxDistSq(na, r)) {
+      bvhTraverse(na, l, best);
+      bvhTraverse(na, r, best);
+    } else {
+      bvhTraverse(na, r, best);
+      bvhTraverse(na, l, best);
+    }
+  }
+}
+
+/**
+ * Minimum distance between two components and the realizing points — the production
+ * entry. Exact and sub-quadratic via a per-component AABB tree + branch-and-bound
+ * (see {@link minDistanceBrute} for the O(Ta·Tb) reference it is property-tested
+ * against, and which it delegates to for small inputs). Result is identical to the
+ * brute force and independent of argument order.
+ */
+export function minDistance(
+  ga: MeshComponentGeometry,
+  gb: MeshComponentGeometry,
+): { distance: number; point1: THREE.Vector3; point2: THREE.Vector3 } {
+  const pa = primReduce(ga);
+  const pb = primReduce(gb);
+  if (pa.length * pb.length <= BVH_BRUTE_PAIR_THRESHOLD) {
+    return minDistanceBrute(ga, gb);
+  }
+  const ta = buildBVH(pa);
+  const tb = buildBVH(pb);
+  const best: BVHBest = {
+    d2: Infinity,
+    p1: new THREE.Vector3(),
+    p2: new THREE.Vector3(),
+  };
+  bvhTraverse(ta, tb, best);
+
+  return {
+    distance: Number.isFinite(best.d2) ? Math.sqrt(best.d2) : 0,
+    point1: best.p1,
+    point2: best.p2,
   };
 }
 
@@ -945,11 +1452,7 @@ function directionOf(
  * can't be resolved (caller leaves the panel unanswered, same as a backend timeout).
  */
 export class MeshMeasureBackend {
-  constructor(
-    private getProvider: () => MeshGeometryProvider | null,
-    // PHASE-7 BASELINE (temporary): gates minDistance timing logs. Remove after Phase 7.
-    private getTimeit: () => boolean = () => false,
-  ) {}
+  constructor(private getProvider: () => MeshGeometryProvider | null) {}
 
   /** PropertiesMeasurement response for a single component. */
   properties(path: string): MeasureResponse | null {
@@ -1008,7 +1511,7 @@ export class MeshMeasureBackend {
       p2 = centroid(g2);
       distance = p1.distanceTo(p2);
     } else {
-      const r = minDistance(g1, g2, this.getTimeit());
+      const r = minDistance(g1, g2);
       p1 = r.point1;
       p2 = r.point2;
       distance = r.distance;

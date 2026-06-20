@@ -462,7 +462,6 @@ class Viewer {
     this.cadTools = new Tools(this);
     this.meshBackend = new MeshMeasureBackend(
       () => this.compactNestedGroup?.meshGeometry ?? null,
-      () => this.state.get("timeit"),
     );
 
     this.ready = false;
@@ -628,7 +627,6 @@ class Viewer {
       metalness: this.state.get("metalness"),
       roughness: this.state.get("roughness"),
       normalLen: this.state.get("normalLen"),
-      timeit: this.state.get("timeit"),
     };
 
     if (!this.shapeRenderer) {
@@ -1408,11 +1406,6 @@ class Viewer {
     // once-per-model zebra settings push must run again on the next activation.
     this._zebraSettingsApplied = false;
 
-    // PHASE-7 BASELINE (temporary): time the encoded-buffer decode. It runs before
-    // state.timeit is applied (setViewerDefaults, below), so read the flag from
-    // viewerOptions directly here. Remove after Phase 7.
-    const _timeit = viewerOptions.timeit ?? this.state.get("timeit");
-    const _tDecode = _timeit === true ? performance.now() : 0;
     // Decode instanced/compressed format if detected
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (isInstancedFormat(shapes as any)) {
@@ -1421,13 +1414,6 @@ class Viewer {
     }
     // Decode any remaining inline base64 buffers (e.g., edge/vertex-only objects)
     decodeInlineBuffers(shapes);
-    if (_timeit === true) {
-      console.info(
-        `three-cad-viewer: render decode buffers ${(
-          performance.now() - _tDecode
-        ).toFixed(1)} ms`,
-      );
-    }
     this.shapes = shapes;
     this.renderOptions = renderOptions;
     this.setViewerDefaults(viewerOptions);
@@ -1815,13 +1801,6 @@ class Viewer {
     // CAD update() in that case and let the activeTab subscription's
     // switchToTab handler paint the right content (or, for studio, show
     // the spinner over a blank canvas while async setup runs).
-    // PHASE-7 BASELINE (temporary): count compiled shader programs around the first
-    // paint. A big jump here = the `update done` cost is shader COMPILATION (which the
-    // id-picking pick/highlight material variants inflate → the customProgramCacheKey
-    // ticket); a small jump with a big time = geometry upload / draw cost instead.
-    const _timeit2 = this.state.get("timeit") === true;
-    const _progBefore = _timeit2 ? (this.renderer.info.programs?.length ?? 0) : 0;
-
     const targetTab = viewerOptions.tab ?? "tree";
     if (targetTab === "tree") {
       this.update(true, false);
@@ -1845,19 +1824,6 @@ class Viewer {
     // created) ZebraTools before applying, so non-default settings are preserved.
 
     timer.split("update done");
-    // PHASE-7 BASELINE (temporary): GPU stats after the first paint. `programs`
-    // compiled = _progAfter - _progBefore (the smoking gun for compile-bound paint);
-    // draw calls/triangles/geometries are reset per frame (last frame's counts).
-    if (_timeit2) {
-      const info = this.renderer.info;
-      const progAfter = info.programs?.length ?? 0;
-      console.info(
-        "three-cad-viewer: renderer.info after first paint: " +
-          `programs ${progAfter} (+${progAfter - _progBefore} compiled this paint), ` +
-          `draw calls ${info.render.calls}, triangles ${info.render.triangles}, ` +
-          `geometries ${info.memory.geometries}, textures ${info.memory.textures}`,
-      );
-    }
     timer.stop();
   }
 

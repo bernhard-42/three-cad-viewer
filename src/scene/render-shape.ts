@@ -39,8 +39,6 @@ interface ShapeRenderConfig {
   metalness: number;
   roughness: number;
   normalLen: number;
-  /** PHASE-7 BASELINE (temporary): log id-picking build timings. Remove after Phase 7. */
-  timeit: boolean;
 }
 
 // =============================================================================
@@ -94,8 +92,6 @@ class ShapeRenderer {
     );
     // id-based picking: assign per-vertex component ids for the GPU picker.
     nestedGroup.assignIds = assignIds;
-    // PHASE-7 BASELINE (temporary): forward the timeit flag so render() logs timings.
-    nestedGroup.timeit = this.config.timeit;
     if (shapes.bb) {
       this._bbox = new BoundingBox(
         new THREE.Vector3(shapes.bb.xmin, shapes.bb.ymin, shapes.bb.zmin),
