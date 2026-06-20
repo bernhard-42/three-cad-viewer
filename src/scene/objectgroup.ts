@@ -98,6 +98,13 @@ class ObjectGroup extends THREE.Group {
   edges: Edges | null;
   edgeMaterial: EdgeMaterial | null; // Stored separately for type safety
   vertices: VertexPoints | null;
+  /**
+   * Pick-only `obj_vertices` cloud for a solid's B-rep corners (vertex pick layer,
+   * off the visual layer). Has its own always-visible material, so it is NOT covered by
+   * {@link setShapeVisible}/{@link setEdgesVisible} — its pick-buffer visibility is kept
+   * in sync explicitly so a hidden solid's corners don't keep stealing hover picks.
+   */
+  pickVertices: VertexPoints | null;
   clipping: Map<number, THREE.Group>;
 
   isSelected: boolean;
@@ -153,6 +160,7 @@ class ObjectGroup extends THREE.Group {
     this.edges = null;
     this.edgeMaterial = null;
     this.vertices = null;
+    this.pickVertices = null;
     this.clipping = new Map();
 
     this.isSelected = false;
@@ -268,6 +276,26 @@ class ObjectGroup extends THREE.Group {
     this.vertices = points;
     this.originalColor = points.material.color.clone();
     this.originalWidth = points.material.size;
+  }
+
+  /**
+   * Register the pick-only B-rep-corner cloud (vertex pick layer). Its pick-buffer
+   * visibility is then kept in sync with the solid's overall visibility so a hidden
+   * solid stops contributing vertex ids to the pick buffer (otherwise its corners win
+   * the vertex>face priority over a visible face behind them → hover flicker).
+   */
+  setPickVertices(points: VertexPoints): void {
+    this.add(points);
+    this.pickVertices = points;
+    this._syncPickVertices();
+  }
+
+  /** Sync the pick-only vertex cloud's visibility with the group's (pickable iff the
+   *  front faces or edges are visible — matches the picker's hidden-component gate). */
+  private _syncPickVertices(): void {
+    if (this.pickVertices) {
+      this.pickVertices.visible = this.getVisibility();
+    }
   }
 
   /**
@@ -565,6 +593,7 @@ class ObjectGroup extends THREE.Group {
         }
       }
     }
+    this._syncPickVertices();
   }
 
   /**
@@ -577,6 +606,7 @@ class ObjectGroup extends THREE.Group {
     if (this.vertices) {
       this.vertices.material.visible = flag;
     }
+    this._syncPickVertices();
   }
 
   /**

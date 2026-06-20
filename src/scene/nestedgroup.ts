@@ -904,7 +904,9 @@ class NestedGroup {
       const pickPoints = new THREE.Points(vGeometry, pickMaterial);
       pickPoints.name = name;
       setPickLayerExclusive(pickPoints, "vertex"); // pick layer only (off visual 0)
-      group.add(pickPoints);
+      // Registered (not plain add) so its pick-buffer visibility tracks the solid's —
+      // a hidden solid must not keep contributing corner ids to the pick buffer.
+      group.setPickVertices(pickPoints);
 
       // a SEPARATE visual-highlight Points on visual layer 0 (NOT the pick
       // layer), sharing the same geometry. Non-flagged points are culled
