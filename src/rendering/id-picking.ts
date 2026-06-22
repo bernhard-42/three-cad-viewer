@@ -544,8 +544,12 @@ export function createVertexPickMaterial(
       vWorldPos = worldPos.xyz;
       vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
       gl_Position = projectionMatrix * mvPosition;
-      // Small forward bias so a corner vertex wins over its coincident face.
-      gl_Position.z -= gl_Position.w * 1e-4;
+      // Forward depth bias so a corner vertex wins the depth test over its
+      // coincident edges AND face. The biases MUST be monotonic with the
+      // vertex > edge > face hover priority: face 0 < edge 2e-4 < vertex 4e-4.
+      // (If the vertex bias were <= the edge's, the edge would sit in front and
+      // the vertex fragment would fail the depth test → vertices unpickable.)
+      gl_Position.z -= gl_Position.w * 4e-4;
       gl_PointSize = uPickSize;
       #include <clipping_planes_vertex>
     }
@@ -652,8 +656,10 @@ export function createEdgePickMaterial(
       clip.xy += offset;
 
       gl_Position = clip;
-      // Small forward bias so an edge wins over its two coincident faces at the
+      // Forward depth bias so an edge wins over its two coincident faces at the
       // crease (else a sharp/concave edge z-fights the faces and is unpickable).
+      // Must stay BELOW the vertex bias (4e-4) so a corner vertex still wins over
+      // its edges — keep face 0 < edge 2e-4 < vertex 4e-4 monotonic with priority.
       gl_Position.z -= gl_Position.w * 2e-4;
 
       vec4 mvPosition = ( position.y < 0.5 ) ? start : end; // approximation, for clipping
