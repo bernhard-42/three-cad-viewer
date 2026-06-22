@@ -1466,7 +1466,22 @@ export class MeshMeasureBackend {
     if (geom.topo === "vertex") {
       result.push({ xyz: refpoint.toArray() });
     } else if (geom.topo === "edge") {
-      result.push({ center: refpoint.toArray() });
+      // Circular edge: report the fitted circle center + radius/diameter (mesh-
+      // derived, ≈), matching the hover status line and the Python backend. Fall
+      // back to the polyline centroid when no circle fits.
+      const circ =
+        edgeGeomType(geom.geomType) === "Circle"
+          ? circleFromPolyline(geom.positions)
+          : null;
+      if (circ !== null) {
+        result.push({
+          center: circ.center,
+          radius: circ.radius,
+          diameter: 2 * circ.radius,
+        });
+      } else {
+        result.push({ center: refpoint.toArray() });
+      }
       const meas: Record<string, unknown> = { length: polylineLength(geom) };
       const d = edgeDirection(geom);
       if (d !== null) meas["angle to XY"] = angleToXY(d, true);

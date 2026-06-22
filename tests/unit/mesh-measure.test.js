@@ -71,6 +71,18 @@ function vertexAt(x, y, z) {
   return { topo: "vertex", geomType: -1, positions: new Float32Array([x, y, z]) };
 }
 
+// A circular edge (geomType 1 = Circle): full circle, center (5,0,0), radius 2,
+// in the XY plane, as segment-endpoint pairs like an edge tessellation.
+function circleEdge(cx = 5, cy = 0, cz = 0, r = 2, segments = 24) {
+  const pt = (t) => [cx + r * Math.cos(t), cy + r * Math.sin(t), cz];
+  const flat = [];
+  for (let i = 0; i < segments; i++) {
+    flat.push(...pt((2 * Math.PI * i) / segments));
+    flat.push(...pt((2 * Math.PI * (i + 1)) / segments));
+  }
+  return { topo: "edge", geomType: 1, positions: new Float32Array(flat) };
+}
+
 describe("mesh-measure: geom_type tables", () => {
   test("surface/curve ordinals map to the OCCT GeomAbs names", () => {
     expect(SURFACE_TYPE_NAMES[0]).toBe("Plane");
@@ -491,6 +503,7 @@ describe("mesh-measure: MeshMeasureBackend responses", () => {
       if (path === "/m/faces/faces_0") return squareFace(); // z=5, area 4, +Z
       if (path === "/m") return cube(); // solid, volume 8
       if (path === "/m/edges/edges_0") return edge(); // length 3 along +X
+      if (path === "/m/edges/circle") return circleEdge(); // r=2 @ (5,0,0)
       if (path === "/v0") return vertexAt(1, 1, 8);
       return null;
     },
@@ -525,6 +538,22 @@ describe("mesh-measure: MeshMeasureBackend responses", () => {
     expect(r.geom_type).toBe("Line");
     const lenBlock = r.result.find((b) => "length" in b);
     expect(lenBlock.length).toBeCloseTo(3, 9);
+  });
+
+  test("properties of a circular edge reports fitted center + radius + diameter", () => {
+    const r = backend.properties("/m/edges/circle");
+    expect(r.geom_type).toBe("Circle");
+    // The center/radius block carries the FITTED circle, not the polyline centroid.
+    const circ = r.result.find((b) => "radius" in b);
+    expect(circ).toBeDefined();
+    expect(circ.radius).toBeCloseTo(2, 3);
+    expect(circ.diameter).toBeCloseTo(4, 3);
+    expect(circ.center[0]).toBeCloseTo(5, 3);
+    expect(circ.center[1]).toBeCloseTo(0, 3);
+    expect(circ.center[2]).toBeCloseTo(0, 3);
+    // length still present (≈ 2πr)
+    const lenBlock = r.result.find((b) => "length" in b);
+    expect(lenBlock.length).toBeCloseTo(2 * Math.PI * 2, 1);
   });
 
   test("distance (min) between a vertex and a face", () => {
