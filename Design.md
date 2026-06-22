@@ -92,7 +92,7 @@ The Viewer class organizes its methods into logical sections:
 | **Lighting & Materials** | `setAmbientLight()`, `setDirectLight()`, `setMetalness()`, `setRoughness()`, `resetMaterial()` | Material properties           |
 | **Zebra Tool**           | `enableZebraTool()`, `setZebraCount()`, `setZebraOpacity()`, `setZebraDirection()`, etc.       | Surface analysis              |
 | **Clipping Planes**      | `setClipSlider()`, `setClipNormal()`, `setClipIntersection()`, `setClipPlaneHelpers()`         | Clipping controls             |
-| **Object Visibility**    | `setState()`, `setVisible()`, `getState()`                                                     | Object visibility             |
+| **Object Visibility**    | `setState()`, `getState()`, `setStates()`, `getStates()`                                       | Object visibility             |
 | **Scene Mutation**       | `addPart(parentPath, partData)`, `removePart(path)`                                            | Add/remove parts after render |
 | **Object Picking**       | `handlePick()` (GPU id-picking; see [Picking & Measurement](#picking--measurement))            | Hover / select / identify     |
 | **Image Export**         | `getImage()`, `pinAsPng()`                                                                     | Screenshot/export             |
@@ -202,7 +202,7 @@ These work with all pointer types including touchscreens (e.g., laptop with touc
 | Class                 | File                   | Purpose                           |
 | --------------------- | ---------------------- | --------------------------------- |
 | **Grid**              | `scene/grid.ts`        | XY/XZ/YZ grid planes with labels. |
-| **Axes**              | `scene/axes.ts`        | XYZ axis indicators.              |
+| **AxesHelper**        | `scene/axes.ts`        | XYZ axis indicators.              |
 | **BoundingBox**       | `scene/bbox.ts`        | Visual bounding box display.      |
 | **Info**              | `ui/info.ts`           | Object information overlay.       |
 | **OrientationMarker** | `scene/orientation.ts` | 3D orientation cube in corner.    |
@@ -211,10 +211,10 @@ These work with all pointer types including touchscreens (e.g., laptop with touc
 
 | Class                 | File                         | Purpose                                              |
 | --------------------- | ---------------------------- | ---------------------------------------------------- |
-| **CadTool**           | `tools/cad_tools/tools.ts`   | Tool manager for measurement, selection, properties. |
+| **Tools**             | `tools/cad_tools/tools.ts`   | Tool manager for measurement, selection, properties. |
 | **DistanceLineArrow** | `tools/cad_tools/measure.ts` | Measurement visualization.                           |
-| **Zebra**             | `tools/cad_tools/zebra.ts`   | Zebra stripe surface analysis tool.                  |
-| **Select**            | `tools/cad_tools/select.ts`  | Object selection tool.                               |
+| **ZebraTool**         | `tools/cad_tools/zebra.ts`   | Zebra stripe surface analysis tool.                  |
+| **SelectObject**      | `tools/cad_tools/select.ts`  | Object selection tool.                               |
 
 > Picking, highlighting and the measurement backends have their own section: [Picking & Measurement](#picking--measurement).
 
@@ -232,7 +232,7 @@ These work with all pointer types including touchscreens (e.g., laptop with touc
 | **KeyMapper**            | `utils/utils.ts` | Maps keyboard modifiers to actions.            |
 | **deepDispose**          | `utils/utils.ts` | Recursively disposes Three.js objects.         |
 | **disposeGeometry**      | `utils/utils.ts` | Disposes geometry and its attributes.          |
-| **disposeMaterial**      | `utils/utils.ts` | Disposes material and its textures.            |
+| **disposeMaterial**      | `utils/utils.ts` | Disposes material; detaches textures (TextureCache owns texture disposal). |
 
 ---
 
@@ -401,8 +401,8 @@ Materials are created through `MaterialFactory` for consistency:
 ```javascript
 class MaterialFactory {
   constructor(options) {
-    this.metalness = options.metalness ?? 0.7;
-    this.roughness = options.roughness ?? 0.7;
+    this.metalness = options.metalness ?? 0.3;
+    this.roughness = options.roughness ?? 0.65;
     // ...
   }
 
@@ -465,23 +465,22 @@ function disposeMesh(mesh) {
 function disposeMaterial(material) {
   if (!material) return;
 
-  // Dispose all texture properties via direct access
-  const textures = [
-    material.map,
-    material.normalMap,
-    material.roughnessMap,
-    material.metalnessMap,
-    material.aoMap,
-    material.emissiveMap,
-    material.alphaMap,
-    material.bumpMap,
-  ];
-  for (const texture of textures) {
-    if (isDisposable(texture)) texture.dispose();
+  // Detach every texture reference (MATERIAL_TEXTURE_KEYS covers all Standard +
+  // Physical maps). Textures are NOT disposed here -- TextureCache is the sole
+  // owner of loaded textures and is responsible for calling texture.dispose().
+  // This only nulls the material's map references to break the association.
+  for (const key of MATERIAL_TEXTURE_KEYS) {
+    if (material[key]) material[key] = null;
   }
+
+  gpuTracker.untrack("material", material);
   material.dispose();
 }
 ```
+
+> **Texture ownership:** `disposeMaterial` deliberately does not free texture GPU
+> memory — that is `TextureCache`'s job (`rendering/texture-cache.ts`). Materials
+> only hold borrowed references, so disposal detaches them rather than disposing.
 
 ### 4. EventListenerManager Pattern
 
@@ -558,7 +557,7 @@ This section documents all UI interactions and categorizes them by their data fl
 | ---------------------- | ----- | ----------------------------------------------------------------- | --------------------------------------- |
 | **STATE SUBSCRIPTION** | 20    | axes, grid, clip settings, material sliders, zebra, animationMode | State change → subscription → UI update |
 | **ACTION**             | 6     | reset, resize, pin                                                | One-time actions, no state change       |
-| **TOOL**               | 4     | measure, zscale                                                   | Separate subsystems with own state      |
+| **TOOL**               | 5     | explode, zscale, distance, properties, select                     | Separate subsystems with own state      |
 | **TRANSIENT**          | 3     | view buttons, help                                                | Derived/temporary visual indicators     |
 
 ### Data Flow Patterns
@@ -804,7 +803,7 @@ These tools have their own state management via `activeTool` and specialized sub
 
 #### 36. Animation Slider
 
-- **Display handler**: `animationChange(e)` → calls `this.viewer.animation.setRelativeTime()`
+- **Display handler**: `animationChange(e)` → calls `this.viewer.setRelativeTime()` (which delegates to `animation.setRelativeTime`)
 - **State**: `animationSliderValue` synced via subscription
 - **Subscription**: `state.subscribe("animationSliderValue", ..., { immediate: true })`
 
@@ -833,7 +832,7 @@ These tools have their own state management via `activeTool` and specialized sub
 └─────────┘     └─────────┘     └─────────────┘
 
 
-                    TOOL (4 cases)
+                    TOOL (5 cases)
 ┌─────────┐     ┌─────────┐     ┌─────────────┐     ┌──────────────┐
 │ Button  │────▶│ Display │────▶│   Viewer    │────▶│  activeTool  │
 │  Click  │     │ handler │     │  setTool()  │     │    state     │
@@ -859,7 +858,9 @@ These tools have their own state management via `activeTool` and specialized sub
   selectTool,
   explodeTool,
   zscaleTool,
-  zebraTool);
+  zebraTool,
+  studioTool,
+  externalMeasurementBackend);
 ```
 
 #### RENDER_DEFAULTS (material settings)
@@ -901,7 +902,8 @@ These tools have their own state management via `activeTool` and specialized sub
   zoom,
   panSpeed,
   rotateSpeed,
-  zoomSpeed);
+  zoomSpeed,
+  timeit);
 ```
 
 #### ZEBRA_DEFAULTS (zebra tool)
@@ -919,7 +921,7 @@ These tools have their own state management via `activeTool` and specialized sub
   studioToneMapping, // "neutral" (PBR Neutral)
   studioExposure, // 1.0
   studio4kEnvMaps, // false
-  studioTextureMapping, // "triplanar"
+  studioTextureMapping, // "parametric" ("triplanar" is the auto-fallback)
   studioEnvRotation, // 0
   studioShadowIntensity, // 0.5
   studioShadowSoftness, // 0.2
@@ -955,33 +957,46 @@ Use `immediate: true` for UI elements that need initial value sync (sliders, che
 
 ### Disposal Chain
 
+`Display` and `Viewer` are disposed independently by the embedder (Display does
+**not** call `viewer.dispose()`). `Viewer.dispose()` itself runs `clear()` first,
+which is where the scene-graph objects are torn down.
+
 ```
 Display.dispose()
-├── listeners.dispose()              // EventListenerManager
-├── cadTool.dispose()                // CadTool (measurement tools)
-├── clipSliders[].dispose()          // Slider instances
-├── ambientlightSlider.dispose()     // Material sliders
-├── treeView.dispose()               // TreeView (DOM, TreeModel)
-└── viewer.dispose()                 // Viewer
-    ├── controls.dispose()           // Camera controls
-    ├── axes.dispose()               // Axes helper
-    ├── grid.dispose()               // Grid helper
-    ├── bbox?.dispose()              // Bounding box
-    ├── info?.dispose()              // Info overlay
-    ├── animation?.dispose()         // Animation mixer
-    ├── pickingController.dispose()  // Hover/select/dblclick listeners
-    ├── idPicker?.dispose()          // Offscreen pick target + materials
-    ├── nestedGroup.dispose()        // Scene graph (incl. HighlightController)
-    │   └── deepDispose(rootGroup)   // All meshes, geometries, materials
-    ├── clipping?.dispose()          // Clipping planes
-    └── renderer.dispose()           // WebGL context
+├── _unsubscribers[]()               // detach all state subscriptions first
+├── listeners.dispose()              // EventListenerManager (DOM listeners)
+├── cadTool.dispose()                // Tools (toolbar + buttons)
+├── clipSliders[].dispose()          // clip plane sliders
+├── ambient/directional/metalness/roughness sliders.dispose()
+├── zebra{Count,Opacity,Direction} sliders.dispose()
+├── studio{EnvIntensity,Exposure,EnvRotation,AOIntensity} sliders.dispose()
+├── _matEditorDragAbort.abort() + disposeMatEditorClones()
+└── clear DOM (cadTree / canvas / container)
+
+Viewer.dispose()
+├── clear()                          // tears down the current scene:
+│   ├── pickingController.reset()    // drop selection/hover state
+│   ├── deepDispose(animation)       // animation mixer
+│   ├── deepDispose(scene)           // all meshes, geometries, materials, studio lights
+│   ├── deepDispose(gridHelper)      // grid (+ axes/bbox live under the scene graph)
+│   ├── deepDispose(clipping)        // clipping planes, stencils, caps
+│   ├── deepDispose(camera / controls / treeview)
+│   ├── deepDispose(info)
+│   └── idPicker.dispose()           // offscreen pick target + materials
+├── pickingController.dispose()      // remove hover/select/dblclick listeners
+├── _studioManager.dispose()         // composer, floor, env, shadows (before renderer)
+├── renderer.renderLists.dispose() + renderer.dispose() + forceContextLoss()
+└── deepDispose(cadTools) + flush _pendingDisposal
 ```
+
+> `HighlightController` lives in the scene graph and is freed by `deepDispose(scene)`;
+> there is no separate `nestedGroup.dispose()` / `axes.dispose()` / `bbox.dispose()` call.
 
 ### Key Disposal Points
 
 1. **Geometries**: Must call `geometry.dispose()` and dispose buffer attributes
-2. **Materials**: Must call `material.dispose()` and dispose all textures
-3. **Textures**: Must call `texture.dispose()`
+2. **Materials**: Must call `material.dispose()`; texture refs are detached, not disposed (see [disposeMaterial](#3-deepdispose-pattern))
+3. **Textures**: Owned and disposed by `TextureCache` (`rendering/texture-cache.ts`), not by material disposal
 4. **Event Listeners**: Must remove all DOM event listeners
 5. **Animation Mixers**: Must call `mixer.stopAllAction()` and `mixer.uncacheRoot()`
 6. **WebGL Renderer**: Must call `renderer.dispose()`
@@ -990,7 +1005,7 @@ Display.dispose()
 
 ## File Structure
 
-The source code is organized into 7 logical folders:
+The source code is organized into 8 logical folders:
 
 ```
 src/
@@ -1018,6 +1033,9 @@ src/
 │
 ├── rendering/               # Rendering pipeline
 │   ├── material-factory.ts  # Factory for Three.js materials
+│   ├── material-presets.ts  # PBR material presets (MATERIAL_PRESETS, public export)
+│   ├── texture-cache.ts     # TextureCache: owns/caches loaded textures (sole texture disposer)
+│   ├── triplanar.ts         # Triplanar texture-mapping shader injection
 │   ├── id-picking.ts        # GPU id-pick pass + ComponentRegistry + pick-layer helpers
 │   ├── highlight.ts         # HighlightController (shader-driven hover/select state texture)
 │   ├── picked.ts            # PickedComponent / IdPicked (picker↔tools currency)
@@ -1054,12 +1072,16 @@ src/
 │
 ├── utils/                   # Utility functions
 │   ├── utils.ts             # dispose, EventListenerManager, KeyMapper
+│   ├── decode-instances.ts  # Decode the instanced/encoded buffer shapes format
+│   ├── gpu-tracker.ts       # gpuTracker: GPU resource leak tracking
+│   ├── logger.ts            # logger utility
 │   ├── timer.ts             # Performance timing
 │   ├── sizeof.ts            # Memory size calculation
 │   └── font.ts              # Font data for 3D text
 │
 └── types/                   # Type declaration files
     ├── html.d.ts            # HTML element type augmentation
+    ├── n8ao.d.ts            # N8AO postprocessing pass type augmentation
     └── three-augmentation.d.ts  # THREE.js type augmentation
 
 tests/
@@ -1127,7 +1149,7 @@ and anti-aliasing.
 │     ┌──────────────────────────────────────────────┐            │
 │     │ EffectPass (3 effects in one shader)         │            │
 │     │  ├─ ShadowMaskEffect (depth-masked composite)│            │
-│     │  ├─ ToneMappingEffect (Neutral/AgX/ACES)     │            │
+│     │  ├─ ToneMappingEffect (Neutral/ACES/None)    │            │
 │     │  └─ SMAAEffect (anti-aliasing)               │            │
 │     └──────────────────────────────────────────────┘            │
 │                                                                 │
@@ -1144,7 +1166,7 @@ which analyzes the environment map to find the dominant light direction.
 
 - One `DirectionalLight` at intensity 0.01 (invisible illumination — shadow map only)
 - `PCFShadowMap` at 4096×4096, bias=-0.001
-- Shadow frustum sized to scene bounding box (`±maxExtent × 4`)
+- Shadow frustum sized to scene bounding box (`±maxExtent × 6`)
 
 **Two-pass screen-space blur:**
 
@@ -1273,7 +1295,8 @@ const viewer = new Viewer(
   display,
   viewerOptions,
   notifyCallback,
-  backendCallback,
+  pinAsPngCallback, // optional: receives the pinned PNG (ImageResult)
+  updateMarker, // optional, default true
 );
 viewer.render(shapesData, renderOptions, viewerOptions);
 ```
@@ -1423,10 +1446,17 @@ viewer.state.subscribe(
 
 ### Adding Materials
 
+> **Internal API.** `MaterialFactory` is not part of the public package export
+> (`three-cad-viewer` exports `Viewer`, `Display`, `EnvironmentManager`, `Timer`,
+> `logger`, `gpuTracker`, material presets + types). The example below is for
+> understanding the internal rendering path; import it by source path if needed.
+
 ```javascript
+import { MaterialFactory } from "three-cad-viewer/src/rendering/material-factory.js";
+
 const factory = new MaterialFactory({
-  metalness: 0.7,
-  roughness: 0.7,
+  metalness: 0.3,
+  roughness: 0.65,
   transparent: false,
 });
 
@@ -1453,6 +1483,10 @@ viewer.dispose();
 The codebase is fully migrated to TypeScript with strict type checking enabled.
 
 ### Compiler Options
+
+Key strictness options (excerpt — see `tsconfig.json` for the full block, which
+also sets `target: "ES2020"`, `module: "ESNext"`, `moduleResolution: "bundler"`,
+`declaration: true`, `isolatedModules: true`, etc.):
 
 ```json
 {
@@ -1493,11 +1527,15 @@ The codebase is fully migrated to TypeScript with strict type checking enabled.
 
 ### Explicit `any` Usage
 
-The codebase has only 2 explicit `any` usages, both documented:
+Explicit `any` is confined to a handful of bounded spots, each carrying an
+`eslint-disable @typescript-eslint/no-explicit-any` with a rationale:
 
-1. **`nestedgroup.ts:734`** - `_traverse(func: string, flag?: any)`: Dynamic dispatch pattern for calling methods by name with various argument types.
-
-2. **`slider.ts:11`** - `SliderHandler` type: Accommodates two different handler signatures (plane sliders vs value sliders).
+1. **`nestedgroup.ts`** - `_traverse(func: string, flag?: any)`: dynamic dispatch calling methods by name with various argument types.
+2. **`slider.ts`** - `SliderHandler` type: accommodates two handler signatures (plane sliders vs value sliders).
+3. **`viewer.ts`** - `shapes as any` casts in the instanced/studio buffer decode path.
+4. **`display.ts`** - `(x as any)[key]` casts in the declarative material-editor parameter loop.
+5. **`material-factory.ts`** - `(material as any)[mapName]` for dynamic texture-map assignment.
+6. **`studio-composer.ts`** - `_n8aoPass: any` (the N8AO pass has no shipped types).
 
 ### Public API Types
 
