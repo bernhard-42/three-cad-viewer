@@ -4,17 +4,38 @@
 
 Major release — the picking/selection architecture has been rewritten internally.
 
-- Replace the CPU `THREE.Raycaster` and the duplicated "exploded" scene graph with GPU **id-based picking** over a single compact scene graph (one merged face mesh + edges + points per solid). Hover, selection, measurement and double-click identify resolve the component under the cursor from an offscreen id buffer; highlighting is shader-driven (no per-pick material/geometry swaps). Selection behavior is unchanged, with much better scaling to large models. **Breaking:** the raycaster/exploded-graph API is removed — `Viewer.raycaster`, `setRaycastMode`, `handleRaycast`, `handleRaycastEvent`, `toggleGroup` and `syncTreeStates` no longer exist (selection and measurement still flow through `handlePick` and the `checkChanges` notifications).
-- Always-on hover preselection (B-rep models): hovering a component (no active tool required) highlights it and shows a status line with its fixed attributes — geom type, mesh-estimated length/area/volume, and for circular edges (holes, fillets) the center and radius (`r ≈ …, c ≈ …`); edge start/end are the exact B-rep vertices. Not enabled for GDS (dense, stacked layout data).
-- The topology filter (All / Vertex / Edge / Face / Solid) is always available for B-rep models (previously only while a select/measure tool was active), enabling whole-solid hover highlighting without a tool. Renamed the "None" option to "All"; restyled the dropdown as a standard select.
-- Add a built-in TypeScript mesh-based measurement backend so the measure tools (distance / properties) work without the external Python (`ocp_vscode`) backend, computing real values (area, length, volume, bounding box, min/center distance, angle) from the tessellated mesh; `shape_type`/`geom_type` are exact (from the tessellation `face_types`/`edge_types`).
-- Rename the `measurementDebug` option to `externalMeasurementBackend` (default `false`) and invert its meaning: the previous default routed to the external backend, the new default uses the internal mesh backend. **Breaking:** embedders that rely on the Python backend (e.g. `ocp_vscode`) must now set `externalMeasurementBackend: true`. The old dummy debug-measurement path is removed.
-- **Breaking (keymap):** default action shortcuts changed so the lowercase keys drive the always-on topology filter (`a` = All, `v`/`e`/`f`, `s` = Solid): Copy-IDs (select tool) `S` → `I`, Studio `s` → `S`, Axes `a` → `A`, axes-at-origin `A` → `0`. Button and tab tooltips reflect the configured keymap.
-- A new model now disables any active tool as the first step of `render()` (independent of `clear()`); the incremental `addPart`/`updatePart`/`removePart` API keeps the tool.
-- Performance: initial load time on large models roughly halved — zebra-stripe initialization is deferred to first use (it previously built a stripe texture for every object at load, even with zebra off) and the default clip-plane setup is batched into a single update instead of re-rendering once per setter.
-- Performance: the distance measurement's mesh minimum-distance search now uses a BVH (AABB-tree branch-and-bound) instead of the brute-force O(n·m) primitive scan — exact and sub-quadratic, so measuring between large or finely-tessellated faces (spheres, helices/springs) that previously froze the viewer for many seconds now resolves in milliseconds.
-- Fix: a hidden solid's pick-only B-rep corner vertices no longer linger in the GPU pick buffer, where they could steal hover preselection from a visible face behind them and make the highlight flicker.
-- Internal: extract all pointer-driven picking into a `PickingController`; move the pickable-tagging recipe and the pure pick helpers into the id-picking module (behavior-preserving).
+- **New picking system**
+  - Replace the CPU `THREE.Raycaster` and the duplicated "exploded" scene graph with GPU **id-based picking** over a single compact scene graph.
+  - Hover, selection, measurement and double-click identify resolve the component under the cursor from an offscreen id buffer
+  - Highlighting is shader-driven (no per-pick material/geometry swaps).
+  - Selection behavior is unchanged, with much better scaling to large models.
+  - The topology filter (All / Vertex / Edge / Face / Solid) is always available for B-rep models (previously only while a select/measure tool was active), enabling whole-solid hover highlighting without a tool. Renamed the "None" option to "All"; restyled the dropdown as a standard select.
+  - **Breaking:** The raycaster/exploded-graph API is removed — `Viewer.raycaster`, `setRaycastMode`, `handleRaycast`, `handleRaycastEvent`, `toggleGroup` and `syncTreeStates` no longer exist (selection and measurement still flow through `handlePick` and the `checkChanges` notifications).
+
+- **New status bar**
+  - Always-on hover preselection for CAD models: hovering a component (no active tool required) highlights it and shows a status line with its fixed attributes — geom type, mesh-estimated length/area/volume, and for circular edges (holes, fillets) the center and radius (`r ≈ …, c ≈ …`); edge start/end are the exact B-rep vertices. Not enabled for GDS (dense, stacked layout data).
+
+- **New mesh based Measurement**
+  - Add a built-in TypeScript mesh-based measurement backend so the measure tools (distance / properties) work without the external Python (`ocp_vscode`) backend
+  - Computes real values (area, length, volume, bounding box, min/center distance, angle) from the tessellated mesh; `shape_type`/`geom_type` are exact (from the tessellation `face_types`/`edge_types`).
+  - The distance measurement's mesh minimum-distance search uses a BVH (AABB-tree branch-and-bound) — exact and sub-quadratic, so measuring between large or finely-tessellated faces (spheres, helices/springs) do not freeze the viewer for many seconds (resolved in milliseconds).
+  - **Breaking:** Rename the `measurementDebug` option to `externalMeasurementBackend` (default `false`) and invert its meaning: the previous default routed to the external backend, the new default uses the internal mesh backend. Embedders that rely on the Python backend (e.g. `ocp_vscode`) must now set `externalMeasurementBackend: true`. The old dummy debug-measurement path is removed.
+
+- **Performance**
+  - Initial load time on large models roughly halved — zebra-stripe initialization is deferred to first use (it previously built a stripe texture for every object at load, even with zebra off) and the default clip-plane setup is batched into a single update instead of re-rendering once per setter.
+  - Clipping section caps now scale to large assemblies. The per-solid stencil and cap meshes are culled each frame to the on-screen, large-enough solids (sub-pixel solids are skipped and the total is bounded by a budget, largest-first), and are drawn only while the Clip tab is active. Previously, clipping and rotating a large model (~1000+ solids) while zoomed out issued thousands of cap draws per frame and could crash the WebGL context.
+
+- **Fixes**
+  - **Breaking:** Shortcuts (keymap) weren't unique and consistent. Changed so that default action shortcuts:
+    - the lowercase keys drive the always-on topology filter (`a` = All, `v`/`e`/`f`, `s` = Solid)
+    - Copy-IDs (select tool) `S` → `I`,
+    - Studio `s` → `S`,
+    - Axes `a` → `A`
+    - Axes-at-origin `A` → `0`.
+    - Button and tab tooltips reflect the configured keymap.
+  - Rendering a new model now disables any active tool as the first step of `render()`; the incremental `addPart`/`updatePart`/`removePart` API keeps the tool.
+  - Clipping section caps no longer leave stray "ghost" caps floating in empty space for non-watertight solids or for planes parked open — a cap is drawn only for a plane that actually cuts the solid.
+  - Clip-plane sliders now use a finer, model-size-scaled step (e.g. 0.1 instead of 1 on a ~200-unit model), for more precise sectioning.
 
 ## v4.3.9
 
