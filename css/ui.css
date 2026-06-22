@@ -164,29 +164,28 @@ input[type="radio"] {
   margin: 2px;
 }
 
-/* Hover preselection readout: transparent strip along the bottom of the canvas,
-   starting to the right of the orientation marker. Font a bit smaller than the
-   tree (14px). Pure overlay — never intercepts pointer events.
-   NOTE: left:84px clears the 80px orientation marker — keep in sync with the marker
-   size (OrientationMarker(80,80) in viewer.ts and .tcv_cad_inset width). */
+/* Hover preselection readout: a rounded overlay badge in a FIXED row directly
+   below the grid-size badge (.tcv_tick_size at bottom:22px), so the grid badge
+   never moves when this appears/vanishes. Left:84px clears the 80px orientation
+   marker — keep in sync with OrientationMarker(80,80) in viewer.ts. JS hides it
+   (display:none) when empty. Pure overlay — never intercepts pointer events. */
 .tcv_status_line {
   position: absolute;
-  bottom: 2px;
+  bottom: 4px;
   left: 84px;
-  right: 4px;
+  max-width: calc(100% - 88px);
   font-size: 12px;
+  line-height: 14px;
   font-family: sans-serif;
   color: var(--tcv-font-color);
-  /* subtle outline so the transparent text stays readable over any 3D background */
-  text-shadow:
-    0 0 2px var(--tcv-bg-color),
-    0 0 2px var(--tcv-bg-color);
-  background: transparent;
-  pointer-events: none;
+  background-color: var(--tcv-bg-overlay-rest-color);
+  border-radius: 4px;
+  padding: 1px 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  z-index: 10;
+  pointer-events: none;
+  z-index: 100;
 }
 
 .tcv_cad_view_glass {
@@ -1091,15 +1090,19 @@ input[type="button"] {
   background-color: var(--tcv-bg-overlay-color);
 }
 
+/* Grid-size badge: FIXED bottom-left row, just above the status readout. Stays
+   put whether or not the status line is shown (no jumping). */
 .tcv_tick_size {
-  background-color: var(--tcv-bg-overlay-color);
+  position: absolute;
+  bottom: 22px;
+  left: 84px;
+  background-color: var(--tcv-bg-overlay-rest-color);
   border-radius: 4px;
-  padding: 2px;
+  padding: 1px 4px;
   width: fit-content;
   font-size: 12px;
-  margin-left: 100px;
-  margin-top: -24px;
-  z-index: 1000;
+  line-height: 14px;
+  z-index: 100;
 }
 
 .tcv_tick_size_value {

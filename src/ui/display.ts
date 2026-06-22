@@ -938,10 +938,12 @@ class Display {
 
   /**
    * Set the hover status line (preselection readout). Empty string clears it.
-   * Transparent overlay at the bottom of the canvas, right of the orientation marker.
+   * A rounded overlay badge stacked below the grid-size indicator at the bottom
+   * left of the canvas; hidden entirely when empty so no empty badge shows.
    */
   setStatusLine(text: string): void {
     this.statusLine.textContent = text;
+    this.statusLine.style.display = text === "" ? "none" : "";
   }
 
   /**
