@@ -41,10 +41,12 @@ const PLANE_HELPER_OPACITY: Record<Theme, number> = {
 export const CAP_CULL_MIN_PX = 3;
 export const CAP_CULL_BUDGET = 400;
 
-// Scratch vectors for the per-frame screen-size projection (no per-call alloc).
+// Scratch objects for the per-frame screen-size projection + plane-straddle test
+// (no per-call alloc).
 const _cullCenter = new THREE.Vector3();
 const _cullEdge = new THREE.Vector3();
 const _cullRight = new THREE.Vector3();
+const _cullBox = new THREE.Box3();
 
 /**
  * The stencil + cap meshes backing one solid, grouped so {@link Clipping.cull}
@@ -735,11 +737,41 @@ class Clipping extends THREE.Group {
     }
 
     for (const unit of this._capUnits) {
-      const pass =
+      const solidPass =
         unit.radiusPx >= CAP_CULL_MIN_PX && unit.radiusPx >= threshold;
-      for (const g of unit.stencilGroups) g.visible = pass;
-      for (const c of unit.capMeshes) c.visible = pass;
+      // Per-plane gate: also require the plane to actually cut the solid. A plane
+      // parked open (or entirely past the solid) does not straddle the bbox; on a
+      // non-watertight solid its front/back stencil parity then fails to cancel,
+      // leaving a "ghost" cap floating where nothing is cut. Skipping those units
+      // (stencil AND cap together — they MUST stay paired so the per-cap
+      // clearStencil keeps isolating solids) removes the ghosts. Stencil/cap are
+      // gated jointly because an orphaned stencil write with no cap to clear it
+      // would corrupt the next solid's cap.
+      const box = solidPass ? this._solidWorldBox(unit.solid) : null;
+      for (let k = 0; k < unit.capMeshes.length; k++) {
+        const cap = unit.capMeshes[k];
+        const planeHit =
+          box !== null && this.clipPlanes[cap.index].intersectsBox(box);
+        unit.stencilGroups[k].visible = planeHit;
+        cap.visible = planeHit;
+      }
     }
+  }
+
+  /**
+   * World-space AABB of a solid (local bounding box transformed by the front
+   * mesh's world matrix, which folds in GDS z-scale). Returns a shared scratch
+   * Box3 (valid only until the next call) or `null` when geometry is missing.
+   */
+  private _solidWorldBox(solid: ObjectGroup): THREE.Box3 | null {
+    const front = solid.front;
+    const geometry = solid.shapeGeometry;
+    if (!front || !geometry) return null;
+    if (geometry.boundingBox === null) geometry.computeBoundingBox();
+    const bb = geometry.boundingBox;
+    if (bb === null) return null;
+    _cullBox.copy(bb).applyMatrix4(front.matrixWorld);
+    return _cullBox;
   }
 
   /**

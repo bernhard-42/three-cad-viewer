@@ -707,6 +707,9 @@ describe("Clipping - Screen-size cull (crash guard)", () => {
   test("shows on-screen solids when clip is active", () => {
     testContext = setupClipping({ numSolids: 2 });
     const { clipping, nestedGroup } = testContext;
+    // Move all three planes through the origin so they straddle the unit boxes
+    // (else the bbox gate correctly skips the caps — see the ghost-cap test).
+    for (let i = 0; i < 3; i++) clipping.setConstant(i, 0);
     nestedGroup.rootGroup.updateMatrixWorld(true);
 
     // worldWidth 100 → box radius ~0.866 → ~6.9 px ≥ MIN_PX.
@@ -715,6 +718,21 @@ describe("Clipping - Screen-size cull (crash guard)", () => {
     for (const unit of clipping._capUnits) {
       expect(unit.radiusPx).toBeGreaterThanOrEqual(CAP_CULL_MIN_PX);
       expect(unitOn(unit)).toBe(true);
+    }
+  });
+
+  test("skips caps for planes that don't cut the solid (ghost-cap guard)", () => {
+    testContext = setupClipping({ numSolids: 2 });
+    const { clipping, nestedGroup } = testContext;
+    // Planes parked fully open relative to the unit boxes (default distance =
+    // size/2 = 5, well outside the [-0.5, 0.5] boxes) → no plane straddles a
+    // solid → no caps, even though the solids are large on screen.
+    nestedGroup.rootGroup.updateMatrixWorld(true);
+    clipping.cull(makeOrthoCamera(100), 800, 800, true);
+
+    for (const unit of clipping._capUnits) {
+      expect(unit.radiusPx).toBeGreaterThanOrEqual(CAP_CULL_MIN_PX); // on-screen
+      expect(unitOn(unit)).toBe(false); // but no plane cuts it → no cap
     }
   });
 
@@ -735,6 +753,7 @@ describe("Clipping - Screen-size cull (crash guard)", () => {
   test("restores visibility after re-activating clip", () => {
     testContext = setupClipping({ numSolids: 2 });
     const { clipping, nestedGroup } = testContext;
+    for (let i = 0; i < 3; i++) clipping.setConstant(i, 0); // planes cut the boxes
     nestedGroup.rootGroup.updateMatrixWorld(true);
     const cam = makeOrthoCamera(100);
 
@@ -755,6 +774,7 @@ describe("Clipping - Screen-size cull (crash guard)", () => {
     const units = clipping._capUnits;
     expect(units).toHaveLength(n);
     units.forEach((unit, i) => unit.solid.front.scale.setScalar(2 + i * 0.01));
+    for (let i = 0; i < 3; i++) clipping.setConstant(i, 0); // planes cut the boxes
     nestedGroup.rootGroup.updateMatrixWorld(true);
 
     clipping.cull(makeOrthoCamera(100), 800, 800, true);
