@@ -652,6 +652,9 @@ export function createEdgePickMaterial(
       clip.xy += offset;
 
       gl_Position = clip;
+      // Small forward bias so an edge wins over its two coincident faces at the
+      // crease (else a sharp/concave edge z-fights the faces and is unpickable).
+      gl_Position.z -= gl_Position.w * 2e-4;
 
       vec4 mvPosition = ( position.y < 0.5 ) ? start : end; // approximation, for clipping
       #include <clipping_planes_vertex>

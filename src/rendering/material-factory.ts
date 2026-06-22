@@ -310,6 +310,14 @@ class MaterialFactory {
       depthWrite: !this.transparent,
       depthTest: !this.transparent,
       clipIntersection: false,
+      // Fat lines rasterize as triangles, so POLYGON_OFFSET_FILL applies. Pull
+      // edges slightly toward the camera (negative offset) to complement the
+      // faces being pushed back (+1/+1). Without this the screen-space-expanded
+      // line band dips behind steeply-angled faces at corners → edges look
+      // occluded, thinner, and z-fight ("jittery").
+      polygonOffset: true,
+      polygonOffsetFactor: -1.0,
+      polygonOffsetUnits: -1.0,
       vertexColors: vertexColors, // boolean, not string "VertexColors"
       toneMapped: false, // critical for correct vertex colors
     });
