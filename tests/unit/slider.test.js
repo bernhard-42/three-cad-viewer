@@ -363,7 +363,7 @@ describe("Slider - setLimits", () => {
 
     const slider = new Slider("plane1", 0, 100, container, { handler });
 
-    slider.setLimits(0.5); // 2 * 0.5 = 1, log10(1) = 0, step = 10^-3 = 0.001
+    slider.setLimits(0.5); // exp = round(log10(1)) = 0, step = 10^-4 = 0.0001 → floored to 0.001
 
     expect(slider.slider.step).toBe("0.001");
 
@@ -376,9 +376,9 @@ describe("Slider - setLimits", () => {
 
     const slider = new Slider("plane1", 0, 100, container, { handler });
 
-    slider.setLimits(500); // 2 * 500 = 1000, log10(1000) = 3, step = 10^0 = 1
+    slider.setLimits(500); // exp = round(log10(1000)) = 3, step = 10^-1 = 0.1
 
-    expect(slider.slider.step).toBe("1");
+    expect(slider.slider.step).toBe("0.1");
 
     slider.dispose();
   });

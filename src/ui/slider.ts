@@ -172,7 +172,10 @@ class Slider {
     const exp = Math.abs(Math.round(Math.log10(2 * limit)));
     this.slider.min = String(-limit);
     this.slider.max = String(limit);
-    this.slider.step = String(Math.pow(10, -(3 - exp)));
+    // Step scales with model size for a fine drag/arrow-key resolution (e.g. a
+    // ~200-unit model gets 0.1, not 1), floored at 0.001 to match the 3-decimal
+    // value display so a tiny model's step never drops below what is shown.
+    this.slider.step = String(Math.max(0.001, Math.pow(10, -(4 - exp))));
   }
 
   /**
