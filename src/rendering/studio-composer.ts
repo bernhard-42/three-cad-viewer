@@ -4,7 +4,7 @@
  * Wraps the pmndrs EffectComposer to provide:
  * - Scene rendering (RenderPass)
  * - Screen-space ambient occlusion (N8AOPostPass)
- * - Screen-space shadow mask (BasicShadowMap + KawaseBlurPass)
+ * - Screen-space shadow mask (PCFShadowMap + KawaseBlurPass)
  * - Tone mapping + sRGB output + antialiasing (ToneMappingEffect + SMAAEffect)
  *
  * Tone mapping is handled by the postprocessing ToneMappingEffect, which uses
@@ -18,7 +18,7 @@
  * transparent, and the EffectPass alpha-blends its output onto a pre-cleared
  * canvas that already has the correct background color.
  *
- * Shadow mask: BasicShadowMap produces sharp shadow boundaries at 4096×4096.
+ * Shadow mask: PCFShadowMap produces sharp shadow boundaries at 4096×4096.
  * A half-resolution ShadowMaterial override pass captures the mask, which is
  * then blurred via KawaseBlurPass and composited by ShadowMaskEffect before
  * tone mapping. The floor keeps its own ShadowMaterial reading the shadow map

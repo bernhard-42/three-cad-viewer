@@ -3,8 +3,8 @@
  *
  * Analyzes equirectangular HDR pixel data to find dominant light sources
  * (softboxes in studio HDRs, sun in outdoor HDRs). Returns direction,
- * intensity, and color for up to 2 lights, used to create shadow-casting
- * DirectionalLights in Studio mode.
+ * intensity, and color for up to MAX_LIGHTS (currently 1), used to create the
+ * shadow-casting DirectionalLight in Studio mode.
  *
  * Algorithm: downsample to 128x64 luminance grid → threshold at 10x median
  * → flood-fill cluster → convert centroids to 3D direction vectors.
@@ -82,7 +82,7 @@ function halfToFloat(h: number): number {
  * @param data - Raw pixel data (Uint16Array for HalfFloat, or Float32Array)
  * @param width - HDR image width in pixels
  * @param height - HDR image height in pixels
- * @returns Detection result with up to 2 lights
+ * @returns Detection result with up to MAX_LIGHTS (currently 1) lights
  */
 export function detectDominantLights(
   data: Uint16Array | Float32Array,
