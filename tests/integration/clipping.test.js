@@ -10,6 +10,31 @@ import {
   getPlaneConstant,
   getPlaneNormal,
 } from "../helpers/clipping-setup.js";
+import { CAP_CULL_MIN_PX, CAP_CULL_BUDGET } from "../../src/scene/clipping.js";
+
+/**
+ * Build an orthographic camera looking down -Z at the origin whose frustum is
+ * `worldWidth` world-units wide. Combined with an 800px viewport, a box at the
+ * origin projects to a predictable screen radius (= 800 * radiusWorld / worldWidth),
+ * so tests can drive solids above/below the cull thresholds deterministically.
+ */
+function makeOrthoCamera(worldWidth) {
+  const h = worldWidth / 2;
+  const cam = new THREE.OrthographicCamera(-h, h, h, -h, 0.1, 1000);
+  cam.position.set(0, 0, 10);
+  cam.lookAt(0, 0, 0);
+  cam.updateMatrixWorld(true);
+  cam.updateProjectionMatrix();
+  return cam;
+}
+
+/** A cull unit is "on" only when all its stencil groups AND cap quads are visible. */
+function unitOn(unit) {
+  return (
+    unit.stencilGroups.every((g) => g.visible) &&
+    unit.capMeshes.every((c) => c.visible)
+  );
+}
 
 describe("Clipping - Basic Setup", () => {
   let testContext;
@@ -642,5 +667,98 @@ describe("Clipping - rebuildStencils", () => {
 
     // objectColorCaps should still be true after rebuild
     expect(clipping.objectColorCaps).toBe(true);
+  });
+});
+
+describe("Clipping - Screen-size cull (crash guard)", () => {
+  let testContext;
+
+  afterEach(() => {
+    if (testContext) {
+      cleanupClipping(testContext);
+      testContext = null;
+    }
+  });
+
+  test("builds one cull unit per solid (not per plane)", () => {
+    testContext = setupClipping({ numSolids: 3 });
+    const { clipping } = testContext;
+
+    // 3 solids → 3 units; each unit holds the solid's 3 per-plane stencil
+    // groups + 3 cap quads (the edge-only group is skipped).
+    expect(clipping._capUnits).toHaveLength(3);
+    for (const unit of clipping._capUnits) {
+      expect(unit.stencilGroups).toHaveLength(3);
+      expect(unit.capMeshes).toHaveLength(3);
+    }
+  });
+
+  test("gates all stencils and caps off when clip is inactive", () => {
+    testContext = setupClipping({ numSolids: 2 });
+    const { clipping, nestedGroup } = testContext;
+    nestedGroup.rootGroup.updateMatrixWorld(true);
+
+    clipping.cull(makeOrthoCamera(100), 800, 800, false);
+
+    for (const unit of clipping._capUnits) expect(unitOn(unit)).toBe(false);
+    for (const cap of getPlaneMeshes(nestedGroup)) expect(cap.visible).toBe(false);
+  });
+
+  test("shows on-screen solids when clip is active", () => {
+    testContext = setupClipping({ numSolids: 2 });
+    const { clipping, nestedGroup } = testContext;
+    nestedGroup.rootGroup.updateMatrixWorld(true);
+
+    // worldWidth 100 → box radius ~0.866 → ~6.9 px ≥ MIN_PX.
+    clipping.cull(makeOrthoCamera(100), 800, 800, true);
+
+    for (const unit of clipping._capUnits) {
+      expect(unit.radiusPx).toBeGreaterThanOrEqual(CAP_CULL_MIN_PX);
+      expect(unitOn(unit)).toBe(true);
+    }
+  });
+
+  test("culls sub-pixel solids when zoomed far out", () => {
+    testContext = setupClipping({ numSolids: 2 });
+    const { clipping, nestedGroup } = testContext;
+    nestedGroup.rootGroup.updateMatrixWorld(true);
+
+    // worldWidth 100000 → ~0.007 px < MIN_PX → every solid culled.
+    clipping.cull(makeOrthoCamera(100000), 800, 800, true);
+
+    for (const unit of clipping._capUnits) {
+      expect(unit.radiusPx).toBeLessThan(CAP_CULL_MIN_PX);
+      expect(unitOn(unit)).toBe(false);
+    }
+  });
+
+  test("restores visibility after re-activating clip", () => {
+    testContext = setupClipping({ numSolids: 2 });
+    const { clipping, nestedGroup } = testContext;
+    nestedGroup.rootGroup.updateMatrixWorld(true);
+    const cam = makeOrthoCamera(100);
+
+    clipping.cull(cam, 800, 800, false); // gated off
+    for (const unit of clipping._capUnits) expect(unitOn(unit)).toBe(false);
+
+    clipping.cull(cam, 800, 800, true); // back on
+    for (const unit of clipping._capUnits) expect(unitOn(unit)).toBe(true);
+  });
+
+  test("hard budget caps the number of capped solids (largest-first)", () => {
+    const n = CAP_CULL_BUDGET + 5;
+    testContext = setupClipping({ numSolids: n });
+    const { clipping, nestedGroup } = testContext;
+
+    // Distinct per-solid scales → distinct screen radii (no threshold ties),
+    // all comfortably above MIN_PX, so only the budget bounds the count.
+    const units = clipping._capUnits;
+    expect(units).toHaveLength(n);
+    units.forEach((unit, i) => unit.solid.front.scale.setScalar(2 + i * 0.01));
+    nestedGroup.rootGroup.updateMatrixWorld(true);
+
+    clipping.cull(makeOrthoCamera(100), 800, 800, true);
+
+    expect(units.filter(unitOn).length).toBe(CAP_CULL_BUDGET);
   });
 });

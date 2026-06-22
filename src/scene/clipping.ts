@@ -28,6 +28,38 @@ const PLANE_HELPER_OPACITY: Record<Theme, number> = {
   dark: 0.2,
 };
 
+/**
+ * Cap-culling thresholds (see {@link Clipping.cull}). The per-solid stencil + cap
+ * meshes are correct but O(N) in draw calls; on a large assembly (~1300 solids ×
+ * 3 planes × 3 meshes ≈ 12000 draws/frame) a zoomed-out clip+rotate overruns the
+ * GPU watchdog → context loss. Culling bounds the per-frame work:
+ * - `CAP_CULL_MIN_PX`: skip a solid's caps when its projected screen radius is
+ *   below this (sub-pixel solids contribute nothing visible zoomed out).
+ * - `CAP_CULL_BUDGET`: hard cap on the number of capped solids (largest-first);
+ *   the real crash guard for pathologically dense views. Tune on a real GPU.
+ */
+export const CAP_CULL_MIN_PX = 3;
+export const CAP_CULL_BUDGET = 400;
+
+// Scratch vectors for the per-frame screen-size projection (no per-call alloc).
+const _cullCenter = new THREE.Vector3();
+const _cullEdge = new THREE.Vector3();
+const _cullRight = new THREE.Vector3();
+
+/**
+ * The stencil + cap meshes backing one solid, grouped so {@link Clipping.cull}
+ * can toggle all of a solid's per-plane units together by a single screen-size
+ * test. `radiusPx` caches the solid's projected screen radius for the frame.
+ */
+interface CapUnit {
+  solid: ObjectGroup;
+  /** The solid's per-plane stencil groups (front+back stencil meshes). */
+  stencilGroups: THREE.Group[];
+  /** The solid's per-plane cap quads (in `_planeMeshGroup`). */
+  capMeshes: PlaneMesh[];
+  radiusPx: number;
+}
+
 // ============================================================================
 // ClippingMaterials - Factory for clipping-related materials
 // ============================================================================
@@ -319,6 +351,17 @@ class Clipping extends THREE.Group {
   objectColorCaps: boolean;
   planeHelpers!: PlaneMeshGroup | null;
   private _planeMeshGroup: PlaneMeshGroup | null;
+  /** Per-solid stencil/cap units, the unit of screen-size culling. */
+  private _capUnits: CapUnit[] = [];
+  /**
+   * Whether {@link cull} last ran with clipping active. Lets the inactive path
+   * gate stencils/caps off exactly once, then early-return on later still frames.
+   * Starts `true` so the first inactive call performs the initial gate-off (the
+   * meshes default to `visible:true`).
+   */
+  private _cullActive = true;
+  /** Reused buffer for the budget threshold sort (no per-frame alloc). */
+  private _radiiScratch: number[] = [];
 
   /**
    * Create a Clipping instance.
@@ -434,6 +477,12 @@ class Clipping extends THREE.Group {
     this._planeMeshGroup = new PlaneMeshGroup();
     this._planeMeshGroup.name = "PlaneMeshes";
 
+    // Group the per-(solid,plane) units by solid for screen-size culling. The
+    // loop below is plane-major (and `objectColors`/`_planeMeshGroup` order must
+    // stay plane-major for setObjectColorCaps), so accumulate into a Map keyed by
+    // solid and flatten afterwards — without touching the plane-major structures.
+    const unitsBySolid = new Map<ObjectGroup, CapUnit>();
+
     for (let i = 0; i < 3; i++) {
       const plane = this.clipPlanes[i];
       const otherPlanes = this.clipPlanes.filter((_, j) => j !== i);
@@ -482,22 +531,32 @@ class Clipping extends THREE.Group {
             otherPlanes,
           );
 
-          this._planeMeshGroup.add(
-            new PlaneMesh(
-              i,
-              plane,
-              center,
-              size,
-              planeMaterial,
-              PLANE_COLORS[theme][i],
-              `StencilPlane-${i}-${j}`,
-            ),
+          const capMesh = new PlaneMesh(
+            i,
+            plane,
+            center,
+            size,
+            planeMaterial,
+            PLANE_COLORS[theme][i],
+            `StencilPlane-${i}-${j}`,
           );
+          this._planeMeshGroup.add(capMesh);
+
+          // Record the cull unit for this solid (one entry per solid, holding
+          // its up-to-3 per-plane stencil groups + cap quads).
+          let unit = unitsBySolid.get(group);
+          if (unit === undefined) {
+            unit = { solid: group, stencilGroups: [], capMeshes: [], radiusPx: 0 };
+            unitsBySolid.set(group, unit);
+          }
+          unit.stencilGroups.push(clippingGroup);
+          unit.capMeshes.push(capMesh);
           j++;
         }
       }
     }
 
+    this._capUnits = [...unitsBySolid.values()];
     this.nestedGroup.rootGroup!.add(this._planeMeshGroup);
   }
 
@@ -534,6 +593,11 @@ class Clipping extends THREE.Group {
 
     // Rebuild stencils with current state
     this._createStencils(center, size, this.theme);
+
+    // Fresh stencil/cap meshes default to visible:true; force the next cull to
+    // re-gate them (else an inactive-clip cull would early-return and leave the
+    // new meshes rendering).
+    this._cullActive = true;
 
     // Reapply object color caps if enabled
     if (this.objectColorCaps) {
@@ -610,6 +674,108 @@ class Clipping extends THREE.Group {
   };
 
   /**
+   * Bound the per-frame stencil/cap draw work to keep large assemblies from
+   * overrunning the GPU watchdog on clip+rotate (see {@link CAP_CULL_MIN_PX}).
+   *
+   * Toggles each unit's `Object3D.visible` (NOT material.visible), which composes
+   * by AND with the existing material-level toggles — `setShapeVisible` (per-solid
+   * hide) and `setVisible` (clip-tab on/off) — so a unit renders only when it is
+   * un-culled AND its solid is shown AND the clip tab is active. Render order and
+   * the per-solid `clearStencil` isolation are untouched (removing a whole solid's
+   * units never affects the remaining solids' cap correctness).
+   *
+   * @param camera - The active camera (ortho or perspective).
+   * @param width - Canvas width in CSS px.
+   * @param height - Canvas height in CSS px.
+   * @param clipActive - `renderer.localClippingEnabled` (clip tab selected).
+   */
+  cull(
+    camera: THREE.Camera,
+    width: number,
+    height: number,
+    clipActive: boolean,
+  ): void {
+    if (this._capUnits.length === 0) return;
+
+    if (!clipActive) {
+      // Clip off: gate every unit off once (master leaves the stencils rendering
+      // every frame as scene-graph children — pure waste), then skip still frames.
+      if (!this._cullActive) return;
+      for (const unit of this._capUnits) {
+        for (const g of unit.stencilGroups) g.visible = false;
+        for (const c of unit.capMeshes) c.visible = false;
+      }
+      this._cullActive = false;
+      return;
+    }
+    this._cullActive = true;
+
+    // Camera right vector in world space = column 0 of the camera world matrix.
+    camera.updateMatrixWorld();
+    const e = camera.matrixWorld.elements;
+    _cullRight.set(e[0], e[1], e[2]).normalize();
+    const halfW = width * 0.5;
+    const halfH = height * 0.5;
+
+    // Project each solid's bounding sphere to a screen radius (px).
+    const radii = this._radiiScratch;
+    radii.length = 0;
+    for (const unit of this._capUnits) {
+      unit.radiusPx = this._solidScreenRadius(unit.solid, camera, halfW, halfH);
+      if (unit.radiusPx >= CAP_CULL_MIN_PX) radii.push(unit.radiusPx);
+    }
+
+    // Hard budget: when more solids pass MIN_PX than the budget, keep only the
+    // largest CAP_CULL_BUDGET (threshold = the budget-th largest radius). Ties at
+    // the threshold may let a few extra through — fine, the budget is approximate.
+    let threshold = 0;
+    if (radii.length > CAP_CULL_BUDGET) {
+      radii.sort((a, b) => b - a);
+      threshold = radii[CAP_CULL_BUDGET - 1];
+    }
+
+    for (const unit of this._capUnits) {
+      const pass =
+        unit.radiusPx >= CAP_CULL_MIN_PX && unit.radiusPx >= threshold;
+      for (const g of unit.stencilGroups) g.visible = pass;
+      for (const c of unit.capMeshes) c.visible = pass;
+    }
+  }
+
+  /**
+   * Projected screen radius (px) of a solid's bounding sphere. Projects the world
+   * sphere center and a point one world-radius along the camera-right axis, and
+   * measures their screen-space separation — correct for both ortho and
+   * perspective. Returns `Infinity` (never cull) when geometry is missing.
+   */
+  private _solidScreenRadius(
+    solid: ObjectGroup,
+    camera: THREE.Camera,
+    halfW: number,
+    halfH: number,
+  ): number {
+    const front = solid.front;
+    const geometry = solid.shapeGeometry;
+    if (!front || !geometry) return Infinity;
+    if (geometry.boundingSphere === null) geometry.computeBoundingSphere();
+    const bs = geometry.boundingSphere;
+    if (bs === null) return Infinity;
+
+    // front.matrixWorld already folds in GDS z-scale (applied below ObjectGroup);
+    // read it as-is (one-frame stale during animation is harmless for culling).
+    const m = front.matrixWorld;
+    _cullCenter.copy(bs.center).applyMatrix4(m);
+    const r = bs.radius * m.getMaxScaleOnAxis();
+    _cullEdge.copy(_cullCenter).addScaledVector(_cullRight, r);
+
+    _cullCenter.project(camera);
+    _cullEdge.project(camera);
+    const dx = (_cullEdge.x - _cullCenter.x) * halfW;
+    const dy = (_cullEdge.y - _cullCenter.y) * halfH;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  /**
    * Save the current clipping state for later restoration.
    * Captures plane positions, helper visibility, and stencil plane visibility.
    * Used by Studio mode to snapshot clipping state before disabling clipping.
@@ -662,6 +828,7 @@ class Clipping extends THREE.Group {
     this.center = null;
     this.planeHelpers = null;
     this._planeMeshGroup = null;
+    this._capUnits = [];
   }
 }
 

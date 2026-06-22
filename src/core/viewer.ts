@@ -975,6 +975,17 @@ class Viewer {
       );
     }
 
+    // Bound the clip stencil/cap draw work to the on-screen, large-enough solids
+    // (or gate it off entirely when the clip tab is inactive). Without this, a
+    // large assembly zoomed out renders ~12000 stencil/cap draws/frame → GPU
+    // watchdog → context loss on clip+rotate.
+    this.rendered.clipping.cull(
+      this.rendered.camera.getCamera(),
+      this.state.get("cadWidth"),
+      this.state.get("height"),
+      this.renderer.localClippingEnabled,
+    );
+
     // Render: use composer pipeline when available (AO + tone mapping + SMAA),
     // otherwise fall back to direct renderer.render().
     if (this._studioManager.hasComposer) {
