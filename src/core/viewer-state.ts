@@ -682,26 +682,35 @@ class ViewerState {
 
     const converted: Partial<StateShape> = { ...rest };
 
-    // Convert tuple values to THREE objects
-    if (clipNormal0 !== undefined) {
+    // Convert tuple values to THREE objects. Guard with Array.isArray (not
+    // `!== undefined`): a `null` clip normal — which the embedder may send when it
+    // forwards no clip params — must be skipped, else `new THREE.Vector3(...null)`
+    // throws "Spread syntax requires ...iterable". null/undefined → leave state as-is.
+    if (Array.isArray(clipNormal0)) {
       converted.clipNormal0 = new THREE.Vector3(...clipNormal0);
     }
-    if (clipNormal1 !== undefined) {
+    if (Array.isArray(clipNormal1)) {
       converted.clipNormal1 = new THREE.Vector3(...clipNormal1);
     }
-    if (clipNormal2 !== undefined) {
+    if (Array.isArray(clipNormal2)) {
       converted.clipNormal2 = new THREE.Vector3(...clipNormal2);
     }
+    // Array.isArray (not truthiness): a non-array value would reach the spread and
+    // throw; null/undefined/non-array → reset the field to null (its "not set" state).
     if (position !== undefined) {
-      converted.position = position ? new THREE.Vector3(...position) : null;
+      converted.position = Array.isArray(position)
+        ? new THREE.Vector3(...position)
+        : null;
     }
     if (quaternion !== undefined) {
-      converted.quaternion = quaternion
+      converted.quaternion = Array.isArray(quaternion)
         ? new THREE.Quaternion(...quaternion)
         : null;
     }
     if (target !== undefined) {
-      converted.target = target ? new THREE.Vector3(...target) : null;
+      converted.target = Array.isArray(target)
+        ? new THREE.Vector3(...target)
+        : null;
     }
 
     this._update(converted, notify);

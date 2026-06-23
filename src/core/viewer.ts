@@ -322,11 +322,6 @@ class Viewer {
   shapes: Shapes | null;
   gridSize!: number;
 
-  // Grid size from the previous render, used to decide whether the new
-  // geometry is "the same model" for clip-slider preservation.
-  // Survives clear() so reused viewers remember the previous geometry.
-  private _previousGridSize: number = 0;
-
   // Animation
   hasAnimationLoop: boolean;
   mixer: THREE.AnimationMixer | null;
@@ -1667,39 +1662,22 @@ class Viewer {
     this.display.setSliderLimits(this.gridSize / 2);
     this.display.syncClipSlidersFromState();
 
-    // Compute clip slider values (used later after ready=true).
+    // Clip slider/normal values (applied later, after ready=true).
     //
-    // Three-tier policy:
-    //   1. Caller passed a value (viewerOptions.clipSliderN != null) → use
-    //      it. Caller intent always wins.
-    //   2. Same geometry as last render (gridSize unchanged) AND state has
-    //      a real value (≠ -1, the default sentinel) → reuse state. This
-    //      preserves the user's slider drag when re-rendering the same
-    //      model.
-    //   3. New geometry (or first render) → default to gridSize/2.
-
-    const gridSizeChanged = this._previousGridSize !== this.gridSize;
-    this._previousGridSize = this.gridSize;
-    const resolveSlider = (
-      passed: number | undefined,
-      stateValue: number,
-    ): number => {
-      if (passed != null) return passed;
-      if (!gridSizeChanged && stateValue !== -1) return stateValue;
-      return this.gridSize / 2;
-    };
-    const clipSlider0 = resolveSlider(
-      viewerOptions.clipSlider0,
-      this.state.get("clipSlider0"),
-    );
-    const clipSlider1 = resolveSlider(
-      viewerOptions.clipSlider1,
-      this.state.get("clipSlider1"),
-    );
-    const clipSlider2 = resolveSlider(
-      viewerOptions.clipSlider2,
-      this.state.get("clipSlider2"),
-    );
+    // The viewer is a PURE function of the input — a caller-provided value wins,
+    // and anything not provided resets to its default. ALL clip policy (the "same
+    // model → keep, new model → reset" decision, roundtrip persistence) lives in the
+    // embedder, which forwards the full clip state when it wants it kept (it has the
+    // viewer's current clip via status()). Per field:
+    //   - slider not provided        → gridSize/2 (fully open)
+    //   - normal not provided        → the default axis-aligned plane
+    //   - intersection/planes/caps   → false (handled in the setters below)
+    const mid = this.gridSize / 2;
+    const resolveSlider = (passed: number | undefined): number =>
+      passed != null ? passed : mid;
+    const clipSlider0 = resolveSlider(viewerOptions.clipSlider0);
+    const clipSlider1 = resolveSlider(viewerOptions.clipSlider1);
+    const clipSlider2 = resolveSlider(viewerOptions.clipSlider2);
 
     nestedGroup.setClipPlanes(clipping.clipPlanes);
 
@@ -1739,38 +1717,22 @@ class Viewer {
 
     // Apply clip settings AFTER ready=true (clip setters check this.ready).
     //
-    // Same three-tier policy as clipSlider above (caller wins → reuse state
-    // on same geometry → reset on new geometry). The default normals are
-    // the axis-aligned planes that match the Clipping subsystem's own
-    // DEFAULT_NORMALS.
+    // Pure resolve (same as the sliders): a caller-provided normal wins, otherwise
+    // the default axis-aligned plane (matching the Clipping subsystem's
+    // DEFAULT_NORMALS).
     //
     // Always passing a non-null normal means setClipNormal also handles the
     // slider write (it calls setClipSlider internally), so no separate
     // setClipSlider follow-up is needed here.
     const resolveNormal = (
-      passed: Vector3Tuple | undefined,
-      stateValue: THREE.Vector3,
+      passed: Vector3Tuple | undefined | null,
       defaultTuple: Vector3Tuple,
-    ): Vector3Tuple => {
-      if (passed != null) return passed;
-      if (!gridSizeChanged) return [stateValue.x, stateValue.y, stateValue.z];
-      return defaultTuple;
-    };
-    const clipNormal0 = resolveNormal(
-      viewerOptions.clipNormal0,
-      this.state.get("clipNormal0"),
-      [-1, 0, 0],
-    );
-    const clipNormal1 = resolveNormal(
-      viewerOptions.clipNormal1,
-      this.state.get("clipNormal1"),
-      [0, -1, 0],
-    );
-    const clipNormal2 = resolveNormal(
-      viewerOptions.clipNormal2,
-      this.state.get("clipNormal2"),
-      [0, 0, -1],
-    );
+      // Only a real [x,y,z] tuple is a valid normal; anything else (null, undefined,
+      // or a malformed non-array forwarded by an embedder) falls back to the default.
+    ): Vector3Tuple => (Array.isArray(passed) ? passed : defaultTuple);
+    const clipNormal0 = resolveNormal(viewerOptions.clipNormal0, [-1, 0, 0]);
+    const clipNormal1 = resolveNormal(viewerOptions.clipNormal1, [0, -1, 0]);
+    const clipNormal2 = resolveNormal(viewerOptions.clipNormal2, [0, 0, -1]);
     // Tier-1 clip-init batch: each of these setters assigns clip planes to ~5k
     // materials (setting needsUpdate) and then paints. Suppress their individual
     // paints — the state they set is identical regardless of paint count, and the
@@ -4197,7 +4159,10 @@ class Viewer {
     value: number | null = null,
     notify: boolean = true,
   ): void {
-    if (normal == null || !this.ready) return;
+    // Require a real [x,y,z] tuple: `normal == null` alone let a non-array value
+    // (e.g. a malformed clip_normal forwarded by an embedder) reach the spread
+    // below and throw "Spread syntax requires ...iterable".
+    if (!Array.isArray(normal) || !this.ready) return;
     const normal1 = new THREE.Vector3(...normal).normalize();
     this.clipNormals[index] = normal1;
 

@@ -238,6 +238,18 @@ describe("ViewerState", () => {
       expect(position.z).toBe(30);
     });
 
+    test("skips null/undefined clip normals without throwing (no spread of null)", () => {
+      const state = new ViewerState();
+      const before = state.get("clipNormal0");
+
+      // An embedder forwarding no clip params sends null — must not crash on
+      // `new THREE.Vector3(...null)`, and must leave the existing normal untouched.
+      expect(() =>
+        state.updateViewerState({ clipNormal0: null, clipNormal1: undefined }),
+      ).not.toThrow();
+      expect(state.get("clipNormal0")).toBe(before);
+    });
+
     test("converts QuaternionTuple to THREE.Quaternion", () => {
       const state = new ViewerState();
 
