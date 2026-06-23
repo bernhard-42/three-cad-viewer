@@ -5,6 +5,7 @@ import {
   CURVE_TYPE_NAMES,
   faceGeomType,
   edgeGeomType,
+  displayGeomType,
   buildFeatures,
   triangulatedArea,
   polylineLength,
@@ -96,6 +97,17 @@ describe("mesh-measure: geom_type tables", () => {
   test("unknown codes fall back to Other", () => {
     expect(faceGeomType(99)).toBe("Other");
     expect(edgeGeomType(99)).toBe("Other");
+  });
+
+  test("displayGeomType: lowercase, suffix dropped, CamelCase spaced", () => {
+    // single words + suffix-stripped
+    expect(displayGeomType("face", 0)).toBe("plane"); // Plane
+    expect(displayGeomType("face", 6)).toBe("bspline"); // BSplineSurface (BSpline kept intact)
+    expect(displayGeomType("face", 9)).toBe("offset"); // OffsetSurface
+    expect(displayGeomType("edge", 6)).toBe("bspline"); // BSplineCurve
+    // multi-word surfaces get spaced (the only run-together cases)
+    expect(displayGeomType("face", 7)).toBe("surface of revolution"); // SurfaceOfRevolution
+    expect(displayGeomType("face", 8)).toBe("surface of extrusion"); // SurfaceOfExtrusion
   });
 });
 

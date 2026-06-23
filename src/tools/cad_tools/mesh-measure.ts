@@ -82,13 +82,20 @@ export function edgeGeomType(code: number): string {
 }
 
 /**
- * Short, lowercase geom_type for a status-line readout (drops the `Curve`/`Surface`
- * suffix): e.g. `BSplineSurface`/`BSplineCurve` → `bspline`, `Plane` → `plane`,
- * `Line` → `line`. Topo selects the surface vs curve table.
+ * Short, lowercase geom_type for a status-line readout. Drops the trailing
+ * `Curve`/`Surface` suffix (`BSplineSurface`/`BSplineCurve` → `bspline`,
+ * `Plane` → `plane`, `Line` → `line`) and spaces the remaining CamelCase words
+ * for readability (`SurfaceOfExtrusion` → `surface of extrusion`,
+ * `SurfaceOfRevolution` → `surface of revolution`). The lowercase→uppercase
+ * split leaves single words and the leading-caps `BSpline` untouched. Topo
+ * selects the surface vs curve table.
  */
 export function displayGeomType(topo: TopoType, code: number): string {
   const name = topo === "edge" ? edgeGeomType(code) : faceGeomType(code);
-  return name.replace(/(Curve|Surface)$/, "").toLowerCase();
+  return name
+    .replace(/(Curve|Surface)$/, "")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .toLowerCase();
 }
 
 // ---------------------------------------------------------------------------
