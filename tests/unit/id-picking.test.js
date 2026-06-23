@@ -79,6 +79,34 @@ describe("id-picking: ComponentRegistry", () => {
       solidPath: null,
     })).toBe(1);
   });
+
+  test("removeByPathPrefix drops a subtree without recycling ids", () => {
+    const reg = new ComponentRegistry();
+    const f = (path) => ({ path, name: path, topo: "face", subtype: "solid", solidPath: null });
+    const a = reg.register(f("/a/faces/faces_0"));
+    const b = reg.register(f("/b/faces/faces_0"));
+    const maxBefore = reg.maxId;
+
+    reg.removeByPathPrefix("/a");
+    expect(reg.get(a)).toBeUndefined(); // removed subtree gone
+    expect(reg.get(b)).toBeDefined(); // sibling survives
+    expect(reg.maxId).toBe(maxBefore); // ids NOT recycled (highlight texel stable)
+    // a fresh registration gets a new id, never reuses the removed one
+    expect(reg.register(f("/c"))).toBe(maxBefore + 1);
+  });
+
+  test("removeByPathPrefix matches the exact path and only true descendants", () => {
+    const reg = new ComponentRegistry();
+    const f = (path) => ({ path, name: path, topo: "face", subtype: "solid", solidPath: null });
+    const exact = reg.register(f("/a"));
+    const child = reg.register(f("/a/faces/faces_0"));
+    const sibling = reg.register(f("/ab")); // shares the prefix string but not the path
+
+    reg.removeByPathPrefix("/a");
+    expect(reg.get(exact)).toBeUndefined();
+    expect(reg.get(child)).toBeUndefined();
+    expect(reg.get(sibling)).toBeDefined(); // "/ab" is NOT under "/a/"
+  });
 });
 
 describe("id-picking: packId / unpackId", () => {

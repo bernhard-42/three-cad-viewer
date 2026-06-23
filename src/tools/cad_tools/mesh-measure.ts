@@ -1287,6 +1287,20 @@ export class MeshGeometrySource implements MeshGeometryProvider {
   }
 
   /**
+   * Drop nodes whose path is `prefix` or lies under it (`prefix + "/"`), for
+   * {@link Viewer.removePart} — keeps the provider from growing across remove/add
+   * cycles.
+   */
+  removeByPathPrefix(prefix: string): void {
+    const sub = prefix + "/";
+    for (const key of this.nodes.keys()) {
+      if (key === prefix || key.startsWith(sub)) {
+        this.nodes.delete(key);
+      }
+    }
+  }
+
+  /**
    * Static face/edge counts of a node from its tessellation type arrays
    * (`len(face_types)` / `len(edge_types)`). For a solid node these are the solid's
    * total face/edge counts. `null` for an unknown node.

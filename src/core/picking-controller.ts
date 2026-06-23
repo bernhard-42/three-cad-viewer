@@ -138,7 +138,11 @@ export class PickingController {
   /** Cursor left the canvas → clear any hover highlight. */
   private onIdHoverLeave = (): void => {
     this.idHoverInside = false;
-    this.host.rendered?.nestedGroup?.highlight?.setHover(null);
+    // The always-on leave listener outlives clear() (only dispose() removes it),
+    // and `host.rendered` THROWS when not rendered (optional chaining can't catch a
+    // throwing getter), so guard on `ready` first.
+    if (!this.host.ready) return;
+    this.host.rendered.nestedGroup?.highlight?.setHover(null);
   };
 
   /**

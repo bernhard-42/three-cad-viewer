@@ -25,6 +25,7 @@ import {
   angleToXY,
   circleFromPolyline,
   MeshMeasureBackend,
+  MeshGeometrySource,
 } from "../../src/tools/cad_tools/mesh-measure.js";
 
 // A unit cube spanning [0,2]^3 → volume 8, total surface area 24, each face area 4.
@@ -650,5 +651,23 @@ describe("mesh-measure: circleFromPolyline", () => {
     for (let i = 0; i < 6; i++) line.push(i, 0, 0, i + 1, 0, 0);
     expect(circleFromPolyline(new Float32Array(line))).toBeNull();
     expect(circleFromPolyline(new Float32Array([0, 0, 0]))).toBeNull();
+  });
+});
+
+describe("mesh-measure: MeshGeometrySource.removeByPathPrefix", () => {
+  test("drops nodes at the path and under it, keeps siblings", () => {
+    const src = new MeshGeometrySource();
+    const obj = new THREE.Object3D();
+    const shape = { face_types: [0], edge_types: [0] };
+    src.register("/a", shape, obj, "solid");
+    src.register("/a/sub", shape, obj, "solid");
+    src.register("/ab", shape, obj, "solid"); // shares prefix string, not the path
+    src.register("/b", shape, obj, "solid");
+
+    src.removeByPathPrefix("/a");
+    expect(src.nodeCounts("/a")).toBeNull();
+    expect(src.nodeCounts("/a/sub")).toBeNull();
+    expect(src.nodeCounts("/ab")).not.toBeNull(); // "/ab" is not under "/a/"
+    expect(src.nodeCounts("/b")).not.toBeNull();
   });
 });

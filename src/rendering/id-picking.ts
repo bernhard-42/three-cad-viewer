@@ -206,9 +206,10 @@ export class ComponentRegistry {
   }
 
   /**
-   * Largest allocated id so far (0 when empty). Ids are contiguous from 1 with no
-   * deletions, so this equals {@link size}; exposed separately as the explicit
-   * upper bound for sizing the highlight-state texture.
+   * Largest allocated id so far (0 when empty). Ids are allocated contiguously from
+   * 1 and NEVER recycled ({@link removeByPathPrefix} deletes records but keeps
+   * `nextId`), so this is the high-water mark used as the upper bound for sizing the
+   * highlight-state texture; it is `>=` {@link size} (equal until the first removal).
    */
   get maxId(): number {
     return this.nextId - 1;
@@ -217,6 +218,20 @@ export class ComponentRegistry {
   /** Number of registered components. */
   get size(): number {
     return this.byId.size;
+  }
+
+  /**
+   * Drop every component whose path is `prefix` or lies under it (`prefix + "/"`),
+   * for {@link Viewer.removePart}. Does NOT recycle ids — surviving components keep
+   * their ids (and thus their highlight-state texel), and {@link maxId} stays put.
+   */
+  removeByPathPrefix(prefix: string): void {
+    const sub = prefix + "/";
+    for (const [id, info] of this.byId) {
+      if (info.path === prefix || info.path.startsWith(sub)) {
+        this.byId.delete(id);
+      }
+    }
   }
 
   /** Drop all entries and reset id allocation. */

@@ -1231,6 +1231,13 @@ class Viewer {
         this.idPicker = null;
       }
 
+      // Reset the pick-buffer dirty cadence so the next model's first frame can't
+      // skip a clip re-sync because its camera/clip signature happens to equal the
+      // previous model's (a fresh IdPicker starts with null clip planes).
+      this._lastClipSig = "";
+      this._lastPickCam = null;
+      this._lastPickProj = null;
+
       this._rendered = null;
       this.ready = false;
     }
@@ -3631,6 +3638,12 @@ class Viewer {
       delete nestedGroup.groups[p];
     }
 
+    // Drop the removed subtree's id-picking registry + mesh-measure provider
+    // entries so they don't accumulate across remove/add cycles. Ids are NOT
+    // recycled, so surviving components keep their highlight-state texel.
+    nestedGroup.registry.removeByPathPrefix(path);
+    nestedGroup.meshGeometry.removeByPathPrefix(path);
+
     // Remove from this.shapes tree
     const parentShapes = this._findShapesParent(path);
     if (parentShapes && parentShapes.parts) {
@@ -3927,6 +3940,15 @@ class Viewer {
       this._treeNeedsRebuild = false;
       this._rebuildTreeView();
     }
+
+    // A part was added/updated/removed: geometry and component ids changed but the
+    // camera didn't, so the pick-buffer dirty cadence won't catch it. Force a pick
+    // re-render, grow the highlight state texture to cover newly registered ids
+    // (else added parts can't tint on hover/select), and drop hover-status caches
+    // that may name a removed/changed part.
+    this.idPicker?.setDirty();
+    nestedGroup.highlight?.resize(nestedGroup.registry.maxId);
+    this.pickingController.invalidateHoverCache();
 
     // Re-render
     this.update(this.updateMarker);
