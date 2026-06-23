@@ -50,8 +50,8 @@ interface ShapeData {
   // Real B-rep corner vertices (the selectable ones); used to build the pick-only
   // vertex Points cloud for id-based picking.
   obj_vertices?: Float32Array | number[];
-  // Per-component OCP geom types (normalized to Uint32Array in render-shape.ts);
-  // used by the internal measurement backend for exact geom_type.
+  // Per-component OCP geom types (raw number[] or Uint32Array; converted lazily as
+  // needed); used by the internal measurement backend for exact geom_type.
   face_types?: number[] | Uint32Array;
   edge_types?: number[] | Uint8Array | Uint32Array;
 }

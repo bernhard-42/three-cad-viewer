@@ -352,7 +352,6 @@ class Display {
   viewer!: Viewer;
   state!: ViewerState;
   measureTools: boolean;
-  externalMeasurementBackend: boolean;
   selectTool: boolean;
   explodeTool: boolean;
   zscaleTool: boolean;
@@ -400,7 +399,9 @@ class Display {
     this.cadBody = this.getElement("tcv_cad_body");
 
     this.measureTools = options.measureTools;
-    this.externalMeasurementBackend = options.externalMeasurementBackend;
+    // NB: externalMeasurementBackend is consumed via ViewerState (viewer reads
+    // state.get("externalMeasurementBackend") for backend routing); Display does
+    // not store it. Kept in DisplayOptions so embedders pass it in one options obj.
     this.selectTool = options.selectTool;
     this.explodeTool = options.explodeTool;
     this.zscaleTool = options.zscaleTool;
@@ -1821,8 +1822,8 @@ class Display {
       this.viewer.activateTool(name, true);
 
       if (
-        ["distance", "properties", "angle", "select"].includes(name) &&
-        !["distance", "properties", "angle", "select"].includes(currentTool)
+        ["distance", "properties", "select"].includes(name) &&
+        !["distance", "properties", "select"].includes(currentTool)
       ) {
         this.viewer.toggleTab(true);
       }
@@ -1940,7 +1941,7 @@ class Display {
     const activeTool = this.state.get("activeTool");
     if (
       activeTool &&
-      ["distance", "properties", "angle", "select"].includes(activeTool)
+      ["distance", "properties", "select"].includes(activeTool)
     ) {
       this.clickButtons[activeTool]?.set(false);
       this.setTool(activeTool, false);
