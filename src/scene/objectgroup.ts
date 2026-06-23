@@ -601,7 +601,17 @@ class ObjectGroup extends THREE.Group {
    */
   setEdgesVisible(flag: boolean): void {
     if (this.edgeMaterial) {
-      this.edgeMaterial.visible = flag;
+      if (this._isStudioMode) {
+        // Studio force-hides edges for its look (setStudioShowEdges) and restores
+        // edgeMaterial.visible from _cadEdgesVisible on leave. A change made DURING
+        // studio (e.g. cmd-double-click hide) is a CAD-intent change, so record it as
+        // the value to restore — without un-hiding edges now (keeps the studio look).
+        // Otherwise leaveStudioMode would re-show the edges of an object hidden in
+        // studio (the "ghost edges back in CAD" bug).
+        this._cadEdgesVisible = flag;
+      } else {
+        this.edgeMaterial.visible = flag;
+      }
     }
     if (this.vertices) {
       this.vertices.material.visible = flag;

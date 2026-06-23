@@ -932,3 +932,40 @@ describe("ObjectGroup - clearClipping", () => {
     expect(group.clipping.size).toBe(0);
   });
 });
+
+describe("ObjectGroup - studio edge visibility (cmd-hide regression)", () => {
+  test("hiding edges during studio is preserved after leaving studio", () => {
+    const group = createObjectGroupWithEdges();
+    expect(group.edgeMaterial.visible).toBe(true);
+
+    // Enter studio; studio force-hides edges for its look.
+    group.enterStudioMode(null, null);
+    group.setStudioShowEdges(false);
+    expect(group.edgeMaterial.visible).toBe(false);
+
+    // cmd-double-click hide DURING studio → setEdgesVisible(false) (CAD intent).
+    group.setEdgesVisible(false);
+
+    group.leaveStudioMode();
+    // Edges must STAY hidden, not be restored to the studio-entry "visible".
+    expect(group.edgeMaterial.visible).toBe(false);
+  });
+
+  test("showing edges during studio is restored visible after leaving", () => {
+    const group = createObjectGroupWithEdges();
+    group.enterStudioMode(null, null);
+    group.setStudioShowEdges(false);
+    group.setEdgesVisible(true); // CAD intent: edges on
+    group.leaveStudioMode();
+    expect(group.edgeMaterial.visible).toBe(true);
+  });
+
+  test("untouched edge visibility is restored to the studio-entry state", () => {
+    const group = createObjectGroupWithEdges();
+    group.enterStudioMode(null, null);
+    group.setStudioShowEdges(false);
+    // no setEdgesVisible during studio
+    group.leaveStudioMode();
+    expect(group.edgeMaterial.visible).toBe(true); // restored to entry value
+  });
+});
