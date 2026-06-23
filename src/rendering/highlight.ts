@@ -137,7 +137,7 @@ uniform vec3 ${U_HIGHLIGHT_HOVER_COLOR};`;
  */
 type PatchableMaterial = Pick<
   THREE.Material,
-  "onBeforeCompile" | "needsUpdate" | "userData"
+  "onBeforeCompile" | "customProgramCacheKey" | "needsUpdate" | "userData"
 >;
 
 /**
@@ -417,11 +417,28 @@ export class HighlightController {
     material: PatchableMaterial,
     where: string,
     customize: (shader: THREE.WebGLProgramParametersWithUniforms) => void,
+    variant: string = "",
   ): void {
     if (material.userData.highlightPatched === true) return;
     material.userData.highlightPatched = true;
 
     const prev = material.onBeforeCompile;
+
+    // three.js keys a shader program on the material params + `customProgramCacheKey`,
+    // whose DEFAULT is `onBeforeCompile.toString()`. Our `onBeforeCompile` is the same
+    // arrow literal for every patch, and the per-variant shader differences (the vertex
+    // `cullUnhighlighted` discard, the topo-specific injection, any chained `prev` like
+    // triplanar) live in CLOSURES that `.toString()` can't see. Without a distinct key,
+    // two materials with identical params (e.g. a culled vs a non-culled vertex
+    // `PointsMaterial`) collide on one shared program → whichever compiles first wins
+    // (no-cull → the face's hidden corner points render as "ghost" vertices). Append a
+    // key that reflects topo + variant + chained prev so each shader variant compiles
+    // its own program. (customProgramCacheKey is ADDITIVE — standard params like USE_MAP
+    // still disambiguate, so this only ever splits programs, never merges distinct ones.)
+    const prevKey = typeof prev === "function" ? prev.toString() : "";
+    const cacheKey = `hl:${where}:${variant}:${prevKey}`;
+    material.customProgramCacheKey = () => cacheKey;
+
     material.onBeforeCompile = (shader, renderer) => {
       prev?.call(material, shader, renderer);
 
@@ -507,24 +524,31 @@ export class HighlightController {
   ): void {
     const cull = options.cullUnhighlighted === true;
     const none = cull ? "0.0" : "size";
-    this._install(material, "patchVertexMaterial", (shader) => {
-      shader.vertexShader = replaceOrThrow(
-        shader.vertexShader,
-        "gl_PointSize = size;",
-        `uint hlPtState = highlightState();
+    this._install(
+      material,
+      "patchVertexMaterial",
+      (shader) => {
+        shader.vertexShader = replaceOrThrow(
+          shader.vertexShader,
+          "gl_PointSize = size;",
+          `uint hlPtState = highlightState();
 	gl_PointSize = ${focusSizeExpr("hlPtState", VERTEX_FOCUS_SIZE, VERTEX_FOCUS_SIZE - 2, none)};`,
-        "patchVertexMaterial",
-      );
-      const discard = cull
-        ? "\n    if (highlightState() == 0u) discard;"
-        : "";
-      shader.fragmentShader = replaceOrThrow(
-        shader.fragmentShader,
-        "#include <color_fragment>",
-        `#include <color_fragment>${discard}${HL_COLOR_OVERRIDE}`,
-        "patchVertexMaterial",
-      );
-    });
+          "patchVertexMaterial",
+        );
+        const discard = cull
+          ? "\n    if (highlightState() == 0u) discard;"
+          : "";
+        shader.fragmentShader = replaceOrThrow(
+          shader.fragmentShader,
+          "#include <color_fragment>",
+          `#include <color_fragment>${discard}${HL_COLOR_OVERRIDE}`,
+          "patchVertexMaterial",
+        );
+      },
+      // The cull discard is the variant that must NOT share a program with the
+      // standalone (always-visible) vertex cloud — the ghost-vertex bug.
+      cull ? "cull" : "nocull",
+    );
   }
 
   /** Dispose the state texture and release tracking. */

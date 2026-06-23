@@ -282,6 +282,49 @@ describe("HighlightController — shader patching", () => {
     expect(mat.onBeforeCompile).toBe(first);
     c.dispose();
   });
+
+  // Ghost-vertex regression: the cull and non-cull vertex PointsMaterials are
+  // otherwise cache-identical and our onBeforeCompile stringifies identically, so
+  // without a distinct customProgramCacheKey three.js shares ONE shader program and
+  // the discard-less (no-cull) variant wins → the hidden face-corner points render.
+  it("cull vs non-cull vertex materials get distinct program cache keys", () => {
+    const c = controller();
+    const cullMat = fakeMaterial();
+    const visibleMat = fakeMaterial();
+    c.patchVertexMaterial(cullMat, { cullUnhighlighted: true });
+    c.patchVertexMaterial(visibleMat); // no cull
+    expect(typeof cullMat.customProgramCacheKey).toBe("function");
+    expect(cullMat.customProgramCacheKey()).not.toBe(
+      visibleMat.customProgramCacheKey(),
+    );
+    c.dispose();
+  });
+
+  it("face / edge / vertex materials get distinct program cache keys", () => {
+    const c = controller();
+    const f = fakeMaterial();
+    const e = fakeMaterial();
+    const v = fakeMaterial();
+    c.patchFaceMaterial(f);
+    c.patchEdgeMaterial(e);
+    c.patchVertexMaterial(v);
+    const keys = [f, e, v].map((m) => m.customProgramCacheKey());
+    expect(new Set(keys).size).toBe(3);
+    c.dispose();
+  });
+
+  it("a chained prior onBeforeCompile (e.g. triplanar) contributes to the key", () => {
+    const c = controller();
+    const plain = fakeMaterial();
+    const withPrev = fakeMaterial();
+    withPrev.onBeforeCompile = function triplanarLike() {};
+    c.patchFaceMaterial(plain);
+    c.patchFaceMaterial(withPrev);
+    expect(plain.customProgramCacheKey()).not.toBe(
+      withPrev.customProgramCacheKey(),
+    );
+    c.dispose();
+  });
 });
 
 describe("stock three shader anchors (loud guard for three upgrades)", () => {
