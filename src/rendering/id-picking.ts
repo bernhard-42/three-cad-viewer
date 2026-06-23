@@ -1111,15 +1111,17 @@ export class IdPicker {
     }
   }
 
-  /** One pick pass: render only `layer`'s objects with `material` (no clear). */
+  /** One pick pass: render only `layer`'s objects with `material` (no clear).
+   * Clipping planes are kept in sync solely by {@link setClippingPlanes} (and the
+   * lazy material creation in {@link _ensureResources}); re-assigning them here per
+   * pass would mutate `clippingPlanes` without `needsUpdate`, risking a stale
+   * `NUM_CLIPPING_PLANES` if the count ever changed off that path. */
   private _pass(
     camera: THREE.Camera,
     layer: PickLayer,
     material: THREE.ShaderMaterial,
   ): void {
     const scene = this.scene!;
-    material.clippingPlanes = this.clippingPlanes ?? [];
-    material.clipIntersection = this.clipIntersection;
     camera.layers.set(layer);
     scene.overrideMaterial = material;
     this.renderer.render(scene, camera);

@@ -566,3 +566,20 @@ describe("id-picking: faces + edges share one registry (global ids)", () => {
     });
   });
 });
+
+describe("id-picking: stock three clipping chunks (loud guard for three upgrades)", () => {
+  test("the clipping_planes_* chunks the pick shaders #include still exist", () => {
+    // The GLSL3 pick materials hardcode these chunk names (id-picking.ts). A three
+    // rename would otherwise break picking silently at runtime — clipped geometry
+    // would stay pickable — with no build/test failure. Fail loudly here instead.
+    for (const chunk of [
+      "clipping_planes_pars_vertex",
+      "clipping_planes_vertex",
+      "clipping_planes_pars_fragment",
+      "clipping_planes_fragment",
+    ]) {
+      expect(typeof THREE.ShaderChunk[chunk]).toBe("string");
+      expect(THREE.ShaderChunk[chunk].length).toBeGreaterThan(0);
+    }
+  });
+});
