@@ -485,11 +485,17 @@ class Display {
     this.tickInfoElement = this.getElement("tcv_tick_size");
     this.cadAnim = this.getElement("tcv_cad_animation");
     this.cadTools = this.getElement("tcv_cad_tools");
+    // Hide the wrapping flex item (the `.tcv_tooltip` span, flex:1), not just the
+    // inner <input>: an empty flex slot would still claim its fraction of the tab
+    // row, leaving a gap between the neighboring tabs.
+    const hideTab = (tab: HTMLElement): void => {
+      (tab.parentElement ?? tab).style.display = "none";
+    };
     if (!options.zebraTool) {
-      this.tabZebra.style.display = "none";
+      hideTab(this.tabZebra);
     }
     if (options.studioTool === false) {
-      this.tabStudio.style.display = "none";
+      hideTab(this.tabStudio);
     }
     this.cadHelp = this.getElement("tcv_cad_help");
     listeners.add(this.cadHelp, "contextmenu", (e) => {
@@ -1966,6 +1972,24 @@ class Display {
     this.showSelectTool(this.selectTool);
   }
 
+  /**
+   * Entering Clip mode: hide the measure + select tool buttons (a measure/select
+   * tool can't be active here — it disables the clip tab — but the buttons must not
+   * be invocable while clipping). Mirrors {@link _deactivateToolsForStudio};
+   * explode/zscale stay enabled for consistency with studio mode. Restored by
+   * {@link _restoreToolsAfterClip} on leave.
+   */
+  private _deactivateToolsForClip(): void {
+    this.showMeasureTools(false);
+    this.showSelectTool(false);
+  }
+
+  /** Leaving Clip mode: restore measure + select buttons per their feature flags. */
+  private _restoreToolsAfterClip(): void {
+    this.showMeasureTools(this.measureTools);
+    this.showSelectTool(this.selectTool);
+  }
+
   // ---------------------------------------------------------------------------
   // Clipping Handlers
   // ---------------------------------------------------------------------------
@@ -2103,6 +2127,9 @@ class Display {
     if (oldTab === "zebra" && newTab !== "zebra") {
       this.viewer.enableZebraTool(false);
     }
+    if (oldTab === "clip" && newTab !== "clip") {
+      this._restoreToolsAfterClip();
+    }
     if (oldTab === "studio" && newTab !== "studio") {
       this.closeMatEditor();
       this._saveMatEditorChanges();
@@ -2149,6 +2176,7 @@ class Display {
       this.viewer.treeview?.update();
     } else if (newTab === "clip") {
       _updateVisibility(false, true, false, false, false);
+      this._deactivateToolsForClip();
       this.viewer.nestedGroup.setBackVisible(true);
       const clipIntersection = this.viewer.state.get("clipIntersection");
       if (typeof clipIntersection === "boolean") {

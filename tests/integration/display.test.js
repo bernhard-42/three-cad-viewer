@@ -172,12 +172,15 @@ describe("Display - Constructor & Initialization", () => {
     expect(display.cadZebra.style.display).toBe("none");
   });
 
-  test("hides zebra tab when zebraTool is false", () => {
+  test("hides zebra tab (its flex wrapper) when zebraTool is false", () => {
     container = createContainer();
     const options = { ...getDisplayOptions(), zebraTool: false };
     display = new Display(container, options);
 
-    expect(display.tabZebra.style.display).toBe("none");
+    // The wrapping flex item is hidden (not just the input) so no gap is left
+    // between the neighboring tabs.
+    const wrapper = display.tabZebra.parentElement ?? display.tabZebra;
+    expect(wrapper.style.display).toBe("none");
   });
 
   test("stores feature flags", () => {
