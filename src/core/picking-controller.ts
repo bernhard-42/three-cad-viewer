@@ -425,8 +425,13 @@ export class PickingController {
    */
   private onDoubleClick = (e: PointerEvent | MouseEvent): void => {
     if (this.host.idPicker === null) return;
-    // Studio is presentation mode — no id-buffer picking at all.
-    if (this.host.studioActive) return;
+    const meta = KeyMapper.get(e, "meta");
+    const shift = KeyMapper.get(e, "shift");
+    const alt = KeyMapper.get(e, "alt");
+    // Studio is a presentation mode: only the modifier-driven actions (meta = hide,
+    // shift = isolate/recenter) stay live there. A plain (or alt-only) double-click,
+    // which would pop a bounding box + tree highlight, is suppressed as analysis clutter.
+    if (this.host.studioActive && !meta && !shift) return;
     const rect = this.host.renderer.domElement.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -441,9 +446,9 @@ export class PickingController {
     this.host.handlePick(
       leaf.slice(0, slash),
       leaf.slice(slash + 1),
-      KeyMapper.get(e, "meta"),
-      KeyMapper.get(e, "shift"),
-      KeyMapper.get(e, "alt"),
+      meta,
+      shift,
+      alt,
       hit.point,
       null,
       false,
