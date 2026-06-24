@@ -788,8 +788,10 @@ export class IdPicker {
   readonly registry: ComponentRegistry;
   /**
    * Default N for the N×N readback window — the pick "touch radius" applied to the
-   * (thin) geometry. 2 was tuned interactively (pick-explore.html): bigger pulls
-   * edge/vertex priority too far off the actual line/point; 1 is too unforgiving.
+   * (thin) geometry. 3 is odd, so the window is symmetric about the cursor pixel
+   * (half = 1 → cursor ±1 on each axis); an even size is asymmetric. Tuned
+   * interactively (pick-explore.html): 2 and 3 feel identical, much larger (e.g. 7)
+   * pulls edge/vertex priority too far off the actual line/point; 1 is too unforgiving.
    */
   windowSize: number;
   private renderer: THREE.WebGLRenderer;
@@ -845,7 +847,7 @@ export class IdPicker {
           "disabled (point = null); id picking unaffected.",
       );
     }
-    this.windowSize = 2;
+    this.windowSize = 3;
     this.scene = null;
     this.camera = null;
     this.clippingPlanes = null;

@@ -338,9 +338,9 @@ describe("id-picking: IdPicker.pickAt", () => {
     picker.setSize(200, 100); // -> target 200x100
     picker.pickAt(50, 20);
     // tx = floor(50*2*0.5)=50; tyTop = floor(20*2*0.5)=20; ty = 100-1-20 = 79.
-    // Read 1: N×N id window (default 2) clamped around (50,79) -> origin (49,78).
+    // Read 1: N×N id window (default 3, half=1) clamped around (50,79) -> origin (49,78).
     // Read 2: position at the chosen pixel (center (50,79), the window being uniform).
-    expect(renderer.calls.read[0]).toEqual([49, 78, 2, 2, 0]); // id window
+    expect(renderer.calls.read[0]).toEqual([49, 78, 3, 3, 0]); // id window
     expect(renderer.calls.read.at(-1)).toEqual([50, 79, 1, 1, 1]); // position
   });
 
