@@ -544,6 +544,23 @@ class StudioComposer {
     this._savedVisibility.clear();
 
     try {
+      // Non-surface renderables (Points / Lines) are NOT shadow receivers, but the
+      // override ShadowMaterial replaces their material — bypassing any in-shader
+      // cull (e.g. the per-component highlight Points cloud culls unflagged points
+      // via `gl_PointSize=0` + `discard`). Left visible they render as a cloud of
+      // vertex dots into the mask, which the blur smears into shadow blobs that
+      // reproject every frame as the camera moves → the studio "shadow flicker".
+      // Hide them for the mask render (restored via `_savedVisibility` below).
+      this._scene.traverse((obj) => {
+        if (
+          (obj instanceof THREE.Points || obj instanceof THREE.Line) &&
+          obj.visible
+        ) {
+          this._savedVisibility.set(obj, obj.visible);
+          obj.visible = false;
+        }
+      });
+
       if (mode === "objects") {
         // Hide floor, show objects with receiveShadow=true
         if (floor) floor.visible = false;
@@ -588,10 +605,11 @@ class StudioComposer {
         for (const [mesh, wasReceiving] of this._receiveShadowState) {
           mesh.receiveShadow = wasReceiving;
         }
-      } else {
-        for (const [obj, wasVisible] of this._savedVisibility) {
-          obj.visible = wasVisible;
-        }
+      }
+      // Restore visibility for everything hidden above: Points/Lines (both modes)
+      // and, in "floor" mode, the temporarily hidden shadow-casting meshes.
+      for (const [obj, wasVisible] of this._savedVisibility) {
+        obj.visible = wasVisible;
       }
 
       this._scene.overrideMaterial = savedOverrideMaterial;
