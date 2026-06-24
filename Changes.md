@@ -36,6 +36,9 @@ Major release — the picking/selection architecture has been rewritten internal
   - Rendering a new model now disables any active tool as the first step of `render()`; the incremental `addPart`/`updatePart`/`removePart` API keeps the tool.
   - Clipping section caps no longer leave stray "ghost" caps floating in empty space for non-watertight solids or for planes parked open — a cap is drawn only for a plane that actually cuts the solid.
   - Clip-plane sliders now use a finer, model-size-scaled step (e.g. 0.1 instead of 1 on a ~200-unit model), for more precise sectioning.
+  - Studio: hiding a component with ⌘/double-click no longer leaves "ghost" edges behind after switching back to CAD.
+  - The Clip and Studio tabs hide the measure and select tools (explode and z-scale remain available).
+  - Clip settings are resolved purely from the options passed to `render()` — each provided field wins and missing fields fall back to defaults; a forwarded `null` clip normal/position no longer throws (which previously aborted the render and dropped the tab).
 
 ## v4.3.9
 
