@@ -377,6 +377,11 @@ class Viewer {
   get envManager() {
     return this._studioManager.envManager;
   }
+
+  /** True while the Studio (presentation) tab owns the render. PickHost member. */
+  get studioActive(): boolean {
+    return this._studioManager.isActive;
+  }
   // Z-scale
   zScale!: number;
 
@@ -2999,7 +3004,12 @@ class Viewer {
   }
 
   /** Enter Studio mode. Called by display.ts switchToTab(). @internal */
-  enterStudioMode = () => this._studioManager.enterStudioMode();
+  enterStudioMode = () => {
+    // Hover preselection is disabled in Studio; drop any lingering CAD-mode
+    // hover tint + status line so it doesn't persist into the presentation view.
+    this.pickingController.clearHover();
+    return this._studioManager.enterStudioMode();
+  };
 
   /** Leave Studio mode. Called by display.ts switchToTab(). @internal */
   leaveStudioMode = () => this._studioManager.leaveStudioMode();

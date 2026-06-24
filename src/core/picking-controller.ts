@@ -26,6 +26,8 @@ export interface PickHost {
   readonly idPicker: IdPicker | null;
   readonly ready: boolean;
   readonly hasAnimationLoop: boolean;
+  /** True while the Studio (presentation) tab owns the render. */
+  readonly studioActive: boolean;
   readonly shapes: Shapes | null;
   readonly renderer: THREE.WebGLRenderer;
   readonly rendered: RenderedState;
@@ -149,11 +151,12 @@ export class PickingController {
    * Whether hover preselection (highlight + status line) is active. Disabled for GDS:
    * dense, stacked, instance-unrolled layout data where per-pixel hover flickers
    * endlessly and the B-rep readout ("area ≈ …") is meaningless, so GDS is
-   * double-click-identify only. Double-click pick is independent of this — it calls
-   * `pickAt` directly — so GDS stays pickable with hover off.
+   * double-click-identify only. Also disabled in Studio (presentation) mode: hover
+   * tint/status is a CAD/analysis affordance, not wanted in Studio, and skipping it
+   * means the id buffer is never re-rendered for a bare mouse-move there.
    */
   private hoverPreselectActive(): boolean {
-    return this.host.shapes?.format !== "GDS";
+    return this.host.shapes?.format !== "GDS" && !this.host.studioActive;
   }
 
   /**
@@ -247,6 +250,20 @@ export class PickingController {
   /** Drop the cached hover texts (e.g. on z-scale change — world lengths change). */
   invalidateHoverCache(): void {
     this.hoverStatusCache.clear();
+  }
+
+  /**
+   * Drop any lingering hover highlight + status line (keeping the committed selection).
+   * Called when entering Studio mode: hover preselection is disabled there, so the
+   * per-render {@link handleHover} no longer runs its own release and a stale tint/status
+   * from CAD mode would otherwise persist.
+   */
+  clearHover(): void {
+    this.releaseLastSelected();
+    this.lastObject = null;
+    if (this.host.ready)
+      this.host.rendered.nestedGroup?.highlight?.setHover(null);
+    this.host.display.setStatusLine("");
   }
 
   /**
@@ -408,6 +425,8 @@ export class PickingController {
    */
   private onDoubleClick = (e: PointerEvent | MouseEvent): void => {
     if (this.host.idPicker === null) return;
+    // Studio is presentation mode — no id-buffer picking at all.
+    if (this.host.studioActive) return;
     const rect = this.host.renderer.domElement.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
