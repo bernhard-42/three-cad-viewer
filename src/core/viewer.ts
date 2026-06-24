@@ -341,6 +341,10 @@ class Viewer {
   // Selection tracking
   lastNotification: Record<string, unknown>;
   lastBbox: LastBboxInfo | null;
+  // Hide-undo stack: each meta-double-click hide pushes the leaf id + its pre-hide
+  // state; meta-double-click on empty space pops and restores the last one. Lets a
+  // hidden object be brought back without the tree (e.g. in Studio, where it's hidden).
+  private _hiddenUndo: { id: string; state: VisibilityState }[] = [];
   lastPosition: THREE.Vector3 | null;
   bboxNeedsUpdate: boolean;
   keepHighlight: boolean;
@@ -1161,6 +1165,7 @@ class Viewer {
       // a HighlightController / ObjectGroup that this clear() disposes; a stale
       // hover-release would otherwise touch a disposed controller on the next pick.
       this.pickingController.reset();
+      this._hiddenUndo = [];
       // Hide the topo filter (+ detach its shortcuts) for a clean cleared canvas.
       this.display.shapeFilterDropDownMenu.show(false);
 
@@ -2247,6 +2252,7 @@ class Viewer {
         this.setCameraTarget(new THREE.Vector3(...center));
         this.display.showCenterInfo(center);
       } else if (meta) {
+        this._recordHidden(id);
         this.setState(id, [0, 0], nodeType ?? "leaf");
       } else if (alt) {
         // same as else branch to make typscript happy
@@ -2263,6 +2269,41 @@ class Viewer {
       this.display.onSelectionChanged(this.lastBbox?.id ?? null);
     }
     this.update(true);
+  };
+
+  /**
+   * Record a leaf about to be hidden via meta-double-click onto the hide-undo stack,
+   * capturing its current (pre-hide) visibility state for a faithful restore. Dedups:
+   * an existing entry for the same id is dropped so the id moves to the top.
+   */
+  private _recordHidden(id: string): void {
+    const state = this.rendered.treeview.getState(id);
+    if (state == null) return;
+    this._hiddenUndo = this._hiddenUndo.filter((e) => e.id !== id);
+    // getState returns the live node.state array — copy it, else the imminent
+    // setState(id, [0, 0]) mutates it in place and the restore reads [0, 0]
+    // (faces would come back but edges stay hidden).
+    this._hiddenUndo.push({ id, state: [state[0], state[1]] });
+  }
+
+  /**
+   * Restore the most recently meta-double-click-hidden leaf (LIFO), skipping entries
+   * that no longer apply — removed objects, or ones already shown again via the tree.
+   * In Studio the restored leaf keeps edges off (presentation); in CAD its pre-hide
+   * edge state is restored. Bound to a meta-double-click on empty space, so a hidden
+   * object can be brought back without the tree (notably in Studio). @public
+   */
+  showLastHidden = (): void => {
+    while (this._hiddenUndo.length > 0) {
+      const entry = this._hiddenUndo.pop();
+      if (entry === undefined) return;
+      if (this.rendered.nestedGroup.groups[entry.id] == null) continue; // removed
+      const cur = this.rendered.treeview.getState(entry.id);
+      if (cur != null && cur[0] === 1) continue; // already visible again
+      const showEdges = this._studioManager.isActive ? 0 : entry.state[1];
+      this.setState(entry.id, [1, showEdges], "leaf");
+      return;
+    }
   };
 
   // ---------------------------------------------------------------------------

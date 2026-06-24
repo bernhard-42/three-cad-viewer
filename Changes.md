@@ -21,6 +21,9 @@ Major release — the picking/selection architecture has been rewritten internal
   - The distance measurement's mesh minimum-distance search uses a BVH (AABB-tree branch-and-bound) — exact and sub-quadratic, so measuring between large or finely-tessellated faces (spheres, helices/springs) do not freeze the viewer for many seconds (resolved in milliseconds).
   - **Breaking:** Rename the `measurementDebug` option to `externalMeasurementBackend` (default `false`) and invert its meaning: the previous default routed to the external backend, the new default uses the internal mesh backend. Embedders that rely on the Python backend (e.g. `ocp_vscode`) must now set `externalMeasurementBackend: true`. The old dummy debug-measurement path is removed.
 
+- **Other Features**
+  - Hide-undo: cmd/meta-double-click on an object hides it, and cmd/meta-double-click on empty space brings back the most recently hidden object (one per click, in reverse order). This restores hidden objects without the tree — handy in Studio mode, where the tree isn't shown.
+
 - **Performance**
   - Initial load time on large models roughly halved — zebra-stripe initialization is deferred to first use (it previously built a stripe texture for every object at load, even with zebra off) and the default clip-plane setup is batched into a single update instead of re-rendering once per setter.
   - Clipping section caps now scale to large assemblies. The per-solid stencil and cap meshes are culled each frame to the on-screen, large-enough solids (sub-pixel solids are skipped and the total is bounded by a budget, largest-first), and are drawn only while the Clip tab is active. Previously, clipping and rotating a large model (~1000+ solids) while zoomed out issued thousands of cap draws per frame and could crash the WebGL context.

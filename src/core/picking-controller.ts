@@ -34,6 +34,8 @@ export interface PickHost {
   readonly display: Display;
   readonly cadTools: Tools;
   update(updateMarker: boolean, notify: boolean): void;
+  /** Restore the most recently meta-double-click-hidden leaf (hide-undo stack). */
+  showLastHidden(): void;
   handlePick(
     path: string,
     name: string,
@@ -439,7 +441,12 @@ export class PickingController {
     const hit = this.host.idPicker.pickAt(x, y);
     // A hidden solid's edge/vertex pick layers stay active — gate on visibility so a
     // hidden component cannot be double-click picked (matches hover/select).
-    if (hit === null || !this.pickVisible(hit.info)) return;
+    if (hit === null || !this.pickVisible(hit.info)) {
+      // Nothing visible under the cursor: a meta-double-click on empty space is the
+      // "show last hidden" gesture (mirror of meta-double-click-on-object = hide).
+      if (meta && !shift) this.host.showLastHidden();
+      return;
+    }
     const leaf = leafPath(hit.info);
     const slash = leaf.lastIndexOf("/");
     if (slash < 0) return;
