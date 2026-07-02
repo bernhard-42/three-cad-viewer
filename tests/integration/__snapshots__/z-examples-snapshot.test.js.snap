@@ -6926,6 +6926,18 @@ exports[`Examples - Snapshot Tests > scene snapshot for edges > edges-scene 1`] 
         "visible": true,
       },
       {
+        "materialVisible": true,
+        "name": "edges",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "edges",
+        "type": "Points",
+        "visible": true,
+      },
+      {
         "materialVisible": undefined,
         "name": "|Group|box",
         "type": "ObjectGroup",
@@ -7167,7 +7179,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for edges > edges-scene 1`] 
       "lines": 11,
       "meshes": 16,
       "other": 50,
-      "points": 2,
+      "points": 4,
     },
     "geometries": [
       "BufferGeometry",
@@ -7685,6 +7697,18 @@ exports[`Examples - Snapshot Tests > scene snapshot for objs1d > objs1d-scene 1`
         "visible": true,
       },
       {
+        "materialVisible": true,
+        "name": "rect",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "rect",
+        "type": "Points",
+        "visible": true,
+      },
+      {
         "materialVisible": undefined,
         "name": "|Group|circ1",
         "type": "ObjectGroup",
@@ -7697,6 +7721,18 @@ exports[`Examples - Snapshot Tests > scene snapshot for objs1d > objs1d-scene 1`
         "visible": true,
       },
       {
+        "materialVisible": true,
+        "name": "circ1",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "circ1",
+        "type": "Points",
+        "visible": true,
+      },
+      {
         "materialVisible": undefined,
         "name": "|Group|circ2",
         "type": "ObjectGroup",
@@ -7706,6 +7742,18 @@ exports[`Examples - Snapshot Tests > scene snapshot for objs1d > objs1d-scene 1`
         "materialVisible": true,
         "name": "circ2",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "circ2",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "circ2",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -7843,7 +7891,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for objs1d > objs1d-scene 1`
       "lines": 12,
       "meshes": 5,
       "other": 38,
-      "points": 0,
+      "points": 6,
     },
     "geometries": [
       "BufferGeometry",
@@ -7877,6 +7925,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for objs1d > objs1d-scene 1`
       "LineDashedMaterial",
       "LineMaterial",
       "MeshBasicMaterial",
+      "PointsMaterial",
       "SpriteMaterial",
     ],
     "sampleEdgeMaterial": {
@@ -7926,6 +7975,18 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-edges > single-ed
         "materialVisible": true,
         "name": "ShapeList(Edge)",
         "type": "LineSegments2",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "ShapeList(Edge)",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "ShapeList(Edge)",
+        "type": "Points",
         "visible": true,
       },
       {
@@ -8051,7 +8112,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-edges > single-ed
       "lines": 10,
       "meshes": 5,
       "other": 50,
-      "points": 0,
+      "points": 2,
     },
     "geometries": [
       "BufferGeometry",
@@ -8085,6 +8146,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-edges > single-ed
       "LineDashedMaterial",
       "LineMaterial",
       "MeshBasicMaterial",
+      "PointsMaterial",
       "SpriteMaterial",
     ],
     "sampleEdgeMaterial": {

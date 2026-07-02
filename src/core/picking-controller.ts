@@ -283,9 +283,11 @@ export class PickingController {
     ): boolean =>
       m == null ? false : Array.isArray(m) ? m.some((x) => x.visible) : m.visible;
     if (info.topo === "vertex") {
-      // a solid's vertices are pick-only (no visual) → follow the solid's faces/edges;
-      // a standalone vertex node has its own material.
-      if (info.solidPath !== null) {
+      // A pick-only corner cloud (solid OR standalone face/edge) has no visual of its own
+      // → follow the owner's faces/edges. A standalone vertex node renders its own points.
+      // Gate on `pickVertices`, not `solidPath`: a standalone face/edge corner has a null
+      // solidPath yet still lives on `pickVertices` (never on `vertices`).
+      if (g.pickVertices !== null) {
         return vis(g.front?.material) || vis(g.edgeMaterial);
       }
       return vis(g.vertices?.material);

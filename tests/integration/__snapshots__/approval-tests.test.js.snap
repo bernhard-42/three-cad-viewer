@@ -15944,6 +15944,18 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
         "visible": true,
       },
       {
+        "materialVisible": true,
+        "name": "edges",
+        "type": "Points",
+        "visible": true,
+      },
+      {
+        "materialVisible": true,
+        "name": "edges",
+        "type": "Points",
+        "visible": true,
+      },
+      {
         "materialVisible": undefined,
         "name": "|Group|box",
         "type": "ObjectGroup",
@@ -16185,7 +16197,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "lines": 11,
       "meshes": 16,
       "other": 50,
-      "points": 2,
+      "points": 4,
     },
     "geometries": [
       "BufferGeometry",

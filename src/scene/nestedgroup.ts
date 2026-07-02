@@ -59,6 +59,9 @@ interface ShapeData {
 interface EdgeData {
   edges: Float32Array | number[][];
   segments_per_edge?: number[] | Uint32Array;
+  // Real B-rep corner vertices (edge endpoints); used to build the pick-only vertex
+  // cloud so a standalone edge's corners are selectable, like a solid's/face's.
+  obj_vertices?: Float32Array | number[];
 }
 
 interface VertexData {
@@ -572,16 +575,32 @@ class NestedGroup {
       enablePickLayer(edges, "edge");
       // widen + recolor the flagged segment in-shader (Option A).
       this.highlight?.patchEdgeMaterial(edges.material);
-      // Internal measurement backend: record the standalone edge node's geometry.
+      // Internal measurement backend: record the standalone edge node's geometry
+      // (obj_vertices lets the hover status resolve a picked corner's coords).
       this.meshGeometry.register(
         path,
-        { edges: edgeData.edges, segments_per_edge: edgeData.segments_per_edge },
+        {
+          edges: edgeData.edges,
+          segments_per_edge: edgeData.segments_per_edge,
+          obj_vertices: edgeData.obj_vertices,
+        },
         group,
         null,
       );
     }
 
     group.setEdges(edges);
+
+    // id-based picking: build the pick-only corner cloud so a standalone edge's B-rep
+    // endpoints are selectable. AFTER setEdges so `setPickVertices` syncs its visibility
+    // from the (now present) edge material. Compact group only.
+    if (
+      this.assignIds &&
+      edgeData.obj_vertices != null &&
+      edgeData.obj_vertices.length > 0
+    ) {
+      this._addPickVertices(group, edgeData.obj_vertices, path, name, null);
+    }
 
     this.groups[path] = group;
     group.name = path.replaceAll("/", this.delim);
@@ -870,67 +889,14 @@ class NestedGroup {
       }
     }
 
-    // id-based picking: build a pick-only `obj_vertices` Points cloud so
-    // the solid's B-rep corners are selectable. Assigned to the VERTEX pick layer
-    // ONLY (NOT visual layer 0) so the visual camera never draws it; the material
-    // stays `visible:true` because three drops `material.visible===false` objects
-    // before `overrideMaterial` applies. Compact group only (`assignIds`).
+    // id-based picking: build a pick-only `obj_vertices` corner cloud so the shape's
+    // B-rep corners are selectable (solids AND standalone faces). Compact group only.
     if (
       this.assignIds &&
       shape.obj_vertices != null &&
       shape.obj_vertices.length > 0
     ) {
-      const vpositions = this._toFloat32Array(shape.obj_vertices);
-      const { componentId } = buildVertexComponentIds(
-        shape.obj_vertices,
-        path,
-        subtype,
-        this.registry,
-      );
-      const vGeometry = gpuTracker.trackGeometry(
-        new THREE.BufferGeometry(),
-        `BufferGeometry (pick vertices) for ${path}`,
-      );
-      vGeometry.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(vpositions, 3),
-      );
-      applyComponentIds(vGeometry, componentId);
-
-      const pickMaterial = this.materialFactory.createVertexMaterial(
-        { size: 1, color: null, visible: true },
-        `PointsMaterial (pick vertices) for ${path}`,
-      );
-      const pickPoints = new THREE.Points(vGeometry, pickMaterial);
-      pickPoints.name = name;
-      setPickLayerExclusive(pickPoints, "vertex"); // pick layer only (off visual 0)
-      // Registered (not plain add) so its pick-buffer visibility tracks the solid's —
-      // a hidden solid must not keep contributing corner ids to the pick buffer.
-      group.setPickVertices(pickPoints);
-
-      // a SEPARATE visual-highlight Points on visual layer 0 (NOT the pick
-      // layer), sharing the same geometry. Non-flagged points are culled
-      // (`gl_PointSize=0` + fragment discard), so a solid's corner shows fat only
-      // while highlighted — matching the old visible-vertex look without a CPU walk.
-      const highlightMaterial = this.materialFactory.createVertexMaterial(
-        { size: VERTEX_FOCUS_SIZE, color: null, visible: true },
-        `PointsMaterial (highlight vertices) for ${path}`,
-      );
-      // Selection-marker points must render ON TOP. A solid's B-rep corners are
-      // coincident with the faces meeting there, so a depth-tested point loses the
-      // z-fight against its own faces and never shows — even silhouette corners
-      // against the background (verified via the WebGL parity harness; a plain
-      // depthTest:true marker rendered 0 visible points on an opaque solid). This
-      // is the standard always-visible selection-dot behaviour.
-      highlightMaterial.depthTest = false;
-      highlightMaterial.depthWrite = false;
-      this.highlight?.patchVertexMaterial(highlightMaterial, {
-        cullUnhighlighted: true,
-      });
-      const highlightPoints = new THREE.Points(vGeometry, highlightMaterial);
-      highlightPoints.name = name;
-      highlightPoints.renderOrder = 1000; // after faces/edges
-      group.add(highlightPoints); // visual layer 0 only (default)
+      this._addPickVertices(group, shape.obj_vertices, path, name, subtype);
     }
 
     // Record the node's raw geometry for the internal measurement backend (compact
@@ -940,6 +906,76 @@ class NestedGroup {
     }
 
     return group;
+  }
+
+  /**
+   * Build the pick-only B-rep-corner cloud (+ a selection-marker highlight Points) for a
+   * node carrying `obj_vertices` — a solid, a standalone face, or a standalone edge — so
+   * its corners are selectable via id-picking.
+   *
+   * The pick cloud lives on the VERTEX pick layer ONLY (NOT visual layer 0), so the visual
+   * camera never draws it; its material stays `visible:true` because three drops
+   * `material.visible===false` objects before `overrideMaterial` applies. Its pick-buffer
+   * visibility is kept in sync with the owning group (`setPickVertices`) so a hidden shape
+   * stops contributing corner ids.
+   *
+   * `subtype` is "solid" for a solid (→ the corner ids carry the owning `solidPath`, so the
+   * pick gates on faces||edges) and null for standalone faces/edges (→ own-node corners).
+   */
+  private _addPickVertices(
+    group: ObjectGroup,
+    objVertices: Float32Array | number[],
+    path: string,
+    name: string,
+    subtype: string | null,
+  ): void {
+    const vpositions = this._toFloat32Array(objVertices);
+    const { componentId } = buildVertexComponentIds(
+      objVertices,
+      path,
+      subtype,
+      this.registry,
+    );
+    const vGeometry = gpuTracker.trackGeometry(
+      new THREE.BufferGeometry(),
+      `BufferGeometry (pick vertices) for ${path}`,
+    );
+    vGeometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(vpositions, 3),
+    );
+    applyComponentIds(vGeometry, componentId);
+
+    const pickMaterial = this.materialFactory.createVertexMaterial(
+      { size: 1, color: null, visible: true },
+      `PointsMaterial (pick vertices) for ${path}`,
+    );
+    const pickPoints = new THREE.Points(vGeometry, pickMaterial);
+    pickPoints.name = name;
+    setPickLayerExclusive(pickPoints, "vertex"); // pick layer only (off visual 0)
+    group.setPickVertices(pickPoints);
+
+    // a SEPARATE visual-highlight Points on visual layer 0 (NOT the pick layer),
+    // sharing the same geometry. Non-flagged points are culled (`gl_PointSize=0` +
+    // fragment discard), so a corner shows fat only while highlighted — matching the
+    // old visible-vertex look without a CPU walk.
+    const highlightMaterial = this.materialFactory.createVertexMaterial(
+      { size: VERTEX_FOCUS_SIZE, color: null, visible: true },
+      `PointsMaterial (highlight vertices) for ${path}`,
+    );
+    // Selection-marker points must render ON TOP. B-rep corners are coincident with the
+    // faces/edges meeting there, so a depth-tested point loses the z-fight against its own
+    // geometry and never shows — even silhouette corners against the background (verified
+    // via the WebGL parity harness). This is the standard always-visible selection-dot.
+    highlightMaterial.depthTest = false;
+    highlightMaterial.depthWrite = false;
+    this.highlight?.patchVertexMaterial(highlightMaterial, {
+      cullUnhighlighted: true,
+    });
+    const highlightPoints = new THREE.Points(vGeometry, highlightMaterial);
+    highlightPoints.name = name;
+    highlightPoints.renderOrder = 1000; // after faces/edges
+    group.add(highlightPoints); // visual layer 0 only (default)
   }
 
   /**
