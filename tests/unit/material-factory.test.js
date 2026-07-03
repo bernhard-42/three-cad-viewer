@@ -236,6 +236,34 @@ describe("MaterialFactory — MaterialX materials", () => {
     expect(mat.clearcoat).toBeCloseTo(0.5);
   });
 
+  test("createStudioMaterialFromMaterialX treats color as sRGB, emissive as linear", async () => {
+    // threejs-materials contract: `color` is sRGB-stored, `emissive` (and the
+    // other color keys) are linear-stored. Orange #ff8000 → sRGB [1, 0.502, 0]
+    // must linearize to ~[1, 0.216, 0] for THREE.Color's internal linear space;
+    // if it were read as linear the green channel would stay ~0.502 → yellow.
+    const values = {
+      color: [1.0, 0.502, 0.0],
+      emissive: [1.0, 0.502, 0.0],
+      metalness: 0.0,
+      roughness: 0.5,
+    };
+    const mat = await factory.createStudioMaterialFromMaterialX(
+      values,
+      {},
+      undefined,
+      undefined,
+      null,
+    );
+    // color: sRGB 0.502 → linear ≈ 0.216 (green channel sinks, stays orange)
+    expect(mat.color.r).toBeCloseTo(1.0, 3);
+    expect(mat.color.g).toBeCloseTo(0.216, 2);
+    expect(mat.color.b).toBeCloseTo(0.0, 3);
+    // emissive: linear-stored, passes through the bare constructor unchanged
+    expect(mat.emissive.r).toBeCloseTo(1.0, 3);
+    expect(mat.emissive.g).toBeCloseTo(0.502, 3);
+    expect(mat.emissive.b).toBeCloseTo(0.0, 3);
+  });
+
   test("createStudioMaterialFromMaterialX handles texture references", async () => {
     const cache = mockTextureCache();
     const values = {

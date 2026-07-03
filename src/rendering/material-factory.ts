@@ -5,7 +5,11 @@ import { gpuTracker } from "../utils/gpu-tracker.js";
 import { logger } from "../utils/logger.js";
 import { getColorSpaceForMap } from "./texture-cache.js";
 
-/** threejs-materials property keys that hold [r,g,b] color arrays (linear RGB). */
+/**
+ * threejs-materials property keys that hold [r,g,b] color arrays.
+ * `color` is sRGB-stored; the rest (emissive, specularColor, sheenColor,
+ * attenuationColor) are linear-stored. See createStudioMaterialFromMaterialX.
+ */
 const COLOR_ARRAY_KEYS = new Set([
   "color",
   "specularColor",
@@ -607,7 +611,9 @@ class MaterialFactory {
    *
    * threejs-materials `properties` uses simplified property names (e.g., "color",
    * "roughness", "normal") where each entry has an optional `value` (scalar or
-   * [r,g,b] array in **linear RGB**) and/or `texture` (inline data URI).
+   * [r,g,b] color array) and/or `texture` (inline data URI). Color arrays follow
+   * a per-key color-space convention: `color` is sRGB, the other color keys are
+   * linear (see the COLOR_ARRAY_KEYS handling in the values loop below).
    *
    * @param values - Scalar PBR values from threejs-materials
    * @param textures - Texture map references from threejs-materials
@@ -650,10 +656,17 @@ class MaterialFactory {
       )
         continue;
 
-      // Color arrays → THREE.Color (already linear, no sRGB conversion)
+      // Color arrays → THREE.Color. Per the threejs-materials contract,
+      // `color` is sRGB-stored (consumed via setRGB(..., SRGBColorSpace),
+      // matching createStudioMaterial's base-color path), while the other
+      // color keys (emissive, specularColor, sheenColor, attenuationColor)
+      // are linear-stored (glTF *Factor spec; bare THREE.Color constructor).
       if (COLOR_ARRAY_KEYS.has(key) && Array.isArray(value)) {
         const [r, g, b] = value as number[];
-        matOptions[key] = new THREE.Color(r, g, b);
+        matOptions[key] =
+          key === "color"
+            ? new THREE.Color().setRGB(r, g, b, THREE.SRGBColorSpace)
+            : new THREE.Color(r, g, b);
       } else if (
         (key === "normalScale" || key === "clearcoatNormalScale") &&
         Array.isArray(value)

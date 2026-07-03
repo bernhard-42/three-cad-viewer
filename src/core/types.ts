@@ -681,9 +681,12 @@ export interface MaterialAppearance {
  *
  * This format is produced by the threejs-materials Python library, which catalogs
  * PBR materials from ambientCG, GPUOpen, PolyHaven, and PhysicallyBased.
- * `values` contains scalar properties (e.g., color as linear RGB array,
- * roughness as float).  `textures` contains texture references (inline data URIs
- * or file paths) keyed by property name.
+ * `values` contains scalar properties (e.g., color as an sRGB RGB array,
+ * roughness as float).  Note the per-key color-space convention: `color` is
+ * sRGB-stored, while `emissive`/`specularColor`/`sheenColor`/`attenuationColor`
+ * are linear-stored (see MaterialFactory.createStudioMaterialFromMaterialX).
+ * `textures` contains texture references (inline data URIs or file paths)
+ * keyed by property name.
  *
  * Detected by the presence of the `values` key.
  * Extra keys from threejs-materials (id, name, source, url, license) pass through
