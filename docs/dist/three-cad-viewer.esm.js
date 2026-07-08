@@ -55657,7 +55657,7 @@ const _matrix = /*@__PURE__*/ new Matrix4();
  * mouse picking (working out what objects in the 3d space the mouse is over)
  * amongst other things.
  */
-let Raycaster$1 = class Raycaster {
+class Raycaster {
 
 	/**
 	 * Constructs a new raycaster.
@@ -55872,7 +55872,7 @@ let Raycaster$1 = class Raycaster {
 
 	}
 
-};
+}
 
 function ascSort( a, b ) {
 
@@ -79585,7 +79585,7 @@ var THREE = /*#__PURE__*/Object.freeze({
 	RGIntegerFormat: RGIntegerFormat,
 	RawShaderMaterial: RawShaderMaterial,
 	Ray: Ray,
-	Raycaster: Raycaster$1,
+	Raycaster: Raycaster,
 	RectAreaLight: RectAreaLight,
 	RedFormat: RedFormat,
 	RedIntegerFormat: RedIntegerFormat,
@@ -81774,18 +81774,6 @@ function isMesh(obj) {
     return "isMesh" in obj && obj.isMesh === true;
 }
 /**
- * Type guard to check if an Object3D is a Line.
- */
-function isLine(obj) {
-    return "isLine" in obj && obj.isLine === true;
-}
-/**
- * Type guard to check if an Object3D is a Points.
- */
-function isPoints(obj) {
-    return "isPoints" in obj && obj.isPoints === true;
-}
-/**
  * Type guard to check if an object is an OrthographicCamera.
  * Accepts Object3D to allow use in controls where camera type is broader.
  */
@@ -81850,13 +81838,17 @@ class ZebraTool {
     constructor() {
         this.originalMaterials = new Map();
         this.zebraMaterials = new Map();
-        // Default settings
+        // Default settings — MUST match the viewer-state defaults (viewer-state.ts:502:
+        // zebraCount=9, zebraDirection=0, zebraColorScheme="blackwhite", zebraOpacity=1.0,
+        // zebraMappingMode="reflection"). Same defaults from two sources; keep in sync.
+        // enableZebraTool also pushes the current state values here on activation, so
+        // non-default settings (viewerOptions/API) are honored.
         this.settings = {
-            stripeCount: 15,
+            stripeCount: 9,
             stripeDirection: 0, // angle in degrees
             colorScheme: "blackwhite", // 'blackwhite', 'colorful', 'grayscale'
             opacity: 1.0, // 0.0 = fully transparent (see original), 1.0 = fully opaque (only zebra)
-            mappingMode: "normal", // 'reflection' (Onshape-like) or 'normal' (Fusion360/Shapr3D-like)
+            mappingMode: "reflection", // 'reflection' (Onshape-like) or 'normal' (Fusion360/Shapr3D-like)
         };
         this.zebraTexture = null;
         this.createZebraTexture();
@@ -82157,9 +82149,9 @@ class ZebraTool {
 }
 
 /** Highlight color when object is selected */
-const HIGHLIGHT_COLOR_SELECTED = 0x53a0e3;
+const HIGHLIGHT_COLOR_SELECTED$1 = 0x53a0e3;
 /** Highlight color when object is hovered but not selected */
-const HIGHLIGHT_COLOR_HOVER = 0x89b9e3;
+const HIGHLIGHT_COLOR_HOVER$1 = 0x89b9e3;
 /**
  * Type guard to check if a material has color and linewidth properties.
  * Parameter is THREE.Material or LineMaterial (which has incompatible vertexColors type).
@@ -82226,6 +82218,7 @@ class ObjectGroup extends Group {
         this.edges = null;
         this.edgeMaterial = null;
         this.vertices = null;
+        this.pickVertices = null;
         this.clipping = new Map();
         this.isSelected = false;
         this.originalColor = null;
@@ -82334,6 +82327,24 @@ class ObjectGroup extends Group {
         this.originalWidth = points.material.size;
     }
     /**
+     * Register the pick-only B-rep-corner cloud (vertex pick layer). Its pick-buffer
+     * visibility is then kept in sync with the solid's overall visibility so a hidden
+     * solid stops contributing vertex ids to the pick buffer (otherwise its corners win
+     * the vertex>face priority over a visible face behind them → hover flicker).
+     */
+    setPickVertices(points) {
+        this.add(points);
+        this.pickVertices = points;
+        this._syncPickVertices();
+    }
+    /** Sync the pick-only vertex cloud's visibility with the group's (pickable iff the
+     *  front faces or edges are visible — matches the picker's hidden-component gate). */
+    _syncPickVertices() {
+        if (this.pickVertices) {
+            this.pickVertices.visible = this.getVisibility();
+        }
+    }
+    /**
      * Add a clipping group for a plane index.
      */
     addClipping(group, index) {
@@ -82385,7 +82396,7 @@ class ObjectGroup extends Group {
      * Get the highlight color based on selection state.
      */
     _getHighlightColor() {
-        return new Color(this.isSelected ? HIGHLIGHT_COLOR_SELECTED : HIGHLIGHT_COLOR_HOVER);
+        return new Color(this.isSelected ? HIGHLIGHT_COLOR_SELECTED$1 : HIGHLIGHT_COLOR_HOVER$1);
     }
     /**
      * Apply color to a mesh and mark material for update.
@@ -82599,17 +82610,30 @@ class ObjectGroup extends Group {
                 }
             }
         }
+        this._syncPickVertices();
     }
     /**
      * Set visibility of edges and vertices.
      */
     setEdgesVisible(flag) {
         if (this.edgeMaterial) {
-            this.edgeMaterial.visible = flag;
+            if (this._isStudioMode) {
+                // Studio force-hides edges for its look (setStudioShowEdges) and restores
+                // edgeMaterial.visible from _cadEdgesVisible on leave. A change made DURING
+                // studio (e.g. cmd-double-click hide) is a CAD-intent change, so record it as
+                // the value to restore — without un-hiding edges now (keeps the studio look).
+                // Otherwise leaveStudioMode would re-show the edges of an object hidden in
+                // studio (the "ghost edges back in CAD" bug).
+                this._cadEdgesVisible = flag;
+            }
+            else {
+                this.edgeMaterial.visible = flag;
+            }
         }
         if (this.vertices) {
             this.vertices.material.visible = flag;
         }
+        this._syncPickVertices();
     }
     /**
      * Set visibility of back faces.
@@ -83341,7 +83365,11 @@ function getColorSpaceForMap(mapName) {
         : LinearSRGBColorSpace;
 }
 
-/** threejs-materials property keys that hold [r,g,b] color arrays (linear RGB). */
+/**
+ * threejs-materials property keys that hold [r,g,b] color arrays.
+ * `color` is sRGB-stored; the rest (emissive, specularColor, sheenColor,
+ * attenuationColor) are linear-stored. See createStudioMaterialFromMaterialX.
+ */
 const COLOR_ARRAY_KEYS = new Set([
     "color",
     "specularColor",
@@ -83474,6 +83502,14 @@ class MaterialFactory {
             depthWrite: !this.transparent,
             depthTest: !this.transparent,
             clipIntersection: false,
+            // Fat lines rasterize as triangles, so POLYGON_OFFSET_FILL applies. Pull
+            // edges slightly toward the camera (negative offset) to complement the
+            // faces being pushed back (+1/+1). Without this the screen-space-expanded
+            // line band dips behind steeply-angled faces at corners → edges look
+            // occluded, thinner, and z-fight ("jittery").
+            polygonOffset: true,
+            polygonOffsetFactor: -1,
+            polygonOffsetUnits: -1,
             vertexColors: vertexColors, // boolean, not string "VertexColors"
             toneMapped: false, // critical for correct vertex colors
         });
@@ -83684,7 +83720,9 @@ class MaterialFactory {
      *
      * threejs-materials `properties` uses simplified property names (e.g., "color",
      * "roughness", "normal") where each entry has an optional `value` (scalar or
-     * [r,g,b] array in **linear RGB**) and/or `texture` (inline data URI).
+     * [r,g,b] color array) and/or `texture` (inline data URI). Color arrays follow
+     * a per-key color-space convention: `color` is sRGB, the other color keys are
+     * linear (see the COLOR_ARRAY_KEYS handling in the values loop below).
      *
      * @param values - Scalar PBR values from threejs-materials
      * @param textures - Texture map references from threejs-materials
@@ -83715,10 +83753,17 @@ class MaterialFactory {
                 key === "displacementScale" ||
                 key === "displacementBias")
                 continue;
-            // Color arrays → THREE.Color (already linear, no sRGB conversion)
+            // Color arrays → THREE.Color. Per the threejs-materials contract,
+            // `color` is sRGB-stored (consumed via setRGB(..., SRGBColorSpace),
+            // matching createStudioMaterial's base-color path), while the other
+            // color keys (emissive, specularColor, sheenColor, attenuationColor)
+            // are linear-stored (glTF *Factor spec; bare THREE.Color constructor).
             if (COLOR_ARRAY_KEYS.has(key) && Array.isArray(value)) {
                 const [r, g, b] = value;
-                matOptions[key] = new Color(r, g, b);
+                matOptions[key] =
+                    key === "color"
+                        ? new Color().setRGB(r, g, b, SRGBColorSpace)
+                        : new Color(r, g, b);
             }
             else if ((key === "normalScale" || key === "clearcoatNormalScale") &&
                 Array.isArray(value)) {
@@ -83914,6 +83959,2666 @@ class MaterialFactory {
             this.defaultOpacity = options.defaultOpacity;
         if (options.edgeColor !== undefined)
             this.edgeColor = options.edgeColor;
+    }
+}
+
+/**
+ * Filter types for topology-based picking. `none` is the "no filter" sentinel
+ * (all topos eligible).
+ */
+const TopoFilter = {
+    none: null,
+    vertex: "vertex",
+    edge: "edge",
+    face: "face",
+    solid: "solid",
+};
+/** Reserved component id meaning "nothing under the cursor". */
+const BACKGROUND_ID = 0;
+/**
+ * Name of the per-vertex integer buffer attribute carrying the component id on
+ * every pickable geometry (faces, edges and vertices). The geometry attaches a
+ * `Uint32BufferAttribute` under this name; the pick pass reads it as an **integer**
+ * attribute (`gpuType = THREE.IntType`, GLSL3 `in uint`) so ids stay exact past
+ * 2^24. The geometry side must set `gpuType = THREE.IntType` on the attribute for
+ * the pick shader to read it.
+ */
+const COMPONENT_ID_ATTRIBUTE = "componentId";
+/**
+ * three.js camera/object layers reserved for the pick passes.
+ *
+ * A pickable object lives on visual layer 0 (so the main camera draws it) **and**
+ * its topo's pick layer. The pick pass sets the (reused) main camera to a single
+ * pick layer so `overrideMaterial` only touches one topo at a time — a mesh shader
+ * can't render lines/points. `obj_vertices` points live on `VERTEX` *only* (off the
+ * visual pass).
+ */
+const PICK_LAYER = {
+    FACE: 1,
+    EDGE: 2,
+    VERTEX: 3,
+};
+const PICK_LAYER_BY_TOPO = {
+    face: PICK_LAYER.FACE,
+    edge: PICK_LAYER.EDGE,
+    vertex: PICK_LAYER.VERTEX,
+};
+/**
+ * Attach the per-vertex `componentId` integer attribute to a pickable geometry: the
+ * canonical way to bind {@link COMPONENT_ID_ATTRIBUTE} so the GLSL3 pick shader reads
+ * it as `in uint` (`gpuType = IntType` — without it three uploads floats and the bits
+ * are wrong). Use `instanced` for fat-line (per-segment) edge geometry.
+ */
+function applyComponentIds(geometry, componentId, instanced = false) {
+    const attr = instanced
+        ? new InstancedBufferAttribute(componentId, 1)
+        : new Uint32BufferAttribute(componentId, 1);
+    attr.gpuType = IntType;
+    geometry.setAttribute(COMPONENT_ID_ATTRIBUTE, attr);
+}
+/**
+ * Add `object` to its topo's pick layer additively — it stays on visual layer 0 (the
+ * main render pass) AND becomes pickable. For face/edge geometry and visible vertices.
+ */
+function enablePickLayer(object, topo) {
+    object.layers.enable(PICK_LAYER_BY_TOPO[topo]);
+}
+/**
+ * Put `object` on its topo's pick layer ONLY (off visual layer 0), so the main camera
+ * never draws it — for the pick-only `obj_vertices` Points cloud.
+ */
+function setPickLayerExclusive(object, topo) {
+    object.layers.set(PICK_LAYER_BY_TOPO[topo]);
+}
+/**
+ * Map a dropdown topo filter to the picker's `TopoType[]`. `none`/`[null]` (the
+ * "no filter" sentinel) → `undefined` (all topos eligible).
+ */
+function pickerTopoFilter(filter) {
+    const mapped = filter.filter((t) => t !== null);
+    return mapped.length === 0 ? undefined : mapped;
+}
+/**
+ * Tree-leaf path that owns a picked component: the owning solid's path for a
+ * sub-component, else the component's own path with the topo suffix stripped. This
+ * is the leaf the double-click pick and the visibility gate operate on.
+ */
+function leafPath(info) {
+    return (info.solidPath ?? info.path.replace(/\/(faces|edges|vertices)\/[^/]+$/, ""));
+}
+/**
+ * Signature of the live clip state, to detect actual clip changes for the picker
+ * (used by the render loop's dirty cadence).
+ */
+function clipSignature(planes, intersection) {
+    if (planes === null)
+        return "off";
+    let s = intersection ? "i" : "u";
+    for (const p of planes) {
+        s += `|${p.normal.x},${p.normal.y},${p.normal.z},${p.constant}`;
+    }
+    return s;
+}
+/**
+ * Flat `id -> ComponentInfo` registry. Replaces the `NestedGroup.groups[id]`
+ * explosion for pick lookups. Ids are allocated monotonically starting at 1;
+ * id 0 ({@link BACKGROUND_ID}) means "nothing".
+ */
+class ComponentRegistry {
+    constructor() {
+        this.byId = new Map();
+        this.nextId = 1; // 0 reserved for background
+    }
+    /**
+     * Register a component and return its freshly allocated id. The returned id is
+     * also written onto the stored record's `id` field.
+     */
+    register(info) {
+        const id = this.nextId;
+        this.nextId += 1;
+        this.byId.set(id, { ...info, id });
+        return id;
+    }
+    /** Look up a component by id; `undefined` for unknown ids or background (0). */
+    get(id) {
+        return this.byId.get(id);
+    }
+    /**
+     * Iterate every registered component in registration (id-ascending) order.
+     * Used by the highlight controller to resolve solid selection (all components
+     * sharing a `solidPath`) without a scene-graph walk.
+     */
+    entries() {
+        return this.byId.values();
+    }
+    /**
+     * Largest allocated id so far (0 when empty). Ids are allocated contiguously from
+     * 1 and NEVER recycled ({@link removeByPathPrefix} deletes records but keeps
+     * `nextId`), so this is the high-water mark used as the upper bound for sizing the
+     * highlight-state texture; it is `>=` {@link size} (equal until the first removal).
+     */
+    get maxId() {
+        return this.nextId - 1;
+    }
+    /** Number of registered components. */
+    get size() {
+        return this.byId.size;
+    }
+    /**
+     * Drop every component whose path is `prefix` or lies under it (`prefix + "/"`),
+     * for {@link Viewer.removePart}. Does NOT recycle ids — surviving components keep
+     * their ids (and thus their highlight-state texel), and {@link maxId} stays put.
+     */
+    removeByPathPrefix(prefix) {
+        const sub = prefix + "/";
+        for (const [id, info] of this.byId) {
+            if (info.path === prefix || info.path.startsWith(sub)) {
+                this.byId.delete(id);
+            }
+        }
+    }
+    /** Drop all entries and reset id allocation. */
+    clear() {
+        this.byId.clear();
+        this.nextId = 1;
+    }
+}
+/** Decode an RGBA8 tuple (as written by {@link packId}) back into a component id. */
+function unpackId(r, g, b, a) {
+    return (r | (g << 8) | (b << 16) | (a << 24)) >>> 0;
+}
+/**
+ * Build the per-vertex face component-id attribute for a solid/standalone-face
+ * node's EXISTING indexed tessellation, registering one face component per face
+ * under `{path}/faces/faces_{i}` in array (backend-enumeration) order.
+ *
+ * No de-indexing: vertices are pooled per face, so each vertex maps to exactly one
+ * face. `collisions` counts vertices referenced by more than one face — it must be
+ * 0 (a non-zero value means cross-face sharing, i.e. de-indexing would be required).
+ *
+ * @param vertexCount - number of vertices in the position pool (`positions.length / 3`)
+ * @param triangles - flat index array (with `trianglesPerFace`) OR nested
+ *   `number[][]` (one face's flat index list per entry)
+ * @param trianglesPerFace - per-face triangle counts when `triangles` is flat;
+ *   `undefined` for the nested format
+ */
+function buildFaceComponentIds(vertexCount, triangles, trianglesPerFace, path, subtype, registry) {
+    const componentId = new Uint32Array(vertexCount); // 0 = unreferenced / background
+    const owner = new Int32Array(vertexCount).fill(-1);
+    const solidPath = subtype === "solid" ? path : null;
+    let collisions = 0;
+    const tagFace = (face, indices, start, count) => {
+        const id = registry.register({
+            path: `${path}/faces/faces_${face}`,
+            name: `faces_${face}`,
+            topo: "face",
+            subtype,
+            solidPath,
+        });
+        for (let k = 0; k < count; k++) {
+            const vi = indices[start + k];
+            if (owner[vi] === -1) {
+                owner[vi] = face;
+                componentId[vi] = id;
+            }
+            else if (owner[vi] !== face) {
+                collisions += 1; // cross-face shared vertex — invariant violation
+            }
+        }
+    };
+    if (trianglesPerFace !== undefined) {
+        // flat index array + per-face triangle counts (binary format)
+        const flat = triangles;
+        let cur = 0;
+        for (let f = 0; f < trianglesPerFace.length; f++) {
+            const n = trianglesPerFace[f] * 3; // index entries for this face
+            tagFace(f, flat, cur, n);
+            cur += n;
+        }
+    }
+    else if (Array.isArray(triangles) && Array.isArray(triangles[0])) {
+        // nested number[][] — one face's flat index list per entry
+        const nested = triangles;
+        for (let f = 0; f < nested.length; f++) {
+            tagFace(f, nested[f], 0, nested[f].length);
+        }
+    }
+    else if (triangles.length > 0) {
+        // flat index array with no per-face counts → treat as a single face
+        tagFace(0, triangles, 0, triangles.length);
+    }
+    return { componentId, collisions };
+}
+/**
+ * Build the per-segment (instanced) edge component-id attribute, registering one
+ * edge component per edge under `{path}/edges/edges_{i}` in array order. Produces
+ * one id per line segment (one `LineSegments2` instance).
+ *
+ * @param edges - flat segment endpoints (with `segmentsPerEdge`) OR nested
+ *   `number[][]` (one edge's flat points per entry, 6 floats per segment)
+ * @param segmentsPerEdge - per-edge segment counts when `edges` is flat;
+ *   `undefined` for the nested format
+ */
+function buildEdgeComponentIds(edges, segmentsPerEdge, path, subtype, registry) {
+    const solidPath = subtype === "solid" ? path : null;
+    const ids = [];
+    const registerEdge = (e) => registry.register({
+        path: `${path}/edges/edges_${e}`,
+        name: `edges_${e}`,
+        topo: "edge",
+        subtype,
+        solidPath,
+    });
+    if (segmentsPerEdge !== undefined) {
+        // flat segment endpoints + per-edge segment counts (binary format)
+        for (let e = 0; e < segmentsPerEdge.length; e++) {
+            const id = registerEdge(e);
+            for (let s = 0; s < segmentsPerEdge[e]; s++)
+                ids.push(id);
+        }
+    }
+    else if (Array.isArray(edges) && Array.isArray(edges[0])) {
+        // nested number[][] — one edge's flat points per entry (6 floats / segment)
+        const nested = edges;
+        for (let e = 0; e < nested.length; e++) {
+            const id = registerEdge(e);
+            const segs = nested[e].length / 6;
+            for (let s = 0; s < segs; s++)
+                ids.push(id);
+        }
+    }
+    else if (edges.length > 0) {
+        // flat points with no per-edge counts → treat as a single edge
+        const id = registerEdge(0);
+        const segs = edges.length / 6;
+        for (let s = 0; s < segs; s++)
+            ids.push(id);
+    }
+    return { componentId: new Uint32Array(ids) };
+}
+/**
+ * Build the per-point vertex component-id attribute for a node's `obj_vertices`
+ * (the real B-rep corners — the *selectable* vertices, NOT the triangle-mesh
+ * vertices), registering one vertex component per point under
+ * `{path}/vertices/vertices_{i}` in array (backend `get_vertices`) order.
+ *
+ * @param objVertices - flat xyz triples (3 floats per vertex)
+ */
+function buildVertexComponentIds(objVertices, path, subtype, registry) {
+    const solidPath = subtype === "solid" ? path : null;
+    const count = Math.floor(objVertices.length / 3);
+    const ids = new Uint32Array(count);
+    for (let i = 0; i < count; i++) {
+        ids[i] = registry.register({
+            path: `${path}/vertices/vertices_${i}`,
+            name: `vertices_${i}`,
+            topo: "vertex",
+            subtype,
+            solidPath,
+        });
+    }
+    return { componentId: ids };
+}
+/**
+ * Pick size (framebuffer px in the half-res target) for vertex pick points. Kept
+ * SMALL: the N×N readback window provides the "touch radius" by reading neighbours,
+ * so fat rendering is unnecessary and would only overwrite neighbouring face pixels
+ * in the shared id buffer (hurting faces-only picks near corners). A few px keeps
+ * the corner reliably present without eating faces.
+ */
+const PICK_POINT_SIZE = 3;
+/**
+ * Shared GLSL3 MRT fragment shader for all pick materials (face/vertex/edge): packs
+ * the flat `vId` into attachment 0 (byte order MUST match `packId()`: low byte in R)
+ * and writes the interpolated world position into attachment 1 (RGBA32F; `w=1` marks
+ * "has position"). The fragment clip chunk only `discard`s (non-ALPHA_TO_COVERAGE),
+ * so no `diffuseColor` symbol is required.
+ */
+const PICK_FRAGMENT_SHADER = /* glsl */ `
+  #include <clipping_planes_pars_fragment>
+
+  flat in uint vId;
+  in vec3 vWorldPos;
+  layout(location = 0) out vec4 fragId;
+  layout(location = 1) out vec4 fragPos;
+
+  void main() {
+    #include <clipping_planes_fragment>
+    fragId = vec4(
+      float( vId & 0xFFu ) / 255.0,
+      float( ( vId >> 8 ) & 0xFFu ) / 255.0,
+      float( ( vId >> 16 ) & 0xFFu ) / 255.0,
+      float( ( vId >> 24 ) & 0xFFu ) / 255.0
+    );
+    fragPos = vec4( vWorldPos, 1.0 );
+  }
+`;
+/**
+ * Build the **face** pick override-material: a GLSL3 `ShaderMaterial` that reads the
+ * integer {@link COMPONENT_ID_ATTRIBUTE} and writes `packId(componentId)` +
+ * world position to the MRT pick target. Honors clipping (planes + intersection).
+ */
+function createFacePickMaterial(options = {}) {
+    // GLSL3 (WebGL2). For a (non-Raw) ShaderMaterial three.js auto-injects
+    // `in vec3 position;`, `uniform mat4 modelMatrix/modelViewMatrix/projectionMatrix`,
+    // so we declare ONLY the custom integer attribute + flat varying. Integer
+    // varyings MUST be `flat`. Clip chunks use legacy `varying`/`attribute` keywords
+    // which three remaps via `#define` under GLSL3; the vertex chunk reads a local
+    // `vec4 mvPosition`, which we compute before the include.
+    const vertexShader = /* glsl */ `
+    #include <clipping_planes_pars_vertex>
+
+    in uint componentId;
+    flat out uint vId;
+    out vec3 vWorldPos;
+
+    void main() {
+      vId = componentId;
+      vec4 worldPos = modelMatrix * vec4( position, 1.0 );
+      vWorldPos = worldPos.xyz;
+      vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+      gl_Position = projectionMatrix * mvPosition;
+      #include <clipping_planes_vertex>
+    }
+  `;
+    const material = new ShaderMaterial({
+        glslVersion: GLSL3,
+        vertexShader,
+        fragmentShader: PICK_FRAGMENT_SHADER,
+        side: FrontSide,
+        // Nearest face must win in the id buffer.
+        depthTest: true,
+        depthWrite: true,
+        // Honor live clipping planes so clipped geometry is not picked. `clipping`
+        // tells three to compile in the clip chunks / NUM_CLIPPING_PLANES define.
+        clipping: true,
+        clippingPlanes: options.clippingPlanes ?? [],
+        clipIntersection: options.clipIntersection ?? false,
+    });
+    gpuTracker.track("material", material, "ShaderMaterial (face pick)");
+    return material;
+}
+/**
+ * Build the **vertex** pick override-material for an `obj_vertices` `THREE.Points`
+ * cloud: a GLSL3 `ShaderMaterial` that draws each point **fat** (`gl_PointSize` =
+ * {@link PICK_POINT_SIZE}, a touch radius independent of the visual point size),
+ * reads the integer `componentId`, and writes id + world position to the MRT. A
+ * tiny forward depth bias lets a corner vertex win the depth test over its
+ * coincident face (so it can be picked), while occluded vertices stay hidden.
+ * Honors clipping.
+ */
+function createVertexPickMaterial(options = {}) {
+    const vertexShader = /* glsl */ `
+    #include <clipping_planes_pars_vertex>
+
+    in uint componentId;
+    flat out uint vId;
+    out vec3 vWorldPos;
+    uniform float uPickSize;
+
+    void main() {
+      vId = componentId;
+      vec4 worldPos = modelMatrix * vec4( position, 1.0 );
+      vWorldPos = worldPos.xyz;
+      vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+      gl_Position = projectionMatrix * mvPosition;
+      // Forward depth bias so a corner vertex wins the depth test over its
+      // coincident edges AND face. The biases MUST be monotonic with the
+      // vertex > edge > face hover priority: face 0 < edge 2e-4 < vertex 4e-4.
+      // (If the vertex bias were <= the edge's, the edge would sit in front and
+      // the vertex fragment would fail the depth test → vertices unpickable.)
+      gl_Position.z -= gl_Position.w * 4e-4;
+      gl_PointSize = uPickSize;
+      #include <clipping_planes_vertex>
+    }
+  `;
+    const material = new ShaderMaterial({
+        glslVersion: GLSL3,
+        vertexShader,
+        fragmentShader: PICK_FRAGMENT_SHADER,
+        uniforms: { uPickSize: { value: PICK_POINT_SIZE } },
+        depthTest: true,
+        depthWrite: true,
+        clipping: true,
+        clippingPlanes: options.clippingPlanes ?? [],
+        clipIntersection: options.clipIntersection ?? false,
+    });
+    gpuTracker.track("material", material, "ShaderMaterial (vertex pick)");
+    return material;
+}
+/**
+ * Pick width (px in the half-res target) for edge pick lines. Kept THIN: edges run
+ * along face boundaries, so a fat band would overwrite face pixels on both sides and
+ * wreck faces-only picks. The N×N readback window supplies the touch radius instead.
+ */
+const PICK_EDGE_WIDTH = 2;
+/**
+ * Build the **edge** pick override-material for a `LineSegments2` /
+ * `LineSegmentsGeometry` fat line: a GLSL3 `ShaderMaterial` that ports three
+ * `LineMaterial`'s screen-space instanced fat-line expansion (instanceStart/End +
+ * the `position` quad template, `linewidth`/`resolution` uniforms), reads the
+ * **instanced** integer `componentId`, and writes id + world position to the MRT.
+ * Drawn fat ({@link PICK_EDGE_WIDTH}) for a touch radius independent of the visual
+ * line width. `resolution` MUST be set to the pick target size by the caller.
+ * Honors clipping. (World-units + dash + color paths are dropped — pick only.)
+ */
+function createEdgePickMaterial(options = {}) {
+    const vertexShader = /* glsl */ `
+    #include <clipping_planes_pars_vertex>
+
+    uniform float linewidth;
+    uniform vec2 resolution;
+
+    in vec3 instanceStart;
+    in vec3 instanceEnd;
+    in uint componentId;
+
+    flat out uint vId;
+    out vec3 vWorldPos;
+
+    void trimSegment( const in vec4 start, inout vec4 end ) {
+      float a = projectionMatrix[ 2 ][ 2 ];
+      float b = projectionMatrix[ 3 ][ 2 ];
+      float nearEstimate = - 0.5 * b / a;
+      float alpha = ( nearEstimate - start.z ) / ( end.z - start.z );
+      end.xyz = mix( start.xyz, end.xyz, alpha );
+    }
+
+    void main() {
+      vId = componentId;
+
+      // World-space segment endpoints → approximate hit point along the edge.
+      vWorldPos = ( position.y < 0.5 )
+        ? ( modelMatrix * vec4( instanceStart, 1.0 ) ).xyz
+        : ( modelMatrix * vec4( instanceEnd, 1.0 ) ).xyz;
+
+      float aspect = resolution.x / resolution.y;
+
+      vec4 start = modelViewMatrix * vec4( instanceStart, 1.0 );
+      vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );
+
+      // Segments crossing the camera plane (perspective) need trimming.
+      bool perspective = ( projectionMatrix[ 2 ][ 3 ] == - 1.0 );
+      if ( perspective ) {
+        if ( start.z < 0.0 && end.z >= 0.0 ) trimSegment( start, end );
+        else if ( end.z < 0.0 && start.z >= 0.0 ) trimSegment( end, start );
+      }
+
+      vec4 clipStart = projectionMatrix * start;
+      vec4 clipEnd = projectionMatrix * end;
+
+      vec3 ndcStart = clipStart.xyz / clipStart.w;
+      vec3 ndcEnd = clipEnd.xyz / clipEnd.w;
+
+      vec2 dir = ndcEnd.xy - ndcStart.xy;
+      dir.x *= aspect;
+      dir = normalize( dir );
+
+      vec2 offset = vec2( dir.y, - dir.x );
+      dir.x /= aspect;
+      offset.x /= aspect;
+      if ( position.x < 0.0 ) offset *= - 1.0;
+      if ( position.y < 0.0 ) offset += - dir;
+      else if ( position.y > 1.0 ) offset += dir;
+      offset *= linewidth;
+      offset /= resolution.y;
+
+      vec4 clip = ( position.y < 0.5 ) ? clipStart : clipEnd;
+      offset *= clip.w;
+      clip.xy += offset;
+
+      gl_Position = clip;
+      // Forward depth bias so an edge wins over its two coincident faces at the
+      // crease (else a sharp/concave edge z-fights the faces and is unpickable).
+      // Must stay BELOW the vertex bias (4e-4) so a corner vertex still wins over
+      // its edges — keep face 0 < edge 2e-4 < vertex 4e-4 monotonic with priority.
+      gl_Position.z -= gl_Position.w * 2e-4;
+
+      vec4 mvPosition = ( position.y < 0.5 ) ? start : end; // approximation, for clipping
+      #include <clipping_planes_vertex>
+    }
+  `;
+    const material = new ShaderMaterial({
+        glslVersion: GLSL3,
+        vertexShader,
+        fragmentShader: PICK_FRAGMENT_SHADER,
+        uniforms: {
+            linewidth: { value: PICK_EDGE_WIDTH },
+            resolution: { value: new Vector2(1, 1) },
+        },
+        depthTest: true,
+        depthWrite: true,
+        clipping: true,
+        clippingPlanes: options.clippingPlanes ?? [],
+        clipIntersection: options.clipIntersection ?? false,
+    });
+    gpuTracker.track("material", material, "ShaderMaterial (edge pick)");
+    return material;
+}
+/** MRT attachment index of the packed-id texture. */
+const PICK_ID_ATTACHMENT = 0;
+/** MRT attachment index of the world-position texture. */
+const PICK_POS_ATTACHMENT = 1;
+/**
+ * Create the MRT pick render target: a single `WebGLRenderTarget` with two color
+ * attachments —
+ *  - {@link PICK_ID_ATTACHMENT} (0): RGBA8/UnsignedByte packed `componentId`
+ *    (`packId`, low byte in R), and
+ *  - {@link PICK_POS_ATTACHMENT} (1): RGBA32F world-space hit position,
+ *    `xyz` = point, `w = 1` where a fragment was written (0 = background).
+ *
+ * `NearestFilter` on both — interpolated ids/positions are meaningless. A depth
+ * buffer keeps the nearest fragment per pixel; no depth *texture* is read.
+ * `NoColorSpace` on the id texture stops any sRGB transform corrupting the bytes.
+ *
+ * Plain factory: the caller ({@link IdPicker.pickAt}) owns sizing/resize/disposal.
+ * `width`/`height` are already the pick-buffer pixel size (caller applies half-DPR).
+ *
+ * @param withPosition - allocate the RGBA32F world-position attachment. Requires
+ *   `EXT_color_buffer_float` (probed by {@link IdPicker}); when `false` the target
+ *   carries the id attachment only and `pickAt` returns `point = null` (the fat
+ *   `out` at location 1 in the pick shaders is simply dropped — writing to an
+ *   unbound draw buffer is well-defined and discarded in WebGL2).
+ */
+function createPickTargets(width, height, withPosition = true) {
+    const target = new WebGLRenderTarget(width, height, {
+        count: withPosition ? 2 : 1,
+        minFilter: NearestFilter,
+        magFilter: NearestFilter,
+        format: RGBAFormat,
+        type: UnsignedByteType,
+        depthBuffer: true,
+    });
+    const idTex = target.textures[PICK_ID_ATTACHMENT];
+    idTex.type = UnsignedByteType;
+    idTex.colorSpace = NoColorSpace;
+    if (withPosition) {
+        const posTex = target.textures[PICK_POS_ATTACHMENT];
+        posTex.type = FloatType; // world position needs full float range
+        posTex.colorSpace = NoColorSpace;
+    }
+    return target;
+}
+/** Priority rank for hover resolution: vertex > edge > face (background = 0). */
+function topoRank(topo) {
+    if (topo === "vertex")
+        return 3;
+    if (topo === "edge")
+        return 2;
+    if (topo === "face")
+        return 1;
+    return 0;
+}
+/** Whether `topo` is eligible under `filter` (undefined/empty = all). */
+function topoEligible(topo, filter) {
+    if (filter === undefined || filter.length === 0)
+        return true;
+    if (filter.includes(topo))
+        return true;
+    // `solid` selection picks via faces (caller maps the face to its solidPath).
+    if (filter.includes("solid") && topo === "face")
+        return true;
+    return false;
+}
+/**
+ * GPU id-based picker: cursor → component id → registry → backend path, plus the
+ * world-space hit point.
+ *
+ * Lifecycle the host (viewer) drives:
+ *  - {@link attach} once the scene + camera exist (re-attach after `clear()`),
+ *  - {@link setSize} on canvas resize, {@link setClippingPlanes} on clip change,
+ *  - {@link setDirty} whenever the view/geometry changes (camera move, geometry
+ *    rebuild) so the pick buffer is re-rendered lazily on the next {@link pickAt},
+ *  - {@link pickAt} on hover/click to resolve the component under the cursor.
+ *
+ * Per-topo passes (FACE, then fat EDGE lines, then fat VERTEX points) accumulate
+ * into one MRT target; `pickAt` reads an N×N window and resolves **vertex > edge >
+ * face** priority via the registry's topo, honoring `topoFilter`, then reads the
+ * position attachment → `point`.
+ */
+class IdPicker {
+    constructor(renderer, registry) {
+        this.renderer = renderer;
+        this.registry = registry;
+        this.positionSupported = IdPicker._probeFloatColor(renderer);
+        if (!this.positionSupported) {
+            // Dev-facing only (debug, not warn): a missing extension degrades gracefully
+            // to `point = null` and id picking is unaffected; real WebGL2 has it.
+            logger.debug("IdPicker: EXT_color_buffer_float unavailable — pick world-position " +
+                "disabled (point = null); id picking unaffected.");
+        }
+        this.windowSize = 3;
+        this.scene = null;
+        this.camera = null;
+        this.clippingPlanes = null;
+        this.clipIntersection = false;
+        this.width = 0;
+        this.height = 0;
+        this.dirty = true;
+        this.pickTarget = null;
+        this.faceMaterial = null;
+        this.edgeMaterial = null;
+        this.vertexMaterial = null;
+        this.compiledPlaneCount = 0;
+        this.compiledIntersection = false;
+        this.savedClearColor = new Color();
+        this.savedViewport = new Vector4();
+        this.posPixel = new Float32Array(4);
+        this.idWindow = new Uint8Array(this.windowSize * this.windowSize * 4);
+    }
+    /**
+     * Probe `EXT_color_buffer_float` — the capability needed to *render into* the
+     * RGBA32F world-position attachment. Getting the extension is the canonical
+     * feature test (no side effects) and is WebGL2-only: it does not exist on WebGL1
+     * (whose float-color extension is `WEBGL_color_buffer_float`), so a non-null result
+     * already implies a WebGL2 context. Near-universal on WebGL2 but spec-optional.
+     */
+    static _probeFloatColor(renderer) {
+        // Guard the probe: mocked test renderers (happy-dom) may expose no `getContext`,
+        // and an exotic context may lack `getExtension`.
+        if (typeof renderer.getContext !== "function")
+            return false;
+        const gl = renderer.getContext();
+        return (gl != null &&
+            typeof gl.getExtension === "function" &&
+            gl.getExtension("EXT_color_buffer_float") !== null);
+    }
+    /**
+     * Point the picker at the scene + camera it renders for picking. Call once
+     * the scene exists and again after the scene/camera are recreated (`clear()`).
+     */
+    attach(scene, camera) {
+        this.scene = scene;
+        this.camera = camera;
+        this.setDirty();
+    }
+    /**
+     * Mark the pick buffer stale so the next {@link pickAt} re-renders it. Call on any
+     * view change (camera move/zoom, geometry rebuild) — NOT on mouse-move.
+     */
+    setDirty() {
+        this.dirty = true;
+    }
+    /** Resize the pick render target to match the canvas (CSS px; half-DPR internally). */
+    setSize(width, height) {
+        this.width = width;
+        this.height = height;
+        this.setDirty();
+    }
+    /**
+     * Update the clipping the pick materials must honor — planes (`null` when the
+     * viewer's clipping is off) and intersection mode (mirror the visual material's
+     * `clipIntersection`). Recompiles the materials only when the plane *count* or the
+     * intersection *mode* changes (three keys the program on `NUM_CLIPPING_PLANES` /
+     * `UNION_CLIPPING_PLANES`); a value-only change just re-renders. Always
+     * re-renders next {@link pickAt}.
+     */
+    setClippingPlanes(planes, intersection = false) {
+        this.clippingPlanes = planes;
+        this.clipIntersection = intersection;
+        const count = planes === null ? 0 : planes.length;
+        const recompile = count !== this.compiledPlaneCount ||
+            intersection !== this.compiledIntersection;
+        for (const material of [
+            this.faceMaterial,
+            this.edgeMaterial,
+            this.vertexMaterial,
+        ]) {
+            if (material === null)
+                continue;
+            material.clippingPlanes = planes ?? [];
+            material.clipIntersection = intersection;
+            if (recompile)
+                material.needsUpdate = true;
+        }
+        if (recompile) {
+            this.compiledPlaneCount = count;
+            this.compiledIntersection = intersection;
+        }
+        this.setDirty();
+    }
+    /**
+     * Resolve the component under the cursor, with its world-space hit point.
+     *
+     * @param x - canvas-relative x in CSS px (`getBoundingClientRect`)
+     * @param y - canvas-relative y in CSS px (top-left origin; WebGL Y-flip is internal)
+     * @returns the picked component (`point` = world hit position), or `null` for
+     *   background / no hit.
+     *
+     * Re-renders the MRT pick target if {@link dirty} (per-topo passes on the pick
+     * layers, honoring clipping), then reads an N×N window around the cursor pixel
+     * (canvas px → ×dpr×0.5 → Y-flip) and resolves **vertex > edge > face** priority
+     * via the registry's topo (nearest-to-center tie-break), restricted to
+     * `options.topoFilter`. The position attachment at the chosen pixel → `point`.
+     */
+    pickAt(x, y, options = {}) {
+        if (this.scene === null || this.camera === null)
+            return null;
+        const dpr = this.renderer.getPixelRatio();
+        const tw = Math.floor(this.width * dpr * 0.5);
+        const th = Math.floor(this.height * dpr * 0.5);
+        if (tw < 1 || th < 1)
+            return null;
+        this._ensureResources(tw, th);
+        // Re-render the pick target only when the view/geometry changed.
+        if (this.dirty) {
+            this._renderPickBuffer(this.camera.getCamera(), this.pickTarget);
+            this.dirty = false;
+        }
+        // canvas px → target px (×dpr×0.5) → Y-flip (WebGL origin is bottom-left).
+        const tx = Math.min(tw - 1, Math.max(0, Math.floor(x * dpr * 0.5)));
+        const tyTop = Math.floor(y * dpr * 0.5);
+        const ty = Math.min(th - 1, Math.max(0, th - 1 - tyTop));
+        // N×N window clamped within the target.
+        const win = Math.max(1, options.windowSize ?? this.windowSize);
+        const bw = Math.min(win, tw);
+        const bh = Math.min(win, th);
+        const half = win >> 1;
+        const x0 = Math.min(Math.max(0, tx - half), tw - bw);
+        const y0 = Math.min(Math.max(0, ty - half), th - bh);
+        const need = bw * bh * 4;
+        if (this.idWindow.length < need)
+            this.idWindow = new Uint8Array(need);
+        const buf = this.idWindow;
+        this.renderer.readRenderTargetPixels(this.pickTarget, x0, y0, bw, bh, buf, undefined, PICK_ID_ATTACHMENT);
+        // Scan the window: pick the highest-priority eligible topo, nearest to center.
+        const filter = options.topoFilter;
+        let bestId = BACKGROUND_ID;
+        let bestRank = 0;
+        let bestDist = Infinity;
+        let bestX = -1;
+        let bestY = -1;
+        for (let row = 0; row < bh; row++) {
+            for (let col = 0; col < bw; col++) {
+                const o = (row * bw + col) * 4;
+                const id = unpackId(buf[o], buf[o + 1], buf[o + 2], buf[o + 3]);
+                if (id === BACKGROUND_ID)
+                    continue;
+                const info = this.registry.get(id);
+                if (info === undefined)
+                    continue;
+                if (!topoEligible(info.topo, filter))
+                    continue;
+                const rank = topoRank(info.topo);
+                const px = x0 + col;
+                const py = y0 + row;
+                const dist = (px - tx) * (px - tx) + (py - ty) * (py - ty);
+                if (rank > bestRank || (rank === bestRank && dist < bestDist)) {
+                    bestRank = rank;
+                    bestDist = dist;
+                    bestId = id;
+                    bestX = px;
+                    bestY = py;
+                }
+            }
+        }
+        if (bestId === BACKGROUND_ID)
+            return null;
+        const info = this.registry.get(bestId);
+        // World-space hit point from the position attachment (w marks a written texel).
+        // Skipped when the float attachment is unavailable (probe failed) → point = null.
+        let point = null;
+        if (this.positionSupported) {
+            this.renderer.readRenderTargetPixels(this.pickTarget, bestX, bestY, 1, 1, this.posPixel, undefined, PICK_POS_ATTACHMENT);
+            if (this.posPixel[3] !== 0) {
+                point = new Vector3(this.posPixel[0], this.posPixel[1], this.posPixel[2]);
+            }
+        }
+        return { id: bestId, info, point };
+    }
+    /** Lazily allocate / resize the MRT target and the per-topo pick materials. */
+    _ensureResources(tw, th) {
+        if (this.pickTarget === null) {
+            this.pickTarget = createPickTargets(tw, th, this.positionSupported);
+            this.dirty = true;
+        }
+        else if (this.pickTarget.width !== tw || this.pickTarget.height !== th) {
+            this.pickTarget.setSize(tw, th);
+            this.dirty = true;
+        }
+        if (this.faceMaterial === null ||
+            this.edgeMaterial === null ||
+            this.vertexMaterial === null) {
+            const opts = {
+                clippingPlanes: this.clippingPlanes,
+                clipIntersection: this.clipIntersection,
+            };
+            if (this.faceMaterial === null)
+                this.faceMaterial = createFacePickMaterial(opts);
+            if (this.edgeMaterial === null)
+                this.edgeMaterial = createEdgePickMaterial(opts);
+            if (this.vertexMaterial === null)
+                this.vertexMaterial = createVertexPickMaterial(opts);
+            this.compiledPlaneCount =
+                this.clippingPlanes === null ? 0 : this.clippingPlanes.length;
+            this.compiledIntersection = this.clipIntersection;
+        }
+        // The fat edge expansion is in screen space → keep resolution = target size.
+        this.edgeMaterial.uniforms.resolution.value.set(tw, th);
+    }
+    /**
+     * Render the per-topo pick passes into the MRT target, reusing the main camera.
+     * Clears once, then accumulates **FACE → EDGE → VERTEX** (each drawn fat
+     * and later, so higher-priority topos overwrite at coincident pixels). All
+     * renderer state touched here is saved and restored.
+     */
+    _renderPickBuffer(camera, target) {
+        const renderer = this.renderer;
+        const scene = this.scene;
+        const savedMask = camera.layers.mask;
+        const savedOverride = scene.overrideMaterial;
+        const savedTarget = renderer.getRenderTarget();
+        const savedAlpha = renderer.getClearAlpha();
+        const savedAutoClear = renderer.autoClear;
+        renderer.getClearColor(this.savedClearColor);
+        renderer.getViewport(this.savedViewport);
+        try {
+            renderer.autoClear = false; // passes accumulate into one cleared target
+            renderer.setRenderTarget(target); // viewport follows the target size
+            renderer.setClearColor(0x000000, 0); // 0 = BACKGROUND_ID
+            renderer.clear();
+            this._pass(camera, PICK_LAYER.FACE, this.faceMaterial);
+            this._pass(camera, PICK_LAYER.EDGE, this.edgeMaterial);
+            this._pass(camera, PICK_LAYER.VERTEX, this.vertexMaterial);
+        }
+        finally {
+            camera.layers.mask = savedMask;
+            scene.overrideMaterial = savedOverride;
+            renderer.setRenderTarget(savedTarget);
+            renderer.setClearColor(this.savedClearColor, savedAlpha);
+            renderer.setViewport(this.savedViewport);
+            renderer.autoClear = savedAutoClear;
+        }
+    }
+    /** One pick pass: render only `layer`'s objects with `material` (no clear).
+     * Clipping planes are kept in sync solely by {@link setClippingPlanes} (and the
+     * lazy material creation in {@link _ensureResources}); re-assigning them here per
+     * pass would mutate `clippingPlanes` without `needsUpdate`, risking a stale
+     * `NUM_CLIPPING_PLANES` if the count ever changed off that path. */
+    _pass(camera, layer, material) {
+        const scene = this.scene;
+        camera.layers.set(layer);
+        scene.overrideMaterial = material;
+        this.renderer.render(scene, camera);
+    }
+    /** Release GPU resources (pick render target + materials). */
+    dispose() {
+        if (this.pickTarget !== null) {
+            this.pickTarget.dispose();
+            this.pickTarget = null;
+        }
+        for (const material of [
+            this.faceMaterial,
+            this.edgeMaterial,
+            this.vertexMaterial,
+        ]) {
+            if (material === null)
+                continue;
+            gpuTracker.untrack("material", material);
+            material.dispose();
+        }
+        this.faceMaterial = null;
+        this.edgeMaterial = null;
+        this.vertexMaterial = null;
+        this.scene = null;
+        this.camera = null;
+    }
+}
+
+/**
+ * Shader-based component highlight (compact graph).
+ *
+ * Design:
+ * - Per-component highlight state lives in ONE `R8UI` data texture indexed by
+ *   `componentId` (the attribute already on the compact geometry). The texture is
+ *   shared by every compact visual material via `onBeforeCompile`, so a state
+ *   write is reflected by all materials with no recompile.
+ * - State is BIT FLAGS ({@link HighlightFlag}); SELECTED wins over HOVER.
+ * - `selectSolid` sets the flag for every registry component sharing a `solidPath`.
+ *
+ * Driven by the live event loop via `IdPicker.pickAt → registry → controller`.
+ */
+/** Highlight color for a selected component (was `ObjectGroup.HIGHLIGHT_COLOR_SELECTED`). */
+const HIGHLIGHT_COLOR_SELECTED = 0x53a0e3;
+/** Highlight color for a hovered, not-selected component (was `HIGHLIGHT_COLOR_HOVER`). */
+const HIGHLIGHT_COLOR_HOVER = 0x89b9e3;
+/**
+ * Per-topo FOCUS BASE sizes (was `ObjectGroup.vertexFocusSize` / `edgeFocusWidth`).
+ * These are injected PER-MATERIAL by the `patch*Material` methods (a `#define` /
+ * material-local uniform), NOT via the shared {@link HighlightUniforms} — edges
+ * (5) and vertices (8) need different values, and the hover-vs-selected `−2` delta
+ * (`objectgroup.ts:285-298 widen()`) is resolved in-shader from the {@link
+ * HighlightFlag} bits: `HOVER → base`, `SELECTED && !HOVER → base − 2`, else the
+ * material's authored size.
+ */
+const VERTEX_FOCUS_SIZE = 6;
+const EDGE_FOCUS_WIDTH = 5;
+/**
+ * Per-component highlight state, stored as bit flags in one texel of the state
+ * texture. SELECTED takes precedence over HOVER when both are set, so hovering an
+ * already-selected component keeps the selected color (matches the old
+ * `_getHighlightColor` / `unhighlight(true)`).
+ */
+const HighlightFlag = {
+    SELECTED: 1 << 0,
+    HOVER: 1 << 1,
+};
+/**
+ * Width of the highlight-state data texture in texels. Height grows with the
+ * component count: `height = ceil((maxId + 1) / WIDTH)`. A component's texel is at
+ * `(id % WIDTH, floor(id / WIDTH))` — the same mapping the shader recomputes.
+ */
+const HIGHLIGHT_STATE_TEXTURE_WIDTH = 2048;
+// --- GLSL identifiers injected via onBeforeCompile (kept in sync with HighlightUniforms) ---
+/** Uniform: the shared `usampler2D` highlight-state texture (R8UI). */
+const U_HIGHLIGHT_STATE = "uHighlightState";
+/** Uniform: texture width, for `id -> ivec2` texel coordinates. */
+const U_HIGHLIGHT_TEX_WIDTH = "uHighlightTexWidth";
+/** Uniform: selected color (linear RGB vec3). */
+const U_HIGHLIGHT_SELECTED_COLOR = "uHighlightSelectedColor";
+/** Uniform: hover color (linear RGB vec3). */
+const U_HIGHLIGHT_HOVER_COLOR = "uHighlightHoverColor";
+// ---------------------------------------------------------------------------
+// GLSL injected via onBeforeCompile (shared by the three patch* methods)
+//
+// three upgrades stock materials to GLSL ES 3.00 on WebGL2 via `#define attribute
+// in` / `#define varying out|in` macros (WebGLProgram.js), so writing `attribute` /
+// `flat varying` here is converted automatically; `usampler2D` / `texelFetch` /
+// integer attributes are then available.
+// ---------------------------------------------------------------------------
+/**
+ * Shared state-fetch GLSL, injected into BOTH stages: the vertex stage needs it for
+ * widening / point size, the fragment for color. Declares the sampler + texWidth +
+ * the flat varying and a helper returning the component's {@link HighlightFlag} bits
+ * (0 for background / nothing).
+ */
+const HL_STATE_GLSL = `
+flat varying uint vHighlightId;
+uniform highp usampler2D ${U_HIGHLIGHT_STATE};
+uniform int ${U_HIGHLIGHT_TEX_WIDTH};
+uint highlightState() {
+  if (vHighlightId == 0u) return 0u;
+  ivec2 hlUv = ivec2(
+    int(vHighlightId) % ${U_HIGHLIGHT_TEX_WIDTH},
+    int(vHighlightId) / ${U_HIGHLIGHT_TEX_WIDTH}
+  );
+  return texelFetch(${U_HIGHLIGHT_STATE}, hlUv, 0).r;
+}`;
+/**
+ * Vertex header: the integer component-id attribute (per-vertex on faces/points,
+ * instanced on edges — three binds both by name) + the shared state fetch.
+ */
+const HL_VERTEX_HEADER = `
+attribute uint ${COMPONENT_ID_ATTRIBUTE};
+${HL_STATE_GLSL}`;
+/** Vertex main: forward the id. Injected right after `void main() {`. */
+const HL_VERTEX_ASSIGN = `vHighlightId = ${COMPONENT_ID_ATTRIBUTE};`;
+/** Fragment header: the shared state fetch + the two highlight colors. */
+const HL_FRAGMENT_HEADER = `
+${HL_STATE_GLSL}
+uniform vec3 ${U_HIGHLIGHT_SELECTED_COLOR};
+uniform vec3 ${U_HIGHLIGHT_HOVER_COLOR};`;
+/**
+ * Fragment color override, injected after `#include <color_fragment>` in all three
+ * materials: replace the base/lit color with the highlight color — SELECTED wins
+ * over HOVER (matches `ObjectGroup._getHighlightColor`).
+ */
+const HL_COLOR_OVERRIDE = `
+  {
+    uint hlColorState = highlightState();
+    if ((hlColorState & ${HighlightFlag.SELECTED}u) != 0u) {
+      diffuseColor.rgb = ${U_HIGHLIGHT_SELECTED_COLOR};
+    } else if ((hlColorState & ${HighlightFlag.HOVER}u) != 0u) {
+      diffuseColor.rgb = ${U_HIGHLIGHT_HOVER_COLOR};
+    }
+  }`;
+/**
+ * GLSL ternary choosing the focus size from the flag bits, matching the old
+ * `widen()`: HOVER → `hover`; SELECTED && !HOVER → `selected`; else `none`.
+ */
+function focusSizeExpr(stateVar, hover, selected, none) {
+    return (`((${stateVar} & ${HighlightFlag.HOVER}u) != 0u ? ${hover.toFixed(1)} : ` +
+        `((${stateVar} & ${HighlightFlag.SELECTED}u) != 0u ? ${selected.toFixed(1)} : ${none}))`);
+}
+/**
+ * `String.replace` that throws when the anchor is absent. The Option-A edge patch
+ * (and the others) string-match private three shader text; a `three` upgrade that
+ * renames an anchor must fail LOUDLY here, not silently drop the highlight (build
+ * would otherwise stay green). One guard test asserts each anchor still exists.
+ */
+function replaceOrThrow(src, anchor, replacement, where) {
+    if (!src.includes(anchor)) {
+        throw new Error(`HighlightController.${where}: shader anchor not found: ${JSON.stringify(anchor)}`);
+    }
+    return src.replace(anchor, replacement);
+}
+/**
+ * Owns the per-component highlight state texture and patches compact visual
+ * materials to read it. Created by the compact `NestedGroup` alongside its
+ * `ComponentRegistry`.
+ *
+ * Lifecycle: construct → `patch*Material` on each compact face/edge/vertex visual
+ * material as it is built → `resize(registry.maxId)` once all components are
+ * registered → `setHover` / `setSelected` / `selectSolid` / `clear` to drive
+ * highlight → `dispose`.
+ */
+class HighlightController {
+    /**
+     * @param registry - the compact group's component registry; sizes the texture
+     *   and resolves `solidPath` for {@link selectSolid}.
+     */
+    constructor(registry) {
+        this.registry = registry;
+        this.hoverIds = [];
+        this.hoverKey = "";
+        const texelCount = Math.max(1, registry.maxId + 1);
+        const { texture, data, capacity } = this._allocate(texelCount);
+        this.texture = texture;
+        this.data = data;
+        this.capacity = capacity;
+        this.uniforms = {
+            uHighlightState: { value: this.texture },
+            uHighlightTexWidth: { value: HIGHLIGHT_STATE_TEXTURE_WIDTH },
+            uHighlightSelectedColor: {
+                value: new Color(HIGHLIGHT_COLOR_SELECTED),
+            },
+            uHighlightHoverColor: { value: new Color(HIGHLIGHT_COLOR_HOVER) },
+        };
+    }
+    /**
+     * Allocate an R8UI data texture (+ CPU mirror) holding at least `texelCount`
+     * texels. `NearestFilter`, no mips — the shader reads exact integer flags via
+     * `texelFetch`. This is the FROZEN texture format.
+     */
+    _allocate(texelCount) {
+        const width = HIGHLIGHT_STATE_TEXTURE_WIDTH;
+        const height = Math.max(1, Math.ceil(texelCount / width));
+        const capacity = width * height;
+        const data = new Uint8Array(capacity);
+        const texture = new DataTexture(data, width, height, RedIntegerFormat, UnsignedByteType);
+        texture.internalFormat = "R8UI";
+        texture.minFilter = NearestFilter;
+        texture.magFilter = NearestFilter;
+        texture.generateMipmaps = false;
+        texture.needsUpdate = true;
+        gpuTracker.track("texture", texture, "HighlightController state texture");
+        return { texture, data, capacity };
+    }
+    /** The shared state texture (re-created by {@link resize}). */
+    get stateTexture() {
+        return this.texture;
+    }
+    /**
+     * Set or clear `bit` on a component's texel and flag the texture for re-upload
+     * on change. The linear data index equals the id (row-major, width-W texels), so
+     * texel `(id % W, floor(id / W))` is `data[id]`. Ignores background (0) and ids
+     * past the current capacity (caller must {@link resize} first).
+     */
+    _setBit(id, bit, on) {
+        if (id <= 0 || id >= this.capacity)
+            return;
+        const prev = this.data[id];
+        const next = on ? prev | bit : prev & ~bit;
+        if (next !== prev) {
+            this.data[id] = next;
+            this.texture.needsUpdate = true;
+        }
+    }
+    /**
+     * Move the HOVER flag onto exactly the given `ids` (clearing it from the
+     * previously hovered set). `key` is a cheap identity so a repeat target is a
+     * no-op — without it, re-hovering the same target every mouse-move would toggle
+     * the bits off→on and re-upload the texture each frame. Does not touch SELECTED.
+     */
+    _applyHover(key, ids) {
+        if (key === this.hoverKey)
+            return;
+        for (const id of this.hoverIds)
+            this._setBit(id, HighlightFlag.HOVER, false);
+        this.hoverIds = ids;
+        this.hoverKey = key;
+        for (const id of ids)
+            this._setBit(id, HighlightFlag.HOVER, true);
+    }
+    /**
+     * Move the HOVER flag onto a single component `id` (clearing the previous hover),
+     * or clear hover entirely when `id` is `null`/background.
+     */
+    setHover(id) {
+        const empty = id == null || id === BACKGROUND_ID;
+        this._applyHover(empty ? "" : `i${id}`, empty ? [] : [id]);
+    }
+    /**
+     * HOVER a whole solid (its FACES only — see {@link selectSolid}), or clear hover
+     * when `null`. Mirrors {@link selectSolid} for the transient hover state.
+     */
+    setHoverSolid(solidPath) {
+        if (solidPath == null) {
+            this._applyHover("", []);
+            return;
+        }
+        const ids = [];
+        for (const info of this.registry.entries()) {
+            if (info.solidPath === solidPath && info.topo === "face")
+                ids.push(info.id);
+        }
+        this._applyHover(`s${solidPath}`, ids);
+    }
+    /** Set or clear the SELECTED flag for a single component id. */
+    setSelected(id, flag) {
+        this._setBit(id, HighlightFlag.SELECTED, flag);
+    }
+    /** Whether a component currently carries the SELECTED flag. */
+    isSelected(id) {
+        if (id <= 0 || id >= this.capacity)
+            return false;
+        return (this.data[id] & HighlightFlag.SELECTED) !== 0;
+    }
+    /**
+     * Whether a solid is selected — every one of its faces carries SELECTED (false if it
+     * has no faces). Used for solid toggle, so a solid that is only partially selected
+     * (e.g. one face previously single-selected) is treated as not-selected and a click
+     * selects the whole solid rather than clearing it.
+     */
+    isSolidSelected(solidPath) {
+        let any = false;
+        for (const info of this.registry.entries()) {
+            if (info.solidPath === solidPath && info.topo === "face") {
+                any = true;
+                if ((this.data[info.id] & HighlightFlag.SELECTED) === 0)
+                    return false;
+            }
+        }
+        return any;
+    }
+    /**
+     * Set or clear SELECTED for a whole solid. Flags only the solid's **faces**
+     * (`topo === "face"`) — the body tints while edges keep their colour and corners
+     * stay hidden. Iterates {@link ComponentRegistry.entries}.
+     */
+    selectSolid(solidPath, flag) {
+        for (const info of this.registry.entries()) {
+            if (info.solidPath === solidPath && info.topo === "face") {
+                this._setBit(info.id, HighlightFlag.SELECTED, flag);
+            }
+        }
+    }
+    /** Clear all highlight state (hover + selection) for every component. */
+    clear() {
+        this.data.fill(0);
+        this.hoverIds = [];
+        this.hoverKey = "";
+        this.texture.needsUpdate = true;
+    }
+    /**
+     * Grow the state texture to hold at least `maxId + 1` texels, preserving existing
+     * state, and re-bind the new texture object into {@link uniforms}. No-op when the
+     * current capacity already suffices.
+     */
+    resize(maxId) {
+        const need = maxId + 1;
+        if (need <= this.capacity)
+            return;
+        const next = this._allocate(need);
+        next.data.set(this.data);
+        gpuTracker.untrack("texture", this.texture);
+        this.texture.dispose();
+        this.texture = next.texture;
+        this.data = next.data;
+        this.capacity = next.capacity;
+        this.texture.needsUpdate = true;
+        this.uniforms.uHighlightState.value = this.texture;
+    }
+    /**
+     * Shared `onBeforeCompile` installer: binds the shared uniforms, prepends the
+     * common vertex/fragment headers, forwards the component id, then runs the
+     * topo-specific `customize` (color override / widening). Idempotent per material.
+     */
+    _install(material, where, customize, variant = "") {
+        if (material.userData.highlightPatched === true)
+            return;
+        material.userData.highlightPatched = true;
+        const prev = material.onBeforeCompile;
+        // three.js keys a shader program on the material params + `customProgramCacheKey`,
+        // whose DEFAULT is `onBeforeCompile.toString()`. Our `onBeforeCompile` is the same
+        // arrow literal for every patch, and the per-variant shader differences (the vertex
+        // `cullUnhighlighted` discard, the topo-specific injection, any chained `prev` like
+        // triplanar) live in CLOSURES that `.toString()` can't see. Without a distinct key,
+        // two materials with identical params (e.g. a culled vs a non-culled vertex
+        // `PointsMaterial`) collide on one shared program → whichever compiles first wins
+        // (no-cull → the face's hidden corner points render as "ghost" vertices). Append a
+        // key that reflects topo + variant + chained prev so each shader variant compiles
+        // its own program. (customProgramCacheKey is ADDITIVE — standard params like USE_MAP
+        // still disambiguate, so this only ever splits programs, never merges distinct ones.)
+        const prevKey = typeof prev === "function" ? prev.toString() : "";
+        const cacheKey = `hl:${where}:${variant}:${prevKey}`;
+        material.customProgramCacheKey = () => cacheKey;
+        material.onBeforeCompile = (shader, renderer) => {
+            prev?.call(material, shader, renderer);
+            // Bind the SHARED uniform objects (same references → one write updates all).
+            shader.uniforms[U_HIGHLIGHT_STATE] = this.uniforms.uHighlightState;
+            shader.uniforms[U_HIGHLIGHT_TEX_WIDTH] = this.uniforms.uHighlightTexWidth;
+            shader.uniforms[U_HIGHLIGHT_SELECTED_COLOR] =
+                this.uniforms.uHighlightSelectedColor;
+            shader.uniforms[U_HIGHLIGHT_HOVER_COLOR] =
+                this.uniforms.uHighlightHoverColor;
+            // Common: forward the component id as a flat varying.
+            shader.vertexShader =
+                HL_VERTEX_HEADER +
+                    "\n" +
+                    replaceOrThrow(shader.vertexShader, "void main() {", `void main() {\n  ${HL_VERTEX_ASSIGN}`, where);
+            shader.fragmentShader = HL_FRAGMENT_HEADER + "\n" + shader.fragmentShader;
+            // Topo-specific color / size injection.
+            customize(shader);
+        };
+        material.needsUpdate = true;
+    }
+    /**
+     * Install `onBeforeCompile` on a face (`MeshStandardMaterial`) visual material.
+     * Overwrites `diffuseColor.rgb` with the highlight color BEFORE lighting (after
+     * the base color/map is applied) so a highlighted face is lit exactly as the old
+     * `material.color` swap was — selected wins over hover.
+     */
+    patchFaceMaterial(material) {
+        this._install(material, "patchFaceMaterial", (shader) => {
+            shader.fragmentShader = replaceOrThrow(shader.fragmentShader, "#include <color_fragment>", `#include <color_fragment>${HL_COLOR_OVERRIDE}`, "patchFaceMaterial");
+        });
+    }
+    /**
+     * Install `onBeforeCompile` on an edge (`LineMaterial`) visual material (Option A).
+     * Widens the screen-space half-width for flagged segments by patching the stock
+     * LineMaterial expansion (`offset *= linewidth;`, screen-space branch) and recolors
+     * via the shared fragment override. `vertexColors` axes/trihedron carry no
+     * registry id (state 0) so they stay inert.
+     */
+    patchEdgeMaterial(material) {
+        this._install(material, "patchEdgeMaterial", (shader) => {
+            shader.vertexShader = replaceOrThrow(shader.vertexShader, "offset *= linewidth;", `uint hlEdgeState = highlightState();
+				offset *= ${focusSizeExpr("hlEdgeState", EDGE_FOCUS_WIDTH, EDGE_FOCUS_WIDTH - 2, "linewidth")};`, "patchEdgeMaterial");
+            shader.fragmentShader = replaceOrThrow(shader.fragmentShader, "#include <color_fragment>", `#include <color_fragment>${HL_COLOR_OVERRIDE}`, "patchEdgeMaterial");
+        });
+    }
+    /**
+     * Install `onBeforeCompile` on a vertex (`PointsMaterial`) visual material.
+     * Flagged points widen to the focus size and recolor. When `cullUnhighlighted`
+     * (the solid highlight-Points cloud, invisible until selected), non-flagged points
+     * are culled — `gl_PointSize = 0` AND a fragment `discard` (the discard is the
+     * real guard; size-0 rasterization is driver-defined). Standalone visible vertices
+     * (default) keep their authored `size` and color when unflagged.
+     */
+    patchVertexMaterial(material, options = {}) {
+        const cull = options.cullUnhighlighted === true;
+        const none = cull ? "0.0" : "size";
+        this._install(material, "patchVertexMaterial", (shader) => {
+            shader.vertexShader = replaceOrThrow(shader.vertexShader, "gl_PointSize = size;", `uint hlPtState = highlightState();
+	gl_PointSize = ${focusSizeExpr("hlPtState", VERTEX_FOCUS_SIZE, VERTEX_FOCUS_SIZE - 2, none)};`, "patchVertexMaterial");
+            const discard = cull
+                ? "\n    if (highlightState() == 0u) discard;"
+                : "";
+            shader.fragmentShader = replaceOrThrow(shader.fragmentShader, "#include <color_fragment>", `#include <color_fragment>${discard}${HL_COLOR_OVERRIDE}`, "patchVertexMaterial");
+        }, 
+        // The cull discard is the variant that must NOT share a program with the
+        // standalone (always-visible) vertex cloud — the ghost-vertex bug.
+        cull ? "cull" : "nocull");
+    }
+    /** Dispose the state texture and release tracking. */
+    dispose() {
+        gpuTracker.untrack("texture", this.texture);
+        this.texture.dispose();
+    }
+}
+
+/**
+ * TypeScript mesh-based measurement backend.
+ *
+ * Computes meaningful measurements (area, length, volume, bounding box, min/center
+ * distance, angle) from the tessellated mesh, so the measure tools work WITHOUT the
+ * external Python (`ocp_vscode`) backend — the default when developing three-cad-viewer
+ * standalone. Selected via the `externalMeasurementBackend` option (default `false` =
+ * this backend; `ocp_vscode` sets `true` to use Python). See MeshBackend.md.
+ *
+ * Accuracy: `shape_type` / `geom_type` are EXACT (carried per-component in the
+ * tessellation `face_types` / `edge_types`). Numeric values are mesh-accurate — exact
+ * for planar faces / straight edges, within tessellation deflection for curved geometry.
+ *
+ * This module is the FROZEN contract (APPROACH.md "contracts-first"): the GeomAbs name
+ * tables, the {@link MeshComponentGeometry} shape the provider yields, the
+ * {@link MeshGeometryProvider} interface, and the pure geometry math operate on
+ * world-space coordinates (the provider applies each node's transform).
+ */
+// ---------------------------------------------------------------------------
+// geom_type — OCCT GeomAbs enums (exact, from face_types / edge_types)
+//
+// face_types[i] is OCCT `GeomAbs_SurfaceType`, edge_types[i] is `GeomAbs_CurveType`
+// (ocp_tessellate get_face_type/get_edge_type → BRepAdaptor_*.GetType()). The Python
+// `measure.py` reports the enum name with the `GeomAbs_` prefix stripped; these tables
+// reproduce that mapping by ordinal.
+// ---------------------------------------------------------------------------
+/** GeomAbs_SurfaceType ordinals → name (face_types). */
+const SURFACE_TYPE_NAMES = [
+    "Plane",
+    "Cylinder",
+    "Cone",
+    "Sphere",
+    "Torus",
+    "BezierSurface",
+    "BSplineSurface",
+    "SurfaceOfRevolution",
+    "SurfaceOfExtrusion",
+    "OffsetSurface",
+    "OtherSurface",
+];
+/** GeomAbs_CurveType ordinals → name (edge_types). */
+const CURVE_TYPE_NAMES = [
+    "Line",
+    "Circle",
+    "Ellipse",
+    "Hyperbola",
+    "Parabola",
+    "BezierCurve",
+    "BSplineCurve",
+    "OffsetCurve",
+    "OtherCurve",
+];
+/** Resolve a face's `face_types` code to its geom_type name (`"Other"` if unknown). */
+function faceGeomType(code) {
+    return SURFACE_TYPE_NAMES[code] ?? "Other";
+}
+/** Resolve an edge's `edge_types` code to its geom_type name (`"Other"` if unknown). */
+function edgeGeomType(code) {
+    return CURVE_TYPE_NAMES[code] ?? "Other";
+}
+/**
+ * Short, lowercase geom_type for a status-line readout. Drops the trailing
+ * `Curve`/`Surface` suffix (`BSplineSurface`/`BSplineCurve` → `bspline`,
+ * `Plane` → `plane`, `Line` → `line`) and spaces the remaining CamelCase words
+ * for readability (`SurfaceOfExtrusion` → `surface of extrusion`,
+ * `SurfaceOfRevolution` → `surface of revolution`). The lowercase→uppercase
+ * split leaves single words and the leading-caps `BSpline` untouched. Topo
+ * selects the surface vs curve table.
+ */
+function displayGeomType(topo, code) {
+    const name = topo === "edge" ? edgeGeomType(code) : faceGeomType(code);
+    return name
+        .replace(/(Curve|Surface)$/, "")
+        .replace(/([a-z])([A-Z])/g, "$1 $2")
+        .toLowerCase();
+}
+/** Build the {@link MeshFeatures} primitive sets from a component's geometry. */
+function buildFeatures(geom) {
+    const points = [];
+    const tris = [];
+    const segs = [];
+    const p = geom.positions;
+    if (geom.topo === "vertex") {
+        points.push(new Vector3(p[0], p[1], p[2]));
+        return { points, tris, segs };
+    }
+    if (geom.topo === "edge") {
+        // flat segment endpoint pairs: 6 floats per segment
+        for (let i = 0; i + 5 < p.length; i += 6) {
+            const a = new Vector3(p[i], p[i + 1], p[i + 2]);
+            const b = new Vector3(p[i + 3], p[i + 4], p[i + 5]);
+            points.push(a, b);
+            segs.push([a, b]);
+        }
+        return { points, tris, segs };
+    }
+    // face / solid: triangle indices into the shared vertex pool. Build `verts` for
+    // indexing (no `points.push(...verts)` spread — it overflows the argument limit on
+    // big faces, RangeError). CRITICAL: collect `points` from ONLY the vertices this
+    // component's triangles reference. A face is a SUBSET of its solid's shared pool, so
+    // using the whole pool would let a vertex OUTSIDE the face win the closest-point
+    // search → wrong distance / arrow on the wrong spot. For a solid the indices cover
+    // every used vertex, so this is the same set (minus unreferenced pool vertices).
+    const verts = [];
+    for (let i = 0; i + 2 < p.length; i += 3) {
+        verts.push(new Vector3(p[i], p[i + 1], p[i + 2]));
+    }
+    const idx = geom.indices;
+    if (idx === undefined) {
+        for (const v of verts)
+            points.push(v);
+        return { points, tris, segs };
+    }
+    const seen = new Set();
+    const addPoint = (vi) => {
+        if (!seen.has(vi)) {
+            seen.add(vi);
+            points.push(verts[vi]);
+        }
+    };
+    for (let t = 0; t + 2 < idx.length; t += 3) {
+        const ia = idx[t];
+        const ib = idx[t + 1];
+        const ic = idx[t + 2];
+        const a = verts[ia];
+        const b = verts[ib];
+        const c = verts[ic];
+        if (a === undefined || b === undefined || c === undefined)
+            continue;
+        tris.push([a, b, c]);
+        segs.push([a, b], [b, c], [c, a]);
+        addPoint(ia);
+        addPoint(ib);
+        addPoint(ic);
+    }
+    return { points, tris, segs };
+}
+// ---------------------------------------------------------------------------
+// Scalar measurements
+// ---------------------------------------------------------------------------
+const _ab = new Vector3();
+const _ac = new Vector3();
+const _cross = new Vector3();
+/** Total surface area of a triangulated face/solid (Σ ½·|(b−a)×(c−a)|). */
+function triangulatedArea(geom) {
+    let area = 0;
+    for (const [a, b, c] of buildFeatures(geom).tris) {
+        _ab.subVectors(b, a);
+        _ac.subVectors(c, a);
+        area += 0.5 * _cross.crossVectors(_ab, _ac).length();
+    }
+    return area;
+}
+/** Total length of an edge polyline (Σ segment lengths). */
+function polylineLength(geom) {
+    let len = 0;
+    for (const [a, b] of buildFeatures(geom).segs)
+        len += a.distanceTo(b);
+    return len;
+}
+/**
+ * Signed volume of a closed triangulated solid via the divergence theorem
+ * (Σ (1/6)·a·(b×c) over triangles). The tessellation winds triangles CCW outward, so
+ * the sum is positive; returned as an absolute value for robustness.
+ */
+function meshVolume(geom) {
+    let v6 = 0;
+    for (const [a, b, c] of buildFeatures(geom).tris) {
+        v6 += a.dot(_cross.crossVectors(b, c));
+    }
+    return Math.abs(v6) / 6;
+}
+const _ccA = new Vector3();
+const _ccB = new Vector3();
+const _ccC = new Vector3();
+const _ccAC = new Vector3();
+const _ccBC = new Vector3();
+const _ccN = new Vector3();
+const _ccTmp = new Vector3();
+/**
+ * Exact circle (center + radius) through three well-separated points of a circular
+ * edge's tessellation polyline. The tessellation vertices lie ON the true curve, so
+ * the circumcircle of any three is exact (up to float precision). `positions` is the
+ * flat segment-endpoint list (works for both arcs and closed circles). Returns `null`
+ * if the three points are degenerate/collinear.
+ */
+function circleFromPolyline(positions) {
+    const n = Math.floor(positions.length / 3);
+    if (n < 3)
+        return null;
+    const at = (i, out) => out.set(positions[3 * i], positions[3 * i + 1], positions[3 * i + 2]);
+    const a = at(0, _ccA);
+    const b = at(Math.floor(n / 3), _ccB);
+    const c = at(Math.floor((2 * n) / 3), _ccC);
+    // Circumcenter (3D): O = C + ((|ac|² b' - |bc|² a') × N) / (2|N|²),
+    // with a' = A-C, b' = B-C, N = a' × b'.
+    const ac = _ccAC.subVectors(a, c);
+    const bc = _ccBC.subVectors(b, c);
+    const nrm = _ccN.crossVectors(ac, bc);
+    const denom = 2 * nrm.lengthSq();
+    if (denom < 1e-20)
+        return null; // collinear / coincident
+    const tmp = _ccTmp
+        .copy(bc)
+        .multiplyScalar(ac.lengthSq())
+        .addScaledVector(ac, -bc.lengthSq()); // |ac|² b' - |bc|² a'
+    tmp.cross(nrm).divideScalar(denom).add(c); // → center
+    return { center: [tmp.x, tmp.y, tmp.z], radius: tmp.distanceTo(a) };
+}
+/**
+ * Status-line text for a hovered component — FIXED attributes only, no backend, no
+ * live cursor coord, NO path (the object is identified via the tree on double-click).
+ * Mesh-estimated length/area/volume are shown with `≈` (BRep-grade values come from
+ * the measurement tool). face: `geom: area ≈ A`; edge: `geom: len ≈ L, start/end`;
+ * vertex: coords; solid: `solid: N faces, M edges, vol ≈ V`.
+ */
+function hoverStatusText(info, fromSolid, provider) {
+    const f2 = (n) => n.toFixed(2);
+    if (fromSolid && info.solidPath !== null) {
+        // Solid face/edge totals from the tessellation type arrays (len(face_types) /
+        // len(edge_types)). Per-face edge counts are NOT derivable (no face→edge map).
+        const c = provider.nodeCounts(info.solidPath);
+        if (c === null)
+            return "solid";
+        const g = provider.resolve(info.solidPath);
+        const vol = g !== null ? `, vol ≈ ${f2(meshVolume(g))}` : "";
+        return `solid: ${c.faces} faces, ${c.edges} edges${vol}`;
+    }
+    const geom = provider.resolve(info.path);
+    const pt = (a, o) => `(${f2(a[o])}, ${f2(a[o + 1])}, ${f2(a[o + 2])})`;
+    if (info.topo === "vertex") {
+        const p = geom?.positions;
+        return p && p.length >= 3 ? `vertex: ${pt(p, 0)}` : "";
+    }
+    const gt = geom != null ? displayGeomType(info.topo, geom.geomType) : "";
+    if (info.topo === "edge") {
+        const p = geom?.positions;
+        if (geom != null && p != null && p.length >= 6) {
+            const len = f2(polylineLength(geom));
+            const start = pt(p, 0);
+            const end = pt(p, p.length - 3);
+            const curve = edgeGeomType(geom.geomType);
+            if (curve === "Circle") {
+                const circ = circleFromPolyline(p);
+                if (circ !== null) {
+                    const r = f2(circ.radius);
+                    const c = `(${f2(circ.center[0])}, ${f2(circ.center[1])}, ${f2(circ.center[2])})`;
+                    // full circle (start === end): center + radius say it all; an arc keeps
+                    // its start/end too. Mesh-derived, so ≈.
+                    return start === end
+                        ? `${gt}: r ≈ ${r}, c ≈ ${c}, len ≈ ${len}`
+                        : `${gt}: r ≈ ${r}, c ≈ ${c}, len ≈ ${len}, start=${start}, end=${end}`;
+                }
+            }
+            // closed edge (e.g. circle): start === end → show one point
+            return start === end
+                ? `${gt}: len ≈ ${len}, at=${start}`
+                : `${gt}: len ≈ ${len}, start=${start}, end=${end}`;
+        }
+        return gt;
+    }
+    // face
+    return geom != null ? `${gt}: area ≈ ${f2(triangulatedArea(geom))}` : gt;
+}
+/** Axis-aligned bounding box of a component's vertices. */
+function boundingBox(geom) {
+    const min = new Vector3(Infinity, Infinity, Infinity);
+    const max = new Vector3(-Infinity, -Infinity, -Infinity);
+    for (const p of buildFeatures(geom).points) {
+        min.min(p);
+        max.max(p);
+    }
+    const center = new Vector3().addVectors(min, max).multiplyScalar(0.5);
+    const size = new Vector3().subVectors(max, min);
+    return {
+        min: min.toArray(),
+        center: center.toArray(),
+        max: max.toArray(),
+        size: size.toArray(),
+    };
+}
+/**
+ * Representative center point of a component (mesh approximation of `refpoint`):
+ * - vertex → the point;
+ * - edge → length-weighted midpoint of its segments;
+ * - face → area-weighted centroid of its triangles;
+ * - solid → volume-weighted centroid of its tetrahedra (apex at origin).
+ */
+function centroid(geom) {
+    const f = buildFeatures(geom);
+    const acc = new Vector3();
+    if (geom.topo === "vertex") {
+        return f.points[0]?.clone() ?? acc;
+    }
+    if (geom.topo === "edge") {
+        let total = 0;
+        const mid = new Vector3();
+        for (const [a, b] of f.segs) {
+            const w = a.distanceTo(b);
+            mid.addVectors(a, b).multiplyScalar(0.5);
+            acc.addScaledVector(mid, w);
+            total += w;
+        }
+        return total > 0 ? acc.multiplyScalar(1 / total) : acc;
+    }
+    if (geom.topo === "solid") {
+        let vol6 = 0;
+        const tetC = new Vector3();
+        for (const [a, b, c] of f.tris) {
+            const w = a.dot(_cross.crossVectors(b, c)); // 6× signed tet volume
+            tetC.copy(a).add(b).add(c).multiplyScalar(0.25); // tet centroid (4th vertex = origin)
+            acc.addScaledVector(tetC, w);
+            vol6 += w;
+        }
+        return Math.abs(vol6) > 1e-12 ? acc.multiplyScalar(1 / vol6) : acc;
+    }
+    // face: area-weighted triangle centroids
+    let area = 0;
+    const triC = new Vector3();
+    for (const [a, b, c] of f.tris) {
+        _ab.subVectors(b, a);
+        _ac.subVectors(c, a);
+        const w = 0.5 * _cross.crossVectors(_ab, _ac).length();
+        triC.copy(a).add(b).add(c).multiplyScalar(1 / 3);
+        acc.addScaledVector(triC, w);
+        area += w;
+    }
+    return area > 0 ? acc.multiplyScalar(1 / area) : acc;
+}
+// ---------------------------------------------------------------------------
+// Directions / normals (for angle)
+// ---------------------------------------------------------------------------
+/** Area-weighted average triangle normal of a face (unit length), or `null`. */
+function averageNormal(geom) {
+    const acc = new Vector3();
+    for (const [a, b, c] of buildFeatures(geom).tris) {
+        _ab.subVectors(b, a);
+        _ac.subVectors(c, a);
+        acc.add(_cross.crossVectors(_ab, _ac)); // magnitude = 2× triangle area
+    }
+    return acc.lengthSq() > 1e-20 ? acc.normalize() : null;
+}
+/** Overall direction of an edge (first → last endpoint, unit length), or `null`. */
+function edgeDirection(geom) {
+    const segs = buildFeatures(geom).segs;
+    if (segs.length === 0)
+        return null;
+    const start = segs[0][0];
+    const end = segs[segs.length - 1][1];
+    const dir = new Vector3().subVectors(end, start);
+    return dir.lengthSq() > 1e-20 ? dir.normalize() : null;
+}
+// ---------------------------------------------------------------------------
+// Closest-point primitives (Ericson, Real-Time Collision Detection)
+// ---------------------------------------------------------------------------
+/** Closest point on segment [a,b] to point p, written into `out`. */
+function closestPointOnSegment(p, a, b, out) {
+    _ab.subVectors(b, a);
+    const t = _ab.lengthSq();
+    if (t < 1e-20)
+        return out.copy(a);
+    const proj = _ac.subVectors(p, a).dot(_ab) / t;
+    const clamped = Math.min(1, Math.max(0, proj));
+    return out.copy(a).addScaledVector(_ab, clamped);
+}
+const _cpA = new Vector3();
+const _cpB = new Vector3();
+/** Closest point on triangle (a,b,c) to point p, written into `out` (Ericson §5.1.5). */
+function closestPointOnTriangle(p, a, b, c, out) {
+    const ab = new Vector3().subVectors(b, a);
+    const ac = new Vector3().subVectors(c, a);
+    const ap = new Vector3().subVectors(p, a);
+    const d1 = ab.dot(ap);
+    const d2 = ac.dot(ap);
+    if (d1 <= 0 && d2 <= 0)
+        return out.copy(a);
+    const bp = new Vector3().subVectors(p, b);
+    const d3 = ab.dot(bp);
+    const d4 = ac.dot(bp);
+    if (d3 >= 0 && d4 <= d3)
+        return out.copy(b);
+    const vc = d1 * d4 - d3 * d2;
+    if (vc <= 0 && d1 >= 0 && d3 <= 0) {
+        const v = d1 / (d1 - d3);
+        return out.copy(a).addScaledVector(ab, v);
+    }
+    const cp = new Vector3().subVectors(p, c);
+    const d5 = ab.dot(cp);
+    const d6 = ac.dot(cp);
+    if (d6 >= 0 && d5 <= d6)
+        return out.copy(c);
+    const vb = d5 * d2 - d1 * d6;
+    if (vb <= 0 && d2 >= 0 && d6 <= 0) {
+        const w = d2 / (d2 - d6);
+        return out.copy(a).addScaledVector(ac, w);
+    }
+    const va = d3 * d6 - d5 * d4;
+    if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) {
+        const w = (d4 - d3) / (d4 - d3 + (d5 - d6));
+        // NOTE: a fresh vector, NOT the module scratch `_cpA` — `minDistance` passes
+        // `_cpA` as `out`, so reusing it here aliases the output mid-expression and
+        // returns garbage (~origin) whenever the closest point lands on edge BC.
+        const bc = new Vector3().subVectors(c, b);
+        return out.copy(b).addScaledVector(bc, w);
+    }
+    const denom = 1 / (va + vb + vc);
+    const v = vb * denom;
+    const w = vc * denom;
+    return out.copy(a).addScaledVector(ab, v).addScaledVector(ac, w);
+}
+/**
+ * Closest points between segments [p1,q1] and [p2,q2], written into `outA`/`outB`;
+ * returns the squared distance (Ericson §5.1.9).
+ */
+function closestSegmentSegment(p1, q1, p2, q2, outA, outB) {
+    const d1 = new Vector3().subVectors(q1, p1);
+    const d2 = new Vector3().subVectors(q2, p2);
+    const r = new Vector3().subVectors(p1, p2);
+    const a = d1.dot(d1);
+    const e = d2.dot(d2);
+    const f = d2.dot(r);
+    const EPS = 1e-20;
+    let s;
+    let t;
+    if (a <= EPS && e <= EPS) {
+        s = 0;
+        t = 0;
+    }
+    else if (a <= EPS) {
+        s = 0;
+        t = Math.min(1, Math.max(0, f / e));
+    }
+    else {
+        const c = d1.dot(r);
+        if (e <= EPS) {
+            t = 0;
+            s = Math.min(1, Math.max(0, -c / a));
+        }
+        else {
+            const b = d1.dot(d2);
+            const denom = a * e - b * b;
+            s = denom > EPS ? Math.min(1, Math.max(0, (b * f - c * e) / denom)) : 0;
+            t = (b * s + f) / e;
+            if (t < 0) {
+                t = 0;
+                s = Math.min(1, Math.max(0, -c / a));
+            }
+            else if (t > 1) {
+                t = 1;
+                s = Math.min(1, Math.max(0, (b - c) / a));
+            }
+        }
+    }
+    outA.copy(p1).addScaledVector(d1, s);
+    outB.copy(p2).addScaledVector(d2, t);
+    return outA.distanceToSquared(outB);
+}
+/**
+ * Brute-force minimum distance between two components and the realizing points.
+ * Evaluates every closest-feature pair, in BOTH argument orders, over the feature sets:
+ * point-vs-triangle, point-vs-segment, segment-vs-segment, and point-vs-point. This is
+ * the complete set of closest-feature pairs for triangle meshes and their lower-dim
+ * degenerations (edges = segments, vertices = points), so the result is exact for the
+ * mesh and independent of which component is passed first.
+ *
+ * O(Ta·Tb) — quadratic. {@link minDistance} is the production entry: it uses this
+ * directly for small components and the BVH branch-and-bound above the pair threshold.
+ * Kept exported as the reference oracle the BVH path is property-tested against.
+ */
+function minDistanceBrute(ga, gb) {
+    const fa = buildFeatures(ga);
+    const fb = buildFeatures(gb);
+    let best = Infinity;
+    const p1 = new Vector3();
+    const p2 = new Vector3();
+    // Record a candidate pair; `aPt` is on ga, `bPt` on gb (so p1/p2 stay order-correct).
+    const consider = (d2, aPt, bPt) => {
+        if (d2 < best) {
+            best = d2;
+            p1.copy(aPt);
+            p2.copy(bPt);
+        }
+    };
+    // point (ga) vs triangle (gb), and the mirror
+    for (const pt of fa.points) {
+        for (const [a, b, c] of fb.tris) {
+            closestPointOnTriangle(pt, a, b, c, _cpB);
+            consider(pt.distanceToSquared(_cpB), pt, _cpB);
+        }
+    }
+    for (const pt of fb.points) {
+        for (const [a, b, c] of fa.tris) {
+            closestPointOnTriangle(pt, a, b, c, _cpA);
+            consider(_cpA.distanceToSquared(pt), _cpA, pt);
+        }
+    }
+    // point (ga) vs segment (gb), and the mirror — covers vertex-vs-edge-interior in
+    // both orders (the case the previous guard-based version missed when ga was the edge)
+    for (const pt of fa.points) {
+        for (const [a, b] of fb.segs) {
+            closestPointOnSegment(pt, a, b, _cpB);
+            consider(pt.distanceToSquared(_cpB), pt, _cpB);
+        }
+    }
+    for (const pt of fb.points) {
+        for (const [a, b] of fa.segs) {
+            closestPointOnSegment(pt, a, b, _cpA);
+            consider(_cpA.distanceToSquared(pt), _cpA, pt);
+        }
+    }
+    // segment vs segment (edge-edge, and triangle-edge pairs for faces)
+    for (const [a1, b1] of fa.segs) {
+        for (const [a2, b2] of fb.segs) {
+            consider(closestSegmentSegment(a1, b1, a2, b2, _cpA, _cpB), _cpA, _cpB);
+        }
+    }
+    // point vs point — the only matching pair when both sides are bare vertices
+    if (fa.tris.length === 0 && fb.tris.length === 0) {
+        for (const pa of fa.points) {
+            for (const pb of fb.points)
+                consider(pa.distanceToSquared(pb), pa, pb);
+        }
+    }
+    return {
+        distance: Number.isFinite(best) ? Math.sqrt(best) : 0,
+        point1: p1,
+        point2: p2,
+    };
+}
+// ---------------------------------------------------------------------------
+// BVH-accelerated minimum distance
+//
+// The brute force above is O(Ta·Tb): sphere-vs-sphere faces (5008 triangles each →
+// 25M tri-pairs, 226M seg-pairs) freeze the viewer for >8 s on a click; a helix face
+// for >1 min. This replaces it with an exact, sub-quadratic AABB-tree branch-and-bound.
+//
+// Each component reduces to a flat list of primitives — a face/solid to its triangles
+// (a triangle-vs-triangle distance subsumes vertex-face AND edge-edge contact, so the
+// separate segment loops vanish), an edge to its segments, a vertex to one point. One
+// generic traversal dispatches a primitive×primitive distance by type, so every topo
+// combination (face×face, face×edge, edge×edge, vertex×*) runs through the same pruned
+// search; small components fall back to the proven brute oracle below the threshold.
+// ---------------------------------------------------------------------------
+const PRIM_TRI = 0;
+const PRIM_SEG = 1;
+const PRIM_PT = 2;
+/** Primitives per leaf; small enough that leaf-leaf brute is cheap, big enough to keep
+ *  the tree shallow. */
+const BVH_LEAF_SIZE = 8;
+/** Below this many primitive pairs, skip the tree (build overhead > savings) and use the
+ *  brute oracle directly. ≈ a few leaves per side (BVH_LEAF_SIZE² = 64 is one leaf-leaf);
+ *  a one-shot click query, so the bar to bother building a tree is low. */
+const BVH_BRUTE_PAIR_THRESHOLD = 8192;
+function makeTri(a, b, c) {
+    return {
+        kind: PRIM_TRI,
+        a,
+        b,
+        c,
+        cx: (a.x + b.x + c.x) / 3,
+        cy: (a.y + b.y + c.y) / 3,
+        cz: (a.z + b.z + c.z) / 3,
+    };
+}
+function makeSeg(a, b) {
+    return {
+        kind: PRIM_SEG,
+        a,
+        b,
+        c: null,
+        cx: (a.x + b.x) / 2,
+        cy: (a.y + b.y) / 2,
+        cz: (a.z + b.z) / 2,
+    };
+}
+function makePt(a) {
+    return { kind: PRIM_PT, a, b: null, c: null, cx: a.x, cy: a.y, cz: a.z };
+}
+/**
+ * Reduce a component to its distance primitives, extracted DIRECTLY from the geometry
+ * (face/solid → triangles, edge → segments, vertex → point; a face with no indices
+ * degrades to a point cloud). NOT via {@link buildFeatures}: the BVH face path needs
+ * only the triangles, but buildFeatures also materializes the 3-per-triangle segment
+ * list and a deduped point set — ~3× the allocation, all discarded here. That waste is
+ * invisible on small models but dominates at the ~100k-triangle helix scale, so this
+ * builds only the primitives the tree consumes.
+ */
+function primReduce(geom) {
+    const p = geom.positions;
+    const prims = [];
+    if (geom.topo === "edge") {
+        // 6 floats per segment (endpoint pair)
+        for (let i = 0; i + 5 < p.length; i += 6) {
+            prims.push(makeSeg(new Vector3(p[i], p[i + 1], p[i + 2]), new Vector3(p[i + 3], p[i + 4], p[i + 5])));
+        }
+        return prims;
+    }
+    if (geom.topo === "vertex") {
+        prims.push(makePt(new Vector3(p[0], p[1], p[2])));
+        return prims;
+    }
+    // face / solid → triangles only
+    const idx = geom.indices;
+    if (idx === undefined) {
+        for (let i = 0; i + 2 < p.length; i += 3) {
+            prims.push(makePt(new Vector3(p[i], p[i + 1], p[i + 2])));
+        }
+        return prims;
+    }
+    // shared vertex pool; triangles index into it (vertices reused across triangles)
+    const verts = [];
+    for (let i = 0; i + 2 < p.length; i += 3) {
+        verts.push(new Vector3(p[i], p[i + 1], p[i + 2]));
+    }
+    for (let t = 0; t + 2 < idx.length; t += 3) {
+        const a = verts[idx[t]];
+        const b = verts[idx[t + 1]];
+        const c = verts[idx[t + 2]];
+        if (a === undefined || b === undefined || c === undefined)
+            continue;
+        prims.push(makeTri(a, b, c));
+    }
+    return prims;
+}
+/** Centroid coordinate of `p` on axis 0=x / 1=y / 2=z (branch, not dynamic key lookup —
+ *  this is the quickselect comparison hot path). */
+function centroidOnAxis(p, axis) {
+    return axis === 0 ? p.cx : axis === 1 ? p.cy : p.cz;
+}
+// Split threshold on the chosen axis, produced by boundRange and consumed by buildRange
+// (single-threaded build → read immediately after boundRange, before any recursion).
+let _bvhSplit = 0;
+/**
+ * Bound the primitives `order[lo..hi)` index into `prims`: set `node`'s vertex AABB and
+ * return the longest centroid axis (0/1/2) for the split — both in ONE pass. Also stashes
+ * the spatial-median split threshold for that axis into `_bvhSplit`.
+ */
+function boundRange(node, prims, order, lo, hi) {
+    let minx = Infinity;
+    let miny = Infinity;
+    let minz = Infinity;
+    let maxx = -Infinity;
+    let maxy = -Infinity;
+    let maxz = -Infinity;
+    let cminx = Infinity;
+    let cminy = Infinity;
+    let cminz = Infinity;
+    let cmaxx = -Infinity;
+    let cmaxy = -Infinity;
+    let cmaxz = -Infinity;
+    const grow = (v) => {
+        if (v.x < minx)
+            minx = v.x;
+        if (v.y < miny)
+            miny = v.y;
+        if (v.z < minz)
+            minz = v.z;
+        if (v.x > maxx)
+            maxx = v.x;
+        if (v.y > maxy)
+            maxy = v.y;
+        if (v.z > maxz)
+            maxz = v.z;
+    };
+    for (let i = lo; i < hi; i++) {
+        const p = prims[order[i]];
+        if (p.cx < cminx)
+            cminx = p.cx;
+        if (p.cy < cminy)
+            cminy = p.cy;
+        if (p.cz < cminz)
+            cminz = p.cz;
+        if (p.cx > cmaxx)
+            cmaxx = p.cx;
+        if (p.cy > cmaxy)
+            cmaxy = p.cy;
+        if (p.cz > cmaxz)
+            cmaxz = p.cz;
+        grow(p.a);
+        if (p.b !== null)
+            grow(p.b);
+        if (p.c !== null)
+            grow(p.c);
+    }
+    node.minx = minx;
+    node.miny = miny;
+    node.minz = minz;
+    node.maxx = maxx;
+    node.maxy = maxy;
+    node.maxz = maxz;
+    const ex = cmaxx - cminx;
+    const ey = cmaxy - cminy;
+    const ez = cmaxz - cminz;
+    const axis = ex >= ey && ex >= ez ? 0 : ey >= ez ? 1 : 2;
+    // split threshold = midpoint of the centroid extent on the chosen axis (the spatial
+    // median). Stashed for buildRange to read before any recursion overwrites it.
+    _bvhSplit =
+        axis === 0
+            ? (cminx + cmaxx) / 2
+            : axis === 1
+                ? (cminy + cmaxy) / 2
+                : (cminz + cmaxz) / 2;
+    return axis;
+}
+/** Build a subtree over the primitives `order[lo..hi)` index into `prims`. */
+function buildRange(prims, order, lo, hi) {
+    const node = {
+        minx: 0,
+        miny: 0,
+        minz: 0,
+        maxx: 0,
+        maxy: 0,
+        maxz: 0,
+        left: null,
+        right: null,
+        prims: null,
+    };
+    const axis = boundRange(node, prims, order, lo, hi);
+    if (hi - lo <= BVH_LEAF_SIZE) {
+        // materialize just this leaf's ≤ BVH_LEAF_SIZE primitives
+        const leaf = [];
+        for (let i = lo; i < hi; i++)
+            leaf.push(prims[order[i]]);
+        node.prims = leaf;
+        return node;
+    }
+    // Partition order[lo..hi) in place around the spatial-median threshold on `axis`:
+    // centroids below it move left, the rest stay right. A single O(n) pass with a FIXED
+    // threshold — no sort, and no data-dependent pivot that could scan past the range.
+    const split = _bvhSplit;
+    let m = lo;
+    for (let i = lo; i < hi; i++) {
+        if (centroidOnAxis(prims[order[i]], axis) < split) {
+            const t = order[m];
+            order[m] = order[i];
+            order[i] = t;
+            m++;
+        }
+    }
+    // Degenerate cluster (everything on one side of the midpoint, incl. zero centroid
+    // extent) → split by count so the range still shrinks → recursion always terminates.
+    if (m === lo || m === hi)
+        m = (lo + hi) >> 1;
+    node.left = buildRange(prims, order, lo, m);
+    node.right = buildRange(prims, order, m, hi);
+    return node;
+}
+/** Build an AABB tree over `prims` (spatial-median split on the longest centroid axis).
+ *  Works over an index permutation so internal nodes neither sort nor allocate. */
+function buildBVH(prims) {
+    const order = new Uint32Array(prims.length);
+    for (let i = 0; i < order.length; i++)
+        order[i] = i;
+    return buildRange(prims, order, 0, prims.length);
+}
+/** Squared distance between two AABBs (0 if they overlap). */
+function boxBoxDistSq(n, m) {
+    let s = 0;
+    let d = m.minx - n.maxx;
+    if (d > 0)
+        s += d * d;
+    else {
+        d = n.minx - m.maxx;
+        if (d > 0)
+            s += d * d;
+    }
+    d = m.miny - n.maxy;
+    if (d > 0)
+        s += d * d;
+    else {
+        d = n.miny - m.maxy;
+        if (d > 0)
+            s += d * d;
+    }
+    d = m.minz - n.maxz;
+    if (d > 0)
+        s += d * d;
+    else {
+        d = n.minz - m.maxz;
+        if (d > 0)
+            s += d * d;
+    }
+    return s;
+}
+/** Squared length of an AABB's diagonal (used to pick which node to descend). */
+function boxDiagSq(n) {
+    const dx = n.maxx - n.minx;
+    const dy = n.maxy - n.miny;
+    const dz = n.maxz - n.minz;
+    return dx * dx + dy * dy + dz * dz;
+}
+// Scratch for the primitive×primitive helpers — DISTINCT from `_cpA`/`_cpB` (which the
+// traversal passes as the out buffers), so an inner helper never clobbers the output.
+const _pdA = new Vector3();
+const _pdB = new Vector3();
+/**
+ * Minimum squared distance between triangle (ta,tb,tc) and segment (sa,sb), with the
+ * realizing points (on the triangle → `outTri`, on the segment → `outSeg`). Complete
+ * set: each segment endpoint vs the triangle (covers face interior + edges + vertices)
+ * and each triangle edge vs the segment.
+ */
+function triSegDistance(ta, tb, tc, sa, sb, outTri, outSeg) {
+    let best = Infinity;
+    closestPointOnTriangle(sa, ta, tb, tc, _pdA);
+    let d = _pdA.distanceToSquared(sa);
+    if (d < best) {
+        best = d;
+        outTri.copy(_pdA);
+        outSeg.copy(sa);
+    }
+    closestPointOnTriangle(sb, ta, tb, tc, _pdA);
+    d = _pdA.distanceToSquared(sb);
+    if (d < best) {
+        best = d;
+        outTri.copy(_pdA);
+        outSeg.copy(sb);
+    }
+    const edges = [
+        [ta, tb],
+        [tb, tc],
+        [tc, ta],
+    ];
+    for (const [e0, e1] of edges) {
+        d = closestSegmentSegment(e0, e1, sa, sb, _pdA, _pdB);
+        if (d < best) {
+            best = d;
+            outTri.copy(_pdA);
+            outSeg.copy(_pdB);
+        }
+    }
+    return best;
+}
+/**
+ * Minimum squared distance between triangles (a0,a1,a2) and (b0,b1,b2), with the
+ * realizing points (`outA` on the first, `outB` on the second). Complete set for
+ * disjoint triangles: each vertex vs the other triangle, plus all 9 edge-edge pairs.
+ * (Interpenetrating triangles can report a small positive value rather than 0 — the
+ * same limitation the brute oracle has, and irrelevant for distance between surfaces.)
+ */
+function triTriDistance(a0, a1, a2, b0, b1, b2, outA, outB) {
+    let best = Infinity;
+    const va = [a0, a1, a2];
+    const vb = [b0, b1, b2];
+    for (const v of va) {
+        closestPointOnTriangle(v, b0, b1, b2, _pdA);
+        const d = v.distanceToSquared(_pdA);
+        if (d < best) {
+            best = d;
+            outA.copy(v);
+            outB.copy(_pdA);
+        }
+    }
+    for (const v of vb) {
+        closestPointOnTriangle(v, a0, a1, a2, _pdA);
+        const d = v.distanceToSquared(_pdA);
+        if (d < best) {
+            best = d;
+            outA.copy(_pdA);
+            outB.copy(v);
+        }
+    }
+    for (let i = 0; i < 3; i++) {
+        const p0 = va[i];
+        const p1 = va[(i + 1) % 3];
+        for (let j = 0; j < 3; j++) {
+            const d = closestSegmentSegment(p0, p1, vb[j], vb[(j + 1) % 3], _pdA, _pdB);
+            if (d < best) {
+                best = d;
+                outA.copy(_pdA);
+                outB.copy(_pdB);
+            }
+        }
+    }
+    return best;
+}
+/** Minimum squared distance between two primitives, dispatched by kind; closest points
+ *  written to `outA` (on `pa`) / `outB` (on `pb`). */
+function primDistance(pa, pb, outA, outB) {
+    if (pa.kind === PRIM_TRI) {
+        if (pb.kind === PRIM_TRI) {
+            return triTriDistance(pa.a, pa.b, pa.c, pb.a, pb.b, pb.c, outA, outB);
+        }
+        if (pb.kind === PRIM_SEG) {
+            return triSegDistance(pa.a, pa.b, pa.c, pb.a, pb.b, outA, outB);
+        }
+        closestPointOnTriangle(pb.a, pa.a, pa.b, pa.c, outA);
+        outB.copy(pb.a);
+        return outA.distanceToSquared(pb.a);
+    }
+    if (pa.kind === PRIM_SEG) {
+        if (pb.kind === PRIM_TRI) {
+            // triangle is pb → its realizing point is outB, the segment's is outA
+            return triSegDistance(pb.a, pb.b, pb.c, pa.a, pa.b, outB, outA);
+        }
+        if (pb.kind === PRIM_SEG) {
+            return closestSegmentSegment(pa.a, pa.b, pb.a, pb.b, outA, outB);
+        }
+        closestPointOnSegment(pb.a, pa.a, pa.b, outA);
+        outB.copy(pb.a);
+        return outA.distanceToSquared(pb.a);
+    }
+    // pa is a point
+    if (pb.kind === PRIM_TRI) {
+        closestPointOnTriangle(pa.a, pb.a, pb.b, pb.c, outB);
+        outA.copy(pa.a);
+        return outB.distanceToSquared(pa.a);
+    }
+    if (pb.kind === PRIM_SEG) {
+        closestPointOnSegment(pa.a, pb.a, pb.b, outB);
+        outA.copy(pa.a);
+        return outB.distanceToSquared(pa.a);
+    }
+    outA.copy(pa.a);
+    outB.copy(pb.a);
+    return pa.a.distanceToSquared(pb.a);
+}
+/** Branch-and-bound descent over node pairs: prune any pair whose box-box distance is
+ *  already ≥ the best found, and visit the closer child first so `best` tightens early. */
+function bvhTraverse(na, nb, best) {
+    if (boxBoxDistSq(na, nb) >= best.d2)
+        return;
+    if (na.prims !== null && nb.prims !== null) {
+        for (const pa of na.prims) {
+            for (const pb of nb.prims) {
+                const d = primDistance(pa, pb, _cpA, _cpB);
+                if (d < best.d2) {
+                    best.d2 = d;
+                    best.p1.copy(_cpA);
+                    best.p2.copy(_cpB);
+                }
+            }
+        }
+        return;
+    }
+    let splitA;
+    if (na.prims !== null)
+        splitA = false;
+    else if (nb.prims !== null)
+        splitA = true;
+    else
+        splitA = boxDiagSq(na) >= boxDiagSq(nb);
+    if (splitA) {
+        const l = na.left;
+        const r = na.right;
+        if (boxBoxDistSq(l, nb) <= boxBoxDistSq(r, nb)) {
+            bvhTraverse(l, nb, best);
+            bvhTraverse(r, nb, best);
+        }
+        else {
+            bvhTraverse(r, nb, best);
+            bvhTraverse(l, nb, best);
+        }
+    }
+    else {
+        const l = nb.left;
+        const r = nb.right;
+        if (boxBoxDistSq(na, l) <= boxBoxDistSq(na, r)) {
+            bvhTraverse(na, l, best);
+            bvhTraverse(na, r, best);
+        }
+        else {
+            bvhTraverse(na, r, best);
+            bvhTraverse(na, l, best);
+        }
+    }
+}
+/**
+ * Minimum distance between two components and the realizing points — the production
+ * entry. Exact and sub-quadratic via a per-component AABB tree + branch-and-bound
+ * (see {@link minDistanceBrute} for the O(Ta·Tb) reference it is property-tested
+ * against, and which it delegates to for small inputs). Result is identical to the
+ * brute force and independent of argument order.
+ */
+function minDistance(ga, gb) {
+    const pa = primReduce(ga);
+    const pb = primReduce(gb);
+    if (pa.length * pb.length <= BVH_BRUTE_PAIR_THRESHOLD) {
+        return minDistanceBrute(ga, gb);
+    }
+    const ta = buildBVH(pa);
+    const tb = buildBVH(pb);
+    const best = {
+        d2: Infinity,
+        p1: new Vector3(),
+        p2: new Vector3(),
+    };
+    bvhTraverse(ta, tb, best);
+    return {
+        distance: Number.isFinite(best.d2) ? Math.sqrt(best.d2) : 0,
+        point1: best.p1,
+        point2: best.p2,
+    };
+}
+// ---------------------------------------------------------------------------
+// Angles
+// ---------------------------------------------------------------------------
+const _UP = new Vector3(0, 0, 1);
+/** Angle (degrees) between two unit directions. */
+function angleBetween(d1, d2) {
+    const c = Math.min(1, Math.max(-1, d1.dot(d2)));
+    return (Math.acos(c) * 180) / Math.PI;
+}
+/**
+ * Angle (degrees) of a face normal or edge tangent to the world XY plane (+Z up),
+ * mirroring `measure.py` `angle to XY`: for a face normal, the angle to +Z; for an edge
+ * direction `abs(90 − angle(dir, +Z))`.
+ */
+function angleToXY(dir, isEdge) {
+    const a = angleBetween(dir, _UP);
+    return isEdge ? Math.abs(90 - a) : a;
+}
+const _PATH_RE = /^(.*)\/(faces|edges|vertices)\/(?:faces|edges|vertices)_(\d+)$/;
+function toF32(a) {
+    if (a === undefined)
+        return new Float32Array(0);
+    if (a instanceof Float32Array)
+        return a;
+    if (Array.isArray(a) && Array.isArray(a[0])) {
+        const flat = [];
+        for (const row of a)
+            flat.push(...row);
+        return Float32Array.from(flat);
+    }
+    return Float32Array.from(a);
+}
+/** Apply a Matrix4 to a flat xyz array, returning a new world-space Float32Array. */
+function transformPoints(local, m) {
+    const out = new Float32Array(local.length);
+    const v = new Vector3();
+    for (let i = 0; i + 2 < local.length; i += 3) {
+        v.set(local[i], local[i + 1], local[i + 2]).applyMatrix4(m);
+        out[i] = v.x;
+        out[i + 1] = v.y;
+        out[i + 2] = v.z;
+    }
+    return out;
+}
+/**
+ * Populated as the compact `NestedGroup` tessellates each node (faces/edges/vertices),
+ * keyed by the node's `/`-path — the SAME paths the `ComponentRegistry` uses, so a
+ * backend component id resolves directly. Mode-independent: it stores the raw per-node
+ * arrays + the owning group (for `matrixWorld`) and slices/transforms on demand.
+ */
+class MeshGeometrySource {
+    constructor() {
+        this.nodes = new Map();
+    }
+    /** Record a node's raw tessellation arrays. `object` provides the world transform. */
+    register(path, shape, object, subtype) {
+        this.nodes.set(path, { shape, object, subtype });
+    }
+    /** Drop all entries (called from `NestedGroup.clear`/`dispose`). */
+    clear() {
+        this.nodes.clear();
+    }
+    /**
+     * Drop nodes whose path is `prefix` or lies under it (`prefix + "/"`), for
+     * {@link Viewer.removePart} — keeps the provider from growing across remove/add
+     * cycles.
+     */
+    removeByPathPrefix(prefix) {
+        const sub = prefix + "/";
+        for (const key of this.nodes.keys()) {
+            if (key === prefix || key.startsWith(sub)) {
+                this.nodes.delete(key);
+            }
+        }
+    }
+    /**
+     * Static face/edge counts of a node from its tessellation type arrays
+     * (`len(face_types)` / `len(edge_types)`). For a solid node these are the solid's
+     * total face/edge counts. `null` for an unknown node.
+     */
+    nodeCounts(path) {
+        const entry = this.nodes.get(path);
+        if (entry === undefined)
+            return null;
+        const ft = entry.shape.face_types;
+        const et = entry.shape.edge_types;
+        return { faces: ft?.length ?? 0, edges: et?.length ?? 0 };
+    }
+    resolve(path) {
+        const m = path.match(_PATH_RE);
+        const nodePath = m === null ? path : m[1];
+        const kind = m === null ? "solid" : m[2];
+        const index = m === null ? -1 : parseInt(m[3], 10);
+        const entry = this.nodes.get(nodePath);
+        if (entry === undefined)
+            return null;
+        entry.object.updateWorldMatrix(true, false);
+        const world = entry.object.matrixWorld;
+        const shape = entry.shape;
+        if (kind === "vertices") {
+            const all = toF32(shape.obj_vertices);
+            if (index * 3 + 2 >= all.length)
+                return null;
+            const local = all.slice(index * 3, index * 3 + 3);
+            return { topo: "vertex", geomType: -1, positions: transformPoints(local, world) };
+        }
+        if (kind === "edges") {
+            const local = this._edgeSegments(shape, index);
+            if (local === null)
+                return null;
+            const geomType = this._typeAt(shape.edge_types, index);
+            return { topo: "edge", geomType, positions: transformPoints(local, world) };
+        }
+        // faces / solid — vertex pool + triangle index slice
+        const poolLocal = toF32(shape.vertices);
+        if (poolLocal.length === 0)
+            return null;
+        const positions = transformPoints(poolLocal, world);
+        if (kind === "solid") {
+            const indices = this._allTriangleIndices(shape);
+            return { topo: "solid", geomType: -1, positions, indices };
+        }
+        const indices = this._faceTriangleIndices(shape, index);
+        if (indices === null)
+            return null;
+        const geomType = this._typeAt(shape.face_types, index);
+        return { topo: "face", geomType, positions, indices };
+    }
+    _typeAt(types, i) {
+        return types !== undefined && i >= 0 && i < types.length ? types[i] : -1;
+    }
+    /** Index triples for face `i` into the vertex pool (flat-with-counts or nested). */
+    _faceTriangleIndices(shape, face) {
+        const tris = shape.triangles;
+        if (tris === undefined)
+            return null;
+        if (Array.isArray(tris) && Array.isArray(tris[0])) {
+            const nested = tris;
+            return face < nested.length ? Uint32Array.from(nested[face]) : null;
+        }
+        const flat = tris;
+        const tpf = shape.triangles_per_face;
+        if (tpf === undefined) {
+            return face === 0 ? Uint32Array.from(flat) : null; // single face
+        }
+        let start = 0;
+        for (let f = 0; f < face; f++)
+            start += tpf[f] * 3;
+        if (face >= tpf.length)
+            return null;
+        const count = tpf[face] * 3;
+        const out = new Uint32Array(count);
+        for (let k = 0; k < count; k++)
+            out[k] = flat[start + k];
+        return out;
+    }
+    /** All triangle index triples (every face) for a solid. */
+    _allTriangleIndices(shape) {
+        const tris = shape.triangles;
+        if (tris === undefined)
+            return new Uint32Array(0);
+        if (Array.isArray(tris) && Array.isArray(tris[0])) {
+            const flat = [];
+            for (const face of tris)
+                flat.push(...face);
+            return Uint32Array.from(flat);
+        }
+        return tris instanceof Uint32Array ? tris : Uint32Array.from(tris);
+    }
+    /** World-local segment endpoint pairs (6 floats/segment) for edge `i`. */
+    _edgeSegments(shape, edge) {
+        const edges = shape.edges;
+        if (edges === undefined)
+            return null;
+        const spe = shape.segments_per_edge;
+        if (spe !== undefined) {
+            // segments_per_edge is authoritative: `edges` is one flat point stream
+            // (2 points / 6 floats per segment) and `spe` partitions it. `toF32` flattens
+            // BOTH a flat array and a nested array — note some tessellations (e.g. rc.js)
+            // store `edges` as a nested list of individual [x,y,z] points, NOT one array
+            // per edge, so the old `nested[edge]` returned a single point. Slice by `spe`.
+            if (edge >= spe.length)
+                return null;
+            const flat = toF32(edges);
+            let start = 0;
+            for (let e = 0; e < edge; e++)
+                start += spe[e] * 6;
+            return flat.slice(start, start + spe[edge] * 6);
+        }
+        // No counts: a nested array is one edge's flat points per entry; a flat array is
+        // a single edge.
+        if (Array.isArray(edges) && Array.isArray(edges[0])) {
+            const nested = edges;
+            return edge < nested.length ? Float32Array.from(nested[edge]) : null;
+        }
+        return edge === 0 ? toF32(edges) : null;
+    }
+}
+// ---------------------------------------------------------------------------
+// MeshMeasureBackend — assembles Distance/Properties responses
+// ---------------------------------------------------------------------------
+const SHAPE_TYPE_LABEL = {
+    face: "Face",
+    edge: "Edge",
+    vertex: "Vertex",
+    solid: "Solid",
+};
+/** geom_type name for a resolved component. */
+function geomTypeName(geom) {
+    if (geom.topo === "face")
+        return faceGeomType(geom.geomType);
+    if (geom.topo === "edge")
+        return edgeGeomType(geom.geomType);
+    if (geom.topo === "vertex")
+        return "Point";
+    return "Other";
+}
+/** Unit direction (face normal / edge tangent) + reference label, or null. */
+function directionOf(geom) {
+    if (geom.topo === "face" || geom.topo === "solid") {
+        // A closed solid has no single direction: its area-weighted normal sums to ~0,
+        // so averageNormal returns null and a distance involving a solid omits the angle
+        // block (intended — there is no meaningful solid-to-X angle).
+        const n = averageNormal(geom);
+        return n === null
+            ? null
+            : { dir: n, isEdge: false, label: "face normal" };
+    }
+    if (geom.topo === "edge") {
+        const d = edgeDirection(geom);
+        return d === null ? null : { dir: d, isEdge: true, label: "line" };
+    }
+    return null;
+}
+/**
+ * Computes measurement responses from the mesh (no external Python backend). The
+ * default measurement backend when `externalMeasurementBackend === false`. Returns a
+ * `ToolResponse` ready for `viewer.handleBackendResponse`, or `null` if a component
+ * can't be resolved (caller leaves the panel unanswered, same as a backend timeout).
+ */
+class MeshMeasureBackend {
+    constructor(getProvider) {
+        this.getProvider = getProvider;
+    }
+    /** PropertiesMeasurement response for a single component. */
+    properties(path) {
+        const provider = this.getProvider();
+        const geom = provider?.resolve(path) ?? null;
+        if (geom === null)
+            return null;
+        const refpoint = centroid(geom);
+        const result = [];
+        if (geom.topo === "vertex") {
+            result.push({ xyz: refpoint.toArray() });
+        }
+        else if (geom.topo === "edge") {
+            // Circular edge: report the fitted circle center + radius/diameter (mesh-
+            // derived, ≈), matching the hover status line and the Python backend. Fall
+            // back to the polyline centroid when no circle fits.
+            const circ = edgeGeomType(geom.geomType) === "Circle"
+                ? circleFromPolyline(geom.positions)
+                : null;
+            if (circ !== null) {
+                result.push({
+                    center: circ.center,
+                    radius: circ.radius,
+                    diameter: 2 * circ.radius,
+                });
+            }
+            else {
+                result.push({ center: refpoint.toArray() });
+            }
+            const meas = { length: polylineLength(geom) };
+            const d = edgeDirection(geom);
+            if (d !== null)
+                meas["angle to XY"] = angleToXY(d, true);
+            result.push(meas);
+            result.push({ bb: boundingBox(geom) });
+        }
+        else if (geom.topo === "face") {
+            result.push({ center: refpoint.toArray() });
+            const meas = { area: triangulatedArea(geom) };
+            const n = averageNormal(geom);
+            if (n !== null)
+                meas["angle to XY"] = angleToXY(n, false);
+            result.push(meas);
+            result.push({ bb: boundingBox(geom) });
+        }
+        else {
+            result.push({ volume: meshVolume(geom) });
+            result.push({ bb: boundingBox(geom) });
+        }
+        return {
+            type: "backend_response",
+            subtype: "tool_response",
+            tool_type: "PropertiesMeasurement",
+            meshBased: true,
+            shape_type: SHAPE_TYPE_LABEL[geom.topo],
+            geom_type: geomTypeName(geom),
+            refpoint: refpoint.toArray(),
+            result,
+        };
+    }
+    /** DistanceMeasurement response between two components. */
+    distance(path1, path2, center) {
+        const provider = this.getProvider();
+        const g1 = provider?.resolve(path1) ?? null;
+        const g2 = provider?.resolve(path2) ?? null;
+        if (g1 === null || g2 === null)
+            return null;
+        let p1;
+        let p2;
+        let distance;
+        if (center) {
+            p1 = centroid(g1);
+            p2 = centroid(g2);
+            distance = p1.distanceTo(p2);
+        }
+        else {
+            const r = minDistance(g1, g2);
+            p1 = r.point1;
+            p2 = r.point2;
+            distance = r.distance;
+        }
+        const result = [
+            {
+                distance,
+                "⇒ X | Y | Z": [
+                    Math.abs(p2.x - p1.x),
+                    Math.abs(p2.y - p1.y),
+                    Math.abs(p2.z - p1.z),
+                ],
+                info: center ? "center" : "min",
+            },
+            { "point 1": p1.toArray(), "point 2": p2.toArray() },
+        ];
+        const d1 = directionOf(g1);
+        const d2 = directionOf(g2);
+        if (d1 !== null && d2 !== null) {
+            let angle = angleBetween(d1.dir, d2.dir);
+            // edge-vs-face: tangent-vs-normal → convert to edge-to-surface angle
+            if (d1.isEdge !== d2.isEdge)
+                angle = Math.abs(90 - angle);
+            result.push({
+                angle,
+                "reference 1": d1.label,
+                "reference 2": d2.label,
+            });
+        }
+        return {
+            type: "backend_response",
+            subtype: "tool_response",
+            tool_type: "DistanceMeasurement",
+            meshBased: true,
+            refpoint1: p1.toArray(),
+            refpoint2: p2.toArray(),
+            result,
+        };
     }
 }
 
@@ -84631,6 +87336,10 @@ class NestedGroup {
         this.bbox = null;
         this.bsphere = null;
         this.groups = {};
+        this.registry = new ComponentRegistry();
+        this.assignIds = false;
+        this.highlight = null;
+        this.meshGeometry = new MeshGeometrySource();
         this.clipPlanes = null;
         this.materialsTable = null;
         this.resolvedMaterials = new Map();
@@ -84662,6 +87371,12 @@ class NestedGroup {
         this._disposeStudioResources();
         this.resolvedMaterials.clear();
         this.resolvedMaterialX.clear();
+        this.registry.clear();
+        this.meshGeometry.clear();
+        if (this.highlight) {
+            this.highlight.dispose();
+            this.highlight = null;
+        }
         this.materialsTable = null;
     }
     /**
@@ -84824,7 +87539,33 @@ class NestedGroup {
         if (name) {
             edges.name = name;
         }
+        // id-based picking: tag a standalone edge node so it is pickable
+        // (per-segment instanced integer componentId + the EDGE pick layer, additive —
+        // standalone edges are visual, so layer 0 stays). Compact only.
+        if (this.assignIds) {
+            const { componentId } = buildEdgeComponentIds(edgeData.edges, edgeData.segments_per_edge, path, null, // standalone edge node — not part of a solid
+            this.registry);
+            applyComponentIds(edges.geometry, componentId, true);
+            enablePickLayer(edges, "edge");
+            // widen + recolor the flagged segment in-shader (Option A).
+            this.highlight?.patchEdgeMaterial(edges.material);
+            // Internal measurement backend: record the standalone edge node's geometry
+            // (obj_vertices lets the hover status resolve a picked corner's coords).
+            this.meshGeometry.register(path, {
+                edges: edgeData.edges,
+                segments_per_edge: edgeData.segments_per_edge,
+                obj_vertices: edgeData.obj_vertices,
+            }, group, null);
+        }
         group.setEdges(edges);
+        // id-based picking: build the pick-only corner cloud so a standalone edge's B-rep
+        // endpoints are selectable. AFTER setEdges so `setPickVertices` syncs its visibility
+        // from the (now present) edge material. Compact group only.
+        if (this.assignIds &&
+            edgeData.obj_vertices != null &&
+            edgeData.obj_vertices.length > 0) {
+            this._addPickVertices(group, edgeData.obj_vertices, path, name, null);
+        }
         this.groups[path] = group;
         group.name = path.replaceAll("/", this.delim);
         return group;
@@ -84846,6 +87587,19 @@ class NestedGroup {
         if (name) {
             points.name = name;
         }
+        // id-based picking: tag a standalone vertex node so it is pickable.
+        // These ARE visual (kept on layer 0); add the VERTEX pick layer additively.
+        if (this.assignIds) {
+            const { componentId } = buildVertexComponentIds(vertexData.obj_vertices, path, null, // standalone vertex node — not part of a solid
+            this.registry);
+            applyComponentIds(geometry, componentId);
+            enablePickLayer(points, "vertex");
+            // standalone vertices are visible — keep authored size/color when
+            // unflagged, widen + recolor when flagged (no cull).
+            this.highlight?.patchVertexMaterial(material);
+            // Internal measurement backend: record the standalone vertex node's geometry.
+            this.meshGeometry.register(path, { obj_vertices: vertexData.obj_vertices }, group, null);
+        }
         group.setVertices(points);
         this.groups[path] = group;
         group.name = path.replaceAll("/", this.delim);
@@ -84854,7 +87608,7 @@ class NestedGroup {
     /**
      * Render a tessellated 3D shape with front/back faces and optional edges.
      */
-    renderShape(shape, color, alpha, renderback, exploded, path, name, states, geomtype = null, subtype = null, texture_data = null, texture_width = null, texture_height = null) {
+    renderShape(shape, color, alpha, renderback, path, name, states, geomtype = null, subtype = null, texture_data = null, texture_width = null, texture_height = null) {
         const positions = this._toFloat32Array(shape.vertices);
         const normals = this._toFloat32Array(shape.normals);
         const triangles = this._toUint32Array(shape.triangles);
@@ -84896,6 +87650,17 @@ class NestedGroup {
                     : new Float32Array(shape.uvs);
                 shapeGeometry.setAttribute("uv", new BufferAttribute(uvArray, 2));
             }
+            // id-based picking: tag each vertex with its face component id
+            // on the existing indexed geometry. Compact group only (assignIds); textured
+            // faces use PlaneGeometry above and are skipped by construction.
+            if (this.assignIds) {
+                const { componentId, collisions } = buildFaceComponentIds(positions.length / 3, shape.triangles, shape.triangles_per_face, path, subtype, this.registry);
+                applyComponentIds(shapeGeometry, componentId);
+                if (collisions > 0) {
+                    logger.warn(`componentId: ${collisions} cross-face shared vertices in ${path} ` +
+                        "(face picking ok; de-index needed only if this solid must split)");
+                }
+            }
             group.shapeGeometry = shapeGeometry;
             frontMaterial = this.materialFactory.createFrontFaceMaterial({
                 color: color,
@@ -84903,8 +87668,10 @@ class NestedGroup {
                 visible: states[0] == 1,
             }, `MeshStandardMaterial (front) for ${path}`);
             frontMaterial.name = "frontMaterial";
+            // tint by componentId in-shader (compact group only).
+            this.highlight?.patchFaceMaterial(frontMaterial);
         }
-        const backColor = group.subtype === "solid" && !exploded
+        const backColor = group.subtype === "solid"
             ? color
             : new Color(this.edgeColor)
                 .lerp(new Color(1, 1, 1), 0.15)
@@ -84919,6 +87686,12 @@ class NestedGroup {
         back.name = name;
         const front = new Mesh(shapeGeometry, frontMaterial);
         front.name = name;
+        // Id-based picking: put only the FRONT (FrontSide) mesh on the face pick layer so
+        // the pick pass can render faces-only. Additive — visual layer 0 stays enabled and
+        // the main render pass is unaffected.
+        if (this.assignIds) {
+            enablePickLayer(front, "face");
+        }
         // ensure, transparent objects will be rendered at the end
         if (alpha < 1.0) {
             back.renderOrder = 999;
@@ -84938,8 +87711,76 @@ class NestedGroup {
             const edges = this._renderEdges(edgeList, 1, null, states[1], path);
             edges.name = name;
             group.setEdges(edges);
+            // Id-based picking: tag each line segment with its edge component id
+            // (per-segment instanced attribute on the fat-line geometry) and put the
+            // solid's edges on the EDGE pick layer (additive; visual layer 0 kept).
+            // Bind as an integer attribute (edge pick shader reads `in uint`).
+            // Compact only.
+            if (this.assignIds) {
+                const { componentId } = buildEdgeComponentIds(edgeList, shape.segments_per_edge, path, subtype, this.registry);
+                applyComponentIds(edges.geometry, componentId, true);
+                enablePickLayer(edges, "edge");
+                // widen + recolor the flagged segment in-shader (Option A).
+                this.highlight?.patchEdgeMaterial(edges.material);
+            }
+        }
+        // id-based picking: build a pick-only `obj_vertices` corner cloud so the shape's
+        // B-rep corners are selectable (solids AND standalone faces). Compact group only.
+        if (this.assignIds &&
+            shape.obj_vertices != null &&
+            shape.obj_vertices.length > 0) {
+            this._addPickVertices(group, shape.obj_vertices, path, name, subtype);
+        }
+        // Record the node's raw geometry for the internal measurement backend (compact
+        // group only — paths match the registry). `group.matrixWorld` maps local → world.
+        if (this.assignIds) {
+            this.meshGeometry.register(path, shape, group, subtype);
         }
         return group;
+    }
+    /**
+     * Build the pick-only B-rep-corner cloud (+ a selection-marker highlight Points) for a
+     * node carrying `obj_vertices` — a solid, a standalone face, or a standalone edge — so
+     * its corners are selectable via id-picking.
+     *
+     * The pick cloud lives on the VERTEX pick layer ONLY (NOT visual layer 0), so the visual
+     * camera never draws it; its material stays `visible:true` because three drops
+     * `material.visible===false` objects before `overrideMaterial` applies. Its pick-buffer
+     * visibility is kept in sync with the owning group (`setPickVertices`) so a hidden shape
+     * stops contributing corner ids.
+     *
+     * `subtype` is "solid" for a solid (→ the corner ids carry the owning `solidPath`, so the
+     * pick gates on faces||edges) and null for standalone faces/edges (→ own-node corners).
+     */
+    _addPickVertices(group, objVertices, path, name, subtype) {
+        const vpositions = this._toFloat32Array(objVertices);
+        const { componentId } = buildVertexComponentIds(objVertices, path, subtype, this.registry);
+        const vGeometry = gpuTracker.trackGeometry(new BufferGeometry(), `BufferGeometry (pick vertices) for ${path}`);
+        vGeometry.setAttribute("position", new Float32BufferAttribute(vpositions, 3));
+        applyComponentIds(vGeometry, componentId);
+        const pickMaterial = this.materialFactory.createVertexMaterial({ size: 1, color: null, visible: true }, `PointsMaterial (pick vertices) for ${path}`);
+        const pickPoints = new Points(vGeometry, pickMaterial);
+        pickPoints.name = name;
+        setPickLayerExclusive(pickPoints, "vertex"); // pick layer only (off visual 0)
+        group.setPickVertices(pickPoints);
+        // a SEPARATE visual-highlight Points on visual layer 0 (NOT the pick layer),
+        // sharing the same geometry. Non-flagged points are culled (`gl_PointSize=0` +
+        // fragment discard), so a corner shows fat only while highlighted — matching the
+        // old visible-vertex look without a CPU walk.
+        const highlightMaterial = this.materialFactory.createVertexMaterial({ size: VERTEX_FOCUS_SIZE, color: null, visible: true }, `PointsMaterial (highlight vertices) for ${path}`);
+        // Selection-marker points must render ON TOP. B-rep corners are coincident with the
+        // faces/edges meeting there, so a depth-tested point loses the z-fight against its own
+        // geometry and never shows — even silhouette corners against the background (verified
+        // via the WebGL parity harness). This is the standard always-visible selection-dot.
+        highlightMaterial.depthTest = false;
+        highlightMaterial.depthWrite = false;
+        this.highlight?.patchVertexMaterial(highlightMaterial, {
+            cullUnhighlighted: true,
+        });
+        const highlightPoints = new Points(vGeometry, highlightMaterial);
+        highlightPoints.name = name;
+        highlightPoints.renderOrder = 1000; // after faces/edges
+        group.add(highlightPoints); // visual layer 0 only (default)
     }
     /**
      * Create edge geometry from extruded polygons.
@@ -84978,7 +87819,7 @@ class NestedGroup {
     /**
      * Render extruded 2D polygons (GDS format) as 3D geometry.
      */
-    renderPolygons(shape, minZ, color, alpha, renderback, _exploded, path, name, states, geomtype = null, subtype = null) {
+    renderPolygons(shape, minZ, color, alpha, renderback, path, name, states, geomtype = null, subtype = null) {
         const group = new ObjectGroup(this.defaultOpacity, 1.0, this.edgeColor, geomtype, subtype, renderback);
         group.name = path.replaceAll("/", this.delim);
         group.minZ = minZ;
@@ -85031,6 +87872,27 @@ class NestedGroup {
         back.name = name;
         const front = new Mesh(polyGeometry, frontMaterial);
         front.name = name;
+        // Id-based picking (GDS faces) — DOUBLE-CLICK IDENTIFY ONLY. GDS is dense, stacked,
+        // instance-unrolled layout data: the B-rep interaction stack does not fit it (hover
+        // preselect flickers, "area ≈" is meaningless on a node's merged 3D surface, and the
+        // mesh-measure index materialization OOMs huge nodes like transceiver_mzi). So tag a
+        // GDS node as ONE face component — JUST enough for `pickAt` to identify it on
+        // double-click — with NO highlight patch (no hover/select tint) and NO mesh-measure
+        // registration. The hover pump itself is gated off for GDS in the viewer. Compact
+        // group only (`assignIds`).
+        if (this.assignIds) {
+            const solidPath = subtype === "solid" ? path : null;
+            const faceId = this.registry.register({
+                path: `${path}/faces/faces_0`,
+                name: "faces_0",
+                topo: "face",
+                subtype,
+                solidPath,
+            });
+            const posAttr = polyGeometry.getAttribute("position");
+            applyComponentIds(polyGeometry, new Uint32Array(posAttr.count).fill(faceId));
+            enablePickLayer(front, "face");
+        }
         // Edges
         const edgeGeom = gpuTracker.trackGeometry(this._createEdgesFromPolygons(polygons, shape.height), `BufferGeometry (polygon edges) for ${path}`);
         const lineMat = this.materialFactory.createSimpleEdgeMaterial({}, `LineBasicMaterial (polygon edges) for ${path}`);
@@ -85044,7 +87906,7 @@ class NestedGroup {
     /**
      * Recursively render all shapes in the shape tree.
      * Note: The shapes parameter uses the public Shapes type but internally
-     * contains ShapeEntry/ShapeTree data after decomposition by viewer._decompose()
+     * contains ShapeEntry/ShapeTree data.
      */
     renderLoop(shapes) {
         const _render = (shape, texture, width, height) => {
@@ -85057,15 +87919,14 @@ class NestedGroup {
                     mesh = this.renderVertices(shape.shape, shape.size, shape.color ?? null, shape.id, shape.name, shape.state[1], { topo: "vertex", geomtype: null });
                     break;
                 case "polygon":
-                    mesh = this.renderPolygons(shape.shape, shape.loc[0][2], shape.color ?? this.edgeColor, 1.0, shape.renderback == null ? false : shape.renderback, false, //exploded
-                    shape.id, shape.name, shape.state, { topo: "face", geomtype: shape.geomtype || null }, shape.subtype || null);
+                    mesh = this.renderPolygons(shape.shape, shape.loc[0][2], shape.color ?? this.edgeColor, 1.0, shape.renderback == null ? false : shape.renderback, shape.id, shape.name, shape.state, { topo: "face", geomtype: shape.geomtype || null }, shape.subtype || null);
                     break;
                 default: {
                     // Shape color must be a single value, not an array
                     const shapeColor = Array.isArray(shape.color)
                         ? shape.color[0]
                         : shape.color;
-                    mesh = this.renderShape(shape.shape, shapeColor ?? this.edgeColor, shape.alpha ?? null, shape.renderback == null ? false : shape.renderback, shape.exploded ?? false, shape.id, shape.name, shape.state, { topo: "face", geomtype: shape.geomtype || null }, shape.subtype || null, texture, width, height);
+                    mesh = this.renderShape(shape.shape, shapeColor ?? this.edgeColor, shape.alpha ?? null, shape.renderback == null ? false : shape.renderback, shape.id, shape.name, shape.state, { topo: "face", geomtype: shape.geomtype || null }, shape.subtype || null, texture, width, height);
                 }
             }
             // support object locations
@@ -85086,7 +87947,7 @@ class NestedGroup {
         group.quaternion.set(...shapes.loc[1]);
         this.groups[shapes.id] = group;
         group.name = shapes.id.replaceAll("/", "|");
-        // shapes.parts contains ShapeEntry | ShapeTree after viewer._decompose()
+        // shapes.parts contains ShapeEntry | ShapeTree
         for (const shape of shapes.parts) {
             if (isShapeTree(shape)) {
                 group.add(this.renderLoop(shape));
@@ -85123,7 +87984,14 @@ class NestedGroup {
         this.materialsTable = this.shapes.materials || null;
         this.resolvedMaterials.clear();
         this.resolvedMaterialX.clear();
+        // the highlight controller must exist before renderLoop so each
+        // visual material is patched as it is created. Compact group only.
+        if (this.assignIds) {
+            this.highlight = new HighlightController(this.registry);
+        }
         this.rootGroup = this.renderLoop(this.shapes);
+        // Grow the state texture to cover every component registered during the walk.
+        this.highlight?.resize(this.registry.maxId);
         return this.rootGroup;
     }
     /**
@@ -85175,6 +88043,8 @@ class NestedGroup {
         for (const object of this.selection()) {
             object.clearHighlights();
         }
+        // compact group highlight is shader-driven, not per-ObjectGroup.
+        this.highlight?.clear();
     }
     /**
      * Set metalness value for all materials.
@@ -85949,7 +88819,7 @@ class Grid extends Group {
         // Determine rotation based on plane and axis
         // All labels should be perpendicular to their axis to prevent overlap
         // Ensure consistent rotation for each physical axis across all planes
-        let rotation = 0;
+        let rotation;
         if (i === 0) {
             // XY plane: X-axis (horizontal) = 0°, Y-axis (vertical) = 0° for perpendicular
             rotation = 0;
@@ -86741,7 +89611,7 @@ class TreeModel {
                 [false, false],
             ];
             for (const key in data) {
-                let currentPath = "";
+                let currentPath;
                 if (path == null) {
                     currentPath = key;
                 }
@@ -87970,6 +90840,24 @@ const PLANE_HELPER_OPACITY = {
     light: 0.1,
     dark: 0.2,
 };
+/**
+ * Cap-culling thresholds (see {@link Clipping.cull}). The per-solid stencil + cap
+ * meshes are correct but O(N) in draw calls; on a large assembly (~1300 solids ×
+ * 3 planes × 3 meshes ≈ 12000 draws/frame) a zoomed-out clip+rotate overruns the
+ * GPU watchdog → context loss. Culling bounds the per-frame work:
+ * - `CAP_CULL_MIN_PX`: skip a solid's caps when its projected screen radius is
+ *   below this (sub-pixel solids contribute nothing visible zoomed out).
+ * - `CAP_CULL_BUDGET`: hard cap on the number of capped solids (largest-first);
+ *   the real crash guard for pathologically dense views. Tune on a real GPU.
+ */
+const CAP_CULL_MIN_PX = 3;
+const CAP_CULL_BUDGET = 400;
+// Scratch objects for the per-frame screen-size projection + plane-straddle test
+// (no per-call alloc).
+const _cullCenter = new Vector3();
+const _cullEdge = new Vector3();
+const _cullRight = new Vector3();
+const _cullBox = new Box3();
 // ============================================================================
 // ClippingMaterials - Factory for clipping-related materials
 // ============================================================================
@@ -88183,6 +91071,17 @@ class Clipping extends Group {
      */
     constructor(center, size, nestedGroup, options, theme) {
         super();
+        /** Per-solid stencil/cap units, the unit of screen-size culling. */
+        this._capUnits = [];
+        /**
+         * Whether {@link cull} last ran with clipping active. Lets the inactive path
+         * gate stencils/caps off exactly once, then early-return on later still frames.
+         * Starts `true` so the first inactive call performs the initial gate-off (the
+         * meshes default to `visible:true`).
+         */
+        this._cullActive = true;
+        /** Reused buffer for the budget threshold sort (no per-frame alloc). */
+        this._radiiScratch = [];
         /**
          * Set the normal vector for a clipping plane.
          * @param index - The plane index (0, 1, or 2).
@@ -88299,6 +91198,11 @@ class Clipping extends Group {
     _createStencils(center, size, theme) {
         this._planeMeshGroup = new PlaneMeshGroup();
         this._planeMeshGroup.name = "PlaneMeshes";
+        // Group the per-(solid,plane) units by solid for screen-size culling. The
+        // loop below is plane-major (and `objectColors`/`_planeMeshGroup` order must
+        // stay plane-major for setObjectColorCaps), so accumulate into a Map keyed by
+        // solid and flatten afterwards — without touching the plane-major structures.
+        const unitsBySolid = new Map();
         for (let i = 0; i < 3; i++) {
             const plane = this.clipPlanes[i];
             const otherPlanes = this.clipPlanes.filter((_, j) => j !== i);
@@ -88320,11 +91224,22 @@ class Clipping extends Group {
                     group.addClipping(clippingGroup, i);
                     // Create stencil plane mesh
                     const planeMaterial = ClippingMaterials.createStencilPlaneMaterial(PLANE_COLORS[theme][i], otherPlanes);
-                    this._planeMeshGroup.add(new PlaneMesh(i, plane, center, size, planeMaterial, PLANE_COLORS[theme][i], `StencilPlane-${i}-${j}`));
+                    const capMesh = new PlaneMesh(i, plane, center, size, planeMaterial, PLANE_COLORS[theme][i], `StencilPlane-${i}-${j}`);
+                    this._planeMeshGroup.add(capMesh);
+                    // Record the cull unit for this solid (one entry per solid, holding
+                    // its up-to-3 per-plane stencil groups + cap quads).
+                    let unit = unitsBySolid.get(group);
+                    if (unit === undefined) {
+                        unit = { solid: group, stencilGroups: [], capMeshes: [], radiusPx: 0 };
+                        unitsBySolid.set(group, unit);
+                    }
+                    unit.stencilGroups.push(clippingGroup);
+                    unit.capMeshes.push(capMesh);
                     j++;
                 }
             }
         }
+        this._capUnits = [...unitsBySolid.values()];
         this.nestedGroup.rootGroup.add(this._planeMeshGroup);
     }
     /**
@@ -88356,6 +91271,10 @@ class Clipping extends Group {
         this.distance = size / 2;
         // Rebuild stencils with current state
         this._createStencils(center, size, this.theme);
+        // Fresh stencil/cap meshes default to visible:true; force the next cull to
+        // re-gate them (else an inactive-clip cull would early-return and leave the
+        // new meshes rendering).
+        this._cullActive = true;
         // Reapply object color caps if enabled
         if (this.objectColorCaps) {
             this.setObjectColorCaps(true);
@@ -88369,6 +91288,127 @@ class Clipping extends Group {
     setConstant(index, value) {
         this.clipPlanes[index].setConstant(value);
         this.reverseClipPlanes[index].setConstant(-value);
+    }
+    /**
+     * Bound the per-frame stencil/cap draw work to keep large assemblies from
+     * overrunning the GPU watchdog on clip+rotate (see {@link CAP_CULL_MIN_PX}).
+     *
+     * Toggles each unit's `Object3D.visible` (NOT material.visible), which composes
+     * by AND with the existing material-level toggles — `setShapeVisible` (per-solid
+     * hide) and `setVisible` (clip-tab on/off) — so a unit renders only when it is
+     * un-culled AND its solid is shown AND the clip tab is active. Render order and
+     * the per-solid `clearStencil` isolation are untouched (removing a whole solid's
+     * units never affects the remaining solids' cap correctness).
+     *
+     * @param camera - The active camera (ortho or perspective).
+     * @param width - Canvas width in CSS px.
+     * @param height - Canvas height in CSS px.
+     * @param clipActive - `renderer.localClippingEnabled` (clip tab selected).
+     */
+    cull(camera, width, height, clipActive) {
+        if (this._capUnits.length === 0)
+            return;
+        if (!clipActive) {
+            // Clip off: gate every unit off once (master leaves the stencils rendering
+            // every frame as scene-graph children — pure waste), then skip still frames.
+            if (!this._cullActive)
+                return;
+            for (const unit of this._capUnits) {
+                for (const g of unit.stencilGroups)
+                    g.visible = false;
+                for (const c of unit.capMeshes)
+                    c.visible = false;
+            }
+            this._cullActive = false;
+            return;
+        }
+        this._cullActive = true;
+        // Camera right vector in world space = column 0 of the camera world matrix.
+        camera.updateMatrixWorld();
+        const e = camera.matrixWorld.elements;
+        _cullRight.set(e[0], e[1], e[2]).normalize();
+        const halfW = width * 0.5;
+        const halfH = height * 0.5;
+        // Project each solid's bounding sphere to a screen radius (px).
+        const radii = this._radiiScratch;
+        radii.length = 0;
+        for (const unit of this._capUnits) {
+            unit.radiusPx = this._solidScreenRadius(unit.solid, camera, halfW, halfH);
+            if (unit.radiusPx >= CAP_CULL_MIN_PX)
+                radii.push(unit.radiusPx);
+        }
+        // Hard budget: when more solids pass MIN_PX than the budget, keep only the
+        // largest CAP_CULL_BUDGET (threshold = the budget-th largest radius). Ties at
+        // the threshold may let a few extra through — fine, the budget is approximate.
+        let threshold = 0;
+        if (radii.length > CAP_CULL_BUDGET) {
+            radii.sort((a, b) => b - a);
+            threshold = radii[CAP_CULL_BUDGET - 1];
+        }
+        for (const unit of this._capUnits) {
+            const solidPass = unit.radiusPx >= CAP_CULL_MIN_PX && unit.radiusPx >= threshold;
+            // Per-plane gate: also require the plane to actually cut the solid. A plane
+            // parked open (or entirely past the solid) does not straddle the bbox; on a
+            // non-watertight solid its front/back stencil parity then fails to cancel,
+            // leaving a "ghost" cap floating where nothing is cut. Skipping those units
+            // (stencil AND cap together — they MUST stay paired so the per-cap
+            // clearStencil keeps isolating solids) removes the ghosts. Stencil/cap are
+            // gated jointly because an orphaned stencil write with no cap to clear it
+            // would corrupt the next solid's cap.
+            const box = solidPass ? this._solidWorldBox(unit.solid) : null;
+            for (let k = 0; k < unit.capMeshes.length; k++) {
+                const cap = unit.capMeshes[k];
+                const planeHit = box !== null && this.clipPlanes[cap.index].intersectsBox(box);
+                unit.stencilGroups[k].visible = planeHit;
+                cap.visible = planeHit;
+            }
+        }
+    }
+    /**
+     * World-space AABB of a solid (local bounding box transformed by the front
+     * mesh's world matrix, which folds in GDS z-scale). Returns a shared scratch
+     * Box3 (valid only until the next call) or `null` when geometry is missing.
+     */
+    _solidWorldBox(solid) {
+        const front = solid.front;
+        const geometry = solid.shapeGeometry;
+        if (!front || !geometry)
+            return null;
+        if (geometry.boundingBox === null)
+            geometry.computeBoundingBox();
+        const bb = geometry.boundingBox;
+        if (bb === null)
+            return null;
+        _cullBox.copy(bb).applyMatrix4(front.matrixWorld);
+        return _cullBox;
+    }
+    /**
+     * Projected screen radius (px) of a solid's bounding sphere. Projects the world
+     * sphere center and a point one world-radius along the camera-right axis, and
+     * measures their screen-space separation — correct for both ortho and
+     * perspective. Returns `Infinity` (never cull) when geometry is missing.
+     */
+    _solidScreenRadius(solid, camera, halfW, halfH) {
+        const front = solid.front;
+        const geometry = solid.shapeGeometry;
+        if (!front || !geometry)
+            return Infinity;
+        if (geometry.boundingSphere === null)
+            geometry.computeBoundingSphere();
+        const bs = geometry.boundingSphere;
+        if (bs === null)
+            return Infinity;
+        // front.matrixWorld already folds in GDS z-scale (applied below ObjectGroup);
+        // read it as-is (one-frame stale during animation is harmless for culling).
+        const m = front.matrixWorld;
+        _cullCenter.copy(bs.center).applyMatrix4(m);
+        const r = bs.radius * m.getMaxScaleOnAxis();
+        _cullEdge.copy(_cullCenter).addScaledVector(_cullRight, r);
+        _cullCenter.project(camera);
+        _cullEdge.project(camera);
+        const dx = (_cullEdge.x - _cullCenter.x) * halfW;
+        const dy = (_cullEdge.y - _cullCenter.y) * halfH;
+        return Math.sqrt(dx * dx + dy * dy);
     }
     /**
      * Save the current clipping state for later restoration.
@@ -88419,6 +91459,7 @@ class Clipping extends Group {
         this.center = null;
         this.planeHelpers = null;
         this._planeMeshGroup = null;
+        this._capUnits = [];
     }
 }
 
@@ -88652,24 +91693,13 @@ class Animation {
 }
 
 /**
- * Shape tessellation and decomposition for rendering CAD objects.
+ * Shape tessellation for rendering CAD objects.
  */
-// =============================================================================
-// Helper Functions
-// =============================================================================
-/** Convert a hex color number to CSS hex string */
-function hexToColorString(hex) {
-    // If already a string with #, return as-is
-    if (typeof hex === "string") {
-        return hex.startsWith("#") ? hex : `#${hex}`;
-    }
-    return `#${hex.toString(16).padStart(6, "0")}`;
-}
 // =============================================================================
 // ShapeRenderer Class
 // =============================================================================
 /**
- * Handles tessellation and decomposition of CAD shapes for rendering.
+ * Handles tessellation of CAD shapes for rendering.
  */
 class ShapeRenderer {
     constructor(config) {
@@ -88693,8 +91723,10 @@ class ShapeRenderer {
      * @param shapes - The Shapes object representing the tessellated CAD object.
      * @returns A nested THREE.Group object.
      */
-    _renderTessellatedShapes(shapes) {
+    _renderTessellatedShapes(shapes, assignIds = false) {
         const nestedGroup = new NestedGroup(shapes, this.config.cadWidth, this.config.height, this.config.edgeColor, this.config.transparent, this.config.defaultOpacity, this.config.metalness, this.config.roughness, this.config.normalLen);
+        // id-based picking: assign per-vertex component ids for the GPU picker.
+        nestedGroup.assignIds = assignIds;
         if (shapes.bb) {
             this._bbox = new BoundingBox(new Vector3(shapes.bb.xmin, shapes.bb.ymin, shapes.bb.zmin), new Vector3(shapes.bb.xmax, shapes.bb.ymax, shapes.bb.zmax));
         }
@@ -88724,458 +91756,15 @@ class ShapeRenderer {
         return tree;
     }
     /**
-     * Decompose a CAD object into faces, edges and vertices.
-     * @param part - The part to decompose.
-     * @returns A decomposed part object.
-     */
-    _decompose(part) {
-        const shape = part.shape;
-        let j;
-        part.parts = [];
-        if (part.type === "shapes") {
-            // decompose faces
-            const new_part = {
-                version: 2,
-                name: "faces",
-                id: `${part.id}/faces`,
-                parts: [],
-                loc: [
-                    [0, 0, 0],
-                    [0, 0, 0, 1],
-                ],
-            };
-            let triangles;
-            // _convertArrays must be called before _decompose to ensure TypedArrays
-            if (!(shape.vertices instanceof Float32Array)) {
-                throw new Error("_decompose requires shape.vertices to be Float32Array (call _convertArrays first)");
-            }
-            if (!(shape.normals instanceof Float32Array)) {
-                throw new Error("_decompose requires shape.normals to be Float32Array (call _convertArrays first)");
-            }
-            const vertices = shape.vertices;
-            const normals = shape.normals;
-            const uvs = shape.uvs instanceof Float32Array ? shape.uvs : null;
-            // Determine format and validate
-            let current = 0;
-            if (hasTrianglesPerFace(shape)) {
-                // Binary format: flat Uint32Array with per-face counts
-                if (!(shape.triangles instanceof Uint32Array)) {
-                    throw new Error("Expected Uint32Array for triangles in binary format");
-                }
-                const trianglesArray = shape.triangles;
-                const perFace = shape.triangles_per_face;
-                const num = perFace.length;
-                for (j = 0; j < num; j++) {
-                    triangles = trianglesArray.subarray(current, current + 3 * perFace[j]);
-                    current += 3 * perFace[j];
-                    const vecs = new Float32Array(triangles.length * 3);
-                    const norms = new Float32Array(triangles.length * 3);
-                    const uvArr = uvs ? new Float32Array(triangles.length * 2) : null;
-                    for (let i = 0; i < triangles.length; i++) {
-                        const s = triangles[i];
-                        vecs[3 * i] = vertices[3 * s];
-                        vecs[3 * i + 1] = vertices[3 * s + 1];
-                        vecs[3 * i + 2] = vertices[3 * s + 2];
-                        norms[3 * i] = normals[3 * s];
-                        norms[3 * i + 1] = normals[3 * s + 1];
-                        norms[3 * i + 2] = normals[3 * s + 2];
-                        if (uvs && uvArr) {
-                            uvArr[2 * i] = uvs[2 * s];
-                            uvArr[2 * i + 1] = uvs[2 * s + 1];
-                        }
-                    }
-                    const newShapeObj = {
-                        triangles: [...Array(triangles.length).keys()],
-                        vertices: Array.from(vecs),
-                        normals: Array.from(norms),
-                        edges: [],
-                        obj_vertices: [],
-                        edge_types: [],
-                        face_types: [shape.face_types[j]],
-                    };
-                    if (uvArr) {
-                        newShapeObj.uvs = Array.from(uvArr);
-                    }
-                    const new_shape = {
-                        version: 2,
-                        loc: [
-                            [0, 0, 0],
-                            [0, 0, 0, 1],
-                        ],
-                        name: `faces_${j}`,
-                        id: `${part.id}/faces/faces_${j}`,
-                        type: "shapes",
-                        color: part.color,
-                        alpha: part.alpha,
-                        renderback: part.subtype !== "solid",
-                        state: [1, 3],
-                        accuracy: part.accuracy,
-                        bb: null,
-                        shape: newShapeObj,
-                    };
-                    if (part.texture) {
-                        new_shape.texture = part.texture;
-                    }
-                    if (part.material) {
-                        new_shape.material = part.material;
-                    }
-                    new_shape.geomtype = shape.face_types[j];
-                    new_shape.subtype = part.subtype;
-                    new_shape.exploded = true;
-                    new_part.parts.push(new_shape);
-                }
-            }
-            else {
-                // Non-binary format: nested number[][] arrays
-                if (!Array.isArray(shape.triangles) ||
-                    !Array.isArray(shape.triangles[0])) {
-                    throw new Error("Expected nested array for triangles in non-binary format");
-                }
-                // After validation, we know shape.triangles is number[][] (TypeScript can't infer this)
-                const trianglesNested = shape.triangles;
-                const num = trianglesNested.length;
-                for (j = 0; j < num; j++) {
-                    triangles = trianglesNested[j];
-                    const vecs = new Float32Array(triangles.length * 3);
-                    const norms = new Float32Array(triangles.length * 3);
-                    const uvArr = uvs ? new Float32Array(triangles.length * 2) : null;
-                    for (let i = 0; i < triangles.length; i++) {
-                        const s = triangles[i];
-                        vecs[3 * i] = vertices[3 * s];
-                        vecs[3 * i + 1] = vertices[3 * s + 1];
-                        vecs[3 * i + 2] = vertices[3 * s + 2];
-                        norms[3 * i] = normals[3 * s];
-                        norms[3 * i + 1] = normals[3 * s + 1];
-                        norms[3 * i + 2] = normals[3 * s + 2];
-                        if (uvs && uvArr) {
-                            uvArr[2 * i] = uvs[2 * s];
-                            uvArr[2 * i + 1] = uvs[2 * s + 1];
-                        }
-                    }
-                    const newShapeObj2 = {
-                        triangles: [...Array(triangles.length).keys()],
-                        vertices: Array.from(vecs),
-                        normals: Array.from(norms),
-                        edges: [],
-                        obj_vertices: [],
-                        edge_types: [],
-                        face_types: [shape.face_types[j]],
-                    };
-                    if (uvArr) {
-                        newShapeObj2.uvs = Array.from(uvArr);
-                    }
-                    const new_shape = {
-                        version: 2,
-                        loc: [
-                            [0, 0, 0],
-                            [0, 0, 0, 1],
-                        ],
-                        name: `faces_${j}`,
-                        id: `${part.id}/faces/faces_${j}`,
-                        type: "shapes",
-                        color: part.color,
-                        alpha: part.alpha,
-                        renderback: part.subtype !== "solid",
-                        state: [1, 3],
-                        accuracy: part.accuracy,
-                        bb: null,
-                        shape: newShapeObj2,
-                    };
-                    if (part.texture) {
-                        new_shape.texture = part.texture;
-                    }
-                    if (part.material) {
-                        new_shape.material = part.material;
-                    }
-                    new_shape.geomtype = shape.face_types[j];
-                    new_shape.subtype = part.subtype;
-                    new_shape.exploded = true;
-                    new_part.parts.push(new_shape);
-                }
-            }
-            part.parts.push(new_part);
-        }
-        if (part.type === "shapes" || part.type === "edges") {
-            // decompose edges
-            const new_part = {
-                version: 2,
-                parts: [],
-                loc: [
-                    [0, 0, 0],
-                    [0, 0, 0, 1],
-                ],
-                name: "edges",
-                id: `${part.id}/edges`,
-            };
-            // Check if multiColor (array of colors per edge)
-            const multiColorArray = Array.isArray(part.color) ? part.color : null;
-            let color;
-            let edge;
-            let current = 0;
-            if (hasSegmentsPerEdge(shape)) {
-                // Binary format: flat Float32Array with per-edge counts
-                if (!(shape.edges instanceof Float32Array)) {
-                    throw new Error("Expected Float32Array for edges in binary format");
-                }
-                const edgesArray = shape.edges;
-                const perEdge = shape.segments_per_edge;
-                const num = perEdge.length;
-                for (j = 0; j < num; j++) {
-                    edge = edgesArray.subarray(current, current + 6 * perEdge[j]);
-                    current += 6 * perEdge[j];
-                    color = multiColorArray ? multiColorArray[j] : part.color;
-                    const new_shape = {
-                        version: 2,
-                        loc: [
-                            [0, 0, 0],
-                            [0, 0, 0, 1],
-                        ],
-                        name: `edges_${j}`,
-                        id: `${part.id}/edges/edges_${j}`,
-                        type: "edges",
-                        color: part.type === "shapes"
-                            ? hexToColorString(this.config.edgeColor)
-                            : color,
-                        state: [3, 1],
-                        bb: null,
-                        shape: {
-                            edges: Array.from(edge),
-                            vertices: [],
-                            normals: [],
-                            triangles: [],
-                            obj_vertices: [],
-                            edge_types: [shape.edge_types[j]],
-                            face_types: [],
-                        },
-                    };
-                    new_shape.width = part.type === "shapes" ? 1 : part.width;
-                    new_shape.geomtype = shape.edge_types[j];
-                    new_part.parts.push(new_shape);
-                }
-            }
-            else {
-                // Non-binary format: nested number[][] arrays
-                const edgesRaw = shape.edges;
-                if (!Array.isArray(edgesRaw) ||
-                    (edgesRaw.length > 0 && !Array.isArray(edgesRaw[0]))) {
-                    throw new Error("Expected nested array for edges in non-binary format");
-                }
-                // After validation, we know this is number[][] (TypeScript can't infer from the check)
-                const edgesNested = edgesRaw;
-                const num = edgesNested.length;
-                for (j = 0; j < num; j++) {
-                    edge = edgesNested[j];
-                    color = multiColorArray ? multiColorArray[j] : part.color;
-                    const new_shape = {
-                        version: 2,
-                        loc: [
-                            [0, 0, 0],
-                            [0, 0, 0, 1],
-                        ],
-                        name: `edges_${j}`,
-                        id: `${part.id}/edges/edges_${j}`,
-                        type: "edges",
-                        color: part.type === "shapes"
-                            ? hexToColorString(this.config.edgeColor)
-                            : color,
-                        state: [3, 1],
-                        bb: null,
-                        shape: {
-                            edges: edge,
-                            vertices: [],
-                            normals: [],
-                            triangles: [],
-                            obj_vertices: [],
-                            edge_types: [shape.edge_types[j]],
-                            face_types: [],
-                        },
-                    };
-                    new_shape.width = part.type === "shapes" ? 1 : part.width;
-                    new_shape.geomtype = shape.edge_types[j];
-                    new_part.parts.push(new_shape);
-                }
-            }
-            if (new_part.parts.length > 0) {
-                part.parts.push(new_part);
-            }
-        }
-        // decompose vertices
-        const new_part = {
-            version: 2,
-            parts: [],
-            loc: [
-                [0, 0, 0],
-                [0, 0, 0, 1],
-            ],
-            name: "vertices",
-            id: `${part.id}/vertices`,
-        };
-        const vertices = shape.obj_vertices;
-        for (j = 0; j < vertices.length / 3; j++) {
-            const new_shape = {
-                version: 2,
-                loc: [
-                    [0, 0, 0],
-                    [0, 0, 0, 1],
-                ],
-                name: `vertices_${j}`,
-                id: `${part.id}/vertices/vertices_${j}`,
-                type: "vertices",
-                color: part.type === "shapes" || part.type === "edges"
-                    ? hexToColorString(this.config.edgeColor)
-                    : part.color,
-                state: [3, 1],
-                bb: null,
-                shape: {
-                    obj_vertices: [
-                        vertices[3 * j],
-                        vertices[3 * j + 1],
-                        vertices[3 * j + 2],
-                    ],
-                    vertices: [],
-                    normals: [],
-                    triangles: [],
-                    edges: [],
-                    edge_types: [],
-                    face_types: [],
-                },
-            };
-            new_shape.size =
-                part.type === "shapes" || part.type === "edges" ? 4 : part.size;
-            new_part.parts.push(new_shape);
-        }
-        if (new_part.parts.length > 0) {
-            part.parts.push(new_part);
-        }
-        delete part.shape;
-        delete part.color;
-        delete part.alpha;
-        delete part.accuracy;
-        delete part.renderback;
-        return part;
-    }
-    /**
-     * Convert Shape arrays to TypedArrays for efficient rendering.
-     * Note: This mutates the shape in place.
-     */
-    _convertArrays(shape) {
-        // Shape interface matches MutableShape - we cast to allow reassignment
-        const s = shape;
-        // triangles: flat array or nested array -> Uint32Array
-        // Note: Only flat triangles (with triangles_per_face) are converted here.
-        // Nested triangles (number[][]) are kept as-is for _decompose to handle.
-        if (s.triangles != null && !(s.triangles instanceof Uint32Array)) {
-            // Only convert if it's a flat number[] (has triangles_per_face)
-            if (s.triangles_per_face !== undefined) {
-                if (!Array.isArray(s.triangles[0])) {
-                    s.triangles = new Uint32Array(s.triangles);
-                }
-            }
-            // If no triangles_per_face, leave as number[][] for _decompose
-        }
-        // edges: nested number[][] -> Float32Array (flattened)
-        // Only flatten if it's actually nested (no segments_per_edge means nested format)
-        if (s.edges != null && !(s.edges instanceof Float32Array)) {
-            if (s.segments_per_edge !== undefined) {
-                if (!Array.isArray(s.edges[0])) {
-                    // Flat number[] — convert directly
-                    s.edges = new Float32Array(s.edges);
-                }
-                else {
-                    // Nested number[][] with segments_per_edge — flatten then convert
-                    s.edges = new Float32Array(flatten(s.edges, 1));
-                }
-            }
-            // If no segments_per_edge, leave as number[][] for _decompose
-        }
-        // vertices: always flat number[] -> Float32Array
-        if (s.vertices != null && !(s.vertices instanceof Float32Array)) {
-            s.vertices = new Float32Array(s.vertices);
-        }
-        // normals: flat or nested -> Float32Array
-        // Only process if there are normals (non-empty array)
-        if (s.normals != null && !(s.normals instanceof Float32Array)) {
-            if (Array.isArray(s.normals) && s.normals.length > 0) {
-                if (Array.isArray(s.normals[0])) {
-                    // Nested format: flatten first
-                    s.normals = new Float32Array(flatten(s.normals, 2));
-                }
-                else {
-                    // Already flat
-                    s.normals = new Float32Array(s.normals);
-                }
-            }
-        }
-        // obj_vertices: always flat number[] -> Float32Array
-        if (s.obj_vertices != null && !(s.obj_vertices instanceof Float32Array)) {
-            s.obj_vertices = new Float32Array(s.obj_vertices);
-        }
-        // uvs: flat number[] -> Float32Array (2 floats per vertex)
-        if (s.uvs != null && !(s.uvs instanceof Float32Array)) {
-            s.uvs = new Float32Array(s.uvs);
-        }
-        // face_types: number[] -> Uint32Array
-        if (s.face_types != null && !(s.face_types instanceof Uint32Array)) {
-            s.face_types = new Uint32Array(s.face_types);
-        }
-        // edge_types: number[] or Uint8Array -> Uint32Array
-        if (s.edge_types != null && !(s.edge_types instanceof Uint32Array)) {
-            if (s.edge_types instanceof Uint8Array) {
-                s.edge_types = new Uint32Array(s.edge_types);
-            }
-            else {
-                s.edge_types = new Uint32Array(s.edge_types);
-            }
-        }
-        // triangles_per_face: number[] -> Uint32Array
-        if (s.triangles_per_face != null &&
-            !(s.triangles_per_face instanceof Uint32Array)) {
-            s.triangles_per_face = new Uint32Array(s.triangles_per_face);
-        }
-        // segments_per_edge: number[] -> Uint32Array
-        if (s.segments_per_edge != null &&
-            !(s.segments_per_edge instanceof Uint32Array)) {
-            s.segments_per_edge = new Uint32Array(s.segments_per_edge);
-        }
-    }
-    /**
-     * Recursively process shapes, converting arrays and decomposing parts.
-     */
-    _processShapes(shapes) {
-        if (shapes.version === 2 || shapes.version === 3) {
-            const parts = [];
-            for (let i = 0; i < (shapes.parts?.length ?? 0); i++) {
-                const part = shapes.parts[i];
-                if (part.shape != null) {
-                    this._convertArrays(part.shape);
-                }
-                if (part.parts != null) {
-                    const tmp = this._processShapes(part);
-                    parts.push(tmp);
-                }
-                else {
-                    parts.push(this._decompose(part));
-                }
-            }
-            shapes.parts = parts;
-        }
-        return shapes;
-    }
-    /**
      * Render the shapes of the CAD object.
-     * @param exploded - Whether to render the compact or exploded version
      * @param shapes - The Shapes object.
      * @returns A nested THREE.Group object and navigation tree.
      */
-    render(exploded, shapes) {
-        let processedShapes;
-        if (exploded) {
-            processedShapes = this._processShapes(structuredClone(shapes));
-        }
-        else {
-            processedShapes = structuredClone(shapes);
-        }
-        const group = this._renderTessellatedShapes(processedShapes);
+    render(shapes) {
+        // Clone so the renderer never mutates the caller's shapes (NestedGroup
+        // consumes/mutates the parts in place); this.shapes is reused across renders.
+        const processedShapes = structuredClone(shapes);
+        const group = this._renderTessellatedShapes(processedShapes, true);
         const tree = this._getTree(processedShapes);
         return { group, tree };
     }
@@ -93452,238 +96041,6 @@ Camera.DISTANCE_FACTOR = 5;
 Camera.NEAR_FACTOR = 0.01;
 
 /**
- * Filter types for topology-based raycasting.
- */
-const TopoFilter = {
-    none: null,
-    vertex: "vertex",
-    edge: "edge",
-    face: "face",
-    solid: "solid",
-};
-/**
- * Represents a picked object from raycasting.
- * Can represent either a single shape or all faces of a solid.
- */
-class PickedObject {
-    /**
-     * Create a PickedObject.
-     * @param objectGroup - The picked ObjectGroup.
-     * @param fromSolid - Whether this pick is from a solid selection.
-     */
-    constructor(objectGroup, fromSolid) {
-        this.obj = objectGroup;
-        this.fromSolid = fromSolid;
-    }
-    /**
-     * Returns all the faces ObjectGroups that define the solid from the picked object.
-     */
-    _getSolidObjectGroups(solidSubObject) {
-        const solidGroup = solidSubObject.parent.parent;
-        let facesGroup;
-        for (let i = 0; i < solidGroup.children.length; i++) {
-            const child = solidGroup.children[i];
-            if (child.name === solidGroup.name + "|faces") {
-                facesGroup = child;
-                break;
-            }
-        }
-        return (facesGroup?.children || []).filter(isObjectGroup);
-    }
-    /**
-     * If the picked object is part of a solid, returns all the faces ObjectGroups that define the solid.
-     * Otherwise, returns the picked object.
-     */
-    objs() {
-        if (this.fromSolid) {
-            return this._getSolidObjectGroups(this.obj);
-        }
-        else {
-            return [this.obj];
-        }
-    }
-}
-/**
- * Handles mouse-based raycasting for object selection in the 3D scene.
- * Supports topology filtering and provides click/keyboard callbacks.
- */
-class Raycaster {
-    /**
-     * Create a Raycaster for object picking.
-     * @param camera - The camera used for ray projection.
-     * @param domElement - The DOM element to listen for events.
-     * @param width - Viewport width in pixels.
-     * @param height - Viewport height in pixels.
-     * @param threshold - Point picking threshold in world units.
-     * @param group - The scene group to raycast against.
-     * @param callback - Callback for pick events.
-     */
-    constructor(camera, domElement, width, height, threshold, group, callback) {
-        /**
-         * Handle left mouse button down event
-         */
-        this.onMouseKeyDown = (e) => {
-            if (this.raycastMode && this.camera) {
-                if (e.button == MOUSE.LEFT || e.button == MOUSE.RIGHT) {
-                    this.lastPosition = this.camera.getPosition().clone();
-                }
-            }
-        };
-        /**
-         * Handle left mouse button up event
-         */
-        this.onMouseKeyUp = (e) => {
-            if (this.raycastMode && this.camera && this.lastPosition) {
-                if (e.button == MOUSE.LEFT) {
-                    if (this.lastPosition.distanceTo(this.camera.getPosition()) < 1e-6) {
-                        this.callback({ mouse: "left", shift: KeyMapper.get(e, "shift") });
-                    }
-                }
-                else if (e.button == MOUSE.RIGHT) {
-                    if (this.lastPosition.distanceTo(this.camera.getPosition()) < 1e-6) {
-                        this.callback({ mouse: "right" });
-                    }
-                }
-            }
-        };
-        /**
-         * Handle key down event
-         */
-        this.onKeyDown = (e) => {
-            if (this.raycastMode) {
-                if (e.key == "Backspace") {
-                    this.callback({ key: "Backspace" });
-                }
-                else if (e.key == "Escape") {
-                    this.callback({ key: "Escape" });
-                }
-            }
-        };
-        /**
-         * Get the current mouse position
-         */
-        this.onPointerMove = (e) => {
-            if (!this.domElement)
-                return;
-            const rect = this.domElement.getBoundingClientRect();
-            const offsetX = rect.x + window.scrollX;
-            const offsetY = rect.y + window.scrollY;
-            this.mouse.x = ((e.pageX - offsetX) / this.width) * 2 - 1;
-            this.mouse.y = -((e.pageY - offsetY) / this.height) * 2 + 1;
-            this.mouseMoved = true;
-        };
-        this.camera = camera;
-        this.group = group;
-        this.domElement = domElement;
-        this.width = width;
-        this.height = height;
-        this.threshold = threshold;
-        this.callback = callback;
-        this.raycaster = new Raycaster$1();
-        this.raycastMode = false;
-        this.lastPosition = null;
-        this.mouse = new Vector2();
-        this.mouseMoved = false;
-        this.filters = {
-            topoFilter: [TopoFilter.none],
-        };
-    }
-    /**
-     * Dispose of event listeners and clean up resources.
-     */
-    dispose() {
-        if (this.domElement) {
-            this.domElement.removeEventListener("mousemove", this.onPointerMove);
-            this.domElement.removeEventListener("mouseup", this.onMouseKeyUp);
-            this.domElement.removeEventListener("mousedown", this.onMouseKeyDown);
-        }
-        // Keyboard listener is on document (canvas doesn't receive focus)
-        document.removeEventListener("keydown", this.onKeyDown);
-        this.raycastMode = false;
-        this.group = null;
-        this.domElement = null;
-        this.camera = null;
-    }
-    /**
-     * Initialize event listeners and enable raycast mode.
-     */
-    init() {
-        if (!this.domElement)
-            return;
-        this.domElement.addEventListener("mousemove", this.onPointerMove);
-        this.domElement.addEventListener("mouseup", this.onMouseKeyUp, false);
-        this.domElement.addEventListener("mousedown", this.onMouseKeyDown, false);
-        // Use document-level listener for keyboard (canvas doesn't receive focus)
-        document.addEventListener("keydown", this.onKeyDown, false);
-        this.raycastMode = true;
-    }
-    /**
-     * Retrieve all the valid intersected objects by a ray caster from the mouse.
-     */
-    getIntersectedObjs() {
-        if (!this.camera || !this.group)
-            return [];
-        this.raycaster.setFromCamera(this.mouse, this.camera.getCamera());
-        this.raycaster.params.Points.threshold =
-            this.threshold / this.camera.getZoom();
-        this.raycaster.params.Line2 = { threshold: 4 };
-        const objects = this.raycaster.intersectObjects([this.group], true);
-        const validObjs = [];
-        for (const obj of objects) {
-            const object = obj.object;
-            // Accept Mesh (faces), Points (vertices), and Line (edges)
-            const isValidType = isMesh(object) || isPoints(object) || isLine(object);
-            if (isValidType &&
-                object.visible &&
-                !Array.isArray(object.material) &&
-                object.material.visible) {
-                validObjs.push(obj);
-            }
-        }
-        return validObjs;
-    }
-    /**
-     * Retrieve all the valid intersected objects by a ray caster from the mouse.
-     * The objects are sorted by their distance from the ray. (The closest first)
-     */
-    getValidIntersectedObjs() {
-        const validObjs = [];
-        if (this.mouseMoved) {
-            const objects = this.getIntersectedObjs();
-            for (const object of objects) {
-                const obj = object.object;
-                // Accept Mesh (faces), Points (vertices), and Line (edges)
-                const isValidType = isMesh(obj) || isPoints(obj) || isLine(obj);
-                if (!isValidType)
-                    continue;
-                if (!obj.visible ||
-                    Array.isArray(obj.material) ||
-                    !obj.material.visible)
-                    continue;
-                const objectGroup = object.object.parent;
-                if (!isObjectGroup(objectGroup))
-                    continue;
-                if (!objectGroup.shapeInfo)
-                    continue; // clipping plane
-                const topo = objectGroup.shapeInfo.topo;
-                // Check if topology is acceptable given the topology filters
-                const isSolid = objectGroup.subtype === "solid";
-                const isSubShapeOfSolid = this.filters.topoFilter.includes(TopoFilter.solid) && isSolid;
-                // topo is a string from shapeInfo, check if it matches any filter
-                const topoMatchesFilter = this.filters.topoFilter.some((filter) => filter === topo);
-                const valid = isSubShapeOfSolid ||
-                    this.filters.topoFilter.includes(TopoFilter.none) ||
-                    topoMatchesFilter;
-                if (valid) {
-                    validObjs.push(object);
-                }
-            }
-        }
-        return validObjs;
-    }
-}
-
-/**
  * Type guard to check if a value is a number array of specific length.
  */
 function isNumberArray(value, length) {
@@ -93823,6 +96180,12 @@ class Panel {
     resetTable() {
         this.removeTable();
     }
+    /** Set the panel title (e.g. "Distance" or "Distance (mesh based)"). */
+    setHeader(text) {
+        const el = this.html.getElementsByClassName("tcv_measure_header")[0];
+        if (el)
+            el.textContent = text;
+    }
     /**
      * Register a callback for a specific event type
      */
@@ -93924,6 +96287,7 @@ class DistancePanel extends Panel {
         if (this.finished)
             return;
         this.resetTable();
+        this.setHeader(properties.meshBased === true ? "Distance (mesh based)" : "Distance");
         const table = document.createElement("table");
         table.classList.add("tcv_properties_table");
         const tbody = document.createElement("tbody");
@@ -93948,6 +96312,7 @@ class PropertiesPanel extends Panel {
         if (this.finished)
             return;
         this.resetTable();
+        this.setHeader(properties.meshBased === true ? "Properties (mesh based)" : "Properties");
         this.setSubHeader(`${properties["shape_type"] ?? ""} / ${properties["geom_type"] ?? ""}`);
         const table = document.createElement("table");
         table.classList.add("tcv_properties_table");
@@ -93960,22 +96325,24 @@ class PropertiesPanel extends Panel {
 }
 class FilterByDropDownMenu {
     /**
-     * Initialize a new filter drop down menu, it needs the raycast to update interactively the filter mode
+     * Initialize a new filter drop down menu.
      */
     constructor(display) {
         this.setValue = (topoType) => {
-            if (this.raycaster != null) {
-                this.elements.value.innerText = topoType;
-                const key = topoType.toLowerCase();
-                if (key === "none") {
-                    this.raycaster.filters.topoFilter = [TopoFilter.none];
-                }
-                else if (key in TopoFilter) {
-                    this.raycaster.filters.topoFilter = [
-                        TopoFilter[key],
-                    ];
-                }
+            this.elements.value.innerText = topoType;
+            const key = topoType.toLowerCase();
+            let filter = null;
+            if (key === "all" || key === "none") {
+                // "All" (label) = no filter → every topo eligible (vertex>edge>face priority).
+                filter = [TopoFilter.none];
             }
+            else if (key in TopoFilter) {
+                filter = [TopoFilter[key]];
+            }
+            if (filter === null)
+                return;
+            // The picker-readable filter source.
+            this.currentFilter = filter;
         };
         this.toggleDropdown = (ev) => {
             if (ev != null) {
@@ -93983,11 +96350,11 @@ class FilterByDropDownMenu {
             }
             if (this.elements.dropdown.classList.contains("tcv_filter_dropdown_active")) {
                 this.elements.dropdown.classList.remove("tcv_filter_dropdown_active");
-                this.elements.icon.innerText = "⏶";
+                this.elements.icon.innerText = "▾"; // ▾ closed (down-caret = expand)
             }
             else {
                 this.elements.dropdown.classList.add("tcv_filter_dropdown_active");
-                this.elements.icon.innerText = "⏷";
+                this.elements.icon.innerText = "▴"; // ▴ open
             }
         };
         this.closeDropdown = (ev) => {
@@ -94003,14 +96370,14 @@ class FilterByDropDownMenu {
             }
         };
         this.reset = () => {
-            this.setValue("None");
+            this.setValue("All");
         };
         this.keybindSelect = (e) => {
-            const validKeys = ["n", "v", "e", "f", "s", "Escape"];
+            const validKeys = ["a", "v", "e", "f", "s", "Escape"];
             if (validKeys.indexOf(e.key) === -1)
                 return;
-            if (e.key == "n")
-                this.setValue("None");
+            if (e.key == "a")
+                this.setValue("All");
             else if (e.key == "v")
                 this.setValue("Vertex");
             else if (e.key == "e")
@@ -94025,13 +96392,7 @@ class FilterByDropDownMenu {
         this.display = display;
         this.elements = display.filterDropdown;
         this.elements.container.style.display = "none";
-        this.raycaster = null;
-    }
-    /**
-     * Set the raycaster to update the filter mode
-     */
-    setRaycaster(raycaster) {
-        this.raycaster = raycaster;
+        this.currentFilter = [TopoFilter.none];
     }
     getOptionElements() {
         const opts = this.elements.options;
@@ -94253,9 +96614,9 @@ class Measurement {
          */
         this.handleSelection = (selectedObj, shift = false) => {
             this.shift = shift;
-            if (this.selectedShapes.find((o) => o.obj.name === selectedObj.obj.name) !==
-                undefined)
-                this.selectedShapes.splice(this.selectedShapes.indexOf(selectedObj), 1);
+            const existing = this.selectedShapes.findIndex((o) => o.equals(selectedObj));
+            if (existing !== -1)
+                this.selectedShapes.splice(existing, 1);
             else
                 this.selectedShapes.push(selectedObj);
             if (this.panel) {
@@ -94358,7 +96719,7 @@ class Measurement {
         this.measurementLineColor = 0x000000;
         this.connectingLineColor = 0x800080;
         this.coneLength = undefined;
-        this.debug = false;
+        this._responseGen = 0;
         this.panelDragData = { x: null, y: null, clicked: false };
         this.panel.registerCallback("mousedown", ((e) => {
             this.panelDragData.clicked = true;
@@ -94378,8 +96739,8 @@ class Measurement {
         this._hideMeasurement();
         this.contextEnabled = false;
         this.responseData = null;
-        for (const group of this.selectedShapes) {
-            group.obj.clearHighlights();
+        for (const shape of this.selectedShapes) {
+            shape.clearHighlights();
         }
         this.selectedShapes = [];
         document.removeEventListener("mouseup", this._mouseup);
@@ -94413,13 +96774,18 @@ class Measurement {
     /**
      * Wait for the backend to send the data needed to display the real BREP measurement.
      */
-    _waitResponse(resolve, _reject) {
+    _waitResponse(resolve, _reject, gen) {
+        // Abort if a newer measurement request superseded this one (e.g. panel drag
+        // re-runs `_updateMeasurement`); otherwise a deduped/unanswered request would
+        // leave this 100ms poll running forever and each drag-move would leak another.
+        if (gen !== this._responseGen)
+            return;
         if (this.responseData) {
             resolve(this.responseData);
         }
         else {
             setTimeout(() => {
-                this._waitResponse(resolve, _reject);
+                this._waitResponse(resolve, _reject, gen);
             }, 100);
         }
     }
@@ -94428,111 +96794,22 @@ class Measurement {
      * ask the backend for the real measurement data and display it.
      */
     _updateMeasurement() {
-        const getId = (shape) => {
-            if (shape.fromSolid) {
-                const solidId = shape.obj.name
-                    .replace(/\|faces.*$/, "")
-                    .replace(/\|edges.*$/, "")
-                    .replace(/\|vertices.*$/, "");
-                return solidId.replaceAll("|", "/");
-            }
-            else {
-                return shape.obj.name.replaceAll("|", "/");
-            }
-        };
-        const ids = this.selectedShapes.map(getId);
+        const ids = this.selectedShapes.map((shape) => shape.backendId);
         this.responseData = null;
-        if (this.debug) {
-            const delay = 50 + Math.floor(Math.random() * 200);
-            setTimeout(() => {
-                if (this.selectedShapes.length == 0)
-                    return;
-                // Helper to get bounding sphere center from first mesh child
-                const getBoundingSphereCenter = (obj) => {
-                    const firstChild = obj.children[0];
-                    if (firstChild && isMesh(firstChild)) {
-                        firstChild.geometry.computeBoundingSphere();
-                        return firstChild.geometry.boundingSphere?.center.clone() ?? null;
-                    }
-                    return null;
-                };
-                let responseData;
-                if (this instanceof DistanceMeasurement) {
-                    if (this.selectedShapes.length < 2)
-                        return;
-                    const obj1 = this.selectedShapes[0].obj;
-                    const obj2 = this.selectedShapes[1].obj;
-                    const center1 = getBoundingSphereCenter(obj1);
-                    const center2 = getBoundingSphereCenter(obj2);
-                    if (!center1 || !center2)
-                        return;
-                    this.point1 = obj1.localToWorld(center1);
-                    this.point2 = obj2.localToWorld(center2);
-                    responseData = {
-                        groups: [
-                            { distance: 2.345, info: "center" },
-                            {
-                                "point 1": this.point1.toArray(),
-                                "point 2": this.point2.toArray(),
-                            },
-                            {
-                                angle: 43.21,
-                                "reference 1": "Plane (Face)",
-                                "reference 2": "Plane (Face)",
-                            },
-                        ],
-                        type: "backend_response",
-                        refpoint1: this.point1.toArray(),
-                        refpoint2: this.point2.toArray(),
-                    };
-                }
-                else if (this instanceof PropertiesMeasurement) {
-                    const obj = this.selectedShapes[0].obj;
-                    const center = getBoundingSphereCenter(obj);
-                    if (!center)
-                        return;
-                    this.point1 = obj.localToWorld(center);
-                    responseData = {
-                        type: "backend_response",
-                        shape_type: "Edge",
-                        geom_type: "EllipseArc",
-                        refpoint: this.point1.toArray(),
-                        groups: [
-                            {
-                                center: this.point1.toArray(),
-                                "major radius": 0.4,
-                                "minor radius": 0.2,
-                            },
-                            { start: [2.4, -1, 0.0], end: [1.8, -0.8267949192431111, 0.0] },
-                            { length: 0.6868592404716374 },
-                            {
-                                bb: {
-                                    min: [1.8, -1, 0.0],
-                                    center: [2.1, -0.9, 0.0],
-                                    max: [2.4, -0.8, 0.0],
-                                    size: [0.56, 0.2, 0.0],
-                                },
-                            },
-                        ],
-                    };
-                }
-                else {
-                    return;
-                }
-                this.handleResponse(responseData);
-            }, delay);
-        }
-        else {
-            this.viewer?.checkChanges({
-                selectedShapeIDs: [...ids, this.shift],
-            });
-        }
+        // New request generation — invalidates any in-flight `_waitResponse` poll.
+        const gen = ++this._responseGen;
+        // Send the selected component ids. The viewer routes them to either the external
+        // (Python) backend via notifyCallback or the internal mesh backend, depending on
+        // `externalMeasurementBackend`; the response returns via `handleResponse`.
+        this.viewer?.checkChanges({
+            selectedShapeIDs: [...ids, this.shift],
+        });
         if (this.selectedShapes.length != this._getMaxObjSelected()) {
             this._hideMeasurement();
             return;
         }
         const p = new Promise((resolve, reject) => {
-            this._waitResponse(resolve, reject);
+            this._waitResponse(resolve, reject, gen);
         });
         p.then((_data) => {
             this._createPanel();
@@ -94545,10 +96822,7 @@ class Measurement {
         if (force || this.selectedShapes.length == this._getMaxObjSelected()) {
             const lastItem = this.selectedShapes.pop();
             if (lastItem) {
-                const objs = lastItem.objs();
-                for (const obj of objs) {
-                    obj.clearHighlights();
-                }
+                lastItem.clearHighlights();
             }
             this._updateMeasurement();
         }
@@ -94616,12 +96890,11 @@ function isPropertiesResponseData(data) {
     return data !== null && "refpoint" in data;
 }
 class DistanceMeasurement extends Measurement {
-    constructor(viewer, debug) {
+    constructor(viewer) {
         super(viewer, new DistancePanel(viewer.display));
         this.point1 = null;
         this.point2 = null;
         this.middlePoint = null;
-        this.debug = debug;
     }
     _createPanel() {
         if (isDistancePanel(this.panel) &&
@@ -94679,10 +96952,9 @@ class DistanceMeasurement extends Measurement {
     }
 }
 class PropertiesMeasurement extends Measurement {
-    constructor(viewer, debug) {
+    constructor(viewer) {
         super(viewer, new PropertiesPanel(viewer.display));
         this.middlePoint = null;
-        this.debug = debug;
     }
     _createPanel() {
         if (isPropertiesPanel(this.panel) &&
@@ -94743,41 +97015,30 @@ class SelectObject {
     }
     disableContext() {
         this.contextEnabled = false;
-        for (const group of this.selectedShapes) {
-            group.obj.clearHighlights();
+        for (const shape of this.selectedShapes) {
+            shape.clearHighlights();
         }
         this.selectedShapes = [];
     }
     _getMaxObjSelected() {
         return null;
     }
-    _getIndex(path) {
-        const object = path.split("|");
-        const name = object[object.length - 1];
+    /** Numeric sub-index from a leaf name like "faces_3" → "3". */
+    _getIndex(name) {
         return name.split("_")[1];
     }
-    _includes(path) {
-        for (const shape of this.selectedShapes) {
-            if (path === shape.obj.name) {
-                return true;
-            }
-        }
-        return false;
+    _includes(shape) {
+        return this.selectedShapes.some((s) => s.equals(shape));
     }
     notify() {
-        const indices = [];
-        for (const shape of this.selectedShapes) {
-            const path = shape.obj.name;
-            indices.push(this._getIndex(path));
-        }
+        const indices = this.selectedShapes.map((s) => this._getIndex(s.name));
         this.viewer.checkChanges({ selected: indices }, true);
     }
     handleSelection(selectedObj) {
         if (!selectedObj)
             return;
-        const path = selectedObj.obj.name;
-        if (this._includes(path)) {
-            this.selectedShapes = this.selectedShapes.filter((p) => p.obj.name !== path);
+        if (this._includes(selectedObj)) {
+            this.selectedShapes = this.selectedShapes.filter((s) => !s.equals(selectedObj));
         }
         else {
             this.selectedShapes.push(selectedObj);
@@ -94786,10 +97047,7 @@ class SelectObject {
     }
     _removeLastSelectedObj(shape) {
         if (shape) {
-            const objs = shape.objs();
-            for (const obj of objs) {
-                obj.clearHighlights();
-            }
+            shape.clearHighlights();
         }
         this.notify();
     }
@@ -94823,10 +97081,10 @@ const ToolTypes = {
     SELECT: "SelectObjects",
 };
 class Tools {
-    constructor(viewer, debug) {
+    constructor(viewer) {
         this.viewer = viewer;
-        this.distanceMeasurement = new DistanceMeasurement(viewer, debug);
-        this.propertiesMeasurement = new PropertiesMeasurement(viewer, debug);
+        this.distanceMeasurement = new DistanceMeasurement(viewer);
+        this.propertiesMeasurement = new PropertiesMeasurement(viewer);
         this.selectObject = new SelectObject(viewer);
         this.enabledTool = null;
     }
@@ -94855,7 +97113,9 @@ class Tools {
     }
     disable() {
         if (this.enabledTool) {
-            this.viewer.display.shapeFilterDropDownMenu.reset();
+            // NOTE: the topo filter is NOT reset here — it is a tool-independent control
+            // (hover preselection is always-on for B-rep), so a user's choice persists
+            // across tool toggles. It resets to "All" only on a new model (render()).
             this._disable();
         }
     }
@@ -94893,7 +97153,7 @@ class Tools {
         }
     }
     /**
-     * Handle selected object from raycaster.
+     * Handle a selected object from the picker.
      */
     handleSelectedObj(selectedObj, isNewObject, shift) {
         if (this.distanceMeasurement.contextEnabled) {
@@ -94922,6 +97182,28 @@ class Tools {
         }
         else if (this.selectObject.contextEnabled) {
             this.selectObject.removeLastSelectedObj(true);
+        }
+    }
+    /**
+     * Compute and dispatch a measurement response from the internal mesh backend for the
+     * active measure tool. `payload` is `[...selectedPaths, shift]` (the same array
+     * measure sends to the Python backend): Distance = 2 paths + shift, Properties = 1
+     * path + shift. No-op for any other tool / shape count.
+     */
+    answerMeasurement(payload) {
+        if (!Array.isArray(payload))
+            return;
+        let response = null;
+        if (this.enabledTool === ToolTypes.DISTANCE && payload.length === 3) {
+            response = this.viewer.meshBackend.distance(String(payload[0]), String(payload[1]), payload[2] === true);
+        }
+        else if (this.enabledTool === ToolTypes.PROPERTIES &&
+            payload.length === 2) {
+            // payload = [path, shift]
+            response = this.viewer.meshBackend.properties(String(payload[0]));
+        }
+        if (response !== null) {
+            this.viewer.handleBackendResponse(response);
         }
     }
     /**
@@ -94962,7 +97244,439 @@ class Tools {
     }
 }
 
-const version = "4.3.9";
+const version = "5.0.0";
+
+/**
+ * `PickedComponent` over a GPU id-pick result. Drives the shader
+ * `HighlightController` by `componentId` (faces of a solid via `*Solid`), with no
+ * per-component `ObjectGroup` and no exploded graph.
+ */
+class IdPicked {
+    constructor(info, fromSolid, point, highlightCtl) {
+        this.info = info;
+        this.fromSolid = fromSolid;
+        this.point = point;
+        this.highlightCtl = highlightCtl;
+    }
+    /** Whether to act on the whole solid (faces) rather than the single component. */
+    get asSolid() {
+        return this.fromSolid && this.info.solidPath !== null;
+    }
+    get backendId() {
+        return this.asSolid ? this.info.solidPath : this.info.path;
+    }
+    get name() {
+        return this.info.name;
+    }
+    get topo() {
+        return this.info.topo;
+    }
+    highlight(asHover) {
+        if (!asHover)
+            return; // selection is driven via toggleSelection()
+        if (this.asSolid)
+            this.highlightCtl.setHoverSolid(this.info.solidPath);
+        else
+            this.highlightCtl.setHover(this.info.id);
+    }
+    unhighlight(keepSelected) {
+        // hover release: clear hover (the controller tracks a single hover target);
+        // SELECTED is untouched by setHover, so it is preserved.
+        this.highlightCtl.setHover(null);
+        if (!keepSelected)
+            this._setSelected(false);
+    }
+    toggleSelection() {
+        const selected = this.asSolid
+            ? this.highlightCtl.isSolidSelected(this.info.solidPath)
+            : this.highlightCtl.isSelected(this.info.id);
+        this._setSelected(!selected);
+    }
+    clearHighlights() {
+        this.highlightCtl.setHover(null);
+        this._setSelected(false);
+    }
+    _setSelected(flag) {
+        if (this.asSolid)
+            this.highlightCtl.selectSolid(this.info.solidPath, flag);
+        else
+            this.highlightCtl.setSelected(this.info.id, flag);
+    }
+    equals(other) {
+        if (!(other instanceof IdPicked))
+            return false;
+        if (this.asSolid || other.asSolid) {
+            return this.info.solidPath === other.info.solidPath && this.asSolid === other.asSolid;
+        }
+        return this.info.id === other.info.id;
+    }
+}
+
+/**
+ * Owns all pointer-driven picking on the compact graph: hover preselection
+ * (highlight + status line), left-click selection commit, right-click/key removal,
+ * and double-click pick. Hover proposes the component under the cursor
+ * ({@link lastObject}); a left-click commits it ({@link lastSelection}) — one state
+ * machine, so both fields live here.
+ *
+ * Listener lifecycle: hover (pointermove/leave) is always-on and added at
+ * construction; selection (mousedown/mouseup + document keydown) is tool-scoped via
+ * {@link setSelectionInput}; double-click via {@link setPickHandler}. {@link dispose}
+ * tears them all down.
+ */
+class PickingController {
+    constructor(host) {
+        /** Component under the cursor (hover); committed on left-click. */
+        this.lastObject = null;
+        /** Last committed selection. */
+        this.lastSelection = null;
+        // Cursor position (client px) from the independent pointermove listener.
+        this.idHoverClientX = 0;
+        this.idHoverClientY = 0;
+        this.idHoverInside = false;
+        this.idHoverRenderQueued = false;
+        /** Per-component hover status text (fixed per mesh; cleared on reload / z-scale). */
+        this.hoverStatusCache = new Map();
+        // Selection input. `selectDownPosition` is the camera position at mousedown,
+        // distinguishing a click from an orbit drag (fire only if the camera did not move).
+        this.selectionInputActive = false;
+        this.selectDownPosition = null;
+        this.pickHandlerActive = false;
+        // --- Hover preselection ---
+        /** Record the cursor position over the canvas. */
+        this.onIdHoverMove = (e) => {
+            this.idHoverClientX = e.clientX;
+            this.idHoverClientY = e.clientY;
+            this.idHoverInside = true;
+            // Always-on hover: with no animation loop running (no active tool), the viewer
+            // only re-renders on camera change, so a bare mouse-move wouldn't update the
+            // preselection. Drive a render here, throttled to one per frame. During a tool the
+            // RAF loop already pumps update(), so skip then.
+            if (this.hoverPreselectActive() &&
+                this.host.ready &&
+                !this.host.hasAnimationLoop &&
+                !this.idHoverRenderQueued &&
+                !this.host.rendered.controls.isInteracting() // during a drag the controls listener renders
+            ) {
+                this.idHoverRenderQueued = true;
+                requestAnimationFrame(() => {
+                    this.idHoverRenderQueued = false;
+                    // updateMarker=true: every render clears the frame, so the orientation marker
+                    // must be redrawn or it vanishes on the first hover render. notify=false: a
+                    // hover changes no state.
+                    if (this.host.ready && !this.host.hasAnimationLoop)
+                        this.host.update(true, false);
+                });
+            }
+        };
+        /** Cursor left the canvas → clear any hover highlight. */
+        this.onIdHoverLeave = () => {
+            this.idHoverInside = false;
+            // The always-on leave listener outlives clear() (only dispose() removes it),
+            // and `host.rendered` THROWS when not rendered (optional chaining can't catch a
+            // throwing getter), so guard on `ready` first.
+            if (!this.host.ready)
+                return;
+            this.host.rendered.nestedGroup?.highlight?.setHover(null);
+        };
+        // --- Selection state ---
+        this.clearSelection = () => {
+            this.host.rendered.nestedGroup.clearSelection();
+            this.host.cadTools.handleResetSelection();
+            this.lastObject = null;
+            this.lastSelection = null;
+        };
+        // Record the camera position at mousedown for LEFT/RIGHT (used at mouseup to
+        // distinguish a click from an orbit drag).
+        this.onSelectMouseDown = (e) => {
+            if (e.button === MOUSE.LEFT || e.button === MOUSE.RIGHT) {
+                this.selectDownPosition = this.host.rendered.camera.getPosition().clone();
+            }
+        };
+        // On mouseup, fire only if the camera did not move (a click, not an orbit drag).
+        // LEFT → commit the hovered object; RIGHT → remove the last selection.
+        this.onSelectMouseUp = (e) => {
+            if (this.selectDownPosition == null)
+                return;
+            const camera = this.host.rendered.camera;
+            if (e.button === MOUSE.LEFT) {
+                if (this.selectDownPosition.distanceTo(camera.getPosition()) < 1e-6) {
+                    this.commitSelection(KeyMapper.get(e, "shift"));
+                }
+            }
+            else if (e.button === MOUSE.RIGHT) {
+                if (this.selectDownPosition.distanceTo(camera.getPosition()) < 1e-6) {
+                    this.removeLastSelected();
+                }
+            }
+        };
+        // Escape → clear selection; Backspace → remove last selection.
+        this.onSelectKeyDown = (e) => {
+            if (e.key === "Escape") {
+                this.clearSelection();
+            }
+            else if (e.key === "Backspace") {
+                this.removeLastSelected();
+            }
+        };
+        /**
+         * Double-click pick via the GPU id picker: `idPicker.pickAt` resolves the component
+         * under the cursor, the registry gives its owning tree-leaf path ({@link leafPath}),
+         * and the readback world-space `point` feeds `handlePick` (the `shift && meta` camera
+         * target, with a bbox-center fallback when `point` is null). No topo filter: a
+         * double-click selects whatever is under the cursor and resolves it to its leaf.
+         */
+        this.onDoubleClick = (e) => {
+            if (this.host.idPicker === null)
+                return;
+            const meta = KeyMapper.get(e, "meta");
+            const shift = KeyMapper.get(e, "shift");
+            const alt = KeyMapper.get(e, "alt");
+            // Studio is a presentation mode: only the modifier-driven actions (meta = hide,
+            // shift = isolate/recenter) stay live there. A plain (or alt-only) double-click,
+            // which would pop a bounding box + tree highlight, is suppressed as analysis clutter.
+            if (this.host.studioActive && !meta && !shift)
+                return;
+            const rect = this.host.renderer.domElement.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            if (x < 0 || y < 0 || x > rect.width || y > rect.height)
+                return;
+            const hit = this.host.idPicker.pickAt(x, y);
+            // A hidden solid's edge/vertex pick layers stay active — gate on visibility so a
+            // hidden component cannot be double-click picked (matches hover/select).
+            if (hit === null || !this.pickVisible(hit.info)) {
+                // Nothing visible under the cursor: a meta-double-click on empty space is the
+                // "show last hidden" gesture (mirror of meta-double-click-on-object = hide).
+                if (meta && !shift)
+                    this.host.showLastHidden();
+                return;
+            }
+            const leaf = leafPath(hit.info);
+            const slash = leaf.lastIndexOf("/");
+            if (slash < 0)
+                return;
+            this.host.handlePick(leaf.slice(0, slash), leaf.slice(slash + 1), meta, shift, alt, hit.point, null, false);
+        };
+        this.host = host;
+        // Always-on hover tracking (independent of any tool).
+        this.host.renderer.domElement.addEventListener("pointermove", this.onIdHoverMove);
+        this.host.renderer.domElement.addEventListener("pointerleave", this.onIdHoverLeave);
+    }
+    /** Remove every listener this controller owns. */
+    dispose() {
+        this.host.renderer.domElement.removeEventListener("pointermove", this.onIdHoverMove);
+        this.host.renderer.domElement.removeEventListener("pointerleave", this.onIdHoverLeave);
+        this.setSelectionInput(false);
+        this.setPickHandler(false);
+    }
+    /**
+     * Whether hover preselection (highlight + status line) is active. Disabled for GDS:
+     * dense, stacked, instance-unrolled layout data where per-pixel hover flickers
+     * endlessly and the B-rep readout ("area ≈ …") is meaningless, so GDS is
+     * double-click-identify only. Also disabled in Studio (presentation) mode: hover
+     * tint/status is a CAD/analysis affordance, not wanted in Studio, and skipping it
+     * means the id buffer is never re-rendered for a bare mouse-move there.
+     */
+    hoverPreselectActive() {
+        return this.host.shapes?.format !== "GDS" && !this.host.studioActive;
+    }
+    /**
+     * Called once per render: drive hover preselection unless a model is GDS or the
+     * camera is being dragged.
+     */
+    handleHover() {
+        if (!this.hoverPreselectActive())
+            return;
+        if (this.host.rendered.controls.isInteracting())
+            return;
+        this.handleIdHover();
+    }
+    /**
+     * Hover via the GPU id picker on the compact graph: resolve the component under the
+     * cursor and drive the shader `HighlightController`. Sets {@link lastObject}
+     * (committed on left-click by {@link commitSelection} when a tool is active).
+     */
+    handleIdHover() {
+        const highlight = this.host.rendered?.nestedGroup?.highlight ?? null;
+        if (this.host.idPicker === null || highlight === null)
+            return;
+        // Clear hover (keeping any selection), the status line, and the hover target.
+        const release = () => {
+            this.releaseLastSelected();
+            this.lastObject = null;
+            this.host.display.setStatusLine("");
+        };
+        if (!this.idHoverInside) {
+            release();
+            return;
+        }
+        const rect = this.host.renderer.domElement.getBoundingClientRect();
+        const x = this.idHoverClientX - rect.left;
+        const y = this.idHoverClientY - rect.top;
+        if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
+            release();
+            return;
+        }
+        const filter = this.host.display.shapeFilterDropDownMenu.currentFilter;
+        const fromSolid = filter.includes(TopoFilter.solid);
+        const topoFilter = pickerTopoFilter(filter);
+        const hit = this.host.idPicker.pickAt(x, y, topoFilter === undefined ? {} : { topoFilter });
+        // The vertex/edge pick layers stay active even when the owning solid is hidden
+        // (visibility lives on the mesh material, not the pick layer), so gate the pick on
+        // visibility — otherwise a hidden component could be hovered AND selected.
+        if (hit === null || !this.pickVisible(hit.info)) {
+            release();
+            return;
+        }
+        const picked = new IdPicked(hit.info, fromSolid, hit.point, highlight);
+        if (!picked.equals(this.lastObject)) {
+            this.releaseLastSelected();
+            picked.highlight(true);
+            // committed on left-click by commitSelection (toggleSelection)
+            this.lastObject = picked;
+            // Cache only the COORD-FREE texts (face `area`, solid `counts`+`vol`): these are
+            // invariant under rigid motion (explode/animation), so they never go stale from a
+            // part moving — only z-scale (changes area/volume) + model reload clear the cache.
+            // Edge/vertex texts carry WORLD-space coords, so recompute them live each time the
+            // hovered component changes (correct after explode/animation without invalidation).
+            const cacheable = fromSolid || hit.info.topo === "face";
+            const provider = this.host.rendered.nestedGroup.meshGeometry;
+            let text;
+            if (cacheable) {
+                const key = fromSolid && hit.info.solidPath !== null
+                    ? `S:${hit.info.solidPath}`
+                    : hit.info.path;
+                const cached = this.hoverStatusCache.get(key);
+                if (cached !== undefined) {
+                    text = cached;
+                }
+                else {
+                    text = hoverStatusText(hit.info, fromSolid, provider);
+                    this.hoverStatusCache.set(key, text);
+                }
+            }
+            else {
+                text = hoverStatusText(hit.info, fromSolid, provider);
+            }
+            this.host.display.setStatusLine(text);
+        }
+    }
+    /** Drop the cached hover texts (e.g. on z-scale change — world lengths change). */
+    invalidateHoverCache() {
+        this.hoverStatusCache.clear();
+    }
+    /**
+     * Drop any lingering hover highlight + status line (keeping the committed selection).
+     * Called when entering Studio mode: hover preselection is disabled there, so the
+     * per-render {@link handleHover} no longer runs its own release and a stale tint/status
+     * from CAD mode would otherwise persist.
+     */
+    clearHover() {
+        this.releaseLastSelected();
+        this.lastObject = null;
+        if (this.host.ready)
+            this.host.rendered.nestedGroup?.highlight?.setHover(null);
+        this.host.display.setStatusLine("");
+    }
+    /**
+     * Whether the component a pick resolved to is currently visible — used to drop picks
+     * of hidden geometry. Visibility is the owning group's material `visible` flag
+     * (faces for solids/standalone faces; edge/vertex materials for standalone leaves).
+     */
+    pickVisible(info) {
+        const ng = this.host.rendered.nestedGroup;
+        const ownerPath = leafPath(info);
+        const g = ng.groups[ownerPath];
+        if (!(g instanceof ObjectGroup))
+            return true; // unknown owner → don't block
+        const vis = (m) => m == null ? false : Array.isArray(m) ? m.some((x) => x.visible) : m.visible;
+        if (info.topo === "vertex") {
+            // A pick-only corner cloud (solid OR standalone face/edge) has no visual of its own
+            // → follow the owner's faces/edges. A standalone vertex node renders its own points.
+            // Gate on `pickVertices`, not `solidPath`: a standalone face/edge corner has a null
+            // solidPath yet still lives on `pickVertices` (never on `vertices`).
+            if (g.pickVertices !== null) {
+                return vis(g.front?.material) || vis(g.edgeMaterial);
+            }
+            return vis(g.vertices?.material);
+        }
+        if (info.topo === "edge") {
+            return vis(g.edgeMaterial) || vis(g.front?.material);
+        }
+        return vis(g.front?.material);
+    }
+    releaseLastSelected() {
+        if (this.lastObject != null) {
+            this.lastObject.unhighlight(true);
+        }
+    }
+    removeLastSelected() {
+        if (this.lastSelection != null) {
+            this.lastSelection.unhighlight(false);
+            this.host.rendered.treeview.toggleLabelColor(null, this.lastSelection.backendId);
+            this.lastSelection = null;
+            this.lastObject = null;
+        }
+        this.host.cadTools.handleRemoveLastSelection(true);
+    }
+    /** Drop selection state + hover cache + status line (on model reload). */
+    reset() {
+        this.lastObject = null;
+        this.lastSelection = null;
+        this.hoverStatusCache.clear();
+        this.host.display.setStatusLine("");
+    }
+    // --- Selection input (click + key, tool-scoped) ---
+    /**
+     * Add/remove the canvas mousedown+mouseup and document keydown listeners
+     * (idempotent, guarded on `selectionInputActive`). Hover maintains
+     * {@link lastObject}; these handlers commit it on left-click and handle the key +
+     * right-click actions.
+     */
+    setSelectionInput(flag) {
+        if (flag === this.selectionInputActive)
+            return;
+        const el = this.host.renderer.domElement;
+        if (flag) {
+            el.addEventListener("mousedown", this.onSelectMouseDown, false);
+            el.addEventListener("mouseup", this.onSelectMouseUp, false);
+            // Keyboard listener is on document (canvas doesn't receive focus).
+            document.addEventListener("keydown", this.onSelectKeyDown, false);
+            this.selectionInputActive = true;
+        }
+        else {
+            el.removeEventListener("mousedown", this.onSelectMouseDown);
+            el.removeEventListener("mouseup", this.onSelectMouseUp);
+            document.removeEventListener("keydown", this.onSelectKeyDown);
+            this.selectDownPosition = null;
+            this.selectionInputActive = false;
+        }
+    }
+    // Commit the currently-hovered object as a selection.
+    commitSelection(shift) {
+        if (this.lastObject == null)
+            return;
+        // one object for a selected vertex, edge and face and multiple faces for a solid
+        this.lastObject.toggleSelection();
+        this.host.cadTools.handleSelectedObj(this.lastObject, !this.lastObject.equals(this.lastSelection), shift);
+        this.lastSelection = this.lastObject;
+    }
+    // --- Double-click pick ---
+    setPickHandler(flag) {
+        if (flag === this.pickHandlerActive)
+            return;
+        const el = this.host.renderer.domElement;
+        if (flag) {
+            el.addEventListener("dblclick", this.onDoubleClick, false);
+            this.pickHandlerActive = true;
+        }
+        else {
+            el.removeEventListener("dblclick", this.onDoubleClick, false);
+            this.pickHandlerActive = false;
+        }
+    }
+}
 
 /**
  * Clean room environment for Studio mode PMREM generation.
@@ -95581,8 +98295,8 @@ class HDRLoader extends DataTextureLoader {
  *
  * Analyzes equirectangular HDR pixel data to find dominant light sources
  * (softboxes in studio HDRs, sun in outdoor HDRs). Returns direction,
- * intensity, and color for up to 2 lights, used to create shadow-casting
- * DirectionalLights in Studio mode.
+ * intensity, and color for up to MAX_LIGHTS (currently 1), used to create the
+ * shadow-casting DirectionalLight in Studio mode.
  *
  * Algorithm: downsample to 128x64 luminance grid → threshold at 10x median
  * → flood-fill cluster → convert centroids to 3D direction vectors.
@@ -95629,7 +98343,7 @@ function halfToFloat(h) {
  * @param data - Raw pixel data (Uint16Array for HalfFloat, or Float32Array)
  * @param width - HDR image width in pixels
  * @param height - HDR image height in pixels
- * @returns Detection result with up to 2 lights
+ * @returns Detection result with up to MAX_LIGHTS (currently 1) lights
  */
 function detectDominantLights(data, width, height) {
     const isHalf = data instanceof Uint16Array;
@@ -104055,7 +106769,7 @@ const $05f6997e4b65da14$export$ed4ee5d1e55474a5 = {
  * Wraps the pmndrs EffectComposer to provide:
  * - Scene rendering (RenderPass)
  * - Screen-space ambient occlusion (N8AOPostPass)
- * - Screen-space shadow mask (BasicShadowMap + KawaseBlurPass)
+ * - Screen-space shadow mask (PCFShadowMap + KawaseBlurPass)
  * - Tone mapping + sRGB output + antialiasing (ToneMappingEffect + SMAAEffect)
  *
  * Tone mapping is handled by the postprocessing ToneMappingEffect, which uses
@@ -104069,7 +106783,7 @@ const $05f6997e4b65da14$export$ed4ee5d1e55474a5 = {
  * transparent, and the EffectPass alpha-blends its output onto a pre-cleared
  * canvas that already has the correct background color.
  *
- * Shadow mask: BasicShadowMap produces sharp shadow boundaries at 4096×4096.
+ * Shadow mask: PCFShadowMap produces sharp shadow boundaries at 4096×4096.
  * A half-resolution ShadowMaterial override pass captures the mask, which is
  * then blurred via KawaseBlurPass and composited by ShadowMaskEffect before
  * tone mapping. The floor keeps its own ShadowMaterial reading the shadow map
@@ -104235,19 +106949,22 @@ class StudioComposer {
      */
     setBackgroundProtect(color) {
         this._bgProtectColor = color;
+        // postprocessing's ClearPass supports clear overrides at runtime; the shipped
+        // types are stricter than the runtime, so narrow to the fields we set.
+        const clearPass = this._renderPass.clearPass;
         if (color) {
             this._renderPass.ignoreBackground = true;
             // Force the ClearPass to clear the FBO with transparent black
-            this._renderPass.clearPass.overrideClearColor = new Color(0, 0, 0);
-            this._renderPass.clearPass.overrideClearAlpha = 0;
+            clearPass.overrideClearColor = new Color(0, 0, 0);
+            clearPass.overrideClearAlpha = 0;
             // Alpha-blend the final output onto the pre-cleared canvas
             this._effectPass.fullscreenMaterial.blending = NormalBlending;
             this._effectPass.fullscreenMaterial.transparent = true;
         }
         else {
             this._renderPass.ignoreBackground = false;
-            this._renderPass.clearPass.overrideClearColor = null;
-            this._renderPass.clearPass.overrideClearAlpha = -1;
+            clearPass.overrideClearColor = null;
+            clearPass.overrideClearAlpha = -1;
             // Opaque overwrite (default postprocessing behavior)
             this._effectPass.fullscreenMaterial.blending = NoBlending;
             this._effectPass.fullscreenMaterial.transparent = false;
@@ -104481,6 +107198,20 @@ class StudioComposer {
         this._savedIntensities.clear();
         this._savedVisibility.clear();
         try {
+            // Non-surface renderables (Points / Lines) are NOT shadow receivers, but the
+            // override ShadowMaterial replaces their material — bypassing any in-shader
+            // cull (e.g. the per-component highlight Points cloud culls unflagged points
+            // via `gl_PointSize=0` + `discard`). Left visible they render as a cloud of
+            // vertex dots into the mask, which the blur smears into shadow blobs that
+            // reproject every frame as the camera moves → the studio "shadow flicker".
+            // Hide them for the mask render (restored via `_savedVisibility` below).
+            this._scene.traverse((obj) => {
+                if ((obj instanceof Points || obj instanceof Line) &&
+                    obj.visible) {
+                    this._savedVisibility.set(obj, obj.visible);
+                    obj.visible = false;
+                }
+            });
             if (mode === "objects") {
                 // Hide floor, show objects with receiveShadow=true
                 if (floor)
@@ -104526,10 +107257,10 @@ class StudioComposer {
                     mesh.receiveShadow = wasReceiving;
                 }
             }
-            else {
-                for (const [obj, wasVisible] of this._savedVisibility) {
-                    obj.visible = wasVisible;
-                }
+            // Restore visibility for everything hidden above: Points/Lines (both modes)
+            // and, in "floor" mode, the temporarily hidden shadow-casting meshes.
+            for (const [obj, wasVisible] of this._savedVisibility) {
+                obj.visible = wasVisible;
             }
             this._scene.overrideMaterial = savedOverrideMaterial;
             this._scene.background = savedBackground;
@@ -104579,7 +107310,7 @@ const STATE_KEYS = new Set([
     "zscaleTool",
     "zebraTool",
     "studioTool",
-    "measurementDebug",
+    "externalMeasurementBackend",
     // Render
     "ambientIntensity",
     "directIntensity",
@@ -104884,26 +107615,35 @@ class ViewerState {
         // non-default tab is the target).
         const { tab: _tab, clipNormal0, clipNormal1, clipNormal2, position, quaternion, target, ...rest } = options;
         const converted = { ...rest };
-        // Convert tuple values to THREE objects
-        if (clipNormal0 !== undefined) {
+        // Convert tuple values to THREE objects. Guard with Array.isArray (not
+        // `!== undefined`): a `null` clip normal — which the embedder may send when it
+        // forwards no clip params — must be skipped, else `new THREE.Vector3(...null)`
+        // throws "Spread syntax requires ...iterable". null/undefined → leave state as-is.
+        if (Array.isArray(clipNormal0)) {
             converted.clipNormal0 = new Vector3(...clipNormal0);
         }
-        if (clipNormal1 !== undefined) {
+        if (Array.isArray(clipNormal1)) {
             converted.clipNormal1 = new Vector3(...clipNormal1);
         }
-        if (clipNormal2 !== undefined) {
+        if (Array.isArray(clipNormal2)) {
             converted.clipNormal2 = new Vector3(...clipNormal2);
         }
+        // Array.isArray (not truthiness): a non-array value would reach the spread and
+        // throw; null/undefined/non-array → reset the field to null (its "not set" state).
         if (position !== undefined) {
-            converted.position = position ? new Vector3(...position) : null;
+            converted.position = Array.isArray(position)
+                ? new Vector3(...position)
+                : null;
         }
         if (quaternion !== undefined) {
-            converted.quaternion = quaternion
+            converted.quaternion = Array.isArray(quaternion)
                 ? new Quaternion(...quaternion)
                 : null;
         }
         if (target !== undefined) {
-            converted.target = target ? new Vector3(...target) : null;
+            converted.target = Array.isArray(target)
+                ? new Vector3(...target)
+                : null;
         }
         this._update(converted, notify);
     }
@@ -105114,8 +107854,8 @@ ViewerState.DISPLAY_DEFAULTS = {
         ctrl: "ctrlKey",
         meta: "metaKey",
         alt: "altKey",
-        axes: "a",
-        axes0: "A",
+        axes: "A",
+        axes0: "0",
         grid: "g",
         gridxy: "G",
         perspective: "p",
@@ -105134,7 +107874,7 @@ ViewerState.DISPLAY_DEFAULTS = {
         zscale: "L",
         distance: "D",
         properties: "P",
-        select: "S",
+        select: "I",
         help: "h",
         play: " ",
         stop: "Escape",
@@ -105142,7 +107882,7 @@ ViewerState.DISPLAY_DEFAULTS = {
         clip: "C",
         material: "M",
         zebra: "Z",
-        studio: "s",
+        studio: "S",
     },
     newTreeBehavior: true,
     measureTools: true,
@@ -105151,7 +107891,7 @@ ViewerState.DISPLAY_DEFAULTS = {
     zscaleTool: false,
     zebraTool: true,
     studioTool: true,
-    measurementDebug: false,
+    externalMeasurementBackend: false,
 };
 /**
  * Default values for render configuration
@@ -105949,18 +108689,6 @@ function decodeInstancedFormat(data) {
 // IMPORTS
 // =============================================================================
 /**
- * Type guard to check if a tree node is a leaf (VisibilityState)
- */
-function isVisibilityState(node) {
-    return Array.isArray(node);
-}
-/**
- * Type guard to check if a tree node is a branch (ShapeTreeData)
- */
-function isShapeTreeData(node) {
-    return !Array.isArray(node);
-}
-/**
  * Type guard to check if an Object3D is an IndexedMesh.
  */
 function isIndexedMesh(obj) {
@@ -106034,6 +108762,10 @@ class Viewer {
     get envManager() {
         return this._studioManager.envManager;
     }
+    /** True while the Studio (presentation) tab owns the render. PickHost member. */
+    get studioActive() {
+        return this._studioManager.isActive;
+    }
     // ---------------------------------------------------------------------------
     // Constructor & Initialization
     // ---------------------------------------------------------------------------
@@ -106046,10 +108778,26 @@ class Viewer {
      * @param updateMarker - enforce to redraw orientation marker after every ui activity
      */
     constructor(display, options, notifyCallback, pinAsPngCallback = null, updateMarker = true) {
-        // Grid size from the previous render, used to decide whether the new
-        // geometry is "the same model" for clip-slider preservation.
-        // Survives clear() so reused viewers remember the previous geometry.
-        this._previousGridSize = 0;
+        // Hide-undo stack: each meta-double-click hide pushes the leaf id + its pre-hide
+        // state; meta-double-click on empty space pops and restores the last one. Lets a
+        // hidden object be brought back without the tree (e.g. in Studio, where it's hidden).
+        this._hiddenUndo = [];
+        // Snapshots used to mark the pick buffer stale only on an actual view/clip change.
+        // float64 snapshot of the camera world matrix (NOT Float32Array — storing the
+        // float64 `matrixWorld.elements` into a Float32Array truncates, making every
+        // next-frame comparison unequal and dirtying the pick buffer every frame).
+        this._lastPickCam = null;
+        this._lastPickProj = null;
+        this._lastClipSig = "";
+        // When true, update() is a no-op. Used to batch a run of state setters in render()
+        // (e.g. the clip-plane init) into a single paint instead of one paint per setter.
+        this._suppressUpdate = false;
+        // Zebra settings are pushed to the lazily-created ZebraTools ONCE per model load (on
+        // first activation), not on every tree↔zebra toggle. Reset to false in render().
+        this._zebraSettingsApplied = false;
+        // GPU id-based picker. Created/attached per render() once the scene + compact
+        // registry exist; drives hover, selection, measure and double-click pick.
+        this.idPicker = null;
         // ---------------------------------------------------------------------------
         // Render Loop & Scene Updates
         // ---------------------------------------------------------------------------
@@ -106084,6 +108832,13 @@ class Viewer {
             if (notify && this.notifyCallback && Object.keys(changed).length) {
                 this.notifyCallback(changed);
             }
+            // Internal measurement backend: when not using an external (Python) backend,
+            // answer a measurement selection locally from the mesh — mirroring the response
+            // the Python backend would send via `handleBackendResponse`.
+            if (Object.prototype.hasOwnProperty.call(changed, "selectedShapeIDs") &&
+                this.state.get("externalMeasurementBackend") !== true) {
+                this.cadTools.answerMeasurement(changes["selectedShapeIDs"]);
+            }
         };
         /**
          * Notifies the states by checking for changes and passing the states to the checkChanges method.
@@ -106099,6 +108854,10 @@ class Viewer {
          */
         this.update = (updateMarker, notify = true) => {
             if (!this.ready)
+                return;
+            // Batching guard: a run of state setters in render() suppresses their individual
+            // paints; the single paint that follows the batch renders the final state once.
+            if (this._suppressUpdate)
                 return;
             // Skip painting while Studio mode is mid-async-load: composer hasn't
             // been created yet, so a fall-through to renderer.render() would paint
@@ -106122,17 +108881,64 @@ class Viewer {
             if (!this._studioManager.hasComposer) {
                 this.renderer.clear();
             }
-            if (this.raycaster &&
-                this.raycaster.raycastMode &&
-                !this.rendered.controls.isInteracting()) {
-                this.handleRaycast();
-            }
+            // Hover preselection (always-on for non-GDS models; gated internally on the
+            // active drag and the GDS format).
+            this.pickingController.handleHover();
             this.rendered.gridHelper.update(this.rendered.camera.getZoom());
+            // Keep the id picker's clip state in sync, and mark its buffer stale ONLY on an
+            // actual view/clip change — NOT every frame — so a still model under a moving
+            // cursor triggers zero id-buffer re-renders (the hover read still happens each
+            // move, but reuses the cached buffer). The pick material matches what is visually
+            // clipped (live planes only when local clipping is on).
+            if (this.idPicker !== null) {
+                const cam = this.rendered.camera.getCamera();
+                cam.updateMatrixWorld();
+                // Detect any view change that moves where geometry projects on screen: both the
+                // world matrix (move/rotate/pan, perspective dolly) AND the projection matrix —
+                // the latter is essential because ORTHOGRAPHIC zoom (the default camera) changes
+                // only `camera.zoom`/projectionMatrix, leaving matrixWorld untouched. Missing it
+                // would leave the pick buffer stale at the pre-zoom scale.
+                const e = cam.matrixWorld.elements;
+                const pe = cam.projectionMatrix.elements;
+                let camChanged = this._lastPickCam === null || this._lastPickProj === null;
+                if (!camChanged) {
+                    for (let i = 0; i < 16; i++) {
+                        if (this._lastPickCam[i] !== e[i] ||
+                            this._lastPickProj[i] !== pe[i]) {
+                            camChanged = true;
+                            break;
+                        }
+                    }
+                }
+                this._lastPickCam = e.slice();
+                this._lastPickProj = pe.slice();
+                const planes = this.renderer.localClippingEnabled
+                    ? this.rendered.clipping.clipPlanes
+                    : null;
+                const intersection = this.state.get("clipIntersection") === true;
+                const clipSig = clipSignature(planes, intersection);
+                // A running animation/explode moves object transforms every frame (the cadence
+                // diffs the camera only), so re-render the pick buffer while it plays.
+                const animating = this.animation.clipAction?.isRunning() === true;
+                if (clipSig !== this._lastClipSig) {
+                    // clip changed → re-sync the pick material (also marks the buffer stale)
+                    this.idPicker.setClippingPlanes(planes, intersection);
+                    this._lastClipSig = clipSig;
+                }
+                else if (camChanged || animating) {
+                    this.idPicker.setDirty();
+                }
+            }
             this.renderer.setViewport(0, 0, this.state.get("cadWidth"), this.state.get("height"));
             // Env background: render HDRI to 2D render target (fixed-FOV bgCamera)
             if (this._studioManager.isEnvBackgroundActive) {
                 this._studioManager.updateEnvBackground(this.renderer, this.rendered.camera.getCamera());
             }
+            // Bound the clip stencil/cap draw work to the on-screen, large-enough solids
+            // (or gate it off entirely when the clip tab is inactive). Without this, a
+            // large assembly zoomed out renders ~12000 stencil/cap draws/frame → GPU
+            // watchdog → context loss on clip+rotate.
+            this.rendered.clipping.cull(this.rendered.camera.getCamera(), this.state.get("cadWidth"), this.state.get("height"), this.renderer.localClippingEnabled);
             // Render: use composer pipeline when available (AO + tone mapping + SMAA),
             // otherwise fall back to direct renderer.render().
             if (this._studioManager.hasComposer) {
@@ -106191,96 +108997,6 @@ class Viewer {
         // ---------------------------------------------------------------------------
         // Scene Rendering & Tree Management
         // ---------------------------------------------------------------------------
-        /**
-         * Synchronizes the states of two tree structures recursively.
-         *
-         * @param compactTree - The compact tree structure.
-         * @param expandedTree - The expanded tree structure.
-         * @param exploded - Whether rendering in exploded mode.
-         * @param path - The current path in the tree structure.
-         */
-        this.syncTreeStates = (compactTree, expandedTree, exploded, path) => {
-            // Leaf case: compactTree is a VisibilityState, expandedTree has type/label structure
-            if (isVisibilityState(compactTree)) {
-                // expandedTree must be ShapeTreeData at this point (type level: shapes/edges/vertices)
-                if (!isShapeTreeData(expandedTree))
-                    return;
-                const expandedData = expandedTree;
-                if (exploded) {
-                    // Apply compact state to all expanded children
-                    for (const typeKey in expandedData) {
-                        const typeNode = expandedData[typeKey];
-                        if (!isShapeTreeData(typeNode))
-                            continue;
-                        for (const labelKey in typeNode) {
-                            const leafState = typeNode[labelKey];
-                            if (!isVisibilityState(leafState))
-                                continue;
-                            const id = `${path}/${typeKey}/${labelKey}`;
-                            const objectGroup = this.expandedNestedGroup.groups[id];
-                            if (!isObjectGroup(objectGroup))
-                                continue;
-                            objectGroup.setShapeVisible(compactTree[0] === 1);
-                            // Re-apply clip-mode back visibility when re-showing — see
-                            // matching comment in setObject().
-                            if (compactTree[0] === 1 && this.expandedNestedGroup.backVisible) {
-                                objectGroup.setBackVisible(true);
-                            }
-                            objectGroup.setEdgesVisible(compactTree[1] === 1);
-                            // Sync state (unless disabled = 3)
-                            if (leafState[0] !== 3)
-                                leafState[0] = compactTree[0];
-                            if (leafState[1] !== 3)
-                                leafState[1] = compactTree[1];
-                        }
-                    }
-                }
-                else {
-                    // Compute visibility from expanded children
-                    const objectGroup = this.compactNestedGroup.groups[path];
-                    if (!isObjectGroup(objectGroup))
-                        return;
-                    let shapeVisible = false;
-                    let edgeVisible = false;
-                    for (const typeKey in expandedData) {
-                        const typeNode = expandedData[typeKey];
-                        if (!isShapeTreeData(typeNode))
-                            continue;
-                        for (const labelKey in typeNode) {
-                            const leafState = typeNode[labelKey];
-                            if (!isVisibilityState(leafState))
-                                continue;
-                            if (leafState[0] === 1)
-                                shapeVisible = true;
-                            if (leafState[1] === 1)
-                                edgeVisible = true;
-                        }
-                    }
-                    objectGroup.setShapeVisible(shapeVisible);
-                    // Re-apply clip-mode back visibility when re-showing — see
-                    // matching comment in setObject().
-                    if (shapeVisible && this.compactNestedGroup.backVisible) {
-                        objectGroup.setBackVisible(true);
-                    }
-                    objectGroup.setEdgesVisible(edgeVisible);
-                    // Sync compact state (unless disabled = 3)
-                    if (compactTree[0] !== 3)
-                        compactTree[0] = shapeVisible ? 1 : 0;
-                    if (compactTree[1] !== 3)
-                        compactTree[1] = edgeVisible ? 1 : 0;
-                }
-            }
-            else {
-                // Branch case: recurse into children
-                if (!isShapeTreeData(expandedTree))
-                    return;
-                const expandedData = expandedTree;
-                for (const key in compactTree) {
-                    const id = `${path}/${key}`;
-                    this.syncTreeStates(compactTree[key], expandedData[key], exploded, id);
-                }
-            }
-        };
         /**
          * Get the color of a node from its path
          * @param path - path of the CAD object
@@ -106415,6 +109131,11 @@ class Viewer {
                 else {
                     objectGroup.setEdgesVisible(state === 1);
                 }
+                // A visibility change alters what the pick pass would draw (three drops
+                // material.visible===false objects before overrideMaterial), so the id buffer
+                // must be re-rendered on the next pickAt — the camera/clip cadence check won't
+                // catch it.
+                this.idPicker?.setDirty();
                 if (notify) {
                     this.getState(path);
                 }
@@ -106569,6 +109290,7 @@ class Viewer {
                     this.display.showCenterInfo(center);
                 }
                 else if (meta) {
+                    this._recordHidden(id);
                     this.setState(id, [0, 0], nodeType ?? "leaf");
                 }
                 else if (alt) {
@@ -106589,137 +109311,30 @@ class Viewer {
             this.update(true);
         };
         /**
-         * Find the shape that was double clicked and send notification
-         * @param e - a DOM PointerEvent or MouseEvent
+         * Restore the most recently meta-double-click-hidden leaf (LIFO), skipping entries
+         * that no longer apply — removed objects, or ones already shown again via the tree.
+         * In Studio the restored leaf keeps edges off (presentation); in CAD its pre-hide
+         * edge state is restored. Bound to a meta-double-click on empty space, so a hidden
+         * object can be brought back without the tree (notably in Studio). @public
          */
-        this.pick = (e) => {
-            const raycaster = new Raycaster(this.rendered.camera, this.renderer.domElement, this.state.get("cadWidth"), this.state.get("height"), this.bb_max / 30, this.rendered.scene.children[0], () => { });
-            raycaster.init();
-            raycaster.onPointerMove(e);
-            const validObjs = raycaster.getIntersectedObjs();
-            if (validObjs.length === 0) {
+        this.showLastHidden = () => {
+            while (this._hiddenUndo.length > 0) {
+                const entry = this._hiddenUndo.pop();
+                if (entry === undefined)
+                    return;
+                if (this.rendered.nestedGroup.groups[entry.id] == null)
+                    continue; // removed
+                const cur = this.rendered.treeview.getState(entry.id);
+                if (cur != null && cur[0] === 1)
+                    continue; // already visible again
+                const showEdges = this._studioManager.isActive ? 0 : entry.state[1];
+                this.setState(entry.id, [1, showEdges], "leaf");
                 return;
             }
-            // Find first mesh intersection
-            let nearestMesh = null;
-            let nearestIntersection = null;
-            for (const obj of validObjs) {
-                if (obj.object instanceof Mesh) {
-                    nearestMesh = obj.object;
-                    nearestIntersection = obj;
-                    break;
-                }
-            }
-            if (nearestMesh == null || nearestIntersection == null) {
-                return;
-            }
-            const point = nearestIntersection.point;
-            const shapesFormat = this.shapes?.format;
-            const grandparent = nearestMesh.parent?.parent;
-            const nearest = {
-                path: grandparent ? grandparent.name.replaceAll("|", "/") : "",
-                name: nearestMesh.name,
-                boundingBox: shapesFormat === "GDS"
-                    ? new Box3(point.clone().subScalar(10), point.clone().addScalar(10))
-                    : nearestMesh.geometry.boundingBox,
-                boundingSphere: shapesFormat === "GDS"
-                    ? new Sphere(point, 1)
-                    : nearestMesh.geometry.boundingSphere,
-                objectGroup: nearestMesh.parent,
-            };
-            this.handlePick(nearest.path, nearest.name, KeyMapper.get(e, "meta"), KeyMapper.get(e, "shift"), KeyMapper.get(e, "alt"), nearestIntersection.point, null, false);
-            raycaster.dispose();
         };
-        // ---------------------------------------------------------------------------
-        // CAD Tools & Raycasting
-        // ---------------------------------------------------------------------------
+        /** Clear the current selection (and reset the select tool). */
         this.clearSelection = () => {
-            this.rendered.nestedGroup.clearSelection();
-            this.cadTools.handleResetSelection();
-        };
-        this._releaseLastSelected = () => {
-            if (this.lastObject != null) {
-                const objs = this.lastObject.objs();
-                for (const obj of objs) {
-                    obj.unhighlight(true);
-                }
-            }
-        };
-        this._removeLastSelected = () => {
-            if (this.lastSelection != null) {
-                const objs = this.lastSelection.objs();
-                for (const obj of objs) {
-                    obj.unhighlight(false);
-                    this.rendered.treeview.toggleLabelColor(null, obj.name.replaceAll(this.rendered.nestedGroup.delim, "/"));
-                }
-                this.lastSelection = null;
-                this.lastObject = null;
-            }
-            this.cadTools.handleRemoveLastSelection(true);
-        };
-        this.handleRaycast = () => {
-            const objects = this.raycaster.getValidIntersectedObjs();
-            if (objects.length > 0) {
-                // highlight hovered object(s)
-                for (const object of objects) {
-                    {
-                        const objectGroup = object.object.parent;
-                        if (!isObjectGroup(objectGroup))
-                            break;
-                        const name = objectGroup.name;
-                        const last_name = this.lastObject ? this.lastObject.obj.name : null;
-                        if (name !== last_name) {
-                            this._releaseLastSelected();
-                            const fromSolid = this.raycaster.filters.topoFilter.includes(TopoFilter.solid);
-                            // one object for a selected vertex, edge and face and multiple faces for a solid
-                            const pickedObj = new PickedObject(objectGroup, fromSolid);
-                            for (const obj of pickedObj.objs()) {
-                                obj.highlight(true);
-                            }
-                            // this object will be handled in handleRaycastEvent after a mouse event
-                            this.lastObject = pickedObj;
-                        }
-                        break;
-                    }
-                }
-            }
-            else {
-                // unhighlight hovered object(s)
-                if (this.lastObject != null) {
-                    this._releaseLastSelected();
-                    this.lastObject = null;
-                }
-            }
-        };
-        this.handleRaycastEvent = (event) => {
-            if (event.key) {
-                switch (event.key) {
-                    case "Escape":
-                        this.clearSelection();
-                        break;
-                    case "Backspace":
-                        this._removeLastSelected();
-                        break;
-                }
-            }
-            else {
-                switch (event.mouse) {
-                    case "left":
-                        if (this.lastObject != null) {
-                            const objs = this.lastObject.objs();
-                            // one object for a selected vertex, edge and face and multiple faces for a solid
-                            for (const obj of objs) {
-                                obj.toggleSelection();
-                            }
-                            this.cadTools.handleSelectedObj(this.lastObject, this.lastSelection?.obj.name !== this.lastObject.obj.name, event.shift ?? false);
-                            this.lastSelection = this.lastObject;
-                        }
-                        break;
-                    case "right":
-                        this._removeLastSelected();
-                        break;
-                }
-            }
+            this.pickingController.clearSelection();
         };
         /**
          * Handle a backend response sent by the backend
@@ -106947,6 +109562,21 @@ class Viewer {
         // Getters & Setters: Zebra Tool
         // ---------------------------------------------------------------------------
         this.enableZebraTool = (flag) => {
+            if (flag && !this._zebraSettingsApplied) {
+                // Zebra init is deferred from render() to the FIRST activation per model (avoids
+                // building a ZebraTool + CanvasTexture per ObjectGroup at load, when zebra is
+                // off). Push the current state settings to the lazily-created ZebraTools so any
+                // non-default settings (viewerOptions/API) are honored; their built-in defaults
+                // already match the state defaults. The live setZebra* setters keep them in sync
+                // afterwards, so this runs ONCE per model — not on every tree↔zebra toggle.
+                const ng = this.rendered.nestedGroup;
+                ng.setZebraCount(this.state.get("zebraCount"));
+                ng.setZebraOpacity(this.state.get("zebraOpacity"));
+                ng.setZebraDirection(this.state.get("zebraDirection"));
+                ng.setZebraColorScheme(this.state.get("zebraColorScheme"));
+                ng.setZebraMappingMode(this.state.get("zebraMappingMode"));
+                this._zebraSettingsApplied = true;
+            }
             this.rendered.nestedGroup.setZebra(flag);
             this.update(true, true);
             this.rendered.treeview.update();
@@ -107243,7 +109873,12 @@ class Viewer {
             return this.state.get("studioAOIntensity");
         };
         /** Enter Studio mode. Called by display.ts switchToTab(). @internal */
-        this.enterStudioMode = () => this._studioManager.enterStudioMode();
+        this.enterStudioMode = () => {
+            // Hover preselection is disabled in Studio; drop any lingering CAD-mode
+            // hover tint + status line so it doesn't persist into the presentation view.
+            this.pickingController.clearHover();
+            return this._studioManager.enterStudioMode();
+        };
         /** Leave Studio mode. Called by display.ts switchToTab(). @internal */
         this.leaveStudioMode = () => this._studioManager.leaveStudioMode();
         /** Reset Studio settings to defaults. @public */
@@ -107665,7 +110300,8 @@ class Viewer {
         this._stencilCSize = 0;
         this._treeNeedsRebuild = false;
         this._pendingDisposal = [];
-        this.cadTools = new Tools(this, options.measurementDebug ?? false);
+        this.cadTools = new Tools(this);
+        this.meshBackend = new MeshMeasureBackend(() => this.compactNestedGroup?.meshGeometry ?? null);
         this.ready = false;
         this.mixer = null;
         this.clipAction = null;
@@ -107703,28 +110339,22 @@ class Viewer {
         // Create studio manager (env, floor, composer created lazily inside)
         this.lastNotification = {};
         this.lastBbox = null;
-        // measure supporting exploded shapes and compact shapes
-        this.expandedTree = null;
         this.compactTree = null;
-        this.expandedNestedGroup = null;
         this.compactNestedGroup = null;
-        // If fromSolid is true, this means the selected object is from the solid
-        // This is the obj that has been picked but the actual selected obj is the solid
-        // Since we cannot directly pick a solid this is the solution
-        this.lastObject = null;
-        this.lastSelection = null;
         this.lastPosition = null;
         this.bboxNeedsUpdate = false;
         this.keepHighlight = false;
         this.shapes = null;
-        this.raycaster = null;
         // Deprecated properties
         this.clipNormal0 = null;
         this.clipNormal1 = null;
         this.clipNormal2 = null;
         this.keymap = null;
         this.info = null;
-        this.setPickHandler(true);
+        // All pointer-driven picking. Its constructor attaches the always-on hover
+        // listeners; double-click pick is on by default (off while a tool is active).
+        this.pickingController = new PickingController(this);
+        this.pickingController.setPickHandler(true);
         this.renderer.domElement.addEventListener("contextmenu", (e) => e.stopPropagation());
         this.display.setupUI(this, this.renderer.domElement);
         // Create studio manager (owns env, floor, composer, shadows, subscriptions)
@@ -107820,13 +110450,12 @@ class Viewer {
     }
     /**
      * Render the shapes of the CAD object.
-     * @param exploded - Whether to render the compact or exploded version
      * @param shapes - The Shapes object.
      * @returns A nested THREE.Group object and navigation tree.
      */
-    renderTessellatedShapes(exploded, shapes) {
+    renderTessellatedShapes(shapes) {
         const renderer = this.getShapeRenderer();
-        const result = renderer.render(exploded, shapes);
+        const result = renderer.render(shapes);
         // Update bbox if the renderer computed one
         if (renderer.bbox) {
             this.bbox = renderer.bbox;
@@ -107958,7 +110587,7 @@ class Viewer {
      * - WebGL renderer and context
      * - All Three.js objects (geometries, materials, textures)
      * - Event listeners
-     * - CAD tools and raycaster
+     * - CAD tools and id picker
      *
      * After calling dispose(), the viewer instance should not be used.
      *
@@ -107966,6 +110595,10 @@ class Viewer {
      */
     dispose() {
         this.clear();
+        // Remove all picking listeners (they hold a strong ref to this Viewer via the
+        // controller's arrow-field handlers; in external-canvas mode the caller owns the
+        // canvas, so not removing them would leak the disposed Viewer).
+        this.pickingController.dispose();
         // dispose studio resources (composer, floor, env, shadows — must be before renderer)
         this._studioManager.dispose();
         // dispose renderer
@@ -107997,10 +110630,6 @@ class Viewer {
         }
         this._pendingDisposal = [];
         this.keymap = null;
-        if (this.raycaster) {
-            this.raycaster.dispose();
-            this.raycaster = null;
-        }
     }
     /**
      * Clear the current CAD view without disposing the renderer.
@@ -108012,6 +110641,13 @@ class Viewer {
      */
     clear() {
         if (this._rendered) {
+            // Drop selection state + hover cache + status line — a PickedComponent may hold
+            // a HighlightController / ObjectGroup that this clear() disposes; a stale
+            // hover-release would otherwise touch a disposed controller on the next pick.
+            this.pickingController.reset();
+            this._hiddenUndo = [];
+            // Hide the topo filter (+ detach its shortcuts) for a clean cleared canvas.
+            this.display.shapeFilterDropDownMenu.show(false);
             // stop animation
             this.hasAnimationLoop = false;
             this.continueAnimation = false;
@@ -108061,16 +110697,22 @@ class Viewer {
             this.display.clearCadTree();
             // clear info
             deepDispose(this.info);
+            if (this.idPicker !== null) {
+                this.idPicker.dispose();
+                this.idPicker = null;
+            }
+            // Reset the pick-buffer dirty cadence so the next model's first frame can't
+            // skip a clip re-sync because its camera/clip signature happens to equal the
+            // previous model's (a fresh IdPicker starts with null clip planes).
+            this._lastClipSig = "";
+            this._lastPickCam = null;
+            this._lastPickProj = null;
             this._rendered = null;
             this.ready = false;
         }
         if (this.shapes != null) {
             // Shapes is data (not THREE.js objects), setting to null allows GC
             this.shapes = null;
-        }
-        if (this.expandedNestedGroup != null) {
-            deepDispose(this.expandedNestedGroup);
-            this.expandedNestedGroup = null;
         }
         if (this.compactNestedGroup != null) {
             deepDispose(this.compactNestedGroup);
@@ -108088,35 +110730,27 @@ class Viewer {
         this.renderOptions = null;
         this.tree = null;
         this.compactTree = null;
-        this.expandedTree = null;
     }
     /**
      * Build nestedGroup and treeview for initial render.
      * @param scene - The scene to add the group to
-     * @param expanded - whether to render the exploded or compact version
      * @returns The nestedGroup and treeview
      */
-    buildInitialGroup(scene, expanded) {
+    buildInitialGroup(scene) {
         const timer = new Timer$1("buildInitialGroup", this.state.get("timeit"));
         this.setRenderDefaults(this.renderOptions);
-        const result = this.renderTessellatedShapes(expanded, this.shapes);
+        const result = this.renderTessellatedShapes(this.shapes);
         const nestedGroup = result.group;
-        if (expanded) {
-            this.expandedNestedGroup = result.group;
-            this.expandedTree = result.tree;
-        }
-        else {
-            this.compactNestedGroup = result.group;
-            this.compactTree = result.tree;
-        }
+        this.compactNestedGroup = result.group;
+        this.compactTree = result.tree;
         // Configure the nested group
         nestedGroup.setTransparent(this.state.get("transparent"));
         nestedGroup.setBlackEdges(this.state.get("blackEdges"));
         nestedGroup.setMetalness(this.state.get("metalness"));
         nestedGroup.setRoughness(this.state.get("roughness"));
         nestedGroup.setPolygonOffset(2);
-        timer.split(`rendered${expanded ? " exploded" : " compact"} shapes`);
-        this.tree = expanded ? this.expandedTree : this.compactTree;
+        timer.split("rendered compact shapes");
+        this.tree = this.compactTree;
         scene.children[0] = nestedGroup.rootGroup;
         timer.split("added shapes to scene");
         if (!this.tree) {
@@ -108131,69 +110765,6 @@ class Viewer {
         timer.split("rendered tree");
         timer.stop();
         return { nestedGroup, treeview };
-    }
-    /**
-     * Toggle the two version of the NestedGroup.
-     * Must only be called after render() has completed.
-     * @param expanded - whether to render the exploded or compact version
-     */
-    toggleGroup(expanded) {
-        if (!this.rendered) {
-            throw new Error("toggleGroup called before render()");
-        }
-        const timer = new Timer$1("toggleGroup", this.state.get("timeit"));
-        const _config = (group) => {
-            group.setTransparent(this.state.get("transparent"));
-            group.setBlackEdges(this.state.get("blackEdges"));
-            group.setMetalness(this.state.get("metalness"));
-            group.setRoughness(this.state.get("roughness"));
-            group.setPolygonOffset(2);
-        };
-        let nestedGroup;
-        if ((this.compactNestedGroup == null && !expanded) ||
-            (this.expandedNestedGroup == null && expanded)) {
-            this.setRenderDefaults(this.renderOptions);
-            const result = this.renderTessellatedShapes(expanded, this.shapes);
-            nestedGroup = result.group;
-            if (expanded) {
-                this.expandedNestedGroup = result.group;
-                this.expandedTree = result.tree;
-            }
-            else {
-                this.compactNestedGroup = result.group;
-                this.compactTree = result.tree;
-            }
-            _config(nestedGroup);
-            timer.split(`rendered${expanded ? " exploded" : " compact"} shapes`);
-        }
-        else {
-            nestedGroup = expanded
-                ? this.expandedNestedGroup
-                : this.compactNestedGroup;
-            _config(nestedGroup);
-        }
-        // only sync if both trees exist
-        if (this.expandedTree) {
-            this.syncTreeStates(this.compactTree, this.expandedTree, expanded, "");
-        }
-        timer.split("synched tree states");
-        this.tree = expanded ? this.expandedTree : this.compactTree;
-        this.rendered.scene.children[0] = nestedGroup.rootGroup;
-        this.rendered.nestedGroup = nestedGroup;
-        timer.split("added shapes to scene");
-        deepDispose(this.rendered.treeview);
-        if (!this.tree) {
-            throw new Error("Tree not initialized");
-        }
-        const treeview = new TreeView(this.tree, this.display.cadTreeScrollContainer, this.setObject, this.handlePick, this.update, this.notifyStates, this.getNodeColor, this.state.get("theme"), this.state.get("newTreeBehavior"), false);
-        this.rendered.treeview = treeview;
-        this.display.clearCadTree();
-        const t = treeview.create();
-        timer.split("created tree");
-        this.display.addCadTree(t);
-        treeview.render();
-        timer.split("rendered tree");
-        timer.stop();
     }
     /**
      * Set the active sidebar tab.
@@ -108241,6 +110812,23 @@ class Viewer {
      * @public
      */
     render(shapes, renderOptions, viewerOptions) {
+        // A new model invalidates any active tool + its selection (they reference the
+        // outgoing scene), so disable it as the first step — independent of whether the
+        // client called clear() first. Idempotent: a no-op when no tool is active (e.g.
+        // clear() already ran → cadTools.disable() no-ops on a null enabledTool, and the
+        // activeTool guard skips setTool). The incremental addPart/updatePart/removePart
+        // API does NOT go through render(), so incremental edits keep their active tool.
+        if (this.cadTools) {
+            this.cadTools.disable();
+            const currentTool = this.state.get("activeTool");
+            if (currentTool != null) {
+                this.state.set("activeTool", null);
+                this.display.setTool(currentTool, false);
+            }
+        }
+        // New model: the old ObjectGroups (and their ZebraTools) are gone, so the
+        // once-per-model zebra settings push must run again on the next activation.
+        this._zebraSettingsApplied = false;
         // Decode instanced/compressed format if detected
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (isInstancedFormat(shapes)) {
@@ -108265,7 +110853,7 @@ class Viewer {
         //
         // add shapes and cad tree
         //
-        const { nestedGroup, treeview } = this.buildInitialGroup(scene, false);
+        const { nestedGroup, treeview } = this.buildInitialGroup(scene);
         timer.split("scene and tree done");
         if (!this.bbox) {
             this.bbox = nestedGroup.boundingBox();
@@ -108363,6 +110951,11 @@ class Viewer {
             ambientLight,
             directLight,
         };
+        // GPU id-based picker over the compact registry. Attached to the live scene +
+        // camera; sized to the canvas. Re-rendered lazily and clip-synced in update().
+        this.idPicker = new IdPicker(this.renderer, nestedGroup.registry);
+        this.idPicker.attach(scene, camera);
+        this.idPicker.setSize(this.state.get("cadWidth"), this.state.get("height"));
         // Now that rendered state exists, configure camera position
         if (viewerOptions.position == null && viewerOptions.quaternion == null) {
             this.presetCamera("iso", this.state.get("zoom"));
@@ -108387,28 +110980,21 @@ class Viewer {
         this.setDirectLight(this.state.get("directIntensity"));
         this.display.setSliderLimits(this.gridSize / 2);
         this.display.syncClipSlidersFromState();
-        // Compute clip slider values (used later after ready=true).
+        // Clip slider/normal values (applied later, after ready=true).
         //
-        // Three-tier policy:
-        //   1. Caller passed a value (viewerOptions.clipSliderN != null) → use
-        //      it. Caller intent always wins.
-        //   2. Same geometry as last render (gridSize unchanged) AND state has
-        //      a real value (≠ -1, the default sentinel) → reuse state. This
-        //      preserves the user's slider drag when re-rendering the same
-        //      model.
-        //   3. New geometry (or first render) → default to gridSize/2.
-        const gridSizeChanged = this._previousGridSize !== this.gridSize;
-        this._previousGridSize = this.gridSize;
-        const resolveSlider = (passed, stateValue) => {
-            if (passed != null)
-                return passed;
-            if (!gridSizeChanged && stateValue !== -1)
-                return stateValue;
-            return this.gridSize / 2;
-        };
-        const clipSlider0 = resolveSlider(viewerOptions.clipSlider0, this.state.get("clipSlider0"));
-        const clipSlider1 = resolveSlider(viewerOptions.clipSlider1, this.state.get("clipSlider1"));
-        const clipSlider2 = resolveSlider(viewerOptions.clipSlider2, this.state.get("clipSlider2"));
+        // The viewer is a PURE function of the input — a caller-provided value wins,
+        // and anything not provided resets to its default. ALL clip policy (the "same
+        // model → keep, new model → reset" decision, roundtrip persistence) lives in the
+        // embedder, which forwards the full clip state when it wants it kept (it has the
+        // viewer's current clip via status()). Per field:
+        //   - slider not provided        → gridSize/2 (fully open)
+        //   - normal not provided        → the default axis-aligned plane
+        //   - intersection/planes/caps   → false (handled in the setters below)
+        const mid = this.gridSize / 2;
+        const resolveSlider = (passed) => passed != null ? passed : mid;
+        const clipSlider0 = resolveSlider(viewerOptions.clipSlider0);
+        const clipSlider1 = resolveSlider(viewerOptions.clipSlider1);
+        const clipSlider2 = resolveSlider(viewerOptions.clipSlider2);
         nestedGroup.setClipPlanes(clipping.clipPlanes);
         this.setLocalClipping(false); // only allow clipping when Clipping tab is selected
         clipping.setVisible(false);
@@ -108429,32 +111015,41 @@ class Viewer {
             this.display.showToolsPanel(false);
             this.rendered.orientationMarker.setVisible(false);
         }
+        // New model: reset the topo filter to "All" and show it for B-rep. The filter is
+        // independent of the active tool (hover preselection is always-on for B-rep);
+        // updateShapeFilter gates visibility on the tools panel being open + non-GDS.
+        this.display.shapeFilterDropDownMenu.reset();
+        this.display.updateShapeFilter();
         // Apply clip settings AFTER ready=true (clip setters check this.ready).
         //
-        // Same three-tier policy as clipSlider above (caller wins → reuse state
-        // on same geometry → reset on new geometry). The default normals are
-        // the axis-aligned planes that match the Clipping subsystem's own
-        // DEFAULT_NORMALS.
+        // Pure resolve (same as the sliders): a caller-provided normal wins, otherwise
+        // the default axis-aligned plane (matching the Clipping subsystem's
+        // DEFAULT_NORMALS).
         //
         // Always passing a non-null normal means setClipNormal also handles the
         // slider write (it calls setClipSlider internally), so no separate
         // setClipSlider follow-up is needed here.
-        const resolveNormal = (passed, stateValue, defaultTuple) => {
-            if (passed != null)
-                return passed;
-            if (!gridSizeChanged)
-                return [stateValue.x, stateValue.y, stateValue.z];
-            return defaultTuple;
-        };
-        const clipNormal0 = resolveNormal(viewerOptions.clipNormal0, this.state.get("clipNormal0"), [-1, 0, 0]);
-        const clipNormal1 = resolveNormal(viewerOptions.clipNormal1, this.state.get("clipNormal1"), [0, -1, 0]);
-        const clipNormal2 = resolveNormal(viewerOptions.clipNormal2, this.state.get("clipNormal2"), [0, 0, -1]);
-        this.setClipNormal(0, clipNormal0, clipSlider0, true);
-        this.setClipNormal(1, clipNormal1, clipSlider1, true);
-        this.setClipNormal(2, clipNormal2, clipSlider2, true);
-        this.setClipIntersection(viewerOptions.clipIntersection ?? false, true);
-        this.setClipObjectColorCaps(viewerOptions.clipObjectColors ?? false, true);
-        this.setClipPlaneHelpers(viewerOptions.clipPlaneHelpers ?? false, true);
+        const resolveNormal = (passed, defaultTuple) => (Array.isArray(passed) ? passed : defaultTuple);
+        const clipNormal0 = resolveNormal(viewerOptions.clipNormal0, [-1, 0, 0]);
+        const clipNormal1 = resolveNormal(viewerOptions.clipNormal1, [0, -1, 0]);
+        const clipNormal2 = resolveNormal(viewerOptions.clipNormal2, [0, 0, -1]);
+        // Tier-1 clip-init batch: each of these setters assigns clip planes to ~5k
+        // materials (setting needsUpdate) and then paints. Suppress their individual
+        // paints — the state they set is identical regardless of paint count, and the
+        // initial paint below renders the final state once (processing needsUpdate a
+        // single time instead of ~6). Behavior-identical; only redundant paints removed.
+        this._suppressUpdate = true;
+        try {
+            this.setClipNormal(0, clipNormal0, clipSlider0, true);
+            this.setClipNormal(1, clipNormal1, clipSlider1, true);
+            this.setClipNormal(2, clipNormal2, clipSlider2, true);
+            this.setClipIntersection(viewerOptions.clipIntersection ?? false, true);
+            this.setClipObjectColorCaps(viewerOptions.clipObjectColors ?? false, true);
+            this.setClipPlaneHelpers(viewerOptions.clipPlaneHelpers ?? false, true);
+        }
+        finally {
+            this._suppressUpdate = false;
+        }
         this.display.showReadyMessage(version, this.state.get("control"));
         timer.split("show done");
         // Notify computed values and all config defaults
@@ -108495,13 +111090,16 @@ class Viewer {
             // user sees is the target tab, not CAD.
             this.setActiveTab(targetTab);
         }
+        timer.split("initial paint (this.update)");
         treeview.update();
         this.display.setTheme(this.state.get("theme"));
-        this.setZebraCount(this.state.get("zebraCount"));
-        this.setZebraDirection(this.state.get("zebraDirection"));
-        this.setZebraOpacity(this.state.get("zebraOpacity"));
-        this.setZebraColorScheme(this.state.get("zebraColorScheme"));
-        this.setZebraMappingMode(this.state.get("zebraMappingMode"));
+        timer.split("treeview + theme");
+        // Zebra init is DEFERRED to first activation (enableZebraTool). Applying the
+        // settings here forced a ZebraTool + CanvasTexture to be built for every
+        // ObjectGroup at load — hundreds of ms on large models — even though zebra mode
+        // is off and no zebra material is applied until the tool is entered. The values
+        // already live in state; enableZebraTool(true) pushes them to the (lazily
+        // created) ZebraTools before applying, so non-default settings are preserved.
         timer.split("update done");
         timer.stop();
     }
@@ -108595,33 +111193,39 @@ class Viewer {
             this.lastBbox = null;
         }
     }
-    // ---------------------------------------------------------------------------
-    // Object Picking & Selection
-    // ---------------------------------------------------------------------------
-    setPickHandler(flag) {
-        if (flag) {
-            this.renderer.domElement.addEventListener("dblclick", this.pick, false);
-        }
-        else {
-            this.renderer.domElement.removeEventListener("dblclick", this.pick, false);
-        }
-    }
     /**
-     * Set raycast mode
-     * @param flag - turn raycast mode on or off
+     * Record a leaf about to be hidden via meta-double-click onto the hide-undo stack,
+     * capturing its current (pre-hide) visibility state for a faithful restore. Dedups:
+     * an existing entry for the same id is dropped so the id moves to the top.
      */
-    setRaycastMode(flag) {
-        if (flag) {
-            // initiate raycasting
-            this.raycaster = new Raycaster(this.rendered.camera, this.renderer.domElement, this.state.get("cadWidth"), this.state.get("height"), this.bb_max / 30, this.rendered.scene.children[0], this.handleRaycastEvent);
-            this.raycaster.init();
-        }
-        else {
-            if (this.raycaster) {
-                this.raycaster.dispose();
-            }
-            this.raycaster = null;
-        }
+    _recordHidden(id) {
+        const state = this.rendered.treeview.getState(id);
+        if (state == null)
+            return;
+        this._hiddenUndo = this._hiddenUndo.filter((e) => e.id !== id);
+        // getState returns the live node.state array — copy it, else the imminent
+        // setState(id, [0, 0]) mutates it in place and the restore reads [0, 0]
+        // (faces would come back but edges stay hidden).
+        this._hiddenUndo.push({ id, state: [state[0], state[1]] });
+    }
+    // ---------------------------------------------------------------------------
+    // Object Picking & Selection (delegated to PickingController)
+    // ---------------------------------------------------------------------------
+    /** Component under the cursor (hover); committed on left-click. */
+    get lastObject() {
+        return this.pickingController.lastObject;
+    }
+    /** Last committed selection. */
+    get lastSelection() {
+        return this.pickingController.lastSelection;
+    }
+    /** Enable/disable the double-click pick handler (on when no tool is active). */
+    setPickHandler(flag) {
+        this.pickingController.setPickHandler(flag);
+    }
+    /** Enable/disable click+key selection input (on while a select/measure tool is active). */
+    setSelectionInput(flag) {
+        this.pickingController.setSelectionInput(flag);
     }
     // ---------------------------------------------------------------------------
     // Appearance (Axes, Grid, Visual Settings)
@@ -108813,6 +111417,11 @@ class Viewer {
     setZscaleValue(value) {
         this.rendered.nestedGroup.setZScale(value);
         this.zScale = value;
+        // z-scale changes object transforms → geometry projects to different pixels; the
+        // cadence in update() only diffs the camera, so invalidate the pick buffer here.
+        this.idPicker?.setDirty();
+        // world-space lengths/areas/coords change with z-scale → drop the hover cache.
+        this.pickingController.invalidateHoverCache();
         this.update(true);
     }
     /**
@@ -109149,12 +111758,6 @@ class Viewer {
         // Collect all new paths for settings application
         const newPaths = Object.keys(nestedGroup.groups).filter((p) => p === path || p.startsWith(path + "/"));
         this._applyCurrentSettings(newPaths);
-        // Invalidate explode cache
-        if (this.expandedNestedGroup != null) {
-            deepDispose(this.expandedNestedGroup);
-            this.expandedNestedGroup = null;
-            this.expandedTree = null;
-        }
         if (options.skipBounds) {
             this._treeNeedsRebuild = true;
             return path;
@@ -109207,17 +111810,16 @@ class Viewer {
         for (const p of pathsToRemove) {
             delete nestedGroup.groups[p];
         }
+        // Drop the removed subtree's id-picking registry + mesh-measure provider
+        // entries so they don't accumulate across remove/add cycles. Ids are NOT
+        // recycled, so surviving components keep their highlight-state texel.
+        nestedGroup.registry.removeByPathPrefix(path);
+        nestedGroup.meshGeometry.removeByPathPrefix(path);
         // Remove from this.shapes tree
         const parentShapes = this._findShapesParent(path);
         if (parentShapes && parentShapes.parts) {
             const name = path.substring(path.lastIndexOf("/") + 1);
             parentShapes.parts = parentShapes.parts.filter((p) => p.name !== name);
-        }
-        // Invalidate explode cache
-        if (this.expandedNestedGroup != null) {
-            deepDispose(this.expandedNestedGroup);
-            this.expandedNestedGroup = null;
-            this.expandedTree = null;
         }
         if (options.skipBounds) {
             // Defer disposal: keep materials alive so WebGL shader programs stay
@@ -109455,17 +112057,19 @@ class Viewer {
             nestedGroup.setClipPlanes(clipping.clipPlanes);
             this.display.setSliderLimits(newCSize);
         }
-        // Invalidate explode cache
-        if (this.expandedNestedGroup != null) {
-            deepDispose(this.expandedNestedGroup);
-            this.expandedNestedGroup = null;
-            this.expandedTree = null;
-        }
         // Rebuild treeview if parts were added or removed in this batch
         if (this._treeNeedsRebuild) {
             this._treeNeedsRebuild = false;
             this._rebuildTreeView();
         }
+        // A part was added/updated/removed: geometry and component ids changed but the
+        // camera didn't, so the pick-buffer dirty cadence won't catch it. Force a pick
+        // re-render, grow the highlight state texture to cover newly registered ids
+        // (else added parts can't tint on hover/select), and drop hover-status caches
+        // that may name a removed/changed part.
+        this.idPicker?.setDirty();
+        nestedGroup.highlight?.resize(nestedGroup.registry.maxId);
+        this.pickingController.invalidateHoverCache();
         // Re-render
         this.update(this.updateMarker);
         // Flush deferred disposal: now that new materials have been rendered
@@ -109568,7 +112172,10 @@ class Viewer {
      * @param notify - whether to send notification or not.
      */
     setClipNormal(index, normal, value = null, notify = true) {
-        if (normal == null || !this.ready)
+        // Require a real [x,y,z] tuple: `normal == null` alone let a non-array value
+        // (e.g. a malformed clip_normal forwarded by an embedder) reach the spread
+        // below and throw "Spread syntax requires ...iterable".
+        if (!Array.isArray(normal) || !this.ready)
             return;
         const normal1 = new Vector3(...normal).normalize();
         this.clipNormals[index] = normal1;
@@ -109600,9 +112207,6 @@ class Viewer {
         const use_origin = this.getAxes0();
         const worldCenterOrOrigin = new Vector3();
         const worldObjectCenter = new Vector3();
-        let worldDirection = null;
-        let localDirection = null;
-        let scaledLocalDirection = null;
         if (!use_origin) {
             const bb = new Box3().setFromObject(this.rendered.nestedGroup.rootGroup);
             bb.getCenter(worldCenterOrOrigin);
@@ -109619,10 +112223,10 @@ class Viewer {
             }
             b.getCenter(worldObjectCenter);
             // Explode around global center or origin
-            worldDirection = worldObjectCenter.sub(worldCenterOrOrigin);
-            localDirection = group.parent.worldToLocal(worldDirection.clone());
+            const worldDirection = worldObjectCenter.sub(worldCenterOrOrigin);
+            const localDirection = group.parent.worldToLocal(worldDirection.clone());
             // Use the parent to calculate the local directions
-            scaledLocalDirection = group.parent.worldToLocal(worldDirection.clone().multiplyScalar(multiplier));
+            const scaledLocalDirection = group.parent.worldToLocal(worldDirection.clone().multiplyScalar(multiplier));
             // and ensure to shift objects at its center and not at its position
             scaledLocalDirection.sub(localDirection);
             // build an animation track for the group with this direction
@@ -109645,7 +112249,7 @@ class Viewer {
             // deactivate any active measurement/selection tool. activateTool()
             // already clears animationMode in the reverse direction; this makes
             // the API path symmetric with a UI click. Goes through display.setTool
-            // so cadTools/raycaster/picker get fully cleaned up.
+            // so cadTools/picker get fully cleaned up.
             const currentTool = this.state.get("activeTool");
             if (currentTool) {
                 this.display.setTool(currentTool, false);
@@ -109781,6 +112385,8 @@ class Viewer {
         this.state.set("height", height);
         // Adapt renderer dimensions
         this.renderer.setSize(cadWidth, height);
+        // Resize the id pick target to match the canvas
+        this.idPicker?.setSize(cadWidth, height);
         // Adapt display dimensions
         this.display.setSizes({
             treeWidth: treeWidth,
@@ -109799,11 +112405,6 @@ class Viewer {
         this._studioManager.setSize(cadWidth, height);
         // update the this
         this.update(true);
-        // update the raycaster
-        if (this.raycaster) {
-            this.raycaster.width = cadWidth;
-            this.raycaster.height = height;
-        }
     }
     // ---------------------------------------------------------------------------
     // THREE.js Helper Factories
@@ -109924,7 +112525,10 @@ class Slider {
         const exp = Math.abs(Math.round(Math.log10(2 * limit)));
         this.slider.min = String(-limit);
         this.slider.max = String(limit);
-        this.slider.step = String(Math.pow(10, -(3 - exp)));
+        // Step scales with model size for a fine drag/arrow-key resolution (e.g. a
+        // ~200-unit model gets 0.1, not 1), floored at 0.001 to match the 3-decimal
+        // value display so a tiny model's step never drops below what is shown.
+        this.slider.step = String(Math.max(0.001, Math.pow(10, -(4 - exp))));
     }
     /**
      * Get the current slider value
@@ -110368,7 +112972,7 @@ class Info {
     }
 }
 
-var template = "<div class=\"tcv_cad_viewer\">\n    <div class=\"tcv_cad_toolbar tcv_round\"></div>\n\n    <div class=\"tcv_cad_body\">\n        <div class=\"tcv_cad_navigation\">\n            <div class=\"tcv_toggle_tools_wrapper\">\n                <span class='tcv_toggle_tools'></span><span class=\"tcv_tools_label\">Tools</span>\n            </div>\n            <div class=\"tcv_cad_tree tcv_round\">\n                <div class=\"tcv_tabnav\">\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value=\"Tree\" type=\"button\" style=\"width: 100%\" /></span>\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Clip\" type=\"button\" style=\"width: 100%\" /></span>\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_zebra tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Zebra\" type=\"button\" style=\"width: 100%\" /></span>\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Material\" type=\"button\" style=\"width: 100%\" /></span>\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_studio tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Studio\" type=\"button\" style=\"width: 100%\" /></span>\n                </div>\n                <div class=\"tcv_cad_tree_toggles tcv_toggles_tree\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase nodes with a single leaf\">\n                        <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value=\"1\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand root node only\">\n                        <input class='tcv_expand_root tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase tree\">\n                        <input class='tcv_collapse_all tcv_btn tcv_small_btn' value=\"C\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand tree\">\n                        <input class='tcv_expand tcv_btn tcv_small_btn' value=\"E\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_cad_tree_toggles tcv_toggles_clip\" style=\"display: none;\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Reset to default clip planes\">\n                        <input class='tcv_clip_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_cad_tree_toggles tcv_toggles_material\" style=\"display: none;\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Reset to original values\">\n                        <input class='tcv_material_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_cad_tree_toggles tcv_toggles_zebra\" style=\"display: none;\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Reset to default zebra settings\">\n                        <input class='tcv_zebra_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_cad_tree_toggles tcv_toggles_studio\" style=\"display: none;\">\n                    <div class=\"tcv_studio_spinner\"></div>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Edit material of selected object\">\n                        <input class='tcv_mat_editor_toggle tcv_btn tcv_small_btn' value=\"E\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Reset to default values\">\n                        <input class='tcv_studio_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                    <div class=\"tcv_cad_tree_container\"></div>\n                    <div class=\"tcv_cad_clip_container\">\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Set red clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane1 tcv_label\">N1 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane1 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane1 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set green clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane2 tcv_label\">N2 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane2 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane2 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set blue clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane3 tcv_label\">N3 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane3 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane3 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_clip_checks\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Use intersection clipping\">\n                                    <input class='tcv_clip_intersection tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Intersection</span>\n                                </span>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Show clipping planes\">\n                                    <input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Planes</span>\n                                </span>\n                            </div>\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Use object color caps instead of RGB\">\n                                <input class='tcv_clip_caps tcv_axes0 tcv_check' type=\"checkbox\" />\n                                <span class=\"tcv_label\">Use object color caps</span>\n                            </span>\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_material_container\">\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Ambient Light</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"20\" value=\"1\"\n                                    class=\"tcv_sld_value_ambientlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_ambientlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Direct Light</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"40\" value=\"1\"\n                                    class=\"tcv_sld_value_pointlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_pointlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Metalness</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_metalness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_metalness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Roughness</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_roughness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_roughness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_info\">\n                            Control material for CAD view, values in %\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_zebra_container\">\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Stripe Count</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"2\" max=\"50\" value=\"10\"\n                                    class=\"tcv_sld_value_zebra_count tcv_clip_slider\">\n                                <input value=10 class=\"tcv_inp_value_zebra_count tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Stripe Opacity</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0.0\" max=\"1.0\" step=\"0.01\" value=\"1.0\"\n                                    class=\"tcv_sld_value_zebra_opacity tcv_clip_slider\">\n                                <input value=1.0 class=\"tcv_inp_value_zebra_opacity tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Direction</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"90\" step=\"0.5\" value=\"0\"\n                                    class=\"tcv_sld_value_zebra_direction tcv_clip_slider\">\n                                <input value=0 class=\"tcv_inp_value_zebra_direction tcv_clip_input\"></input>\n                            </div>\n                        </div>   \n                        <div class=\"tcv_zebra_radio\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Select stripe color scheme\">\n                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color1' type=\"radio\" id=\"zebra_blackwhite\" name=\"zebra_color_group\" value=\"blackwhite\" checked>\n                                    <label for=\"zebra_blackwhite\" class=\"tcv_radio_label\">B/W</label>\n                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color2' type=\"radio\" id=\"zebra_grayscale\" name=\"zebra_color_group\" value=\"grayscale\">\n                                    <label for=\"zebra_grayscale\" class=\"tcv_radio_label\">Gray</label>\n                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color3' type=\"radio\" id=\"zebra_colorful\" name=\"zebra_color_group\" value=\"colorful\">\n                                    <label for=\"zebra_colorful\" class=\"tcv_radio_label\">Colors</label>\n                                </span>\n\n                            </div>\n                        </div>                                             \n                        <div class=\"tcv_zebra_radio\">\n                            <div>\n                               <span class=\"tcv_tooltip\" data-tooltip=\"Select stripe mapping\">\n                                    <input class='tcv_zebra_mapping tcv_radio tcv_zebra_mapping1' type=\"radio\" id=\"zebra_reflection\" name=\"zebra_mapping_group\" value=\"reflection\" checked>\n                                    <label for=\"zebra_reflection\" class=\"tcv_radio_label\">Reflection</label>\n                                    <input class='tcv_zebra_mapping tcv_radio tcv_zebra_mapping2' type=\"radio\" id=\"zebra_normal\" name=\"zebra_mapping_group\" value=\"normal\">\n                                    <label for=\"zebra_normal\" class=\"tcv_radio_label\">Normal</label>\n                                </span>\n                            </div>\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_studio_container\">\n                        <!-- Group 1: Environment -->\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"HDR environment map for lighting and reflections\">Environment</span>\n                            <select class=\"tcv_studio_environment tcv_studio_select\">\n                                <optgroup label=\"Studio\">\n                                    <option value=\"studio\">Procedural Studio</option>\n                                    <option value=\"studio_small_08\" title=\"Poly Haven: studio_small_08.hdr (soft light, neutral, backlight)\">Soft Light</option>\n                                    <option value=\"studio_small_03\" title=\"Poly Haven: studio_small_03.hdr (high-contrast, softbox + ceiling lamp, crisp)\">High Contrast Studio</option>\n                                    <option value=\"white_studio_05\" title=\"Poly Haven: white_studio_05.hdr (white, product, bright, neutral lighting)\">Bright Neutral</option>\n                                    <option value=\"white_studio_03\" title=\"Poly Haven: white_studio_03.hdr (white, softbox, reflection, clean)\">Clean Softbox</option>\n                                    <option value=\"photo_studio_01\" title=\"Poly Haven: photo_studio_01.hdr (lighting setup, spotlights)\">Spotlit Setup</option>\n                                    <option value=\"studio_small_09\" title=\"Poly Haven: studio_small_09.hdr (product lighting, controlled, soft reflections)\">Controlled Light</option>\n                                    <option value=\"cyclorama_hard_light\" title=\"Poly Haven: cyclorama_hard_light.hdr (cyclorama, hard light, contrast)\">Hard Contrast Light</option>\n                                </optgroup>\n                                <optgroup label=\"Outdoor\">\n                                    <option value=\"canary_wharf\" title=\"Poly Haven: canary_wharf.hdr (urban, city, overcast)\">Urban Overcast</option>\n                                    <option value=\"kiara_1_dawn\" title=\"Poly Haven: kiara_1_dawn.hdr (dawn, warm, nature, sunrise)\">Outdoor Warm</option>\n                                    <option value=\"empty_warehouse_01\" title=\"Poly Haven: empty_warehouse_01.hdr (warehouse, neutral, big space)\">Neutral Industrial</option>\n                                    <option value=\"san_giuseppe_bridge\" title=\"Poly Haven: san_giuseppe_bridge.hdr (bridge, outdoor, GPUOpen reference)\">San Giuseppe Bridge</option>\n                                </optgroup>\n                            </select>\n                        </div>\n                        <div class=\"tcv_studio_checks tcv_studio_4k_row\">\n                            <input class='tcv_studio_4k_env_maps tcv_check' type=\"checkbox\" title=\"Download 4K environment maps (sharper reflections, slower)\" />\n                            <span class=\"tcv_label\" title=\"Download 4K environment maps (sharper reflections, slower)\">Use 4K maps</span>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Brightness of the environment lighting\">Env Intensity</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"300\" step=\"1\" value=\"100\"\n                                    class=\"tcv_sld_value_studio_env_intensity tcv_clip_slider\">\n                                <input value=100 class=\"tcv_inp_value_studio_env_intensity tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Rotate the environment map around the vertical axis\">Env Rotation</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"360\" step=\"1\" value=\"0\"\n                                    class=\"tcv_sld_value_studio_env_rotation tcv_clip_slider\">\n                                <input value=0 class=\"tcv_inp_value_studio_env_rotation tcv_clip_input\"></input>\n                            </div>\n                        </div>\n\n                        <div class=\"tcv_studio_group_spacer\"></div>\n\n                        <!-- Group 2: Appearance -->\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Scene background style\">Background</span>\n                            <select class=\"tcv_studio_background tcv_studio_select\">\n                                <option value=\"environment\">Environment</option>\n                                <option value=\"transparent\">Transparent</option>\n                                <option value=\"gradient\">Gradient Grey</option>\n                                <option value=\"gradient-dark\">Gradient Dark Grey</option>\n                                <option value=\"white\">Solid White</option>\n                                <option value=\"grey\">Solid Grey</option>\n                                <option value=\"darkgrey\">Solid Dark Grey</option>\n                            </select>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Tone mapping algorithm for HDR to display conversion\">Tone Mapping</span>\n                            <select class=\"tcv_studio_tone_mapping tcv_studio_select\">\n                                <option value=\"neutral\">PBR Neutral</option>\n                                <option value=\"ACES\">ACES Filmic</option>\n                                <option value=\"none\">Linear (none)</option>\n                            </select>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Overall brightness of the rendered image\">Exposure</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"300\" step=\"1\" value=\"100\"\n                                    class=\"tcv_sld_value_studio_exposure tcv_clip_slider\">\n                                <input value=100 class=\"tcv_inp_value_studio_exposure tcv_clip_input\"></input>\n                            </div>\n                        </div>\n\n                        <div class=\"tcv_studio_group_spacer\"></div>\n\n                        <!-- Group 3: Shadows & AO -->\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Darkness of directional shadows on the floor and between objects\">Shadow Intensity</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"100\" step=\"1\" value=\"50\"\n                                    class=\"tcv_sld_value_studio_shadow_intensity tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_studio_shadow_intensity tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Blur amount for shadow edges (sharp to soft)\">Shadow Softness</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"100\" step=\"1\" value=\"20\"\n                                    class=\"tcv_sld_value_studio_shadow_softness tcv_clip_slider\">\n                                <input value=20 class=\"tcv_inp_value_studio_shadow_softness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Screen-space ambient occlusion — darkens crevices and contact areas\">AO Intensity</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"30\" value=\"5\"\n                                    class=\"tcv_sld_value_studio_ao_intensity tcv_clip_slider\">\n                                <input value=5 class=\"tcv_inp_value_studio_ao_intensity tcv_clip_input\"></input>\n                            </div>\n                        </div>\n\n                        <div class=\"tcv_studio_group_spacer\"></div>\n\n                        <!-- Group 4: Textures -->\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"How textures are projected onto surfaces without UV coordinates\">Texture Mapping</span>\n                            <select class=\"tcv_studio_texture_mapping tcv_studio_select\">\n                                <option value=\"triplanar\">Triplanar</option>\n                                <option value=\"parametric\">Parametric UV</option>\n                            </select>\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div class=\"tcv_cad_info_wrapper\">\n                <div class=\"tcv_toggle_info_wrapper\">\n                    <!-- <span class=\"tooltip\" data-tooltip=\"Open/close info box\"> -->\n                        <!-- <input class='tcv_toggle_info tcv_btn tcv_small_info_btn' value=\"<\" type=\"button\" /> -->\n                        <span class='tcv_toggle_info'></span><span class=\"tcv_info_label\">Info</span>\n                    <!-- </span> -->\n                </div>\n                <div class=\"tcv_cad_info tcv_round\">\n                    <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                        <div class=\"tcv_cad_info_container\"></div>\n                    </div>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_cad_view\">\n            <div class=\"tcv_warning_banner\" style=\"display: none;\"></div>\n            <div class=\"tcv_distance_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Distance</div>\n            </div>\n\n            <div class=\"tcv_mat_editor tcv_round\" style=\"display: none;\">\n                <div class=\"tcv_mat_editor_titlebar\">\n                    <span class=\"tcv_mat_editor_title\">Material Editor</span>\n                    <span class=\"tcv_mat_editor_titlebar_btns\">\n                        <input class=\"tcv_mat_editor_reset tcv_btn tcv_small_btn\" value=\"R\" type=\"button\" title=\"Reset to original material\" />\n                        <input class=\"tcv_mat_editor_close tcv_btn tcv_small_btn\" value=\"X\" type=\"button\" title=\"Close\" />\n                    </span>\n                </div>\n                <div class=\"tcv_mat_editor_path\"></div>\n                <div class=\"tcv_mat_editor_content tcv_mac-scrollbar tcv_scroller\"></div>\n            </div>\n\n            <div class=\"tcv_properties_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Properties</div>\n                <div class=\"tcv_measure_subheader\">Shape</div>\n            </div>\n\n            <div class=\"tcv_cad_animation tcv_round\">\n                <span class=\"tcv_animation_label\">E</span>\n                <span><input type=\"range\" min=\"0\" max=\"1000\" value=\"0\"\n                        class=\"tcv_animation_slider tcv_clip_slider\"></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Play animation\"><input class='tcv_play tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Pause animation\"><input class='tcv_pause tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Stop and reset animation\"><input class='tcv_stop tcv_btn'\n                        type=\"button\" /></span>\n            </div>\n            \n            <div class=\"tcv_cad_zscale tcv_round\">\n                <span class=\"tcv_animation_label\">Z</span>\n                <span><input type=\"range\" min=\"1\" max=\"32\" value=\"0\"\n                        class=\"tcv_zscale_slider tcv_clip_slider\"></span>\n            </div>\n\n            <div class=\"tcv_cad_help tcv_round\">\n                <table class=\"tcv_cad_help_layout\">\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Navigation</b></td>\n                    </tr>\n                    <tr>\n                        <td>Rotate</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate up / down</td>\n                        <td>&lt;{{ctrl}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate left / right</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Pan</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Zoom</td>\n                        <td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td>\n                    </tr>\n\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Selection</b></td>\n                    </tr>\n                    <tr>\n                        <td>Pick element</td>\n                        <td>&lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>Click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>(Shows axis-aligned bounding box, AABB)</td>\n                    </tr>\n                    <tr>\n                        <td>Isolate element</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{shift}}&gt; + click on navigation tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide element</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; double click object</td>\n                    </tr>\n                    <tr>    \n                        <td></td>                \n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide other elements</td>\n                        <td>&lt;{{shift}}&gt; + &lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Set camera target</td>\n                        <td>&lt;{{shift}}&gt + &lt;{{meta}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>                    \n                    <tr>\n                        <td></td>\n                        <td><b>CAD Object Tree</b></td>\n                    </tr>\n                    <tr>\n                        <td>Collapse single leafs</td>\n                        <td>Button '1' (all nodes with one leaf only)</td>\n                    </tr>\n                    <tr>\n                        <td>Expand root only</td>\n                        <td>Button 'R'</td>\n                    </tr>\n                    <tr>\n                        <td>Collapse all nodes</td>\n                        <td>Button 'C'</td>\n                    </tr>\n                    <tr>\n                        <td>Expand all nodes</td>\n                        <td>Button 'E'</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td><b>Measure Mode</b></td>\n                    </tr>\n                    <tr>\n                        <td>Select 1. (and 2.) object</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Use center instead of min distance</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; for the second selection</td>\n                    </tr>\n                    <tr>\n                        <td>Filter object types</td>\n                        <td>Type menu or &lt;n&gt;one, &lt;s&gt;olid, &lt;f&gt;ace, &lt;e&gt;dge , &lt;v&gt;ertices</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect last object</td>\n                        <td>&lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect all objects</td>\n                        <td>&lt;ESC&gt;</td>\n                    </tr>\n                </table>\n            </div>\n            <div class=\"tcv_filter_menu\">\n                <div class=\"tcv_drop_down tcv_shape_filter\">\n                    <span class=\"tcv_round tcv_filter_content\"><span class=\"tcv_filter_value\">None</span>\n                        <span class=\"tcv_filter_icon\">⏶\n                        </span></span>\n                    <div class=\"tcv_filter_dropdown tcv_round\">\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_none\">None</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_vertex\">Vertex</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_edge\">Edge</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_face\">Face</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_solid\">Solid</div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n    <div class=\"tcv_tick_size\">\n        ⊢⊣<span class=\"tcv_tick_size_value\">0</span>\n    </div>\n</div>";
+var template = "<div class=\"tcv_cad_viewer\">\n    <div class=\"tcv_cad_toolbar tcv_round\"></div>\n\n    <div class=\"tcv_cad_body\">\n        <div class=\"tcv_cad_navigation\">\n            <div class=\"tcv_toggle_tools_wrapper\">\n                <span class='tcv_toggle_tools'></span><span class=\"tcv_tools_label\">Tools</span>\n            </div>\n            <div class=\"tcv_cad_tree tcv_round\">\n                <div class=\"tcv_tabnav\">\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value=\"Tree\" type=\"button\" style=\"width: 100%\" /></span>\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Clip\" type=\"button\" style=\"width: 100%\" /></span>\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_zebra tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Zebra\" type=\"button\" style=\"width: 100%\" /></span>\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Material\" type=\"button\" style=\"width: 100%\" /></span>\n                    <span class=\"tcv_tooltip\" style=\"flex: 1\"><input class='tcv_tab_studio tcv_tab tcv_tab-right tcv_tab-unselected' value=\"Studio\" type=\"button\" style=\"width: 100%\" /></span>\n                </div>\n                <div class=\"tcv_cad_tree_toggles tcv_toggles_tree\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase nodes with a single leaf\">\n                        <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value=\"1\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand root node only\">\n                        <input class='tcv_expand_root tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Collpase tree\">\n                        <input class='tcv_collapse_all tcv_btn tcv_small_btn' value=\"C\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Expand tree\">\n                        <input class='tcv_expand tcv_btn tcv_small_btn' value=\"E\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_cad_tree_toggles tcv_toggles_clip\" style=\"display: none;\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Reset to default clip planes\">\n                        <input class='tcv_clip_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_cad_tree_toggles tcv_toggles_material\" style=\"display: none;\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Reset to original values\">\n                        <input class='tcv_material_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_cad_tree_toggles tcv_toggles_zebra\" style=\"display: none;\">\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Reset to default zebra settings\">\n                        <input class='tcv_zebra_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_cad_tree_toggles tcv_toggles_studio\" style=\"display: none;\">\n                    <div class=\"tcv_studio_spinner\"></div>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Edit material of selected object\">\n                        <input class='tcv_mat_editor_toggle tcv_btn tcv_small_btn' value=\"E\" type=\"button\" />\n                    </span>\n                    <span class=\"tcv_tooltip\" data-tooltip=\"Reset to default values\">\n                        <input class='tcv_studio_reset tcv_btn tcv_small_btn' value=\"R\" type=\"button\" />\n                    </span>\n                </div>\n                <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                    <div class=\"tcv_cad_tree_container\"></div>\n                    <div class=\"tcv_cad_clip_container\">\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Set red clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane1 tcv_label\">N1 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane1 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane1 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set green clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane2 tcv_label\">N2 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane2 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane2 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_slider_group\">\n                            <div>\n                                <span class=\"tooltip\" data-tooltip=\"Set blue clipping plane to view direction\">\n                                    <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type=\"button\" />\n                                </span>\n                                <span class=\"tcv_lbl_norm_plane3 tcv_label\">N3 = (n/a, n/a, n/a)</span>\n                            </div>\n                            <div>\n                                <input type=\"range\" min=\"1\" max=\"100\" value=\"50\"\n                                    class=\"tcv_sld_value_plane3 tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_plane3 tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_clip_checks\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Use intersection clipping\">\n                                    <input class='tcv_clip_intersection tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Intersection</span>\n                                </span>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Show clipping planes\">\n                                    <input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type=\"checkbox\" />\n                                    <span class=\"tcv_label\">Planes</span>\n                                </span>\n                            </div>\n                            <span class=\"tcv_tooltip\" data-tooltip=\"Use object color caps instead of RGB\">\n                                <input class='tcv_clip_caps tcv_axes0 tcv_check' type=\"checkbox\" />\n                                <span class=\"tcv_label\">Use object color caps</span>\n                            </span>\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_material_container\">\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Ambient Light</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"20\" value=\"1\"\n                                    class=\"tcv_sld_value_ambientlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_ambientlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Direct Light</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"40\" value=\"1\"\n                                    class=\"tcv_sld_value_pointlight tcv_clip_slider\">\n                                <input value=1 class=\"tcv_inp_value_pointlight tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Metalness</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_metalness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_metalness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Roughness</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"100\" value=\"40\"\n                                    class=\"tcv_sld_value_roughness tcv_clip_slider\">\n                                <input value=40 class=\"tcv_inp_value_roughness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_material_info\">\n                            Control material for CAD view, values in %\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_zebra_container\">\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Stripe Count</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"2\" max=\"50\" value=\"10\"\n                                    class=\"tcv_sld_value_zebra_count tcv_clip_slider\">\n                                <input value=10 class=\"tcv_inp_value_zebra_count tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Stripe Opacity</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0.0\" max=\"1.0\" step=\"0.01\" value=\"1.0\"\n                                    class=\"tcv_sld_value_zebra_opacity tcv_clip_slider\">\n                                <input value=1.0 class=\"tcv_inp_value_zebra_opacity tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\">Direction</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"90\" step=\"0.5\" value=\"0\"\n                                    class=\"tcv_sld_value_zebra_direction tcv_clip_slider\">\n                                <input value=0 class=\"tcv_inp_value_zebra_direction tcv_clip_input\"></input>\n                            </div>\n                        </div>   \n                        <div class=\"tcv_zebra_radio\">\n                            <div>\n                                <span class=\"tcv_tooltip\" data-tooltip=\"Select stripe color scheme\">\n                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color1' type=\"radio\" id=\"zebra_blackwhite\" name=\"zebra_color_group\" value=\"blackwhite\" checked>\n                                    <label for=\"zebra_blackwhite\" class=\"tcv_radio_label\">B/W</label>\n                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color2' type=\"radio\" id=\"zebra_grayscale\" name=\"zebra_color_group\" value=\"grayscale\">\n                                    <label for=\"zebra_grayscale\" class=\"tcv_radio_label\">Gray</label>\n                                    <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color3' type=\"radio\" id=\"zebra_colorful\" name=\"zebra_color_group\" value=\"colorful\">\n                                    <label for=\"zebra_colorful\" class=\"tcv_radio_label\">Colors</label>\n                                </span>\n\n                            </div>\n                        </div>                                             \n                        <div class=\"tcv_zebra_radio\">\n                            <div>\n                               <span class=\"tcv_tooltip\" data-tooltip=\"Select stripe mapping\">\n                                    <input class='tcv_zebra_mapping tcv_radio tcv_zebra_mapping1' type=\"radio\" id=\"zebra_reflection\" name=\"zebra_mapping_group\" value=\"reflection\" checked>\n                                    <label for=\"zebra_reflection\" class=\"tcv_radio_label\">Reflection</label>\n                                    <input class='tcv_zebra_mapping tcv_radio tcv_zebra_mapping2' type=\"radio\" id=\"zebra_normal\" name=\"zebra_mapping_group\" value=\"normal\">\n                                    <label for=\"zebra_normal\" class=\"tcv_radio_label\">Normal</label>\n                                </span>\n                            </div>\n                        </div>\n                    </div>\n                    <div class=\"tcv_cad_studio_container\">\n                        <!-- Group 1: Environment -->\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"HDR environment map for lighting and reflections\">Environment</span>\n                            <select class=\"tcv_studio_environment tcv_studio_select\">\n                                <optgroup label=\"Studio\">\n                                    <option value=\"studio\">Procedural Studio</option>\n                                    <option value=\"studio_small_08\" title=\"Poly Haven: studio_small_08.hdr (soft light, neutral, backlight)\">Soft Light</option>\n                                    <option value=\"studio_small_03\" title=\"Poly Haven: studio_small_03.hdr (high-contrast, softbox + ceiling lamp, crisp)\">High Contrast Studio</option>\n                                    <option value=\"white_studio_05\" title=\"Poly Haven: white_studio_05.hdr (white, product, bright, neutral lighting)\">Bright Neutral</option>\n                                    <option value=\"white_studio_03\" title=\"Poly Haven: white_studio_03.hdr (white, softbox, reflection, clean)\">Clean Softbox</option>\n                                    <option value=\"photo_studio_01\" title=\"Poly Haven: photo_studio_01.hdr (lighting setup, spotlights)\">Spotlit Setup</option>\n                                    <option value=\"studio_small_09\" title=\"Poly Haven: studio_small_09.hdr (product lighting, controlled, soft reflections)\">Controlled Light</option>\n                                    <option value=\"cyclorama_hard_light\" title=\"Poly Haven: cyclorama_hard_light.hdr (cyclorama, hard light, contrast)\">Hard Contrast Light</option>\n                                </optgroup>\n                                <optgroup label=\"Outdoor\">\n                                    <option value=\"canary_wharf\" title=\"Poly Haven: canary_wharf.hdr (urban, city, overcast)\">Urban Overcast</option>\n                                    <option value=\"kiara_1_dawn\" title=\"Poly Haven: kiara_1_dawn.hdr (dawn, warm, nature, sunrise)\">Outdoor Warm</option>\n                                    <option value=\"empty_warehouse_01\" title=\"Poly Haven: empty_warehouse_01.hdr (warehouse, neutral, big space)\">Neutral Industrial</option>\n                                    <option value=\"san_giuseppe_bridge\" title=\"Poly Haven: san_giuseppe_bridge.hdr (bridge, outdoor, GPUOpen reference)\">San Giuseppe Bridge</option>\n                                </optgroup>\n                            </select>\n                        </div>\n                        <div class=\"tcv_studio_checks tcv_studio_4k_row\">\n                            <input class='tcv_studio_4k_env_maps tcv_check' type=\"checkbox\" title=\"Download 4K environment maps (sharper reflections, slower)\" />\n                            <span class=\"tcv_label\" title=\"Download 4K environment maps (sharper reflections, slower)\">Use 4K maps</span>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Brightness of the environment lighting\">Env Intensity</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"300\" step=\"1\" value=\"100\"\n                                    class=\"tcv_sld_value_studio_env_intensity tcv_clip_slider\">\n                                <input value=100 class=\"tcv_inp_value_studio_env_intensity tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Rotate the environment map around the vertical axis\">Env Rotation</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"360\" step=\"1\" value=\"0\"\n                                    class=\"tcv_sld_value_studio_env_rotation tcv_clip_slider\">\n                                <input value=0 class=\"tcv_inp_value_studio_env_rotation tcv_clip_input\"></input>\n                            </div>\n                        </div>\n\n                        <div class=\"tcv_studio_group_spacer\"></div>\n\n                        <!-- Group 2: Appearance -->\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Scene background style\">Background</span>\n                            <select class=\"tcv_studio_background tcv_studio_select\">\n                                <option value=\"environment\">Environment</option>\n                                <option value=\"transparent\">Transparent</option>\n                                <option value=\"gradient\">Gradient Grey</option>\n                                <option value=\"gradient-dark\">Gradient Dark Grey</option>\n                                <option value=\"white\">Solid White</option>\n                                <option value=\"grey\">Solid Grey</option>\n                                <option value=\"darkgrey\">Solid Dark Grey</option>\n                            </select>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Tone mapping algorithm for HDR to display conversion\">Tone Mapping</span>\n                            <select class=\"tcv_studio_tone_mapping tcv_studio_select\">\n                                <option value=\"neutral\">PBR Neutral</option>\n                                <option value=\"ACES\">ACES Filmic</option>\n                                <option value=\"none\">Linear (none)</option>\n                            </select>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Overall brightness of the rendered image\">Exposure</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"300\" step=\"1\" value=\"100\"\n                                    class=\"tcv_sld_value_studio_exposure tcv_clip_slider\">\n                                <input value=100 class=\"tcv_inp_value_studio_exposure tcv_clip_input\"></input>\n                            </div>\n                        </div>\n\n                        <div class=\"tcv_studio_group_spacer\"></div>\n\n                        <!-- Group 3: Shadows & AO -->\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Darkness of directional shadows on the floor and between objects\">Shadow Intensity</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"100\" step=\"1\" value=\"50\"\n                                    class=\"tcv_sld_value_studio_shadow_intensity tcv_clip_slider\">\n                                <input value=50 class=\"tcv_inp_value_studio_shadow_intensity tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Blur amount for shadow edges (sharp to soft)\">Shadow Softness</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"100\" step=\"1\" value=\"20\"\n                                    class=\"tcv_sld_value_studio_shadow_softness tcv_clip_slider\">\n                                <input value=20 class=\"tcv_inp_value_studio_shadow_softness tcv_clip_input\"></input>\n                            </div>\n                        </div>\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"Screen-space ambient occlusion — darkens crevices and contact areas\">AO Intensity</span>\n                            <div class=\"tcv_studio_slider_group\">\n                                <input type=\"range\" min=\"0\" max=\"30\" value=\"5\"\n                                    class=\"tcv_sld_value_studio_ao_intensity tcv_clip_slider\">\n                                <input value=5 class=\"tcv_inp_value_studio_ao_intensity tcv_clip_input\"></input>\n                            </div>\n                        </div>\n\n                        <div class=\"tcv_studio_group_spacer\"></div>\n\n                        <!-- Group 4: Textures -->\n                        <div class=\"tcv_studio_row\">\n                            <span class=\"tcv_label\" title=\"How textures are projected onto surfaces without UV coordinates\">Texture Mapping</span>\n                            <select class=\"tcv_studio_texture_mapping tcv_studio_select\">\n                                <option value=\"triplanar\">Triplanar</option>\n                                <option value=\"parametric\">Parametric UV</option>\n                            </select>\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div class=\"tcv_cad_info_wrapper\">\n                <div class=\"tcv_toggle_info_wrapper\">\n                    <!-- <span class=\"tooltip\" data-tooltip=\"Open/close info box\"> -->\n                        <!-- <input class='tcv_toggle_info tcv_btn tcv_small_info_btn' value=\"<\" type=\"button\" /> -->\n                        <span class='tcv_toggle_info'></span><span class=\"tcv_info_label\">Info</span>\n                    <!-- </span> -->\n                </div>\n                <div class=\"tcv_cad_info tcv_round\">\n                    <div class=\"tcv_box_content tcv_mac-scrollbar tcv_scroller\">\n                        <div class=\"tcv_cad_info_container\"></div>\n                    </div>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"tcv_cad_view\">\n            <div class=\"tcv_warning_banner\" style=\"display: none;\"></div>\n            <div class=\"tcv_tick_size\">\n                ⊢⊣<span class=\"tcv_tick_size_value\">0</span>\n            </div>\n            <div class=\"tcv_status_line\"></div>\n            <div class=\"tcv_distance_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Distance</div>\n            </div>\n\n            <div class=\"tcv_mat_editor tcv_round\" style=\"display: none;\">\n                <div class=\"tcv_mat_editor_titlebar\">\n                    <span class=\"tcv_mat_editor_title\">Material Editor</span>\n                    <span class=\"tcv_mat_editor_titlebar_btns\">\n                        <input class=\"tcv_mat_editor_reset tcv_btn tcv_small_btn\" value=\"R\" type=\"button\" title=\"Reset to original material\" />\n                        <input class=\"tcv_mat_editor_close tcv_btn tcv_small_btn\" value=\"X\" type=\"button\" title=\"Close\" />\n                    </span>\n                </div>\n                <div class=\"tcv_mat_editor_path\"></div>\n                <div class=\"tcv_mat_editor_content tcv_mac-scrollbar tcv_scroller\"></div>\n            </div>\n\n            <div class=\"tcv_properties_measurement_panel tcv_panel tcv_round\">\n                <div class=\"tcv_measure_header\">Properties</div>\n                <div class=\"tcv_measure_subheader\">Shape</div>\n            </div>\n\n            <div class=\"tcv_cad_animation tcv_round\">\n                <span class=\"tcv_animation_label\">E</span>\n                <span><input type=\"range\" min=\"0\" max=\"1000\" value=\"0\"\n                        class=\"tcv_animation_slider tcv_clip_slider\"></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Play animation\"><input class='tcv_play tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Pause animation\"><input class='tcv_pause tcv_btn'\n                        type=\"button\" /></span>\n                <span class=\"tcv_tooltip\" data-tooltip=\"Stop and reset animation\"><input class='tcv_stop tcv_btn'\n                        type=\"button\" /></span>\n            </div>\n            \n            <div class=\"tcv_cad_zscale tcv_round\">\n                <span class=\"tcv_animation_label\">Z</span>\n                <span><input type=\"range\" min=\"1\" max=\"32\" value=\"0\"\n                        class=\"tcv_zscale_slider tcv_clip_slider\"></span>\n            </div>\n\n            <div class=\"tcv_cad_help tcv_round\">\n                <table class=\"tcv_cad_help_layout\">\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Navigation</b></td>\n                    </tr>\n                    <tr>\n                        <td>Rotate</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate up / down</td>\n                        <td>&lt;{{ctrl}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Rotate left / right</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Pan</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Zoom</td>\n                        <td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td>\n                    </tr>\n\n                    <tr>\n                        <td></td>\n                        <td><b>Mouse Selection</b></td>\n                    </tr>\n                    <tr>\n                        <td>Pick element</td>\n                        <td>&lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>Click on navigation tree label</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>(Shows axis-aligned bounding box, AABB)</td>\n                    </tr>\n                    <tr>\n                        <td>Isolate element</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td>&lt;{{shift}}&gt; + click on navigation tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide element</td>\n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; double click object</td>\n                    </tr>\n                    <tr>    \n                        <td></td>                \n                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Hide other elements</td>\n                        <td>&lt;{{shift}}&gt; + &lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>\n                    </tr>\n                    <tr>\n                        <td>Set camera target</td>\n                        <td>&lt;{{shift}}&gt + &lt;{{meta}}&gt; + &lt;left mouse button&gt; double click</td>\n                    </tr>                    \n                    <tr>\n                        <td></td>\n                        <td><b>CAD Object Tree</b></td>\n                    </tr>\n                    <tr>\n                        <td>Collapse single leafs</td>\n                        <td>Button '1' (all nodes with one leaf only)</td>\n                    </tr>\n                    <tr>\n                        <td>Expand root only</td>\n                        <td>Button 'R'</td>\n                    </tr>\n                    <tr>\n                        <td>Collapse all nodes</td>\n                        <td>Button 'C'</td>\n                    </tr>\n                    <tr>\n                        <td>Expand all nodes</td>\n                        <td>Button 'E'</td>\n                    </tr>\n                    <tr>\n                        <td></td>\n                        <td><b>Measure Mode</b></td>\n                    </tr>\n                    <tr>\n                        <td>Select 1. (and 2.) object</td>\n                        <td>&lt;left mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Use center instead of min distance</td>\n                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; for the second selection</td>\n                    </tr>\n                    <tr>\n                        <td>Filter object types</td>\n                        <td>Type menu or &lt;n&gt;one, &lt;s&gt;olid, &lt;f&gt;ace, &lt;e&gt;dge , &lt;v&gt;ertices</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect last object</td>\n                        <td>&lt;right mouse button&gt;</td>\n                    </tr>\n                    <tr>\n                        <td>Unselect all objects</td>\n                        <td>&lt;ESC&gt;</td>\n                    </tr>\n                </table>\n            </div>\n            <div class=\"tcv_filter_menu\">\n                <div class=\"tcv_drop_down tcv_shape_filter\">\n                    <span class=\"tcv_round tcv_filter_content\"><span class=\"tcv_filter_value\">All</span><span class=\"tcv_filter_icon\">▾</span></span>\n                    <div class=\"tcv_filter_dropdown tcv_round\">\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_none\">All</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_vertex\">Vertex</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_edge\">Edge</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_face\">Face</div>\n                        <div class=\"tcv_filter_dropdown_value tvc_filter_solid\">Solid</div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>";
 
 // =============================================================================
 // IMPORTS & HELPERS
@@ -110649,13 +113253,11 @@ class Display {
             if (flag) {
                 // Delegate state mutations to Viewer
                 this.viewer.activateTool(name, true);
-                if (["distance", "properties", "angle", "select"].includes(name) &&
-                    !["distance", "properties", "angle", "select"].includes(currentTool)) {
-                    this.viewer.toggleGroup(true);
+                if (["distance", "properties", "select"].includes(name) &&
+                    !["distance", "properties", "select"].includes(currentTool)) {
                     this.viewer.toggleTab(true);
                 }
-                this.viewer.setRaycastMode(flag);
-                this.shapeFilterDropDownMenu.setRaycaster(this.viewer.raycaster);
+                this.viewer.setSelectionInput(flag);
                 if (name === "distance") {
                     this.viewer.cadTools.enable(ToolTypes.DISTANCE);
                     this.viewer.checkChanges({ activeTool: ToolTypes.DISTANCE });
@@ -110671,7 +113273,6 @@ class Display {
             }
             else {
                 if (currentTool === name || name === "explode") {
-                    this.viewer.toggleGroup(false);
                     this.viewer.toggleTab(false);
                 }
                 if (name === "distance") {
@@ -110687,10 +113288,9 @@ class Display {
                 this.viewer.clearSelection();
                 // Delegate state mutations to Viewer
                 this.viewer.activateTool(name, false);
-                this.viewer.setRaycastMode(flag);
+                this.viewer.setSelectionInput(flag);
             }
             this.viewer.setPickHandler(!flag);
-            this.shapeFilterDropDownMenu.show(flag);
         };
         /**
          * Show or hide the CAD tools (UI update only).
@@ -110727,6 +113327,7 @@ class Display {
                     tickInfo.style.display = "none";
                 }
             }
+            this.updateShapeFilter();
         };
         /**
          * Show or hides measurement tools, measurement tools needs a backend to be used.
@@ -111232,11 +113833,25 @@ class Display {
          * Show or hide tools panel (tabs + content) in glass mode.
          * Also toggles the orientation marker and animation/explode slider.
          */
+        /**
+         * Show the shape-filter dropdown only for a B-rep model with the tools panel open:
+         * `tools` enabled AND not collapsed AND a non-GDS model is rendered. Hidden otherwise
+         * (clean canvas; also detaches the a/v/e/f/s keyboard shortcuts). Hover preselection
+         * is always-on for B-rep, so the filter is independent of which tool (if any) is active.
+         */
+        this.updateShapeFilter = () => {
+            const visible = this.tools &&
+                this.tools_shown &&
+                this.viewer?.ready === true &&
+                this.viewer.shapes?.format !== "GDS";
+            this.shapeFilterDropDownMenu.show(visible);
+        };
         this.showToolsPanel = (flag) => {
             const cadTree = this.getElement("tcv_cad_tree");
             cadTree.style.display = flag ? "" : "none";
             this.getElement("tcv_toggle_tools").innerHTML = flag ? "\u25BE" : "\u25B8";
             this.tools_shown = flag;
+            this.updateShapeFilter();
             // Toggle orientation marker
             if (this.viewer.ready) {
                 this.viewer.rendered.orientationMarker.setVisible(flag);
@@ -111263,7 +113878,9 @@ class Display {
         this.container.innerHTML = TEMPLATE(this.container.id);
         this.cadBody = this.getElement("tcv_cad_body");
         this.measureTools = options.measureTools;
-        this.measurementDebug = options.measurementDebug;
+        // NB: externalMeasurementBackend is consumed via ViewerState (viewer reads
+        // state.get("externalMeasurementBackend") for backend routing); Display does
+        // not store it. Kept in DisplayOptions so embedders pass it in one options obj.
         this.selectTool = options.selectTool;
         this.explodeTool = options.explodeTool;
         this.zscaleTool = options.zscaleTool;
@@ -111278,6 +113895,7 @@ class Display {
             },
         });
         this.cadView = this.getElement("tcv_cad_view");
+        this.statusLine = this.getElement("tcv_status_line");
         this.distanceMeasurementPanel = this.getElement("tcv_distance_measurement_panel");
         this.propertiesMeasurementPanel = this.getElement("tcv_properties_measurement_panel");
         // Initialize grouped UI elements for CAD tools
@@ -111326,11 +113944,17 @@ class Display {
         this.tickInfoElement = this.getElement("tcv_tick_size");
         this.cadAnim = this.getElement("tcv_cad_animation");
         this.cadTools = this.getElement("tcv_cad_tools");
+        // Hide the wrapping flex item (the `.tcv_tooltip` span, flex:1), not just the
+        // inner <input>: an empty flex slot would still claim its fraction of the tab
+        // row, leaving a gap between the neighboring tabs.
+        const hideTab = (tab) => {
+            (tab.parentElement ?? tab).style.display = "none";
+        };
         if (!options.zebraTool) {
-            this.tabZebra.style.display = "none";
+            hideTab(this.tabZebra);
         }
         if (options.studioTool === false) {
-            this.tabStudio.style.display = "none";
+            hideTab(this.tabStudio);
         }
         this.cadHelp = this.getElement("tcv_cad_help");
         listeners.add(this.cadHelp, "contextmenu", (e) => {
@@ -111626,6 +114250,15 @@ class Display {
      */
     showCenterInfo(center) {
         this._info.centerInfo(center);
+    }
+    /**
+     * Set the hover status line (preselection readout). Empty string clears it.
+     * A rounded overlay badge stacked below the grid-size indicator at the bottom
+     * left of the canvas; hidden entirely when empty so no empty badge shows.
+     */
+    setStatusLine(text) {
+        this.statusLine.textContent = text;
+        this.statusLine.style.display = text === "" ? "none" : "";
     }
     /**
      * Display bounding box information for a selected object.
@@ -112184,7 +114817,7 @@ class Display {
         // If a tool is currently active, deactivate it cleanly
         const activeTool = this.state.get("activeTool");
         if (activeTool &&
-            ["distance", "properties", "angle", "select"].includes(activeTool)) {
+            ["distance", "properties", "select"].includes(activeTool)) {
             this.clickButtons[activeTool]?.set(false);
             this.setTool(activeTool, false);
             // setTool→toggleTab(false) silently sets activeTab to "tree" (no notification).
@@ -112206,6 +114839,22 @@ class Display {
         this.showSelectTool(this.selectTool);
     }
     /**
+     * Entering Clip mode: hide the measure + select tool buttons (a measure/select
+     * tool can't be active here — it disables the clip tab — but the buttons must not
+     * be invocable while clipping). Mirrors {@link _deactivateToolsForStudio};
+     * explode/zscale stay enabled for consistency with studio mode. Restored by
+     * {@link _restoreToolsAfterClip} on leave.
+     */
+    _deactivateToolsForClip() {
+        this.showMeasureTools(false);
+        this.showSelectTool(false);
+    }
+    /** Leaving Clip mode: restore measure + select buttons per their feature flags. */
+    _restoreToolsAfterClip() {
+        this.showMeasureTools(this.measureTools);
+        this.showSelectTool(this.selectTool);
+    }
+    /**
      * Show/hide pinning button
      */
     showPinning(flag) {
@@ -112223,6 +114872,9 @@ class Display {
         // before the new tab's controls are activated.
         if (oldTab === "zebra" && newTab !== "zebra") {
             this.viewer.enableZebraTool(false);
+        }
+        if (oldTab === "clip" && newTab !== "clip") {
+            this._restoreToolsAfterClip();
         }
         if (oldTab === "studio" && newTab !== "studio") {
             this.closeMatEditor();
@@ -112262,6 +114914,7 @@ class Display {
         }
         else if (newTab === "clip") {
             _updateVisibility(false, true, false, false, false);
+            this._deactivateToolsForClip();
             this.viewer.nestedGroup.setBackVisible(true);
             const clipIntersection = this.viewer.state.get("clipIntersection");
             if (typeof clipIntersection === "boolean") {
@@ -112899,7 +115552,7 @@ class Display {
                     this.container.focus();
                     return;
                 }
-                // When a tool is active, let ESC propagate to the raycaster
+                // When a tool is active, let ESC propagate to the picker
                 // for shape deselection
                 if (this.state.get("activeTool"))
                     return "propagate";

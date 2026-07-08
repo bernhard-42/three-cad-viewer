@@ -171,7 +171,6 @@
           ];
 
           for (var name of legNames) {
-            console.log(`/hexapod/${name}`, `/hexpod/${name}/lower_leg`);
             // move upper leg
             viewer.addRotationTrack(
               `/hexapod/${name}`,
@@ -233,7 +232,6 @@
           alt: "altKey",
         },
         newTreeBehavior: true,
-        measurementDebug: true,
         measureTools: true,
         selectTool: false,
         explodeTool: true,
