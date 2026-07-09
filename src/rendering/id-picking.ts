@@ -445,7 +445,29 @@ export interface PickMaterialOptions {
   clippingPlanes?: THREE.Plane[] | null;
   /** Intersection clipping (mirror the visual material's `clipIntersection`). */
   clipIntersection?: boolean;
+  /**
+   * Forward depth bias in **view-space world units** (a positive nudge toward the
+   * camera) so a corner's higher-priority topo wins the shared-depth pick test over
+   * its coincident lower-priority topo. Applied to `mvPosition.z` BEFORE projection —
+   * i.e. a constant world distance, independent of the camera's near/far spread.
+   * (An earlier build biased a constant in NDC z, which under an orthographic camera
+   * on a large scene became a multi-mm world window that let geometry behind an
+   * occluding face get picked "through" it.) Set per-scene from the bounding radius.
+   */
+  depthBias?: number;
 }
+
+/**
+ * View-space depth-bias factors (× scene bounding radius) for the edge and vertex
+ * pick passes. Face = 0. Kept monotonic with the vertex > edge > face hover priority
+ * so a corner's vertex wins over its edges and its edges over their faces. The factor
+ * is a fraction of the bounding radius: large enough to clear 24-bit depth-buffer
+ * quantization (≈ (far−near)/2^24 with far/near ∝ radius), small enough that the
+ * world window stays sub-mm on typical models so geometry a real distance behind an
+ * occluder is NOT picked through it.
+ */
+export const EDGE_DEPTH_BIAS_FACTOR = 1e-4;
+export const VERTEX_DEPTH_BIAS_FACTOR = 2e-4;
 
 /**
  * Pick size (framebuffer px in the half-res target) for vertex pick points. Kept
@@ -552,19 +574,20 @@ export function createVertexPickMaterial(
     flat out uint vId;
     out vec3 vWorldPos;
     uniform float uPickSize;
+    uniform float uDepthBias;
 
     void main() {
       vId = componentId;
       vec4 worldPos = modelMatrix * vec4( position, 1.0 );
       vWorldPos = worldPos.xyz;
       vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+      // Forward depth bias in VIEW SPACE (constant world distance toward the camera,
+      // camera looks down -z so +z is nearer) so a corner vertex wins the shared
+      // depth test over its coincident edges AND face. Biasing here (not in NDC z)
+      // keeps the world window independent of the near/far spread. Must exceed the
+      // edge bias so vertex > edge > face stays monotonic with hover priority.
+      mvPosition.z += uDepthBias;
       gl_Position = projectionMatrix * mvPosition;
-      // Forward depth bias so a corner vertex wins the depth test over its
-      // coincident edges AND face. The biases MUST be monotonic with the
-      // vertex > edge > face hover priority: face 0 < edge 2e-4 < vertex 4e-4.
-      // (If the vertex bias were <= the edge's, the edge would sit in front and
-      // the vertex fragment would fail the depth test → vertices unpickable.)
-      gl_Position.z -= gl_Position.w * 4e-4;
       gl_PointSize = uPickSize;
       #include <clipping_planes_vertex>
     }
@@ -574,7 +597,10 @@ export function createVertexPickMaterial(
     glslVersion: THREE.GLSL3,
     vertexShader,
     fragmentShader: PICK_FRAGMENT_SHADER,
-    uniforms: { uPickSize: { value: PICK_POINT_SIZE } },
+    uniforms: {
+      uPickSize: { value: PICK_POINT_SIZE },
+      uDepthBias: { value: options.depthBias ?? 0 },
+    },
     depthTest: true,
     depthWrite: true,
     clipping: true,
@@ -611,6 +637,7 @@ export function createEdgePickMaterial(
 
     uniform float linewidth;
     uniform vec2 resolution;
+    uniform float uDepthBias;
 
     in vec3 instanceStart;
     in vec3 instanceEnd;
@@ -639,6 +666,15 @@ export function createEdgePickMaterial(
 
       vec4 start = modelViewMatrix * vec4( instanceStart, 1.0 );
       vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );
+
+      // Forward depth bias in VIEW SPACE (constant world nudge toward the camera,
+      // which looks down -z) so an edge wins the shared depth test over its two
+      // coincident faces at a crease. Applied to the view-space endpoints before
+      // projection → a constant world distance, independent of the near/far spread
+      // (a constant NDC bias became a multi-mm window under an ortho camera on a
+      // large scene). Stays below the vertex bias so vertex > edge > face holds.
+      start.z += uDepthBias;
+      end.z += uDepthBias;
 
       // Segments crossing the camera plane (perspective) need trimming.
       bool perspective = ( projectionMatrix[ 2 ][ 3 ] == - 1.0 );
@@ -671,11 +707,6 @@ export function createEdgePickMaterial(
       clip.xy += offset;
 
       gl_Position = clip;
-      // Forward depth bias so an edge wins over its two coincident faces at the
-      // crease (else a sharp/concave edge z-fights the faces and is unpickable).
-      // Must stay BELOW the vertex bias (4e-4) so a corner vertex still wins over
-      // its edges — keep face 0 < edge 2e-4 < vertex 4e-4 monotonic with priority.
-      gl_Position.z -= gl_Position.w * 2e-4;
 
       vec4 mvPosition = ( position.y < 0.5 ) ? start : end; // approximation, for clipping
       #include <clipping_planes_vertex>
@@ -689,6 +720,7 @@ export function createEdgePickMaterial(
     uniforms: {
       linewidth: { value: PICK_EDGE_WIDTH },
       resolution: { value: new THREE.Vector2(1, 1) },
+      uDepthBias: { value: options.depthBias ?? 0 },
     },
     depthTest: true,
     depthWrite: true,
@@ -805,6 +837,13 @@ export class IdPicker {
   private height: number;
   /** Intersection clipping mode mirrored onto the pick materials. */
   private clipIntersection: boolean;
+  /**
+   * Scene bounding radius, used to scale the edge/vertex view-space depth bias to a
+   * small constant world distance (see {@link setSceneRadius}). 0 until the host sets
+   * it — with 0, coincident corner topo would z-fight and be unpickable, so the host
+   * MUST call {@link setSceneRadius} once the model bounds are known.
+   */
+  private sceneRadius: number;
   /** Whether the pick buffer must be re-rendered before the next read. */
   private dirty: boolean;
   /** MRT pick target (id + world-position attachments). Allocated lazily in `pickAt`. */
@@ -852,6 +891,7 @@ export class IdPicker {
     this.camera = null;
     this.clippingPlanes = null;
     this.clipIntersection = false;
+    this.sceneRadius = 0;
     this.width = 0;
     this.height = 0;
     this.dirty = true;
@@ -902,6 +942,36 @@ export class IdPicker {
    */
   setDirty(): void {
     this.dirty = true;
+  }
+
+  /**
+   * Set the scene bounding radius so the edge/vertex pick passes bias depth by a
+   * small constant WORLD distance (radius × {@link EDGE_DEPTH_BIAS_FACTOR} /
+   * {@link VERTEX_DEPTH_BIAS_FACTOR}) rather than a constant in NDC z. The world
+   * window is then independent of the camera near/far spread — the fix for geometry
+   * behind an occluding face getting picked "through" it under an orthographic camera
+   * on a large scene. Call whenever the model bounds change (initial build, add/remove
+   * part). Updates existing materials in place and seeds lazily-created ones.
+   */
+  setSceneRadius(radius: number): void {
+    this.sceneRadius = radius;
+    if (this.edgeMaterial !== null) {
+      this.edgeMaterial.uniforms.uDepthBias.value = this._edgeDepthBias();
+    }
+    if (this.vertexMaterial !== null) {
+      this.vertexMaterial.uniforms.uDepthBias.value = this._vertexDepthBias();
+    }
+    this.setDirty();
+  }
+
+  /** View-space edge depth bias (world units) for the current scene radius. */
+  private _edgeDepthBias(): number {
+    return this.sceneRadius * EDGE_DEPTH_BIAS_FACTOR;
+  }
+
+  /** View-space vertex depth bias (world units) for the current scene radius. */
+  private _vertexDepthBias(): number {
+    return this.sceneRadius * VERTEX_DEPTH_BIAS_FACTOR;
   }
 
   /** Resize the pick render target to match the canvas (CSS px; half-DPR internally). */
@@ -1077,10 +1147,18 @@ export class IdPicker {
         clippingPlanes: this.clippingPlanes,
         clipIntersection: this.clipIntersection,
       };
+      // Face pass carries no depth bias (bias 0 = the occluder reference plane).
       if (this.faceMaterial === null) this.faceMaterial = createFacePickMaterial(opts);
-      if (this.edgeMaterial === null) this.edgeMaterial = createEdgePickMaterial(opts);
+      if (this.edgeMaterial === null)
+        this.edgeMaterial = createEdgePickMaterial({
+          ...opts,
+          depthBias: this._edgeDepthBias(),
+        });
       if (this.vertexMaterial === null)
-        this.vertexMaterial = createVertexPickMaterial(opts);
+        this.vertexMaterial = createVertexPickMaterial({
+          ...opts,
+          depthBias: this._vertexDepthBias(),
+        });
       this.compiledPlaneCount =
         this.clippingPlanes === null ? 0 : this.clippingPlanes.length;
       this.compiledIntersection = this.clipIntersection;

@@ -10,6 +10,10 @@ import {
   buildVertexComponentIds,
   IdPicker,
   PICK_LAYER,
+  createVertexPickMaterial,
+  createEdgePickMaterial,
+  EDGE_DEPTH_BIAS_FACTOR,
+  VERTEX_DEPTH_BIAS_FACTOR,
 } from "../../src/rendering/id-picking.js";
 
 describe("id-picking: ComponentRegistry", () => {
@@ -221,6 +225,69 @@ describe("id-picking: buildEdgeComponentIds", () => {
     );
     expect(Array.from(componentId)).toEqual([1, 2, 2]);
     expect(reg.get(2).path).toBe("/obj/edges/edges_1");
+  });
+});
+
+describe("id-picking: view-space depth bias", () => {
+  test("factors are monotonic vertex > edge > 0 (hover priority)", () => {
+    expect(VERTEX_DEPTH_BIAS_FACTOR).toBeGreaterThan(EDGE_DEPTH_BIAS_FACTOR);
+    expect(EDGE_DEPTH_BIAS_FACTOR).toBeGreaterThan(0);
+  });
+
+  test("pick materials expose uDepthBias, default 0, honor the option", () => {
+    const v0 = createVertexPickMaterial();
+    const e0 = createEdgePickMaterial();
+    expect(v0.uniforms.uDepthBias.value).toBe(0);
+    expect(e0.uniforms.uDepthBias.value).toBe(0);
+
+    const v = createVertexPickMaterial({ depthBias: 0.42 });
+    const e = createEdgePickMaterial({ depthBias: 0.21 });
+    expect(v.uniforms.uDepthBias.value).toBeCloseTo(0.42);
+    expect(e.uniforms.uDepthBias.value).toBeCloseTo(0.21);
+  });
+
+  test("setSceneRadius scales the bias to radius*factor on lazily-created materials", () => {
+    const reg = new ComponentRegistry();
+    // Minimal renderer: enough for pickAt to allocate materials/target and read.
+    const renderer = {
+      autoClear: true,
+      getContext: () => ({ getExtension: () => ({}) }),
+      getPixelRatio: () => 2,
+      getClearColor: (c) => c,
+      getClearAlpha: () => 0,
+      getViewport: (v) => v,
+      setViewport: () => {},
+      getRenderTarget: () => null,
+      setRenderTarget: () => {},
+      setClearColor: () => {},
+      clear: () => {},
+      render: () => {},
+      readRenderTargetPixels: (t, x, y, w, h, buf) => {
+        for (let i = 0; i < w * h * 4; i++) buf[i] = 0;
+      },
+    };
+    const picker = new IdPicker(renderer, reg);
+    const r = 1000;
+    picker.setSceneRadius(r); // set BEFORE materials exist → stored, applied on create
+    picker.attach(new THREE.Scene(), { getCamera: () => new THREE.PerspectiveCamera() });
+    picker.setSize(800, 600);
+    picker.pickAt(10, 10); // forces _ensureResources → material creation
+
+    expect(picker.vertexMaterial.uniforms.uDepthBias.value).toBeCloseTo(
+      r * VERTEX_DEPTH_BIAS_FACTOR,
+    );
+    expect(picker.edgeMaterial.uniforms.uDepthBias.value).toBeCloseTo(
+      r * EDGE_DEPTH_BIAS_FACTOR,
+    );
+
+    // A later radius change updates existing materials in place.
+    picker.setSceneRadius(500);
+    expect(picker.vertexMaterial.uniforms.uDepthBias.value).toBeCloseTo(
+      500 * VERTEX_DEPTH_BIAS_FACTOR,
+    );
+    expect(picker.edgeMaterial.uniforms.uDepthBias.value).toBeCloseTo(
+      500 * EDGE_DEPTH_BIAS_FACTOR,
+    );
   });
 });
 

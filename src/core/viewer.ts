@@ -1638,6 +1638,9 @@ class Viewer {
       this.state.get("cadWidth"),
       this.state.get("height"),
     );
+    // Scale the pick depth bias to the scene so it stays a small constant world
+    // distance (independent of the camera near/far spread — see IdPicker.setSceneRadius).
+    this.idPicker.setSceneRadius(this.bb_radius);
 
     // Now that rendered state exists, configure camera position
     if (viewerOptions.position == null && viewerOptions.quaternion == null) {
@@ -3914,6 +3917,9 @@ class Viewer {
     // Always update camera far plane and distance (cheap)
     this.rendered.camera.updateFarPlane(this.bb_radius);
     this.rendered.camera.updateCameraDistance(this.bb_radius);
+
+    // Keep the pick depth bias scaled to the (possibly changed) scene bounds.
+    this.idPicker?.setSceneRadius(this.bb_radius);
 
     // Update controls reset location to current bbox center so that
     // reset() frames the updated geometry, not the original.
