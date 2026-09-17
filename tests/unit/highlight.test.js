@@ -222,7 +222,16 @@ describe("HighlightController — shader patching", () => {
       c.uniforms.uHighlightSelectedColor,
     );
     expect(shader.vertexShader).toContain("attribute uint componentId;");
-    expect(shader.vertexShader).toContain("vHighlightId = componentId;");
+    // The id crosses as two interpolated float halves, never as a `flat` varying
+    // (ANGLE-on-Metal graphics-memory trap, see highlight.ts).
+    expect(shader.vertexShader).toContain(
+      "vHighlightIdLo = float(componentId & 0xFFFFu);",
+    );
+    expect(shader.vertexShader).toContain(
+      "vHighlightIdHi = float(componentId >> 16);",
+    );
+    expect(shader.vertexShader).not.toContain("flat ");
+    expect(shader.fragmentShader).not.toContain("flat ");
     expect(shader.fragmentShader).toContain(
       "diffuseColor.rgb = uHighlightSelectedColor",
     );

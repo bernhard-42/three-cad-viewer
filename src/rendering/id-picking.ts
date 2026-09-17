@@ -38,7 +38,10 @@ export const BACKGROUND_ID = 0;
  * `Uint32BufferAttribute` under this name; the pick pass reads it as an **integer**
  * attribute (`gpuType = THREE.IntType`, GLSL3 `in uint`) so ids stay exact past
  * 2^24. The geometry side must set `gpuType = THREE.IntType` on the attribute for
- * the pick shader to read it.
+ * the pick shader to read it. Between the stages the id travels as two float
+ * varyings (16-bit halves), deliberately NOT as a `flat uint` — see the note in
+ * highlight.ts: a `flat` varying costs ~25x the scene's buffer bytes in graphics
+ * memory under WebKit's ANGLE-on-Metal backend.
  */
 export const COMPONENT_ID_ATTRIBUTE = "componentId";
 
@@ -479,8 +482,9 @@ export const VERTEX_DEPTH_BIAS_FACTOR = 2e-4;
 export const PICK_POINT_SIZE = 3;
 
 /**
- * Shared GLSL3 MRT fragment shader for all pick materials (face/vertex/edge): packs
- * the flat `vId` into attachment 0 (byte order MUST match `packId()`: low byte in R)
+ * Shared GLSL3 MRT fragment shader for all pick materials (face/vertex/edge):
+ * reassembles the id from its two interpolated halves and packs it into attachment 0
+ * (byte order MUST match `packId()`: low byte in R)
  * and writes the interpolated world position into attachment 1 (RGBA32F; `w=1` marks
  * "has position"). The fragment clip chunk only `discard`s (non-ALPHA_TO_COVERAGE),
  * so no `diffuseColor` symbol is required.
@@ -488,13 +492,15 @@ export const PICK_POINT_SIZE = 3;
 const PICK_FRAGMENT_SHADER = /* glsl */ `
   #include <clipping_planes_pars_fragment>
 
-  flat in uint vId;
+  in float vIdLo;
+  in float vIdHi;
   in vec3 vWorldPos;
   layout(location = 0) out vec4 fragId;
   layout(location = 1) out vec4 fragPos;
 
   void main() {
     #include <clipping_planes_fragment>
+    uint vId = ( uint( vIdHi + 0.5 ) << 16 ) | uint( vIdLo + 0.5 );
     fragId = vec4(
       float( vId & 0xFFu ) / 255.0,
       float( ( vId >> 8 ) & 0xFFu ) / 255.0,
@@ -515,19 +521,24 @@ export function createFacePickMaterial(
 ): THREE.ShaderMaterial {
   // GLSL3 (WebGL2). For a (non-Raw) ShaderMaterial three.js auto-injects
   // `in vec3 position;`, `uniform mat4 modelMatrix/modelViewMatrix/projectionMatrix`,
-  // so we declare ONLY the custom integer attribute + flat varying. Integer
-  // varyings MUST be `flat`. Clip chunks use legacy `varying`/`attribute` keywords
+  // so we declare ONLY the custom integer attribute + the two id-half varyings
+  // (float, interpolated — an integer varying would have to be `flat`, which is
+  // the ANGLE-on-Metal memory trap described in highlight.ts; all vertices of a
+  // primitive carry the same id, so interpolation + rounding is exact). Clip
+  // chunks use legacy `varying`/`attribute` keywords
   // which three remaps via `#define` under GLSL3; the vertex chunk reads a local
   // `vec4 mvPosition`, which we compute before the include.
   const vertexShader = /* glsl */ `
     #include <clipping_planes_pars_vertex>
 
     in uint componentId;
-    flat out uint vId;
+    out float vIdLo;
+    out float vIdHi;
     out vec3 vWorldPos;
 
     void main() {
-      vId = componentId;
+      vIdLo = float( componentId & 0xFFFFu );
+      vIdHi = float( componentId >> 16 );
       vec4 worldPos = modelMatrix * vec4( position, 1.0 );
       vWorldPos = worldPos.xyz;
       vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
@@ -571,13 +582,15 @@ export function createVertexPickMaterial(
     #include <clipping_planes_pars_vertex>
 
     in uint componentId;
-    flat out uint vId;
+    out float vIdLo;
+    out float vIdHi;
     out vec3 vWorldPos;
     uniform float uPickSize;
     uniform float uDepthBias;
 
     void main() {
-      vId = componentId;
+      vIdLo = float( componentId & 0xFFFFu );
+      vIdHi = float( componentId >> 16 );
       vec4 worldPos = modelMatrix * vec4( position, 1.0 );
       vWorldPos = worldPos.xyz;
       vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
@@ -643,7 +656,8 @@ export function createEdgePickMaterial(
     in vec3 instanceEnd;
     in uint componentId;
 
-    flat out uint vId;
+    out float vIdLo;
+    out float vIdHi;
     out vec3 vWorldPos;
 
     void trimSegment( const in vec4 start, inout vec4 end ) {
@@ -655,7 +669,8 @@ export function createEdgePickMaterial(
     }
 
     void main() {
-      vId = componentId;
+      vIdLo = float( componentId & 0xFFFFu );
+      vIdHi = float( componentId >> 16 );
 
       // World-space segment endpoints → approximate hit point along the edge.
       vWorldPos = ( position.y < 0.5 )

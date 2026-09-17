@@ -90,21 +90,42 @@ export interface HighlightUniforms {
 //
 // three upgrades stock materials to GLSL ES 3.00 on WebGL2 via `#define attribute
 // in` / `#define varying out|in` macros (WebGLProgram.js), so writing `attribute` /
-// `flat varying` here is converted automatically; `usampler2D` / `texelFetch` /
+// `varying` here is converted automatically; `usampler2D` / `texelFetch` /
 // integer attributes are then available.
+//
+// The component id crosses to the fragment stage as TWO ordinary (interpolated)
+// float varyings holding its 16-bit halves — NOT as a `flat uint`. A `flat`
+// varying is what an integer varying would require, and it is exactly what must
+// be avoided here: under WebKit's ANGLE-on-Metal backend, every draw whose
+// program has a `flat` varying makes ANGLE allocate a converted copy of the
+// draw's index data (>= 64 KB each, pooled, never returned to the GL on
+// deleteBuffer). With this varying on every visible material that was ~25x the
+// scene's vertex/index bytes in graphics memory (26 MB of buffers -> 812 MB;
+// 100 MB -> 2.3 GB) and it is charged to the page's WebContent process in the
+// system WebKit, which killed build123d Studio at 16 GB after a few large
+// shows. Without `flat` the same scene takes 63 MB / 160 MB. Measured 2026-09-17
+// (working-docs/leak-harness.html + probe2.html, Playwright WebKit and Safari).
+//
+// Interpolating floats is exact for the id's purpose: every vertex of a face,
+// every vertex of an instanced segment and a point carry the SAME id, so the
+// interpolated value equals it up to rounding, and `uint(x + 0.5)` recovers it.
+// Two 16-bit halves (both < 65536, exactly representable in float32) keep the
+// full 32-bit id range that `applyComponentIds` promises.
 // ---------------------------------------------------------------------------
 
 /**
  * Shared state-fetch GLSL, injected into BOTH stages: the vertex stage needs it for
  * widening / point size, the fragment for color. Declares the sampler + texWidth +
- * the flat varying and a helper returning the component's {@link HighlightFlag} bits
- * (0 for background / nothing).
+ * the two id-half varyings and a helper returning the component's
+ * {@link HighlightFlag} bits (0 for background / nothing).
  */
 const HL_STATE_GLSL = `
-flat varying uint vHighlightId;
+varying float vHighlightIdLo;
+varying float vHighlightIdHi;
 uniform highp usampler2D ${U_HIGHLIGHT_STATE};
 uniform int ${U_HIGHLIGHT_TEX_WIDTH};
 uint highlightState() {
+  uint vHighlightId = (uint(vHighlightIdHi + 0.5) << 16) | uint(vHighlightIdLo + 0.5);
   if (vHighlightId == 0u) return 0u;
   ivec2 hlUv = ivec2(
     int(vHighlightId) % ${U_HIGHLIGHT_TEX_WIDTH},
@@ -121,8 +142,8 @@ const HL_VERTEX_HEADER = `
 attribute uint ${COMPONENT_ID_ATTRIBUTE};
 ${HL_STATE_GLSL}`;
 
-/** Vertex main: forward the id. Injected right after `void main() {`. */
-const HL_VERTEX_ASSIGN = `vHighlightId = ${COMPONENT_ID_ATTRIBUTE};`;
+/** Vertex main: forward the id as two 16-bit halves. Injected right after `void main() {`. */
+const HL_VERTEX_ASSIGN = `vHighlightIdLo = float(${COMPONENT_ID_ATTRIBUTE} & 0xFFFFu); vHighlightIdHi = float(${COMPONENT_ID_ATTRIBUTE} >> 16);`;
 
 /** Fragment header: the shared state fetch + the two highlight colors. */
 const HL_FRAGMENT_HEADER = `
@@ -450,7 +471,7 @@ export class HighlightController {
       shader.uniforms[U_HIGHLIGHT_HOVER_COLOR] =
         this.uniforms.uHighlightHoverColor;
 
-      // Common: forward the component id as a flat varying.
+      // Common: forward the component id (as two interpolated float halves).
       shader.vertexShader =
         HL_VERTEX_HEADER +
         "\n" +

@@ -1224,6 +1224,11 @@ class Viewer {
       deepDispose(this._rendered.camera);
       deepDispose(this._rendered.controls);
       deepDispose(this._rendered.treeview);
+      // The orientation marker owns its own THREE.Scene (cones, labels, sphere,
+      // axes), not part of the main scene above, so it needs its own dispose —
+      // without it every clear()/render() cycle left 8 geometries and 3 programs
+      // behind on the GL (measured 2026-09-17, working-docs/leak-harness.html).
+      this._rendered.orientationMarker.dispose();
 
       // clear tree view
       this.display.clearCadTree();
