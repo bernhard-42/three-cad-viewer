@@ -383,6 +383,74 @@ describe("TreeView - handleLabelClick", () => {
   });
 });
 
+describe("TreeView - label hover", () => {
+  let scrollContainer;
+  let treeView;
+  let hoverHandler;
+
+  beforeEach(() => {
+    scrollContainer = createScrollContainer();
+    hoverHandler = vi.fn();
+    treeView = new TreeView(
+      createSimpleTree(),
+      scrollContainer,
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      vi.fn().mockReturnValue(null),
+      "light",
+      true,
+      false,
+      hoverHandler,
+    );
+    treeView.create();
+    treeView.render();
+  });
+
+  afterEach(() => {
+    if (treeView) {
+      treeView.dispose();
+    }
+    cleanupContainer(scrollContainer);
+  });
+
+  test("mouseenter reports the node path, mouseleave reports null", () => {
+    treeView._ensureNodeRendered(treeView.root);
+    const label = treeView.container.querySelector(
+      '[data-path="/Root"] .tv-node-label',
+    );
+    label.dispatchEvent(new MouseEvent("mouseenter"));
+    expect(hoverHandler).toHaveBeenLastCalledWith("/Root");
+    label.dispatchEvent(new MouseEvent("mouseleave"));
+    expect(hoverHandler).toHaveBeenLastCalledWith(null);
+  });
+
+  test("works without a hover handler", () => {
+    const tv = new TreeView(
+      createSimpleTree(),
+      scrollContainer,
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      vi.fn().mockReturnValue(null),
+      "light",
+      true,
+    );
+    tv.create();
+    tv.render();
+    tv._ensureNodeRendered(tv.root);
+    const label = tv.container.querySelector(
+      '[data-path="/Root"] .tv-node-label',
+    );
+    expect(() =>
+      label.dispatchEvent(new MouseEvent("mouseenter")),
+    ).not.toThrow();
+    tv.dispose();
+  });
+});
+
 describe("TreeView - state management", () => {
   let scrollContainer;
   let treeView;

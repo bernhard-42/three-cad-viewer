@@ -150,6 +150,23 @@ export class PickingController {
   };
 
   /**
+   * Tree-row hover: HOVER the faces of the tree node at `path` (leaf or group), or
+   * clear when `null`. Drops the canvas hover target first — otherwise the next
+   * render's {@link handleIdHover} (cursor outside the canvas) would release that
+   * stale target and wipe the tree hover with it.
+   */
+  setTreeHover(path: string | null): void {
+    if (!this.host.ready || this.host.studioActive) return;
+    const highlight = this.host.rendered.nestedGroup?.highlight ?? null;
+    if (highlight === null) return;
+    this.releaseLastSelected();
+    this.lastObject = null;
+    this.host.display.setStatusLine("");
+    highlight.setHoverPath(path);
+    if (!this.host.hasAnimationLoop) this.host.update(true, false);
+  }
+
+  /**
    * Whether hover preselection (highlight + status line) is active. Disabled for GDS:
    * dense, stacked, instance-unrolled layout data where per-pixel hover flickers
    * endlessly and the B-rep readout ("area ≈ …") is meaningless, so GDS is

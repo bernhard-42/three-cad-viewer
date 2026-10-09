@@ -133,6 +133,45 @@ describe("HighlightController — data layer", () => {
     c.dispose();
   });
 
+  it("setHoverPath HOVERs every face at or below the path, not edges", () => {
+    const { reg, f0, f1, e0, standalone } = makeRegistry();
+    const sibling = reg.register({
+      path: "/sx/faces/faces_0",
+      name: "faces_0",
+      topo: "face",
+      subtype: "solid",
+      solidPath: "/sx",
+    });
+    const c = new HighlightController(reg);
+    c.setHoverPath("/s");
+    expect(texData(c)[f0]).toBe(HighlightFlag.HOVER);
+    expect(texData(c)[f1]).toBe(HighlightFlag.HOVER);
+    expect(texData(c)[e0]).toBe(HighlightFlag.NONE); // edges are not hovered
+    expect(texData(c)[standalone]).toBe(HighlightFlag.NONE);
+    expect(texData(c)[sibling]).toBe(HighlightFlag.NONE); // "/sx" is not under "/s"
+    // a group path covers solids and standalone faces below it
+    c.setHoverPath("");
+    expect(texData(c)[f0]).toBe(HighlightFlag.HOVER);
+    expect(texData(c)[standalone]).toBe(HighlightFlag.HOVER);
+    expect(texData(c)[sibling]).toBe(HighlightFlag.HOVER);
+    // null clears
+    c.setHoverPath(null);
+    expect(texData(c)[f0]).toBe(HighlightFlag.NONE);
+    expect(texData(c)[standalone]).toBe(HighlightFlag.NONE);
+    c.dispose();
+  });
+
+  it("setHoverPath preserves SELECTED bits", () => {
+    const { reg, f0 } = makeRegistry();
+    const c = new HighlightController(reg);
+    c.setSelected(f0, true);
+    c.setHoverPath("/s");
+    expect(texData(c)[f0]).toBe(HighlightFlag.SELECTED | HighlightFlag.HOVER);
+    c.setHoverPath(null);
+    expect(texData(c)[f0]).toBe(HighlightFlag.SELECTED);
+    c.dispose();
+  });
+
   it("selectSolid flags only the solid's faces (matches _getSolidObjectGroups)", () => {
     const { reg, f0, f1, e0, standalone } = makeRegistry();
     const c = new HighlightController(reg);

@@ -1,5 +1,9 @@
 # Change log
 
+## v5.1.0
+
+- **Hovering a tree row highlights its faces**: moving the mouse over a leaf or a group in the tree applies the hover highlight to every face at or below that node (edges and vertices are not highlighted), and leaving the row clears it. A canvas hover that was active before the mouse moved into the tree no longer wipes the tree highlight on the next render.
+
 ## v5.0.7
 
 - **Fix graphics memory growing ~25× the model size under WebKit (Safari, WKWebView hosts such as build123d Studio)**: every visible material and the three pick shaders passed the component id to the fragment stage as a `flat uint` varying. Under WebKit's ANGLE-on-Metal backend, a draw whose program has a `flat` varying makes ANGLE keep a converted copy of the draw's index data (≥ 64 KB each, pooled, never released to the GL), so a scene with 26 MB of vertex/index buffers occupied 812 MB of graphics memory, 100 MB occupied 2.3 GB, the pool was retained across `clear()`, and in the system WebKit it is charged to the page's WebContent process — a few large shows crossed WebKit's 16 GB kill line. The id now crosses as two interpolated float varyings holding its 16-bit halves (exact, since all vertices of a primitive carry the same id): same scenes take 63 MB and 160 MB, picking and highlight results are byte-identical.

@@ -361,6 +361,23 @@ export class HighlightController {
     this._applyHover(`s${solidPath}`, ids);
   }
 
+  /**
+   * HOVER every FACE at or below the tree path `prefix` (a leaf or a whole group),
+   * or clear hover when `null`. Drives the tree-row hover highlight.
+   */
+  setHoverPath(prefix: string | null): void {
+    if (prefix == null) {
+      this._applyHover("", []);
+      return;
+    }
+    const sub = prefix + "/";
+    const ids: number[] = [];
+    for (const info of this.registry.entries()) {
+      if (info.topo === "face" && info.path.startsWith(sub)) ids.push(info.id);
+    }
+    this._applyHover(`p${prefix}`, ids);
+  }
+
   /** Set or clear the SELECTED flag for a single component id. */
   setSelected(id: number, flag: boolean): void {
     this._setBit(id, HighlightFlag.SELECTED, flag);

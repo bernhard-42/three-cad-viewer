@@ -1347,6 +1347,7 @@ class Viewer {
       this.state.get("theme"),
       this.state.get("newTreeBehavior"),
       false,
+      this.handleTreeHover,
     );
 
     this.display.clearCadTree();
@@ -2327,6 +2328,11 @@ class Viewer {
   get lastSelection(): PickedComponent | null {
     return this.pickingController.lastSelection;
   }
+
+  /** Tree-row hover: highlight the faces of the node at `path`, or clear on `null`. */
+  handleTreeHover = (path: string | null): void => {
+    this.pickingController.setTreeHover(path);
+  };
 
   /** Enable/disable the double-click pick handler (on when no tool is active). */
   setPickHandler(flag: boolean): void {
@@ -3450,6 +3456,7 @@ class Viewer {
       this.state.get("theme"),
       this.state.get("newTreeBehavior"),
       false,
+      this.handleTreeHover,
     );
     this.rendered.treeview = treeview;
 

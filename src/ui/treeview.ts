@@ -51,6 +51,7 @@ type PickHandler = (
 
 type UpdateHandler = (flag: boolean) => void;
 type NotificationHandler = () => void;
+type HoverHandler = (path: string | null) => void;
 type ColorGetter = (path: string) => string | null;
 
 /**
@@ -68,6 +69,7 @@ class TreeView {
   theme: string;
   linkIcons: boolean;
   debug: boolean;
+  hoverHandler: HoverHandler | null;
   model: TreeModel | null;
   container: HTMLUListElement | null;
   lastLabel: HTMLElement | null;
@@ -85,6 +87,7 @@ class TreeView {
    * @param theme - The UI theme ('light' or 'dark').
    * @param linkIcons - Whether icon 0 and 1 are linked.
    * @param debug - Enable debug logging.
+   * @param hoverHandler - Callback for label hover (node path, or null on leave).
    */
   constructor(
     tree: TreeData,
@@ -97,6 +100,7 @@ class TreeView {
     theme: string,
     linkIcons: boolean,
     debug: boolean = false,
+    hoverHandler: HoverHandler | null = null,
   ) {
     this.tree = tree;
     this.scrollContainer = scrollContainer;
@@ -108,6 +112,7 @@ class TreeView {
     this.theme = theme;
     this.linkIcons = linkIcons;
     this.debug = debug;
+    this.hoverHandler = hoverHandler;
 
     this.model = null;
     this.container = null;
@@ -462,6 +467,12 @@ class TreeView {
     label.onclick = (e) => {
       e.stopPropagation();
       this.handleLabelClick(node, e);
+    };
+    label.onmouseenter = () => {
+      this.hoverHandler?.(this.getNodePath(node));
+    };
+    label.onmouseleave = () => {
+      this.hoverHandler?.(null);
     };
 
     nodeContent.appendChild(label);
