@@ -81829,6 +81829,45 @@ class EventListenerManager {
         this.listeners = [];
     }
 }
+/**
+ * Copy `text` to the clipboard from inside a user-initiated event handler.
+ *
+ * Tries the synchronous hidden-textarea `execCommand("copy")` first: it needs no
+ * clipboard permission, so it also works in embedding iframes and WebKit views that
+ * refuse `navigator.clipboard`. Falls back to the async Clipboard API.
+ * Focus is restored to the previously focused element.
+ *
+ * @param text - The text to copy.
+ * @param parent - Element the temporary textarea is attached to.
+ * @returns true when the synchronous copy reported success.
+ */
+function copyText(text, parent) {
+    const previous = document.activeElement;
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.left = "-9999px";
+    area.style.opacity = "0";
+    parent.appendChild(area);
+    area.select();
+    let copied;
+    try {
+        copied = document.execCommand("copy");
+    }
+    catch {
+        copied = false;
+    }
+    parent.removeChild(area);
+    if (previous instanceof HTMLElement)
+        previous.focus({ preventScroll: true });
+    if (!copied && navigator.clipboard !== undefined) {
+        navigator.clipboard.writeText(text).catch((err) => {
+            logger.debug("Clipboard write refused:", err);
+        });
+    }
+    return copied;
+}
 
 /**
  * Zebra Analysis Tool for Three.js CAD Viewer
@@ -85096,7 +85135,7 @@ function focusSizeExpr(stateVar, hover, selected, none) {
  * renames an anchor must fail LOUDLY here, not silently drop the highlight (build
  * would otherwise stay green). One guard test asserts each anchor still exists.
  */
-function replaceOrThrow(src, anchor, replacement, where) {
+function replaceOrThrow$1(src, anchor, replacement, where) {
     if (!src.includes(anchor)) {
         throw new Error(`HighlightController.${where}: shader anchor not found: ${JSON.stringify(anchor)}`);
     }
@@ -85214,6 +85253,23 @@ class HighlightController {
         }
         this._applyHover(`s${solidPath}`, ids);
     }
+    /**
+     * HOVER every FACE at or below the tree path `prefix` (a leaf or a whole group),
+     * or clear hover when `null`. Drives the tree-row hover highlight.
+     */
+    setHoverPath(prefix) {
+        if (prefix == null) {
+            this._applyHover("", []);
+            return;
+        }
+        const sub = prefix + "/";
+        const ids = [];
+        for (const info of this.registry.entries()) {
+            if (info.topo === "face" && info.path.startsWith(sub))
+                ids.push(info.id);
+        }
+        this._applyHover(`p${prefix}`, ids);
+    }
     /** Set or clear the SELECTED flag for a single component id. */
     setSelected(id, flag) {
         this._setBit(id, HighlightFlag.SELECTED, flag);
@@ -85316,7 +85372,7 @@ class HighlightController {
             shader.vertexShader =
                 HL_VERTEX_HEADER +
                     "\n" +
-                    replaceOrThrow(shader.vertexShader, "void main() {", `void main() {\n  ${HL_VERTEX_ASSIGN}`, where);
+                    replaceOrThrow$1(shader.vertexShader, "void main() {", `void main() {\n  ${HL_VERTEX_ASSIGN}`, where);
             shader.fragmentShader = HL_FRAGMENT_HEADER + "\n" + shader.fragmentShader;
             // Topo-specific color / size injection.
             customize(shader);
@@ -85331,7 +85387,7 @@ class HighlightController {
      */
     patchFaceMaterial(material) {
         this._install(material, "patchFaceMaterial", (shader) => {
-            shader.fragmentShader = replaceOrThrow(shader.fragmentShader, "#include <color_fragment>", `#include <color_fragment>${HL_COLOR_OVERRIDE}`, "patchFaceMaterial");
+            shader.fragmentShader = replaceOrThrow$1(shader.fragmentShader, "#include <color_fragment>", `#include <color_fragment>${HL_COLOR_OVERRIDE}`, "patchFaceMaterial");
         });
     }
     /**
@@ -85343,9 +85399,9 @@ class HighlightController {
      */
     patchEdgeMaterial(material) {
         this._install(material, "patchEdgeMaterial", (shader) => {
-            shader.vertexShader = replaceOrThrow(shader.vertexShader, "offset *= linewidth;", `uint hlEdgeState = highlightState();
+            shader.vertexShader = replaceOrThrow$1(shader.vertexShader, "offset *= linewidth;", `uint hlEdgeState = highlightState();
 				offset *= ${focusSizeExpr("hlEdgeState", EDGE_FOCUS_WIDTH, EDGE_FOCUS_WIDTH - 2, "linewidth")};`, "patchEdgeMaterial");
-            shader.fragmentShader = replaceOrThrow(shader.fragmentShader, "#include <color_fragment>", `#include <color_fragment>${HL_COLOR_OVERRIDE}`, "patchEdgeMaterial");
+            shader.fragmentShader = replaceOrThrow$1(shader.fragmentShader, "#include <color_fragment>", `#include <color_fragment>${HL_COLOR_OVERRIDE}`, "patchEdgeMaterial");
         });
     }
     /**
@@ -85360,12 +85416,12 @@ class HighlightController {
         const cull = options.cullUnhighlighted === true;
         const none = cull ? "0.0" : "size";
         this._install(material, "patchVertexMaterial", (shader) => {
-            shader.vertexShader = replaceOrThrow(shader.vertexShader, "gl_PointSize = size;", `uint hlPtState = highlightState();
+            shader.vertexShader = replaceOrThrow$1(shader.vertexShader, "gl_PointSize = size;", `uint hlPtState = highlightState();
 	gl_PointSize = ${focusSizeExpr("hlPtState", VERTEX_FOCUS_SIZE, VERTEX_FOCUS_SIZE - 2, none)};`, "patchVertexMaterial");
             const discard = cull
                 ? "\n    if (highlightState() == 0u) discard;"
                 : "";
-            shader.fragmentShader = replaceOrThrow(shader.fragmentShader, "#include <color_fragment>", `#include <color_fragment>${discard}${HL_COLOR_OVERRIDE}`, "patchVertexMaterial");
+            shader.fragmentShader = replaceOrThrow$1(shader.fragmentShader, "#include <color_fragment>", `#include <color_fragment>${discard}${HL_COLOR_OVERRIDE}`, "patchVertexMaterial");
         }, 
         // The cull discard is the variant that must NOT share a program with the
         // standalone (always-visible) vertex cloud — the ghost-vertex bug.
@@ -90158,8 +90214,9 @@ class TreeView {
      * @param theme - The UI theme ('light' or 'dark').
      * @param linkIcons - Whether icon 0 and 1 are linked.
      * @param debug - Enable debug logging.
+     * @param hoverHandler - Callback for label hover (node path, or null on leave).
      */
-    constructor(tree, scrollContainer, objectHandler, pickHandler, updateHandler, notificationHandler, colorGetter, theme, linkIcons, debug = false) {
+    constructor(tree, scrollContainer, objectHandler, pickHandler, updateHandler, notificationHandler, colorGetter, theme, linkIcons, debug = false, hoverHandler = null) {
         /************************************************************************************
          *  Handlers
          ************************************************************************************/
@@ -90274,6 +90331,7 @@ class TreeView {
         this.theme = theme;
         this.linkIcons = linkIcons;
         this.debug = debug;
+        this.hoverHandler = hoverHandler;
         this.model = null;
         this.container = null;
         this.lastLabel = null;
@@ -90470,6 +90528,12 @@ class TreeView {
         label.onclick = (e) => {
             e.stopPropagation();
             this.handleLabelClick(node, e);
+        };
+        label.onmouseenter = () => {
+            this.hoverHandler?.(this.getNodePath(node));
+        };
+        label.onmouseleave = () => {
+            this.hoverHandler?.(null);
         };
         nodeContent.appendChild(label);
         let childrenContainer = null;
@@ -90962,6 +91026,357 @@ let Timer$1 = class Timer {
     }
 };
 
+/**
+ * Section hatching for clip caps (CAD mode, shader-only). The per-solid cap quads
+ * draw hatch lines anchored to the plane (stable while rotating/panning) whose
+ * spacing is kept at a constant pixel distance by a per-frame world-per-pixel
+ * uniform. The outline of the caps is drawn separately (see cap-outline.ts); for its
+ * id pass the same cap shader can output the cap's id instead of its color.
+ *
+ * All shared uniforms are plain `{ value }` objects held by reference, so a single
+ * write (e.g. the per-frame hatch spacing) updates every patched material without a
+ * recompile.
+ */
+/** Distance between hatch lines in pixels. */
+const HATCH_SPACING_PX = 8;
+/** Width of a hatch line in pixels. */
+const HATCH_LINE_WIDTH_PX = 1;
+/**
+ * Hatch angle (radians) and spacing factor per solid, cycled by the solid's index
+ * so that neighbouring solids are told apart (drawing convention: alternate the
+ * hatch direction between adjacent parts).
+ */
+const HATCH_VARIANTS = [
+    { angle: Math.PI / 4, scale: 1.0 },
+    { angle: (3 * Math.PI) / 4, scale: 1.0 },
+    { angle: Math.PI / 4, scale: 1.6 },
+    { angle: (3 * Math.PI) / 4, scale: 1.6 },
+];
+function createHatchUniforms(capHalfSize) {
+    return {
+        uHatchSpacing: { value: 1 },
+        uCapHalfSize: { value: capHalfSize },
+        uHatchLineWidth: { value: HATCH_LINE_WIDTH_PX },
+        uHatchOn: { value: 1 },
+        uCapIdPass: { value: 0 },
+    };
+}
+/**
+ * World units covered by one screen pixel at the given point (exact for an
+ * orthographic camera; at the point's distance for a perspective camera).
+ */
+function worldPerPixel(camera, point, height) {
+    if (height <= 0)
+        return 1;
+    if (camera instanceof OrthographicCamera) {
+        return (camera.top - camera.bottom) / camera.zoom / height;
+    }
+    if (camera instanceof PerspectiveCamera) {
+        const dist = camera.position.distanceTo(point);
+        const halfFov = MathUtils.degToRad(camera.fov) / 2;
+        return (2 * dist * Math.tan(halfFov)) / camera.zoom / height;
+    }
+    return 1;
+}
+function replaceOrThrow(source, anchor, replacement, where) {
+    if (!source.includes(anchor)) {
+        throw new Error(`${where}: shader anchor "${anchor}" not found`);
+    }
+    return source.replace(anchor, replacement);
+}
+/**
+ * Patch a cap quad material to draw section hatching. `index` is the solid's index
+ * among the caps of its plane; it selects the hatch direction and spacing. `capId`
+ * is the cap's unique id color for the outline id pass (see `capIdColor`).
+ */
+function patchHatchMaterial(material, uniforms, index, capId) {
+    if (material.userData.hatchPatched === true)
+        return;
+    material.userData.hatchPatched = true;
+    const variant = HATCH_VARIANTS[index % HATCH_VARIANTS.length];
+    const uHatchAngle = { value: variant.angle };
+    const uHatchScale = { value: variant.scale };
+    const uCapId = { value: capId };
+    const prev = material.onBeforeCompile;
+    material.onBeforeCompile = (shader, renderer) => {
+        prev.call(material, shader, renderer);
+        shader.uniforms.uHatchSpacing = uniforms.uHatchSpacing;
+        shader.uniforms.uCapHalfSize = uniforms.uCapHalfSize;
+        shader.uniforms.uHatchLineWidth = uniforms.uHatchLineWidth;
+        shader.uniforms.uHatchOn = uniforms.uHatchOn;
+        shader.uniforms.uHatchAngle = uHatchAngle;
+        shader.uniforms.uHatchScale = uHatchScale;
+        shader.uniforms.uCapIdPass = uniforms.uCapIdPass;
+        shader.uniforms.uCapId = uCapId;
+        shader.vertexShader =
+            "uniform float uCapHalfSize;\nvarying vec2 vTcvCapUV;\n" +
+                replaceOrThrow(shader.vertexShader, "#include <begin_vertex>", "#include <begin_vertex>\n  vTcvCapUV = position.xy * uCapHalfSize;", "patchHatchMaterial");
+        shader.fragmentShader =
+            "uniform float uHatchSpacing;\nuniform float uHatchLineWidth;\nuniform float uHatchOn;\n" +
+                "uniform float uHatchAngle;\nuniform float uHatchScale;\nvarying vec2 vTcvCapUV;\n" +
+                "uniform float uCapIdPass;\nuniform vec3 uCapId;\n" +
+                shader.fragmentShader;
+        // Hatch the unlit base color, before lighting: the ink (dark lines on light
+        // parts, light lines on dark parts) is then fixed per part, and lines and cap
+        // darken together when the cap turns away from the light.
+        shader.fragmentShader = replaceOrThrow(shader.fragmentShader, "#include <color_fragment>", 
+        /* glsl */ `#include <color_fragment>
+  if ( uHatchOn > 0.5 ) {
+    vec2 tcvAcross = vec2( - sin( uHatchAngle ), cos( uHatchAngle ) );
+    float t = dot( vTcvCapUV, tcvAcross ) / max( uHatchSpacing * uHatchScale, 1e-9 );
+    float tw = max( fwidth( t ), 1e-6 );
+    float dpx = ( 0.5 - abs( fract( t ) - 0.5 ) ) / tw;
+    float line = 1.0 - smoothstep( 0.5 * uHatchLineWidth - 0.5, 0.5 * uHatchLineWidth + 0.5, dpx );
+    // Seen edge-on the lines crowd below a few pixels apart and would merge into
+    // solid ink: fade them out between 4 and 2 px spacing (1 / tw = px per line).
+    line *= smoothstep( 2.0, 4.0, 1.0 / tw );
+    float lum = dot( diffuseColor.rgb, vec3( 0.2126, 0.7152, 0.0722 ) );
+    vec3 ink = lum > 0.2 ? diffuseColor.rgb * 0.3 : mix( diffuseColor.rgb, vec3( 1.0 ), 0.6 );
+    diffuseColor.rgb = mix( diffuseColor.rgb, ink, line );
+  }`, "patchHatchMaterial");
+        shader.fragmentShader = replaceOrThrow(shader.fragmentShader, "#include <opaque_fragment>", `#include <opaque_fragment>
+  if ( uCapIdPass > 0.5 ) gl_FragColor = vec4( uCapId, 1.0 );`, "patchHatchMaterial");
+    };
+    material.needsUpdate = true;
+}
+
+/**
+ * Screen-space outline of the clip caps (CAD mode).
+ *
+ * The caps carry no geometry of their own outline, and the faces next to a cut may
+ * face away from the camera or belong to a touching solid, so the outline is found
+ * in screen space instead:
+ *
+ * 1. Id pass into an offscreen target (color + depth + stencil):
+ *    - visible faces as black occluders (face pick layer + override material), so a
+ *      cap hidden behind another part gets no outline; face pixels within the line
+ *      width of a clip plane write {@link CUT_EDGE_ID} instead, which draws the cut
+ *      contour on the faces themselves (needed when the caps are behind the faces),
+ *    - the stencil meshes and caps (on {@link CAP_LAYER}) with each cap writing its
+ *      own id instead of its shaded color — the same stencil sequence as the main
+ *      render, since three orders them identically (material creation order).
+ * 2. Composite over the canvas: a pixel is drawn in the edge color when its id is
+ *    larger than a neighbour's id, which yields a line on one side of every boundary
+ *    cap↔cap, cap↔surface and cap↔background. Cut-edge pixels are the largest id, so
+ *    where they meet a cap only they are drawn — one line, not two.
+ */
+/** Render layer of the clip stencil meshes and cap quads (pick layers use 1-3). */
+const CAP_LAYER = 4;
+/** Id of face pixels on the cut contour (larger than any cap id). */
+const CUT_EDGE_ID = 0xffffff;
+/** Encode a cap id (1..2^24-1) as an exact 8-bit RGB color (0 = no cap). */
+function capIdColor(id) {
+    return new Vector3((id & 0xff) / 255, ((id >> 8) & 0xff) / 255, ((id >> 16) & 0xff) / 255);
+}
+// Occluder: a face fragment lies on the cut contour when it is within uCutWidth
+// pixels of a clip plane that bounds the visible part, mirroring three's
+// clipping_planes_fragment (kept fragments have d >= 0). Skipped where the face is
+// (nearly) parallel to the plane: there d barely changes across the pixel, and a
+// face lying in the plane would otherwise become one big edge.
+const CUT_EDGE_GLSL = /* glsl */ `
+bool tcvCut = false;
+#if NUM_CLIPPING_PLANES > 0
+  {
+    float tcvPosGrad = length( fwidth( vClipPosition ) );
+    float tcvD[ NUM_CLIPPING_PLANES ];
+    bool tcvNear[ NUM_CLIPPING_PLANES ];
+    for ( int i = 0; i < NUM_CLIPPING_PLANES; i ++ ) {
+      vec4 p = clippingPlanes[ i ];
+      float d = p.w - dot( vClipPosition, p.xyz );
+      // Step of d per pixel along the dominant screen axis — the same 1-pixel
+      // convention as the composite's horizontal/vertical neighbour test.
+      float g = max( abs( dFdx( d ) ), abs( dFdy( d ) ) );
+      tcvD[ i ] = d;
+      tcvNear[ i ] = g > 0.05 * tcvPosGrad && d >= 0.0 && d < uCutWidth * g;
+    }
+    for ( int i = 0; i < UNION_CLIPPING_PLANES; i ++ ) {
+      tcvCut = tcvCut || tcvNear[ i ];
+    }
+    #if UNION_CLIPPING_PLANES < NUM_CLIPPING_PLANES
+      // Intersection planes: plane i bounds the visible part only where every
+      // other intersection plane clips.
+      for ( int i = UNION_CLIPPING_PLANES; i < NUM_CLIPPING_PLANES; i ++ ) {
+        bool othersClip = true;
+        for ( int j = UNION_CLIPPING_PLANES; j < NUM_CLIPPING_PLANES; j ++ ) {
+          if ( j != i && tcvD[ j ] >= 0.0 ) othersClip = false;
+        }
+        if ( othersClip && tcvNear[ i ] ) tcvCut = true;
+      }
+    #endif
+  }
+#endif
+`;
+const COMPOSITE_VERTEX = /* glsl */ `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = vec4( position.xy, 0.0, 1.0 );
+}
+`;
+const COMPOSITE_FRAGMENT = /* glsl */ `
+uniform sampler2D tId;
+uniform vec2 uTexel;
+uniform float uWidth;
+uniform vec3 uColor;
+varying vec2 vUv;
+
+float idAt( vec2 uv ) {
+  vec3 c = floor( texture2D( tId, uv ).rgb * 255.0 + 0.5 );
+  return c.r + 256.0 * c.g + 65536.0 * c.b;
+}
+
+void main() {
+  float c = idAt( vUv );
+  bool edge = c == ${CUT_EDGE_ID.toFixed(1)};
+  for ( int k = 1; k <= 4; k ++ ) {
+    if ( float( k ) > uWidth ) break;
+    vec2 o = uTexel * float( k );
+    edge = edge
+      || c > idAt( vUv + vec2( o.x, 0.0 ) ) || c > idAt( vUv - vec2( o.x, 0.0 ) )
+      || c > idAt( vUv + vec2( 0.0, o.y ) ) || c > idAt( vUv - vec2( 0.0, o.y ) );
+  }
+  if ( ! edge ) discard;
+  gl_FragColor = vec4( uColor, 1.0 );
+  #include <colorspace_fragment>
+}
+`;
+class CapOutlinePass {
+    constructor() {
+        this.target = null;
+        /** Width of the cut contour on the faces, in device pixels (= outline width). */
+        this.cutWidth = { value: 1 };
+        this.size = new Vector2();
+        this.savedClearColor = new Color();
+        this.savedViewport = new Vector4();
+        // One depth unit behind the caps (polygonOffset 1/1), so a face coplanar with a
+        // cap does not hide it; same slope factor, so steep faces in front still occlude.
+        this.occluder = new MeshBasicMaterial({
+            color: 0x000000,
+            side: DoubleSide,
+            polygonOffset: true,
+            polygonOffsetFactor: 1,
+            polygonOffsetUnits: 2,
+        });
+        this.occluder.onBeforeCompile = (shader) => {
+            const clipAnchor = "#include <clipping_planes_fragment>";
+            const opaqueAnchor = "#include <opaque_fragment>";
+            for (const anchor of [clipAnchor, opaqueAnchor]) {
+                if (!shader.fragmentShader.includes(anchor)) {
+                    throw new Error(`CapOutlinePass: shader anchor "${anchor}" not found`);
+                }
+            }
+            shader.uniforms.uCutWidth = this.cutWidth;
+            shader.fragmentShader =
+                "uniform float uCutWidth;\n" +
+                    shader.fragmentShader
+                        .replace(clipAnchor, `${clipAnchor}\n${CUT_EDGE_GLSL}`)
+                        .replace(opaqueAnchor, `${opaqueAnchor}\n  if ( tcvCut ) gl_FragColor = vec4( 1.0 );`);
+        };
+        this.composite = new ShaderMaterial({
+            uniforms: {
+                tId: { value: null },
+                uTexel: { value: new Vector2(1, 1) },
+                uWidth: { value: 1 },
+                uColor: { value: new Color() },
+            },
+            vertexShader: COMPOSITE_VERTEX,
+            fragmentShader: COMPOSITE_FRAGMENT,
+            depthTest: false,
+            depthWrite: false,
+        });
+        this.quad = new Mesh(new PlaneGeometry(2, 2), this.composite);
+        this.quad.frustumCulled = false;
+        this.quadScene = new Scene();
+        this.quadScene.add(this.quad);
+        this.quadCamera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    }
+    ensureTarget(width, height) {
+        if (this.target === null) {
+            this.target = new WebGLRenderTarget(width, height, {
+                minFilter: NearestFilter,
+                magFilter: NearestFilter,
+                generateMipmaps: false,
+                depthBuffer: true,
+                stencilBuffer: true,
+            });
+        }
+        else if (this.target.width !== width || this.target.height !== height) {
+            this.target.setSize(width, height);
+        }
+        return this.target;
+    }
+    /**
+     * Render the id pass and draw the outline over the current (canvas) framebuffer.
+     * Call right after the main scene render.
+     */
+    render(renderer, scene, camera, options) {
+        renderer.getDrawingBufferSize(this.size);
+        const width = Math.floor(this.size.x);
+        const height = Math.floor(this.size.y);
+        if (width < 1 || height < 1)
+            return;
+        const target = this.ensureTarget(width, height);
+        // Line width in device pixels, shared by the cut contour and the cap outline.
+        const lineWidth = Math.max(1, Math.round(renderer.getPixelRatio()));
+        this.cutWidth.value = lineWidth;
+        const savedMask = camera.layers.mask;
+        const savedOverride = scene.overrideMaterial;
+        const savedBackground = scene.background;
+        const savedTarget = renderer.getRenderTarget();
+        const savedAutoClear = renderer.autoClear;
+        const savedAlpha = renderer.getClearAlpha();
+        renderer.getClearColor(this.savedClearColor);
+        renderer.getViewport(this.savedViewport);
+        try {
+            renderer.autoClear = false;
+            scene.background = null;
+            renderer.setRenderTarget(target);
+            renderer.setClearColor(0x000000, 0); // id 0 = no cap
+            renderer.clear(true, true, true);
+            if (options.occlude) {
+                this.occluder.clippingPlanes = options.planes;
+                this.occluder.clipIntersection = options.intersection;
+                camera.layers.set(PICK_LAYER.FACE);
+                scene.overrideMaterial = this.occluder;
+                renderer.render(scene, camera);
+                scene.overrideMaterial = savedOverride;
+            }
+            options.setCapIdPass(true);
+            try {
+                camera.layers.set(CAP_LAYER);
+                renderer.render(scene, camera);
+            }
+            finally {
+                options.setCapIdPass(false);
+            }
+            renderer.setRenderTarget(savedTarget);
+            renderer.setViewport(this.savedViewport);
+            const u = this.composite.uniforms;
+            u.tId.value = target.texture;
+            u.uTexel.value.set(1 / width, 1 / height);
+            u.uWidth.value = lineWidth;
+            u.uColor.value.set(options.color);
+            renderer.render(this.quadScene, this.quadCamera);
+        }
+        finally {
+            camera.layers.mask = savedMask;
+            scene.overrideMaterial = savedOverride;
+            scene.background = savedBackground;
+            renderer.setRenderTarget(savedTarget);
+            renderer.setClearColor(this.savedClearColor, savedAlpha);
+            renderer.setViewport(this.savedViewport);
+            renderer.autoClear = savedAutoClear;
+        }
+    }
+    dispose() {
+        this.target?.dispose();
+        this.target = null;
+        this.occluder.dispose();
+        this.composite.dispose();
+        this.quad.geometry.dispose();
+    }
+}
+
 // ============================================================================
 // Constants
 // ============================================================================
@@ -91214,6 +91629,9 @@ class Clipping extends Group {
         super();
         /** Per-solid stencil/cap units, the unit of screen-size culling. */
         this._capUnits = [];
+        /** Shared uniforms of the section hatching on all cap quads. */
+        this._hatchUniforms = createHatchUniforms(1);
+        this._hatchCenter = new Vector3();
         /**
          * Whether {@link cull} last ran with clipping active. Lets the inactive path
          * gate stencils/caps off exactly once, then early-return on later still frames.
@@ -91277,6 +91695,10 @@ class Clipping extends Group {
                 mesh.material.visible = flag;
             }
         };
+        /** Switch all cap materials between shaded output and outline id output. */
+        this.setCapIdPass = (flag) => {
+            this._hatchUniforms.uCapIdPass.value = flag ? 1 : 0;
+        };
         this.center = center;
         this.distance = size / 2;
         this.onNormalChange = options.onNormalChange || null;
@@ -91339,11 +91761,16 @@ class Clipping extends Group {
     _createStencils(center, size, theme) {
         this._planeMeshGroup = new PlaneMeshGroup();
         this._planeMeshGroup.name = "PlaneMeshes";
+        // Cap quads are PlaneGeometry(2, 2) scaled by size/2 (PlaneMesh.updateMatrixWorld).
+        this._hatchUniforms.uCapHalfSize.value = 0.5 * size;
+        this._hatchCenter.set(center[0], center[1], center[2]);
         // Group the per-(solid,plane) units by solid for screen-size culling. The
         // loop below is plane-major (and `objectColors`/`_planeMeshGroup` order must
         // stay plane-major for setObjectColorCaps), so accumulate into a Map keyed by
         // solid and flatten afterwards — without touching the plane-major structures.
         const unitsBySolid = new Map();
+        // Unique id per cap quad (plane × solid) for the cap outline id pass; 0 = none.
+        let capId = 0;
         for (let i = 0; i < 3; i++) {
             const plane = this.clipPlanes[i];
             const otherPlanes = this.clipPlanes.filter((_, j) => j !== i);
@@ -91363,9 +91790,16 @@ class Clipping extends Group {
                     clippingGroup.add(createStencil(`frontStencil-${i}-${j}`, ClippingMaterials.createFrontStencilMaterial(), group.shapeGeometry, plane));
                     clippingGroup.add(createStencil(`backStencil-${i}-${j}`, ClippingMaterials.createBackStencilMaterial(), group.shapeGeometry, plane));
                     group.addClipping(clippingGroup, i);
+                    // The outline id pass renders the stencil sequence + caps on CAP_LAYER.
+                    for (const stencil of clippingGroup.children) {
+                        stencil.layers.enable(CAP_LAYER);
+                    }
                     // Create stencil plane mesh
                     const planeMaterial = ClippingMaterials.createStencilPlaneMaterial(PLANE_COLORS[theme][i], otherPlanes);
+                    capId++;
+                    patchHatchMaterial(planeMaterial, this._hatchUniforms, j, capIdColor(capId));
                     const capMesh = new PlaneMesh(i, plane, center, size, planeMaterial, PLANE_COLORS[theme][i], `StencilPlane-${i}-${j}`);
+                    capMesh.layers.enable(CAP_LAYER);
                     this._planeMeshGroup.add(capMesh);
                     // Record the cull unit for this solid (one entry per solid, holding
                     // its up-to-3 per-plane stencil groups + cap quads).
@@ -91430,6 +91864,10 @@ class Clipping extends Group {
         this.clipPlanes[index].setConstant(value);
         this.reverseClipPlanes[index].setConstant(-value);
     }
+    /** Whether any solid has clip caps (the cap outline pass has work to do). */
+    get hasCaps() {
+        return this._capUnits.length > 0;
+    }
     /**
      * Bound the per-frame stencil/cap draw work to keep large assemblies from
      * overrunning the GPU watchdog on clip+rotate (see {@link CAP_CULL_MIN_PX}).
@@ -91464,6 +91902,9 @@ class Clipping extends Group {
             return;
         }
         this._cullActive = true;
+        // Keep the hatch spacing constant on screen (planes pass near the model center).
+        this._hatchUniforms.uHatchSpacing.value =
+            HATCH_SPACING_PX * worldPerPixel(camera, this._hatchCenter, height);
         // Camera right vector in world space = column 0 of the camera world matrix.
         camera.updateMatrixWorld();
         const e = camera.matrixWorld.elements;
@@ -97393,7 +97834,7 @@ class Tools {
     }
 }
 
-const version = "5.0.7";
+const version = "5.1.0";
 
 /**
  * `PickedComponent` over a GPU id-pick result. Drives the shader
@@ -97620,6 +98061,58 @@ class PickingController {
         this.setPickHandler(false);
     }
     /**
+     * Pick the visible component under the cursor with the current topo filter, or
+     * `null` when the cursor is off the canvas or over background.
+     */
+    pickUnderCursor() {
+        if (this.host.idPicker === null || !this.idHoverInside)
+            return null;
+        const rect = this.host.renderer.domElement.getBoundingClientRect();
+        const x = this.idHoverClientX - rect.left;
+        const y = this.idHoverClientY - rect.top;
+        if (x < 0 || y < 0 || x > rect.width || y > rect.height)
+            return null;
+        const topoFilter = pickerTopoFilter(this.host.display.shapeFilterDropDownMenu.currentFilter);
+        const hit = this.host.idPicker.pickAt(x, y, topoFilter === undefined ? {} : { topoFilter });
+        // The vertex/edge pick layers stay active even when the owning solid is hidden
+        // (visibility lives on the mesh material, not the pick layer), so gate the pick on
+        // visibility — otherwise a hidden component could be hovered AND selected.
+        if (hit === null || !this.pickVisible(hit.info))
+            return null;
+        return hit;
+    }
+    /**
+     * World-space point on the visible component under the cursor (same pick as the
+     * hover), or `null` when there is none or the GPU lacks the position attachment.
+     */
+    pointUnderCursor() {
+        if (!this.host.ready)
+            return null;
+        const hit = this.pickUnderCursor();
+        if (hit === null || hit.point === null)
+            return null;
+        return hit.point.clone();
+    }
+    /**
+     * Tree-row hover: HOVER the faces of the tree node at `path` (leaf or group), or
+     * clear when `null`. Drops the canvas hover target first — otherwise the next
+     * render's {@link handleIdHover} (cursor outside the canvas) would release that
+     * stale target and wipe the tree hover with it.
+     */
+    setTreeHover(path) {
+        if (!this.host.ready || this.host.studioActive)
+            return;
+        const highlight = this.host.rendered.nestedGroup?.highlight ?? null;
+        if (highlight === null)
+            return;
+        this.releaseLastSelected();
+        this.lastObject = null;
+        this.host.display.setStatusLine("");
+        highlight.setHoverPath(path);
+        if (!this.host.hasAnimationLoop)
+            this.host.update(true, false);
+    }
+    /**
      * Whether hover preselection (highlight + status line) is active. Disabled for GDS:
      * dense, stacked, instance-unrolled layout data where per-pixel hover flickers
      * endlessly and the B-rep readout ("area ≈ …") is meaningless, so GDS is
@@ -97656,28 +98149,12 @@ class PickingController {
             this.lastObject = null;
             this.host.display.setStatusLine("");
         };
-        if (!this.idHoverInside) {
+        const hit = this.pickUnderCursor();
+        if (hit === null) {
             release();
             return;
         }
-        const rect = this.host.renderer.domElement.getBoundingClientRect();
-        const x = this.idHoverClientX - rect.left;
-        const y = this.idHoverClientY - rect.top;
-        if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
-            release();
-            return;
-        }
-        const filter = this.host.display.shapeFilterDropDownMenu.currentFilter;
-        const fromSolid = filter.includes(TopoFilter.solid);
-        const topoFilter = pickerTopoFilter(filter);
-        const hit = this.host.idPicker.pickAt(x, y, topoFilter === undefined ? {} : { topoFilter });
-        // The vertex/edge pick layers stay active even when the owning solid is hidden
-        // (visibility lives on the mesh material, not the pick layer), so gate the pick on
-        // visibility — otherwise a hidden component could be hovered AND selected.
-        if (hit === null || !this.pickVisible(hit.info)) {
-            release();
-            return;
-        }
+        const fromSolid = this.host.display.shapeFilterDropDownMenu.currentFilter.includes(TopoFilter.solid);
         const picked = new IdPicked(hit.info, fromSolid, hit.point, highlight);
         if (!picked.equals(this.lastObject)) {
             this.releaseLastSelected();
@@ -108858,6 +109335,10 @@ function decodeInstancedFormat(data) {
 // =============================================================================
 // IMPORTS
 // =============================================================================
+/** Decimals of a point copied with Ctrl/Cmd-C ({@link Viewer.copyPointUnderCursor}). */
+const COPY_POINT_DECIMALS = 4;
+/** Delay after the last camera change before the clip cap outline is drawn again. */
+const CAP_OUTLINE_SETTLE_MS = 150;
 /**
  * Type guard to check if an Object3D is an IndexedMesh.
  */
@@ -108968,6 +109449,14 @@ class Viewer {
         // GPU id-based picker. Created/attached per render() once the scene + compact
         // registry exist; drives hover, selection, measure and double-click pick.
         this.idPicker = null;
+        /** Outline of the clip caps; created on first use, kept across renders. */
+        this._capOutline = null;
+        /** Camera world + projection matrix of the previous outline frame (motion test). */
+        this._capOutlineCamera = [];
+        /** Pending redraw that adds the outline once the camera has settled. */
+        this._capOutlineSettle = null;
+        /** Whether the attached animation has moved parts (Play pressed or time slider moved). */
+        this._animationStarted = false;
         // ---------------------------------------------------------------------------
         // Render Loop & Scene Updates
         // ---------------------------------------------------------------------------
@@ -109116,6 +109605,7 @@ class Viewer {
             }
             else {
                 this.renderer.render(this.rendered.scene, this.rendered.camera.getCamera());
+                this._renderCapOutline();
             }
             this.cadTools.update();
             this.rendered.directLight.position.copy(this.rendered.camera.getCamera().position);
@@ -109369,6 +109859,7 @@ class Viewer {
                 return;
             switch (btn) {
                 case "play":
+                    this._animationStarted = true;
                     if (this.clipAction.paused) {
                         this.clipAction.paused = false;
                     }
@@ -109501,6 +109992,10 @@ class Viewer {
                 this.setState(entry.id, [1, showEdges], "leaf");
                 return;
             }
+        };
+        /** Tree-row hover: highlight the faces of the node at `path`, or clear on `null`. */
+        this.handleTreeHover = (path) => {
+            this.pickingController.setTreeHover(path);
         };
         /** Clear the current selection (and reset the select tool). */
         this.clearSelection = () => {
@@ -110690,6 +111185,7 @@ class Viewer {
             this.toggleAnimationLoop(true);
         }
         this.state.set("animationMode", label === "E" ? "explode" : "animation");
+        this._animationStarted = false;
         this.clipAction = this.animation.animate(this.rendered.nestedGroup.rootGroup, duration, speed, repeat);
         // Reset animation slider to start
         this.state.set("animationSliderValue", 0);
@@ -110708,6 +111204,7 @@ class Viewer {
             deepDispose(this.animation);
         }
         this.state.set("animationMode", "none");
+        this._animationStarted = false;
         this.toggleAnimationLoop(false);
     }
     /**
@@ -110716,6 +111213,8 @@ class Viewer {
      * @param fraction - relative time between 0 and 1.
      */
     setRelativeTime(fraction) {
+        if (fraction !== 0)
+            this._animationStarted = true;
         this.animation.setRelativeTime(fraction);
         this.state.set("animationSliderValue", fraction * 1000);
     }
@@ -110747,6 +111246,60 @@ class Viewer {
             setTimeout(() => this.update(true, true), 50);
         }
     }
+    /**
+     * Draw the outline of the clip caps over the frame (Clip tab active only). Skipped
+     * while the camera moves (drag, wheel, damping, preset views): the outline pass
+     * renders faces and caps a second time, so it is drawn once the camera has been
+     * still for {@link CAP_OUTLINE_SETTLE_MS}.
+     */
+    _renderCapOutline() {
+        const clipping = this.rendered.clipping;
+        if (!this.renderer.localClippingEnabled || !clipping.hasCaps)
+            return;
+        const camera = this.rendered.camera.getCamera();
+        if (this._cameraMovedSinceLastOutline(camera)) {
+            this._scheduleCapOutline();
+            return;
+        }
+        if (this._capOutline === null)
+            this._capOutline = new CapOutlinePass();
+        const blackEdges = this.state.get("blackEdges") === true;
+        this._capOutline.render(this.renderer, this.rendered.scene, camera, {
+            planes: clipping.clipPlanes,
+            intersection: this.state.get("clipIntersection") === true,
+            occlude: this.state.get("transparent") !== true,
+            color: blackEdges ? 0x000000 : this.state.get("edgeColor"),
+            setCapIdPass: clipping.setCapIdPass,
+        });
+    }
+    /** Whether the camera's world or projection matrix changed since the last call. */
+    _cameraMovedSinceLastOutline(camera) {
+        const now = [
+            ...camera.matrixWorld.elements,
+            ...camera.projectionMatrix.elements,
+        ];
+        const last = this._capOutlineCamera;
+        const moved = last.length !== now.length || now.some((value, i) => value !== last[i]);
+        this._capOutlineCamera = now;
+        return moved;
+    }
+    /** Redraw once the camera has settled, so the skipped outline appears. */
+    _scheduleCapOutline() {
+        if (this._capOutlineSettle !== null)
+            clearTimeout(this._capOutlineSettle);
+        this._capOutlineSettle = setTimeout(() => {
+            this._capOutlineSettle = null;
+            if (this.ready)
+                this.update(true, false);
+        }, CAP_OUTLINE_SETTLE_MS);
+    }
+    /** Cancel a pending outline redraw. */
+    _cancelCapOutline() {
+        if (this._capOutlineSettle !== null)
+            clearTimeout(this._capOutlineSettle);
+        this._capOutlineSettle = null;
+        this._capOutlineCamera = [];
+    }
     // ---------------------------------------------------------------------------
     // Cleanup & Disposal
     // ---------------------------------------------------------------------------
@@ -110765,6 +111318,8 @@ class Viewer {
      */
     dispose() {
         this.clear();
+        this._capOutline?.dispose();
+        this._capOutline = null;
         // Remove all picking listeners (they hold a strong ref to this Viewer via the
         // controller's arrow-field handlers; in external-canvas mode the caller owns the
         // canvas, so not removing them would leak the disposed Viewer).
@@ -110810,6 +111365,7 @@ class Viewer {
      * @public
      */
     clear() {
+        this._cancelCapOutline();
         if (this._rendered) {
             // Drop selection state + hover cache + status line — a PickedComponent may hold
             // a HighlightController / ObjectGroup that this clear() disposes; a stale
@@ -110931,7 +111487,7 @@ class Viewer {
         if (!this.tree) {
             throw new Error("Tree not initialized");
         }
-        const treeview = new TreeView(this.tree, this.display.cadTreeScrollContainer, this.setObject, this.handlePick, this.update, this.notifyStates, this.getNodeColor, this.state.get("theme"), this.state.get("newTreeBehavior"), false);
+        const treeview = new TreeView(this.tree, this.display.cadTreeScrollContainer, this.setObject, this.handlePick, this.update, this.notifyStates, this.getNodeColor, this.state.get("theme"), this.state.get("newTreeBehavior"), false, this.handleTreeHover);
         this.display.clearCadTree();
         const t = treeview.create();
         timer.split("created tree");
@@ -111397,6 +111953,40 @@ class Viewer {
     get lastSelection() {
         return this.pickingController.lastSelection;
     }
+    /**
+     * Copy the world-space point under the cursor as `"x, y, z"` to the clipboard and
+     * send it to the host as a `copiedPoint` notification (for hosts that block the
+     * browser clipboard). Does nothing while parts may be displaced from their model
+     * positions — explode mode, an animation once started (Play or time slider), a
+     * z-scale other than 1 — or when no visible component is under the cursor.
+     * @returns true when a point was copied (the caller then consumes the key event).
+     */
+    copyPointUnderCursor() {
+        if (!this.ready)
+            return false;
+        const mode = this.state.get("animationMode");
+        if (mode === "explode")
+            return false;
+        if (mode === "animation" && this._animationStarted)
+            return false;
+        if (this.zScale !== undefined && this.zScale !== 1)
+            return false;
+        const point = this.pickingController.pointUnderCursor();
+        if (point === null)
+            return false;
+        const coords = toVector3Tuple(point.toArray());
+        const fmt = (v) => {
+            const s = v.toFixed(COPY_POINT_DECIMALS);
+            return Number(s) === 0 ? (0).toFixed(COPY_POINT_DECIMALS) : s;
+        };
+        const text = coords.map(fmt).join(", ");
+        copyText(text, this.display.container);
+        if (this.notifyCallback !== null) {
+            this.notifyCallback({ copiedPoint: { old: null, new: coords } });
+        }
+        this.display.setStatusLine(`copied: ${text}`);
+        return true;
+    }
     /** Enable/disable the double-click pick handler (on when no tool is active). */
     setPickHandler(flag) {
         this.pickingController.setPickHandler(flag);
@@ -111811,7 +112401,7 @@ class Viewer {
         this.tree = this.compactTree;
         // Dispose old treeview and create new one
         deepDispose(this.rendered.treeview);
-        const treeview = new TreeView(this.tree, this.display.cadTreeScrollContainer, this.setObject, this.handlePick, this.update, this.notifyStates, this.getNodeColor, this.state.get("theme"), this.state.get("newTreeBehavior"), false);
+        const treeview = new TreeView(this.tree, this.display.cadTreeScrollContainer, this.setObject, this.handlePick, this.update, this.notifyStates, this.getNodeColor, this.state.get("theme"), this.state.get("newTreeBehavior"), false, this.handleTreeHover);
         this.rendered.treeview = treeview;
         this.display.clearCadTree();
         const t = treeview.create();
@@ -113370,6 +113960,33 @@ class Display {
         this._matEditorDragAbort = null;
         this._matEditorInputAbort = null;
         this._animWasVisible = false;
+        /**
+         * Ctrl/Cmd-C while the cursor is over the canvas copies the point under it.
+         * Text-entry fields and selected text keep the normal copy.
+         */
+        this._handleCopyPoint = (e) => {
+            if (!(e instanceof KeyboardEvent))
+                return;
+            if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey)
+                return;
+            if (e.key.toLowerCase() !== "c")
+                return;
+            const target = e.target;
+            if ((target instanceof HTMLInputElement &&
+                target.type !== "button" &&
+                target.type !== "checkbox") ||
+                target instanceof HTMLTextAreaElement ||
+                (target instanceof HTMLElement && target.isContentEditable)) {
+                return;
+            }
+            const selection = window.getSelection();
+            if (selection !== null && selection.toString() !== "")
+                return;
+            if (this.viewer.copyPointUnderCursor()) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        };
         // ---------------------------------------------------------------------------
         // Toolbar Button Handlers: View Settings
         // ---------------------------------------------------------------------------
@@ -114692,6 +115309,10 @@ class Display {
         // Focus handling for keyboard shortcuts
         listeners.add(this.container, "mousedown", () => this.container.focus());
         listeners.add(this.container, "keydown", this._handleKeyboardShortcut);
+        // Ctrl/Cmd-C acts on the point under the cursor, so it must not depend on the
+        // viewer having focus (e.g. after using a host dropdown). Capture phase: runs
+        // before host shortcuts; the key is consumed only when a point was copied.
+        listeners.add(document, "keydown", this._handleCopyPoint, true);
     }
     /**
      * Subscribe to ViewerState changes to keep UI in sync.
