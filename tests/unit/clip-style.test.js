@@ -10,6 +10,7 @@ import {
   CUT_EDGE_ID,
   capIdColor,
 } from "../../src/rendering/cap-outline.js";
+import { Viewer } from "../../src/core/viewer.js";
 
 /** A shader object as three.js passes it to onBeforeCompile (standard material). */
 function standardShader() {
@@ -121,6 +122,44 @@ describe("CapOutlinePass cut contour", () => {
   it("encodes the cut-edge id as white, above any cap id", () => {
     expect(CUT_EDGE_ID).toBe(0xffffff);
     expect(capIdColor(CUT_EDGE_ID).toArray()).toEqual([1, 1, 1]);
+  });
+});
+
+describe("cap outline while the camera moves", () => {
+  const moved = Viewer.prototype._cameraMovedSinceLastOutline;
+  const schedule = Viewer.prototype._scheduleCapOutline;
+
+  it("reports a camera change once, then a still camera", () => {
+    const host = { _capOutlineCamera: [] };
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+    camera.updateMatrixWorld();
+    expect(moved.call(host, camera)).toBe(true); // nothing recorded yet
+    expect(moved.call(host, camera)).toBe(false);
+    camera.position.x = 1;
+    camera.updateMatrixWorld();
+    expect(moved.call(host, camera)).toBe(true);
+    expect(moved.call(host, camera)).toBe(false);
+    camera.zoom = 2;
+    camera.updateProjectionMatrix();
+    expect(moved.call(host, camera)).toBe(true); // zoom changes the projection
+  });
+
+  it("redraws once after the camera has settled", () => {
+    vi.useFakeTimers();
+    try {
+      const host = { ready: true, update: vi.fn(), _capOutlineSettle: null };
+      schedule.call(host);
+      vi.advanceTimersByTime(100);
+      schedule.call(host); // still moving: restarts the delay
+      vi.advanceTimersByTime(100);
+      expect(host.update).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(100);
+      expect(host.update).toHaveBeenCalledTimes(1);
+      expect(host.update).toHaveBeenCalledWith(true, false);
+      expect(host._capOutlineSettle).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

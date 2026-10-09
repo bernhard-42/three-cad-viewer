@@ -84,6 +84,9 @@ import {
 /** Decimals of a point copied with Ctrl/Cmd-C ({@link Viewer.copyPointUnderCursor}). */
 const COPY_POINT_DECIMALS = 4;
 
+/** Delay after the last camera change before the clip cap outline is drawn again. */
+const CAP_OUTLINE_SETTLE_MS = 150;
+
 // =============================================================================
 // TYPE DEFINITIONS
 // =============================================================================
@@ -377,6 +380,10 @@ class Viewer {
   idPicker: IdPicker | null = null;
   /** Outline of the clip caps; created on first use, kept across renders. */
   private _capOutline: CapOutlinePass | null = null;
+  /** Camera world + projection matrix of the previous outline frame (motion test). */
+  private _capOutlineCamera: number[] = [];
+  /** Pending redraw that adds the outline once the camera has settled. */
+  private _capOutlineSettle: ReturnType<typeof setTimeout> | null = null;
 
   // All pointer-driven picking (hover/select/double-click + selection state).
   pickingController: PickingController;
@@ -1101,24 +1108,58 @@ class Viewer {
     }
   }
 
-  /** Draw the outline of the clip caps over the frame (Clip tab active only). */
+  /**
+   * Draw the outline of the clip caps over the frame (Clip tab active only). Skipped
+   * while the camera moves (drag, wheel, damping, preset views): the outline pass
+   * renders faces and caps a second time, so it is drawn once the camera has been
+   * still for {@link CAP_OUTLINE_SETTLE_MS}.
+   */
   private _renderCapOutline(): void {
     const clipping = this.rendered.clipping;
     if (!this.renderer.localClippingEnabled || !clipping.hasCaps) return;
+    const camera = this.rendered.camera.getCamera();
+    if (this._cameraMovedSinceLastOutline(camera)) {
+      this._scheduleCapOutline();
+      return;
+    }
     if (this._capOutline === null) this._capOutline = new CapOutlinePass();
     const blackEdges = this.state.get("blackEdges") === true;
-    this._capOutline.render(
-      this.renderer,
-      this.rendered.scene,
-      this.rendered.camera.getCamera(),
-      {
-        planes: clipping.clipPlanes,
-        intersection: this.state.get("clipIntersection") === true,
-        occlude: this.state.get("transparent") !== true,
-        color: blackEdges ? 0x000000 : this.state.get("edgeColor"),
-        setCapIdPass: clipping.setCapIdPass,
-      },
-    );
+    this._capOutline.render(this.renderer, this.rendered.scene, camera, {
+      planes: clipping.clipPlanes,
+      intersection: this.state.get("clipIntersection") === true,
+      occlude: this.state.get("transparent") !== true,
+      color: blackEdges ? 0x000000 : this.state.get("edgeColor"),
+      setCapIdPass: clipping.setCapIdPass,
+    });
+  }
+
+  /** Whether the camera's world or projection matrix changed since the last call. */
+  private _cameraMovedSinceLastOutline(camera: THREE.Camera): boolean {
+    const now = [
+      ...camera.matrixWorld.elements,
+      ...camera.projectionMatrix.elements,
+    ];
+    const last = this._capOutlineCamera;
+    const moved =
+      last.length !== now.length || now.some((value, i) => value !== last[i]);
+    this._capOutlineCamera = now;
+    return moved;
+  }
+
+  /** Redraw once the camera has settled, so the skipped outline appears. */
+  private _scheduleCapOutline(): void {
+    if (this._capOutlineSettle !== null) clearTimeout(this._capOutlineSettle);
+    this._capOutlineSettle = setTimeout(() => {
+      this._capOutlineSettle = null;
+      if (this.ready) this.update(true, false);
+    }, CAP_OUTLINE_SETTLE_MS);
+  }
+
+  /** Cancel a pending outline redraw. */
+  private _cancelCapOutline(): void {
+    if (this._capOutlineSettle !== null) clearTimeout(this._capOutlineSettle);
+    this._capOutlineSettle = null;
+    this._capOutlineCamera = [];
   }
 
   // ---------------------------------------------------------------------------
@@ -1196,6 +1237,7 @@ class Viewer {
    * @public
    */
   clear(): void {
+    this._cancelCapOutline();
     if (this._rendered) {
       // Drop selection state + hover cache + status line — a PickedComponent may hold
       // a HighlightController / ObjectGroup that this clear() disposes; a stale
