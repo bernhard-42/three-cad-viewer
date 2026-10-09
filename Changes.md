@@ -3,6 +3,7 @@
 ## v5.1.0
 
 - **Hovering a tree row highlights its faces**: moving the mouse over a leaf or a group in the tree applies the hover highlight to every face at or below that node (edges and vertices are not highlighted), and leaving the row clears it. A canvas hover that was active before the mouse moved into the tree no longer wipes the tree highlight on the next render.
+- **Ctrl/Cmd-C copies the point under the mouse**: while the cursor is over the model, Ctrl-C or Cmd-C copies the world-space point on the visible face, edge or vertex under it as `x, y, z` (4 decimals) to the clipboard, and the status line shows `copied: x, y, z`. It works without clicking into the viewer first (e.g. right after using a host dropdown), and selected text and text-entry fields keep their normal copy. The point is also sent to the host as a `copiedPoint` notification (`old` is always `null`), for hosts whose embedding blocks the browser clipboard. Like the hover, it follows the topology filter (All / Vertex / Edge / Face / Solid). It does nothing in explode mode, once an attached animation has been started (Play pressed or the time slider moved; loading or clearing an animation re-enables it), with a z-scale other than 1, and on GPUs without float render targets (no world position in the pick buffer), since the displayed point would not be a model coordinate or is not available.
 
 ## v5.0.7
 

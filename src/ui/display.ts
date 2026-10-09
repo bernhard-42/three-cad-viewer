@@ -1325,7 +1325,37 @@ class Display {
     // Focus handling for keyboard shortcuts
     listeners.add(this.container, "mousedown", () => this.container.focus());
     listeners.add(this.container, "keydown", this._handleKeyboardShortcut);
+    // Ctrl/Cmd-C acts on the point under the cursor, so it must not depend on the
+    // viewer having focus (e.g. after using a host dropdown). Capture phase: runs
+    // before host shortcuts; the key is consumed only when a point was copied.
+    listeners.add(document, "keydown", this._handleCopyPoint, true);
   }
+
+  /**
+   * Ctrl/Cmd-C while the cursor is over the canvas copies the point under it.
+   * Text-entry fields and selected text keep the normal copy.
+   */
+  private _handleCopyPoint = (e: Event): void => {
+    if (!(e instanceof KeyboardEvent)) return;
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return;
+    if (e.key.toLowerCase() !== "c") return;
+    const target = e.target;
+    if (
+      (target instanceof HTMLInputElement &&
+        target.type !== "button" &&
+        target.type !== "checkbox") ||
+      target instanceof HTMLTextAreaElement ||
+      (target instanceof HTMLElement && target.isContentEditable)
+    ) {
+      return;
+    }
+    const selection = window.getSelection();
+    if (selection !== null && selection.toString() !== "") return;
+    if (this.viewer.copyPointUnderCursor()) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
 
   /**
    * Subscribe to ViewerState changes to keep UI in sync.

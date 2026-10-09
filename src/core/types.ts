@@ -197,6 +197,8 @@ export interface ChangeNotification {
   clip_normal_2?: StateChange<Vector3Tuple | null>;
   // Pick info
   lastPick?: StateChange<PickInfo | null>;
+  /** Point copied with Ctrl/Cmd-C (event, sent on every copy; `old` is always null). */
+  copiedPoint?: StateChange<Vector3Tuple>;
   // Allow other state properties dynamically
   [key: string]: StateChange<unknown> | undefined;
 }

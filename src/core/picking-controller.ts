@@ -7,6 +7,7 @@ import {
   leafPath,
   type IdPicker,
   type ComponentInfo,
+  type PickResult,
 } from "../rendering/id-picking.js";
 import { IdPicked, type PickedComponent } from "../rendering/picked.js";
 import { hoverStatusText } from "../tools/cad_tools/mesh-measure.js";
@@ -150,6 +151,42 @@ export class PickingController {
   };
 
   /**
+   * Pick the visible component under the cursor with the current topo filter, or
+   * `null` when the cursor is off the canvas or over background.
+   */
+  private pickUnderCursor(): PickResult | null {
+    if (this.host.idPicker === null || !this.idHoverInside) return null;
+    const rect = this.host.renderer.domElement.getBoundingClientRect();
+    const x = this.idHoverClientX - rect.left;
+    const y = this.idHoverClientY - rect.top;
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return null;
+    const topoFilter = pickerTopoFilter(
+      this.host.display.shapeFilterDropDownMenu.currentFilter,
+    );
+    const hit = this.host.idPicker.pickAt(
+      x,
+      y,
+      topoFilter === undefined ? {} : { topoFilter },
+    );
+    // The vertex/edge pick layers stay active even when the owning solid is hidden
+    // (visibility lives on the mesh material, not the pick layer), so gate the pick on
+    // visibility — otherwise a hidden component could be hovered AND selected.
+    if (hit === null || !this.pickVisible(hit.info)) return null;
+    return hit;
+  }
+
+  /**
+   * World-space point on the visible component under the cursor (same pick as the
+   * hover), or `null` when there is none or the GPU lacks the position attachment.
+   */
+  pointUnderCursor(): THREE.Vector3 | null {
+    if (!this.host.ready) return null;
+    const hit = this.pickUnderCursor();
+    if (hit === null || hit.point === null) return null;
+    return hit.point.clone();
+  }
+
+  /**
    * Tree-row hover: HOVER the faces of the tree node at `path` (leaf or group), or
    * clear when `null`. Drops the canvas hover target first — otherwise the next
    * render's {@link handleIdHover} (cursor outside the canvas) would release that
@@ -202,32 +239,15 @@ export class PickingController {
       this.lastObject = null;
       this.host.display.setStatusLine("");
     };
-    if (!this.idHoverInside) {
+    const hit = this.pickUnderCursor();
+    if (hit === null) {
       release();
       return;
     }
-    const rect = this.host.renderer.domElement.getBoundingClientRect();
-    const x = this.idHoverClientX - rect.left;
-    const y = this.idHoverClientY - rect.top;
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
-      release();
-      return;
-    }
-    const filter = this.host.display.shapeFilterDropDownMenu.currentFilter;
-    const fromSolid = filter.includes(TopoFilter.solid);
-    const topoFilter = pickerTopoFilter(filter);
-    const hit = this.host.idPicker.pickAt(
-      x,
-      y,
-      topoFilter === undefined ? {} : { topoFilter },
-    );
-    // The vertex/edge pick layers stay active even when the owning solid is hidden
-    // (visibility lives on the mesh material, not the pick layer), so gate the pick on
-    // visibility — otherwise a hidden component could be hovered AND selected.
-    if (hit === null || !this.pickVisible(hit.info)) {
-      release();
-      return;
-    }
+    const fromSolid =
+      this.host.display.shapeFilterDropDownMenu.currentFilter.includes(
+        TopoFilter.solid,
+      );
     const picked: PickedComponent = new IdPicked(
       hit.info,
       fromSolid,

@@ -33,6 +33,7 @@ import {
   isOrthographicCamera,
   isLineSegments2,
   toVector3Tuple,
+  copyText,
   toQuaternionTuple,
 } from "../utils/utils.js";
 import type { DisposableTree } from "../utils/utils.js";
@@ -78,6 +79,9 @@ import {
   type BoundingBoxFlat,
   type Keymap,
 } from "./types.js";
+
+/** Decimals of a point copied with Ctrl/Cmd-C ({@link Viewer.copyPointUnderCursor}). */
+const COPY_POINT_DECIMALS = 4;
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -388,6 +392,8 @@ class Viewer {
   }
   // Z-scale
   zScale!: number;
+  /** Whether the attached animation has moved parts (Play pressed or time slider moved). */
+  private _animationStarted = false;
 
   // Deprecated properties (kept for compatibility)
   clipNormal0: Vector3Tuple | null;
@@ -768,6 +774,7 @@ class Viewer {
     }
 
     this.state.set("animationMode", label === "E" ? "explode" : "animation");
+    this._animationStarted = false;
     this.clipAction = this.animation.animate(
       this.rendered.nestedGroup.rootGroup!,
       duration,
@@ -793,6 +800,7 @@ class Viewer {
       deepDispose(this.animation);
     }
     this.state.set("animationMode", "none");
+    this._animationStarted = false;
     this.toggleAnimationLoop(false);
   }
 
@@ -802,6 +810,7 @@ class Viewer {
    * @param fraction - relative time between 0 and 1.
    */
   setRelativeTime(fraction: number): void {
+    if (fraction !== 0) this._animationStarted = true;
     this.animation.setRelativeTime(fraction);
     this.state.set("animationSliderValue", fraction * 1000);
   }
@@ -2148,6 +2157,7 @@ class Viewer {
     if (!this.clipAction) return;
     switch (btn) {
       case "play":
+        this._animationStarted = true;
         if (this.clipAction.paused) {
           this.clipAction.paused = false;
         }
@@ -2333,6 +2343,36 @@ class Viewer {
   handleTreeHover = (path: string | null): void => {
     this.pickingController.setTreeHover(path);
   };
+
+  /**
+   * Copy the world-space point under the cursor as `"x, y, z"` to the clipboard and
+   * send it to the host as a `copiedPoint` notification (for hosts that block the
+   * browser clipboard). Does nothing while parts may be displaced from their model
+   * positions — explode mode, an animation once started (Play or time slider), a
+   * z-scale other than 1 — or when no visible component is under the cursor.
+   * @returns true when a point was copied (the caller then consumes the key event).
+   */
+  copyPointUnderCursor(): boolean {
+    if (!this.ready) return false;
+    const mode = this.state.get("animationMode");
+    if (mode === "explode") return false;
+    if (mode === "animation" && this._animationStarted) return false;
+    if (this.zScale !== undefined && this.zScale !== 1) return false;
+    const point = this.pickingController.pointUnderCursor();
+    if (point === null) return false;
+    const coords = toVector3Tuple(point.toArray());
+    const fmt = (v: number): string => {
+      const s = v.toFixed(COPY_POINT_DECIMALS);
+      return Number(s) === 0 ? (0).toFixed(COPY_POINT_DECIMALS) : s;
+    };
+    const text = coords.map(fmt).join(", ");
+    copyText(text, this.display.container);
+    if (this.notifyCallback !== null) {
+      this.notifyCallback({ copiedPoint: { old: null, new: coords } });
+    }
+    this.display.setStatusLine(`copied: ${text}`);
+    return true;
+  }
 
   /** Enable/disable the double-click pick handler (on when no tool is active). */
   setPickHandler(flag: boolean): void {

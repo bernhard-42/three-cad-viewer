@@ -3,6 +3,7 @@ import type { Vector3Tuple, QuaternionTuple } from "three";
 import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import type { Axis } from "../core/types.js";
 import { gpuTracker } from "./gpu-tracker.js";
+import { logger } from "./logger.js";
 
 // =============================================================================
 // Constants
@@ -471,7 +472,46 @@ class EventListenerManager {
   }
 }
 
+/**
+ * Copy `text` to the clipboard from inside a user-initiated event handler.
+ *
+ * Tries the synchronous hidden-textarea `execCommand("copy")` first: it needs no
+ * clipboard permission, so it also works in embedding iframes and WebKit views that
+ * refuse `navigator.clipboard`. Falls back to the async Clipboard API.
+ * Focus is restored to the previously focused element.
+ *
+ * @param text - The text to copy.
+ * @param parent - Element the temporary textarea is attached to.
+ * @returns true when the synchronous copy reported success.
+ */
+function copyText(text: string, parent: HTMLElement): boolean {
+  const previous = document.activeElement;
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.setAttribute("readonly", "");
+  area.style.position = "fixed";
+  area.style.left = "-9999px";
+  area.style.opacity = "0";
+  parent.appendChild(area);
+  area.select();
+  let copied: boolean;
+  try {
+    copied = document.execCommand("copy");
+  } catch {
+    copied = false;
+  }
+  parent.removeChild(area);
+  if (previous instanceof HTMLElement) previous.focus({ preventScroll: true });
+  if (!copied && navigator.clipboard !== undefined) {
+    navigator.clipboard.writeText(text).catch((err: unknown) => {
+      logger.debug("Clipboard write refused:", err);
+    });
+  }
+  return copied;
+}
+
 export {
+  copyText,
   flatten,
   isEqual,
   sceneTraverse,
