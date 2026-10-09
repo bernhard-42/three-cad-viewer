@@ -139,6 +139,10 @@ function createMockRenderer() {
       }
       return { width: 800, height: 600 };
     }),
+    getDrawingBufferSize: vi.fn((target) => target.set(800, 600)),
+    getRenderTarget: vi.fn(() => null),
+    setRenderTarget: vi.fn(),
+    getClearAlpha: vi.fn(() => 1),
     render: vi.fn(),
     clear: vi.fn(),
     clearColor: vi.fn(),

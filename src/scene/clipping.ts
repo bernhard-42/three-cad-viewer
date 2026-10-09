@@ -4,6 +4,14 @@ import { ObjectGroup } from "./nestedgroup.js";
 import { CLIP_INDICES } from "../core/types";
 import type { Theme, ClipIndex } from "../core/types";
 import { toVector3Tuple, deepDispose } from "../utils/utils.js";
+import {
+  createHatchUniforms,
+  patchHatchMaterial,
+  worldPerPixel,
+  HATCH_SPACING_PX,
+  type HatchUniforms,
+} from "../rendering/clip-style.js";
+import { CAP_LAYER, capIdColor } from "../rendering/cap-outline.js";
 
 // ============================================================================
 // Constants
@@ -355,6 +363,9 @@ class Clipping extends THREE.Group {
   private _planeMeshGroup: PlaneMeshGroup | null;
   /** Per-solid stencil/cap units, the unit of screen-size culling. */
   private _capUnits: CapUnit[] = [];
+  /** Shared uniforms of the section hatching on all cap quads. */
+  private _hatchUniforms: HatchUniforms = createHatchUniforms(1);
+  private _hatchCenter = new THREE.Vector3();
   /**
    * Whether {@link cull} last ran with clipping active. Lets the inactive path
    * gate stencils/caps off exactly once, then early-return on later still frames.
@@ -478,12 +489,17 @@ class Clipping extends THREE.Group {
   private _createStencils(center: number[], size: number, theme: Theme): void {
     this._planeMeshGroup = new PlaneMeshGroup();
     this._planeMeshGroup.name = "PlaneMeshes";
+    // Cap quads are PlaneGeometry(2, 2) scaled by size/2 (PlaneMesh.updateMatrixWorld).
+    this._hatchUniforms.uCapHalfSize.value = 0.5 * size;
+    this._hatchCenter.set(center[0], center[1], center[2]);
 
     // Group the per-(solid,plane) units by solid for screen-size culling. The
     // loop below is plane-major (and `objectColors`/`_planeMeshGroup` order must
     // stay plane-major for setObjectColorCaps), so accumulate into a Map keyed by
     // solid and flatten afterwards — without touching the plane-major structures.
     const unitsBySolid = new Map<ObjectGroup, CapUnit>();
+    // Unique id per cap quad (plane × solid) for the cap outline id pass; 0 = none.
+    let capId = 0;
 
     for (let i = 0; i < 3; i++) {
       const plane = this.clipPlanes[i];
@@ -526,11 +542,22 @@ class Clipping extends THREE.Group {
           );
 
           group.addClipping(clippingGroup, i);
+          // The outline id pass renders the stencil sequence + caps on CAP_LAYER.
+          for (const stencil of clippingGroup.children) {
+            stencil.layers.enable(CAP_LAYER);
+          }
 
           // Create stencil plane mesh
           const planeMaterial = ClippingMaterials.createStencilPlaneMaterial(
             PLANE_COLORS[theme][i],
             otherPlanes,
+          );
+          capId++;
+          patchHatchMaterial(
+            planeMaterial,
+            this._hatchUniforms,
+            j,
+            capIdColor(capId),
           );
 
           const capMesh = new PlaneMesh(
@@ -542,6 +569,7 @@ class Clipping extends THREE.Group {
             PLANE_COLORS[theme][i],
             `StencilPlane-${i}-${j}`,
           );
+          capMesh.layers.enable(CAP_LAYER);
           this._planeMeshGroup.add(capMesh);
 
           // Record the cull unit for this solid (one entry per solid, holding
@@ -675,6 +703,16 @@ class Clipping extends THREE.Group {
     }
   };
 
+  /** Whether any solid has clip caps (the cap outline pass has work to do). */
+  get hasCaps(): boolean {
+    return this._capUnits.length > 0;
+  }
+
+  /** Switch all cap materials between shaded output and outline id output. */
+  setCapIdPass = (flag: boolean): void => {
+    this._hatchUniforms.uCapIdPass.value = flag ? 1 : 0;
+  };
+
   /**
    * Bound the per-frame stencil/cap draw work to keep large assemblies from
    * overrunning the GPU watchdog on clip+rotate (see {@link CAP_CULL_MIN_PX}).
@@ -711,6 +749,10 @@ class Clipping extends THREE.Group {
       return;
     }
     this._cullActive = true;
+
+    // Keep the hatch spacing constant on screen (planes pass near the model center).
+    this._hatchUniforms.uHatchSpacing.value =
+      HATCH_SPACING_PX * worldPerPixel(camera, this._hatchCenter, height);
 
     // Camera right vector in world space = column 0 of the camera world matrix.
     camera.updateMatrixWorld();

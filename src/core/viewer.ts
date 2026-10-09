@@ -47,6 +47,7 @@ import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
 import { MeshMeasureBackend } from "../tools/cad_tools/mesh-measure.js";
 import { version } from "../_version.js";
 import { IdPicker, clipSignature } from "../rendering/id-picking.js";
+import { CapOutlinePass } from "../rendering/cap-outline.js";
 import { type PickedComponent } from "../rendering/picked.js";
 import { PickingController } from "./picking-controller.js";
 import { StudioManager } from "./studio-manager.js";
@@ -374,6 +375,8 @@ class Viewer {
   // GPU id-based picker. Created/attached per render() once the scene + compact
   // registry exist; drives hover, selection, measure and double-click pick.
   idPicker: IdPicker | null = null;
+  /** Outline of the clip caps; created on first use, kept across renders. */
+  private _capOutline: CapOutlinePass | null = null;
 
   // All pointer-driven picking (hover/select/double-click + selection state).
   pickingController: PickingController;
@@ -1008,6 +1011,7 @@ class Viewer {
         this.rendered.scene,
         this.rendered.camera.getCamera(),
       );
+      this._renderCapOutline();
     }
     this.cadTools.update();
 
@@ -1097,6 +1101,26 @@ class Viewer {
     }
   }
 
+  /** Draw the outline of the clip caps over the frame (Clip tab active only). */
+  private _renderCapOutline(): void {
+    const clipping = this.rendered.clipping;
+    if (!this.renderer.localClippingEnabled || !clipping.hasCaps) return;
+    if (this._capOutline === null) this._capOutline = new CapOutlinePass();
+    const blackEdges = this.state.get("blackEdges") === true;
+    this._capOutline.render(
+      this.renderer,
+      this.rendered.scene,
+      this.rendered.camera.getCamera(),
+      {
+        planes: clipping.clipPlanes,
+        intersection: this.state.get("clipIntersection") === true,
+        occlude: this.state.get("transparent") !== true,
+        color: blackEdges ? 0x000000 : this.state.get("edgeColor"),
+        setCapIdPass: clipping.setCapIdPass,
+      },
+    );
+  }
+
   // ---------------------------------------------------------------------------
   // Cleanup & Disposal
   // ---------------------------------------------------------------------------
@@ -1116,6 +1140,9 @@ class Viewer {
    */
   dispose(): void {
     this.clear();
+
+    this._capOutline?.dispose();
+    this._capOutline = null;
 
     // Remove all picking listeners (they hold a strong ref to this Viewer via the
     // controller's arrow-field handlers; in external-canvas mode the caller owns the

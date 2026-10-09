@@ -1,0 +1,111 @@
+import { describe, it, expect, vi } from "vitest";
+import * as THREE from "three";
+import {
+  createHatchUniforms,
+  patchHatchMaterial,
+  worldPerPixel,
+} from "../../src/rendering/clip-style.js";
+import { capIdColor } from "../../src/rendering/cap-outline.js";
+
+/** A shader object as three.js passes it to onBeforeCompile (standard material). */
+function standardShader() {
+  return {
+    uniforms: {},
+    vertexShader: THREE.ShaderLib.standard.vertexShader,
+    fragmentShader: THREE.ShaderLib.standard.fragmentShader,
+  };
+}
+
+describe("patchHatchMaterial", () => {
+  it("adds plane coordinates and hatch lines with per-solid variants", () => {
+    const shared = createHatchUniforms(5);
+    const a = new THREE.MeshStandardMaterial();
+    const b = new THREE.MeshStandardMaterial();
+    patchHatchMaterial(a, shared, 0, capIdColor(1));
+    patchHatchMaterial(b, shared, 1, capIdColor(2));
+    const sa = standardShader();
+    const sb = standardShader();
+    a.onBeforeCompile(sa, null);
+    b.onBeforeCompile(sb, null);
+
+    expect(sa.vertexShader).toContain(
+      "vTcvCapUV = position.xy * uCapHalfSize;",
+    );
+    expect(sa.fragmentShader).toContain("float line = 1.0 - smoothstep(");
+    // lines fade out instead of merging into solid ink when seen edge-on
+    expect(sa.fragmentShader).toContain(
+      "line *= smoothstep( 2.0, 4.0, 1.0 / tw );",
+    );
+    // hatched on the unlit base color, before lighting (ink fixed per part)
+    const hatchAt = sa.fragmentShader.indexOf(
+      "diffuseColor.rgb = mix( diffuseColor.rgb, ink, line );",
+    );
+    expect(hatchAt).toBeGreaterThan(-1);
+    expect(hatchAt).toBeLessThan(
+      sa.fragmentShader.indexOf("#include <lights_fragment_begin>"),
+    );
+    // shared uniforms are the same objects, per-solid angles differ
+    expect(sa.uniforms.uHatchSpacing).toBe(shared.uHatchSpacing);
+    expect(sb.uniforms.uHatchSpacing).toBe(shared.uHatchSpacing);
+    expect(sa.uniforms.uHatchAngle.value).not.toBe(
+      sb.uniforms.uHatchAngle.value,
+    );
+  });
+});
+
+describe("cap outline id output", () => {
+  it("switches every cap to its id color through one shared uniform", () => {
+    const shared = createHatchUniforms(1);
+    const material = new THREE.MeshStandardMaterial();
+    patchHatchMaterial(material, shared, 0, capIdColor(7));
+    const shader = standardShader();
+    material.onBeforeCompile(shader, null);
+    expect(shader.fragmentShader).toContain(
+      "if ( uCapIdPass > 0.5 ) gl_FragColor = vec4( uCapId, 1.0 );",
+    );
+    expect(shader.uniforms.uCapIdPass).toBe(shared.uCapIdPass);
+    expect(shader.uniforms.uCapId.value.toArray()).toEqual([7 / 255, 0, 0]);
+  });
+
+  it("chains a previous onBeforeCompile and patches only once", () => {
+    const material = new THREE.MeshStandardMaterial();
+    const prev = vi.fn();
+    material.onBeforeCompile = prev;
+    const shared = createHatchUniforms(1);
+    patchHatchMaterial(material, shared, 0, capIdColor(1));
+    const hook = material.onBeforeCompile;
+    patchHatchMaterial(material, shared, 0, capIdColor(1));
+    expect(material.onBeforeCompile).toBe(hook);
+    material.onBeforeCompile(standardShader(), null);
+    expect(prev).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("capIdColor", () => {
+  it("encodes the id exactly in 8-bit RGB (low byte in R)", () => {
+    const decode = (v) =>
+      Math.round(v.x * 255) +
+      256 * Math.round(v.y * 255) +
+      65536 * Math.round(v.z * 255);
+    for (const id of [1, 255, 256, 4097, 65535, 70000]) {
+      expect(decode(capIdColor(id))).toBe(id);
+    }
+  });
+});
+
+describe("worldPerPixel", () => {
+  it("is exact for an orthographic camera", () => {
+    const cam = new THREE.OrthographicCamera(-10, 10, 10, -10, 0.1, 100);
+    cam.zoom = 2;
+    expect(worldPerPixel(cam, new THREE.Vector3(), 200)).toBeCloseTo(
+      20 / 2 / 200,
+    );
+  });
+
+  it("uses the distance to the point for a perspective camera", () => {
+    const cam = new THREE.PerspectiveCamera(90, 1, 0.1, 1000);
+    cam.position.set(0, 0, 10);
+    // visible height at distance 10 with 90° fov = 2 * 10 * tan(45°) = 20
+    expect(worldPerPixel(cam, new THREE.Vector3(), 100)).toBeCloseTo(0.2);
+  });
+});
