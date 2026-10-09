@@ -92264,6 +92264,20 @@ class Animation {
         this.root = null;
     }
     /**
+     * Apply the current animation time to the objects without advancing it, so a
+     * single on-demand render shows the pose (e.g. after {@link setRelativeTime}).
+     */
+    apply() {
+        this.mixer?.update(0);
+    }
+    /**
+     * Restart the frame-time measurement, so resuming playback after a pause does
+     * not advance the animation by the whole pause.
+     */
+    resetClock() {
+        this.clock.reset();
+    }
+    /**
      * Update the animation mixer (call each frame when animating).
      */
     update() {
@@ -97834,7 +97848,7 @@ class Tools {
     }
 }
 
-const version = "5.1.0";
+const version = "5.1.1";
 
 /**
  * `PickedComponent` over a GPU id-pick result. Drives the shader
@@ -109429,6 +109443,8 @@ class Viewer {
      * @param updateMarker - enforce to redraw orientation marker after every ui activity
      */
     constructor(display, options, notifyCallback, pinAsPngCallback = null, updateMarker = true) {
+        /** Reasons for continuous rendering; the render loop runs while any is set. */
+        this._loopReasons = new Set();
         // Hide-undo stack: each meta-double-click hide pushes the leaf id + its pre-hide
         // state; meta-double-click on empty space pops and restores the last one. Lets a
         // hidden object be brought back without the tree (e.g. in Studio, where it's hidden).
@@ -109864,12 +109880,15 @@ class Viewer {
                         this.clipAction.paused = false;
                     }
                     this.clipAction.play();
+                    this._setAnimationPlaying(true);
                     break;
                 case "pause":
                     this.clipAction.paused = !this.clipAction.paused;
+                    this._setAnimationPlaying(!this.clipAction.paused && this.clipAction.isRunning());
                     break;
                 case "stop":
                     this.clipAction.stop();
+                    this._setAnimationPlaying(false);
                     break;
             }
         };
@@ -110759,10 +110778,7 @@ class Viewer {
                 return Promise.resolve({ task: taskId, dataUrl: null });
             }
             // canvas.toBlob can be very slow when animation loop is off!
-            const animationLoop = this.hasAnimationLoop;
-            if (!animationLoop) {
-                this.toggleAnimationLoop(true);
-            }
+            this.setLoopReason("capture", true);
             this.rendered.orientationMarker.setVisible(false);
             this.update(true);
             return this.display.captureCanvas({
@@ -110780,10 +110796,8 @@ class Viewer {
                     }
                 },
                 onComplete: () => {
-                    // Restore animation loop to original state
-                    if (!animationLoop) {
-                        this.toggleAnimationLoop(false);
-                    }
+                    // Restore the loop to what the other reasons need
+                    this.setLoopReason("capture", false);
                     this.rendered.orientationMarker.setVisible(true);
                     this.update(true);
                 },
@@ -111181,14 +111195,13 @@ class Viewer {
             return;
         }
         logger.debug("Animation initialized");
-        if (!this.hasAnimationLoop) {
-            this.toggleAnimationLoop(true);
-        }
         this.state.set("animationMode", label === "E" ? "explode" : "animation");
         this._animationStarted = false;
         this.clipAction = this.animation.animate(this.rendered.nestedGroup.rootGroup, duration, speed, repeat);
         // Reset animation slider to start
         this.state.set("animationSliderValue", 0);
+        // Not playing yet: render on demand only (the loop starts with Play).
+        this._setAnimationPlaying(false);
     }
     /**
      * Check whether animation object exists
@@ -111205,7 +111218,7 @@ class Viewer {
         }
         this.state.set("animationMode", "none");
         this._animationStarted = false;
-        this.toggleAnimationLoop(false);
+        this.setLoopReason("animation", false);
     }
     /**
      * Set the animation to a specific relative time (0-1).
@@ -111217,6 +111230,8 @@ class Viewer {
             this._animationStarted = true;
         this.animation.setRelativeTime(fraction);
         this.state.set("animationSliderValue", fraction * 1000);
+        // Setting a time pauses the animation: stop the loop and show the new pose.
+        this._setAnimationPlaying(false);
     }
     /**
      * Get the current relative animation time (0-1).
@@ -111225,6 +111240,44 @@ class Viewer {
     getRelativeTime() {
         return this.animation.getRelativeTime();
     }
+    /**
+     * Add or remove a reason for continuous rendering. The render loop runs while at
+     * least one reason is set; otherwise the viewer renders on demand (camera changes
+     * and explicit updates), so an idle viewer costs no CPU/GPU time.
+     * @param reason - why continuous rendering is needed.
+     * @param flag - whether the reason applies.
+     */
+    setLoopReason(reason, flag) {
+        if (flag) {
+            this._loopReasons.add(reason);
+        }
+        else {
+            this._loopReasons.delete(reason);
+        }
+        const run = this._loopReasons.size > 0;
+        if (run !== this.hasAnimationLoop)
+            this.toggleAnimationLoop(run);
+    }
+    /**
+     * Run the render loop only while the animation plays. When it stops (pause,
+     * stop, slider), render once so the final pose is shown.
+     */
+    _setAnimationPlaying(playing) {
+        if (playing) {
+            // Resume without jumping ahead by the time spent paused.
+            this.animation.resetClock();
+        }
+        this.setLoopReason("animation", playing);
+        if (!playing && this._rendered !== null) {
+            this.animation.apply();
+            this.update(true, false);
+        }
+    }
+    /**
+     * Start or stop the render loop directly. Prefer {@link setLoopReason}, which keeps
+     * the loop running while any other reason still needs it.
+     * @param flag - whether the render loop should run.
+     */
     toggleAnimationLoop(flag) {
         if (flag) {
             this.continueAnimation = true;
@@ -111375,6 +111428,7 @@ class Viewer {
             // Hide the topo filter (+ detach its shortcuts) for a clean cleared canvas.
             this.display.shapeFilterDropDownMenu.show(false);
             // stop animation
+            this._loopReasons.clear();
             this.hasAnimationLoop = false;
             this.continueAnimation = false;
             // remove change listener if exists
@@ -114069,7 +114123,7 @@ class Display {
             if (flag && this.viewer.isStudioActive) {
                 return;
             }
-            this.viewer.toggleAnimationLoop(flag);
+            this.viewer.setLoopReason("tool", flag);
             if (flag) {
                 // Delegate state mutations to Viewer
                 this.viewer.activateTool(name, true);
