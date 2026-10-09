@@ -5,7 +5,11 @@ import {
   patchHatchMaterial,
   worldPerPixel,
 } from "../../src/rendering/clip-style.js";
-import { capIdColor } from "../../src/rendering/cap-outline.js";
+import {
+  CapOutlinePass,
+  CUT_EDGE_ID,
+  capIdColor,
+} from "../../src/rendering/cap-outline.js";
 
 /** A shader object as three.js passes it to onBeforeCompile (standard material). */
 function standardShader() {
@@ -90,6 +94,33 @@ describe("capIdColor", () => {
     for (const id of [1, 255, 256, 4097, 65535, 70000]) {
       expect(decode(capIdColor(id))).toBe(id);
     }
+  });
+});
+
+describe("CapOutlinePass cut contour", () => {
+  it("marks face pixels near a clip plane with the cut-edge id", () => {
+    const pass = new CapOutlinePass();
+    const shader = {
+      uniforms: {},
+      vertexShader: THREE.ShaderLib.basic.vertexShader,
+      fragmentShader: THREE.ShaderLib.basic.fragmentShader,
+    };
+    pass.occluder.onBeforeCompile(shader, null);
+    const frag = shader.fragmentShader;
+    const clipAt = frag.indexOf("#include <clipping_planes_fragment>");
+    expect(frag.indexOf("bool tcvCut = false;")).toBeGreaterThan(clipAt);
+    expect(frag).toContain("if ( tcvCut ) gl_FragColor = vec4( 1.0 );");
+    expect(shader.uniforms.uCutWidth).toBe(pass.cutWidth);
+    // the composite draws cut-edge pixels directly
+    expect(pass.composite.fragmentShader).toContain(
+      `bool edge = c == ${CUT_EDGE_ID.toFixed(1)};`,
+    );
+    pass.dispose();
+  });
+
+  it("encodes the cut-edge id as white, above any cap id", () => {
+    expect(CUT_EDGE_ID).toBe(0xffffff);
+    expect(capIdColor(CUT_EDGE_ID).toArray()).toEqual([1, 1, 1]);
   });
 });
 
