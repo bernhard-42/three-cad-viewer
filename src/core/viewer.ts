@@ -87,6 +87,12 @@ const COPY_POINT_DECIMALS = 4;
 /** Delay after the last camera change before the clip cap outline is drawn again. */
 const CAP_OUTLINE_SETTLE_MS = 150;
 
+/**
+ * Why the viewer renders continuously (see {@link Viewer.setLoopReason}): an
+ * animation is playing, a measure/select tool is active, or a screenshot is taken.
+ */
+export type LoopReason = "animation" | "tool" | "capture";
+
 // =============================================================================
 // TYPE DEFINITIONS
 // =============================================================================
@@ -334,6 +340,8 @@ class Viewer {
   hasAnimationLoop: boolean;
   mixer: THREE.AnimationMixer | null;
   continueAnimation: boolean;
+  /** Reasons for continuous rendering; the render loop runs while any is set. */
+  private _loopReasons = new Set<LoopReason>();
   clipAction: THREE.AnimationAction | null;
 
   // Shape rendering
@@ -779,9 +787,6 @@ class Viewer {
       return;
     }
     logger.debug("Animation initialized");
-    if (!this.hasAnimationLoop) {
-      this.toggleAnimationLoop(true);
-    }
 
     this.state.set("animationMode", label === "E" ? "explode" : "animation");
     this._animationStarted = false;
@@ -793,6 +798,8 @@ class Viewer {
     );
     // Reset animation slider to start
     this.state.set("animationSliderValue", 0);
+    // Not playing yet: render on demand only (the loop starts with Play).
+    this._setAnimationPlaying(false);
   }
 
   /**
@@ -811,7 +818,7 @@ class Viewer {
     }
     this.state.set("animationMode", "none");
     this._animationStarted = false;
-    this.toggleAnimationLoop(false);
+    this.setLoopReason("animation", false);
   }
 
   /**
@@ -823,6 +830,8 @@ class Viewer {
     if (fraction !== 0) this._animationStarted = true;
     this.animation.setRelativeTime(fraction);
     this.state.set("animationSliderValue", fraction * 1000);
+    // Setting a time pauses the animation: stop the loop and show the new pose.
+    this._setAnimationPlaying(false);
   }
 
   /**
@@ -1086,6 +1095,44 @@ class Viewer {
     }
   };
 
+  /**
+   * Add or remove a reason for continuous rendering. The render loop runs while at
+   * least one reason is set; otherwise the viewer renders on demand (camera changes
+   * and explicit updates), so an idle viewer costs no CPU/GPU time.
+   * @param reason - why continuous rendering is needed.
+   * @param flag - whether the reason applies.
+   */
+  setLoopReason(reason: LoopReason, flag: boolean): void {
+    if (flag) {
+      this._loopReasons.add(reason);
+    } else {
+      this._loopReasons.delete(reason);
+    }
+    const run = this._loopReasons.size > 0;
+    if (run !== this.hasAnimationLoop) this.toggleAnimationLoop(run);
+  }
+
+  /**
+   * Run the render loop only while the animation plays. When it stops (pause,
+   * stop, slider), render once so the final pose is shown.
+   */
+  private _setAnimationPlaying(playing: boolean): void {
+    if (playing) {
+      // Resume without jumping ahead by the time spent paused.
+      this.animation.resetClock();
+    }
+    this.setLoopReason("animation", playing);
+    if (!playing && this._rendered !== null) {
+      this.animation.apply();
+      this.update(true, false);
+    }
+  }
+
+  /**
+   * Start or stop the render loop directly. Prefer {@link setLoopReason}, which keeps
+   * the loop running while any other reason still needs it.
+   * @param flag - whether the render loop should run.
+   */
   toggleAnimationLoop(flag: boolean): void {
     if (flag) {
       this.continueAnimation = true;
@@ -1248,6 +1295,7 @@ class Viewer {
       this.display.shapeFilterDropDownMenu.show(false);
 
       // stop animation
+      this._loopReasons.clear();
       this.hasAnimationLoop = false;
       this.continueAnimation = false;
 
@@ -2231,12 +2279,17 @@ class Viewer {
           this.clipAction.paused = false;
         }
         this.clipAction.play();
+        this._setAnimationPlaying(true);
         break;
       case "pause":
         this.clipAction.paused = !this.clipAction.paused;
+        this._setAnimationPlaying(
+          !this.clipAction.paused && this.clipAction.isRunning(),
+        );
         break;
       case "stop":
         this.clipAction.stop();
+        this._setAnimationPlaying(false);
         break;
     }
   };
@@ -4467,10 +4520,7 @@ class Viewer {
       return Promise.resolve({ task: taskId, dataUrl: null });
     }
     // canvas.toBlob can be very slow when animation loop is off!
-    const animationLoop = this.hasAnimationLoop;
-    if (!animationLoop) {
-      this.toggleAnimationLoop(true);
-    }
+    this.setLoopReason("capture", true);
     this.rendered.orientationMarker.setVisible(false);
     this.update(true);
 
@@ -4499,10 +4549,8 @@ class Viewer {
         }
       },
       onComplete: () => {
-        // Restore animation loop to original state
-        if (!animationLoop) {
-          this.toggleAnimationLoop(false);
-        }
+        // Restore the loop to what the other reasons need
+        this.setLoopReason("capture", false);
         this.rendered.orientationMarker.setVisible(true);
         this.update(true);
       },

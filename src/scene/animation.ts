@@ -330,6 +330,22 @@ class Animation {
   }
 
   /**
+   * Apply the current animation time to the objects without advancing it, so a
+   * single on-demand render shows the pose (e.g. after {@link setRelativeTime}).
+   */
+  apply(): void {
+    this.mixer?.update(0);
+  }
+
+  /**
+   * Restart the frame-time measurement, so resuming playback after a pause does
+   * not advance the animation by the whole pause.
+   */
+  resetClock(): void {
+    this.clock.reset();
+  }
+
+  /**
    * Update the animation mixer (call each frame when animating).
    */
   update(): void {

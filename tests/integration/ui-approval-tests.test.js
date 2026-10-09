@@ -267,8 +267,10 @@ describe("UI-Level Approval Tests - Display/Viewer Integration", () => {
         explodeBtn.action(explodeBtn.name, explodeBtn.state);
         const explodedState = captureSceneState(viewer);
 
-        // Scene structure should change
-        expect(explodedState).not.toEqual(compactState);
+        // The click enters explode mode; parts move only once the explode
+        // animation is played or scrubbed, and an idle animation no longer runs
+        // the render loop, so the captured scene is unchanged at this point.
+        expect(viewer.state.get("animationMode")).toBe("explode");
 
         expect({ compactState, explodedState }).toMatchSnapshot(
           "ui-explode-toggle",

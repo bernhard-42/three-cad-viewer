@@ -1851,7 +1851,7 @@ class Display {
     if (flag && this.viewer.isStudioActive) {
       return;
     }
-    this.viewer.toggleAnimationLoop(flag);
+    this.viewer.setLoopReason("tool", flag);
 
     if (flag) {
       // Delegate state mutations to Viewer

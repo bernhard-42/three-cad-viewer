@@ -1,5 +1,9 @@
 # Change log
 
+## v5.1.1
+
+- **Fix a loaded animation keeping the render loop running (#44)**: loading an animation (or entering explode mode) started a `requestAnimationFrame` loop that redrew the whole scene on every display frame until the animation was cleared — also while paused, stopped or never started — costing constant CPU and GPU time in idle viewers (e.g. ~120% CPU in VS Code's window process for an 800-object scene). The loop now runs only while the animation plays; loading, pausing, stopping and moving the time slider render once and then render on demand like a viewer without animation. Resuming after a pause no longer advances the animation by the time spent paused. Tools and screenshots keep their own claim on the loop (`Viewer.setLoopReason`), so one of them ending no longer stops a loop another still needs.
+
 ## v5.1.0
 
 - **Hovering a tree row highlights its faces**: moving the mouse over a leaf or a group in the tree applies the hover highlight to every face at or below that node (edges and vertices are not highlighted), and leaving the row clears it. A canvas hover that was active before the mouse moved into the tree no longer wipes the tree highlight on the next render.

@@ -880,6 +880,67 @@ describe("Viewer - Animation", () => {
     viewer.controlAnimation("stop");
     // Should not throw
   });
+
+  // Issue #44: a loaded animation must not keep the render loop running.
+  test("render loop runs only while the animation plays", async () => {
+    testContext = setupViewer();
+    const { viewer, renderOptions, viewerOptions } = testContext;
+
+    const box1Data = await loadExample("box1");
+    viewer.render(box1Data, renderOptions, viewerOptions);
+
+    viewer.setExplode(true); // loads the explode animation, not playing
+    expect(viewer.hasAnimationLoop).toBe(false);
+
+    viewer.controlAnimation("play");
+    expect(viewer.hasAnimationLoop).toBe(true);
+
+    viewer.controlAnimation("pause");
+    expect(viewer.hasAnimationLoop).toBe(false);
+
+    viewer.controlAnimation("pause"); // resume
+    expect(viewer.hasAnimationLoop).toBe(true);
+
+    viewer.setRelativeTime(0.5); // scrubbing pauses
+    expect(viewer.hasAnimationLoop).toBe(false);
+
+    viewer.controlAnimation("play");
+    viewer.controlAnimation("stop");
+    expect(viewer.hasAnimationLoop).toBe(false);
+  });
+
+  test("loop reasons are independent", async () => {
+    testContext = setupViewer();
+    const { viewer, renderOptions, viewerOptions } = testContext;
+
+    const box1Data = await loadExample("box1");
+    viewer.render(box1Data, renderOptions, viewerOptions);
+
+    viewer.setLoopReason("tool", true);
+    viewer.setLoopReason("capture", true);
+    viewer.setLoopReason("tool", false);
+    expect(viewer.hasAnimationLoop).toBe(true); // capture still needs it
+    viewer.setLoopReason("capture", false);
+    expect(viewer.hasAnimationLoop).toBe(false);
+  });
+
+  test("slider moves render the new pose once while paused", async () => {
+    testContext = setupViewer();
+    const { viewer, renderOptions, viewerOptions } = testContext;
+
+    const box1Data = await loadExample("box1");
+    viewer.render(box1Data, renderOptions, viewerOptions);
+    viewer.setExplode(true);
+
+    const update = vi.spyOn(viewer, "update");
+    const apply = vi.spyOn(viewer.animation, "apply");
+    viewer.setRelativeTime(0.5);
+    expect(apply).toHaveBeenCalledTimes(1);
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(apply.mock.invocationCallOrder[0]).toBeLessThan(
+      update.mock.invocationCallOrder[0],
+    );
+  });
 });
 
 // =============================================================================
@@ -1512,7 +1573,6 @@ describe("Viewer - Animation Methods (Extended)", () => {
 // VIEWER RAYCAST METHODS
 // =============================================================================
 
-
 // =============================================================================
 // VIEWER RESIZE & PIN
 // =============================================================================
@@ -1589,7 +1649,6 @@ describe("Viewer - Resize & Pin", () => {
 // VIEWER HANDLERAYCAST & RAYCAST EVENT TESTS
 // =============================================================================
 
-
 // =============================================================================
 // VIEWER CENTER VISIBLE OBJECTS TESTS
 // =============================================================================
@@ -1640,7 +1699,6 @@ describe("Viewer - Center Visible Objects", () => {
 // =============================================================================
 // VIEWER SYNC TREE STATES TESTS
 // =============================================================================
-
 
 // =============================================================================
 // VIEWER BACKEND RESPONSE TESTS
