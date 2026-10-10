@@ -410,7 +410,7 @@ class Viewer {
   }
   // Z-scale
   zScale!: number;
-  /** Whether the attached animation has moved parts (Play pressed or time slider moved). */
+  /** Whether the attached animation has moved parts (Play or time slider, not stopped since). */
   private _animationStarted = false;
 
   // Deprecated properties (kept for compatibility)
@@ -2289,6 +2289,10 @@ class Viewer {
         break;
       case "stop":
         this.clipAction.stop();
+        // stop() restores the parts' original transforms (three.js
+        // AnimationMixer._deactivateAction -> restoreOriginalState), so they are
+        // at their model positions again and points can be copied.
+        this._animationStarted = false;
         this._setAnimationPlaying(false);
         break;
     }
@@ -2470,8 +2474,9 @@ class Viewer {
    * Copy the world-space point under the cursor as `"x, y, z"` to the clipboard and
    * send it to the host as a `copiedPoint` notification (for hosts that block the
    * browser clipboard). Does nothing while parts may be displaced from their model
-   * positions — explode mode, an animation once started (Play or time slider), a
-   * z-scale other than 1 — or when no visible component is under the cursor.
+   * positions — explode mode, an animation that was played or scrubbed and not
+   * stopped since (Stop puts the parts back), a z-scale other than 1 — or when no
+   * visible component is under the cursor.
    * @returns true when a point was copied (the caller then consumes the key event).
    */
   copyPointUnderCursor(): boolean {

@@ -924,6 +924,48 @@ describe("Viewer - Animation", () => {
     expect(viewer.hasAnimationLoop).toBe(false);
   });
 
+  test("points can be copied again after Stop, not while parts are displaced", async () => {
+    testContext = setupViewer();
+    const { viewer, renderOptions, viewerOptions } = testContext;
+
+    const box1Data = await loadExample("box1");
+    viewer.render(box1Data, renderOptions, viewerOptions);
+
+    // A real (non-explode) animation moving one part
+    const groups = viewer.rendered.nestedGroup.groups;
+    const path = Object.keys(groups).find(
+      (p) => groups[p]?.position !== undefined,
+    );
+    viewer.addPositionTrack(
+      path,
+      [0, 2],
+      [
+        [0, 0, 0],
+        [5, 0, 0],
+      ],
+    );
+    viewer.initAnimation(2, 1);
+    expect(viewer.state.get("animationMode")).toBe("animation");
+
+    // The GPU pick is not available here: pretend a point is under the cursor
+    vi.spyOn(viewer.pickingController, "pointUnderCursor").mockImplementation(
+      () => viewer.rendered.camera.getCamera().position.clone().set(1, 2, 3),
+    );
+    const canCopy = () => viewer.copyPointUnderCursor();
+
+    expect(canCopy()).toBe(true); // loaded, never played
+    viewer.controlAnimation("play");
+    expect(canCopy()).toBe(false); // parts move
+    viewer.controlAnimation("pause");
+    expect(canCopy()).toBe(false); // paused mid-animation: still displaced
+    viewer.controlAnimation("stop");
+    expect(canCopy()).toBe(true); // Stop restores the model positions
+    viewer.setRelativeTime(0.5);
+    expect(canCopy()).toBe(false); // scrubbed: displaced again
+    viewer.controlAnimation("stop");
+    expect(canCopy()).toBe(true);
+  });
+
   test("slider moves render the new pose once while paused", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;

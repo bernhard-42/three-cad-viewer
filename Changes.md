@@ -1,5 +1,9 @@
 # Change log
 
+## v5.1.2
+
+- **Fix Ctrl/Cmd-C staying disabled after an animation is stopped**: the point copy is blocked while an animation has displaced the parts (played or scrubbed), but Stop did not lift the block, although stopping an animation puts all parts back at their model positions (three.js restores the original transforms when the action is deactivated). Stop now re-enables the copy; Pause still keeps it off, since paused parts are displaced.
+
 ## v5.1.1
 
 - **Fix a loaded animation keeping the render loop running (#44)**: loading an animation (or entering explode mode) started a `requestAnimationFrame` loop that redrew the whole scene on every display frame until the animation was cleared — also while paused, stopped or never started — costing constant CPU and GPU time in idle viewers (e.g. ~120% CPU in VS Code's window process for an 800-object scene). The loop now runs only while the animation plays; loading, pausing, stopping and moving the time slider render once and then render on demand like a viewer without animation. Resuming after a pause no longer advances the animation by the time spent paused. Tools and screenshots keep their own claim on the loop (`Viewer.setLoopReason`), so one of them ending no longer stops a loop another still needs.
