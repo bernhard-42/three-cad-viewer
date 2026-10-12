@@ -1,5 +1,9 @@
 # Change log
 
+## v5.1.3
+
+- **Tree hover highlights edge-only and vertex-only objects**: hovering a tree row highlighted only faces, so leaves without faces (standalone edges or vertices) showed no highlight at all. Each leaf under the hovered node now shows its highest topology: the faces of solids and face shapes (unchanged, matching the canvas solid hover), the edges of edge-only shapes and the vertices of vertex-only shapes.
+
 ## v5.1.2
 
 - **Fix Ctrl/Cmd-C staying disabled after an animation is stopped**: the point copy is blocked while an animation has displaced the parts (played or scrubbed), but Stop did not lift the block, although stopping an animation puts all parts back at their model positions (three.js restores the original transforms when the action is deactivated). Stop now re-enables the copy; Pause still keeps it off, since paused parts are displaced.

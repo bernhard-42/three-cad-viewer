@@ -85010,6 +85010,13 @@ class IdPicker {
 const HIGHLIGHT_COLOR_SELECTED = 0x53a0e3;
 /** Highlight color for a hovered, not-selected component (was `HIGHLIGHT_COLOR_HOVER`). */
 const HIGHLIGHT_COLOR_HOVER = 0x89b9e3;
+/** Tree-hover preference per leaf: faces before edges before vertices. */
+const TOPO_RANK = {
+    face: 3,
+    edge: 2,
+    vertex: 1,
+    solid: 0,
+};
 /**
  * Per-topo FOCUS BASE sizes (was `ObjectGroup.vertexFocusSize` / `edgeFocusWidth`).
  * These are injected PER-MATERIAL by the `patch*Material` methods (a `#define` /
@@ -85254,8 +85261,11 @@ class HighlightController {
         this._applyHover(`s${solidPath}`, ids);
     }
     /**
-     * HOVER every FACE at or below the tree path `prefix` (a leaf or a whole group),
-     * or clear hover when `null`. Drives the tree-row hover highlight.
+     * HOVER the components at or below the tree path `prefix` (a leaf or a whole
+     * group), or clear hover when `null`. Drives the tree-row hover highlight. Each
+     * leaf shows its highest topology: the faces of solids and face shapes (like the
+     * canvas solid hover), the edges of edge-only shapes, the vertices of vertex-only
+     * shapes — so every tree row highlights something.
      */
     setHoverPath(prefix) {
         if (prefix == null) {
@@ -85263,11 +85273,18 @@ class HighlightController {
             return;
         }
         const sub = prefix + "/";
-        const ids = [];
+        const below = [];
+        const best = new Map(); // leaf path -> highest topology rank
         for (const info of this.registry.entries()) {
-            if (info.topo === "face" && info.path.startsWith(sub))
-                ids.push(info.id);
+            if (!info.path.startsWith(sub))
+                continue;
+            below.push(info);
+            const leaf = leafPath(info);
+            best.set(leaf, Math.max(best.get(leaf) ?? 0, TOPO_RANK[info.topo]));
         }
+        const ids = below
+            .filter((info) => TOPO_RANK[info.topo] === best.get(leafPath(info)))
+            .map((info) => info.id);
         this._applyHover(`p${prefix}`, ids);
     }
     /** Set or clear the SELECTED flag for a single component id. */
@@ -97848,7 +97865,7 @@ class Tools {
     }
 }
 
-const version = "5.1.2";
+const version = "5.1.3";
 
 /**
  * `PickedComponent` over a GPU id-pick result. Drives the shader
