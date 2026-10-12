@@ -1,7 +1,15 @@
 import * as THREE from "three";
 import { gpuTracker } from "../utils/gpu-tracker.js";
-import { COMPONENT_ID_ATTRIBUTE, BACKGROUND_ID } from "./id-picking.js";
-import type { ComponentRegistry } from "./id-picking.js";
+import {
+  COMPONENT_ID_ATTRIBUTE,
+  BACKGROUND_ID,
+  leafPath,
+} from "./id-picking.js";
+import type {
+  ComponentInfo,
+  ComponentRegistry,
+  TopoType,
+} from "./id-picking.js";
 
 /**
  * Shader-based component highlight (compact graph).
@@ -22,6 +30,14 @@ export const HIGHLIGHT_COLOR_SELECTED = 0x53a0e3;
 
 /** Highlight color for a hovered, not-selected component (was `HIGHLIGHT_COLOR_HOVER`). */
 export const HIGHLIGHT_COLOR_HOVER = 0x89b9e3;
+
+/** Tree-hover preference per leaf: faces before edges before vertices. */
+const TOPO_RANK: Record<TopoType, number> = {
+  face: 3,
+  edge: 2,
+  vertex: 1,
+  solid: 0,
+};
 
 /**
  * Per-topo FOCUS BASE sizes (was `ObjectGroup.vertexFocusSize` / `edgeFocusWidth`).
@@ -362,8 +378,11 @@ export class HighlightController {
   }
 
   /**
-   * HOVER every FACE at or below the tree path `prefix` (a leaf or a whole group),
-   * or clear hover when `null`. Drives the tree-row hover highlight.
+   * HOVER the components at or below the tree path `prefix` (a leaf or a whole
+   * group), or clear hover when `null`. Drives the tree-row hover highlight. Each
+   * leaf shows its highest topology: the faces of solids and face shapes (like the
+   * canvas solid hover), the edges of edge-only shapes, the vertices of vertex-only
+   * shapes — so every tree row highlights something.
    */
   setHoverPath(prefix: string | null): void {
     if (prefix == null) {
@@ -371,10 +390,17 @@ export class HighlightController {
       return;
     }
     const sub = prefix + "/";
-    const ids: number[] = [];
+    const below: ComponentInfo[] = [];
+    const best = new Map<string, number>(); // leaf path -> highest topology rank
     for (const info of this.registry.entries()) {
-      if (info.topo === "face" && info.path.startsWith(sub)) ids.push(info.id);
+      if (!info.path.startsWith(sub)) continue;
+      below.push(info);
+      const leaf = leafPath(info);
+      best.set(leaf, Math.max(best.get(leaf) ?? 0, TOPO_RANK[info.topo]));
     }
+    const ids = below
+      .filter((info) => TOPO_RANK[info.topo] === best.get(leafPath(info)))
+      .map((info) => info.id);
     this._applyHover(`p${prefix}`, ids);
   }
 

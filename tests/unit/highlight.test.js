@@ -161,6 +161,43 @@ describe("HighlightController — data layer", () => {
     c.dispose();
   });
 
+  it("setHoverPath shows edges or vertices of leaves without faces", () => {
+    const { reg, f0, f1, e0, standalone } = makeRegistry();
+    const reg2 = (path, topo) =>
+      reg.register({
+        path,
+        name: path.split("/").pop(),
+        topo,
+        subtype: null,
+        solidPath: null,
+      });
+    // edges-only leaf "/grp/wire" with its pick-only corner point
+    const wireEdge = reg2("/grp/wire/edges/edges_0", "edge");
+    const wireCorner = reg2("/grp/wire/vertices/vertices_0", "vertex");
+    // vertices-only leaf "/grp/pts"
+    const pt = reg2("/grp/pts/vertices/vertices_0", "vertex");
+    const c = new HighlightController(reg);
+
+    c.setHoverPath("/grp/wire"); // edges, not the corner point
+    expect(texData(c)[wireEdge]).toBe(HighlightFlag.HOVER);
+    expect(texData(c)[wireCorner]).toBe(HighlightFlag.NONE);
+
+    c.setHoverPath("/grp/pts"); // a vertex-only leaf shows its vertices
+    expect(texData(c)[pt]).toBe(HighlightFlag.HOVER);
+    expect(texData(c)[wireEdge]).toBe(HighlightFlag.NONE);
+
+    // a group: each leaf shows its highest topology
+    c.setHoverPath("");
+    expect(texData(c)[f0]).toBe(HighlightFlag.HOVER); // solid: faces
+    expect(texData(c)[f1]).toBe(HighlightFlag.HOVER);
+    expect(texData(c)[e0]).toBe(HighlightFlag.NONE); // not the solid's edges
+    expect(texData(c)[standalone]).toBe(HighlightFlag.HOVER); // face shape
+    expect(texData(c)[wireEdge]).toBe(HighlightFlag.HOVER);
+    expect(texData(c)[wireCorner]).toBe(HighlightFlag.NONE);
+    expect(texData(c)[pt]).toBe(HighlightFlag.HOVER);
+    c.dispose();
+  });
+
   it("setHoverPath preserves SELECTED bits", () => {
     const { reg, f0 } = makeRegistry();
     const c = new HighlightController(reg);
