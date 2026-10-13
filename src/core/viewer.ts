@@ -66,6 +66,10 @@ import {
   type ZebraMappingMode,
   type StudioToneMapping,
   type StudioTextureMapping,
+  type StudioLighting,
+  type StudioFloorMode,
+  type StudioRadiosityQuality,
+  type StudioRadiosityEnvSampling,
   type StudioBackground,
   type NotificationCallback,
   type RenderOptions,
@@ -91,7 +95,7 @@ const CAP_OUTLINE_SETTLE_MS = 150;
  * Why the viewer renders continuously (see {@link Viewer.setLoopReason}): an
  * animation is playing, a measure/select tool is active, or a screenshot is taken.
  */
-export type LoopReason = "animation" | "tool" | "capture";
+export type LoopReason = "animation" | "tool" | "capture" | "radiosity";
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -581,6 +585,7 @@ class Viewer {
       setGrids: (grids, notify) => this.setGrids(grids, notify),
       setOrtho: (flag, notify) => this.setOrtho(flag, notify),
       update: (updateMarker, notify) => this.update(updateMarker, notify),
+      setLoopReason: (reason, flag) => this.setLoopReason(reason, flag),
       dispatchEvent: (event) => this.display.container.dispatchEvent(event),
       onSelectionChanged: (id) => this.display.onSelectionChanged(id),
     });
@@ -960,7 +965,8 @@ class Viewer {
       // would leave the pick buffer stale at the pre-zoom scale.
       const e = cam.matrixWorld.elements;
       const pe = cam.projectionMatrix.elements;
-      let camChanged = this._lastPickCam === null || this._lastPickProj === null;
+      let camChanged =
+        this._lastPickCam === null || this._lastPickProj === null;
       if (!camChanged) {
         for (let i = 0; i < 16; i++) {
           if (
@@ -1727,8 +1733,9 @@ class Viewer {
 
     scene.add(clipping);
 
-    // Add studio floor group to scene (hidden by default, shown in enterStudioMode)
+    // Add studio floor groups to scene (hidden by default, shown in enterStudioMode)
     scene.add(this._studioManager.floor.group);
+    scene.add(this._studioManager.radiosityFloor.group);
 
     // Theme is already resolved ("light" or "dark") by ViewerState constructor
     const theme = this.state.get("theme");
@@ -1766,10 +1773,7 @@ class Viewer {
     // camera; sized to the canvas. Re-rendered lazily and clip-synced in update().
     this.idPicker = new IdPicker(this.renderer, nestedGroup.registry);
     this.idPicker.attach(scene, camera);
-    this.idPicker.setSize(
-      this.state.get("cadWidth"),
-      this.state.get("height"),
-    );
+    this.idPicker.setSize(this.state.get("cadWidth"), this.state.get("height"));
     // Scale the pick depth bias to the scene so it stays a small constant world
     // distance (independent of the camera near/far spread — see IdPicker.setSceneRadius).
     this.idPicker.setSceneRadius(this.bb_radius);
@@ -1889,7 +1893,10 @@ class Viewer {
       this.setClipNormal(1, clipNormal1, clipSlider1, true);
       this.setClipNormal(2, clipNormal2, clipSlider2, true);
       this.setClipIntersection(viewerOptions.clipIntersection ?? false, true);
-      this.setClipObjectColorCaps(viewerOptions.clipObjectColors ?? false, true);
+      this.setClipObjectColorCaps(
+        viewerOptions.clipObjectColors ?? false,
+        true,
+      );
       this.setClipPlaneHelpers(viewerOptions.clipPlaneHelpers ?? false, true);
     } finally {
       this._suppressUpdate = false;
@@ -3208,6 +3215,212 @@ class Viewer {
   };
 
   /**
+   * Sets the Studio lighting pipeline.
+   * @param value - "radiosity" (progressive lightmap global illumination) or
+   *   "shadowmap" (directional shadow map with screen-space blur).
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioLighting = (value: StudioLighting, notify: boolean = true): void => {
+    this.state.set("studioLighting", value, notify);
+  };
+
+  /**
+   * Gets the Studio lighting pipeline.
+   * @public
+   */
+  getStudioLighting = (): StudioLighting => {
+    return this.state.get("studioLighting");
+  };
+
+  /**
+   * Sets the Studio ground plane used with radiosity lighting.
+   * @param value - "shadow" (shadow catcher), "grid" (opaque grid floor) or "none".
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioFloor = (value: StudioFloorMode, notify: boolean = true): void => {
+    this.state.set("studioFloor", value, notify);
+  };
+
+  /**
+   * Gets the Studio ground plane mode.
+   * @public
+   */
+  getStudioFloor = (): StudioFloorMode => {
+    return this.state.get("studioFloor");
+  };
+
+  /**
+   * Sets the radiosity quality preset (lightmap size, directions per bounce).
+   * @param value - "low", "medium" or "high".
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioRadiosityQuality = (
+    value: StudioRadiosityQuality,
+    notify: boolean = true,
+  ): void => {
+    this.state.set("studioRadiosityQuality", value, notify);
+  };
+
+  /**
+   * Gets the radiosity quality preset.
+   * @public
+   */
+  getStudioRadiosityQuality = (): StudioRadiosityQuality => {
+    return this.state.get("studioRadiosityQuality");
+  };
+
+  /**
+   * Sets the radiosity directions rasterized per bounce (1, 4, 9 or 16).
+   * More directions converge faster per frame; fewer give each direction a
+   * larger illumination tile (finer contact occlusion).
+   * @param value - 1, 4, 9 or 16.
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioRadiosityDirections = (
+    value: number,
+    notify: boolean = true,
+  ): void => {
+    const allowed = [1, 4, 9, 16];
+    const v = allowed.includes(value) ? value : 16;
+    this.state.set("studioRadiosityDirections", v, notify);
+  };
+
+  /** Gets the radiosity directions per bounce. @public */
+  getStudioRadiosityDirections = (): number => {
+    return this.state.get("studioRadiosityDirections");
+  };
+
+  /** Largest finite radiosity sample budget. */
+  static readonly MAX_RADIOSITY_SAMPLES = 4000;
+
+  /**
+   * Sets the radiosity sample budget: accumulated directions (bounces ×
+   * directions per bounce) after which refinement stops, so a 4×4 layout
+   * reaches it in a quarter of the frames of 1×1. Finite budgets are capped
+   * at {@link Viewer.MAX_RADIOSITY_SAMPLES}.
+   * @param value - Sample budget; 0 keeps refining while Studio is active.
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioRadiositySamples = (value: number, notify: boolean = true): void => {
+    const v = Math.max(0, Math.floor(value));
+    this.state.set(
+      "studioRadiositySamples",
+      Math.min(v, Viewer.MAX_RADIOSITY_SAMPLES),
+      notify,
+    );
+  };
+
+  /** Gets the radiosity sample budget (0 = unlimited). @public */
+  getStudioRadiositySamples = (): number => {
+    return this.state.get("studioRadiositySamples");
+  };
+
+  /**
+   * Radiosity samples (accumulated directions) gathered so far (0 when inactive).
+   * @public
+   */
+  getStudioRadiositySampleCount = (): number => {
+    return this._studioManager.radiositySamples;
+  };
+
+  /**
+   * Sets the radiosity self-intersection bias in illumination-map texels.
+   * Raise it if surfaces show self-shadowing acne; lower it for tighter
+   * contact occlusion.
+   * @param value - Bias in texels (0-4).
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioRadiosityBias = (value: number, notify: boolean = true): void => {
+    this.state.set(
+      "studioRadiosityBias",
+      Math.max(0, Math.min(4, value)),
+      notify,
+    );
+  };
+
+  /** Gets the radiosity self-intersection bias (texels). @public */
+  getStudioRadiosityBias = (): number => {
+    return this.state.get("studioRadiosityBias");
+  };
+
+  /**
+   * Sets the radiosity indirect bounce strength.
+   * @param value - 0 (direct environment light only) to 2; 1 is physical.
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioRadiosityBounce = (value: number, notify: boolean = true): void => {
+    this.state.set(
+      "studioRadiosityBounce",
+      Math.max(0, Math.min(2, value)),
+      notify,
+    );
+  };
+
+  /** Gets the radiosity indirect bounce strength. @public */
+  getStudioRadiosityBounce = (): number => {
+    return this.state.get("studioRadiosityBounce");
+  };
+
+  /**
+   * Sets how radiosity draws its global directions: "importance" samples
+   * half of them proportionally to the environment's luminance (fast
+   * convergence for suns and softboxes), "uniform" uses a rotating
+   * Fibonacci sphere only.
+   * @param value - "importance" or "uniform".
+   * @param notify - Whether to notify about the changes.
+   * @public
+   */
+  setStudioRadiosityEnvSampling = (
+    value: StudioRadiosityEnvSampling,
+    notify: boolean = true,
+  ): void => {
+    this.state.set("studioRadiosityEnvSampling", value, notify);
+  };
+
+  /** Gets the radiosity direction sampling mode. @public */
+  getStudioRadiosityEnvSampling = (): StudioRadiosityEnvSampling => {
+    return this.state.get("studioRadiosityEnvSampling");
+  };
+
+  /**
+   * Number of radiosity bounces accumulated so far (0 when inactive).
+   * @public
+   */
+  getStudioRadiosityIteration = (): number => {
+    return this._studioManager.radiosityIteration;
+  };
+
+  /**
+   * Radiosity convergence, 0..1 (1 when the lightmap has converged or the
+   * radiosity pipeline is inactive; with an unlimited budget it is 1 once the
+   * first bounces are in).
+   * @public
+   */
+  getStudioRadiosityProgress = (): number => {
+    return this._studioManager.radiosityProgress;
+  };
+
+  /**
+   * Re-apply the Studio shader patches (triplanar mapping, radiosity lightmap)
+   * to a cloned material. `Material.clone()` does not copy `onBeforeCompile`,
+   * so the material editor calls this after cloning. @internal
+   */
+  prepareStudioMaterialClone = (
+    original: THREE.MeshPhysicalMaterial,
+    clone: THREE.MeshPhysicalMaterial,
+    geometry: THREE.BufferGeometry | null | undefined,
+  ): void => {
+    this._studioManager.prepareMaterialClone(original, clone, geometry);
+  };
+
+  /**
    * Returns whether Studio mode is currently active.
    * @returns True if Studio mode is active and the viewer has rendered content.
    * @public
@@ -3770,7 +3983,6 @@ class Viewer {
     );
     this._applyCurrentSettings(newPaths);
 
-
     if (options.skipBounds) {
       this._treeNeedsRebuild = true;
       return path;
@@ -3845,7 +4057,6 @@ class Viewer {
       const name = path.substring(path.lastIndexOf("/") + 1);
       parentShapes.parts = parentShapes.parts.filter((p) => p.name !== name);
     }
-
 
     if (options.skipBounds) {
       // Defer disposal: keep materials alive so WebGL shader programs stay
@@ -4131,7 +4342,6 @@ class Viewer {
       nestedGroup.setClipPlanes(clipping.clipPlanes);
       this.display.setSliderLimits(newCSize);
     }
-
 
     // Rebuild treeview if parts were added or removed in this batch
     if (this._treeNeedsRebuild) {

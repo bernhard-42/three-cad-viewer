@@ -21,7 +21,6 @@ import { isClipIndex, CollapseState } from "../core/types.js";
 import type { Vector3Tuple } from "three";
 import type { ActiveTab, ThemeInput, ClipIndex } from "../core/types.js";
 import type { CameraDirection } from "../camera/camera.js";
-import { applyTriplanarMapping } from "../rendering/triplanar.js";
 
 import template from "./index.html";
 
@@ -347,6 +346,8 @@ class Display {
   studioShadowIntensitySlider: Slider | undefined;
   studioShadowSoftnessSlider: Slider | undefined;
   studioAOIntensitySlider: Slider | undefined;
+  studioRadiosityBiasSlider: Slider | undefined;
+  studioRadiosityBounceSlider: Slider | undefined;
 
   // State - set in setupUI() which is called at end of Viewer constructor
   viewer!: Viewer;
@@ -900,6 +901,8 @@ class Display {
     this.studioExposureSlider?.dispose();
     this.studioEnvRotationSlider?.dispose();
     this.studioAOIntensitySlider?.dispose();
+    this.studioRadiosityBiasSlider?.dispose();
+    this.studioRadiosityBounceSlider?.dispose();
 
     // Clean up material editor
     this._matEditorDragAbort?.abort();
@@ -1289,6 +1292,64 @@ class Display {
       "tcv_studio_texture_mapping",
       this.handleStudioTextureMapping,
     );
+    this.setupSelectEvent("tcv_studio_lighting", this.handleStudioLighting);
+    this.setupSelectEvent("tcv_studio_floor", this.handleStudioFloor);
+    this.setupSelectEvent(
+      "tcv_studio_radiosity_quality",
+      this.handleStudioRadiosityQuality,
+    );
+    this.setupSelectEvent(
+      "tcv_studio_radiosity_directions",
+      this.handleStudioRadiosityDirections,
+    );
+    this.setupSelectEvent(
+      "tcv_studio_radiosity_samples",
+      this.handleStudioRadiositySamples,
+    );
+    this.setupSelectEvent(
+      "tcv_studio_radiosity_env_sampling",
+      this.handleStudioRadiosityEnvSampling,
+    );
+    this.studioRadiosityBiasSlider = new Slider(
+      "studio_radiosity_bias",
+      0,
+      40,
+      this.container,
+      {
+        handler: this.handleStudioRadiosityBias,
+        isReadyCheck: viewerReadyCheck,
+      },
+    );
+    this.studioRadiosityBounceSlider = new Slider(
+      "studio_radiosity_bounce",
+      0,
+      200,
+      this.container,
+      {
+        handler: this.handleStudioRadiosityBounce,
+        percentage: true,
+        isReadyCheck: viewerReadyCheck,
+      },
+    );
+    this.container.addEventListener("tcv-radiosity-progress", (e) => {
+      const el = this.container.querySelector(".tcv_studio_gi_progress");
+      if (!(el instanceof HTMLElement)) return;
+      const d = (e as CustomEvent).detail as {
+        iteration: number;
+        samples: number;
+        maxSamples: number;
+        directions: number;
+        active: boolean;
+      };
+      if (!d.active) {
+        el.textContent = "—";
+        return;
+      }
+      el.textContent =
+        d.maxSamples > 0
+          ? `${d.samples} / ${d.maxSamples} samples`
+          : `${d.samples} samples (${d.iteration} bounces)`;
+    });
 
     this.setupClickEvent("tcv_studio_reset", this.handleStudioReset);
     this.setupClickEvent("tcv_mat_editor_toggle", this.handleMatEditorToggle);
@@ -1545,6 +1606,53 @@ class Display {
       const el = this.container.querySelector(".tcv_studio_texture_mapping");
       if (el instanceof HTMLSelectElement) el.value = change.new;
     });
+    sub(
+      "studioLighting",
+      (change) => {
+        const el = this.container.querySelector(".tcv_studio_lighting");
+        if (el instanceof HTMLSelectElement) el.value = change.new;
+        this._updateLightingRows(change.new);
+      },
+      { immediate: true },
+    );
+    sub("studioFloor", (change) => {
+      const el = this.container.querySelector(".tcv_studio_floor");
+      if (el instanceof HTMLSelectElement) el.value = change.new;
+    });
+    sub("studioRadiosityQuality", (change) => {
+      const el = this.container.querySelector(".tcv_studio_radiosity_quality");
+      if (el instanceof HTMLSelectElement) el.value = change.new;
+    });
+    sub("studioRadiosityDirections", (change) => {
+      const el = this.container.querySelector(
+        ".tcv_studio_radiosity_directions",
+      );
+      if (el instanceof HTMLSelectElement) el.value = String(change.new);
+    });
+    sub("studioRadiositySamples", (change) => {
+      const el = this.container.querySelector(".tcv_studio_radiosity_samples");
+      if (el instanceof HTMLSelectElement) el.value = String(change.new);
+    });
+    sub("studioRadiosityEnvSampling", (change) => {
+      const el = this.container.querySelector(
+        ".tcv_studio_radiosity_env_sampling",
+      );
+      if (el instanceof HTMLSelectElement) el.value = change.new;
+    });
+    sub(
+      "studioRadiosityBias",
+      (change) => {
+        this.studioRadiosityBiasSlider?.setValueFromState(change.new * 10);
+      },
+      { immediate: true },
+    );
+    sub(
+      "studioRadiosityBounce",
+      (change) => {
+        this.studioRadiosityBounceSlider?.setValueFromState(change.new * 100);
+      },
+      { immediate: true },
+    );
     sub(
       "studioExposure",
       (change) => {
@@ -2411,6 +2519,88 @@ class Display {
     this.state.set("studioExposure", value);
   };
 
+  /**
+   * Show only the Studio rows that belong to the active lighting pipeline
+   * (`data-tcv-lighting="radiosity" | "shadowmap"`); rows marked
+   * `data-tcv-hidden` stay hidden regardless (API-only controls).
+   */
+  private _updateLightingRows(mode: string): void {
+    const rows = this.container.querySelectorAll<HTMLElement>(
+      "[data-tcv-lighting]",
+    );
+    rows.forEach((row) => {
+      if (row.dataset.tcvHidden === "true") {
+        row.style.display = "none";
+        return;
+      }
+      row.style.display = row.dataset.tcvLighting === mode ? "" : "none";
+    });
+  }
+
+  /** Handler for the Studio lighting pipeline dropdown. */
+  handleStudioLighting = (e: Event): void => {
+    if (!(e.target instanceof HTMLSelectElement)) return;
+    const value = e.target.value;
+    if (value === "radiosity" || value === "shadowmap") {
+      this.state.set("studioLighting", value);
+    }
+  };
+
+  /** Handler for the Studio floor dropdown. */
+  handleStudioFloor = (e: Event): void => {
+    if (!(e.target instanceof HTMLSelectElement)) return;
+    const value = e.target.value;
+    if (value === "shadow" || value === "grid" || value === "none") {
+      this.state.set("studioFloor", value);
+    }
+  };
+
+  /** Handler for the radiosity directions-per-bounce dropdown. */
+  handleStudioRadiosityDirections = (e: Event): void => {
+    if (!(e.target instanceof HTMLSelectElement)) return;
+    const value = parseInt(e.target.value, 10);
+    if ([1, 4, 9, 16].includes(value)) {
+      this.state.set("studioRadiosityDirections", value);
+    }
+  };
+
+  /** Handler for the radiosity sample-budget dropdown (0 = unlimited). */
+  handleStudioRadiositySamples = (e: Event): void => {
+    if (!(e.target instanceof HTMLSelectElement)) return;
+    const value = parseInt(e.target.value, 10);
+    if (Number.isFinite(value) && value >= 0) {
+      this.state.set("studioRadiositySamples", value);
+    }
+  };
+
+  /** Handler for the radiosity direction-sampling dropdown. */
+  handleStudioRadiosityEnvSampling = (e: Event): void => {
+    if (!(e.target instanceof HTMLSelectElement)) return;
+    const value = e.target.value;
+    if (value === "importance" || value === "uniform") {
+      this.state.set("studioRadiosityEnvSampling", value);
+    }
+  };
+
+  /** Slider 0-40 → bias 0-4 texels. */
+  handleStudioRadiosityBias = (value: number): void => {
+    this.state.set("studioRadiosityBias", value / 10);
+  };
+
+  /** Slider 0-200 (percentage=true → 0-2). */
+  handleStudioRadiosityBounce = (value: number): void => {
+    this.state.set("studioRadiosityBounce", value);
+  };
+
+  /** Handler for the radiosity quality dropdown. */
+  handleStudioRadiosityQuality = (e: Event): void => {
+    if (!(e.target instanceof HTMLSelectElement)) return;
+    const value = e.target.value;
+    if (value === "low" || value === "medium" || value === "high") {
+      this.state.set("studioRadiosityQuality", value);
+    }
+  };
+
   handleStudioShadowIntensity = (value: number): void => {
     this.state.set("studioShadowIntensity", value);
   };
@@ -2518,13 +2708,13 @@ class Display {
       if (!(currentMat instanceof THREE.MeshPhysicalMaterial)) return;
       originalMat = currentMat;
       mat = currentMat.clone();
-      // Preserve triplanar mapping if the original material uses it
-      if (
-        currentMat.customProgramCacheKey() === "triplanar" &&
-        object.shapeGeometry
-      ) {
-        applyTriplanarMapping(mat, object.shapeGeometry);
-      }
+      // Re-apply the Studio shader patches (triplanar mapping, radiosity
+      // lightmap) that Material.clone() drops.
+      this.viewer.prepareStudioMaterialClone(
+        currentMat,
+        mat,
+        object.shapeGeometry,
+      );
       object.front.material = mat;
       this._matEditorClones.set(objectPath, {
         original: originalMat,
@@ -2662,12 +2852,11 @@ class Display {
       if (!(currentMat instanceof THREE.MeshPhysicalMaterial)) continue;
 
       const clone = currentMat.clone();
-      if (
-        currentMat.customProgramCacheKey() === "triplanar" &&
-        group.shapeGeometry
-      ) {
-        applyTriplanarMapping(clone, group.shapeGeometry);
-      }
+      this.viewer.prepareStudioMaterialClone(
+        currentMat,
+        clone,
+        group.shapeGeometry,
+      );
       for (const [key, value] of Object.entries(changes)) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (clone as any)[key] = value;
@@ -3057,6 +3246,35 @@ class Display {
     const txmEl = this.container.querySelector(".tcv_studio_texture_mapping");
     if (txmEl instanceof HTMLSelectElement)
       txmEl.value = state.get("studioTextureMapping");
+    const lightEl = this.container.querySelector(".tcv_studio_lighting");
+    if (lightEl instanceof HTMLSelectElement)
+      lightEl.value = state.get("studioLighting");
+    this._updateLightingRows(state.get("studioLighting"));
+    const floorEl = this.container.querySelector(".tcv_studio_floor");
+    if (floorEl instanceof HTMLSelectElement)
+      floorEl.value = state.get("studioFloor");
+    const giEl = this.container.querySelector(".tcv_studio_radiosity_quality");
+    if (giEl instanceof HTMLSelectElement)
+      giEl.value = state.get("studioRadiosityQuality");
+    const dirEl = this.container.querySelector(
+      ".tcv_studio_radiosity_directions",
+    );
+    if (dirEl instanceof HTMLSelectElement)
+      dirEl.value = String(state.get("studioRadiosityDirections"));
+    const itEl = this.container.querySelector(".tcv_studio_radiosity_samples");
+    if (itEl instanceof HTMLSelectElement)
+      itEl.value = String(state.get("studioRadiositySamples"));
+    const esEl = this.container.querySelector(
+      ".tcv_studio_radiosity_env_sampling",
+    );
+    if (esEl instanceof HTMLSelectElement)
+      esEl.value = state.get("studioRadiosityEnvSampling");
+    this.studioRadiosityBiasSlider?.setValueFromState(
+      state.get("studioRadiosityBias") * 10,
+    );
+    this.studioRadiosityBounceSlider?.setValueFromState(
+      state.get("studioRadiosityBounce") * 100,
+    );
     this._update4kCheckboxEnabled(state.get("studioEnvironment"));
   }
 

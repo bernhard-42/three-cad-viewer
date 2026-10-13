@@ -1041,7 +1041,10 @@ src/
 │   ├── picked.ts            # PickedComponent / IdPicked (picker↔tools currency)
 │   ├── tree-model.ts        # Tree data structure for visibility
 │   ├── studio-composer.ts   # Postprocessing pipeline (tone mapping, shadows, AO, SMAA)
-│   ├── studio-floor.ts      # ShadowMaterial ground plane for Studio mode
+│   ├── studio-floor.ts      # Studio ground planes: ShadowMaterial plane + lightmapped RadiosityFloor
+│   ├── lightmap-uv.ts       # Lightmap atlas: per-face charts, vertex splitting, packing
+│   ├── radiosity.ts         # Progressive radiosity solver (stochastic depth buffering) + material patch
+│   ├── radiosity-scene.ts   # RadiosityStudio: charts the scene, swaps geometry, patches materials
 │   ├── environment.ts       # HDR environment map loading and background modes
 │   ├── room-environment.ts  # Clean procedural studio (RoomEnvironment without boxes, with cove)
 │   └── light-detection.ts   # HDR analysis for directional shadow light placement
@@ -1116,8 +1119,10 @@ tests/
 
 Studio mode replaces the standard `renderer.render()` call with a postprocessing
 pipeline managed by `StudioComposer`. The pipeline provides tone mapping,
-screen-space ambient occlusion, directional shadow mapping with screen-space blur,
-and anti-aliasing.
+screen-space ambient occlusion, shadows and anti-aliasing. Shadows come from one
+of two pipelines selected by `studioLighting`: the default radiosity lightmap (see
+[Radiosity Lighting](#radiosity-lighting-studiolighting-radiosity-default)), or
+the directional shadow map with screen-space blur shown in the overview below.
 
 ### Pipeline Overview
 
@@ -1157,7 +1162,85 @@ and anti-aliasing.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Shadow System
+### Radiosity Lighting (`studioLighting: "radiosity"`, default)
+
+Studio's default lighting bakes a progressive radiosity lightmap instead of
+running the shadow-map passes above. The three stages live in
+`rendering/lightmap-uv.ts` (charting, renderer-agnostic), `rendering/radiosity.ts`
+(GPU solver + material patch) and `rendering/radiosity-scene.ts` (scene glue);
+`StudioManager` drives one bounce per rendered frame and keeps the render loop
+alive with the `"radiosity"` loop reason until the bounce budget
+(`studioRadiositySamples`, in accumulated directions, 4000 by default and at most, 0 = unlimited) is spent; it reports the
+count through the `tcv-radiosity-progress` event.
+
+**Charting.** Every ObjectGroup's face geometry is split into charts, one per
+B-rep face (`geometry.userData.trianglesPerFace`). Faces with parametric UVs use
+their UV rectangle, sized by an area-weighted Jacobian so u and v get texels in
+proportion to their world length; faces without usable UVs are box-projected along
+the dominant axis of each triangle's normal (up to six charts per face). Vertices
+shared by triangles of different charts are duplicated into a split copy of the
+geometry that is swapped into the front/back meshes for the duration of Studio
+mode (all attributes are remapped, so id picking keeps working). The charts of all
+meshes plus a fixed region for the floor (half the atlas side) are packed into one
+square atlas with a 2-texel gutter (potpack algorithm, global texels-per-unit
+scale found by bracketing); the atlas origin is kept empty so a mesh without
+`uv1` samples an empty texel and falls back to plain IBL.
+
+**Solver.** A WebGL port of zalo's `ProgressiveLightMapGPU` (stochastic depth
+buffering radiosity, Thomsen & Nielsen 2010), with the environment map as the
+light source:
+
+```
+per bounce (one per frame until converged)
+  1. directions:    half a Fibonacci sphere × low-discrepancy rotation (R3),
+                    half importance-sampled from a 128×64 luminance table of
+                    the rotated, pre-blurred environment (R2 sequence);
+                    per-direction weight 1/(N·π·pdf) with the balance
+                    heuristic over the 50/50 mixture
+  2. illumination:  ArrayCamera, one ortho tile per direction, fitted to the
+                    model bounds; each fragment writes (outgoing radiance,
+                    distance along the direction) with a random gl_FragDepth
+                    → illumination map (float, nearest)
+  3. gather:        vertices placed by uv1; per texel and direction, find the
+                    nearest in-hemisphere surface in a 3×3/5×5 neighbourhood of
+                    the tile, else the environment radiance (PMREM sample with
+                    the scene's rotation and the "softness" pre-blur), else the
+                    floor's reference radiance for rays escaping downward
+                    → E/π = 4/N · Σ L_k · max(n·d_k, 0), cumulative mean
+  4. dilation:      a full-screen pass fills chart gutters from valid neighbours
+```
+
+The display blends the lightmap into the plain IBL result with a weight that
+rises (smoothstep) with the accumulated directions, reaching 1 at about 1000
+(`RADIOSITY_FADE_IN_DIRECTIONS`), so the noisy first bounces never pop in.
+
+The lightmap texel stores `rgb = E/π` (occlusion + bounce, unit environment
+intensity) and `a = luminance of the unoccluded E/π` for the same normal, so
+`rgb/a` is a per-texel visibility. The bounce is seeded from the previous map
+(outgoing radiance = albedo × E/π + emissive; albedo = base colour × (1 −
+0.9·metalness)); glass and mostly transparent parts are not occluders. The
+solution is camera-independent, so orbiting never changes it; visibility,
+transform or colour changes reset the accumulation, added/removed parts rebuild
+the atlas.
+
+**Display.** `applyRadiosityPatch` sets `material.lightMap` (three then declares
+`uv1` and samples the atlas) and chains an `onBeforeCompile` that replaces
+`lights_fragment_maps` and extends `aomap_fragment`: the IBL diffuse irradiance
+becomes `π · lightmap.rgb · envMapIntensity`, lifted toward the unoccluded level by
+`1 − shadowIntensity`, and the visibility occludes the IBL specular (three's
+`computeSpecularOcclusion` formula), clearcoat and sheen. The patch composes with
+the triplanar hook; `Viewer.prepareStudioMaterialClone` re-applies both to
+material-editor clones. The `RadiosityFloor` (`rendering/studio-floor.ts`) is a
+plane whose inner square (4× the model extent) owns the floor chart and whose
+outer ring repeats the chart border; in `"shadow"` mode it multiplies the
+background by the tinted visibility (custom blending that also emits the shadow
+as alpha for protected solid backgrounds), in `"grid"` mode it is an opaque,
+lightmap-lit floor with an anti-aliased world-unit grid.
+
+**Fallbacks.** Without WebGL2 float render targets, or when the charts do not fit
+the atlas, the manager uses the shadow-map pipeline below for the session.
+
+### Shadow System (`studioLighting: "shadowmap"`)
 
 Directional shadows are driven by HDR light detection (`light-detection.ts`),
 which analyzes the environment map to find the dominant light direction.

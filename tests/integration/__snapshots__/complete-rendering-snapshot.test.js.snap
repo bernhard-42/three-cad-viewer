@@ -2,7 +2,7 @@
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for box (compact mode) > box-compact-complete 1`] = `
 {
-  "objectCount": 93,
+  "objectCount": 94,
   "objects": [
     {
       "name": "|Group",
@@ -27814,6 +27814,26 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for box (com
     },
     {
       "name": "studioFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
+    {
+      "name": "studioRadiosityFloor",
       "position": {
         "x": 0,
         "y": 0,
@@ -27838,7 +27858,7 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for box (com
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for box (expanded mode) > box-expanded-complete 1`] = `
 {
-  "objectCount": 93,
+  "objectCount": 94,
   "objects": [
     {
       "name": "|Group",
@@ -55650,6 +55670,26 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for box (exp
     },
     {
       "name": "studioFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
+    {
+      "name": "studioRadiosityFloor",
       "position": {
         "x": 0,
         "y": 0,
@@ -55674,7 +55714,7 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for box (exp
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for box1 (compact mode) > box1-compact-complete 1`] = `
 {
-  "objectCount": 75,
+  "objectCount": 76,
   "objects": [
     {
       "name": "|Group",
@@ -61682,6 +61722,26 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for box1 (co
     },
     {
       "name": "studioFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
+    {
+      "name": "studioRadiosityFloor",
       "position": {
         "x": 0,
         "y": 0,
@@ -61706,7 +61766,7 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for box1 (co
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for box1 (expanded mode) > box1-expanded-complete 1`] = `
 {
-  "objectCount": 75,
+  "objectCount": 76,
   "objects": [
     {
       "name": "|Group",
@@ -67732,13 +67792,33 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for box1 (ex
       "type": "Group",
       "visible": false,
     },
+    {
+      "name": "studioRadiosityFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
   ],
 }
 `;
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for edges (compact mode) > edges-compact-complete 1`] = `
 {
-  "objectCount": 97,
+  "objectCount": 98,
   "objects": [
     {
       "name": "|Group",
@@ -109265,6 +109345,26 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for edges (c
     },
     {
       "name": "studioFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
+    {
+      "name": "studioRadiosityFloor",
       "position": {
         "x": 0,
         "y": 0,
@@ -109289,7 +109389,7 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for edges (c
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for edges (expanded mode) > edges-expanded-complete 1`] = `
 {
-  "objectCount": 97,
+  "objectCount": 98,
   "objects": [
     {
       "name": "|Group",
@@ -150834,13 +150934,33 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for edges (e
       "type": "Group",
       "visible": false,
     },
+    {
+      "name": "studioRadiosityFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
   ],
 }
 `;
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for faces (compact mode) > faces-compact-complete 1`] = `
 {
-  "objectCount": 99,
+  "objectCount": 100,
   "objects": [
     {
       "name": "|Group",
@@ -196401,6 +196521,26 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for faces (c
     },
     {
       "name": "studioFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
+    {
+      "name": "studioRadiosityFloor",
       "position": {
         "x": 0,
         "y": 0,
@@ -196425,7 +196565,7 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for faces (c
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for faces (expanded mode) > faces-expanded-complete 1`] = `
 {
-  "objectCount": 99,
+  "objectCount": 100,
   "objects": [
     {
       "name": "|Group",
@@ -242004,13 +242144,33 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for faces (e
       "type": "Group",
       "visible": false,
     },
+    {
+      "name": "studioRadiosityFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
   ],
 }
 `;
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for objs1d (compact mode) > objs1d-compact-complete 1`] = `
 {
-  "objectCount": 75,
+  "objectCount": 76,
   "objects": [
     {
       "name": "|Group",
@@ -246640,6 +246800,26 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for objs1d (
     },
     {
       "name": "studioFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
+    {
+      "name": "studioRadiosityFloor",
       "position": {
         "x": 0,
         "y": 0,
@@ -246664,7 +246844,7 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for objs1d (
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for objs1d (expanded mode) > objs1d-expanded-complete 1`] = `
 {
-  "objectCount": 75,
+  "objectCount": 76,
   "objects": [
     {
       "name": "|Group",
@@ -251312,13 +251492,33 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for objs1d (
       "type": "Group",
       "visible": false,
     },
+    {
+      "name": "studioRadiosityFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
   ],
 }
 `;
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for single-edges (compact mode) > single-edges-compact-complete 1`] = `
 {
-  "objectCount": 79,
+  "objectCount": 80,
   "objects": [
     {
       "name": "|Group",
@@ -256994,6 +257194,26 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for single-e
     },
     {
       "name": "studioFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
+    {
+      "name": "studioRadiosityFloor",
       "position": {
         "x": 0,
         "y": 0,
@@ -257018,7 +257238,7 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for single-e
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for single-edges (expanded mode) > single-edges-expanded-complete 1`] = `
 {
-  "objectCount": 79,
+  "objectCount": 80,
   "objects": [
     {
       "name": "|Group",
@@ -262712,13 +262932,33 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for single-e
       "type": "Group",
       "visible": false,
     },
+    {
+      "name": "studioRadiosityFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
   ],
 }
 `;
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for single-faces (compact mode) > single-faces-compact-complete 1`] = `
 {
-  "objectCount": 81,
+  "objectCount": 82,
   "objects": [
     {
       "name": "|Group",
@@ -306988,6 +307228,26 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for single-f
     },
     {
       "name": "studioFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
+    {
+      "name": "studioRadiosityFloor",
       "position": {
         "x": 0,
         "y": 0,
@@ -307012,7 +307272,7 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for single-f
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for single-faces (expanded mode) > single-faces-expanded-complete 1`] = `
 {
-  "objectCount": 81,
+  "objectCount": 82,
   "objects": [
     {
       "name": "|Group",
@@ -351300,13 +351560,33 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for single-f
       "type": "Group",
       "visible": false,
     },
+    {
+      "name": "studioRadiosityFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
   ],
 }
 `;
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for single-vertices (compact mode) > single-vertices-compact-complete 1`] = `
 {
-  "objectCount": 77,
+  "objectCount": 78,
   "objects": [
     {
       "name": "|Group",
@@ -356321,6 +356601,26 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for single-v
     },
     {
       "name": "studioFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
+    {
+      "name": "studioRadiosityFloor",
       "position": {
         "x": 0,
         "y": 0,
@@ -356345,7 +356645,7 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for single-v
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for single-vertices (expanded mode) > single-vertices-expanded-complete 1`] = `
 {
-  "objectCount": 77,
+  "objectCount": 78,
   "objects": [
     {
       "name": "|Group",
@@ -361378,13 +361678,33 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for single-v
       "type": "Group",
       "visible": false,
     },
+    {
+      "name": "studioRadiosityFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
   ],
 }
 `;
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for vertices (compact mode) > vertices-compact-complete 1`] = `
 {
-  "objectCount": 95,
+  "objectCount": 96,
   "objects": [
     {
       "name": "|Group",
@@ -402508,6 +402828,26 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for vertices
     },
     {
       "name": "studioFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
+    {
+      "name": "studioRadiosityFloor",
       "position": {
         "x": 0,
         "y": 0,
@@ -402532,7 +402872,7 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for vertices
 
 exports[`Complete Rendering Snapshots > complete rendering snapshot for vertices (expanded mode) > vertices-expanded-complete 1`] = `
 {
-  "objectCount": 95,
+  "objectCount": 96,
   "objects": [
     {
       "name": "|Group",
@@ -443656,6 +443996,26 @@ exports[`Complete Rendering Snapshots > complete rendering snapshot for vertices
     },
     {
       "name": "studioFloor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1,
+      },
+      "type": "Group",
+      "visible": false,
+    },
+    {
+      "name": "studioRadiosityFloor",
       "position": {
         "x": 0,
         "y": 0,

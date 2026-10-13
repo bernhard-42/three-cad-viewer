@@ -275,17 +275,85 @@
 
                         <div class="tcv_studio_group_spacer"></div>
 
-                        <!-- Group 3: Shadows & AO -->
+                        <!-- Group 3: Lighting, Shadows & AO -->
                         <div class="tcv_studio_row">
-                            <span class="tcv_label" title="Darkness of directional shadows on the floor and between objects">Shadow Intensity</span>
+                            <span class="tcv_label" title="Radiosity: progressive lightmap global illumination from the environment (soft contact shadows, ground occlusion, colour bleeding). Shadow map: directional shadow with screen-space blur.">Lighting</span>
+                            <select class="tcv_studio_lighting tcv_studio_select">
+                                <option value="radiosity">Radiosity (GI)</option>
+                                <option value="shadowmap">Shadow Map</option>
+                            </select>
+                        </div>
+                        <div class="tcv_studio_row" data-tcv-lighting="radiosity">
+                            <span class="tcv_label" title="Ground plane for radiosity lighting: an invisible shadow catcher, an opaque grid floor, or none">Floor</span>
+                            <select class="tcv_studio_floor tcv_studio_select">
+                                <option value="shadow">Shadow Catcher</option>
+                                <option value="grid">Grid</option>
+                                <option value="none">None</option>
+                            </select>
+                        </div>
+                        <div class="tcv_studio_row" data-tcv-lighting="radiosity">
+                            <span class="tcv_label" title="Radiosity lightmap quality: atlas size and directions per bounce (higher = sharper, slower)">GI Quality</span>
+                            <select class="tcv_studio_radiosity_quality tcv_studio_select">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high" selected>High</option>
+                            </select>
+                        </div>
+                        <div class="tcv_studio_row" data-tcv-lighting="radiosity">
+                            <span class="tcv_label" title="Global directions rasterized per bounce with the array camera. More directions converge faster per frame; fewer give each direction a larger illumination tile and finer contact occlusion.">GI Directions</span>
+                            <select class="tcv_studio_radiosity_directions tcv_studio_select">
+                                <option value="1">1 (1×1)</option>
+                                <option value="4">4 (2×2)</option>
+                                <option value="9">9 (3×3)</option>
+                                <option value="16" selected>16 (4×4)</option>
+                            </select>
+                        </div>
+                        <div class="tcv_studio_row" data-tcv-lighting="radiosity" data-tcv-hidden="true" style="display: none;">
+                            <span class="tcv_label" title="Importance: half of the directions follow the environment's brightness (fast convergence with suns and softboxes). Uniform: rotating Fibonacci sphere only.">GI Env Sampling</span>
+                            <select class="tcv_studio_radiosity_env_sampling tcv_studio_select">
+                                <option value="importance" selected>Importance</option>
+                                <option value="uniform">Uniform</option>
+                            </select>
+                        </div>
+                        <div class="tcv_studio_row" data-tcv-lighting="radiosity" data-tcv-hidden="true" style="display: none;">
+                            <span class="tcv_label" title="Directions accumulated (bounces × directions per bounce) before the solver stops refining; 4×4 reaches a budget four times faster than 1×1. Unlimited keeps refining while the Studio tab is active.">GI Samples</span>
+                            <select class="tcv_studio_radiosity_samples tcv_studio_select">
+                                <option value="0">Unlimited</option>
+                                <option value="1000">1 000</option>
+                                <option value="2000">2 000</option>
+                                <option value="4000" selected>4 000</option>
+                            </select>
+                        </div>
+                        <div class="tcv_studio_row" data-tcv-lighting="radiosity" data-tcv-hidden="true" style="display: none;">
+                            <span class="tcv_label" title="Self-intersection bias in illumination-map texels. Raise it if surfaces show self-shadowing acne; lower it for tighter contact occlusion.">GI Contact Bias</span>
                             <div class="tcv_studio_slider_group">
-                                <input type="range" min="0" max="100" step="1" value="50"
+                                <input type="range" min="0" max="40" step="1" value="15"
+                                    class="tcv_sld_value_studio_radiosity_bias tcv_clip_slider">
+                                <input value=15 class="tcv_inp_value_studio_radiosity_bias tcv_clip_input"></input>
+                            </div>
+                        </div>
+                        <div class="tcv_studio_row" data-tcv-lighting="radiosity" data-tcv-hidden="true" style="display: none;">
+                            <span class="tcv_label" title="Strength of the indirect bounce (colour bleeding): 0 = direct environment light only, 100 = physical, up to 200.">GI Bounce</span>
+                            <div class="tcv_studio_slider_group">
+                                <input type="range" min="0" max="200" step="1" value="100"
+                                    class="tcv_sld_value_studio_radiosity_bounce tcv_clip_slider">
+                                <input value=100 class="tcv_inp_value_studio_radiosity_bounce tcv_clip_input"></input>
+                            </div>
+                        </div>
+                        <div class="tcv_studio_row" data-tcv-lighting="radiosity" data-tcv-hidden="true" style="display: none;">
+                            <span class="tcv_label" title="Directions (and bounces) accumulated into the lightmap so far">GI Progress</span>
+                            <span class="tcv_studio_gi_progress tcv_studio_info" style="margin-left: auto; margin-top: 0;">—</span>
+                        </div>
+                        <div class="tcv_studio_row">
+                            <span class="tcv_label" title="Darkness of shadows and ambient occlusion on the floor and between objects">Shadow Intensity</span>
+                            <div class="tcv_studio_slider_group">
+                                <input type="range" min="0" max="100" step="1" value="80"
                                     class="tcv_sld_value_studio_shadow_intensity tcv_clip_slider">
-                                <input value=50 class="tcv_inp_value_studio_shadow_intensity tcv_clip_input"></input>
+                                <input value=80 class="tcv_inp_value_studio_shadow_intensity tcv_clip_input"></input>
                             </div>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label" title="Blur amount for shadow edges (sharp to soft)">Shadow Softness</span>
+                            <span class="tcv_label" title="Radiosity: blur of the environment's light sources (wider penumbrae). Shadow map: blur of the shadow edges.">Shadow Softness</span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="100" step="1" value="20"
                                     class="tcv_sld_value_studio_shadow_softness tcv_clip_slider">

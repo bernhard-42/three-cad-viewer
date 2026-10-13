@@ -285,6 +285,19 @@ class StudioComposer {
     this._n8aoPass.configuration.intensity = value;
   }
 
+  /**
+   * Scale the ambient-occlusion radius to the model. N8AO's radius is in
+   * world units, so a fixed value is invisible on large models and smears on
+   * small ones; 8 % of the largest extent gives contact-sized occlusion.
+   *
+   * @param maxExtent - Largest side of the model's bounding box
+   */
+  setAOScale(maxExtent: number): void {
+    const radius = Math.max(1e-4, maxExtent * 0.08);
+    this._n8aoPass.configuration.aoRadius = radius;
+    this._n8aoPass.configuration.distanceFalloff = radius * 0.25;
+  }
+
   // -----------------------------------------------------------------------
   // Tone Mapping
   // -----------------------------------------------------------------------

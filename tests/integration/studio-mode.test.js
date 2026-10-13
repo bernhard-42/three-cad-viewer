@@ -281,6 +281,88 @@ describe("Studio mode switching", () => {
     expect(viewer.getStudioTextureMapping()).toBe("triplanar");
   });
 
+  test("lighting, floor and radiosity quality setters work", () => {
+    const { viewer } = testContext;
+    const defaults = ViewerState.STUDIO_MODE_DEFAULTS;
+    expect(viewer.getStudioLighting()).toBe("radiosity");
+    expect(viewer.getStudioFloor()).toBe("shadow");
+    expect(viewer.getStudioRadiosityQuality()).toBe("high");
+    expect(viewer.getStudioRadiosityDirections()).toBe(16);
+    expect(viewer.getStudioRadiositySamples()).toBe(4000);
+    expect(viewer.getStudioRadiosityBias()).toBe(1.5);
+    expect(viewer.getStudioRadiosityBounce()).toBe(1);
+    expect(viewer.getStudioRadiosityEnvSampling()).toBe("importance");
+
+    viewer.setStudioLighting("shadowmap");
+    expect(viewer.getStudioLighting()).toBe("shadowmap");
+    viewer.setStudioFloor("grid");
+    expect(viewer.getStudioFloor()).toBe("grid");
+    viewer.setStudioRadiosityQuality("low");
+    expect(viewer.getStudioRadiosityQuality()).toBe("low");
+    viewer.setStudioRadiosityDirections(4);
+    expect(viewer.getStudioRadiosityDirections()).toBe(4);
+    viewer.setStudioRadiosityDirections(7); // invalid → default
+    expect(viewer.getStudioRadiosityDirections()).toBe(16);
+    viewer.setStudioRadiositySamples(3000);
+    expect(viewer.getStudioRadiositySamples()).toBe(3000);
+    viewer.setStudioRadiositySamples(9000); // capped
+    expect(viewer.getStudioRadiositySamples()).toBe(4000);
+    viewer.setStudioRadiositySamples(0); // unlimited stays allowed
+    expect(viewer.getStudioRadiositySamples()).toBe(0);
+    expect(viewer.getStudioRadiositySampleCount()).toBe(0);
+    viewer.setStudioRadiosityBias(9);
+    expect(viewer.getStudioRadiosityBias()).toBe(4);
+    viewer.setStudioRadiosityBounce(0.5);
+    expect(viewer.getStudioRadiosityBounce()).toBe(0.5);
+    viewer.setStudioRadiosityEnvSampling("uniform");
+    expect(viewer.getStudioRadiosityEnvSampling()).toBe("uniform");
+    expect(viewer.getStudioRadiosityIteration()).toBe(0);
+    // inactive studio: progress reports converged
+    expect(viewer.getStudioRadiosityProgress()).toBe(1);
+
+    viewer.resetStudio();
+    expect(viewer.getStudioLighting()).toBe(defaults.studioLighting);
+    expect(viewer.getStudioFloor()).toBe(defaults.studioFloor);
+    expect(viewer.getStudioRadiosityQuality()).toBe(
+      defaults.studioRadiosityQuality,
+    );
+    expect(viewer.getStudioRadiosityDirections()).toBe(
+      defaults.studioRadiosityDirections,
+    );
+    expect(viewer.getStudioRadiositySamples()).toBe(
+      defaults.studioRadiositySamples,
+    );
+    expect(viewer.getStudioRadiosityBias()).toBe(defaults.studioRadiosityBias);
+    expect(viewer.getStudioRadiosityBounce()).toBe(
+      defaults.studioRadiosityBounce,
+    );
+    expect(viewer.getStudioRadiosityEnvSampling()).toBe(
+      defaults.studioRadiosityEnvSampling,
+    );
+  });
+
+  test("updateStudioState maps lighting, floor and radiosityQuality", () => {
+    const { viewer } = testContext;
+    viewer.state.updateStudioState({
+      lighting: "shadowmap",
+      floor: "none",
+      radiosityQuality: "low",
+      radiosityDirections: 9,
+      radiositySamples: 1000,
+      radiosityBias: 2,
+      radiosityBounce: 0.5,
+      radiosityEnvSampling: "uniform",
+    });
+    expect(viewer.state.get("studioLighting")).toBe("shadowmap");
+    expect(viewer.state.get("studioFloor")).toBe("none");
+    expect(viewer.state.get("studioRadiosityQuality")).toBe("low");
+    expect(viewer.state.get("studioRadiosityDirections")).toBe(9);
+    expect(viewer.state.get("studioRadiositySamples")).toBe(1000);
+    expect(viewer.state.get("studioRadiosityBias")).toBe(2);
+    expect(viewer.state.get("studioRadiosityBounce")).toBe(0.5);
+    expect(viewer.state.get("studioRadiosityEnvSampling")).toBe("uniform");
+  });
+
   test("resetStudio resets all keys to defaults", () => {
     const { viewer } = testContext;
     const defaults = ViewerState.STUDIO_MODE_DEFAULTS;
