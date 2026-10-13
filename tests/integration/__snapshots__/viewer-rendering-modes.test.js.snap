@@ -279,7 +279,7 @@ exports[`Viewer - Rendering > renders solids as unified objects > box1-render 1`
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -339,7 +339,7 @@ exports[`Viewer - Rendering > renders solids as unified objects > box1-render 1`
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
