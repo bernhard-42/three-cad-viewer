@@ -298,6 +298,15 @@ export interface DisplayOptions {
   canvas?: HTMLCanvasElement;
   /** External WebGL context to use for the renderer. When provided together with `canvas`, the renderer will use this context instead of creating a new one. Useful for sharing a context with other renderers like PixiJS. (default: undefined) */
   gl?: WebGLRenderingContext | WebGL2RenderingContext;
+  /**
+   * Translation table: English source string → localized string.
+   *
+   * Keys are the exact English UI strings (tooltips, labels, messages, ...).
+   * Missing keys fall back to the English key itself, so a partial table is
+   * always valid. Messages with dynamic parts use `{0}`, `{1}`, ... placeholders,
+   * e.g. `"copied: {0}"`. Look up strings with {@link Display.t}.
+   */
+  labels?: Record<string, string>;
 }
 
 /** Render options */

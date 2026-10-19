@@ -266,6 +266,7 @@ export class PickingController {
       // hovered component changes (correct after explode/animation without invalidation).
       const cacheable = fromSolid || hit.info.topo === "face";
       const provider = this.host.rendered.nestedGroup.meshGeometry;
+      const t = this.host.display.t.bind(this.host.display);
       let text: string;
       if (cacheable) {
         const key =
@@ -276,11 +277,11 @@ export class PickingController {
         if (cached !== undefined) {
           text = cached;
         } else {
-          text = hoverStatusText(hit.info, fromSolid, provider);
+          text = hoverStatusText(hit.info, fromSolid, provider, t);
           this.hoverStatusCache.set(key, text);
         }
       } else {
-        text = hoverStatusText(hit.info, fromSolid, provider);
+        text = hoverStatusText(hit.info, fromSolid, provider, t);
       }
       this.host.display.setStatusLine(text);
     }

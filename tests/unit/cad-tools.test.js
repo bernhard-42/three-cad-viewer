@@ -76,6 +76,8 @@ function createMockDisplay() {
       reset: vi.fn(),
       show: vi.fn(),
     },
+    // Identity translator (the real Display falls back to the English key)
+    t: (key) => key,
     // New interface properties
     measurementPanels: {
       distancePanel: distancePanel,

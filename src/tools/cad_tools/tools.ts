@@ -57,6 +57,8 @@ export interface DisplayLike {
   measurementPanels: MeasurementPanelElements;
   /** UI elements for filter dropdown */
   filterDropdown: FilterDropdownElements;
+  /** Translate a UI string (identity when no labels are configured) */
+  t(key: string, ...args: (string | number)[]): string;
 }
 
 /**

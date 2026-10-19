@@ -33,12 +33,18 @@ interface CallbackEntry {
 /**
  * Format a key for display: lowercase and insert space before trailing digits.
  * e.g. "normal1" → "normal 1", "Point 1" → "point 1", "Distance" → "distance"
+ * Idempotent: an existing space before the digits is consumed, so already
+ * formatted keys ("point 1") keep a single space and stay lookup-stable.
  */
 function formatKey(key: string): string {
-  return key.toLowerCase().replace(/(\D)(\d+)$/, "$1 $2");
+  return key.toLowerCase().replace(/(\D)\s*(\d+)$/, "$1 $2");
 }
 
-function createVectorRow(key: string, value: number[]): HTMLTableRowElement {
+function createVectorRow(
+  key: string,
+  value: number[],
+  t: (key: string) => string,
+): HTMLTableRowElement {
   const xyzColors = [
     "tcv_x_measure_val",
     "tcv_y_measure_val",
@@ -47,7 +53,7 @@ function createVectorRow(key: string, value: number[]): HTMLTableRowElement {
   const tr = document.createElement("tr");
   const th = document.createElement("th");
 
-  th.textContent = formatKey(key);
+  th.textContent = t(formatKey(key));
   th.classList.add("tcv_measure_key");
   th.classList.add("tcv_measure_cell");
   tr.appendChild(th);
@@ -74,16 +80,20 @@ function createVectorRow(key: string, value: number[]): HTMLTableRowElement {
   return tr;
 }
 
-function createStringRow(key: string, value: string): HTMLTableRowElement {
+function createStringRow(
+  key: string,
+  value: string,
+  t: (key: string) => string,
+): HTMLTableRowElement {
   const tr = document.createElement("tr");
   const th = document.createElement("th");
   const td = document.createElement("td");
-  th.textContent = formatKey(key);
+  th.textContent = t(formatKey(key));
   th.classList.add("tcv_measure_key");
   th.classList.add("tcv_measure_cell");
   tr.appendChild(th);
 
-  td.textContent = value;
+  td.textContent = t(value);
   td.classList.add("tcv_measure_val_center");
   td.classList.add("tcv_measure_cell");
   td.colSpan = 5;
@@ -95,13 +105,14 @@ function createStringRow(key: string, value: string): HTMLTableRowElement {
 function createValueRow(
   key: string,
   value: number,
-  qualifier: string | null = null,
+  qualifier: string | null,
+  t: (key: string) => string,
 ): HTMLTableRowElement {
   const tr = document.createElement("tr");
   const th = document.createElement("th");
   const td = document.createElement("td");
 
-  th.textContent = formatKey(key);
+  th.textContent = t(formatKey(key));
   th.classList.add("tcv_measure_key");
   th.classList.add("tcv_measure_cell");
   tr.appendChild(th);
@@ -123,7 +134,7 @@ function createValueRow(
     }
   } else {
     const qualText = document.createElement("td");
-    qualText.textContent = `(${qualifier})`;
+    qualText.textContent = `(${t(formatKey(qualifier))})`;
     qualText.classList.add("tcv_measure_cell");
     tr.appendChild(qualText);
     const empty = document.createElement("td");
@@ -230,6 +241,7 @@ function renderGroup(
   group: Record<string, unknown>,
   tbody: HTMLTableSectionElement,
   addSeparator: boolean,
+  t: (key: string) => string,
 ): void {
   let firstRow = true;
   for (const key in group) {
@@ -241,7 +253,7 @@ function renderGroup(
     let tr: HTMLTableRowElement | undefined;
     if (key.toLowerCase() === "bb" && isBoundingBoxData(value)) {
       for (const bbKey in value) {
-        const bbTr = createVectorRow(`bb ${bbKey}`, value[bbKey]);
+        const bbTr = createVectorRow(`bb ${bbKey}`, value[bbKey], t);
         if (addSeparator && firstRow) {
           bbTr.classList.add("tcv_measure_cell_top_border");
           firstRow = false;
@@ -249,17 +261,17 @@ function renderGroup(
         tbody.appendChild(bbTr);
       }
     } else if (isNumberArray(value, 3)) {
-      tr = createVectorRow(key, value);
+      tr = createVectorRow(key, value, t);
     } else if (typeof value === "number") {
       if (key.toLowerCase() === "distance") {
         const info =
           typeof group["info"] === "string" ? group["info"] : undefined;
-        tr = createValueRow(key, value, info ?? null);
+        tr = createValueRow(key, value, info ?? null, t);
       } else {
-        tr = createValueRow(key, value);
+        tr = createValueRow(key, value, null, t);
       }
     } else if (typeof value === "string") {
-      tr = createStringRow(key, value);
+      tr = createStringRow(key, value, t);
     }
     if (tr) {
       if (addSeparator && firstRow) {
@@ -277,14 +289,15 @@ function renderGroup(
 function renderGroups(
   properties: Record<string, unknown>,
   tbody: HTMLTableSectionElement,
+  t: (key: string) => string,
 ): void {
   const groups = properties.result ?? properties.groups;
   if (Array.isArray(groups)) {
     for (let i = 0; i < groups.length; i++) {
-      renderGroup(groups[i] as Record<string, unknown>, tbody, i > 0);
+      renderGroup(groups[i] as Record<string, unknown>, tbody, i > 0, t);
     }
   } else {
-    renderGroup(properties, tbody, false);
+    renderGroup(properties, tbody, false, t);
   }
 }
 
@@ -310,13 +323,19 @@ class DistancePanel extends Panel {
 
     this.resetTable();
     this.setHeader(
-      properties.meshBased === true ? "Distance (mesh based)" : "Distance",
+      this.display.t(
+        properties.meshBased === true ? "Distance (mesh based)" : "Distance",
+      ),
     );
 
     const table = document.createElement("table");
     table.classList.add("tcv_properties_table");
     const tbody = document.createElement("tbody");
-    renderGroups(properties as Record<string, unknown>, tbody);
+    renderGroups(
+      properties as Record<string, unknown>,
+      tbody,
+      (key) => this.display.t(key),
+    );
     table.appendChild(tbody);
     this.html.append(table);
     this.finished = true;
@@ -351,21 +370,40 @@ class PropertiesPanel extends Panel {
 
     this.resetTable();
     this.setHeader(
-      properties.meshBased === true ? "Properties (mesh based)" : "Properties",
+      this.display.t(
+        properties.meshBased === true
+          ? "Properties (mesh based)"
+          : "Properties",
+      ),
     );
 
     this.setSubHeader(
-      `${properties["shape_type"] ?? ""} / ${properties["geom_type"] ?? ""}`,
+      `${this.display.t(properties["shape_type"] ?? "")} / ${this.display.t(properties["geom_type"] ?? "")}`,
     );
     const table = document.createElement("table");
     table.classList.add("tcv_properties_table");
     const tbody = document.createElement("tbody");
-    renderGroups(properties as Record<string, unknown>, tbody);
+    renderGroups(
+      properties as Record<string, unknown>,
+      tbody,
+      (key) => this.display.t(key),
+    );
     table.appendChild(tbody);
     this.html.append(table);
     this.finished = true;
   }
 }
+
+// The rendered label for each canonical filter entry. The state is derived
+// from the option element that was clicked - never from its rendered text -
+// so these labels are free to be translated.
+const TOPO_LABELS: Record<string, string> = {
+  none: "All",
+  vertex: "Vertex",
+  edge: "Edge",
+  face: "Face",
+  solid: "Solid",
+};
 
 class FilterByDropDownMenu {
   private display: DisplayLike;
@@ -387,7 +425,7 @@ class FilterByDropDownMenu {
   }
 
   private setValue = (topoType: string): void => {
-    this.elements.value.innerText = topoType;
+    this.elements.value.innerText = this.display.t(topoType);
     const key = topoType.toLowerCase();
     let filter: TopoFilterType[] | null = null;
     if (key === "all" || key === "none") {
@@ -427,8 +465,15 @@ class FilterByDropDownMenu {
   private handleSelection = (ev: Event): void => {
     const target = ev.target;
     if (target instanceof HTMLElement) {
-      this.setValue(target.innerText);
-      this.toggleDropdown(ev);
+      // Match the clicked option element by identity rather than reading its
+      // rendered text: the text is translated, the element keys are not.
+      const hit = Object.entries(this.elements.options).find(
+        ([, el]) => el === target,
+      );
+      if (hit !== undefined) {
+        this.setValue(TOPO_LABELS[hit[0]]);
+        this.toggleDropdown(ev);
+      }
     }
   };
 

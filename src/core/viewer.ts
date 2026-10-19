@@ -216,6 +216,8 @@ interface DisplayOptionsInternal {
   canvas?: HTMLCanvasElement;
   gl?: WebGLRenderingContext | WebGL2RenderingContext;
   keymap?: KeymapConfig;
+  /** Display-only translation table (skipped by ViewerState) */
+  labels?: Record<string, string>;
   [key: string]: unknown;
 }
 
@@ -1792,7 +1794,7 @@ class Viewer {
       }
     } else {
       this.display.addInfoHtml(
-        "<b>quaternion needs position to be provided, falling back to ISO view</b>",
+        `<b>${this.display.t("quaternion needs position to be provided, falling back to ISO view")}</b>`,
       );
       this.presetCamera("iso", this.state.get("zoom"));
     }
@@ -2497,7 +2499,7 @@ class Viewer {
     if (this.notifyCallback !== null) {
       this.notifyCallback({ copiedPoint: { old: null, new: coords } });
     }
-    this.display.setStatusLine(`copied: ${text}`);
+    this.display.setStatusLine(this.display.t("copied: {0}", text));
     return true;
   }
 
