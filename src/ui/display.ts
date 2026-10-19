@@ -57,6 +57,77 @@ interface MatEditorParam {
   infinity?: boolean;
 }
 
+/**
+ * Translate the static UI template in place.
+ *
+ * Only exact matches of the trimmed text content are translated; unknown text
+ * is left untouched. Attributes translated as a whole: `data-tooltip`, `title`
+ * and `optgroup[label]`. For `<input>` elements only tab labels
+ * (`input.tcv_tab`'s `value`) are translated — never generic input values.
+ */
+function localizeDom(
+  root: HTMLElement,
+  t: (key: string, ...args: (string | number)[]) => string,
+): void {
+  // Text nodes
+  const walker = root.ownerDocument.createTreeWalker(
+    root,
+    NodeFilter.SHOW_TEXT,
+  );
+  const textNodes: Text[] = [];
+  let node = walker.nextNode();
+  while (node != null) {
+    const el = node.parentElement;
+    if (
+      el != null &&
+      el.tagName !== "SCRIPT" &&
+      el.tagName !== "STYLE"
+    ) {
+      textNodes.push(node as Text);
+    }
+    node = walker.nextNode();
+  }
+  for (const text of textNodes) {
+    const trimmed = text.data.trim();
+    if (trimmed === "") continue;
+    const translated = t(trimmed);
+    if (translated === trimmed) continue;
+    const start = text.data.indexOf(trimmed);
+    text.data =
+      text.data.slice(0, start) +
+      translated +
+      text.data.slice(start + trimmed.length);
+  }
+
+  // Attributes
+  const elements = root.querySelectorAll("*");
+  for (let i = 0; i < elements.length; i++) {
+    const el = elements[i];
+    for (const attr of ["data-tooltip", "title"]) {
+      const value = el.getAttribute(attr);
+      if (value != null && value !== "") {
+        const translated = t(value);
+        if (translated !== value) el.setAttribute(attr, translated);
+      }
+    }
+    if (el instanceof HTMLOptGroupElement) {
+      const label = el.getAttribute("label");
+      if (label != null && label !== "") {
+        const translated = t(label);
+        if (translated !== label) el.setAttribute("label", translated);
+      }
+    }
+    if (
+      el instanceof HTMLInputElement &&
+      el.classList.contains("tcv_tab") &&
+      el.value !== ""
+    ) {
+      const translated = t(el.value);
+      if (translated !== el.value) el.value = translated;
+    }
+  }
+}
+
 const MAT_EDITOR_PARAMS: MatEditorParam[] = [
   {
     key: "metalness",
@@ -200,6 +271,7 @@ export interface DisplayOptions {
   pinning: boolean;
   canvas?: HTMLCanvasElement;
   gl?: WebGLRenderingContext | WebGL2RenderingContext;
+  labels?: Record<string, string>;
 }
 
 /**
@@ -351,6 +423,7 @@ class Display {
   // State - set in setupUI() which is called at end of Viewer constructor
   viewer!: Viewer;
   state!: ViewerState;
+  labels: Record<string, string>;
   measureTools: boolean;
   selectTool: boolean;
   explodeTool: boolean;
@@ -392,9 +465,11 @@ class Display {
    */
   constructor(container: HTMLElement, options: DisplayOptions) {
     this.container = container;
+    this.labels = options.labels ?? {};
     this.container.setAttribute("tabindex", "0");
     this.container.style.outline = "none";
     this.container.innerHTML = TEMPLATE(this.container.id);
+    localizeDom(this.container, this.t);
 
     this.cadBody = this.getElement("tcv_cad_body");
 
@@ -471,7 +546,10 @@ class Display {
       e: CustomEvent<string[]>,
     ) => {
       this._showWarningBanner(
-        `Unresolved material tag(s): ${e.detail.map((t) => `"${t}"`).join(", ")}`,
+        this.t(
+          "Unresolved material tag(s): {0}",
+          e.detail.map((tag) => `"${tag}"`).join(", "),
+        ),
       );
     }) as EventListener);
     this.tabTree = this.getElement("tcv_tab_tree");
@@ -480,7 +558,7 @@ class Display {
     this.tabMaterial = this.getElement("tcv_tab_material");
     this.tabStudio = this.getElement("tcv_tab_studio");
     this.cadInfo = this.getElement("tcv_cad_info_container");
-    this._info = new Info(this.cadInfo);
+    this._info = new Info(this.cadInfo, this.t);
     this.tickValueElement = this.getElement("tcv_tick_size_value");
     this.tickInfoElement = this.getElement("tcv_tick_size");
     this.cadAnim = this.getElement("tcv_cad_animation");
@@ -544,7 +622,7 @@ class Display {
     this.clickButtons["axes"] = new ClickButton(
       theme,
       "axes",
-      "Show axes",
+      this.t("Show axes"),
       this.setAxes,
     );
     this.cadTool.addButton(this.clickButtons["axes"], -1);
@@ -552,14 +630,14 @@ class Display {
     this.clickButtons["axes0"] = new ClickButton(
       theme,
       "axes0",
-      "Show axes at origin (0,0,0)",
+      this.t("Show axes at origin (0,0,0)"),
       this.setAxes0,
     );
     this.cadTool.addButton(this.clickButtons["axes0"], 0);
     this.clickButtons["grid"] = new ClickButton(
       theme,
       "grid",
-      "Show grid",
+      this.t("Show grid"),
       this.setGrid,
       false,
       ["xy", "xz", "yz"],
@@ -569,7 +647,7 @@ class Display {
     this.clickButtons["perspective"] = new ClickButton(
       theme,
       "perspective",
-      "Use perspective camera",
+      this.t("Use perspective camera"),
       this.setOrtho,
     );
     this.cadTool.addButton(this.clickButtons["perspective"], -1);
@@ -577,14 +655,14 @@ class Display {
     this.clickButtons["transparent"] = new ClickButton(
       theme,
       "transparent",
-      "Show transparent faces",
+      this.t("Show transparent faces"),
       this.setTransparent,
     );
     this.cadTool.addButton(this.clickButtons["transparent"], 1);
     this.clickButtons["blackedges"] = new ClickButton(
       theme,
       "blackedges",
-      "Show black edges",
+      this.t("Show black edges"),
       this.setBlackEdges,
     );
     this.cadTool.addButton(this.clickButtons["blackedges"], 1);
@@ -593,7 +671,7 @@ class Display {
     this.buttons["reset"] = new Button(
       theme,
       "reset",
-      "Reset view",
+      this.t("Reset view"),
       this.reset,
     );
     this.cadTool.addButton(this.buttons["reset"], -1);
@@ -601,7 +679,7 @@ class Display {
     this.buttons["resize"] = new Button(
       theme,
       "resize",
-      "Resize object",
+      this.t("Resize object"),
       this.resize,
     );
     this.cadTool.addButton(this.buttons["resize"], 2);
@@ -609,49 +687,49 @@ class Display {
     this.buttons["iso"] = new Button(
       theme,
       "iso",
-      "Switch to iso view",
+      this.t("Switch to iso view"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["iso"], 2);
     this.buttons["front"] = new Button(
       theme,
       "front",
-      "Switch to front view",
+      this.t("Switch to front view"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["front"], 2);
     this.buttons["rear"] = new Button(
       theme,
       "rear",
-      "Switch to back view",
+      this.t("Switch to back view"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["rear"], 2);
     this.buttons["top"] = new Button(
       theme,
       "top",
-      "Switch to top view",
+      this.t("Switch to top view"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["top"], 2);
     this.buttons["bottom"] = new Button(
       theme,
       "bottom",
-      "Switch to bottom view",
+      this.t("Switch to bottom view"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["bottom"], 2);
     this.buttons["left"] = new Button(
       theme,
       "left",
-      "Switch to left view",
+      this.t("Switch to left view"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["left"], 2);
     this.buttons["right"] = new Button(
       theme,
       "right",
-      "Switch to right view",
+      this.t("Switch to right view"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["right"], 2);
@@ -661,7 +739,7 @@ class Display {
     this.clickButtons["explode"] = new ClickButton(
       theme,
       "explode",
-      "Explode tool",
+      this.t("Explode tool"),
       this.setExplode,
     );
     if (this.explodeTool && !this.zscaleTool) {
@@ -671,7 +749,7 @@ class Display {
     this.clickButtons["zscale"] = new ClickButton(
       theme,
       "zscale",
-      "Scale along the Z-axis",
+      this.t("Scale along the Z-axis"),
       this.setZScale,
     );
     if (this.zscaleTool && !this.explodeTool) {
@@ -688,7 +766,7 @@ class Display {
     this.clickButtons["distance"] = new ClickButton(
       theme,
       "distance",
-      "Measure distance between shapes",
+      this.t("Measure distance between shapes"),
       this.setTool,
     );
     this.cadTool.addButton(this.clickButtons["distance"], 3);
@@ -704,7 +782,7 @@ class Display {
     this.clickButtons["properties"] = new ClickButton(
       theme,
       "properties",
-      "Show shape properties",
+      this.t("Show shape properties"),
       this.setTool,
     );
     this.cadTool.addButton(this.clickButtons["properties"], 3);
@@ -712,7 +790,7 @@ class Display {
     this.clickButtons["select"] = new ClickButton(
       theme,
       "select",
-      "Copy shape IDs to clipboard",
+      this.t("Copy shape IDs to clipboard"),
       this.setTool,
     );
     this.cadTool.addButton(this.clickButtons["select"], 3);
@@ -736,7 +814,7 @@ class Display {
     this.buttons["pin"] = new Button(
       theme,
       "pin",
-      "Pin viewer as png",
+      this.t("Pin viewer as png"),
       this.pinAsPng,
     );
     this.buttons["pin"].alignRight();
@@ -745,7 +823,12 @@ class Display {
 
     this.showPinning(options.pinning);
 
-    this.buttons["help"] = new Button(theme, "help", "Help", this.toggleHelp);
+    this.buttons["help"] = new Button(
+      theme,
+      "help",
+      this.t("Help"),
+      this.toggleHelp,
+    );
     this.cadTool.addButton(this.buttons["help"], -1);
 
     // Initialize animation slider (will be set up in setupUI)
@@ -755,6 +838,27 @@ class Display {
   // ---------------------------------------------------------------------------
   // Private Helpers
   // ---------------------------------------------------------------------------
+
+  /**
+   * Translate a UI string.
+   *
+   * Returns `labels[key]` when the key exists, otherwise the English key itself
+   * (so an empty or partial translation table is always safe). The remaining
+   * arguments replace `{0}`, `{1}`, ... placeholders in the translated string,
+   * e.g. `t("copied: {0}", "1, 2, 3")`.
+   *
+   * @param key - English source string (the translation key)
+   * @param args - values for `{0}`, `{1}`, ... placeholders
+   * @public
+   */
+  t = (key: string, ...args: (string | number)[]): string => {
+    const template = this.labels[key] ?? key;
+    if (args.length === 0) return template;
+    return template.replace(/\{(\d+)\}/g, (match, index: string) => {
+      const value = args[Number(index)];
+      return value === undefined ? match : String(value);
+    });
+  };
 
   setButtonBackground(): void {
     for (const btn of buttons) {
@@ -2492,7 +2596,7 @@ class Display {
       hint.style.padding = "12px 6px";
       hint.style.textAlign = "center";
       hint.style.opacity = "0.7";
-      hint.textContent = "Select object by double-click first";
+      hint.textContent = this.t("Select object by double-click first");
       content.appendChild(hint);
     }
     dialog.style.display = "";
@@ -2792,7 +2896,7 @@ class Display {
         currentGroup = param.group;
         const section = document.createElement("div");
         section.className = "tcv_mat_editor_section";
-        section.textContent = currentGroup;
+        section.textContent = this.t(currentGroup);
         content.appendChild(section);
       }
 
@@ -2835,7 +2939,7 @@ class Display {
     const label = document.createElement("label");
     label.className = "tcv_mat_editor_label";
     if (isChanged(value)) label.classList.add("tcv_mat_editor_changed");
-    label.textContent = param.label;
+    label.textContent = this.t(param.label);
     label.title = `${param.key} (${param.min}–${param.max})`;
 
     const sliderGroup = document.createElement("div");
@@ -3082,7 +3186,7 @@ class Display {
         envName
           .split("/")
           .pop()
-          ?.replace(/\.hdr$/i, "") || "Custom HDR";
+          ?.replace(/\.hdr$/i, "") || this.t("Custom HDR");
       let customGroup = el.querySelector(
         "optgroup[data-custom]",
       ) as HTMLOptGroupElement | null;
@@ -3092,7 +3196,7 @@ class Display {
         opt.textContent = label;
       } else {
         customGroup = document.createElement("optgroup");
-        customGroup.label = "Custom";
+        customGroup.label = this.t("Custom");
         customGroup.setAttribute("data-custom", "true");
         const opt = document.createElement("option");
         opt.value = envName;
@@ -3116,8 +3220,9 @@ class Display {
     const isPreset = this.viewer.envManager.isPreset(envName);
     cb.disabled = !isPreset;
     if (!isPreset) {
-      cb.title =
-        "4K switching is only available for built-in Poly Haven presets";
+      cb.title = this.t(
+        "4K switching is only available for built-in Poly Haven presets",
+      );
     } else {
       cb.title = "";
     }
@@ -3352,11 +3457,11 @@ class Display {
       string,
       { el: HTMLElement | undefined; label: string }
     > = {
-      tree: { el: this.tabTree, label: "Navigation Tree" },
-      clip: { el: this.tabClip, label: "Clipping Tool" },
-      zebra: { el: this.tabZebra, label: "Zebra Tool" },
-      material: { el: this.tabMaterial, label: "Material Selection" },
-      studio: { el: this.tabStudio, label: "Studio Mode" },
+      tree: { el: this.tabTree, label: this.t("Navigation Tree") },
+      clip: { el: this.tabClip, label: this.t("Clipping Tool") },
+      zebra: { el: this.tabZebra, label: this.t("Zebra Tool") },
+      material: { el: this.tabMaterial, label: this.t("Material Selection") },
+      studio: { el: this.tabStudio, label: this.t("Studio Mode") },
     };
     for (const [action, key] of Object.entries(shortcuts)) {
       const entry = tabMap[action];

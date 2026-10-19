@@ -302,23 +302,24 @@ export function hoverStatusText(
   info: ComponentInfo,
   fromSolid: boolean,
   provider: MeshGeometrySource,
+  t: (key: string, ...args: (string | number)[]) => string = (k) => k,
 ): string {
   const f2 = (n: number): string => n.toFixed(2);
   if (fromSolid && info.solidPath !== null) {
     // Solid face/edge totals from the tessellation type arrays (len(face_types) /
     // len(edge_types)). Per-face edge counts are NOT derivable (no face→edge map).
     const c = provider.nodeCounts(info.solidPath);
-    if (c === null) return "solid";
+    if (c === null) return t("solid");
     const g = provider.resolve(info.solidPath);
-    const vol = g !== null ? `, vol ≈ ${f2(meshVolume(g))}` : "";
-    return `solid: ${c.faces} faces, ${c.edges} edges${vol}`;
+    const vol = g !== null ? `, ${t("vol ≈")} ${f2(meshVolume(g))}` : "";
+    return `${t("solid")}: ${c.faces} ${t("faces")}, ${c.edges} ${t("edges")}${vol}`;
   }
   const geom = provider.resolve(info.path);
   const pt = (a: Float32Array, o: number): string =>
     `(${f2(a[o])}, ${f2(a[o + 1])}, ${f2(a[o + 2])})`;
   if (info.topo === "vertex") {
     const p = geom?.positions;
-    return p && p.length >= 3 ? `vertex: ${pt(p, 0)}` : "";
+    return p && p.length >= 3 ? `${t("vertex:")} ${pt(p, 0)}` : "";
   }
   const gt = geom != null ? displayGeomType(info.topo, geom.geomType) : "";
   if (info.topo === "edge") {
@@ -336,19 +337,19 @@ export function hoverStatusText(
           // full circle (start === end): center + radius say it all; an arc keeps
           // its start/end too. Mesh-derived, so ≈.
           return start === end
-            ? `${gt}: r ≈ ${r}, c ≈ ${c}, len ≈ ${len}`
-            : `${gt}: r ≈ ${r}, c ≈ ${c}, len ≈ ${len}, start=${start}, end=${end}`;
+            ? `${t(gt)}: ${t("r ≈")} ${r}, ${t("c ≈")} ${c}, ${t("len ≈")} ${len}`
+            : `${t(gt)}: ${t("r ≈")} ${r}, ${t("c ≈")} ${c}, ${t("len ≈")} ${len}, ${t("start=")}${start}, ${t("end=")}${end}`;
         }
       }
       // closed edge (e.g. circle): start === end → show one point
       return start === end
-        ? `${gt}: len ≈ ${len}, at=${start}`
-        : `${gt}: len ≈ ${len}, start=${start}, end=${end}`;
+        ? `${t(gt)}: ${t("len ≈")} ${len}, ${t("at=")}${start}`
+        : `${t(gt)}: ${t("len ≈")} ${len}, ${t("start=")}${start}, ${t("end=")}${end}`;
     }
-    return gt;
+    return t(gt);
   }
   // face
-  return geom != null ? `${gt}: area ≈ ${f2(triangulatedArea(geom))}` : gt;
+  return geom != null ? `${t(gt)}: ${t("area ≈")} ${f2(triangulatedArea(geom))}` : t(gt);
 }
 
 /** Axis-aligned bounding box of a component's vertices. */

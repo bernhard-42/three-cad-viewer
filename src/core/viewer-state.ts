@@ -580,6 +580,7 @@ class ViewerState {
   private _applyOptions(options: ViewerStateOptions): void {
     for (const key of Object.keys(options)) {
       if (key === "theme") continue; // Already handled
+      if (key === "labels") continue; // Display-only option, not part of state
       if (!isStateKey(key)) {
         logger.warn(`Unknown option "${key}" - ignored`);
         continue;

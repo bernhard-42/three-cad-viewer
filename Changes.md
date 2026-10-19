@@ -1,5 +1,9 @@
 # Change log
 
+## Unreleased
+
+- **Optional `labels` dictionary for UI localization**: `DisplayOptions` accepts `labels: Record<string, string>` and a per-display `t(key, ...args)` helper (`labels[key] ?? key`, `{0}` placeholders). The static template is localized in one pass right after injection, and toolbar buttons, editor panels, tab tooltips, info messages, measure panels, the shape filter and hover status lines look their text up with English fallback — without `labels` every string resolves to its English key and behavior is unchanged. `FilterByDropDownMenu` derives its state from the clicked option element instead of the rendered text (the prerequisite for translated labels; keyboard shortcuts unchanged), `formatKey` is idempotent so already spaced keys keep a single space, and `ViewerState` skips the new key instead of warning about an unknown option.
+
 ## v5.1.3
 
 - **Tree hover highlights edge-only and vertex-only objects**: hovering a tree row highlighted only faces, so leaves without faces (standalone edges or vertices) showed no highlight at all. Each leaf under the hovered node now shows its highest topology: the faces of solids and face shapes (unchanged, matching the canvas solid hover), the edges of edge-only shapes and the vertices of vertex-only shapes.

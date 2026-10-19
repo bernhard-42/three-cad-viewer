@@ -9,13 +9,19 @@ class Info {
   html: HTMLElement;
   number: number;
   chunks: [number, string][];
+  private t: (key: string, ...args: (string | number)[]) => string;
 
   /**
    * Create an Info panel instance.
    * @param html - The HTML container element for info display.
+   * @param t - Translation function (defaults to identity for standalone use).
    */
-  constructor(html: HTMLElement) {
+  constructor(
+    html: HTMLElement,
+    t: (key: string, ...args: (string | number)[]) => string = (key) => key,
+  ) {
     this.html = html;
+    this.t = t;
     this.number = 0;
     this.chunks = [];
     this.clear();
@@ -81,10 +87,10 @@ class Info {
    */
   versionMsg(cqVersion: string, jcqVersion: string): void {
     this.addHtml(
-      `<b>Versions</b>
+      `<b>${this.t("Versions")}</b>
           <table>
-            <tr class="tcv_small_table"><td>CadQuery:</td>        <td>${cqVersion}</td> </tr>
-            <tr class="tcv_small_table"><td>Jupyter CadQuery:</td><td>${jcqVersion}</td> </tr>
+            <tr class="tcv_small_table"><td>${this.t("CadQuery:")}</td>        <td>${cqVersion}</td> </tr>
+            <tr class="tcv_small_table"><td>${this.t("Jupyter CadQuery:")}</td><td>${jcqVersion}</td> </tr>
           </table>`,
     );
   }
@@ -96,11 +102,11 @@ class Info {
    */
   readyMsg(version: string, control: string): void {
     this.clear();
-    const html = `<div class="tcv_info_header">Ready</div>
+    const html = `<div class="tcv_info_header">${this.t("Ready")}</div>
             <table class="small_table">
-              <tr class="tcv_small_table_row" ><td>Version</td><td>${version}</td> </tr>
-              <tr class="tcv_small_table_row" ><td>Control</td><td>${control}</td></tr>
-              <tr class="tcv_small_table_row" ><td>Axes</td>
+              <tr class="tcv_small_table_row" ><td>${this.t("Version")}</td><td>${version}</td> </tr>
+              <tr class="tcv_small_table_row" ><td>${this.t("Control")}</td><td>${control}</td></tr>
+              <tr class="tcv_small_table_row" ><td>${this.t("Axes")}</td>
                 <td>
                   <span class="tcv_info_red"><b>X</b></span>,
                   <span class="tcv_info_green"><b>Y</b></span>,
@@ -121,23 +127,23 @@ class Info {
     let html = `
             <table class="tcv_small_table">
                 <tr class="tcv_small_table_row">
-                    <td><b>Path:</b></td>
+                    <td><b>${this.t("Path:")}</b></td>
                     <td>${path}</td>
                 </tr>
                 <tr class="tcv_small_table_row">
-                    <td><b>Name:</b></td>
+                    <td><b>${this.t("Name:")}</b></td>
                     <td>${name}</td>
                 </tr>
             </table>
             `;
     html += `
-            <div class="tcv_info_header">Bounding box:</div>
+            <div class="tcv_info_header">${this.t("Bounding box:")}</div>
             <table class="tcv_small_table">
                 <tr class="tcv_small_table_row">
                     <th></th>
-                    <th>min</th>
-                    <th>max</th>
-                    <th>center</th>
+                    <th>${this.t("min")}</th>
+                    <th>${this.t("max")}</th>
+                    <th>${this.t("center")}</th>
                 </tr>
             `;
 
@@ -164,7 +170,7 @@ class Info {
    */
   centerInfo(center: Vector3Tuple): void {
     const html =
-      "<div>Camera target set to AABB center:</div>" +
+      `<div>${this.t("Camera target set to AABB center:")}</div>` +
       "<div class='tcv_info_line'>{ " +
       `x: ${center[0].toFixed(2)}, ` +
       `y: ${center[1].toFixed(2)}, ` +
