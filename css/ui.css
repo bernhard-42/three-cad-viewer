@@ -361,8 +361,12 @@ th {
   display: flex;
   background: var(--tcv-bg-overlay-color);
   position: relative;
-  overflow-x: clip;
-  overflow-y: visible;
+  /* Clip horizontally only, so tooltips and the grid dropdown can hang below.
+     Not overflow-x: clip, which Safari also applies to the y axis. clip-path
+     creates a stacking context, so z-index keeps that overflow above the
+     navigation panel (z-index 100). */
+  clip-path: inset(0 0 -100vh 0);
+  z-index: 200;
 }
 
 .tcv_cad_toolbar > *:last-child {
