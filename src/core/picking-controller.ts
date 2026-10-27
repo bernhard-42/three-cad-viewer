@@ -187,6 +187,24 @@ export class PickingController {
   }
 
   /**
+   * World-space point on the visible component at a client (page viewport)
+   * coordinate, regardless of the topo filter, or `null` over background, off
+   * the canvas, or when the GPU lacks the position attachment.
+   */
+  pointAt(clientX: number, clientY: number): THREE.Vector3 | null {
+    if (!this.host.ready || this.host.idPicker === null) return null;
+    const rect = this.host.renderer.domElement.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return null;
+    const hit = this.host.idPicker.pickAt(x, y);
+    if (hit === null || hit.point === null || !this.pickVisible(hit.info)) {
+      return null;
+    }
+    return hit.point.clone();
+  }
+
+  /**
    * Tree-row hover: HOVER the faces of the tree node at `path` (leaf or group), or
    * clear when `null`. Drops the canvas hover target first — otherwise the next
    * render's {@link handleIdHover} (cursor outside the canvas) would release that
