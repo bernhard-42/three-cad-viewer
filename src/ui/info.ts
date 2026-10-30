@@ -2,6 +2,19 @@ import * as THREE from "three";
 import type { Vector3Tuple } from "three";
 
 /**
+ * Escape text for use inside HTML. Paths and names come from the model data and
+ * may contain markup characters, which must be shown literally, never parsed.
+ */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/**
  * Manages information display panel for the CAD viewer.
  * Shows bounding box info, version info, and other contextual information.
  */
@@ -122,11 +135,11 @@ class Info {
             <table class="tcv_small_table">
                 <tr class="tcv_small_table_row">
                     <td><b>Path:</b></td>
-                    <td>${path}</td>
+                    <td>${escapeHtml(path)}</td>
                 </tr>
                 <tr class="tcv_small_table_row">
                     <td><b>Name:</b></td>
-                    <td>${name}</td>
+                    <td>${escapeHtml(name)}</td>
                 </tr>
             </table>
             `;

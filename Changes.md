@@ -1,5 +1,10 @@
 # Change log
 
+## v5.1.4
+
+- **Fix toolbar tooltips and the grid menu being cut off in Safari and other WebKit browsers (#47, by @Xapphire13)**: the toolbar clipped its sides with `overflow-x: clip`, which WebKit also applies to the y axis when the element is in a compositing layer ([WebKit bug 271457](https://bugs.webkit.org/show_bug.cgi?id=271457)), so tooltips and the grid dropdown were cut off at the toolbar's bottom edge. The toolbar now clips its sides with `clip-path` and gets `z-index: 200`, so what hangs below it still draws above the navigation panel.
+- **Fix object names containing `<`, `"` or `\`**: the navigation tree and the info panel inserted names as HTML, so `<` started markup (a name like `<img src=x onerror=…>` even ran script), and the tree looked rows up with a `[data-path="…"]` selector, so a `"` in a name threw a `SyntaxError` and a `\` made the lookup fail silently (visibility icons, label highlight and expanding to a picked object stopped working for that object). Names are now set as text, the info panel escapes them, and tree rows are looked up in a path map instead of with a CSS selector. Names containing `/` and sibling objects with the same name are still not supported, since `/` separates the levels of a tree path.
+
 ## v5.1.3
 
 - **Tree hover highlights edge-only and vertex-only objects**: hovering a tree row highlighted only faces, so leaves without faces (standalone edges or vertices) showed no highlight at all. Each leaf under the hovered node now shows its highest topology: the faces of solids and face shapes (unchanged, matching the canvas solid hover), the edges of edge-only shapes and the vertices of vertex-only shapes.

@@ -1780,3 +1780,116 @@ describe("TreeView - _ensureNodeRendered complex paths", () => {
     }
   });
 });
+
+describe("TreeView - names with special characters", () => {
+  let scrollContainer;
+  let treeView;
+
+  // Render the tree and the row of `path` (happy-dom has no layout, so
+  // update() alone renders no rows below the root)
+  function createTreeView(tree, colorGetter, path) {
+    treeView = new TreeView(
+      tree,
+      scrollContainer,
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      colorGetter,
+      "light",
+      true,
+      false,
+    );
+    scrollContainer.appendChild(treeView.create());
+    treeView.render();
+    treeView.openPath(path);
+  }
+
+  beforeEach(() => {
+    scrollContainer = createScrollContainer();
+  });
+
+  afterEach(() => {
+    if (treeView) {
+      treeView.dispose();
+    }
+    cleanupContainer(scrollContainer);
+  });
+
+  test("markup in a name is shown as text, not parsed", () => {
+    const name = '<img src=x onerror="window.__tvXss=1">';
+    createTreeView(
+      { Root: { [name]: [1, 1] } },
+      vi.fn().mockReturnValue(null),
+      `/Root/${name}`,
+    );
+
+    const element = treeView.getDomNode(`/Root/${name}`);
+    expect(element).not.toBeNull();
+    const label = element.querySelector(".tv-node-label");
+    expect(label.textContent).toBe(name);
+    expect(label.querySelector("img")).toBeNull();
+    expect(window.__tvXss).toBeUndefined();
+  });
+
+  test("color marker is a span with the color as style", () => {
+    createTreeView(
+      { Root: { Part1: [1, 1] } },
+      vi.fn().mockReturnValue("#ff0000"),
+      "/Root/Part1",
+    );
+
+    const label = treeView
+      .getDomNode("/Root/Part1")
+      .querySelector(".tv-node-label");
+    const marker = label.querySelector("span");
+    expect(marker).not.toBeNull();
+    expect(marker.textContent).toBe(" ⚈");
+    expect(marker.style.color).not.toBe("");
+    expect(label.textContent).toBe("Part1 ⚈");
+  });
+
+  test("markup in a color value is not parsed", () => {
+    createTreeView(
+      { Root: { Part1: [1, 1] } },
+      vi.fn().mockReturnValue('red"><img src=x onerror="window.__tvXss=2">'),
+      "/Root/Part1",
+    );
+
+    const label = treeView
+      .getDomNode("/Root/Part1")
+      .querySelector(".tv-node-label");
+    expect(label.querySelector("img")).toBeNull();
+    expect(window.__tvXss).toBeUndefined();
+  });
+
+  test.each(['say "hi"', "back\\slash", "a<b>c", "it's", "x]y"])(
+    "lookups find a node named %s",
+    (name) => {
+      const path = `/Root/${name}`;
+      createTreeView(
+        { Root: { [name]: [1, 1] } },
+        vi.fn().mockReturnValue(null),
+        path,
+      );
+
+      const element = treeView.getDomNode(path);
+      expect(element).not.toBeNull();
+      expect(element.dataset.path).toBe(path);
+
+      // openPath highlighted the label, toggling removes and re-adds it
+      const label = element.querySelector(".tv-node-label");
+      expect(treeView.lastLabel).toBe(label);
+      const node = treeView.findNodeByPath(path);
+      treeView.toggleLabelColor(node);
+      expect(treeView.lastLabel).toBeNull();
+      treeView.toggleLabelColor(null, path);
+      expect(treeView.lastLabel).toBe(label);
+      expect(label.classList.contains("tv-node-label-highlight")).toBe(true);
+
+      node.state[0] = 0;
+      treeView.updateIconInDOM(node, 0);
+      expect(element.dataset.state0).toBe("0");
+    },
+  );
+});

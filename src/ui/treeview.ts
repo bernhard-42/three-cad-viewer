@@ -74,6 +74,12 @@ class TreeView {
   container: HTMLUListElement | null;
   lastLabel: HTMLElement | null;
   lastScrollTop: number;
+  /**
+   * Tree row element per node path. Rows are looked up here instead of with a
+   * `[data-path="…"]` selector, because names may contain characters that are
+   * special in CSS (`"`, a backslash), and a map lookup is cheaper than a DOM scan.
+   */
+  private nodeElements: Map<string, HTMLElement>;
 
   /**
    * Constructs a TreeView object.
@@ -118,6 +124,7 @@ class TreeView {
     this.container = null;
     this.lastLabel = null;
     this.lastScrollTop = 0;
+    this.nodeElements = new Map();
   }
 
   /**
@@ -360,6 +367,7 @@ class TreeView {
     if (!this.container || !this.root) return;
 
     this.container.innerHTML = "";
+    this.nodeElements.clear();
     this.renderPlaceholder(this.root, this.container);
     if (this.debug) {
       logger.debug("update => render");
@@ -384,6 +392,7 @@ class TreeView {
     const nodeElement = document.createElement("div");
     nodeElement.className = "tv-tree-node";
     nodeElement.dataset.path = this.getNodePath(node);
+    this.nodeElements.set(nodeElement.dataset.path, nodeElement);
     nodeElement.dataset.openPath = openPath || "";
     nodeElement.dataset.state0 = String(node.state[0]);
     nodeElement.dataset.state1 = String(node.state[1]);
@@ -451,10 +460,16 @@ class TreeView {
 
     const label = document.createElement("span");
     label.className = "tv-node-label";
-    label.innerHTML = node.name;
+    // Names and colors come from the model data: set them as text and style
+    // properties, never as HTML, so they are shown literally and cannot inject
+    // markup or script.
+    label.textContent = node.name;
     const color = this.colorGetter(node.path);
     if (color != null) {
-      label.innerHTML += `<span style="color:${color}"> ⚈</span>`;
+      const marker = document.createElement("span");
+      marker.style.color = color;
+      marker.textContent = " ⚈";
+      label.appendChild(marker);
     }
     label.onmousedown = (e) => {
       e.preventDefault();
@@ -498,8 +513,9 @@ class TreeView {
    */
   getDomNode = (path: string): HTMLElement | null => {
     if (!this.container) return null;
-    const el = this.container.querySelector(`[data-path="${path}"]`);
-    return el instanceof HTMLElement ? el : null;
+    const el = this.nodeElements.get(path);
+    // Only rows still in the tree count, as with a DOM query
+    return el != null && this.container.contains(el) ? el : null;
   };
 
   /**
@@ -544,11 +560,8 @@ class TreeView {
   updateIconInDOM(node: TreeNode, iconNumber: IconIndex): void {
     if (!this.container) return;
 
-    const nodePath = this.getNodePath(node);
-    const nodeElement = this.container.querySelector(
-      `[data-path="${nodePath}"]`,
-    );
-    if (nodeElement instanceof HTMLElement) {
+    const nodeElement = this.getDomNode(this.getNodePath(node));
+    if (nodeElement != null) {
       const icon = nodeElement.querySelector(`.tv-icon${iconNumber}`);
       if (icon) {
         for (const b of VIEW_ICONS[iconNumber]) {
@@ -575,9 +588,7 @@ class TreeView {
     const nodePath = path == null && node ? this.getNodePath(node) : path;
     if (!nodePath) return;
 
-    const nodeElement = this.container.querySelector(
-      `[data-path="${nodePath}"]`,
-    );
+    const nodeElement = this.getDomNode(nodePath);
     if (this.lastLabel) {
       this.lastLabel.classList.remove("tv-node-label-highlight");
     }
@@ -978,6 +989,7 @@ class TreeView {
     }
     this.tree = null;
     this.container = null;
+    this.nodeElements.clear();
     this.lastLabel = null;
     this.scrollContainer.removeEventListener("scroll", this.handleScroll);
   }
