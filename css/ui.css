@@ -466,7 +466,7 @@ th {
   display: none;
   font-size: 12px;
   max-height: 100%;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .tcv_cad_help_layout {
