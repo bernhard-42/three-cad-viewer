@@ -260,10 +260,7 @@ class StudioManager {
       );
 
       // Background protection
-      const bg = scene.background;
-      this._composer.setBackgroundProtect(
-        bg instanceof THREE.Color ? bg : null,
-      );
+      this._updateBackgroundProtect();
 
       // Ambient Occlusion
       const aoIntensity = state.get("studioAOIntensity");
@@ -390,12 +387,7 @@ class StudioManager {
         orthoOverride ?? this._ctx.getCamera().ortho,
         this._ctx.state.get("studioEnvRotation"),
       );
-      if (this._composer) {
-        const bg = this._ctx.getScene().background;
-        this._composer.setBackgroundProtect(
-          bg instanceof THREE.Color ? bg : null,
-        );
-      }
+      this._updateBackgroundProtect();
     };
 
     const state = this._ctx.state;
@@ -696,6 +688,22 @@ class StudioManager {
 
       this.floor.setShadowsEnabled(false);
     }
+  }
+
+  /**
+   * Protect the background in the composer only for a solid color background.
+   * The env background is put into `scene.background` by the per-frame
+   * updateEnvBackground(), so right after switching to it the scene still holds
+   * the previous background, which may be a solid color: it must not count then.
+   */
+  private _updateBackgroundProtect(): void {
+    if (!this._composer) return;
+    const bg = this._ctx.getScene().background;
+    this._composer.setBackgroundProtect(
+      bg instanceof THREE.Color && !this.envManager.isEnvBackgroundActive
+        ? bg
+        : null,
+    );
   }
 
   private _applyToneMapping(): void {
