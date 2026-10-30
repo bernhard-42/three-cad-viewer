@@ -298,6 +298,10 @@ export interface DisplayOptions {
   canvas?: HTMLCanvasElement;
   /** External WebGL context to use for the renderer. When provided together with `canvas`, the renderer will use this context instead of creating a new one. Useful for sharing a context with other renderers like PixiJS. (default: undefined) */
   gl?: WebGLRenderingContext | WebGL2RenderingContext;
+  /** UI language as BCP 47 tag, e.g. "de" or "zh-CN". Unknown languages fall back to English (default: "en") */
+  locale?: string;
+  /** Overrides for single UI strings: message id (dotted path in `src/locales/en.json`, e.g. "toolbar.axes") → text (default: {}) */
+  labels?: Record<string, string>;
 }
 
 /** Render options */

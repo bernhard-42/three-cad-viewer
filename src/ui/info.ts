@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import type { Vector3Tuple } from "three";
+import type { MessageId, Translate } from "./i18n.js";
 
 /**
  * Escape text for use inside HTML. Paths and names come from the model data and
@@ -22,13 +23,16 @@ class Info {
   html: HTMLElement;
   number: number;
   chunks: [number, string][];
+  private t: Translate;
 
   /**
    * Create an Info panel instance.
    * @param html - The HTML container element for info display.
+   * @param t - Translates UI messages.
    */
-  constructor(html: HTMLElement) {
+  constructor(html: HTMLElement, t: Translate) {
     this.html = html;
+    this.t = t;
     this.number = 0;
     this.chunks = [];
     this.clear();
@@ -94,10 +98,10 @@ class Info {
    */
   versionMsg(cqVersion: string, jcqVersion: string): void {
     this.addHtml(
-      `<b>Versions</b>
+      `<b>${this.text("info.versions")}</b>
           <table>
-            <tr class="tcv_small_table"><td>CadQuery:</td>        <td>${cqVersion}</td> </tr>
-            <tr class="tcv_small_table"><td>Jupyter CadQuery:</td><td>${jcqVersion}</td> </tr>
+            <tr class="tcv_small_table"><td>${this.text("info.cadquery")}</td>        <td>${cqVersion}</td> </tr>
+            <tr class="tcv_small_table"><td>${this.text("info.jupyterCadquery")}</td><td>${jcqVersion}</td> </tr>
           </table>`,
     );
   }
@@ -109,11 +113,11 @@ class Info {
    */
   readyMsg(version: string, control: string): void {
     this.clear();
-    const html = `<div class="tcv_info_header">Ready</div>
+    const html = `<div class="tcv_info_header">${this.text("info.ready")}</div>
             <table class="small_table">
-              <tr class="tcv_small_table_row" ><td>Version</td><td>${version}</td> </tr>
-              <tr class="tcv_small_table_row" ><td>Control</td><td>${control}</td></tr>
-              <tr class="tcv_small_table_row" ><td>Axes</td>
+              <tr class="tcv_small_table_row" ><td>${this.text("info.version")}</td><td>${version}</td> </tr>
+              <tr class="tcv_small_table_row" ><td>${this.text("info.control")}</td><td>${control}</td></tr>
+              <tr class="tcv_small_table_row" ><td>${this.text("info.axes")}</td>
                 <td>
                   <span class="tcv_info_red"><b>X</b></span>,
                   <span class="tcv_info_green"><b>Y</b></span>,
@@ -134,23 +138,23 @@ class Info {
     let html = `
             <table class="tcv_small_table">
                 <tr class="tcv_small_table_row">
-                    <td><b>Path:</b></td>
+                    <td><b>${this.text("info.path")}</b></td>
                     <td>${escapeHtml(path)}</td>
                 </tr>
                 <tr class="tcv_small_table_row">
-                    <td><b>Name:</b></td>
+                    <td><b>${this.text("info.name")}</b></td>
                     <td>${escapeHtml(name)}</td>
                 </tr>
             </table>
             `;
     html += `
-            <div class="tcv_info_header">Bounding box:</div>
+            <div class="tcv_info_header">${this.text("info.boundingBox")}</div>
             <table class="tcv_small_table">
                 <tr class="tcv_small_table_row">
                     <th></th>
-                    <th>min</th>
-                    <th>max</th>
-                    <th>center</th>
+                    <th>${this.text("info.min")}</th>
+                    <th>${this.text("info.max")}</th>
+                    <th>${this.text("info.center")}</th>
                 </tr>
             `;
 
@@ -172,12 +176,19 @@ class Info {
   }
 
   /**
+   * A translated message, escaped for use inside HTML.
+   */
+  private text(id: MessageId): string {
+    return escapeHtml(this.t(id));
+  }
+
+  /**
    * Display camera target center information.
    * @param center - The center coordinates [x, y, z].
    */
   centerInfo(center: Vector3Tuple): void {
     const html =
-      "<div>Camera target set to AABB center:</div>" +
+      `<div>${this.text("info.cameraTarget")}</div>` +
       "<div class='tcv_info_line'>{ " +
       `x: ${center[0].toFixed(2)}, ` +
       `y: ${center[1].toFixed(2)}, ` +
@@ -187,4 +198,4 @@ class Info {
   }
 }
 
-export { Info };
+export { Info, escapeHtml };

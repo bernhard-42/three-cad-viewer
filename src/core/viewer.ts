@@ -21,6 +21,7 @@ import { Grid } from "../scene/grid.js";
 import { AxesHelper } from "../scene/axes.js";
 import { OrientationMarker } from "../scene/orientation.js";
 import { TreeView } from "../ui/treeview.js";
+import { escapeHtml } from "../ui/info.js";
 // TreeData and StateValue available if needed for tree manipulation
 import { Timer } from "../utils/timer.js";
 import { Clipping } from "../scene/clipping.js";
@@ -216,6 +217,8 @@ interface DisplayOptionsInternal {
   canvas?: HTMLCanvasElement;
   gl?: WebGLRenderingContext | WebGL2RenderingContext;
   keymap?: KeymapConfig;
+  locale?: string;
+  labels?: Record<string, string>;
   [key: string]: unknown;
 }
 
@@ -1792,7 +1795,7 @@ class Viewer {
       }
     } else {
       this.display.addInfoHtml(
-        "<b>quaternion needs position to be provided, falling back to ISO view</b>",
+        `<b>${escapeHtml(this.display.t("info.quaternionNeedsPosition"))}</b>`,
       );
       this.presetCamera("iso", this.state.get("zoom"));
     }
@@ -2497,7 +2500,9 @@ class Viewer {
     if (this.notifyCallback !== null) {
       this.notifyCallback({ copiedPoint: { old: null, new: coords } });
     }
-    this.display.setStatusLine(`copied: ${text}`);
+    this.display.setStatusLine(
+      this.display.t("status.copied", { point: text }),
+    );
     return true;
   }
 
@@ -4725,9 +4730,8 @@ class Viewer {
     }
 
     if (Object.keys(modifiers).length > 0) {
-      const before = KeyMapper.get_config();
       KeyMapper.set(modifiers);
-      this.display.updateHelp(before, modifiers);
+      this.display.updateHelp();
     }
 
     if (Object.keys(actions).length > 0) {

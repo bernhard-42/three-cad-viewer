@@ -5,6 +5,7 @@ import terser from "@rollup/plugin-terser";
 import serve from "rollup-plugin-serve";
 import livereload from "rollup-plugin-livereload";
 import image from "@rollup/plugin-image";
+import json from "@rollup/plugin-json";
 import { string } from "rollup-plugin-string";
 import postcss from "rollup-plugin-postcss";
 import url from "postcss-url";
@@ -39,6 +40,7 @@ const default_plugins = [
   }),
   resolve(),
   image(),
+  json(),
   string({ include: "src/ui/index.html" }),
 ];
 

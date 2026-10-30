@@ -42,7 +42,12 @@
 
     <script type="module">
       // ESM import
-      import { Viewer, Display, Timer } from "./dist/three-cad-viewer.esm.js";
+      import {
+        Viewer,
+        Display,
+        Timer,
+        AVAILABLE_LOCALES,
+      } from "./dist/three-cad-viewer.esm.js";
 
       // UMD import
       // const Viewer = CadViewer.Viewer;
@@ -221,6 +226,8 @@
         treeWidth: 260,
         theme: "browser",
         pinning: false,
+        // UI language, e.g. index.html?locale=de
+        locale: new URLSearchParams(location.search).get("locale") ?? "en",
         // keymap: {
         //     shift: "ctrlKey",
         //     ctrl: "metaKey",
@@ -372,6 +379,31 @@
       window.render = render;
       window.examples = examples;
       window.showViewer = showViewer;
+
+      // The UI language is fixed when the Display is created, so switching it
+      // rebuilds viewer and display
+      function setLocale(locale) {
+        displayOptions.locale = locale;
+        if (window.viewer != null) {
+          window.viewer.hasAnimationLoop = false;
+          window.viewer.continueAnimation = false;
+          window.viewer.dispose();
+          window.viewer = null;
+        }
+        window.display.dispose();
+        window.display = null;
+        showViewer(window.controlMode, window.viewerMode, "cad_view_001");
+      }
+      window.setLocale = setLocale;
+
+      const localeSelect = document.getElementById("locale-select");
+      for (const locale of AVAILABLE_LOCALES) {
+        const name = new Intl.DisplayNames([locale], { type: "language" }).of(
+          locale,
+        );
+        const selected = locale === window.display.i18n.locale;
+        localeSelect.add(new Option(name, locale, selected, selected));
+      }
       // window.setMode = setMode;
 
       console.log("Loaded", new Date());
@@ -439,6 +471,15 @@
           <option value="orbit">orbit/Y up</option>
           <option value="orbit">orbit/Legacy</option>
         </select>
+      </span>
+
+      <span id="locale" class="selection">
+        Locale
+        <select
+          id="locale-select"
+          class="select"
+          onchange="window.setLocale(this.value)"
+        ></select>
       </span>
 
       <span id="examples" class="selection">

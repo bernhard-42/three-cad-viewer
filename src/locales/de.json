@@ -1,0 +1,496 @@
+{
+  "toolbar": {
+    "axes": "Achsen anzeigen",
+    "axes0": "Achsen im Ursprung (0,0,0) anzeigen",
+    "grid": "Raster anzeigen",
+    "perspective": "Perspektivische Kamera verwenden",
+    "transparent": "Flächen transparent darstellen",
+    "blackEdges": "Kanten schwarz darstellen",
+    "reset": "Ansicht zurücksetzen",
+    "resize": "Objekt einpassen",
+    "iso": "Isometrische Ansicht",
+    "front": "Vorderansicht",
+    "rear": "Rückansicht",
+    "top": "Draufsicht",
+    "bottom": "Untersicht",
+    "left": "Ansicht von links",
+    "right": "Ansicht von rechts",
+    "explode": "Explosionsansicht",
+    "zscale": "Entlang der Z-Achse skalieren",
+    "distance": "Abstand zwischen Formen messen",
+    "properties": "Formeigenschaften anzeigen",
+    "select": "Form-IDs in die Zwischenablage kopieren",
+    "pin": "Ansicht als PNG anheften",
+    "help": "Hilfe",
+    "shortcut": "{{tooltip}} › {{key}}"
+  },
+  "panel": {
+    "tools": "Werkzeuge",
+    "info": "Info"
+  },
+  "tabs": {
+    "tree": {
+      "label": "Baum",
+      "tooltip": "Navigationsbaum"
+    },
+    "clip": {
+      "label": "Schnitt",
+      "tooltip": "Schnittwerkzeug"
+    },
+    "zebra": {
+      "label": "Zebra",
+      "tooltip": "Zebrawerkzeug"
+    },
+    "material": {
+      "label": "Material",
+      "tooltip": "Materialauswahl"
+    },
+    "studio": {
+      "label": "Studio",
+      "tooltip": "Studiomodus"
+    }
+  },
+  "tree": {
+    "collapseSingles": {
+      "label": "1",
+      "tooltip": "Knoten mit nur einem Blatt zuklappen"
+    },
+    "expandRoot": {
+      "label": "W",
+      "tooltip": "Nur den Wurzelknoten aufklappen"
+    },
+    "collapseAll": {
+      "label": "Z",
+      "tooltip": "Baum zuklappen"
+    },
+    "expandAll": {
+      "label": "A",
+      "tooltip": "Baum aufklappen"
+    }
+  },
+  "clip": {
+    "reset": {
+      "label": "R",
+      "tooltip": "Schnittebenen zurücksetzen"
+    },
+    "toViewRed": "Rote Schnittebene auf Blickrichtung setzen",
+    "toViewGreen": "Grüne Schnittebene auf Blickrichtung setzen",
+    "toViewBlue": "Blaue Schnittebene auf Blickrichtung setzen",
+    "intersection": {
+      "label": "Schnittmenge",
+      "tooltip": "Nur die Schnittmenge der Ebenen wegschneiden"
+    },
+    "planes": {
+      "label": "Ebenen",
+      "tooltip": "Schnittebenen anzeigen"
+    },
+    "objectColorCaps": {
+      "label": "Schnittflächen in Objektfarbe",
+      "tooltip": "Schnittflächen in Objektfarbe statt RGB einfärben"
+    }
+  },
+  "material": {
+    "reset": {
+      "label": "R",
+      "tooltip": "Auf Ausgangswerte zurücksetzen"
+    },
+    "ambientLight": "Umgebungslicht",
+    "directLight": "Direktes Licht",
+    "metalness": "Metallizität",
+    "roughness": "Rauheit",
+    "hint": "Material der CAD-Ansicht einstellen, Werte in %"
+  },
+  "zebra": {
+    "reset": {
+      "label": "R",
+      "tooltip": "Zebra-Einstellungen zurücksetzen"
+    },
+    "stripeCount": "Streifenanzahl",
+    "stripeOpacity": "Streifendeckkraft",
+    "direction": "Richtung",
+    "colorScheme": {
+      "tooltip": "Farbschema der Streifen wählen",
+      "blackWhite": "S/W",
+      "gray": "Grau",
+      "colors": "Farben"
+    },
+    "mapping": {
+      "tooltip": "Streifenprojektion wählen",
+      "reflection": "Reflexion",
+      "normal": "Normale"
+    }
+  },
+  "matEditor": {
+    "toggle": {
+      "label": "B",
+      "tooltip": "Material des gewählten Objekts bearbeiten"
+    },
+    "title": "Material-Editor",
+    "reset": {
+      "label": "R",
+      "tooltip": "Ursprüngliches Material wiederherstellen"
+    },
+    "close": {
+      "label": "X",
+      "tooltip": "Schließen"
+    },
+    "selectFirst": "Zuerst ein Objekt per Doppelklick auswählen",
+    "group": {
+      "pbrCore": "PBR-Grundwerte",
+      "clearcoat": "Klarlack",
+      "transmission": "Transmission",
+      "sheen": "Schimmer",
+      "specular": "Glanzlicht",
+      "anisotropy": "Anisotropie",
+      "emissive": "Leuchten"
+    },
+    "param": {
+      "metalness": "Metallisch",
+      "roughness": "Rauheit",
+      "clearcoat": "Klarlack",
+      "clearcoatRoughness": "Klarlack-Rauheit",
+      "transmission": "Transmission",
+      "ior": "Brechungsindex",
+      "thickness": "Dicke",
+      "attenuationDistance": "Dämpfungsdistanz",
+      "sheen": "Schimmer",
+      "sheenRoughness": "Schimmer-Rauheit",
+      "specularIntensity": "Glanzlichtstärke",
+      "anisotropy": "Anisotropie",
+      "anisotropyRotation": "Anisotropie-Drehung",
+      "emissiveIntensity": "Leuchtstärke"
+    },
+    "defaultMaterial": "(Standard)"
+  },
+  "studio": {
+    "reset": {
+      "label": "R",
+      "tooltip": "Auf Standardwerte zurücksetzen"
+    },
+    "environment": {
+      "label": "Umgebung",
+      "tooltip": "HDR-Umgebungskarte für Beleuchtung und Spiegelungen",
+      "groupStudio": "Studio",
+      "groupOutdoor": "Außen",
+      "groupCustom": "Eigene",
+      "customHdr": "Eigenes HDR",
+      "procedural": "Prozedural",
+      "softLight": {
+        "label": "Weiches Licht",
+        "tooltip": "Poly Haven: studio_small_08.hdr (weiches Licht, neutral, Gegenlicht)"
+      },
+      "highContrast": {
+        "label": "Kontrastreich",
+        "tooltip": "Poly Haven: studio_small_03.hdr (kontrastreich, Softbox + Deckenlampe, scharf)"
+      },
+      "brightNeutral": {
+        "label": "Hell neutral",
+        "tooltip": "Poly Haven: white_studio_05.hdr (weiß, Produkt, hell, neutrale Beleuchtung)"
+      },
+      "cleanSoftbox": {
+        "label": "Klare Softbox",
+        "tooltip": "Poly Haven: white_studio_03.hdr (weiß, Softbox, Spiegelung, klar)"
+      },
+      "spotlit": {
+        "label": "Spot-Beleuchtung",
+        "tooltip": "Poly Haven: photo_studio_01.hdr (Lichtaufbau, Spots)"
+      },
+      "controlledLight": {
+        "label": "Kontrolliertes Licht",
+        "tooltip": "Poly Haven: studio_small_09.hdr (Produktbeleuchtung, kontrolliert, weiche Spiegelungen)"
+      },
+      "hardContrast": {
+        "label": "Hartes Kontrastlicht",
+        "tooltip": "Poly Haven: cyclorama_hard_light.hdr (Hohlkehle, hartes Licht, Kontrast)"
+      },
+      "urbanOvercast": {
+        "label": "Stadt, bedeckt",
+        "tooltip": "Poly Haven: canary_wharf.hdr (urban, Stadt, bedeckt)"
+      },
+      "outdoorWarm": {
+        "label": "Außen, warm",
+        "tooltip": "Poly Haven: kiara_1_dawn.hdr (Morgendämmerung, warm, Natur, Sonnenaufgang)"
+      },
+      "neutralIndustrial": {
+        "label": "Industrie neutral",
+        "tooltip": "Poly Haven: empty_warehouse_01.hdr (Lagerhalle, neutral, großer Raum)"
+      },
+      "sanGiuseppeBridge": {
+        "label": "San Giuseppe Bridge",
+        "tooltip": "Poly Haven: san_giuseppe_bridge.hdr (Brücke, außen, GPUOpen-Referenz)"
+      }
+    },
+    "use4k": {
+      "label": "4K-Karten",
+      "tooltip": "4K-Umgebungskarten laden (schärfere Spiegelungen, langsamer)",
+      "presetsOnly": "4K ist nur für die eingebauten Poly-Haven-Vorgaben verfügbar"
+    },
+    "envIntensity": {
+      "label": "Umg.-Stärke",
+      "tooltip": "Helligkeit der Umgebungsbeleuchtung"
+    },
+    "envRotation": {
+      "label": "Umg.-Rotation",
+      "tooltip": "Umgebungskarte um die senkrechte Achse drehen"
+    },
+    "background": {
+      "label": "Hintergrund",
+      "tooltip": "Art des Szenenhintergrunds",
+      "environment": "Umgebung",
+      "transparent": "Transparent",
+      "gradient": "Verlauf grau",
+      "gradientDark": "Verlauf dunkelgrau",
+      "white": "Weiß",
+      "grey": "Grau",
+      "darkgrey": "Dunkelgrau"
+    },
+    "toneMapping": {
+      "label": "Tonwertabbildung",
+      "tooltip": "Verfahren zur Umrechnung von HDR auf den Bildschirm",
+      "none": "Linear (keine)"
+    },
+    "exposure": {
+      "label": "Belichtung",
+      "tooltip": "Gesamthelligkeit des gerenderten Bildes"
+    },
+    "shadowIntensity": {
+      "label": "Schattenstärke",
+      "tooltip": "Dunkelheit der gerichteten Schatten auf dem Boden und zwischen Objekten"
+    },
+    "shadowSoftness": {
+      "label": "Schattenweichheit",
+      "tooltip": "Unschärfe der Schattenkanten (scharf bis weich)"
+    },
+    "aoIntensity": {
+      "label": "AO-Stärke",
+      "tooltip": "Umgebungsverdeckung im Bildraum – dunkelt Spalten und Kontaktstellen ab"
+    },
+    "textureMapping": {
+      "label": "Texturprojektion",
+      "tooltip": "Wie Texturen auf Flächen ohne UV-Koordinaten projiziert werden",
+      "triplanar": "Triplanar",
+      "parametric": "Parametrisch (UV)"
+    }
+  },
+  "animation": {
+    "explodeLabel": "E",
+    "zscaleLabel": "Z",
+    "play": "Animation abspielen",
+    "pause": "Animation anhalten",
+    "stop": "Animation stoppen und zurücksetzen"
+  },
+  "info": {
+    "ready": "Bereit",
+    "version": "Version",
+    "control": "Steuerung",
+    "axes": "Achsen",
+    "versions": "Versionen",
+    "cadquery": "CadQuery:",
+    "jupyterCadquery": "Jupyter CadQuery:",
+    "path": "Pfad:",
+    "name": "Name:",
+    "boundingBox": "Begrenzungsquader:",
+    "min": "min",
+    "max": "max",
+    "center": "Mitte",
+    "cameraTarget": "Kameraziel auf die Mitte des Begrenzungsquaders gesetzt:",
+    "quaternionNeedsPosition": "Für das Quaternion fehlt die Position, es wird die ISO-Ansicht verwendet"
+  },
+  "status": {
+    "copied": "kopiert: {{point}}",
+    "solid": "Körper",
+    "solidCounts": "Körper – Flächen: {{faces}}, Kanten: {{edges}}",
+    "solidCountsVolume": "Körper – Flächen: {{faces}}, Kanten: {{edges}}, Vol. ≈ {{volume}}",
+    "vertex": "Punkt: {{point}}",
+    "edge": "{{type}}: Länge ≈ {{length}}, Anfang={{start}}, Ende={{end}}",
+    "closedEdge": "{{type}}: Länge ≈ {{length}}, bei={{start}}",
+    "arc": "{{type}}: r ≈ {{radius}}, M ≈ {{center}}, Länge ≈ {{length}}, Anfang={{start}}, Ende={{end}}",
+    "fullCircle": "{{type}}: r ≈ {{radius}}, M ≈ {{center}}, Länge ≈ {{length}}",
+    "face": "{{type}}: Fläche ≈ {{area}}"
+  },
+  "warning": {
+    "unresolvedTags": "Nicht auflösbare Material-Tags: {{tags}}"
+  },
+  "measure": {
+    "distance": {
+      "header": "Abstand",
+      "headerMesh": "Abstand (netzbasiert)"
+    },
+    "properties": {
+      "header": "Eigenschaften",
+      "headerMesh": "Eigenschaften (netzbasiert)",
+      "shape": "Form"
+    },
+    "qualifier": {
+      "min": "min",
+      "center": "Mitte"
+    },
+    "row": {
+      "distance": "Abstand",
+      "point1": "Punkt 1",
+      "point2": "Punkt 2",
+      "angle": "Winkel",
+      "angleToXy": "Winkel zur XY-Ebene",
+      "reference1": "Bezug 1",
+      "reference2": "Bezug 2",
+      "direction1": "Richtung 1",
+      "direction2": "Richtung 2",
+      "tangentAtP1": "Tangente in P1",
+      "tangentAtP2": "Tangente in P2",
+      "delta": "⇒ x | y | z",
+      "xyz": "xyz",
+      "area": "Fläche",
+      "length": "Länge",
+      "volume": "Volumen",
+      "radius": "Radius",
+      "diameter": "Durchmesser",
+      "center": "Mittelpunkt",
+      "faceNormal": "Flächennormale",
+      "bbMin": "BQ min",
+      "bbMax": "BQ max",
+      "bbCenter": "BQ Mitte",
+      "bbSize": "BQ Größe"
+    },
+    "value": {
+      "line": "Linie",
+      "faceNormal": "Flächennormale"
+    }
+  },
+  "filter": {
+    "all": "Alle",
+    "vertex": "Punkt",
+    "edge": "Kante",
+    "face": "Fläche",
+    "solid": "Körper"
+  },
+  "shape": {
+    "vertex": "Punkt",
+    "edge": "Kante",
+    "face": "Fläche",
+    "solid": "Körper"
+  },
+  "geom": {
+    "point": "Punkt",
+    "plane": "Ebene",
+    "cylinder": "Zylinder",
+    "cone": "Kegel",
+    "sphere": "Kugel",
+    "torus": "Torus",
+    "bezierSurface": "Bézier-Fläche",
+    "bsplineSurface": "B-Spline-Fläche",
+    "surfaceOfRevolution": "Rotationsfläche",
+    "surfaceOfExtrusion": "Extrusionsfläche",
+    "offsetSurface": "Offset-Fläche",
+    "otherSurface": "Sonstige Fläche",
+    "line": "Gerade",
+    "circle": "Kreis",
+    "ellipse": "Ellipse",
+    "hyperbola": "Hyperbel",
+    "parabola": "Parabel",
+    "bezierCurve": "Bézier-Kurve",
+    "bsplineCurve": "B-Spline-Kurve",
+    "offsetCurve": "Offset-Kurve",
+    "otherCurve": "Sonstige Kurve",
+    "other": "Sonstige"
+  },
+  "help": {
+    "key": {
+      "shift": "Umschalt",
+      "ctrl": "Strg",
+      "alt": "Alt",
+      "meta": "Meta"
+    },
+    "navigation": {
+      "title": "Navigation mit der Maus",
+      "rotate": {
+        "action": "Drehen",
+        "input": "<linke Maustaste>"
+      },
+      "rotateUpDown": {
+        "action": "Nach oben / unten drehen",
+        "input": "<{{ctrl}}> + <linke Maustaste>"
+      },
+      "rotateLeftRight": {
+        "action": "Nach links / rechts drehen",
+        "input": "<{{meta}}> + <linke Maustaste>"
+      },
+      "pan": {
+        "action": "Verschieben",
+        "input": "<{{shift}}> + <linke Maustaste> oder <rechte Maustaste>"
+      },
+      "zoom": {
+        "action": "Zoomen",
+        "input": "<Mausrad> oder <mittlere Maustaste>"
+      }
+    },
+    "selection": {
+      "title": "Auswahl mit der Maus",
+      "pick": {
+        "action": "Element auswählen",
+        "input": "Doppelklick mit <linker Maustaste>",
+        "inputTree": "Klick auf einen Eintrag im Navigationsbaum",
+        "note": "(Zeigt den achsparallelen Begrenzungsquader)"
+      },
+      "isolate": {
+        "action": "Element isolieren",
+        "input": "<{{shift}}> + Doppelklick mit <linker Maustaste>",
+        "inputTree": "<{{shift}}> + Klick auf einen Baumeintrag (verschachtelt)"
+      },
+      "hide": {
+        "action": "Element ausblenden",
+        "input": "<{{meta}}> + Doppelklick mit <linker Maustaste> auf das Objekt",
+        "inputTree": "<{{meta}}> + Klick mit <linker Maustaste> auf einen Baumeintrag (verschachtelt)"
+      },
+      "hideOthers": {
+        "action": "Andere Elemente ausblenden",
+        "inputTree": "<{{shift}}> + <{{meta}}> + Klick mit <linker Maustaste> auf einen Baumeintrag (verschachtelt)"
+      },
+      "cameraTarget": {
+        "action": "Kameraziel setzen",
+        "input": "<{{shift}}> + <{{meta}}> + Doppelklick mit <linker Maustaste>"
+      }
+    },
+    "tree": {
+      "title": "CAD-Objektbaum",
+      "collapseSingles": {
+        "action": "Einzelne Blätter zuklappen",
+        "input": "Schaltfläche '{{button}}' (alle Knoten mit nur einem Blatt)"
+      },
+      "expandRoot": {
+        "action": "Nur die Wurzel aufklappen",
+        "input": "Schaltfläche '{{button}}'"
+      },
+      "collapseAll": {
+        "action": "Alle Knoten zuklappen",
+        "input": "Schaltfläche '{{button}}'"
+      },
+      "expandAll": {
+        "action": "Alle Knoten aufklappen",
+        "input": "Schaltfläche '{{button}}'"
+      }
+    },
+    "measure": {
+      "title": "Messmodus",
+      "select": {
+        "action": "1. (und 2.) Objekt auswählen",
+        "input": "<linke Maustaste>"
+      },
+      "useCenter": {
+        "action": "Mittelpunkt statt Minimalabstand verwenden",
+        "input": "<{{shift}}> + <linke Maustaste> bei der zweiten Auswahl"
+      },
+      "filter": {
+        "action": "Objekttypen filtern",
+        "input": "Menü oder Tasten <a>lle, <s>olid, <f>läche, <e>dge, <v>ertex"
+      },
+      "unselectLast": {
+        "action": "Letztes Objekt abwählen",
+        "input": "<rechte Maustaste>"
+      },
+      "unselectAll": {
+        "action": "Alle Objekte abwählen",
+        "input": "<Esc>"
+      }
+    }
+  }
+}

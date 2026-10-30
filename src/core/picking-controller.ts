@@ -276,11 +276,21 @@ export class PickingController {
         if (cached !== undefined) {
           text = cached;
         } else {
-          text = hoverStatusText(hit.info, fromSolid, provider);
+          text = hoverStatusText(
+            hit.info,
+            fromSolid,
+            provider,
+            this.host.display.t,
+          );
           this.hoverStatusCache.set(key, text);
         }
       } else {
-        text = hoverStatusText(hit.info, fromSolid, provider);
+        text = hoverStatusText(
+          hit.info,
+          fromSolid,
+          provider,
+          this.host.display.t,
+        );
       }
       this.host.display.setStatusLine(text);
     }

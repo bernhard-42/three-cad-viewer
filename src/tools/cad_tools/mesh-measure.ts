@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import type { TopoType, ComponentInfo } from "../../rendering/id-picking.js";
 import type { ToolType } from "./tools.js";
+import type { MessageId, Translate } from "../../ui/i18n.js";
 
 /**
  * A measurement response. Carries both `subtype` (so the viewer's
@@ -81,21 +82,50 @@ export function edgeGeomType(code: number): string {
   return CURVE_TYPE_NAMES[code] ?? "Other";
 }
 
+/** Message id of each geom_type name, for the status line and the properties panel. */
+export const GEOM_TYPE_IDS: Record<string, MessageId> = {
+  Point: "geom.point",
+  Plane: "geom.plane",
+  Cylinder: "geom.cylinder",
+  Cone: "geom.cone",
+  Sphere: "geom.sphere",
+  Torus: "geom.torus",
+  BezierSurface: "geom.bezierSurface",
+  BSplineSurface: "geom.bsplineSurface",
+  SurfaceOfRevolution: "geom.surfaceOfRevolution",
+  SurfaceOfExtrusion: "geom.surfaceOfExtrusion",
+  OffsetSurface: "geom.offsetSurface",
+  OtherSurface: "geom.otherSurface",
+  Line: "geom.line",
+  Circle: "geom.circle",
+  Ellipse: "geom.ellipse",
+  Hyperbola: "geom.hyperbola",
+  Parabola: "geom.parabola",
+  BezierCurve: "geom.bezierCurve",
+  BSplineCurve: "geom.bsplineCurve",
+  OffsetCurve: "geom.offsetCurve",
+  OtherCurve: "geom.otherCurve",
+  Other: "geom.other",
+};
+
+/** Translated geom_type name; names without a message are shown as they are. */
+export function geomTypeLabel(name: string, t: Translate): string {
+  return Object.prototype.hasOwnProperty.call(GEOM_TYPE_IDS, name)
+    ? t(GEOM_TYPE_IDS[name])
+    : name;
+}
+
 /**
- * Short, lowercase geom_type for a status-line readout. Drops the trailing
- * `Curve`/`Surface` suffix (`BSplineSurface`/`BSplineCurve` → `bspline`,
- * `Plane` → `plane`, `Line` → `line`) and spaces the remaining CamelCase words
- * for readability (`SurfaceOfExtrusion` → `surface of extrusion`,
- * `SurfaceOfRevolution` → `surface of revolution`). The lowercase→uppercase
- * split leaves single words and the leading-caps `BSpline` untouched. Topo
+ * Translated geom_type of a face or edge code for a status-line readout. Topo
  * selects the surface vs curve table.
  */
-export function displayGeomType(topo: TopoType, code: number): string {
+export function displayGeomType(
+  topo: TopoType,
+  code: number,
+  t: Translate,
+): string {
   const name = topo === "edge" ? edgeGeomType(code) : faceGeomType(code);
-  return name
-    .replace(/(Curve|Surface)$/, "")
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
-    .toLowerCase();
+  return geomTypeLabel(name, t);
 }
 
 // ---------------------------------------------------------------------------
@@ -302,25 +332,28 @@ export function hoverStatusText(
   info: ComponentInfo,
   fromSolid: boolean,
   provider: MeshGeometrySource,
+  t: Translate,
 ): string {
   const f2 = (n: number): string => n.toFixed(2);
   if (fromSolid && info.solidPath !== null) {
     // Solid face/edge totals from the tessellation type arrays (len(face_types) /
     // len(edge_types)). Per-face edge counts are NOT derivable (no face→edge map).
     const c = provider.nodeCounts(info.solidPath);
-    if (c === null) return "solid";
+    if (c === null) return t("status.solid");
     const g = provider.resolve(info.solidPath);
-    const vol = g !== null ? `, vol ≈ ${f2(meshVolume(g))}` : "";
-    return `solid: ${c.faces} faces, ${c.edges} edges${vol}`;
+    const counts = { faces: c.faces, edges: c.edges };
+    return g !== null
+      ? t("status.solidCountsVolume", { ...counts, volume: f2(meshVolume(g)) })
+      : t("status.solidCounts", counts);
   }
   const geom = provider.resolve(info.path);
   const pt = (a: Float32Array, o: number): string =>
     `(${f2(a[o])}, ${f2(a[o + 1])}, ${f2(a[o + 2])})`;
   if (info.topo === "vertex") {
     const p = geom?.positions;
-    return p && p.length >= 3 ? `vertex: ${pt(p, 0)}` : "";
+    return p && p.length >= 3 ? t("status.vertex", { point: pt(p, 0) }) : "";
   }
-  const gt = geom != null ? displayGeomType(info.topo, geom.geomType) : "";
+  const gt = geom != null ? displayGeomType(info.topo, geom.geomType, t) : "";
   if (info.topo === "edge") {
     const p = geom?.positions;
     if (geom != null && p != null && p.length >= 6) {
@@ -335,20 +368,23 @@ export function hoverStatusText(
           const c = `(${f2(circ.center[0])}, ${f2(circ.center[1])}, ${f2(circ.center[2])})`;
           // full circle (start === end): center + radius say it all; an arc keeps
           // its start/end too. Mesh-derived, so ≈.
+          const circle = { type: gt, radius: r, center: c, length: len };
           return start === end
-            ? `${gt}: r ≈ ${r}, c ≈ ${c}, len ≈ ${len}`
-            : `${gt}: r ≈ ${r}, c ≈ ${c}, len ≈ ${len}, start=${start}, end=${end}`;
+            ? t("status.fullCircle", circle)
+            : t("status.arc", { ...circle, start, end });
         }
       }
       // closed edge (e.g. circle): start === end → show one point
       return start === end
-        ? `${gt}: len ≈ ${len}, at=${start}`
-        : `${gt}: len ≈ ${len}, start=${start}, end=${end}`;
+        ? t("status.closedEdge", { type: gt, length: len, start })
+        : t("status.edge", { type: gt, length: len, start, end });
     }
     return gt;
   }
   // face
-  return geom != null ? `${gt}: area ≈ ${f2(triangulatedArea(geom))}` : gt;
+  return geom != null
+    ? t("status.face", { type: gt, area: f2(triangulatedArea(geom)) })
+    : gt;
 }
 
 /** Axis-aligned bounding box of a component's vertices. */

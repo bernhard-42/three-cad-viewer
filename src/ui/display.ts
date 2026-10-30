@@ -14,6 +14,8 @@ import type {
 } from "../tools/cad_tools/tools.js";
 import { FilterByDropDownMenu } from "../tools/cad_tools/ui.js";
 import { Info } from "./info.js";
+import { I18n } from "./i18n.js";
+import type { MessageId, Translate } from "./i18n.js";
 import type { Viewer } from "../core/viewer.js";
 import type { ObjectGroup } from "../scene/objectgroup.js";
 import type { ViewerState } from "../core/viewer-state.js";
@@ -26,17 +28,7 @@ import { applyTriplanarMapping } from "../rendering/triplanar.js";
 import template from "./index.html";
 
 function TEMPLATE(id: string): string {
-  const shift = KeyMapper.getshortcuts("shift");
-  const ctrl = KeyMapper.getshortcuts("ctrl");
-  const meta = KeyMapper.getshortcuts("meta");
-  const alt = KeyMapper.getshortcuts("alt");
-  const html = template
-    .replaceAll("{{id}}", id)
-    .replaceAll("{{shift}}", shift)
-    .replaceAll("{{ctrl}}", ctrl)
-    .replaceAll("{{meta}}", meta)
-    .replaceAll("{{alt}}", alt);
-  return html;
+  return template.replaceAll("{{id}}", id);
 }
 
 function px(val: number): string {
@@ -49,120 +41,127 @@ function px(val: number): string {
 
 interface MatEditorParam {
   key: string;
-  label: string;
+  label: MessageId;
   min: number;
   max: number;
   step: number;
-  group: string;
+  group: MessageId;
   infinity?: boolean;
 }
 
 const MAT_EDITOR_PARAMS: MatEditorParam[] = [
   {
     key: "metalness",
-    label: "Metallic",
+    label: "matEditor.param.metalness",
     min: 0,
     max: 1,
     step: 0.01,
-    group: "PBR Core",
+    group: "matEditor.group.pbrCore",
   },
   {
     key: "roughness",
-    label: "Roughness",
+    label: "matEditor.param.roughness",
     min: 0,
     max: 1,
     step: 0.01,
-    group: "PBR Core",
+    group: "matEditor.group.pbrCore",
   },
   {
     key: "clearcoat",
-    label: "Clearcoat",
+    label: "matEditor.param.clearcoat",
     min: 0,
     max: 1,
     step: 0.01,
-    group: "Clearcoat",
+    group: "matEditor.group.clearcoat",
   },
   {
     key: "clearcoatRoughness",
-    label: "Clearcoat Rough.",
+    label: "matEditor.param.clearcoatRoughness",
     min: 0,
     max: 1,
     step: 0.01,
-    group: "Clearcoat",
+    group: "matEditor.group.clearcoat",
   },
   {
     key: "transmission",
-    label: "Transmission",
+    label: "matEditor.param.transmission",
     min: 0,
     max: 1,
     step: 0.01,
-    group: "Transmission",
+    group: "matEditor.group.transmission",
   },
   {
     key: "ior",
-    label: "IOR",
+    label: "matEditor.param.ior",
     min: 1.0,
     max: 2.5,
     step: 0.01,
-    group: "Transmission",
+    group: "matEditor.group.transmission",
   },
   {
     key: "thickness",
-    label: "Thickness",
+    label: "matEditor.param.thickness",
     min: 0,
     max: 10,
     step: 0.1,
-    group: "Transmission",
+    group: "matEditor.group.transmission",
   },
   {
     key: "attenuationDistance",
-    label: "Atten. Distance",
+    label: "matEditor.param.attenuationDistance",
     min: 0,
     max: 100,
     step: 0.5,
-    group: "Transmission",
+    group: "matEditor.group.transmission",
     infinity: true,
   },
-  { key: "sheen", label: "Sheen", min: 0, max: 1, step: 0.01, group: "Sheen" },
   {
-    key: "sheenRoughness",
-    label: "Sheen Roughness",
+    key: "sheen",
+    label: "matEditor.param.sheen",
     min: 0,
     max: 1,
     step: 0.01,
-    group: "Sheen",
+    group: "matEditor.group.sheen",
+  },
+  {
+    key: "sheenRoughness",
+    label: "matEditor.param.sheenRoughness",
+    min: 0,
+    max: 1,
+    step: 0.01,
+    group: "matEditor.group.sheen",
   },
   {
     key: "specularIntensity",
-    label: "Specular Intensity",
+    label: "matEditor.param.specularIntensity",
     min: 0,
     max: 2,
     step: 0.01,
-    group: "Specular",
+    group: "matEditor.group.specular",
   },
   {
     key: "anisotropy",
-    label: "Anisotropy",
+    label: "matEditor.param.anisotropy",
     min: 0,
     max: 1,
     step: 0.01,
-    group: "Anisotropy",
+    group: "matEditor.group.anisotropy",
   },
   {
     key: "anisotropyRotation",
-    label: "Anisotropy Rotation",
+    label: "matEditor.param.anisotropyRotation",
     min: 0,
     max: 6.28,
     step: 0.01,
-    group: "Anisotropy",
+    group: "matEditor.group.anisotropy",
   },
   {
     key: "emissiveIntensity",
-    label: "Emissive Intensity",
+    label: "matEditor.param.emissiveIntensity",
     min: 0,
     max: 5,
     step: 0.1,
-    group: "Emissive",
+    group: "matEditor.group.emissive",
   },
 ];
 
@@ -200,6 +199,8 @@ export interface DisplayOptions {
   pinning: boolean;
   canvas?: HTMLCanvasElement;
   gl?: WebGLRenderingContext | WebGL2RenderingContext;
+  locale?: string;
+  labels?: Record<string, string>;
 }
 
 /**
@@ -348,6 +349,11 @@ class Display {
   studioShadowSoftnessSlider: Slider | undefined;
   studioAOIntensitySlider: Slider | undefined;
 
+  // Localization
+  i18n: I18n;
+  /** Translate a UI message (see {@link I18n.t}). */
+  t: Translate;
+
   // State - set in setupUI() which is called at end of Viewer constructor
   viewer!: Viewer;
   state!: ViewerState;
@@ -392,9 +398,12 @@ class Display {
    */
   constructor(container: HTMLElement, options: DisplayOptions) {
     this.container = container;
+    this.i18n = new I18n(options.locale, options.labels);
+    this.t = this.i18n.t;
     this.container.setAttribute("tabindex", "0");
     this.container.style.outline = "none";
     this.container.innerHTML = TEMPLATE(this.container.id);
+    this.localize(this.container);
 
     this.cadBody = this.getElement("tcv_cad_body");
 
@@ -471,7 +480,9 @@ class Display {
       e: CustomEvent<string[]>,
     ) => {
       this._showWarningBanner(
-        `Unresolved material tag(s): ${e.detail.map((t) => `"${t}"`).join(", ")}`,
+        this.t("warning.unresolvedTags", {
+          tags: e.detail.map((tag) => `"${tag}"`).join(", "),
+        }),
       );
     }) as EventListener);
     this.tabTree = this.getElement("tcv_tab_tree");
@@ -480,7 +491,7 @@ class Display {
     this.tabMaterial = this.getElement("tcv_tab_material");
     this.tabStudio = this.getElement("tcv_tab_studio");
     this.cadInfo = this.getElement("tcv_cad_info_container");
-    this._info = new Info(this.cadInfo);
+    this._info = new Info(this.cadInfo, this.t);
     this.tickValueElement = this.getElement("tcv_tick_size_value");
     this.tickInfoElement = this.getElement("tcv_tick_size");
     this.cadAnim = this.getElement("tcv_cad_animation");
@@ -544,7 +555,7 @@ class Display {
     this.clickButtons["axes"] = new ClickButton(
       theme,
       "axes",
-      "Show axes",
+      this.t("toolbar.axes"),
       this.setAxes,
     );
     this.cadTool.addButton(this.clickButtons["axes"], -1);
@@ -552,14 +563,14 @@ class Display {
     this.clickButtons["axes0"] = new ClickButton(
       theme,
       "axes0",
-      "Show axes at origin (0,0,0)",
+      this.t("toolbar.axes0"),
       this.setAxes0,
     );
     this.cadTool.addButton(this.clickButtons["axes0"], 0);
     this.clickButtons["grid"] = new ClickButton(
       theme,
       "grid",
-      "Show grid",
+      this.t("toolbar.grid"),
       this.setGrid,
       false,
       ["xy", "xz", "yz"],
@@ -569,7 +580,7 @@ class Display {
     this.clickButtons["perspective"] = new ClickButton(
       theme,
       "perspective",
-      "Use perspective camera",
+      this.t("toolbar.perspective"),
       this.setOrtho,
     );
     this.cadTool.addButton(this.clickButtons["perspective"], -1);
@@ -577,14 +588,14 @@ class Display {
     this.clickButtons["transparent"] = new ClickButton(
       theme,
       "transparent",
-      "Show transparent faces",
+      this.t("toolbar.transparent"),
       this.setTransparent,
     );
     this.cadTool.addButton(this.clickButtons["transparent"], 1);
     this.clickButtons["blackedges"] = new ClickButton(
       theme,
       "blackedges",
-      "Show black edges",
+      this.t("toolbar.blackEdges"),
       this.setBlackEdges,
     );
     this.cadTool.addButton(this.clickButtons["blackedges"], 1);
@@ -593,7 +604,7 @@ class Display {
     this.buttons["reset"] = new Button(
       theme,
       "reset",
-      "Reset view",
+      this.t("toolbar.reset"),
       this.reset,
     );
     this.cadTool.addButton(this.buttons["reset"], -1);
@@ -601,7 +612,7 @@ class Display {
     this.buttons["resize"] = new Button(
       theme,
       "resize",
-      "Resize object",
+      this.t("toolbar.resize"),
       this.resize,
     );
     this.cadTool.addButton(this.buttons["resize"], 2);
@@ -609,49 +620,49 @@ class Display {
     this.buttons["iso"] = new Button(
       theme,
       "iso",
-      "Switch to iso view",
+      this.t("toolbar.iso"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["iso"], 2);
     this.buttons["front"] = new Button(
       theme,
       "front",
-      "Switch to front view",
+      this.t("toolbar.front"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["front"], 2);
     this.buttons["rear"] = new Button(
       theme,
       "rear",
-      "Switch to back view",
+      this.t("toolbar.rear"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["rear"], 2);
     this.buttons["top"] = new Button(
       theme,
       "top",
-      "Switch to top view",
+      this.t("toolbar.top"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["top"], 2);
     this.buttons["bottom"] = new Button(
       theme,
       "bottom",
-      "Switch to bottom view",
+      this.t("toolbar.bottom"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["bottom"], 2);
     this.buttons["left"] = new Button(
       theme,
       "left",
-      "Switch to left view",
+      this.t("toolbar.left"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["left"], 2);
     this.buttons["right"] = new Button(
       theme,
       "right",
-      "Switch to right view",
+      this.t("toolbar.right"),
       this.setView,
     );
     this.cadTool.addButton(this.buttons["right"], 2);
@@ -661,7 +672,7 @@ class Display {
     this.clickButtons["explode"] = new ClickButton(
       theme,
       "explode",
-      "Explode tool",
+      this.t("toolbar.explode"),
       this.setExplode,
     );
     if (this.explodeTool && !this.zscaleTool) {
@@ -671,7 +682,7 @@ class Display {
     this.clickButtons["zscale"] = new ClickButton(
       theme,
       "zscale",
-      "Scale along the Z-axis",
+      this.t("toolbar.zscale"),
       this.setZScale,
     );
     if (this.zscaleTool && !this.explodeTool) {
@@ -688,7 +699,7 @@ class Display {
     this.clickButtons["distance"] = new ClickButton(
       theme,
       "distance",
-      "Measure distance between shapes",
+      this.t("toolbar.distance"),
       this.setTool,
     );
     this.cadTool.addButton(this.clickButtons["distance"], 3);
@@ -704,7 +715,7 @@ class Display {
     this.clickButtons["properties"] = new ClickButton(
       theme,
       "properties",
-      "Show shape properties",
+      this.t("toolbar.properties"),
       this.setTool,
     );
     this.cadTool.addButton(this.clickButtons["properties"], 3);
@@ -712,7 +723,7 @@ class Display {
     this.clickButtons["select"] = new ClickButton(
       theme,
       "select",
-      "Copy shape IDs to clipboard",
+      this.t("toolbar.select"),
       this.setTool,
     );
     this.cadTool.addButton(this.clickButtons["select"], 3);
@@ -736,7 +747,7 @@ class Display {
     this.buttons["pin"] = new Button(
       theme,
       "pin",
-      "Pin viewer as png",
+      this.t("toolbar.pin"),
       this.pinAsPng,
     );
     this.buttons["pin"].alignRight();
@@ -745,7 +756,12 @@ class Display {
 
     this.showPinning(options.pinning);
 
-    this.buttons["help"] = new Button(theme, "help", "Help", this.toggleHelp);
+    this.buttons["help"] = new Button(
+      theme,
+      "help",
+      this.t("toolbar.help"),
+      this.toggleHelp,
+    );
     this.cadTool.addButton(this.buttons["help"], -1);
 
     // Initialize animation slider (will be set up in setupUI)
@@ -2492,7 +2508,7 @@ class Display {
       hint.style.padding = "12px 6px";
       hint.style.textAlign = "center";
       hint.style.opacity = "0.7";
-      hint.textContent = "Select object by double-click first";
+      hint.textContent = this.t("matEditor.selectFirst");
       content.appendChild(hint);
     }
     dialog.style.display = "";
@@ -2543,7 +2559,7 @@ class Display {
     if (pathEl) {
       pathEl.style.display = "";
       const shortName = objectPath.split("/").pop() || objectPath;
-      pathEl.textContent = `${shortName} — ${object.materialTag || "(default)"}`;
+      pathEl.textContent = `${shortName} — ${object.materialTag || this.t("matEditor.defaultMaterial")}`;
       pathEl.title = objectPath;
     }
 
@@ -2786,13 +2802,13 @@ class Display {
     material: THREE.MeshPhysicalMaterial,
     originalMat: THREE.MeshPhysicalMaterial,
   ): void {
-    let currentGroup = "";
+    let currentGroup: MessageId | null = null;
     for (const param of MAT_EDITOR_PARAMS) {
       if (param.group !== currentGroup) {
         currentGroup = param.group;
         const section = document.createElement("div");
         section.className = "tcv_mat_editor_section";
-        section.textContent = currentGroup;
+        section.textContent = this.t(param.group);
         content.appendChild(section);
       }
 
@@ -2835,7 +2851,7 @@ class Display {
     const label = document.createElement("label");
     label.className = "tcv_mat_editor_label";
     if (isChanged(value)) label.classList.add("tcv_mat_editor_changed");
-    label.textContent = param.label;
+    label.textContent = this.t(param.label);
     label.title = `${param.key} (${param.min}–${param.max})`;
 
     const sliderGroup = document.createElement("div");
@@ -3082,7 +3098,7 @@ class Display {
         envName
           .split("/")
           .pop()
-          ?.replace(/\.hdr$/i, "") || "Custom HDR";
+          ?.replace(/\.hdr$/i, "") || this.t("studio.environment.customHdr");
       let customGroup = el.querySelector(
         "optgroup[data-custom]",
       ) as HTMLOptGroupElement | null;
@@ -3092,7 +3108,7 @@ class Display {
         opt.textContent = label;
       } else {
         customGroup = document.createElement("optgroup");
-        customGroup.label = "Custom";
+        customGroup.label = this.t("studio.environment.groupCustom");
         customGroup.setAttribute("data-custom", "true");
         const opt = document.createElement("option");
         opt.value = envName;
@@ -3116,8 +3132,7 @@ class Display {
     const isPreset = this.viewer.envManager.isPreset(envName);
     cb.disabled = !isPreset;
     if (!isPreset) {
-      cb.title =
-        "4K switching is only available for built-in Poly Haven presets";
+      cb.title = this.t("studio.use4k.presetsOnly");
     } else {
       cb.title = "";
     }
@@ -3342,7 +3357,10 @@ class Display {
       if (button) {
         const baseTooltip = button.html.getAttribute("data-base-tooltip");
         if (baseTooltip) {
-          button.html.setAttribute("data-tooltip", `${baseTooltip} › ${key}`);
+          button.html.setAttribute(
+            "data-tooltip",
+            this.t("toolbar.shortcut", { tooltip: baseTooltip, key }),
+          );
         }
       }
     }
@@ -3350,20 +3368,20 @@ class Display {
     // Update tab titles
     const tabMap: Record<
       string,
-      { el: HTMLElement | undefined; label: string }
+      { el: HTMLElement | undefined; label: MessageId }
     > = {
-      tree: { el: this.tabTree, label: "Navigation Tree" },
-      clip: { el: this.tabClip, label: "Clipping Tool" },
-      zebra: { el: this.tabZebra, label: "Zebra Tool" },
-      material: { el: this.tabMaterial, label: "Material Selection" },
-      studio: { el: this.tabStudio, label: "Studio Mode" },
+      tree: { el: this.tabTree, label: "tabs.tree.tooltip" },
+      clip: { el: this.tabClip, label: "tabs.clip.tooltip" },
+      zebra: { el: this.tabZebra, label: "tabs.zebra.tooltip" },
+      material: { el: this.tabMaterial, label: "tabs.material.tooltip" },
+      studio: { el: this.tabStudio, label: "tabs.studio.tooltip" },
     };
     for (const [action, key] of Object.entries(shortcuts)) {
       const entry = tabMap[action];
       if (entry?.el?.parentElement) {
         entry.el.parentElement.setAttribute(
           "data-tooltip",
-          `${entry.label} › ${key}`,
+          this.t("toolbar.shortcut", { tooltip: this.t(entry.label), key }),
         );
       }
     }
@@ -3546,21 +3564,64 @@ class Display {
   /**
    * Update help dialog with new key mappings
    */
-  updateHelp(before: KeyMappingConfig, after: Partial<KeyMappingConfig>): void {
-    const help = this.getElement("tcv_cad_help_layout");
-    const keys = Object.keys(before) as (keyof KeyMappingConfig)[];
-    for (const k of keys) {
-      if (before[k] && after[k]) {
-        help.innerHTML = help.innerHTML.replaceAll(
-          "&lt;" + before[k].slice(0, -3) + "&gt;",
-          "&lt;_" + after[k]!.slice(0, -3) + "&gt;",
-        );
+  updateHelp(): void {
+    this.localize(this.getElement("tcv_cad_help_layout"));
+  }
+
+  /**
+   * Fill in the UI strings of the static template below `root`.
+   *
+   * Elements name their message ids in attributes: `data-i18n` (text),
+   * `data-i18n-tooltip`, `data-i18n-title`, `data-i18n-value` (inputs) and
+   * `data-i18n-label` (optgroups). The current modifier keys are passed as
+   * placeholders `{{shift}}`, `{{ctrl}}`, `{{meta}}` and `{{alt}}`;
+   * `data-i18n-args="name=id"` passes the message `id` as placeholder `name`.
+   * Text is set as text, never parsed as HTML.
+   */
+  private localize(root: HTMLElement): void {
+    const keyName = (key: keyof KeyMappingConfig): string =>
+      this.t(`help.key.${KeyMapper.getshortcuts(key)}` as MessageId);
+    const modifiers = {
+      shift: keyName("shift"),
+      ctrl: keyName("ctrl"),
+      meta: keyName("meta"),
+      alt: keyName("alt"),
+    };
+    const params = (el: HTMLElement): Record<string, string> => {
+      const result: Record<string, string> = { ...modifiers };
+      const args = el.dataset.i18nArgs;
+      if (args !== undefined) {
+        for (const arg of args.split(";")) {
+          const [name, id] = arg.split("=");
+          result[name] = this.t(id as MessageId);
+        }
       }
+      return result;
+    };
+    const translate = (el: HTMLElement, id: string): string =>
+      this.t(id as MessageId, params(el));
+
+    for (const el of root.querySelectorAll<HTMLElement>("[data-i18n]")) {
+      el.textContent = translate(el, el.dataset.i18n!);
     }
-    help.innerHTML = help.innerHTML.replaceAll("_shift", "shift");
-    help.innerHTML = help.innerHTML.replaceAll("_ctrl", "ctrl");
-    help.innerHTML = help.innerHTML.replaceAll("_alt", "alt");
-    help.innerHTML = help.innerHTML.replaceAll("_meta", "meta");
+    for (const el of root.querySelectorAll<HTMLElement>(
+      "[data-i18n-tooltip]",
+    )) {
+      el.setAttribute("data-tooltip", translate(el, el.dataset.i18nTooltip!));
+    }
+    for (const el of root.querySelectorAll<HTMLElement>("[data-i18n-title]")) {
+      el.title = translate(el, el.dataset.i18nTitle!);
+    }
+    for (const el of root.querySelectorAll<HTMLInputElement>(
+      "input[data-i18n-value]",
+    )) {
+      el.value = translate(el, el.dataset.i18nValue!);
+    }
+    for (const el of root.querySelectorAll<HTMLOptGroupElement>(
+      "optgroup[data-i18n-label]",
+    )) {
+      el.label = translate(el, el.dataset.i18nLabel!);
+    }
   }
 
   /**

@@ -4,52 +4,52 @@
     <div class="tcv_cad_body">
         <div class="tcv_cad_navigation">
             <div class="tcv_toggle_tools_wrapper">
-                <span class='tcv_toggle_tools'></span><span class="tcv_tools_label">Tools</span>
+                <span class='tcv_toggle_tools'></span><span class="tcv_tools_label" data-i18n="panel.tools"></span>
             </div>
             <div class="tcv_cad_tree tcv_round">
                 <div class="tcv_tabnav">
-                    <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' value="Tree" type="button" style="width: 100%" /></span>
-                    <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' value="Clip" type="button" style="width: 100%" /></span>
-                    <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_zebra tcv_tab tcv_tab-right tcv_tab-unselected' value="Zebra" type="button" style="width: 100%" /></span>
-                    <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' value="Material" type="button" style="width: 100%" /></span>
-                    <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_studio tcv_tab tcv_tab-right tcv_tab-unselected' value="Studio" type="button" style="width: 100%" /></span>
+                    <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_tree tcv_tab tcv_tab-left tcv_tab-selected' data-i18n-value="tabs.tree.label" type="button" style="width: 100%" /></span>
+                    <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_clip tcv_tab tcv_tab-right tcv_tab-unselected' data-i18n-value="tabs.clip.label" type="button" style="width: 100%" /></span>
+                    <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_zebra tcv_tab tcv_tab-right tcv_tab-unselected' data-i18n-value="tabs.zebra.label" type="button" style="width: 100%" /></span>
+                    <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_material tcv_tab tcv_tab-right tcv_tab-unselected' data-i18n-value="tabs.material.label" type="button" style="width: 100%" /></span>
+                    <span class="tcv_tooltip" style="flex: 1"><input class='tcv_tab_studio tcv_tab tcv_tab-right tcv_tab-unselected' data-i18n-value="tabs.studio.label" type="button" style="width: 100%" /></span>
                 </div>
                 <div class="tcv_cad_tree_toggles tcv_toggles_tree">
-                    <span class="tcv_tooltip" data-tooltip="Collpase nodes with a single leaf">
-                        <input class='tcv_collapse_singles tcv_btn tcv_small_btn' value="1" type="button" />
+                    <span class="tcv_tooltip" data-i18n-tooltip="tree.collapseSingles.tooltip">
+                        <input class='tcv_collapse_singles tcv_btn tcv_small_btn' data-i18n-value="tree.collapseSingles.label" type="button" />
                     </span>
-                    <span class="tcv_tooltip" data-tooltip="Expand root node only">
-                        <input class='tcv_expand_root tcv_btn tcv_small_btn' value="R" type="button" />
+                    <span class="tcv_tooltip" data-i18n-tooltip="tree.expandRoot.tooltip">
+                        <input class='tcv_expand_root tcv_btn tcv_small_btn' data-i18n-value="tree.expandRoot.label" type="button" />
                     </span>
-                    <span class="tcv_tooltip" data-tooltip="Collpase tree">
-                        <input class='tcv_collapse_all tcv_btn tcv_small_btn' value="C" type="button" />
+                    <span class="tcv_tooltip" data-i18n-tooltip="tree.collapseAll.tooltip">
+                        <input class='tcv_collapse_all tcv_btn tcv_small_btn' data-i18n-value="tree.collapseAll.label" type="button" />
                     </span>
-                    <span class="tcv_tooltip" data-tooltip="Expand tree">
-                        <input class='tcv_expand tcv_btn tcv_small_btn' value="E" type="button" />
+                    <span class="tcv_tooltip" data-i18n-tooltip="tree.expandAll.tooltip">
+                        <input class='tcv_expand tcv_btn tcv_small_btn' data-i18n-value="tree.expandAll.label" type="button" />
                     </span>
                 </div>
                 <div class="tcv_cad_tree_toggles tcv_toggles_clip" style="display: none;">
-                    <span class="tcv_tooltip" data-tooltip="Reset to default clip planes">
-                        <input class='tcv_clip_reset tcv_btn tcv_small_btn' value="R" type="button" />
+                    <span class="tcv_tooltip" data-i18n-tooltip="clip.reset.tooltip">
+                        <input class='tcv_clip_reset tcv_btn tcv_small_btn' data-i18n-value="clip.reset.label" type="button" />
                     </span>
                 </div>
                 <div class="tcv_cad_tree_toggles tcv_toggles_material" style="display: none;">
-                    <span class="tcv_tooltip" data-tooltip="Reset to original values">
-                        <input class='tcv_material_reset tcv_btn tcv_small_btn' value="R" type="button" />
+                    <span class="tcv_tooltip" data-i18n-tooltip="material.reset.tooltip">
+                        <input class='tcv_material_reset tcv_btn tcv_small_btn' data-i18n-value="material.reset.label" type="button" />
                     </span>
                 </div>
                 <div class="tcv_cad_tree_toggles tcv_toggles_zebra" style="display: none;">
-                    <span class="tcv_tooltip" data-tooltip="Reset to default zebra settings">
-                        <input class='tcv_zebra_reset tcv_btn tcv_small_btn' value="R" type="button" />
+                    <span class="tcv_tooltip" data-i18n-tooltip="zebra.reset.tooltip">
+                        <input class='tcv_zebra_reset tcv_btn tcv_small_btn' data-i18n-value="zebra.reset.label" type="button" />
                     </span>
                 </div>
                 <div class="tcv_cad_tree_toggles tcv_toggles_studio" style="display: none;">
                     <div class="tcv_studio_spinner"></div>
-                    <span class="tcv_tooltip" data-tooltip="Edit material of selected object">
-                        <input class='tcv_mat_editor_toggle tcv_btn tcv_small_btn' value="E" type="button" />
+                    <span class="tcv_tooltip" data-i18n-tooltip="matEditor.toggle.tooltip">
+                        <input class='tcv_mat_editor_toggle tcv_btn tcv_small_btn' data-i18n-value="matEditor.toggle.label" type="button" />
                     </span>
-                    <span class="tcv_tooltip" data-tooltip="Reset to default values">
-                        <input class='tcv_studio_reset tcv_btn tcv_small_btn' value="R" type="button" />
+                    <span class="tcv_tooltip" data-i18n-tooltip="studio.reset.tooltip">
+                        <input class='tcv_studio_reset tcv_btn tcv_small_btn' data-i18n-value="studio.reset.label" type="button" />
                     </span>
                 </div>
                 <div class="tcv_box_content tcv_mac-scrollbar tcv_scroller">
@@ -57,7 +57,7 @@
                     <div class="tcv_cad_clip_container">
                         <div class="tcv_slider_group">
                             <div>
-                                <span class="tcv_tooltip" data-tooltip="Set red clipping plane to view direction">
+                                <span class="tcv_tooltip" data-i18n-tooltip="clip.toViewRed">
                                     <input class='tcv_btn_norm_plane1 tcv_btn tcv_plane' type="button" />
                                 </span>
                                 <span class="tcv_lbl_norm_plane1 tcv_label">N1 = (n/a, n/a, n/a)</span>
@@ -70,7 +70,7 @@
                         </div>
                         <div class="tcv_slider_group">
                             <div>
-                                <span class="tooltip" data-tooltip="Set green clipping plane to view direction">
+                                <span class="tooltip" data-i18n-tooltip="clip.toViewGreen">
                                     <input class='tcv_btn_norm_plane2 tcv_btn tcv_plane' type="button" />
                                 </span>
                                 <span class="tcv_lbl_norm_plane2 tcv_label">N2 = (n/a, n/a, n/a)</span>
@@ -83,7 +83,7 @@
                         </div>
                         <div class="tcv_slider_group">
                             <div>
-                                <span class="tooltip" data-tooltip="Set blue clipping plane to view direction">
+                                <span class="tooltip" data-i18n-tooltip="clip.toViewBlue">
                                     <input class='tcv_btn_norm_plane3 tcv_btn tcv_plane' type="button" />
                                 </span>
                                 <span class="tcv_lbl_norm_plane3 tcv_label">N3 = (n/a, n/a, n/a)</span>
@@ -96,24 +96,24 @@
                         </div>
                         <div class="tcv_clip_checks">
                             <div>
-                                <span class="tcv_tooltip" data-tooltip="Use intersection clipping">
+                                <span class="tcv_tooltip" data-i18n-tooltip="clip.intersection.tooltip">
                                     <input class='tcv_clip_intersection tcv_check' type="checkbox" />
-                                    <span class="tcv_label">Intersection</span>
+                                    <span class="tcv_label" data-i18n="clip.intersection.label"></span>
                                 </span>
-                                <span class="tcv_tooltip" data-tooltip="Show clipping planes">
+                                <span class="tcv_tooltip" data-i18n-tooltip="clip.planes.tooltip">
                                     <input class='tcv_clip_plane_helpers tcv_axes0 tcv_check' type="checkbox" />
-                                    <span class="tcv_label">Planes</span>
+                                    <span class="tcv_label" data-i18n="clip.planes.label"></span>
                                 </span>
                             </div>
-                            <span class="tcv_tooltip" data-tooltip="Use object color caps instead of RGB">
+                            <span class="tcv_tooltip" data-i18n-tooltip="clip.objectColorCaps.tooltip">
                                 <input class='tcv_clip_caps tcv_axes0 tcv_check' type="checkbox" />
-                                <span class="tcv_label">Use object color caps</span>
+                                <span class="tcv_label" data-i18n="clip.objectColorCaps.label"></span>
                             </span>
                         </div>
                     </div>
                     <div class="tcv_cad_material_container">
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Ambient Light</span>
+                            <span class="tcv_label" data-i18n="material.ambientLight"></span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="20" value="1"
                                     class="tcv_sld_value_ambientlight tcv_clip_slider">
@@ -121,7 +121,7 @@
                             </div>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Direct Light</span>
+                            <span class="tcv_label" data-i18n="material.directLight"></span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="40" value="1"
                                     class="tcv_sld_value_pointlight tcv_clip_slider">
@@ -129,7 +129,7 @@
                             </div>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Metalness</span>
+                            <span class="tcv_label" data-i18n="material.metalness"></span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="100" value="40"
                                     class="tcv_sld_value_metalness tcv_clip_slider">
@@ -137,20 +137,18 @@
                             </div>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Roughness</span>
+                            <span class="tcv_label" data-i18n="material.roughness"></span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="100" value="40"
                                     class="tcv_sld_value_roughness tcv_clip_slider">
                                 <input value=40 class="tcv_inp_value_roughness tcv_clip_input"></input>
                             </div>
                         </div>
-                        <div class="tcv_material_info">
-                            Control material for CAD view, values in %
-                        </div>
+                        <div class="tcv_material_info" data-i18n="material.hint"></div>
                     </div>
                     <div class="tcv_cad_zebra_container">
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Stripe Count</span>
+                            <span class="tcv_label" data-i18n="zebra.stripeCount"></span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="2" max="50" value="10"
                                     class="tcv_sld_value_zebra_count tcv_clip_slider">
@@ -158,7 +156,7 @@
                             </div>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Stripe Opacity</span>
+                            <span class="tcv_label" data-i18n="zebra.stripeOpacity"></span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0.0" max="1.0" step="0.01" value="1.0"
                                     class="tcv_sld_value_zebra_opacity tcv_clip_slider">
@@ -166,7 +164,7 @@
                             </div>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label">Direction</span>
+                            <span class="tcv_label" data-i18n="zebra.direction"></span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="90" step="0.5" value="0"
                                     class="tcv_sld_value_zebra_direction tcv_clip_slider">
@@ -175,24 +173,24 @@
                         </div>   
                         <div class="tcv_zebra_radio">
                             <div>
-                                <span class="tcv_tooltip" data-tooltip="Select stripe color scheme">
+                                <span class="tcv_tooltip" data-i18n-tooltip="zebra.colorScheme.tooltip">
                                     <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color1' type="radio" id="zebra_blackwhite" name="zebra_color_group" value="blackwhite" checked>
-                                    <label for="zebra_blackwhite" class="tcv_radio_label">B/W</label>
+                                    <label for="zebra_blackwhite" class="tcv_radio_label" data-i18n="zebra.colorScheme.blackWhite"></label>
                                     <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color2' type="radio" id="zebra_grayscale" name="zebra_color_group" value="grayscale">
-                                    <label for="zebra_grayscale" class="tcv_radio_label">Gray</label>
+                                    <label for="zebra_grayscale" class="tcv_radio_label" data-i18n="zebra.colorScheme.gray"></label>
                                     <input class='tcv_zebra_colorscheme tcv_radio tcv_zebra_color3' type="radio" id="zebra_colorful" name="zebra_color_group" value="colorful">
-                                    <label for="zebra_colorful" class="tcv_radio_label">Colors</label>
+                                    <label for="zebra_colorful" class="tcv_radio_label" data-i18n="zebra.colorScheme.colors"></label>
                                 </span>
 
                             </div>
                         </div>                                             
                         <div class="tcv_zebra_radio">
                             <div>
-                               <span class="tcv_tooltip" data-tooltip="Select stripe mapping">
+                               <span class="tcv_tooltip" data-i18n-tooltip="zebra.mapping.tooltip">
                                     <input class='tcv_zebra_mapping tcv_radio tcv_zebra_mapping1' type="radio" id="zebra_reflection" name="zebra_mapping_group" value="reflection" checked>
-                                    <label for="zebra_reflection" class="tcv_radio_label">Reflection</label>
+                                    <label for="zebra_reflection" class="tcv_radio_label" data-i18n="zebra.mapping.reflection"></label>
                                     <input class='tcv_zebra_mapping tcv_radio tcv_zebra_mapping2' type="radio" id="zebra_normal" name="zebra_mapping_group" value="normal">
-                                    <label for="zebra_normal" class="tcv_radio_label">Normal</label>
+                                    <label for="zebra_normal" class="tcv_radio_label" data-i18n="zebra.mapping.normal"></label>
                                 </span>
                             </div>
                         </div>
@@ -200,32 +198,32 @@
                     <div class="tcv_cad_studio_container">
                         <!-- Group 1: Environment -->
                         <div class="tcv_studio_row">
-                            <span class="tcv_label" title="HDR environment map for lighting and reflections">Environment</span>
+                            <span class="tcv_label" data-i18n-title="studio.environment.tooltip" data-i18n="studio.environment.label"></span>
                             <select class="tcv_studio_environment tcv_studio_select">
-                                <optgroup label="Studio">
-                                    <option value="studio">Procedural Studio</option>
-                                    <option value="studio_small_08" title="Poly Haven: studio_small_08.hdr (soft light, neutral, backlight)">Soft Light</option>
-                                    <option value="studio_small_03" title="Poly Haven: studio_small_03.hdr (high-contrast, softbox + ceiling lamp, crisp)">High Contrast Studio</option>
-                                    <option value="white_studio_05" title="Poly Haven: white_studio_05.hdr (white, product, bright, neutral lighting)">Bright Neutral</option>
-                                    <option value="white_studio_03" title="Poly Haven: white_studio_03.hdr (white, softbox, reflection, clean)">Clean Softbox</option>
-                                    <option value="photo_studio_01" title="Poly Haven: photo_studio_01.hdr (lighting setup, spotlights)">Spotlit Setup</option>
-                                    <option value="studio_small_09" title="Poly Haven: studio_small_09.hdr (product lighting, controlled, soft reflections)">Controlled Light</option>
-                                    <option value="cyclorama_hard_light" title="Poly Haven: cyclorama_hard_light.hdr (cyclorama, hard light, contrast)">Hard Contrast Light</option>
+                                <optgroup data-i18n-label="studio.environment.groupStudio">
+                                    <option value="studio" data-i18n="studio.environment.procedural"></option>
+                                    <option value="studio_small_08" data-i18n-title="studio.environment.softLight.tooltip" data-i18n="studio.environment.softLight.label"></option>
+                                    <option value="studio_small_03" data-i18n-title="studio.environment.highContrast.tooltip" data-i18n="studio.environment.highContrast.label"></option>
+                                    <option value="white_studio_05" data-i18n-title="studio.environment.brightNeutral.tooltip" data-i18n="studio.environment.brightNeutral.label"></option>
+                                    <option value="white_studio_03" data-i18n-title="studio.environment.cleanSoftbox.tooltip" data-i18n="studio.environment.cleanSoftbox.label"></option>
+                                    <option value="photo_studio_01" data-i18n-title="studio.environment.spotlit.tooltip" data-i18n="studio.environment.spotlit.label"></option>
+                                    <option value="studio_small_09" data-i18n-title="studio.environment.controlledLight.tooltip" data-i18n="studio.environment.controlledLight.label"></option>
+                                    <option value="cyclorama_hard_light" data-i18n-title="studio.environment.hardContrast.tooltip" data-i18n="studio.environment.hardContrast.label"></option>
                                 </optgroup>
-                                <optgroup label="Outdoor">
-                                    <option value="canary_wharf" title="Poly Haven: canary_wharf.hdr (urban, city, overcast)">Urban Overcast</option>
-                                    <option value="kiara_1_dawn" title="Poly Haven: kiara_1_dawn.hdr (dawn, warm, nature, sunrise)">Outdoor Warm</option>
-                                    <option value="empty_warehouse_01" title="Poly Haven: empty_warehouse_01.hdr (warehouse, neutral, big space)">Neutral Industrial</option>
-                                    <option value="san_giuseppe_bridge" title="Poly Haven: san_giuseppe_bridge.hdr (bridge, outdoor, GPUOpen reference)">San Giuseppe Bridge</option>
+                                <optgroup data-i18n-label="studio.environment.groupOutdoor">
+                                    <option value="canary_wharf" data-i18n-title="studio.environment.urbanOvercast.tooltip" data-i18n="studio.environment.urbanOvercast.label"></option>
+                                    <option value="kiara_1_dawn" data-i18n-title="studio.environment.outdoorWarm.tooltip" data-i18n="studio.environment.outdoorWarm.label"></option>
+                                    <option value="empty_warehouse_01" data-i18n-title="studio.environment.neutralIndustrial.tooltip" data-i18n="studio.environment.neutralIndustrial.label"></option>
+                                    <option value="san_giuseppe_bridge" data-i18n-title="studio.environment.sanGiuseppeBridge.tooltip" data-i18n="studio.environment.sanGiuseppeBridge.label"></option>
                                 </optgroup>
                             </select>
                         </div>
                         <div class="tcv_studio_checks tcv_studio_4k_row">
-                            <input class='tcv_studio_4k_env_maps tcv_check' type="checkbox" title="Download 4K environment maps (sharper reflections, slower)" />
-                            <span class="tcv_label" title="Download 4K environment maps (sharper reflections, slower)">Use 4K maps</span>
+                            <input class='tcv_studio_4k_env_maps tcv_check' type="checkbox" data-i18n-title="studio.use4k.tooltip" />
+                            <span class="tcv_label" data-i18n-title="studio.use4k.tooltip" data-i18n="studio.use4k.label"></span>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label" title="Brightness of the environment lighting">Env Intensity</span>
+                            <span class="tcv_label" data-i18n-title="studio.envIntensity.tooltip" data-i18n="studio.envIntensity.label"></span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="300" step="1" value="100"
                                     class="tcv_sld_value_studio_env_intensity tcv_clip_slider">
@@ -233,7 +231,7 @@
                             </div>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label" title="Rotate the environment map around the vertical axis">Env Rotation</span>
+                            <span class="tcv_label" data-i18n-title="studio.envRotation.tooltip" data-i18n="studio.envRotation.label"></span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="360" step="1" value="0"
                                     class="tcv_sld_value_studio_env_rotation tcv_clip_slider">
@@ -245,27 +243,27 @@
 
                         <!-- Group 2: Appearance -->
                         <div class="tcv_studio_row">
-                            <span class="tcv_label" title="Scene background style">Background</span>
+                            <span class="tcv_label" data-i18n-title="studio.background.tooltip" data-i18n="studio.background.label"></span>
                             <select class="tcv_studio_background tcv_studio_select">
-                                <option value="environment">Environment</option>
-                                <option value="transparent">Transparent</option>
-                                <option value="gradient">Gradient Grey</option>
-                                <option value="gradient-dark">Gradient Dark Grey</option>
-                                <option value="white">Solid White</option>
-                                <option value="grey">Solid Grey</option>
-                                <option value="darkgrey">Solid Dark Grey</option>
+                                <option value="environment" data-i18n="studio.background.environment"></option>
+                                <option value="transparent" data-i18n="studio.background.transparent"></option>
+                                <option value="gradient" data-i18n="studio.background.gradient"></option>
+                                <option value="gradient-dark" data-i18n="studio.background.gradientDark"></option>
+                                <option value="white" data-i18n="studio.background.white"></option>
+                                <option value="grey" data-i18n="studio.background.grey"></option>
+                                <option value="darkgrey" data-i18n="studio.background.darkgrey"></option>
                             </select>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label" title="Tone mapping algorithm for HDR to display conversion">Tone Mapping</span>
+                            <span class="tcv_label" data-i18n-title="studio.toneMapping.tooltip" data-i18n="studio.toneMapping.label"></span>
                             <select class="tcv_studio_tone_mapping tcv_studio_select">
                                 <option value="neutral">PBR Neutral</option>
                                 <option value="ACES">ACES Filmic</option>
-                                <option value="none">Linear (none)</option>
+                                <option value="none" data-i18n="studio.toneMapping.none"></option>
                             </select>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label" title="Overall brightness of the rendered image">Exposure</span>
+                            <span class="tcv_label" data-i18n-title="studio.exposure.tooltip" data-i18n="studio.exposure.label"></span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="300" step="1" value="100"
                                     class="tcv_sld_value_studio_exposure tcv_clip_slider">
@@ -277,7 +275,7 @@
 
                         <!-- Group 3: Shadows & AO -->
                         <div class="tcv_studio_row">
-                            <span class="tcv_label" title="Darkness of directional shadows on the floor and between objects">Shadow Intensity</span>
+                            <span class="tcv_label" data-i18n-title="studio.shadowIntensity.tooltip" data-i18n="studio.shadowIntensity.label"></span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="100" step="1" value="50"
                                     class="tcv_sld_value_studio_shadow_intensity tcv_clip_slider">
@@ -285,7 +283,7 @@
                             </div>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label" title="Blur amount for shadow edges (sharp to soft)">Shadow Softness</span>
+                            <span class="tcv_label" data-i18n-title="studio.shadowSoftness.tooltip" data-i18n="studio.shadowSoftness.label"></span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="100" step="1" value="20"
                                     class="tcv_sld_value_studio_shadow_softness tcv_clip_slider">
@@ -293,7 +291,7 @@
                             </div>
                         </div>
                         <div class="tcv_studio_row">
-                            <span class="tcv_label" title="Screen-space ambient occlusion — darkens crevices and contact areas">AO Intensity</span>
+                            <span class="tcv_label" data-i18n-title="studio.aoIntensity.tooltip" data-i18n="studio.aoIntensity.label"></span>
                             <div class="tcv_studio_slider_group">
                                 <input type="range" min="0" max="30" value="5"
                                     class="tcv_sld_value_studio_ao_intensity tcv_clip_slider">
@@ -305,10 +303,10 @@
 
                         <!-- Group 4: Textures -->
                         <div class="tcv_studio_row">
-                            <span class="tcv_label" title="How textures are projected onto surfaces without UV coordinates">Texture Mapping</span>
+                            <span class="tcv_label" data-i18n-title="studio.textureMapping.tooltip" data-i18n="studio.textureMapping.label"></span>
                             <select class="tcv_studio_texture_mapping tcv_studio_select">
-                                <option value="triplanar">Triplanar</option>
-                                <option value="parametric">Parametric UV</option>
+                                <option value="triplanar" data-i18n="studio.textureMapping.triplanar"></option>
+                                <option value="parametric" data-i18n="studio.textureMapping.parametric"></option>
                             </select>
                         </div>
                     </div>
@@ -318,7 +316,7 @@
                 <div class="tcv_toggle_info_wrapper">
                     <!-- <span class="tooltip" data-tooltip="Open/close info box"> -->
                         <!-- <input class='tcv_toggle_info tcv_btn tcv_small_info_btn' value="<" type="button" /> -->
-                        <span class='tcv_toggle_info'></span><span class="tcv_info_label">Info</span>
+                        <span class='tcv_toggle_info'></span><span class="tcv_info_label" data-i18n="panel.info"></span>
                     <!-- </span> -->
                 </div>
                 <div class="tcv_cad_info tcv_round">
@@ -336,15 +334,15 @@
             </div>
             <div class="tcv_status_line"></div>
             <div class="tcv_distance_measurement_panel tcv_panel tcv_round">
-                <div class="tcv_measure_header">Distance</div>
+                <div class="tcv_measure_header" data-i18n="measure.distance.header"></div>
             </div>
 
             <div class="tcv_mat_editor tcv_round" style="display: none;">
                 <div class="tcv_mat_editor_titlebar">
-                    <span class="tcv_mat_editor_title">Material Editor</span>
+                    <span class="tcv_mat_editor_title" data-i18n="matEditor.title"></span>
                     <span class="tcv_mat_editor_titlebar_btns">
-                        <input class="tcv_mat_editor_reset tcv_btn tcv_small_btn" value="R" type="button" title="Reset to original material" />
-                        <input class="tcv_mat_editor_close tcv_btn tcv_small_btn" value="X" type="button" title="Close" />
+                        <input class="tcv_mat_editor_reset tcv_btn tcv_small_btn" data-i18n-value="matEditor.reset.label" type="button" data-i18n-title="matEditor.reset.tooltip" />
+                        <input class="tcv_mat_editor_close tcv_btn tcv_small_btn" data-i18n-value="matEditor.close.label" type="button" data-i18n-title="matEditor.close.tooltip" />
                     </span>
                 </div>
                 <div class="tcv_mat_editor_path"></div>
@@ -352,24 +350,24 @@
             </div>
 
             <div class="tcv_properties_measurement_panel tcv_panel tcv_round">
-                <div class="tcv_measure_header">Properties</div>
-                <div class="tcv_measure_subheader">Shape</div>
+                <div class="tcv_measure_header" data-i18n="measure.properties.header"></div>
+                <div class="tcv_measure_subheader" data-i18n="measure.properties.shape"></div>
             </div>
 
             <div class="tcv_cad_animation tcv_round">
-                <span class="tcv_animation_label">E</span>
+                <span class="tcv_animation_label" data-i18n="animation.explodeLabel"></span>
                 <span><input type="range" min="0" max="1000" value="0"
                         class="tcv_animation_slider tcv_clip_slider"></span>
-                <span class="tcv_tooltip" data-tooltip="Play animation"><input class='tcv_play tcv_btn'
+                <span class="tcv_tooltip" data-i18n-tooltip="animation.play"><input class='tcv_play tcv_btn'
                         type="button" /></span>
-                <span class="tcv_tooltip" data-tooltip="Pause animation"><input class='tcv_pause tcv_btn'
+                <span class="tcv_tooltip" data-i18n-tooltip="animation.pause"><input class='tcv_pause tcv_btn'
                         type="button" /></span>
-                <span class="tcv_tooltip" data-tooltip="Stop and reset animation"><input class='tcv_stop tcv_btn'
+                <span class="tcv_tooltip" data-i18n-tooltip="animation.stop"><input class='tcv_stop tcv_btn'
                         type="button" /></span>
             </div>
             
             <div class="tcv_cad_zscale tcv_round">
-                <span class="tcv_animation_label">Z</span>
+                <span class="tcv_animation_label" data-i18n="animation.zscaleLabel"></span>
                 <span><input type="range" min="1" max="32" value="0"
                         class="tcv_zscale_slider tcv_clip_slider"></span>
             </div>
@@ -378,124 +376,123 @@
                 <table class="tcv_cad_help_layout">
                     <tr>
                         <td></td>
-                        <td><b>Mouse Navigation</b></td>
+                        <td><b data-i18n="help.navigation.title"></b></td>
                     </tr>
                     <tr>
-                        <td>Rotate</td>
-                        <td>&lt;left mouse button&gt;</td>
+                        <td data-i18n="help.navigation.rotate.action"></td>
+                        <td data-i18n="help.navigation.rotate.input"></td>
                     </tr>
                     <tr>
-                        <td>Rotate up / down</td>
-                        <td>&lt;{{ctrl}}&gt; + &lt;left mouse button&gt;</td>
+                        <td data-i18n="help.navigation.rotateUpDown.action"></td>
+                        <td data-i18n="help.navigation.rotateUpDown.input"></td>
                     </tr>
                     <tr>
-                        <td>Rotate left / right</td>
-                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt;</td>
+                        <td data-i18n="help.navigation.rotateLeftRight.action"></td>
+                        <td data-i18n="help.navigation.rotateLeftRight.input"></td>
                     </tr>
                     <tr>
-                        <td>Pan</td>
-                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; or &lt;right mouse button&gt;</td>
+                        <td data-i18n="help.navigation.pan.action"></td>
+                        <td data-i18n="help.navigation.pan.input"></td>
                     </tr>
                     <tr>
-                        <td>Zoom</td>
-                        <td>&lt;mouse wheel&gt; or &lt;middle mouse button&gt;</td>
-                    </tr>
-
-                    <tr>
-                        <td></td>
-                        <td><b>Mouse Selection</b></td>
-                    </tr>
-                    <tr>
-                        <td>Pick element</td>
-                        <td>&lt;left mouse button&gt; double click</td>
+                        <td data-i18n="help.navigation.zoom.action"></td>
+                        <td data-i18n="help.navigation.zoom.input"></td>
                     </tr>
                     <tr>
                         <td></td>
-                        <td>Click on navigation tree label</td>
+                        <td><b data-i18n="help.selection.title"></b></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="help.selection.pick.action"></td>
+                        <td data-i18n="help.selection.pick.input"></td>
                     </tr>
                     <tr>
                         <td></td>
-                        <td>(Shows axis-aligned bounding box, AABB)</td>
-                    </tr>
-                    <tr>
-                        <td>Isolate element</td>
-                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; double click</td>
+                        <td data-i18n="help.selection.pick.inputTree"></td>
                     </tr>
                     <tr>
                         <td></td>
-                        <td>&lt;{{shift}}&gt; + click on navigation tree label (nested)</td>
+                        <td data-i18n="help.selection.pick.note"></td>
                     </tr>
                     <tr>
-                        <td>Hide element</td>
-                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; double click object</td>
-                    </tr>
-                    <tr>    
-                        <td></td>                
-                        <td>&lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>
-                    </tr>
-                    <tr>
-                        <td>Hide other elements</td>
-                        <td>&lt;{{shift}}&gt; + &lt;{{meta}}&gt; + &lt;left mouse button&gt; click tree label (nested)</td>
-                    </tr>
-                    <tr>
-                        <td>Set camera target</td>
-                        <td>&lt;{{shift}}&gt + &lt;{{meta}}&gt; + &lt;left mouse button&gt; double click</td>
-                    </tr>                    
-                    <tr>
-                        <td></td>
-                        <td><b>CAD Object Tree</b></td>
-                    </tr>
-                    <tr>
-                        <td>Collapse single leafs</td>
-                        <td>Button '1' (all nodes with one leaf only)</td>
-                    </tr>
-                    <tr>
-                        <td>Expand root only</td>
-                        <td>Button 'R'</td>
-                    </tr>
-                    <tr>
-                        <td>Collapse all nodes</td>
-                        <td>Button 'C'</td>
-                    </tr>
-                    <tr>
-                        <td>Expand all nodes</td>
-                        <td>Button 'E'</td>
+                        <td data-i18n="help.selection.isolate.action"></td>
+                        <td data-i18n="help.selection.isolate.input"></td>
                     </tr>
                     <tr>
                         <td></td>
-                        <td><b>Measure Mode</b></td>
+                        <td data-i18n="help.selection.isolate.inputTree"></td>
                     </tr>
                     <tr>
-                        <td>Select 1. (and 2.) object</td>
-                        <td>&lt;left mouse button&gt;</td>
+                        <td data-i18n="help.selection.hide.action"></td>
+                        <td data-i18n="help.selection.hide.input"></td>
                     </tr>
                     <tr>
-                        <td>Use center instead of min distance</td>
-                        <td>&lt;{{shift}}&gt; + &lt;left mouse button&gt; for the second selection</td>
+                        <td></td>
+                        <td data-i18n="help.selection.hide.inputTree"></td>
                     </tr>
                     <tr>
-                        <td>Filter object types</td>
-                        <td>Type menu or &lt;a&gt;ll, &lt;s&gt;olid, &lt;f&gt;ace, &lt;e&gt;dge , &lt;v&gt;ertices</td>
+                        <td data-i18n="help.selection.hideOthers.action"></td>
+                        <td data-i18n="help.selection.hideOthers.inputTree"></td>
                     </tr>
                     <tr>
-                        <td>Unselect last object</td>
-                        <td>&lt;right mouse button&gt;</td>
+                        <td data-i18n="help.selection.cameraTarget.action"></td>
+                        <td data-i18n="help.selection.cameraTarget.input"></td>
                     </tr>
                     <tr>
-                        <td>Unselect all objects</td>
-                        <td>&lt;ESC&gt;</td>
+                        <td></td>
+                        <td><b data-i18n="help.tree.title"></b></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="help.tree.collapseSingles.action"></td>
+                        <td data-i18n="help.tree.collapseSingles.input" data-i18n-args="button=tree.collapseSingles.label"></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="help.tree.expandRoot.action"></td>
+                        <td data-i18n="help.tree.expandRoot.input" data-i18n-args="button=tree.expandRoot.label"></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="help.tree.collapseAll.action"></td>
+                        <td data-i18n="help.tree.collapseAll.input" data-i18n-args="button=tree.collapseAll.label"></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="help.tree.expandAll.action"></td>
+                        <td data-i18n="help.tree.expandAll.input" data-i18n-args="button=tree.expandAll.label"></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><b data-i18n="help.measure.title"></b></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="help.measure.select.action"></td>
+                        <td data-i18n="help.measure.select.input"></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="help.measure.useCenter.action"></td>
+                        <td data-i18n="help.measure.useCenter.input"></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="help.measure.filter.action"></td>
+                        <td data-i18n="help.measure.filter.input"></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="help.measure.unselectLast.action"></td>
+                        <td data-i18n="help.measure.unselectLast.input"></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="help.measure.unselectAll.action"></td>
+                        <td data-i18n="help.measure.unselectAll.input"></td>
                     </tr>
                 </table>
             </div>
             <div class="tcv_filter_menu">
                 <div class="tcv_drop_down tcv_shape_filter">
-                    <span class="tcv_round tcv_filter_content"><span class="tcv_filter_value">All</span><span class="tcv_filter_icon">▾</span></span>
+                    <span class="tcv_round tcv_filter_content"><span class="tcv_filter_value" data-i18n="filter.all"></span><span class="tcv_filter_icon">▾</span></span>
                     <div class="tcv_filter_dropdown tcv_round">
-                        <div class="tcv_filter_dropdown_value tvc_filter_none">All</div>
-                        <div class="tcv_filter_dropdown_value tvc_filter_vertex">Vertex</div>
-                        <div class="tcv_filter_dropdown_value tvc_filter_edge">Edge</div>
-                        <div class="tcv_filter_dropdown_value tvc_filter_face">Face</div>
-                        <div class="tcv_filter_dropdown_value tvc_filter_solid">Solid</div>
+                        <div class="tcv_filter_dropdown_value tvc_filter_none" data-i18n="filter.all"></div>
+                        <div class="tcv_filter_dropdown_value tvc_filter_vertex" data-i18n="filter.vertex"></div>
+                        <div class="tcv_filter_dropdown_value tvc_filter_edge" data-i18n="filter.edge"></div>
+                        <div class="tcv_filter_dropdown_value tvc_filter_face" data-i18n="filter.face"></div>
+                        <div class="tcv_filter_dropdown_value tvc_filter_solid" data-i18n="filter.solid"></div>
                     </div>
                 </div>
             </div>

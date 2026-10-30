@@ -27,6 +27,7 @@ import {
   MeshMeasureBackend,
   MeshGeometrySource,
 } from "../../src/tools/cad_tools/mesh-measure.js";
+import { I18n } from "../../src/ui/i18n.js";
 
 // A unit cube spanning [0,2]^3 → volume 8, total surface area 24, each face area 4.
 // 8 corner vertices, 12 triangles (2 per face), CCW outward winding.
@@ -100,15 +101,17 @@ describe("mesh-measure: geom_type tables", () => {
     expect(edgeGeomType(99)).toBe("Other");
   });
 
-  test("displayGeomType: lowercase, suffix dropped, CamelCase spaced", () => {
-    // single words + suffix-stripped
-    expect(displayGeomType("face", 0)).toBe("plane"); // Plane
-    expect(displayGeomType("face", 6)).toBe("bspline"); // BSplineSurface (BSpline kept intact)
-    expect(displayGeomType("face", 9)).toBe("offset"); // OffsetSurface
-    expect(displayGeomType("edge", 6)).toBe("bspline"); // BSplineCurve
-    // multi-word surfaces get spaced (the only run-together cases)
-    expect(displayGeomType("face", 7)).toBe("surface of revolution"); // SurfaceOfRevolution
-    expect(displayGeomType("face", 8)).toBe("surface of extrusion"); // SurfaceOfExtrusion
+  test("displayGeomType: translated geom_type names", () => {
+    const t = new I18n().t;
+    expect(displayGeomType("face", 0, t)).toBe("Plane"); // Plane
+    expect(displayGeomType("face", 6, t)).toBe("B-spline surface"); // BSplineSurface
+    expect(displayGeomType("face", 9, t)).toBe("Offset surface"); // OffsetSurface
+    expect(displayGeomType("edge", 6, t)).toBe("B-spline curve"); // BSplineCurve
+    expect(displayGeomType("face", 7, t)).toBe("Surface of revolution"); // SurfaceOfRevolution
+    expect(displayGeomType("face", 99, t)).toBe("Other"); // unknown code
+    const de = new I18n("de").t;
+    expect(displayGeomType("face", 0, de)).toBe("Ebene");
+    expect(displayGeomType("edge", 1, de)).toBe("Kreis");
   });
 });
 

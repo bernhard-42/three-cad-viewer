@@ -1,0 +1,496 @@
+{
+  "toolbar": {
+    "axes": "Show axes",
+    "axes0": "Show axes at origin (0,0,0)",
+    "grid": "Show grid",
+    "perspective": "Use perspective camera",
+    "transparent": "Show transparent faces",
+    "blackEdges": "Show black edges",
+    "reset": "Reset view",
+    "resize": "Resize object",
+    "iso": "Switch to iso view",
+    "front": "Switch to front view",
+    "rear": "Switch to back view",
+    "top": "Switch to top view",
+    "bottom": "Switch to bottom view",
+    "left": "Switch to left view",
+    "right": "Switch to right view",
+    "explode": "Explode tool",
+    "zscale": "Scale along the Z-axis",
+    "distance": "Measure distance between shapes",
+    "properties": "Show shape properties",
+    "select": "Copy shape IDs to clipboard",
+    "pin": "Pin viewer as png",
+    "help": "Help",
+    "shortcut": "{{tooltip}} › {{key}}"
+  },
+  "panel": {
+    "tools": "Tools",
+    "info": "Info"
+  },
+  "tabs": {
+    "tree": {
+      "label": "Tree",
+      "tooltip": "Navigation Tree"
+    },
+    "clip": {
+      "label": "Clip",
+      "tooltip": "Clipping Tool"
+    },
+    "zebra": {
+      "label": "Zebra",
+      "tooltip": "Zebra Tool"
+    },
+    "material": {
+      "label": "Material",
+      "tooltip": "Material Selection"
+    },
+    "studio": {
+      "label": "Studio",
+      "tooltip": "Studio Mode"
+    }
+  },
+  "tree": {
+    "collapseSingles": {
+      "label": "1",
+      "tooltip": "Collapse nodes with a single leaf"
+    },
+    "expandRoot": {
+      "label": "R",
+      "tooltip": "Expand root node only"
+    },
+    "collapseAll": {
+      "label": "C",
+      "tooltip": "Collapse tree"
+    },
+    "expandAll": {
+      "label": "E",
+      "tooltip": "Expand tree"
+    }
+  },
+  "clip": {
+    "reset": {
+      "label": "R",
+      "tooltip": "Reset to default clip planes"
+    },
+    "toViewRed": "Set red clipping plane to view direction",
+    "toViewGreen": "Set green clipping plane to view direction",
+    "toViewBlue": "Set blue clipping plane to view direction",
+    "intersection": {
+      "label": "Intersection",
+      "tooltip": "Use intersection clipping"
+    },
+    "planes": {
+      "label": "Planes",
+      "tooltip": "Show clipping planes"
+    },
+    "objectColorCaps": {
+      "label": "Use object color caps",
+      "tooltip": "Use object color caps instead of RGB"
+    }
+  },
+  "material": {
+    "reset": {
+      "label": "R",
+      "tooltip": "Reset to original values"
+    },
+    "ambientLight": "Ambient Light",
+    "directLight": "Direct Light",
+    "metalness": "Metalness",
+    "roughness": "Roughness",
+    "hint": "Control material for CAD view, values in %"
+  },
+  "zebra": {
+    "reset": {
+      "label": "R",
+      "tooltip": "Reset to default zebra settings"
+    },
+    "stripeCount": "Stripe Count",
+    "stripeOpacity": "Stripe Opacity",
+    "direction": "Direction",
+    "colorScheme": {
+      "tooltip": "Select stripe color scheme",
+      "blackWhite": "B/W",
+      "gray": "Gray",
+      "colors": "Colors"
+    },
+    "mapping": {
+      "tooltip": "Select stripe mapping",
+      "reflection": "Reflection",
+      "normal": "Normal"
+    }
+  },
+  "matEditor": {
+    "toggle": {
+      "label": "E",
+      "tooltip": "Edit material of selected object"
+    },
+    "title": "Material Editor",
+    "reset": {
+      "label": "R",
+      "tooltip": "Reset to original material"
+    },
+    "close": {
+      "label": "X",
+      "tooltip": "Close"
+    },
+    "selectFirst": "Select object by double-click first",
+    "group": {
+      "pbrCore": "PBR Core",
+      "clearcoat": "Clearcoat",
+      "transmission": "Transmission",
+      "sheen": "Sheen",
+      "specular": "Specular",
+      "anisotropy": "Anisotropy",
+      "emissive": "Emissive"
+    },
+    "param": {
+      "metalness": "Metallic",
+      "roughness": "Roughness",
+      "clearcoat": "Clearcoat",
+      "clearcoatRoughness": "Clearcoat Rough.",
+      "transmission": "Transmission",
+      "ior": "IOR",
+      "thickness": "Thickness",
+      "attenuationDistance": "Atten. Distance",
+      "sheen": "Sheen",
+      "sheenRoughness": "Sheen Roughness",
+      "specularIntensity": "Specular Intensity",
+      "anisotropy": "Anisotropy",
+      "anisotropyRotation": "Anisotropy Rotation",
+      "emissiveIntensity": "Emissive Intensity"
+    },
+    "defaultMaterial": "(default)"
+  },
+  "studio": {
+    "reset": {
+      "label": "R",
+      "tooltip": "Reset to default values"
+    },
+    "environment": {
+      "label": "Environment",
+      "tooltip": "HDR environment map for lighting and reflections",
+      "groupStudio": "Studio",
+      "groupOutdoor": "Outdoor",
+      "groupCustom": "Custom",
+      "customHdr": "Custom HDR",
+      "procedural": "Procedural Studio",
+      "softLight": {
+        "label": "Soft Light",
+        "tooltip": "Poly Haven: studio_small_08.hdr (soft light, neutral, backlight)"
+      },
+      "highContrast": {
+        "label": "High Contrast Studio",
+        "tooltip": "Poly Haven: studio_small_03.hdr (high-contrast, softbox + ceiling lamp, crisp)"
+      },
+      "brightNeutral": {
+        "label": "Bright Neutral",
+        "tooltip": "Poly Haven: white_studio_05.hdr (white, product, bright, neutral lighting)"
+      },
+      "cleanSoftbox": {
+        "label": "Clean Softbox",
+        "tooltip": "Poly Haven: white_studio_03.hdr (white, softbox, reflection, clean)"
+      },
+      "spotlit": {
+        "label": "Spotlit Setup",
+        "tooltip": "Poly Haven: photo_studio_01.hdr (lighting setup, spotlights)"
+      },
+      "controlledLight": {
+        "label": "Controlled Light",
+        "tooltip": "Poly Haven: studio_small_09.hdr (product lighting, controlled, soft reflections)"
+      },
+      "hardContrast": {
+        "label": "Hard Contrast Light",
+        "tooltip": "Poly Haven: cyclorama_hard_light.hdr (cyclorama, hard light, contrast)"
+      },
+      "urbanOvercast": {
+        "label": "Urban Overcast",
+        "tooltip": "Poly Haven: canary_wharf.hdr (urban, city, overcast)"
+      },
+      "outdoorWarm": {
+        "label": "Outdoor Warm",
+        "tooltip": "Poly Haven: kiara_1_dawn.hdr (dawn, warm, nature, sunrise)"
+      },
+      "neutralIndustrial": {
+        "label": "Neutral Industrial",
+        "tooltip": "Poly Haven: empty_warehouse_01.hdr (warehouse, neutral, big space)"
+      },
+      "sanGiuseppeBridge": {
+        "label": "San Giuseppe Bridge",
+        "tooltip": "Poly Haven: san_giuseppe_bridge.hdr (bridge, outdoor, GPUOpen reference)"
+      }
+    },
+    "use4k": {
+      "label": "Use 4K maps",
+      "tooltip": "Download 4K environment maps (sharper reflections, slower)",
+      "presetsOnly": "4K switching is only available for built-in Poly Haven presets"
+    },
+    "envIntensity": {
+      "label": "Env Intensity",
+      "tooltip": "Brightness of the environment lighting"
+    },
+    "envRotation": {
+      "label": "Env Rotation",
+      "tooltip": "Rotate the environment map around the vertical axis"
+    },
+    "background": {
+      "label": "Background",
+      "tooltip": "Scene background style",
+      "environment": "Environment",
+      "transparent": "Transparent",
+      "gradient": "Gradient Grey",
+      "gradientDark": "Gradient Dark Grey",
+      "white": "Solid White",
+      "grey": "Solid Grey",
+      "darkgrey": "Solid Dark Grey"
+    },
+    "toneMapping": {
+      "label": "Tone Mapping",
+      "tooltip": "Tone mapping algorithm for HDR to display conversion",
+      "none": "Linear (none)"
+    },
+    "exposure": {
+      "label": "Exposure",
+      "tooltip": "Overall brightness of the rendered image"
+    },
+    "shadowIntensity": {
+      "label": "Shadow Intensity",
+      "tooltip": "Darkness of directional shadows on the floor and between objects"
+    },
+    "shadowSoftness": {
+      "label": "Shadow Softness",
+      "tooltip": "Blur amount for shadow edges (sharp to soft)"
+    },
+    "aoIntensity": {
+      "label": "AO Intensity",
+      "tooltip": "Screen-space ambient occlusion — darkens crevices and contact areas"
+    },
+    "textureMapping": {
+      "label": "Texture Mapping",
+      "tooltip": "How textures are projected onto surfaces without UV coordinates",
+      "triplanar": "Triplanar",
+      "parametric": "Parametric UV"
+    }
+  },
+  "animation": {
+    "explodeLabel": "E",
+    "zscaleLabel": "Z",
+    "play": "Play animation",
+    "pause": "Pause animation",
+    "stop": "Stop and reset animation"
+  },
+  "info": {
+    "ready": "Ready",
+    "version": "Version",
+    "control": "Control",
+    "axes": "Axes",
+    "versions": "Versions",
+    "cadquery": "CadQuery:",
+    "jupyterCadquery": "Jupyter CadQuery:",
+    "path": "Path:",
+    "name": "Name:",
+    "boundingBox": "Bounding box:",
+    "min": "min",
+    "max": "max",
+    "center": "center",
+    "cameraTarget": "Camera target set to AABB center:",
+    "quaternionNeedsPosition": "quaternion needs position to be provided, falling back to ISO view"
+  },
+  "status": {
+    "copied": "copied: {{point}}",
+    "solid": "Solid",
+    "solidCounts": "Solid: {{faces}} faces, {{edges}} edges",
+    "solidCountsVolume": "Solid: {{faces}} faces, {{edges}} edges, vol ≈ {{volume}}",
+    "vertex": "Vertex: {{point}}",
+    "edge": "{{type}}: len ≈ {{length}}, start={{start}}, end={{end}}",
+    "closedEdge": "{{type}}: len ≈ {{length}}, at={{start}}",
+    "arc": "{{type}}: r ≈ {{radius}}, c ≈ {{center}}, len ≈ {{length}}, start={{start}}, end={{end}}",
+    "fullCircle": "{{type}}: r ≈ {{radius}}, c ≈ {{center}}, len ≈ {{length}}",
+    "face": "{{type}}: area ≈ {{area}}"
+  },
+  "warning": {
+    "unresolvedTags": "Unresolved material tag(s): {{tags}}"
+  },
+  "measure": {
+    "distance": {
+      "header": "Distance",
+      "headerMesh": "Distance (mesh based)"
+    },
+    "properties": {
+      "header": "Properties",
+      "headerMesh": "Properties (mesh based)",
+      "shape": "Shape"
+    },
+    "qualifier": {
+      "min": "min",
+      "center": "center"
+    },
+    "row": {
+      "distance": "distance",
+      "point1": "point 1",
+      "point2": "point 2",
+      "angle": "angle",
+      "angleToXy": "angle to xy",
+      "reference1": "reference 1",
+      "reference2": "reference 2",
+      "direction1": "direction 1",
+      "direction2": "direction 2",
+      "tangentAtP1": "tangent at P1",
+      "tangentAtP2": "tangent at P2",
+      "delta": "⇒ x | y | z",
+      "xyz": "xyz",
+      "area": "area",
+      "length": "length",
+      "volume": "volume",
+      "radius": "radius",
+      "diameter": "diameter",
+      "center": "center",
+      "faceNormal": "face normal",
+      "bbMin": "bb min",
+      "bbMax": "bb max",
+      "bbCenter": "bb center",
+      "bbSize": "bb size"
+    },
+    "value": {
+      "line": "line",
+      "faceNormal": "face normal"
+    }
+  },
+  "filter": {
+    "all": "All",
+    "vertex": "Vertex",
+    "edge": "Edge",
+    "face": "Face",
+    "solid": "Solid"
+  },
+  "shape": {
+    "vertex": "Vertex",
+    "edge": "Edge",
+    "face": "Face",
+    "solid": "Solid"
+  },
+  "geom": {
+    "point": "Point",
+    "plane": "Plane",
+    "cylinder": "Cylinder",
+    "cone": "Cone",
+    "sphere": "Sphere",
+    "torus": "Torus",
+    "bezierSurface": "Bézier surface",
+    "bsplineSurface": "B-spline surface",
+    "surfaceOfRevolution": "Surface of revolution",
+    "surfaceOfExtrusion": "Surface of extrusion",
+    "offsetSurface": "Offset surface",
+    "otherSurface": "Other surface",
+    "line": "Line",
+    "circle": "Circle",
+    "ellipse": "Ellipse",
+    "hyperbola": "Hyperbola",
+    "parabola": "Parabola",
+    "bezierCurve": "Bézier curve",
+    "bsplineCurve": "B-spline curve",
+    "offsetCurve": "Offset curve",
+    "otherCurve": "Other curve",
+    "other": "Other"
+  },
+  "help": {
+    "key": {
+      "shift": "shift",
+      "ctrl": "ctrl",
+      "alt": "alt",
+      "meta": "meta"
+    },
+    "navigation": {
+      "title": "Mouse Navigation",
+      "rotate": {
+        "action": "Rotate",
+        "input": "<left mouse button>"
+      },
+      "rotateUpDown": {
+        "action": "Rotate up / down",
+        "input": "<{{ctrl}}> + <left mouse button>"
+      },
+      "rotateLeftRight": {
+        "action": "Rotate left / right",
+        "input": "<{{meta}}> + <left mouse button>"
+      },
+      "pan": {
+        "action": "Pan",
+        "input": "<{{shift}}> + <left mouse button> or <right mouse button>"
+      },
+      "zoom": {
+        "action": "Zoom",
+        "input": "<mouse wheel> or <middle mouse button>"
+      }
+    },
+    "selection": {
+      "title": "Mouse Selection",
+      "pick": {
+        "action": "Pick element",
+        "input": "<left mouse button> double click",
+        "inputTree": "Click on navigation tree label",
+        "note": "(Shows axis-aligned bounding box, AABB)"
+      },
+      "isolate": {
+        "action": "Isolate element",
+        "input": "<{{shift}}> + <left mouse button> double click",
+        "inputTree": "<{{shift}}> + click on navigation tree label (nested)"
+      },
+      "hide": {
+        "action": "Hide element",
+        "input": "<{{meta}}> + <left mouse button> double click object",
+        "inputTree": "<{{meta}}> + <left mouse button> click tree label (nested)"
+      },
+      "hideOthers": {
+        "action": "Hide other elements",
+        "inputTree": "<{{shift}}> + <{{meta}}> + <left mouse button> click tree label (nested)"
+      },
+      "cameraTarget": {
+        "action": "Set camera target",
+        "input": "<{{shift}}> + <{{meta}}> + <left mouse button> double click"
+      }
+    },
+    "tree": {
+      "title": "CAD Object Tree",
+      "collapseSingles": {
+        "action": "Collapse single leafs",
+        "input": "Button '{{button}}' (all nodes with one leaf only)"
+      },
+      "expandRoot": {
+        "action": "Expand root only",
+        "input": "Button '{{button}}'"
+      },
+      "collapseAll": {
+        "action": "Collapse all nodes",
+        "input": "Button '{{button}}'"
+      },
+      "expandAll": {
+        "action": "Expand all nodes",
+        "input": "Button '{{button}}'"
+      }
+    },
+    "measure": {
+      "title": "Measure Mode",
+      "select": {
+        "action": "Select 1. (and 2.) object",
+        "input": "<left mouse button>"
+      },
+      "useCenter": {
+        "action": "Use center instead of min distance",
+        "input": "<{{shift}}> + <left mouse button> for the second selection"
+      },
+      "filter": {
+        "action": "Filter object types",
+        "input": "Type menu or <a>ll, <s>olid, <f>ace, <e>dge , <v>ertices"
+      },
+      "unselectLast": {
+        "action": "Unselect last object",
+        "input": "<right mouse button>"
+      },
+      "unselectAll": {
+        "action": "Unselect all objects",
+        "input": "<ESC>"
+      }
+    }
+  }
+}

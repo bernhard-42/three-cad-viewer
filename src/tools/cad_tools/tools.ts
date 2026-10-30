@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { DistanceMeasurement, PropertiesMeasurement } from "./measure.js";
 import { SelectObject } from "./select.js";
 import type { PickedComponent } from "../../rendering/picked.js";
+import type { Translate } from "../../ui/i18n.js";
 import type {
   MeshMeasureBackend,
   MeasureResponse,
@@ -57,6 +58,8 @@ export interface DisplayLike {
   measurementPanels: MeasurementPanelElements;
   /** UI elements for filter dropdown */
   filterDropdown: FilterDropdownElements;
+  /** Translate a UI message */
+  t: Translate;
 }
 
 /**

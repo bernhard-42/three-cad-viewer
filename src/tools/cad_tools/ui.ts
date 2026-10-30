@@ -3,6 +3,8 @@ import {
   type TopoFilterType,
 } from "../../rendering/id-picking.js";
 import type { DisplayLike } from "./tools.js";
+import type { MessageId, Translate } from "../../ui/i18n.js";
+import { geomTypeLabel } from "./mesh-measure.js";
 
 /**
  * Type guard to check if a value is a number array of specific length.
@@ -31,14 +33,77 @@ interface CallbackEntry {
 }
 
 /**
- * Format a key for display: lowercase and insert space before trailing digits.
- * e.g. "normal1" → "normal 1", "Point 1" → "point 1", "Distance" → "distance"
+ * Normalize a backend key: lowercase and exactly one space before trailing
+ * digits, e.g. "normal1" → "normal 1", "Point 1" → "point 1",
+ * "Distance" → "distance". Idempotent, so already spaced keys stay as they are.
  */
 function formatKey(key: string): string {
-  return key.toLowerCase().replace(/(\D)(\d+)$/, "$1 $2");
+  return key.toLowerCase().replace(/(\D)\s*(\d+)$/, "$1 $2");
 }
 
-function createVectorRow(key: string, value: number[]): HTMLTableRowElement {
+/** Message id of each row name the measurement backends send (normalized). */
+const ROW_IDS: Record<string, MessageId> = {
+  distance: "measure.row.distance",
+  "point 1": "measure.row.point1",
+  "point 2": "measure.row.point2",
+  angle: "measure.row.angle",
+  "angle to xy": "measure.row.angleToXy",
+  "reference 1": "measure.row.reference1",
+  "reference 2": "measure.row.reference2",
+  "direction 1": "measure.row.direction1",
+  "direction 2": "measure.row.direction2",
+  "tangent at p 1": "measure.row.tangentAtP1",
+  "tangent at p 2": "measure.row.tangentAtP2",
+  "⇒ x | y | z": "measure.row.delta",
+  xyz: "measure.row.xyz",
+  area: "measure.row.area",
+  length: "measure.row.length",
+  volume: "measure.row.volume",
+  radius: "measure.row.radius",
+  diameter: "measure.row.diameter",
+  center: "measure.row.center",
+  "face normal": "measure.row.faceNormal",
+  "bb min": "measure.row.bbMin",
+  "bb max": "measure.row.bbMax",
+  "bb center": "measure.row.bbCenter",
+  "bb size": "measure.row.bbSize",
+};
+
+/** Message id of each string value the measurement backends send. */
+const VALUE_IDS: Record<string, MessageId> = {
+  line: "measure.value.line",
+  "face normal": "measure.value.faceNormal",
+  min: "measure.qualifier.min",
+  center: "measure.qualifier.center",
+};
+
+/** Message id of each shape_type name. */
+const SHAPE_IDS: Record<string, MessageId> = {
+  Vertex: "shape.vertex",
+  Edge: "shape.edge",
+  Face: "shape.face",
+  Solid: "shape.solid",
+};
+
+/** Translate `name` via `ids`; names without a message are shown as they are. */
+function translated(
+  ids: Record<string, MessageId>,
+  name: string,
+  t: Translate,
+): string {
+  return Object.prototype.hasOwnProperty.call(ids, name) ? t(ids[name]) : name;
+}
+
+/** Row label for a backend key. */
+function rowLabel(key: string, t: Translate): string {
+  return translated(ROW_IDS, formatKey(key), t);
+}
+
+function createVectorRow(
+  key: string,
+  value: number[],
+  t: Translate,
+): HTMLTableRowElement {
   const xyzColors = [
     "tcv_x_measure_val",
     "tcv_y_measure_val",
@@ -47,7 +112,7 @@ function createVectorRow(key: string, value: number[]): HTMLTableRowElement {
   const tr = document.createElement("tr");
   const th = document.createElement("th");
 
-  th.textContent = formatKey(key);
+  th.textContent = rowLabel(key, t);
   th.classList.add("tcv_measure_key");
   th.classList.add("tcv_measure_cell");
   tr.appendChild(th);
@@ -74,16 +139,20 @@ function createVectorRow(key: string, value: number[]): HTMLTableRowElement {
   return tr;
 }
 
-function createStringRow(key: string, value: string): HTMLTableRowElement {
+function createStringRow(
+  key: string,
+  value: string,
+  t: Translate,
+): HTMLTableRowElement {
   const tr = document.createElement("tr");
   const th = document.createElement("th");
   const td = document.createElement("td");
-  th.textContent = formatKey(key);
+  th.textContent = rowLabel(key, t);
   th.classList.add("tcv_measure_key");
   th.classList.add("tcv_measure_cell");
   tr.appendChild(th);
 
-  td.textContent = value;
+  td.textContent = translated(VALUE_IDS, value, t);
   td.classList.add("tcv_measure_val_center");
   td.classList.add("tcv_measure_cell");
   td.colSpan = 5;
@@ -95,13 +164,14 @@ function createStringRow(key: string, value: string): HTMLTableRowElement {
 function createValueRow(
   key: string,
   value: number,
-  qualifier: string | null = null,
+  qualifier: string | null,
+  t: Translate,
 ): HTMLTableRowElement {
   const tr = document.createElement("tr");
   const th = document.createElement("th");
   const td = document.createElement("td");
 
-  th.textContent = formatKey(key);
+  th.textContent = rowLabel(key, t);
   th.classList.add("tcv_measure_key");
   th.classList.add("tcv_measure_cell");
   tr.appendChild(th);
@@ -123,7 +193,7 @@ function createValueRow(
     }
   } else {
     const qualText = document.createElement("td");
-    qualText.textContent = `(${qualifier})`;
+    qualText.textContent = `(${translated(VALUE_IDS, qualifier, t)})`;
     qualText.classList.add("tcv_measure_cell");
     tr.appendChild(qualText);
     const empty = document.createElement("td");
@@ -230,6 +300,7 @@ function renderGroup(
   group: Record<string, unknown>,
   tbody: HTMLTableSectionElement,
   addSeparator: boolean,
+  t: Translate,
 ): void {
   let firstRow = true;
   for (const key in group) {
@@ -241,7 +312,7 @@ function renderGroup(
     let tr: HTMLTableRowElement | undefined;
     if (key.toLowerCase() === "bb" && isBoundingBoxData(value)) {
       for (const bbKey in value) {
-        const bbTr = createVectorRow(`bb ${bbKey}`, value[bbKey]);
+        const bbTr = createVectorRow(`bb ${bbKey}`, value[bbKey], t);
         if (addSeparator && firstRow) {
           bbTr.classList.add("tcv_measure_cell_top_border");
           firstRow = false;
@@ -249,17 +320,17 @@ function renderGroup(
         tbody.appendChild(bbTr);
       }
     } else if (isNumberArray(value, 3)) {
-      tr = createVectorRow(key, value);
+      tr = createVectorRow(key, value, t);
     } else if (typeof value === "number") {
       if (key.toLowerCase() === "distance") {
         const info =
           typeof group["info"] === "string" ? group["info"] : undefined;
-        tr = createValueRow(key, value, info ?? null);
+        tr = createValueRow(key, value, info ?? null, t);
       } else {
-        tr = createValueRow(key, value);
+        tr = createValueRow(key, value, null, t);
       }
     } else if (typeof value === "string") {
-      tr = createStringRow(key, value);
+      tr = createStringRow(key, value, t);
     }
     if (tr) {
       if (addSeparator && firstRow) {
@@ -277,14 +348,15 @@ function renderGroup(
 function renderGroups(
   properties: Record<string, unknown>,
   tbody: HTMLTableSectionElement,
+  t: Translate,
 ): void {
   const groups = properties.result ?? properties.groups;
   if (Array.isArray(groups)) {
     for (let i = 0; i < groups.length; i++) {
-      renderGroup(groups[i] as Record<string, unknown>, tbody, i > 0);
+      renderGroup(groups[i] as Record<string, unknown>, tbody, i > 0, t);
     }
   } else {
-    renderGroup(properties, tbody, false);
+    renderGroup(properties, tbody, false, t);
   }
 }
 
@@ -309,14 +381,19 @@ class DistancePanel extends Panel {
     if (this.finished) return;
 
     this.resetTable();
+    const t = this.display.t;
     this.setHeader(
-      properties.meshBased === true ? "Distance (mesh based)" : "Distance",
+      t(
+        properties.meshBased === true
+          ? "measure.distance.headerMesh"
+          : "measure.distance.header",
+      ),
     );
 
     const table = document.createElement("table");
     table.classList.add("tcv_properties_table");
     const tbody = document.createElement("tbody");
-    renderGroups(properties as Record<string, unknown>, tbody);
+    renderGroups(properties as Record<string, unknown>, tbody, t);
     table.appendChild(tbody);
     this.html.append(table);
     this.finished = true;
@@ -350,22 +427,40 @@ class PropertiesPanel extends Panel {
     if (this.finished) return;
 
     this.resetTable();
+    const t = this.display.t;
     this.setHeader(
-      properties.meshBased === true ? "Properties (mesh based)" : "Properties",
+      t(
+        properties.meshBased === true
+          ? "measure.properties.headerMesh"
+          : "measure.properties.header",
+      ),
     );
 
-    this.setSubHeader(
-      `${properties["shape_type"] ?? ""} / ${properties["geom_type"] ?? ""}`,
-    );
+    const shapeType = translated(SHAPE_IDS, properties["shape_type"] ?? "", t);
+    const geomType = geomTypeLabel(properties["geom_type"] ?? "", t);
+    this.setSubHeader(`${shapeType} / ${geomType}`);
     const table = document.createElement("table");
     table.classList.add("tcv_properties_table");
     const tbody = document.createElement("tbody");
-    renderGroups(properties as Record<string, unknown>, tbody);
+    renderGroups(properties as Record<string, unknown>, tbody, t);
     table.appendChild(tbody);
     this.html.append(table);
     this.finished = true;
   }
 }
+
+/** The filter options, named like their `TopoFilter` (none = all topos). */
+const FILTER_OPTIONS = ["none", "vertex", "edge", "face", "solid"] as const;
+type FilterOption = (typeof FILTER_OPTIONS)[number];
+
+/** Message id of each filter option's label. */
+const FILTER_LABEL_IDS: Record<FilterOption, MessageId> = {
+  none: "filter.all",
+  vertex: "filter.vertex",
+  edge: "filter.edge",
+  face: "filter.face",
+  solid: "filter.solid",
+};
 
 class FilterByDropDownMenu {
   private display: DisplayLike;
@@ -386,19 +481,15 @@ class FilterByDropDownMenu {
     this.currentFilter = [TopoFilter.none];
   }
 
-  private setValue = (topoType: string): void => {
-    this.elements.value.innerText = topoType;
-    const key = topoType.toLowerCase();
-    let filter: TopoFilterType[] | null = null;
-    if (key === "all" || key === "none") {
-      // "All" (label) = no filter → every topo eligible (vertex>edge>face priority).
-      filter = [TopoFilter.none];
-    } else if (key in TopoFilter) {
-      filter = [TopoFilter[key as keyof typeof TopoFilter]];
-    }
-    if (filter === null) return;
+  /**
+   * Select a filter option by its canonical name. The state never comes from
+   * the rendered label, which is translated.
+   */
+  private setValue = (option: FilterOption): void => {
+    this.elements.value.innerText = this.display.t(FILTER_LABEL_IDS[option]);
+    // "none" (label "All") = no filter → every topo eligible (vertex>edge>face priority).
     // The picker-readable filter source.
-    this.currentFilter = filter;
+    this.currentFilter = [TopoFilter[option]];
   };
 
   private toggleDropdown = (ev: Event | null): void => {
@@ -426,24 +517,26 @@ class FilterByDropDownMenu {
 
   private handleSelection = (ev: Event): void => {
     const target = ev.target;
-    if (target instanceof HTMLElement) {
-      this.setValue(target.innerText);
+    const options = this.elements.options;
+    const option = FILTER_OPTIONS.find((name) => options[name] === target);
+    if (option !== undefined) {
+      this.setValue(option);
       this.toggleDropdown(ev);
     }
   };
 
   reset = (): void => {
-    this.setValue("All");
+    this.setValue("none");
   };
 
   private keybindSelect = (e: KeyboardEvent): void => {
     const validKeys = ["a", "v", "e", "f", "s", "Escape"];
     if (validKeys.indexOf(e.key) === -1) return;
-    if (e.key == "a") this.setValue("All");
-    else if (e.key == "v") this.setValue("Vertex");
-    else if (e.key == "e") this.setValue("Edge");
-    else if (e.key == "f") this.setValue("Face");
-    else if (e.key == "s") this.setValue("Solid");
+    if (e.key == "a") this.setValue("none");
+    else if (e.key == "v") this.setValue("vertex");
+    else if (e.key == "e") this.setValue("edge");
+    else if (e.key == "f") this.setValue("face");
+    else if (e.key == "s") this.setValue("solid");
     else if (e.key == "Escape") this.closeDropdown(e);
   };
 

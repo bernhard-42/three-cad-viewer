@@ -8,6 +8,7 @@ import * as THREE from "three";
 import { NestedGroup, ObjectGroup } from "../../src/scene/nestedgroup.js";
 import { PICK_LAYER } from "../../src/rendering/id-picking.js";
 import { hoverStatusText } from "../../src/tools/cad_tools/mesh-measure.js";
+import { I18n } from "../../src/ui/i18n.js";
 
 // Helper to create minimal shape data for testing
 function createMinimalShapeData() {
@@ -1898,8 +1899,8 @@ describe("NestedGroup - standalone edges keep edge_types for the mesh backend", 
       subtype: null,
       solidPath: null,
     };
-    const text = hoverStatusText(info, false, ng.meshGeometry);
-    expect(text).toMatch(/^circle: /);
+    const text = hoverStatusText(info, false, ng.meshGeometry, new I18n().t);
+    expect(text).toMatch(/^Circle: /);
     expect(text).toContain("r ≈ 5.00");
     expect(text).toContain("c ≈ (0.00, 0.00, 0.00)");
     // an arc (start !== end) keeps its endpoints

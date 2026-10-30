@@ -5,6 +5,7 @@
 import { describe, test, expect, beforeEach } from "vitest";
 import * as THREE from "three";
 import { Info } from "../../src/ui/info.js";
+import { I18n } from "../../src/ui/i18n.js";
 
 describe("Info - bbInfo", () => {
   let container;
@@ -16,7 +17,7 @@ describe("Info - bbInfo", () => {
 
   beforeEach(() => {
     container = document.createElement("div");
-    info = new Info(container);
+    info = new Info(container, new I18n().t);
   });
 
   test("shows path and name literally", () => {

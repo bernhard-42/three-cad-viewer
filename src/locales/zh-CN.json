@@ -1,0 +1,496 @@
+{
+  "toolbar": {
+    "axes": "显示坐标轴",
+    "axes0": "在原点 (0,0,0) 显示坐标轴",
+    "grid": "显示网格",
+    "perspective": "使用透视相机",
+    "transparent": "显示透明面",
+    "blackEdges": "显示黑色边线",
+    "reset": "重置视图",
+    "resize": "缩放对象",
+    "iso": "切换到等轴测视图",
+    "front": "切换到前视图",
+    "rear": "切换到后视图",
+    "top": "切换到顶视图",
+    "bottom": "切换到底视图",
+    "left": "切换到左视图",
+    "right": "切换到右视图",
+    "explode": "爆炸工具",
+    "zscale": "沿 Z 轴缩放",
+    "distance": "测量形状间距离",
+    "properties": "显示形状属性",
+    "select": "复制形状 ID 到剪贴板",
+    "pin": "将视图固定为 PNG 图片",
+    "help": "帮助",
+    "shortcut": "{{tooltip}} › {{key}}"
+  },
+  "panel": {
+    "tools": "工具",
+    "info": "信息"
+  },
+  "tabs": {
+    "tree": {
+      "label": "模型树",
+      "tooltip": "导航树"
+    },
+    "clip": {
+      "label": "剖切",
+      "tooltip": "剖切工具"
+    },
+    "zebra": {
+      "label": "斑马纹",
+      "tooltip": "斑马纹工具"
+    },
+    "material": {
+      "label": "材质",
+      "tooltip": "材质选择"
+    },
+    "studio": {
+      "label": "工作室",
+      "tooltip": "工作室模式"
+    }
+  },
+  "tree": {
+    "collapseSingles": {
+      "label": "1",
+      "tooltip": "折叠仅含单个叶子的节点"
+    },
+    "expandRoot": {
+      "label": "R",
+      "tooltip": "仅展开根节点"
+    },
+    "collapseAll": {
+      "label": "C",
+      "tooltip": "折叠整棵树"
+    },
+    "expandAll": {
+      "label": "E",
+      "tooltip": "展开整棵树"
+    }
+  },
+  "clip": {
+    "reset": {
+      "label": "R",
+      "tooltip": "恢复默认剖切面"
+    },
+    "toViewRed": "将红色剖切面对准视线方向",
+    "toViewGreen": "将绿色剖切面对准视线方向",
+    "toViewBlue": "将蓝色剖切面对准视线方向",
+    "intersection": {
+      "label": "交集",
+      "tooltip": "使用交集剖切"
+    },
+    "planes": {
+      "label": "剖切面",
+      "tooltip": "显示剖切面"
+    },
+    "objectColorCaps": {
+      "label": "使用对象颜色端盖",
+      "tooltip": "用对象颜色端盖代替 RGB"
+    }
+  },
+  "material": {
+    "reset": {
+      "label": "R",
+      "tooltip": "恢复原始值"
+    },
+    "ambientLight": "环境光",
+    "directLight": "直射光",
+    "metalness": "金属度",
+    "roughness": "粗糙度",
+    "hint": "控制 CAD 视图的材质,数值单位为 %"
+  },
+  "zebra": {
+    "reset": {
+      "label": "R",
+      "tooltip": "恢复默认斑马纹设置"
+    },
+    "stripeCount": "条纹数量",
+    "stripeOpacity": "条纹不透明度",
+    "direction": "方向",
+    "colorScheme": {
+      "tooltip": "选择条纹配色",
+      "blackWhite": "黑白",
+      "gray": "灰度",
+      "colors": "彩色"
+    },
+    "mapping": {
+      "tooltip": "选择条纹映射",
+      "reflection": "反射",
+      "normal": "法线"
+    }
+  },
+  "matEditor": {
+    "toggle": {
+      "label": "E",
+      "tooltip": "编辑所选对象的材质"
+    },
+    "title": "材质编辑器",
+    "reset": {
+      "label": "R",
+      "tooltip": "恢复原始材质"
+    },
+    "close": {
+      "label": "X",
+      "tooltip": "关闭"
+    },
+    "selectFirst": "请先双击选择对象",
+    "group": {
+      "pbrCore": "PBR 核心",
+      "clearcoat": "清漆",
+      "transmission": "透射",
+      "sheen": "光泽",
+      "specular": "高光",
+      "anisotropy": "各向异性",
+      "emissive": "自发光"
+    },
+    "param": {
+      "metalness": "金属度",
+      "roughness": "粗糙度",
+      "clearcoat": "清漆",
+      "clearcoatRoughness": "清漆粗糙度",
+      "transmission": "透射",
+      "ior": "折射率 (IOR)",
+      "thickness": "厚度",
+      "attenuationDistance": "衰减距离",
+      "sheen": "光泽",
+      "sheenRoughness": "光泽粗糙度",
+      "specularIntensity": "高光强度",
+      "anisotropy": "各向异性",
+      "anisotropyRotation": "各向异性旋转",
+      "emissiveIntensity": "自发光强度"
+    },
+    "defaultMaterial": "(默认)"
+  },
+  "studio": {
+    "reset": {
+      "label": "R",
+      "tooltip": "恢复默认值"
+    },
+    "environment": {
+      "label": "环境",
+      "tooltip": "用于光照与反射的 HDR 环境贴图",
+      "groupStudio": "工作室",
+      "groupOutdoor": "户外",
+      "groupCustom": "自定义",
+      "customHdr": "自定义 HDR",
+      "procedural": "程序化工作室",
+      "softLight": {
+        "label": "柔光",
+        "tooltip": "Poly Haven: studio_small_08.hdr(柔光、中性、背光)"
+      },
+      "highContrast": {
+        "label": "高对比工作室",
+        "tooltip": "Poly Haven: studio_small_03.hdr(高对比、柔光箱+顶灯、清晰)"
+      },
+      "brightNeutral": {
+        "label": "明亮中性",
+        "tooltip": "Poly Haven: white_studio_05.hdr(白色、产品、明亮、中性光)"
+      },
+      "cleanSoftbox": {
+        "label": "洁净柔光箱",
+        "tooltip": "Poly Haven: white_studio_03.hdr(白色、柔光箱、反射、洁净)"
+      },
+      "spotlit": {
+        "label": "聚光布光",
+        "tooltip": "Poly Haven: photo_studio_01.hdr(摄影布光、聚光灯)"
+      },
+      "controlledLight": {
+        "label": "可控灯光",
+        "tooltip": "Poly Haven: studio_small_09.hdr(产品光、可控、柔和反射)"
+      },
+      "hardContrast": {
+        "label": "硬朗对比光",
+        "tooltip": "Poly Haven: cyclorama_hard_light.hdr(影棚弧幕、硬光、对比)"
+      },
+      "urbanOvercast": {
+        "label": "城市阴天",
+        "tooltip": "Poly Haven: canary_wharf.hdr(码头、都市、阴天)"
+      },
+      "outdoorWarm": {
+        "label": "户外暖阳",
+        "tooltip": "Poly Haven: kiara_1_dawn.hdr(黎明、暖调、自然、日出)"
+      },
+      "neutralIndustrial": {
+        "label": "中性工业风",
+        "tooltip": "Poly Haven: empty_warehouse_01.hdr(仓库、中性、大空间)"
+      },
+      "sanGiuseppeBridge": {
+        "label": "圣朱塞佩桥",
+        "tooltip": "Poly Haven: san_giuseppe_bridge.hdr(桥梁、户外、GPUOpen 参考)"
+      }
+    },
+    "use4k": {
+      "label": "使用 4K 贴图",
+      "tooltip": "下载 4K 环境贴图(反射更锐利,速度较慢)",
+      "presetsOnly": "4K 切换仅对内置 Poly Haven 预设可用"
+    },
+    "envIntensity": {
+      "label": "环境光强度",
+      "tooltip": "环境光照的亮度"
+    },
+    "envRotation": {
+      "label": "环境旋转",
+      "tooltip": "绕竖直轴旋转环境贴图"
+    },
+    "background": {
+      "label": "背景",
+      "tooltip": "场景背景样式",
+      "environment": "环境",
+      "transparent": "透明",
+      "gradient": "灰色渐变",
+      "gradientDark": "深灰渐变",
+      "white": "纯白",
+      "grey": "纯灰",
+      "darkgrey": "纯深灰"
+    },
+    "toneMapping": {
+      "label": "色调映射",
+      "tooltip": "HDR 转换为显示所用的色调映射算法",
+      "none": "线性(无)"
+    },
+    "exposure": {
+      "label": "曝光",
+      "tooltip": "渲染图像的整体亮度"
+    },
+    "shadowIntensity": {
+      "label": "阴影强度",
+      "tooltip": "地面与物体之间方向性阴影的深浅"
+    },
+    "shadowSoftness": {
+      "label": "阴影柔和度",
+      "tooltip": "阴影边缘的模糊程度(锐利到柔和)"
+    },
+    "aoIntensity": {
+      "label": "环境光遮蔽强度",
+      "tooltip": "屏幕空间环境光遮蔽——加深缝隙与接触区域"
+    },
+    "textureMapping": {
+      "label": "纹理映射",
+      "tooltip": "无 UV 坐标时纹理在表面上的投影方式",
+      "triplanar": "三平面",
+      "parametric": "参数化 UV"
+    }
+  },
+  "animation": {
+    "explodeLabel": "E",
+    "zscaleLabel": "Z",
+    "play": "播放动画",
+    "pause": "暂停动画",
+    "stop": "停止并重置动画"
+  },
+  "info": {
+    "ready": "就绪",
+    "version": "版本",
+    "control": "控制",
+    "axes": "坐标轴",
+    "versions": "版本信息",
+    "cadquery": "CadQuery:",
+    "jupyterCadquery": "Jupyter CadQuery:",
+    "path": "路径:",
+    "name": "名称:",
+    "boundingBox": "包围盒:",
+    "min": "最小",
+    "max": "最大",
+    "center": "中心",
+    "cameraTarget": "相机目标已设为包围盒中心:",
+    "quaternionNeedsPosition": "提供四元数时必须同时提供位置,将回退到等轴测视图"
+  },
+  "status": {
+    "copied": "已复制: {{point}}",
+    "solid": "实体",
+    "solidCounts": "实体: {{faces}} 个面, {{edges}} 条边",
+    "solidCountsVolume": "实体: {{faces}} 个面, {{edges}} 条边, 体积 ≈ {{volume}}",
+    "vertex": "顶点: {{point}}",
+    "edge": "{{type}}: 长度 ≈ {{length}}, 起点={{start}}, 终点={{end}}",
+    "closedEdge": "{{type}}: 长度 ≈ {{length}}, 位于={{start}}",
+    "arc": "{{type}}: 半径 ≈ {{radius}}, 圆心 ≈ {{center}}, 长度 ≈ {{length}}, 起点={{start}}, 终点={{end}}",
+    "fullCircle": "{{type}}: 半径 ≈ {{radius}}, 圆心 ≈ {{center}}, 长度 ≈ {{length}}",
+    "face": "{{type}}: 面积 ≈ {{area}}"
+  },
+  "warning": {
+    "unresolvedTags": "无法解析的材质标签:{{tags}}"
+  },
+  "measure": {
+    "distance": {
+      "header": "距离",
+      "headerMesh": "距离(基于网格)"
+    },
+    "properties": {
+      "header": "属性",
+      "headerMesh": "属性(基于网格)",
+      "shape": "形状"
+    },
+    "qualifier": {
+      "min": "最小",
+      "center": "中心"
+    },
+    "row": {
+      "distance": "距离",
+      "point1": "点 1",
+      "point2": "点 2",
+      "angle": "角度",
+      "angleToXy": "与 XY 平面夹角",
+      "reference1": "参考 1",
+      "reference2": "参考 2",
+      "direction1": "方向 1",
+      "direction2": "方向 2",
+      "tangentAtP1": "P1 处切线",
+      "tangentAtP2": "P2 处切线",
+      "delta": "⇒ X | Y | Z",
+      "xyz": "xyz",
+      "area": "面积",
+      "length": "长度",
+      "volume": "体积",
+      "radius": "半径",
+      "diameter": "直径",
+      "center": "中心",
+      "faceNormal": "面法线",
+      "bbMin": "包围盒最小",
+      "bbMax": "包围盒最大",
+      "bbCenter": "包围盒中心",
+      "bbSize": "包围盒尺寸"
+    },
+    "value": {
+      "line": "线",
+      "faceNormal": "面法线"
+    }
+  },
+  "filter": {
+    "all": "全部",
+    "vertex": "顶点",
+    "edge": "边",
+    "face": "面",
+    "solid": "实体"
+  },
+  "shape": {
+    "vertex": "顶点",
+    "edge": "边",
+    "face": "面",
+    "solid": "实体"
+  },
+  "geom": {
+    "point": "点",
+    "plane": "平面",
+    "cylinder": "圆柱面",
+    "cone": "圆锥面",
+    "sphere": "球面",
+    "torus": "圆环面",
+    "bezierSurface": "贝塞尔曲面",
+    "bsplineSurface": "B 样条曲面",
+    "surfaceOfRevolution": "回转面",
+    "surfaceOfExtrusion": "拉伸面",
+    "offsetSurface": "偏移曲面",
+    "otherSurface": "其他曲面",
+    "line": "线",
+    "circle": "圆",
+    "ellipse": "椭圆",
+    "hyperbola": "双曲线",
+    "parabola": "抛物线",
+    "bezierCurve": "贝塞尔曲线",
+    "bsplineCurve": "B 样条曲线",
+    "offsetCurve": "偏移曲线",
+    "otherCurve": "其他曲线",
+    "other": "其他"
+  },
+  "help": {
+    "key": {
+      "shift": "shift",
+      "ctrl": "ctrl",
+      "alt": "alt",
+      "meta": "meta"
+    },
+    "navigation": {
+      "title": "鼠标导航",
+      "rotate": {
+        "action": "旋转",
+        "input": "<鼠标左键>"
+      },
+      "rotateUpDown": {
+        "action": "向上/向下旋转",
+        "input": "<{{ctrl}}> + <鼠标左键>"
+      },
+      "rotateLeftRight": {
+        "action": "向左/向右旋转",
+        "input": "<{{meta}}> + <鼠标左键>"
+      },
+      "pan": {
+        "action": "平移",
+        "input": "<{{shift}}> + <鼠标左键> 或 <鼠标右键>"
+      },
+      "zoom": {
+        "action": "缩放",
+        "input": "<鼠标滚轮> 或 <鼠标中键>"
+      }
+    },
+    "selection": {
+      "title": "鼠标选择",
+      "pick": {
+        "action": "选取元素",
+        "input": "双击 <鼠标左键>",
+        "inputTree": "点击导航树中的标签",
+        "note": "(显示轴对齐包围盒 AABB)"
+      },
+      "isolate": {
+        "action": "隔离元素",
+        "input": "<{{shift}}> + 双击 <鼠标左键>",
+        "inputTree": "<{{shift}}> + 点击导航树中的标签(嵌套)"
+      },
+      "hide": {
+        "action": "隐藏元素",
+        "input": "<{{meta}}> + 双击 <鼠标左键> 对象",
+        "inputTree": "<{{meta}}> + 点击树标签(嵌套)"
+      },
+      "hideOthers": {
+        "action": "隐藏其他元素",
+        "inputTree": "<{{shift}}> + <{{meta}}> + 点击树标签(嵌套)"
+      },
+      "cameraTarget": {
+        "action": "设置相机目标",
+        "input": "<{{shift}}> + <{{meta}}> + 双击 <鼠标左键>"
+      }
+    },
+    "tree": {
+      "title": "CAD 对象树",
+      "collapseSingles": {
+        "action": "折叠单叶节点",
+        "input": "按钮 '{{button}}'(所有仅有一个叶子的节点)"
+      },
+      "expandRoot": {
+        "action": "仅展开根节点",
+        "input": "按钮 '{{button}}'"
+      },
+      "collapseAll": {
+        "action": "折叠所有节点",
+        "input": "按钮 '{{button}}'"
+      },
+      "expandAll": {
+        "action": "展开所有节点",
+        "input": "按钮 '{{button}}'"
+      }
+    },
+    "measure": {
+      "title": "测量模式",
+      "select": {
+        "action": "选择第 1(和第 2)个对象",
+        "input": "<鼠标左键>"
+      },
+      "useCenter": {
+        "action": "用中心代替最小距离",
+        "input": "<{{shift}}> + <鼠标左键> 用于第二次选择"
+      },
+      "filter": {
+        "action": "过滤对象类型",
+        "input": "类型菜单或 <a>ll(全部)、<s>olid(实体)、<f>ace(面)、<e>dge(边)、<v>ertices(顶点)"
+      },
+      "unselectLast": {
+        "action": "取消选择上一个对象",
+        "input": "<鼠标右键>"
+      },
+      "unselectAll": {
+        "action": "取消选择所有对象",
+        "input": "<ESC>"
+      }
+    }
+  }
+}

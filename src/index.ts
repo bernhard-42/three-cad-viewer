@@ -39,6 +39,10 @@ export {
   MATERIAL_PRESET_NAMES,
 } from "./rendering/material-presets.js";
 
+// UI localization: the shipped languages and the message id type
+export { AVAILABLE_LOCALES } from "./ui/i18n.js";
+export type { MessageId } from "./ui/i18n.js";
+
 // Logger type export
 export type { LogLevel } from "./utils/logger.js";
 

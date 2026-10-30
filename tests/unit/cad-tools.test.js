@@ -11,6 +11,7 @@ import {
   PropertiesMeasurement,
 } from "../../src/tools/cad_tools/measure.js";
 import { SelectObject } from "../../src/tools/cad_tools/select.js";
+import { I18n } from "../../src/ui/i18n.js";
 import {
   FilterByDropDownMenu,
   DistancePanel,
@@ -76,6 +77,7 @@ function createMockDisplay() {
       reset: vi.fn(),
       show: vi.fn(),
     },
+    t: new I18n().t,
     // New interface properties
     measurementPanels: {
       distancePanel: distancePanel,
