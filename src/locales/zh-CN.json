@@ -53,7 +53,7 @@
   "tree": {
     "collapseSingles": {
       "label": "1",
-      "tooltip": "折叠仅含单个叶子的节点"
+      "tooltip": "折叠仅含单个叶节点的节点"
     },
     "expandRoot": {
       "label": "R",
@@ -309,7 +309,7 @@
     "face": "{{type}}: 面积 ≈ {{area}}"
   },
   "warning": {
-    "unresolvedTags": "无法解析的材质标签:{{tags}}"
+    "unresolvedTags": "无法解析的材质标签: {{tags}}"
   },
   "measure": {
     "distance": {
@@ -434,16 +434,16 @@
       "isolate": {
         "action": "隔离元素",
         "input": "<{{shift}}> + 双击 <鼠标左键>",
-        "inputTree": "<{{shift}}> + 点击导航树中的标签(嵌套)"
+        "inputTree": "<{{shift}}> + 点击导航树中的标签(含嵌套)"
       },
       "hide": {
         "action": "隐藏元素",
-        "input": "<{{meta}}> + 双击 <鼠标左键> 对象",
-        "inputTree": "<{{meta}}> + 点击树标签(嵌套)"
+        "input": "<{{meta}}> + 对对象双击 <鼠标左键>",
+        "inputTree": "<{{meta}}> + 点击导航树中的标签(含嵌套)"
       },
       "hideOthers": {
         "action": "隐藏其他元素",
-        "inputTree": "<{{shift}}> + <{{meta}}> + 点击树标签(嵌套)"
+        "inputTree": "<{{shift}}> + <{{meta}}> + 点击导航树中的标签(含嵌套)"
       },
       "cameraTarget": {
         "action": "设置相机目标",
@@ -454,7 +454,7 @@
       "title": "CAD 对象树",
       "collapseSingles": {
         "action": "折叠单叶节点",
-        "input": "按钮 '{{button}}'(所有仅有一个叶子的节点)"
+        "input": "按钮 '{{button}}'(所有仅有一个叶节点的节点)"
       },
       "expandRoot": {
         "action": "仅展开根节点",
@@ -477,7 +477,7 @@
       },
       "useCenter": {
         "action": "用中心代替最小距离",
-        "input": "<{{shift}}> + <鼠标左键> 用于第二次选择"
+        "input": "第二次选择时按 <{{shift}}> + <鼠标左键>"
       },
       "filter": {
         "action": "过滤对象类型",
