@@ -12,6 +12,10 @@ import {
   type StudioBackground,
   type StudioToneMapping,
   type StudioTextureMapping,
+  type StudioLighting,
+  type StudioFloorMode,
+  type StudioRadiosityQuality,
+  type StudioRadiosityEnvSampling,
   type Keymap,
   type StateChange,
   type StateSubscriber,
@@ -121,6 +125,14 @@ interface StudioModeDefaults {
   studioShadowIntensity: number;
   studioShadowSoftness: number;
   studioAOIntensity: number;
+  studioLighting: StudioLighting;
+  studioFloor: StudioFloorMode;
+  studioRadiosityQuality: StudioRadiosityQuality;
+  studioRadiosityDirections: number;
+  studioRadiositySamples: number;
+  studioRadiosityBias: number;
+  studioRadiosityBounce: number;
+  studioRadiosityEnvSampling: StudioRadiosityEnvSampling;
 }
 
 /**
@@ -242,6 +254,14 @@ const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
   "studioShadowIntensity",
   "studioShadowSoftness",
   "studioAOIntensity",
+  "studioLighting",
+  "studioFloor",
+  "studioRadiosityQuality",
+  "studioRadiosityDirections",
+  "studioRadiositySamples",
+  "studioRadiosityBias",
+  "studioRadiosityBounce",
+  "studioRadiosityEnvSampling",
   // Runtime
   "activeTool",
   "animationMode",
@@ -316,6 +336,14 @@ const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
   studioShadowIntensity: "studio_shadow_intensity",
   studioShadowSoftness: "studio_shadow_softness",
   studioAOIntensity: "studio_ao_intensity",
+  studioLighting: "studio_lighting",
+  studioFloor: "studio_floor",
+  studioRadiosityQuality: "studio_radiosity_quality",
+  studioRadiosityDirections: "studio_radiosity_directions",
+  studioRadiositySamples: "studio_radiosity_samples",
+  studioRadiosityBias: "studio_radiosity_bias",
+  studioRadiosityBounce: "studio_radiosity_bounce",
+  studioRadiosityEnvSampling: "studio_radiosity_env_sampling",
   // Animation/Explode slider (shared state, mutually exclusive modes)
   animationSliderValue: "relative_time",
 };
@@ -523,9 +551,17 @@ class ViewerState {
     // UVs use them; objects without UVs auto-fall back to triplanar.
     studioTextureMapping: "parametric",
     studioEnvRotation: 0,
-    studioShadowIntensity: 0.5,
+    studioShadowIntensity: 0.8,
     studioShadowSoftness: 0.2,
     studioAOIntensity: 0.5,
+    studioLighting: "radiosity",
+    studioFloor: "shadow",
+    studioRadiosityQuality: "high",
+    studioRadiosityDirections: 16,
+    studioRadiositySamples: 4000,
+    studioRadiosityBias: 1.5,
+    studioRadiosityBounce: 1,
+    studioRadiosityEnvSampling: "importance",
   };
 
   /**
@@ -744,6 +780,20 @@ class ViewerState {
       map.studioShadowSoftness = options.shadowSoftness;
     if (options.aoIntensity !== undefined)
       map.studioAOIntensity = options.aoIntensity;
+    if (options.lighting !== undefined) map.studioLighting = options.lighting;
+    if (options.floor !== undefined) map.studioFloor = options.floor;
+    if (options.radiosityQuality !== undefined)
+      map.studioRadiosityQuality = options.radiosityQuality;
+    if (options.radiosityDirections !== undefined)
+      map.studioRadiosityDirections = options.radiosityDirections;
+    if (options.radiositySamples !== undefined)
+      map.studioRadiositySamples = options.radiositySamples;
+    if (options.radiosityBias !== undefined)
+      map.studioRadiosityBias = options.radiosityBias;
+    if (options.radiosityBounce !== undefined)
+      map.studioRadiosityBounce = options.radiosityBounce;
+    if (options.radiosityEnvSampling !== undefined)
+      map.studioRadiosityEnvSampling = options.radiosityEnvSampling;
     this._update(map, false);
   }
 

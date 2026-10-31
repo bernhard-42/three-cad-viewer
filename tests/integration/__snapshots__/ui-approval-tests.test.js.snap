@@ -269,7 +269,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -329,7 +329,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "front": {
@@ -599,7 +599,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -659,7 +659,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "iso": {
@@ -929,7 +929,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -989,7 +989,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "left": {
@@ -1259,7 +1259,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -1319,7 +1319,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "rear": {
@@ -1589,7 +1589,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -1649,7 +1649,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "right": {
@@ -1919,7 +1919,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -1979,7 +1979,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "top": {
@@ -2249,7 +2249,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -2309,7 +2309,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -2584,7 +2584,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -2644,7 +2644,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "orthoState": {
@@ -2914,7 +2914,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -2974,7 +2974,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "perspectiveState": {
@@ -3244,7 +3244,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -3304,7 +3304,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Camera Control B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -3579,7 +3579,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -3639,7 +3639,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "materialsAdjusted": {
@@ -3909,7 +3909,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -3969,7 +3969,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "topView": {
@@ -4239,7 +4239,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -4299,7 +4299,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -5138,7 +5138,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -5198,7 +5198,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "step2": {
@@ -6032,7 +6032,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -6092,7 +6092,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "step3": {
@@ -6926,7 +6926,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -6986,7 +6986,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "step4": {
@@ -7820,7 +7820,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -7880,7 +7880,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "step5": {
@@ -8714,7 +8714,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -8774,7 +8774,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -9048,7 +9048,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -9108,7 +9108,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Complex UI Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -9382,7 +9382,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -9442,7 +9442,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "axesOnAgainState": {
@@ -9712,7 +9712,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -9772,7 +9772,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "axesOnState": {
@@ -10042,7 +10042,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -10102,7 +10102,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -10377,7 +10377,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -10437,7 +10437,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "toggledState": {
@@ -10707,7 +10707,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -10767,7 +10767,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -11042,7 +11042,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -11102,7 +11102,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "gridOnAgainState": {
@@ -11372,7 +11372,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -11432,7 +11432,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "gridOnState": {
@@ -11702,7 +11702,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -11762,7 +11762,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display Control 
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -12037,7 +12037,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -12097,7 +12097,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "before": {
@@ -12367,7 +12367,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -12427,7 +12427,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -12703,7 +12703,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           },
         ],
         "counts": {
-          "groups": 9,
+          "groups": 10,
           "helpers": 4,
           "lights": 2,
           "lines": 10,
@@ -12763,7 +12763,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "transparent": true,
           "type": "MeshStandardMaterial",
         },
-        "totalChildren": 7,
+        "totalChildren": 8,
       },
     },
     "stateUpdated": true,
@@ -13037,7 +13037,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           },
         ],
         "counts": {
-          "groups": 9,
+          "groups": 10,
           "helpers": 4,
           "lights": 2,
           "lines": 10,
@@ -13097,7 +13097,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "transparent": true,
           "type": "MeshStandardMaterial",
         },
-        "totalChildren": 7,
+        "totalChildren": 8,
       },
     },
     "stateUpdated": true,
@@ -13371,7 +13371,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           },
         ],
         "counts": {
-          "groups": 9,
+          "groups": 10,
           "helpers": 4,
           "lights": 2,
           "lines": 10,
@@ -13431,7 +13431,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "transparent": true,
           "type": "MeshStandardMaterial",
         },
-        "totalChildren": 7,
+        "totalChildren": 8,
       },
     },
     "stateUpdated": true,
@@ -13705,7 +13705,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           },
         ],
         "counts": {
-          "groups": 9,
+          "groups": 10,
           "helpers": 4,
           "lights": 2,
           "lines": 10,
@@ -13765,7 +13765,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Display-Viewer I
           "transparent": true,
           "type": "MeshStandardMaterial",
         },
-        "totalChildren": 7,
+        "totalChildren": 8,
       },
     },
     "stateUpdated": true,
@@ -14043,7 +14043,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -14103,7 +14103,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "blackEdgesOnState": {
@@ -14373,7 +14373,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -14433,7 +14433,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "initialState": {
@@ -14703,7 +14703,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -14763,7 +14763,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -15038,7 +15038,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -15098,7 +15098,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "opaqueState": {
@@ -15368,7 +15368,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -15428,7 +15428,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "transparentState": {
@@ -15698,7 +15698,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -15758,7 +15758,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Control
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -16033,7 +16033,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -16093,7 +16093,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "initialState": {
@@ -16363,7 +16363,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -16423,7 +16423,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -16698,7 +16698,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -16758,7 +16758,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "initialState": {
@@ -17028,7 +17028,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -17088,7 +17088,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -17363,7 +17363,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -17423,7 +17423,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "initialState": {
@@ -17693,7 +17693,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -17753,7 +17753,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -18028,7 +18028,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -18088,7 +18088,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "initialState": {
@@ -18358,7 +18358,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -18418,7 +18418,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Material Propert
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -19257,7 +19257,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -19317,7 +19317,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "explodedState": {
@@ -20151,7 +20151,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -20211,7 +20211,7 @@ exports[`UI-Level Approval Tests - Display/Viewer Integration > Rendering Mode B
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }

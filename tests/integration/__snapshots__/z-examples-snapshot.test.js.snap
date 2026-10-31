@@ -268,7 +268,7 @@ exports[`Examples - Snapshot Tests > box1 scene state snapshot 1`] = `
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -328,7 +328,7 @@ exports[`Examples - Snapshot Tests > box1 scene state snapshot 1`] = `
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -1165,7 +1165,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
       },
     ],
     "counts": {
-      "groups": 27,
+      "groups": 28,
       "helpers": 4,
       "lights": 2,
       "lines": 14,
@@ -1225,7 +1225,7 @@ exports[`Examples - Snapshot Tests > important snapshot for assembly > assembly-
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -1498,7 +1498,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_feet 
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -1558,7 +1558,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_feet 
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -1831,7 +1831,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_mm > 
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -1891,7 +1891,7 @@ exports[`Examples - Snapshot Tests > important snapshot for box_uncentered_mm > 
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -2458,7 +2458,7 @@ exports[`Examples - Snapshot Tests > important snapshot for boxes > boxes-scene 
       },
     ],
     "counts": {
-      "groups": 20,
+      "groups": 21,
       "helpers": 4,
       "lights": 2,
       "lines": 12,
@@ -2518,7 +2518,7 @@ exports[`Examples - Snapshot Tests > important snapshot for boxes > boxes-scene 
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -4933,7 +4933,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       },
     ],
     "counts": {
-      "groups": 81,
+      "groups": 82,
       "helpers": 4,
       "lights": 2,
       "lines": 25,
@@ -4993,7 +4993,7 @@ exports[`Examples - Snapshot Tests > important snapshot for hexapod > hexapod-sc
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -6136,7 +6136,7 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       },
     ],
     "counts": {
-      "groups": 40,
+      "groups": 41,
       "helpers": 4,
       "lights": 2,
       "lines": 16,
@@ -6196,7 +6196,7 @@ exports[`Examples - Snapshot Tests > important snapshot for linkage > linkage-sc
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -6469,7 +6469,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box > box-scene 1`] = `
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -6529,7 +6529,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box > box-scene 1`] = `
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -6802,7 +6802,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box1 > box1-scene 1`] = 
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -6862,7 +6862,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for box1 > box1-scene 1`] = 
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -7173,7 +7173,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for edges > edges-scene 1`] 
       },
     ],
     "counts": {
-      "groups": 10,
+      "groups": 11,
       "helpers": 4,
       "lights": 2,
       "lines": 11,
@@ -7233,7 +7233,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for edges > edges-scene 1`] 
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -7578,7 +7578,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
       },
     ],
     "counts": {
-      "groups": 10,
+      "groups": 11,
       "helpers": 4,
       "lights": 2,
       "lines": 11,
@@ -7638,7 +7638,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for faces > faces-scene 1`] 
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -7885,7 +7885,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for objs1d > objs1d-scene 1`
     ],
     "allMeshMaterials": [],
     "counts": {
-      "groups": 8,
+      "groups": 9,
       "helpers": 4,
       "lights": 2,
       "lines": 12,
@@ -7935,7 +7935,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for objs1d > objs1d-scene 1`
       "type": "LineMaterial",
     },
     "sampleMaterial": null,
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -8106,7 +8106,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-edges > single-ed
     ],
     "allMeshMaterials": [],
     "counts": {
-      "groups": 6,
+      "groups": 7,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -8156,7 +8156,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-edges > single-ed
       "type": "LineMaterial",
     },
     "sampleMaterial": null,
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -8363,7 +8363,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-faces > single-fa
       },
     ],
     "counts": {
-      "groups": 6,
+      "groups": 7,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -8423,7 +8423,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-faces > single-fa
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -8567,7 +8567,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-vertices > single
     ],
     "allMeshMaterials": [],
     "counts": {
-      "groups": 6,
+      "groups": 7,
       "helpers": 4,
       "lights": 2,
       "lines": 9,
@@ -8617,7 +8617,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for single-vertices > single
       "type": "LineDashedMaterial",
     },
     "sampleMaterial": null,
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -8902,7 +8902,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for vertices > vertices-scen
       },
     ],
     "counts": {
-      "groups": 10,
+      "groups": 11,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -8962,7 +8962,7 @@ exports[`Examples - Snapshot Tests > scene snapshot for vertices > vertices-scen
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;

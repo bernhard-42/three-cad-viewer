@@ -269,7 +269,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -329,7 +329,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "iso": {
@@ -599,7 +599,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -659,7 +659,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "right": {
@@ -929,7 +929,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -989,7 +989,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "top": {
@@ -1259,7 +1259,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -1319,7 +1319,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -1594,7 +1594,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -1654,7 +1654,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "resetState": {
@@ -1924,7 +1924,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -1984,7 +1984,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "zoomedInState": {
@@ -2254,7 +2254,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -2314,7 +2314,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "zoomedOutState": {
@@ -2584,7 +2584,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -2644,7 +2644,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -2919,7 +2919,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -2979,7 +2979,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "orthoState": {
@@ -3249,7 +3249,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -3309,7 +3309,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "perspectiveState": {
@@ -3579,7 +3579,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -3639,7 +3639,7 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -4478,7 +4478,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -4538,7 +4538,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "step2": {
@@ -5372,7 +5372,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -5432,7 +5432,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "step3": {
@@ -6266,7 +6266,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -6326,7 +6326,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "step4": {
@@ -7160,7 +7160,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -7220,7 +7220,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "step5": {
@@ -8054,7 +8054,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -8114,7 +8114,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -8389,7 +8389,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -8449,7 +8449,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "secondRender": {
@@ -8719,7 +8719,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -8779,7 +8779,7 @@ exports[`Approval Tests - User Interaction Workflows > Complex Multi-Step Workfl
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -9054,7 +9054,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -9114,7 +9114,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "axesOnAgainState": {
@@ -9384,7 +9384,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -9444,7 +9444,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "axesOnState": {
@@ -9714,7 +9714,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -9774,7 +9774,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -10049,7 +10049,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -10109,7 +10109,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "allOnAgainState": {
@@ -10379,7 +10379,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -10439,7 +10439,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "allOnState": {
@@ -10709,7 +10709,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -10769,7 +10769,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "xyOffState": {
@@ -11039,7 +11039,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -11099,7 +11099,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "xzOffState": {
@@ -11369,7 +11369,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -11429,7 +11429,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -11703,7 +11703,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -11763,7 +11763,7 @@ exports[`Approval Tests - User Interaction Workflows > Display Control Workflows
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -12037,7 +12037,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -12097,7 +12097,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "dimState": {
@@ -12367,7 +12367,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -12427,7 +12427,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "initialState": {
@@ -12697,7 +12697,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -12757,7 +12757,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -13032,7 +13032,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -13092,7 +13092,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "dimState": {
@@ -13362,7 +13362,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -13422,7 +13422,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "initialState": {
@@ -13692,7 +13692,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -13752,7 +13752,7 @@ exports[`Approval Tests - User Interaction Workflows > Lighting Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -14026,7 +14026,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
     ],
     "counts": {
-      "groups": 9,
+      "groups": 10,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -14086,7 +14086,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -14923,7 +14923,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
     ],
     "counts": {
-      "groups": 27,
+      "groups": 28,
       "helpers": 4,
       "lights": 2,
       "lines": 14,
@@ -14983,7 +14983,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -15820,7 +15820,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
     ],
     "counts": {
-      "groups": 27,
+      "groups": 28,
       "helpers": 4,
       "lights": 2,
       "lines": 14,
@@ -15880,7 +15880,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -16191,7 +16191,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
     ],
     "counts": {
-      "groups": 10,
+      "groups": 11,
       "helpers": 4,
       "lights": 2,
       "lines": 11,
@@ -16251,7 +16251,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -16536,7 +16536,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
     ],
     "counts": {
-      "groups": 10,
+      "groups": 11,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -16596,7 +16596,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -16881,7 +16881,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       },
     ],
     "counts": {
-      "groups": 10,
+      "groups": 11,
       "helpers": 4,
       "lights": 2,
       "lines": 10,
@@ -16941,7 +16941,7 @@ exports[`Approval Tests - User Interaction Workflows > Loading & Rendering Workf
       "transparent": true,
       "type": "MeshStandardMaterial",
     },
-    "totalChildren": 7,
+    "totalChildren": 8,
   },
 }
 `;
@@ -17215,7 +17215,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -17275,7 +17275,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "metalness_0.3": {
@@ -17545,7 +17545,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -17605,7 +17605,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "metalness_0.5": {
@@ -17875,7 +17875,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -17935,7 +17935,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "metalness_0.8": {
@@ -18205,7 +18205,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -18265,7 +18265,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "metalness_1": {
@@ -18535,7 +18535,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -18595,7 +18595,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -18870,7 +18870,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -18930,7 +18930,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "roughness_0.25": {
@@ -19200,7 +19200,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -19260,7 +19260,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "roughness_0.5": {
@@ -19530,7 +19530,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -19590,7 +19590,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "roughness_0.75": {
@@ -19860,7 +19860,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -19920,7 +19920,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "roughness_1": {
@@ -20190,7 +20190,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -20250,7 +20250,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -20525,7 +20525,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -20585,7 +20585,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "initialState": {
@@ -20855,7 +20855,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -20915,7 +20915,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -21190,7 +21190,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -21250,7 +21250,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "edgesOffState": {
@@ -21520,7 +21520,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -21580,7 +21580,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "edgesOnState": {
@@ -21850,7 +21850,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -21910,7 +21910,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -22749,7 +22749,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -22809,7 +22809,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "transparentState": {
@@ -23643,7 +23643,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -23703,7 +23703,7 @@ exports[`Approval Tests - User Interaction Workflows > Material Adjustment Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -24542,7 +24542,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -24602,7 +24602,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "hidden_1": {
@@ -25436,7 +25436,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -25496,7 +25496,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "initial": {
@@ -26330,7 +26330,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
       ],
       "counts": {
-        "groups": 27,
+        "groups": 28,
         "helpers": 4,
         "lights": 2,
         "lines": 14,
@@ -26390,7 +26390,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }
@@ -26665,7 +26665,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -26725,7 +26725,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "shownState": {
@@ -26995,7 +26995,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -27055,7 +27055,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
   "visibleState": {
@@ -27325,7 +27325,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         },
       ],
       "counts": {
-        "groups": 9,
+        "groups": 10,
         "helpers": 4,
         "lights": 2,
         "lines": 10,
@@ -27385,7 +27385,7 @@ exports[`Approval Tests - User Interaction Workflows > Object Manipulation Workf
         "transparent": true,
         "type": "MeshStandardMaterial",
       },
-      "totalChildren": 7,
+      "totalChildren": 8,
     },
   },
 }

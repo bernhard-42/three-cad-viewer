@@ -773,6 +773,13 @@ class NestedGroup {
         new THREE.BufferAttribute(normals, 3),
       );
       shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
+      // Face grouping of the triangle list, kept for the Studio radiosity
+      // lightmap charts (one chart per B-rep face).
+      if (shape.triangles_per_face && shape.triangles_per_face.length > 0) {
+        shapeGeometry.userData.trianglesPerFace = this._toUint32Array(
+          shape.triangles_per_face,
+        );
+      }
       if (shape.uvs && shape.uvs.length > 0) {
         const uvArray =
           shape.uvs instanceof Float32Array

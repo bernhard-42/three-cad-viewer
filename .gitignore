@@ -11,3 +11,6 @@ ANALYSIS
 coverage/
 working-docs
 .DS_Store
+
+# local screenshots (not committed)
+screenshots/

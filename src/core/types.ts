@@ -60,6 +60,28 @@ export type StudioBackground =
 /** Studio texture mapping mode */
 export type StudioTextureMapping = "triplanar" | "parametric";
 
+/**
+ * Studio lighting pipeline.
+ * - "radiosity": progressive lightmap global illumination from the environment
+ *   (soft contact-hardening shadows, ground occlusion and colour bleeding)
+ * - "shadowmap": directional shadow map with screen-space blur (legacy)
+ */
+export type StudioLighting = "radiosity" | "shadowmap";
+
+/**
+ * Studio ground plane (radiosity lighting only).
+ * - "shadow": invisible shadow catcher on top of the background
+ * - "grid": opaque floor with a world-unit grid
+ * - "none": no floor
+ */
+export type StudioFloorMode = "shadow" | "grid" | "none";
+
+/** Radiosity lightmap quality (atlas size, illumination tile size, gather kernel). */
+export type StudioRadiosityQuality = "low" | "medium" | "high";
+
+/** How radiosity draws its global directions. */
+export type StudioRadiosityEnvSampling = "importance" | "uniform";
+
 /** Shape type */
 export type ShapeType = "shapes" | "edges" | "vertices";
 
@@ -428,6 +450,22 @@ export interface StudioModeOptions {
   studioShadowSoftness?: number;
   /** Ambient occlusion intensity, 0-3.0 (default: 0 = off) */
   studioAOIntensity?: number;
+  /** Lighting pipeline: "radiosity" (default) or "shadowmap" */
+  studioLighting?: StudioLighting;
+  /** Ground plane for radiosity lighting (default: "shadow") */
+  studioFloor?: StudioFloorMode;
+  /** Radiosity quality preset (default: "high") */
+  studioRadiosityQuality?: StudioRadiosityQuality;
+  /** Radiosity directions per bounce: 1, 4, 9 or 16 (default: 16) */
+  studioRadiosityDirections?: number;
+  /** Radiosity samples (accumulated directions) before refinement stops, at most 4000; 0 = unlimited (default: 4000) */
+  studioRadiositySamples?: number;
+  /** Radiosity self-intersection bias in illumination texels (default: 1.5) */
+  studioRadiosityBias?: number;
+  /** Radiosity indirect bounce strength, 0-2 (default: 1) */
+  studioRadiosityBounce?: number;
+  /** Radiosity direction sampling: "importance" (default) or "uniform" */
+  studioRadiosityEnvSampling?: StudioRadiosityEnvSampling;
 }
 
 /** Combined options for initialization */
@@ -522,6 +560,14 @@ export interface ViewerStateShape {
   studioShadowIntensity: number;
   studioShadowSoftness: number;
   studioAOIntensity: number;
+  studioLighting: StudioLighting;
+  studioFloor: StudioFloorMode;
+  studioRadiosityQuality: StudioRadiosityQuality;
+  studioRadiosityDirections: number;
+  studioRadiositySamples: number;
+  studioRadiosityBias: number;
+  studioRadiosityBounce: number;
+  studioRadiosityEnvSampling: StudioRadiosityEnvSampling;
 
   // Runtime
   activeTool: string | null;
@@ -747,6 +793,22 @@ export interface StudioOptions {
   shadowSoftness?: number;
   /** Ambient occlusion intensity, 0-3.0 (default: 0 = off) */
   aoIntensity?: number;
+  /** Lighting pipeline: "radiosity" (default) or "shadowmap" */
+  lighting?: StudioLighting;
+  /** Ground plane for radiosity lighting: "shadow" (default), "grid" or "none" */
+  floor?: StudioFloorMode;
+  /** Radiosity quality preset: "low", "medium" or "high" (default) */
+  radiosityQuality?: StudioRadiosityQuality;
+  /** Radiosity directions per bounce: 1, 4, 9 or 16 (default: 16) */
+  radiosityDirections?: number;
+  /** Radiosity samples (accumulated directions) before refinement stops, at most 4000; 0 = unlimited (default: 4000) */
+  radiositySamples?: number;
+  /** Radiosity self-intersection bias in illumination texels (default: 1.5) */
+  radiosityBias?: number;
+  /** Radiosity indirect bounce strength, 0-2 (default: 1) */
+  radiosityBounce?: number;
+  /** Radiosity direction sampling: "importance" (default) or "uniform" */
+  radiosityEnvSampling?: StudioRadiosityEnvSampling;
 }
 
 // =============================================================================

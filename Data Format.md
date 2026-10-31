@@ -757,9 +757,17 @@ Controls camera, grid, clipping, and controls.
 | `studio4kEnvMaps`       | `boolean`                                   | `false`                 | Use 4K environment maps.                                                                      |
 | `studioTextureMapping`  | `"triplanar" \| "parametric"`               | `"triplanar"`           | Studio texture mapping mode.                                                                  |
 | `studioEnvRotation`     | `number`                                    | `0`                     | Studio environment rotation (0--360 degrees).                                                 |
-| `studioShadowIntensity` | `number`                                    | `0.5`                   | Studio shadow intensity (0--1). `0` = off.                                                    |
+| `studioShadowIntensity` | `number`                                    | `0.8`                   | Studio shadow intensity (0--1). `0` = off. With radiosity, `1` is the physical result.        |
 | `studioShadowSoftness`  | `number`                                    | `0.2`                   | Studio shadow softness (0--1).                                                                |
-| `studioAOIntensity`     | `number`                                    | `0.5`                   | Studio ambient occlusion intensity (0--3). `0` = off.                                         |
+| `studioAOIntensity`     | `number`                                    | `0.5`                   | Studio screen-space ambient occlusion intensity (0--3); radius is 8 % of the model extent. `0` = off. |
+| `studioLighting`        | `"radiosity" \| "shadowmap"`               | `"radiosity"`           | Studio lighting: progressive lightmap global illumination, or a directional shadow map.       |
+| `studioFloor`           | `"shadow" \| "grid" \| "none"`             | `"shadow"`              | Studio ground plane (radiosity only): shadow catcher, opaque grid floor, or none.             |
+| `studioRadiosityQuality`| `"low" \| "medium" \| "high"`              | `"high"`                | Radiosity lightmap quality (atlas size, illumination tile size, gather kernel).               |
+| `studioRadiosityDirections` | `number`                                | `16`                    | Radiosity directions rasterized per bounce: 1, 4, 9 or 16 (array camera tiles).               |
+| `studioRadiositySamples` | `number`                                   | `4000`                  | Radiosity samples (bounces × directions) before refinement stops (max 4000); `0` keeps refining while Studio is active. |
+| `studioRadiosityBias`   | `number`                                    | `1.5`                   | Radiosity self-intersection bias in illumination texels (0--4).                               |
+| `studioRadiosityBounce` | `number`                                    | `1.0`                   | Radiosity indirect bounce strength (0--2); `0` = direct environment light only.               |
+| `studioRadiosityEnvSampling` | `"importance" \| "uniform"`           | `"importance"`          | Radiosity direction sampling: half env-importance + half uniform (balance heuristic), or uniform only. |
 
 > **Conceptual split:** Viewer Options describe the _studio_ (lighting, backdrop, camera
 > processing) — things independent of the objects being viewed. Shape data describes the
