@@ -1639,6 +1639,8 @@ class Viewer {
     // Disable keyboard controls (these properties exist on THREE.js controls internally)
     controls.controls.enableKeys = false;
 
+    controls.setCursorPivot(this.state.get("cursorPivot"), this._pickPivot);
+
     // ensure panning works for screen coordinates (only exists on OrbitControls)
     if ("screenSpacePanning" in controls.controls) {
       controls.controls.screenSpacePanning = true;
@@ -4279,6 +4281,30 @@ class Viewer {
     this.state.set("holroyd", flag, notify);
     this.rendered.controls.setHolroydTrackball(flag);
   };
+
+  /**
+   * Get cursor pivot mode.
+   * @returns cursor pivot flag.
+   */
+  getCursorPivot(): boolean {
+    return this.state.get("cursorPivot");
+  }
+
+  /**
+   * Set cursor pivot mode: orbit around and zoom towards the point under the
+   * cursor. Orbit controls only; trackball controls ignore it.
+   * @param flag - whether to enable cursor pivot mode.
+   * @param notify - whether to send notification or not.
+   */
+  setCursorPivot = (flag: boolean, notify: boolean = true): void => {
+    this.state.set("cursorPivot", flag, notify);
+    this.rendered.controls.setCursorPivot(flag, this._pickPivot);
+  };
+
+  private _pickPivot = (
+    clientX: number,
+    clientY: number,
+  ): THREE.Vector3 | null => this.pickingController.pointAt(clientX, clientY);
 
   // ---------------------------------------------------------------------------
   // Clipping Planes

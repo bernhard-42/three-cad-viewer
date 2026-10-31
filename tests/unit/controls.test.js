@@ -665,6 +665,86 @@ describe("CADOrbitControls", () => {
     });
   });
 
+  describe("cursor pivot", () => {
+    const startRotate = (x = 100, y = 200) =>
+      controls._onMouseDown(
+        new MouseEvent("pointerdown", { button: 0, clientX: x, clientY: y }),
+      );
+
+    const onScreen = (point) => {
+      camera.updateMatrixWorld();
+      return point.clone().project(camera);
+    };
+
+    test("a rotate drag asks the picker for the pivot at the pointer", () => {
+      controls = new CADOrbitControls(camera, domElement);
+      controls.pivotPicker = vi.fn(() => null);
+
+      startRotate(100, 200);
+
+      expect(controls.pivotPicker).toHaveBeenCalledWith(100, 200);
+    });
+
+    test("orbits around the picked point, which stays fixed on screen", () => {
+      controls = new CADOrbitControls(camera, domElement);
+      const pivot = new THREE.Vector3(3, 2, 0);
+      controls.pivotPicker = () => pivot.clone();
+      const before = onScreen(pivot);
+      const distance = camera.position.distanceTo(pivot);
+
+      startRotate();
+      controls.rotateLeft(0.4);
+      controls.rotateUp(0.3);
+      controls.update();
+
+      const after = onScreen(pivot);
+      expect(after.x).toBeCloseTo(before.x);
+      expect(after.y).toBeCloseTo(before.y);
+      expect(camera.position.distanceTo(pivot)).toBeCloseTo(distance);
+      expect(controls.target.length()).toBeGreaterThan(0.1);
+    });
+
+    test("the change event sees the corrected camera", () => {
+      controls = new CADOrbitControls(camera, domElement);
+      const pivot = new THREE.Vector3(3, 2, 0);
+      controls.pivotPicker = () => pivot.clone();
+      const before = onScreen(pivot);
+      const seen = [];
+      controls.addEventListener("change", () => seen.push(onScreen(pivot)));
+
+      startRotate();
+      controls.rotateLeft(0.4);
+      controls.update();
+
+      expect(seen).toHaveLength(1);
+      expect(seen[0].x).toBeCloseTo(before.x);
+      expect(seen[0].y).toBeCloseTo(before.y);
+    });
+
+    test("without a hit it orbits around the target", () => {
+      controls = new CADOrbitControls(camera, domElement);
+      controls.pivotPicker = () => null;
+
+      startRotate();
+      controls.rotateLeft(0.4);
+      controls.update();
+
+      expect(controls.target.length()).toBeCloseTo(0);
+    });
+
+    test("pointerup clears the pivot", () => {
+      controls = new CADOrbitControls(camera, domElement);
+      controls.pivotPicker = () => new THREE.Vector3(3, 2, 0);
+
+      startRotate();
+      domElement.dispatchEvent(new PointerEvent("pointerup"));
+      controls.rotateLeft(0.4);
+      controls.update();
+
+      expect(controls.target.length()).toBeCloseTo(0);
+    });
+  });
+
   describe("dispose", () => {
     test("removes event listeners", () => {
       controls = new CADOrbitControls(camera, domElement);
@@ -884,6 +964,33 @@ describe("Controls", () => {
       controls.setHolroydTrackball(false);
 
       expect(controls.controls.holroyd).toBe(false);
+    });
+  });
+
+  describe("setCursorPivot", () => {
+    test("turns on zoom to cursor and the pivot picker for orbit controls", () => {
+      controls = new Controls("orbit", camera, new THREE.Vector3(), domElement);
+      const picker = () => null;
+
+      controls.setCursorPivot(true, picker);
+      expect(controls.controls.zoomToCursor).toBe(true);
+      expect(controls.controls.pivotPicker).toBe(picker);
+
+      controls.setCursorPivot(false, picker);
+      expect(controls.controls.zoomToCursor).toBe(false);
+      expect(controls.controls.pivotPicker).toBe(null);
+    });
+
+    test("is ignored by trackball controls", () => {
+      controls = new Controls(
+        "trackball",
+        camera,
+        new THREE.Vector3(),
+        domElement,
+      );
+
+      expect(() => controls.setCursorPivot(true, () => null)).not.toThrow();
+      expect(controls.controls.pivotPicker).toBeUndefined();
     });
   });
 

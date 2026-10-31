@@ -360,6 +360,8 @@ export interface ViewerOptions extends StudioModeOptions {
   clipSlider2?: number;
   /** Holroyd mode for controls (default: true) */
   holroyd?: boolean;
+  /** Orbit around and zoom towards the point under the cursor (orbit controls only, default: false) */
+  cursorPivot?: boolean;
   /** Up direction (default: "Z") */
   up?: UpDirection;
   /** Hint for the number of grid ticks (default: 10) */
@@ -494,6 +496,7 @@ export interface ViewerStateShape {
   clipSlider2: number;
   control: ControlType;
   holroyd: boolean;
+  cursorPivot: boolean;
   up: UpDirection;
   ticks: number;
   gridFontSize: number;

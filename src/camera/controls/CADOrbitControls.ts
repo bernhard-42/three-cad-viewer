@@ -5,6 +5,8 @@
  * - Public rotateLeft/rotateUp methods for programmatic rotation
  * - Quaternion-based saveState/reset
  * - Modifier key rotation restrictions (ctrl: vertical only, meta: horizontal only)
+ * - Optional pivot under the cursor: a rotate drag that starts on geometry orbits
+ *   around the picked surface point (see {@link CADOrbitControls.pivotPicker})
  *
  * Internal OrbitControls methods/properties used (see three-augmentation.d.ts):
  * - _onMouseDown: Replaced to customize modifier key behavior (shift=pan, ctrl/meta=rotate with axis lock)
@@ -17,6 +19,8 @@
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { MOUSE, Quaternion, Vector3, Camera } from "three";
+import type { BaseEvent } from "three";
+import type { OrbitControlsEventMap } from "three/examples/jsm/controls/OrbitControls.js";
 import {
   KeyMapper,
   isOrthographicCamera,
@@ -31,12 +35,30 @@ const STATE = {
   PAN: 2,
 };
 
+/**
+ * Resolves the world-space point under a client (page viewport) coordinate, or
+ * `null` when there is no visible geometry there.
+ */
+type PivotPicker = (clientX: number, clientY: number) => Vector3 | null;
+
+// Reusable objects for the pivot correction in update()
+const _quaternionBefore = new Quaternion();
+const _pivotOffset = new Vector3();
+const _pivotShift = new Vector3();
+
 class CADOrbitControls extends OrbitControls {
   quaternion0: Quaternion;
   private _horizontalRotate: boolean;
   private _verticalRotate: boolean;
   private _onCADPointerDown?: (event: PointerEvent) => void;
   private _onCADPointerUp?: () => void;
+  /**
+   * Picks the rotation pivot when a rotate drag starts. `null` (the default)
+   * keeps the classic behavior of orbiting around `target`.
+   */
+  pivotPicker: PivotPicker | null = null;
+  private _pivot: Vector3 | null = null;
+  private _muteChange = false;
 
   // Expose internal properties for type safety
   declare state: number;
@@ -44,6 +66,8 @@ class CADOrbitControls extends OrbitControls {
   declare zoom0: number;
   declare target0: Vector3;
   declare position0: Vector3;
+  declare _lastPosition: Vector3;
+  declare _lastTargetPosition: Vector3;
   declare _onMouseDown: (event: MouseEvent) => void;
   declare _handleMouseDownRotate: (event: MouseEvent) => void;
   declare _handleMouseDownDolly: (event: MouseEvent) => void;
@@ -97,6 +121,17 @@ class CADOrbitControls extends OrbitControls {
   private _handleCADPointerUp(): void {
     this._horizontalRotate = true;
     this._verticalRotate = true;
+    this._pivot = null;
+  }
+
+  /**
+   * Pick the pivot for a rotate drag that is starting at `event`. Off geometry,
+   * or without a picker, the drag orbits around `target` as usual.
+   */
+  private _startRotate(event: MouseEvent): void {
+    this._pivot = this.pivotPicker?.(event.clientX, event.clientY) ?? null;
+    this._handleMouseDownRotate(event);
+    this.state = STATE.ROTATE;
   }
 
   /**
@@ -152,8 +187,7 @@ class CADOrbitControls extends OrbitControls {
         } else {
           // ctrl and meta are handled for rotation restriction in _handleCADPointerDown
           if (this.enableRotate === false) return;
-          this._handleMouseDownRotate(event);
-          this.state = STATE.ROTATE;
+          this._startRotate(event);
         }
         break;
 
@@ -165,8 +199,7 @@ class CADOrbitControls extends OrbitControls {
           KeyMapper.get(event, "shift")
         ) {
           if (this.enableRotate === false) return;
-          this._handleMouseDownRotate(event);
-          this.state = STATE.ROTATE;
+          this._startRotate(event);
         } else {
           if (this.enablePan === false) return;
           this._handleMouseDownPan(event);
@@ -195,6 +228,55 @@ class CADOrbitControls extends OrbitControls {
     if (this._verticalRotate) {
       this._sphericalDelta.phi -= angle;
     }
+  }
+
+  /**
+   * Orbit around the picked pivot instead of `target`.
+   *
+   * OrbitControls always rotates the camera around `target` and looks at it, so
+   * pointing `target` at the pivot would snap the view. Instead, let the parent
+   * rotate around `target`, then translate camera and target together so the
+   * rotation is effectively about the pivot: with q the rotation just applied
+   * and r = target - pivot, the shift is q·r - r. The pivot stays fixed on
+   * screen and `target` drifts with it.
+   *
+   * The parent dispatches "change" before the shift is applied, which would
+   * render the uncorrected frame, so it is muted and re-dispatched after.
+   */
+  update(deltaTime: number | null = null): boolean {
+    const pivot = this._pivot;
+    if (pivot === null || this.state !== STATE.ROTATE) {
+      return super.update(deltaTime);
+    }
+
+    _quaternionBefore.copy(this.object.quaternion).invert();
+    _pivotOffset.subVectors(this.target, pivot);
+
+    this._muteChange = true;
+    let changed: boolean;
+    try {
+      changed = super.update(deltaTime);
+    } finally {
+      this._muteChange = false;
+    }
+
+    _quaternionBefore.premultiply(this.object.quaternion);
+    _pivotShift.copy(_pivotOffset).applyQuaternion(_quaternionBefore);
+    _pivotShift.sub(_pivotOffset);
+    this.object.position.add(_pivotShift);
+    this.target.add(_pivotShift);
+    this._lastPosition.copy(this.object.position);
+    this._lastTargetPosition.copy(this.target);
+
+    if (changed) this.dispatchEvent({ type: "change" });
+    return changed;
+  }
+
+  dispatchEvent<T extends Extract<keyof OrbitControlsEventMap, string>>(
+    event: BaseEvent<T> & OrbitControlsEventMap[T],
+  ): void {
+    if (this._muteChange && event.type === "change") return;
+    super.dispatchEvent(event);
   }
 
   /**
@@ -244,3 +326,4 @@ class CADOrbitControls extends OrbitControls {
 }
 
 export { CADOrbitControls };
+export type { PivotPicker };
