@@ -974,9 +974,32 @@ class Display {
    * @param path - The object's path in the tree.
    * @param name - The object's name.
    * @param bb - The bounding box to display.
+   * @param component - The picked face or edge inside the object when the box
+   *   is the component's (e.g. "faces/faces_3"), else null.
    */
-  showBoundingBoxInfo(path: string, name: string, bb: THREE.Box3): void {
-    this._info.bbInfo(path, name, bb);
+  showBoundingBoxInfo(
+    path: string,
+    name: string,
+    bb: THREE.Box3,
+    component: string | null = null,
+  ): void {
+    this._info.bbInfo(path, name, bb, component);
+  }
+
+  /**
+   * Display the position of a picked vertex.
+   * @param path - The object's path in the tree.
+   * @param name - The object's name.
+   * @param component - The vertex inside the object, e.g. "vertices/vertices_2".
+   * @param point - The vertex's world position.
+   */
+  showPointInfo(
+    path: string,
+    name: string,
+    component: string | null,
+    point: Vector3Tuple,
+  ): void {
+    this._info.pointInfo(path, name, component, point);
   }
 
   // ---------------------------------------------------------------------------

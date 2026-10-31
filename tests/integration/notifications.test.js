@@ -1811,29 +1811,36 @@ describe("Pick/Click Notifications", () => {
     const box1Data = await loadExample("box1");
     viewer.render(box1Data, renderOptions, viewerOptions);
 
-    // We can't easily simulate a click, but we can verify the checkChanges format
-    // by calling it directly with the expected structure
+    // A pick in the tree (the double-click is covered in double-click-pick.test.js)
     collector.notifications.length = 0;
-    viewer.lastNotification = {}; // Clear to force notification
-
-    viewer.checkChanges({
-      lastPick: {
-        path: "/test/path",
-        name: "TestObject",
-        boundingBox: { min: [0, 0, 0], max: [1, 1, 1] },
-        boundingSphere: { center: [0.5, 0.5, 0.5], radius: 0.866 },
-      },
-    });
+    viewer.handlePick(
+      "/Group",
+      "Workplane(Solid)",
+      false,
+      false,
+      false,
+      null,
+      "leaf",
+      true,
+    );
 
     const notification = getLastNotificationWithKey(
       collector.notifications,
       "lastPick",
     );
     expect(notification).toBeDefined();
-    expect(notification.lastPick.new).toHaveProperty("path");
-    expect(notification.lastPick.new).toHaveProperty("name");
-    expect(notification.lastPick.new).toHaveProperty("boundingBox");
-    expect(notification.lastPick.new).toHaveProperty("boundingSphere");
+    expect(Object.keys(notification.lastPick.new).sort()).toEqual([
+      "boundingBox",
+      "boundingSphere",
+      "component",
+      "name",
+      "path",
+      "point",
+    ]);
+    expect(notification.lastPick.new.path).toBe("/Group");
+    expect(notification.lastPick.new.name).toBe("Workplane(Solid)");
+    expect(notification.lastPick.new.component).toBe("/Group/Workplane(Solid)");
+    expect(notification.lastPick.new.point).toBeNull();
   });
 });
 

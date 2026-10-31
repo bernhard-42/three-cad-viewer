@@ -215,9 +215,107 @@ class BoxHelper extends THREE.LineSegments {
   }
 }
 
+/**
+ * Stand-in object for one face, edge or vertex inside a solid, which has no object
+ * of its own (it shares the solid's merged geometry). Holds the component's points
+ * in the solid's local space and takes the solid's current world matrix whenever it
+ * is measured, so a {@link BoxHelper} around it follows animation and explode.
+ * Never added to the scene.
+ */
+class ComponentProxy extends THREE.Points {
+  readonly source: THREE.Object3D;
+
+  /**
+   * @param points - The component's points (xyz triples) in the local space of `source`.
+   * @param source - The object whose `matrixWorld` maps the points into world space.
+   */
+  constructor(points: Float32Array, source: THREE.Object3D) {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(points, 3));
+    super(geometry);
+    this.source = source;
+    this.matrixAutoUpdate = false;
+  }
+
+  /** Whether the component is a single point (a vertex). */
+  get isPoint(): boolean {
+    return this.geometry.getAttribute("position").count === 1;
+  }
+
+  /** Take the source's current world matrix (called by every measurement). */
+  override updateWorldMatrix(): void {
+    this.source.updateWorldMatrix(true, false);
+    this.matrixWorld.copy(this.source.matrixWorld);
+  }
+
+  dispose(): void {
+    this.geometry.dispose();
+    (this.material as THREE.Material).dispose();
+  }
+}
+
+/**
+ * Marker for a picked vertex, where a box would have size zero: a fixed-size point
+ * drawn on top of the model, following the vertex through animation and explode.
+ */
+class PointMarker extends THREE.Points {
+  declare type: "PointMarker";
+  readonly proxy: ComponentProxy;
+
+  constructor(proxy: ComponentProxy, color: number = 0xffff00) {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(new Float32Array(3), 3),
+    );
+    super(
+      geometry,
+      new THREE.PointsMaterial({
+        color: color,
+        size: 9,
+        sizeAttenuation: false,
+        depthTest: false,
+        // The CAD face materials are transparent, so they are drawn after every
+        // opaque object and would cover an opaque marker; in the transparent pass
+        // the high renderOrder draws the marker last.
+        transparent: true,
+        toneMapped: false,
+      }),
+    );
+    this.type = "PointMarker";
+    this.proxy = proxy;
+    this.matrixAutoUpdate = false;
+    this.renderOrder = 999;
+    this.update();
+  }
+
+  /** World position of the vertex. */
+  point(): THREE.Vector3 {
+    this.proxy.updateWorldMatrix();
+    const local = this.proxy.geometry.getAttribute("position");
+    return new THREE.Vector3()
+      .fromBufferAttribute(local, 0)
+      .applyMatrix4(this.proxy.matrixWorld);
+  }
+
+  /** Move the marker to the vertex's current world position. */
+  update(): void {
+    const p = this.point();
+    const position = this.geometry.getAttribute("position");
+    position.setXYZ(0, p.x, p.y, p.z);
+    position.needsUpdate = true;
+    this.geometry.computeBoundingSphere();
+  }
+
+  dispose(): void {
+    disposeGeometry(this.geometry);
+    (this.material as THREE.Material).dispose();
+  }
+}
+
 const _vector3 = new THREE.Vector3();
 const _bbox = new BoundingBox();
 const _hbox = new BoundingBox();
 const _sphere = new THREE.Sphere();
 
-export { BoundingBox, BoxHelper };
+export { BoundingBox, BoxHelper, ComponentProxy, PointMarker };

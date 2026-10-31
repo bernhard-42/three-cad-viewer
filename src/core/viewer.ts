@@ -43,14 +43,22 @@ import type { ShapeTreeData, RenderResult } from "../scene/render-shape.js";
 import type { KeyMappingConfig } from "../utils/utils.js";
 import { Controls } from "../camera/controls.js";
 import { Camera, type CameraDirection } from "../camera/camera.js";
-import { BoundingBox, BoxHelper } from "../scene/bbox.js";
+import {
+  BoundingBox,
+  BoxHelper,
+  ComponentProxy,
+  PointMarker,
+} from "../scene/bbox.js";
 import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
 import { MeshMeasureBackend } from "../tools/cad_tools/mesh-measure.js";
 import { version } from "../_version.js";
 import { IdPicker, clipSignature } from "../rendering/id-picking.js";
 import { CapOutlinePass } from "../rendering/cap-outline.js";
 import { type PickedComponent } from "../rendering/picked.js";
-import { PickingController } from "./picking-controller.js";
+import {
+  PickingController,
+  type PickedComponentRef,
+} from "./picking-controller.js";
 import { StudioManager } from "./studio-manager.js";
 import { ViewerState } from "./viewer-state.js";
 import { logger } from "../utils/logger.js";
@@ -112,8 +120,14 @@ interface MaterialSettings {
  * Bounding box tracking for the last selected object.
  */
 interface LastBboxInfo {
+  /** Tree leaf of the pick. */
   id: string;
-  bbox: BoxHelper;
+  /** What the box wraps: the picked component, or the leaf for an object box. */
+  component: string;
+  /** The box, or the marker of a picked vertex. */
+  bbox: BoxHelper | PointMarker;
+  /** Stand-in for a component inside a solid, else null. */
+  proxy: ComponentProxy | null;
   needsUpdate: boolean;
 }
 
@@ -853,14 +867,16 @@ class Viewer {
    * Creates ChangeNotification object if new value != old value and sends change notifications via viewer.notifyCallback.
    * @param changes - change information.
    * @param notify - whether to send notification or not.
+   * @param force - send the changes even when they equal the last values.
    */
   checkChanges = (
     changes: Record<string, unknown>,
     notify: boolean = true,
+    force: boolean = false,
   ): void => {
     const changed: Record<string, StateChange<unknown>> = {};
     Object.keys(changes).forEach((key) => {
-      if (!isEqual(this.lastNotification[key], changes[key])) {
+      if (force || !isEqual(this.lastNotification[key], changes[key])) {
         const change = structuredClone(changes[key]);
         changed[key] = {
           new: change,
@@ -2209,30 +2225,11 @@ class Viewer {
   setBoundingBox = (id: string): void => {
     const group = this.rendered.nestedGroup.groups[id];
     if (group != null) {
-      if (this.lastBbox != null) {
-        this.rendered.scene.remove(this.lastBbox.bbox);
-        this.lastBbox.bbox.geometry.dispose();
-        const mat = this.lastBbox.bbox.material;
-        if (Array.isArray(mat)) {
-          mat.forEach((m) => m.dispose());
-        } else {
-          mat.dispose();
-        }
+      const toggleOff = this.lastBbox != null && id === this.lastBbox.id;
+      this.removeLastBbox();
+      if (!toggleOff) {
+        this.showPickBox(id, id, group, null);
       }
-      if (
-        this.lastBbox == null ||
-        (this.lastBbox != null && id !== this.lastBbox.id)
-      ) {
-        this.lastBbox = {
-          id: id,
-          bbox: new BoxHelper(group, 0xff00ff),
-          needsUpdate: false,
-        };
-        this.rendered.scene.add(this.lastBbox.bbox);
-      } else {
-        this.lastBbox = null;
-      }
-
       this.update(false, false);
     }
   };
@@ -2322,8 +2319,64 @@ class Viewer {
     if (this.lastBbox != null) {
       this.rendered.scene.remove(this.lastBbox.bbox);
       this.lastBbox.bbox.dispose();
+      (this.lastBbox.bbox.material as THREE.Material).dispose();
+      this.lastBbox.proxy?.dispose();
       this.lastBbox = null;
     }
+  }
+
+  /**
+   * Show the pick box: around `proxy` (a component inside a solid; a marker for a
+   * vertex) or else around the leaf's `group`. Replaces the current box.
+   * @param id - The tree leaf of the pick.
+   * @param component - What the box wraps (the leaf id for an object box).
+   */
+  private showPickBox(
+    id: string,
+    component: string,
+    group: THREE.Object3D,
+    proxy: ComponentProxy | null,
+  ): void {
+    this.removeLastBbox();
+    let bbox: BoxHelper | PointMarker;
+    if (proxy === null) {
+      bbox = new BoxHelper(group, 0xff00ff);
+    } else if (proxy.isPoint) {
+      bbox = new PointMarker(proxy, 0xff00ff);
+    } else {
+      bbox = new BoxHelper(proxy, 0xff00ff);
+    }
+    this.lastBbox = { id, component, bbox, proxy, needsUpdate: false };
+    this.rendered.scene.add(bbox);
+  }
+
+  /**
+   * Stand-in for a picked face, edge or vertex inside a solid, so it gets a box of
+   * its own. `null` for everything boxed as a whole object: tree picks, solid mode,
+   * standalone leaves, and models without captured mesh geometry.
+   */
+  private componentProxy(
+    component: PickedComponentRef | null,
+  ): ComponentProxy | null {
+    if (component === null || !component.inSolid) return null;
+    const found = this.rendered.nestedGroup.meshGeometry.componentPoints(
+      component.path,
+    );
+    if (found === null) return null;
+    return new ComponentProxy(found.points, found.object);
+  }
+
+  /**
+   * Whether picked points are positions on the model: not while parts may be
+   * displaced from their model positions — explode mode, an animation that was
+   * played or scrubbed and not stopped since (Stop puts the parts back), a z-scale
+   * other than 1.
+   */
+  private pointsOnModel(): boolean {
+    const mode = this.state.get("animationMode");
+    if (mode === "explode") return false;
+    if (mode === "animation" && this._animationStarted) return false;
+    return this.zScale === undefined || this.zScale === 1;
   }
 
   /**
@@ -2332,20 +2385,22 @@ class Viewer {
    * @param name - name of object (id = path/name)
    * @param meta - meta key pressed
    * @param shift - shift key pressed
-   * @param alt - alt key pressed
+   * @param _alt - alt key pressed (acts like a plain pick)
    * @param point - picked point
    * @param nodeType - node type
    * @param tree - whether from tree
+   * @param component - the component a double-click picked (null for tree picks)
    */
   handlePick = (
     path: string,
     name: string,
     meta: boolean,
     shift: boolean,
-    alt: boolean,
+    _alt: boolean,
     point: THREE.Vector3 | null,
     nodeType: string | null = "leaf",
     tree: boolean = false,
+    component: PickedComponentRef | null = null,
   ): void => {
     const id = `${path}/${name}`;
     const object = this.rendered.nestedGroup.groups[id];
@@ -2363,19 +2418,45 @@ class Viewer {
       }
     }
 
-    if (this.lastBbox != null && this.lastBbox.id === id && !meta && !shift) {
-      this.removeLastBbox();
-      this.rendered.treeview.toggleLabelColor(null, id);
-    } else {
-      this.checkChanges({
+    // A face, edge or vertex inside a solid is boxed on its own (a vertex gets a
+    // marker); everything else gets the object's box.
+    const proxy = this.componentProxy(component);
+    const pickBox =
+      proxy === null
+        ? boundingBox
+        : new BoundingBox().setFromObject(proxy, true);
+    const boxKey = proxy === null || component === null ? id : component.path;
+    const pickedPoint =
+      point !== null && this.pointsOnModel()
+        ? toVector3Tuple(point.toArray())
+        : null;
+
+    // Sent on every pick, also when it repeats the last one
+    this.checkChanges(
+      {
         lastPick: {
           path: path,
           name: name,
-          boundingBox: boundingBox,
-          boundingSphere: boundingBox.boundingSphere(),
+          component: component?.path ?? id,
+          point: pickedPoint,
+          boundingBox: pickBox,
+          boundingSphere: pickBox.boundingSphere(),
         },
-      });
+      },
+      true,
+      true,
+    );
 
+    const sameLeaf = this.lastBbox != null && this.lastBbox.id === id;
+    if (
+      this.lastBbox != null &&
+      this.lastBbox.component === boxKey &&
+      !meta &&
+      !shift
+    ) {
+      this.removeLastBbox();
+      this.rendered.treeview.toggleLabelColor(null, id);
+    } else {
       if (this.animation.clipAction?.isRunning()) {
         this.bboxNeedsUpdate = true;
       }
@@ -2402,17 +2483,21 @@ class Viewer {
       } else if (meta) {
         this._recordHidden(id);
         this.setState(id, [0, 0], nodeType ?? "leaf");
-      } else if (alt) {
-        // same as else branch to make typscript happy
-        this.display.showBoundingBoxInfo(path, name, boundingBox);
-        this.setBoundingBox(id);
-        this.rendered.treeview.openPath(id);
       } else {
-        this.display.showBoundingBoxInfo(path, name, boundingBox);
-        this.setBoundingBox(id);
-        this.rendered.treeview.openPath(id);
+        // plain and alt double-click (and tree click): box and info of the pick
+        const part = boxKey === id ? null : boxKey.slice(id.length + 1);
+        if (proxy !== null && proxy.isPoint) {
+          this.display.showPointInfo(path, name, part, pickBox.center());
+        } else {
+          this.display.showBoundingBoxInfo(path, name, pickBox, part);
+        }
+        this.showPickBox(id, boxKey, object, proxy);
+        // The label of the leaf is already highlighted when the last pick was in it
+        if (!sameLeaf) this.rendered.treeview.openPath(id);
       }
     }
+    // A stand-in no box took over
+    if (proxy !== null && this.lastBbox?.proxy !== proxy) proxy.dispose();
     if (this._studioManager.isActive) {
       this.display.onSelectionChanged(this.lastBbox?.id ?? null);
     }
@@ -2483,11 +2568,7 @@ class Viewer {
    * @returns true when a point was copied (the caller then consumes the key event).
    */
   copyPointUnderCursor(): boolean {
-    if (!this.ready) return false;
-    const mode = this.state.get("animationMode");
-    if (mode === "explode") return false;
-    if (mode === "animation" && this._animationStarted) return false;
-    if (this.zScale !== undefined && this.zScale !== 1) return false;
+    if (!this.ready || !this.pointsOnModel()) return false;
     const point = this.pickingController.pointUnderCursor();
     if (point === null) return false;
     const coords = toVector3Tuple(point.toArray());
