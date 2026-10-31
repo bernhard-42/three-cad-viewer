@@ -1,6 +1,6 @@
 # Change log
 
-## v5.2.0
+## v5.2.0 (unpublished)
 
 - **UI localization (English, German, Chinese)**: all texts of the user interface now live in language files under `src/locales/` (one file per language in a subset of the i18next JSON v4 format, `en.json` is the English source, see `src/locales/README.md` for translators). `DisplayOptions` gets `locale` (a BCP 47 tag like `"de"` or `"zh-CN"`; other regional variants use their language, unknown languages fall back to English) and `labels` (overrides for single texts by message id, e.g. `{"toolbar.axes": "Axes"}`). The language is fixed when the `Display` is created. `AVAILABLE_LOCALES` lists the shipped languages, `MessageId` is the type of the message ids. Messages are whole sentences with named placeholders, plural forms follow `Intl.PluralRules`, and the help names the configured modifier keys in the chosen language and follows key remapping. A missing translation falls back to English. The Chinese translation is based on the language pack of the Chinese edition of vscode-ocp-cad-viewer (#46, by @sh-u-x-in), which also contributed the filter and `formatKey` fixes below. The demo page has a Locale dropdown.
 - **Changed English texts**: geometry types in the hover status line and the properties panel are readable names (`B-spline surface` instead of `bspline` or `BSplineSurface`, `Surface of revolution` instead of `surface of revolution`), the status line starts with a capital letter (`Solid: …`, `Circle: …`), and the tree tooltips read "Collapse" instead of "Collpase".
