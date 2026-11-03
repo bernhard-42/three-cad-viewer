@@ -243,8 +243,14 @@ function deepDispose(
   if (Array.isArray(tree.children)) {
     tree.children.forEach(deepDispose);
   }
-  if (tree.dispose) {
-    tree.dispose();
+  // Since three.js r186 every Object3D has a dispose() that only fires a
+  // "dispose" event and leaves geometry and material alone. Only a dispose()
+  // a class defines itself takes over the cleanup.
+  const ownDispose =
+    typeof tree.dispose === "function" &&
+    tree.dispose !== (THREE.Object3D.prototype as DisposableTree).dispose;
+  if (ownDispose) {
+    tree.dispose!();
   } else if (tree.isMesh || tree.isLine || tree.isPoints) {
     disposeMesh(tree);
   }
