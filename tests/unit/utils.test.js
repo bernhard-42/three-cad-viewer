@@ -452,6 +452,38 @@ describe("deepDispose", () => {
     expect(obj.dispose).toHaveBeenCalled();
   });
 
+  test("a three.js subclass with its own dispose method gets it", () => {
+    class OwnDisposeMesh extends THREE.Mesh {
+      dispose() {}
+    }
+    const mesh = new OwnDisposeMesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshStandardMaterial(),
+    );
+    const ownSpy = vi.spyOn(mesh, "dispose");
+    const geoDisposeSpy = vi.spyOn(mesh.geometry, "dispose");
+
+    deepDispose(mesh);
+
+    expect(ownSpy).toHaveBeenCalled();
+    expect(geoDisposeSpy).not.toHaveBeenCalled();
+  });
+
+  test("the dispose method every Object3D inherits does not replace the cleanup", () => {
+    // three.js r186+ defines Object3D.prototype.dispose (fires an event only)
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshStandardMaterial(),
+    );
+    const geoDisposeSpy = vi.spyOn(mesh.geometry, "dispose");
+    const matDisposeSpy = vi.spyOn(mesh.material, "dispose");
+
+    deepDispose(mesh);
+
+    expect(geoDisposeSpy).toHaveBeenCalled();
+    expect(matDisposeSpy).toHaveBeenCalled();
+  });
+
   test("handles array of objects", () => {
     const obj1 = { dispose: vi.fn() };
     const obj2 = { dispose: vi.fn() };
