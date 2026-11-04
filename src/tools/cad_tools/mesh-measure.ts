@@ -1392,6 +1392,46 @@ export class MeshGeometrySource implements MeshGeometryProvider {
     return { topo: "face", geomType, positions, indices };
   }
 
+  /**
+   * The points of a face, edge or vertex in its node's LOCAL space, with the object
+   * whose `matrixWorld` maps them into world space. Unlike {@link resolve} nothing is
+   * transformed, so a caller can follow the object through animation and explode by
+   * applying its current `matrixWorld`. Faces give the vertices their triangles use,
+   * edges their segment endpoints, a vertex its point. `null` for a bare node path or
+   * an unknown component.
+   */
+  componentPoints(
+    path: string,
+  ): { topo: TopoType; points: Float32Array; object: THREE.Object3D } | null {
+    const m = path.match(_PATH_RE);
+    if (m === null) return null;
+    const entry = this.nodes.get(m[1]);
+    if (entry === undefined) return null;
+    const index = parseInt(m[3], 10);
+    const shape = entry.shape;
+    if (m[2] === "vertices") {
+      const all = toF32(shape.obj_vertices);
+      if (index * 3 + 2 >= all.length) return null;
+      const points = all.slice(index * 3, index * 3 + 3);
+      return { topo: "vertex", points, object: entry.object };
+    }
+    if (m[2] === "edges") {
+      const points = this._edgeSegments(shape, index);
+      if (points === null) return null;
+      return { topo: "edge", points, object: entry.object };
+    }
+    const pool = toF32(shape.vertices);
+    const indices = this._faceTriangleIndices(shape, index);
+    if (indices === null || pool.length === 0) return null;
+    const points = new Float32Array(indices.length * 3);
+    for (let k = 0; k < indices.length; k++) {
+      points[k * 3] = pool[indices[k] * 3];
+      points[k * 3 + 1] = pool[indices[k] * 3 + 1];
+      points[k * 3 + 2] = pool[indices[k] * 3 + 2];
+    }
+    return { topo: "face", points, object: entry.object };
+  }
+
   private _typeAt(
     types: number[] | Uint8Array | Uint32Array | undefined,
     i: number,

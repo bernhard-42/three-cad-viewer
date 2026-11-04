@@ -8,13 +8,29 @@ import {
   type IdPicker,
   type ComponentInfo,
   type PickResult,
+  type TopoType,
 } from "../rendering/id-picking.js";
-import { IdPicked, type PickedComponent } from "../rendering/picked.js";
+import {
+  IdPicked,
+  pickedPath,
+  type PickedComponent,
+} from "../rendering/picked.js";
 import { hoverStatusText } from "../tools/cad_tools/mesh-measure.js";
 import type { Shapes } from "./types.js";
 import type { RenderedState } from "./viewer.js";
 import type { Display } from "../ui/display.js";
 import type { Tools } from "../tools/cad_tools/tools.js";
+
+/**
+ * The component a double-click picked.
+ */
+export interface PickedComponentRef {
+  /** Full path of the component, the solid's path in solid mode ({@link pickedPath}). */
+  path: string;
+  topo: TopoType;
+  /** A face, edge or vertex inside a solid, which has no tree node of its own. */
+  inSolid: boolean;
+}
 
 /**
  * The narrow surface {@link PickingController} needs from its host (the Viewer).
@@ -46,6 +62,7 @@ export interface PickHost {
     point: THREE.Vector3 | null,
     nodeType?: string | null,
     tree?: boolean,
+    component?: PickedComponentRef | null,
   ): void;
 }
 
@@ -155,14 +172,28 @@ export class PickingController {
    * `null` when the cursor is off the canvas or over background.
    */
   private pickUnderCursor(): PickResult | null {
-    if (this.host.idPicker === null || !this.idHoverInside) return null;
+    if (!this.idHoverInside) return null;
+    return this.pickAtClient(this.idHoverClientX, this.idHoverClientY);
+  }
+
+  /**
+   * Pick the visible component at a client position, as hover shows it: with the
+   * current topo filter unless `filtered` is false. `null` off the canvas, over
+   * background, or when the filter excludes what is there.
+   */
+  private pickAtClient(
+    clientX: number,
+    clientY: number,
+    filtered: boolean = true,
+  ): PickResult | null {
+    if (this.host.idPicker === null) return null;
     const rect = this.host.renderer.domElement.getBoundingClientRect();
-    const x = this.idHoverClientX - rect.left;
-    const y = this.idHoverClientY - rect.top;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
     if (x < 0 || y < 0 || x > rect.width || y > rect.height) return null;
-    const topoFilter = pickerTopoFilter(
-      this.host.display.shapeFilterDropDownMenu.currentFilter,
-    );
+    const topoFilter = filtered
+      ? pickerTopoFilter(this.host.display.shapeFilterDropDownMenu.currentFilter)
+      : undefined;
     const hit = this.host.idPicker.pickAt(
       x,
       y,
@@ -173,6 +204,13 @@ export class PickingController {
     // visibility — otherwise a hidden component could be hovered AND selected.
     if (hit === null || !this.pickVisible(hit.info)) return null;
     return hit;
+  }
+
+  /** Whether the topo filter is "solid": a component stands for its whole solid. */
+  private solidMode(): boolean {
+    return this.host.display.shapeFilterDropDownMenu.currentFilter.includes(
+      TopoFilter.solid,
+    );
   }
 
   /**
@@ -262,10 +300,7 @@ export class PickingController {
       release();
       return;
     }
-    const fromSolid =
-      this.host.display.shapeFilterDropDownMenu.currentFilter.includes(
-        TopoFilter.solid,
-      );
+    const fromSolid = this.solidMode();
     const picked: PickedComponent = new IdPicked(
       hit.info,
       fromSolid,
@@ -486,11 +521,14 @@ export class PickingController {
   }
 
   /**
-   * Double-click pick via the GPU id picker: `idPicker.pickAt` resolves the component
-   * under the cursor, the registry gives its owning tree-leaf path ({@link leafPath}),
-   * and the readback world-space `point` feeds `handlePick` (the `shift && meta` camera
-   * target, with a bbox-center fallback when `point` is null). No topo filter: a
-   * double-click selects whatever is under the cursor and resolves it to its leaf.
+   * Double-click pick via the GPU id picker. A plain (or alt) double-click picks what
+   * hover shows at that position: the same topo filter, solid mode and visibility
+   * gate. With meta or shift (hide, isolate, recentre) it acts on the whole object,
+   * so it ignores the filter and reports the object, as these gestures always did.
+   * `handlePick` gets the owning tree leaf ({@link leafPath}; hide, isolate and the
+   * tree act on leaves), the picked component, and the readback world-space `point`
+   * (the `shift && meta` camera target, with a bbox-center fallback when `point` is
+   * null).
    */
   private onDoubleClick = (e: PointerEvent | MouseEvent): void => {
     if (this.host.idPicker === null) return;
@@ -501,22 +539,35 @@ export class PickingController {
     // shift = isolate/recenter) stay live there. A plain (or alt-only) double-click,
     // which would pop a bounding box + tree highlight, is suppressed as analysis clutter.
     if (this.host.studioActive && !meta && !shift) return;
-    const rect = this.host.renderer.domElement.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
-    const hit = this.host.idPicker.pickAt(x, y);
-    // A hidden solid's edge/vertex pick layers stay active — gate on visibility so a
-    // hidden component cannot be double-click picked (matches hover/select).
-    if (hit === null || !this.pickVisible(hit.info)) {
-      // Nothing visible under the cursor: a meta-double-click on empty space is the
-      // "show last hidden" gesture (mirror of meta-double-click-on-object = hide).
-      if (meta && !shift) this.host.showLastHidden();
+    // Hide, isolate and recentre act on the object: they must not depend on the
+    // shape filter (closing the tools panel hides it, but not its effect).
+    const objectGesture = meta || shift;
+    const hit = this.pickAtClient(e.clientX, e.clientY, !objectGesture);
+    if (hit === null) {
+      // Nothing visible under the cursor (the filter aside): a meta-double-click on
+      // empty space is the "show last hidden" gesture (mirror of
+      // meta-double-click-on-object = hide).
+      const empty =
+        objectGesture ||
+        this.pickAtClient(e.clientX, e.clientY, false) === null;
+      if (meta && !shift && empty) this.host.showLastHidden();
       return;
     }
     const leaf = leafPath(hit.info);
     const slash = leaf.lastIndexOf("/");
     if (slash < 0) return;
+    const fromSolid = this.solidMode();
+    const component: PickedComponentRef = objectGesture
+      ? {
+          path: leaf,
+          topo: hit.info.solidPath !== null ? "solid" : hit.info.topo,
+          inSolid: false,
+        }
+      : {
+          path: pickedPath(hit.info, fromSolid),
+          topo: hit.info.topo,
+          inSolid: hit.info.solidPath !== null && !fromSolid,
+        };
     this.host.handlePick(
       leaf.slice(0, slash),
       leaf.slice(slash + 1),
@@ -526,6 +577,7 @@ export class PickingController {
       hit.point,
       null,
       false,
+      component,
     );
   };
 }

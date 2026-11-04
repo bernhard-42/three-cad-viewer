@@ -1630,7 +1630,19 @@ describe("Display - Info Panel Methods", () => {
     const mockBB = { min: { x: 0, y: 0, z: 0 }, max: { x: 1, y: 1, z: 1 } };
 
     display.showBoundingBoxInfo("/path", "name", mockBB);
-    expect(display._info.bbInfo).toHaveBeenCalledWith("/path", "name", mockBB);
+    expect(display._info.bbInfo).toHaveBeenCalledWith(
+      "/path",
+      "name",
+      mockBB,
+      null,
+    );
+    display.showBoundingBoxInfo("/path", "name", mockBB, "faces/faces_1");
+    expect(display._info.bbInfo).toHaveBeenLastCalledWith(
+      "/path",
+      "name",
+      mockBB,
+      "faces/faces_1",
+    );
   });
 });
 

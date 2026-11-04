@@ -133,20 +133,16 @@ class Info {
    * @param path - The object's path in the tree.
    * @param name - The object's name.
    * @param bb - The bounding box to display.
+   * @param component - The picked face or edge inside the object (e.g.
+   *   "faces/faces_3") when the box is the component's, else null.
    */
-  bbInfo(path: string, name: string, bb: THREE.Box3): void {
-    let html = `
-            <table class="tcv_small_table">
-                <tr class="tcv_small_table_row">
-                    <td><b>${this.text("info.path")}</b></td>
-                    <td>${escapeHtml(path)}</td>
-                </tr>
-                <tr class="tcv_small_table_row">
-                    <td><b>${this.text("info.name")}</b></td>
-                    <td>${escapeHtml(name)}</td>
-                </tr>
-            </table>
-            `;
+  bbInfo(
+    path: string,
+    name: string,
+    bb: THREE.Box3,
+    component: string | null = null,
+  ): void {
+    let html = this.pickTable(path, name, component);
     html += `
             <div class="tcv_info_header">${this.text("info.boundingBox")}</div>
             <table class="tcv_small_table">
@@ -173,6 +169,52 @@ class Info {
     });
     html += "</table>";
     this.addHtml(html);
+  }
+
+  /**
+   * Display the position of a picked vertex.
+   * @param path - The object's path in the tree.
+   * @param name - The object's name.
+   * @param component - The vertex inside the object, e.g. "vertices/vertices_2".
+   * @param point - The vertex's world position.
+   */
+  pointInfo(
+    path: string,
+    name: string,
+    component: string | null,
+    point: Vector3Tuple,
+  ): void {
+    let html = this.pickTable(path, name, component);
+    html += `
+            <div class="tcv_info_header">${this.text("info.vertex")}</div>
+            <table class="tcv_small_table">
+                <tr class="tcv_small_table_row">
+                    <th>x</th><th>y</th><th>z</th>
+                </tr>
+                <tr class="tcv_small_table_row">
+                    ${point.map((v) => `<td align='right'>${v.toFixed(3)}</td>`).join("")}
+                </tr>
+            </table>`;
+    this.addHtml(html);
+  }
+
+  /** Path, name and (when given) component of a pick as an HTML table. */
+  private pickTable(
+    path: string,
+    name: string,
+    component: string | null,
+  ): string {
+    const row = (label: MessageId, value: string): string => `
+                <tr class="tcv_small_table_row">
+                    <td><b>${this.text(label)}</b></td>
+                    <td>${escapeHtml(value)}</td>
+                </tr>`;
+    return `
+            <table class="tcv_small_table">${row("info.path", path)}${row("info.name", name)}${
+              component === null ? "" : row("info.component", component)
+            }
+            </table>
+            `;
   }
 
   /**

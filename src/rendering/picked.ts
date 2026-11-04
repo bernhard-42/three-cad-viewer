@@ -33,6 +33,15 @@ export interface PickedComponent {
 }
 
 /**
+ * Path of a picked component as the viewer reports it: the owning solid's path in
+ * solid mode (topo filter "solid") for a component inside a solid, else the
+ * component's own path.
+ */
+export function pickedPath(info: ComponentInfo, fromSolid: boolean): string {
+  return fromSolid && info.solidPath !== null ? info.solidPath : info.path;
+}
+
+/**
  * `PickedComponent` over a GPU id-pick result. Drives the shader
  * `HighlightController` by `componentId` (faces of a solid via `*Solid`), with no
  * per-component `ObjectGroup` and no exploded graph.
@@ -51,7 +60,7 @@ export class IdPicked implements PickedComponent {
   }
 
   get backendId(): string {
-    return this.asSolid ? this.info.solidPath! : this.info.path;
+    return pickedPath(this.info, this.fromSolid);
   }
 
   get name(): string {

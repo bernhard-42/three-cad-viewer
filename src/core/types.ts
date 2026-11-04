@@ -150,9 +150,25 @@ export interface BoundingBoxFlat {
 // =============================================================================
 
 export interface PickInfo {
+  /** Path of the picked tree node's parent. */
   path: string;
+  /** Name of the picked tree node (`path + "/" + name` is the node). */
   name: string;
+  /**
+   * Full path of what was picked: a face, edge or vertex
+   * (e.g. "/box/faces/faces_3"), the solid when the shape filter is "solid", and
+   * the tree node itself for a click in the tree.
+   */
+  component: string;
+  /**
+   * World coordinates of the double-clicked point. `null` for a click in the tree,
+   * when the GPU cannot read back positions, and while parts may be displaced from
+   * their model positions (explode mode, a started animation, a z-scale other than 1).
+   */
+  point: Vector3Tuple | null;
+  /** Bounding box of the picked component (a vertex: size zero), else of the node. */
   boundingBox: BoundingBox;
+  /** Bounding sphere of the same box. */
   boundingSphere: BoundingSphere;
 }
 
