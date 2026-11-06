@@ -193,6 +193,11 @@ class StudioComposer {
     this._n8aoPass.configuration.distanceFalloff = 0.5;
     this._n8aoPass.configuration.intensity = 1.5;
     this._n8aoPass.configuration.halfRes = true;
+    // n8ao's multi-target class returns the array of textures from `get texture()`,
+    // and three r187 reads `renderTarget.texture.mipmaps.length` without a guard, so
+    // Studio mode crashes. Remove the getter to inherit three's `textures[0]`. Same
+    // change as N8python/n8ao#56; delete this when a released n8ao has it.
+    delete Object.getPrototypeOf(this._n8aoPass.depthDownsampleTarget).texture;
     this._n8aoPass.configuration.depthAwareUpsampling = true;
     this._n8aoPass.configuration.gammaCorrection = false;
     this._n8aoPass.setQualityMode("Medium");
