@@ -376,8 +376,10 @@ export interface ViewerOptions extends StudioModeOptions {
   clipSlider2?: number;
   /** Holroyd mode for controls (default: true) */
   holroyd?: boolean;
-  /** Rotate around and zoom towards the point under the cursor; false restores rotating and zooming around the target (default: true) */
+  /** Rotate around the point under the cursor, or around the centre of the visible objects when the drag starts on the background; false restores rotating around the target (default: true) */
   cursorPivot?: boolean;
+  /** Zoom towards the cursor with the wheel, trackpad pinch and middle-button drag; false restores zooming towards the centre of the view (default: true) */
+  zoomToCursor?: boolean;
   /** Up direction (default: "Z") */
   up?: UpDirection;
   /** Hint for the number of grid ticks (default: 10) */
@@ -513,6 +515,7 @@ export interface ViewerStateShape {
   control: ControlType;
   holroyd: boolean;
   cursorPivot: boolean;
+  zoomToCursor: boolean;
   up: UpDirection;
   ticks: number;
   gridFontSize: number;

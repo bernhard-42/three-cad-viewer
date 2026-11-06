@@ -7,6 +7,26 @@ import * as THREE from "three";
 import { Info } from "../../src/ui/info.js";
 import { I18n } from "../../src/ui/i18n.js";
 
+describe("Info - camera target", () => {
+  test("a clicked point and a box center have their own messages", () => {
+    const container = document.createElement("div");
+    const info = new Info(container, new I18n().t);
+
+    info.targetPointInfo([1, 2, 3]);
+    expect(container.textContent).toContain(
+      "Camera target set to the clicked point:",
+    );
+    expect(container.textContent).toContain("x: 1.00, y: 2.00, z: 3.00");
+
+    info.clear();
+    info.centerInfo([4, 5, 6]);
+    expect(container.textContent).toContain(
+      "Camera target set to AABB center:",
+    );
+    expect(container.textContent).toContain("x: 4.00, y: 5.00, z: 6.00");
+  });
+});
+
 describe("Info - bbInfo", () => {
   let container;
   let info;

@@ -250,6 +250,17 @@ describe("Camera", () => {
       expect(camera.getQuaternion().w).toBeCloseTo(quaternion.w);
     });
 
+    test("normalizes a rounded quaternion and leaves the argument alone", () => {
+      const camera = new Camera(800, 600, 100, [0, 0, 0], true, "Z");
+      const rounded = new THREE.Quaternion(0.6, 0.27, 0.31, 0.69);
+
+      camera.setupCamera(false, null, rounded);
+
+      expect(camera.getQuaternion().length()).toBeCloseTo(1, 10);
+      expect(camera.getQuaternion().x).toBeCloseTo(0.6 / rounded.length(), 10);
+      expect(rounded.toArray()).toEqual([0.6, 0.27, 0.31, 0.69]);
+    });
+
     test("sets zoom when provided", () => {
       const camera = new Camera(800, 600, 100, [0, 0, 0], true, "Z");
 

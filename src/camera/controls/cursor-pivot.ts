@@ -1,14 +1,14 @@
 /**
  * Shared pieces of the cursor pivot for CADOrbitControls and
- * CADTrackballControls: a rotate drag that starts on visible geometry turns
- * the camera around the picked point instead of around `target`.
+ * CADTrackballControls: a rotate drag turns the camera around the pivot the
+ * picker gives for its start position, instead of around `target`.
  */
 
 import { Quaternion, Vector3 } from "three";
 
 /**
- * Resolves the world-space point under a client (page viewport) coordinate, or
- * `null` when there is no visible geometry there.
+ * Resolves the world-space pivot for a rotate drag that starts at a client (page
+ * viewport) coordinate, or `null` to rotate around `target`.
  */
 type PivotPicker = (clientX: number, clientY: number) => Vector3 | null;
 

@@ -1656,6 +1656,8 @@ class Viewer {
     controls.controls.enableKeys = false;
 
     controls.setCursorPivot(this.state.get("cursorPivot"), this._pickPivot);
+    controls.setZoomToCursor(this.state.get("zoomToCursor"));
+    this.display.showCameraTargetHelp(!this.state.get("cursorPivot"));
 
     // ensure panning works for screen coordinates (only exists on OrbitControls)
     if ("screenSpacePanning" in controls.controls) {
@@ -2404,6 +2406,12 @@ class Viewer {
     tree: boolean = false,
     component: PickedComponentRef | null = null,
   ): void => {
+    // With the cursor pivot on, setting the camera target by hand has no purpose:
+    // shift+meta double-click on the canvas does nothing (shift+meta on a tree
+    // label is "hide other elements" and stays).
+    if (shift && meta && !tree && this.state.get("cursorPivot")) {
+      return;
+    }
     const id = `${path}/${name}`;
     const object = this.rendered.nestedGroup.groups[id];
     if (object == null) {
@@ -2470,9 +2478,14 @@ class Viewer {
           const showEdges = this._studioManager.isActive ? 0 : 1;
           this.setState(id, [1, showEdges], nodeType ?? "leaf");
         } else {
-          const center = boundingBox.center();
-          this.setCameraTarget(point ?? new THREE.Vector3(...center));
-          this.display.showCenterInfo(center);
+          if (point !== null) {
+            this.setCameraTarget(point);
+            this.display.showTargetPointInfo(toVector3Tuple(point.toArray()));
+          } else {
+            const center = boundingBox.center();
+            this.setCameraTarget(new THREE.Vector3(...center));
+            this.display.showCenterInfo(center);
+          }
         }
       } else if (shift) {
         this.removeLastBbox();
@@ -4372,20 +4385,61 @@ class Viewer {
   }
 
   /**
-   * Set cursor pivot mode: rotate around and zoom towards the point under the
-   * cursor. When off, rotation and zoom are around the target, as before.
+   * Set cursor pivot mode: a rotate drag turns around the point under the cursor,
+   * or around the centre of the visible objects when it starts on the background.
+   * When off, rotation is around the target, as before, and shift+meta double-click
+   * sets the camera target again.
    * @param flag - whether to enable cursor pivot mode.
    * @param notify - whether to send notification or not.
    */
   setCursorPivot = (flag: boolean, notify: boolean = true): void => {
     this.state.set("cursorPivot", flag, notify);
     this.rendered.controls.setCursorPivot(flag, this._pickPivot);
+    this.display.showCameraTargetHelp(!flag);
   };
 
+  /**
+   * Get zoom to cursor mode.
+   * @returns zoom to cursor flag.
+   */
+  getZoomToCursor(): boolean {
+    return this.state.get("zoomToCursor");
+  }
+
+  /**
+   * Set zoom to cursor mode: the wheel, trackpad pinch and middle-button drag zoom
+   * towards the cursor. When off, they zoom towards the centre of the view, as before.
+   * @param flag - whether to enable zoom to cursor mode.
+   * @param notify - whether to send notification or not.
+   */
+  setZoomToCursor = (flag: boolean, notify: boolean = true): void => {
+    this.state.set("zoomToCursor", flag, notify);
+    this.rendered.controls.setZoomToCursor(flag);
+  };
+
+  /**
+   * The pivot for a rotate drag: the point under the cursor on the model, else the
+   * centre of the visible objects' box, wherever that is on screen. A drag on the
+   * background must not turn around the target, which every pivot rotation moves
+   * along with it. With nothing visible, `null` rotates around the target.
+   */
   private _pickPivot = (
     clientX: number,
     clientY: number,
-  ): THREE.Vector3 | null => this.pickingController.pointAt(clientX, clientY);
+  ): THREE.Vector3 | null => {
+    const point = this.pickingController.pointAt(clientX, clientY);
+    if (point !== null) return point;
+    const groups = this.rendered.nestedGroup.groups;
+    const bbox = new BoundingBox();
+    for (const path in groups) {
+      const obj = groups[path];
+      if (obj instanceof ObjectGroup && obj.getVisibility()) {
+        bbox.expandByObject(obj);
+      }
+    }
+    if (bbox.isEmpty()) return null;
+    return new THREE.Vector3(...bbox.center());
+  };
 
   // ---------------------------------------------------------------------------
   // Clipping Planes

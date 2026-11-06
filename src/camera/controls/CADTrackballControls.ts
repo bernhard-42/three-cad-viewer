@@ -5,9 +5,10 @@
  * - Holroyd (non-tumbling) trackball rotation mode
  * - rotateX/Y/Z methods for programmatic world-axis rotation
  * - Quaternion-based saveState/reset
- * - Pivot under the cursor: a rotate drag that starts on geometry turns around
- *   the picked surface point (see {@link CADTrackballControls.pivotPicker})
- * - Zoom towards the cursor for the wheel and trackpad pinch
+ * - Pivot under the cursor: a rotate drag turns around the pivot picked at its
+ *   start (see {@link CADTrackballControls.pivotPicker}), and in holroyd mode the
+ *   trackball sphere sits at the pivot's screen position
+ * - Zoom towards the cursor for the wheel, trackpad pinch and middle-button drag
  *   (see {@link CADTrackballControls.zoomToCursor})
  *
  * Internal TrackballControls methods/properties used (see three-augmentation.d.ts):
@@ -107,12 +108,20 @@ class CADTrackballControls extends TrackballControls {
    */
   pivotPicker: PivotPicker | null;
   /**
-   * Zoom towards the cursor for the wheel and trackpad pinch, instead of
-   * towards the center of the view.
+   * Zoom towards the cursor for the wheel, trackpad pinch and middle-button drag,
+   * instead of towards the center of the view.
    */
   zoomToCursor: boolean;
   private _pivot: Vector3 | null;
   private _zoomCursor: Vector2 | null;
+  /**
+   * Where a middle-button drag started. Unlike {@link _zoomCursor} it outlives one
+   * update: the drag spans many, and the damping goes on after the release. The
+   * next pointer down replaces it.
+   */
+  private _dragZoomCursor: Vector2 | null;
+  /** Centre of the holroyd ball in NDC, fixed at the start of a drag. */
+  private _ballCenter: Vector2;
 
   // Expose internal properties for type safety
   declare state: number;
@@ -178,6 +187,8 @@ class CADTrackballControls extends TrackballControls {
     this.zoomToCursor = false;
     this._pivot = null;
     this._zoomCursor = null;
+    this._dragZoomCursor = null;
+    this._ballCenter = new Vector2(0, 0);
 
     // Add our own pointer event listeners to capture raw coordinates
     // This runs alongside the parent's handlers
@@ -212,6 +223,7 @@ class CADTrackballControls extends TrackballControls {
         this.state === STATE.ROTATE && !this.noRotate
           ? this._pickPivot(event)
           : null;
+      this._dragZoomCursor = this._dragZoomStart(event, this.state);
       return;
     }
 
@@ -254,6 +266,18 @@ class CADTrackballControls extends TrackballControls {
 
     this._pivot =
       state === STATE.ROTATE && !this.noRotate ? this._pickPivot(event) : null;
+    this._dragZoomCursor = this._dragZoomStart(event, state);
+    // The holroyd ball sits at the pivot's screen position. The pivot keeps that
+    // position during the drag, so the centre taken now is valid for the whole
+    // drag. Without a pivot the rotation is around the target, which is at the
+    // canvas centre.
+    if (this._pivot !== null) {
+      this.object.updateMatrixWorld();
+      const ndc = this._pivot.clone().project(this.object as Camera);
+      this._ballCenter.set(ndc.x, ndc.y);
+    } else {
+      this._ballCenter.set(0, 0);
+    }
 
     if (state === STATE.ROTATE && !this.noRotate) {
       this._moveCurr.copy(this._getMouseOnCircle(event.pageX, event.pageY));
@@ -267,6 +291,13 @@ class CADTrackballControls extends TrackballControls {
     }
 
     this.dispatchEvent({ type: "start" });
+  }
+
+  /** The cursor of a zoom drag starting at `event` in `state`, else `null`. */
+  private _dragZoomStart(event: MouseEvent, state: number): Vector2 | null {
+    return state === STATE.ZOOM && !this.noZoom
+      ? new Vector2(event.clientX, event.clientY)
+      : null;
   }
 
   /**
@@ -415,7 +446,8 @@ class CADTrackballControls extends TrackballControls {
   }
 
   /**
-   * Project page coordinates onto the holroyd trackball sphere.
+   * Project page coordinates onto the holroyd trackball sphere, which is centred
+   * at {@link _ballCenter}.
    * Uses the original CameraControls coordinate system:
    * - NDC x: -1 (left) to +1 (right)
    * - NDC y: -1 (bottom) to +1 (top)
@@ -432,10 +464,10 @@ class CADTrackballControls extends TrackballControls {
     // rotateSpeed is applied to the final angle instead
     // Apply rotation axis restrictions: set coordinate to 0 if that axis is locked
     const x = this._horizontalRotate
-      ? (pageX - rect.left) / (rect.width / 2) - 1.0
+      ? (pageX - rect.left) / (rect.width / 2) - 1.0 - this._ballCenter.x
       : 0;
     const y = this._verticalRotate
-      ? 1.0 - (pageY - rect.top) / (rect.height / 2)
+      ? 1.0 - (pageY - rect.top) / (rect.height / 2) - this._ballCenter.y
       : 0;
 
     // Holroyd sphere projection
@@ -599,7 +631,7 @@ class CADTrackballControls extends TrackballControls {
   }
 
   /**
-   * Zoom towards the cursor for the wheel and trackpad pinch.
+   * Zoom towards the cursor for the wheel, trackpad pinch and middle-button drag.
    *
    * The parent zooms towards the target: it scales the eye vector of a
    * perspective camera, or the zoom of an orthographic one. Moving the target
@@ -611,7 +643,10 @@ class CADTrackballControls extends TrackballControls {
    *   does not change where a point lands on screen.
    */
   _zoomCamera(): void {
-    const cursor = this._zoomCursor;
+    // A finished drag leaves its cursor set: only use it while there is zoom left
+    const cursor =
+      this._zoomCursor ??
+      (this._zoomStart.equals(this._zoomEnd) ? null : this._dragZoomCursor);
     if (!this.zoomToCursor || cursor == null || this.domElement == null) {
       super._zoomCamera();
       return;

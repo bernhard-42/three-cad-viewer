@@ -1197,6 +1197,7 @@ export class IdPicker {
 
     const savedMask = camera.layers.mask;
     const savedOverride = scene.overrideMaterial;
+    const savedBackground = scene.background;
     const savedTarget = renderer.getRenderTarget();
     const savedAlpha = renderer.getClearAlpha();
     const savedAutoClear = renderer.autoClear;
@@ -1204,6 +1205,9 @@ export class IdPicker {
     renderer.getViewport(this.savedViewport);
 
     try {
+      // An environment background is drawn as a mesh that ignores overrideMaterial
+      // and has one fragment output, which the MRT target rejects with a GL error.
+      scene.background = null;
       renderer.autoClear = false; // passes accumulate into one cleared target
       renderer.setRenderTarget(target); // viewport follows the target size
       renderer.setClearColor(0x000000, 0); // 0 = BACKGROUND_ID
@@ -1214,6 +1218,7 @@ export class IdPicker {
     } finally {
       camera.layers.mask = savedMask;
       scene.overrideMaterial = savedOverride;
+      scene.background = savedBackground;
       renderer.setRenderTarget(savedTarget);
       renderer.setClearColor(this.savedClearColor, savedAlpha);
       renderer.setViewport(this.savedViewport);

@@ -296,6 +296,7 @@
     "max": "max",
     "center": "center",
     "cameraTarget": "Camera target set to AABB center:",
+    "cameraTargetPoint": "Camera target set to the clicked point:",
     "quaternionNeedsPosition": "quaternion needs position to be provided, falling back to ISO view"
   },
   "status": {

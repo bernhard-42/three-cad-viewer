@@ -296,6 +296,7 @@
     "max": "max",
     "center": "Mitte",
     "cameraTarget": "Kameraziel auf die Mitte des Begrenzungsquaders gesetzt:",
+    "cameraTargetPoint": "Kameraziel auf den angeklickten Punkt gesetzt:",
     "quaternionNeedsPosition": "Für das Quaternion fehlt die Position, es wird die ISO-Ansicht verwendet"
   },
   "status": {

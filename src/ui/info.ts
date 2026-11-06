@@ -229,12 +229,25 @@ class Info {
    * @param center - The center coordinates [x, y, z].
    */
   centerInfo(center: Vector3Tuple): void {
+    this.targetInfo("info.cameraTarget", center);
+  }
+
+  /**
+   * Display that the camera target was set to a clicked point.
+   * @param point - The point's coordinates [x, y, z].
+   */
+  targetPointInfo(point: Vector3Tuple): void {
+    this.targetInfo("info.cameraTargetPoint", point);
+  }
+
+  /** A message about the camera target and its coordinates. */
+  private targetInfo(message: MessageId, target: Vector3Tuple): void {
     const html =
-      `<div>${this.text("info.cameraTarget")}</div>` +
+      `<div>${this.text(message)}</div>` +
       "<div class='tcv_info_line'>{ " +
-      `x: ${center[0].toFixed(2)}, ` +
-      `y: ${center[1].toFixed(2)}, ` +
-      `z: ${center[2].toFixed(2)}` +
+      `x: ${target[0].toFixed(2)}, ` +
+      `y: ${target[1].toFixed(2)}, ` +
+      `z: ${target[2].toFixed(2)}` +
       " }</div>";
     this.addHtml(html);
   }

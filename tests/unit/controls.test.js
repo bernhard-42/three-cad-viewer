@@ -518,6 +518,31 @@ describe("CADTrackballControls", () => {
       expect(controls.target.length()).toBeCloseTo(0);
     });
 
+    test("holroyd: the ball sits at the pivot, so a drag from there does not roll", () => {
+      // The camera-space rotation axis of a vertical drag starting at the pivot's
+      // screen position, with the pivot far from the canvas centre
+      const pivot = new THREE.Vector3(3, 2, 0);
+      const rollOfDrag = (picker) => {
+        camera.position.set(0, 0, 10);
+        camera.quaternion.identity();
+        controls?.dispose();
+        controls = new CADTrackballControls(camera, domElement);
+        controls.pivotPicker = picker;
+        const ndc = onScreen(pivot);
+        const rect = domElement.getBoundingClientRect();
+        const x = rect.left + ((ndc.x + 1) / 2) * rect.width;
+        const y = rect.top + ((1 - ndc.y) / 2) * rect.height;
+        const before = camera.quaternion.clone();
+        drag(x, y, x, y + 40);
+        const delta = before.invert().multiply(camera.quaternion);
+        return Math.abs(delta.z) / Math.hypot(delta.x, delta.y, delta.z);
+      };
+
+      expect(rollOfDrag(() => pivot.clone())).toBeCloseTo(0, 5);
+      // Without a pivot the ball is at the canvas centre: the same drag rolls
+      expect(rollOfDrag(() => null)).toBeGreaterThan(0.1);
+    });
+
     const wheel = (x, y) => {
       const event = new WheelEvent("wheel", { deltaY: -400, cancelable: true });
       // happy-dom's WheelEvent ignores the client coordinates in its init dict
@@ -574,6 +599,68 @@ describe("CADTrackballControls", () => {
 
       wheel(600, 150);
 
+      expect(controls.target.length()).toBeCloseTo(0);
+    });
+
+    // A middle-button drag, then what damping is left. The parent listens for the
+    // moves and the release on the document.
+    const middleDrag = (x, y, dy) => {
+      const middle = (type, py) => {
+        const event = pointer(type, x, py);
+        Object.defineProperty(event, "button", { value: 1 });
+        return event;
+      };
+      domElement.dispatchEvent(middle("pointerdown", y));
+      for (let i = 1; i <= 5; i++) {
+        document.dispatchEvent(middle("pointermove", y + (dy * i) / 5));
+        controls.update();
+      }
+      document.dispatchEvent(middle("pointerup", y + dy));
+      for (let i = 0; i < 20; i++) controls.update();
+    };
+
+    test.each([true, false])(
+      "orthographic: a middle-button drag zooms towards the cursor (holroyd %s)",
+      (holroyd) => {
+        camera = new THREE.OrthographicCamera(-4, 4, 3, -3, 0.1, 1000);
+        camera.position.set(0, 0, 10);
+        controls = new CADTrackballControls(camera, domElement);
+        controls.holroyd = holroyd;
+        controls.zoomToCursor = true;
+        const point = underCursor(600, 150);
+        const before = onScreen(point);
+
+        middleDrag(600, 150, 100);
+
+        expect(camera.zoom).not.toBeCloseTo(1);
+        expectFixedOnScreen(point, before);
+      },
+    );
+
+    test("perspective: a middle-button drag zooms towards the cursor", () => {
+      controls = new CADTrackballControls(camera, domElement);
+      controls.zoomToCursor = true;
+      const point = underCursor(600, 150);
+      const before = onScreen(point);
+      const distance = camera.position.distanceTo(controls.target);
+
+      middleDrag(600, 150, 100);
+
+      expect(camera.position.distanceTo(controls.target)).not.toBeCloseTo(
+        distance,
+      );
+      expectFixedOnScreen(point, before);
+    });
+
+    test("without zoomToCursor a middle-button drag zooms towards the target", () => {
+      controls = new CADTrackballControls(camera, domElement);
+      const distance = camera.position.distanceTo(controls.target);
+
+      middleDrag(600, 150, 100);
+
+      expect(camera.position.distanceTo(controls.target)).not.toBeCloseTo(
+        distance,
+      );
       expect(controls.target.length()).toBeCloseTo(0);
     });
   });
@@ -1109,36 +1196,35 @@ describe("Controls", () => {
     });
   });
 
-  describe("setCursorPivot", () => {
-    test("turns on zoom to cursor and the pivot picker for orbit controls", () => {
-      controls = new Controls("orbit", camera, new THREE.Vector3(), domElement);
-      const picker = () => null;
-
-      controls.setCursorPivot(true, picker);
-      expect(controls.controls.zoomToCursor).toBe(true);
-      expect(controls.controls.pivotPicker).toBe(picker);
-
-      controls.setCursorPivot(false, picker);
-      expect(controls.controls.zoomToCursor).toBe(false);
-      expect(controls.controls.pivotPicker).toBe(null);
+  describe.each(["orbit", "trackball"])("cursor options (%s)", (type) => {
+    beforeEach(() => {
+      controls = new Controls(type, camera, new THREE.Vector3(), domElement);
     });
 
-    test("turns on zoom to cursor and the pivot picker for trackball controls", () => {
-      controls = new Controls(
-        "trackball",
-        camera,
-        new THREE.Vector3(),
-        domElement,
-      );
+    test("setCursorPivot switches only the pivot picker", () => {
       const picker = () => null;
+      controls.setZoomToCursor(false);
 
       controls.setCursorPivot(true, picker);
+      expect(controls.controls.pivotPicker).toBe(picker);
+      expect(controls.controls.zoomToCursor).toBe(false);
+
+      controls.setCursorPivot(false, picker);
+      expect(controls.controls.pivotPicker).toBe(null);
+      expect(controls.controls.zoomToCursor).toBe(false);
+    });
+
+    test("setZoomToCursor switches only the zoom", () => {
+      const picker = () => null;
+      controls.setCursorPivot(true, picker);
+
+      controls.setZoomToCursor(true);
       expect(controls.controls.zoomToCursor).toBe(true);
       expect(controls.controls.pivotPicker).toBe(picker);
 
-      controls.setCursorPivot(false, picker);
+      controls.setZoomToCursor(false);
       expect(controls.controls.zoomToCursor).toBe(false);
-      expect(controls.controls.pivotPicker).toBe(null);
+      expect(controls.controls.pivotPicker).toBe(picker);
     });
   });
 
@@ -1226,6 +1312,24 @@ describe("Controls", () => {
       expect(location.target0.x).toBe(10);
       expect(location.position0.x).toBe(40);
       expect(location.zoom0).toBe(3.0);
+    });
+
+    test("setResetLocation normalizes a rounded quaternion", () => {
+      controls = new Controls("orbit", camera, new THREE.Vector3(), domElement);
+      const rounded = new THREE.Quaternion(0.6, 0.27, 0.31, 0.69);
+
+      controls.setResetLocation(
+        new THREE.Vector3(),
+        new THREE.Vector3(1, 1, 1),
+        rounded,
+        1,
+      );
+
+      expect(controls.getResetLocation().quaternion0.length()).toBeCloseTo(
+        1,
+        10,
+      );
+      expect(rounded.toArray()).toEqual([0.6, 0.27, 0.31, 0.69]);
     });
   });
 

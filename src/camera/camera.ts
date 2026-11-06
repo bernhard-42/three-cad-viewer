@@ -295,7 +295,9 @@ class Camera {
     }
 
     if (quaternion != null) {
-      this.camera.quaternion.set(...quaternion.toArray());
+      // Hosts pass rounded values. A non-unit quaternion distorts the camera matrix
+      // until the first holroyd rotation normalizes it, and the view jumps then.
+      this.camera.quaternion.set(...quaternion.toArray()).normalize();
     }
 
     if (zoom != null) {

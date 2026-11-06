@@ -296,6 +296,7 @@
     "max": "最大",
     "center": "中心",
     "cameraTarget": "相机目标已设为包围盒中心:",
+    "cameraTargetPoint": "相机目标已设为点击的点:",
     "quaternionNeedsPosition": "提供四元数时必须同时提供位置,将回退到等轴测视图"
   },
   "status": {

@@ -167,12 +167,38 @@ describe("hide, isolate and recentre ignore the shape filter", () => {
     expect(picks[0].component).toBe(SOLID);
   });
 
-  test("Shift+Cmd recentres on the solid's point", async () => {
+  test("with the cursor pivot off, Shift+Cmd recentres on the solid's point", async () => {
+    const { viewer, picks } = await faceExcludedByFilter();
+    viewer.setCursorPivot(false);
+    const target = vi.spyOn(viewer, "setCameraTarget");
+    const info = vi.spyOn(viewer.display, "showTargetPointInfo");
+    doubleClick(viewer, { ...modifier("meta"), ...modifier("shift") });
+    expect(target).toHaveBeenCalledWith(new THREE.Vector3(-0.5, 0, 0));
+    // the info box reports the point that was set
+    expect(info).toHaveBeenCalledWith([-0.5, 0, 0]);
+    expect(picks[0].component).toBe(SOLID);
+  });
+
+  test("with the cursor pivot off and no clicked point, Shift+Cmd uses the box center", async () => {
+    const { viewer } = await setup();
+    viewer.setCursorPivot(false);
+    stubPick(viewer, component(viewer, `${SOLID}/faces/faces_0`), null);
+    const target = vi.spyOn(viewer, "setCameraTarget");
+    const center = vi.spyOn(viewer.display, "showCenterInfo");
+    const point = vi.spyOn(viewer.display, "showTargetPointInfo");
+    doubleClick(viewer, { ...modifier("meta"), ...modifier("shift") });
+    const box = viewer.bbox.center();
+    expect(target).toHaveBeenCalledWith(new THREE.Vector3(...box));
+    expect(center).toHaveBeenCalledWith(box);
+    expect(point).not.toHaveBeenCalled();
+  });
+
+  test("with the cursor pivot on, Shift+Cmd does nothing", async () => {
     const { viewer, picks } = await faceExcludedByFilter();
     const target = vi.spyOn(viewer, "setCameraTarget");
     doubleClick(viewer, { ...modifier("meta"), ...modifier("shift") });
-    expect(target).toHaveBeenCalledWith(new THREE.Vector3(-0.5, 0, 0));
-    expect(picks[0].component).toBe(SOLID);
+    expect(target).not.toHaveBeenCalled();
+    expect(picks).toEqual([]);
   });
 });
 

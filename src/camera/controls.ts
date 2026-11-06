@@ -216,13 +216,20 @@ class Controls {
   }
 
   /**
-   * Rotate around and zoom towards the point under the cursor.
+   * Pick the rotation pivot at the start of each rotate drag.
    * @param flag - cursor pivot enabled.
-   * @param picker - resolves the world-space point under a client coordinate.
+   * @param picker - resolves the pivot for a client coordinate.
    */
   setCursorPivot(flag: boolean, picker: PivotPicker): void {
-    this.controls.zoomToCursor = flag;
     this.controls.pivotPicker = flag ? picker : null;
+  }
+
+  /**
+   * Zoom towards the cursor with the wheel, trackpad pinch and middle-button drag.
+   * @param flag - zoom to cursor enabled.
+   */
+  setZoomToCursor(flag: boolean): void {
+    this.controls.zoomToCursor = flag;
   }
 
   /**
@@ -318,7 +325,8 @@ class Controls {
   ): void => {
     this.controls.target0.copy(target);
     this.controls.position0.copy(position);
-    this.controls.quaternion0.copy(quaternion);
+    // Reset copies it to the camera, see Camera.setupCamera for why it must be unit
+    this.controls.quaternion0.copy(quaternion).normalize();
     this.controls.zoom0 = zoom;
   };
 

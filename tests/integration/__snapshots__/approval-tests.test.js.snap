@@ -3439,9 +3439,9 @@ exports[`Approval Tests - User Interaction Workflows > Camera Interaction Workfl
         "z": 2.4999999999999982,
       },
       "rotation": {
-        "x": 0.7853981633974486,
-        "y": 0.6154797086703876,
-        "z": 0.5235987755982987,
+        "x": 0.7853981633974491,
+        "y": 0.6154797086703878,
+        "z": 0.523598775598299,
       },
       "target": {
         "x": 0,

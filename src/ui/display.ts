@@ -960,6 +960,14 @@ class Display {
   }
 
   /**
+   * Display that the camera target was set to a clicked point.
+   * @param point - The point's coordinates [x, y, z].
+   */
+  showTargetPointInfo(point: Vector3Tuple): void {
+    this._info.targetPointInfo(point);
+  }
+
+  /**
    * Set the hover status line (preselection readout). Empty string clears it.
    * A rounded overlay badge stacked below the grid-size indicator at the bottom
    * left of the canvas; hidden entirely when empty so no empty badge shows.
@@ -3589,6 +3597,16 @@ class Display {
    */
   updateHelp(): void {
     this.localize(this.getElement("tcv_cad_help_layout"));
+  }
+
+  /**
+   * Show or hide the "set camera target" row of the help dialog.
+   * @param flag - whether the gesture is available.
+   */
+  showCameraTargetHelp(flag: boolean): void {
+    this.getElement("tcv_help_camera_target").style.display = flag
+      ? ""
+      : "none";
   }
 
   /**

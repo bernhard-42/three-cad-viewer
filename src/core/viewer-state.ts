@@ -82,6 +82,7 @@ interface ViewerDefaults {
   control: ControlType;
   holroyd: boolean;
   cursorPivot: boolean;
+  zoomToCursor: boolean;
   up: UpDirection;
   ticks: number;
   gridFontSize: number;
@@ -214,6 +215,7 @@ const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
   "control",
   "holroyd",
   "cursorPivot",
+  "zoomToCursor",
   "up",
   "ticks",
   "gridFontSize",
@@ -291,6 +293,7 @@ const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
   rotateSpeed: "rotate_speed",
   holroyd: "holroyd",
   cursorPivot: "cursor_pivot",
+  zoomToCursor: "zoom_to_cursor",
   // Clipping settings
   clipIntersection: "clip_intersection",
   clipObjectColors: "clip_object_colors",
@@ -485,6 +488,7 @@ class ViewerState {
     control: "orbit",
     holroyd: true,
     cursorPivot: true,
+    zoomToCursor: true,
     up: "Z",
     ticks: 10,
     gridFontSize: 10,

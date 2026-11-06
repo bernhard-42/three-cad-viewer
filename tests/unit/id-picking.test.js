@@ -445,6 +445,24 @@ describe("id-picking: IdPicker.pickAt", () => {
     expect(renderer.calls.read.every((c) => c[4] === 0)).toBe(true);
   });
 
+  test("pick passes render without the scene background, which is restored", () => {
+    const background = new THREE.Texture();
+    const scene = new THREE.Scene();
+    scene.background = background;
+    const seen = [];
+    const renderer = makeRenderer([0, 0, 0, 0]);
+    renderer.render = (s) => seen.push(s.background);
+    const picker = new IdPicker(renderer, new ComponentRegistry());
+    picker.attach(scene, fakeCamera());
+    picker.setSize(200, 100);
+
+    picker.pickAt(50, 20);
+
+    // A background drawn into the MRT target is a GL error: its shader has one output
+    expect(seen).toEqual([null, null, null]);
+    expect(scene.background).toBe(background);
+  });
+
   test("point is null when the position texel is unwritten (w = 0)", () => {
     const reg = new ComponentRegistry();
     const id = registerFace(reg);

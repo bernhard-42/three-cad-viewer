@@ -5,8 +5,8 @@
  * - Public rotateLeft/rotateUp methods for programmatic rotation
  * - Quaternion-based saveState/reset
  * - Modifier key rotation restrictions (ctrl: vertical only, meta: horizontal only)
- * - Pivot under the cursor: a rotate drag that starts on geometry orbits around
- *   the picked surface point (see {@link CADOrbitControls.pivotPicker})
+ * - Pivot under the cursor: a rotate drag orbits around the pivot picked at its
+ *   start (see {@link CADOrbitControls.pivotPicker})
  *
  * Internal OrbitControls methods/properties used (see three-augmentation.d.ts):
  * - _onMouseDown: Replaced to customize modifier key behavior (shift=pan, ctrl/meta=rotate with axis lock)
@@ -120,8 +120,8 @@ class CADOrbitControls extends OrbitControls {
   }
 
   /**
-   * Pick the pivot for a rotate drag that is starting at `event`. Off geometry,
-   * or without a picker, the drag orbits around `target` as usual.
+   * Pick the pivot for a rotate drag that is starting at `event`. Without a
+   * picker, or when it finds none, the drag orbits around `target` as usual.
    */
   private _startRotate(event: MouseEvent): void {
     this._pivot = this.pivotPicker?.(event.clientX, event.clientY) ?? null;

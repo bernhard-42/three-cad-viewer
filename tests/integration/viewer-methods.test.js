@@ -261,6 +261,30 @@ describe("Viewer - Camera", () => {
     expect(location.zoom0).toBe(zoom);
   });
 
+  test("a rounded quaternion option is normalized, also after a reset", async () => {
+    testContext = setupViewer();
+    const { viewer, renderOptions, viewerOptions } = testContext;
+    const length = (q) => Math.hypot(...q);
+
+    viewer.render(await loadExample("box1"), renderOptions, {
+      ...viewerOptions,
+      // Orbit controls and non-holroyd trackball call lookAt, which hides the problem
+      control: "trackball",
+      holroyd: true,
+      position: [97.6, -89.83, 30.85],
+      quaternion: [0.6, 0.27, 0.31, 0.69],
+      target: [-3.5, -1, 12.83],
+    });
+    expect(length(viewer.getCameraQuaternion())).toBeCloseTo(1, 10);
+
+    viewer.presetCamera("top", null, false);
+    viewer.reset();
+    expect(length(viewer.getCameraQuaternion())).toBeCloseTo(1, 10);
+
+    viewer.setCameraQuaternion([0.6, 0.27, 0.31, 0.69], false);
+    expect(length(viewer.getCameraQuaternion())).toBeCloseTo(1, 10);
+  });
+
   test("reset restores camera to reset location", async () => {
     testContext = setupViewer();
     const { viewer, renderOptions, viewerOptions } = testContext;
