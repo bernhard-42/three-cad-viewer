@@ -64,7 +64,7 @@ function pointer(canvas, type, x, y, button = 0) {
 
 const statusOf = (viewer) => viewer.display.statusLine.textContent;
 
-const POINT = "Point: 1.0000, -2.5000, 0.1235 (Cmd-c)";
+const POINT = "Point: 1.0000, -2.5000, 0.1235 (Cmd+C)";
 
 describe("Status line point", () => {
   afterEach(() => {
@@ -80,12 +80,12 @@ describe("Status line point", () => {
     expect(statusOf(viewer)).toBe(POINT);
   });
 
-  test("on other platforms the hint names Ctrl-c", async () => {
+  test("on other platforms the hint names Ctrl+C", async () => {
     const { viewer, canvas } = await setup(undefined, "Win32");
 
     pointer(canvas, "pointerdown", 50, 50);
 
-    expect(statusOf(viewer)).toBe("Point: 1.0000, -2.5000, 0.1235 (Ctrl-c)");
+    expect(statusOf(viewer)).toBe("Point: 1.0000, -2.5000, 0.1235 (Ctrl+C)");
   });
 
   test("a move of up to 3 px keeps the point, a longer one brings the hover readout back", async () => {

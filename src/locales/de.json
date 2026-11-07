@@ -311,8 +311,8 @@
   "status": {
     "copied": "Kopiert: {{point}}",
     "point": "Punkt: {{point}} ({{key}})",
-    "copyKeyMac": "Cmd-c",
-    "copyKeyOther": "Strg-c",
+    "copyKeyMac": "Cmd+C",
+    "copyKeyOther": "Strg+C",
     "solid": "Körper",
     "solidCounts": "Körper – Flächen: {{faces}}, Kanten: {{edges}}",
     "solidCountsVolume": "Körper – Flächen: {{faces}}, Kanten: {{edges}}, Vol. ≈ {{volume}}",
