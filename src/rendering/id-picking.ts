@@ -53,11 +53,16 @@ export const COMPONENT_ID_ATTRIBUTE = "componentId";
  * pick layer so `overrideMaterial` only touches one topo at a time — a mesh shader
  * can't render lines/points. `obj_vertices` points live on `VERTEX` *only* (off the
  * visual pass).
+ *
+ * `FACE_BACK` holds the mesh that draws the back side of a face that is not part of
+ * a solid (see {@link enableBackSidePickLayer}); its pass culls front faces. Layer 4
+ * is the clip caps' `CAP_LAYER`.
  */
 export const PICK_LAYER = {
   FACE: 1,
   EDGE: 2,
   VERTEX: 3,
+  FACE_BACK: 5,
 } as const;
 
 export type PickLayer = (typeof PICK_LAYER)[keyof typeof PICK_LAYER];
@@ -95,6 +100,18 @@ export function enablePickLayer(
   topo: "face" | "edge" | "vertex",
 ): void {
   object.layers.enable(PICK_LAYER_BY_TOPO[topo]);
+}
+
+/**
+ * Make the back side of a face pickable: add `object`, the mesh that draws that
+ * side, to {@link PICK_LAYER.FACE_BACK}. The face pass culls back faces, which is
+ * right for solids (seen from outside, a front face always comes first, and through a
+ * clip cut the inner walls must not be picked), but a face or shell on its own can be
+ * seen from behind. The pass skips a mesh whose material is hidden, as every pass
+ * does, so a hidden back side stays unpickable.
+ */
+export function enableBackSidePickLayer(object: THREE.Object3D): void {
+  object.layers.enable(PICK_LAYER.FACE_BACK);
 }
 
 /**
@@ -458,6 +475,8 @@ export interface PickMaterialOptions {
    * occluding face get picked "through" it.) Set per-scene from the bounding radius.
    */
   depthBias?: number;
+  /** Face material only: the side it draws (default `FrontSide`). */
+  side?: THREE.Side;
 }
 
 /**
@@ -515,6 +534,7 @@ const PICK_FRAGMENT_SHADER = /* glsl */ `
  * Build the **face** pick override-material: a GLSL3 `ShaderMaterial` that reads the
  * integer {@link COMPONENT_ID_ATTRIBUTE} and writes `packId(componentId)` +
  * world position to the MRT pick target. Honors clipping (planes + intersection).
+ * `options.side` = `BackSide` gives the material of the back-side pass.
  */
 export function createFacePickMaterial(
   options: PickMaterialOptions = {},
@@ -551,7 +571,7 @@ export function createFacePickMaterial(
     glslVersion: THREE.GLSL3,
     vertexShader,
     fragmentShader: PICK_FRAGMENT_SHADER,
-    side: THREE.FrontSide,
+    side: options.side ?? THREE.FrontSide,
     // Nearest face must win in the id buffer.
     depthTest: true,
     depthWrite: true,
@@ -562,7 +582,13 @@ export function createFacePickMaterial(
     clipIntersection: options.clipIntersection ?? false,
   });
 
-  gpuTracker.track("material", material, "ShaderMaterial (face pick)");
+  gpuTracker.track(
+    "material",
+    material,
+    options.side === THREE.BackSide
+      ? "ShaderMaterial (face back pick)"
+      : "ShaderMaterial (face pick)",
+  );
   return material;
 }
 
@@ -826,7 +852,8 @@ function topoEligible(topo: TopoType, filter: TopoType[] | undefined): boolean {
  *    rebuild) so the pick buffer is re-rendered lazily on the next {@link pickAt},
  *  - {@link pickAt} on hover/click to resolve the component under the cursor.
  *
- * Per-topo passes (FACE, then fat EDGE lines, then fat VERTEX points) accumulate
+ * Per-topo passes (FACE, the back sides on FACE_BACK, then fat EDGE lines, then fat
+ * VERTEX points) accumulate
  * into one MRT target; `pickAt` reads an N×N window and resolves **vertex > edge >
  * face** priority via the registry's topo, honoring `topoFilter`, then reads the
  * position attachment → `point`.
@@ -865,6 +892,8 @@ export class IdPicker {
   private pickTarget: THREE.WebGLRenderTarget | null;
   /** Per-topo pick override-materials. Allocated lazily in `pickAt`. */
   private faceMaterial: THREE.ShaderMaterial | null;
+  /** Face material of the back-side pass ({@link PICK_LAYER.FACE_BACK}). */
+  private faceBackMaterial: THREE.ShaderMaterial | null;
   private edgeMaterial: THREE.ShaderMaterial | null;
   private vertexMaterial: THREE.ShaderMaterial | null;
   /** Clip-plane count the pick materials were last compiled for (program key). */
@@ -912,6 +941,7 @@ export class IdPicker {
     this.dirty = true;
     this.pickTarget = null;
     this.faceMaterial = null;
+    this.faceBackMaterial = null;
     this.edgeMaterial = null;
     this.vertexMaterial = null;
     this.compiledPlaneCount = 0;
@@ -1016,6 +1046,7 @@ export class IdPicker {
       intersection !== this.compiledIntersection;
     for (const material of [
       this.faceMaterial,
+      this.faceBackMaterial,
       this.edgeMaterial,
       this.vertexMaterial,
     ]) {
@@ -1155,6 +1186,7 @@ export class IdPicker {
     }
     if (
       this.faceMaterial === null ||
+      this.faceBackMaterial === null ||
       this.edgeMaterial === null ||
       this.vertexMaterial === null
     ) {
@@ -1164,6 +1196,11 @@ export class IdPicker {
       };
       // Face pass carries no depth bias (bias 0 = the occluder reference plane).
       if (this.faceMaterial === null) this.faceMaterial = createFacePickMaterial(opts);
+      if (this.faceBackMaterial === null)
+        this.faceBackMaterial = createFacePickMaterial({
+          ...opts,
+          side: THREE.BackSide,
+        });
       if (this.edgeMaterial === null)
         this.edgeMaterial = createEdgePickMaterial({
           ...opts,
@@ -1184,8 +1221,9 @@ export class IdPicker {
 
   /**
    * Render the per-topo pick passes into the MRT target, reusing the main camera.
-   * Clears once, then accumulates **FACE → EDGE → VERTEX** (each drawn fat
-   * and later, so higher-priority topos overwrite at coincident pixels). All
+   * Clears once, then accumulates **FACE → FACE_BACK → EDGE → VERTEX** (edges and
+   * vertices drawn fat and later, so higher-priority topos overwrite at coincident
+   * pixels; the back sides share the faces' depth test). All
    * renderer state touched here is saved and restored.
    */
   private _renderPickBuffer(
@@ -1213,6 +1251,7 @@ export class IdPicker {
       renderer.setClearColor(0x000000, 0); // 0 = BACKGROUND_ID
       renderer.clear();
       this._pass(camera, PICK_LAYER.FACE, this.faceMaterial!);
+      this._pass(camera, PICK_LAYER.FACE_BACK, this.faceBackMaterial!);
       this._pass(camera, PICK_LAYER.EDGE, this.edgeMaterial!);
       this._pass(camera, PICK_LAYER.VERTEX, this.vertexMaterial!);
     } finally {
@@ -1250,6 +1289,7 @@ export class IdPicker {
     }
     for (const material of [
       this.faceMaterial,
+      this.faceBackMaterial,
       this.edgeMaterial,
       this.vertexMaterial,
     ]) {
@@ -1258,6 +1298,7 @@ export class IdPicker {
       material.dispose();
     }
     this.faceMaterial = null;
+    this.faceBackMaterial = null;
     this.edgeMaterial = null;
     this.vertexMaterial = null;
     this.scene = null;

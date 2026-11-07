@@ -459,7 +459,7 @@ describe("id-picking: IdPicker.pickAt", () => {
     picker.pickAt(50, 20);
 
     // A background drawn into the MRT target is a GL error: its shader has one output
-    expect(seen).toEqual([null, null, null]);
+    expect(seen).toEqual([null, null, null, null]);
     expect(scene.background).toBe(background);
   });
 
@@ -483,14 +483,14 @@ describe("id-picking: IdPicker.pickAt", () => {
     picker.attach(new THREE.Scene(), fakeCamera());
     picker.setSize(200, 100);
 
-    // Each buffer render does 3 passes (FACE + EDGE + VERTEX).
+    // Each buffer render does 4 passes (FACE + FACE_BACK + EDGE + VERTEX).
     picker.pickAt(50, 20);
-    expect(renderer.calls.render).toBe(3); // first read renders (3 passes)
+    expect(renderer.calls.render).toBe(4); // first read renders (4 passes)
     picker.pickAt(60, 30);
-    expect(renderer.calls.render).toBe(3); // no view change -> no re-render
+    expect(renderer.calls.render).toBe(4); // no view change -> no re-render
     picker.setDirty();
     picker.pickAt(60, 30);
-    expect(renderer.calls.render).toBe(6); // dirtied -> re-render (3 passes)
+    expect(renderer.calls.render).toBe(8); // dirtied -> re-render (4 passes)
   });
 
   test("setClippingPlanes recompiles the material only on plane-count change", () => {
@@ -543,7 +543,7 @@ describe("id-picking: IdPicker.pickAt", () => {
     expect(picker.pickAt(50, 20)).toBeNull(); // detached
   });
 
-  test("per-topo passes select FACE, EDGE, VERTEX layers, restored afterwards", () => {
+  test("per-topo passes select FACE, FACE_BACK, EDGE, VERTEX layers, restored afterwards", () => {
     const reg = new ComponentRegistry();
     const id = registerFace(reg);
     const renderer = makeRenderer(packId(id));
@@ -563,10 +563,28 @@ describe("id-picking: IdPicker.pickAt", () => {
     };
     expect(masks).toEqual([
       layerMask(PICK_LAYER.FACE),
+      layerMask(PICK_LAYER.FACE_BACK),
       layerMask(PICK_LAYER.EDGE),
       layerMask(PICK_LAYER.VERTEX),
     ]);
     expect(cam.layers.mask).toBe(savedBefore); // restored afterwards
+  });
+
+  test("the FACE pass draws front sides, the FACE_BACK pass back sides", () => {
+    const renderer = makeRenderer([0, 0, 0, 0]);
+    const cam = new THREE.PerspectiveCamera();
+    const sides = {};
+    renderer.render = (scene) => {
+      sides[cam.layers.mask] = scene.overrideMaterial.side;
+    };
+    const picker = new IdPicker(renderer, new ComponentRegistry());
+    picker.attach(new THREE.Scene(), { getCamera: () => cam });
+    picker.setSize(200, 100);
+
+    picker.pickAt(50, 20);
+
+    expect(sides[1 << PICK_LAYER.FACE]).toBe(THREE.FrontSide);
+    expect(sides[1 << PICK_LAYER.FACE_BACK]).toBe(THREE.BackSide);
   });
 
   test("priority: a vertex in the window beats a face, even off-center", () => {

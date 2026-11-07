@@ -21,7 +21,7 @@
 import * as THREE from "three";
 import { PICK_LAYER } from "./id-picking.js";
 
-/** Render layer of the clip stencil meshes and cap quads (pick layers use 1-3). */
+/** Render layer of the clip stencil meshes and cap quads (pick layers use 1-3 and 5). */
 export const CAP_LAYER = 4;
 
 /** Id of face pixels on the cut contour (larger than any cap id). */

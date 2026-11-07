@@ -180,17 +180,32 @@ type PatchableMaterial = Pick<
 /**
  * Fragment color override, injected after `#include <color_fragment>` in all three
  * materials: replace the base/lit color with the highlight color — SELECTED wins
- * over HOVER (matches `ObjectGroup._getHighlightColor`).
+ * over HOVER (matches `ObjectGroup._getHighlightColor`). With `opacity` below 1 the
+ * highlight color is mixed over the base color instead, so a texture stays visible.
  */
-const HL_COLOR_OVERRIDE = `
+function hlColorOverride(opacity: number): string {
+  const tint = (color: string): string =>
+    opacity === 1
+      ? color
+      : `mix(diffuseColor.rgb, ${color}, ${opacity.toFixed(2)})`;
+  return `
   {
     uint hlColorState = highlightState();
     if ((hlColorState & ${HighlightFlag.SELECTED}u) != 0u) {
-      diffuseColor.rgb = ${U_HIGHLIGHT_SELECTED_COLOR};
+      diffuseColor.rgb = ${tint(U_HIGHLIGHT_SELECTED_COLOR)};
     } else if ((hlColorState & ${HighlightFlag.HOVER}u) != 0u) {
-      diffuseColor.rgb = ${U_HIGHLIGHT_HOVER_COLOR};
+      diffuseColor.rgb = ${tint(U_HIGHLIGHT_HOVER_COLOR)};
     }
   }`;
+}
+
+const HL_COLOR_OVERRIDE = hlColorOverride(1);
+
+/**
+ * Opacity of the highlight color on an image face: the image must stay visible
+ * under the cursor, to see where to point in it.
+ */
+export const IMAGE_FACE_HIGHLIGHT_OPACITY = 0.35;
 
 /**
  * GLSL ternary choosing the focus size from the flag bits, matching the old
@@ -537,16 +552,23 @@ export class HighlightController {
    * Overwrites `diffuseColor.rgb` with the highlight color BEFORE lighting (after
    * the base color/map is applied) so a highlighted face is lit exactly as the old
    * `material.color` swap was — selected wins over hover.
+   * @param opacity - below 1 the highlight color is mixed over the face color, for
+   *   an image face ({@link IMAGE_FACE_HIGHLIGHT_OPACITY}).
    */
-  patchFaceMaterial(material: PatchableMaterial): void {
-    this._install(material, "patchFaceMaterial", (shader) => {
-      shader.fragmentShader = replaceOrThrow(
-        shader.fragmentShader,
-        "#include <color_fragment>",
-        `#include <color_fragment>${HL_COLOR_OVERRIDE}`,
-        "patchFaceMaterial",
-      );
-    });
+  patchFaceMaterial(material: PatchableMaterial, opacity: number = 1): void {
+    this._install(
+      material,
+      "patchFaceMaterial",
+      (shader) => {
+        shader.fragmentShader = replaceOrThrow(
+          shader.fragmentShader,
+          "#include <color_fragment>",
+          `#include <color_fragment>${hlColorOverride(opacity)}`,
+          "patchFaceMaterial",
+        );
+      },
+      opacity === 1 ? "" : `opacity${opacity}`,
+    );
   }
 
   /**

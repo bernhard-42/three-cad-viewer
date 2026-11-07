@@ -6,6 +6,7 @@ import {
   HighlightController,
   HighlightFlag,
   HIGHLIGHT_STATE_TEXTURE_WIDTH,
+  IMAGE_FACE_HIGHLIGHT_OPACITY,
 } from "../../src/rendering/highlight.js";
 
 /**
@@ -410,12 +411,42 @@ describe("HighlightController — shader patching", () => {
     );
     c.dispose();
   });
+
+  it("an image face mixes the highlight over its image, in a program of its own", () => {
+    const c = controller();
+    const face = fakeMaterial();
+    const image = fakeMaterial();
+    c.patchFaceMaterial(face);
+    c.patchFaceMaterial(image, IMAGE_FACE_HIGHLIGHT_OPACITY);
+    const faceShader = shaderWith("");
+    const imageShader = shaderWith("");
+    face.onBeforeCompile(faceShader, null);
+    image.onBeforeCompile(imageShader, null);
+
+    expect(faceShader.fragmentShader).toContain(
+      "diffuseColor.rgb = uHighlightHoverColor;",
+    );
+    expect(imageShader.fragmentShader).toContain(
+      "diffuseColor.rgb = mix(diffuseColor.rgb, uHighlightHoverColor, 0.35);",
+    );
+    expect(imageShader.fragmentShader).toContain(
+      "diffuseColor.rgb = mix(diffuseColor.rgb, uHighlightSelectedColor, 0.35);",
+    );
+    expect(face.customProgramCacheKey()).not.toBe(
+      image.customProgramCacheKey(),
+    );
+    c.dispose();
+  });
 });
 
 describe("stock three shader anchors (loud guard for three upgrades)", () => {
   it("the anchors the patch methods rely on still exist", () => {
     expect(new LineMaterial().vertexShader).toContain("offset *= linewidth;");
     expect(THREE.ShaderLib.standard.fragmentShader).toContain(
+      "#include <color_fragment>",
+    );
+    // image faces use MeshBasicMaterial
+    expect(THREE.ShaderLib.basic.fragmentShader).toContain(
       "#include <color_fragment>",
     );
     expect(THREE.ShaderLib.points.vertexShader).toContain("gl_PointSize = size;");

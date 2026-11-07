@@ -14,10 +14,12 @@ import {
   buildVertexComponentIds,
   applyComponentIds,
   enablePickLayer,
+  enableBackSidePickLayer,
   setPickLayerExclusive,
 } from "../rendering/id-picking.js";
 import {
   HighlightController,
+  IMAGE_FACE_HIGHLIGHT_OPACITY,
   VERTEX_FOCUS_SIZE,
 } from "../rendering/highlight.js";
 import { MeshGeometrySource } from "../tools/cad_tools/mesh-measure.js";
@@ -186,6 +188,25 @@ function materialHasTexture(def: MaterialAppearance): boolean {
 /** Check whether a threejs-materials entry has texture references. */
 function materialXHasTextures(entry: MaterialXMaterial): boolean {
   return Object.keys(entry.textures).length > 0;
+}
+
+/**
+ * UVs of an image face: the image of `width` × `height` is centred on the face's
+ * local origin in its XY plane, the layout `THREE.PlaneGeometry(width, height)`
+ * gives (u to the right, v up).
+ */
+function imageFaceUvs(
+  positions: Float32Array,
+  width: number,
+  height: number,
+): THREE.BufferAttribute {
+  const count = positions.length / 3;
+  const uvs = new Float32Array(count * 2);
+  for (let i = 0; i < count; i++) {
+    uvs[2 * i] = positions[3 * i] / width + 0.5;
+    uvs[2 * i + 1] = positions[3 * i + 1] / height + 0.5;
+  }
+  return new THREE.BufferAttribute(uvs, 2);
 }
 
 class NestedGroup {
@@ -729,16 +750,50 @@ class NestedGroup {
       this.transparent = true;
     }
 
-    let shapeGeometry: THREE.BufferGeometry | THREE.PlaneGeometry;
+    // An image face is a face like any other, with an image as its texture: it gets
+    // the same geometry, pick ids and hover tint, and only adds UVs for the image.
+    const shapeGeometry = gpuTracker.trackGeometry(
+      new THREE.BufferGeometry(),
+      `BufferGeometry (shape) for ${path}`,
+    );
+    shapeGeometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(positions, 3),
+    );
+    shapeGeometry.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
+    shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
+
+    // id-based picking: tag each vertex with its face component id
+    // on the existing indexed geometry. Compact group only (assignIds).
+    if (this.assignIds) {
+      const { componentId, collisions } = buildFaceComponentIds(
+        positions.length / 3,
+        shape.triangles,
+        shape.triangles_per_face,
+        path,
+        subtype,
+        this.registry,
+      );
+      applyComponentIds(shapeGeometry, componentId);
+      if (collisions > 0) {
+        logger.warn(
+          `componentId: ${collisions} cross-face shared vertices in ${path} ` +
+            "(face picking ok; de-index needed only if this solid must split)",
+        );
+      }
+    }
+
+    group.shapeGeometry = shapeGeometry;
+
     let texture: THREE.Texture | null = null;
     let frontMaterial: ColoredMaterial;
 
     if (texture_data != null) {
       const url = `data:image/${texture_data.format};base64,${texture_data.data}`;
       const img = new Image();
-      shapeGeometry = gpuTracker.trackGeometry(
-        new THREE.PlaneGeometry(texture_width!, texture_height!),
-        `PlaneGeometry (textured) for ${path}`,
+      shapeGeometry.setAttribute(
+        "uv",
+        imageFaceUvs(positions, texture_width!, texture_height!),
       );
 
       texture = gpuTracker.trackTexture(
@@ -760,19 +815,6 @@ class NestedGroup {
       );
       renderback = false;
     } else {
-      shapeGeometry = gpuTracker.trackGeometry(
-        new THREE.BufferGeometry(),
-        `BufferGeometry (shape) for ${path}`,
-      );
-      shapeGeometry.setAttribute(
-        "position",
-        new THREE.BufferAttribute(positions, 3),
-      );
-      shapeGeometry.setAttribute(
-        "normal",
-        new THREE.BufferAttribute(normals, 3),
-      );
-      shapeGeometry.setIndex(new THREE.BufferAttribute(triangles, 1));
       if (shape.uvs && shape.uvs.length > 0) {
         const uvArray =
           shape.uvs instanceof Float32Array
@@ -780,29 +822,6 @@ class NestedGroup {
             : new Float32Array(shape.uvs);
         shapeGeometry.setAttribute("uv", new THREE.BufferAttribute(uvArray, 2));
       }
-
-      // id-based picking: tag each vertex with its face component id
-      // on the existing indexed geometry. Compact group only (assignIds); textured
-      // faces use PlaneGeometry above and are skipped by construction.
-      if (this.assignIds) {
-        const { componentId, collisions } = buildFaceComponentIds(
-          positions.length / 3,
-          shape.triangles,
-          shape.triangles_per_face,
-          path,
-          subtype,
-          this.registry,
-        );
-        applyComponentIds(shapeGeometry, componentId);
-        if (collisions > 0) {
-          logger.warn(
-            `componentId: ${collisions} cross-face shared vertices in ${path} ` +
-              "(face picking ok; de-index needed only if this solid must split)",
-          );
-        }
-      }
-
-      group.shapeGeometry = shapeGeometry;
 
       frontMaterial = this.materialFactory.createFrontFaceMaterial(
         {
@@ -813,9 +832,13 @@ class NestedGroup {
         `MeshStandardMaterial (front) for ${path}`,
       );
       frontMaterial.name = "frontMaterial";
-      // tint by componentId in-shader (compact group only).
-      this.highlight?.patchFaceMaterial(frontMaterial);
     }
+    // tint by componentId in-shader (compact group only); an image face keeps its
+    // image visible under the tint.
+    this.highlight?.patchFaceMaterial(
+      frontMaterial,
+      texture === null ? 1 : IMAGE_FACE_HIGHLIGHT_OPACITY,
+    );
 
     const backColor =
       group.subtype === "solid"
@@ -845,6 +868,14 @@ class NestedGroup {
     // the main render pass is unaffected.
     if (this.assignIds) {
       enablePickLayer(front, "face");
+      // A face that is not part of a solid can be seen from behind: make the mesh
+      // that draws its back side pickable too. That is the front mesh itself when
+      // its material is double-sided (an image face), else the back mesh.
+      if (subtype !== "solid") {
+        enableBackSidePickLayer(
+          frontMaterial.side === THREE.DoubleSide ? front : back,
+        );
+      }
     }
 
     // ensure, transparent objects will be rendered at the end

@@ -1624,6 +1624,83 @@ describe("NestedGroup - id-based picking (Phase 1)", () => {
     expect(front.layers.isEnabled(PICK_LAYER.FACE)).toBe(false);
   });
 
+  // One rectangular face, 2 × 1, centred on its local origin: two triangles.
+  function rectangleShapes(subtype, texture = null) {
+    const part = {
+      id: "rect",
+      name: "rect",
+      type: "shapes",
+      subtype,
+      color: 0xffffff,
+      alpha: 1.0,
+      renderback: true,
+      state: [1, 1],
+      shape: {
+        vertices: [-1, -0.5, 0, -1, 0.5, 0, 1, -0.5, 0, 1, 0.5, 0],
+        normals: [0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1],
+        triangles: [3, 1, 0, 3, 0, 2],
+        triangles_per_face: [2],
+        edges: [],
+      },
+      geomtype: null,
+    };
+    if (texture !== null) part.texture = texture;
+    return { ...createMinimalShapeData(), parts: [part] };
+  }
+
+  test("an image face keeps its tessellation, gets face ids and image UVs, and is pickable from both sides", () => {
+    const image = {
+      image: {
+        data: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        format: "png",
+      },
+      width: 2,
+      height: 1,
+    };
+    const ng = makeNG(rectangleShapes("face", image));
+    ng.assignIds = true;
+    ng.render();
+    const group = ng.groups["rect"];
+    const geom = group.front.geometry;
+
+    expect(geom.getAttribute("position").count).toBe(4);
+    const ids = geom.getAttribute("componentId");
+    expect(ids).toBeDefined();
+    const info = ng.registry.get(ids.array[0]);
+    expect(info.topo).toBe("face");
+    expect(info.subtype).toBe("face");
+    // Same layout as PlaneGeometry(width, height): corners map to the image corners
+    const uv = Array.from(geom.getAttribute("uv").array);
+    expect(uv).toEqual([0, 0, 0, 1, 1, 0, 1, 1]);
+    expect(group.front.material.map).not.toBeNull();
+    // The image material is double-sided, so its front mesh also draws the back side
+    expect(group.front.layers.isEnabled(PICK_LAYER.FACE)).toBe(true);
+    expect(group.front.layers.isEnabled(PICK_LAYER.FACE_BACK)).toBe(true);
+    expect(group.back.layers.isEnabled(PICK_LAYER.FACE_BACK)).toBe(false);
+  });
+
+  test("the back mesh of a face is on the FACE_BACK pick layer, a solid's is not", () => {
+    const face = makeNG(rectangleShapes("face"));
+    face.assignIds = true;
+    face.render();
+    expect(
+      face.groups["rect"].back.layers.isEnabled(PICK_LAYER.FACE_BACK),
+    ).toBe(true);
+    expect(
+      face.groups["rect"].front.layers.isEnabled(PICK_LAYER.FACE_BACK),
+    ).toBe(false);
+
+    const solid = makeNG(rectangleShapes("solid"));
+    solid.assignIds = true;
+    solid.render();
+    expect(
+      solid.groups["rect"].back.layers.isEnabled(PICK_LAYER.FACE_BACK),
+    ).toBe(false);
+    expect(
+      solid.groups["rect"].front.layers.isEnabled(PICK_LAYER.FACE_BACK),
+    ).toBe(false);
+  });
+
   // Phase 2b: a solid's obj_vertices become a pick-only Points cloud on the
   // VERTEX layer (not the visual layer 0).
   function meshWithObjVertices() {
