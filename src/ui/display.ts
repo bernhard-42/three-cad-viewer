@@ -282,6 +282,9 @@ class Display {
   cadBody!: HTMLElement;
   cadView!: HTMLElement;
   statusLine!: HTMLElement;
+  /** Hover readout, kept while a status message covers it. */
+  private hoverStatus = "";
+  private statusMessageShown = false;
   cadTree!: HTMLElement;
   cadTreeScrollContainer!: HTMLElement;
   cadTreeToggles!: HTMLElement;
@@ -971,8 +974,35 @@ class Display {
    * Set the hover status line (preselection readout). Empty string clears it.
    * A rounded overlay badge stacked below the grid-size indicator at the bottom
    * left of the canvas; hidden entirely when empty so no empty badge shows.
+   * While a {@link showStatusMessage} message is shown, the text is kept for
+   * {@link restoreStatusLine} instead.
    */
   setStatusLine(text: string): void {
+    this.hoverStatus = text;
+    if (!this.statusMessageShown) this.renderStatusLine(text);
+  }
+
+  /**
+   * Show a short-lived message (a clicked or copied point) in the status line,
+   * over the hover readout, until {@link restoreStatusLine}.
+   */
+  showStatusMessage(text: string): void {
+    this.statusMessageShown = true;
+    this.renderStatusLine(text);
+  }
+
+  /** End a {@link showStatusMessage} message: show the hover readout again. */
+  restoreStatusLine(): void {
+    this.statusMessageShown = false;
+    this.renderStatusLine(this.hoverStatus);
+  }
+
+  /** Whether a {@link showStatusMessage} message is shown. */
+  get statusMessageActive(): boolean {
+    return this.statusMessageShown;
+  }
+
+  private renderStatusLine(text: string): void {
     this.statusLine.textContent = text;
     this.statusLine.style.display = text === "" ? "none" : "";
   }

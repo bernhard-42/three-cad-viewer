@@ -317,6 +317,27 @@ describe("Display - Helper Methods", () => {
       expect(btn.classList.contains("tcv_button_play")).toBe(true);
     }
   });
+
+  test("a status message covers the hover readout until it is restored", () => {
+    container = createContainer();
+    display = new Display(container, getDisplayOptions());
+    const line = display.statusLine;
+
+    display.setStatusLine("Solid: 6 faces, 12 edges");
+    display.showStatusMessage("Point: 1.0000, 2.0000, 3.0000");
+    expect(line.textContent).toBe("Point: 1.0000, 2.0000, 3.0000");
+    expect(display.statusMessageActive).toBe(true);
+    // hover keeps updating underneath without replacing the message
+    display.setStatusLine("Plane: area ≈ 1");
+    expect(line.textContent).toBe("Point: 1.0000, 2.0000, 3.0000");
+
+    display.restoreStatusLine();
+    expect(line.textContent).toBe("Plane: area ≈ 1");
+    expect(display.statusMessageActive).toBe(false);
+
+    display.setStatusLine("");
+    expect(line.style.display).toBe("none");
+  });
 });
 
 describe("Display - Show/Hide Methods", () => {

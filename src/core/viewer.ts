@@ -35,6 +35,7 @@ import {
   isLineSegments2,
   toVector3Tuple,
   copyText,
+  formatPoint,
   toQuaternionTuple,
 } from "../utils/utils.js";
 import type { DisposableTree } from "../utils/utils.js";
@@ -89,9 +90,6 @@ import {
   type BoundingBoxFlat,
   type Keymap,
 } from "./types.js";
-
-/** Decimals of a point copied with Ctrl/Cmd-C ({@link Viewer.copyPointUnderCursor}). */
-const COPY_POINT_DECIMALS = 4;
 
 /** Delay after the last camera change before the clip cap outline is drawn again. */
 const CAP_OUTLINE_SETTLE_MS = 150;
@@ -2374,9 +2372,9 @@ class Viewer {
    * Whether picked points are positions on the model: not while parts may be
    * displaced from their model positions — explode mode, an animation that was
    * played or scrubbed and not stopped since (Stop puts the parts back), a z-scale
-   * other than 1.
+   * other than 1. PickHost member.
    */
-  private pointsOnModel(): boolean {
+  pointsOnModel(): boolean {
     const mode = this.state.get("animationMode");
     if (mode === "explode") return false;
     if (mode === "animation" && this._animationStarted) return false;
@@ -2587,16 +2585,13 @@ class Viewer {
     const point = this.pickingController.pointUnderCursor();
     if (point === null) return false;
     const coords = toVector3Tuple(point.toArray());
-    const fmt = (v: number): string => {
-      const s = v.toFixed(COPY_POINT_DECIMALS);
-      return Number(s) === 0 ? (0).toFixed(COPY_POINT_DECIMALS) : s;
-    };
-    const text = coords.map(fmt).join(", ");
+    const text = formatPoint(coords);
     copyText(text, this.display.container);
     if (this.notifyCallback !== null) {
       this.notifyCallback({ copiedPoint: { old: null, new: coords } });
     }
-    this.display.setStatusLine(
+    // Until the mouse moves on, like the clicked point
+    this.pickingController.showStatusMessage(
       this.display.t("status.copied", { point: text }),
     );
     return true;

@@ -12,8 +12,31 @@ import {
   scaleLight,
   deepDispose,
   disposeGeometry,
+  formatPoint,
+  isMacPlatform,
 } from "../../src/utils/utils.js";
 import * as THREE from "three";
+
+describe("formatPoint and isMacPlatform", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("formatPoint writes four decimals and -0 as 0", () => {
+    expect(formatPoint([1, -2.5, 0.123456])).toBe("1.0000, -2.5000, 0.1235");
+    expect(formatPoint([-0.00001, 0, 3])).toBe("0.0000, 0.0000, 3.0000");
+  });
+
+  test("isMacPlatform follows navigator.platform", () => {
+    const platform = vi.spyOn(navigator, "platform", "get");
+    platform.mockReturnValue("MacIntel");
+    expect(isMacPlatform()).toBe(true);
+    platform.mockReturnValue("Win32");
+    expect(isMacPlatform()).toBe(false);
+    platform.mockReturnValue("Linux x86_64");
+    expect(isMacPlatform()).toBe(false);
+  });
+});
 
 // =============================================================================
 // KeyMapper Tests

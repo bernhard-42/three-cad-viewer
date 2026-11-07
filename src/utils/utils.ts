@@ -516,8 +516,38 @@ function copyText(text: string, parent: HTMLElement): boolean {
   return copied;
 }
 
+/** Decimals of a point shown in the status line or copied with Ctrl/Cmd-C. */
+const POINT_DECIMALS = 4;
+
+/**
+ * A world-space point as `"x, y, z"` with {@link POINT_DECIMALS} decimals, `-0`
+ * written as `0`: the text of a copied or clicked point.
+ */
+function formatPoint(point: Vector3Tuple): string {
+  const fmt = (v: number): string => {
+    const s = v.toFixed(POINT_DECIMALS);
+    return Number(s) === 0 ? (0).toFixed(POINT_DECIMALS) : s;
+  };
+  return point.map(fmt).join(", ");
+}
+
+/**
+ * Whether the viewer runs on macOS, where the copy shortcut is Cmd-C. Uses
+ * `navigator.platform` ("MacIntel" also on Apple silicon): deprecated, but unlike
+ * `navigator.userAgentData` it exists in Safari and WebKit views too.
+ */
+function isMacPlatform(): boolean {
+  return (
+    typeof navigator !== "undefined" &&
+    typeof navigator.platform === "string" &&
+    navigator.platform.startsWith("Mac")
+  );
+}
+
 export {
   copyText,
+  formatPoint,
+  isMacPlatform,
   flatten,
   isEqual,
   sceneTraverse,

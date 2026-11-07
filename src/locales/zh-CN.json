@@ -301,6 +301,9 @@
   },
   "status": {
     "copied": "已复制: {{point}}",
+    "point": "点: {{point}} ({{key}})",
+    "copyKeyMac": "Cmd-c",
+    "copyKeyOther": "Ctrl-c",
     "solid": "实体",
     "solidCounts": "实体: {{faces}} 个面, {{edges}} 条边",
     "solidCountsVolume": "实体: {{faces}} 个面, {{edges}} 条边, 体积 ≈ {{volume}}",

@@ -300,7 +300,10 @@
     "quaternionNeedsPosition": "Für das Quaternion fehlt die Position, es wird die ISO-Ansicht verwendet"
   },
   "status": {
-    "copied": "kopiert: {{point}}",
+    "copied": "Kopiert: {{point}}",
+    "point": "Punkt: {{point}} ({{key}})",
+    "copyKeyMac": "Cmd-c",
+    "copyKeyOther": "Strg-c",
     "solid": "Körper",
     "solidCounts": "Körper – Flächen: {{faces}}, Kanten: {{edges}}",
     "solidCountsVolume": "Körper – Flächen: {{faces}}, Kanten: {{edges}}, Vol. ≈ {{volume}}",

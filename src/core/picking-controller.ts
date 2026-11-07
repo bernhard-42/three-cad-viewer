@@ -1,5 +1,10 @@
 import * as THREE from "three";
-import { KeyMapper } from "../utils/utils.js";
+import {
+  KeyMapper,
+  formatPoint,
+  isMacPlatform,
+  toVector3Tuple,
+} from "../utils/utils.js";
 import { ObjectGroup } from "../scene/objectgroup.js";
 import {
   TopoFilter,
@@ -20,6 +25,13 @@ import type { Shapes } from "./types.js";
 import type { RenderedState } from "./viewer.js";
 import type { Display } from "../ui/display.js";
 import type { Tools } from "../tools/cad_tools/tools.js";
+
+/**
+ * How far (client px) the cursor may move before a clicked or copied point in the
+ * status line gives way to the hover readout again: a hand moves a pixel or two
+ * while clicking, also between the two clicks of a double-click.
+ */
+const STATUS_MESSAGE_MOVE_PX = 3;
 
 /**
  * The component a double-click picked.
@@ -51,6 +63,8 @@ export interface PickHost {
   readonly display: Display;
   readonly cadTools: Tools;
   update(updateMarker: boolean, notify: boolean): void;
+  /** Whether picked points are on the model (no explode, displaced animation, z-scale). */
+  pointsOnModel(): boolean;
   /** Restore the most recently meta-double-click-hidden leaf (hide-undo stack). */
   showLastHidden(): void;
   handlePick(
@@ -93,6 +107,11 @@ export class PickingController {
   private idHoverRenderQueued = false;
   /** Per-component hover status text (fixed per mesh; cleared on reload / z-scale). */
   private hoverStatusCache = new Map<string, string>();
+  /**
+   * Cursor position (client px) where a status message was shown; moving more than
+   * {@link STATUS_MESSAGE_MOVE_PX} away brings the hover readout back.
+   */
+  private statusMessageAt: { x: number; y: number } | null = null;
 
   // Selection input. `selectDownPosition` is the camera position at mousedown,
   // distinguishing a click from an orbit drag (fire only if the camera did not move).
@@ -111,6 +130,11 @@ export class PickingController {
       "pointerleave",
       this.onIdHoverLeave,
     );
+    // Always-on too: a left click shows the point under the cursor.
+    this.host.renderer.domElement.addEventListener(
+      "pointerdown",
+      this.onPointerDown,
+    );
   }
 
   /** Remove every listener this controller owns. */
@@ -123,6 +147,10 @@ export class PickingController {
       "pointerleave",
       this.onIdHoverLeave,
     );
+    this.host.renderer.domElement.removeEventListener(
+      "pointerdown",
+      this.onPointerDown,
+    );
     this.setSelectionInput(false);
     this.setPickHandler(false);
   }
@@ -134,6 +162,15 @@ export class PickingController {
     this.idHoverClientX = e.clientX;
     this.idHoverClientY = e.clientY;
     this.idHoverInside = true;
+    // A clicked or copied point stays until the mouse moves on, also in a drag
+    const at = this.statusMessageAt;
+    if (
+      at !== null &&
+      Math.hypot(e.clientX - at.x, e.clientY - at.y) > STATUS_MESSAGE_MOVE_PX
+    ) {
+      this.statusMessageAt = null;
+      this.host.display.restoreStatusLine();
+    }
     // Always-on hover: with no animation loop running (no active tool), the viewer
     // only re-renders on camera change, so a bare mouse-move wouldn't update the
     // preselection. Drive a render here, throttled to one per frame. During a tool the
@@ -156,6 +193,38 @@ export class PickingController {
       });
     }
   };
+
+  /**
+   * Left button down (a click, a double-click or the start of a rotate drag): show
+   * the point under the cursor, picked like hover and Ctrl/Cmd-C pick it, with the
+   * platform's copy key as a hint. Nothing over background or while parts may be
+   * displaced from their model positions (then Ctrl/Cmd-C copies nothing either).
+   */
+  private onPointerDown = (e: PointerEvent): void => {
+    if (e.button !== 0 || !this.host.ready || !this.host.pointsOnModel()) {
+      return;
+    }
+    const hit = this.pickAtClient(e.clientX, e.clientY);
+    if (hit === null || hit.point === null) return;
+    this.idHoverClientX = e.clientX;
+    this.idHoverClientY = e.clientY;
+    const t = this.host.display.t;
+    this.showStatusMessage(
+      t("status.point", {
+        point: formatPoint(toVector3Tuple(hit.point.toArray())),
+        key: t(isMacPlatform() ? "status.copyKeyMac" : "status.copyKeyOther"),
+      }),
+    );
+  };
+
+  /**
+   * Show `text` in the status line, over the hover readout, until the cursor moves
+   * more than {@link STATUS_MESSAGE_MOVE_PX} away from where it is now.
+   */
+  showStatusMessage(text: string): void {
+    this.statusMessageAt = { x: this.idHoverClientX, y: this.idHoverClientY };
+    this.host.display.showStatusMessage(text);
+  }
 
   /** Cursor left the canvas → clear any hover highlight. */
   private onIdHoverLeave = (): void => {

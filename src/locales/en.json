@@ -300,7 +300,10 @@
     "quaternionNeedsPosition": "quaternion needs position to be provided, falling back to ISO view"
   },
   "status": {
-    "copied": "copied: {{point}}",
+    "copied": "Copied: {{point}}",
+    "point": "Point: {{point}} ({{key}})",
+    "copyKeyMac": "Cmd-c",
+    "copyKeyOther": "Ctrl-c",
     "solid": "Solid",
     "solidCounts": "Solid: {{faces}} faces, {{edges}} edges",
     "solidCountsVolume": "Solid: {{faces}} faces, {{edges}} edges, vol ≈ {{volume}}",
