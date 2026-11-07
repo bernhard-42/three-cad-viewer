@@ -27,6 +27,94 @@ describe("Info - camera target", () => {
   });
 });
 
+describe("Info - control settings", () => {
+  /** The ready table as [label, value] rows. */
+  function rows(container) {
+    return [...container.querySelectorAll(".small_table tr")].map((tr) =>
+      [...tr.querySelectorAll("td")].map((td) => td.textContent.trim()),
+    );
+  }
+
+  test("the trackball lists rotate and zoom under Control", () => {
+    const container = document.createElement("div");
+    const info = new Info(container, new I18n().t);
+
+    info.readyMsg("5.2.0", "trackball", {
+      holroyd: true,
+      cursorPivot: true,
+      zoomToCursor: true,
+    });
+    expect(rows(container).slice(0, 5)).toEqual([
+      ["Version", "5.2.0"],
+      ["Control", "trackball"],
+      ["- rotate", "around pivot"],
+      ["- zoom", "to cursor"],
+      ["Axes", expect.stringContaining("X")],
+    ]);
+  });
+
+  test("without holroyd the trackball is a tumbler", () => {
+    const container = document.createElement("div");
+    const info = new Info(container, new I18n().t);
+
+    info.readyMsg("5.2.0", "trackball", {
+      holroyd: false,
+      cursorPivot: false,
+      zoomToCursor: false,
+    });
+    expect(rows(container).slice(1, 4)).toEqual([
+      ["Control", "tumbler"],
+      ["- rotate", "around target"],
+      ["- zoom", "to center"],
+    ]);
+  });
+
+  test("orbit ignores holroyd, and without settings only the control is listed", () => {
+    const container = document.createElement("div");
+    const info = new Info(container, new I18n().t);
+
+    info.readyMsg("5.2.0", "orbit", {
+      holroyd: false,
+      cursorPivot: true,
+      zoomToCursor: false,
+    });
+    expect(rows(container).slice(1, 4)).toEqual([
+      ["Control", "orbit"],
+      ["- rotate", "around pivot"],
+      ["- zoom", "to center"],
+    ]);
+
+    info.readyMsg("5.2.0", "orbit");
+    expect(rows(container)[2][0]).toBe("Axes");
+  });
+
+  test("a changed setting adds an entry of its own", () => {
+    const container = document.createElement("div");
+    const info = new Info(container, new I18n().t);
+    info.readyMsg("5.2.0", "trackball");
+
+    info.controlChangeInfo("rotate", false);
+    info.controlChangeInfo("mode", false);
+    info.controlChangeInfo("zoom", true);
+    info.controlChangeInfo("mode", true);
+
+    expect(container.textContent).toContain("rotation control: around target");
+    expect(container.textContent).toContain("control: tumbler");
+    expect(container.textContent).toContain("zoom control: to cursor");
+    expect(container.textContent).toContain("control: trackball");
+    expect(info.chunks.length).toBe(5);
+  });
+
+  test("German", () => {
+    const container = document.createElement("div");
+    const info = new Info(container, new I18n("de").t);
+    info.controlChangeInfo("rotate", true);
+    info.controlChangeInfo("mode", false);
+    expect(container.textContent).toContain("Drehsteuerung: um Drehpunkt");
+    expect(container.textContent).toContain("Steuerung: tumbler");
+  });
+});
+
 describe("Info - bbInfo", () => {
   let container;
   let info;

@@ -1916,7 +1916,11 @@ class Viewer {
       this._suppressUpdate = false;
     }
 
-    this.display.showReadyMessage(version, this.state.get("control"));
+    this.display.showReadyMessage(version, this.state.get("control"), {
+      holroyd: this.state.get("holroyd"),
+      cursorPivot: this.state.get("cursorPivot"),
+      zoomToCursor: this.state.get("zoomToCursor"),
+    });
     timer.split("show done");
 
     // Notify computed values and all config defaults
@@ -4367,8 +4371,12 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setHolroyd = (flag: boolean, notify: boolean = true): void => {
-    this.state.set("holroyd", flag, notify);
+    const changed = this.state.get("holroyd") !== flag;
+    // Controls first: with orbit controls this throws, and then neither the state
+    // nor the host must see a change that did not happen.
     this.rendered.controls.setHolroydTrackball(flag);
+    this.state.set("holroyd", flag, notify);
+    if (changed) this.display.showControlChange("mode", flag);
   };
 
   /**
@@ -4388,9 +4396,11 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setCursorPivot = (flag: boolean, notify: boolean = true): void => {
+    const changed = this.state.get("cursorPivot") !== flag;
     this.state.set("cursorPivot", flag, notify);
     this.rendered.controls.setCursorPivot(flag, this._pickPivot);
     this.display.showCameraTargetHelp(!flag);
+    if (changed) this.display.showControlChange("rotate", flag);
   };
 
   /**
@@ -4408,8 +4418,10 @@ class Viewer {
    * @param notify - whether to send notification or not.
    */
   setZoomToCursor = (flag: boolean, notify: boolean = true): void => {
+    const changed = this.state.get("zoomToCursor") !== flag;
     this.state.set("zoomToCursor", flag, notify);
     this.rendered.controls.setZoomToCursor(flag);
+    if (changed) this.display.showControlChange("zoom", flag);
   };
 
   /**

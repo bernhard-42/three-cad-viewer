@@ -75,6 +75,48 @@ describe("options", () => {
     expect(viewer.getCursorPivot()).toBe(false);
     expect(notifications.at(-1).cursor_pivot.new).toBe(false);
   });
+
+  test("the info box lists the settings at start, and each change once", async () => {
+    const { viewer } = await setup({ control: "trackball" });
+    const info = viewer.display._info;
+    const text = () => info.html.textContent.replace(/\s+/g, " ");
+    const rows = [...info.html.querySelectorAll(".small_table tr")].map((tr) =>
+      [...tr.querySelectorAll("td")].map((td) => td.textContent.trim()),
+    );
+    expect(viewer.state.get("control")).toBe("trackball");
+    expect(rows.slice(1, 4)).toEqual([
+      ["Control", "trackball"],
+      ["- rotate", "around pivot"],
+      ["- zoom", "to cursor"],
+    ]);
+    const entries = info.chunks.length;
+
+    viewer.setCursorPivot(false);
+    viewer.setCursorPivot(false); // no change, no entry
+    viewer.setZoomToCursor(false);
+    viewer.setHolroyd(false);
+
+    expect(info.chunks.length).toBe(entries + 3);
+    expect(text()).toContain("rotation control: around target");
+    expect(text()).toContain("zoom control: to center");
+    expect(text()).toContain("control: tumbler");
+  });
+
+  test("setHolroyd with orbit controls throws and changes nothing", async () => {
+    const { viewer, notifications } = await setup({ control: "orbit" });
+    const info = viewer.display._info;
+    const entries = info.chunks.length;
+    const sent = notifications.length;
+    expect(viewer.getHolroyd()).toBe(true);
+
+    expect(() => viewer.setHolroyd(false)).toThrow(
+      "Operation requires TrackballControls",
+    );
+
+    expect(viewer.getHolroyd()).toBe(true);
+    expect(notifications.length).toBe(sent);
+    expect(info.chunks.length).toBe(entries);
+  });
 });
 
 describe("pivot of a rotate drag", () => {

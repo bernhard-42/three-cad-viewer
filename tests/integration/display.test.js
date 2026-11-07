@@ -1628,7 +1628,11 @@ describe("Display - Info Panel Methods", () => {
     const spy = vi.spyOn(display._info, "readyMsg");
 
     display.showReadyMessage("1.0.0", "orbit");
-    expect(spy).toHaveBeenCalledWith("1.0.0", "orbit");
+    expect(spy).toHaveBeenCalledWith("1.0.0", "orbit", null);
+
+    const settings = { holroyd: true, cursorPivot: true, zoomToCursor: false };
+    display.showReadyMessage("1.0.0", "trackball", settings);
+    expect(spy).toHaveBeenCalledWith("1.0.0", "trackball", settings);
   });
 
   test("showCenterInfo delegates to info object", () => {

@@ -16,6 +16,50 @@ function escapeHtml(text: string): string {
 }
 
 /**
+ * The mouse control settings shown under "Control": `holroyd` (trackball only),
+ * `cursorPivot` and `zoomToCursor`.
+ */
+interface ControlSettings {
+  holroyd: boolean;
+  cursorPivot: boolean;
+  zoomToCursor: boolean;
+}
+
+/**
+ * One of the {@link ControlSettings}: holroyd `mode`, which decides whether the
+ * control is a trackball or a tumbler, cursor pivot `rotate`, and `zoom`.
+ */
+type ControlSetting = "mode" | "rotate" | "zoom";
+
+/**
+ * Name of the control as shown: the trackball without holroyd turns by the mouse
+ * movement, which is a tumbler (it is path dependent, so the model tumbles),
+ * while "trackball" means the path-independent holroyd trackball.
+ */
+function controlName(control: string, holroyd: boolean): string {
+  return control === "trackball" && !holroyd ? "tumbler" : control;
+}
+
+/** Label and the values for on and off of the settings listed under "Control". */
+const CONTROL_SETTING_TEXTS: Record<
+  "rotate" | "zoom",
+  { label: MessageId; changed: MessageId; on: MessageId; off: MessageId }
+> = {
+  rotate: {
+    label: "info.rotate",
+    changed: "info.rotateChanged",
+    on: "info.aroundPivot",
+    off: "info.aroundTarget",
+  },
+  zoom: {
+    label: "info.zoom",
+    changed: "info.zoomChanged",
+    on: "info.toCursor",
+    off: "info.toCenter",
+  },
+};
+
+/**
  * Manages information display panel for the CAD viewer.
  * Shows bounding box info, version info, and other contextual information.
  */
@@ -110,13 +154,35 @@ class Info {
    * Display the ready message with viewer version and control mode.
    * @param version - Viewer version string.
    * @param control - Control mode name (e.g., "orbit", "trackball").
+   * @param settings - The control settings: holroyd names the trackball (tumbler
+   *   without it), cursor pivot and zoom are listed under the control; without
+   *   them only the control is shown.
    */
-  readyMsg(version: string, control: string): void {
+  readyMsg(
+    version: string,
+    control: string,
+    settings: ControlSettings | null = null,
+  ): void {
     this.clear();
+    let settingRows = "";
+    let shownControl = control;
+    if (settings !== null) {
+      shownControl = controlName(control, settings.holroyd);
+      const shown: ["rotate" | "zoom", boolean][] = [
+        ["rotate", settings.cursorPivot],
+        ["zoom", settings.zoomToCursor],
+      ];
+      for (const [setting, flag] of shown) {
+        const texts = CONTROL_SETTING_TEXTS[setting];
+        // "- rotate": an attribute of the control above
+        settingRows += `<tr class="tcv_small_table_row" ><td>- ${this.text(texts.label)}</td><td>${this.text(flag ? texts.on : texts.off)}</td></tr>`;
+      }
+    }
     const html = `<div class="tcv_info_header">${this.text("info.ready")}</div>
             <table class="small_table">
               <tr class="tcv_small_table_row" ><td>${this.text("info.version")}</td><td>${version}</td> </tr>
-              <tr class="tcv_small_table_row" ><td>${this.text("info.control")}</td><td>${control}</td></tr>
+              <tr class="tcv_small_table_row" ><td>${this.text("info.control")}</td><td>${escapeHtml(shownControl)}</td></tr>
+              ${settingRows}
               <tr class="tcv_small_table_row" ><td>${this.text("info.axes")}</td>
                 <td>
                   <span class="tcv_info_red"><b>X</b></span>,
@@ -225,6 +291,26 @@ class Info {
   }
 
   /**
+   * Display that a control setting changed: "control: tumbler" for holroyd,
+   * else e.g. "rotation control: around target".
+   * @param setting - Which setting: holroyd `mode`, cursor pivot `rotate`, `zoom`.
+   * @param flag - Its new value.
+   */
+  controlChangeInfo(setting: ControlSetting, flag: boolean): void {
+    let message: string;
+    if (setting === "mode") {
+      message = this.t("info.controlChanged", {
+        value: controlName("trackball", flag),
+      });
+    } else {
+      const texts = CONTROL_SETTING_TEXTS[setting];
+      const value = this.t(flag ? texts.on : texts.off);
+      message = this.t(texts.changed, { value });
+    }
+    this.addHtml(`<div>${escapeHtml(message)}</div>`);
+  }
+
+  /**
    * Display camera target center information.
    * @param center - The center coordinates [x, y, z].
    */
@@ -254,3 +340,4 @@ class Info {
 }
 
 export { Info, escapeHtml };
+export type { ControlSettings, ControlSetting };

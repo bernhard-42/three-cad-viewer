@@ -14,6 +14,7 @@ import type {
 } from "../tools/cad_tools/tools.js";
 import { FilterByDropDownMenu } from "../tools/cad_tools/ui.js";
 import { Info } from "./info.js";
+import type { ControlSetting, ControlSettings } from "./info.js";
 import { I18n } from "./i18n.js";
 import type { MessageId, Translate } from "./i18n.js";
 import type { Viewer } from "../core/viewer.js";
@@ -949,9 +950,23 @@ class Display {
    * Display the ready message with viewer version and control mode.
    * @param version - Viewer version string.
    * @param control - Control mode name (e.g., "orbit", "trackball").
+   * @param settings - The control settings to list under the control mode.
    */
-  showReadyMessage(version: string, control: string): void {
-    this._info.readyMsg(version, control);
+  showReadyMessage(
+    version: string,
+    control: string,
+    settings: ControlSettings | null = null,
+  ): void {
+    this._info.readyMsg(version, control, settings);
+  }
+
+  /**
+   * Display that a control setting changed, e.g. "rotation control: target".
+   * @param setting - Which setting: holroyd `mode`, cursor pivot `rotate`, `zoom`.
+   * @param flag - Its new value.
+   */
+  showControlChange(setting: ControlSetting, flag: boolean): void {
+    this._info.controlChangeInfo(setting, flag);
   }
 
   /**
