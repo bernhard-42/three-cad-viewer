@@ -3,8 +3,12 @@
 // =============================================================================
 
 import * as THREE from "three";
-import { KeyMapper, EventListenerManager } from "../utils/utils.js";
-import type { KeyMappingConfig } from "../utils/utils.js";
+import {
+  KeyMapper,
+  EventListenerManager,
+  getPlatform,
+} from "../utils/utils.js";
+import type { KeyMappingConfig, Platform } from "../utils/utils.js";
 import { Slider } from "./slider.js";
 import { Toolbar, Button, ClickButton, Ellipsis } from "./toolbar.js";
 import { ToolTypes } from "../tools/cad_tools/tools.js";
@@ -12,11 +16,15 @@ import type {
   MeasurementPanelElements,
   FilterDropdownElements,
 } from "../tools/cad_tools/tools.js";
-import { FilterByDropDownMenu } from "../tools/cad_tools/ui.js";
+import {
+  FilterByDropDownMenu,
+  SHAPE_FILTER_KEYS,
+} from "../tools/cad_tools/ui.js";
 import { Info } from "./info.js";
 import type { ControlSetting, ControlSettings } from "./info.js";
 import { I18n } from "./i18n.js";
-import type { MessageId, Translate } from "./i18n.js";
+import { messageParts } from "./i18n.js";
+import type { MessageId, MessagePart, Translate } from "./i18n.js";
 import type { Viewer } from "../core/viewer.js";
 import type { ObjectGroup } from "../scene/objectgroup.js";
 import type { ViewerState } from "../core/viewer-state.js";
@@ -174,6 +182,17 @@ function _formatMatValue(value: number, step: number): string {
 const buttons = ["plane", "play", "pause", "stop"];
 
 const listeners = new EventListenerManager();
+
+/**
+ * Modifier keys whose keyboard label depends on the platform, by physical key
+ * (`meta`: Cmd on macOS, Win on Windows; `alt`: Option on macOS). Every other
+ * key and platform uses `help.key.<physical key>`.
+ */
+const PLATFORM_KEY_NAMES: Record<Platform, Record<string, MessageId>> = {
+  mac: { meta: "help.key.metaMac", alt: "help.key.altMac" },
+  windows: { meta: "help.key.metaWin" },
+  other: {},
+};
 
 // =============================================================================
 // INTERFACES
@@ -3659,36 +3678,67 @@ class Display {
    *
    * Elements name their message ids in attributes: `data-i18n` (text),
    * `data-i18n-tooltip`, `data-i18n-title`, `data-i18n-value` (inputs) and
-   * `data-i18n-label` (optgroups). The current modifier keys are passed as
-   * placeholders `{{shift}}`, `{{ctrl}}`, `{{meta}}` and `{{alt}}`;
+   * `data-i18n-label` (optgroups). Keyboard keys are placeholders: the current
+   * modifier keys `{{shift}}`, `{{ctrl}}`, `{{meta}}` and `{{alt}}`, named as
+   * the keyboard of the platform labels them (see `PLATFORM_KEY_NAMES`),
+   * `{{esc}}` and the shape filter keys (`{{a}}`, ...). In element text a key
+   * is shown as a `<kbd class="tcv_key">` element, in attributes as its name.
    * `data-i18n-args="name=id"` passes the message `id` as placeholder `name`.
    * Text is set as text, never parsed as HTML.
    */
   private localize(root: HTMLElement): void {
-    const keyName = (key: keyof KeyMappingConfig): string =>
-      this.t(`help.key.${KeyMapper.getshortcuts(key)}` as MessageId);
-    const modifiers = {
+    const platformKeyNames = PLATFORM_KEY_NAMES[getPlatform()];
+    const keyName = (key: keyof KeyMappingConfig): string => {
+      // the physical key the role is mapped to: shift, ctrl, alt or meta
+      const physical = KeyMapper.getshortcuts(key);
+      const platformId = platformKeyNames[physical];
+      if (platformId !== undefined) {
+        return this.t(platformId);
+      }
+      return this.t(`help.key.${physical}` as MessageId);
+    };
+    // placeholders that name a keyboard key, with the name to show
+    const keyNames: Record<string, string> = {
       shift: keyName("shift"),
       ctrl: keyName("ctrl"),
       meta: keyName("meta"),
       alt: keyName("alt"),
+      esc: this.t("help.key.esc"),
     };
-    const params = (el: HTMLElement): Record<string, string> => {
-      const result: Record<string, string> = { ...modifiers };
-      const args = el.dataset.i18nArgs;
-      if (args !== undefined) {
-        for (const arg of args.split(";")) {
+    for (const key of Object.keys(SHAPE_FILTER_KEYS)) {
+      keyNames[key] = key;
+    }
+    const args = (el: HTMLElement): Record<string, string> => {
+      const result: Record<string, string> = {};
+      const spec = el.dataset.i18nArgs;
+      if (spec !== undefined) {
+        for (const arg of spec.split(";")) {
           const [name, id] = arg.split("=");
           result[name] = this.t(id as MessageId);
         }
       }
       return result;
     };
+    // attributes hold text only: keys are filled in as their names
     const translate = (el: HTMLElement, id: string): string =>
-      this.t(id as MessageId, params(el));
+      this.t(id as MessageId, { ...keyNames, ...args(el) });
+    // element text: a key becomes a <kbd> element, everything else stays text
+    const keyOrText = (part: MessagePart): Node | string => {
+      if ("text" in part) {
+        return part.text;
+      }
+      if (!Object.prototype.hasOwnProperty.call(keyNames, part.placeholder)) {
+        return part.raw;
+      }
+      const key = document.createElement("kbd");
+      key.className = "tcv_key";
+      key.textContent = keyNames[part.placeholder];
+      return key;
+    };
 
     for (const el of root.querySelectorAll<HTMLElement>("[data-i18n]")) {
-      el.textContent = translate(el, el.dataset.i18n!);
+      const text = this.t(el.dataset.i18n! as MessageId, args(el));
+      el.replaceChildren(...messageParts(text).map(keyOrText));
     }
     for (const el of root.querySelectorAll<HTMLElement>(
       "[data-i18n-tooltip]",

@@ -6,7 +6,12 @@
 import { describe, test, expect, afterEach, vi } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { I18n, resolveLocale, AVAILABLE_LOCALES } from "../../src/ui/i18n.js";
+import {
+  I18n,
+  resolveLocale,
+  messageParts,
+  AVAILABLE_LOCALES,
+} from "../../src/ui/i18n.js";
 import { Info } from "../../src/ui/info.js";
 import { KeyMapper } from "../../src/utils/utils.js";
 import { logger } from "../../src/utils/logger.js";
@@ -99,6 +104,24 @@ describe("I18n lookup", () => {
     } finally {
       warn.mockRestore();
     }
+  });
+});
+
+describe("messageParts", () => {
+  test("splits a message at its placeholders, in order", () => {
+    expect(messageParts("{{shift}} + {{ meta }} + <click> twice")).toEqual([
+      { placeholder: "shift", raw: "{{shift}}" },
+      { text: " + " },
+      { placeholder: "meta", raw: "{{ meta }}" },
+      { text: " + <click> twice" },
+    ]);
+  });
+
+  test("a message without placeholders is one text part", () => {
+    expect(messageParts("<left mouse button drag>")).toEqual([
+      { text: "<left mouse button drag>" },
+    ]);
+    expect(messageParts("")).toEqual([]);
   });
 });
 
@@ -276,6 +299,7 @@ describe("localized Display", () => {
     container = null;
     KeyMapper.set(savedKeys);
     KeyMapper.setActionShortcuts({});
+    vi.restoreAllMocks();
   });
 
   test("English by default", () => {
@@ -322,7 +346,7 @@ describe("localized Display", () => {
       "Achsen anzeigen › a",
     );
     expect(display.tabTree.parentElement.getAttribute("data-tooltip")).toBe(
-      "Navigationsbaum › t",
+      "Objektbaum › t",
     );
   });
 
@@ -338,12 +362,162 @@ describe("localized Display", () => {
       alt: "metaKey",
     });
     display.updateHelp();
-    expect(help()).toContain("<Umschalt> + <linke Maustaste>");
+    expect(help()).toContain("Umschalt + <Ziehen mit linker Maustaste>");
     expect(help()).toContain("Schaltfläche 'Z'");
 
     KeyMapper.set({ ctrl: "ctrlKey" });
     display.updateHelp();
-    expect(help()).toContain("<Strg> + <linke Maustaste>");
+    expect(help()).toContain("Strg + <Ziehen mit linker Maustaste>");
+  });
+
+  test.each([
+    ["MacIntel", "en", "Cmd", "Option"],
+    ["Win32", "en", "Win", "Alt"],
+    ["Linux x86_64", "en", "Super", "Alt"],
+    ["MacIntel", "de", "Cmd", "Option"],
+    ["Win32", "de", "Win", "Alt"],
+    ["Linux x86_64", "de", "Super", "Alt"],
+  ])(
+    "help names the meta and alt keys as %s labels them (%s)",
+    (platform, locale, metaName, altName) => {
+      vi.spyOn(navigator, "platform", "get").mockReturnValue(platform);
+      KeyMapper.set({
+        shift: "shiftKey",
+        ctrl: "ctrlKey",
+        meta: "metaKey",
+        alt: "altKey",
+      });
+      let display;
+      ({ display, container } = setupDisplay({ locale }));
+      const row = (id) =>
+        container.querySelector(`[data-i18n="${id}"]`).textContent;
+      // "rotate left / right" uses the meta role
+      expect(
+        row("help.navigation.rotateLeftRight.input").startsWith(
+          `${metaName} + <`,
+        ),
+      ).toBe(true);
+
+      // the name follows the physical key, not the role
+      KeyMapper.set({ meta: "altKey" });
+      display.updateHelp();
+      expect(
+        row("help.navigation.rotateLeftRight.input").startsWith(
+          `${altName} + <`,
+        ),
+      ).toBe(true);
+    },
+  );
+
+  test("help writes modifier keys plainly and mouse actions in brackets", () => {
+    vi.spyOn(navigator, "platform", "get").mockReturnValue("MacIntel");
+    KeyMapper.set({
+      shift: "shiftKey",
+      ctrl: "ctrlKey",
+      meta: "metaKey",
+      alt: "altKey",
+    });
+    let display;
+    ({ display, container } = setupDisplay());
+    const row = (id) =>
+      container.querySelector(`[data-i18n="${id}"]`).textContent;
+    expect(row("help.navigation.rotate.input")).toBe(
+      "<left mouse button drag>",
+    );
+    expect(row("help.navigation.rotateUpDown.input")).toBe(
+      "Ctrl + <left mouse button drag>",
+    );
+    expect(row("help.selection.isolate.input")).toBe(
+      "Shift + <left mouse button double click>",
+    );
+    expect(row("help.selection.cameraTarget.input")).toBe(
+      "Shift + Cmd + <left mouse button double click>",
+    );
+    expect(row("help.measure.select.input")).toBe("<left mouse button click>");
+    expect(row("help.measure.unselectAll.input")).toBe("Esc");
+    // no modifier key is left in angle brackets
+    expect(display.cadHelp.textContent).not.toMatch(
+      /<(Shift|Ctrl|Cmd|Option|Alt|Win|Super|shift|ctrl|meta|alt)>/,
+    );
+  });
+
+  test("help shows keyboard keys as key elements", () => {
+    vi.spyOn(navigator, "platform", "get").mockReturnValue("MacIntel");
+    KeyMapper.set({
+      shift: "shiftKey",
+      ctrl: "ctrlKey",
+      meta: "metaKey",
+      alt: "altKey",
+    });
+    let display;
+    ({ display, container } = setupDisplay());
+    const row = (id) => container.querySelector(`[data-i18n="${id}"]`);
+    const keys = (id) =>
+      [...row(id).querySelectorAll("kbd.tcv_key")].map((k) => k.textContent);
+
+    expect(keys("help.navigation.rotateUpDown.input")).toEqual(["Ctrl"]);
+    expect(row("help.navigation.rotateUpDown.input").textContent).toBe(
+      "Ctrl + <left mouse button drag>",
+    );
+    expect(keys("help.selection.cameraTarget.input")).toEqual(["Shift", "Cmd"]);
+    expect(keys("help.measure.unselectAll.input")).toEqual(["Esc"]);
+    // the shape filter keys, which are the same in every language
+    expect(keys("help.measure.filter.input")).toEqual([
+      "a",
+      "s",
+      "f",
+      "e",
+      "v",
+    ]);
+    expect(row("help.measure.filter.input").textContent).toBe(
+      "Type menu or key a (all), s (solid), f (face), e (edge), v (vertices)",
+    );
+    // a mouse action and the letter of a tree button are not keyboard keys
+    expect(keys("help.navigation.rotate.input")).toEqual([]);
+    expect(keys("help.tree.collapseAll.input")).toEqual([]);
+    expect(row("help.tree.collapseAll.input").textContent).toBe("Button 'C'");
+
+    // rendering again replaces the keys, it does not add to them
+    KeyMapper.set({ ctrl: "altKey" });
+    display.updateHelp();
+    expect(keys("help.navigation.rotateUpDown.input")).toEqual(["Option"]);
+    expect(row("help.navigation.rotateUpDown.input").textContent).toBe(
+      "Option + <left mouse button drag>",
+    );
+  });
+
+  test("help keys and texts are never parsed as HTML", () => {
+    KeyMapper.set({
+      shift: "shiftKey",
+      ctrl: "ctrlKey",
+      meta: "metaKey",
+      alt: "altKey",
+    });
+    ({ container } = setupDisplay({
+      labels: {
+        "help.key.ctrl": "<b>Ctrl</b>",
+        "help.navigation.rotateUpDown.input":
+          "{{ctrl}} + <img src=x> {{nokey}}",
+      },
+    }));
+    const row = container.querySelector(
+      '[data-i18n="help.navigation.rotateUpDown.input"]',
+    );
+    expect(row.querySelector("b")).toBe(null);
+    expect(row.querySelector("img")).toBe(null);
+    expect(row.querySelector("kbd.tcv_key").textContent).toBe("<b>Ctrl</b>");
+    // a placeholder that names no key stays as written
+    expect(row.textContent).toBe("<b>Ctrl</b> + <img src=x> {{nokey}}");
+  });
+
+  test.each(["de", "zh-CN"])("help filter keys in %s", (locale) => {
+    ({ container } = setupDisplay({ locale }));
+    const row = container.querySelector(
+      '[data-i18n="help.measure.filter.input"]',
+    );
+    expect(
+      [...row.querySelectorAll("kbd.tcv_key")].map((k) => k.textContent),
+    ).toEqual(["a", "s", "f", "e", "v"]);
   });
 
   test("the filter keeps working with translated labels", () => {

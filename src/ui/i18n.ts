@@ -100,6 +100,31 @@ function interpolate(text: string, params: MessageParams): string {
   );
 }
 
+/** A piece of a message: literal text, or a placeholder as written (`raw`). */
+export type MessagePart =
+  | { text: string }
+  | { placeholder: string; raw: string };
+
+/**
+ * Split a message at its placeholders, in order. For callers that fill a
+ * placeholder with an element instead of text (the help shows keys that way).
+ */
+export function messageParts(text: string): MessagePart[] {
+  const parts: MessagePart[] = [];
+  let end = 0;
+  for (const match of text.matchAll(PLACEHOLDER)) {
+    if (match.index > end) {
+      parts.push({ text: text.slice(end, match.index) });
+    }
+    parts.push({ placeholder: match[1], raw: match[0] });
+    end = match.index + match[0].length;
+  }
+  if (end < text.length) {
+    parts.push({ text: text.slice(end) });
+  }
+  return parts;
+}
+
 /**
  * The messages of one locale, with English as fallback.
  */

@@ -349,6 +349,23 @@ const displayOptions = {
 
 **Topo filter shortcuts.** When the shape filter is visible (B-rep models), the lowercase keys `a` (All), `v` (Vertex), `e` (Edge), `f` (Face), `s` (Solid) set the picking filter. These are fixed (not part of the configurable keymap) — which is why `axes` and `studio` default to the uppercase `A`/`S`.
 
+**Firefox on macOS: Ctrl + left mouse button does not work.** macOS treats Ctrl + click as a secondary click, and Firefox then sends no `pointerdown` event for it ([Mozilla bug 1504210](https://bugzilla.mozilla.org/show_bug.cgi?id=1504210)), so a mouse action bound to the physical Ctrl key never starts. With the default keymap this is "Rotate up / down" (`ctrl: "ctrlKey"`). Chrome and Safari are not affected. There are two workarounds:
+
+1. Remap the keys, so that the action is on the Option key. The `alt` entry has no action of its own, so it can take the Ctrl key:
+
+   ```javascript
+   keymap: {
+     shift: "shiftKey",
+     ctrl: "altKey",
+     meta: "metaKey",
+     alt: "ctrlKey",
+   }
+   ```
+
+   The help then shows `Option + <left mouse button drag>` for "Rotate up / down".
+
+2. In Firefox, open `about:config` and set `dom.event.treat_ctrl_click_as_right_click.disabled` to `true`. Firefox then handles Ctrl + click like Chrome and Safari.
+
 ## Examples
 
 To understand the data format, a look at the simple 1 unit sized box might be helpful:

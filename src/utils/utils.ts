@@ -531,22 +531,40 @@ function formatPoint(point: Vector3Tuple): string {
   return point.map(fmt).join(", ");
 }
 
+/** The platforms whose keyboards label the modifier keys differently. */
+type Platform = "mac" | "windows" | "other";
+
 /**
- * Whether the viewer runs on macOS, where the copy shortcut is Cmd-C. Uses
- * `navigator.platform` ("MacIntel" also on Apple silicon): deprecated, but unlike
+ * The platform the viewer runs on, to name keys as the keyboard labels them
+ * (Cmd / Win / Super, Option / Alt). Uses `navigator.platform` ("MacIntel" also
+ * on Apple silicon, "Win32" also on 64-bit Windows): deprecated, but unlike
  * `navigator.userAgentData` it exists in Safari and WebKit views too.
  */
+function getPlatform(): Platform {
+  if (
+    typeof navigator === "undefined" ||
+    typeof navigator.platform !== "string"
+  ) {
+    return "other";
+  }
+  if (navigator.platform.startsWith("Mac")) {
+    return "mac";
+  }
+  if (navigator.platform.startsWith("Win")) {
+    return "windows";
+  }
+  return "other";
+}
+
+/** Whether the viewer runs on macOS, where the copy shortcut is Cmd-C. */
 function isMacPlatform(): boolean {
-  return (
-    typeof navigator !== "undefined" &&
-    typeof navigator.platform === "string" &&
-    navigator.platform.startsWith("Mac")
-  );
+  return getPlatform() === "mac";
 }
 
 export {
   copyText,
   formatPoint,
+  getPlatform,
   isMacPlatform,
   flatten,
   isEqual,
@@ -571,4 +589,4 @@ export {
   toQuaternionTuple,
 };
 
-export type { KeyEventKey, KeyMappingConfig, DisposableTree };
+export type { KeyEventKey, KeyMappingConfig, DisposableTree, Platform };

@@ -31,7 +31,7 @@
   "tabs": {
     "tree": {
       "label": "Baum",
-      "tooltip": "Navigationsbaum"
+      "tooltip": "Objektbaum"
     },
     "clip": {
       "label": "Schnitt",
@@ -313,10 +313,10 @@
     "point": "Punkt: {{point}} ({{key}})",
     "copyKeyMac": "Cmd+C",
     "copyKeyOther": "Strg+C",
-    "solid": "Körper",
-    "solidCounts": "Körper – Flächen: {{faces}}, Kanten: {{edges}}",
-    "solidCountsVolume": "Körper – Flächen: {{faces}}, Kanten: {{edges}}, Vol. ≈ {{volume}}",
-    "vertex": "Punkt: {{point}}",
+    "solid": "Volumenkörper",
+    "solidCounts": "Volumenkörper – Flächen: {{faces}}, Kanten: {{edges}}",
+    "solidCountsVolume": "Volumenkörper – Flächen: {{faces}}, Kanten: {{edges}}, Vol. ≈ {{volume}}",
+    "vertex": "Eckpunkt: {{point}}",
     "edge": "{{type}}: Länge ≈ {{length}}, Anfang={{start}}, Ende={{end}}",
     "closedEdge": "{{type}}: Länge ≈ {{length}}, bei={{start}}",
     "arc": "{{type}}: r ≈ {{radius}}, M ≈ {{center}}, Länge ≈ {{length}}, Anfang={{start}}, Ende={{end}}",
@@ -373,7 +373,7 @@
   },
   "filter": {
     "all": "Alle",
-    "vertex": "Punkt",
+    "vertex": "Eckpunkt",
     "edge": "Kante",
     "face": "Fläche",
     "solid": "Körper"
@@ -382,7 +382,7 @@
     "vertex": "Punkt",
     "edge": "Kante",
     "face": "Fläche",
-    "solid": "Körper"
+    "solid": "Volumenkörper"
   },
   "geom": {
     "point": "Punkt",
@@ -413,60 +413,64 @@
       "shift": "Umschalt",
       "ctrl": "Strg",
       "alt": "Alt",
-      "meta": "Meta"
+      "altMac": "Option",
+      "meta": "Super",
+      "metaMac": "Cmd",
+      "metaWin": "Win",
+      "esc": "Esc"
     },
     "navigation": {
       "title": "Navigation mit der Maus",
       "rotate": {
         "action": "Drehen",
-        "input": "<linke Maustaste>"
+        "input": "<Ziehen mit linker Maustaste>"
       },
       "rotateUpDown": {
         "action": "Nach oben / unten drehen",
-        "input": "<{{ctrl}}> + <linke Maustaste>"
+        "input": "{{ctrl}} + <Ziehen mit linker Maustaste>"
       },
       "rotateLeftRight": {
         "action": "Nach links / rechts drehen",
-        "input": "<{{meta}}> + <linke Maustaste>"
+        "input": "{{meta}} + <Ziehen mit linker Maustaste>"
       },
       "pan": {
         "action": "Verschieben",
-        "input": "<{{shift}}> + <linke Maustaste> oder <rechte Maustaste>"
+        "input": "{{shift}} + <Ziehen mit linker Maustaste> oder <Ziehen mit rechter Maustaste>"
       },
       "zoom": {
         "action": "Zoomen",
-        "input": "<Mausrad> oder <mittlere Maustaste>"
+        "input": "<Mausrad> oder <Ziehen mit mittlerer Maustaste>"
       }
     },
     "selection": {
       "title": "Auswahl mit der Maus",
       "pick": {
-        "action": "Element auswählen",
-        "input": "Doppelklick mit <linker Maustaste>",
-        "inputTree": "Klick auf einen Eintrag im Navigationsbaum",
+        "action": "Komponente auswählen",
+        "input": "<Doppelklick mit linker Maustaste> auf eine Komponente (wählt die Komponente aus)",
+        "inputTree": "<Klick mit linker Maustaste> auf einen Eintrag im Objektbaum (wählt das Objekt aus)",
         "note": "(Zeigt den achsparallelen Begrenzungsquader)"
       },
       "isolate": {
-        "action": "Element isolieren",
-        "input": "<{{shift}}> + Doppelklick mit <linker Maustaste>",
-        "inputTree": "<{{shift}}> + Klick auf einen Baumeintrag (verschachtelt)"
+        "action": "Objekt isolieren",
+        "input": "{{shift}} + <Doppelklick mit linker Maustaste>",
+        "inputTree": "{{shift}} + <Klick mit linker Maustaste> auf einen Baumeintrag (Teilbaum)"
       },
       "hide": {
-        "action": "Element ausblenden",
-        "input": "<{{meta}}> + Doppelklick mit <linker Maustaste> auf das Objekt",
-        "inputTree": "<{{meta}}> + Klick mit <linker Maustaste> auf einen Baumeintrag (verschachtelt)"
+        "action": "Objekt ausblenden",
+        "input": "{{meta}} + <Doppelklick mit linker Maustaste> auf das Objekt",
+        "inputTree": "{{meta}} + <Klick mit linker Maustaste> auf einen Baumeintrag (Teilbaum)"
       },
       "hideOthers": {
-        "action": "Andere Elemente ausblenden",
-        "inputTree": "<{{shift}}> + <{{meta}}> + Klick mit <linker Maustaste> auf einen Baumeintrag (verschachtelt)"
+        "action": "Andere Objekte ausblenden",
+        "inputTree": "{{shift}} + {{meta}} + <Klick mit linker Maustaste> auf einen Baumeintrag (Teilbaum)"
       },
       "cameraTarget": {
         "action": "Kameraziel setzen",
-        "input": "<{{shift}}> + <{{meta}}> + Doppelklick mit <linker Maustaste>"
+        "input": "{{shift}} + {{meta}} + <Doppelklick mit linker Maustaste>"
       }
     },
     "tree": {
-      "title": "CAD-Objektbaum",
+      "title": "Objektbaum",
       "collapseSingles": {
         "action": "Einzelne Blätter zuklappen",
         "input": "Schaltfläche '{{button}}' (alle Knoten mit nur einem Blatt)"
@@ -488,23 +492,23 @@
       "title": "Messmodus",
       "select": {
         "action": "1. (und 2.) Objekt auswählen",
-        "input": "<linke Maustaste>"
+        "input": "<Klick mit linker Maustaste>"
       },
       "useCenter": {
         "action": "Mittelpunkt statt Minimalabstand verwenden",
-        "input": "<{{shift}}> + <linke Maustaste> bei der zweiten Auswahl"
+        "input": "{{shift}} + <Klick mit linker Maustaste> bei der zweiten Auswahl"
       },
       "filter": {
         "action": "Objekttypen filtern",
-        "input": "Menü oder Tasten <a>lle, <s>olid, <f>läche, <e>dge, <v>ertex"
+        "input": "Menü oder Tasten {{a}} (alle), {{s}} (Volumenkörper), {{f}} (Fläche), {{e}} (Kante), {{v}} (Eckpunkt)"
       },
       "unselectLast": {
         "action": "Letztes Objekt abwählen",
-        "input": "<rechte Maustaste>"
+        "input": "<Klick mit rechter Maustaste>"
       },
       "unselectAll": {
         "action": "Alle Objekte abwählen",
-        "input": "<Esc>"
+        "input": "{{esc}}"
       }
     }
   }

@@ -62,10 +62,11 @@ Of the i18next format only the parts above are implemented: no nested references
 
 ## Things to know
 
-- **Texts are shown as plain text.** `<`, `>` and `&` appear literally, so `<left mouse button>` in the help is just text, and HTML has no effect.
-- **Modifier keys in the help** are placeholders: `"<{{ctrl}}> + <left mouse button>"`. They are replaced by the key the user has configured, translated via `help.key.shift`, `help.key.ctrl`, `help.key.alt` and `help.key.meta` (e.g. German `Strg` for `ctrl`). Keep the placeholders, so the help stays correct when users remap their keys.
+- **Texts are shown as plain text.** `<`, `>` and `&` appear literally, so `<left mouse button click>` in the help is just text, and HTML has no effect.
+- **Modifier keys in the help** are placeholders: `"{{ctrl}} + <left mouse button drag>"`. They are replaced by the key the user has configured, so keep the placeholders: the help then stays correct when users remap their keys. The key is named as the keyboard of the user's platform labels it, via `help.key.shift` and `help.key.ctrl` (e.g. German `Strg`), `help.key.alt` (`Alt`) with `help.key.altMac` (`Option` on macOS), and `help.key.meta` (`Super`, on Linux and everything else) with `help.key.metaMac` (`Cmd`) and `help.key.metaWin` (`Win`). Use the names printed on keyboards sold for your language. The Escape key is the placeholder `{{esc}}`, named by `help.key.esc`.
+- **Help format**: keyboard keys are placeholders and are shown in code style (fixed font, grey background), so write nothing around them. Mouse actions are in angle brackets that group the words of one action and always say what the mouse does (click, double click or drag): `{{shift}} + <left mouse button double click>`.
 - **Button letters** (`tree.collapseAll.label` = `C`, …) may be translated. The help refers to them through `{{button}}`, so it follows automatically.
-- **Filter keys** are fixed: the shape filter reacts to the keys `a`, `s`, `f`, `e` and `v` in every language. `help.measure.filter.input` should name exactly these keys.
+- **Filter keys** are fixed: the shape filter reacts to the keys `a`, `s`, `f`, `e` and `v` in every language. In `help.measure.filter.input` they are the placeholders `{{a}}`, `{{s}}`, `{{f}}`, `{{e}}` and `{{v}}`, each followed by what it selects: `{{a}} (all), {{s}} (solid), …`.
 - **Space is limited.** Labels in the Studio tab have about 110 pixels, roughly 16 Latin characters, before they reach their slider or dropdown. Abbreviate where needed (the German file uses e.g. `Umg.-Stärke`), and check the result in the demo page.
 - **Missing translations** fall back to English, so a partial file works. The shipped files are expected to be complete, though; the tests list what is missing.
 

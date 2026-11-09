@@ -413,7 +413,11 @@
       "shift": "shift",
       "ctrl": "ctrl",
       "alt": "alt",
-      "meta": "meta"
+      "altMac": "option",
+      "meta": "meta",
+      "metaMac": "cmd",
+      "metaWin": "win",
+      "esc": "Esc"
     },
     "navigation": {
       "title": "鼠标导航",
@@ -423,15 +427,15 @@
       },
       "rotateUpDown": {
         "action": "向上/向下旋转",
-        "input": "<{{ctrl}}> + <鼠标左键>"
+        "input": "{{ctrl}} + <鼠标左键>"
       },
       "rotateLeftRight": {
         "action": "向左/向右旋转",
-        "input": "<{{meta}}> + <鼠标左键>"
+        "input": "{{meta}} + <鼠标左键>"
       },
       "pan": {
         "action": "平移",
-        "input": "<{{shift}}> + <鼠标左键> 或 <鼠标右键>"
+        "input": "{{shift}} + <鼠标左键> 或 <鼠标右键>"
       },
       "zoom": {
         "action": "缩放",
@@ -448,21 +452,21 @@
       },
       "isolate": {
         "action": "隔离元素",
-        "input": "<{{shift}}> + 双击 <鼠标左键>",
-        "inputTree": "<{{shift}}> + 点击导航树中的标签(含嵌套)"
+        "input": "{{shift}} + 双击 <鼠标左键>",
+        "inputTree": "{{shift}} + 点击导航树中的标签(含嵌套)"
       },
       "hide": {
         "action": "隐藏元素",
-        "input": "<{{meta}}> + 对对象双击 <鼠标左键>",
-        "inputTree": "<{{meta}}> + 点击导航树中的标签(含嵌套)"
+        "input": "{{meta}} + 对对象双击 <鼠标左键>",
+        "inputTree": "{{meta}} + 点击导航树中的标签(含嵌套)"
       },
       "hideOthers": {
         "action": "隐藏其他元素",
-        "inputTree": "<{{shift}}> + <{{meta}}> + 点击导航树中的标签(含嵌套)"
+        "inputTree": "{{shift}} + {{meta}} + 点击导航树中的标签(含嵌套)"
       },
       "cameraTarget": {
         "action": "设置相机目标",
-        "input": "<{{shift}}> + <{{meta}}> + 双击 <鼠标左键>"
+        "input": "{{shift}} + {{meta}} + 双击 <鼠标左键>"
       }
     },
     "tree": {
@@ -492,11 +496,11 @@
       },
       "useCenter": {
         "action": "用中心代替最小距离",
-        "input": "第二次选择时按 <{{shift}}> + <鼠标左键>"
+        "input": "第二次选择时按 {{shift}} + <鼠标左键>"
       },
       "filter": {
         "action": "过滤对象类型",
-        "input": "类型菜单或 <a>ll(全部)、<s>olid(实体)、<f>ace(面)、<e>dge(边)、<v>ertices(顶点)"
+        "input": "类型菜单或 {{a}} (全部)、{{s}} (实体)、{{f}} (面)、{{e}} (边)、{{v}} (顶点)"
       },
       "unselectLast": {
         "action": "取消选择上一个对象",
@@ -504,7 +508,7 @@
       },
       "unselectAll": {
         "action": "取消选择所有对象",
-        "input": "<ESC>"
+        "input": "{{esc}}"
       }
     }
   }

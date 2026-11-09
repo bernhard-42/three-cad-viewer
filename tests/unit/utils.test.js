@@ -13,6 +13,7 @@ import {
   deepDispose,
   disposeGeometry,
   formatPoint,
+  getPlatform,
   isMacPlatform,
 } from "../../src/utils/utils.js";
 import * as THREE from "three";
@@ -35,6 +36,18 @@ describe("formatPoint and isMacPlatform", () => {
     expect(isMacPlatform()).toBe(false);
     platform.mockReturnValue("Linux x86_64");
     expect(isMacPlatform()).toBe(false);
+  });
+
+  test("getPlatform tells macOS, Windows and the rest apart", () => {
+    const platform = vi.spyOn(navigator, "platform", "get");
+    platform.mockReturnValue("MacIntel");
+    expect(getPlatform()).toBe("mac");
+    platform.mockReturnValue("Win32");
+    expect(getPlatform()).toBe("windows");
+    platform.mockReturnValue("Linux x86_64");
+    expect(getPlatform()).toBe("other");
+    platform.mockReturnValue("");
+    expect(getPlatform()).toBe("other");
   });
 });
 

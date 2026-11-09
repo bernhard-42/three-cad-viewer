@@ -453,6 +453,18 @@ class PropertiesPanel extends Panel {
 const FILTER_OPTIONS = ["none", "vertex", "edge", "face", "solid"] as const;
 type FilterOption = (typeof FILTER_OPTIONS)[number];
 
+/**
+ * The keys that set the shape filter. They are the same in every language; the
+ * help shows them through the placeholders `{{a}}`, `{{v}}`, ...
+ */
+const SHAPE_FILTER_KEYS: Record<string, FilterOption> = {
+  a: "none",
+  v: "vertex",
+  e: "edge",
+  f: "face",
+  s: "solid",
+};
+
 /** Message id of each filter option's label. */
 const FILTER_LABEL_IDS: Record<FilterOption, MessageId> = {
   none: "filter.all",
@@ -530,14 +542,11 @@ class FilterByDropDownMenu {
   };
 
   private keybindSelect = (e: KeyboardEvent): void => {
-    const validKeys = ["a", "v", "e", "f", "s", "Escape"];
-    if (validKeys.indexOf(e.key) === -1) return;
-    if (e.key == "a") this.setValue("none");
-    else if (e.key == "v") this.setValue("vertex");
-    else if (e.key == "e") this.setValue("edge");
-    else if (e.key == "f") this.setValue("face");
-    else if (e.key == "s") this.setValue("solid");
-    else if (e.key == "Escape") this.closeDropdown(e);
+    if (Object.prototype.hasOwnProperty.call(SHAPE_FILTER_KEYS, e.key)) {
+      this.setValue(SHAPE_FILTER_KEYS[e.key]);
+    } else if (e.key === "Escape") {
+      this.closeDropdown(e);
+    }
   };
 
   private getOptionElements(): HTMLElement[] {
@@ -583,5 +592,10 @@ class FilterByDropDownMenu {
   }
 }
 
-export { FilterByDropDownMenu, DistancePanel, PropertiesPanel };
+export {
+  FilterByDropDownMenu,
+  DistancePanel,
+  PropertiesPanel,
+  SHAPE_FILTER_KEYS,
+};
 export type { DistanceResponseData, PropertiesResponseData };

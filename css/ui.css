@@ -474,6 +474,17 @@ th {
   border-spacing: 4px;
 }
 
+/* A keyboard key in the help */
+.tcv_key {
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 11px;
+  background-color: var(--tcv-bg-pressed-color);
+  border-radius: 3px;
+  padding: 0 3px;
+  white-space: nowrap;
+}
+
 .tcv_round {
   box-sizing: border-box;
   /* -moz-box-sizing: border-box;

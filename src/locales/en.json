@@ -31,7 +31,7 @@
   "tabs": {
     "tree": {
       "label": "Tree",
-      "tooltip": "Navigation Tree"
+      "tooltip": "Object Tree"
     },
     "clip": {
       "label": "Clip",
@@ -410,63 +410,67 @@
   },
   "help": {
     "key": {
-      "shift": "shift",
-      "ctrl": "ctrl",
-      "alt": "alt",
-      "meta": "meta"
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "altMac": "Option",
+      "meta": "Super",
+      "metaMac": "Cmd",
+      "metaWin": "Win",
+      "esc": "Esc"
     },
     "navigation": {
       "title": "Mouse Navigation",
       "rotate": {
         "action": "Rotate",
-        "input": "<left mouse button>"
+        "input": "<left mouse button drag>"
       },
       "rotateUpDown": {
         "action": "Rotate up / down",
-        "input": "<{{ctrl}}> + <left mouse button>"
+        "input": "{{ctrl}} + <left mouse button drag>"
       },
       "rotateLeftRight": {
         "action": "Rotate left / right",
-        "input": "<{{meta}}> + <left mouse button>"
+        "input": "{{meta}} + <left mouse button drag>"
       },
       "pan": {
         "action": "Pan",
-        "input": "<{{shift}}> + <left mouse button> or <right mouse button>"
+        "input": "{{shift}} + <left mouse button drag> or <right mouse button drag>"
       },
       "zoom": {
         "action": "Zoom",
-        "input": "<mouse wheel> or <middle mouse button>"
+        "input": "<mouse wheel> or <middle mouse button drag>"
       }
     },
     "selection": {
       "title": "Mouse Selection",
       "pick": {
-        "action": "Pick element",
-        "input": "<left mouse button> double click",
-        "inputTree": "Click on navigation tree label",
-        "note": "(Shows axis-aligned bounding box, AABB)"
+        "action": "Pick object/component",
+        "input": "<left mouse button double click> on a component (selects component)",
+        "inputTree": "<left mouse button click> on an object tree label (selects object)",
+        "note": "(Shows axis-aligned bounding box)"
       },
       "isolate": {
-        "action": "Isolate element",
-        "input": "<{{shift}}> + <left mouse button> double click",
-        "inputTree": "<{{shift}}> + click on navigation tree label (nested)"
+        "action": "Isolate object",
+        "input": "{{shift}} + <left mouse button double click>",
+        "inputTree": "{{shift}} + <left mouse button click> on an object tree label (nested)"
       },
       "hide": {
-        "action": "Hide element",
-        "input": "<{{meta}}> + <left mouse button> double click object",
-        "inputTree": "<{{meta}}> + <left mouse button> click tree label (nested)"
+        "action": "Hide object",
+        "input": "{{meta}} + <left mouse button double click> on an object",
+        "inputTree": "{{meta}} + <left mouse button click> on an object tree label (nested)"
       },
       "hideOthers": {
-        "action": "Hide other elements",
-        "inputTree": "<{{shift}}> + <{{meta}}> + <left mouse button> click tree label (nested)"
+        "action": "Hide other objects",
+        "inputTree": "{{shift}} + {{meta}} + <left mouse button click> on an object tree label (nested)"
       },
       "cameraTarget": {
         "action": "Set camera target",
-        "input": "<{{shift}}> + <{{meta}}> + <left mouse button> double click"
+        "input": "{{shift}} + {{meta}} + <left mouse button double click>"
       }
     },
     "tree": {
-      "title": "CAD Object Tree",
+      "title": "Object Tree",
       "collapseSingles": {
         "action": "Collapse single leafs",
         "input": "Button '{{button}}' (all nodes with one leaf only)"
@@ -488,23 +492,23 @@
       "title": "Measure Mode",
       "select": {
         "action": "Select 1. (and 2.) object",
-        "input": "<left mouse button>"
+        "input": "<left mouse button click>"
       },
       "useCenter": {
         "action": "Use center instead of min distance",
-        "input": "<{{shift}}> + <left mouse button> for the second selection"
+        "input": "{{shift}} + <left mouse button click> for the second selection"
       },
       "filter": {
         "action": "Filter object types",
-        "input": "Type menu or <a>ll, <s>olid, <f>ace, <e>dge , <v>ertices"
+        "input": "Type menu or key {{a}} (all), {{s}} (solid), {{f}} (face), {{e}} (edge), {{v}} (vertices)"
       },
       "unselectLast": {
         "action": "Unselect last object",
-        "input": "<right mouse button>"
+        "input": "<right mouse button click>"
       },
       "unselectAll": {
         "action": "Unselect all objects",
-        "input": "<ESC>"
+        "input": "{{esc}}"
       }
     }
   }
