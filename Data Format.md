@@ -803,17 +803,24 @@ reference entries by name via their `material` field.
 
 ```js
 materials: {
+  // Builtin preset as a string
+  "steel":        "builtin:stainless-steel",
+
   // Builtin preset (with optional overrides)
   "chrome":       { builtin: "chrome" },
   "blue-acrylic": { builtin: "acrylic-clear", color: "#0000ff" },
 
   // MaterialXMaterial format: full PBR definition with textures
   "aluminum": {
-    properties: {
-      color:     { value: [1.0, 1.0, 1.0], texture: "data:image/png;base64,..." },
-      roughness: { value: 0.35,             texture: "data:image/png;base64,..." },
-      metalness: { value: 1.0 },
-      normal:    {                           texture: "data:image/png;base64,..." },
+    values: {
+      color:     [1.0, 1.0, 1.0],   // sRGB
+      roughness: 0.35,
+      metalness: 1.0,
+    },
+    textures: {
+      color:     "data:image/png;base64,...",
+      roughness: "data:image/png;base64,...",
+      normal:    "data:image/png;base64,...",
     },
     textureRepeat: [0.25, 0.25],
   },
@@ -824,8 +831,9 @@ materials: {
 
 | Value Form                  | Description                                                                                                                |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `"builtin:<preset>"` string | Built-in preset without overrides, same as `{ builtin: "<preset>" }`. See [Built-in Presets](#built-in-presets) below.     |
 | `MaterialAppearance` object | Builtin preset with optional overrides (detected by `builtin` key). See [Material Appearance](#material-appearance) below. |
-| `MaterialXMaterial` object  | threejs-materials format (detected by `properties` key). See [MaterialX Material](#materialx-material) below.              |
+| `MaterialXMaterial` object  | threejs-materials format (detected by `values` key). See [MaterialX Material](#materialx-material) below.                  |
 
 ##### Built-in Presets
 
@@ -848,35 +856,71 @@ which catalogs PBR materials from GPUOpen, ambientCG, PolyHaven, and PhysicallyB
 
 ```js
 {
-  // Required: property dict
-  properties: {
-    color:     { value: [0.8, 0.2, 0.1] },              // linear RGB
-    roughness: { value: 0.4, texture: "data:image/..." }, // scalar + texture
-    metalness: { value: 1.0 },
-    normal:    { texture: "data:image/png;base64,..." },  // texture only
+  // Required: scalar and color values, Three.js MeshPhysicalMaterial names
+  values: {
+    color:     [0.8, 0.2, 0.1],     // sRGB
+    emissive:  [0.0, 0.0, 0.0],     // linear RGB
+    roughness: 0.4,
+    metalness: 1.0,
   },
 
-  // Optional: texture tiling
+  // Required: texture references keyed by property name (may be empty)
+  textures: {
+    color:     "data:image/png;base64,...",
+    roughness: "data:image/png;base64,...",
+    normal:    "data:image/png;base64,...",
+  },
+
+  // Optional: texture tiling and rotation
   textureRepeat: [0.25, 0.25],
+  textureRotation: 0.5,             // radians, counterclockwise
 }
 ```
 
-Detected by the presence of the `properties` key. Extra keys from threejs-materials
-(`id`, `name`, `source`, `url`, `license`) pass through harmlessly.
+Detected by the presence of the `values` key. Extra keys from threejs-materials (`id`, `name`, `source`, `url`, `license`) pass through harmlessly.
 
-| Field           | Type                                                    | Default  | Description                                                                                                                                                                      |
-| --------------- | ------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `properties`    | `Record<string, { value?: unknown; texture?: string }>` | required | Property dict. Keys are simplified names (`"color"`, `"roughness"`, `"normal"`, etc.). Each entry has optional `value` (scalar or linear RGB array) and/or `texture` (data URI). |
-| `textureRepeat` | `[number, number]`                                      | `[1, 1]` | Texture tiling factor `[u, v]`, applied to all textures.                                                                                                                         |
+| Field             | Type                      | Default  | Description                                                                                                 |
+| ----------------- | ------------------------- | -------- | ----------------------------------------------------------------------------------------------------------- |
+| `values`          | `Record<string, unknown>` | required | Scalar and color values, passed to `MeshPhysicalMaterial` under their keys (see below).                     |
+| `textures`        | `Record<string, string>`  | required | Texture references keyed by property name (see below). A data URI, or a URL resolved against the HTML page. |
+| `textureRepeat`   | `[number, number]`        | `[1, 1]` | Texture tiling factor `[u, v]`, applied to all textures.                                                    |
+| `textureRotation` | `number`                  | `0`      | Texture rotation in radians, counterclockwise around the texture center, applied to all textures.           |
+
+**`values`** keys are Three.js `MeshPhysicalMaterial` property names (`color`, `metalness`, `roughness`, `ior`, `transmission`, `opacity`, ...). Color arrays `[r, g, b]` (0--1) have a color space per key:
+
+| Key                                                           | Color space |
+| ------------------------------------------------------------- | ----------- |
+| `color`                                                       | sRGB        |
+| `emissive`, `specularColor`, `sheenColor`, `attenuationColor` | linear RGB  |
+
+`normalScale` and `clearcoatNormalScale` are `[x, y]` arrays. `displacement`, `displacementScale` and `displacementBias` are ignored, since Studio mode does not support displacement. A material with `transmission > 0` is rendered opaque with transmission; otherwise `transparent: true` or `opacity < 1` makes it transparent.
+
+**`textures`** keys map to Three.js texture maps:
+
+| Key                                   | Texture map                                 | Color space |
+| ------------------------------------- | ------------------------------------------- | ----------- |
+| `color`                               | `map`                                       | sRGB        |
+| `emissive`                            | `emissiveMap`                               | sRGB        |
+| `specularColor`                       | `specularColorMap`                          | sRGB        |
+| `sheenColor`                          | `sheenColorMap`                             | sRGB        |
+| `metalness`, `roughness`              | `metalnessMap`, `roughnessMap`              | linear      |
+| `normal`, `clearcoatNormal`           | `normalMap`, `clearcoatNormalMap`           | linear      |
+| `ao`, `occlusion`                     | `aoMap`                                     | linear      |
+| `opacity`                             | `alphaMap` (enables alpha cutout at 0.5)    | linear      |
+| `specularIntensity`                   | `specularIntensityMap`                      | linear      |
+| `clearcoat`, `clearcoatRoughness`     | `clearcoatMap`, `clearcoatRoughnessMap`     | linear      |
+| `transmission`, `thickness`           | `transmissionMap`, `thicknessMap`           | linear      |
+| `sheenRoughness`, `anisotropy`        | `sheenRoughnessMap`, `anisotropyMap`        | linear      |
+| `iridescence`, `iridescenceThickness` | `iridescenceMap`, `iridescenceThicknessMap` | linear      |
+
+Other keys are ignored.
 
 ### Material Appearance
 
 A builtin preset reference with optional property overrides.
 Field names follow Three.js `MeshPhysicalMaterial` naming.
 
-All fields except `builtin` are optional. Only provided fields override the
-preset defaults. Texture string fields are either a data URI or a URL resolved
-against the HTML page.
+All fields except `builtin` are optional. Only provided fields override the preset defaults, with one exception: without `color`, the preset's color is not used and the leaf node's CAD `color` applies instead (the same holds for the `"builtin:<preset>"` string form). Texture string fields are either a data URI or a URL resolved against the HTML page.
 
 #### Core Properties
 

@@ -365,9 +365,12 @@ class NestedGroup {
    * Resolution order:
    * 1. Check caches (resolvedMaterials / resolvedMaterialX)
    * 2. Look up in root-level `materials` table:
-   *    - string starting with "builtin:" → MATERIAL_PRESETS lookup
-   *    - object with `properties` key → threejs-materials entry
-   * 3. Direct lookup in MATERIAL_PRESETS by tag name
+   *    - string "builtin:<preset>" → MATERIAL_PRESETS lookup, preset color
+   *      stripped (the leaf's CAD color is used)
+   *    - object with `values` key → threejs-materials entry
+   *    - object with `builtin` key → preset merged with the object's
+   *      overrides; the preset color is stripped unless `color` is given
+   * 3. Direct lookup in MATERIAL_PRESETS by tag name (preset color kept)
    * 4. No match → warning, return null
    *
    * @param tag - The material tag from a leaf node
@@ -399,8 +402,10 @@ class NestedGroup {
         if (entry.startsWith("builtin:")) {
           const presetName = entry.slice(8);
           const preset = MATERIAL_PRESETS[presetName];
-          if (preset) {
-            const resolved = { ...preset };
+          if (preset !== undefined) {
+            // Strip the preset color like `{ builtin: ... }` without `color`,
+            // so the leaf node's CAD color is used as fallback.
+            const { color: _presetColor, ...resolved } = preset;
             this.resolvedMaterials.set(tag, resolved);
             return resolved;
           }

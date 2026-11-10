@@ -609,11 +609,12 @@ class MaterialFactory {
   /**
    * Create a Studio mode material from a threejs-materials format entry.
    *
-   * threejs-materials `properties` uses simplified property names (e.g., "color",
-   * "roughness", "normal") where each entry has an optional `value` (scalar or
-   * [r,g,b] color array) and/or `texture` (inline data URI). Color arrays follow
-   * a per-key color-space convention: `color` is sRGB, the other color keys are
-   * linear (see the COLOR_ARRAY_KEYS handling in the values loop below).
+   * threejs-materials splits a material into `values` (scalars and [r,g,b]
+   * color arrays, keyed by MeshPhysicalMaterial property names) and `textures`
+   * (data URIs or URLs, keyed by property name, e.g. "color", "roughness",
+   * "normal"; see PROPERTY_TO_MAP). Color arrays follow a per-key color-space
+   * convention: `color` is sRGB, the other color keys are linear (see the
+   * COLOR_ARRAY_KEYS handling in the values loop below).
    *
    * @param values - Scalar PBR values from threejs-materials
    * @param textures - Texture map references from threejs-materials

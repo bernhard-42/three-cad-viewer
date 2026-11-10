@@ -9,6 +9,7 @@ import { NestedGroup, ObjectGroup } from "../../src/scene/nestedgroup.js";
 import { PICK_LAYER } from "../../src/rendering/id-picking.js";
 import { hoverStatusText } from "../../src/tools/cad_tools/mesh-measure.js";
 import { I18n } from "../../src/ui/i18n.js";
+import { MATERIAL_PRESETS } from "../../src/rendering/material-presets.js";
 
 // Helper to create minimal shape data for testing
 function createMinimalShapeData() {
@@ -1990,5 +1991,56 @@ describe("NestedGroup - standalone edges keep edge_types for the mesh backend", 
     ng.assignIds = true;
     ng.render();
     expect(ng.meshGeometry.nodeCounts("arc")).toEqual({ faces: 0, edges: 1 });
+  });
+});
+
+describe("NestedGroup - resolveMaterialTag builtin presets", () => {
+  function createGroup(materials) {
+    const ng = new NestedGroup(
+      createMinimalShapeData(),
+      800,
+      600,
+      0x707070,
+      false,
+      0.5,
+      0.3,
+      0.65,
+      0,
+      100,
+    );
+    ng.materialsTable = materials;
+    return ng;
+  }
+
+  const { color: presetColor, ...presetRest } =
+    MATERIAL_PRESETS["stainless-steel"];
+
+  test('"builtin:<preset>" string drops the preset color (leaf CAD color is used)', () => {
+    const ng = createGroup({ steel: "builtin:stainless-steel" });
+    const resolved = ng.resolveMaterialTag("steel", "/root/part");
+    expect(resolved).toEqual(presetRest);
+    expect("color" in resolved).toBe(false);
+  });
+
+  test('"builtin:<preset>" string resolves like { builtin: "<preset>" }', () => {
+    const ng = createGroup({
+      a: "builtin:stainless-steel",
+      b: { builtin: "stainless-steel" },
+    });
+    const a = ng.resolveMaterialTag("a", "/root/a");
+    const b = { ...ng.resolveMaterialTag("b", "/root/b") };
+    delete b.builtin;
+    expect(a).toEqual(b);
+  });
+
+  test("leaf tag naming a preset directly keeps the preset color", () => {
+    const ng = createGroup(null);
+    const resolved = ng.resolveMaterialTag("stainless-steel", "/root/part");
+    expect(resolved.color).toEqual(presetColor);
+  });
+
+  test('unknown "builtin:<preset>" string resolves to null', () => {
+    const ng = createGroup({ x: "builtin:no-such-preset" });
+    expect(ng.resolveMaterialTag("x", "/root/x")).toBeNull();
   });
 });
