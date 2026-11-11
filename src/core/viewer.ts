@@ -20,6 +20,7 @@ import {
 import { Grid } from "../scene/grid.js";
 import { AxesHelper } from "../scene/axes.js";
 import { OrientationMarker } from "../scene/orientation.js";
+import { PivotMarker } from "../scene/pivot-marker.js";
 import { TreeView } from "../ui/treeview.js";
 import { escapeHtml } from "../ui/info.js";
 // TreeData and StateValue available if needed for tree manipulation
@@ -51,6 +52,8 @@ import {
   PointMarker,
 } from "../scene/bbox.js";
 import { Tools, type ToolResponse } from "../tools/cad_tools/tools.js";
+import { dotRadius, measureConeLength } from "../tools/cad_tools/measure.js";
+import { worldPerPixel } from "../rendering/clip-style.js";
 import { MeshMeasureBackend } from "../tools/cad_tools/mesh-measure.js";
 import { version } from "../_version.js";
 import { IdPicker, clipSignature } from "../rendering/id-picking.js";
@@ -253,6 +256,7 @@ export interface RenderedState {
   axesHelper: AxesHelper;
   clipping: Clipping;
   orientationMarker: OrientationMarker;
+  pivotMarker: PivotMarker;
 
   // Reassigned on each render() / reload
   nestedGroup: NestedGroup;
@@ -394,6 +398,11 @@ class Viewer {
   // When true, update() is a no-op. Used to batch a run of state setters in render()
   // (e.g. the clip-plane init) into a single paint instead of one paint per setter.
   private _suppressUpdate = false;
+  // Between the controls' "start" and "end" events: the pivot sphere is shown while
+  // the interaction is a rotate drag around a pivot.
+  private _dragActive = false;
+  // Whether the last frame drew the pivot sphere, so "end" knows it must repaint.
+  private _pivotMarkerDrawn = false;
   // Zebra settings are pushed to the lazily-created ZebraTools ONCE per model load (on
   // first activation), not on every tree↔zebra toggle. Reset to false in render().
   private _zebraSettingsApplied = false;
@@ -1047,6 +1056,7 @@ class Viewer {
       this._renderCapOutline();
     }
     this.cadTools.update();
+    this._renderPivotMarker();
 
     this.rendered.directLight.position.copy(
       this.rendered.camera.getCamera().position,
@@ -1372,6 +1382,9 @@ class Viewer {
       // without it every clear()/render() cycle left 8 geometries and 3 programs
       // behind on the GL (measured 2026-09-17, working-docs/leak-harness.html).
       this._rendered.orientationMarker.dispose();
+      this._rendered.pivotMarker.dispose();
+      this._dragActive = false;
+      this._pivotMarkerDrawn = false;
 
       // clear tree view
       this.display.clearCadTree();
@@ -1655,6 +1668,7 @@ class Viewer {
 
     controls.setCursorPivot(this.state.get("cursorPivot"), this._pickPivot);
     controls.setZoomToCursor(this.state.get("zoomToCursor"));
+    controls.addDragListeners(this._onDragStart, this._onDragEnd);
     this.display.showCameraTargetHelp(!this.state.get("cursorPivot"));
 
     // ensure panning works for screen coordinates (only exists on OrbitControls)
@@ -1766,6 +1780,8 @@ class Viewer {
     );
     orientationMarker.create();
 
+    const pivotMarker = new PivotMarker();
+
     //
     // Assemble rendered state
     //
@@ -1779,6 +1795,7 @@ class Viewer {
       clipping,
       treeview,
       orientationMarker,
+      pivotMarker,
       ambientLight,
       directLight,
     };
@@ -4447,6 +4464,42 @@ class Viewer {
     if (bbox.isEmpty()) return null;
     return new THREE.Vector3(...bbox.center());
   };
+
+  private _onDragStart = (): void => {
+    this._dragActive = true;
+  };
+
+  private _onDragEnd = (): void => {
+    this._dragActive = false;
+    if (this._pivotMarkerDrawn) this.update(this.updateMarker);
+  };
+
+  /**
+   * Draw the pivot sphere during a rotate drag around a pivot (see
+   * {@link _pickPivot}). It has the size of the measure tool's zero-distance dot:
+   * that dot's world radius shrinks with 1 / zoom, which keeps its size on screen
+   * at the target, and the ratio of the pixel sizes at the pivot and at the target
+   * gives it that size at the pivot's depth (the ratio is 1 for an orthographic
+   * camera).
+   */
+  private _renderPivotMarker(): void {
+    const pivot = this._dragActive ? this.rendered.controls.getPivot() : null;
+    if (pivot === null) {
+      this._pivotMarkerDrawn = false;
+      return;
+    }
+    const camera = this.rendered.camera.getCamera();
+    const width = this.state.get("cadWidth");
+    const height = this.state.get("height");
+    const target = this.rendered.controls.getTarget();
+    const radius =
+      (dotRadius(measureConeLength(this.bb_radius, width, height)) /
+        this.rendered.camera.getZoom()) *
+      (worldPerPixel(camera, pivot, height) /
+        worldPerPixel(camera, target, height));
+    this.rendered.pivotMarker.render(this.renderer, camera, pivot, radius);
+    this._pivotMarkerDrawn = true;
+  }
 
   // ---------------------------------------------------------------------------
   // Clipping Planes

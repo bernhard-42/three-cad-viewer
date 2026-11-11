@@ -18,6 +18,26 @@ import {
 import type { PickedComponent } from "../../rendering/picked.js";
 import type { ViewerLike } from "./tools.js";
 
+/**
+ * Length of a measurement arrow cone at zoom 1, in world units: 1/60 of the
+ * canvas' longer side for a model of bounding radius `bbRadius`.
+ */
+function measureConeLength(
+  bbRadius: number,
+  width: number,
+  height: number,
+): number {
+  return bbRadius / (Math.max(width, height) / 60);
+}
+
+/**
+ * Radius of the dot that marks a zero-length distance, for a cone length from
+ * {@link measureConeLength}.
+ */
+function dotRadius(coneLength: number): number {
+  return (coneLength * 0.8) / 6;
+}
+
 interface PanelDragData {
   x: number | null;
   y: number | null;
@@ -67,7 +87,11 @@ class DistanceLineArrow extends THREE.Group {
     // Coincident points: show a single dot instead of arrows
     if (dist < 1e-9) {
       this.renderMode = "dot";
-      const sphereGeom = new THREE.SphereGeometry(coneLength / 6, 16, 12);
+      const sphereGeom = new THREE.SphereGeometry(
+        dotRadius(this.coneLength),
+        16,
+        12,
+      );
       const sphereMat = new THREE.MeshBasicMaterial({ color: this.color });
       const dot = new THREE.Mesh(sphereGeom, sphereMat);
       dot.name = "dot";
@@ -580,8 +604,11 @@ class Measurement {
     const cadWidth = this.viewer.state.get("cadWidth");
     const height = this.viewer.state.get("height");
     if (typeof cadWidth === "number" && typeof height === "number") {
-      this.coneLength =
-        this.viewer.bb_radius / (Math.max(cadWidth, height) / 60);
+      this.coneLength = measureConeLength(
+        this.viewer.bb_radius,
+        cadWidth,
+        height,
+      );
     }
     this._adjustArrowsScaleFactor(zoom);
     this.viewer.renderer.clearDepth();
@@ -788,4 +815,9 @@ class PropertiesMeasurement extends Measurement {
   }
 }
 
-export { DistanceMeasurement, PropertiesMeasurement };
+export {
+  DistanceMeasurement,
+  PropertiesMeasurement,
+  measureConeLength,
+  dotRadius,
+};

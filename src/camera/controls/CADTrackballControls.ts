@@ -45,6 +45,7 @@ const STATE = {
   ROTATE: 0,
   ZOOM: 1,
   PAN: 2,
+  TOUCH_ROTATE: 3,
 };
 
 // Used for change detection in holroyd mode
@@ -102,6 +103,9 @@ class CADTrackballControls extends TrackballControls {
   private _holroydPointerUp?: () => void;
   private _holroydWheel?: (event: WheelEvent) => void;
   private _parentOnMouseDown!: (event: MouseEvent) => void;
+  private _parentOnTouchStart!: (event: PointerEvent) => void;
+  /** The pointer whose moves drive the holroyd rotation. */
+  private _holroydPointerId: number | null = null;
   /**
    * Picks the rotation pivot when a rotate drag starts. `null` keeps the
    * classic behavior of rotating around `target`.
@@ -142,6 +146,7 @@ class CADTrackballControls extends TrackballControls {
   declare noZoom: boolean;
   declare noPan: boolean;
   declare _onMouseDown: (event: MouseEvent) => void;
+  declare _onTouchStart: (event: PointerEvent) => void;
   declare _getMouseOnCircle: (pageX: number, pageY: number) => Vector2;
   declare _getMouseOnScreen: (pageX: number, pageY: number) => Vector2;
 
@@ -209,6 +214,8 @@ class CADTrackballControls extends TrackballControls {
     // Save parent's _onMouseDown before overriding (for holroyd=false fallback)
     this._parentOnMouseDown = this._onMouseDown;
     this._onMouseDown = this._handleMouseDown.bind(this);
+    this._parentOnTouchStart = this._onTouchStart;
+    this._onTouchStart = this._handleTouchStart.bind(this);
   }
 
   /**
@@ -219,10 +226,11 @@ class CADTrackballControls extends TrackballControls {
     // When holroyd is disabled, use pure Three.js TrackballControls behavior
     if (!this.holroyd) {
       this._parentOnMouseDown(event);
-      this._pivot =
+      this._setPivot(
         this.state === STATE.ROTATE && !this.noRotate
           ? this._pickPivot(event)
-          : null;
+          : null,
+      );
       this._dragZoomCursor = this._dragZoomStart(event, this.state);
       return;
     }
@@ -264,20 +272,10 @@ class CADTrackballControls extends TrackballControls {
 
     const state = this.keyState !== STATE.NONE ? this.keyState : this.state;
 
-    this._pivot =
-      state === STATE.ROTATE && !this.noRotate ? this._pickPivot(event) : null;
+    this._setPivot(
+      state === STATE.ROTATE && !this.noRotate ? this._pickPivot(event) : null,
+    );
     this._dragZoomCursor = this._dragZoomStart(event, state);
-    // The holroyd ball sits at the pivot's screen position. The pivot keeps that
-    // position during the drag, so the centre taken now is valid for the whole
-    // drag. Without a pivot the rotation is around the target, which is at the
-    // canvas centre.
-    if (this._pivot !== null) {
-      this.object.updateMatrixWorld();
-      const ndc = this._pivot.clone().project(this.object as Camera);
-      this._ballCenter.set(ndc.x, ndc.y);
-    } else {
-      this._ballCenter.set(0, 0);
-    }
 
     if (state === STATE.ROTATE && !this.noRotate) {
       this._moveCurr.copy(this._getMouseOnCircle(event.pageX, event.pageY));
@@ -291,6 +289,38 @@ class CADTrackballControls extends TrackballControls {
     }
 
     this.dispatchEvent({ type: "start" });
+  }
+
+  /**
+   * Touch start: a one-finger rotation turns around the point under the finger,
+   * like a mouse drag. Two or more fingers zoom and pan, without a pivot.
+   */
+  private _handleTouchStart(event: PointerEvent): void {
+    this._parentOnTouchStart(event);
+    this._setPivot(
+      this.state === STATE.TOUCH_ROTATE && !this.noRotate
+        ? this._pickPivot(event)
+        : null,
+    );
+  }
+
+  /**
+   * Make `pivot` the point the rotation turns around, or the target for `null`.
+   *
+   * The holroyd ball sits at the pivot's screen position. The pivot keeps that
+   * position during the drag, so the centre taken now is valid for the whole
+   * drag. Without a pivot the rotation is around the target, which is at the
+   * canvas centre.
+   */
+  private _setPivot(pivot: Vector3 | null): void {
+    this._pivot = pivot;
+    if (pivot !== null) {
+      this.object.updateMatrixWorld();
+      const ndc = pivot.clone().project(this.object as Camera);
+      this._ballCenter.set(ndc.x, ndc.y);
+    } else {
+      this._ballCenter.set(0, 0);
+    }
   }
 
   /** The cursor of a zoom drag starting at `event` in `state`, else `null`. */
@@ -329,6 +359,15 @@ class CADTrackballControls extends TrackballControls {
     // Shift key triggers pan instead of rotation (via KeyMapper)
     if (KeyMapper.get(event, "shift")) return;
 
+    // A second finger turns the touch into a pinch (zoom and pan): no rotation.
+    // Following both fingers would rotate by the jumps between them.
+    if (this._holroydActive) {
+      this._holroydActive = false;
+      this._holroydPointerId = null;
+      return;
+    }
+
+    this._holroydPointerId = event.pointerId;
     this._holroydStart.set(event.pageX, event.pageY);
     this._holroydEnd.set(event.pageX, event.pageY);
     this._holroydActive = true;
@@ -347,7 +386,11 @@ class CADTrackballControls extends TrackballControls {
    * Works for all pointer types (mouse, touch, pen, trackpad).
    */
   private _onHolroydPointerMove(event: PointerEvent): void {
-    if (this.holroyd && this._holroydActive) {
+    if (
+      this.holroyd &&
+      this._holroydActive &&
+      event.pointerId === this._holroydPointerId
+    ) {
       this._holroydEnd.set(event.pageX, event.pageY);
     }
     // Call update to process the pointer movement and dispatch "change" event
@@ -364,6 +407,7 @@ class CADTrackballControls extends TrackballControls {
    */
   private _onHolroydPointerUp(): void {
     this._holroydActive = false;
+    this._holroydPointerId = null;
     this._horizontalRotate = true;
     this._verticalRotate = true;
   }
@@ -429,6 +473,15 @@ class CADTrackballControls extends TrackballControls {
   reset(): void {
     super.reset();
     this.object.quaternion.copy(this.quaternion0);
+  }
+
+  /**
+   * The pivot of the latest mouse drag, `null` when that drag did not rotate
+   * around a pivot. It is kept after the release for the damping (see
+   * {@link _pickPivot}); wheel and touch input leave it as it is.
+   */
+  get pivot(): Vector3 | null {
+    return this._pivot;
   }
 
   // Expose saved state properties for compatibility with controls.js

@@ -34,7 +34,15 @@ const STATE = {
   ROTATE: 0,
   DOLLY: 1,
   PAN: 2,
+  TOUCH_ROTATE: 3,
 };
+
+/**
+ * What OrbitControls passes to `_onTouchStart`: a pointer event, or, when one of
+ * two fingers lifts, a placeholder with the remaining finger's page position.
+ */
+type TouchStart = Pick<PointerEvent, "pointerId" | "pageX" | "pageY"> &
+  Partial<Pick<PointerEvent, "clientX" | "clientY">>;
 
 // Reusable objects for the pivot correction in update()
 const _rotation = new Quaternion();
@@ -55,6 +63,11 @@ class CADOrbitControls extends OrbitControls {
   private _pivot: Vector3 | null = null;
   private _muteChange = false;
 
+  /** The pivot of the running rotate drag, `null` outside one. */
+  get pivot(): Vector3 | null {
+    return this._pivot;
+  }
+
   // Expose internal properties for type safety
   declare state: number;
   declare _sphericalDelta: { theta: number; phi: number };
@@ -64,6 +77,8 @@ class CADOrbitControls extends OrbitControls {
   declare _lastPosition: Vector3;
   declare _lastTargetPosition: Vector3;
   declare _onMouseDown: (event: MouseEvent) => void;
+  declare _onTouchStart: (event: TouchStart) => void;
+  private _parentOnTouchStart: (event: TouchStart) => void;
   declare _handleMouseDownRotate: (event: MouseEvent) => void;
   declare _handleMouseDownDolly: (event: MouseEvent) => void;
   declare _handleMouseDownPan: (event: MouseEvent) => void;
@@ -97,6 +112,8 @@ class CADOrbitControls extends OrbitControls {
 
     // Override the parent's _onMouseDown which was bound in parent constructor
     this._onMouseDown = this._handleMouseDown.bind(this);
+    this._parentOnTouchStart = this._onTouchStart;
+    this._onTouchStart = this._handleTouchStart.bind(this);
   }
 
   /**
@@ -127,6 +144,25 @@ class CADOrbitControls extends OrbitControls {
     this._pivot = this.pivotPicker?.(event.clientX, event.clientY) ?? null;
     this._handleMouseDownRotate(event);
     this.state = STATE.ROTATE;
+  }
+
+  /**
+   * Touch start: a one-finger rotation orbits around the point under the finger,
+   * like a mouse drag. Two fingers zoom and pan, without a pivot. When one of two
+   * fingers lifts, OrbitControls starts again with the remaining one, which picks
+   * its own pivot.
+   */
+  private _handleTouchStart(event: TouchStart): void {
+    this._parentOnTouchStart(event);
+    if (this.state !== STATE.TOUCH_ROTATE || this.pivotPicker === null) {
+      this._pivot = null;
+      return;
+    }
+    // The placeholder event has page coordinates only; the picker takes client ones.
+    const view = this.domElement?.ownerDocument.defaultView;
+    const clientX = event.clientX ?? event.pageX - (view?.scrollX ?? 0);
+    const clientY = event.clientY ?? event.pageY - (view?.scrollY ?? 0);
+    this._pivot = this.pivotPicker(clientX, clientY);
   }
 
   /**
@@ -205,6 +241,11 @@ class CADOrbitControls extends OrbitControls {
       default:
         this.state = STATE.NONE;
     }
+
+    // Like OrbitControls' own mouse-down handler, which this one replaces.
+    if (this.state !== STATE.NONE) {
+      this.dispatchEvent({ type: "start" });
+    }
   }
 
   /**
@@ -238,7 +279,10 @@ class CADOrbitControls extends OrbitControls {
    */
   update(deltaTime: number | null = null): boolean {
     const pivot = this._pivot;
-    if (pivot === null || this.state !== STATE.ROTATE) {
+    if (
+      pivot === null ||
+      (this.state !== STATE.ROTATE && this.state !== STATE.TOUCH_ROTATE)
+    ) {
       return super.update(deltaTime);
     }
 

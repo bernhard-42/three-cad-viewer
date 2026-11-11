@@ -30,6 +30,25 @@ function createMockDomElement() {
   return element;
 }
 
+/**
+ * A touch pointer event of finger `id` at page and client position (x, y). It
+ * bubbles: three's controls follow moves and releases on the document.
+ */
+function touchEvent(type, id, x, y) {
+  const event = new PointerEvent(type, { button: 0, bubbles: true });
+  for (const [key, value] of Object.entries({
+    pointerType: "touch",
+    pointerId: id,
+    pageX: x,
+    pageY: y,
+    clientX: x,
+    clientY: y,
+  })) {
+    Object.defineProperty(event, key, { value });
+  }
+  return event;
+}
+
 function cleanupElement(element) {
   if (element && element.parentNode) {
     element.parentNode.removeChild(element);
@@ -147,11 +166,12 @@ describe("CADTrackballControls", () => {
 
     test("holroyd pointer move updates end position when active", () => {
       controls = new CADTrackballControls(camera, domElement);
-      controls._holroydActive = true;
 
       const event = new PointerEvent("pointermove", {});
       Object.defineProperty(event, "pageX", { value: 200 });
       Object.defineProperty(event, "pageY", { value: 150 });
+      controls._holroydActive = true;
+      controls._holroydPointerId = event.pointerId;
       domElement.dispatchEvent(event);
 
       expect(controls._holroydEnd.x).toBe(200);
@@ -541,6 +561,93 @@ describe("CADTrackballControls", () => {
       expect(rollOfDrag(() => pivot.clone())).toBeCloseTo(0, 5);
       // Without a pivot the ball is at the canvas centre: the same drag rolls
       expect(rollOfDrag(() => null)).toBeGreaterThan(0.1);
+    });
+
+    const touch = (type, id, x, y) =>
+      domElement.dispatchEvent(touchEvent(type, id, x, y));
+
+    test("touch: one finger asks the picker for the pivot under it", () => {
+      controls = new CADTrackballControls(camera, domElement);
+      const pivot = new THREE.Vector3(3, 2, 0);
+      controls.pivotPicker = vi.fn(() => pivot);
+
+      touch("pointerdown", 1, 100, 200);
+
+      expect(controls.pivotPicker).toHaveBeenCalledWith(100, 200);
+      expect(controls.pivot).toBe(pivot);
+    });
+
+    test.each([true, false])(
+      "touch, holroyd %s: rotates around the picked point, which stays on screen",
+      (holroyd) => {
+        controls = new CADTrackballControls(camera, domElement);
+        controls.holroyd = holroyd;
+        controls.staticMoving = true;
+        const pivot = new THREE.Vector3(3, 2, 0);
+        controls.pivotPicker = () => pivot.clone();
+        const before = onScreen(pivot);
+        const distance = camera.position.distanceTo(pivot);
+
+        touch("pointerdown", 1, 400, 300);
+        touch("pointermove", 1, 480, 340);
+        controls.update();
+
+        expectFixedOnScreen(pivot, before);
+        expect(camera.position.distanceTo(pivot)).toBeCloseTo(distance);
+        expect(controls.target.length()).toBeGreaterThan(0.1);
+      },
+    );
+
+    test("touch: the holroyd ball sits at the finger's pivot", () => {
+      controls = new CADTrackballControls(camera, domElement);
+      const pivot = new THREE.Vector3(3, 2, 0);
+      controls.pivotPicker = () => pivot.clone();
+
+      touch("pointerdown", 1, 100, 200);
+
+      const ndc = onScreen(pivot);
+      expect(controls._ballCenter.x).toBeCloseTo(ndc.x);
+      expect(controls._ballCenter.y).toBeCloseTo(ndc.y);
+    });
+
+    test("touch after a mouse drag picks its own pivot, not the mouse's", () => {
+      controls = new CADTrackballControls(camera, domElement);
+      controls.pivotPicker = () => new THREE.Vector3(3, 2, 0);
+      drag(400, 300, 480, 340);
+      // kept after the release, for the damping
+      expect(controls.pivot).not.toBeNull();
+
+      controls.pivotPicker = () => null;
+      touch("pointerdown", 1, 100, 200);
+
+      expect(controls.pivot).toBeNull();
+      expect(controls._ballCenter.toArray()).toEqual([0, 0]);
+    });
+
+    test("a second finger clears the pivot", () => {
+      controls = new CADTrackballControls(camera, domElement);
+      controls.pivotPicker = () => new THREE.Vector3(3, 2, 0);
+
+      touch("pointerdown", 1, 100, 200);
+      touch("pointerdown", 2, 300, 250);
+
+      expect(controls.pivot).toBeNull();
+    });
+
+    test("holroyd: a two-finger pinch does not rotate", () => {
+      controls = new CADTrackballControls(camera, domElement);
+      controls.pivotPicker = () => null;
+      const before = camera.quaternion.clone();
+
+      touch("pointerdown", 1, 360, 300);
+      touch("pointerdown", 2, 440, 300);
+      for (let i = 1; i <= 5; i++) {
+        touch("pointermove", 1, 360 - i * 10, 300);
+        touch("pointermove", 2, 440 + i * 10, 300);
+      }
+      controls.update();
+
+      expect(before.angleTo(camera.quaternion)).toBeCloseTo(0, 6);
     });
 
     const wheel = (x, y) => {
@@ -971,6 +1078,63 @@ describe("CADOrbitControls", () => {
       controls.update();
 
       expect(controls.target.length()).toBeCloseTo(0);
+    });
+
+    const touch = (type, id, x, y) =>
+      domElement.dispatchEvent(touchEvent(type, id, x, y));
+
+    test("touch: one finger asks the picker for the pivot under it", () => {
+      controls = new CADOrbitControls(camera, domElement);
+      const pivot = new THREE.Vector3(3, 2, 0);
+      controls.pivotPicker = vi.fn(() => pivot);
+
+      touch("pointerdown", 1, 100, 200);
+
+      expect(controls.pivotPicker).toHaveBeenCalledWith(100, 200);
+      expect(controls.pivot).toBe(pivot);
+    });
+
+    test("touch: orbits around the picked point, which stays fixed on screen", () => {
+      // OrbitControls scales the touch rotation by the element height, which
+      // happy-dom reports as 0
+      Object.defineProperty(domElement, "clientHeight", { value: 600 });
+      controls = new CADOrbitControls(camera, domElement);
+      const pivot = new THREE.Vector3(3, 2, 0);
+      controls.pivotPicker = () => pivot.clone();
+      const before = onScreen(pivot);
+      const distance = camera.position.distanceTo(pivot);
+
+      touch("pointerdown", 1, 400, 300);
+      touch("pointermove", 1, 480, 340);
+
+      const after = onScreen(pivot);
+      expect(after.x).toBeCloseTo(before.x);
+      expect(after.y).toBeCloseTo(before.y);
+      expect(camera.position.distanceTo(pivot)).toBeCloseTo(distance);
+      expect(controls.target.length()).toBeGreaterThan(0.1);
+    });
+
+    test("touch: a second finger clears the pivot", () => {
+      controls = new CADOrbitControls(camera, domElement);
+      controls.pivotPicker = () => new THREE.Vector3(3, 2, 0);
+
+      touch("pointerdown", 1, 100, 200);
+      touch("pointerdown", 2, 300, 250);
+
+      expect(controls.pivot).toBeNull();
+    });
+
+    test("touch: lifting one of two fingers picks the pivot under the other", () => {
+      controls = new CADOrbitControls(camera, domElement);
+      const pivot = new THREE.Vector3(3, 2, 0);
+      controls.pivotPicker = vi.fn(() => pivot);
+
+      touch("pointerdown", 1, 100, 200);
+      touch("pointerdown", 2, 300, 250);
+      touch("pointerup", 2, 300, 250);
+
+      expect(controls.pivotPicker).toHaveBeenLastCalledWith(100, 200);
+      expect(controls.pivot).toBe(pivot);
     });
   });
 

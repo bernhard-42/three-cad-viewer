@@ -241,6 +241,28 @@ class Controls {
   }
 
   /**
+   * The pivot the current or latest rotate drag turns around, `null` when it
+   * turns around the target. Read it during a drag (between the callbacks of
+   * {@link addDragListeners}): the trackball keeps the pivot after the release.
+   * @returns The pivot or null
+   */
+  getPivot(): THREE.Vector3 | null {
+    return this.controls.pivot;
+  }
+
+  /**
+   * Add callbacks for the start and the end of every pointer interaction (drag,
+   * wheel, touch). The pivot of a rotate drag may be picked after `onStart`
+   * runs, so read it with {@link getPivot} later in the drag.
+   * @param onStart - called when an interaction starts.
+   * @param onEnd - called when it ends.
+   */
+  addDragListeners(onStart: () => void, onEnd: () => void): void {
+    this.controls.addEventListener("start", onStart);
+    this.controls.addEventListener("end", onEnd);
+  }
+
+  /**
    * Check if the user is currently interacting with the controls (rotating, panning, zooming).
    * @returns true if user is dragging/interacting, false otherwise.
    */

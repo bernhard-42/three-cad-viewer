@@ -8,6 +8,10 @@ import { setupViewer, cleanup } from "../helpers/setup.js";
 import { loadExample } from "../helpers/snapshot.js";
 import { ObjectGroup } from "../../src/scene/objectgroup.js";
 import { KeyMapper } from "../../src/utils/utils.js";
+import {
+  dotRadius,
+  measureConeLength,
+} from "../../src/tools/cad_tools/measure.js";
 
 let testContext = null;
 
@@ -248,5 +252,93 @@ describe("setting the camera target by hand", () => {
     expect(helpRow(viewer).style.display).toBe("");
     viewer.setCursorPivot(true);
     expect(helpRow(viewer).style.display).toBe("none");
+  });
+});
+
+describe("pivot sphere", () => {
+  /** Start a left-button rotate drag whose pivot is `point`. */
+  const startDrag = (viewer, point) => {
+    vi.spyOn(viewer.pickingController, "pointAt").mockReturnValue(point);
+    viewer.rendered.controls.controls._onMouseDown(
+      new MouseEvent("mousedown", { button: 0, clientX: 10, clientY: 10 }),
+    );
+  };
+  const endDrag = (viewer) =>
+    viewer.rendered.controls.controls.dispatchEvent({ type: "end" });
+
+  /** World radius of the measure tool's zero-distance dot at the target. */
+  const measureDot = (viewer) =>
+    dotRadius(
+      measureConeLength(
+        viewer.bb_radius,
+        viewer.state.get("cadWidth"),
+        viewer.state.get("height"),
+      ),
+    ) / viewer.rendered.camera.getZoom();
+
+  test.each(["orbit", "trackball"])(
+    "%s: a rotate mouse-down fires start and picks the pivot",
+    async (control) => {
+      const { viewer } = await setup({ control });
+      const start = vi.fn();
+      viewer.rendered.controls.controls.addEventListener("start", start);
+      const point = new THREE.Vector3(1, 2, 3);
+      startDrag(viewer, point);
+      expect(start).toHaveBeenCalledTimes(1);
+      expect(viewer.rendered.controls.getPivot()).toBe(point);
+    },
+  );
+
+  test.each(["orbit", "trackball"])(
+    "%s: drawn at the pivot during the drag, and end repaints without it",
+    async (control) => {
+      const { viewer } = await setup({ control });
+      const render = vi.spyOn(viewer.rendered.pivotMarker, "render");
+      const point = new THREE.Vector3(1, 2, 3);
+      startDrag(viewer, point);
+      viewer.update(true);
+      expect(render).toHaveBeenCalledTimes(1);
+      expect(render.mock.calls[0][2]).toBe(point);
+
+      const update = vi.spyOn(viewer, "update");
+      endDrag(viewer);
+      expect(update).toHaveBeenCalledTimes(1);
+      expect(render).toHaveBeenCalledTimes(1);
+      viewer.update(true);
+      expect(render).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  test("nothing is drawn, and end does not repaint, without a pivot", async () => {
+    const { viewer } = await setup({ cursorPivot: false });
+    const render = vi.spyOn(viewer.rendered.pivotMarker, "render");
+    startDrag(viewer, new THREE.Vector3(1, 2, 3));
+    expect(viewer.rendered.controls.getPivot()).toBeNull();
+    viewer.update(true);
+    expect(render).not.toHaveBeenCalled();
+    const update = vi.spyOn(viewer, "update");
+    endDrag(viewer);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  test("orthographic: the size of the measure tool's dot", async () => {
+    const { viewer } = await setup({ ortho: true });
+    viewer.setCameraZoom(2.5);
+    const render = vi.spyOn(viewer.rendered.pivotMarker, "render");
+    startDrag(viewer, new THREE.Vector3(1, 2, 3));
+    viewer.update(true);
+    expect(render.mock.calls[0][3]).toBeCloseTo(measureDot(viewer), 9);
+  });
+
+  test("perspective: the dot's size on screen at the pivot's depth", async () => {
+    const { viewer } = await setup({ ortho: false });
+    const camera = viewer.rendered.camera.getCamera();
+    const target = viewer.rendered.controls.getTarget();
+    // a pivot half way from the camera to the target
+    const point = camera.position.clone().lerp(target, 0.5);
+    const render = vi.spyOn(viewer.rendered.pivotMarker, "render");
+    startDrag(viewer, point);
+    viewer.update(true);
+    expect(render.mock.calls[0][3]).toBeCloseTo(measureDot(viewer) * 0.5, 9);
   });
 });
