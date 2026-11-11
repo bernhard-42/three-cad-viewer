@@ -30,8 +30,8 @@
   },
   "tabs": {
     "tree": {
-      "label": "模型树",
-      "tooltip": "导航树"
+      "label": "对象树",
+      "tooltip": "对象树"
     },
     "clip": {
       "label": "剖切",
@@ -410,13 +410,13 @@
   },
   "help": {
     "key": {
-      "shift": "shift",
-      "ctrl": "ctrl",
-      "alt": "alt",
-      "altMac": "option",
-      "meta": "meta",
-      "metaMac": "cmd",
-      "metaWin": "win",
+      "shift": "Shift",
+      "ctrl": "Ctrl",
+      "alt": "Alt",
+      "altMac": "Option",
+      "meta": "Super",
+      "metaMac": "Cmd",
+      "metaWin": "Win",
       "esc": "Esc"
     },
     "navigation": {
@@ -427,15 +427,15 @@
       },
       "rotateUpDown": {
         "action": "向上/向下旋转",
-        "input": "{{ctrl}} + <鼠标左键>"
+        "input": "{{ctrl}} + 拖拽 <鼠标左键>"
       },
       "rotateLeftRight": {
         "action": "向左/向右旋转",
-        "input": "{{meta}} + <鼠标左键>"
+        "input": "{{meta}} + 拖拽 <鼠标左键>"
       },
       "pan": {
         "action": "平移",
-        "input": "{{shift}} + <鼠标左键> 或 <鼠标右键>"
+        "input": "{{shift}} + 拖拽 <鼠标左键> 或 <鼠标右键>"
       },
       "zoom": {
         "action": "缩放",
@@ -445,24 +445,24 @@
     "selection": {
       "title": "鼠标选择",
       "pick": {
-        "action": "选取元素",
+        "action": "选取对象/组件",
         "input": "双击 <鼠标左键>",
-        "inputTree": "点击导航树中的标签",
+        "inputTree": "点击对象树中的标签",
         "note": "(显示轴对齐包围盒 AABB)"
       },
       "isolate": {
-        "action": "隔离元素",
+        "action": "隔离对象",
         "input": "{{shift}} + 双击 <鼠标左键>",
-        "inputTree": "{{shift}} + 点击导航树中的标签(含嵌套)"
+        "inputTree": "{{shift}} + 点击对象树中的标签(含嵌套)"
       },
       "hide": {
-        "action": "隐藏元素",
+        "action": "隐藏对象",
         "input": "{{meta}} + 对对象双击 <鼠标左键>",
-        "inputTree": "{{meta}} + 点击导航树中的标签(含嵌套)"
+        "inputTree": "{{meta}} + 点击对象树中的标签(含嵌套)"
       },
       "hideOthers": {
-        "action": "隐藏其他元素",
-        "inputTree": "{{shift}} + {{meta}} + 点击导航树中的标签(含嵌套)"
+        "action": "隐藏其他对象",
+        "inputTree": "{{shift}} + {{meta}} + 点击对象树中的标签(含嵌套)"
       },
       "cameraTarget": {
         "action": "设置相机目标",
@@ -470,7 +470,7 @@
       }
     },
     "tree": {
-      "title": "CAD 对象树",
+      "title": "对象树",
       "collapseSingles": {
         "action": "折叠单叶节点",
         "input": "按钮 '{{button}}'(所有仅有一个叶节点的节点)"
