@@ -61,6 +61,7 @@ import {
   clipSignature,
   resolvePath,
   isShapeFilter,
+  type PathTarget,
   SHAPE_FILTERS,
   type ShapeFilter,
 } from "../rendering/id-picking.js";
@@ -2639,6 +2640,40 @@ class Viewer {
   /** Clear the current selection (and reset the select tool). Agent marks stay. */
   clearSelection = (): void => {
     this.pickingController.clearSelection();
+  };
+
+  /**
+   * Make the given components the user's selection, as if the user had clicked them
+   * with the select tool: highlighted, in the select tool's list and reported with
+   * one `selected` notification. Replaces the current selection; agent marks stay.
+   * @param paths - component paths as `lastPick.component` reports them, or solid
+   *   paths for whole solids (also written "<solid>/solids/solids_0").
+   * @returns the paths that name nothing in the current model.
+   * @throws when the select tool is not active (it is not switched on).
+   */
+  setSelection = (paths: string[]): string[] => {
+    if (!this.ready) {
+      throw new Error("Viewer.render() must be called before setSelection()");
+    }
+    if (!this.cadTools.selectActive) {
+      throw new Error(
+        "Restoring a selection needs the select tool to be active",
+      );
+    }
+    const registry = this.rendered.nestedGroup.registry;
+    const targets: PathTarget[] = [];
+    const unknown: string[] = [];
+    for (const path of paths) {
+      const target = resolvePath(registry, path);
+      if (target === null) {
+        unknown.push(path);
+      } else {
+        targets.push(target);
+      }
+    }
+    this.pickingController.setSelection(targets);
+    this.update(this.updateMarker);
+    return unknown;
   };
 
   /**

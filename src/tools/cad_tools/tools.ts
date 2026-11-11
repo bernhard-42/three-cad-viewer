@@ -198,6 +198,24 @@ export class Tools {
     }
   }
 
+  /** Whether the select tool is the active tool. */
+  get selectActive(): boolean {
+    return this.enabledTool === ToolTypes.SELECT;
+  }
+
+  /**
+   * Make `shapes` (already highlighted) the select tool's selection, as if the user
+   * had clicked them. Only while the select tool is active.
+   */
+  setSelection(shapes: PickedComponent[]): void {
+    if (!this.selectActive) {
+      throw new Error(
+        "Restoring a selection needs the select tool to be active",
+      );
+    }
+    this.selectObject.setSelection(shapes);
+  }
+
   handleResetSelection(): void {
     if (this.distanceMeasurement.contextEnabled) {
       this.distanceMeasurement.removeLastSelectedObj(true);

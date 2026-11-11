@@ -42,6 +42,12 @@ class SelectObject {
     this.viewer.checkChanges({ selected: indices }, true);
   }
 
+  /** Replace the selection with `shapes` (already highlighted), with one notification. */
+  setSelection(shapes: PickedComponent[]): void {
+    this.selectedShapes = [...shapes];
+    this.notify();
+  }
+
   handleSelection(selectedObj: PickedComponent | null): void {
     if (!selectedObj) return;
     if (this._includes(selectedObj)) {

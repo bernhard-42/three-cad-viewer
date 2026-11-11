@@ -13,6 +13,7 @@ import {
   type IdPicker,
   type ComponentInfo,
   type PickResult,
+  type PathTarget,
   type TopoType,
 } from "../rendering/id-picking.js";
 import {
@@ -475,6 +476,34 @@ export class PickingController {
     this.lastObject = null;
     this.lastSelection = null;
   };
+
+  /**
+   * Make `targets` the user's selection, as clicks on them would: the previous
+   * selection is cleared (agent marks stay), each target is highlighted (a solid as
+   * a whole), the select tool gets the list with one notification, and the last one
+   * is what Backspace removes first. A target given twice is selected once.
+   */
+  setSelection(targets: PathTarget[]): void {
+    const highlight = this.host.rendered.nestedGroup.highlight;
+    if (highlight === null) return;
+    // Not clearSelection(): the select tool would report the empty selection
+    // before the new one. Its list is replaced below, with one notification.
+    this.host.rendered.nestedGroup.clearSelection();
+    this.lastObject = null;
+    this.lastSelection = null;
+    const picked: PickedComponent[] = [];
+    for (const target of targets) {
+      const component =
+        target.kind === "component"
+          ? new IdPicked(target.info, false, null, highlight)
+          : new IdPicked(target.faces[0], true, null, highlight);
+      if (picked.some((p) => p.equals(component))) continue;
+      component.toggleSelection();
+      picked.push(component);
+    }
+    this.host.cadTools.setSelection(picked);
+    this.lastSelection = picked.length === 0 ? null : picked[picked.length - 1];
+  }
 
   private releaseLastSelected(): void {
     if (this.lastObject != null) {
