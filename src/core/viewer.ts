@@ -107,6 +107,13 @@ import {
   type Keymap,
 } from "./types.js";
 
+/**
+ * Pivot sphere size relative to the measure tool's zero-distance dot: 5 px instead
+ * of 6 across on a 960 x 720 canvas (user decision 2026-11-11, after comparing 6,
+ * 5, 4.5 and 4 px).
+ */
+const PIVOT_MARKER_SCALE = 5 / 6;
+
 /** Delay after the last camera change before the clip cap outline is drawn again. */
 const CAP_OUTLINE_SETTLE_MS = 150;
 
@@ -4628,11 +4635,11 @@ class Viewer {
 
   /**
    * Draw the pivot sphere during a rotate drag around a pivot (see
-   * {@link _pickPivot}). It has the size of the measure tool's zero-distance dot:
-   * that dot's world radius shrinks with 1 / zoom, which keeps its size on screen
-   * at the target, and the ratio of the pixel sizes at the pivot and at the target
-   * gives it that size at the pivot's depth (the ratio is 1 for an orthographic
-   * camera).
+   * {@link _pickPivot}). It has {@link PIVOT_MARKER_SCALE} of the size of the
+   * measure tool's zero-distance dot: that dot's world radius shrinks with 1 / zoom,
+   * which keeps its size on screen at the target, and the ratio of the pixel sizes
+   * at the pivot and at the target gives it that size at the pivot's depth (the
+   * ratio is 1 for an orthographic camera).
    */
   private _renderPivotMarker(): void {
     const pivot = this._dragActive ? this.rendered.controls.getPivot() : null;
@@ -4645,7 +4652,8 @@ class Viewer {
     const height = this.state.get("height");
     const target = this.rendered.controls.getTarget();
     const radius =
-      (dotRadius(measureConeLength(this.bb_radius, width, height)) /
+      ((PIVOT_MARKER_SCALE *
+        dotRadius(measureConeLength(this.bb_radius, width, height))) /
         this.rendered.camera.getZoom()) *
       (worldPerPixel(camera, pivot, height) /
         worldPerPixel(camera, target, height));

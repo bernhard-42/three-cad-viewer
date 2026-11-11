@@ -321,16 +321,19 @@ describe("pivot sphere", () => {
     expect(update).not.toHaveBeenCalled();
   });
 
-  test("orthographic: the size of the measure tool's dot", async () => {
+  test("orthographic: 5/6 of the measure tool's dot (5 px on a 960 x 720 canvas)", async () => {
     const { viewer } = await setup({ ortho: true });
     viewer.setCameraZoom(2.5);
     const render = vi.spyOn(viewer.rendered.pivotMarker, "render");
     startDrag(viewer, new THREE.Vector3(1, 2, 3));
     viewer.update(true);
-    expect(render.mock.calls[0][3]).toBeCloseTo(measureDot(viewer), 9);
+    expect(render.mock.calls[0][3]).toBeCloseTo(
+      (measureDot(viewer) * 5) / 6,
+      9,
+    );
   });
 
-  test("perspective: the dot's size on screen at the pivot's depth", async () => {
+  test("perspective: that size on screen at the pivot's depth", async () => {
     const { viewer } = await setup({ ortho: false });
     const camera = viewer.rendered.camera.getCamera();
     const target = viewer.rendered.controls.getTarget();
@@ -339,6 +342,9 @@ describe("pivot sphere", () => {
     const render = vi.spyOn(viewer.rendered.pivotMarker, "render");
     startDrag(viewer, point);
     viewer.update(true);
-    expect(render.mock.calls[0][3]).toBeCloseTo(measureDot(viewer) * 0.5, 9);
+    expect(render.mock.calls[0][3]).toBeCloseTo(
+      ((measureDot(viewer) * 5) / 6) * 0.5,
+      9,
+    );
   });
 });
