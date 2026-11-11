@@ -56,7 +56,13 @@ import { dotRadius, measureConeLength } from "../tools/cad_tools/measure.js";
 import { worldPerPixel } from "../rendering/clip-style.js";
 import { MeshMeasureBackend } from "../tools/cad_tools/mesh-measure.js";
 import { version } from "../_version.js";
-import { IdPicker, clipSignature } from "../rendering/id-picking.js";
+import {
+  IdPicker,
+  clipSignature,
+  isShapeFilter,
+  SHAPE_FILTERS,
+  type ShapeFilter,
+} from "../rendering/id-picking.js";
 import { CapOutlinePass } from "../rendering/cap-outline.js";
 import { type PickedComponent } from "../rendering/picked.js";
 import {
@@ -1895,7 +1901,8 @@ class Viewer {
     // New model: reset the topo filter to "All" and show it for B-rep. The filter is
     // independent of the active tool (hover preselection is always-on for B-rep);
     // updateShapeFilter gates visibility on the tools panel being open + non-GDS.
-    this.display.shapeFilterDropDownMenu.reset();
+    // No notification of its own: the notification of all settings below reports it.
+    this.setShapeFilter("none", false);
     this.display.updateShapeFilter();
 
     // Apply clip settings AFTER ready=true (clip setters check this.ready).
@@ -4439,6 +4446,30 @@ class Viewer {
     this.state.set("zoomToCursor", flag, notify);
     this.rendered.controls.setZoomToCursor(flag);
     if (changed) this.display.showControlChange("zoom", flag);
+  };
+
+  /**
+   * Get the shape filter: which topology hover and clicks pick.
+   * @returns "none" (all), "vertex", "edge", "face" or "solid".
+   */
+  getShapeFilter(): ShapeFilter {
+    return this.state.get("shapeFilter");
+  }
+
+  /**
+   * Set the shape filter, as the dropdown and the keys a, v, e, f, s do. A new model
+   * resets it to "none".
+   * @param filter - "none" (all), "vertex", "edge", "face" or "solid".
+   * @param notify - whether to send notification or not.
+   */
+  setShapeFilter = (filter: ShapeFilter, notify: boolean = true): void => {
+    if (!isShapeFilter(filter)) {
+      throw new Error(
+        `Unknown shape filter "${String(filter)}", use one of ${SHAPE_FILTERS.join(", ")}`,
+      );
+    }
+    this.state.set("shapeFilter", filter, notify);
+    this.display.shapeFilterDropDownMenu.select(filter);
   };
 
   /**

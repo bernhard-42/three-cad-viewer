@@ -30,6 +30,7 @@
 - **Image faces can be picked**, highlighted, copied and used as a pivot like any other face ([vscode-ocp-cad-viewer#248](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/248)).
 - **Back sides of faces and shells can be picked** wherever they are shown ([vscode-ocp-cad-viewer#248](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/248)).
 - **The status line shows the clicked point** with the copy key of the platform (`Cmd+C` on macOS, `Ctrl+C` elsewhere).
+- **Shape filter API**: `setShapeFilter` and `getShapeFilter` set and read the shape filter (`none`, `vertex`, `edge`, `face`, `solid`). Every change, also from the dropdown and the keys, is reported as `shape_filter`.
 
 **Fixes**
 

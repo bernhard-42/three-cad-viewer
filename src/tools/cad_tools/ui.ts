@@ -1,5 +1,7 @@
 import {
   TopoFilter,
+  SHAPE_FILTERS,
+  type ShapeFilter,
   type TopoFilterType,
 } from "../../rendering/id-picking.js";
 import type { DisplayLike } from "./tools.js";
@@ -449,15 +451,11 @@ class PropertiesPanel extends Panel {
   }
 }
 
-/** The filter options, named like their `TopoFilter` (none = all topos). */
-const FILTER_OPTIONS = ["none", "vertex", "edge", "face", "solid"] as const;
-type FilterOption = (typeof FILTER_OPTIONS)[number];
-
 /**
  * The keys that set the shape filter. They are the same in every language; the
  * help shows them through the placeholders `{{a}}`, `{{v}}`, ...
  */
-const SHAPE_FILTER_KEYS: Record<string, FilterOption> = {
+const SHAPE_FILTER_KEYS: Record<string, ShapeFilter> = {
   a: "none",
   v: "vertex",
   e: "edge",
@@ -466,7 +464,7 @@ const SHAPE_FILTER_KEYS: Record<string, FilterOption> = {
 };
 
 /** Message id of each filter option's label. */
-const FILTER_LABEL_IDS: Record<FilterOption, MessageId> = {
+const FILTER_LABEL_IDS: Record<ShapeFilter, MessageId> = {
   none: "filter.all",
   vertex: "filter.vertex",
   edge: "filter.edge",
@@ -477,6 +475,8 @@ const FILTER_LABEL_IDS: Record<FilterOption, MessageId> = {
 class FilterByDropDownMenu {
   private display: DisplayLike;
   private elements: DisplayLike["filterDropdown"];
+  /** Receives the user's choice (dropdown, keys, reset); see the constructor. */
+  private onChoose: (option: ShapeFilter) => void;
   /**
    * The current topo filter the GPU id picker reads. `[TopoFilter.none]` means
    * "no filter" (all topos eligible).
@@ -485,19 +485,27 @@ class FilterByDropDownMenu {
 
   /**
    * Initialize a new filter drop down menu.
+   * @param display - the display it lives in.
+   * @param onChoose - receives the option the user chose. The viewer passes its
+   *   `setShapeFilter`, which keeps the state, notifies and calls {@link select}.
+   *   Without it, a choice is shown directly.
    */
-  constructor(display: DisplayLike) {
+  constructor(
+    display: DisplayLike,
+    onChoose: ((option: ShapeFilter) => void) | null = null,
+  ) {
     this.display = display;
     this.elements = display.filterDropdown;
     this.elements.container.style.display = "none";
     this.currentFilter = [TopoFilter.none];
+    this.onChoose = onChoose ?? this.select;
   }
 
   /**
-   * Select a filter option by its canonical name. The state never comes from
-   * the rendered label, which is translated.
+   * Show a filter option by its canonical name and make it the picker's filter.
+   * The state never comes from the rendered label, which is translated.
    */
-  private setValue = (option: FilterOption): void => {
+  select = (option: ShapeFilter): void => {
     this.elements.value.innerText = this.display.t(FILTER_LABEL_IDS[option]);
     // "none" (label "All") = no filter → every topo eligible (vertex>edge>face priority).
     // The picker-readable filter source.
@@ -530,20 +538,20 @@ class FilterByDropDownMenu {
   private handleSelection = (ev: Event): void => {
     const target = ev.target;
     const options = this.elements.options;
-    const option = FILTER_OPTIONS.find((name) => options[name] === target);
+    const option = SHAPE_FILTERS.find((name) => options[name] === target);
     if (option !== undefined) {
-      this.setValue(option);
+      this.onChoose(option);
       this.toggleDropdown(ev);
     }
   };
 
   reset = (): void => {
-    this.setValue("none");
+    this.onChoose("none");
   };
 
   private keybindSelect = (e: KeyboardEvent): void => {
     if (Object.prototype.hasOwnProperty.call(SHAPE_FILTER_KEYS, e.key)) {
-      this.setValue(SHAPE_FILTER_KEYS[e.key]);
+      this.onChoose(SHAPE_FILTER_KEYS[e.key]);
     } else if (e.key === "Escape") {
       this.closeDropdown(e);
     }

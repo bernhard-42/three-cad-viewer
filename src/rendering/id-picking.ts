@@ -29,6 +29,21 @@ export const TopoFilter: {
 
 export type TopoFilterType = (typeof TopoFilter)[keyof typeof TopoFilter];
 
+/** The shape filter settings, named like their `TopoFilter` (none = all topos). */
+export const SHAPE_FILTERS = [
+  "none",
+  "vertex",
+  "edge",
+  "face",
+  "solid",
+] as const;
+export type ShapeFilter = (typeof SHAPE_FILTERS)[number];
+
+/** Whether `value` is one of the {@link SHAPE_FILTERS}. */
+export function isShapeFilter(value: unknown): value is ShapeFilter {
+  return SHAPE_FILTERS.some((filter) => filter === value);
+}
+
 /** Reserved component id meaning "nothing under the cursor". */
 export const BACKGROUND_ID = 0;
 

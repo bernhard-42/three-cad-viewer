@@ -775,7 +775,15 @@ class Display {
     );
     this.buttons["pin"].alignRight();
     this.cadTool.addButton(this.buttons["pin"], -1);
-    this.shapeFilterDropDownMenu = new FilterByDropDownMenu(this);
+    // The viewer keeps the filter as state and notifies; before setupUI() has
+    // connected one, a choice is only shown.
+    this.shapeFilterDropDownMenu = new FilterByDropDownMenu(this, (option) => {
+      if (this.viewer === undefined) {
+        this.shapeFilterDropDownMenu.select(option);
+      } else {
+        this.viewer.setShapeFilter(option);
+      }
+    });
 
     this.showPinning(options.pinning);
 

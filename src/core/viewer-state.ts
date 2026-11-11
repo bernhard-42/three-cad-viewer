@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import type { ShapeFilter } from "../rendering/id-picking.js";
 import {
   CollapseState,
   type Theme,
@@ -135,6 +136,7 @@ interface RuntimeDefaults {
   zscaleActive: boolean;
   highlightedButton: string | null;
   activeTab: ActiveTab;
+  shapeFilter: ShapeFilter;
 }
 
 /**
@@ -253,6 +255,7 @@ const STATE_KEYS: ReadonlySet<string> = new Set<StateKey>([
   "zscaleActive",
   "highlightedButton",
   "activeTab",
+  "shapeFilter",
 ]);
 
 /**
@@ -280,6 +283,7 @@ const STATE_TO_NOTIFICATION_KEY: Partial<Record<StateKey, string>> = {
   centerGrid: "center_grid",
   collapse: "collapse",
   activeTab: "tab",
+  shapeFilter: "shape_filter",
   // Render settings
   ambientIntensity: "ambient_intensity",
   directIntensity: "direct_intensity",
@@ -546,6 +550,7 @@ class ViewerState {
     zscaleActive: false,
     highlightedButton: null,
     activeTab: "tree",
+    shapeFilter: "none",
   };
 
   private _state: StateShape;
