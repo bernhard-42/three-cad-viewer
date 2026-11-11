@@ -32,6 +32,10 @@
 - **The status line shows the clicked point** with the copy key of the platform (`Cmd+C` on macOS, `Ctrl+C` elsewhere).
 - **Shape filter API**: `setShapeFilter` and `getShapeFilter` set and read the shape filter (`none`, `vertex`, `edge`, `face`, `solid`). Every change, also from the dropdown and the keys, is reported as `shape_filter`.
 
+**Agent highlights**
+
+- **Agent marks**: `setAgentHighlight(paths)` marks components or whole solids in a colour of their own (pink), beside the user's selection (blue); where both meet, an "agreed" colour (green) shows. A new call replaces the marks, `[]` clears them, as does a new model. Escape and switching a tool off clear only the user's selection, and a click on a marked component selects it as before. Unknown paths are returned.
+
 **Fixes**
 
 - **Toolbar tooltips and the grid menu were cut off in Safari** ([#47](https://github.com/bernhard-42/three-cad-viewer/pull/47), by @Xapphire13).

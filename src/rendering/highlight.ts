@@ -19,7 +19,9 @@ import type {
  *   `componentId` (the attribute already on the compact geometry). The texture is
  *   shared by every compact visual material via `onBeforeCompile`, so a state
  *   write is reflected by all materials with no recompile.
- * - State is BIT FLAGS ({@link HighlightFlag}); SELECTED wins over HOVER.
+ * - State is BIT FLAGS ({@link HighlightFlag}): the user's SELECTED and HOVER and
+ *   the agent's marks (AGENT). Colours: SELECTED with AGENT shows the "agreed"
+ *   colour, else SELECTED wins over HOVER, and HOVER over AGENT.
  * - `selectSolid` sets the flag for every registry component sharing a `solidPath`.
  *
  * Driven by the live event loop via `IdPicker.pickAt → registry → controller`.
@@ -30,6 +32,12 @@ export const HIGHLIGHT_COLOR_SELECTED = 0x53a0e3;
 
 /** Highlight color for a hovered, not-selected component (was `HIGHLIGHT_COLOR_HOVER`). */
 export const HIGHLIGHT_COLOR_HOVER = 0x89b9e3;
+
+/** Highlight color for a component the agent marked, not selected by the user. */
+export const HIGHLIGHT_COLOR_AGENT = 0xff6699;
+
+/** Highlight color for a component the agent marked and the user selected. */
+export const HIGHLIGHT_COLOR_AGREED = 0x09b241;
 
 /** Tree-hover preference per leaf: faces before edges before vertices. */
 const TOPO_RANK: Record<TopoType, number> = {
@@ -55,12 +63,14 @@ export const EDGE_FOCUS_WIDTH = 5;
  * Per-component highlight state, stored as bit flags in one texel of the state
  * texture. SELECTED takes precedence over HOVER when both are set, so hovering an
  * already-selected component keeps the selected color (matches the old
- * `_getHighlightColor` / `unhighlight(true)`).
+ * `_getHighlightColor` / `unhighlight(true)`). AGENT is the agent's mark, beside
+ * the user's state: HOVER shows over it, and SELECTED with it shows "agreed".
  */
 export const HighlightFlag = {
   NONE: 0,
   SELECTED: 1 << 0,
   HOVER: 1 << 1,
+  AGENT: 1 << 2,
 } as const;
 
 export type HighlightFlagValue =
@@ -83,6 +93,10 @@ export const U_HIGHLIGHT_TEX_WIDTH = "uHighlightTexWidth";
 export const U_HIGHLIGHT_SELECTED_COLOR = "uHighlightSelectedColor";
 /** Uniform: hover color (linear RGB vec3). */
 export const U_HIGHLIGHT_HOVER_COLOR = "uHighlightHoverColor";
+/** Uniform: agent mark color (linear RGB vec3). */
+export const U_HIGHLIGHT_AGENT_COLOR = "uHighlightAgentColor";
+/** Uniform: agreed color, agent mark and selection together (linear RGB vec3). */
+export const U_HIGHLIGHT_AGREED_COLOR = "uHighlightAgreedColor";
 
 /**
  * The shared `THREE.IUniform` set bound into every patched compact material. One
@@ -99,6 +113,8 @@ export interface HighlightUniforms {
   uHighlightTexWidth: { value: number };
   uHighlightSelectedColor: { value: THREE.Color };
   uHighlightHoverColor: { value: THREE.Color };
+  uHighlightAgentColor: { value: THREE.Color };
+  uHighlightAgreedColor: { value: THREE.Color };
 }
 
 // ---------------------------------------------------------------------------
@@ -161,11 +177,13 @@ ${HL_STATE_GLSL}`;
 /** Vertex main: forward the id as two 16-bit halves. Injected right after `void main() {`. */
 const HL_VERTEX_ASSIGN = `vHighlightIdLo = float(${COMPONENT_ID_ATTRIBUTE} & 0xFFFFu); vHighlightIdHi = float(${COMPONENT_ID_ATTRIBUTE} >> 16);`;
 
-/** Fragment header: the shared state fetch + the two highlight colors. */
+/** Fragment header: the shared state fetch + the highlight colors. */
 const HL_FRAGMENT_HEADER = `
 ${HL_STATE_GLSL}
 uniform vec3 ${U_HIGHLIGHT_SELECTED_COLOR};
-uniform vec3 ${U_HIGHLIGHT_HOVER_COLOR};`;
+uniform vec3 ${U_HIGHLIGHT_HOVER_COLOR};
+uniform vec3 ${U_HIGHLIGHT_AGENT_COLOR};
+uniform vec3 ${U_HIGHLIGHT_AGREED_COLOR};`;
 
 /**
  * Minimal material surface the patch methods need. Declared structurally because
@@ -177,11 +195,16 @@ type PatchableMaterial = Pick<
   "onBeforeCompile" | "customProgramCacheKey" | "needsUpdate" | "userData"
 >;
 
+/** SELECTED and AGENT together: the agent's mark that the user selected. */
+const AGREED = HighlightFlag.SELECTED | HighlightFlag.AGENT;
+
 /**
  * Fragment color override, injected after `#include <color_fragment>` in all three
- * materials: replace the base/lit color with the highlight color — SELECTED wins
- * over HOVER (matches `ObjectGroup._getHighlightColor`). With `opacity` below 1 the
- * highlight color is mixed over the base color instead, so a texture stays visible.
+ * materials: replace the base/lit color with the highlight color — SELECTED with
+ * AGENT shows "agreed", else SELECTED wins over HOVER (matches
+ * `ObjectGroup._getHighlightColor`) and HOVER over AGENT, so the user sees what a
+ * click will hit. With `opacity` below 1 the highlight color is mixed over the base
+ * color instead, so a texture stays visible.
  */
 function hlColorOverride(opacity: number): string {
   const tint = (color: string): string =>
@@ -191,10 +214,14 @@ function hlColorOverride(opacity: number): string {
   return `
   {
     uint hlColorState = highlightState();
-    if ((hlColorState & ${HighlightFlag.SELECTED}u) != 0u) {
+    if ((hlColorState & ${AGREED}u) == ${AGREED}u) {
+      diffuseColor.rgb = ${tint(U_HIGHLIGHT_AGREED_COLOR)};
+    } else if ((hlColorState & ${HighlightFlag.SELECTED}u) != 0u) {
       diffuseColor.rgb = ${tint(U_HIGHLIGHT_SELECTED_COLOR)};
     } else if ((hlColorState & ${HighlightFlag.HOVER}u) != 0u) {
       diffuseColor.rgb = ${tint(U_HIGHLIGHT_HOVER_COLOR)};
+    } else if ((hlColorState & ${HighlightFlag.AGENT}u) != 0u) {
+      diffuseColor.rgb = ${tint(U_HIGHLIGHT_AGENT_COLOR)};
     }
   }`;
 }
@@ -209,7 +236,9 @@ export const IMAGE_FACE_HIGHLIGHT_OPACITY = 0.35;
 
 /**
  * GLSL ternary choosing the focus size from the flag bits, matching the old
- * `widen()`: HOVER → `hover`; SELECTED && !HOVER → `selected`; else `none`.
+ * `widen()`: HOVER → `hover`; SELECTED or AGENT (no HOVER) → `selected`; else
+ * `none`. AGENT must widen too: for a solid's culled corner points `none` is 0, so
+ * an agent-marked vertex would otherwise not be drawn.
  */
 function focusSizeExpr(
   stateVar: string,
@@ -219,7 +248,7 @@ function focusSizeExpr(
 ): string {
   return (
     `((${stateVar} & ${HighlightFlag.HOVER}u) != 0u ? ${hover.toFixed(1)} : ` +
-    `((${stateVar} & ${HighlightFlag.SELECTED}u) != 0u ? ${selected.toFixed(1)} : ${none}))`
+    `((${stateVar} & ${HighlightFlag.SELECTED | HighlightFlag.AGENT}u) != 0u ? ${selected.toFixed(1)} : ${none}))`
   );
 }
 
@@ -275,6 +304,9 @@ export class HighlightController {
   /** Cheap identity of the current hover target so a repeat is a no-op. */
   private hoverKey: string;
 
+  /** Ids currently carrying the AGENT flag. */
+  private agentIds: number[];
+
   /**
    * @param registry - the compact group's component registry; sizes the texture
    *   and resolves `solidPath` for {@link selectSolid}.
@@ -283,6 +315,7 @@ export class HighlightController {
     this.registry = registry;
     this.hoverIds = [];
     this.hoverKey = "";
+    this.agentIds = [];
 
     const texelCount = Math.max(1, registry.maxId + 1);
     const { texture, data, capacity } = this._allocate(texelCount);
@@ -297,6 +330,8 @@ export class HighlightController {
         value: new THREE.Color(HIGHLIGHT_COLOR_SELECTED),
       },
       uHighlightHoverColor: { value: new THREE.Color(HIGHLIGHT_COLOR_HOVER) },
+      uHighlightAgentColor: { value: new THREE.Color(HIGHLIGHT_COLOR_AGENT) },
+      uHighlightAgreedColor: { value: new THREE.Color(HIGHLIGHT_COLOR_AGREED) },
     };
   }
 
@@ -460,11 +495,36 @@ export class HighlightController {
     }
   }
 
-  /** Clear all highlight state (hover + selection) for every component. */
+  /**
+   * Move the AGENT flag onto exactly the given ids (the agent's marks), clearing it
+   * from the previous ones; `[]` clears all marks. Leaves SELECTED and HOVER alone.
+   */
+  setAgent(ids: number[]): void {
+    for (const id of this.agentIds) {
+      this._setBit(id, HighlightFlag.AGENT, false);
+    }
+    this.agentIds = [...ids];
+    for (const id of this.agentIds) this._setBit(id, HighlightFlag.AGENT, true);
+  }
+
+  /**
+   * Clear the user's state (selection + hover) for every component and keep the
+   * agent's marks. Escape and switching a tool off clear this way.
+   */
+  clearSelection(): void {
+    const keep = HighlightFlag.AGENT;
+    for (let i = 0; i < this.data.length; i++) this.data[i] &= keep;
+    this.hoverIds = [];
+    this.hoverKey = "";
+    this.texture.needsUpdate = true;
+  }
+
+  /** Clear all highlight state (hover, selection, agent marks) for every component. */
   clear(): void {
     this.data.fill(0);
     this.hoverIds = [];
     this.hoverKey = "";
+    this.agentIds = [];
     this.texture.needsUpdate = true;
   }
 
@@ -528,6 +588,10 @@ export class HighlightController {
         this.uniforms.uHighlightSelectedColor;
       shader.uniforms[U_HIGHLIGHT_HOVER_COLOR] =
         this.uniforms.uHighlightHoverColor;
+      shader.uniforms[U_HIGHLIGHT_AGENT_COLOR] =
+        this.uniforms.uHighlightAgentColor;
+      shader.uniforms[U_HIGHLIGHT_AGREED_COLOR] =
+        this.uniforms.uHighlightAgreedColor;
 
       // Common: forward the component id (as two interpolated float halves).
       shader.vertexShader =

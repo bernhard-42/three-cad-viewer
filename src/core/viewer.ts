@@ -59,6 +59,7 @@ import { version } from "../_version.js";
 import {
   IdPicker,
   clipSignature,
+  resolvePath,
   isShapeFilter,
   SHAPE_FILTERS,
   type ShapeFilter,
@@ -2635,9 +2636,43 @@ class Viewer {
     this.pickingController.setSelectionInput(flag);
   }
 
-  /** Clear the current selection (and reset the select tool). */
+  /** Clear the current selection (and reset the select tool). Agent marks stay. */
   clearSelection = (): void => {
     this.pickingController.clearSelection();
+  };
+
+  /**
+   * Mark components for the user, in the agent colour, apart from the user's
+   * selection: where both meet, the "agreed" colour shows. Replaces the previous
+   * marks; `[]` clears them, as does a new model. Escape and switching a tool off
+   * keep them.
+   * @param paths - component paths as `lastPick.component` reports them (e.g.
+   *   "/box/faces/faces_3"), or solid paths for whole solids ("/box", also
+   *   "/box/solids/solids_0").
+   * @returns the paths that name nothing in the current model.
+   */
+  setAgentHighlight = (paths: string[]): string[] => {
+    if (!this.ready) {
+      throw new Error(
+        "Viewer.render() must be called before setAgentHighlight()",
+      );
+    }
+    const nestedGroup = this.rendered.nestedGroup;
+    const ids: number[] = [];
+    const unknown: string[] = [];
+    for (const path of paths) {
+      const target = resolvePath(nestedGroup.registry, path);
+      if (target === null) {
+        unknown.push(path);
+      } else if (target.kind === "component") {
+        ids.push(target.info.id);
+      } else {
+        for (const face of target.faces) ids.push(face.id);
+      }
+    }
+    nestedGroup.highlight?.setAgent(ids);
+    this.update(this.updateMarker);
+    return unknown;
   };
 
   /**

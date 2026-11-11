@@ -455,3 +455,108 @@ describe("stock three shader anchors (loud guard for three upgrades)", () => {
     );
   });
 });
+
+describe("HighlightController — agent marks", () => {
+  it("setAgent marks exactly the given ids, replacing the previous marks", () => {
+    const { reg, f0, f1, e0 } = makeRegistry();
+    const c = new HighlightController(reg);
+    c.setAgent([f0, e0]);
+    expect(texData(c)[f0]).toBe(HighlightFlag.AGENT);
+    expect(texData(c)[e0]).toBe(HighlightFlag.AGENT);
+    c.setAgent([f1]);
+    expect(texData(c)[f0]).toBe(HighlightFlag.NONE);
+    expect(texData(c)[e0]).toBe(HighlightFlag.NONE);
+    expect(texData(c)[f1]).toBe(HighlightFlag.AGENT);
+    c.setAgent([]);
+    expect(texData(c)[f1]).toBe(HighlightFlag.NONE);
+    c.dispose();
+  });
+
+  it("agent marks, selection and hover are independent bits", () => {
+    const { reg, f0 } = makeRegistry();
+    const c = new HighlightController(reg);
+    c.setSelected(f0, true);
+    c.setHover(f0);
+    c.setAgent([f0]);
+    expect(texData(c)[f0]).toBe(
+      HighlightFlag.SELECTED | HighlightFlag.HOVER | HighlightFlag.AGENT,
+    );
+    c.setAgent([]);
+    expect(texData(c)[f0]).toBe(HighlightFlag.SELECTED | HighlightFlag.HOVER);
+    c.dispose();
+  });
+
+  it("clearSelection drops selection and hover, keeps agent marks", () => {
+    const { reg, f0, f1 } = makeRegistry();
+    const c = new HighlightController(reg);
+    c.setAgent([f0, f1]);
+    c.setSelected(f0, true);
+    c.setHover(f1);
+    c.clearSelection();
+    expect(texData(c)[f0]).toBe(HighlightFlag.AGENT);
+    expect(texData(c)[f1]).toBe(HighlightFlag.AGENT);
+    // hover tracking reset: hovering f1 again sets its bit again
+    c.setHover(f1);
+    expect(texData(c)[f1]).toBe(HighlightFlag.AGENT | HighlightFlag.HOVER);
+    c.dispose();
+  });
+
+  it("the colours: agent ff6699, agreed 09b241, selection unchanged", () => {
+    const c = new HighlightController(makeRegistry().reg);
+    expect(c.uniforms.uHighlightAgentColor.value.getHex()).toBe(0xff6699);
+    expect(c.uniforms.uHighlightAgreedColor.value.getHex()).toBe(0x09b241);
+    expect(c.uniforms.uHighlightSelectedColor.value.getHex()).toBe(0x53a0e3);
+    c.dispose();
+  });
+
+  it("the colour chain: agreed, then selected, then hover, then agent", () => {
+    const c = new HighlightController(makeRegistry().reg);
+    const mat = fakeMaterial();
+    c.patchFaceMaterial(mat);
+    const shader = shaderWith("  gl_Position = vec4(0.0);");
+    mat.onBeforeCompile(shader, null);
+    expect(shader.uniforms.uHighlightAgentColor).toBe(
+      c.uniforms.uHighlightAgentColor,
+    );
+    expect(shader.uniforms.uHighlightAgreedColor).toBe(
+      c.uniforms.uHighlightAgreedColor,
+    );
+    const src = shader.fragmentShader;
+    const at = (s) => {
+      const i = src.indexOf(s);
+      expect(i).toBeGreaterThan(-1);
+      return i;
+    };
+    const agreed = at("diffuseColor.rgb = uHighlightAgreedColor");
+    const selected = at("diffuseColor.rgb = uHighlightSelectedColor");
+    const hover = at("diffuseColor.rgb = uHighlightHoverColor");
+    const agent = at("diffuseColor.rgb = uHighlightAgentColor");
+    expect(agreed).toBeLessThan(selected);
+    expect(selected).toBeLessThan(hover);
+    expect(hover).toBeLessThan(agent);
+    // agreed needs both bits
+    expect(src).toContain(
+      `(hlColorState & ${HighlightFlag.SELECTED | HighlightFlag.AGENT}u) == ${HighlightFlag.SELECTED | HighlightFlag.AGENT}u`,
+    );
+    c.dispose();
+  });
+
+  it("an agent mark widens edges and shows hidden solid corners like a selection", () => {
+    const c = new HighlightController(makeRegistry().reg);
+    expect(HighlightFlag.AGENT).toBe(4);
+    const mask = "& 5u"; // SELECTED | AGENT
+    const edge = fakeMaterial();
+    c.patchEdgeMaterial(edge);
+    const edgeShader = shaderWith(
+      "  vec2 offset = vec2(0.0);\n  offset *= linewidth;",
+    );
+    edge.onBeforeCompile(edgeShader, null);
+    expect(edgeShader.vertexShader).toContain(`(hlEdgeState ${mask}) != 0u`);
+    const corners = fakeMaterial();
+    c.patchVertexMaterial(corners, { cullUnhighlighted: true });
+    const pointShader = shaderWith("  gl_PointSize = size;");
+    corners.onBeforeCompile(pointShader, null);
+    expect(pointShader.vertexShader).toContain(`(hlPtState ${mask}) != 0u`);
+    c.dispose();
+  });
+});

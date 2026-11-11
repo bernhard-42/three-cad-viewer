@@ -1391,14 +1391,15 @@ class NestedGroup {
   }
 
   /**
-   * Clear selection and highlights from all selected objects.
+   * Clear selection and highlights from all selected objects. The agent's marks
+   * stay (they go with `Viewer.setAgentHighlight([])` or a new model).
    */
   clearSelection(): void {
     for (const object of this.selection()) {
       object.clearHighlights();
     }
     // compact group highlight is shader-driven, not per-ObjectGroup.
-    this.highlight?.clear();
+    this.highlight?.clearSelection();
   }
 
   /**
