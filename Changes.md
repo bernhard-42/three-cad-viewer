@@ -39,6 +39,7 @@
 
 **Fixes**
 
+- **Turning the select tool off or pressing Escape did not report the empty selection**: the host kept the previous `selected`. Both now report the empty selection, once.
 - **Toolbar tooltips and the grid menu were cut off in Safari** ([#47](https://github.com/bernhard-42/three-cad-viewer/pull/47), by @Xapphire13).
 - **Object names containing `<`, `"` or `\`** broke the tree and the info panel; names are now shown as text.
 - **Switching the Studio background from a solid color back to "Environment"** did not show the environment.
