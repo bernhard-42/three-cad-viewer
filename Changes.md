@@ -36,7 +36,7 @@
 
 **Agent highlights**
 
-- **Agent marks**: `setAgentHighlight(paths)` marks components or whole solids in a colour of their own (pink), beside the user's selection (blue); where both meet, an "agreed" colour (green) shows. Marked vertices are drawn larger. A new call replaces the marks, `[]` clears them, as does a new model. Escape and switching a tool off clear only the user's selection, and a click on a marked component selects it as before. Unknown paths are returned.
+- **Agent marks**: `setAgentHighlight(paths)` marks components or whole solids in a colour of their own (brown), beside the user's selection (blue); where both meet, an "agreed" colour (dark green) shows. Marked vertices are drawn larger. A new call replaces the marks, `[]` clears them, as does a new model. Escape and switching a tool off clear only the user's selection, and a click on a marked component selects it as before. Unknown paths are returned.
 
 **Fixes**
 

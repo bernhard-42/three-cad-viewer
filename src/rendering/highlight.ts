@@ -33,11 +33,16 @@ export const HIGHLIGHT_COLOR_SELECTED = 0x53a0e3;
 /** Highlight color for a hovered, not-selected component (was `HIGHLIGHT_COLOR_HOVER`). */
 export const HIGHLIGHT_COLOR_HOVER = 0x89b9e3;
 
-/** Highlight color for a component the agent marked, not selected by the user. */
-export const HIGHLIGHT_COLOR_AGENT = 0xff6699;
+/**
+ * Highlight color for a component the agent marked, not selected by the user
+ * (brown). Chosen by the user on 2026-11-11 together with the agreed dark green: the
+ * pair stays apart from each other and from the selection blue also for
+ * colour-deficient vision and on thin edges, where blue and green blur.
+ */
+export const HIGHLIGHT_COLOR_AGENT = 0xa6611a;
 
-/** Highlight color for a component the agent marked and the user selected. */
-export const HIGHLIGHT_COLOR_AGREED = 0x09b241;
+/** Highlight color for a component the agent marked and the user selected (dark green). */
+export const HIGHLIGHT_COLOR_AGREED = 0x01665e;
 
 /** Tree-hover preference per leaf: faces before edges before vertices. */
 const TOPO_RANK: Record<TopoType, number> = {

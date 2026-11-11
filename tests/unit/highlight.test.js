@@ -501,10 +501,10 @@ describe("HighlightController — agent marks", () => {
     c.dispose();
   });
 
-  it("the colours: agent ff6699, agreed 09b241, selection unchanged", () => {
+  it("the colours: agent a6611a, agreed 01665e, selection unchanged", () => {
     const c = new HighlightController(makeRegistry().reg);
-    expect(c.uniforms.uHighlightAgentColor.value.getHex()).toBe(0xff6699);
-    expect(c.uniforms.uHighlightAgreedColor.value.getHex()).toBe(0x09b241);
+    expect(c.uniforms.uHighlightAgentColor.value.getHex()).toBe(0xa6611a);
+    expect(c.uniforms.uHighlightAgreedColor.value.getHex()).toBe(0x01665e);
     expect(c.uniforms.uHighlightSelectedColor.value.getHex()).toBe(0x53a0e3);
     c.dispose();
   });
