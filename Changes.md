@@ -13,25 +13,29 @@
 
 - **UI localization (English, German, Chinese)**: all UI texts live in language files under `src/locales/` (see `src/locales/README.md` for translators). New `DisplayOptions`: `locale` (e.g. `"de"`, `"zh-CN"`; unknown languages fall back to English) and `labels` (overrides for single texts by message id). The Chinese translation is based on the language pack of the Chinese edition of vscode-ocp-cad-viewer ([#46](https://github.com/bernhard-42/three-cad-viewer/pull/46), by @sh-u-x-in). The demo page has a Locale dropdown.
 - **Changed English texts**: readable geometry type names in the status line and the properties panel (e.g. `B-spline surface`), capitalized status messages.
+- **Shape filter works with translated labels** ([#46](https://github.com/bernhard-42/three-cad-viewer/pull/46)).
 
 **Help dialog improvements**
 
 - **The help names the modifier keys of the platform**: `Cmd`/`Option` on macOS, `Win` on Windows, `Super` on Linux, keys shown in code style, and mouse actions written as `Shift + <left mouse button double click>`. Translators: four new messages and new placeholders, see `src/locales/README.md`.
 - **API change**: `Display.updateHelp()` takes no arguments any more.
-- **Shape filter works with translated labels** ([#46](https://github.com/bernhard-42/three-cad-viewer/pull/46)).
-- **`formatKey` no longer adds a second space** to keys like `point 1` ([#46](https://github.com/bernhard-42/three-cad-viewer/pull/46)).
 
-**New picking behaviour**
+**New click behavior**
 
-- **Breaking: `selected` is grouped by object and kind**: the select tool sends `{"<object path>/<kind>": [indices]}`, e.g. `{"/hexapod/top/edges": [3, 5]}`, instead of a list of index strings, which lost the object and kind. A selected solid is `{"<solid path>/solids": [0]}`, an empty selection `{}`. Hosts that copy `selected` to the clipboard with `join(",")` must be updated.
-- **The double-click picks what hover shows**: the same shape filter and solid mode as hover, so with the filter on "All" a double-click on an edge picks the edge. Hide (meta), isolate (shift) and recentre (shift+meta) still act on the whole object.
+- **Image faces can be clicked**, highlighted, copied and used as a pivot like any other face ([vscode-ocp-cad-viewer#248](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/248)).
+- **Back sides of faces and shells can be clicked** wherever they are shown ([vscode-ocp-cad-viewer#248](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/248)).
+- **The status line shows the clicked point** with the copy key of the platform (`Cmd+C` on macOS, `Ctrl+C` elsewhere).
+
+**New picking behavior**
+
+- **The double-click picks what hover shows**: the same shape filter and solid mode as hover, so with the filter on "All" a double-click on an edge picks the edge. Hide (meta), isolate (shift) and recentre (shift+meta) still act on the whole object. The pick box wraps the picked component: a face or edge gets its own box, a vertex a marker, and the info panel names the component.
 - **`lastPick` gains `component` and `point`**: the path of the picked face, edge or vertex, and the world coordinates of the clicked point. `lastPick` is now sent on every double-click.
 - **Changed meaning of `lastPick.boundingBox` and `lastPick.boundingSphere`**: they now describe the picked component, not its object (unchanged in solid mode, for hide, isolate and recentre, and for clicks in the tree). Jupyter users reading the widget's `lastPick` trait see the change.
-- **The pick box wraps the picked component**: a face or edge gets its own box, a vertex a marker, and the info panel names the component.
-- **Image faces can be picked**, highlighted, copied and used as a pivot like any other face ([vscode-ocp-cad-viewer#248](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/248)).
-- **Back sides of faces and shells can be picked** wherever they are shown ([vscode-ocp-cad-viewer#248](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/248)).
-- **The status line shows the clicked point** with the copy key of the platform (`Cmd+C` on macOS, `Ctrl+C` elsewhere).
 - **Shape filter API**: `setShapeFilter` and `getShapeFilter` set and read the shape filter (`none`, `vertex`, `edge`, `face`, `solid`). Every change, also from the dropdown and the keys, is reported as `shape_filter`.
+
+**New select tool behavior**
+
+- **Breaking: `selected` is grouped by object and kind**: the select tool sends `{"<object path>/<kind>": [indices]}`, e.g. `{"/hexapod/top/edges": [3, 5]}`, instead of a list of index strings, which lost the object and kind. A selected solid is `{"<solid path>/solids": [0]}`, an empty selection `{}`. Hosts that copy `selected` to the clipboard with `join(",")` must be updated.
 - **Set the selection from paths**: `setSelection(paths)` makes components or whole solids the user's selection, as clicks with the select tool would, with one `selected` notification. It needs the select tool to be active, and returns unknown paths.
 - **Selected vertices are drawn larger**: 8 px instead of 4, also while hovered, so a selected corner is easy to see.
 
@@ -56,6 +60,7 @@
 - **A two-finger pinch rotated the view** with the holroyd trackball.
 - **A long press on the viewer selected it** in Safari on iPad and iPhone.
 - **`"builtin:<preset>"` materials use the leaf color** like `{ builtin: "<preset>" }`, not the preset's color.
+- **`formatKey` no longer adds a second space** to keys like `point 1` ([#46](https://github.com/bernhard-42/three-cad-viewer/pull/46)).
 
 **Changes**
 
