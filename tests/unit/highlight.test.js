@@ -541,6 +541,36 @@ describe("HighlightController — agent marks", () => {
     c.dispose();
   });
 
+  it("a selected or agent-marked vertex is drawn at 8 px, also while hovered", () => {
+    const c = new HighlightController(makeRegistry().reg);
+    for (const cull of [true, false]) {
+      const mat = fakeMaterial();
+      c.patchVertexMaterial(mat, { cullUnhighlighted: cull });
+      const shader = shaderWith("  gl_PointSize = size;");
+      mat.onBeforeCompile(shader, null);
+      const src = shader.vertexShader;
+      const marked = src.indexOf("(hlPtState & 5u) != 0u ? 8.0"); // SELECTED | AGENT
+      const hover = src.indexOf("(hlPtState & 2u) != 0u ? 6.0");
+      expect(marked).toBeGreaterThan(-1);
+      expect(hover).toBeGreaterThan(marked); // checked after the marks
+    }
+    c.dispose();
+  });
+
+  it("edge widths are unchanged: hover 5, selected or agent 3", () => {
+    const c = new HighlightController(makeRegistry().reg);
+    const mat = fakeMaterial();
+    c.patchEdgeMaterial(mat);
+    const shader = shaderWith(
+      "  vec2 offset = vec2(0.0);\n  offset *= linewidth;",
+    );
+    mat.onBeforeCompile(shader, null);
+    expect(shader.vertexShader).toContain(
+      "((hlEdgeState & 2u) != 0u ? 5.0 : ((hlEdgeState & 5u) != 0u ? 3.0 : linewidth))",
+    );
+    c.dispose();
+  });
+
   it("an agent mark widens edges and shows hidden solid corners like a selection", () => {
     const c = new HighlightController(makeRegistry().reg);
     expect(HighlightFlag.AGENT).toBe(4);

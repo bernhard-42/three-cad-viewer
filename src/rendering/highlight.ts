@@ -48,16 +48,24 @@ const TOPO_RANK: Record<TopoType, number> = {
 };
 
 /**
- * Per-topo FOCUS BASE sizes (was `ObjectGroup.vertexFocusSize` / `edgeFocusWidth`).
- * These are injected PER-MATERIAL by the `patch*Material` methods (a `#define` /
- * material-local uniform), NOT via the shared {@link HighlightUniforms} — edges
- * (5) and vertices (8) need different values, and the hover-vs-selected `−2` delta
- * (`objectgroup.ts:285-298 widen()`) is resolved in-shader from the {@link
- * HighlightFlag} bits: `HOVER → base`, `SELECTED && !HOVER → base − 2`, else the
- * material's authored size.
+ * Per-topo FOCUS BASE sizes (was `ObjectGroup.vertexFocusSize` / `edgeFocusWidth`):
+ * the hover size of vertices (6) and edges (5). These are injected PER-MATERIAL by
+ * the `patch*Material` methods, NOT via the shared {@link HighlightUniforms}, and
+ * resolved in-shader from the {@link HighlightFlag} bits (see `focusSizeExpr`).
+ * Edges: `HOVER → base`, else SELECTED or AGENT → `base − 2` (the old `widen()`),
+ * else the authored width. Vertices: SELECTED or AGENT → {@link
+ * VERTEX_SELECTED_SIZE} (also while hovered), else `HOVER → base`, else the
+ * authored size.
  */
 export const VERTEX_FOCUS_SIZE = 6;
 export const EDGE_FOCUS_WIDTH = 5;
+
+/**
+ * Point size of a selected or agent-marked vertex, also while hovered: at the
+ * former 4 px (`VERTEX_FOCUS_SIZE - 2`) they were hard to see (user decision
+ * 2026-11-11, after comparing 4, 6, 8 and 10 px).
+ */
+export const VERTEX_SELECTED_SIZE = 8;
 
 /**
  * Per-component highlight state, stored as bit flags in one texel of the state
@@ -235,9 +243,11 @@ const HL_COLOR_OVERRIDE = hlColorOverride(1);
 export const IMAGE_FACE_HIGHLIGHT_OPACITY = 0.35;
 
 /**
- * GLSL ternary choosing the focus size from the flag bits, matching the old
- * `widen()`: HOVER → `hover`; SELECTED or AGENT (no HOVER) → `selected`; else
- * `none`. AGENT must widen too: for a solid's culled corner points `none` is 0, so
+ * GLSL ternary choosing the focus size from the flag bits. SELECTED or AGENT →
+ * `selected`, HOVER → `hover`, else `none`. With `selectedFirst` the selection
+ * size wins over hover (vertices: a selected or marked vertex keeps its size under
+ * the cursor); without it hover wins, matching the old `widen()` (edges). AGENT
+ * must widen like a selection: for a solid's culled corner points `none` is 0, so
  * an agent-marked vertex would otherwise not be drawn.
  */
 function focusSizeExpr(
@@ -245,10 +255,16 @@ function focusSizeExpr(
   hover: number,
   selected: number,
   none: string,
+  selectedFirst: boolean = false,
 ): string {
+  const isHover = `(${stateVar} & ${HighlightFlag.HOVER}u) != 0u`;
+  const isMarked = `(${stateVar} & ${HighlightFlag.SELECTED | HighlightFlag.AGENT}u) != 0u`;
+  const [first, firstSize, second, secondSize] = selectedFirst
+    ? [isMarked, selected, isHover, hover]
+    : [isHover, hover, isMarked, selected];
   return (
-    `((${stateVar} & ${HighlightFlag.HOVER}u) != 0u ? ${hover.toFixed(1)} : ` +
-    `((${stateVar} & ${HighlightFlag.SELECTED | HighlightFlag.AGENT}u) != 0u ? ${selected.toFixed(1)} : ${none}))`
+    `(${first} ? ${firstSize.toFixed(1)} : ` +
+    `(${second} ? ${secondSize.toFixed(1)} : ${none}))`
   );
 }
 
@@ -682,7 +698,7 @@ export class HighlightController {
           shader.vertexShader,
           "gl_PointSize = size;",
           `uint hlPtState = highlightState();
-	gl_PointSize = ${focusSizeExpr("hlPtState", VERTEX_FOCUS_SIZE, VERTEX_FOCUS_SIZE - 2, none)};`,
+	gl_PointSize = ${focusSizeExpr("hlPtState", VERTEX_FOCUS_SIZE, VERTEX_SELECTED_SIZE, none, true)};`,
           "patchVertexMaterial",
         );
         const discard = cull
