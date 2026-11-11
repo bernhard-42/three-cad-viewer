@@ -44,7 +44,12 @@ import { ShapeRenderer } from "../scene/render-shape.js";
 import type { ShapeTreeData, RenderResult } from "../scene/render-shape.js";
 import type { KeyMappingConfig } from "../utils/utils.js";
 import { Controls } from "../camera/controls.js";
-import { Camera, type CameraDirection } from "../camera/camera.js";
+import {
+  Camera,
+  CAMERA_DIRECTIONS,
+  isCameraDirection,
+  type CameraDirection,
+} from "../camera/camera.js";
 import {
   BoundingBox,
   BoxHelper,
@@ -206,6 +211,36 @@ function isClippableMaterial(
 interface ImageResult {
   task: string;
   dataUrl: string | ArrayBuffer | null;
+}
+
+/** Options of {@link Viewer.captureView}. */
+export interface CaptureViewOptions {
+  /** Preset view: "iso", "front", "rear", "left", "right", "top" or "bottom". */
+  view: CameraDirection;
+  /** Orthographic (true) or perspective (false); default: the user's projection. */
+  ortho?: boolean;
+  /** Keep the user's clip planes in the image; default false (no clipping). */
+  clip?: boolean;
+}
+
+/** Why part positions in an image differ from the modelled ones, or null. */
+export type Displacement = "explode" | "animation" | null;
+
+/** Result of {@link Viewer.captureView}. */
+export interface CaptureViewResult {
+  /** The image as a PNG data URL, at the canvas size and pixel ratio. */
+  dataUrl: string;
+  /** The camera the image was rendered with. */
+  camera: {
+    view: CameraDirection;
+    ortho: boolean;
+    position: THREE.Vector3Tuple;
+    target: THREE.Vector3Tuple;
+    up: THREE.Vector3Tuple;
+    zoom: number;
+  };
+  /** Whether the parts are shown displaced (explode, a started animation). */
+  displaced: Displacement;
 }
 
 /**
@@ -1204,6 +1239,12 @@ class Viewer {
       this._scheduleCapOutline();
       return;
     }
+    this._drawCapOutline(camera);
+  }
+
+  /** Draw the cap outline as seen from `camera` over the frame. */
+  private _drawCapOutline(camera: THREE.Camera): void {
+    const clipping = this.rendered.clipping;
     if (this._capOutline === null) this._capOutline = new CapOutlinePass();
     const blackEdges = this.state.get("blackEdges") === true;
     this._capOutline.render(this.renderer, this.rendered.scene, camera, {
@@ -2405,10 +2446,20 @@ class Viewer {
    * other than 1. PickHost member.
    */
   pointsOnModel(): boolean {
-    const mode = this.state.get("animationMode");
-    if (mode === "explode") return false;
-    if (mode === "animation" && this._animationStarted) return false;
+    if (this._displacement() !== null) return false;
     return this.zScale === undefined || this.zScale === 1;
+  }
+
+  /**
+   * Why parts are not at their modelled positions: explode mode, or an animation
+   * that was played or scrubbed and not stopped; null when they are. (The z-scale
+   * is checked by {@link pointsOnModel} only.)
+   */
+  private _displacement(): Displacement {
+    const mode = this.state.get("animationMode");
+    if (mode === "explode") return "explode";
+    if (mode === "animation" && this._animationStarted) return "animation";
+    return null;
   }
 
   /**
@@ -4839,6 +4890,123 @@ class Viewer {
       }
     });
   };
+
+  /**
+   * An image of the model from a preset view, rendered with a camera of its own,
+   * so the user's camera and view stay as they are (the user never sees the
+   * capture frame: it is rendered, read and replaced by the user's view in one
+   * task). The camera looks at the model's centre (the reset target) at zoom 1.
+   * The image shows the user's visibility, selection, agent marks and pick box;
+   * no hover, orientation marker or measurement overlay. Clip planes only with
+   * `clip: true`. Explode and a started animation are not undone: `displaced`
+   * says so.
+   * @param options - the view, the projection and whether to clip.
+   * @returns the image (PNG data URL at canvas size), the camera and `displaced`.
+   * @throws for an unknown view or before a model is shown.
+   */
+  captureView = async (
+    options: CaptureViewOptions,
+  ): Promise<CaptureViewResult> => {
+    if (!this.ready) {
+      throw new Error("Viewer.render() must be called before captureView()");
+    }
+    const view = options.view;
+    if (!isCameraDirection(view)) {
+      throw new Error(
+        `Unknown view "${String(view)}", use one of ${CAMERA_DIRECTIONS.join(", ")}`,
+      );
+    }
+    const ortho = options.ortho ?? this.rendered.camera.ortho;
+    const target = this.rendered.controls.target0.clone();
+    const capture = new Camera(
+      this.state.get("cadWidth"),
+      this.state.get("height"),
+      this.bb_radius,
+      target.toArray(),
+      ortho,
+      this.state.get("up"),
+    );
+    capture.presetCamera(view, 1);
+    const camera = capture.getCamera();
+    camera.updateMatrixWorld();
+    const zoom = capture.getZoom();
+    const dataUrl = this._renderCapture(camera, zoom, options.clip === true);
+    return {
+      dataUrl,
+      camera: {
+        view,
+        ortho,
+        position: camera.position.toArray(),
+        target: target.toArray(),
+        up: camera.up.toArray(),
+        zoom,
+      },
+      displaced: this._displacement(),
+    };
+  };
+
+  /**
+   * Render one frame with `camera` instead of the user's, read it, and render the
+   * user's view again, all in one task, so the capture frame is never shown. What
+   * follows the user's camera in `update()` (light, clip culling, grid, Studio
+   * composer and environment background) follows `camera` for that frame. Hover
+   * and, unless `clip`, clipping (the renderer flag, the cap plane meshes and the
+   * plane helpers) are off for it and restored afterwards.
+   */
+  private _renderCapture(
+    camera: THREE.PerspectiveCamera | THREE.OrthographicCamera,
+    zoom: number,
+    clip: boolean,
+  ): string {
+    const rendered = this.rendered;
+    const clipping = rendered.clipping;
+    const userCamera = rendered.camera.getCamera();
+    const width = this.state.get("cadWidth");
+    const height = this.state.get("height");
+    const studio = this._studioManager.hasComposer;
+    const localClipping = this.renderer.localClippingEnabled;
+    const planesVisible = clipping.planesVisible;
+    const helpersVisible =
+      clipping.planeHelpers === null ? false : clipping.planeHelpers.visible;
+
+    rendered.nestedGroup.highlight?.setHover(null);
+    if (!clip) {
+      this.renderer.localClippingEnabled = false;
+      clipping.setVisible(false);
+      if (clipping.planeHelpers !== null) clipping.planeHelpers.visible = false;
+    }
+    try {
+      this.renderer.setViewport(0, 0, width, height);
+      rendered.gridHelper.update(zoom);
+      rendered.directLight.position.copy(camera.position);
+      clipping.cull(camera, width, height, this.renderer.localClippingEnabled);
+      if (studio) {
+        if (this._studioManager.isEnvBackgroundActive) {
+          this._studioManager.updateEnvBackground(this.renderer, camera);
+        }
+        this._studioManager.setCamera(camera);
+        this._studioManager.render();
+      } else {
+        this.renderer.clear();
+        this.renderer.render(rendered.scene, camera);
+        if (this.renderer.localClippingEnabled && clipping.hasCaps) {
+          this._drawCapOutline(camera);
+        }
+      }
+      // Synchronous: the copy is taken before the user's view replaces the frame.
+      return this.renderer.domElement.toDataURL("image/png");
+    } finally {
+      if (studio) this._studioManager.setCamera(userCamera);
+      this.renderer.localClippingEnabled = localClipping;
+      clipping.setVisible(planesVisible);
+      if (clipping.planeHelpers !== null) {
+        clipping.planeHelpers.visible = helpersVisible;
+      }
+      // update() moves the light only after its render, so put it back first.
+      rendered.directLight.position.copy(userCamera.position);
+      this.update(this.updateMarker);
+    }
+  }
 
   /**
    * Get the current canvas as png data.

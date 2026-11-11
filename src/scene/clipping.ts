@@ -691,6 +691,12 @@ class Clipping extends THREE.Group {
     this.objectColorCaps = flag;
   };
 
+  /** Whether the stencil plane meshes are shown (see {@link setVisible}). */
+  get planesVisible(): boolean {
+    const first = this._planeMeshGroup?.children[0];
+    return first !== undefined && first.material.visible;
+  }
+
   /**
    * Set visibility of stencil plane meshes.
    * @param flag - True to show, false to hide.

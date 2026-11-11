@@ -100,6 +100,11 @@ export type {
 
 // Pick info
 export type { PickInfo } from "./core/types.js";
+export type {
+  CaptureViewOptions,
+  CaptureViewResult,
+  Displacement,
+} from "./core/viewer.js";
 
 // Change notification types
 export type {

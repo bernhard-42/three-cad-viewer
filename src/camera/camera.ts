@@ -3,14 +3,23 @@ import type { Vector3Tuple, QuaternionTuple } from "three";
 import type { UpDirection } from "../core/types";
 import { logger } from "../utils/logger.js";
 
-type CameraDirection =
-  | "iso"
-  | "front"
-  | "rear"
-  | "left"
-  | "right"
-  | "top"
-  | "bottom";
+/** The preset view directions. */
+const CAMERA_DIRECTIONS = [
+  "iso",
+  "front",
+  "rear",
+  "left",
+  "right",
+  "top",
+  "bottom",
+] as const;
+
+type CameraDirection = (typeof CAMERA_DIRECTIONS)[number];
+
+/** Whether `value` is one of the {@link CAMERA_DIRECTIONS}. */
+function isCameraDirection(value: unknown): value is CameraDirection {
+  return CAMERA_DIRECTIONS.some((dir) => dir === value);
+}
 
 interface DirectionConfig {
   pos: THREE.Vector3;
@@ -458,5 +467,5 @@ class Camera {
   }
 }
 
-export { Camera };
+export { Camera, CAMERA_DIRECTIONS, isCameraDirection };
 export type { CameraDirection, UpMode };
