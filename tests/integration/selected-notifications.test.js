@@ -43,14 +43,14 @@ describe("selected notifications", () => {
     const { viewer, selected } = await setup();
     viewer.display.setTool("select", false);
     expect(list(viewer)).toEqual([]);
-    expect(selected()).toEqual([[]]);
+    expect(selected()).toEqual([{}]);
   });
 
   test("Escape reports the empty selection once", async () => {
     const { viewer, selected } = await setup();
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
     expect(list(viewer)).toEqual([]);
-    expect(selected()).toEqual([[]]);
+    expect(selected()).toEqual([{}]);
   });
 
   test("Backspace reports the remaining selection", async () => {
@@ -58,13 +58,15 @@ describe("selected notifications", () => {
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Backspace" }));
     expect(list(viewer)).toHaveLength(2);
     expect(selected()).toHaveLength(1);
-    expect(selected()[0]).toHaveLength(2);
+    expect(Object.values(selected()[0]).flat()).toHaveLength(2);
   });
 
   test("restoring a selection reports it once, without an empty one first", async () => {
     const { viewer, edges, selected } = await setup();
     viewer.setSelection([edges[0]]);
     expect(selected()).toHaveLength(1);
-    expect(selected()[0]).toHaveLength(1);
+    const kind = edges[0].slice(0, edges[0].lastIndexOf("/"));
+    const index = Number(edges[0].slice(edges[0].lastIndexOf("_") + 1));
+    expect(selected()[0]).toEqual({ [kind]: [index] });
   });
 });

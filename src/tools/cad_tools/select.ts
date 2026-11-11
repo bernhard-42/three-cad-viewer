@@ -1,4 +1,7 @@
-import type { PickedComponent } from "../../rendering/picked.js";
+import {
+  selectionEntry,
+  type PickedComponent,
+} from "../../rendering/picked.js";
 import type { ViewerLike } from "./tools.js";
 
 class SelectObject {
@@ -35,18 +38,22 @@ class SelectObject {
     return null;
   }
 
-  /** Numeric sub-index from a leaf name like "faces_3" → "3". */
-  private _getIndex(name: string): string {
-    return name.split("_")[1];
-  }
-
   private _includes(shape: PickedComponent): boolean {
     return this.selectedShapes.some((s) => s.equals(shape));
   }
 
+  /**
+   * Send the selection as `{"<object path>/<kind>": [indices]}` in selection
+   * order, e.g. `{"/box/edges": [3, 5]}`; a whole solid as `"<solid>/solids": [0]`.
+   */
   notify(): void {
-    const indices = this.selectedShapes.map((s) => this._getIndex(s.name));
-    this.viewer.checkChanges({ selected: indices }, true);
+    const selected: Record<string, number[]> = {};
+    for (const shape of this.selectedShapes) {
+      const [key, index] = selectionEntry(shape.backendId);
+      if (selected[key] === undefined) selected[key] = [];
+      selected[key].push(index);
+    }
+    this.viewer.checkChanges({ selected }, true);
   }
 
   /** Replace the selection with `shapes` (already highlighted), with one notification. */

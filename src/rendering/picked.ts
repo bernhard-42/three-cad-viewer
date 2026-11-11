@@ -41,6 +41,20 @@ export function pickedPath(info: ComponentInfo, fromSolid: boolean): string {
   return fromSolid && info.solidPath !== null ? info.solidPath : info.path;
 }
 
+/** A component path: `<object>/<kind>/<kind>_<index>` (faces, edges, vertices). */
+const COMPONENT_PATH = /^(.*\/(faces|edges|vertices))\/\2_(\d+)$/;
+
+/**
+ * Key and index of a picked path in the `selected` notification, which groups the
+ * selection by object and kind: "/box/edges/edges_3" → ["/box/edges", 3]. A path
+ * that is not a component path is a whole solid: "/box" → ["/box/solids", 0].
+ */
+export function selectionEntry(path: string): [string, number] {
+  const match = COMPONENT_PATH.exec(path);
+  if (match === null) return [`${path}/solids`, 0];
+  return [match[1], Number(match[3])];
+}
+
 /**
  * `PickedComponent` over a GPU id-pick result. Drives the shader
  * `HighlightController` by `componentId` (faces of a solid via `*Solid`), with no

@@ -550,13 +550,6 @@ describe("SelectObject", () => {
     });
   });
 
-  describe("_getIndex", () => {
-    test("extracts index from path", () => {
-      expect(selectObject._getIndex("root|path|name_123")).toBe("123");
-      expect(selectObject._getIndex("simple_0")).toBe("0");
-    });
-  });
-
   describe("_includes", () => {
     test("returns true if the component is selected", () => {
       const mockObj = createMockObjectGroup("test|path");
@@ -570,16 +563,49 @@ describe("SelectObject", () => {
   });
 
   describe("notify", () => {
-    test("calls checkChanges with selected indices", () => {
-      const mockObj = createMockObjectGroup("root|part_5");
-      selectObject.selectedShapes.push(mockObj);
+    test("sends the indices per object and kind", () => {
+      for (const name of [
+        "|root|box|edges|edges_5",
+        "|root|box|faces|faces_1",
+        "|root|box|edges|edges_3",
+        "|root|plate|vertices|vertices_12",
+      ]) {
+        selectObject.selectedShapes.push(createMockObjectGroup(name));
+      }
 
       selectObject.notify();
 
       expect(viewer.checkChanges).toHaveBeenCalledWith(
-        { selected: ["5"] },
+        {
+          selected: {
+            "/root/box/edges": [5, 3],
+            "/root/box/faces": [1],
+            "/root/plate/vertices": [12],
+          },
+        },
         true,
       );
+    });
+
+    test("a selected solid is sent as <solid>/solids: [0]", () => {
+      selectObject.selectedShapes.push({
+        ...createMockObjectGroup("|root|box|faces|faces_2"),
+        fromSolid: true,
+        backendId: "/root/box",
+      });
+
+      selectObject.notify();
+
+      expect(viewer.checkChanges).toHaveBeenCalledWith(
+        { selected: { "/root/box/solids": [0] } },
+        true,
+      );
+    });
+
+    test("an empty selection is sent as {}", () => {
+      selectObject.notify();
+
+      expect(viewer.checkChanges).toHaveBeenCalledWith({ selected: {} }, true);
     });
   });
 

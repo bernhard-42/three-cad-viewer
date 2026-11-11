@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { ComponentRegistry } from "../../src/rendering/id-picking.js";
 import { HighlightController, HighlightFlag } from "../../src/rendering/highlight.js";
-import { IdPicked } from "../../src/rendering/picked.js";
+import { IdPicked, selectionEntry } from "../../src/rendering/picked.js";
 
 // Two faces + one edge of solid "/s", one standalone face, one standalone vertex.
 function makeRegistry() {
@@ -115,5 +115,34 @@ describe("IdPicked", () => {
     // a solid pick and a face pick of the same face are NOT equal (asSolid differs)
     const faceOfSolid = new IdPicked(reg.get(ids.f0), false, null, ctl);
     expect(s0.equals(faceOfSolid)).toBe(false);
+  });
+});
+
+describe("selectionEntry", () => {
+  it("splits a component path into object/kind and index", () => {
+    expect(selectionEntry("/hexapod/top/edges/edges_29")).toEqual([
+      "/hexapod/top/edges",
+      29,
+    ]);
+    expect(selectionEntry("/box/faces/faces_0")).toEqual(["/box/faces", 0]);
+    expect(selectionEntry("/a/b/vertices/vertices_12")).toEqual([
+      "/a/b/vertices",
+      12,
+    ]);
+  });
+
+  it("a solid path becomes <solid>/solids with index 0", () => {
+    expect(selectionEntry("/hexapod/left_front_leg/upper_leg")).toEqual([
+      "/hexapod/left_front_leg/upper_leg/solids",
+      0,
+    ]);
+  });
+
+  it("the kind and the leaf name must match", () => {
+    // an object named like a component is not one
+    expect(selectionEntry("/box/edges/faces_3")).toEqual([
+      "/box/edges/faces_3/solids",
+      0,
+    ]);
   });
 });

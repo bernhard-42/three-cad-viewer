@@ -23,6 +23,7 @@
 
 **New picking behaviour**
 
+- **Breaking: `selected` is grouped by object and kind**: the select tool sends `{"<object path>/<kind>": [indices]}`, e.g. `{"/hexapod/top/edges": [3, 5]}`, instead of a list of index strings, which lost the object and kind. A selected solid is `{"<solid path>/solids": [0]}`, an empty selection `{}`. Hosts that copy `selected` to the clipboard with `join(",")` must be updated.
 - **The double-click picks what hover shows**: the same shape filter and solid mode as hover, so with the filter on "All" a double-click on an edge picks the edge. Hide (meta), isolate (shift) and recentre (shift+meta) still act on the whole object.
 - **`lastPick` gains `component` and `point`**: the path of the picked face, edge or vertex, and the world coordinates of the clicked point. `lastPick` is now sent on every double-click.
 - **Changed meaning of `lastPick.boundingBox` and `lastPick.boundingSphere`**: they now describe the picked component, not its object (unchanged in solid mode, for hide, isolate and recentre, and for clicks in the tree). Jupyter users reading the widget's `lastPick` trait see the change.

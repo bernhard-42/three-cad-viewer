@@ -1133,13 +1133,13 @@ describe("Measurement Tool Notifications", () => {
     expect(() => viewer.activateTool("select", true)).not.toThrow();
     expect(() => viewer.activateTool("select", false)).not.toThrow();
 
-    // If a selected notification was sent, it should have empty array
+    // If a selected notification was sent, it should be the empty selection
     const notification = getLastNotificationWithKey(
       collector.notifications,
       "selected",
     );
     if (notification) {
-      expect(notification.selected.new).toEqual([]);
+      expect(notification.selected.new).toEqual({});
     }
   });
 });
@@ -2132,13 +2132,13 @@ describe("Select Tool Notifications", () => {
     // Deactivate - may or may not send notification depending on implementation
     viewer.activateTool("select", false);
 
-    // Either there's a notification with empty array, or no notification at all
+    // Either there's a notification with an empty selection, or no notification at all
     const notification = getLastNotificationWithKey(
       collector.notifications,
       "selected",
     );
     if (notification) {
-      expect(notification.selected.new).toEqual([]);
+      expect(notification.selected.new).toEqual({});
     }
     // Test passes if no error is thrown
   });
