@@ -10,6 +10,7 @@ import {
   buildVertexComponentIds,
   IdPicker,
   PICK_LAYER,
+  resolvePath,
   createVertexPickMaterial,
   createEdgePickMaterial,
   EDGE_DEPTH_BIAS_FACTOR,
@@ -110,6 +111,69 @@ describe("id-picking: ComponentRegistry", () => {
     expect(reg.get(exact)).toBeUndefined();
     expect(reg.get(child)).toBeUndefined();
     expect(reg.get(sibling)).toBeDefined(); // "/ab" is NOT under "/a/"
+  });
+});
+
+describe("id-picking: paths", () => {
+  /** A solid "/s" with two faces and an edge, and a standalone face leaf "/f". */
+  const scene = () => {
+    const reg = new ComponentRegistry();
+    const add = (path, topo, solidPath) =>
+      reg.register({
+        path,
+        name: path.slice(path.lastIndexOf("/") + 1),
+        topo,
+        subtype: solidPath === null ? "face" : "solid",
+        solidPath,
+      });
+    const ids = {
+      f0: add("/s/faces/faces_0", "face", "/s"),
+      f1: add("/s/faces/faces_1", "face", "/s"),
+      e0: add("/s/edges/edges_0", "edge", "/s"),
+      leaf: add("/f/faces/faces_0", "face", null),
+    };
+    return { reg, ids };
+  };
+
+  test("getByPath finds a component by its full path", () => {
+    const { reg, ids } = scene();
+    expect(reg.getByPath("/s/edges/edges_0").id).toBe(ids.e0);
+    expect(reg.getByPath("/s/edges/edges_9")).toBeUndefined();
+  });
+
+  test("removeByPathPrefix and clear drop the paths too", () => {
+    const { reg } = scene();
+    reg.removeByPathPrefix("/s");
+    expect(reg.getByPath("/s/faces/faces_0")).toBeUndefined();
+    expect(reg.getByPath("/f/faces/faces_0")).toBeDefined();
+    reg.clear();
+    expect(reg.getByPath("/f/faces/faces_0")).toBeUndefined();
+  });
+
+  test("resolvePath: a component path names that component", () => {
+    const { reg, ids } = scene();
+    const target = resolvePath(reg, "/s/faces/faces_1");
+    expect(target.kind).toBe("component");
+    expect(target.info.id).toBe(ids.f1);
+  });
+
+  test("resolvePath: a solid path names the solid's faces", () => {
+    const { reg, ids } = scene();
+    for (const path of ["/s", "/s/solids/solids_0"]) {
+      const target = resolvePath(reg, path);
+      expect(target.kind).toBe("solid");
+      expect(target.solidPath).toBe("/s");
+      expect(target.faces.map((f) => f.id)).toEqual([ids.f0, ids.f1]);
+    }
+  });
+
+  test("resolvePath: unknown paths and a face leaf's object path resolve to null", () => {
+    const { reg } = scene();
+    expect(resolvePath(reg, "/nope")).toBeNull();
+    expect(resolvePath(reg, "/s/faces/faces_7")).toBeNull();
+    // "/f" is a face leaf, not a solid
+    expect(resolvePath(reg, "/f")).toBeNull();
+    expect(resolvePath(reg, "/f/solids/solids_0")).toBeNull();
   });
 });
 

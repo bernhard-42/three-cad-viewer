@@ -193,10 +193,12 @@ export function clipSignature(
  */
 export class ComponentRegistry {
   private byId: Map<number, ComponentInfo>;
+  private byPath: Map<string, ComponentInfo>;
   private nextId: number;
 
   constructor() {
     this.byId = new Map();
+    this.byPath = new Map();
     this.nextId = 1; // 0 reserved for background
   }
 
@@ -207,13 +209,20 @@ export class ComponentRegistry {
   register(info: Omit<ComponentInfo, "id">): number {
     const id = this.nextId;
     this.nextId += 1;
-    this.byId.set(id, { ...info, id });
+    const record = { ...info, id };
+    this.byId.set(id, record);
+    this.byPath.set(record.path, record);
     return id;
   }
 
   /** Look up a component by id; `undefined` for unknown ids or background (0). */
   get(id: number): ComponentInfo | undefined {
     return this.byId.get(id);
+  }
+
+  /** Look up a component by its full path, e.g. "/Assembly/Part1/faces/faces_3". */
+  getByPath(path: string): ComponentInfo | undefined {
+    return this.byPath.get(path);
   }
 
   /**
@@ -250,6 +259,7 @@ export class ComponentRegistry {
     for (const [id, info] of this.byId) {
       if (info.path === prefix || info.path.startsWith(sub)) {
         this.byId.delete(id);
+        if (this.byPath.get(info.path) === info) this.byPath.delete(info.path);
       }
     }
   }
@@ -257,8 +267,43 @@ export class ComponentRegistry {
   /** Drop all entries and reset id allocation. */
   clear(): void {
     this.byId.clear();
+    this.byPath.clear();
     this.nextId = 1;
   }
+}
+
+/** What a viewer path names: one component, or a whole solid (its faces). */
+export type PathTarget =
+  | { kind: "component"; info: ComponentInfo }
+  | { kind: "solid"; solidPath: string; faces: ComponentInfo[] };
+
+/** Suffix of a solid in the `selected` format, `{"<solid>/solids": [0]}`. */
+const SOLID_SUFFIX = "/solids/solids_0";
+
+/**
+ * Resolve a path from outside the viewer (an agent, a saved selection) to what it
+ * names: a component by its full path (as `lastPick.component` reports it), or a
+ * solid by its path, also written `<solid>/solids/solids_0` as in the `selected`
+ * notification. A solid stands for its faces, as solid selection and hover do.
+ * `null` when the path names nothing in the current scene.
+ */
+export function resolvePath(
+  registry: ComponentRegistry,
+  path: string,
+): PathTarget | null {
+  const info = registry.getByPath(path);
+  if (info !== undefined) return { kind: "component", info };
+  const solidPath = path.endsWith(SOLID_SUFFIX)
+    ? path.slice(0, -SOLID_SUFFIX.length)
+    : path;
+  const faces: ComponentInfo[] = [];
+  for (const entry of registry.entries()) {
+    if (entry.solidPath === solidPath && entry.topo === "face") {
+      faces.push(entry);
+    }
+  }
+  if (faces.length === 0) return null;
+  return { kind: "solid", solidPath, faces };
 }
 
 /**
