@@ -532,7 +532,9 @@ describe("localized Display", () => {
       );
       expect(display.filterDropdown.value.innerText).toBe("Kante");
       expect(filter.currentFilter).toEqual(["edge"]);
-      document.dispatchEvent(new KeyboardEvent("keydown", { key: "f" }));
+      display.container.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "f" }),
+      );
       expect(display.filterDropdown.value.innerText).toBe("Fläche");
       expect(filter.currentFilter).toEqual(["face"]);
       filter.reset();

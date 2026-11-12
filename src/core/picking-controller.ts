@@ -3,6 +3,7 @@ import {
   KeyMapper,
   formatPoint,
   isMacPlatform,
+  isShortcutKey,
   toVector3Tuple,
 } from "../utils/utils.js";
 import { ObjectGroup } from "../scene/objectgroup.js";
@@ -89,7 +90,7 @@ export interface PickHost {
  * machine, so both fields live here.
  *
  * Listener lifecycle: hover (pointermove/leave) is always-on and added at
- * construction; selection (mousedown/mouseup + document keydown) is tool-scoped via
+ * construction; selection (mousedown/mouseup + container keydown) is tool-scoped via
  * {@link setSelectionInput}; double-click via {@link setPickHandler}. {@link dispose}
  * tears them all down.
  */
@@ -535,7 +536,7 @@ export class PickingController {
   // --- Selection input (click + key, tool-scoped) ---
 
   /**
-   * Add/remove the canvas mousedown+mouseup and document keydown listeners
+   * Add/remove the canvas mousedown+mouseup and container keydown listeners
    * (idempotent, guarded on `selectionInputActive`). Hover maintains
    * {@link lastObject}; these handlers commit it on left-click and handle the key +
    * right-click actions.
@@ -546,13 +547,21 @@ export class PickingController {
     if (flag) {
       el.addEventListener("mousedown", this.onSelectMouseDown, false);
       el.addEventListener("mouseup", this.onSelectMouseUp, false);
-      // Keyboard listener is on document (canvas doesn't receive focus).
-      document.addEventListener("keydown", this.onSelectKeyDown, false);
+      // On the viewer's container like the other shortcuts: Backspace in a text
+      // field elsewhere on the page must not remove a selected element.
+      this.host.display.container.addEventListener(
+        "keydown",
+        this.onSelectKeyDown,
+        false,
+      );
       this.selectionInputActive = true;
     } else {
       el.removeEventListener("mousedown", this.onSelectMouseDown);
       el.removeEventListener("mouseup", this.onSelectMouseUp);
-      document.removeEventListener("keydown", this.onSelectKeyDown);
+      this.host.display.container.removeEventListener(
+        "keydown",
+        this.onSelectKeyDown,
+      );
       this.selectDownPosition = null;
       this.selectionInputActive = false;
     }
@@ -584,6 +593,7 @@ export class PickingController {
 
   // Escape → clear selection; Backspace → remove last selection.
   private onSelectKeyDown = (e: KeyboardEvent): void => {
+    if (!isShortcutKey(e)) return;
     if (e.key === "Escape") {
       this.clearSelection();
     } else if (e.key === "Backspace") {

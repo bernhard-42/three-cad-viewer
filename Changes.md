@@ -49,6 +49,7 @@
 
 **Fixes**
 
+- **The shape filter keys and the select tool's Escape and Backspace reacted to keys typed elsewhere on the page** (e.g. in a notebook cell), and Cmd-V set the filter to Vertex. They now act only when the viewer has focus, like the other shortcuts.
 - **Turning the select tool off or pressing Escape did not report the empty selection**: the host kept the previous `selected`. Both now report the empty selection, once.
 - **Toolbar tooltips and the grid menu were cut off in Safari** ([#47](https://github.com/bernhard-42/three-cad-viewer/pull/47), by @Xapphire13).
 - **Object names containing `<`, `"` or `\`** broke the tree and the info panel; names are now shown as text.

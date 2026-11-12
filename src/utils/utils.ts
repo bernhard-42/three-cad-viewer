@@ -561,7 +561,37 @@ function isMacPlatform(): boolean {
   return getPlatform() === "mac";
 }
 
+/**
+ * Whether a key event's target takes typed text: a text-like input, a textarea, a
+ * select, or a contentEditable element (e.g. a notebook cell or a console).
+ * Buttons and checkboxes do not.
+ */
+function isTextEntry(target: EventTarget | null): boolean {
+  if (target instanceof HTMLInputElement) {
+    return target.type !== "button" && target.type !== "checkbox";
+  }
+  return (
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement ||
+    (target instanceof HTMLElement && target.isContentEditable)
+  );
+}
+
+/**
+ * Whether a keydown on the viewer's container is a plain viewer shortcut: no Ctrl,
+ * Alt or Meta held (Cmd-V is a paste, not `v`), not typed into a text field, and
+ * not already consumed by an earlier viewer handler (`preventDefault`). Shift is
+ * allowed: the keymap has upper-case keys.
+ */
+function isShortcutKey(e: KeyboardEvent): boolean {
+  if (e.ctrlKey || e.altKey || e.metaKey) return false;
+  if (e.defaultPrevented) return false;
+  return !isTextEntry(e.target);
+}
+
 export {
+  isTextEntry,
+  isShortcutKey,
   copyText,
   formatPoint,
   getPlatform,

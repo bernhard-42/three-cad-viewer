@@ -67,7 +67,9 @@ describe("shape filter", () => {
   test("a filter key sets the state and notifies", async () => {
     const { viewer, notifications } = await setup();
     menu(viewer).show(true);
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "v" }));
+    viewer.display.container.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "v" }),
+    );
     expect(viewer.getShapeFilter()).toBe("vertex");
     expect(menu(viewer).currentFilter).toEqual(["vertex"]);
     expect(filterChanges(notifications)).toEqual(["vertex"]);

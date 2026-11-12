@@ -7,6 +7,8 @@ import {
   KeyMapper,
   EventListenerManager,
   getPlatform,
+  isShortcutKey,
+  isTextEntry,
 } from "../utils/utils.js";
 import type { KeyMappingConfig, Platform } from "../utils/utils.js";
 import { Slider } from "./slider.js";
@@ -1441,7 +1443,10 @@ class Display {
     // Subscribe to state changes
     this.subscribeToStateChanges();
 
-    // Focus handling for keyboard shortcuts
+    // Keyboard shortcuts act on the viewer that has focus: a click into it gives
+    // it focus. The filter keys and the select tool's keys listen on the container
+    // too; they are added later, so this handler runs first and a key it consumes
+    // (preventDefault) does not reach them.
     listeners.add(this.container, "mousedown", () => this.container.focus());
     listeners.add(this.container, "keydown", this._handleKeyboardShortcut);
     // Ctrl/Cmd-C acts on the point under the cursor, so it must not depend on the
@@ -1458,16 +1463,7 @@ class Display {
     if (!(e instanceof KeyboardEvent)) return;
     if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return;
     if (e.key.toLowerCase() !== "c") return;
-    const target = e.target;
-    if (
-      (target instanceof HTMLInputElement &&
-        target.type !== "button" &&
-        target.type !== "checkbox") ||
-      target instanceof HTMLTextAreaElement ||
-      (target instanceof HTMLElement && target.isContentEditable)
-    ) {
-      return;
-    }
+    if (isTextEntry(e.target)) return;
     const selection = window.getSelection();
     if (selection !== null && selection.toString() !== "") return;
     if (this.viewer.copyPointUnderCursor()) {
@@ -3312,20 +3308,9 @@ class Display {
       }
     }
 
-    // Skip if modifier keys are held (avoid conflicts with modifier-based mouse actions)
-    if (e.ctrlKey || e.altKey || e.metaKey) return;
-
-    // Skip if target is a text-entry input element (but allow buttons/checkboxes)
-    const target = e.target;
-    if (
-      (target instanceof HTMLInputElement &&
-        target.type !== "button" &&
-        target.type !== "checkbox") ||
-      target instanceof HTMLTextAreaElement ||
-      target instanceof HTMLSelectElement
-    ) {
-      return;
-    }
+    // No modifier held, not typed into a text field (the same test as the filter
+    // and select keys)
+    if (!isShortcutKey(e)) return;
 
     const action = KeyMapper.getActionForKey(e.key);
     if (action) {

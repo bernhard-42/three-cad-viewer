@@ -1,7 +1,8 @@
 /**
  * The `selected` notification follows the select tool's list: switching the tool
  * off and Escape report the empty selection once, Backspace reports the rest, and
- * restoring a selection reports it once.
+ * restoring a selection reports it once. The keys act only when they reach the
+ * viewer's container: Backspace in a text field or outside the viewer is not for it.
  */
 import { describe, test, expect, afterEach } from "vitest";
 import { setupViewer, cleanup } from "../helpers/setup.js";
@@ -48,17 +49,45 @@ describe("selected notifications", () => {
 
   test("Escape reports the empty selection once", async () => {
     const { viewer, selected } = await setup();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    viewer.display.container.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Escape" }),
+    );
     expect(list(viewer)).toEqual([]);
     expect(selected()).toEqual([{}]);
   });
 
   test("Backspace reports the remaining selection", async () => {
     const { viewer, selected } = await setup();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Backspace" }));
+    viewer.display.container.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Backspace" }),
+    );
     expect(list(viewer)).toHaveLength(2);
     expect(selected()).toHaveLength(1);
     expect(Object.values(selected()[0]).flat()).toHaveLength(2);
+  });
+
+  test("Backspace and Escape outside the viewer keep the selection", async () => {
+    const { viewer, selected } = await setup();
+    for (const key of ["Backspace", "Escape"]) {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key }));
+    }
+    expect(list(viewer)).toHaveLength(3);
+    expect(selected()).toEqual([]);
+  });
+
+  test("Backspace in a text field inside the viewer keeps the selection", async () => {
+    const { viewer, selected } = await setup();
+    const input = document.createElement("textarea");
+    viewer.display.container.appendChild(input);
+    try {
+      input.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Backspace", bubbles: true }),
+      );
+      expect(list(viewer)).toHaveLength(3);
+      expect(selected()).toEqual([]);
+    } finally {
+      input.remove();
+    }
   });
 
   test("restoring a selection reports it once, without an empty one first", async () => {

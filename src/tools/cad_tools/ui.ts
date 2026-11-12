@@ -5,6 +5,7 @@ import {
   type TopoFilterType,
 } from "../../rendering/id-picking.js";
 import type { DisplayLike } from "./tools.js";
+import { isShortcutKey } from "../../utils/utils.js";
 import type { MessageId, Translate } from "../../ui/i18n.js";
 import { geomTypeLabel } from "./mesh-measure.js";
 
@@ -550,7 +551,9 @@ class FilterByDropDownMenu {
   };
 
   private keybindSelect = (e: KeyboardEvent): void => {
+    if (!isShortcutKey(e)) return;
     if (Object.prototype.hasOwnProperty.call(SHAPE_FILTER_KEYS, e.key)) {
+      e.preventDefault();
       this.onChoose(SHAPE_FILTER_KEYS[e.key]);
     } else if (e.key === "Escape") {
       this.closeDropdown(e);
@@ -567,8 +570,12 @@ class FilterByDropDownMenu {
    */
   show(flag: boolean): void {
     if (flag) {
-      // Use document-level listener for keyboard shortcuts (container div can't receive focus)
-      document.addEventListener("keydown", this.keybindSelect as EventListener);
+      // On the viewer's container like the other shortcuts: the keys act on the
+      // viewer that has focus, not on keys typed anywhere on the page
+      this.display.container.addEventListener(
+        "keydown",
+        this.keybindSelect as EventListener,
+      );
       this.display.container.addEventListener("click", this.closeDropdown);
 
       this.elements.content.addEventListener(
@@ -580,7 +587,7 @@ class FilterByDropDownMenu {
         el.addEventListener("click", this.handleSelection);
       }
     } else {
-      document.removeEventListener(
+      this.display.container.removeEventListener(
         "keydown",
         this.keybindSelect as EventListener,
       );

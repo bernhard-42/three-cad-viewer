@@ -1344,9 +1344,8 @@ describe("FilterByDropDownMenu", () => {
     test("adds keyboard event listener when shown", () => {
       filter.show(true);
 
-      // Simulate keyboard event (now on document, not container)
       const event = new KeyboardEvent("keydown", { key: "v" });
-      document.dispatchEvent(event);
+      display.container.dispatchEvent(event);
 
       expect(display.filterDropdown.value.innerText).toBe("Vertex");
     });
@@ -1358,9 +1357,9 @@ describe("FilterByDropDownMenu", () => {
       // Reset value
       filter.reset();
 
-      // Simulate keyboard event - should not change value since listener removed
+      // Should not change the value since the listener is removed
       const event = new KeyboardEvent("keydown", { key: "e" });
-      document.dispatchEvent(event);
+      display.container.dispatchEvent(event);
 
       expect(display.filterDropdown.value.innerText).toBe("All");
     });
@@ -1373,46 +1372,129 @@ describe("FilterByDropDownMenu", () => {
 
     test("v key sets Vertex", () => {
       const event = new KeyboardEvent("keydown", { key: "v" });
-      document.dispatchEvent(event);
+      display.container.dispatchEvent(event);
       expect(display.filterDropdown.value.innerText).toBe("Vertex");
     });
 
     test("e key sets Edge", () => {
       const event = new KeyboardEvent("keydown", { key: "e" });
-      document.dispatchEvent(event);
+      display.container.dispatchEvent(event);
       expect(display.filterDropdown.value.innerText).toBe("Edge");
     });
 
     test("f key sets Face", () => {
       const event = new KeyboardEvent("keydown", { key: "f" });
-      document.dispatchEvent(event);
+      display.container.dispatchEvent(event);
       expect(display.filterDropdown.value.innerText).toBe("Face");
     });
 
     test("s key sets Solid", () => {
       const event = new KeyboardEvent("keydown", { key: "s" });
-      document.dispatchEvent(event);
+      display.container.dispatchEvent(event);
       expect(display.filterDropdown.value.innerText).toBe("Solid");
     });
 
     test("a key sets All", () => {
       // First set to something else
       const event1 = new KeyboardEvent("keydown", { key: "v" });
-      document.dispatchEvent(event1);
+      display.container.dispatchEvent(event1);
 
       const event2 = new KeyboardEvent("keydown", { key: "a" });
-      document.dispatchEvent(event2);
+      display.container.dispatchEvent(event2);
       expect(display.filterDropdown.value.innerText).toBe("All");
     });
 
     test("invalid key does not change value", () => {
       const event1 = new KeyboardEvent("keydown", { key: "v" });
-      document.dispatchEvent(event1);
+      display.container.dispatchEvent(event1);
 
       const event2 = new KeyboardEvent("keydown", { key: "x" });
-      document.dispatchEvent(event2);
+      display.container.dispatchEvent(event2);
 
       expect(display.filterDropdown.value.innerText).toBe("Vertex");
+    });
+  });
+
+  describe("keys that are not meant for the viewer", () => {
+    const keydown = (key, init = {}) =>
+      new KeyboardEvent("keydown", {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ...init,
+      });
+
+    beforeEach(() => {
+      filter.show(true);
+      filter.reset();
+    });
+
+    test("a filter key consumes the event", () => {
+      const event = keydown("v");
+      display.container.dispatchEvent(event);
+      expect(display.filterDropdown.value.innerText).toBe("Vertex");
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    test("a key outside the viewer does not change the filter", () => {
+      const outside = document.createElement("div");
+      document.body.appendChild(outside);
+      try {
+        outside.dispatchEvent(keydown("v"));
+        document.dispatchEvent(keydown("e"));
+        expect(display.filterDropdown.value.innerText).toBe("All");
+      } finally {
+        outside.remove();
+      }
+    });
+
+    test.each([
+      ["metaKey", "Cmd-V"],
+      ["ctrlKey", "Ctrl-V"],
+      ["altKey", "Alt-V"],
+    ])("%s (%s) does not change the filter", (modifier) => {
+      const event = keydown("v", { [modifier]: true });
+      display.container.dispatchEvent(event);
+      expect(display.filterDropdown.value.innerText).toBe("All");
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    test.each([
+      ["a text input", () => document.createElement("input")],
+      ["a textarea", () => document.createElement("textarea")],
+      [
+        "a contentEditable element",
+        () => {
+          const el = document.createElement("div");
+          el.contentEditable = "true";
+          return el;
+        },
+      ],
+    ])(
+      "typing into %s inside the viewer does not change the filter",
+      (_, make) => {
+        const el = make();
+        display.container.appendChild(el);
+        try {
+          const event = keydown("v");
+          el.dispatchEvent(event);
+          expect(display.filterDropdown.value.innerText).toBe("All");
+          expect(event.defaultPrevented).toBe(false);
+        } finally {
+          el.remove();
+        }
+      },
+    );
+
+    test("a key an earlier viewer shortcut consumed does not change the filter", () => {
+      const consume = (e) => e.preventDefault();
+      display.container.addEventListener("keydown", consume, true);
+      try {
+        display.container.dispatchEvent(keydown("v"));
+        expect(display.filterDropdown.value.innerText).toBe("All");
+      } finally {
+        display.container.removeEventListener("keydown", consume, true);
+      }
     });
   });
 
