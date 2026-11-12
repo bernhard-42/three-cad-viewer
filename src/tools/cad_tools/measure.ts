@@ -38,6 +38,12 @@ function dotRadius(coneLength: number): number {
   return (coneLength * 0.8) / 6;
 }
 
+/** A computed CSS length such as "2px" in pixels; 0 when it is not set. */
+function pixels(value: string): number {
+  const n = parseFloat(value);
+  return Number.isNaN(n) ? 0 : n;
+}
+
 interface PanelDragData {
   x: number | null;
   y: number | null;
@@ -497,21 +503,34 @@ class Measurement {
       } else {
         this.panelX = panelX - panelRect.width - panelRect.width / 2;
       }
-      this.panelX = Math.max(
-        0,
-        Math.min(canvasRect.width - panelRect.width, this.panelX),
-      );
-
       this.panelY = panelY;
-      this.panelY = Math.max(
-        0,
-        Math.min(canvasRect.height - panelRect.height, this.panelY),
-      );
     }
 
-    this.panel.relocate(this.panelX, this.panelY);
+    if (this.panelX == null || this.panelY == null) {
+      this.panel.relocate(this.panelX, this.panelY);
+      return;
+    }
 
-    if (this.panelX == null || this.panelY == null) return;
+    // Keep the panel fully on the canvas, also when it was placed for an earlier
+    // measurement or model, the canvas got smaller or the panel got larger. A panel
+    // that fits keeps its position; one that sticks out moves only along the axis
+    // it sticks out on. left/top place the margin edge, so the visible box starts
+    // one margin further in: clamp the box, then step back by the margin.
+    const panelStyle = getComputedStyle(this.panel.html);
+    const marginX = pixels(panelStyle.marginLeft);
+    const marginY = pixels(panelStyle.marginTop);
+    const boxX = Math.max(
+      0,
+      Math.min(canvasRect.width - panelRect.width, this.panelX + marginX),
+    );
+    const boxY = Math.max(
+      0,
+      Math.min(canvasRect.height - panelRect.height, this.panelY + marginY),
+    );
+    this.panelX = boxX - marginX;
+    this.panelY = boxY - marginY;
+
+    this.panel.relocate(this.panelX, this.panelY);
 
     const panelCenterX = this.panelX + panelRect.width / 2;
     const panelCenterY = this.panelY + panelRect.height / 2;

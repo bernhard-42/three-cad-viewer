@@ -944,6 +944,66 @@ describe("Measurement - Base Class Methods", () => {
     });
   });
 
+  describe("keeps the panel on the canvas", () => {
+    // Canvas 800x600, panel 200x100: a panel at x 0..600, y 0..500 fits.
+    const rect = (width, height) => ({
+      x: 0,
+      y: 0,
+      left: 0,
+      top: 0,
+      width,
+      height,
+      right: width,
+      bottom: height,
+    });
+
+    const placeAt = (x, y) => {
+      viewer.renderer.domElement.getBoundingClientRect = () => rect(800, 600);
+      measurement.panel.html.getBoundingClientRect = () => rect(200, 100);
+      measurement.panel.show(true);
+      measurement.panelX = x;
+      measurement.panelY = y;
+      measurement._movePanel();
+      return [measurement.panelX, measurement.panelY];
+    };
+
+    test("a panel that fits keeps its position", () => {
+      expect(placeAt(100, 100)).toEqual([100, 100]);
+      expect(measurement.panel.html.style.left).toBe("100px");
+      expect(measurement.panel.html.style.top).toBe("100px");
+    });
+
+    test("a panel past the right edge moves left only", () => {
+      expect(placeAt(700, 100)).toEqual([600, 100]);
+      expect(measurement.panel.html.style.left).toBe("600px");
+    });
+
+    test("a panel past the left edge moves right only", () => {
+      expect(placeAt(-50, 100)).toEqual([0, 100]);
+    });
+
+    test("a panel past the bottom edge moves up only", () => {
+      expect(placeAt(100, 550)).toEqual([100, 500]);
+      expect(measurement.panel.html.style.top).toBe("500px");
+    });
+
+    test("a panel past the top edge moves down only", () => {
+      expect(placeAt(100, -20)).toEqual([100, 0]);
+    });
+
+    test("a panel past a corner moves in both directions", () => {
+      expect(placeAt(750, 580)).toEqual([600, 500]);
+    });
+
+    test("the panel's margin is kept on the canvas too", () => {
+      // left/top place the margin edge; the visible box starts 2px further in
+      measurement.panel.html.style.margin = "2px";
+      expect(placeAt(750, 580)).toEqual([598, 498]);
+      expect(placeAt(-50, -20)).toEqual([-2, -2]);
+      expect(placeAt(100, 100)).toEqual([100, 100]);
+    });
+  });
+
   describe("_dragPanel", () => {
     test("does nothing when not clicked", () => {
       measurement.panelDragData.clicked = false;
