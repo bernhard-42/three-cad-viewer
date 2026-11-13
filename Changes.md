@@ -67,6 +67,7 @@
 **Changes**
 
 - **three.js upgraded from r184 to r187**, `postprocessing` to 6.39.6.
+- **The package ships `THIRD_PARTY_LICENSES`** with the full license texts of the bundled three.js (MIT), postprocessing (Zlib) and n8ao (CC0).
 
 ## v5.1.3
 
