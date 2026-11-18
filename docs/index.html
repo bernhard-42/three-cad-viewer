@@ -79,6 +79,19 @@
 </code><button type="button">Copy</button></pre>
 
 <p><strong>Topo filter shortcuts.</strong> When the shape filter is visible (B-rep models), the lowercase keys <code>a</code> (All), <code>v</code> (Vertex), <code>e</code> (Edge), <code>f</code> (Face), <code>s</code> (Solid) set the picking filter. These are fixed (not part of the configurable keymap) — which is why <code>axes</code> and <code>studio</code> default to the uppercase <code>A</code>/<code>S</code>.</p>
+<p><strong>Firefox on macOS: Ctrl + left mouse button does not work.</strong> macOS treats Ctrl + click as a secondary click, and Firefox then sends no <code>pointerdown</code> event for it (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1504210">Mozilla bug 1504210</a>), so a mouse action bound to the physical Ctrl key never starts. With the default keymap this is &quot;Rotate up / down&quot; (<code>ctrl: &quot;ctrlKey&quot;</code>). Chrome and Safari are not affected. There are two workarounds:</p>
+<ol>
+<li>
+<p>Remap the keys, so that the action is on the Option key. The <code>alt</code> entry has no action of its own, so it can take the Ctrl key:</p>
+<pre><code class="javascript"><span class="hl-14">keymap</span><span class="hl-2">: {</span><br/><span class="hl-2">  </span><span class="hl-14">shift</span><span class="hl-2">: </span><span class="hl-8">&quot;shiftKey&quot;</span><span class="hl-2">,</span><br/><span class="hl-2">  </span><span class="hl-14">ctrl</span><span class="hl-2">: </span><span class="hl-8">&quot;altKey&quot;</span><span class="hl-2">,</span><br/><span class="hl-2">  </span><span class="hl-14">meta</span><span class="hl-2">: </span><span class="hl-8">&quot;metaKey&quot;</span><span class="hl-2">,</span><br/><span class="hl-2">  </span><span class="hl-14">alt</span><span class="hl-2">: </span><span class="hl-8">&quot;ctrlKey&quot;</span><span class="hl-2">,</span><br/><span class="hl-2">}</span>
+</code><button type="button">Copy</button></pre>
+
+<p>The help then shows <code>Option + &lt;left mouse button drag&gt;</code> for &quot;Rotate up / down&quot;.</p>
+</li>
+<li>
+<p>In Firefox, open <code>about:config</code> and set <code>dom.event.treat_ctrl_click_as_right_click.disabled</code> to <code>true</code>. Firefox then handles Ctrl + click like Chrome and Safari.</p>
+</li>
+</ol>
 <h2 id="examples" class="tsd-anchor-link">Examples<a href="#examples" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
 <p>To understand the data format, a look at the simple 1 unit sized box might be helpful:</p>
 <ul>

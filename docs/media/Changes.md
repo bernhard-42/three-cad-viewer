@@ -1,5 +1,74 @@
 # Change log
 
+## v5.2.0 (unpublished)
+
+**New rotation and zoom behavior**
+
+- **Rotate around and zoom towards the point under the cursor ([#48](https://github.com/bernhard-42/three-cad-viewer/pull/48), by @Xapphire13)**: a rotate drag on the model turns around the point under the cursor, a drag on the background around the centre of the visible objects. Wheel, trackpad pinch and middle-button drag zoom towards the cursor. Both are on by default and can be switched off separately with the new options `cursorPivot` and `zoomToCursor` (with setters and getters). With `cursorPivot` on, shift+meta double-click on the model (set camera target) does nothing and is no longer in the help; Reset and Recenter restore the target.
+- **A sphere marks the pivot while rotating**: a small black sphere shows the point the view turns around, for as long as the drag lasts.
+- **Touch rotation turns around the point under the finger**: a one-finger drag on a touchscreen behaves like a mouse drag; two fingers zoom and pan.
+- **The info box lists the control settings**: the control type (`trackball`, `tumbler` or `orbit`) and how it rotates and zooms, and each change of them.
+
+**Localization**
+
+- **UI localization (English, German, Chinese)**: all UI texts live in language files under `src/locales/` (see `src/locales/README.md` for translators). New `DisplayOptions`: `locale` (e.g. `"de"`, `"zh-CN"`; unknown languages fall back to English) and `labels` (overrides for single texts by message id). The Chinese translation is based on the language pack of the Chinese edition of vscode-ocp-cad-viewer ([#46](https://github.com/bernhard-42/three-cad-viewer/pull/46), by @sh-u-x-in). The demo page has a Locale dropdown.
+- **Changed English texts**: readable geometry type names in the status line and the properties panel (e.g. `B-spline surface`), capitalized status messages.
+- **Shape filter works with translated labels** ([#46](https://github.com/bernhard-42/three-cad-viewer/pull/46)).
+
+**Help dialog improvements**
+
+- **The help names the modifier keys of the platform**: `Cmd`/`Option` on macOS, `Win` on Windows, `Super` on Linux, keys shown in code style, and mouse actions written as `Shift + <left mouse button double click>`. Translators: four new messages and new placeholders, see `src/locales/README.md`.
+- **API change**: `Display.updateHelp()` takes no arguments any more.
+
+**New click behavior**
+
+- **Image faces can be clicked**, highlighted, copied and used as a pivot like any other face ([vscode-ocp-cad-viewer#248](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/248)).
+- **Back sides of faces and shells can be clicked** wherever they are shown ([vscode-ocp-cad-viewer#248](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/248)).
+- **The status line shows the clicked point** with the copy key of the platform (`Cmd+C` on macOS, `Ctrl+C` elsewhere).
+
+**New picking behavior**
+
+- **The double-click picks what hover shows**: the same shape filter and solid mode as hover, so with the filter on "All" a double-click on an edge picks the edge. Hide (meta), isolate (shift) and recentre (shift+meta) still act on the whole object. The pick box wraps the picked component: a face or edge gets its own box, a vertex a marker, and the info panel names the component.
+- **`lastPick` gains `component` and `point`**: the path of the picked face, edge or vertex, and the world coordinates of the clicked point. `lastPick` is now sent on every double-click.
+- **Changed meaning of `lastPick.boundingBox` and `lastPick.boundingSphere`**: they now describe the picked component, not its object (unchanged in solid mode, for hide, isolate and recentre, and for clicks in the tree). Jupyter users reading the widget's `lastPick` trait see the change.
+- **Shape filter API**: `setShapeFilter` and `getShapeFilter` set and read the shape filter (`none`, `vertex`, `edge`, `face`, `solid`). Every change, also from the dropdown and the keys, is reported as `shape_filter`.
+
+**New select tool behavior**
+
+- **Breaking: `selected` is grouped by object and kind**: the select tool sends `{"<object path>/<kind>": [indices]}`, e.g. `{"/hexapod/top/edges": [3, 5]}`, instead of a list of index strings, which lost the object and kind. A selected solid is `{"<solid path>/solids": [0]}`, an empty selection `{}`. Hosts that copy `selected` to the clipboard with `join(",")` must be updated.
+- **Set the selection from paths**: `setSelection(paths)` makes components or whole solids the user's selection, as clicks with the select tool would, with one `selected` notification. It needs the select tool to be active, and returns unknown paths.
+- **Selected vertices are drawn larger**: 8 px instead of 4, also while hovered, so a selected corner is easy to see.
+
+**Agent highlights**
+
+- **Agent marks**: `setAgentHighlight(paths)` marks components or whole solids in a colour of their own (brown), beside the user's selection (blue); where both meet, an "agreed" colour (dark green) shows. Marked vertices are drawn larger. A new call replaces the marks, `[]` clears them, as does a new model. Escape and switching a tool off clear only the user's selection, and a click on a marked component selects it as before. Unknown paths are returned.
+
+**Images from a preset view**
+
+- **`captureView({ view, ortho, clip })`** returns an image of the model from a preset view (iso, front, rear, left, right, top, bottom), rendered with a camera of its own: the user's view does not change and never shows the capture. It returns the camera used and `displaced` (`"explode"` or `"animation"` when parts are not at their modelled positions). Clip planes only with `clip: true`.
+
+**Fixes**
+
+- **The shape filter keys and the select tool's Escape and Backspace reacted to keys typed elsewhere on the page** (e.g. in a notebook cell), and Cmd-V set the filter to Vertex. They now act only when the viewer has focus, like the other shortcuts.
+- **The measurement panel could stick out of the viewer** when it opened at its previous position after a new model, a smaller viewer or a larger result. It now moves back just far enough to be fully visible.
+- **Turning the select tool off or pressing Escape did not report the empty selection**: the host kept the previous `selected`. Both now report the empty selection, once.
+- **Toolbar tooltips and the grid menu were cut off in Safari** ([#47](https://github.com/bernhard-42/three-cad-viewer/pull/47), by @Xapphire13).
+- **Object names containing `<`, `"` or `\`** broke the tree and the info panel; names are now shown as text.
+- **Switching the Studio background from a solid color back to "Environment"** did not show the environment.
+- **The help listed the wrong shape filter key** for showing all types (`n` instead of `a`).
+- **The help dialog showed empty scrollbars** in browsers with classic scrollbars.
+- **`setHolroyd` with orbit controls** changed the state before it threw.
+- **The view jumped at the first rotation** after a camera `quaternion` that was not exactly unit length.
+- **A two-finger pinch rotated the view** with the holroyd trackball.
+- **A long press on the viewer selected it** in Safari on iPad and iPhone.
+- **`"builtin:<preset>"` materials use the leaf color** like `{ builtin: "<preset>" }`, not the preset's color.
+- **`formatKey` no longer adds a second space** to keys like `point 1` ([#46](https://github.com/bernhard-42/three-cad-viewer/pull/46)).
+
+**Changes**
+
+- **three.js upgraded from r184 to r187**, `postprocessing` to 6.39.6.
+- **The package ships `THIRD_PARTY_LICENSES`** with the full license texts of the bundled three.js (MIT), postprocessing (Zlib) and n8ao (CC0).
+
 ## v5.1.3
 
 - **Tree hover highlights edge-only and vertex-only objects**: hovering a tree row highlighted only faces, so leaves without faces (standalone edges or vertices) showed no highlight at all. Each leaf under the hovered node now shows its highest topology: the faces of solids and face shapes (unchanged, matching the canvas solid hover), the edges of edge-only shapes and the vertices of vertex-only shapes.
@@ -10,7 +79,7 @@
 
 ## v5.1.1
 
-- **Fix a loaded animation keeping the render loop running (#44)**: loading an animation (or entering explode mode) started a `requestAnimationFrame` loop that redrew the whole scene on every display frame until the animation was cleared — also while paused, stopped or never started — costing constant CPU and GPU time in idle viewers (e.g. ~120% CPU in VS Code's window process for an 800-object scene). The loop now runs only while the animation plays; loading, pausing, stopping and moving the time slider render once and then render on demand like a viewer without animation. Resuming after a pause no longer advances the animation by the time spent paused. Tools and screenshots keep their own claim on the loop (`Viewer.setLoopReason`), so one of them ending no longer stops a loop another still needs.
+- **Fix a loaded animation keeping the render loop running ([#44](https://github.com/bernhard-42/three-cad-viewer/issues/44))**: loading an animation (or entering explode mode) started a `requestAnimationFrame` loop that redrew the whole scene on every display frame until the animation was cleared — also while paused, stopped or never started — costing constant CPU and GPU time in idle viewers (e.g. ~120% CPU in VS Code's window process for an 800-object scene). The loop now runs only while the animation plays; loading, pausing, stopping and moving the time slider render once and then render on demand like a viewer without animation. Resuming after a pause no longer advances the animation by the time spent paused. Tools and screenshots keep their own claim on the loop (`Viewer.setLoopReason`), so one of them ending no longer stops a loop another still needs.
 
 ## v5.1.0
 
@@ -35,7 +104,7 @@
 
 ## v5.0.4
 
-- **Fix `setKeyMap` wiping the action shortcuts on a partial keymap**: `setKeyMap` split its argument into modifier keys and action shortcuts, merged the modifiers per key, but *replaced* the whole action-shortcut table unconditionally. A config carrying only modifier entries (e.g. a host letting users remap shift/ctrl/meta/alt at runtime) therefore cleared every keyboard shortcut (space, Escape, x, r, R, h, 1-8, tab keys) until a new viewer was constructed. Named actions now merge over the existing table, mirroring the modifier behavior; a modifiers-only map leaves the actions untouched.
+- **Fix `setKeyMap` wiping the action shortcuts on a partial keymap**: `setKeyMap` split its argument into modifier keys and action shortcuts, merged the modifiers per key, but _replaced_ the whole action-shortcut table unconditionally. A config carrying only modifier entries (e.g. a host letting users remap shift/ctrl/meta/alt at runtime) therefore cleared every keyboard shortcut (space, Escape, x, r, R, h, 1-8, tab keys) until a new viewer was constructed. Named actions now merge over the existing table, mirroring the modifier behavior; a modifiers-only map leaves the actions untouched.
 
 ## v5.0.3
 
