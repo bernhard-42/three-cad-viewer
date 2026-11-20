@@ -98116,6 +98116,17 @@ class CADTrackballControls extends TrackballControls {
         this._onTouchStart = this._handleTouchStart.bind(this);
     }
     /**
+     * Connect as three's TrackballControls does, without its key listeners: they sit
+     * on `window`, see keys typed anywhere on the page and turn a held a/s/d into a
+     * rotate/zoom/pan drag, colliding with the shape filter keys. The parent
+     * constructor calls this when a DOM element is given.
+     */
+    connect(element) {
+        super.connect(element);
+        window.removeEventListener("keydown", this._onKeyDown);
+        window.removeEventListener("keyup", this._onKeyUp);
+    }
+    /**
      * Custom mouse down handler to support shift+drag for pan.
      * When holroyd=false, delegates to parent for pure Three.js behavior.
      */
@@ -99755,7 +99766,7 @@ class FilterByDropDownMenu {
             }
         };
         this.closeDropdown = (ev) => {
-            if (this.elements.dropdown.classList.contains("tcv_filter_dropdown_active")) {
+            if (this.isOpen()) {
                 this.toggleDropdown(ev);
             }
         };
@@ -99778,7 +99789,10 @@ class FilterByDropDownMenu {
                 e.preventDefault();
                 this.onChoose(SHAPE_FILTER_KEYS[e.key]);
             }
-            else if (e.key === "Escape") {
+            else if (e.key === "Escape" && this.isOpen()) {
+                // Handled, so that it is not also taken as "clear the selection" and the
+                // host does not see an unhandled key (macOS WebKit beeps for those)
+                e.preventDefault();
                 this.closeDropdown(e);
             }
         };
@@ -99787,6 +99801,10 @@ class FilterByDropDownMenu {
         this.elements.container.style.display = "none";
         this.currentFilter = [TopoFilter.none];
         this.onChoose = onChoose ?? this.select;
+    }
+    /** Whether the dropdown list is open. */
+    isOpen() {
+        return this.elements.dropdown.classList.contains("tcv_filter_dropdown_active");
     }
     getOptionElements() {
         const opts = this.elements.options;
@@ -100783,7 +100801,7 @@ class Tools {
     }
 }
 
-const version = "5.2.0";
+const version = "5.2.1";
 
 /**
  * How far (client px) the cursor may move before a clicked or copied point in the
@@ -100922,14 +100940,20 @@ class PickingController {
                 }
             }
         };
-        // Escape → clear selection; Backspace → remove last selection.
+        // Escape → clear selection; Backspace → remove last selection. A key acted on is
+        // marked handled: the host must not see it as unhandled (macOS WebKit beeps).
         this.onSelectKeyDown = (e) => {
             if (!isShortcutKey(e))
                 return;
             if (e.key === "Escape") {
+                // An open filter dropdown takes Escape first, whichever listener runs first
+                if (this.host.display.shapeFilterDropDownMenu.isOpen())
+                    return;
+                e.preventDefault();
                 this.clearSelection();
             }
             else if (e.key === "Backspace") {
+                e.preventDefault();
                 this.removeLastSelected();
             }
         };
@@ -114908,8 +114932,8 @@ class Viewer {
         // build mouse/touch controls
         //
         const controls = new Controls(this.state.get("control"), camera.getCamera(), new Vector3(...(viewerOptions.target ?? this.bbox.center())), this.renderer.domElement, this.state.get("rotateSpeed"), this.state.get("zoomSpeed"), this.state.get("panSpeed"), this.state.get("holroyd"));
-        // Disable keyboard controls (these properties exist on THREE.js controls internally)
-        controls.controls.enableKeys = false;
+        // No keyboard controls: OrbitControls only listens to keys after
+        // listenToKeyEvents(), and CADTrackballControls removes TrackballControls' keys.
         controls.setCursorPivot(this.state.get("cursorPivot"), this._pickPivot);
         controls.setZoomToCursor(this.state.get("zoomToCursor"));
         controls.addDragListeners(this._onDragStart, this._onDragEnd);
@@ -121454,6 +121478,9 @@ class Display {
                     this.container.focus();
                     return;
                 }
+                // An open filter dropdown closes first, then the next Escape stops
+                if (this.shapeFilterDropDownMenu.isOpen())
+                    return "propagate";
                 // When a tool is active, let ESC propagate to the picker
                 // for shape deselection
                 if (this.state.get("activeTool"))
