@@ -1,6 +1,6 @@
 # Change log
 
-## v5.2.0 (unpublished)
+## v5.2.0
 
 **New rotation and zoom behavior**
 
