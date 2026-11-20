@@ -149,6 +149,8 @@ class CADTrackballControls extends TrackballControls {
   declare _onTouchStart: (event: PointerEvent) => void;
   declare _getMouseOnCircle: (pageX: number, pageY: number) => Vector2;
   declare _getMouseOnScreen: (pageX: number, pageY: number) => Vector2;
+  declare _onKeyDown: (event: KeyboardEvent) => void;
+  declare _onKeyUp: (event: KeyboardEvent) => void;
 
   /**
    * Constructs CAD-enhanced trackball controls.
@@ -216,6 +218,18 @@ class CADTrackballControls extends TrackballControls {
     this._onMouseDown = this._handleMouseDown.bind(this);
     this._parentOnTouchStart = this._onTouchStart;
     this._onTouchStart = this._handleTouchStart.bind(this);
+  }
+
+  /**
+   * Connect as three's TrackballControls does, without its key listeners: they sit
+   * on `window`, see keys typed anywhere on the page and turn a held a/s/d into a
+   * rotate/zoom/pan drag, colliding with the shape filter keys. The parent
+   * constructor calls this when a DOM element is given.
+   */
+  connect(element: HTMLElement): void {
+    super.connect(element);
+    window.removeEventListener("keydown", this._onKeyDown);
+    window.removeEventListener("keyup", this._onKeyUp);
   }
 
   /**

@@ -591,12 +591,17 @@ export class PickingController {
     }
   };
 
-  // Escape → clear selection; Backspace → remove last selection.
+  // Escape → clear selection; Backspace → remove last selection. A key acted on is
+  // marked handled: the host must not see it as unhandled (macOS WebKit beeps).
   private onSelectKeyDown = (e: KeyboardEvent): void => {
     if (!isShortcutKey(e)) return;
     if (e.key === "Escape") {
+      // An open filter dropdown takes Escape first, whichever listener runs first
+      if (this.host.display.shapeFilterDropDownMenu.isOpen()) return;
+      e.preventDefault();
       this.clearSelection();
     } else if (e.key === "Backspace") {
+      e.preventDefault();
       this.removeLastSelected();
     }
   };

@@ -1719,8 +1719,8 @@ class Viewer {
       this.state.get("panSpeed"),
       this.state.get("holroyd"),
     );
-    // Disable keyboard controls (these properties exist on THREE.js controls internally)
-    controls.controls.enableKeys = false;
+    // No keyboard controls: OrbitControls only listens to keys after
+    // listenToKeyEvents(), and CADTrackballControls removes TrackballControls' keys.
 
     controls.setCursorPivot(this.state.get("cursorPivot"), this._pickPivot);
     controls.setZoomToCursor(this.state.get("zoomToCursor"));

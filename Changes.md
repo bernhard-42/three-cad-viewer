@@ -1,5 +1,16 @@
 # Change log
 
+## v5.2.1 (unpublished)
+
+**Fixes**
+
+- **Escape and Backspace beeped in build123d Studio** with a measure or select tool on, and Escape on the open filter dropdown, although they worked. Every key the viewer acts on is now marked as handled.
+- **Escape with the filter dropdown open** closes only the dropdown; the next Escape clears the selection or stops the animation. Before, it also cleared the selection, and without a tool it did not close the dropdown.
+
+**Changes**
+
+- **Trackball: holding a, s or d no longer changes a drag** to rotate, zoom or pan. These undocumented keys also reacted to typing elsewhere on the page, and a and s changed the shape filter at the same time.
+
 ## v5.2.0
 
 **New rotation and zoom behavior**

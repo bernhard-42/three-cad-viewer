@@ -3397,6 +3397,8 @@ class Display {
           this.container.focus();
           return;
         }
+        // An open filter dropdown closes first, then the next Escape stops
+        if (this.shapeFilterDropDownMenu.isOpen()) return "propagate";
         // When a tool is active, let ESC propagate to the picker
         // for shape deselection
         if (this.state.get("activeTool")) return "propagate";

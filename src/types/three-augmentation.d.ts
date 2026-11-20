@@ -8,10 +8,6 @@ import "three";
 declare module "three/examples/jsm/controls/OrbitControls.js" {
   interface OrbitControls {
     /**
-     * Enable/disable keyboard controls (deprecated in recent THREE.js but still present)
-     */
-    enableKeys: boolean;
-    /**
      * When true, panning is in screen space (XY) rather than camera plane
      */
     screenSpacePanning: boolean;
@@ -20,10 +16,6 @@ declare module "three/examples/jsm/controls/OrbitControls.js" {
 
 declare module "three/examples/jsm/controls/TrackballControls.js" {
   interface TrackballControls {
-    /**
-     * Enable/disable keyboard controls
-     */
-    enableKeys: boolean;
     /**
      * Internal: rotate camera based on mouse movement
      */

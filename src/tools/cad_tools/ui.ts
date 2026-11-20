@@ -528,10 +528,15 @@ class FilterByDropDownMenu {
     }
   };
 
+  /** Whether the dropdown list is open. */
+  isOpen(): boolean {
+    return this.elements.dropdown.classList.contains(
+      "tcv_filter_dropdown_active",
+    );
+  }
+
   private closeDropdown = (ev: Event): void => {
-    if (
-      this.elements.dropdown.classList.contains("tcv_filter_dropdown_active")
-    ) {
+    if (this.isOpen()) {
       this.toggleDropdown(ev);
     }
   };
@@ -555,7 +560,10 @@ class FilterByDropDownMenu {
     if (Object.prototype.hasOwnProperty.call(SHAPE_FILTER_KEYS, e.key)) {
       e.preventDefault();
       this.onChoose(SHAPE_FILTER_KEYS[e.key]);
-    } else if (e.key === "Escape") {
+    } else if (e.key === "Escape" && this.isOpen()) {
+      // Handled, so that it is not also taken as "clear the selection" and the
+      // host does not see an unhandled key (macOS WebKit beeps for those)
+      e.preventDefault();
       this.closeDropdown(e);
     }
   };
