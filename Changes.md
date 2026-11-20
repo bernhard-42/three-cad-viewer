@@ -1,6 +1,6 @@
 # Change log
 
-## v5.2.1 (unpublished)
+## v5.2.1
 
 **Fixes**
 
